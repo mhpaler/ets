@@ -1,1 +1,1 @@
-# ets
+# Ethereum Tag Service
