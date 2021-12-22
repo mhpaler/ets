@@ -2,6 +2,8 @@
 
 Ethereum Tag Service is the community-owned incentivized cross-chain content tagging protocol for the decentralized web.
 
+This repository uses Turborepo and [Yarn](https://classic.yarnpkg.com/lang/en/) as a package manager.
+
 - Website: [ets.xyz](https://ets.xyz)
 - App: [app.ets.xyz](https://app.ets.xyz)
 - Docs: [ets.xyz/docs](https://ets.xyz/docs)
@@ -22,10 +24,16 @@ Get started with:
 - [Site](#site) (ets.xyz)
 - [App](#app) (app.ets.xyz)
 - [Docs](#docs) (ets.xyz/docs)
+- [UI](#ui)
 - [Subgraph](#subgraph)
 - [Contracts](#contracts)
 - [Tests](#tests)
 - [Deployments](#deployments)
+
+Other packages:
+
+- `config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
+- `tsconfig`: `tsconfig.json`s used throughout the monorepo
 
 <a name="site"></a>
 ### Site
@@ -36,7 +44,7 @@ yarn site:dev
 
 This will start up the Next.js development server and your site will be available at: [http://localhost:3000/](http://localhost:3000/)
 
-The App is built with Next.js and can be found in `packages/site`.
+The App is built with Next.js and can be found in `apps/site`.
 
 <a name="app"></a>
 ### App
@@ -47,7 +55,7 @@ yarn app:dev
 
 This will start up the Next.js development server and your site will be available at: [http://localhost:3000/](http://localhost:3000/)
 
-The App is built with Next.js and can be found in `packages/app`.
+The App is built with Next.js and can be found in `apps/app`.
 
 To interact with the local contract, be sure to switch your MetaMask Network to `Localhost 8545`.
 
@@ -60,7 +68,13 @@ yarn docs:dev
 
 This will start up the Next.js development server and your site will be available at: [http://localhost:3000/](http://localhost:3000/)
 
-The App is built with Next.js and can be found in `packages/docs`.
+The App is built with Next.js and can be found in `apps/docs`.
+
+
+<a name="ui"></a>
+### UI
+
+The UI package (`/packages/ui`) is a stub React component library shared by the `site`, `app`, and `docs` applications.
 
 <a name="subgraph"></a>
 ### Subgraph

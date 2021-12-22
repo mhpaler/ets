@@ -6,6 +6,8 @@ import styles from '../styles/Home.module.css'
 // use it like this:
 // const contract = new ethers.Contract(process.env.NEXT_PUBLIC_GREETER_ADDRESS, Greeter.abi, provider)
 
+// import { Button } from "@ets/ui"; // example of how to pull in UI
+
 const Home: NextPage = () => {
   return (
     <div className={styles.container}>

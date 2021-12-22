@@ -9,7 +9,7 @@
     "prepare-local": "mustache ../hardhat/.deployments/31337.json ../subgraph/templates/subgraph.yaml > ../subgraph/subgraph.yaml",
     "prepare-mumbai": "mustache ../hardhat/.deployments/80001.json ../subgraph/templates/subgraph.yaml > ../subgraph/subgraph.yaml",
     "codegen": "graph codegen --output-dir src/generated",
-    "build": "graph build",
+    "graph-build": "graph build",
     "create-local": "graph create --node http://localhost:8020/ ets/ets-local",
     "remove-local": "graph remove --node http://localhost:8020/ ets/ets-local",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 ets/ets-local --version-label dev",

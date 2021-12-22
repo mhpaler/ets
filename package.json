@@ -13,6 +13,10 @@
     "yarn"
   ],
   "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "app:dev": "yarn workspace @ets/app dev",
     "app:build": "yarn workspace @ets/app build",
     "app:start": "yarn workspace @ets/app start",
@@ -27,7 +31,7 @@
     "hardhat:deploy-mumbai": "yarn workspace @ets/hardhat deploy-mumbai",
     "hardhat:compile": "yarn workspace @ets/hardhat compile",
     "hardhat:watch": "yarn workspace @ets/hardhat watch",
-    "hardhat:test": "yarn workspace @ets/hardhat test",
+    "hardhat:test": "yarn workspace @ets/hardhat hardhat-test",
     "hardhat:clean": "cd packages/hardhat && npx hardhat clean",
     "docker:start": "yarn workspace @ets/subgraph run-graph-node",
     "docker:remove": "yarn workspace @ets/subgraph remove-graph-node",
@@ -40,6 +44,7 @@
   },
   "workspaces": {
     "packages": [
+      "apps/*",
       "packages/*"
     ],
     "nohoist": [
@@ -53,5 +58,32 @@
       "**/hardhat-ts/**"
     ]
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "prettier": "^2.5.1",
+    "turbo": "^1.0.19"
+  },
+  "turbo": {
+    "baseBranch": "origin/main",
+    "pipeline": {
+      "build": {
+        "dependsOn": [
+          "^build"
+        ],
+        "outputs": [
+          "dist/**",
+          ".next/**"
+        ]
+      },
+      "lint": {
+        "outputs": []
+      },
+      "dev": {
+        "cache": false
+      }
+    }
+  },
+  "engines": {
+    "npm": ">=7.0.0",
+    "node": ">=14.0.0"
+  }
 }
