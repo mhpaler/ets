@@ -55,44 +55,59 @@ export function handleHashtagRegistered(event: HashtagRegistered): void {
 
   // this is a pre-auction state if true or post-auction if false
   if (owner.equals(platformAddress)) {
-    hashtag.creatorRevenue = hashtag.creatorRevenue.plus(remainingFee);
+    if (hashtag) {
+      hashtag.creatorRevenue = hashtag.creatorRevenue.plus(remainingFee);
 
-    //  Update creator counts and fees
-    let creator = protocolContract.getCreatorAddress(hashtagId);
-    let creatorEntity = safeLoadCreator(creator.toHexString());
-    creatorEntity.tagCount = creatorEntity.tagCount.plus(ONE);
-    creatorEntity.tagFees = creatorEntity.tagFees.plus(remainingFee);
-    creatorEntity.save();
+      //  Update creator counts and fees
+      let creator = protocolContract.getCreatorAddress(hashtagId);
+      let creatorEntity = safeLoadCreator(creator.toHexString());
+
+      if (creatorEntity) {
+        creatorEntity.tagCount = creatorEntity.tagCount.plus(ONE);
+        creatorEntity.tagFees = creatorEntity.tagFees.plus(remainingFee);
+        creatorEntity.save();
+      }
+    }
   } else {
-    hashtag.ownerRevenue = hashtag.ownerRevenue.plus(remainingFee);
+    if (hashtag) {
+      hashtag.ownerRevenue = hashtag.ownerRevenue.plus(remainingFee);
 
-    // Update owner counts and fees
-    let ownerEntity = safeLoadOwner(owner.toHexString());
-    ownerEntity.tagCount = ownerEntity.tagCount.plus(ONE);
-    ownerEntity.tagFees = ownerEntity.tagFees.plus(remainingFee);
-    ownerEntity.save();
+      // Update owner counts and fees
+      let ownerEntity = safeLoadOwner(owner.toHexString());
+
+      if (ownerEntity) {
+        ownerEntity.tagCount = ownerEntity.tagCount.plus(ONE);
+        ownerEntity.tagFees = ownerEntity.tagFees.plus(remainingFee);
+        ownerEntity.save();
+      }
+    }
   }
 
   // Update rest of hashtag data
-  hashtag.tagCount = hashtag.tagCount.plus(ONE);
-  hashtag.publisherRevenue = hashtag.publisherRevenue.plus(publisherFee);
-  hashtag.protocolRevenue = hashtag.protocolRevenue.plus(platformFee);
-  hashtag.save();
+  if (hashtag) {
+    hashtag.tagCount = hashtag.tagCount.plus(ONE);
+    hashtag.publisherRevenue = hashtag.publisherRevenue.plus(publisherFee);
+    hashtag.protocolRevenue = hashtag.protocolRevenue.plus(platformFee);
+    hashtag.save();
+  }
 
   // Store tag information
   let tagEntity = new Tag(event.transaction.hash.toHexString());
-  tagEntity.hashtagId = hashtagId.toString();
-  tagEntity.nftContract = event.params.nftContract;
-  tagEntity.nftId = event.params.nftId.toString();
-  tagEntity.nftChainId = event.params.nftChainId;
-  tagEntity.tagger = event.params.tagger;
-  tagEntity.timestamp = event.block.timestamp;
-  tagEntity.publisher = event.params.publisher;
-  tagEntity.hashtagDisplayHashtag = hashtag.displayHashtag;
-  let lowerHashtag = toLowerCase(hashtag.displayHashtag);
-  tagEntity.hashtag = lowerHashtag;
-  tagEntity.hashtagWithoutHash = lowerHashtag.substring(1, lowerHashtag.length);
-  tagEntity.save();
+
+  if (tagEntity && hashtag) {
+    tagEntity.hashtagId = hashtagId.toString();
+    tagEntity.nftContract = event.params.nftContract;
+    tagEntity.nftId = event.params.nftId.toString();
+    tagEntity.nftChainId = event.params.nftChainId;
+    tagEntity.tagger = event.params.tagger;
+    tagEntity.timestamp = event.block.timestamp;
+    tagEntity.publisher = event.params.publisher;
+    tagEntity.hashtagDisplayHashtag = hashtag.displayHashtag;
+    let lowerHashtag = toLowerCase(hashtag.displayHashtag);
+    tagEntity.hashtag = lowerHashtag;
+    tagEntity.hashtagWithoutHash = lowerHashtag.substring(1, lowerHashtag.length);
+    tagEntity.save();
+  }
   //let erc721Contract = HashtagProtocol.bind(event.params.nftContract);
   //tagEntity.nftContractName = erc721Contract.name();
   //let tokenUriCallResult = erc721Contract.try_tokenURI(event.params.nftId);
@@ -108,18 +123,27 @@ export function handleHashtagRegistered(event: HashtagRegistered): void {
 
   // update publisher counts and fees
   let publisherEntity = safeLoadPublisher(event.params.publisher.toHexString());
-  publisherEntity.tagCount = publisherEntity.tagCount.plus(ONE);
-  publisherEntity.tagFees = publisherEntity.tagFees.plus(publisherFee);
-  publisherEntity.save();
+
+  if (publisherEntity) {
+    publisherEntity.tagCount = publisherEntity.tagCount.plus(ONE);
+    publisherEntity.tagFees = publisherEntity.tagFees.plus(publisherFee);
+    publisherEntity.save();
+  }
 
   // update platform fees
   let platform = safeLoadPlatform("platform");
-  platform.tagFees = platform.tagFees.plus(platformFee);
-  platform.save();
+
+  if (platform) {
+    platform.tagFees = platform.tagFees.plus(platformFee);
+    platform.save();
+  }
 
   // update tagger counts
   let tagger = safeLoadTagger(event.params.tagger.toHexString());
-  tagger.tagCount = tagger.tagCount.plus(ONE);
-  tagger.feesPaid = tagger.feesPaid.plus(tagFee);
-  tagger.save();
+
+  if (tagger) {
+    tagger.tagCount = tagger.tagCount.plus(ONE);
+    tagger.feesPaid = tagger.feesPaid.plus(tagFee);
+    tagger.save();
+  }
 }

@@ -51,20 +51,32 @@ export function handleMintHashtag(event: MintHashtag): void {
   hashtagEntity.save();
 
   let owner = safeLoadOwner(event.params.creator.toHexString());
-  owner.mintCount = owner.mintCount.plus(ONE);
-  owner.save();
+
+  if (owner) {
+    owner.mintCount = owner.mintCount.plus(ONE);
+    owner.save();
+  }
 
   // publisher
   let publisher = safeLoadPublisher(event.params.publisher.toHexString());
-  publisher.mintCount = publisher.mintCount.plus(ONE);
-  publisher.save();
+
+  if (publisher) {
+    publisher.mintCount = publisher.mintCount.plus(ONE);
+    publisher.save();
+  }
 
   // platform
   let platform = safeLoadPlatform("platform");
-  platform.save();
+
+  if (platform) {
+    platform.save();
+  }
 
   // creator
   let creator = safeLoadCreator(hashtag.value1.toHexString());
-  creator.mintCount = creator.mintCount.plus(ONE);
-  creator.save();
+
+  if (creator) {
+    creator.mintCount = creator.mintCount.plus(ONE);
+    creator.save();
+  }
 }

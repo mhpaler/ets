@@ -17,6 +17,9 @@ const PUBLISHER_ROLE = Bytes.fromHexString("0xad312f08b8889cfe65ec2f1faae419f8b4
 export function handleRoleGranted(event: RoleGranted): void {
   if (event.params.role.equals(PUBLISHER_ROLE)) {
     let entity = safeLoadPublisher(event.params.account.toHexString());
-    entity.save();
+
+    if (entity) {
+      entity.save();
+    }
   }
 }
