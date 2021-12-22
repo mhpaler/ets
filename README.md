@@ -65,7 +65,7 @@ The App is built with Next.js and can be found in `packages/docs`.
 <a name="subgraph"></a>
 ### Subgraph
 
-To develop using a local subgraph, you'll need to have [Docker](https://www.docker.com/products/docker-desktop) installed. Be sure you have already run `yarn chain` and `yarn deploy` so your contracts are deployed to the local Hardhat network before running the following commands.
+To develop using a local subgraph, you'll need to have [Docker](https://www.docker.com/products/docker-desktop) installed. Be sure you have already run `yarn hardhart` and `yarn hardhat:deploy` so your contracts are deployed to the local Hardhat network before running the following commands.
 
 First, open up a new terminal and spin up a local Docker graph node container. It will automatically clean up any old data:
 
