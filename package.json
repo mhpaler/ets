@@ -1,0 +1,56 @@
+{
+  "name": "@ets/monorepo",
+  "version": "1.0.0",
+  "author": "ETS",
+  "keywords": [
+    "ethereum",
+    "react",
+    "ets",
+    "tag",
+    "tagging",
+    "workspaces",
+    "yarn"
+  ],
+  "scripts": {
+    "app:dev": "yarn workspace @ets/app dev",
+    "app:build": "yarn workspace @ets/app build",
+    "app:start": "yarn workspace @ets/app start",
+    "site:dev": "yarn workspace @ets/site dev",
+    "site:build": "yarn workspace @ets/site build",
+    "site:start": "yarn workspace @ets/site start",
+    "docs:dev": "yarn workspace @ets/docs dev",
+    "docs:build": "yarn workspace @ets/docs build",
+    "docs:start": "yarn workspace @ets/docs start",
+    "hardhat": "yarn workspace @ets/hardhat hardhat",
+    "hardhat:deploy": "yarn workspace @ets/hardhat deploy",
+    "hardhat:deploy-mumbai": "yarn workspace @ets/hardhat deploy-mumbai",
+    "hardhat:compile": "yarn workspace @ets/hardhat compile",
+    "hardhat:watch": "yarn workspace @ets/hardhat watch",
+    "hardhat:test": "yarn workspace @ets/hardhat test",
+    "hardhat:clean": "cd packages/hardhat && npx hardhat clean",
+    "docker:start": "yarn workspace @ets/subgraph run-graph-node",
+    "docker:remove": "yarn workspace @ets/subgraph remove-graph-node",
+    "docker:clean": "yarn workspace @ets/subgraph clean-graph-node",
+    "graph:create-local": "yarn workspace @ets/subgraph create-local",
+    "graph:remove-local": "yarn workspace @ets/subgraph remove-local",
+    "graph:ship-local": "yarn workspace @ets/subgraph ship-local",
+    "graph:deploy-and-graph": "yarn deploy && yarn graph:ship-local",
+    "graph:ship-mumbai": "yarn workspace @ets/subgraph ship-mumbai"
+  },
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "**/@graphprotocol/graph-ts",
+      "**/@graphprotocol/graph-ts/**",
+      "**/@graphprotocol/graph-cli",
+      "**/@graphprotocol/graph-cli/**",
+      "**/hardhat",
+      "**/hardhat/**",
+      "**/hardhat-ts",
+      "**/hardhat-ts/**"
+    ]
+  },
+  "devDependencies": {}
+}

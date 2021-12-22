@@ -1,0 +1,69 @@
+type Hashtag @entity {
+  id: ID!
+  name: String!
+  displayHashtag: String!
+  hashtag: String!
+  hashtagWithoutHash: String!
+  owner: Bytes!
+  creator: Bytes!
+  publisher: Bytes!
+  timestamp: BigInt!
+  tagCount: BigInt!
+
+  #tagging revenue
+  ownerRevenue: BigInt!
+  publisherRevenue: BigInt!
+  protocolRevenue: BigInt!
+  creatorRevenue: BigInt!
+}
+
+type Tag @entity {
+  id: ID!
+  hashtagId: String!
+  nftContract: Bytes!
+  nftId: String!
+  nftChainId: BigInt!
+  tagger: Bytes!
+  timestamp: BigInt!
+  publisher: Bytes!
+  hashtagDisplayHashtag: String!
+  hashtag: String!
+  hashtagWithoutHash: String!
+  nftContractName: String
+  nftTokenUri: String
+  nftName: String
+  nftDescription: String
+  nftImage: String
+}
+
+type Publisher @entity {
+  id: ID!
+  mintCount: BigInt!
+  tagCount: BigInt!
+  tagFees: BigInt!
+}
+
+type Owner @entity {
+  id: ID!
+  mintCount: BigInt!
+  tagCount: BigInt!
+  tagFees: BigInt!
+}
+
+type Tagger @entity {
+  id: ID!
+  tagCount: BigInt!
+  feesPaid: BigInt!
+}
+
+type Platform @entity {
+  id: ID!
+  tagFees: BigInt!
+}
+
+type Creator @entity {
+  id: ID!
+  mintCount: BigInt!
+  tagCount: BigInt!
+  tagFees: BigInt!
+}
