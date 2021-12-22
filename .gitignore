@@ -23,6 +23,7 @@ yarn-error.log*
 
 # Vercel
 .vercel
+.turbo
 
 # typescript
 *.tsbuildinfo
@@ -48,15 +49,17 @@ packages/subgraph/abi/*
 packages/*/coverage
 
 # next.js
-packages/*/.next/
-packages/*/out/
+out
+dist
+.next
 
 # production
 packages/*/build
+apps/*/build
 
 # contracts
 # packages/app/src/contracts/*
-packages/app/artifacts/@openzeppelin/*
-packages/app/artifacts/build-info/*
-packages/app/artifacts/hardhat/*
-packages/app/artifacts/**/*.dbg.json
+apps/app/artifacts/@openzeppelin/*
+apps/app/artifacts/build-info/*
+apps/app/artifacts/hardhat/*
+apps/app/artifacts/**/*.dbg.json
