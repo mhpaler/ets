@@ -15,7 +15,7 @@
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 ets/ets-local --version-label dev",
     "deploy-mumbai": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ hashtag-protocol/hashtag-polygon-mumbai",
     "ship-local": "yarn prepare-local && yarn codegen && yarn deploy-local",
-    "ship-mumbai": "yarn prepare-mumbai && yarn codegen && yarn deploy-mubai"
+    "ship-mumbai": "yarn prepare-mumbai && yarn codegen && yarn deploy-mumbai"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "^0.22.1",
