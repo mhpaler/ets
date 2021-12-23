@@ -10,7 +10,7 @@ The actual scripts called to kick off a deployment are in /scripts. A deployment
 
 For example, the script `scripts/upgrade_all.js` executes the tasks `"upgrade_hashtag_access_controls", "upgrade_hashtag_protocol", "upgrade_erc721_tagging_registry"`
 
-To deploy the Hashtag Protocol contracts locally, perform the following from the root of `/hashtag-contracts/`:
+To deploy the Hashtag Protocol contracts locally, perform the following from the root of `/hardhat/`:
 
 ``` bash
 hardhat run --network <network> deploy/hardhat-upgrades/scripts/deploy_all.js
