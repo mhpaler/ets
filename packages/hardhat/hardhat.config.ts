@@ -55,7 +55,8 @@ const config: HardhatUserConfig = {
     path: '../subgraph/abi',
     runOnCompile: true,
     clear: true,
-    flat: true,
+    pretty: true,
+    flat: false,
   },
   namedAccounts: {
     accountHashtagAdmin: {
