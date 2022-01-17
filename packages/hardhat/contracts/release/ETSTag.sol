@@ -7,15 +7,15 @@ import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "hardhat/console.sol";
 
-import {HashtagAccessControls} from "./HashtagAccessControls.sol";
+import {ETSAccessControls} from "./ETSAccessControls.sol";
 import "../utils/StringHelpers.sol";
 
 /**
- * @title Hashtag Protocol contract
- * @notice Core smart contract of the protocol that governs the creation of HASHTAG tokens
- * @author Hashtag Protocol
+ * @title ETSTag ERC-721 NFT contract
+ * @notice Contract that governs the creation of ETSTAG non-fungible tokens.
+ * @author Ethereum Tag Service <security@ets.xyz>
  */
-contract HashtagProtocol is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpgradeable, StringHelpers {
+contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpgradeable, StringHelpers {
     using AddressUpgradeable for address;
     using StringsUpgradeable for uint256;
     using SafeMathUpgradeable for uint256;
@@ -25,36 +25,36 @@ contract HashtagProtocol is ERC721PausableUpgradeable, ERC721BurnableUpgradeable
     // baseURI for looking up tokenURI for a token
     string public baseURI;
 
-    /// @notice minimum time in seconds that a hashtag is owned
+    /// @notice minimum time in seconds that a ETSTAG is owned
     uint256 public ownershipTermLength;
 
-    /// @notice current tip of the hashtag tokens (and total supply) as minted consecutively
+    /// @notice current tip of the ETSTAG tokens (and total supply) as minted consecutively
     uint256 public tokenPointer;
 
-    /// @notice minimum hashtag length
-    uint256 public hashtagMinStringLength;
+    /// @notice minimum ETSTAG string length
+    uint256 public tagMinStringLength;
 
-    /// @notice maximum hashtag length
-    uint256 public hashtagMaxStringLength;
+    /// @notice maximum ETSTAG string length
+    uint256 public tagMaxStringLength;
 
-    /// @notice core Hashtag protocol account
+    /// @notice ETS Platform account
     address payable public platform;
 
-    /// @notice access controls smart contract
-    HashtagAccessControls public accessControls;
+    /// @notice ETS access controls smart contract
+    ETSAccessControls public accessControls;
 
-    /// @notice lookup of Hashtag info from token ID
-    mapping(uint256 => Hashtag) public tokenIdToHashtag;
+    /// @notice lookup of ETSTAG info from token ID
+    mapping(uint256 => Tag) public tokenIdToTag;
 
-    /// @notice lookup of (lowercase) Hashtag string to token ID
-    mapping(string => uint256) public hashtagToTokenId;
+    /// @notice lookup of (lowercase) ETSTAG string to token ID
+    mapping(string => uint256) public tagToTokenId;
 
     /// @notice Last time a token was interacted with
     mapping(uint256 => uint256) public tokenIdToLastTransferTime;
 
     /// Public constants
 
-    string public constant NAME = "HTP: HASHTAG Token";
+    string public constant NAME = "ETSTAG Token";
     string public constant VERSION = "0.2.0";
 
     /// Modifiers
@@ -66,7 +66,8 @@ contract HashtagProtocol is ERC721PausableUpgradeable, ERC721BurnableUpgradeable
 
     /// Structs
 
-    struct Hashtag {
+    // Container for ETSTAG token
+    struct Tag {
         address originalPublisher;
         address creator;
         string displayVersion;
@@ -74,29 +75,26 @@ contract HashtagProtocol is ERC721PausableUpgradeable, ERC721BurnableUpgradeable
 
     /// Events
 
-    event MintHashtag(uint256 indexed tokenId, string displayHashtag, address indexed publisher, address creator);
+    event MintTag(uint256 indexed tokenId, string displayVersion, address indexed publisher, address creator);
 
-    event HashtagReset(uint256 indexed tokenId, address indexed owner);
+    event TagRecycled(uint256 indexed tokenId, address indexed owner);
 
-    event HashtagRenewed(uint256 indexed tokenId, address indexed caller);
+    event TagRenewed(uint256 indexed tokenId, address indexed caller);
 
     event OwnershipTermLengthUpdated(uint256 originalOwnershipLength, uint256 updatedOwnershipLength);
 
-    event HashtagMaxStringLengthUpdated(uint256 originalHashtagMaxStringLength, uint256 UpdatedHashtagMaxStringLength);
+    event TagMaxStringLengthUpdated(uint256 previousMaxStringLength, uint256 newMaxStringLength);
 
     event PlatformSet(address previousPlatformAddress, address newPlatformAddress);
 
-    event AccessControlsUpdated(HashtagAccessControls previousAccessControls, HashtagAccessControls newAccessControls);
+    event AccessControlsUpdated(ETSAccessControls previousAccessControls, ETSAccessControls newAccessControls);
 
     event NewBaseURI(string baseURI);
 
     event RenewalPeriodUpdated(uint256 originalRenewalPeriod, uint256 updatedRenewalPeriod);
 
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    //constructor() initializer {}
-
-    function initialize(HashtagAccessControls _accessControls, address payable _platform) public initializer {
-        __ERC721_init("Hashtag Protocol", "HASHTAG");
+    function initialize(ETSAccessControls _accessControls, address payable _platform) public initializer {
+        __ERC721_init("ETS", "ETSTAG");
         __ERC721Pausable_init();
         __ERC721Burnable_init();
 
@@ -106,8 +104,8 @@ contract HashtagProtocol is ERC721PausableUpgradeable, ERC721BurnableUpgradeable
         platform = _platform;
         ownershipTermLength = 730 days;
         baseURI = "https://api.hashtag-protocol.io/";
-        hashtagMinStringLength = 3;
-        hashtagMaxStringLength = 32;
+        tagMinStringLength = 3;
+        tagMaxStringLength = 32;
     }
 
     function _authorizeUpgrade(address) internal override onlyAdmin {}
@@ -119,40 +117,40 @@ contract HashtagProtocol is ERC721PausableUpgradeable, ERC721BurnableUpgradeable
     /// Minting
 
     /**
-     * @notice Mints a new HASHTAG token
-     * @dev Hashtag string must pass validation and publisher must be whitelisted
-     * @param _hashtag Hashtag string to mint - must include hashtag (#) at beginning of string
+     * @notice Mints a new ETSTAG token
+     * @dev Tag string must pass validation and publisher must be whitelisted
+     * @param _tag Tag string to mint - must include hashtag (#) at beginning of string
      * @param _publisher Address to be logged as publisher
      * @param _creator Address to be logged as creator
      */
     function mint(
-        string calldata _hashtag,
+        string calldata _tag,
         address payable _publisher,
         address _creator
     ) external payable returns (uint256 _tokenId) {
         require(accessControls.isPublisher(_publisher), "Mint: The publisher must be whitelisted");
 
-        // Perform basic hashtag validation
-        string memory lowerHashtagToMint = _assertHashtagIsValid(_hashtag);
+        // Perform basic tag string validation
+        string memory lowerHashtagToMint = _assertTagIsValid(_tag);
 
-        // generate the new hashtag token id
+        // generate the new ETSTAG token id
         tokenPointer = tokenPointer.add(1);
         uint256 tokenId = tokenPointer;
 
         // mint the token, transferring it to the platform.
         _safeMint(platform, tokenId);
 
-        // Store HASHTAG data in state.
-        tokenIdToHashtag[tokenId] = Hashtag({
-            displayVersion: _hashtag,
+        // Store ETSTAG data in state.
+        tokenIdToTag[tokenId] = Tag({
+            displayVersion: _tag,
             originalPublisher: _publisher,
             creator: _creator
         });
 
         // Store a reverse lookup.
-        hashtagToTokenId[lowerHashtagToMint] = tokenId;
+        tagToTokenId[lowerHashtagToMint] = tokenId;
 
-        emit MintHashtag(tokenId, _hashtag, _publisher, _creator);
+        emit MintTag(tokenId, _tag, _publisher, _creator);
 
         return tokenId;
     }
@@ -170,49 +168,49 @@ contract HashtagProtocol is ERC721PausableUpgradeable, ERC721BurnableUpgradeable
     }
 
     /**
-     * @notice Renews a hashtag by setting its last transfer time to current time.
+     * @notice Renews an ETSTAG by setting its last transfer time to current time.
      * @dev Can only be called by token owner
-     * @param _tokenId The identifier for HASHTAG token
+     * @param _tokenId The identifier for etstag token
      */
-    function renewHashtag(uint256 _tokenId) external {
-        require(_msgSender() == ownerOf(_tokenId), "renewHashtag: Invalid sender");
+    function renewTag(uint256 _tokenId) external {
+        require(_msgSender() == ownerOf(_tokenId), "renewTag: Invalid sender");
 
         tokenIdToLastTransferTime[_tokenId] = block.timestamp;
 
-        emit HashtagRenewed(_tokenId, _msgSender());
+        emit TagRenewed(_tokenId, _msgSender());
     }
 
     /**
-     * @notice Recycling a hashtag i.e. transferring ownership back to the platform due to stale ownership
+     * @notice Recycling an ETSTAG i.e. transferring ownership back to the platform due to stale ownership
      * @dev Token must exist, be not already be owned by platform and time of TX must be greater than lastTransferTime
-     * @param _tokenId The identifier for the hashtag being recycled
+     * @param _tokenId The id of the ETSTAG being recycled
      */
-    function recycleHashtag(uint256 _tokenId) external {
-        require(_exists(_tokenId), "recycleHashtag: Invalid token ID");
-        require(ownerOf(_tokenId) != platform, "recycleHashtag: Already owned by the platform");
+    function recycleTag(uint256 _tokenId) external {
+        require(_exists(_tokenId), "recycleTag: Invalid token ID");
+        require(ownerOf(_tokenId) != platform, "recycleTag: Tag already owned by the platform");
 
         uint256 lastTransferTime = tokenIdToLastTransferTime[_tokenId];
         require(
             lastTransferTime.add(ownershipTermLength) < block.timestamp,
-            "recycleHashtag: Token not eligible for recycling yet"
+            "recycleTag: Token not eligible for recycling yet"
         );
 
         _transfer(ownerOf(_tokenId), platform, _tokenId);
 
-        emit HashtagReset(_tokenId, _msgSender());
+        emit TagRecycled(_tokenId, _msgSender());
     }
 
     /// Administration
 
     /**
-     * @dev Pause Hashtag Protocol token contract.
+     * @dev Pause ETSTAG token contract.
      */
     function pause() external onlyAdmin {
         _pause();
     }
 
     /**
-     * @dev Unpause Hashtag Protocol token contract.
+     * @dev Unpause ETSTAG token contract.
      */
     function unPause() external onlyAdmin {
         _unpause();
@@ -228,17 +226,17 @@ contract HashtagProtocol is ERC721PausableUpgradeable, ERC721BurnableUpgradeable
     }
 
     /**
-     * @notice Admin method for updating the max string length of a hashtag
-     * @param _hashtagMaxStringLength max length
+     * @notice Admin method for updating the max string length of an ETSTAG
+     * @param _tagMaxStringLength max length
      */
-    function setHashtagMaxStringLength(uint256 _hashtagMaxStringLength) public onlyAdmin {
-        uint256 prevHashtagMaxStringLength = hashtagMaxStringLength;
-        hashtagMaxStringLength = _hashtagMaxStringLength;
-        emit HashtagMaxStringLengthUpdated(prevHashtagMaxStringLength, _hashtagMaxStringLength);
+    function setTagMaxStringLength(uint256 _tagMaxStringLength) public onlyAdmin {
+        uint256 prevTagMaxStringLength = tagMaxStringLength;
+        tagMaxStringLength = _tagMaxStringLength;
+        emit TagMaxStringLengthUpdated(prevTagMaxStringLength, _tagMaxStringLength);
     }
 
     /**
-     * @notice Admin method for updating the ownership term length for all hashtag tokens
+     * @notice Admin method for updating the ownership term length for all ETSTAG tokens
      * @param _ownershipTermLength New length in unix epoch seconds
      */
     function setOwnershipTermLength(uint256 _ownershipTermLength) public onlyAdmin {
@@ -261,21 +259,21 @@ contract HashtagProtocol is ERC721PausableUpgradeable, ERC721BurnableUpgradeable
      * @notice Admin functionality for updating the access controls
      * @param _accessControls Address of the access controls contract
      */
-    function updateAccessControls(HashtagAccessControls _accessControls) external onlyAdmin {
-        require(address(_accessControls) != address(0), "HashtagProtocol.updateAccessControls: Cannot be zero");
-        HashtagAccessControls prevAccessControls = accessControls;
+    function updateAccessControls(ETSAccessControls _accessControls) external onlyAdmin {
+        require(address(_accessControls) != address(0), "ETSTag.updateAccessControls: Cannot be zero");
+        ETSAccessControls prevAccessControls = accessControls;
         accessControls = _accessControls;
         emit AccessControlsUpdated(prevAccessControls, _accessControls);
     }
 
     /// external/public view functions
 
-    function getHashtagId(string calldata hashtag) public view returns (uint256 hashtagId) {
-        return (hashtagToTokenId[__lower(hashtag)]);
+    function getTagId(string calldata tag) public view returns (uint256 etstagId) {
+        return (tagToTokenId[__lower(tag)]);
     }
 
     /**
-     * @notice Existence check on a HASHTAG token
+     * @notice Existence check on a ETSTAG token
      * @param tokenId token ID
      * @return true if exists
      */
@@ -284,9 +282,9 @@ contract HashtagProtocol is ERC721PausableUpgradeable, ERC721BurnableUpgradeable
     }
 
     /// @notice Returns the commission addresses related to a token
-    /// @param _tokenId ID of a hashtag
+    /// @param _tokenId ID of a ETSTAG
     /// @return _platform Platform commission address
-    /// @return _owner Address of the owner of the hashtag
+    /// @return _owner Address of the owner of the ETSTAG
     function getPaymentAddresses(uint256 _tokenId)
         public
         view
@@ -295,11 +293,11 @@ contract HashtagProtocol is ERC721PausableUpgradeable, ERC721BurnableUpgradeable
         return (platform, payable(ownerOf(_tokenId)));
     }
 
-    /// @notice Returns creator of a token
-    /// @param _tokenId ID of a hashtag
-    /// @return _creator creator of the hashtag
+    /// @notice Returns creator of a ETSTAG token
+    /// @param _tokenId ID of a ETSTAG
+    /// @return _creator creator of the ETSTAG
     function getCreatorAddress(uint256 _tokenId) public view returns (address _creator) {
-        return tokenIdToHashtag[_tokenId].creator;
+        return tokenIdToTag[_tokenId].creator;
     }
 
     function version() external pure returns (string memory) {
@@ -336,26 +334,26 @@ contract HashtagProtocol is ERC721PausableUpgradeable, ERC721BurnableUpgradeable
     }
 
     /**
-     * @notice Private method used for validating a hashtag before minting
+     * @notice Private method used for validating a ETSTAG string before minting
      * @dev A series of assertions are performed reverting the transaction for any validation violations
-     * @param _hashtag Proposed hashtag string
+     * @param _tag Proposed tag string
      */
-    function _assertHashtagIsValid(string memory _hashtag) private view returns (string memory) {
-        bytes memory hashtagStringBytes = bytes(_hashtag);
+    function _assertTagIsValid(string memory _tag) private view returns (string memory) {
+        bytes memory tagStringBytes = bytes(_tag);
         require(
-            hashtagStringBytes.length >= hashtagMinStringLength && hashtagStringBytes.length <= hashtagMaxStringLength,
-            "Invalid format: Hashtag must not exceed length requirements"
+            tagStringBytes.length >= tagMinStringLength && tagStringBytes.length <= tagMaxStringLength,
+            "Invalid format: tag does not meet min/max length requirements"
         );
 
-        require(hashtagStringBytes[0] == 0x23, "Must start with #");
+        require(tagStringBytes[0] == 0x23, "Must start with #");
 
-        string memory hashtagKey = __lower(_hashtag);
-        require(hashtagToTokenId[hashtagKey] == 0, "ERC721: token already minted");
+        string memory tagKey = __lower(_tag);
+        require(tagToTokenId[tagKey] == 0, "ERC721: token already minted");
 
         uint256 alphabetCharCount = 0;
         // start from first char after #
-        for (uint256 i = 1; i < hashtagStringBytes.length; i++) {
-            bytes1 char = hashtagStringBytes[i];
+        for (uint256 i = 1; i < tagStringBytes.length; i++) {
+            bytes1 char = tagStringBytes[i];
 
             // Generally ensure that the character is alpha numeric
             bool isInvalidCharacter = !(char >= 0x30 && char <= 0x39) && //0-9
@@ -365,7 +363,7 @@ contract HashtagProtocol is ERC721PausableUpgradeable, ERC721BurnableUpgradeable
 
             require(
                 !isInvalidCharacter,
-                "Invalid character found: Hashtag may only contain characters A-Z, a-z, 0-9 and #"
+                "Invalid character found: tag may only contain characters A-Z, a-z, 0-9 and #"
             );
 
             // Should the char be alphabetic, increment alphabetCharCount
@@ -375,8 +373,8 @@ contract HashtagProtocol is ERC721PausableUpgradeable, ERC721BurnableUpgradeable
         }
 
         // Ensure alphabetCharCount is at least 1
-        require(alphabetCharCount >= 1, "Invalid format: Hashtag must contain at least 1 alphabetic character.");
+        require(alphabetCharCount >= 1, "Invalid format: tag must contain at least 1 alphabetic character.");
 
-        return hashtagKey;
+        return tagKey;
     }
 }

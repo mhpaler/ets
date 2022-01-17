@@ -24,9 +24,9 @@ async function _getArtifacts() {
 async function _getAccounts() {
   const namedAccounts = await ethers.getNamedSigners();
   return {
-    accountHashtagAdmin: namedAccounts["accountHashtagAdmin"],
-    accountHashtagPublisher: namedAccounts["accountHashtagPublisher"],
-    accountHashtagPlatform: namedAccounts["accountHashtagPlatform"],
+    ETSAdmin: namedAccounts["ETSAdmin"],
+    ETSPublisher: namedAccounts["ETSPublisher"],
+    ETSPlatform: namedAccounts["ETSPlatform"],
   };
 }
 

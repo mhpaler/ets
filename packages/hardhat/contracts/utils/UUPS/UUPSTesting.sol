@@ -1,25 +1,25 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {HashtagAccessControls} from "../../release/HashtagAccessControls.sol";
-import {HashtagProtocol} from "../../release/HashtagProtocol.sol";
-import {ERC721HashtagRegistry} from "../../release/ERC721HashtagRegistry.sol";
+import {ETSAccessControls} from "../../release/ETSAccessControls.sol";
+import {ETSTag} from "../../release/ETSTag.sol";
+import {ETS} from "../../release/ETS.sol";
 
-contract HashtagAccessControlsUpgrade is HashtagAccessControls {
+contract ETSAccessControlsUpgrade is ETSAccessControls {
     // Extend existing contract with new function.
     function upgradeTest() public pure returns (bool) {
         return true;
     }
 }
 
-contract HashtagProtocolUpgrade is HashtagProtocol {
+contract ETSTagUpgrade is ETSTag {
     // Extend existing contract with new function.
     function upgradeTest() public pure returns (bool) {
         return true;
     }
 }
 
-contract ERC721HashtagRegistryUpgrade is ERC721HashtagRegistry {
+contract ETSUpgrade is ETS {
     // Extend existing contract with new function.
     function upgradeTest() public pure returns (bool) {
         return true;

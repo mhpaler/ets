@@ -9,43 +9,45 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol"
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-import "./HashtagProtocol.sol";
+import "./ETSTag.sol";
 
 /**
- * @title ERC721HashtagRegistry
- * @notice Contract that allows any ERC721 asset to be tagged by a hashtag within the Hashtag protocol
- * @author Hashtag Protocol
+ * @title ETS Core
+ * @notice Core tagging contract that allows any online target to be tagged by an ETSTAG token
+ * @author Ethereum Tag Service <security@ets.xyz>
  */
-contract ERC721HashtagRegistry is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
+contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
     using SafeMathUpgradeable for uint256;
 
     /// Storage
 
-    HashtagAccessControls public accessControls;
-    HashtagProtocol public hashtagProtocol;
+    ETSAccessControls public accessControls;
+    ETSTag public etsTag;
 
     uint256 public platformPercentage;
     uint256 public publisherPercentage;
     uint256 public remainingPercentage;
-    uint256 public totalTags;
-    uint256 public tagFee;
+    uint256 public taggingCounter;
+    uint256 public taggingFee;
 
     mapping(address => uint256) public accrued;
     mapping(address => uint256) public paid;
     mapping(uint256 => bool) public permittedNftChainIds;
-    // tag id (will come from the totalTags pointer) -> tag
-    mapping(uint256 => Tag) public tagIdToTag;
+
+    // tagging record id (will come from the taggingCounter pointer)
+    mapping(uint256 => TaggingRecord) public taggingRecords;
+
 
     /// Public constants
 
-    string public constant NAME = "HTP: ERC721 Registry";
+    string public constant NAME = "ETS Core";
     string public constant VERSION = "0.2.0";
     uint256 public constant modulo = 100;
 
     /// Structs
 
-    struct Tag {
-        uint256 hashtagId;
+    struct TaggingRecord {
+        uint256 tagId;
         address nftContract;
         uint256 nftId;
         address tagger;
@@ -56,14 +58,14 @@ contract ERC721HashtagRegistry is Initializable, ContextUpgradeable, ReentrancyG
 
     /// Events
 
-    event HashtagRegistered(
+    event Tagged(
         address indexed tagger,
         address indexed nftContract,
         address indexed publisher,
-        uint256 hashtagId,
-        uint256 nftId,
         uint256 tagId,
-        uint256 tagFee,
+        uint256 nftId,
+        uint256 taggingId,
+        uint256 taggingFee,
         uint256 nftChainId
     );
 
@@ -82,11 +84,11 @@ contract ERC721HashtagRegistry is Initializable, ContextUpgradeable, ReentrancyG
     //constructor() initializer {}
 
     // Replaces contructor function for UUPS Proxy contracts. Called upon first deployment.
-    function initialize(HashtagAccessControls _accessControls, HashtagProtocol _hashtagProtocol) public initializer {
+    function initialize(ETSAccessControls _accessControls, ETSTag _etsTag) public initializer {
         accessControls = _accessControls;
-        hashtagProtocol = _hashtagProtocol;
-        totalTags = 0;
-        tagFee = 0.001 ether;
+        etsTag = _etsTag;
+        taggingCounter = 0;
+        taggingFee = 0.001 ether;
         platformPercentage = 20;
         publisherPercentage = 30;
         remainingPercentage = 50;
@@ -98,9 +100,9 @@ contract ERC721HashtagRegistry is Initializable, ContextUpgradeable, ReentrancyG
     /// External write
 
     /**
-     * @notice Combines the action of creating a new hashtag and then tagging an NFT asset with this new tag.
+     * @notice Combines the action of creating a new tag nft (ETSTAG) and then tagging an NFT asset with this new tag.
      * @dev Only a whitelisted publisher can execute this with the required fee unless the caller / sender has admin privileges.
-     * @param _hashtag string value of the hashtag to be minted
+     * @param _tagString string value of the tag to be minted
      * @param _nftContract address of nft contract
      * @param _nftId ID of the nft to link from the above nft contract
      * @param _publisher the publisher attributed to the tagging
@@ -108,7 +110,7 @@ contract ERC721HashtagRegistry is Initializable, ContextUpgradeable, ReentrancyG
      * @param _nftChainId EVM compatible chain id
      */
     function mintAndTag(
-        string calldata _hashtag,
+        string calldata _tagString,
         address _nftContract,
         uint256 _nftId,
         address payable _publisher,
@@ -116,27 +118,26 @@ contract ERC721HashtagRegistry is Initializable, ContextUpgradeable, ReentrancyG
         uint256 _nftChainId
     ) external payable {
         require(accessControls.isPublisher(_publisher), "Mint and tag: The publisher must be whitelisted");
-        require(msg.value >= tagFee, "Mint and tag: You must send the tag fee");
+        require(msg.value >= taggingFee, "Mint and tag: You must send the tag fee");
         require(this.getPermittedNftChainId(_nftChainId), "Mint and tag: Tagging target chain not permitted");
 
-        uint256 hashtagId = hashtagProtocol.mint(_hashtag, _publisher, _tagger);
-        _tag(hashtagId, _nftContract, _nftId, _publisher, _tagger, _nftChainId);
+        uint256 tagId = etsTag.mint(_tagString, _publisher, _tagger);
+        _tag(tagId, _nftContract, _nftId, _publisher, _tagger, _nftChainId);
     }
 
     /**
      * @notice Tags an ERC721 NFT asset by storing a reference between the asset
-       and a hashtag. If hashtag string does not exist, function will attempt to
+       and a tag. If tag string does not exist as a token, function will attempt to
        mint a new one.
      * @dev Only a whitelisted publisher can execute this with the required fee unless the caller / sender has admin privileges.
-     * @param _hashtag hashtag string used for tagging
+     * @param _tagString tag string used for tagging
      * @param _nftContract address of nft contract
      * @param _nftId ID of the nft to link from the above nft contract
      * @param _tagger the ethereum account that made the original tagging request
      * @param _nftChainId EVM compatible chain id
      */
     function tag(
-        string calldata _hashtag,
-        //uint256 _hashtagId,
+        string calldata _tagString,
         address _nftContract,
         uint256 _nftId,
         address payable _publisher,
@@ -144,16 +145,15 @@ contract ERC721HashtagRegistry is Initializable, ContextUpgradeable, ReentrancyG
         uint256 _nftChainId
     ) public payable nonReentrant {
         require(accessControls.isPublisher(_publisher), "Tag: The publisher must be whitelisted");
-        require(msg.value >= tagFee, "Tag: You must send the fee");
-        //require(hashtagProtocol.exists(_hashtagId), "Tag: The hashtag ID supplied is invalid - non-existent token!");
+        require(msg.value >= taggingFee, "Tag: You must send the fee");
         require(this.getPermittedNftChainId(_nftChainId), "Tag: Tagging target chain not permitted");
 
-        uint256 hashtagId = hashtagProtocol.getHashtagId(_hashtag);
-        if (hashtagId == 0) {
-            hashtagId = hashtagProtocol.mint(_hashtag, _publisher, _tagger);
+        uint256 tagId = etsTag.getTagId(_tagString);
+        if (tagId == 0) {
+            tagId = etsTag.mint(_tagString, _publisher, _tagger);
         }
 
-        _tag(hashtagId, _nftContract, _nftId, _publisher, _tagger, _nftChainId);
+        _tag(tagId, _nftContract, _nftId, _publisher, _tagger, _nftChainId);
     }
 
     /**
@@ -176,16 +176,16 @@ contract ERC721HashtagRegistry is Initializable, ContextUpgradeable, ReentrancyG
      * @notice Sets the fee required to tag an NFT asset
      * @param _fee Value of the fee in WEI
      */
-    function setTagFee(uint256 _fee) external onlyAdmin {
-        tagFee = _fee;
+    function setTaggingFee(uint256 _fee) external onlyAdmin {
+        taggingFee = _fee;
     }
 
     /**
      * @notice Admin functionality for updating the access controls
      * @param _accessControls Address of the access controls contract
      */
-    function updateAccessControls(HashtagAccessControls _accessControls) external onlyAdmin {
-        require(address(_accessControls) != address(0), "ERC721HashtagRegistry.updateAccessControls: Cannot be zero");
+    function updateAccessControls(ETSAccessControls _accessControls) external onlyAdmin {
+        require(address(_accessControls) != address(0), "ETS.updateAccessControls: Cannot be zero");
         accessControls = _accessControls;
     }
 
@@ -197,7 +197,7 @@ contract ERC721HashtagRegistry is Initializable, ContextUpgradeable, ReentrancyG
     function updatePercentages(uint256 _platformPercentage, uint256 _publisherPercentage) external onlyAdmin {
         require(
             _platformPercentage.add(_publisherPercentage) <= 100,
-            "ERC721HashtagRegistry.updatePercentages: percentages must not be over 100"
+            "ETS.updatePercentages: percentages must not be over 100"
         );
         platformPercentage = _platformPercentage;
         publisherPercentage = _publisherPercentage;
@@ -225,20 +225,21 @@ contract ERC721HashtagRegistry is Initializable, ContextUpgradeable, ReentrancyG
     }
 
     /**
-     * @notice Retrieves information about a tag event
-     * @param _tagId ID of the tagging event of interest
-     * @return _hashtagId hashtag ID
+     * @notice Retrieves a tagging record
+     * @param _taggingId ID of the tagging record
+     * @return _tagId token ID of ETSTAG used
      * @return _nftContract NFT contract address
      * @return _nftId NFT ID
      * @return _tagger Address that tagged the NFT asset
      * @return _tagstamp When the tag took place
      * @return _publisher Publisher through which the tag took place
+     * @return _nftChainId Chain ID target NFT lives on
      */
-    function getTagInfo(uint256 _tagId)
+    function getTaggingRecord(uint256 _taggingId)
         external
         view
         returns (
-            uint256 _hashtagId,
+            uint256 _tagId,
             address _nftContract,
             uint256 _nftId,
             address _tagger,
@@ -247,15 +248,15 @@ contract ERC721HashtagRegistry is Initializable, ContextUpgradeable, ReentrancyG
             uint256 _nftChainId
         )
     {
-        Tag storage tagInfo = tagIdToTag[_tagId];
+        TaggingRecord storage taggingRecord = taggingRecords[_taggingId];
         return (
-            tagInfo.hashtagId,
-            tagInfo.nftContract,
-            tagInfo.nftId,
-            tagInfo.tagger,
-            tagInfo.tagstamp,
-            tagInfo.publisher,
-            tagInfo.nftChainId
+            taggingRecord.tagId,
+            taggingRecord.nftContract,
+            taggingRecord.nftId,
+            taggingRecord.tagger,
+            taggingRecord.tagstamp,
+            taggingRecord.publisher,
+            taggingRecord.nftChainId
         );
     }
 
@@ -275,26 +276,27 @@ contract ERC721HashtagRegistry is Initializable, ContextUpgradeable, ReentrancyG
     /// Internal write
 
     function _tag(
-        uint256 _hashtagId,
+        uint256 _tagId,
         address _nftContract,
         uint256 _nftId,
         address _publisher,
         address _tagger,
         uint256 _nftChainId
     ) private {
+        // might remove this limitation.
         require(
-            _nftContract != address(hashtagProtocol),
-            "Tag: Invalid tag - you are attempting to tag another hashtag"
+            _nftContract != address(etsTag),
+            "Tag: Tagging other tags is not permitted"
         );
         // Ensure that we are dealing with an ERC721 compliant _nftContract
         require(_nftContract != address(0), "function call to a non-contract address");
 
-        // Generate a new tag ID
-        totalTags = totalTags.add(1);
-        uint256 tagId = totalTags;
+        // Generate a new taggging record id.
+        taggingCounter = taggingCounter.add(1);
+        uint256 taggingId = taggingCounter;
 
-        tagIdToTag[tagId] = Tag({
-            hashtagId: _hashtagId,
+        taggingRecords[taggingId] = TaggingRecord({
+            tagId: _tagId,
             nftContract: _nftContract,
             nftId: _nftId,
             tagger: _tagger,
@@ -303,14 +305,14 @@ contract ERC721HashtagRegistry is Initializable, ContextUpgradeable, ReentrancyG
             nftChainId: _nftChainId
         });
 
-        (address _platform, address _owner) = hashtagProtocol.getPaymentAddresses(_hashtagId);
+        (address _platform, address _owner) = etsTag.getPaymentAddresses(_tagId);
 
         // pre-auction
         if (_owner == _platform) {
             accrued[_platform] = accrued[_platform].add(msg.value.mul(platformPercentage).div(modulo));
             accrued[_publisher] = accrued[_publisher].add(msg.value.mul(publisherPercentage).div(modulo));
 
-            address creator = hashtagProtocol.getCreatorAddress(_hashtagId);
+            address creator = etsTag.getCreatorAddress(_tagId);
             accrued[creator] = accrued[creator].add(msg.value.mul(remainingPercentage).div(modulo));
         }
         // post-auction
@@ -322,7 +324,7 @@ contract ERC721HashtagRegistry is Initializable, ContextUpgradeable, ReentrancyG
         }
 
         // Log that an NFT has been tagged
-        emit HashtagRegistered(_tagger, _nftContract, _publisher, _hashtagId, _nftId, tagId, tagFee, _nftChainId);
+        emit Tagged(_tagger, _nftContract, _publisher, _tagId, _nftId, taggingId, taggingFee, _nftChainId);
     }
 
     /// Internal read
