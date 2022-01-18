@@ -49,7 +49,7 @@ describe("ETSTag Tests", function () {
 
   describe("Validate setup", async function () {
     it("should have name and symbol", async function () {
-      expect(await ETSTag.name()).to.be.equal("ETS");
+      expect(await ETSTag.name()).to.be.equal("Ethereum Tag Service");
       expect(await ETSTag.symbol()).to.be.equal("ETSTAG");
       expect(await ETSTag.platform()).to.be.equal(accounts.ETSPlatform.address);
     });

@@ -23,7 +23,7 @@ contract("ERC721", function (accounts) {
     await this.token.initialize(this.accessControls.address, ETSAdmin);
   });
 
-  const name = "ETS";
+  const name = "Ethereum Tag Service";
   const symbol = "ETSTAG";
 
   shouldBehaveLikeERC721("ERC721", ...accounts);

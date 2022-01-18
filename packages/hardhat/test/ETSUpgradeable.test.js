@@ -62,7 +62,7 @@ describe("ETSTag", function () {
       { kind: "uups" },
     );
 
-    assert((await deployed.ETSTag.name()) === "ETS");
+    assert((await deployed.ETSTag.name()) === "Ethereum Tag Service");
     assert((await deployed.ETSTag.symbol()) === "ETSTAG");
 
     // Upgrade the proxy.
@@ -73,7 +73,7 @@ describe("ETSTag", function () {
 
     const deployTxn = deployed.ETSTag.deployTransaction.hash;
     await expectEvent.inTransaction(deployTxn, artifact.ETSAccessControlsUpgrade, "Upgraded");
-    assert((await deployed.ETSTag.name()) === "ETS");
+    assert((await deployed.ETSTag.name()) === "Ethereum Tag Service");
     assert((await deployed.ETSTag.symbol()) === "ETSTAG");
     assert((await deployed.ETSTag.upgradeTest()) === true);
   });

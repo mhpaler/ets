@@ -13,7 +13,7 @@ import "./ETSTag.sol";
 
 /**
  * @title ETS Core
- * @notice Core tagging contract that allows any online target to be tagged by an ETSTAG token
+ * @notice Core tagging contract that allows any online target to be tagged with an ETSTAG token
  * @author Ethereum Tag Service <security@ets.xyz>
  */
 contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
@@ -22,7 +22,7 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     /// Storage
 
     ETSAccessControls public accessControls;
-    ETSTag public etsTag;
+    ETSTag public etsTag; // ETSTAG erc-721 token
 
     uint256 public platformPercentage;
     uint256 public publisherPercentage;
@@ -47,11 +47,11 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     /// Structs
 
     struct TaggingRecord {
-        uint256 tagId;
+        uint256 etsTagId;
         address nftContract;
         uint256 nftId;
         address tagger;
-        uint256 tagstamp;
+        uint256 timestamp;
         address publisher;
         uint256 nftChainId;
     }
@@ -59,31 +59,20 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     /// Events
 
     event Tagged(
-        address indexed tagger,
-        address indexed nftContract,
-        address indexed publisher,
-        uint256 tagId,
-        uint256 nftId,
-        uint256 taggingId,
-        uint256 taggingFee,
-        uint256 nftChainId
+        uint256 taggingId
     );
 
     event DrawDown(address indexed who, uint256 amount);
 
-    /**
-     * @notice Admin only execution guard
-     * @dev When applied to a method, only allows execution when the sender has the admin role
-     */
+
+    /// @notice Admin only execution guard
+    /// @dev When applied to a method, only allows execution when the sender has the admin role
     modifier onlyAdmin() {
         require(accessControls.isAdmin(_msgSender()), "Caller must be admin");
         _;
     }
 
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    //constructor() initializer {}
-
-    // Replaces contructor function for UUPS Proxy contracts. Called upon first deployment.
+    /// @dev Replaces contructor function for UUPS Proxy contracts. Called upon first deployment.
     function initialize(ETSAccessControls _accessControls, ETSTag _etsTag) public initializer {
         accessControls = _accessControls;
         etsTag = _etsTag;
@@ -121,8 +110,8 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         require(msg.value >= taggingFee, "Mint and tag: You must send the tag fee");
         require(this.getPermittedNftChainId(_nftChainId), "Mint and tag: Tagging target chain not permitted");
 
-        uint256 tagId = etsTag.mint(_tagString, _publisher, _tagger);
-        _tag(tagId, _nftContract, _nftId, _publisher, _tagger, _nftChainId);
+        uint256 etsTagId = etsTag.mint(_tagString, _publisher, _tagger);
+        _tag(etsTagId, _nftContract, _nftId, _publisher, _tagger, _nftChainId);
     }
 
     /**
@@ -148,12 +137,12 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         require(msg.value >= taggingFee, "Tag: You must send the fee");
         require(this.getPermittedNftChainId(_nftChainId), "Tag: Tagging target chain not permitted");
 
-        uint256 tagId = etsTag.getTagId(_tagString);
-        if (tagId == 0) {
-            tagId = etsTag.mint(_tagString, _publisher, _tagger);
+        uint256 etsTagId = etsTag.getTagId(_tagString);
+        if (etsTagId == 0) {
+            etsTagId = etsTag.mint(_tagString, _publisher, _tagger);
         }
 
-        _tag(tagId, _nftContract, _nftId, _publisher, _tagger, _nftChainId);
+        _tag(etsTagId, _nftContract, _nftId, _publisher, _tagger, _nftChainId);
     }
 
     /**
@@ -227,11 +216,11 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     /**
      * @notice Retrieves a tagging record
      * @param _taggingId ID of the tagging record
-     * @return _tagId token ID of ETSTAG used
+     * @return _etsTagId token ID of ETSTAG used
      * @return _nftContract NFT contract address
      * @return _nftId NFT ID
      * @return _tagger Address that tagged the NFT asset
-     * @return _tagstamp When the tag took place
+     * @return _timestamp When the tag took place
      * @return _publisher Publisher through which the tag took place
      * @return _nftChainId Chain ID target NFT lives on
      */
@@ -239,22 +228,22 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         external
         view
         returns (
-            uint256 _tagId,
+            uint256 _etsTagId,
             address _nftContract,
             uint256 _nftId,
             address _tagger,
-            uint256 _tagstamp,
+            uint256 _timestamp,
             address _publisher,
             uint256 _nftChainId
         )
     {
         TaggingRecord storage taggingRecord = taggingRecords[_taggingId];
         return (
-            taggingRecord.tagId,
+            taggingRecord.etsTagId,
             taggingRecord.nftContract,
             taggingRecord.nftId,
             taggingRecord.tagger,
-            taggingRecord.tagstamp,
+            taggingRecord.timestamp,
             taggingRecord.publisher,
             taggingRecord.nftChainId
         );
@@ -276,7 +265,7 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     /// Internal write
 
     function _tag(
-        uint256 _tagId,
+        uint256 _etsTagId,
         address _nftContract,
         uint256 _nftId,
         address _publisher,
@@ -296,23 +285,23 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         uint256 taggingId = taggingCounter;
 
         taggingRecords[taggingId] = TaggingRecord({
-            tagId: _tagId,
+            etsTagId: _etsTagId,
             nftContract: _nftContract,
             nftId: _nftId,
             tagger: _tagger,
-            tagstamp: block.timestamp,
+            timestamp: block.timestamp,
             publisher: _publisher,
             nftChainId: _nftChainId
         });
 
-        (address _platform, address _owner) = etsTag.getPaymentAddresses(_tagId);
+        (address _platform, address _owner) = etsTag.getPaymentAddresses(_etsTagId);
 
         // pre-auction
         if (_owner == _platform) {
             accrued[_platform] = accrued[_platform].add(msg.value.mul(platformPercentage).div(modulo));
             accrued[_publisher] = accrued[_publisher].add(msg.value.mul(publisherPercentage).div(modulo));
 
-            address creator = etsTag.getCreatorAddress(_tagId);
+            address creator = etsTag.getCreatorAddress(_etsTagId);
             accrued[creator] = accrued[creator].add(msg.value.mul(remainingPercentage).div(modulo));
         }
         // post-auction
@@ -323,8 +312,8 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
             accrued[_owner] = accrued[_owner].add(msg.value.mul(remainingPercentage).div(modulo));
         }
 
-        // Log that an NFT has been tagged
-        emit Tagged(_tagger, _nftContract, _publisher, _tagId, _nftId, taggingId, taggingFee, _nftChainId);
+        // Log that a target has been tagged
+        emit Tagged(taggingId);
     }
 
     /// Internal read

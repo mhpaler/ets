@@ -94,7 +94,7 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
     event RenewalPeriodUpdated(uint256 originalRenewalPeriod, uint256 updatedRenewalPeriod);
 
     function initialize(ETSAccessControls _accessControls, address payable _platform) public initializer {
-        __ERC721_init("ETS", "ETSTAG");
+        __ERC721_init("Ethereum Tag Service", "ETSTAG");
         __ERC721Pausable_init();
         __ERC721Burnable_init();
 

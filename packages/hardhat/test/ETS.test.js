@@ -148,36 +148,29 @@ describe("ETS", function () {
       );
 
       await expectEvent.inTransaction(receipt.hash, artifact.ETS, "Tagged", {
-        tagger: accounts.Tagger.address,
-        nftContract: ERC721Mock.address,
-        publisher: accounts.ETSPublisher.address,
-        tagId: constants.Two,
-        nftId: targetNftId,
         taggingId: constants.One,
-        taggingFee: taggingFee,
-        nftChainId: targetNftChainId,
       });
 
       expect(await ETS.taggingCounter()).to.be.equal(1);
 
       const {
-        _tagId,
+        _etsTagId,
         _nftContract,
         _nftId,
         _tagger,
-        _tagstamp,
+        _timestamp,
         _publisher,
         _nftChainId,
       } = await ETS.getTaggingRecord(constants.One);
 
-      // The newly minted HASHTAG should have id = 2
-      // because HASHTAG #1 was minted in the setup script.
-      expect(_tagId).to.be.equal(constants.Two);
+      // The newly minted ETSTAG should have id = 2
+      // because ETSTAG #1 was minted in the setup script.
+      expect(_etsTagId).to.be.equal(constants.Two);
       expect(_nftContract).to.be.equal(ERC721Mock.address);
       expect(_nftId).to.be.equal(targetNftId);
       expect(_tagger).to.be.equal(accounts.Tagger.address);
-      expect(_tagstamp).to.exist;
-      expect(Number(_tagstamp.toString())).to.be.gt(0);
+      expect(_timestamp).to.exist;
+      expect(Number(_timestamp.toString())).to.be.gt(0);
       expect(_publisher).to.be.equal(accounts.ETSPublisher.address);
       expect(_nftChainId).to.be.equal(targetNftChainId);
 
@@ -210,34 +203,27 @@ describe("ETS", function () {
       );
 
       await expectEvent.inTransaction(receipt.hash, artifact.ETS, "Tagged", {
-        tagger: accounts.Tagger.address,
-        nftContract: ERC721Mock.address,
-        publisher: accounts.ETSPublisher.address,
-        tagId: constants.One,
-        nftId: targetNftId,
         taggingId: constants.One,
-        taggingFee: taggingFee,
-        nftChainId: targetNftChainId,
       });
 
       expect(await ETS.taggingCounter()).to.be.equal(1);
 
       const {
-        _tagId,
+        _etsTagId,
         _nftContract,
         _nftId,
         _tagger,
-        _tagstamp,
+        _timestamp,
         _publisher,
         _nftChainId,
       } = await ETS.getTaggingRecord(tagId);
 
-      expect(_tagId).to.be.equal(constants.One);
+      expect(_etsTagId).to.be.equal(constants.One);
       expect(_nftContract).to.be.equal(ERC721Mock.address);
       expect(_nftId).to.be.equal(targetNftId);
       expect(_tagger).to.be.equal(accounts.Tagger.address);
-      expect(_tagstamp).to.exist;
-      expect(Number(_tagstamp.toString())).to.be.gt(0);
+      expect(_timestamp).to.exist;
+      expect(Number(_timestamp.toString())).to.be.gt(0);
       expect(_publisher).to.be.equal(accounts.ETSPublisher.address);
       expect(_nftChainId).to.be.equal(targetNftChainId);
 
@@ -275,14 +261,7 @@ describe("ETS", function () {
       );
 
       await expectEvent.inTransaction(receipt.hash, artifact.ETS, "Tagged", {
-        tagger: accounts.Tagger.address,
-        nftContract: targetNftAddress,
-        publisher: accounts.ETSPublisher.address,
-        tagId: constants.One,
-        nftId: targetNftId,
         taggingId: constants.One,
-        taggingFee: taggingFee,
-        nftChainId: matic,
       });
     });
 
@@ -304,21 +283,21 @@ describe("ETS", function () {
       expect(await ETS.taggingCounter()).to.be.equal(1);
 
       const {
-        _tagId,
+        _etsTagId,
         _nftContract,
         _nftId,
         _tagger,
-        _tagstamp,
+        _timestamp,
         _publisher,
         _nftChainId,
       } = await ETS.getTaggingRecord(constants.One);
 
-      expect(_tagId).to.be.equal(constants.One);
+      expect(_etsTagId).to.be.equal(constants.One);
       expect(_nftContract).to.be.equal(ERC721Mock.address);
       expect(_nftId).to.be.equal(targetNftId);
       expect(_tagger).to.be.equal(accounts.Tagger.address);
-      expect(_tagstamp).to.exist;
-      expect(Number(_tagstamp.toString())).to.be.gt(0);
+      expect(_timestamp).to.exist;
+      expect(Number(_timestamp.toString())).to.be.gt(0);
       expect(_publisher).to.be.equal(accounts.ETSPublisher.address);
       expect(_nftChainId).to.be.equal(targetNftChainId);
 
@@ -415,14 +394,7 @@ describe("ETS", function () {
       );
 
       await expectEvent.inTransaction(receipt.hash, artifact.ETS, "Tagged", {
-        tagger: accounts.Tagger.address,
-        nftContract: ERC721Mock.address,
-        publisher: accounts.ETSPublisher.address,
-        tagId: "2",
-        nftId: targetNftId,
         taggingId: constants.One,
-        taggingFee: taggingFee,
-        nftChainId: targetNftChainId,
       });
     });
 

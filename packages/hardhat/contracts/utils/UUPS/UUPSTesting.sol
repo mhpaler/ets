@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {ETSAccessControls} from "../../release/ETSAccessControls.sol";
-import {ETSTag} from "../../release/ETSTag.sol";
-import {ETS} from "../../release/ETS.sol";
+import {ETSAccessControls} from "../../core/ETSAccessControls.sol";
+import {ETSTag} from "../../core/ETSTag.sol";
+import {ETS} from "../../core/ETS.sol";
 
 contract ETSAccessControlsUpgrade is ETSAccessControls {
     // Extend existing contract with new function.
