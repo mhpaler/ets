@@ -7,24 +7,16 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "hardhat/console.sol";
 
 /**
- * @title Hashtag Protocol Access Controls contract
+ * @title ETS access controls
  * @notice Maintains a mapping of ethereum addresses and roles they have within the protocol
- * @author Hashtag Protocol
+ * @author Ethereum Tag Service <security@ets.xyz>
  */
-contract HashtagAccessControls is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
+contract ETSAccessControls is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
     /// Public constants
-    string public constant NAME = "HTP: HASHTAG Protocol Access";
+    string public constant NAME = "ETS access controls";
     string public constant VERSION = "0.2.1";
     bytes32 public constant PUBLISHER_ROLE = keccak256("PUBLISHER");
     bytes32 public constant SMART_CONTRACT_ROLE = keccak256("SMART_CONTRACT");
-
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    //constructor() initializer {
-    //    // Security measure to initialize implementation contract.
-    //    __AccessControl_init();
-    //    // Fake address.
-    //    _setupRole(DEFAULT_ADMIN_ROLE, 0xC5225963871dD6bF421c8AabF1fC74251B0ed15A);
-    //}
 
     function initialize() public initializer {
         __AccessControl_init();
@@ -34,7 +26,7 @@ contract HashtagAccessControls is Initializable, AccessControlUpgradeable, UUPSU
     }
 
     function postUpgrade(string calldata message) external view onlyRole(DEFAULT_ADMIN_ROLE) {
-        console.log("HashtagAccessControls upgraded", message);
+        console.log("ETSAccessControls upgraded", message);
     }
 
     // Ensure that only address with admin role can upgrade.

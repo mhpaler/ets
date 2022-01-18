@@ -6,7 +6,7 @@ const deployHTPTask = {
   tags: ["deploy_all"],
   priority: 0,
   run: async (ctx) => {
-    const { accountHashtagAdmin, accountHashtagPublisher, accountHashtagPlatform } = ctx.accounts;
+    const { ETSAdmin, ETSPublisher, ETSPlatform } = ctx.accounts;
     const { HashtagAccessControls, HashtagProtocol, ERC721HashtagRegistry } = ctx.artifacts;
     let hashtagAccessControls,
       hashtagProtocol,
@@ -22,13 +22,13 @@ const deployHTPTask = {
 
     await hashtagAccessControls.grantRole(
       await hashtagAccessControls.SMART_CONTRACT_ROLE(),
-      accountHashtagAdmin.address,
+      ETSAdmin.address,
       {
-        from: accountHashtagAdmin.address,
+        from: ETSAdmin.address,
       },
     );
     // add a publisher to the protocol
-    await hashtagAccessControls.grantRole(ethers.utils.id("PUBLISHER"), accountHashtagPublisher.address);
+    await hashtagAccessControls.grantRole(ethers.utils.id("PUBLISHER"), ETSPublisher.address);
     // Save deployment data to .deployer/[chainid].json
     await ctx.saveContractConfig("HashtagAccessControls", hashtagAccessControls, hashtagAccessControlsImpl);
     // Verify deployed contracts on block explorer.
@@ -37,7 +37,7 @@ const deployHTPTask = {
     // Deploy HashtagProtocol
     hashtagProtocol = await upgrades.deployProxy(
       HashtagProtocol,
-      [hashtagAccessControls.address, accountHashtagPlatform.address],
+      [hashtagAccessControls.address, ETSPlatform.address],
       { kind: "uups" },
     );
     await hashtagProtocol.deployTransaction.wait();

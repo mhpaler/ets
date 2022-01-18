@@ -2,11 +2,11 @@ const { ethers } = require("hardhat");
 
 module.exports = async ({ deployments }) => {
   const { deploy } = deployments;
-  const accountHashtagAdmin = await ethers.getNamedSigner("accountHashtagAdmin");
+  const ETSAdmin = await ethers.getNamedSigner("ETSAdmin");
 
   await deploy("ERC721BurnableMock", {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
-    from: accountHashtagAdmin.address,
+    from: ETSAdmin.address,
     args: ["NFT", "NFT"],
     log: true,
   });
