@@ -10,11 +10,10 @@ import "hardhat/console.sol";
 import {ETSAccessControls} from "./ETSAccessControls.sol";
 import "../utils/StringHelpers.sol";
 
-/**
- * @title ETSTag ERC-721 NFT contract
- * @notice Contract that governs the creation of ETSTAG non-fungible tokens.
- * @author Ethereum Tag Service <security@ets.xyz>
- */
+/// @title ETSTag ERC-721 NFT contract
+/// @author Ethereum Tag Service <security@ets.xyz>
+/// @notice Contract that governs the creation of ETSTAG non-fungible tokens.
+/// @dev UUPS upgradable.
 contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpgradeable, StringHelpers {
     using AddressUpgradeable for address;
     using StringsUpgradeable for uint256;
@@ -25,31 +24,31 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
     // baseURI for looking up tokenURI for a token
     string public baseURI;
 
-    /// @notice minimum time in seconds that a ETSTAG is owned
+    /// @notice Term length in seconds that a ETSTAG is owned before it needs to be renewed.
     uint256 public ownershipTermLength;
 
-    /// @notice current tip of the ETSTAG tokens (and total supply) as minted consecutively
+    /// @notice Sequential integer counter for ETSTAG Id and total count.
     uint256 public tokenPointer;
 
-    /// @notice minimum ETSTAG string length
+    /// @notice minimum ETSTAG string length.
     uint256 public tagMinStringLength;
 
-    /// @notice maximum ETSTAG string length
+    /// @notice maximum ETSTAG string length.
     uint256 public tagMaxStringLength;
 
-    /// @notice ETS Platform account
+    /// @notice ETS Platform account.
     address payable public platform;
 
-    /// @notice ETS access controls smart contract
+    /// @notice ETS access controls smart contract.
     ETSAccessControls public accessControls;
 
-    /// @notice lookup of ETSTAG info from token ID
+    /// @notice Map of ETSTAG id to ETSTAG record.
     mapping(uint256 => Tag) public tokenIdToTag;
 
-    /// @notice lookup of (lowercase) ETSTAG string to token ID
+    /// @notice lookup of (lowercase) tag string to ETSTAG Id.
     mapping(string => uint256) public tagToTokenId;
 
-    /// @notice Last time a token was interacted with
+    /// @notice Last time a ETSTAG was transfered.
     mapping(uint256 => uint256) public tokenIdToLastTransferTime;
 
     /// Public constants
@@ -116,13 +115,12 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
 
     /// Minting
 
-    /**
-     * @notice Mints a new ETSTAG token
-     * @dev Tag string must pass validation and publisher must be whitelisted
-     * @param _tag Tag string to mint - must include hashtag (#) at beginning of string
-     * @param _publisher Address to be logged as publisher
-     * @param _creator Address to be logged as creator
-     */
+    /// @notice Mint a new ETSTAG token.
+    /// @dev Tag string must pass validation and publisher must be whitelisted.
+    /// @param _tag Tag string to mint - must include hashtag (#) at beginning of string.
+    /// @param _publisher Address to be logged as publisher.
+    /// @param _creator Address to be logged as creator.
+    /// @return _tokenId for newly minted ETSTAG.
     function mint(
         string calldata _tag,
         address payable _publisher,
@@ -130,10 +128,10 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
     ) external payable returns (uint256 _tokenId) {
         require(accessControls.isPublisher(_publisher), "Mint: The publisher must be whitelisted");
 
-        // Perform basic tag string validation
+        // Perform basic tag string validation.
         string memory lowerHashtagToMint = _assertTagIsValid(_tag);
 
-        // generate the new ETSTAG token id
+        // generate the new ETSTAG token id.
         tokenPointer = tokenPointer.add(1);
         uint256 tokenId = tokenPointer;
 
@@ -155,23 +153,18 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
         return tokenId;
     }
 
-    /**
-     * @notice Burns a given `tokenId`
-     * @param tokenId Token Id to burn
-     * @dev Caller must have administrator role.
-     * See {ERC721-_burn}
-     */
+    /// @notice Burns a given tokenId.
+    /// @param tokenId Token Id to burn.
+    /// @dev Caller must have administrator role.
     function burn(uint256 tokenId) public virtual override onlyAdmin {
         //solhint-disable-next-line max-line-length
         require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721Burnable: caller is not owner nor approved");
         _burn(tokenId);
     }
 
-    /**
-     * @notice Renews an ETSTAG by setting its last transfer time to current time.
-     * @dev Can only be called by token owner
-     * @param _tokenId The identifier for etstag token
-     */
+    /// @notice Renews an ETSTAG by setting its last transfer time to current time.
+    /// @dev Can only be called by token owner.
+    /// @param _tokenId The identifier for etstag token.
     function renewTag(uint256 _tokenId) external {
         require(_msgSender() == ownerOf(_tokenId), "renewTag: Invalid sender");
 
@@ -180,11 +173,9 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
         emit TagRenewed(_tokenId, _msgSender());
     }
 
-    /**
-     * @notice Recycling an ETSTAG i.e. transferring ownership back to the platform due to stale ownership
-     * @dev Token must exist, be not already be owned by platform and time of TX must be greater than lastTransferTime
-     * @param _tokenId The id of the ETSTAG being recycled
-     */
+    /// @notice Recycling an ETSTAG i.e. transferring ownership back to the platform due to stale ownership.
+    /// @dev Token must exist, be not already be owned by platform and time of TX must be greater than lastTransferTime.
+    /// @param _tokenId The id of the ETSTAG being recycled.
     function recycleTag(uint256 _tokenId) external {
         require(_exists(_tokenId), "recycleTag: Invalid token ID");
         require(ownerOf(_tokenId) != platform, "recycleTag: Tag already owned by the platform");
@@ -202,63 +193,49 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
 
     /// Administration
 
-    /**
-     * @dev Pause ETSTAG token contract.
-     */
+    /// @dev Pause ETSTAG token contract.
     function pause() external onlyAdmin {
         _pause();
     }
 
-    /**
-     * @dev Unpause ETSTAG token contract.
-     */
+    /// @dev Unpause ETSTAG token contract.
     function unPause() external onlyAdmin {
         _unpause();
     }
 
-    /**
-     * @dev Set base metadata api url.
-     * @param newBaseURI base url
-     */
+    /// @dev Set base metadata api url.
+    /// @param newBaseURI base url
     function setBaseURI(string calldata newBaseURI) public onlyAdmin {
         baseURI = newBaseURI;
         emit NewBaseURI(baseURI);
     }
 
-    /**
-     * @notice Admin method for updating the max string length of an ETSTAG
-     * @param _tagMaxStringLength max length
-     */
+    /// @notice Admin method for updating the max string length of an ETSTAG.
+    /// @param _tagMaxStringLength max length.
     function setTagMaxStringLength(uint256 _tagMaxStringLength) public onlyAdmin {
         uint256 prevTagMaxStringLength = tagMaxStringLength;
         tagMaxStringLength = _tagMaxStringLength;
         emit TagMaxStringLengthUpdated(prevTagMaxStringLength, _tagMaxStringLength);
     }
 
-    /**
-     * @notice Admin method for updating the ownership term length for all ETSTAG tokens
-     * @param _ownershipTermLength New length in unix epoch seconds
-     */
+    /// @notice Admin method for updating the ownership term length for all ETSTAG tokens.
+    /// @param _ownershipTermLength New length in unix epoch seconds.
     function setOwnershipTermLength(uint256 _ownershipTermLength) public onlyAdmin {
         uint256 prevOwnershipTermLength = ownershipTermLength;
         ownershipTermLength = _ownershipTermLength;
         emit OwnershipTermLengthUpdated(prevOwnershipTermLength, _ownershipTermLength);
     }
 
-    /**
-     * @notice Admin method for updating the address that receives the commission on behalf of the platform
-     * @param _platform Address that receives minted NFTs
-     */
+    /// @notice Admin method for updating the address that receives the commission on behalf of the platform.
+    /// @param _platform Address that receives minted NFTs.
     function setPlatform(address payable _platform) external onlyAdmin {
         address prevPlatform = platform;
         platform = _platform;
         emit PlatformSet(prevPlatform, _platform);
     }
 
-    /**
-     * @notice Admin functionality for updating the access controls
-     * @param _accessControls Address of the access controls contract
-     */
+    /// @notice Admin functionality for updating the access controls.
+    /// @param _accessControls Address of the access controls contract.
     function updateAccessControls(ETSAccessControls _accessControls) external onlyAdmin {
         require(address(_accessControls) != address(0), "ETSTag.updateAccessControls: Cannot be zero");
         ETSAccessControls prevAccessControls = accessControls;
@@ -272,19 +249,17 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
         return (tagToTokenId[__lower(tag)]);
     }
 
-    /**
-     * @notice Existence check on a ETSTAG token
-     * @param tokenId token ID
-     * @return true if exists
-     */
+    /// @notice Existence check on a ETSTAG token.
+    /// @param tokenId token ID.
+    /// @return true if exists.
     function exists(uint256 tokenId) external view returns (bool) {
         return _exists(tokenId);
     }
 
-    /// @notice Returns the commission addresses related to a token
-    /// @param _tokenId ID of a ETSTAG
-    /// @return _platform Platform commission address
-    /// @return _owner Address of the owner of the ETSTAG
+    /// @notice Returns the commission addresses related to a token.
+    /// @param _tokenId ID of a ETSTAG.
+    /// @return _platform Platform commission address.
+    /// @return _owner Address of the owner of the ETSTAG.
     function getPaymentAddresses(uint256 _tokenId)
         public
         view
@@ -293,9 +268,9 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
         return (platform, payable(ownerOf(_tokenId)));
     }
 
-    /// @notice Returns creator of a ETSTAG token
-    /// @param _tokenId ID of a ETSTAG
-    /// @return _creator creator of the ETSTAG
+    /// @notice Returns creator of a ETSTAG token.
+    /// @param _tokenId ID of a ETSTAG.
+    /// @return _creator creator of the ETSTAG.
     function getCreatorAddress(uint256 _tokenId) public view returns (address _creator) {
         return tokenIdToTag[_tokenId].creator;
     }
@@ -306,20 +281,12 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
 
     /// internal functions
 
-    /**
-     * @dev Base URI for computing {tokenURI}.
-     */
+    /// @dev Base URI for computing {tokenURI}.
     function _baseURI() internal view override(ERC721Upgradeable) returns (string memory) {
         return baseURI;
     }
 
-    /**
-     * @dev See {ERC721-_beforeTokenTransfer}.
-     *
-     * Requirements:
-     *
-     * - the contract must not be paused.
-     */
+    /// @dev See {ERC721-_beforeTokenTransfer}. Contract must not be paused.
     function _beforeTokenTransfer(
         address from,
         address to,
@@ -333,11 +300,9 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
         tokenIdToLastTransferTime[tokenId] = block.timestamp;
     }
 
-    /**
-     * @notice Private method used for validating a ETSTAG string before minting
-     * @dev A series of assertions are performed reverting the transaction for any validation violations
-     * @param _tag Proposed tag string
-     */
+    /// @notice Private method used for validating a ETSTAG string before minting.
+    /// @dev A series of assertions are performed reverting the transaction for any validation violations.
+    /// @param _tag Proposed tag string.
     function _assertTagIsValid(string memory _tag) private view returns (string memory) {
         bytes memory tagStringBytes = bytes(_tag);
         require(
@@ -355,7 +320,7 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
         for (uint256 i = 1; i < tagStringBytes.length; i++) {
             bytes1 char = tagStringBytes[i];
 
-            // Generally ensure that the character is alpha numeric
+            // Generally ensure that the character is alpha numeric.
             bool isInvalidCharacter = !(char >= 0x30 && char <= 0x39) && //0-9
                 !(char >= 0x41 && char <= 0x5A) && //A-Z
                 !(char >= 0x61 && char <= 0x7A);
@@ -366,13 +331,13 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
                 "Invalid character found: tag may only contain characters A-Z, a-z, 0-9 and #"
             );
 
-            // Should the char be alphabetic, increment alphabetCharCount
+            // Should the char be alphabetic, increment alphabetCharCount.
             if ((char >= 0x41 && char <= 0x5A) || (char >= 0x61 && char <= 0x7A)) {
                 alphabetCharCount = alphabetCharCount.add(1);
             }
         }
 
-        // Ensure alphabetCharCount is at least 1
+        // Ensure alphabetCharCount is at least 1.
         require(alphabetCharCount >= 1, "Invalid format: tag must contain at least 1 alphabetic character.");
 
         return tagKey;
