@@ -11,30 +11,46 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 import "./ETSTag.sol";
 
-/**
- * @title ETS Core
- * @notice Core tagging contract that allows any online target to be tagged with an ETSTAG token
- * @author Ethereum Tag Service <security@ets.xyz>
- */
+/// @title ETS Core
+/// @author Ethereum Tag Service <security@ets.xyz>
+/// @notice Core tagging contract that enables any online target to be tagged with an ETSTAG token.
+/// @dev ETS Core utilizes Open Zeppelin UUPS upgradability pattern.
 contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
     using SafeMathUpgradeable for uint256;
 
     /// Storage
 
+    /// @dev ETS access controls contract.
     ETSAccessControls public accessControls;
-    ETSTag public etsTag; // ETSTAG erc-721 token
 
+    /// @dev ETSTAG erc-721 token contract.
+    ETSTag public etsTag;
+
+    /// @notice Percentage of tagging fee allocated to ETS.
     uint256 public platformPercentage;
+
+    /// @notice Percentage of tagging fee allocated to Publisher.
     uint256 public publisherPercentage;
+
+    /// @notice Percentage of tagging fee allocated to Creator or Owner.
     uint256 public remainingPercentage;
+
+    /// @dev Incremental tagging record counter. Used for tagging record ID.
     uint256 public taggingCounter;
+
+    /// @notice Fee in ETH Collected by ETS for tagging.
     uint256 public taggingFee;
 
+    /// @dev Map for holding amount accrued to participant address wallets.
     mapping(address => uint256) public accrued;
+
+    /// @dev Map for holding lifetime amount drawn down from accrued by participants.
     mapping(address => uint256) public paid;
+
+    /// @dev Map for holding permitted tagging target chain ids.
     mapping(uint256 => bool) public permittedNftChainIds;
 
-    // tagging record id (will come from the taggingCounter pointer)
+    /// @dev Map of tagging id to tagging record.
     mapping(uint256 => TaggingRecord) public taggingRecords;
 
 
@@ -46,6 +62,7 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
 
     /// Structs
 
+    /// Data structure for a tagging record.
     struct TaggingRecord {
         uint256 etsTagId;
         address nftContract;
@@ -58,15 +75,19 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
 
     /// Events
 
+    /// @dev A target is successfully tagged.
+    /// @param taggingId Unique ID of a tagging record.
     event Tagged(
         uint256 taggingId
     );
 
+    /// @dev Accrued value for a participant is withdrawn to their wallet.
+    /// @param who Address being withdrawn to.
+    /// @param amount Amount withdrawn.
     event DrawDown(address indexed who, uint256 amount);
 
 
-    /// @notice Admin only execution guard
-    /// @dev When applied to a method, only allows execution when the sender has the admin role
+    /// @dev When applied to a method, only allows execution when the sender has the admin role.
     modifier onlyAdmin() {
         require(accessControls.isAdmin(_msgSender()), "Caller must be admin");
         _;
@@ -86,18 +107,16 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     // Ensure that only address with admin role can upgrade.
     function _authorizeUpgrade(address) internal override onlyAdmin {}
 
-    /// External write
+    // External write
 
-    /**
-     * @notice Combines the action of creating a new tag nft (ETSTAG) and then tagging an NFT asset with this new tag.
-     * @dev Only a whitelisted publisher can execute this with the required fee unless the caller / sender has admin privileges.
-     * @param _tagString string value of the tag to be minted
-     * @param _nftContract address of nft contract
-     * @param _nftId ID of the nft to link from the above nft contract
-     * @param _publisher the publisher attributed to the tagging
-     * @param _tagger the ethereum account that made the original tagging request
-     * @param _nftChainId EVM compatible chain id
-     */
+    /// @notice Combines the action of creating a new tag nft (ETSTAG) and then tagging an NFT asset with this new tag.
+    /// @dev Only a whitelisted publisher can execute this with the required fee unless the caller / sender has admin privileges.
+    /// @param _tagString string value of the tag to be minted.
+    /// @param _nftContract address of nft contract.
+    /// @param _nftId ID of the nft to link from the above nft contract.
+    /// @param _publisher the publisher attributed to the tagging.
+    /// @param _tagger the ethereum account that made the original tagging request.
+    /// @param _nftChainId EVM compatible chain id.
     function mintAndTag(
         string calldata _tagString,
         address _nftContract,
@@ -114,17 +133,13 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         _tag(etsTagId, _nftContract, _nftId, _publisher, _tagger, _nftChainId);
     }
 
-    /**
-     * @notice Tags an ERC721 NFT asset by storing a reference between the asset
-       and a tag. If tag string does not exist as a token, function will attempt to
-       mint a new one.
-     * @dev Only a whitelisted publisher can execute this with the required fee unless the caller / sender has admin privileges.
-     * @param _tagString tag string used for tagging
-     * @param _nftContract address of nft contract
-     * @param _nftId ID of the nft to link from the above nft contract
-     * @param _tagger the ethereum account that made the original tagging request
-     * @param _nftChainId EVM compatible chain id
-     */
+    /// @notice Tag a target with an tag string.
+    /// @dev If tag string does not exist as a ETSTAG token, function will attempt to mint a new one.
+    /// @param _tagString tag string used for tagging.
+    /// @param _nftContract address of nft contract.
+    /// @param _nftId ID of the nft to link from the above nft contract.
+    /// @param _tagger the ethereum account that made the original tagging request.
+    /// @param _nftChainId EVM compatible chain id.
     function tag(
         string calldata _tagString,
         address _nftContract,
@@ -145,12 +160,10 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         _tag(etsTagId, _nftContract, _nftId, _publisher, _tagger, _nftChainId);
     }
 
-    /**
-     * @notice Enables anyone to send ETH accrued by an account
-     * @dev Can be called by the account owner or on behalf of someone
-     * @dev Does nothing when there is nothing due to the account
-     * @param _account Target address that has had accrued ETH and which will receive the ETH
-     */
+    /// @notice Enables anyone to send ETH accrued by an account.
+    /// @dev Can be called by the account owner or on behalf of someone.
+    /// @dev Does nothing when there is nothing due to the account.
+    /// @param _account Target address that has had accrued ETH and which will receive the ETH.
     function drawDown(address payable _account) external nonReentrant {
         uint256 balanceDue = accrued[_account].sub(paid[_account]);
         if (balanceDue > 0 && balanceDue <= address(this).balance) {
@@ -161,28 +174,26 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         }
     }
 
-    /**
-     * @notice Sets the fee required to tag an NFT asset
-     * @param _fee Value of the fee in WEI
-     */
+    /// @notice Sets the fee required to tag an NFT asset.
+    /// @param _fee Value of the fee in WEI.
     function setTaggingFee(uint256 _fee) external onlyAdmin {
         taggingFee = _fee;
+
+        // TODO: emit event.
     }
 
-    /**
-     * @notice Admin functionality for updating the access controls
-     * @param _accessControls Address of the access controls contract
-     */
+    /// @notice Admin functionality for updating the access controls.
+    /// @param _accessControls Address of the access controls contract.
     function updateAccessControls(ETSAccessControls _accessControls) external onlyAdmin {
         require(address(_accessControls) != address(0), "ETS.updateAccessControls: Cannot be zero");
         accessControls = _accessControls;
+
+        // TODO: emit event.
     }
 
-    /**
-     * @notice Admin functionality for updating the percentages
-     * @param _platformPercentage percentage for platform
-     * @param _publisherPercentage percentage for publisher
-     */
+    /// @notice Admin functionality for updating the percentages.
+    /// @param _platformPercentage percentage for platform.
+    /// @param _publisherPercentage percentage for publisher.
     function updatePercentages(uint256 _platformPercentage, uint256 _publisherPercentage) external onlyAdmin {
         require(
             _platformPercentage.add(_publisherPercentage) <= 100,
@@ -191,39 +202,37 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         platformPercentage = _platformPercentage;
         publisherPercentage = _publisherPercentage;
         remainingPercentage = modulo.sub(platformPercentage).sub(publisherPercentage);
+
+        // TODO: emit event.
     }
 
-    /**
-     * @notice Admin functionality for enabling/disabling target chains.
-     * @param _nftChainId EVM compatible chain id.
-     * @param _setting Boolean, set true for enabled, false for disabled.
-     */
+    /// @notice Admin functionality for enabling/disabling target chains.
+    /// @param _nftChainId EVM compatible chain id.
+    /// @param _setting Boolean, set true for enabled, false for disabled.
     function setPermittedNftChainId(uint256 _nftChainId, bool _setting) external onlyAdmin {
         permittedNftChainIds[_nftChainId] = _setting;
+
+        // TODO: emit event.
     }
 
     /// External read
 
-    /**
-     * @notice Used to check how much ETH has been accrued by an address factoring in amount paid out
-     * @param _account Address of the account being queried
-     * @return _due Amount of WEI in ETH due to account
-     */
+    /// @notice Used to check how much ETH has been accrued by an address factoring in amount paid out.
+    /// @param _account Address of the account being queried.
+    /// @return _due Amount of WEI in ETH due to account.
     function totalDue(address _account) external view returns (uint256 _due) {
         return accrued[_account].sub(paid[_account]);
     }
 
-    /**
-     * @notice Retrieves a tagging record
-     * @param _taggingId ID of the tagging record
-     * @return _etsTagId token ID of ETSTAG used
-     * @return _nftContract NFT contract address
-     * @return _nftId NFT ID
-     * @return _tagger Address that tagged the NFT asset
-     * @return _timestamp When the tag took place
-     * @return _publisher Publisher through which the tag took place
-     * @return _nftChainId Chain ID target NFT lives on
-     */
+    /// @dev Retrieves a tagging record.
+    /// @param _taggingId ID of the tagging record.
+    /// @return _etsTagId token ID of ETSTAG used.
+    /// @return _nftContract NFT contract address.
+    /// @return _nftId NFT ID.
+    /// @return _tagger Address that tagged the NFT asset.
+    /// @return _timestamp When the tag took place.
+    /// @return _publisher Publisher through which the tag took place.
+    /// @return _nftChainId Chain ID target NFT lives on.
     function getTaggingRecord(uint256 _taggingId)
         external
         view
@@ -249,11 +258,9 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         );
     }
 
-    /**
-     * @notice Check if a target chain is permitted for tagging.
-     * @param _nftChainId EVM compatible chain id.
-     * @return true for enabled, false for disabled.
-     */
+    /// @notice Check if a target chain is permitted for tagging.
+    /// @param _nftChainId EVM compatible chain id.
+    /// @return true for enabled, false for disabled.
     function getPermittedNftChainId(uint256 _nftChainId) external view returns (bool) {
         return permittedNftChainIds[_nftChainId];
     }
@@ -296,7 +303,7 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
 
         (address _platform, address _owner) = etsTag.getPaymentAddresses(_etsTagId);
 
-        // pre-auction
+        // pre-auction.
         if (_owner == _platform) {
             accrued[_platform] = accrued[_platform].add(msg.value.mul(platformPercentage).div(modulo));
             accrued[_publisher] = accrued[_publisher].add(msg.value.mul(publisherPercentage).div(modulo));
@@ -304,7 +311,7 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
             address creator = etsTag.getCreatorAddress(_etsTagId);
             accrued[creator] = accrued[creator].add(msg.value.mul(remainingPercentage).div(modulo));
         }
-        // post-auction
+        // post-auction.
         else {
             accrued[_platform] = accrued[_platform].add(msg.value.mul(platformPercentage).div(modulo));
             accrued[_publisher] = accrued[_publisher].add(msg.value.mul(publisherPercentage).div(modulo));
@@ -312,19 +319,7 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
             accrued[_owner] = accrued[_owner].add(msg.value.mul(remainingPercentage).div(modulo));
         }
 
-        // Log that a target has been tagged
+        // Log that a target has been tagged.
         emit Tagged(taggingId);
-    }
-
-    /// Internal read
-
-    function _assertNftExists(address _nftContract, uint256 _nftId) private view {
-        try IERC721Upgradeable(_nftContract).ownerOf(_nftId) returns (address owner) {
-            require(owner != address(0), "Token does not exist or is owned by the zero address");
-        } catch Error(string memory reason) {
-            revert(reason);
-        } catch {
-            revert("Token does not exist");
-        }
     }
 }
