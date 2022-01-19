@@ -36,6 +36,7 @@ Other packages:
 - `tsconfig`: `tsconfig.json`s used throughout the monorepo
 
 <a name="site"></a>
+
 ### Site
 
 ```bash
@@ -47,6 +48,7 @@ This will start up the Next.js development server and your site will be availabl
 The App is built with Next.js and can be found in `apps/site`.
 
 <a name="app"></a>
+
 ### App
 
 ```bash
@@ -60,6 +62,7 @@ The App is built with Next.js and can be found in `apps/app`.
 To interact with the local contract, be sure to switch your MetaMask Network to `Localhost 8545`.
 
 <a name="docs"></a>
+
 ### Docs
 
 ```bash
@@ -70,13 +73,14 @@ This will start up the Next.js development server and your site will be availabl
 
 The App is built with Next.js and can be found in `apps/docs`.
 
-
 <a name="ui"></a>
+
 ### UI
 
 The UI package (`/packages/ui`) is a stub React component library shared by the `site`, `app`, and `docs` applications.
 
 <a name="subgraph"></a>
+
 ### Subgraph
 
 To develop using a local subgraph, you'll need to have [Docker](https://www.docker.com/products/docker-desktop) installed. Be sure you have already run `yarn hardhart` and `yarn hardhat:deploy` so your contracts are deployed to the local Hardhat network before running the following commands.
@@ -112,9 +116,12 @@ yarn docker:remove
 ```
 
 <a name="contracts"></a>
+
 ### Contracts
 
-Contract are located in `packages/hardhat/contracts`.
+Contracts are located in `packages/hardhat/contracts`.
+
+We use [Hardhat](https://hardhat.org/) as our Solidity smart contract development environment. Before using Hardhat, make a copy of `.env.example` in the project root named `.env`. The default settings in there should be enough to get you going. Next, start up Hardhat:
 
 ```bash
 yarn hardhat
@@ -136,7 +143,28 @@ yarn hardhat:watch
 
 Deployment and watching scripts are located in `packages/hardhat/scripts` and `packages/hardhat/deploy`.
 
+#### Ethernal
+
+We are big fans of using [Ethernal](https://doc.tryethernal.com/) to help with smart contract development. Think of Ethernal like Etherscan, but for your locally running Hardhat blockchain. We use it to quickly interact with our locally deployed contracts.
+
+Once you have Ethernal setup, enable it for local ETS development by setting the following in your .env file:
+
+```text
+ETHERNAL_ENABLED=true
+ETHERNAL_WORKSPACE=[you local workspace name]
+```
+
+Now when you run `yarn hardhat:deploy` your contracts will be automatically verified in the Ethernal interface allowing you to directly interact with them.
+
+Note: its a good idea when re-deploying contracts to first reset your Ethernal workspace by issuing the following command:
+
+```txt
+ethernal reset [workspace name]
+```
+
+Remember to use quotes around `workspace name` if it has spaces.
 <a name="tests"></a>
+
 ### Tests
 
 To run tests:
@@ -146,6 +174,7 @@ yarn hardhat:test
 ```
 
 <a name="deployments"></a>
+
 ### Deployments
 
 To deploy contracts to Polygon Mumbai, run:

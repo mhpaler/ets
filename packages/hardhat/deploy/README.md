@@ -8,7 +8,7 @@ The scripts in `hardhat-upgrades` are our production scripts at the moment. Whil
 
 The actual scripts called to kick off a deployment are in /scripts. A deployment script instantiates a `Deployer` object (defined in `utils/deployer.js`), and passes to it one or more `tags` which correspond to deployment `tasks` defined in `utils/tasks.js`.
 
-For example, the script `scripts/upgrade_all.js` executes the tasks `"upgrade_hashtag_access_controls", "upgrade_hashtag_protocol", "upgrade_erc721_tagging_registry"`
+For example, the script `scripts/upgrade_all.js` executes the tasks with the these tags `"upgrade_ets_access_controls", "upgrade_ets_tag", "upgrade_ets"`
 
 To deploy the Hashtag Protocol contracts locally, perform the following from the root of `/hashtag-contracts/`:
 
@@ -19,7 +19,9 @@ hardhat run --network <network> deploy/hardhat-upgrades/scripts/deploy_all.js
 To test the upgrade of a contract, for example HashtagAccessControls.sol, you would perform the following:
 
 ``` bash
-hardhat run --network <network> deploy/hardhat-upgrades/scripts/upgrade_access_controls.js
+hardhat run --network <network> deploy/hardhat-upgrades/scripts/upgrade_ets_access_controls.js
 ```
 
 Note that when deployments are run, deployment artifacts (ie contract addresses per network) are saved to both `/.deployments/[chainid].json` and `/config/config.json`.
+
+Also node, a nice improvement to this set up would be a single task handler script that tags tags as arguments.

@@ -15,6 +15,7 @@ import { resolve } from "path";
 
 import { config as dotenvConfig } from "dotenv";
 import { HardhatUserConfig } from "hardhat/types";
+import { extendEnvironment } from "hardhat/config";
 
 dotenvConfig({ path: resolve(__dirname, "../../.env") });
 
@@ -101,5 +102,11 @@ const config: HardhatUserConfig = {
     ],
   },
 };
+
+// Environment extension to support Ethernal.
+extendEnvironment((hre) => {
+  hre.ethernalSync = process.env.ETHERNAL_ENABLED == "true" ? true : false;;
+  hre.ethernalWorkspace = process.env.ETHERNAL_WORKSPACE ? process.env.ETHERNAL_WORKSPACE : "none";
+});
 
 export default config;
