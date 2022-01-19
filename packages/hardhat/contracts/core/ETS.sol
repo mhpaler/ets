@@ -75,17 +75,37 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
 
     /// Events
 
-    /// @dev A target is successfully tagged.
-    /// @param taggingId Unique ID of a tagging record.
-    event Tagged(
-        uint256 taggingId
+    event TargetTagged(
+      uint256 taggingId
     );
 
-    /// @dev Accrued value for a participant is withdrawn to their wallet.
-    /// @param who Address being withdrawn to.
-    /// @param amount Amount withdrawn.
-    event DrawDown(address indexed who, uint256 amount);
+    event FundsWithdrawn(
+      address indexed who,
+      uint256 amount
+    );
 
+    event TaggingFeeSet(
+      uint256 previousFee,
+      uint256 taggingFee
+    );
+
+    event AccessControlsUpdated(
+      ETSAccessControls previousAccessControls, 
+      ETSAccessControls newAccessControls
+    );
+
+    event PercentagesSet(
+      uint256 platformPercentage,
+      uint256 publisherPercentage,
+      uint256 remainingPercentage
+    );
+
+    event PermittedNftChainIdSet(
+      uint256 nftChainId,
+      bool setting
+    );
+
+    /// Modifiers
 
     /// @dev When applied to a method, only allows execution when the sender has the admin role.
     modifier onlyAdmin() {
@@ -170,25 +190,25 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
             paid[_account] = paid[_account].add(balanceDue);
             _account.transfer(balanceDue);
 
-            emit DrawDown(_account, balanceDue);
+            emit FundsWithdrawn(_account, balanceDue);
         }
     }
 
     /// @notice Sets the fee required to tag an NFT asset.
     /// @param _fee Value of the fee in WEI.
     function setTaggingFee(uint256 _fee) external onlyAdmin {
+        uint previousFee = taggingFee;
         taggingFee = _fee;
-
-        // TODO: emit event.
+        emit TaggingFeeSet(previousFee, taggingFee);
     }
 
     /// @notice Admin functionality for updating the access controls.
     /// @param _accessControls Address of the access controls contract.
     function updateAccessControls(ETSAccessControls _accessControls) external onlyAdmin {
         require(address(_accessControls) != address(0), "ETS.updateAccessControls: Cannot be zero");
+        ETSAccessControls prevAccessControls = accessControls;
         accessControls = _accessControls;
-
-        // TODO: emit event.
+        emit AccessControlsUpdated(prevAccessControls, accessControls);
     }
 
     /// @notice Admin functionality for updating the percentages.
@@ -202,8 +222,8 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         platformPercentage = _platformPercentage;
         publisherPercentage = _publisherPercentage;
         remainingPercentage = modulo.sub(platformPercentage).sub(publisherPercentage);
-
-        // TODO: emit event.
+        
+        emit PercentagesSet(platformPercentage, publisherPercentage, remainingPercentage);
     }
 
     /// @notice Admin functionality for enabling/disabling target chains.
@@ -211,8 +231,7 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     /// @param _setting Boolean, set true for enabled, false for disabled.
     function setPermittedNftChainId(uint256 _nftChainId, bool _setting) external onlyAdmin {
         permittedNftChainIds[_nftChainId] = _setting;
-
-        // TODO: emit event.
+        emit PermittedNftChainIdSet(_nftChainId, _setting);
     }
 
     /// External read
@@ -320,6 +339,6 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         }
 
         // Log that a target has been tagged.
-        emit Tagged(taggingId);
+        emit TargetTagged(taggingId);
     }
 }

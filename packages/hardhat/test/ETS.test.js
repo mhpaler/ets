@@ -147,7 +147,7 @@ describe("ETS", function () {
         { value: taggingFee },
       );
 
-      await expectEvent.inTransaction(receipt.hash, artifact.ETS, "Tagged", {
+      await expectEvent.inTransaction(receipt.hash, artifact.ETS, "TargetTagged", {
         taggingId: constants.One,
       });
 
@@ -202,7 +202,7 @@ describe("ETS", function () {
         { value: taggingFee },
       );
 
-      await expectEvent.inTransaction(receipt.hash, artifact.ETS, "Tagged", {
+      await expectEvent.inTransaction(receipt.hash, artifact.ETS, "TargetTagged", {
         taggingId: constants.One,
       });
 
@@ -260,7 +260,7 @@ describe("ETS", function () {
         { value: taggingFee },
       );
 
-      await expectEvent.inTransaction(receipt.hash, artifact.ETS, "Tagged", {
+      await expectEvent.inTransaction(receipt.hash, artifact.ETS, "TargetTagged", {
         taggingId: constants.One,
       });
     });
@@ -393,7 +393,7 @@ describe("ETS", function () {
         { value: taggingFee },
       );
 
-      await expectEvent.inTransaction(receipt.hash, artifact.ETS, "Tagged", {
+      await expectEvent.inTransaction(receipt.hash, artifact.ETS, "TargetTagged", {
         taggingId: constants.One,
       });
     });
@@ -615,5 +615,7 @@ describe("ETS", function () {
       expect(await ETS.publisherPercentage()).to.be.equal(20);
       expect(await ETS.remainingPercentage()).to.be.equal(50);
     });
+
+    
   });
 });

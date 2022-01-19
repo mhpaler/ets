@@ -76,6 +76,8 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
 
     event MintTag(uint256 indexed tokenId, string displayVersion, address indexed publisher, address creator);
 
+    event TagBurned(uint256 indexed tokenId);
+
     event TagRecycled(uint256 indexed tokenId, address indexed owner);
 
     event TagRenewed(uint256 indexed tokenId, address indexed caller);
@@ -160,6 +162,8 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
         //solhint-disable-next-line max-line-length
         require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721Burnable: caller is not owner nor approved");
         _burn(tokenId);
+
+        emit TagBurned(tokenId);
     }
 
     /// @notice Renews an ETSTAG by setting its last transfer time to current time.
