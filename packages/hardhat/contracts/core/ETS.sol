@@ -76,33 +76,33 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     /// Events
 
     event TargetTagged(
-      uint256 taggingId
+        uint256 taggingId
     );
 
     event FundsWithdrawn(
-      address indexed who,
-      uint256 amount
+        address indexed who,
+        uint256 amount
     );
 
     event TaggingFeeSet(
-      uint256 previousFee,
-      uint256 taggingFee
+        uint256 previousFee,
+        uint256 taggingFee
     );
 
     event AccessControlsUpdated(
-      ETSAccessControls previousAccessControls, 
-      ETSAccessControls newAccessControls
+        ETSAccessControls previousAccessControls, 
+        ETSAccessControls newAccessControls
     );
 
     event PercentagesSet(
-      uint256 platformPercentage,
-      uint256 publisherPercentage,
-      uint256 remainingPercentage
+        uint256 platformPercentage,
+        uint256 publisherPercentage,
+        uint256 remainingPercentage
     );
 
     event PermittedNftChainIdSet(
-      uint256 nftChainId,
-      bool setting
+        uint256 nftChainId,
+        bool setting
     );
 
     /// Modifiers
