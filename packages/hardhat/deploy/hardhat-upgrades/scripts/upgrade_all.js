@@ -1,19 +1,21 @@
 const { network } = require("hardhat");
 const { mergeNetworkConfig } = require("../utils/config");
 const Deployer = require("../utils/deployer");
-const HTPNetworkConfig = require("../../../config/config.json");
+const ETSNetworkConfig = require("../../../config/config.json");
 
 async function main() {
   console.log("Network:", network.name);
 
-  const config = HTPNetworkConfig.networks[network.config.chainId];
+  const config = ETSNetworkConfig.networks[network.config.chainId];
   if (!config) {
     throw new Error(`Config not found for network ${network.config.chainId}`);
   }
 
   const deployer = await Deployer.create();
+
+  // Pass in task tag ids, see utils/tasks.js
   const deployConfig = await deployer.execute(
-    ["upgrade_hashtag_access_controls", "upgrade_hashtag_protocol", "upgrade_erc721_tagging_registry"],
+    ["upgrade_ets_access_controls", "upgrade_ets_tag", "upgrade_ets"],
     config,
   );
   mergeNetworkConfig(deployConfig);
