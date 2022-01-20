@@ -3,12 +3,12 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: HashtagProtocol
+    name: ETSTag
     network: {{network}}
     source:
-      address: "{{contracts.HashtagProtocol.address}}"
-      abi: HashtagProtocol
-      startBlock: {{contracts.HashtagProtocol.transaction.blockNumber}}
+      address: "{{contracts.ETSTag.address}}"
+      abi: ETSTag
+      startBlock: {{contracts.ETSTag.deploymentBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -16,19 +16,19 @@ dataSources:
       entities:
         - MintHashtag
       abis:
-        - name: HashtagProtocol
-          file: ./abi/HashtagProtocol.json
+        - name: ETSTag
+          file: ./abi/ETSTag.json
       eventHandlers:
         - event: MintHashtag(indexed uint256,string,indexed address,address)
           handler: handleMintHashtag
       file: ./src/mappings/protocol-mapping.ts
   - kind: ethereum/contract
-    name: ERC721HashtagRegistry
+    name: ETS
     network: {{network}}
     source:
-      address: "{{contracts.ERC721HashtagRegistry.address}}"
-      abi: ERC721HashtagRegistry
-      startBlock: {{contracts.ERC721HashtagRegistry.transaction.blockNumber}}
+      address: "{{contracts.ETS.address}}"
+      abi: ETS
+      startBlock: {{contracts.ETS.deploymentBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -36,21 +36,21 @@ dataSources:
       entities:
         - HashtagRegistered
       abis:
-        - name: ERC721HashtagRegistry
-          file: ./abi/ERC721HashtagRegistry.json
-        - name: HashtagProtocol
-          file: ./abi/HashtagProtocol.json
+        - name: ETS
+          file: ./abi/ETS.json
+        - name: ETSTag
+          file: ./abi/ETSTag.json
       eventHandlers:
         - event: HashtagRegistered(indexed address,indexed address,indexed address,uint256,uint256,uint256,uint256,uint256)
           handler: handleHashtagRegistered
       file: ./src/mappings/erc721-hashtag-registry.ts
   - kind: ethereum/contract
-    name: HashtagAccessControls
+    name: ETSAccessControls
     network: {{network}}
     source:
-      address: "{{contracts.HashtagAccessControls.address}}"
-      abi: HashtagAccessControls
-      startBlock: {{contracts.HashtagAccessControls.transaction.blockNumber}}
+      address: "{{contracts.ETSAccessControls.address}}"
+      abi: ETSAccessControls
+      startBlock: {{contracts.ETSAccessControls.deploymentBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -58,8 +58,8 @@ dataSources:
       entities:
         - RoleGranted
       abis:
-        - name: HashtagAccessControls
-          file: ./abi/HashtagAccessControls.json
+        - name: ETSAccessControls
+          file: ./abi/ETSAccessControls.json
       eventHandlers:
         - event: RoleGranted(indexed bytes32,indexed address,indexed address)
           handler: handleRoleGranted
