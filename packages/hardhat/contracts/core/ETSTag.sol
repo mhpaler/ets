@@ -106,7 +106,7 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
         platform = _platform;
         ownershipTermLength = 730 days;
         baseURI = "https://api.hashtag-protocol.io/";
-        tagMinStringLength = 3;
+        tagMinStringLength = 1;
         tagMaxStringLength = 32;
     }
 
