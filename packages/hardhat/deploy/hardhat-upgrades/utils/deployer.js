@@ -1,4 +1,4 @@
-const { ethers, network, ethernal, run } = require("hardhat");
+const { ethers, network, ethernal, run, ethernalSync, ethernalWorkspace } = require("hardhat");
 const path = require("path");
 const fs = require("fs");
 const merge = require("lodash.merge");
@@ -6,7 +6,7 @@ const debug = require("debug");
 
 const tasks = require("./tasks");
 
-const log = debug("HTP:deployer");
+const log = debug("ETS:deployer");
 
 const defaultOptions = {
   basePath: "./.deployments",
@@ -15,18 +15,18 @@ const defaultOptions = {
 
 async function _getArtifacts() {
   return {
-    HashtagAccessControls: await ethers.getContractFactory("HashtagAccessControls"),
-    HashtagProtocol: await ethers.getContractFactory("HashtagProtocol"),
-    ERC721HashtagRegistry: await ethers.getContractFactory("ERC721HashtagRegistry"),
+    ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
+    ETSTag: await ethers.getContractFactory("ETSTag"),
+    ETS: await ethers.getContractFactory("ETS"),
   };
 }
 
 async function _getAccounts() {
   const namedAccounts = await ethers.getNamedSigners();
   return {
-    accountHashtagAdmin: namedAccounts["accountHashtagAdmin"],
-    accountHashtagPublisher: namedAccounts["accountHashtagPublisher"],
-    accountHashtagPlatform: namedAccounts["accountHashtagPlatform"],
+    ETSAdmin: namedAccounts["ETSAdmin"],
+    ETSPublisher: namedAccounts["ETSPublisher"],
+    ETSPlatform: namedAccounts["ETSPlatform"],
   };
 }
 
@@ -46,7 +46,7 @@ class Deployer {
     this.networkName = network.name;
 
     this.log = log;
-    debug.enable("HTP:deployer");
+    debug.enable("ETS:deployer");
 
     const { basePath } = this.options;
     if (!fs.existsSync(basePath)) {
@@ -86,7 +86,7 @@ class Deployer {
     const emptyConfig = {
       address: "0x0000000000000000000000000000000000000000",
       legacyAddresses: [],
-      deploymentBlock: "0x0",
+      deploymentBlock: "",
     };
 
     const contracts = {};
@@ -95,7 +95,7 @@ class Deployer {
         ...emptyConfig,
         address: value.address,
         implementation: value.implementation,
-        deploymentBlock: value.transaction && ethers.BigNumber.from(value.transaction.blockNumber).toHexString(),
+        deploymentBlock: value.transaction.blockNumber,
       };
     }
 
@@ -144,16 +144,20 @@ class Deployer {
       args,
     });
 
-    // If we are on hardhat local chain.
+    // If we are on hardhat local chain and ethernalSync is enabled.
     if (this.network.chainId == 31337) {
-      try {
-        // Verify on ethernal.
-        // await ethernal.push({
-        //   name: name,
-        //   address: proxy,
-        // });
-      } catch (err) {
-        this.log("Verification failed", { name, chainId: this.network.chainId, proxy, args, err });
+      if (ethernalSync) {
+        this.log("Verifying locally on Ethernal");
+        try {
+          await ethernal.push({
+            name: name,
+            address: proxy,
+          });
+        } catch (err) {
+          this.log("Verification failed", { name, chainId: this.network.chainId, proxy, args, err });
+        }
+      } else {
+        this.log("Skipping Ethernal verification. See repository README.md for information on enabling Ethernal.");
       }
     } else {
       try {

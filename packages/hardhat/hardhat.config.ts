@@ -15,6 +15,7 @@ import { resolve } from "path";
 
 import { config as dotenvConfig } from "dotenv";
 import { HardhatUserConfig } from "hardhat/types";
+import { extendEnvironment } from "hardhat/config";
 
 dotenvConfig({ path: resolve(__dirname, "../../.env") });
 
@@ -48,9 +49,9 @@ const config: HardhatUserConfig = {
       accounts: mnemonic ? { mnemonic } : undefined,
     }
   },
-  paths: {
-    artifacts: '../app/artifacts',
-  },
+  //paths: {
+  //  artifacts: '../app/artifacts',
+  //},
   abiExporter: {
     path: '../subgraph/abi',
     runOnCompile: true,
@@ -58,16 +59,17 @@ const config: HardhatUserConfig = {
     pretty: true,
     flat: false,
   },
+  // ETS administration accounts.
   namedAccounts: {
-    accountHashtagAdmin: {
+    ETSAdmin: {
       default: 0,
       mumbai: "0x93A5f58566D436Cae0711ED4d2815B85A26924e6",
     },
-    accountHashtagPublisher: {
+    ETSPublisher: {
       default: 1,
       mumbai: "0xE9FBC1a1925F6f117211C59b89A55b576182e1e9",
     },
-    accountHashtagPlatform: {
+    ETSPlatform: {
       default: 2,
       mumbai: "0x60F2760f0D99330A555c5fc350099b634971C6Eb",
     },
@@ -101,5 +103,11 @@ const config: HardhatUserConfig = {
     ],
   },
 };
+
+// Environment extension to support Ethernal.
+extendEnvironment((hre) => {
+  hre.ethernalSync = process.env.ETHERNAL_ENABLED == "true" ? true : false;;
+  hre.ethernalWorkspace = process.env.ETHERNAL_WORKSPACE ? process.env.ETHERNAL_WORKSPACE : "none";
+});
 
 export default config;

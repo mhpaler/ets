@@ -1,74 +1,74 @@
 const { network, upgrades, ethers } = require("hardhat");
 const merge = require("lodash.merge");
 
-// Deploys HashtagAccessControls.sol, HashtagProtocol.sol & ERC721HashtagRegistry.sol
-const deployHTPTask = {
+// Deploys ETSAccessControls.sol, ETSTag.sol & ETS.sol
+const deployETSTask = {
   tags: ["deploy_all"],
   priority: 0,
   run: async (ctx) => {
-    const { accountHashtagAdmin, accountHashtagPublisher, accountHashtagPlatform } = ctx.accounts;
-    const { HashtagAccessControls, HashtagProtocol, ERC721HashtagRegistry } = ctx.artifacts;
-    let hashtagAccessControls,
-      hashtagProtocol,
-      erc721HashtagRegistry,
-      hashtagAccessControlsImpl,
-      hashtagProtocolImpl,
-      erc721HashtagRegistryImpl;
+    const { ETSAdmin, ETSPublisher, ETSPlatform } = ctx.accounts;
+    const { ETSAccessControls, ETSTag, ETS } = ctx.artifacts;
+    let etsAccessControls,
+      etsTag,
+      ets,
+      etsAccessControlsImpl,
+      etsTagImpl,
+      etsImpl;
 
-    // Deploy HashtagAccessControls
-    hashtagAccessControls = await upgrades.deployProxy(HashtagAccessControls, { kind: "uups" });
-    await hashtagAccessControls.deployTransaction.wait();
-    hashtagAccessControlsImpl = await upgrades.erc1967.getImplementationAddress(hashtagAccessControls.address);
+    // Deploy ETSAccessControls
+    etsAccessControls = await upgrades.deployProxy(ETSAccessControls, { kind: "uups" });
+    await etsAccessControls.deployTransaction.wait();
+    etsAccessControlsImpl = await upgrades.erc1967.getImplementationAddress(etsAccessControls.address);
 
-    await hashtagAccessControls.grantRole(
-      await hashtagAccessControls.SMART_CONTRACT_ROLE(),
-      accountHashtagAdmin.address,
+    await etsAccessControls.grantRole(
+      await etsAccessControls.SMART_CONTRACT_ROLE(),
+      ETSAdmin.address,
       {
-        from: accountHashtagAdmin.address,
+        from: ETSAdmin.address,
       },
     );
     // add a publisher to the protocol
-    await hashtagAccessControls.grantRole(ethers.utils.id("PUBLISHER"), accountHashtagPublisher.address);
+    await etsAccessControls.grantRole(ethers.utils.id("PUBLISHER"), ETSPublisher.address);
     // Save deployment data to .deployer/[chainid].json
-    await ctx.saveContractConfig("HashtagAccessControls", hashtagAccessControls, hashtagAccessControlsImpl);
+    await ctx.saveContractConfig("ETSAccessControls", etsAccessControls, etsAccessControlsImpl);
     // Verify deployed contracts on block explorer.
-    await ctx.verify("HashtagAccessControls", hashtagAccessControls.address, hashtagAccessControlsImpl, []);
+    await ctx.verify("ETSAccessControls", etsAccessControls.address, etsAccessControlsImpl, []);
 
-    // Deploy HashtagProtocol
-    hashtagProtocol = await upgrades.deployProxy(
-      HashtagProtocol,
-      [hashtagAccessControls.address, accountHashtagPlatform.address],
+    // Deploy ETSTag
+    etsTag = await upgrades.deployProxy(
+      ETSTag,
+      [etsAccessControls.address, ETSPlatform.address],
       { kind: "uups" },
     );
-    await hashtagProtocol.deployTransaction.wait();
-    hashtagProtocolImpl = await upgrades.erc1967.getImplementationAddress(hashtagProtocol.address);
-    await ctx.saveContractConfig("HashtagProtocol", hashtagProtocol, hashtagProtocolImpl);
-    await ctx.verify("HashtagProtocol", hashtagProtocol.address, hashtagProtocolImpl, []);
+    await etsTag.deployTransaction.wait();
+    etsTagImpl = await upgrades.erc1967.getImplementationAddress(etsTag.address);
+    await ctx.saveContractConfig("ETSTag", etsTag, etsTagImpl);
+    await ctx.verify("ETSTag", etsTag.address, etsTagImpl, []);
 
-    // Deploy ERC721HashtagRegistry
-    erc721HashtagRegistry = await upgrades.deployProxy(
-      ERC721HashtagRegistry,
-      [hashtagAccessControls.address, hashtagProtocol.address],
+    // Deploy ETS
+    ets = await upgrades.deployProxy(
+      ETS,
+      [etsAccessControls.address, etsTag.address],
       { kind: "uups" },
     );
-    await erc721HashtagRegistry.deployTransaction.wait();
-    erc721HashtagRegistryImpl = await upgrades.erc1967.getImplementationAddress(erc721HashtagRegistry.address);
-    await ctx.saveContractConfig("ERC721HashtagRegistry", erc721HashtagRegistry, erc721HashtagRegistryImpl);
-    await ctx.verify("ERC721HashtagRegistry", erc721HashtagRegistry.address, erc721HashtagRegistryImpl, []);
+    await ets.deployTransaction.wait();
+    etsImpl = await upgrades.erc1967.getImplementationAddress(ets.address);
+    await ctx.saveContractConfig("ETS", ets, etsImpl);
+    await ctx.verify("ETS", ets.address, etsImpl, []);
   },
   ensureDependencies: () => {},
 };
 
-// Upgrade HashtagAccessControls
-const upgradeHashtagAccessControlsTask = {
-  tags: ["upgrade_hashtag_access_controls"],
+// Upgrade ETSAccessControls
+const upgradeETSAccessControlsTask = {
+  tags: ["upgrade_ets_access_controls"],
   priority: 10,
   // Before upgradeProxy is run (below), deployer.js ensures upgrade target
   // exists and passes address along to run function.
   ensureDependencies: (ctx, config) => {
     config = merge(ctx.getDeployConfig(), config);
-    const { HashtagAccessControls } = config.contracts || {};
-    const dependencies = { HashtagAccessControls };
+    const { ETSAccessControls } = config.contracts || {};
+    const dependencies = { ETSAccessControls };
     for (const [key, value] of Object.entries(dependencies)) {
       if (!value || !value.address) {
         throw new Error(`${key} contract not found for network ${network.config.chainId}`);
@@ -77,29 +77,29 @@ const upgradeHashtagAccessControlsTask = {
     return dependencies;
   },
   // Upgrade the contract, passing in dependencies as second argument.
-  run: async (ctx, { HashtagAccessControls }) => {
-    const hashtagAccessControls = await upgrades.upgradeProxy(
-      HashtagAccessControls.address,
-      ctx.artifacts.HashtagAccessControls,
+  run: async (ctx, { ETSAccessControls }) => {
+    const etsAccessControls = await upgrades.upgradeProxy(
+      ETSAccessControls.address,
+      ctx.artifacts.ETSAccessControls,
     );
-    await hashtagAccessControls.deployTransaction.wait();
-    const hashtagAccessControlsImpl = await upgrades.erc1967.getImplementationAddress(hashtagAccessControls.address);
-    await ctx.saveContractConfig("HashtagAccessControls", hashtagAccessControls, hashtagAccessControlsImpl);
+    await etsAccessControls.deployTransaction.wait();
+    const etsAccessControlsImpl = await upgrades.erc1967.getImplementationAddress(etsAccessControls.address);
+    await ctx.saveContractConfig("ETSAccessControls", etsAccessControls, etsAccessControlsImpl);
     // Verify deployed contracts on block explorer.
-    await ctx.verify("HashtagAccessControls", hashtagAccessControls.address, hashtagAccessControlsImpl, []);
+    await ctx.verify("ETSAccessControls", etsAccessControls.address, etsAccessControlsImpl, []);
   },
 };
 
-// Upgrade HashtagProtocol
-const upgradeHashtagProtocolTask = {
-  tags: ["upgrade_hashtag_protocol"],
+// Upgrade ETSTag
+const upgradeETSTagTask = {
+  tags: ["upgrade_ets_tag"],
   priority: 15,
   // Before upgradeProxy is run (below), deployer.js ensures upgrade target
   // exists and passes address along to run function.
   ensureDependencies: (ctx, config) => {
     config = merge(ctx.getDeployConfig(), config);
-    const { HashtagProtocol } = config.contracts || {};
-    const dependencies = { HashtagProtocol };
+    const { ETSTag } = config.contracts || {};
+    const dependencies = { ETSTag };
     for (const [key, value] of Object.entries(dependencies)) {
       if (!value || !value.address) {
         throw new Error(`${key} contract not found for network ${network.config.chainId}`);
@@ -108,27 +108,27 @@ const upgradeHashtagProtocolTask = {
     return dependencies;
   },
   // Upgrade the contract, passing in dependencies as second argument.
-  run: async (ctx, { HashtagProtocol }) => {
-    const hashtagProtocol = await upgrades.upgradeProxy(HashtagProtocol.address, ctx.artifacts.HashtagProtocol);
+  run: async (ctx, { ETSTag }) => {
+    const etsTag = await upgrades.upgradeProxy(ETSTag.address, ctx.artifacts.ETSTag);
 
-    await hashtagProtocol.deployTransaction.wait();
-    const hashtagProtocolImpl = await upgrades.erc1967.getImplementationAddress(hashtagProtocol.address);
-    await ctx.saveContractConfig("HashtagProtocol", hashtagProtocol, hashtagProtocolImpl);
+    await etsTag.deployTransaction.wait();
+    const etsTagImpl = await upgrades.erc1967.getImplementationAddress(etsTag.address);
+    await ctx.saveContractConfig("ETSTag", etsTag, etsTagImpl);
     // Verify deployed contracts on block explorer.
-    await ctx.verify("HashtagProtocol", hashtagProtocol.address, hashtagProtocolImpl, []);
+    await ctx.verify("ETSTag", etsTag.address, etsTagImpl, []);
   },
 };
 
-// Upgrade ERC721HashtagRegistry
-const upgradeERC721TaggingRegistryTask = {
-  tags: ["upgrade_erc721_tagging_registry"],
+// Upgrade ETS
+const upgradeETSTask = {
+  tags: ["upgrade_ets"],
   priority: 20,
   // Before upgradeProxy is run (below), deployer.js ensures upgrade target
   // exists and passes address along to run function.
   ensureDependencies: (ctx, config) => {
     config = merge(ctx.getDeployConfig(), config);
-    const { ERC721HashtagRegistry } = config.contracts || {};
-    const dependencies = { ERC721HashtagRegistry };
+    const { ETS } = config.contracts || {};
+    const dependencies = { ETS };
     for (const [key, value] of Object.entries(dependencies)) {
       if (!value || !value.address) {
         throw new Error(`${key} contract not found for network ${network.config.chainId}`);
@@ -137,18 +137,18 @@ const upgradeERC721TaggingRegistryTask = {
     return dependencies;
   },
   // Upgrade the contract, passing in dependencies as second argument.
-  run: async (ctx, { ERC721HashtagRegistry }) => {
+  run: async (ctx, { ETS }) => {
     // Upgrade the proxy.
-    const erc721HashtagRegistry = await upgrades.upgradeProxy(
-      ERC721HashtagRegistry.address,
-      ctx.artifacts.ERC721HashtagRegistry,
+    const ets = await upgrades.upgradeProxy(
+      ETS.address,
+      ctx.artifacts.ETS,
     );
 
-    await erc721HashtagRegistry.deployTransaction.wait();
-    const erc721HashtagRegistryImpl = await upgrades.erc1967.getImplementationAddress(erc721HashtagRegistry.address);
-    await ctx.saveContractConfig("ERC721HashtagRegistry", erc721HashtagRegistry, erc721HashtagRegistryImpl);
+    await ets.deployTransaction.wait();
+    const etsImpl = await upgrades.erc1967.getImplementationAddress(ets.address);
+    await ctx.saveContractConfig("ETS", ets, etsImpl);
     // Verify deployed contracts on block explorer.
-    await ctx.verify("ERC721HashtagRegistry", erc721HashtagRegistry.address, erc721HashtagRegistryImpl, []);
+    await ctx.verify("ETS", ets.address, etsImpl, []);
   },
 };
 
@@ -161,8 +161,8 @@ function sleep(ms) {
 }
 
 module.exports = [
-  deployHTPTask,
-  upgradeHashtagAccessControlsTask,
-  upgradeHashtagProtocolTask,
-  upgradeERC721TaggingRegistryTask,
+  deployETSTask,
+  upgradeETSAccessControlsTask,
+  upgradeETSTagTask,
+  upgradeETSTask,
 ];

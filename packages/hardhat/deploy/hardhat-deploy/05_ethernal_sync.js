@@ -1,15 +1,15 @@
 // const { ethers, ethernal } = require("hardhat");
 
 // module.exports = async () => {
-//   const accountHashtagAdmin = await ethers.getNamedSigner("accountHashtagAdmin");
+//   const ETSAdmin = await ethers.getNamedSigner("ETSAdmin");
 
 //   // Fetch address of HashtagAccessControls.
-//   const accessControls = await ethers.getContract("HashtagAccessControls", accountHashtagAdmin);
+//   const accessControls = await ethers.getContract("HashtagAccessControls", ETSAdmin);
 
 //   // Fetch address of HashtagAccessControls.
-//   const hashtagProtocol = await ethers.getContract("HashtagProtocol", accountHashtagAdmin);
+//   const hashtagProtocol = await ethers.getContract("HashtagProtocol", ETSAdmin);
 
-//   const ERC721HashtagRegistry = await ethers.getContract("ERC721HashtagRegistry", accountHashtagAdmin);
+//   const ERC721HashtagRegistry = await ethers.getContract("ERC721HashtagRegistry", ETSAdmin);
 
 //   await ethernal.push({
 //     name: "HashtagAccessControls",
