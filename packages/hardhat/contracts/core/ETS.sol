@@ -53,6 +53,17 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     /// @dev Map of tagging id to tagging record.
     mapping(uint256 => TaggingRecord) public taggingRecords;
 
+    /// @dev Map of target id to Target embodied by Target struct.
+    mapping(uint256 => Target) public target;
+
+    /// @dev Placeholder map for enabled target types.
+    /**
+      Currently, types are a simple string identifying the target type.
+       eg. "nft", "url". These are set using setTargetType()
+       Obviously, this is a key area to break out into it's own
+       contract/interface logic so service can be extended by 3rd parties.
+    */
+    mapping(string => bool) public targetType; // target => Target struct
 
     /// Public constants
 
@@ -62,15 +73,122 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
 
     /// Structs
 
-    /// Data structure for a tagging record.
+    /**
+     * @dev Data structure for a tagging record.
+     * @param etsTagId Id of ETSTAG token target is being tagged with.
+     * @param targetId Id of target being tagged with ETSTAG. See Target.
+     * @param tagger Address of wallet being credited with tagging record.
+     * @param publisher Address of wallet being credited with enabling tagging record.
+     * @param timestamp Time when target was tagged.
+     */
     struct TaggingRecord {
         uint256 etsTagId;
-        address nftContract;
-        uint256 nftId;
+        uint256 targetId;
         address tagger;
-        uint256 timestamp;
         address publisher;
-        uint256 nftChainId;
+        uint256 timestamp;
+    }
+
+    /**
+     * @dev Data structure for tagging targets
+     * @param targetType Identifier for type of target being tagged
+     *        TODO:
+     *         1) Consider renaming in the struct to just 'type'
+     *         2) depending on how types are coded/handled. consider
+     *         a better datatype to hold this. eg. bytes2, bytes4
+     *         and perhaps have that be a map of it's own eg:
+     *           struct TaggingType {
+     *             bytes8 name; // human readable name.
+     *             address implemenation; // address of type contract implementation.
+     *             address publisher; // address of third party that published implementation.
+     *             uint created;
+     *             bool enabled;
+     *          }
+     * @param targetURI Unique resource identifier for tagging target
+     *        TODO:
+     *        1) Consider calling just 'uri'
+     *        2) Storage opmtimization of input string from client. eg.
+     *           is there anyway to store URI as bytes32?
+     * @param created timestamp of when target was created in ETS.
+     * @param lastEnsured timestamp of when target was last ensured. Defaults to 0
+     * @param status https status of last response from ensure target api eg. "404", "200". defaults to 0.
+     * @param ipfsHash ipfsHash of additional metadata surrounding target provided by ETS Ensure target API.
+     *        TODO:
+     *        1) Optimization. Would be nice to do better than a string here (eg. bytes32).
+     *        There's much talk/issues around the length of IPFS hashes and how to store them as bytes
+     */
+    struct Target {
+      string targetType;
+      string targetURI;
+      uint created;
+      uint lastEnsured;
+      uint status;
+      string ipfsHash;
+    }
+
+    /// @notice Tag a target with an tag string.
+    /// TODO: Finish documenting.
+    function tagTarget(
+        string calldata _tagString,
+        string calldata _targetType,
+        string calldata _targetURI,
+        address payable _publisher,
+        address _tagger
+    ) public payable nonReentrant {
+        require(accessControls.isPublisher(_publisher), "Tag: The publisher must be whitelisted");
+        require(msg.value >= taggingFee, "Tag: You must send the fee");
+        require(targetType[_targetType], "Target type: Type not permitted");
+
+        // Check that the target exists, if not, add a new one.
+        // Target targetMap = getTarget(targetId);
+        uint256 targetId = getTargetId(_targetType, _targetURI);
+        if (targetId == 0) {
+          // Form the unique targetID.
+          // See https://stackoverflow.com/questions/69678736/how-to-concat-two-string-values-in-solidity
+          // for string concat logic.
+          // string(bytes.concat(bytes(_targetType), "-", bytes(_targetURI)));
+
+          string memory parts = string(abi.encodePacked(_targetType, _targetURI));
+
+          // The following is how ENS creates ID for their domain names.
+          bytes32 label = keccak256(bytes(parts));
+          targetId = uint256(label);
+
+
+          // Create a new, unensured target record.
+          target[targetId] = Target({
+            targetType: _targetType,
+            targetURI: _targetURI, // todo: consider ways to encode _targetURI as some sort of fixed length bytes type.
+            created: block.timestamp,
+            lastEnsured: 0, // if null, target has never been ensured.
+            status: 0,
+            ipfsHash: ""
+          });
+
+          // probably need to add this to end of function?
+          emit TargetCreated(targetId);
+        }
+
+        uint256 etsTagId = etsTag.getTagId(_tagString);
+        if (etsTagId == 0) {
+            etsTagId = etsTag.mint(_tagString, _publisher, _tagger);
+        }
+
+        _tagTarget(etsTagId, targetId, _publisher, _tagger);
+    }
+
+    /// @notice Get a target Id from target type and target uri.
+    /// TODO: Finish documentation.
+    function getTargetId(string calldata _targetType, string calldata _targetURI) public view returns (uint256 targetId) {
+        string memory parts = string(abi.encodePacked(_targetType, _targetURI));
+
+        // The following is how ENS creates ID for their domain names.
+        bytes32 label = keccak256(bytes(parts));
+        uint256 _targetId = uint256(label);
+
+        if (target[_targetId].created != 0) {
+          return _targetId;
+        }
     }
 
     /// Events
@@ -105,6 +223,19 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         bool setting
     );
 
+    event TargetTypeSet(
+        string typeName,
+        bool setting
+    );
+
+    event TargetCreated(
+      uint256 targetId
+    );
+
+    event TargetEnsured(
+      uint256 targetId
+    );
+
     /// Modifiers
 
     /// @dev When applied to a method, only allows execution when the sender has the admin role.
@@ -128,57 +259,6 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     function _authorizeUpgrade(address) internal override onlyAdmin {}
 
     // External write
-
-    /// @notice Combines the action of creating a new tag nft (ETSTAG) and then tagging an NFT asset with this new tag.
-    /// @dev Only a whitelisted publisher can execute this with the required fee unless the caller / sender has admin privileges.
-    /// @param _tagString string value of the tag to be minted.
-    /// @param _nftContract address of nft contract.
-    /// @param _nftId ID of the nft to link from the above nft contract.
-    /// @param _publisher the publisher attributed to the tagging.
-    /// @param _tagger the ethereum account that made the original tagging request.
-    /// @param _nftChainId EVM compatible chain id.
-    function mintAndTag(
-        string calldata _tagString,
-        address _nftContract,
-        uint256 _nftId,
-        address payable _publisher,
-        address _tagger,
-        uint256 _nftChainId
-    ) external payable {
-        require(accessControls.isPublisher(_publisher), "Mint and tag: The publisher must be whitelisted");
-        require(msg.value >= taggingFee, "Mint and tag: You must send the tag fee");
-        require(this.getPermittedNftChainId(_nftChainId), "Mint and tag: Tagging target chain not permitted");
-
-        uint256 etsTagId = etsTag.mint(_tagString, _publisher, _tagger);
-        _tag(etsTagId, _nftContract, _nftId, _publisher, _tagger, _nftChainId);
-    }
-
-    /// @notice Tag a target with an tag string.
-    /// @dev If tag string does not exist as a ETSTAG token, function will attempt to mint a new one.
-    /// @param _tagString tag string used for tagging.
-    /// @param _nftContract address of nft contract.
-    /// @param _nftId ID of the nft to link from the above nft contract.
-    /// @param _tagger the ethereum account that made the original tagging request.
-    /// @param _nftChainId EVM compatible chain id.
-    function tag(
-        string calldata _tagString,
-        address _nftContract,
-        uint256 _nftId,
-        address payable _publisher,
-        address _tagger,
-        uint256 _nftChainId
-    ) public payable nonReentrant {
-        require(accessControls.isPublisher(_publisher), "Tag: The publisher must be whitelisted");
-        require(msg.value >= taggingFee, "Tag: You must send the fee");
-        require(this.getPermittedNftChainId(_nftChainId), "Tag: Tagging target chain not permitted");
-
-        uint256 etsTagId = etsTag.getTagId(_tagString);
-        if (etsTagId == 0) {
-            etsTagId = etsTag.mint(_tagString, _publisher, _tagger);
-        }
-
-        _tag(etsTagId, _nftContract, _nftId, _publisher, _tagger, _nftChainId);
-    }
 
     /// @notice Enables anyone to send ETH accrued by an account.
     /// @dev Can be called by the account owner or on behalf of someone.
@@ -226,6 +306,11 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         emit PercentagesSet(platformPercentage, publisherPercentage, remainingPercentage);
     }
 
+    function setTargetType(string calldata _typeName, bool _setting) external onlyAdmin {
+        targetType[_typeName] = _setting;
+        emit TargetTypeSet(_typeName, _setting);
+    }
+
     /// @notice Admin functionality for enabling/disabling target chains.
     /// @param _nftChainId EVM compatible chain id.
     /// @param _setting Boolean, set true for enabled, false for disabled.
@@ -246,34 +331,28 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     /// @dev Retrieves a tagging record.
     /// @param _taggingId ID of the tagging record.
     /// @return _etsTagId token ID of ETSTAG used.
-    /// @return _nftContract NFT contract address.
-    /// @return _nftId NFT ID.
+    /// @return _targetId Id of tagging target.
     /// @return _tagger Address that tagged the NFT asset.
-    /// @return _timestamp When the tag took place.
     /// @return _publisher Publisher through which the tag took place.
-    /// @return _nftChainId Chain ID target NFT lives on.
+    /// @return _timestamp When the tagging record took place.
     function getTaggingRecord(uint256 _taggingId)
         external
         view
         returns (
-            uint256 _etsTagId,
-            address _nftContract,
-            uint256 _nftId,
-            address _tagger,
-            uint256 _timestamp,
-            address _publisher,
-            uint256 _nftChainId
+          uint256 _etsTagId,
+          uint256 _targetId,
+          address _tagger,
+          address _publisher,
+          uint256 _timestamp
         )
     {
         TaggingRecord storage taggingRecord = taggingRecords[_taggingId];
         return (
             taggingRecord.etsTagId,
-            taggingRecord.nftContract,
-            taggingRecord.nftId,
+            taggingRecord.targetId,
             taggingRecord.tagger,
-            taggingRecord.timestamp,
             taggingRecord.publisher,
-            taggingRecord.nftChainId
+            taggingRecord.timestamp
         );
     }
 
@@ -290,21 +369,12 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
 
     /// Internal write
 
-    function _tag(
+   function _tagTarget(
         uint256 _etsTagId,
-        address _nftContract,
-        uint256 _nftId,
+        uint256 _targetId,
         address _publisher,
-        address _tagger,
-        uint256 _nftChainId
+        address _tagger
     ) private {
-        // might remove this limitation.
-        require(
-            _nftContract != address(etsTag),
-            "Tag: Tagging other tags is not permitted"
-        );
-        // Ensure that we are dealing with an ERC721 compliant _nftContract
-        require(_nftContract != address(0), "function call to a non-contract address");
 
         // Generate a new taggging record id.
         taggingCounter = taggingCounter.add(1);
@@ -312,12 +382,10 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
 
         taggingRecords[taggingId] = TaggingRecord({
             etsTagId: _etsTagId,
-            nftContract: _nftContract,
-            nftId: _nftId,
+            targetId: _targetId,
             tagger: _tagger,
-            timestamp: block.timestamp,
             publisher: _publisher,
-            nftChainId: _nftChainId
+            timestamp: block.timestamp
         });
 
         (address _platform, address _owner) = etsTag.getPaymentAddresses(_etsTagId);
