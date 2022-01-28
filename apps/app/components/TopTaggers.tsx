@@ -28,7 +28,8 @@ const TopTaggers = () => {
       </Link>
 
       <div className="border divide-y border-slate-900 divide-slate-200">
-        {data && data.taggers.map(tagger => (
+        {/* TODO: update :any to use type */}
+        {data && data.taggers.map((tagger: any) => (
           <div className="flex justify-between px-6 py-4 space-x-4" key={tagger.id}>
             <div className="overflow-hidden text-pink-600 text-ellipsis whitespace-nowrap">
               <Link href="/">

@@ -35,7 +35,8 @@ const NewestTags  = () => {
       </Link>
 
       <div className="border divide-y border-slate-900 divide-slate-200">
-        {data && data.hashtags.map(hashtag => (
+        {/* TODO: update :any to use type */}
+        {data && data.hashtags.map((hashtag: any) => (
           <div className="px-6 py-4 md:grid-flow-col md:space-x-4 md:grid md:grid-cols-2" key={hashtag.id}>
             <div className="grid grid-cols-2 space-x-4 md:block md:space-x-0">
               <div className="overflow-hidden text-pink-600 text-ellipsis whitespace-nowrap">

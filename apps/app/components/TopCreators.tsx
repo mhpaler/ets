@@ -31,7 +31,8 @@ const TopCreators = () => {
       </Link>
 
       <div className="border divide-y border-slate-900 divide-slate-200">
-        {data && data.creators.map(creator => (
+        {/* TODO: update :any to use type */}
+        {data && data.creators.map((creator: any) => (
           <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4" key={creator.id}>
             <div>
               <div className="overflow-hidden text-pink-600 text-ellipsis whitespace-nowrap">

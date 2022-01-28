@@ -45,7 +45,8 @@ const RecentlyTagged = () => {
       </Link>
 
       <div className="border divide-y border-slate-900 divide-slate-200">
-        {data && data.tags.map(tag => (
+        {/* TODO: update :any to use type */}
+        {data && data.tags.map((tag: any) => (
           <div className="flex px-6 py-4 space-x-4" key={tag.id}>
             <div>
               <div className="w-12 h-12 bg-slate-100"></div>

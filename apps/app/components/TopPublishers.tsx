@@ -31,7 +31,8 @@ const TopPublishers = () => {
       </Link>
 
       <div className="border divide-y border-slate-900 divide-slate-200">
-        {data && data.publishers.map(publisher => (
+        {/* TODO: update :any to use type */}
+        {data && data.publishers.map((publisher: any) => (
           <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4" key={publisher.id}>
             <div>
               <div className="overflow-hidden text-pink-600 text-ellipsis whitespace-nowrap">

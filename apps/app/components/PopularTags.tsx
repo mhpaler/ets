@@ -32,7 +32,8 @@ const PopularTags = () => {
       </Link>
 
       <div className="border divide-y border-slate-900 divide-slate-200">
-        {data && data.popular.map(tag => (
+        {/* TODO: update :any to use type */}
+        {data && data.popular.map((tag: any) => (
           <div className="flex justify-between px-6 py-4 space-x-4" key={tag.id}>
             <div className="overflow-hidden text-pink-600 text-ellipsis whitespace-nowrap">
               <Link href="/">
