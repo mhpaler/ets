@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .text-outlined {
+    -webkit-text-stroke: 1px #0f172a;
+    color: white;
+  }
+
+  .writing-vertical-lr {
+    writing-mode: vertical-lr;
+  }
+}
