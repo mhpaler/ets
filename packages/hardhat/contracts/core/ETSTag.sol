@@ -70,6 +70,7 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
         address originalPublisher;
         address creator;
         string displayVersion;
+        string machineName;
     }
 
     /// Events
@@ -105,7 +106,7 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
         platform = _platform;
         ownershipTermLength = 730 days;
         baseURI = "https://api.hashtag-protocol.io/";
-        tagMinStringLength = 3;
+        tagMinStringLength = 1;
         tagMaxStringLength = 32;
     }
 
@@ -131,7 +132,7 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
         require(accessControls.isPublisher(_publisher), "Mint: The publisher must be whitelisted");
 
         // Perform basic tag string validation.
-        string memory lowerHashtagToMint = _assertTagIsValid(_tag);
+        string memory machineName = _assertTagIsValid(_tag);
 
         // generate the new ETSTAG token id.
         tokenPointer = tokenPointer.add(1);
@@ -143,12 +144,13 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
         // Store ETSTAG data in state.
         tokenIdToTag[tokenId] = Tag({
             displayVersion: _tag,
+            machineName: machineName,
             originalPublisher: _publisher,
             creator: _creator
         });
 
         // Store a reverse lookup.
-        tagToTokenId[lowerHashtagToMint] = tokenId;
+        tagToTokenId[machineName] = tokenId;
 
         emit MintTag(tokenId, _tag, _publisher, _creator);
 
@@ -308,42 +310,25 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
     /// @dev A series of assertions are performed reverting the transaction for any validation violations.
     /// @param _tag Proposed tag string.
     function _assertTagIsValid(string memory _tag) private view returns (string memory) {
+        string memory tagKey = __lower(_tag);
+        require(tagToTokenId[tagKey] == 0, "ERC721: token already minted");
+
         bytes memory tagStringBytes = bytes(_tag);
         require(
             tagStringBytes.length >= tagMinStringLength && tagStringBytes.length <= tagMaxStringLength,
             "Invalid format: tag does not meet min/max length requirements"
         );
 
-        require(tagStringBytes[0] == 0x23, "Must start with #");
+        require(tagStringBytes[0] == 0x23, "Tag must start with #");
 
-        string memory tagKey = __lower(_tag);
-        require(tagToTokenId[tagKey] == 0, "ERC721: token already minted");
-
-        uint256 alphabetCharCount = 0;
         // start from first char after #
         for (uint256 i = 1; i < tagStringBytes.length; i++) {
             bytes1 char = tagStringBytes[i];
-
-            // Generally ensure that the character is alpha numeric.
-            bool isInvalidCharacter = !(char >= 0x30 && char <= 0x39) && //0-9
-                !(char >= 0x41 && char <= 0x5A) && //A-Z
-                !(char >= 0x61 && char <= 0x7A);
-            //a-z
-
             require(
-                !isInvalidCharacter,
-                "Invalid character found: tag may only contain characters A-Z, a-z, 0-9 and #"
+                char != 0x20,
+                "Space found: tag may not contain spaces"
             );
-
-            // Should the char be alphabetic, increment alphabetCharCount.
-            if ((char >= 0x41 && char <= 0x5A) || (char >= 0x61 && char <= 0x7A)) {
-                alphabetCharCount = alphabetCharCount.add(1);
-            }
         }
-
-        // Ensure alphabetCharCount is at least 1.
-        require(alphabetCharCount >= 1, "Invalid format: tag must contain at least 1 alphabetic character.");
-
         return tagKey;
     }
 }
