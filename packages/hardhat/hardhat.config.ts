@@ -2,20 +2,22 @@ import 'hardhat-deploy';
 import 'hardhat-ethernal';
 import '@typechain/hardhat';
 import 'hardhat-abi-exporter';
-import "@nomiclabs/hardhat-web3";
+import '@nomiclabs/hardhat-web3';
 import '@nomiclabs/hardhat-ethers';
 import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-truffle5';
 import '@nomiclabs/hardhat-etherscan';
 import '@openzeppelin/hardhat-upgrades';
+import "@appliedblockchain/chainlink-plugins-fund-link";
+
+import { resolve } from 'path';
+import { config as dotenvConfig } from "dotenv";
+import { extendEnvironment } from "hardhat/config";
+import { HardhatUserConfig } from "hardhat/types";
 
 import './tasks/accounts';
+import './tasks/api-consumer';
 
-import { resolve } from "path";
-
-import { config as dotenvConfig } from "dotenv";
-import { HardhatUserConfig } from "hardhat/types";
-import { extendEnvironment } from "hardhat/config";
 
 dotenvConfig({ path: resolve(__dirname, "../../.env") });
 
@@ -47,6 +49,8 @@ const config: HardhatUserConfig = {
       url: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 80001,
       accounts: mnemonic ? { mnemonic } : undefined,
+      gas: 2100000,
+      gasPrice: 8000000000
     }
   },
   //paths: {
@@ -83,11 +87,14 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
+        version: "0.4.24",
+      },
+      {
         version: "0.6.12",
         settings: {
           optimizer: {
             enabled: true,
-            runs: 200,
+            runs: 1000,
           },
         },
       },
@@ -96,17 +103,26 @@ const config: HardhatUserConfig = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 200,
+            runs: 1000,
           },
         },
       },
+      {
+        version: "0.8.7",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 1000,
+          },
+        },
+      }
     ],
   },
 };
 
 // Environment extension to support Ethernal.
 extendEnvironment((hre) => {
-  hre.ethernalSync = process.env.ETHERNAL_ENABLED == "true" ? true : false;;
+  hre.ethernalSync = process.env.ETHERNAL_ENABLED == "true" ? true : false;
   hre.ethernalWorkspace = process.env.ETHERNAL_WORKSPACE ? process.env.ETHERNAL_WORKSPACE : "none";
 });
 
