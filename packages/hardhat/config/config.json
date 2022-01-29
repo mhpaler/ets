@@ -1,71 +1,98 @@
 {
-  "networks": {
-    "31337": {
-      "contracts": {
-        "HashtagAccessControls": {
-          "address": "0x8198f5d8F8CfFE8f9C413d98a0A55aEB8ab9FbB7",
-          "legacyAddresses": [],
-          "deploymentBlock": 77,
-          "implementation": "0x95401dc811bb5740090279Ba06cfA8fcF6113778"
-        },
-        "HashtagProtocol": {
-          "address": "0xf4B146FbA71F41E0592668ffbF264F1D186b2Ca8",
-          "legacyAddresses": [],
-          "deploymentBlock": 80,
-          "implementation": "0x99bbA657f2BbC93c02D617f8bA121cB8Fc104Acf"
-        },
-        "ERC721HashtagRegistry": {
-          "address": "0x172076E0166D1F9Cc711C77Adf8488051744980C",
-          "legacyAddresses": [],
-          "deploymentBlock": 81,
-          "implementation": "0x8f86403A4DE0BB5791fa46B8e795C547942fE4Cf"
-        },
-        "Mars": {
-          "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-          "legacyAddresses": [],
-          "deploymentBlock": "0x03"
-        },
-        "ETSAccessControls": {
-          "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-          "legacyAddresses": [],
-          "deploymentBlock": 2,
-          "implementation": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-        },
-        "ETSTag": {
-          "address": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
-          "legacyAddresses": [],
-          "deploymentBlock": 6,
-          "implementation": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"
-        },
-        "ETS": {
-          "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
-          "legacyAddresses": [],
-          "deploymentBlock": 8,
-          "implementation": "0x0165878A594ca255338adfa4d48449f69242Eb8F"
-        }
-      }
-    },
-    "80001": {
-      "contracts": {
-        "HashtagAccessControls": {
-          "address": "0x6EE65971E81b4c11A0b0c30172EdBCda4c2E3210",
-          "legacyAddresses": [],
-          "deploymentBlock": "0x0138e853",
-          "implementation": "0x900Ba140E8a56451FA4B2EBf567b30695E2Af519"
-        },
-        "HashtagProtocol": {
-          "address": "0x4a9B519C355568c0aF543c7B476b2d7A8E149fBb",
-          "legacyAddresses": [],
-          "deploymentBlock": "0x0138e869",
-          "implementation": "0xa10a760E3F0124c34aB28A7C74C2f9cB83dE399b"
-        },
-        "ERC721HashtagRegistry": {
-          "address": "0xfbB214DF2555385BE124879E89f26AB9BbFBB333",
-          "legacyAddresses": [],
-          "deploymentBlock": "0x0138e887",
-          "implementation": "0x8f0bBe51b71e8e561183a45aAF38D881dF10d810"
-        }
+  "1": {
+    "contracts": {}
+  },
+  "4": {
+    "name": "rinkeby",
+    "linkToken": "0x01be23585060835e02b77ef475b0cc51aa1e0709",
+    "ethUsdPriceFeed": "0x8A753747A1Fa494EC906cE90E9f37563A8AF630e",
+    "keyHash": "0x2ed0feb3e7fd2022120aa84fab1945545a9f2ffc9076fd6156fa96eaff4c1311",
+    "vrfCoordinator": "0xb3dCcb4Cf7a26f6cf6B120Cf5A73875B7BBc655B",
+    "oracle": "0xc57b33452b4f7bb189bb5afae9cc4aba1f7a4fd8",
+    "jobId": "6b88e0402e5d415eb946e528b8e0c7ba",
+    "fee": "100000000000000000",
+    "fundAmount": "1000000000000000000",
+    "keepersUpdateInterval": "30",
+    "contracts": {}
+  },
+  "137": {
+    "name": "polygon",
+    "linkToken": "0xb0897686c545045afc77cf20ec7a532e3120e0f1",
+    "ethUsdPriceFeed": "0xF9680D99D6C9589e2a93a78A04A279e509205945",
+    "keyHash": "0xf86195cf7690c55907b2b611ebb7343a6f649bff128701cc542f0569e2c549da",
+    "vrfCoordinator": "0x3d2341ADb2D31f1c5530cDC622016af293177AE0",
+    "oracle": "0x0a31078cd57d23bf9e8e8f1ba78356ca2090569e",
+    "jobId": "12b86114fa9e46bab3ca436f88e1a912",
+    "fee": "100000000000000",
+    "fundAmount": "100000000000000",
+    "contracts": {}
+  },
+  "31337": {
+    "name": "localhost",
+    "fee": "100000000000000000",
+    "keyHash": "0x6c3699283bda56ad74f6b855546325b68d482e983852a7a82979cc4807b641f4",
+    "jobId": "29fa9aa13bf1468788b7cc4a500a45b8",
+    "fundAmount": "1000000000000000000",
+    "keepersUpdateInterval": "30",
+    "contracts": {
+      "LinkToken": {
+        "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "deploymentBlock": 1,
+        "upgradeBlock": null
+      },
+      "MockOracle": {
+        "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+        "deploymentBlock": 2,
+        "upgradeBlock": null
+      },
+      "APIConsumer": {
+        "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+        "deploymentBlock": 3,
+        "upgradeBlock": null
+      },
+      "ETSAccessControls": {
+        "address": "0x1291Be112d480055DaFd8a610b7d1e203891C274",
+        "deploymentBlock": 51,
+        "upgradeBlock": 57
+      },
+      "ETSTag": {
+        "address": "0xCD8a1C3ba11CF5ECfa6267617243239504a98d90",
+        "deploymentBlock": 54,
+        "upgradeBlock": 58
+      },
+      "ETS": {
+        "address": "0x2bdCC0de6bE1f7D2ee689a0342D76F52E8EFABa3",
+        "deploymentBlock": 56,
+        "upgradeBlock": 59
       }
     }
+  },
+  "80001": {
+    "name": "mumbai",
+    "linkToken": "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
+    "oracle": "0x0bddcd124709acbf9bb3f824ebc61c87019888bb",
+    "jobId": "2bb15c3f9cfc4336b95012872ff05092",
+    "fee": "100000000000000",
+    "fundAmount": "100000000000000",
+    "contracts": {
+      "APIConsumer": {
+        "address": "0x6e11580bDD0fD22891f8D2e57Abc7523FAB8666C",
+        "deploymentBlock": 24331113,
+        "upgradeBlock": null
+      },
+      "ETSEnsure": {
+        "address": "0xAb076A75c132687bA4A4b05bDDbB864B9C1D2924",
+        "deploymentBlock": 24362661,
+        "upgradeBlock": null
+      }
+    }
+  },
+  "default": {
+    "name": "hardhat",
+    "fee": "100000000000000000",
+    "keyHash": "0x6c3699283bda56ad74f6b855546325b68d482e983852a7a82979cc4807b641f4",
+    "jobId": "29fa9aa13bf1468788b7cc4a500a45b8",
+    "fundAmount": "1000000000000000000",
+    "keepersUpdateInterval": "30"
   }
 }
