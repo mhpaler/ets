@@ -10,12 +10,13 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 import "./ETSTag.sol";
+import "../interfaces/IETS.sol";
 
 /// @title ETS Core
 /// @author Ethereum Tag Service <security@ets.xyz>
 /// @notice Core tagging contract that enables any online target to be tagged with an ETSTAG token.
 /// @dev ETS Core utilizes Open Zeppelin UUPS upgradability pattern.
-contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
+contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
     using SafeMathUpgradeable for uint256;
 
     /// Storage
@@ -81,7 +82,7 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
      * @param publisher Address of wallet being credited with enabling tagging record.
      * @param timestamp Time when target was tagged.
      */
-    struct TaggingRecord {
+    struct TaggingRecord {//tagging a target to a tag. the link
         uint256 etsTagId;
         uint256 targetId;
         address tagger;
@@ -126,18 +127,21 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
       string ipfsHash;
     }
 
-    /// @notice Tag a target with an tag string.
-    /// TODO: Finish documenting.
+    /// @inheritdoc IETS
     function tagTarget(
         string calldata _tagString,
         string calldata _targetType,
         string calldata _targetURI,
         address payable _publisher,
         address _tagger
-    ) public payable nonReentrant {
+    ) public override payable nonReentrant {
+        //require(accessControls.isTaggingSubContract(msg.sender), "Only subcontract");
+        //todo ^ maybe wait to enable this once I know what it will break
+
         require(accessControls.isPublisher(_publisher), "Tag: The publisher must be whitelisted");
         require(msg.value >= taggingFee, "Tag: You must send the fee");
         require(targetType[_targetType], "Target type: Type not permitted");
+        require(_tagger != address(0), "Invalid tagger");
 
         // Check that the target exists, if not, add a new one.
         // Target targetMap = getTarget(targetId);
@@ -169,6 +173,7 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
           emit TargetCreated(targetId);
         }
 
+        // mint the tag if it doesn't exisst already
         uint256 etsTagId = etsTag.getTagId(_tagString);
         if (etsTagId == 0) {
             etsTagId = etsTag.mint(_tagString, _publisher, _tagger);
@@ -208,7 +213,7 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     );
 
     event AccessControlsUpdated(
-        ETSAccessControls previousAccessControls, 
+        ETSAccessControls previousAccessControls,
         ETSAccessControls newAccessControls
     );
 
@@ -289,7 +294,7 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         ETSAccessControls prevAccessControls = accessControls;
         accessControls = _accessControls;
         emit AccessControlsUpdated(prevAccessControls, accessControls);
-    }
+    }//todo- a thought. access controls is upgradeable so is there a need to be able to change the address? is this a hangover from original protocol?
 
     /// @notice Admin functionality for updating the percentages.
     /// @param _platformPercentage percentage for platform.
@@ -302,7 +307,7 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         platformPercentage = _platformPercentage;
         publisherPercentage = _publisherPercentage;
         remainingPercentage = modulo.sub(platformPercentage).sub(publisherPercentage);
-        
+
         emit PercentagesSet(platformPercentage, publisherPercentage, remainingPercentage);
     }
 

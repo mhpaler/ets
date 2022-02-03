@@ -15,6 +15,7 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, UUPSUpgra
     string public constant VERSION = "0.2.1";
     bytes32 public constant PUBLISHER_ROLE = keccak256("PUBLISHER");
     bytes32 public constant SMART_CONTRACT_ROLE = keccak256("SMART_CONTRACT");
+    bytes32 public constant TAGGING_CONTRACT_ROLE = keccak256("TAGGING_CONTRACT");
 
     function initialize() public initializer {
         __AccessControl_init();
@@ -23,6 +24,7 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, UUPSUpgra
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
     }
 
+    //todo-imagine this needs a clean up
     function postUpgrade(string calldata message) external view onlyRole(DEFAULT_ADMIN_ROLE) {
         console.log("ETSAccessControls upgraded", message);
     }
@@ -51,10 +53,18 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, UUPSUpgra
         return hasRole(PUBLISHER_ROLE, _addr);
     }
 
+    /// @notice Checks whether an address has the tagging contract role
+    /// @param _addr Address being checked
+    /// @return bool True if the address has the role, false if not
+    function isTaggingSubContract(address _addr) public view returns (bool) {
+        return hasRole(TAGGING_CONTRACT_ROLE, _addr);
+    }
+
     function version() external pure returns (string memory) {
         return VERSION;
     }
 
+    //todo-imagine this needs a clean up
     function upgraded() external pure returns (string memory) {
         return "you know it";
     }
