@@ -1,4 +1,5 @@
 import '@nomiclabs/hardhat-ethers';
+import { ethers } from "hardhat";
 import { Signer } from "@ethersproject/abstract-signer";
 import { task } from "hardhat/config";
 
