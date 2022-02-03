@@ -35,7 +35,7 @@ module.exports = async ({
 
   const etsEnsure = await deploy('ETSEnsure', {
     from: ETSAdmin,
-    args: [],
+    args: [oracle, jobId, fee, linkTokenAddress],
     log: true
   });
 
@@ -46,7 +46,7 @@ module.exports = async ({
   log('APIConsumer deployed to -> ' + etsEnsure.address);
   log("====================================================");
   log("Run API Consumer contract with following command:")
-  log("npx hardhat request-data --contract " + etsEnsure.address + " --network " + networkName)
+  log("npx hardhat request-ensure --contract " + etsEnsure.address + " --network " + networkName)
   log("====================================================")
 }
 module.exports.tags = ['ets_ensure'];

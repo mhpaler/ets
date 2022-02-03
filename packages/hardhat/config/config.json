@@ -36,12 +36,12 @@
     "keepersUpdateInterval": "30",
     "contracts": {
       "LinkToken": {
-        "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "address": "0x8198f5d8F8CfFE8f9C413d98a0A55aEB8ab9FbB7",
         "deploymentBlock": 1,
         "upgradeBlock": null
       },
       "MockOracle": {
-        "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+        "address": "0x0355B7B8cb128fA5692729Ab3AAa199C1753f726",
         "deploymentBlock": 2,
         "upgradeBlock": null
       },
@@ -64,6 +64,11 @@
         "address": "0x2bdCC0de6bE1f7D2ee689a0342D76F52E8EFABa3",
         "deploymentBlock": 56,
         "upgradeBlock": 59
+      },
+      "ETSEnsure": {
+        "address": "0x202CCe504e04bEd6fC0521238dDf04Bc9E8E15aB",
+        "deploymentBlock": 68,
+        "upgradeBlock": null
       }
     }
   },
@@ -81,7 +86,7 @@
         "upgradeBlock": null
       },
       "ETSEnsure": {
-        "address": "0xAb076A75c132687bA4A4b05bDDbB864B9C1D2924",
+        "address": "0x5a7F021ea1E65C07F185221Fa3854083bfb41592",
         "deploymentBlock": 24362661,
         "upgradeBlock": null
       }
