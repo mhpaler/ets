@@ -1,9 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
 import useSWR from 'swr';
+import useTranslation from 'next-translate/useTranslation';
 import { toDp, toEth } from '../utils';
 
 const TopPublishers = () => {
+  const { t } = useTranslation('common');
   const { data, error } = useSWR(
     `{
       publishers(first: 10, orderBy: tagCount, orderDirection: desc) {
@@ -19,7 +21,7 @@ const TopPublishers = () => {
       <Link href="/">
         <a className="flex justify-between border border-b-0 border-slate-900">
           <div>
-            <h2 className="px-6 py-3 text-xs tracking-wider text-left text-black uppercase">Top publishers</h2>
+            <h2 className="px-6 py-3 text-xs tracking-wider text-left text-black uppercase">{t('top-publishers')}</h2>
           </div>
           <div className="flex items-center pr-2">
             <svg className="inline-flex w-6 h-6 text-pink-600" fill="none" viewBox="0 0 24 24">
@@ -40,11 +42,11 @@ const TopPublishers = () => {
                   <a className="text-pink-600">{publisher.id}</a>
                 </Link>
               </div>
-              <div className="text-sm leading-6 text-slate-500">{publisher.mintCount} tags</div>
+              <div className="text-sm leading-6 text-slate-500">{t('tag-count', { count: parseInt(publisher.mintCount)})}</div>
             </div>
             <div className="col-span-2">
-              <div className="overflow-hidden text-slate-700 text-ellipsis whitespace-nowrap">{toDp(toEth(publisher.tagFees))} MATIC earned</div>
-              <div className="text-sm leading-6 text-slate-500">{publisher.tagCount} tagged</div>
+              <div className="overflow-hidden text-slate-700 text-ellipsis whitespace-nowrap">{toDp(toEth(publisher.tagFees))} {t('matic-earned')}</div>
+              <div className="text-sm leading-6 text-slate-500">{t('tagged-count', { count: parseInt(publisher.tagCount) })}</div>
             </div>
           </div>
         ))}

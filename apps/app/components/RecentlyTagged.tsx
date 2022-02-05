@@ -2,8 +2,10 @@ import React from 'react';
 import Link from 'next/link';
 import useSWR from 'swr';
 import TimeAgo from 'react-timeago';
+import useTranslation from 'next-translate/useTranslation';
 
 const RecentlyTagged = () => {
+  const { t, lang } = useTranslation('common');
   const { data, error } = useSWR(
     `{
       tags(first: 5, orderBy: timestamp, orderDirection: desc) {
@@ -33,7 +35,7 @@ const RecentlyTagged = () => {
       <Link href="/">
         <a className="flex justify-between border border-b-0 border-slate-900">
           <div>
-            <h2 className="px-6 py-3 text-xs tracking-wider text-left text-black uppercase">Recently tagged</h2>
+            <h2 className="px-6 py-3 text-xs tracking-wider text-left text-black uppercase">{t('recently-tagged')}</h2>
           </div>
           <div className="flex items-center pr-2">
             <svg className="inline-flex w-6 h-6 text-pink-600" fill="none" viewBox="0 0 24 24">
