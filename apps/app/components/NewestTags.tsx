@@ -3,7 +3,7 @@ import Link from 'next/link';
 import useSWR from 'swr';
 import TimeAgo from 'react-timeago';
 import useTranslation from 'next-translate/useTranslation';
-import useTimeAgo from '../hooks/useTimeago';
+import useTimeAgo from '../hooks/useTimeAgo';
 
 const NewestTags  = () => {
   const { t, lang } = useTranslation('common');
