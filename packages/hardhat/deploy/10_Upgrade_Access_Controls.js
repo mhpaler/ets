@@ -29,7 +29,7 @@ module.exports = async ({
 
     // Verify & Update network configuration file.
     await verify("ETSAccessControls", upgrade, implementation, []);
-    await saveNetworkConfig("ETSAccessControls", upgrade, true);
+    await saveNetworkConfig("ETSAccessControls", upgrade, implementation, true);
 
     const artifact = await deployments.getExtendedArtifact('ETSAccessControls');
     let proxyDeployments = {

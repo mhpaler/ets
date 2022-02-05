@@ -54,7 +54,7 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     mapping(uint256 => TaggingRecord) public taggingRecords;
 
     /// @dev Map of target id to Target embodied by Target struct.
-    mapping(uint256 => Target) public target;
+    mapping(uint256 => Target) public targets;
 
     /// @dev Placeholder map for enabled target types.
     /**
@@ -75,8 +75,8 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
 
     /**
      * @dev Data structure for a tagging record.
-     * @param etsTagId Id of ETSTAG token target is being tagged with.
-     * @param targetId Id of target being tagged with ETSTAG. See Target.
+     * @param etsTagId Id of ETSTAG token being used to tag a target.
+     * @param targetId Id of target being tagged with ETSTAG.
      * @param tagger Address of wallet being credited with tagging record.
      * @param publisher Address of wallet being credited with enabling tagging record.
      * @param timestamp Time when target was tagged.
@@ -126,72 +126,15 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
       string ipfsHash;
     }
 
-    /// @notice Tag a target with an tag string.
-    /// TODO: Finish documenting.
-    function tagTarget(
-        string calldata _tagString,
-        string calldata _targetType,
-        string calldata _targetURI,
-        address payable _publisher,
-        address _tagger
-    ) public payable nonReentrant {
-        require(accessControls.isPublisher(_publisher), "Tag: The publisher must be whitelisted");
-        require(msg.value >= taggingFee, "Tag: You must send the fee");
-        require(targetType[_targetType], "Target type: Type not permitted");
-
-        // Check that the target exists, if not, add a new one.
-        // Target targetMap = getTarget(targetId);
-        uint256 targetId = getTargetId(_targetType, _targetURI);
-        if (targetId == 0) {
-          // Form the unique targetID.
-          // See https://stackoverflow.com/questions/69678736/how-to-concat-two-string-values-in-solidity
-          // for string concat logic.
-          // string(bytes.concat(bytes(_targetType), "-", bytes(_targetURI)));
-
-          string memory parts = string(abi.encodePacked(_targetType, _targetURI));
-
-          // The following is how ENS creates ID for their domain names.
-          bytes32 label = keccak256(bytes(parts));
-          targetId = uint256(label);
-
-
-          // Create a new, unensured target record.
-          target[targetId] = Target({
-            targetType: _targetType,
-            targetURI: _targetURI, // todo: consider ways to encode _targetURI as some sort of fixed length bytes type.
-            created: block.timestamp,
-            lastEnsured: 0, // if null, target has never been ensured.
-            status: 0,
-            ipfsHash: ""
-          });
-
-          // probably need to add this to end of function?
-          emit TargetCreated(targetId);
-        }
-
-        uint256 etsTagId = etsTag.getTagId(_tagString);
-        if (etsTagId == 0) {
-            etsTagId = etsTag.mint(_tagString, _publisher, _tagger);
-        }
-
-        _tagTarget(etsTagId, targetId, _publisher, _tagger);
-    }
-
-    /// @notice Get a target Id from target type and target uri.
-    /// TODO: Finish documentation.
-    function getTargetId(string calldata _targetType, string calldata _targetURI) public view returns (uint256 targetId) {
-        string memory parts = string(abi.encodePacked(_targetType, _targetURI));
-
-        // The following is how ENS creates ID for their domain names.
-        bytes32 label = keccak256(bytes(parts));
-        uint256 _targetId = uint256(label);
-
-        if (target[_targetId].created != 0) {
-          return _targetId;
-        }
-    }
-
     /// Events
+
+    event RequestEnsureTarget(
+      uint256 targetId
+    );
+
+    event TargetEnsured(
+      uint256 targetId
+    );
 
     event TargetTagged(
         uint256 taggingId
@@ -232,10 +175,6 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
       uint256 targetId
     );
 
-    event TargetEnsured(
-      uint256 targetId
-    );
-
     /// Modifiers
 
     /// @dev When applied to a method, only allows execution when the sender has the admin role.
@@ -259,6 +198,67 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     function _authorizeUpgrade(address) internal override onlyAdmin {}
 
     // External write
+
+        /// @notice Tag a target with an tag string.
+    /// TODO: Finish documenting.
+    function tagTarget(
+        string calldata _tagString,
+        string calldata _targetType,
+        string calldata _targetURI,
+        address payable _publisher,
+        address _tagger
+    ) public payable nonReentrant {
+        require(accessControls.isPublisher(_publisher), "Tag: The publisher must be whitelisted");
+        require(msg.value >= taggingFee, "Tag: You must send the fee");
+        require(targetType[_targetType], "Target type: Type not permitted");
+
+        // Check that the target exists, if not, add a new one.
+        // Target targetMap = getTarget(targetId);
+        uint256 targetId = getTargetId(_targetType, _targetURI);
+        uint256 etsTagId = etsTag.getTagId(_tagString, _publisher, _tagger);
+        _tagTarget(etsTagId, targetId, _publisher, _tagger);
+    }
+
+    /// @notice Get a target Id from target type and target uri.
+    /// TODO: Finish documentation.
+    function getTargetId(string calldata _targetType, string calldata _targetURI) public payable returns (uint256 targetId) {
+        string memory parts = string(abi.encodePacked(_targetType, _targetURI));
+
+        // The following is how ENS creates ID for their domain names.
+        bytes32 label = keccak256(bytes(parts));
+        uint256 _targetId = uint256(label);
+
+        if (targets[_targetId].created != 0) {
+          return _targetId;
+        }
+
+        // Create a new, unensured target record.
+        targets[_targetId] = Target({
+          targetType: _targetType,
+          targetURI: _targetURI, // todo: consider ways to encode _targetURI as some sort of fixed length bytes type.
+          created: block.timestamp,
+          lastEnsured: 0, // if null, target has never been ensured.
+          status: 0,
+          ipfsHash: ""
+        });
+
+        emit TargetCreated(targetId);
+        return _targetId;
+    }
+
+    function requestEnsureTarget(uint256 targetId) public {
+      require(targets[targetId].created != 0, "Invalid target");
+      emit RequestEnsureTarget(targetId);
+    }
+
+    function fulfillEnsureTarget(uint256 targetId, string calldata ipfsHash, uint status) public  {
+      Target storage target = targets[targetId];
+      target.status = status;
+      target.ipfsHash = ipfsHash;
+      target.lastEnsured = block.timestamp;
+
+      emit TargetEnsured(targetId);
+    }
 
     /// @notice Enables anyone to send ETH accrued by an account.
     /// @dev Can be called by the account owner or on behalf of someone.

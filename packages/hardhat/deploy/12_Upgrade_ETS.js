@@ -24,7 +24,7 @@ module.exports = async ({
 
     // Verify & Update network configuration file.
     await verify("ETS", upgrade, implementation, []);
-    await saveNetworkConfig("ETS", upgrade, true);
+    await saveNetworkConfig("ETS", upgrade, implementation, true);
 
     const artifact = await deployments.getExtendedArtifact('ETS');
     let proxyDeployments = {

@@ -1,6 +1,7 @@
 const { ethers, upgrades } = require("hardhat");
 const { verify } = require("./utils/verify.js");
 const { saveNetworkConfig } = require("./utils/config.js");
+const { networkConfig } = require('./../helper-hardhat-config');
 
 module.exports = async ({
   getChainId,
@@ -19,8 +20,8 @@ module.exports = async ({
       etsAccessControlsAddress = etsAccessControls.address
       etsTagAddress = etsTag.address
     } else {
-      etsAccessControlsAddress = networkConfig[chainId]['etsAccessControls'];
-      etsTagAddress = networkConfig[chainId]['etsTag'];
+      etsAccessControlsAddress = networkConfig[chainId].contracts['ETSAccessControls'].address;
+      etsTagAddress = networkConfig[chainId].contracts['ETSTag'].address;
     }
 
     // Deploy ETS core using OpenZeppelin upgrades plugin.
@@ -29,12 +30,12 @@ module.exports = async ({
       [etsAccessControlsAddress, etsTagAddress],
       { kind: "uups" },
     );
-    await deployment.deployTransaction.wait();
+    await deployment.deployed();
     const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
 
     // Verify & Update network configuration file.
     await verify("ETS", deployment, implementation, []);
-    await saveNetworkConfig("ETS", deployment, false);
+    await saveNetworkConfig("ETS", deployment, implementation, false);
 
     // Add to hardhat-deploy deployments.
     artifact = await deployments.getExtendedArtifact('ETS');

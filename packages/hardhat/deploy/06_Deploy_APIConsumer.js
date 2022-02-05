@@ -40,7 +40,7 @@ module.exports = async ({
   });
 
   await verify("APIConsumer", apiConsumer, apiConsumer.address, [oracle, jobId, fee, linkTokenAddress]);
-  await saveNetworkConfig("APIConsumer", apiConsumer, false);
+  await saveNetworkConfig("APIConsumer", apiConsumer, null, false);
 
   log("====================================================");
   log('APIConsumer deployed to -> ' + apiConsumer.address);

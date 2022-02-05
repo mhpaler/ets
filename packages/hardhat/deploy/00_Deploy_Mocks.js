@@ -20,8 +20,8 @@ module.exports = async ({
 
         await verify("LinkToken", linkToken);
         await verify("MockOracle", mockOracle);
-        await saveNetworkConfig("LinkToken", linkToken, false);
-        await saveNetworkConfig("MockOracle", mockOracle, false);
+        await saveNetworkConfig("LinkToken", linkToken, null, false);
+        await saveNetworkConfig("MockOracle", mockOracle, null, false);
 
         log("Mocks Deployed!")
         log("====================================================")

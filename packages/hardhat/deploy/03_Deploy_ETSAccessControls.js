@@ -12,12 +12,13 @@ module.exports = async ({
 
     // Deploy ETS Access Controls.
     const deployment = await upgrades.deployProxy(ETSAccessControls, { kind: "uups" });
-    await deployment.deployTransaction.wait();
+    // await deployment.deployed();
+    await deployment.deployTransaction.wait(6);
     const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
 
     // Verify & Update network configuration file.
     await verify("ETSAccessControls", deployment, implementation, []);
-    await saveNetworkConfig("ETSAccessControls", deployment, false);
+    await saveNetworkConfig("ETSAccessControls", deployment, implementation, false);
 
     // Add to hardhat-deploy deployments.
     let artifact = await deployments.getExtendedArtifact('ETSAccessControls');

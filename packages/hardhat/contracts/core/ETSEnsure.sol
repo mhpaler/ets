@@ -1,65 +1,48 @@
-//SPDX-License-Identifier: MIT
-pragma solidity ^0.8.7;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
-import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "hardhat/console.sol";
 
-/**
- * Request testnet LINK and ETH here: https://faucets.chain.link/
- * Find information on LINK Token Contracts and get the latest ETH and LINK faucets here: https://docs.chain.link/docs/link-token-contracts/
- */
+import {ETSAccessControls} from "./ETSAccessControls.sol";
 
-/**
- * @notice DO NOT USE THIS CODE IN PRODUCTION. This is an example contract.
- */
-contract ETSEnsure is ChainlinkClient {
-    using Chainlink for Chainlink.Request;
+/// @title ETSTag ERC-721 NFT contract
+/// @author Ethereum Tag Service <security@ets.xyz>
+/// @notice Contract that governs the creation of ETSTAG non-fungible tokens.
+/// @dev UUPS upgradable.
+contract ETSEnsure is UUPSUpgradeable {
 
-    // variable bytes returned in a single oracle response
-    bytes public data;
-    string public ipfsHash;
+    /// Variable storage
 
-    //address private oracle;
-    bytes32 private jobId;
-    uint256 private fee;
+    /// @notice ETS access controls smart contract.
+    ETSAccessControls public accessControls;
 
-    /**
-    * @notice Initialize the link token and target oracle
-    * @dev The oracle address must be an Operator contract for multiword response
-    */
-    constructor(address _oracle, bytes32 _jobId, uint256 _fee, address _link) public {
-        if (_link == address(0)) {
-            setPublicChainlinkToken();
-        } else {
-            setChainlinkToken(_link);
-        }
-        setChainlinkOracle(_oracle);
+    /// Public constants
 
-        //oracle = _oracle;
-        jobId = _jobId;
-        fee = _fee;
+    string public constant NAME = "ETSEnsure Contract";
+    string public constant VERSION = "0.1.0";
+
+    /// Modifiers
+
+    modifier onlyAdmin() {
+        require(accessControls.isAdmin(msg.sender), "Caller must have administrator access");
+        _;
     }
 
-  /**
-   * @notice Request variable bytes from the oracle
-   */
-  function requestBytes() public {
-    //bytes32 specId = "5a9a8d60eb894077b1e7a5b77dbfbca9";
-    //uint256 payment = 100000000000000000;
-    Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfillBytes.selector);
-    req.add("get","https://ipfsapiets.herokuapp.com/api/v1/nft/0x8ee9a60cb5c0e7db414031856cb9e0f1f05988d1/3061/1");
-    req.add("path", "IpfsHash");
-    sendOperatorRequest(req, fee);
-  }
+    /// Events
 
-  event RequestFulfilled( bytes32 indexed requestId, bytes indexed data);
 
-  /**
-   * @notice Fulfillment function for variable bytes
-   * @dev This is called by the oracle. recordChainlinkFulfillment must be used.
-   */
-  function fulfillBytes(bytes32 requestId, bytes memory bytesData) public recordChainlinkFulfillment(requestId) {
-    emit RequestFulfilled(requestId, bytesData);
-    data = bytesData;
-    ipfsHash = string(data);
-  }
+    function initialize(ETSAccessControls _accessControls) public initializer {
+
+        // Initialize access controls.
+        accessControls = _accessControls;
+    }
+
+    function _authorizeUpgrade(address) internal override onlyAdmin {}
+
+
+    function version() external pure returns (string memory) {
+        return VERSION;
+    }
+
 }

@@ -40,7 +40,7 @@ module.exports = async ({
   });
 
   //await verify("ETSEnsure", etsEnsure, etsEnsure.address, []);
-  await saveNetworkConfig("ETSEnsure", etsEnsure, false);
+  await saveNetworkConfig("ETSEnsure", etsEnsure, null, false);
 
   log("====================================================");
   log('APIConsumer deployed to -> ' + etsEnsure.address);

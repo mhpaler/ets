@@ -4,6 +4,7 @@ const merge = require("lodash.merge");
 const configPath = "./config/config.json";
 const emptyConfig = {
   address: "0x0000000000000000000000000000000000000000",
+  implementation: "0x0000000000000000000000000000000000000000",
   deploymentBlock: null,
   upgradeBlock: null,
 };
@@ -11,10 +12,11 @@ const emptyConfig = {
 /**
  * Save deployment information into network configuration file.
  * @param {string} name Contract name.
- * @param {object} deployment deployment artifact
- * @param {boolean} upgrade set true to indicate deployment was an upgrade.
+ * @param {object} deployment Deployment artifact. Points to proxy if UUPS.
+ * @param {string} implementation Implementation address if deployment is a proxy.
+ * @param {boolean} upgrade Set true to indicate deployment was an upgrade.
  */
-async function saveNetworkConfig(name, deployment, upgrade) {
+async function saveNetworkConfig(name, deployment, implementation, upgrade) {
 
   const config = readNetworkConfig();
 
@@ -45,6 +47,7 @@ async function saveNetworkConfig(name, deployment, upgrade) {
         [name]: {
           ...emptyConfig,
           address: deployment.address,
+          implementation: implementation,
           deploymentBlock: deploymentBlock,
           upgradeBlock: upgradeBlock
         },

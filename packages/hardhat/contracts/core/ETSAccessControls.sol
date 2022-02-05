@@ -12,7 +12,7 @@ import "hardhat/console.sol";
 contract ETSAccessControls is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
     /// Public constants
     string public constant NAME = "ETS access controls";
-    string public constant VERSION = "0.2.1";
+    string public constant VERSION = "0.0.1";
     bytes32 public constant PUBLISHER_ROLE = keccak256("PUBLISHER");
     bytes32 public constant SMART_CONTRACT_ROLE = keccak256("SMART_CONTRACT");
 
