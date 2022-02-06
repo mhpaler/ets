@@ -15,7 +15,7 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, UUPSUpgra
     string public constant VERSION = "0.2.1";
     bytes32 public constant PUBLISHER_ROLE = keccak256("PUBLISHER");
     bytes32 public constant SMART_CONTRACT_ROLE = keccak256("SMART_CONTRACT");
-    bytes32 public constant TAGGING_CONTRACT_ROLE = keccak256("TAGGING_CONTRACT");
+    bytes32 public constant TARGET_TYPE_ROLE = keccak256("TARGET_TYPE");
 
     function initialize() public initializer {
         __AccessControl_init();
@@ -53,11 +53,28 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, UUPSUpgra
         return hasRole(PUBLISHER_ROLE, _addr);
     }
 
+    mapping(string => address) public targetTypeToContract;
+    mapping(address => string) public targetTypeContractName;
+
     /// @notice Checks whether an address has the tagging contract role
-    /// @param _addr Address being checked
+    /// @param _smartContract Address being checked
     /// @return bool True if the address has the role, false if not
-    function isTaggingSubContract(address _addr) public view returns (bool) {
-        return hasRole(TAGGING_CONTRACT_ROLE, _addr);
+    function isTargetType(address _smartContract) public view returns (bool) {
+        return hasRole(TARGET_TYPE_ROLE, _smartContract);
+    }
+
+    function isTargetTypeAndNotPaused(address _smartContract) public view returns (bool) {
+        return isTargetType(_smartContract) && true;//todo-here this always returns true but shows how you can implement pausing in access controls rather than leaving it up to target type subcontract
+    }
+
+    function addTargetType(address _smartContract, string calldata _name) external {
+        targetTypeToContract[_name] = _smartContract;
+        targetTypeContractName[_smartContract] = _name;
+        grantRole(TARGET_TYPE_ROLE, _smartContract);
+    }
+
+    function removeTargetType(address _smartContract) external {
+        revokeRole(TARGET_TYPE_ROLE, _smartContract);
     }
 
     function version() external pure returns (string memory) {

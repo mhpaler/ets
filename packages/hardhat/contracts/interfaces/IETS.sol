@@ -10,7 +10,6 @@ interface IETS {
     /// TODO: Finish documenting.
     function tagTarget(
         string calldata _tagString,
-        string calldata _targetType,
         string calldata _targetURI,
         address payable _publisher,
         address _tagger

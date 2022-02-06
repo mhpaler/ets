@@ -17,7 +17,7 @@ import "../interfaces/IETS.sol";
 /// @notice Core tagging contract that enables any online target to be tagged with an ETSTAG token.
 /// @dev ETS Core utilizes Open Zeppelin UUPS upgradability pattern.
 contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
-    using SafeMathUpgradeable for uint256;
+    using SafeMathUpgradeable for uint256;//todo-solidity has built in safemath from v8. This can have its downsides too
 
     /// Storage
 
@@ -65,6 +65,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
        contract/interface logic so service can be extended by 3rd parties.
     */
     mapping(string => bool) public targetType; // target => Target struct
+    //todo - get more into this ^
 
     /// Public constants
 
@@ -130,21 +131,21 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @inheritdoc IETS
     function tagTarget(
         string calldata _tagString,
-        string calldata _targetType,
         string calldata _targetURI,
         address payable _publisher,
         address _tagger
     ) public override payable nonReentrant {
-        //require(accessControls.isTaggingSubContract(msg.sender), "Only subcontract");
-        //todo ^ maybe wait to enable this once I know what it will break
+        require(accessControls.isTargetType(msg.sender), "Only subcontract");
+        //todo ^ maybe wait to enable this once I know what it will break. something like this should replace targetType
 
-        require(accessControls.isPublisher(_publisher), "Tag: The publisher must be whitelisted");
+        require(accessControls.isPublisher(_publisher), "Tag: The publisher must be whitelisted"); // todo-talk about ECDSA recovery for relay
         require(msg.value >= taggingFee, "Tag: You must send the fee");
-        require(targetType[_targetType], "Target type: Type not permitted");
+        //require(targetType[_targetType], "Target type: Type not permitted");
         require(_tagger != address(0), "Invalid tagger");
 
         // Check that the target exists, if not, add a new one.
         // Target targetMap = getTarget(targetId);
+        string memory _targetType = accessControls.targetTypeContractName(msg.sender);
         uint256 targetId = getTargetId(_targetType, _targetURI);
         if (targetId == 0) {
           // Form the unique targetID.
@@ -167,7 +168,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
             lastEnsured: 0, // if null, target has never been ensured.
             status: 0,
             ipfsHash: ""
-          });
+          });//todo-see if its cheaper to set non zero fields
 
           // probably need to add this to end of function?
           emit TargetCreated(targetId);
@@ -184,7 +185,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     /// @notice Get a target Id from target type and target uri.
     /// TODO: Finish documentation.
-    function getTargetId(string calldata _targetType, string calldata _targetURI) public view returns (uint256 targetId) {
+    function getTargetId(string memory _targetType, string calldata _targetURI) public view returns (uint256 targetId) {
         string memory parts = string(abi.encodePacked(_targetType, _targetURI));
 
         // The following is how ENS creates ID for their domain names.
