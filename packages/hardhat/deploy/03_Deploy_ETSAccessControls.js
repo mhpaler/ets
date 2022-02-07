@@ -12,8 +12,7 @@ module.exports = async ({
 
     // Deploy ETS Access Controls.
     const deployment = await upgrades.deployProxy(ETSAccessControls, { kind: "uups" });
-    // await deployment.deployed();
-    await deployment.deployTransaction.wait(6);
+    await deployment.deployed();
     const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
 
     // Verify & Update network configuration file.

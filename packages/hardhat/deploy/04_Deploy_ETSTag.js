@@ -1,7 +1,7 @@
 const { ethers, upgrades } = require("hardhat");
 const { verify } = require("./utils/verify.js");
-const { saveNetworkConfig } = require("./utils/config.js");
-const { networkConfig } = require('./../helper-hardhat-config');
+const { saveNetworkConfig, readNetworkConfig } = require("./utils/config.js");
+// const { networkConfig } = require('./../helper-hardhat-config');
 
 module.exports = async ({
   getChainId,
@@ -10,6 +10,7 @@ module.exports = async ({
 }) => {
     const { save, log } = deployments;
     const {ETSPlatform} = await getNamedAccounts();
+    const networkConfig = readNetworkConfig();
     const chainId = await getChainId();
     const ETSTag = await ethers.getContractFactory("ETSTag");
     let etsAccessControlsAddress;

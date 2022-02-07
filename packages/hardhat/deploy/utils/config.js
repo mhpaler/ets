@@ -1,4 +1,5 @@
 const { network } = require("hardhat");
+const { provider } = network;
 const fs = require("fs");
 const merge = require("lodash.merge");
 const configPath = "./config/config.json";
@@ -24,7 +25,9 @@ async function saveNetworkConfig(name, deployment, implementation, upgrade) {
   // receipt signature looks different than vanilla hardhat deploy receipts.
   // (OZ uses "deployedTransaction" for the deployment receipt key vs. "receipt"
   // for hardhat-deploy)
-  const receipt = deployment.receipt ? deployment.receipt : deployment.deployTransaction;
+  // const receipt = deployment.receipt ? deployment.receipt : deployment.deployTransaction;
+  const receipt = await provider.send('eth_getTransactionReceipt', [deployment.deployTransaction.hash]);
+
 
   // Load up deployment block from config if it exists.
   let deploymentBlock = null;

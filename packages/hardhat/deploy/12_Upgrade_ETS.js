@@ -1,6 +1,6 @@
 const { ethers, upgrades } = require("hardhat");
 const { verify } = require("./utils/verify.js");
-const { saveNetworkConfig } = require("./utils/config.js");
+const { saveNetworkConfig, readNetworkConfig } = require("./utils/config.js");
 
 module.exports = async ({
   getChainId,
@@ -8,6 +8,7 @@ module.exports = async ({
 }) => {
     const {log, save} = deployments;
     const chainId = await getChainId();
+    const networkConfig = readNetworkConfig();
     const ETS = await ethers.getContractFactory("ETS");
     let etsAddress;
 
@@ -15,7 +16,7 @@ module.exports = async ({
       let ets = await deployments.get('ETS');
       etsAddress = ets.address
     } else {
-      etsAddress = networkConfig[chainId]['ets'];
+      etsAddress = networkConfig[chainId].contracts['ETS'].address;
     }
 
     const upgrade = await upgrades.upgradeProxy(etsAddress, ETS);

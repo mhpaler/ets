@@ -201,6 +201,7 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
 
         /// @notice Tag a target with an tag string.
     /// TODO: Finish documenting.
+    /// Add ensureTarget flag & requestEnsureTarget() flow.
     function tagTarget(
         string calldata _tagString,
         string calldata _targetType,
@@ -215,13 +216,16 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         // Check that the target exists, if not, add a new one.
         // Target targetMap = getTarget(targetId);
         uint256 targetId = getTargetId(_targetType, _targetURI);
-        uint256 etsTagId = etsTag.getTagId(_tagString, _publisher, _tagger);
+        uint256 etsTagId = etsTag.getTagId(_tagString);
+        if (etsTagId == 0) {
+            etsTagId = etsTag.mint(_tagString, _publisher, _tagger);
+        }
         _tagTarget(etsTagId, targetId, _publisher, _tagger);
     }
 
     /// @notice Get a target Id from target type and target uri.
     /// TODO: Finish documentation.
-    function getTargetId(string calldata _targetType, string calldata _targetURI) public payable returns (uint256 targetId) {
+    function getTargetId(string calldata _targetType, string calldata _targetURI) public returns (uint256 targetId) {
         string memory parts = string(abi.encodePacked(_targetType, _targetURI));
 
         // The following is how ENS creates ID for their domain names.
@@ -242,15 +246,30 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
           ipfsHash: ""
         });
 
-        emit TargetCreated(targetId);
+        emit TargetCreated(_targetId);
         return _targetId;
     }
 
+    /// @notice Ensure a target Id using the off chain ETS Ensure Target API.
+    /// @dev Emits a RequestEnsureTarget event with targetId to Openzeppelin
+    /// Defender which is listening for event. When event is detected, OZ makes
+    /// callout to ETS.targets(targetId) to collect targetType and targetURI.
+    /// With these, OZ makes callout to ETS Ensure Target API which collects
+    /// metadata for target, pins it to IPFS and returns pin to ETS blockchain
+    /// via fulfillEnsureTarget()
+    /// @param targetId Unique id of target to be ensured.
     function requestEnsureTarget(uint256 targetId) public {
       require(targets[targetId].created != 0, "Invalid target");
       emit RequestEnsureTarget(targetId);
     }
 
+    /// @notice Decorates target with additional metadata stored in IPFS hash.
+    /// see requestEnsureTarget()
+    /// TODO: 1) consider access restricting this? ie. not public function.
+    /// 2) add another field for 200 status, but failed metadata collection.
+    /// @param targetId Unique id of target being ensured.
+    /// @param ipfsHash IPFS hash containing metadata related to the unique target.
+    /// @param status HTTP response code from ETS Ensure Target API.
     function fulfillEnsureTarget(uint256 targetId, string calldata ipfsHash, uint status) public  {
       Target storage target = targets[targetId];
       target.status = status;

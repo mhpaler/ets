@@ -250,11 +250,8 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
 
     /// external/public view functions
 
-    function getTagId(string calldata tag, address payable publisher, address tagger) public payable returns (uint256 etstagId) {
-        if (tagToTokenId[__lower(tag)] == 0) {
-            return (tagToTokenId[__lower(tag)]);
-        }
-        return this.mint(tag, publisher, tagger);
+    function getTagId(string calldata tag) public view returns (uint256 etstagId) {
+        return (tagToTokenId[__lower(tag)]);
     }
 
     /// @notice Existence check on a ETSTAG token.

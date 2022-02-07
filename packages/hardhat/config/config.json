@@ -35,39 +35,22 @@
     "fundAmount": "1000000000000000000",
     "keepersUpdateInterval": "30",
     "contracts": {
-      "LinkToken": {
-        "address": "0x2B0d36FACD61B71CC05ab8F3D2355ec3631C0dd5",
-        "deploymentBlock": 1,
-        "upgradeBlock": null
-      },
-      "MockOracle": {
-        "address": "0xfbC22278A96299D91d41C453234d97b4F5Eb9B2d",
-        "deploymentBlock": 2,
-        "upgradeBlock": null
-      },
-      "APIConsumer": {
-        "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-        "deploymentBlock": 3,
-        "upgradeBlock": null
-      },
       "ETSAccessControls": {
         "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-        "deploymentBlock": 51,
+        "implementation": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "deploymentBlock": 9,
         "upgradeBlock": null
       },
       "ETSTag": {
         "address": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
-        "deploymentBlock": 54,
+        "implementation": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+        "deploymentBlock": 12,
         "upgradeBlock": null
       },
       "ETS": {
         "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
-        "deploymentBlock": 56,
-        "upgradeBlock": null
-      },
-      "ETSEnsure": {
-        "address": "0x46b142DD1E924FAb83eCc3c08e4D46E82f005e0E",
-        "deploymentBlock": 68,
+        "implementation": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+        "deploymentBlock": 13,
         "upgradeBlock": null
       }
     }
@@ -80,33 +63,23 @@
     "fee": "100000000000000",
     "fundAmount": "100000000000000",
     "contracts": {
-      "APIConsumer": {
-        "address": "0x6e11580bDD0fD22891f8D2e57Abc7523FAB8666C",
-        "deploymentBlock": 24331113,
-        "upgradeBlock": null
-      },
-      "ETSEnsure": {
-        "address": "0x5a7F021ea1E65C07F185221Fa3854083bfb41592",
-        "deploymentBlock": 24362661,
-        "upgradeBlock": null
-      },
       "ETSAccessControls": {
-        "address": "0x7Dc1F7F859b212610F35cebdB23512f4AE0feb1C",
-        "deploymentBlock": null,
-        "upgradeBlock": null,
-        "implementation": "0x5AaA1Ab9F2616E280407dD36beAdF19A3D02B697"
+        "address": "0xD2bD172163F14220B2603080459Fb185Da19F957",
+        "implementation": "0x5AaA1Ab9F2616E280407dD36beAdF19A3D02B697",
+        "deploymentBlock": "0x17805a7",
+        "upgradeBlock": null
       },
       "ETSTag": {
-        "address": "0x188adaC0BfE6fE5029972A52b0265Ed313Ce31EC",
-        "deploymentBlock": null,
-        "upgradeBlock": null,
-        "implementation": "0xF8DeB0dAaE3c7ADeE1dCd88E4D5bAB4a31Ec4b14"
+        "address": "0xb9ED995c04e7EFEA592CC682A729D57d3Bf669b6",
+        "implementation": "0xa24BE44db1fbcabf52f6f7d397aE70123805D4F9",
+        "deploymentBlock": "0x17805ac",
+        "upgradeBlock": null
       },
       "ETS": {
-        "address": "0x740246E69bC7A002069Db93bd786A73d95507285",
-        "deploymentBlock": null,
-        "upgradeBlock": null,
-        "implementation": "0xc23F7b7A99D47b4DECf988d5613A3F881E87dACA"
+        "address": "0x99e44e8c4593308dC934aD959d7c8896FE15d9Ed",
+        "implementation": "0x98d46659B07A688DD6F426Be9511D8a8e43fE0fb",
+        "deploymentBlock": "0x17805b5",
+        "upgradeBlock": "0x1780775"
       }
     }
   },
