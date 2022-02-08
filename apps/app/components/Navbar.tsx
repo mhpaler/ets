@@ -1,7 +1,9 @@
 import React, { FC } from 'react';
 import Link from 'next/link';
+import useTranslation from 'next-translate/useTranslation';
 
 const Navbar: FC = () => {
+  const { t } = useTranslation('common');
   return (
     <div className="mx-4">
       <div className="flex items-center justify-between max-w-6xl pt-4 mx-auto mb-4 space-x-4">
@@ -16,7 +18,7 @@ const Navbar: FC = () => {
 
         <div>
           <button className="flex items-center justify-center px-8 py-3 text-base font-bold text-white transition-colors bg-pink-500 border border-transparent rounded-lg shadow-lg shadow-pink-500/30 hover:bg-pink-600">
-            Connect Wallet
+            {t('connect-wallet')}
           </button>
         </div>
       </div>

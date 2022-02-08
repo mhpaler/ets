@@ -30,7 +30,7 @@ const Footer: FC = () => {
             </svg>
           </a>
         </div>
-        <div className="mt-8 md:mt-0 md:order-1">
+        <div className="mt-4 md:mt-0 md:order-1">
           <p className="text-base text-center text-slate-400">&copy; {new Date().getUTCFullYear()} ETS</p>
         </div>
       </div>

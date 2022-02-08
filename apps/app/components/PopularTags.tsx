@@ -1,8 +1,10 @@
 import React from 'react';
 import Link from 'next/link';
 import useSWR from 'swr';
+import useTranslation from 'next-translate/useTranslation';
 
 const PopularTags = () => {
+  const { t } = useTranslation('common');
   const { data, error } = useSWR(
     `{
       popular: hashtags(first: 5, orderBy: tagCount, orderDirection: desc) {
@@ -20,7 +22,7 @@ const PopularTags = () => {
       <Link href="/">
         <a className="flex justify-between border border-b-0 border-slate-900">
           <div>
-            <h2 className="px-6 py-3 text-xs tracking-wider text-left text-black uppercase">Popular tags</h2>
+            <h2 className="px-6 py-3 text-xs tracking-wider text-left text-black uppercase">{t('popular-tags')}</h2>
           </div>
           <div className="flex items-center pr-2">
             <svg className="inline-flex w-6 h-6 text-pink-600" fill="none" viewBox="0 0 24 24">
@@ -40,7 +42,7 @@ const PopularTags = () => {
                 <a className="text-pink-600">{tag.name}</a>
               </Link>
             </div>
-            <div className="text-sm leading-6 whitespace-nowrap text-slate-500">{tag.tagCount} tagged</div>
+            <div className="text-sm leading-6 whitespace-nowrap text-slate-500">{t('tagged-count', { count: parseInt(tag.tagCount) })}</div>
           </div>
         ))}
       </div>
