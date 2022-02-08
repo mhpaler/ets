@@ -1,11 +1,10 @@
 const formatters = {
   en: new Intl.NumberFormat("en-EN"),
-  // Other formatters can be added in the future:
-  // es: new Intl.NumberFormat("es-ES"),
+  es: new Intl.NumberFormat("es-ES"),
 };
 
 module.exports = {
-  locales: ['en'],
+  locales: ['en', 'es'],
   defaultLocale: 'en',
   pages: {
     '*': ['common'],
