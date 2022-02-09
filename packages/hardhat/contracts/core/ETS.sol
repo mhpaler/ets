@@ -10,6 +10,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 import "./ETSTag.sol";
+import "./ETSEnsure.sol";
 
 /// @title ETS Core
 /// @author Ethereum Tag Service <security@ets.xyz>
@@ -26,19 +27,22 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     /// @dev ETSTAG erc-721 token contract.
     ETSTag public etsTag;
 
-    /// @notice Percentage of tagging fee allocated to ETS.
+    /// @dev ETSEnsure target contract.
+    ETSEnsure public etsEnsure;
+
+    /// @dev Percentage of tagging fee allocated to ETS.
     uint256 public platformPercentage;
 
-    /// @notice Percentage of tagging fee allocated to Publisher.
+    /// @dev Percentage of tagging fee allocated to Publisher.
     uint256 public publisherPercentage;
 
-    /// @notice Percentage of tagging fee allocated to Creator or Owner.
+    /// @dev Percentage of tagging fee allocated to Creator or Owner.
     uint256 public remainingPercentage;
 
     /// @dev Incremental tagging record counter. Used for tagging record ID.
     uint256 public taggingCounter;
 
-    /// @notice Fee in ETH Collected by ETS for tagging.
+    /// @dev Fee in ETH Collected by ETS for tagging.
     uint256 public taggingFee;
 
     /// @dev Map for holding amount accrued to participant address wallets.
@@ -68,7 +72,7 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     /// Public constants
 
     string public constant NAME = "ETS Core";
-    string public constant VERSION = "0.2.0";
+    string public constant VERSION = "0.0.1";
     uint256 public constant modulo = 100;
 
     /// Structs
@@ -128,14 +132,6 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
 
     /// Events
 
-    event RequestEnsureTarget(
-      uint256 targetId
-    );
-
-    event TargetEnsured(
-      uint256 targetId
-    );
-
     event TargetTagged(
         uint256 taggingId
     );
@@ -155,6 +151,11 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         ETSAccessControls newAccessControls
     );
 
+    event ETSEnsureUpdated(
+        ETSEnsure previousETSEnsure, 
+        ETSEnsure newETSEnsure
+    );
+
     event PercentagesSet(
         uint256 platformPercentage,
         uint256 publisherPercentage,
@@ -172,7 +173,11 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     );
 
     event TargetCreated(
-      uint256 targetId
+        uint256 targetId
+    );
+
+    event TargetUpdated(
+        uint256 targetId
     );
 
     /// Modifiers
@@ -199,84 +204,105 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
 
     // External write
 
-        /// @notice Tag a target with an tag string.
-    /// TODO: Finish documenting.
-    /// Add ensureTarget flag & requestEnsureTarget() flow.
+    /// @notice Tag a target with an tag string.
+    /// @param _tagString String target is being tagged with.
+    /// @param _targetType Type of target being tagged. eg. nft.
+    /// @param _targetURI Uniform resource identifier of the target being tagged.
+    /// @param _publisher Address of publisher enabling the tagging record.
+    /// @param _tagger Address of tagger being credited performing tagging record.
+    /// @param _ensure Boolean flag, set true to ensure the target at time of tagging.
     function tagTarget(
         string calldata _tagString,
         string calldata _targetType,
         string calldata _targetURI,
         address payable _publisher,
-        address _tagger
+        address _tagger,
+        bool _ensure
     ) public payable nonReentrant {
         require(accessControls.isPublisher(_publisher), "Tag: The publisher must be whitelisted");
         require(msg.value >= taggingFee, "Tag: You must send the fee");
         require(targetType[_targetType], "Target type: Type not permitted");
 
-        // Check that the target exists, if not, add a new one.
-        // Target targetMap = getTarget(targetId);
+        // Get targetId if the target exists, otherwise, create a new one.
         uint256 targetId = getTargetId(_targetType, _targetURI);
-        uint256 etsTagId = etsTag.getTagId(_tagString);
-        if (etsTagId == 0) {
-            etsTagId = etsTag.mint(_tagString, _publisher, _tagger);
+
+        // Get etsTagId if the tag exists, otherwise, mint a new one.
+        uint256 etsTagId = getTagId(_tagString, _publisher, _tagger);
+
+        if (_ensure) {
+            etsEnsure.requestEnsureTarget(targetId);
         }
+
+        // could probably put a conditional in here that
+        // only tags target if it's ensured.
         _tagTarget(etsTagId, targetId, _publisher, _tagger);
     }
 
+    /// @notice Fetch an etstagId from tag string.
+    /// @dev Looks in tagToTokenId map and returns if ETSTag is found for tag string 
+    /// Otherwise mints a new ETSTag and returns id.
+    /// @param _tagString tag string for ETSTag we are looking up.
+    /// @param _publisher publisher address, to attribute new ETSTag to if one s minted
+    /// @param _tagger tagger address, to attribute new ETSTag to if one s minted
+    /// @return etstagId Id of ETSTag token.
+    function getTagId(
+        string calldata _tagString,
+        address payable _publisher,
+        address _tagger
+    ) public payable returns (uint256 etstagId) {
+        uint256 _etstagId = etsTag.getTagId(_tagString);
+        if (_etstagId == 0) {
+            _etstagId = etsTag.mint(_tagString, _publisher, _tagger);
+        }
+        return _etstagId;
+    }
+
     /// @notice Get a target Id from target type and target uri.
-    /// TODO: Finish documentation.
+    /// TODO: Perhaps rename this with a better name, because it's
+    /// also creating a target record if it doesn't exist?
+    // Or perthaps breakout another function called create target?
     function getTargetId(string calldata _targetType, string calldata _targetURI) public returns (uint256 targetId) {
-        string memory parts = string(abi.encodePacked(_targetType, _targetURI));
-
-        // The following is how ENS creates ID for their domain names.
-        bytes32 label = keccak256(bytes(parts));
-        uint256 _targetId = uint256(label);
-
+        uint256 _targetId = _makeTargetId(_targetType, _targetURI);
         if (targets[_targetId].created != 0) {
           return _targetId;
         }
+        return createTarget(_targetType, _targetURI);
+    }
 
-        // Create a new, unensured target record.
+    /// TODO: Finish documentation.
+    function createTarget(string calldata _targetType, string calldata _targetURI) public returns (uint256 targetId){
+        uint256 _targetId = _makeTargetId(_targetType, _targetURI);
         targets[_targetId] = Target({
-          targetType: _targetType,
-          targetURI: _targetURI, // todo: consider ways to encode _targetURI as some sort of fixed length bytes type.
-          created: block.timestamp,
-          lastEnsured: 0, // if null, target has never been ensured.
-          status: 0,
-          ipfsHash: ""
+            targetType: _targetType,
+            targetURI: _targetURI, // todo: consider ways to encode _targetURI as some sort of fixed length bytes type.
+            created: block.timestamp,
+            lastEnsured: 0, // if null, target has never been ensured.
+            status: 0,
+            ipfsHash: ""
         });
-
         emit TargetCreated(_targetId);
         return _targetId;
     }
 
-    /// @notice Ensure a target Id using the off chain ETS Ensure Target API.
-    /// @dev Emits a RequestEnsureTarget event with targetId to Openzeppelin
-    /// Defender which is listening for event. When event is detected, OZ makes
-    /// callout to ETS.targets(targetId) to collect targetType and targetURI.
-    /// With these, OZ makes callout to ETS Ensure Target API which collects
-    /// metadata for target, pins it to IPFS and returns pin to ETS blockchain
-    /// via fulfillEnsureTarget()
-    /// @param targetId Unique id of target to be ensured.
-    function requestEnsureTarget(uint256 targetId) public {
-      require(targets[targetId].created != 0, "Invalid target");
-      emit RequestEnsureTarget(targetId);
-    }
 
-    /// @notice Decorates target with additional metadata stored in IPFS hash.
-    /// see requestEnsureTarget()
-    /// TODO: 1) consider access restricting this? ie. not public function.
-    /// 2) add another field for 200 status, but failed metadata collection.
-    /// @param targetId Unique id of target being ensured.
-    /// @param ipfsHash IPFS hash containing metadata related to the unique target.
-    /// @param status HTTP response code from ETS Ensure Target API.
-    function fulfillEnsureTarget(uint256 targetId, string calldata ipfsHash, uint status) public  {
-      Target storage target = targets[targetId];
-      target.status = status;
-      target.ipfsHash = ipfsHash;
-      target.lastEnsured = block.timestamp;
-
-      emit TargetEnsured(targetId);
+    /// @notice Updates a target with new values.
+    /// @dev TODO: gate this function to be callable only by platform?
+    /// @return success boolean
+    function updateTarget(
+        uint256 _targetId,
+        string calldata _targetType,
+        string calldata _targetURI,
+        uint _lastEnsured,
+        uint _status,
+        string calldata _ipfsHash
+    ) external returns(bool success) {
+        targets[_targetId].targetType = _targetType;
+        targets[_targetId].targetURI = _targetURI;
+        targets[_targetId].lastEnsured = _lastEnsured;
+        targets[_targetId].status = _status;
+        targets[_targetId].ipfsHash = _ipfsHash;
+        emit TargetUpdated(_targetId);
+        return true;
     }
 
     /// @notice Enables anyone to send ETH accrued by an account.
@@ -308,6 +334,15 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         ETSAccessControls prevAccessControls = accessControls;
         accessControls = _accessControls;
         emit AccessControlsUpdated(prevAccessControls, accessControls);
+    }
+
+    /// @notice Admin functionality for updating the ETSEnsure contract address.
+    /// @param _etsEnsure Address of the ETSEnsure contract.
+    function updateETSEnsure(ETSEnsure _etsEnsure) external onlyAdmin {
+        require(address(_etsEnsure) != address(0), "ETS.updateETSEnsure: Cannot be zero");
+        ETSEnsure previousETSEnsure = etsEnsure;
+        etsEnsure = _etsEnsure;
+        emit ETSEnsureUpdated(previousETSEnsure, etsEnsure);
     }
 
     /// @notice Admin functionality for updating the percentages.
@@ -382,11 +417,25 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         return permittedNftChainIds[_nftChainId];
     }
 
+    /// @notice check for existence of target.
+    /// @param targetId token ID.
+    /// @return true if exists.
+    function targetExists(uint256 targetId) external view returns (bool) {
+        return targets[targetId].created > 0 ? true : false;
+    }
+
     function version() external pure returns (string memory) {
         return VERSION;
     }
 
-    /// Internal write
+    /// Internal
+
+    function _makeTargetId(string calldata _targetType, string calldata _targetURI) private pure returns (uint256 targetId) {
+        string memory parts = string(abi.encodePacked(_targetType, _targetURI));
+        // The following is how ENS creates ID for their domain names.
+        bytes32 label = keccak256(bytes(parts));
+        return uint256(label);
+    }
 
    function _tagTarget(
         uint256 _etsTagId,

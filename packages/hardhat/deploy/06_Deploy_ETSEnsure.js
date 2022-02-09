@@ -9,46 +9,47 @@ module.exports = async ({
     const { save, log } = deployments;
     const networkConfig = readNetworkConfig();
     const chainId = await getChainId();
-    const ETS = await ethers.getContractFactory("ETS");
+    const ETSEnsure = await ethers.getContractFactory("ETSEnsure");
     let etsAccessControlsAddress;
-    let etsTagAddress;
+    let etsAddress;
 
     if (chainId == 31337) {
       let etsAccessControls = await deployments.get('ETSAccessControls');
-      let etsTag = await deployments.get('ETSTag');
+      let ets = await deployments.get('ETS');
       etsAccessControlsAddress = etsAccessControls.address
-      etsTagAddress = etsTag.address
+      etsAddress = ets.address
     } else {
       etsAccessControlsAddress = networkConfig[chainId].contracts['ETSAccessControls'].address;
-      etsTagAddress = networkConfig[chainId].contracts['ETSTag'].address;
+      etsAddress = networkConfig[chainId].contracts['ETS'].address;
     }
 
     // Deploy ETS core using OpenZeppelin upgrades plugin.
     const deployment = await upgrades.deployProxy(
-      ETS,
-      [etsAccessControlsAddress, etsTagAddress],
+      ETSEnsure,
+      [etsAccessControlsAddress, etsAddress],
       { kind: "uups" },
     );
     await deployment.deployed();
+
     const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
 
     // Verify & Update network configuration file.
-    await verify("ETS", deployment, implementation, []);
-    await saveNetworkConfig("ETS", deployment, implementation, false);
+    await verify("ETSEnsure", deployment, implementation, []);
+    await saveNetworkConfig("ETSEnsure", deployment, implementation, false);
 
     // Add to hardhat-deploy deployments.
-    artifact = await deployments.getExtendedArtifact('ETS');
+    artifact = await deployments.getExtendedArtifact('ETSEnsure');
     proxyDeployments = {
       address: deployment.address,
       ...artifact
     }
-    await save('ETS', proxyDeployments);
+    await save('ETSEnsure', proxyDeployments);
 
     log("====================================================");
-    log('ETS proxy deployed to -> ' + deployment.address);
-    log('ETS implementation deployed to -> ' + implementation);
+    log('ETSEnsure proxy deployed to -> ' + deployment.address);
+    log('ETSEnsure implementation deployed to -> ' + implementation);
     log("====================================================");
 };
 
-module.exports.tags = ['ets'];
-module.exports.dependencies = ['ets_tag', 'ets_access_controls']
+module.exports.tags = ['ets_ensure'];
+module.exports.dependencies = ['ets']

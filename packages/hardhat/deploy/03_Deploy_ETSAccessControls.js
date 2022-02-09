@@ -37,7 +37,7 @@ module.exports = async ({
       },
     );
     // add a publisher to the protocol
-    await deployment.grantRole(ethers.utils.id("PUBLISHER"), ETSPublisher);
+    // await deployment.grantRole(ethers.utils.id("PUBLISHER"), ETSPublisher);
 
     log("====================================================");
     log('ETSAccessControls proxy deployed to -> ' + deployment.address);
