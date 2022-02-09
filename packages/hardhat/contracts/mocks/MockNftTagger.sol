@@ -2,22 +2,24 @@
 
 pragma solidity ^0.8.0;
 
-import { IETSTargetType } from "../interfaces/IETSTargetType.sol";
-import { IETS } from "../interfaces/IETS.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-//todo- import styles
+import "../interfaces/IETSTargetType.sol";
+import "../interfaces/IETS.sol";
 
 // example implementation of 1 target type tagging subcontract
 contract MockNftTagger is IETSTargetType {
+    string public constant NAME = "nft";
+
+    address payable public override creator;
+
+    bool isPaused;
 
     /// @notice Address and interface for ETS core
     IETS public ets;
 
-    // todo-this is main entry point for a user. start here
-    function tag(//todo-the nft params could all be strings for non-evm nfts
-        address _nftAddress,
-        uint256 _tokenId,
-        uint256 _chainId,
+    function tag(
+        string calldata _nftAddress,
+        string calldata _tokenId,
+        string calldata _chainId,
         address payable _publisher,
         address _tagger,
         string calldata _tagString
@@ -38,7 +40,8 @@ contract MockNftTagger is IETSTargetType {
 
     /// @inheritdoc IETSTargetType
     function toggleTargetTypePaused() external override {
-        emit TargetTypePaused("", false);
+        isPaused = !isPaused;
+        emit TargetTypePaused(NAME, isPaused);
     }
 
     function validateTargetURI(string calldata targetURI) external override view returns (bool) {
@@ -46,6 +49,6 @@ contract MockNftTagger is IETSTargetType {
     }
 
     function isTargetTypePaused() external override view returns (bool) {
-        return false;
+        return isPaused;
     }
 }

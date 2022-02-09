@@ -17,7 +17,6 @@ import "../interfaces/IETS.sol";
 /// @notice Core tagging contract that enables any online target to be tagged with an ETSTAG token.
 /// @dev ETS Core utilizes Open Zeppelin UUPS upgradability pattern.
 contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
-    using SafeMathUpgradeable for uint256;//todo-solidity has built in safemath from v8. This can have its downsides too
 
     /// Storage
 
@@ -56,16 +55,6 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     /// @dev Map of target id to Target embodied by Target struct.
     mapping(uint256 => Target) public target;
-
-    /// @dev Placeholder map for enabled target types.
-    /**
-      Currently, types are a simple string identifying the target type.
-       eg. "nft", "url". These are set using setTargetType()
-       Obviously, this is a key area to break out into it's own
-       contract/interface logic so service can be extended by 3rd parties.
-    */
-    mapping(string => bool) public targetType; // target => Target struct
-    //todo - get more into this ^
 
     /// Public constants
 
@@ -134,14 +123,12 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         string calldata _targetURI,
         address payable _publisher,
         address _tagger
-    ) public override payable nonReentrant {
-        require(accessControls.isTargetType(msg.sender), "Only subcontract");
-        //todo ^ maybe wait to enable this once I know what it will break. something like this should replace targetType
-
+    ) external override payable nonReentrant {
+        require(accessControls.isTargetTypeAndNotPaused(msg.sender), "Only target type");
         require(accessControls.isPublisher(_publisher), "Tag: The publisher must be whitelisted"); // todo-talk about ECDSA recovery for relay
-        require(msg.value >= taggingFee, "Tag: You must send the fee");
-        //require(targetType[_targetType], "Target type: Type not permitted");
+        require(msg.value == taggingFee, "Tag: You must send the fee");
         require(_tagger != address(0), "Invalid tagger");
+        require(bytes(_targetURI).length > 0, "Empty URI");
 
         // Check that the target exists, if not, add a new one.
         // Target targetMap = getTarget(targetId);
@@ -168,7 +155,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
             lastEnsured: 0, // if null, target has never been ensured.
             status: 0,
             ipfsHash: ""
-          });//todo-see if its cheaper to set non zero fields
+          });
 
           // probably need to add this to end of function?
           emit TargetCreated(targetId);
@@ -271,9 +258,9 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @dev Does nothing when there is nothing due to the account.
     /// @param _account Target address that has had accrued ETH and which will receive the ETH.
     function drawDown(address payable _account) external nonReentrant {
-        uint256 balanceDue = accrued[_account].sub(paid[_account]);
+        uint256 balanceDue = accrued[_account]- paid[_account];
         if (balanceDue > 0 && balanceDue <= address(this).balance) {
-            paid[_account] = paid[_account].add(balanceDue);
+            paid[_account] = paid[_account] + balanceDue;
             _account.transfer(balanceDue);
 
             emit FundsWithdrawn(_account, balanceDue);
@@ -295,26 +282,21 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         ETSAccessControls prevAccessControls = accessControls;
         accessControls = _accessControls;
         emit AccessControlsUpdated(prevAccessControls, accessControls);
-    }//todo- a thought. access controls is upgradeable so is there a need to be able to change the address? is this a hangover from original protocol?
+    }
 
     /// @notice Admin functionality for updating the percentages.
     /// @param _platformPercentage percentage for platform.
     /// @param _publisherPercentage percentage for publisher.
     function updatePercentages(uint256 _platformPercentage, uint256 _publisherPercentage) external onlyAdmin {
         require(
-            _platformPercentage.add(_publisherPercentage) <= 100,
+            _platformPercentage + _publisherPercentage <= 100,
             "ETS.updatePercentages: percentages must not be over 100"
         );
         platformPercentage = _platformPercentage;
         publisherPercentage = _publisherPercentage;
-        remainingPercentage = modulo.sub(platformPercentage).sub(publisherPercentage);
+        remainingPercentage = modulo - platformPercentage - publisherPercentage;
 
         emit PercentagesSet(platformPercentage, publisherPercentage, remainingPercentage);
-    }
-
-    function setTargetType(string calldata _typeName, bool _setting) external onlyAdmin {
-        targetType[_typeName] = _setting;
-        emit TargetTypeSet(_typeName, _setting);
     }
 
     /// @notice Admin functionality for enabling/disabling target chains.
@@ -331,7 +313,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @param _account Address of the account being queried.
     /// @return _due Amount of WEI in ETH due to account.
     function totalDue(address _account) external view returns (uint256 _due) {
-        return accrued[_account].sub(paid[_account]);
+        return accrued[_account]- paid[_account];
     }
 
     /// @dev Retrieves a tagging record.
@@ -383,8 +365,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     ) private {
 
         // Generate a new taggging record id.
-        taggingCounter = taggingCounter.add(1);
-        uint256 taggingId = taggingCounter;
+        uint256 taggingId = ++taggingCounter;
 
         taggingRecords[taggingId] = TaggingRecord({
             etsTagId: _etsTagId,
@@ -398,18 +379,18 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
         // pre-auction.
         if (_owner == _platform) {
-            accrued[_platform] = accrued[_platform].add(msg.value.mul(platformPercentage).div(modulo));
-            accrued[_publisher] = accrued[_publisher].add(msg.value.mul(publisherPercentage).div(modulo));
+            accrued[_platform] = accrued[_platform] + ((msg.value * platformPercentage) / modulo);
+            accrued[_publisher] = accrued[_publisher] + ((msg.value * publisherPercentage) / modulo);
 
             address creator = etsTag.getCreatorAddress(_etsTagId);
-            accrued[creator] = accrued[creator].add(msg.value.mul(remainingPercentage).div(modulo));
+            accrued[creator] = accrued[creator] + ((msg.value * remainingPercentage) / modulo);
         }
         // post-auction.
         else {
-            accrued[_platform] = accrued[_platform].add(msg.value.mul(platformPercentage).div(modulo));
-            accrued[_publisher] = accrued[_publisher].add(msg.value.mul(publisherPercentage).div(modulo));
+            accrued[_platform] = accrued[_platform] + ((msg.value * platformPercentage) / modulo);
+            accrued[_publisher] = accrued[_publisher] + ((msg.value * publisherPercentage) / modulo);
 
-            accrued[_owner] = accrued[_owner].add(msg.value.mul(remainingPercentage).div(modulo));
+            accrued[_owner] = accrued[_owner] + ((msg.value * remainingPercentage) / modulo);
         }
 
         // Log that a target has been tagged.
