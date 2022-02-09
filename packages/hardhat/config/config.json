@@ -4,36 +4,14 @@
   },
   "4": {
     "name": "rinkeby",
-    "linkToken": "0x01be23585060835e02b77ef475b0cc51aa1e0709",
-    "ethUsdPriceFeed": "0x8A753747A1Fa494EC906cE90E9f37563A8AF630e",
-    "keyHash": "0x2ed0feb3e7fd2022120aa84fab1945545a9f2ffc9076fd6156fa96eaff4c1311",
-    "vrfCoordinator": "0xb3dCcb4Cf7a26f6cf6B120Cf5A73875B7BBc655B",
-    "oracle": "0xc57b33452b4f7bb189bb5afae9cc4aba1f7a4fd8",
-    "jobId": "6b88e0402e5d415eb946e528b8e0c7ba",
-    "fee": "100000000000000000",
-    "fundAmount": "1000000000000000000",
-    "keepersUpdateInterval": "30",
     "contracts": {}
   },
   "137": {
     "name": "polygon",
-    "linkToken": "0xb0897686c545045afc77cf20ec7a532e3120e0f1",
-    "ethUsdPriceFeed": "0xF9680D99D6C9589e2a93a78A04A279e509205945",
-    "keyHash": "0xf86195cf7690c55907b2b611ebb7343a6f649bff128701cc542f0569e2c549da",
-    "vrfCoordinator": "0x3d2341ADb2D31f1c5530cDC622016af293177AE0",
-    "oracle": "0x0a31078cd57d23bf9e8e8f1ba78356ca2090569e",
-    "jobId": "12b86114fa9e46bab3ca436f88e1a912",
-    "fee": "100000000000000",
-    "fundAmount": "100000000000000",
     "contracts": {}
   },
   "31337": {
     "name": "localhost",
-    "fee": "100000000000000000",
-    "keyHash": "0x6c3699283bda56ad74f6b855546325b68d482e983852a7a82979cc4807b641f4",
-    "jobId": "29fa9aa13bf1468788b7cc4a500a45b8",
-    "fundAmount": "1000000000000000000",
-    "keepersUpdateInterval": "30",
     "contracts": {
       "ETSAccessControls": {
         "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
@@ -42,53 +20,55 @@
         "upgradeBlock": null
       },
       "ETSTag": {
-        "address": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
-        "implementation": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+        "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+        "implementation": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
         "deploymentBlock": 12,
         "upgradeBlock": null
       },
       "ETS": {
-        "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
-        "implementation": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+        "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+        "implementation": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
         "deploymentBlock": 13,
+        "upgradeBlock": null
+      },
+      "ETSEnsure": {
+        "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+        "implementation": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+        "deploymentBlock": "0xa",
         "upgradeBlock": null
       }
     }
   },
   "80001": {
     "name": "mumbai",
-    "linkToken": "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
-    "oracle": "0x0bddcd124709acbf9bb3f824ebc61c87019888bb",
-    "jobId": "2bb15c3f9cfc4336b95012872ff05092",
-    "fee": "100000000000000",
-    "fundAmount": "100000000000000",
     "contracts": {
       "ETSAccessControls": {
-        "address": "0xD2bD172163F14220B2603080459Fb185Da19F957",
+        "address": "0x3b730100763b729a979Ec318ff68a1a533C143AA",
         "implementation": "0x5AaA1Ab9F2616E280407dD36beAdF19A3D02B697",
         "deploymentBlock": "0x17805a7",
         "upgradeBlock": null
       },
       "ETSTag": {
-        "address": "0xb9ED995c04e7EFEA592CC682A729D57d3Bf669b6",
+        "address": "0x8A4416d512b8e49458bB19acD458d0c8323e4DE3",
         "implementation": "0xa24BE44db1fbcabf52f6f7d397aE70123805D4F9",
         "deploymentBlock": "0x17805ac",
         "upgradeBlock": null
       },
       "ETS": {
-        "address": "0x99e44e8c4593308dC934aD959d7c8896FE15d9Ed",
-        "implementation": "0x98d46659B07A688DD6F426Be9511D8a8e43fE0fb",
+        "address": "0x9eF10ACe338F8A9241b2C41D58aF1F6b8A0dc40C",
+        "implementation": "0xfC9379E2aaf3a2333fdA0f2eC8635a42c001A9cA",
         "deploymentBlock": "0x17805b5",
-        "upgradeBlock": "0x1780775"
+        "upgradeBlock": null
+      },
+      "ETSEnsure": {
+        "address": "0x7C7E69f0e3d02072f7970e209424111A7De45fbD",
+        "implementation": "0x3dAF07a80C4BFa1A566d77847B87D84EBa629DD8",
+        "deploymentBlock": "0x179f9b3",
+        "upgradeBlock": null
       }
     }
   },
   "default": {
-    "name": "hardhat",
-    "fee": "100000000000000000",
-    "keyHash": "0x6c3699283bda56ad74f6b855546325b68d482e983852a7a82979cc4807b641f4",
-    "jobId": "29fa9aa13bf1468788b7cc4a500a45b8",
-    "fundAmount": "1000000000000000000",
-    "keepersUpdateInterval": "30"
+    "name": "hardhat"
   }
 }
