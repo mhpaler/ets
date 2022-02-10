@@ -234,7 +234,8 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         uint256 etsTagId = getTagId(_tagString, _publisher, _tagger);
 
         if (_ensure) {
-            // TODO: put this into it's own function in ETS?
+            // TODO: Only ensure if not previously ensured or user wants to re-ensure.
+            // TODO: put all of this into it's own function in ETS?
             etsEnsure.requestEnsureTarget(targetId);
         }
 
