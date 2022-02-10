@@ -4,9 +4,13 @@ This folder shows how to code an Autotask with package dependencies not availabl
 
 ## Setup
 
-The `rollup.config.js` file instructs Rollup to output a single file to `dist/index.js` based on the `src/index.ts` input file. All dependencies tagged as `external` will not be included in the bundle, since they are available in the Autotask environment - other dependencies, such as `is-odd` in the example, will be embedded in it.
+Develop your scripts within the src/ folder. When ready to compile for adding to Defender run the following from the root of the Defender package.
 
-Run `yarn build` to have Rollup generate the `dist/index.js` file, and copy it into your Autotask.
+```
+yarn rollup -c -i src/[filenae].[js|ts] -o dist/[filename].js
+```
+
+note: The Rollup package compiles typescript as plain .js.
 
 ## Running Locally
 
@@ -16,5 +20,3 @@ You can run the scripts locally, instead of in an Autotask, via a Defender Relay
 API_KEY=yourapikey
 API_SECRET=yourapisecret
 ```
-
-Then run `yarn build` to compile your script, and `yarn start` that will run your script locally, connecting to your Relay via API.
