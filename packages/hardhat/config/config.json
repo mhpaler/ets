@@ -56,9 +56,9 @@
       },
       "ETS": {
         "address": "0x9eF10ACe338F8A9241b2C41D58aF1F6b8A0dc40C",
-        "implementation": "0xfC9379E2aaf3a2333fdA0f2eC8635a42c001A9cA",
+        "implementation": "0x70cD4eDB009F430BF77F11386cDD70eE66e7489C",
         "deploymentBlock": "0x17805b5",
-        "upgradeBlock": null
+        "upgradeBlock": "0x17a7165"
       },
       "ETSEnsure": {
         "address": "0x7C7E69f0e3d02072f7970e209424111A7De45fbD",

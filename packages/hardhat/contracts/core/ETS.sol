@@ -180,6 +180,10 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         uint256 targetId
     );
 
+    event RequestEnsureTarget(
+      uint256 targetId
+    );
+
     /// Modifiers
 
     /// @dev When applied to a method, only allows execution when the sender has the admin role.
@@ -230,6 +234,7 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         uint256 etsTagId = getTagId(_tagString, _publisher, _tagger);
 
         if (_ensure) {
+            // TODO: put this into it's own function in ETS?
             etsEnsure.requestEnsureTarget(targetId);
         }
 
