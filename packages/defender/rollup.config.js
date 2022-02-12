@@ -5,16 +5,22 @@ import json from '@rollup/plugin-json';
 import builtins from 'builtin-modules';
 
 export default {
-  //input: 'src/index.ts',
+  input: 'src/index.js',
   output: {
-    //file: 'dist/index.js',
+    dir: 'dist',
+    //file: 'index.js',
     format: 'cjs',
+    //sourcemap: true,
   },
   plugins: [
     resolve({ preferBuiltins: true }),
     commonjs(),
     json({ compact: true }),
-    typescript(),
+    typescript(
+      {
+        tsconfig: "./tsconfig.json",
+    }
+    ),
   ],
   external: [
     ...builtins,

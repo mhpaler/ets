@@ -1,5 +1,5 @@
 {
-  "name": "defender-rollup-demo",
+  "name": "@ets/defender",
   "version": "1.0.0",
   "main": "dist/index.js",
   "license": "MIT",
@@ -8,6 +8,8 @@
     "start": "node dist/index.js"
   },
   "devDependencies": {
+    "@ets/tsconfig": "*",
+    "@ets/contracts": "*",
     "@rollup/plugin-commonjs": "^16.0.0",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^10.0.0",

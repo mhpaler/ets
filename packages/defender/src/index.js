@@ -4,14 +4,20 @@ import { DefenderRelayProvider } from 'defender-relay-client/lib/ethers';
 import { DefenderRelaySigner } from 'defender-relay-client/lib/ethers';
 
 // Import ABIs which will be embedded into the generated js
-import ETSAbi from './../../subgraph/abi/contracts/core/ETS.sol/ETS.json';
-import ETSAccessControlsAbi from './../../subgraph/abi/contracts/core/ETSAccessControls.sol/ETSAccessControls.json';
-import ETSEnsureAbi from './../../subgraph/abi/contracts/core/ETSEnsure.sol/ETSEnsure.json';
-import networkConfig from './../../hardhat/config/config.json';
+// import ETSAbi from '../../subgraph/abi/contracts/core/ETS.sol/ETS.json';
+import ETSAccessControlsAbi from '../../subgraph/abi/contracts/core/ETSAccessControls.sol/ETSAccessControls.json';
+import ETSEnsureAbi from '../../subgraph/abi/contracts/core/ETSEnsure.sol/ETSEnsure.json';
+import networkConfig from '@ets/contracts/config/config';
+
+import { ETSAbi } from "@ets/contracts";
+
+console.log(ETSAbi);
 
 const axios = require('axios');
 
 export async function main(signer, targetId) {
+
+  console.log(abi.ets);
 
   // Address of ETS on mumbai.
   const ETSAddress = networkConfig[80001].contracts['ETS'].address;
