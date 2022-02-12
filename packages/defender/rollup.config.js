@@ -1,26 +1,21 @@
-import resolve from '@rollup/plugin-node-resolve';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
-import typescript from '@rollup/plugin-typescript';
+//import typescript from '@rollup/plugin-typescript';
 import json from '@rollup/plugin-json';
 import builtins from 'builtin-modules';
 
 export default {
   input: 'src/index.js',
   output: {
-    dir: 'dist',
-    //file: 'index.js',
+    file: 'dist/index.js',
     format: 'cjs',
-    //sourcemap: true,
   },
   plugins: [
-    resolve({ preferBuiltins: true }),
+    nodeResolve({ preferBuiltins: false }),
+    //resolve({ preferBuiltins: true }),
     commonjs(),
     json({ compact: true }),
-    typescript(
-      {
-        tsconfig: "./tsconfig.json",
-    }
-    ),
+    //typescript(),
   ],
   external: [
     ...builtins,
