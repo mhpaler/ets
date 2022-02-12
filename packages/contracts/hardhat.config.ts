@@ -57,7 +57,7 @@ const config: HardhatUserConfig = {
   //  artifacts: '../app/artifacts',
   //},
   abiExporter: {
-    path: '../subgraph/abi',
+    path: './abi',
     runOnCompile: true,
     clear: true,
     pretty: true,
