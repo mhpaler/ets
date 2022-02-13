@@ -38,8 +38,7 @@ contract MockNftTagger is IETSTargetType {
         );
     }
 
-    /// @inheritdoc IETSTargetType
-    function toggleTargetTypePaused() external override {
+    function toggleTargetTypePaused() external {
         isPaused = !isPaused;
         emit TargetTypePaused(NAME, isPaused);
     }
@@ -50,5 +49,11 @@ contract MockNftTagger is IETSTargetType {
 
     function isTargetTypePaused() external override view returns (bool) {
         return isPaused;
+    }
+
+    /// @notice For clients querying via ERC165, we show support for ERC165 interface plus target type interface
+    /// @dev This ensures all target types conform to the same interface if they implement this function
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return interfaceId == type(IERC165).interfaceId || interfaceId == type(IETSTargetType).interfaceId;
     }
 }
