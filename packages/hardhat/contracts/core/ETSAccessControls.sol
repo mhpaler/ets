@@ -4,7 +4,10 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts/interfaces/IERC165.sol";
 import "hardhat/console.sol";
+
+import "../interfaces/IETSTargetType.sol";
 
 /// @title ETS access controls
 /// @author Ethereum Tag Service <security@ets.xyz>
@@ -79,6 +82,10 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, UUPSUpgra
 
     /// @notice Add a new target type smart contract to the ETS protocol
     function addTargetType(address _smartContract, string calldata _name) external {
+        require(
+            IERC165(_smartContract).supportsInterface(type(IETSTargetType).interfaceId),
+            "Required interface not supported"
+        );
         targetTypeToContract[_name] = _smartContract;
         targetTypeContractName[_smartContract] = _name;
         grantRole(TARGET_TYPE_ROLE, _smartContract);
