@@ -1,6 +1,6 @@
 import 'hardhat-deploy';
 import 'hardhat-ethernal';
-import '@typechain/hardhat';
+// import '@typechain/hardhat';
 import 'hardhat-abi-exporter';
 import '@nomiclabs/hardhat-web3';
 import '@nomiclabs/hardhat-ethers';
