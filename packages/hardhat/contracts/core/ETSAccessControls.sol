@@ -85,7 +85,7 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, UUPSUpgra
         require(
             IERC165(_smartContract).supportsInterface(type(IETSTargetType).interfaceId),
             "Required interface not supported"
-        );
+        );// todo-need a try catch actually
         targetTypeToContract[_name] = _smartContract;
         targetTypeContractName[_smartContract] = _name;
         grantRole(TARGET_TYPE_ROLE, _smartContract);
