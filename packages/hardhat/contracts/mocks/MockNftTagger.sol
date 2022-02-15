@@ -2,28 +2,55 @@
 
 pragma solidity ^0.8.0;
 
-import "../interfaces/IETSTargetType.sol";
-import "../interfaces/IETS.sol";
+import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import { IETSTargetType, IERC165 } from "../interfaces/IETSTargetType.sol";
+import { IETS } from "../interfaces/IETS.sol";
 
 // example implementation of 1 target type tagging subcontract
-contract MockNftTagger is IETSTargetType {
-    string public constant NAME = "nft";
+contract MockNftTagger is IETSTargetType, OwnableUpgradeable, UUPSUpgradeable, PausableUpgradeable {
 
+    /// @notice Address that built the target type smart contract
     address payable public override creator;
-
-    bool isPaused;
 
     /// @notice Address and interface for ETS core
     IETS public ets;
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() initializer {}
+
+    /// @param _creator Creator of the target type smart contract
+    /// @param _owner Who will become owner and able to upgrade the contract
+    function initialize(
+        address payable _creator,
+        address _owner
+    ) external initializer {
+        __Ownable_init();
+        __UUPSUpgradeable_init();
+        __Pausable_init();
+
+        creator = _creator;
+        transferOwnership(_owner);
+    }
+
+    /// @notice Ownable based upgrade authorisation
+    function _authorizeUpgrade(address newImplementation)
+    internal
+    onlyOwner
+    override
+    {}
+
+    /// @notice Entry point for a user to tag an EVM NFT which will call into ETS
     function tag(
-        string calldata _nftAddress,
-        string calldata _tokenId,
-        string calldata _chainId,
+        address _nftAddress,
+        uint256 _tokenId,
+        uint256 _chainId,
         address payable _publisher,
         address _tagger,
         string calldata _tagString
     ) external {
+        // Extra layers that could be added: if EVM is from the same chain, validation can be performed
         string memory targetURI = string(abi.encodePacked(
                 _nftAddress,
                 _tokenId,
@@ -38,17 +65,30 @@ contract MockNftTagger is IETSTargetType {
         );
     }
 
-    function toggleTargetTypePaused() external {
-        isPaused = !isPaused;
-        emit TargetTypePaused(NAME, isPaused);
+    /// @notice Allow owner to toggle pausing on and off
+    function toggleTargetTypePaused() external onlyOwner {
+        if (paused()) {
+            _unpause();
+        } else {
+            _pause();
+        }
+
+        emit TargetTypePaused(name(), paused());
     }
 
-    function validateTargetURI(string calldata targetURI) external override view returns (bool) {
-        return false;
-    }
-
+    /// @inheritdoc IETSTargetType
     function isTargetTypePaused() external override view returns (bool) {
-        return isPaused;
+        return paused();
+    }
+
+    /// @inheritdoc IETSTargetType
+    function name() public override pure returns (string memory) {
+        return "NFT";
+    }
+
+    /// @inheritdoc IETSTargetType
+    function version() external override pure returns (string memory) {
+        return "0.0.1";
     }
 
     /// @notice For clients querying via ERC165, we show support for ERC165 interface plus target type interface
