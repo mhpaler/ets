@@ -4,6 +4,7 @@ import useSWR from 'swr';
 import TimeAgo from 'react-timeago';
 import useTranslation from 'next-translate/useTranslation';
 import useTimeAgo from '../hooks/useTimeAgo';
+import { CopyAndPaste } from '../components/CopyAndPaste';
 
 const NewestTags  = () => {
   const { t, lang } = useTranslation('common');
@@ -58,6 +59,7 @@ const NewestTags  = () => {
                     <a className="text-pink-600">{hashtag.creator}</a>
                   </Link>
                 </span>
+                <CopyAndPaste value={hashtag.creator} />
               </div>
               <div className="overflow-hidden text-pink-600 text-ellipsis whitespace-nowrap">
                 <span className="mr-1 text-sm text-slate-700">{t('publisher')}</span>
@@ -66,6 +68,7 @@ const NewestTags  = () => {
                     <a className="text-pink-600">{hashtag.publisher}</a>
                   </Link>
                 </span>
+                <CopyAndPaste value={hashtag.creator} />
               </div>
             </div>
           </div>

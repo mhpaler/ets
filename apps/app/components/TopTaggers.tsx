@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import useSWR from 'swr';
 import useTranslation from 'next-translate/useTranslation';
+import { CopyAndPaste } from '../components/CopyAndPaste';
 
 const TopTaggers = () => {
   const { t } = useTranslation('common');
@@ -37,6 +38,7 @@ const TopTaggers = () => {
               <Link href="/">
                 <a className="text-pink-600">{tagger.id}</a>
               </Link>
+              <CopyAndPaste value={tagger.id} />
             </div>
             <div className="text-sm leading-6 whitespace-nowrap text-slate-500">{t('tagged-count', { count: parseInt(tagger.tagCount) })}</div>
           </div>

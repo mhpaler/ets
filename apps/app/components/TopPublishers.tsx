@@ -3,6 +3,7 @@ import Link from 'next/link';
 import useSWR from 'swr';
 import useTranslation from 'next-translate/useTranslation';
 import { toDp, toEth } from '../utils';
+import { CopyAndPaste } from '../components/CopyAndPaste';
 
 const TopPublishers = () => {
   const { t } = useTranslation('common');
@@ -41,6 +42,7 @@ const TopPublishers = () => {
                 <Link href="/">
                   <a className="text-pink-600">{publisher.id}</a>
                 </Link>
+                <CopyAndPaste value={publisher.id} />
               </div>
               <div className="text-sm leading-6 text-slate-500">{t('tag-count', { count: parseInt(publisher.mintCount)})}</div>
             </div>
