@@ -1,8 +1,7 @@
-import React, { FC } from 'react';
 import Link from 'next/link';
 import useTranslation from 'next-translate/useTranslation';
 
-const Navbar: FC = () => {
+const Navbar = () => {
   const { t } = useTranslation('common');
   return (
     <div className="mx-4">
