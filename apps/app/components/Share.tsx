@@ -1,8 +1,9 @@
-// import useTranslation from 'next-translate/useTranslation';
+import useTranslation from 'next-translate/useTranslation';
 import useCopyToClipboard from "../hooks/useCopyToClipboard";
 
 const Share = ({ url }: { url: string }) => {
   const [isCopied, copy] = useCopyToClipboard();
+  const { t } = useTranslation('common');
 
   return (
     <div>
@@ -11,7 +12,7 @@ const Share = ({ url }: { url: string }) => {
           type="button"
           className="relative inline-flex items-center justify-center flex-grow px-4 py-3 font-bold text-pink-500 transition-colors bg-white border rounded-l-lg border-slate-300 hover:bg-slate-50 hover:text-pink-600 focus:z-10 focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
         >
-          Share
+          {t('share')}
         </button>
         <button
           type="button"
@@ -29,7 +30,7 @@ const Share = ({ url }: { url: string }) => {
               <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.25 9.75L9.75 14.25"></path>
             </svg>
           }
-          <span className="sr-only">Permalink</span>
+          <span className="sr-only">{t('permalink')}</span>
         </button>
       </span>
     </div>
