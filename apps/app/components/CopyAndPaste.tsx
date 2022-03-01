@@ -1,8 +1,9 @@
-// import useTranslation from 'next-translate/useTranslation';
+import useTranslation from 'next-translate/useTranslation';
 import useCopyToClipboard from "../hooks/useCopyToClipboard";
 
 const CopyAndPaste = ({ value }: { value: string }) => {
   const [isCopied, copy] = useCopyToClipboard();
+  const { t } = useTranslation('common');
 
   return (
     <button onClick={() => copy(value)} className="relative text-pink-600 transition-colors hover:text-pink-800 group">
@@ -17,7 +18,7 @@ const CopyAndPaste = ({ value }: { value: string }) => {
           <rect width="10.5" height="10.5" x="8.75" y="8.75" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" rx="2"></rect>
         </svg>
       }
-      <span className="sr-only">Copy</span>
+      <span className="sr-only">{t('copy')}</span>
     </button>
   );
 }
