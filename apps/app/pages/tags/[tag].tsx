@@ -95,7 +95,7 @@ const Tag: NextPage = () => {
 
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col">
                 <div className="text-slate-500">
-                  {t('token-id')}
+                  {t('etstag-id')}
                 </div>
                 <div className="text-right">
                   <div className="text-slate-500">{data && data.tag[0].id}</div>
