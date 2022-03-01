@@ -59,7 +59,7 @@ const RecentlyTagged = () => {
                 <div className="overflow-hidden text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
                   <Link href="/">
                     <a className="text-pink-600 hover:text-pink-700">
-                      {shorter(tag.nftContract)} / {tag.nftId}
+                      {shorter(tag.nftContract)} <span className="text-slate-500">/</span> {tag.nftId}
                     </a>
                   </Link>
                 </div>
