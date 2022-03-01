@@ -1,13 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
 import useSWR from 'swr';
-import TimeAgo from 'react-timeago';
+import { TimeAgo } from '../components/TimeAgo';
 import useTranslation from 'next-translate/useTranslation';
-import useTimeAgo from '../hooks/useTimeAgo';
 
 const RecentlyTagged = () => {
-  const { t, lang } = useTranslation('common');
-  const formatter = useTimeAgo(lang);
+  const { t } = useTranslation('common');
   const { data, error } = useSWR(
     `{
       tags(first: 5, orderBy: timestamp, orderDirection: desc) {
@@ -62,7 +60,6 @@ const RecentlyTagged = () => {
                     <a className="text-pink-600">{tag.nftId}</a>
                   </Link>
                 </div>
-                <div className="text-sm leading-6 text-slate-500"><TimeAgo date={tag.timestamp * 1000} formatter={formatter} /></div>
               </div>
               <div>
                 <div className="overflow-hidden text-pink-600 text-ellipsis whitespace-nowrap">
@@ -71,6 +68,7 @@ const RecentlyTagged = () => {
                   </Link>
                 </div>
                 <div className="text-sm leading-6 text-slate-500">{chainName[tag.nftChainId]}</div>
+                  <TimeAgo date={tag.timestamp * 1000} />
               </div>
             </div>
           </div>

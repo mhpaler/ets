@@ -1,14 +1,12 @@
 import React from 'react';
 import Link from 'next/link';
 import useSWR from 'swr';
-import TimeAgo from 'react-timeago';
+import { TimeAgo } from '../components/TimeAgo';
 import useTranslation from 'next-translate/useTranslation';
-import useTimeAgo from '../hooks/useTimeAgo';
 import { CopyAndPaste } from '../components/CopyAndPaste';
 
 const NewestTags  = () => {
-  const { t, lang } = useTranslation('common');
-  const formatter = useTimeAgo(lang);
+  const { t } = useTranslation('common');
   const { data, error } = useSWR(
     `{
       hashtags(first: 5, orderBy: timestamp, orderDirection: desc) {
@@ -49,7 +47,7 @@ const NewestTags  = () => {
                   <a className="text-pink-600">{hashtag.name}</a>
                 </Link>
               </div>
-              <div className="text-sm leading-6 text-slate-500"><TimeAgo date={hashtag.timestamp * 1000} formatter={formatter} /></div>
+              <div className="text-sm leading-6 text-slate-500"><TimeAgo date={hashtag.timestamp * 1000} /></div>
             </div>
             <div className="grid grid-cols-2 space-x-4 md:block md:space-x-0">
               <div className="overflow-hidden text-pink-600 text-ellipsis whitespace-nowrap">
