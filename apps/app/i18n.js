@@ -2,6 +2,7 @@ const buildFormatter = require('react-timeago/lib/formatters/buildFormatter').de
 const timeagoEn = require('react-timeago/lib/language-strings/en').default;
 const timeagoEs = require('react-timeago/lib/language-strings/es').default;
 
+/** @type {key:string} */
 const numberFormatters = {
   en: new Intl.NumberFormat("en-EN"),
   es: new Intl.NumberFormat("es-ES"),
