@@ -8,7 +8,6 @@ import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-truffle5';
 import '@nomiclabs/hardhat-etherscan';
 import '@openzeppelin/hardhat-upgrades';
-import "@appliedblockchain/chainlink-plugins-fund-link";
 
 import { resolve } from 'path';
 import { config as dotenvConfig } from "dotenv";

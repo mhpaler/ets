@@ -1,0 +1,19 @@
+{
+  "index": {
+    "title": "Introduction",
+    "type": "nav",
+    "hidden": true
+  },
+  "explorer": {
+    "title": "Explorer",
+    "type": "nav"
+  },
+  "docs": {
+    "title": "Docs",
+    "type": "nav"
+  },
+  "faqs": {
+    "title": "Faqs",
+    "type": "nav"
+  }
+}
