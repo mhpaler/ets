@@ -14,9 +14,7 @@ export default function useCopyToClipboard(resetInterval = 3000) {
     };
   }, [isCopied, resetInterval]);
 
-  const copy = useCallback((value: { value: string | number }) => {
-    console.log(value);
-
+  const copy = useCallback((value: string | number) => {
     if (typeof value === "string" || typeof value == "number") {
       copyToClipboard(value.toString());
       setCopied(true);
@@ -28,5 +26,8 @@ export default function useCopyToClipboard(resetInterval = 3000) {
     }
   }, []);
 
-  return [isCopied, copy];
+  return [
+    isCopied,
+    copy,
+  ] as const;
 }
