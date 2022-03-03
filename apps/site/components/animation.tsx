@@ -10,7 +10,7 @@ export default () => {
           //strings: ['Hello', 'World'],
           autoStart: true,
           deleteSpeed: 3,
-          loop: true,
+          //loop: true,
           cursor: "█",
           delay: 200,
         }}
@@ -73,16 +73,13 @@ export default () => {
           .typeString('...')
           .pauseFor(250)
           .deleteChars(3)
-          .typeString('...')
-          .pauseFor(250)
-          .deleteChars(3)
-          .typeString('...')
-          .pauseFor(250)
-          .deleteChars(3)
+          .typeString('..')
+          .deleteChars(2)
           .pasteString('<br/>', null)
           .pasteString('#3dAnimation minted by 0x9a37...5c94 via 0x9a37...5c94', null)
           .pasteString('<br/>', null)
           .pauseFor(250)
+          .changeDelay(50)
           .pasteString('target 0932001...(nft-evm) tagged with #3dAnimation by 0x9a37...5c94 via 0x9a37...5c94', null)
           .pasteString('<br/>', null)
           .pasteString('<strong>$: </strong>', null)
