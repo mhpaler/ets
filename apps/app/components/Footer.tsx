@@ -1,6 +1,4 @@
-import React, { FC } from 'react';
-
-const Footer: FC = () => {
+const Footer = () => {
   return (
     <footer className="px-4">
       <div className="max-w-6xl py-12 mx-auto md:flex md:items-center md:justify-between">
