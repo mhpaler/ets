@@ -12,7 +12,8 @@ interface IETS {
         string calldata _tagString,
         string calldata _targetURI,
         address payable _publisher,
-        address _tagger
+        address _tagger,
+        bool _ensure
     ) external payable;
 
     //todo - go through what else should be part of the interface that other smart contracts may want to interface with. For example;

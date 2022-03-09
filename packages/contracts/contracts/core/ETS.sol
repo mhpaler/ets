@@ -121,71 +121,16 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
       string ipfsHash;
     }
 
-    /// @inheritdoc IETS
-    function tagTarget(
-        string calldata _tagString,
-        string calldata _targetURI,
-        address payable _publisher,
-        address _tagger
-    ) external override payable nonReentrant {
-        require(accessControls.isTargetTypeAndNotPaused(msg.sender), "Only target type");
-        require(accessControls.isPublisher(_publisher), "Tag: The publisher must be whitelisted"); // todo-talk about ECDSA recovery for relay
-        require(msg.value == taggingFee, "Tag: You must send the fee");
-        require(_tagger != address(0), "Invalid tagger");
-        require(bytes(_targetURI).length > 0, "Empty URI");
-
-        // Check that the target exists, if not, add a new one.
-        // Target targetMap = getTarget(targetId);
-        string memory _targetType = accessControls.targetTypeContractName(msg.sender);
-        uint256 targetId = getTargetId(_targetType, _targetURI);
-        if (targetId == 0) {
-          // Form the unique targetID.
-          // See https://stackoverflow.com/questions/69678736/how-to-concat-two-string-values-in-solidity
-          // for string concat logic.
-          // string(bytes.concat(bytes(_targetType), "-", bytes(_targetURI)));
-
-          string memory parts = string(abi.encodePacked(_targetType, _targetURI));
-
-          // The following is how ENS creates ID for their domain names.
-          bytes32 label = keccak256(bytes(parts));
-          targetId = uint256(label);
-
-
-          // Create a new, unensured target record.
-          target[targetId] = Target({
-            targetType: _targetType,
-            targetURI: _targetURI, // todo: consider ways to encode _targetURI as some sort of fixed length bytes type.
-            created: block.timestamp,
-            lastEnsured: 0, // if null, target has never been ensured.
-            status: 0,
-            ipfsHash: ""
-          });
-
-          // probably need to add this to end of function?
-          emit TargetCreated(targetId);
-        }
-
-        // mint the tag if it doesn't exisst already
-        uint256 etsTagId = etsTag.getTagId(_tagString);
-        if (etsTagId == 0) {
-            etsTagId = etsTag.mint(_tagString, _publisher, _tagger);
-        }
-
-        _tagTarget(etsTagId, targetId, _publisher, _tagger);
-    }
-
     /// @notice Get a target Id from target type and target uri.
-    /// TODO: Finish documentation.
-    function getTargetId(string memory _targetType, string calldata _targetURI) public view returns (uint256 targetId) {
-        string memory parts = string(abi.encodePacked(_targetType, _targetURI));
-
-        // The following is how ENS creates ID for their domain names.
-        bytes32 label = keccak256(bytes(parts));
-        uint256 _targetId = uint256(label);
-
-        if (target[_targetId].created != 0) {
+    /// TODO: Perhaps rename this with a better name, because it's
+    /// also creating a target record if it doesn't exist?
+    // Or perthaps breakout another function called create target?
+    function getTargetId(string memory _targetType, string calldata _targetURI) public returns (uint256 targetId) {
+        uint256 _targetId = _makeTargetId(_targetType, _targetURI);
+        if (targets[_targetId].created != 0) {
           return _targetId;
         }
+        return createTarget(_targetType, _targetURI);
     }
 
     /// Events
@@ -268,25 +213,24 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     /// @notice Tag a target with an tag string.
     /// @param _tagString String target is being tagged with.
-    /// @param _targetType Type of target being tagged. eg. nft.
     /// @param _targetURI Uniform resource identifier of the target being tagged.
     /// @param _publisher Address of publisher enabling the tagging record.
     /// @param _tagger Address of tagger being credited performing tagging record.
     /// @param _ensure Boolean flag, set true to ensure the target at time of tagging.
     function tagTarget(
         string calldata _tagString,
-        string calldata _targetType,
         string calldata _targetURI,
         address payable _publisher,
         address _tagger,
         bool _ensure
-    ) public payable nonReentrant {
+    ) public override payable nonReentrant {
+        require(accessControls.isTargetTypeAndNotPaused(msg.sender), "Only target type");
         require(accessControls.isPublisher(_publisher), "Tag: The publisher must be whitelisted");
         require(msg.value >= taggingFee, "Tag: You must send the fee");
-        require(targetType[_targetType], "Target type: Type not permitted");
+        // require(targetType[_targetType], "Target type: Type not permitted");
 
         // Get targetId if the target exists, otherwise, create a new one.
-        uint256 targetId = getTargetId(_targetType, _targetURI);
+        uint256 targetId = getTargetId(accessControls.targetTypeContractName(msg.sender), _targetURI);
 
         // Get etsTagId if the tag exists, otherwise, mint a new one.
         uint256 etsTagId = getTagId(_tagString, _publisher, _tagger);
@@ -319,18 +263,6 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
             _etstagId = etsTag.mint(_tagString, _publisher, _tagger);
         }
         return _etstagId;
-    }
-
-    /// @notice Get a target Id from target type and target uri.
-    /// TODO: Perhaps rename this with a better name, because it's
-    /// also creating a target record if it doesn't exist?
-    // Or perthaps breakout another function called create target?
-    function getTargetId(string calldata _targetType, string calldata _targetURI) public returns (uint256 targetId) {
-        uint256 _targetId = _makeTargetId(_targetType, _targetURI);
-        if (targets[_targetId].created != 0) {
-          return _targetId;
-        }
-        return createTarget(_targetType, _targetURI);
     }
 
     /// TODO: Finish documentation.
