@@ -1,4 +1,4 @@
-import { request } from 'graphql-request';
+import { request, gql } from 'graphql-request';
 import { endpointsByChainId } from '../constants/endpoints';
 
-export const fetcher = query => request(endpointsByChainId[80001], query);
+export const fetcher = (query, variables) => request(endpointsByChainId[80001], gql`${query}`, variables);
