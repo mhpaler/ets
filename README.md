@@ -156,7 +156,7 @@ yarn docker:remove
 
 ### Contracts
 
-Contracts are located in `packages/hardhat/contracts`.
+Contracts are located in `packages/contracts`.
 
 We use [Hardhat](https://hardhat.org/) as our Solidity smart contract development environment. Before using Hardhat, make a copy of `.env.example` in the project root named `.env`. The default settings in there should be enough to get you going. Next, start up Hardhat:
 
@@ -178,7 +178,7 @@ Or, if you would like to deploy and then watch the [contracts](#contracts) for c
 yarn hardhat:watch
 ```
 
-Deployment and watching scripts are located in `packages/hardhat/scripts` and `packages/hardhat/deploy`.
+Deployment and watching scripts are located in `packages/contracts/scripts` and `packages/contracts/deploy`.
 
 #### Ethernal
 
