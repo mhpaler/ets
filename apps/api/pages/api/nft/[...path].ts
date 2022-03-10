@@ -46,6 +46,35 @@ const getTokenMetadata = async (
   return token;
 };
 
+
+/**
+ * @swagger
+ * /api/nft/{contract}/{token}/{chain}:
+ *    get:
+ *      parameters:
+ *        - in: path
+ *          name: contract
+ *          required: true
+ *          description: Address where the smart contract is saved.
+ *          example: "0x0974e6c435c18ddfbbc1f500ede24f99c3cf07f2"
+ *        - in: path
+ *          name: token
+ *          required: true
+ *          description: The token ID number.
+ *          example: 5629
+ *        - in: path
+ *          name: chain
+ *          required: true
+ *          description: The blockchain where the contract and token are saved.
+ *          example: 1
+ *      schema: 
+ *          type: string
+ *          minLength: 3
+ *      description: Returns an IPFS hash for NFT information passed to the endpoint.
+ *      responses:
+ *        200:
+ *          description: OK
+ */
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
