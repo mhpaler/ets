@@ -38,11 +38,6 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, UUPSUpgra
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
     }
 
-    //todo-imagine this needs a clean up
-    function postUpgrade(string calldata message) external view onlyRole(DEFAULT_ADMIN_ROLE) {
-        console.log("ETSAccessControls upgraded", message);
-    }
-
     // Ensure that only address with admin role can upgrade.
     function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
@@ -85,7 +80,7 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, UUPSUpgra
         require(
             IERC165(_smartContract).supportsInterface(type(IETSTargetType).interfaceId),
             "Required interface not supported"
-        );// todo-need a try catch actually
+        );
         targetTypeToContract[_name] = _smartContract;
         targetTypeContractName[_smartContract] = _name;
         grantRole(TARGET_TYPE_ROLE, _smartContract);
@@ -106,10 +101,5 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, UUPSUpgra
 
     function version() external pure returns (string memory) {
         return VERSION;
-    }
-
-    //todo-imagine this needs a clean up
-    function upgraded() external pure returns (string memory) {
-        return "you know it";
     }
 }

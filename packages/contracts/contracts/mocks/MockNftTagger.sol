@@ -23,6 +23,7 @@ contract MockNftTagger is IETSTargetType, OwnableUpgradeable, UUPSUpgradeable, P
     /// @param _creator Creator of the target type smart contract
     /// @param _owner Who will become owner and able to upgrade the contract
     function initialize(
+        IETS _ets,
         address payable _creator,
         address _owner
     ) external initializer {
@@ -30,6 +31,7 @@ contract MockNftTagger is IETSTargetType, OwnableUpgradeable, UUPSUpgradeable, P
         __UUPSUpgradeable_init();
         __Pausable_init();
 
+        ets = _ets;
         creator = _creator;
         transferOwnership(_owner);
     }
