@@ -15,15 +15,13 @@ import { PopularTags } from '../components/PopularTags';
 
 const Home: NextPage = () => {
   return (
-    <div>
-      <div className="max-w-6xl gap-12 mx-auto mt-12 space-y-8 md:space-y-0 md:grid sm:w-full md:grid-cols-2">
-        <RecentlyTagged />
-        <NewestTags />
-        <TopCreators />
-        <TopPublishers />
-        <TopTaggers />
-        <PopularTags />
-      </div>
+    <div className="max-w-6xl gap-12 mx-auto mt-12 space-y-8 md:space-y-0 md:grid sm:w-full md:grid-cols-2">
+      <RecentlyTagged />
+      <NewestTags />
+      <TopCreators />
+      <TopPublishers />
+      <TopTaggers />
+      <PopularTags />
     </div>
   );
 }
