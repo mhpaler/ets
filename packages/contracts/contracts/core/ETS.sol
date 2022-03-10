@@ -241,7 +241,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
             etsEnsure.requestEnsureTarget(targetId);
         }
 
-        // could probably put a conditional in here that
+        // TODO: could probably put a conditional in here that
         // only tags target if it's ensured.
         _tagTarget(etsTagId, targetId, _publisher, _tagger);
     }
@@ -266,7 +266,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     }
 
     /// TODO: Finish documentation.
-    function createTarget(string calldata _targetType, string calldata _targetURI) public returns (uint256 targetId){
+    function createTarget(string memory _targetType, string calldata _targetURI) public returns (uint256 targetId){
         uint256 _targetId = _makeTargetId(_targetType, _targetURI);
         targets[_targetId] = Target({
             targetType: _targetType,
@@ -421,7 +421,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     /// Internal
 
-    function _makeTargetId(string calldata _targetType, string calldata _targetURI) private pure returns (uint256 targetId) {
+    function _makeTargetId(string memory _targetType, string calldata _targetURI) private pure returns (uint256 targetId) {
         string memory parts = string(abi.encodePacked(_targetType, _targetURI));
         // The following is how ENS creates ID for their domain names.
         bytes32 label = keccak256(bytes(parts));

@@ -48,20 +48,20 @@ contract MockNftTagger is IETSTargetType, OwnableUpgradeable, UUPSUpgradeable, P
         uint256 _chainId,
         address payable _publisher,
         address _tagger,
-        string calldata _tagString
+        string calldata _tagString,
+        bool _ensure
     ) external {
         // Extra layers that could be added: if EVM is from the same chain, validation can be performed
-        string memory targetURI = string(abi.encodePacked(
-                _nftAddress,
-                _tokenId,
-                _chainId
-            ));
+        // targetURI boilerplate format for EVM Nft is contract address|token id|chain id
+        // eg "0x8ee9a60cb5c0e7db414031856cb9e0f1f05988d1|3061|1"
+        string memory targetURI = string(abi.encodePacked(_nftAddress, "|", _tokenId, "|", _chainId));
 
         ets.tagTarget(
             _tagString,
             targetURI,
             _publisher,
-            _tagger
+            _tagger,
+            _ensure
         );
     }
 

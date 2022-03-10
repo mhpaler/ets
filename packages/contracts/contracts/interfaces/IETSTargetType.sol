@@ -18,6 +18,10 @@ interface IETSTargetType is IERC165 {
     /// @notice Query if the target type has been paused
     function isTargetTypePaused() external view returns (bool);
 
+    // function setTargetUriSchema();
+
+    // function getSchema()
+
     /// @notice Address of target type smart contract creator. Must not be address(0)
     function creator() external returns (address payable);
 
