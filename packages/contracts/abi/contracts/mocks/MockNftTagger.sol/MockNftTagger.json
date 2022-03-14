@@ -9,7 +9,7 @@
   "event Upgraded(address indexed)",
   "function creator() view returns (address)",
   "function ets() view returns (address)",
-  "function initialize(address,address)",
+  "function initialize(address,address,address)",
   "function isTargetTypePaused() view returns (bool)",
   "function name() pure returns (string)",
   "function owner() view returns (address)",

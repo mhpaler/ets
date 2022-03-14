@@ -7,8 +7,8 @@
     "compile": "hardhat compile",
     "watch": "ts-node scripts/watch.ts",
     "hardhat-test": "hardhat test",
-    "deploy": "npx hardhat deploy --tags ets_core --network localhost",
-    "deploy-mumbai": "npx hardhat deploy --tags ets_core --network mumbai",
+    "deploy": "npx hardhat deploy --tags ets_deploy --network localhost",
+    "deploy-mumbai": "npx hardhat deploy --tags ets_deploy --network mumbai",
     "prettier": "prettier --write 'contracts/**/*.sol'",
     "solhint": "./node_modules/.bin/solhint -f table contracts/**/*.sol"
   },

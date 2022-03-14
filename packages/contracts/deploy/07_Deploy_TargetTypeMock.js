@@ -32,8 +32,11 @@ module.exports = async ({
 
     const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
 
-    // Verify & Update network configuration file.
-    await verify("MockNftTagger", deployment, implementation, []);
+    if (!(process.env.DISABLE_MockNftTagger_VERIFICATION === 'true')) {
+      // Verify & Update network configuration file.
+      await verify("MockNftTagger", deployment, implementation, []);
+    }
+
     await saveNetworkConfig("MockNftTagger", deployment, implementation, false);
 
     // Add to hardhat-deploy deployments.
