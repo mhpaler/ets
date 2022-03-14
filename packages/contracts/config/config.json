@@ -14,32 +14,32 @@
     "name": "localhost",
     "contracts": {
       "ETSAccessControls": {
-        "address": "0x8415162630e150DeF75A838f2c778464ab67d424",
+        "address": "0xf961CE64e22FE4440400532a9655e0D3683Fa1e8",
         "implementation": "0x0A39d14D86C3F8ED5dCEBFFb0C39712Ac11253bc",
         "deploymentBlock": 9,
         "upgradeBlock": null
       },
       "ETSTag": {
-        "address": "0x512F74CC6f106C571B790D5f8062F2f3742C71d2",
+        "address": "0x433b8C640d7a1B69e7D20EF3F6075Cba11950689",
         "implementation": "0x2C2fCD1bdb6bAE1d3564e885d2C4F42d4b628a7A",
         "deploymentBlock": 12,
         "upgradeBlock": null
       },
       "ETS": {
-        "address": "0xd1F4d2921eA1fF6a5A133B16548f489dF8264173",
+        "address": "0x60F99F3c2b34Cb55D4cF6B8e8D1cC00daccFFD52",
         "implementation": "0x8A3c4147c25c3d20Aa82D5C7dc31cC29c6f96929",
         "deploymentBlock": 13,
         "upgradeBlock": null
       },
       "ETSEnsure": {
-        "address": "0x24B8c87B9b2D53D220f79334Bb3f566A0bDD9064",
-        "implementation": "0x1798e020Ae3D5C5A05e27Db930a9D6502a4b08Fa",
+        "address": "0x95A825196046f2322943D06119EB530B1bb064Bb",
+        "implementation": "0x2561750e279Fd2B5551e52F3446D23f5263BB9DD",
         "deploymentBlock": "0xa",
         "upgradeBlock": null
       },
       "MockNftTagger": {
-        "address": "0x955A2670f65CeE919A6236Ceda8FDDb3A3d18eE6",
-        "implementation": "0xb46802E503e5b899b318ffEE694c1Fa32BA2E515",
+        "address": "0x31130D3Ad9e408D502a799495e7D24073743b5D2",
+        "implementation": "0x5860f0C0F5cf2408B1bA0dCaE03bADf0d9D9957f",
         "deploymentBlock": "0xb",
         "upgradeBlock": null
       }
