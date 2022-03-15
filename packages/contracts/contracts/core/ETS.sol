@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.12;
 
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
@@ -125,7 +125,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// TODO: Perhaps rename this with a better name, because it's
     /// also creating a target record if it doesn't exist?
     // Or perthaps breakout another function called create target?
-    function getTargetId(string memory _targetType, string calldata _targetURI) public returns (uint256 targetId) {
+    function getTargetId(string memory _targetType, string memory _targetURI) public returns (uint256 targetId) {
         uint256 _targetId = _makeTargetId(_targetType, _targetURI);
         if (targets[_targetId].created != 0) {
           return _targetId;
@@ -155,7 +155,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     );
 
     event ETSEnsureUpdated(
-        ETSEnsure previousETSEnsure, 
+        ETSEnsure previousETSEnsure,
         ETSEnsure newETSEnsure
     );
 
@@ -230,7 +230,10 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         // require(targetType[_targetType], "Target type: Type not permitted");
 
         // Get targetId if the target exists, otherwise, create a new one.
-        uint256 targetId = getTargetId(accessControls.targetTypeContractName(msg.sender), _targetURI);
+        uint256 targetId = getTargetId(
+            accessControls.targetTypeContractName(msg.sender),
+            _targetURI
+        );
 
         // Get etsTagId if the tag exists, otherwise, mint a new one.
         uint256 etsTagId = getTagId(_tagString, _publisher, _tagger);
@@ -247,7 +250,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     }
 
     /// @notice Fetch an etstagId from tag string.
-    /// @dev Looks in tagToTokenId map and returns if ETSTag is found for tag string 
+    /// @dev Looks in tagToTokenId map and returns if ETSTag is found for tag string
     /// Otherwise mints a new ETSTag and returns id.
     /// @param _tagString tag string for ETSTag we are looking up.
     /// @param _publisher publisher address, to attribute new ETSTag to if one s minted
@@ -266,7 +269,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     }
 
     /// TODO: Finish documentation.
-    function createTarget(string memory _targetType, string calldata _targetURI) public returns (uint256 targetId){
+    function createTarget(string memory _targetType, string memory _targetURI) public returns (uint256 targetId){
         uint256 _targetId = _makeTargetId(_targetType, _targetURI);
         targets[_targetId] = Target({
             targetType: _targetType,
@@ -421,7 +424,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     /// Internal
 
-    function _makeTargetId(string memory _targetType, string calldata _targetURI) private pure returns (uint256 targetId) {
+    function _makeTargetId(string memory _targetType, string memory _targetURI) private pure returns (uint256 targetId) {
         string memory parts = string(abi.encodePacked(_targetType, _targetURI));
         // The following is how ENS creates ID for their domain names.
         bytes32 label = keccak256(bytes(parts));

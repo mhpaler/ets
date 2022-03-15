@@ -5,7 +5,7 @@ const { expect, assert } = require("chai");
 
 const { utils, constants } = ethers;
 
-let accounts, factories, artifact, ETSAccessControls, ETSTag, ETS, ERC721Mock;
+let accounts, factories, artifact, ETSAccessControls, ETSTag, ETS, ERC721Mock, MockNftTagger;
 let taggingFee, platformPercentage, publisherPercentage, taggerPercentage;
 
 describe("ETS", function () {
@@ -29,6 +29,7 @@ describe("ETS", function () {
       ETSTag: await ethers.getContractFactory("ETSTag"),
       ETS: await ethers.getContractFactory("ETS"),
       ERC721BurnableMock: await ethers.getContractFactory("ERC721BurnableMock"),
+      MockNftTagger: await ethers.getContractFactory("MockNftTagger"),
     };
 
     artifact = {
@@ -64,6 +65,18 @@ describe("ETS", function () {
     ERC721Mock = await factories.ERC721BurnableMock.deploy("NFT", "NFT");
     await ERC721Mock.deployed();
 
+    MockNftTagger = await upgrades.deployProxy(
+      factories.MockNftTagger,
+      [ETS.address, accounts.ETSAdmin.address, accounts.ETSAdmin.address],
+      { kind: "uups" },
+    );
+
+    await ETSAccessControls.addTargetType(
+      MockNftTagger.address,
+      "nft_evm",
+      { from: accounts.ETSAdmin.address },
+    );
+
     // Fetch tags fee
     taggingFee = await ETS.taggingFee();
     taggingFee = taggingFee.toString();
@@ -90,6 +103,30 @@ describe("ETS", function () {
     await ERC721Mock.mint(accounts.RandomOne.address, nftOneId); //#1
     await ERC721Mock.mint(accounts.RandomOne.address, nftTwoId); //#2
   });
+
+  it.only('works', async function() {
+    await MockNftTagger.tag(
+      "0x8ee9a60cb5c0e7db414031856cb9e0f1f05988d1",
+      3061,
+      1,
+      accounts.ETSPublisher.address,
+      accounts.ETSPublisher.address,
+      "#land",
+      false,
+      {
+        value: taggingFee
+      }
+    )
+
+    const res = await ETS.taggingRecords('1')
+    console.log('res', res)
+    console.log('target ID', res.targetId.toString())
+
+    const targetRes = await ETS.targets(res.targetId.toString())
+    console.log(targetRes)
+
+    console.log(targetRes.targetURI)
+  })
 
   describe("Validate setup", function () {
     describe("Initial state", async function () {
@@ -616,6 +653,6 @@ describe("ETS", function () {
       expect(await ETS.remainingPercentage()).to.be.equal(50);
     });
 
-    
+
   });
 });

@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import { StringsUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 import { IETSTargetType, IERC165 } from "../interfaces/IETSTargetType.sol";
 import { IETS } from "../interfaces/IETS.sol";
 
@@ -53,10 +54,17 @@ contract MockNftTagger is IETSTargetType, OwnableUpgradeable, UUPSUpgradeable, P
         string calldata _tagString,
         bool _ensure
     ) external payable {
+        // TODO - consider whether such a check would be useful
+        // require(_tagger != _publisher, "");
+
         // Extra layers that could be added: if EVM is from the same chain, validation can be performed
         // targetURI boilerplate format for EVM Nft is contract address|token id|chain id
         // eg "0x8ee9a60cb5c0e7db414031856cb9e0f1f05988d1|3061|1"
-        string memory targetURI = string(abi.encodePacked(_nftAddress, "|", _tokenId, "|", _chainId));
+        string memory targetURI = string(abi.encodePacked(
+                _nftAddress, "|",
+                StringsUpgradeable.toString(_tokenId), "|",
+                StringsUpgradeable.toString(_chainId)
+            ));
 
         ets.tagTarget{ value: msg.value }(
             _tagString,
