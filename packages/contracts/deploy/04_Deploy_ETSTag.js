@@ -31,8 +31,11 @@ module.exports = async ({
     await deployment.deployed();
     const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
 
-    // Verify & Update network configuration file.
-    await verify("ETSTag", deployment, implementation, []);
+    if (!(process.env.DISABLE_ETSTag_VERIFICATION === 'true')) {
+      // Verify & Update network configuration file.
+      await verify("ETSTag", deployment, implementation, []);
+    }
+
     await saveNetworkConfig("ETSTag", deployment, implementation, false);
 
     // Add to deployments.

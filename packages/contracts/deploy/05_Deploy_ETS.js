@@ -32,8 +32,11 @@ module.exports = async ({
     await deployment.deployed();
     const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
 
-    // Verify & Update network configuration file.
-    await verify("ETS", deployment, implementation, []);
+    if (!(process.env.DISABLE_ETS_VERIFICATION === 'true')) {
+      // Verify & Update network configuration file.
+      await verify("ETS", deployment, implementation, []);
+    }
+
     await saveNetworkConfig("ETS", deployment, implementation, false);
 
     // Add to hardhat-deploy deployments.
