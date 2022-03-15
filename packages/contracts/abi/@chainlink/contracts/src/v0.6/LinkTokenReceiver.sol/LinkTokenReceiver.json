@@ -1,4 +1,0 @@
-[
-  "function getChainlinkToken() view returns (address)",
-  "function onTokenTransfer(address,uint256,bytes)"
-]

@@ -1,0 +1,8 @@
+[
+  "event TargetTypePaused(string,bool)",
+  "function creator() returns (address)",
+  "function isTargetTypePaused() view returns (bool)",
+  "function name() pure returns (string)",
+  "function supportsInterface(bytes4) view returns (bool)",
+  "function version() pure returns (string)"
+]
