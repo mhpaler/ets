@@ -1,0 +1,66 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: HashtagProtocol
+    network: {{network}}
+    source:
+      address: "{{contracts.HashtagProtocol.address}}"
+      abi: HashtagProtocol
+      startBlock: {{contracts.HashtagProtocol.transaction.blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - MintHashtag
+      abis:
+        - name: HashtagProtocol
+          file: ../hashtag-contracts/abi/contracts/release/HashtagProtocol.sol/HashtagProtocol.json
+      eventHandlers:
+        - event: MintHashtag(indexed uint256,string,indexed address,address)
+          handler: handleMintHashtag
+      file: ./src/mappings/protocol-mapping.ts
+  - kind: ethereum/contract
+    name: ERC721HashtagRegistry
+    network: {{network}}
+    source:
+      address: "{{contracts.ERC721HashtagRegistry.address}}"
+      abi: ERC721HashtagRegistry
+      startBlock: {{contracts.ERC721HashtagRegistry.transaction.blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - HashtagRegistered
+      abis:
+        - name: ERC721HashtagRegistry
+          file: ../hashtag-contracts/abi/contracts/release/ERC721HashtagRegistry.sol/ERC721HashtagRegistry.json
+        - name: HashtagProtocol
+          file: ../hashtag-contracts/abi/contracts/release/HashtagProtocol.sol/HashtagProtocol.json
+      eventHandlers:
+        - event: HashtagRegistered(indexed address,indexed address,indexed address,uint256,uint256,uint256,uint256,uint256)
+          handler: handleHashtagRegistered
+      file: ./src/mappings/erc721-hashtag-registry.ts
+  - kind: ethereum/contract
+    name: HashtagAccessControls
+    network: {{network}}
+    source:
+      address: "{{contracts.HashtagAccessControls.address}}"
+      abi: HashtagAccessControls
+      startBlock: {{contracts.HashtagAccessControls.transaction.blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - RoleGranted
+      abis:
+        - name: HashtagAccessControls
+          file: ../hashtag-contracts/abi/contracts/release/HashtagAccessControls.sol/HashtagAccessControls.json
+      eventHandlers:
+        - event: RoleGranted(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleGranted
+      file: ./src/mappings/access-control-mapping.ts

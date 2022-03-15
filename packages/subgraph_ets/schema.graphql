@@ -1,0 +1,154 @@
+type Hashtag @entity {
+  id: ID!
+  name: String!
+  displayHashtag: String!
+  hashtag: String!
+  hashtagWithoutHash: String!
+  owner: Bytes!
+  creator: Bytes!
+  publisher: Bytes!
+  timestamp: BigInt!
+  tagCount: BigInt!
+
+  #tagging revenue
+  ownerRevenue: BigInt!
+  publisherRevenue: BigInt!
+  protocolRevenue: BigInt!
+  creatorRevenue: BigInt!
+}
+
+type Tag @entity {
+  id: ID!
+  transaction: String!
+  hashtagId: String!
+  nftContract: Bytes!
+  nftId: String!
+  nftChainId: BigInt!
+  tagger: Bytes!
+  timestamp: BigInt!
+  publisher: Bytes!
+  hashtagDisplayHashtag: String!
+  hashtag: String!
+  hashtagWithoutHash: String!
+  nftContractName: String
+  nftTokenUri: String
+  nftName: String
+  nftDescription: String
+  nftImage: String
+}
+
+type Publisher @entity {
+  id: ID!
+  mintCount: BigInt!
+  tagCount: BigInt!
+  tagFees: BigInt!
+}
+
+type Owner @entity {
+  id: ID!
+  mintCount: BigInt!
+  tagCount: BigInt!
+  tagFees: BigInt!
+}
+
+type Tagger @entity {
+  id: ID!
+  tagCount: BigInt!
+  feesPaid: BigInt!
+}
+
+type Platform @entity {
+  id: ID!
+  tagFees: BigInt!
+}
+
+type Creator @entity {
+  id: ID!
+  mintCount: BigInt!
+  tagCount: BigInt!
+  tagFees: BigInt!
+}
+
+#################################################
+# Version 2
+#################################################
+
+interface Target_v2 {
+  id: ID!
+  timestamp: BigInt!
+}
+
+type NFT_v2 implements Target_v2 @entity {
+  id: ID!
+  timestamp: BigInt!
+  nftContract: Bytes!
+  nftId: String!
+  nftContractName: String
+  nftTokenUri: String
+  nftName: String
+  nftDescription: String
+  nftImage: String
+  nftChainId: BigInt!
+}
+
+#rename to tag
+type Hashtag_v2 @entity {
+  id: ID!
+  name: String!
+  displayHashtag: String!
+  hashtag: String!
+  hashtagWithoutHash: String!
+  owner: Owner_v2!
+  creator: Creator_v2!
+  publisher: Publisher_v2!
+  timestamp: BigInt!
+  tagCount: BigInt!
+
+  #tagging revenue
+  ownerRevenue: BigInt!
+  publisherRevenue: BigInt!
+  protocolRevenue: BigInt!
+  creatorRevenue: BigInt!
+}
+
+type Tag_v2 @entity {
+  id: ID!
+  transaction: String!
+  hashtag: Hashtag_v2!
+  tagger: Tagger_v2!
+  publisher: Publisher_v2!
+  target: Target_v2!
+  hashtagName: String!
+}
+
+type Publisher_v2 @entity {
+  id: ID!
+  mintCount: BigInt!
+  tagCount: BigInt!
+  tagFees: BigInt!
+}
+
+type Owner_v2 @entity {
+  id: ID!
+  mintCount: BigInt!
+  tagCount: BigInt!
+  tagFees: BigInt!
+}
+
+type Tagger_v2 @entity {
+  id: ID!
+  tagCount: BigInt!
+  feesPaid: BigInt!
+}
+
+type Platform_v2 @entity {
+  id: ID!
+  tagFees: BigInt!
+}
+
+type Creator_v2 @entity {
+  id: ID!
+  mintCount: BigInt!
+  tagCount: BigInt!
+  tagFees: BigInt!
+}
