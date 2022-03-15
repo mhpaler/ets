@@ -46,9 +46,9 @@ contract MockNftTagger is IETSTargetType, OwnableUpgradeable, UUPSUpgradeable, P
 
     /// @notice Entry point for a user to tag an EVM NFT which will call into ETS
     function tag(
-        address _nftAddress,
-        uint256 _tokenId,
-        uint256 _chainId,
+        string calldata _nftAddress,
+        string calldata _tokenId,
+        string calldata _chainId,
         address payable _publisher,
         address _tagger,
         string calldata _tagString,
@@ -62,8 +62,8 @@ contract MockNftTagger is IETSTargetType, OwnableUpgradeable, UUPSUpgradeable, P
         // eg "0x8ee9a60cb5c0e7db414031856cb9e0f1f05988d1|3061|1"
         string memory targetURI = string(abi.encodePacked(
                 _nftAddress, "|",
-                StringsUpgradeable.toString(_tokenId), "|",
-                StringsUpgradeable.toString(_chainId)
+                _tokenId, "|",
+                _chainId
             ));
 
         ets.tagTarget{ value: msg.value }(

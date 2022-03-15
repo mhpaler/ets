@@ -107,8 +107,8 @@ describe("ETS", function () {
   it.only('works', async function() {
     await MockNftTagger.tag(
       "0x8ee9a60cb5c0e7db414031856cb9e0f1f05988d1",
-      3061,
-      1,
+      "3061",
+      "1",
       accounts.ETSPublisher.address,
       accounts.ETSPublisher.address,
       "#land",

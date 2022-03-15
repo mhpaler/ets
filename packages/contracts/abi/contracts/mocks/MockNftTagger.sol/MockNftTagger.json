@@ -16,7 +16,7 @@
   "function paused() view returns (bool)",
   "function renounceOwnership()",
   "function supportsInterface(bytes4) view returns (bool)",
-  "function tag(address,uint256,uint256,address,address,string,bool) payable",
+  "function tag(string,string,string,address,address,string,bool) payable",
   "function toggleTargetTypePaused()",
   "function transferOwnership(address)",
   "function upgradeTo(address)",
