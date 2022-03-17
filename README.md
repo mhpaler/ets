@@ -2,7 +2,7 @@
 
 Ethereum Tag Service is the community-owned incentivized cross-chain content tagging protocol for the decentralized web.
 
-This repository uses Turborepo and [Yarn](https://classic.yarnpkg.com/lang/en/) as a package manager.
+This repository uses Turborepo and [PNpm](https://pnpm.io/) as a package manager for the monorepo.
 
 - Website: [ets.xyz](https://ets.xyz)
 - App: [app.ets.xyz](https://app.ets.xyz)
