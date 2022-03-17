@@ -45,9 +45,9 @@ importers:
 
   apps/app:
     specifiers:
-      '@ets/config': '*'
-      '@ets/tsconfig': '*'
-      '@ets/ui': '*'
+      '@ets/config': workspace:*
+      '@ets/tsconfig': workspace:*
+      '@ets/ui': workspace:*
       '@headlessui/react': ^1.4.2
       '@iconicicons/react': ^1.5.0
       '@tailwindcss/forms': ^0.4.0
@@ -108,9 +108,9 @@ importers:
 
   apps/site:
     specifiers:
-      '@ets/config': '*'
-      '@ets/tsconfig': '*'
-      '@ets/ui': '*'
+      '@ets/config': workspace:*
+      '@ets/tsconfig': workspace:*
+      '@ets/ui': workspace:*
       '@types/node': 17.0.0
       '@types/react': 17.0.37
       autoprefixer: ^10.4.2
@@ -161,7 +161,7 @@ importers:
   packages/contracts:
     specifiers:
       '@ethersproject/abstract-signer': ^5.6.0
-      '@ets/tsconfig': '*'
+      '@ets/tsconfig': workspace:*
       '@nomiclabs/hardhat-ethers': npm:hardhat-deploy-ethers
       '@nomiclabs/hardhat-etherscan': ^2.1.8
       '@nomiclabs/hardhat-truffle5': ^2.0.3
@@ -233,8 +233,8 @@ importers:
 
   packages/defender:
     specifiers:
-      '@ets/contracts': '*'
-      '@ets/tsconfig': '*'
+      '@ets/contracts': workspace:*
+      '@ets/tsconfig': workspace:*
       '@openzeppelin/contracts': ^3.3.0
       '@rollup/plugin-commonjs': ^16.0.0
       '@rollup/plugin-json': ^4.1.0
@@ -294,7 +294,7 @@ importers:
 
   packages/ui:
     specifiers:
-      '@ets/tsconfig': '*'
+      '@ets/tsconfig': workspace:*
       '@types/react': ^17.0.37
       '@types/react-dom': ^17.0.11
       typescript: ^4.5.3
@@ -14311,7 +14311,7 @@ packages:
     dependencies:
       command-exists: 1.2.9
       commander: 3.0.2
-      follow-redirects: 1.14.9_debug@4.3.3
+      follow-redirects: 1.14.9
       fs-extra: 0.30.0
       js-sha3: 0.8.0
       memorystream: 0.3.1
