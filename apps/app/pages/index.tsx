@@ -13,6 +13,7 @@ import { PopularTags } from '../components/PopularTags';
 
 // import { Button } from "@ets/ui"; // example of how to pull in UI
 
+// Trigger a build
 const Home: NextPage = () => {
   return (
     <div className="max-w-6xl gap-12 mx-auto mt-12 space-y-8 md:space-y-0 md:grid sm:w-full md:grid-cols-2">
