@@ -47,7 +47,7 @@ v0.0.1 Mumbai - [view on Polygonscan](https://mumbai.polygonscan.com/address/0x9
 git clone https://github.com/ethereum-tag-service/ets.git
 cd ets
 
-yarn install
+pnpm install
 ```
 
 Get started with:
@@ -71,7 +71,7 @@ Other packages:
 ### Site
 
 ```bash
-yarn site:dev
+npm site:dev
 ```
 
 This will start up the Next.js development server and your site will be available at: [http://localhost:3000/](http://localhost:3000/)
@@ -83,7 +83,7 @@ The App is built with Next.js and can be found in `apps/site`.
 ### App
 
 ```bash
-yarn app:dev
+npm app:dev
 ```
 
 This will start up the Next.js development server and your site will be available at: [http://localhost:3000/](http://localhost:3000/)
@@ -97,7 +97,7 @@ To interact with the local contract, be sure to switch your MetaMask Network to 
 ### Docs
 
 ```bash
-yarn docs:dev
+npm docs:dev
 ```
 
 This will start up the Next.js development server and your site will be available at: [http://localhost:3000/](http://localhost:3000/)
@@ -114,42 +114,42 @@ The UI package (`/packages/ui`) is a stub React component library shared by the 
 
 ### Subgraph
 
-To develop using a local subgraph, you'll need to have [Docker](https://www.docker.com/products/docker-desktop) installed. Be sure you have already run `yarn hardhat` and `yarn hardhat:deploy` so your contracts are deployed to the local Hardhat network before running the following commands.
+To develop using a local subgraph, you'll need to have [Docker](https://www.docker.com/products/docker-desktop) installed. Be sure you have already run `npm hardhat` and `npm hardhat:deploy` so your contracts are deployed to the local Hardhat network before running the following commands.
 
 First, open up a new terminal and spin up a local Docker graph node container. It will automatically clean up any old data:
 
 ```bash
-yarn docker:start
+npm docker:start
 ```
 
 In another terminal, generate your local subgraph.yaml (uses a script to parse hardhat config into a template):
 
 ```bash
-yarn graph:prepare-local
+npm graph:prepare-local
 ```
 
 Next, create your local subgraph (only required to run once):
 
 ```bash
-yarn graph:create-local
+npm graph:create-local
 ```
 
 Deploy your local subgraph:
 
 ```bash
-yarn graph:ship-local
+npm graph:ship-local
 ```
 
 Once you make changes to your subgraph in `packages/subgraph`, you can deploy your contracts and your subgraph in one go by running:
 
 ```bash
-yarn graph:deploy-and-graph
+npm graph:deploy-and-graph
 ```
 
 If you want to remove the Docker container, run:
 
 ```bash
-yarn docker:remove
+npm docker:remove
 ```
 
 <a name="contracts"></a>
@@ -161,13 +161,13 @@ Contracts are located in `packages/contracts`.
 We use [Hardhat](https://hardhat.org/) as our Solidity smart contract development environment. Before using Hardhat, make a copy of `.env.example` in the project root named `.env`. The default settings in there should be enough to get you going. Next, start up Hardhat:
 
 ```bash
-yarn hardhat
+npm hardhat
 ```
 
-Running `yarn hardhat` spins up a Hardhat network instance that you can connect to using MetaMask. In a different terminal in the same directory, run:
+Running `npm hardhat` spins up a Hardhat network instance that you can connect to using MetaMask. In a different terminal in the same directory, run:
 
 ```bash
-yarn hardhat:deploy
+npm hardhat:deploy
 ```
 
 This will deploy the contracts to the Hardhat network.
@@ -175,7 +175,7 @@ This will deploy the contracts to the Hardhat network.
 Or, if you would like to deploy and then watch the [contracts](#contracts) for changes and auto-deploy them to the local Hardhat network, you can just run:
 
 ```bash
-yarn hardhat:watch
+npm hardhat:watch
 ```
 
 Deployment and watching scripts are located in `packages/contracts/scripts` and `packages/contracts/deploy`.
@@ -191,7 +191,7 @@ ETHERNAL_ENABLED=true
 ETHERNAL_WORKSPACE=[you local workspace name]
 ```
 
-Now when you run `yarn hardhat:deploy` your contracts will be automatically verified in the Ethernal interface allowing you to directly interact with them.
+Now when you run `npm hardhat:deploy` your contracts will be automatically verified in the Ethernal interface allowing you to directly interact with them.
 
 Note: its a good idea when re-deploying contracts to first reset your Ethernal workspace by issuing the following command:
 
@@ -207,7 +207,7 @@ Remember to use quotes around `workspace name` if it has spaces.
 To run tests:
 
 ```bash
-yarn hardhat:test
+npm hardhat:test
 ```
 
 <a name="deployments"></a>
@@ -217,13 +217,13 @@ yarn hardhat:test
 To deploy contracts to Polygon Mumbai, run:
 
 ```bash
-yarn hardhat:deploy-mumbai
+npm hardhat:deploy-mumbai
 ```
 
 To deploy the subgraph:
 
 ```bash
-yarn graph:ship-mumbai
+npm graph:ship-mumbai
 ```
 
 ## Thanks
