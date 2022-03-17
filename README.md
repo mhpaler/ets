@@ -4,6 +4,8 @@ Ethereum Tag Service is the community-owned incentivized cross-chain content tag
 
 This repository uses Turborepo and [PNpm](https://pnpm.io/) as a package manager for the monorepo.
 
+We are using `npm run` for commands. By default, `pnpm` doesn't run arbitrary `pre` and `post` hooks for user-defined scripts (such as prestart).
+
 - Website: [ets.xyz](https://ets.xyz)
 - App: [app.ets.xyz](https://app.ets.xyz)
 - Docs: [ets.xyz/docs](https://ets.xyz/docs)
