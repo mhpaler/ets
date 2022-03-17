@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@ethersproject/abstract-signer": "^5.6.0",
-    "@ets/tsconfig": "*",
+    "@ets/tsconfig": "workspace:*",
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers",
     "@nomiclabs/hardhat-etherscan": "^2.1.8",
     "@nomiclabs/hardhat-truffle5": "^2.0.3",
