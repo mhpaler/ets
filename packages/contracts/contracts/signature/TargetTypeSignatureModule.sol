@@ -6,6 +6,7 @@ import { EIP712Upgradeable } from "@openzeppelin/contracts-upgradeable/utils/cry
 import { ECDSAUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
+/// @notice Module that can be added to any target type in order to offer signature support
 abstract contract TargetTypeSignatureModule is Initializable, EIP712Upgradeable {
 
     bytes32 private _TAG_TYPEHASH;
