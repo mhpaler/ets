@@ -5,6 +5,8 @@ const { expect, assert } = require("chai");
 
 const { utils, constants } = ethers;
 
+const { signTagRequest } = require('./signature-utils');
+
 let accounts, factories, artifact, ETSAccessControls, ETSTag, ETS, ERC721Mock, MockNftTagger;
 let taggingFee, platformPercentage, publisherPercentage, taggerPercentage;
 
@@ -104,27 +106,48 @@ describe("ETS", function () {
     await ERC721Mock.mint(accounts.RandomOne.address, nftTwoId); //#2
   });
 
-  it.only('works', async function() {
-    await MockNftTagger.tag(
-      "0x8ee9a60cb5c0e7db414031856cb9e0f1f05988d1",
-      "3061",
-      "1",
+  // todo - move to mock tagger test file
+  it.only('get tagger to sign the tag request works', async function() {
+    // define tag target (nft params)
+    const nftAddress = "0x8ee9a60cb5c0e7db414031856cb9e0f1f05988d1"
+    const tokenId = "3061"
+    const chainId = "1"
+
+    // sign over target URI as a way of approving tag using Hardhat private key for account #1 of HH node
+    const expectedTargetURI = await MockNftTagger.computeTargetURI(
+      nftAddress,
+      tokenId,
+      chainId
+    ) // we compute same target URI as a real tagging event
+
+    const testPrivateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+    const taggerSignature = signTagRequest(
+      MockNftTagger.address,
+      await MockNftTagger.name(),
+      await MockNftTagger.version(),
+      expectedTargetURI,
+      testPrivateKey
+    )
+
+    await MockNftTagger.sponsoredTag(
+      nftAddress,
+      tokenId,
+      chainId,
       "#land",
       accounts.ETSPublisher.address,
-      "0x8ee9a60cb5c0e7db414031856cb9e0f1f05988d1",
+      taggerSignature,
       false,
       {
         value: taggingFee
       }
     )
 
-    const res = await ETS.taggingRecords('1')
-    console.log('res', res)
-    console.log('target ID', res.targetId.toString())
+    const taggingRecord = await ETS.taggingRecords('1')
 
-    const targetRes = await ETS.targets(res.targetId.toString())
+    const targetRes = await ETS.targets(taggingRecord.targetId.toString())
+    expect(targetRes.targetURI).to.be.equal(expectedTargetURI)
 
-    console.log(targetRes.targetURI)
+    expect(taggingRecord.tagger.toLowerCase()).to.be.equal('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'.toLowerCase())
   })
 
   describe("Validate setup", function () {
