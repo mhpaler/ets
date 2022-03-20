@@ -47,6 +47,7 @@ contract MockNftTagger is IETSTargetType, TargetTypeSignatureModule, OwnableUpgr
     {}
 
     /// @notice Entry point for a user to tag an EVM NFT which will call into ETS
+    /// @dev This will be deprecated and removed in favour of a mandatory signature requirement from tagger
     function tag(
         string calldata _nftAddress,
         string calldata _tokenId,
@@ -73,16 +74,14 @@ contract MockNftTagger is IETSTargetType, TargetTypeSignatureModule, OwnableUpgr
         );
     }
 
-    /// @notice where tagger does an off chain signature and the tx is sponsored
+    /// @notice where tagger does an off chain signature and the tx gas is sponsored by anyone
     function sponsoredTag(
         string calldata _nftAddress,
         string calldata _tokenId,
         string calldata _chainId,
         string calldata _tagString,
         address payable _publisher,
-        uint8 _taggerV,
-        bytes32 _taggerR,
-        bytes32 _taggerS,
+        Signature calldata _taggerSignature,
         bool _ensure
     ) external payable {
         // compute concatenated target URI from tag params
@@ -92,13 +91,50 @@ contract MockNftTagger is IETSTargetType, TargetTypeSignatureModule, OwnableUpgr
             _chainId
         );
 
-        // recover tagger address from signature
-        address tagger = recoverAddress(targetURI, _taggerV, _taggerR, _taggerS);
+        address tagger = recoverAddress(
+            targetURI,
+            _taggerSignature.v,
+            _taggerSignature.r,
+            _taggerSignature.s
+        );
 
         // call ETS informing of a new tag
         _tag(
             targetURI,
             _publisher,
+            _tagString,
+            tagger,
+            _ensure
+        );
+    }
+
+    /// @notice where publisher is sponsoring the tag (no need to pass publisher as a param)
+    function publisherSponsoredTag(
+        string calldata _nftAddress,
+        string calldata _tokenId,
+        string calldata _chainId,
+        string calldata _tagString,
+        Signature calldata _taggerSignature,
+        bool _ensure
+    ) external payable {
+        // compute concatenated target URI from tag params
+        string memory targetURI = computeTargetURI(
+            _nftAddress,
+            _tokenId,
+            _chainId
+        );
+
+        address tagger = recoverAddress(
+            targetURI,
+            _taggerSignature.v,
+            _taggerSignature.r,
+            _taggerSignature.s
+        );
+
+        // call ETS informing of a new tag
+        _tag(
+            targetURI,
+            payable(msg.sender),
             _tagString,
             tagger,
             _ensure

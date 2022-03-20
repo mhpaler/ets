@@ -109,9 +109,9 @@ describe("ETS", function () {
       "0x8ee9a60cb5c0e7db414031856cb9e0f1f05988d1",
       "3061",
       "1",
-      accounts.ETSPublisher.address,
-      accounts.ETSPublisher.address,
       "#land",
+      accounts.ETSPublisher.address,
+      "0x8ee9a60cb5c0e7db414031856cb9e0f1f05988d1",
       false,
       {
         value: taggingFee
@@ -123,7 +123,6 @@ describe("ETS", function () {
     console.log('target ID', res.targetId.toString())
 
     const targetRes = await ETS.targets(res.targetId.toString())
-    console.log(targetRes)
 
     console.log(targetRes.targetURI)
   })

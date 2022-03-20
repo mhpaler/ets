@@ -11,6 +11,12 @@ abstract contract TargetTypeSignatureModule is Initializable, EIP712Upgradeable 
 
     bytes32 private _TAG_TYPEHASH;
 
+    struct Signature {
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+    }
+
     function __TargetTypeSignatureModule_init(
         string memory _contractName,
         string memory _version
@@ -26,7 +32,7 @@ abstract contract TargetTypeSignatureModule is Initializable, EIP712Upgradeable 
         uint8 _v,
         bytes32 _r,
         bytes32 _s
-    ) internal returns (address) {
+    ) internal view returns (address) {
         bytes32 tagStructHash = keccak256(
             abi.encode(_TAG_TYPEHASH, keccak256(bytes(_targetURI)))
         );
