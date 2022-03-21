@@ -2,7 +2,7 @@
 import Typewriter from 'typewriter-effect';
 import styles from "./animation.module.css";
 
-export default () => {
+export default function animation() {
   return (
     <div className={styles.terminal}>
       <Typewriter
