@@ -9,8 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@ets/ui": "*",
     "@stoplight/elements": "^7.5.13",
+    "@ets/ui": "workspace:*",
     "next": "12.0.7",
     "nextra": "2.0.0-alpha.24",
     "nextra-theme-docs": "2.0.0-alpha.24",
@@ -19,8 +19,8 @@
     "typewriter-effect": "^2.18.2"
   },
   "devDependencies": {
-    "@ets/config": "*",
-    "@ets/tsconfig": "*",
+    "@ets/config": "workspace:*",
+    "@ets/tsconfig": "workspace:*",
     "@types/node": "17.0.0",
     "@types/react": "17.0.37",
     "autoprefixer": "^10.4.2",

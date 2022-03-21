@@ -1,6 +1,5 @@
 const withTM = require("next-transpile-modules")([
-  "@ets/ui",
-  "@headlessui/react",
+  "@ets/ui"
 ]);
 const withNextra = require('nextra')({
   theme: 'nextra-theme-docs',
