@@ -1,10 +1,7 @@
 {
-  "index": {
-    "title": "Introduction",
-    "hidden": true
-  },
+  "index": "Introduction",
   "contracts": "Contracts",
-  "api": "API",
+  "api": "APIs",
   "concepts": "Concepts",
   "faqs": "FAQs"
 }
