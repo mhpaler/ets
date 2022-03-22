@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.12;
 
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
@@ -10,14 +10,14 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 import "./ETSTag.sol";
+import "../interfaces/IETS.sol";
 import "./ETSEnsure.sol";
 
 /// @title ETS Core
 /// @author Ethereum Tag Service <security@ets.xyz>
 /// @notice Core tagging contract that enables any online target to be tagged with an ETSTAG token.
 /// @dev ETS Core utilizes Open Zeppelin UUPS upgradability pattern.
-contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
-    using SafeMathUpgradeable for uint256;
+contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
 
     /// Storage
 
@@ -60,15 +60,6 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     /// @dev Map of target id to Target embodied by Target struct.
     mapping(uint256 => Target) public targets;
 
-    /// @dev Placeholder map for enabled target types.
-    /**
-      Currently, types are a simple string identifying the target type.
-       eg. "nft", "url". These are set using setTargetType()
-       Obviously, this is a key area to break out into it's own
-       contract/interface logic so service can be extended by 3rd parties.
-    */
-    mapping(string => bool) public targetType; // target => Target struct
-
     /// Public constants
 
     string public constant NAME = "ETS Core";
@@ -85,7 +76,7 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
      * @param publisher Address of wallet being credited with enabling tagging record.
      * @param timestamp Time when target was tagged.
      */
-    struct TaggingRecord {
+    struct TaggingRecord {//tagging a target to a tag. the link
         uint256 etsTagId;
         uint256 targetId;
         address tagger;
@@ -130,6 +121,18 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
       string ipfsHash;
     }
 
+    /// @notice Get a target Id from target type and target uri.
+    /// TODO: Perhaps rename this with a better name, because it's
+    /// also creating a target record if it doesn't exist?
+    // Or perthaps breakout another function called create target?
+    function getTargetId(string memory _targetType, string memory _targetURI) public returns (uint256 targetId) {
+        uint256 _targetId = _makeTargetId(_targetType, _targetURI);
+        if (targets[_targetId].created != 0) {
+          return _targetId;
+        }
+        return createTarget(_targetType, _targetURI);
+    }
+
     /// Events
 
     event TargetTagged(
@@ -147,12 +150,12 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     );
 
     event AccessControlsUpdated(
-        ETSAccessControls previousAccessControls, 
+        ETSAccessControls previousAccessControls,
         ETSAccessControls newAccessControls
     );
 
     event ETSEnsureUpdated(
-        ETSEnsure previousETSEnsure, 
+        ETSEnsure previousETSEnsure,
         ETSEnsure newETSEnsure
     );
 
@@ -210,25 +213,27 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
 
     /// @notice Tag a target with an tag string.
     /// @param _tagString String target is being tagged with.
-    /// @param _targetType Type of target being tagged. eg. nft.
     /// @param _targetURI Uniform resource identifier of the target being tagged.
     /// @param _publisher Address of publisher enabling the tagging record.
     /// @param _tagger Address of tagger being credited performing tagging record.
     /// @param _ensure Boolean flag, set true to ensure the target at time of tagging.
     function tagTarget(
         string calldata _tagString,
-        string calldata _targetType,
         string calldata _targetURI,
         address payable _publisher,
         address _tagger,
         bool _ensure
-    ) public payable nonReentrant {
+    ) public override payable nonReentrant {
+        require(accessControls.isTargetTypeAndNotPaused(msg.sender), "Only target type");
         require(accessControls.isPublisher(_publisher), "Tag: The publisher must be whitelisted");
         require(msg.value >= taggingFee, "Tag: You must send the fee");
-        require(targetType[_targetType], "Target type: Type not permitted");
+        // require(targetType[_targetType], "Target type: Type not permitted");
 
         // Get targetId if the target exists, otherwise, create a new one.
-        uint256 targetId = getTargetId(_targetType, _targetURI);
+        uint256 targetId = getTargetId(
+            accessControls.targetTypeContractName(msg.sender),
+            _targetURI
+        );
 
         // Get etsTagId if the tag exists, otherwise, mint a new one.
         uint256 etsTagId = getTagId(_tagString, _publisher, _tagger);
@@ -239,13 +244,13 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
             etsEnsure.requestEnsureTarget(targetId);
         }
 
-        // could probably put a conditional in here that
+        // TODO: could probably put a conditional in here that
         // only tags target if it's ensured.
         _tagTarget(etsTagId, targetId, _publisher, _tagger);
     }
 
     /// @notice Fetch an etstagId from tag string.
-    /// @dev Looks in tagToTokenId map and returns if ETSTag is found for tag string 
+    /// @dev Looks in tagToTokenId map and returns if ETSTag is found for tag string
     /// Otherwise mints a new ETSTag and returns id.
     /// @param _tagString tag string for ETSTag we are looking up.
     /// @param _publisher publisher address, to attribute new ETSTag to if one s minted
@@ -263,20 +268,8 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
         return _etstagId;
     }
 
-    /// @notice Get a target Id from target type and target uri.
-    /// TODO: Perhaps rename this with a better name, because it's
-    /// also creating a target record if it doesn't exist?
-    // Or perthaps breakout another function called create target?
-    function getTargetId(string calldata _targetType, string calldata _targetURI) public returns (uint256 targetId) {
-        uint256 _targetId = _makeTargetId(_targetType, _targetURI);
-        if (targets[_targetId].created != 0) {
-          return _targetId;
-        }
-        return createTarget(_targetType, _targetURI);
-    }
-
     /// TODO: Finish documentation.
-    function createTarget(string calldata _targetType, string calldata _targetURI) public returns (uint256 targetId){
+    function createTarget(string memory _targetType, string memory _targetURI) public returns (uint256 targetId){
         uint256 _targetId = _makeTargetId(_targetType, _targetURI);
         targets[_targetId] = Target({
             targetType: _targetType,
@@ -316,9 +309,9 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     /// @dev Does nothing when there is nothing due to the account.
     /// @param _account Target address that has had accrued ETH and which will receive the ETH.
     function drawDown(address payable _account) external nonReentrant {
-        uint256 balanceDue = accrued[_account].sub(paid[_account]);
+        uint256 balanceDue = accrued[_account]- paid[_account];
         if (balanceDue > 0 && balanceDue <= address(this).balance) {
-            paid[_account] = paid[_account].add(balanceDue);
+            paid[_account] = paid[_account] + balanceDue;
             _account.transfer(balanceDue);
 
             emit FundsWithdrawn(_account, balanceDue);
@@ -356,19 +349,14 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     /// @param _publisherPercentage percentage for publisher.
     function updatePercentages(uint256 _platformPercentage, uint256 _publisherPercentage) external onlyAdmin {
         require(
-            _platformPercentage.add(_publisherPercentage) <= 100,
+            _platformPercentage + _publisherPercentage <= 100,
             "ETS.updatePercentages: percentages must not be over 100"
         );
         platformPercentage = _platformPercentage;
         publisherPercentage = _publisherPercentage;
-        remainingPercentage = modulo.sub(platformPercentage).sub(publisherPercentage);
-        
-        emit PercentagesSet(platformPercentage, publisherPercentage, remainingPercentage);
-    }
+        remainingPercentage = modulo - platformPercentage - publisherPercentage;
 
-    function setTargetType(string calldata _typeName, bool _setting) external onlyAdmin {
-        targetType[_typeName] = _setting;
-        emit TargetTypeSet(_typeName, _setting);
+        emit PercentagesSet(platformPercentage, publisherPercentage, remainingPercentage);
     }
 
     /// @notice Admin functionality for enabling/disabling target chains.
@@ -385,7 +373,7 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     /// @param _account Address of the account being queried.
     /// @return _due Amount of WEI in ETH due to account.
     function totalDue(address _account) external view returns (uint256 _due) {
-        return accrued[_account].sub(paid[_account]);
+        return accrued[_account]- paid[_account];
     }
 
     /// @dev Retrieves a tagging record.
@@ -436,7 +424,7 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
 
     /// Internal
 
-    function _makeTargetId(string calldata _targetType, string calldata _targetURI) private pure returns (uint256 targetId) {
+    function _makeTargetId(string memory _targetType, string memory _targetURI) private pure returns (uint256 targetId) {
         string memory parts = string(abi.encodePacked(_targetType, _targetURI));
         // The following is how ENS creates ID for their domain names.
         bytes32 label = keccak256(bytes(parts));
@@ -451,8 +439,7 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
     ) private {
 
         // Generate a new taggging record id.
-        taggingCounter = taggingCounter.add(1);
-        uint256 taggingId = taggingCounter;
+        uint256 taggingId = ++taggingCounter;
 
         taggingRecords[taggingId] = TaggingRecord({
             etsTagId: _etsTagId,
@@ -466,18 +453,18 @@ contract ETS is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, U
 
         // pre-auction.
         if (_owner == _platform) {
-            accrued[_platform] = accrued[_platform].add(msg.value.mul(platformPercentage).div(modulo));
-            accrued[_publisher] = accrued[_publisher].add(msg.value.mul(publisherPercentage).div(modulo));
+            accrued[_platform] = accrued[_platform] + ((msg.value * platformPercentage) / modulo);
+            accrued[_publisher] = accrued[_publisher] + ((msg.value * publisherPercentage) / modulo);
 
             address creator = etsTag.getCreatorAddress(_etsTagId);
-            accrued[creator] = accrued[creator].add(msg.value.mul(remainingPercentage).div(modulo));
+            accrued[creator] = accrued[creator] + ((msg.value * remainingPercentage) / modulo);
         }
         // post-auction.
         else {
-            accrued[_platform] = accrued[_platform].add(msg.value.mul(platformPercentage).div(modulo));
-            accrued[_publisher] = accrued[_publisher].add(msg.value.mul(publisherPercentage).div(modulo));
+            accrued[_platform] = accrued[_platform] + ((msg.value * platformPercentage) / modulo);
+            accrued[_publisher] = accrued[_publisher] + ((msg.value * publisherPercentage) / modulo);
 
-            accrued[_owner] = accrued[_owner].add(msg.value.mul(remainingPercentage).div(modulo));
+            accrued[_owner] = accrued[_owner] + ((msg.value * remainingPercentage) / modulo);
         }
 
         // Log that a target has been tagged.

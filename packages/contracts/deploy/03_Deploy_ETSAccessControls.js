@@ -15,8 +15,11 @@ module.exports = async ({
     await deployment.deployed();
     const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
 
-    // Verify & Update network configuration file.
-    await verify("ETSAccessControls", deployment, implementation, []);
+    if (!(process.env.DISABLE_ETSAccessControls_VERIFICATION === 'true')) {
+      // Verify & Update network configuration file.
+      await verify("ETSAccessControls", deployment, implementation, []);
+    }
+
     await saveNetworkConfig("ETSAccessControls", deployment, implementation, false);
 
     // Add to hardhat-deploy deployments.

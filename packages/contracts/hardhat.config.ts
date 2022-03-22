@@ -1,6 +1,7 @@
 import 'hardhat-deploy';
 import 'hardhat-ethernal';
 // import '@typechain/hardhat';
+import "solidity-coverage";
 import 'hardhat-abi-exporter';
 import '@nomiclabs/hardhat-web3';
 import '@nomiclabs/hardhat-ethers';
@@ -108,6 +109,15 @@ const config: HardhatUserConfig = {
       },
       {
         version: "0.8.7",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 1000,
+          },
+        },
+      },
+      {
+        version: "0.8.12",
         settings: {
           optimizer: {
             enabled: true,

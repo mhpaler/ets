@@ -7,13 +7,14 @@
     "compile": "hardhat compile",
     "watch": "ts-node scripts/watch.ts",
     "hardhat-test": "hardhat test",
-    "deploy": "npx hardhat deploy --tags ets_core --network localhost",
-    "deploy-mumbai": "npx hardhat deploy --tags ets_core --network mumbai",
+    "deploy": "npx hardhat deploy --tags ets_deploy --network localhost",
+    "deploy-mumbai": "npx hardhat deploy --tags ets_deploy --network mumbai",
     "prettier": "prettier --write 'contracts/**/*.sol'",
     "solhint": "./node_modules/.bin/solhint -f table contracts/**/*.sol"
   },
   "devDependencies": {
-    "@ets/tsconfig": "*",
+    "@ethersproject/abstract-signer": "^5.6.0",
+    "@ets/tsconfig": "workspace:*",
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers",
     "@nomiclabs/hardhat-etherscan": "^2.1.8",
     "@nomiclabs/hardhat-truffle5": "^2.0.3",
@@ -40,6 +41,7 @@
     "prettier-plugin-solidity": "^1.0.0-beta.19",
     "solhint": "^3.3.6",
     "solhint-plugin-prettier": "^0.0.5",
+    "solidity-coverage": "^0.7.20",
     "ts-node": "^10.0.0",
     "typechain": "^5.0.0",
     "typescript": "^4.3.2"
