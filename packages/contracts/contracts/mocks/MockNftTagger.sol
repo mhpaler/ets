@@ -74,21 +74,25 @@ contract MockNftTagger is IETSTargetType, TargetTypeSignatureModule, OwnableUpgr
         );
     }
 
+    struct TagParams {
+        string nftAddress;
+        string tokenId;
+        string chainId;
+        string[] tagString;
+    }
+
     /// @notice where tagger does an off chain signature and the tx gas is sponsored by anyone
     function sponsoredTag(
-        string calldata _nftAddress,
-        string calldata _tokenId,
-        string calldata _chainId,
-        string calldata _tagString,
-        address payable _publisher,
+        TagParams calldata _tagParams, // todo - make sure to sign over whole tag params including tag strings
         Signature calldata _taggerSignature,
+        address payable _publisher,// todo - need a publisher signature + pass down sponsor which is msg.sender
         bool _ensure
     ) external payable {
         // compute concatenated target URI from tag params
         string memory targetURI = computeTargetURI(
-            _nftAddress,
-            _tokenId,
-            _chainId
+            _tagParams.nftAddress,
+            _tagParams.tokenId,
+            _tagParams.chainId
         );
 
         address tagger = recoverAddress(
@@ -102,7 +106,7 @@ contract MockNftTagger is IETSTargetType, TargetTypeSignatureModule, OwnableUpgr
         _tag(
             targetURI,
             _publisher,
-            _tagString,
+            _tagParams.tagString[0],
             tagger,
             _ensure
         );
@@ -110,18 +114,15 @@ contract MockNftTagger is IETSTargetType, TargetTypeSignatureModule, OwnableUpgr
 
     /// @notice where publisher is sponsoring the tag (no need to pass publisher as a param)
     function publisherSponsoredTag(
-        string calldata _nftAddress,
-        string calldata _tokenId,
-        string calldata _chainId,
-        string calldata _tagString,
+        TagParams calldata _tagParams,
         Signature calldata _taggerSignature,
         bool _ensure
     ) external payable {
         // compute concatenated target URI from tag params
         string memory targetURI = computeTargetURI(
-            _nftAddress,
-            _tokenId,
-            _chainId
+            _tagParams.nftAddress,
+            _tagParams.tokenId,
+            _tagParams.chainId
         );
 
         address tagger = recoverAddress(
@@ -134,8 +135,8 @@ contract MockNftTagger is IETSTargetType, TargetTypeSignatureModule, OwnableUpgr
         // call ETS informing of a new tag
         _tag(
             targetURI,
-            payable(msg.sender),
-            _tagString,
+            payable(msg.sender), // msg.sender is whitelisted publisher
+            _tagParams.tagString[0],
             tagger,
             _ensure
         );
