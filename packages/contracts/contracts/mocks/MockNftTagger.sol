@@ -78,21 +78,21 @@ contract MockNftTagger is IETSTargetType, TargetTypeSignatureModule, OwnableUpgr
         string nftAddress;
         string tokenId;
         string chainId;
-        string[] tagString;
+        string[] tagStrings;
     }
 
     /// @notice where tagger does an off chain signature and the tx gas is sponsored by anyone
     function sponsoredTag(
-        TagParams calldata _tagParams, // todo - make sure to sign over whole tag params including tag strings
+        TagParams[] calldata _tagParams, // todo - make sure to sign over whole tag params including tag strings
         Signature calldata _taggerSignature,
         address payable _publisher,// todo - need a publisher signature + pass down sponsor which is msg.sender
         bool _ensure
     ) external payable {
         // compute concatenated target URI from tag params
         string memory targetURI = computeTargetURI(
-            _tagParams.nftAddress,
-            _tagParams.tokenId,
-            _tagParams.chainId
+            _tagParams[0].nftAddress,
+            _tagParams[0].tokenId,
+            _tagParams[0].chainId
         );
 
         address tagger = recoverAddress(
@@ -106,7 +106,7 @@ contract MockNftTagger is IETSTargetType, TargetTypeSignatureModule, OwnableUpgr
         _tag(
             targetURI,
             _publisher,
-            _tagParams.tagString[0],
+            _tagParams[0].tagStrings[0],
             tagger,
             _ensure
         );
@@ -136,7 +136,7 @@ contract MockNftTagger is IETSTargetType, TargetTypeSignatureModule, OwnableUpgr
         _tag(
             targetURI,
             payable(msg.sender), // msg.sender is whitelisted publisher
-            _tagParams.tagString[0],
+            _tagParams.tagStrings[0],
             tagger,
             _ensure
         );

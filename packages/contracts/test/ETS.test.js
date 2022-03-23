@@ -133,7 +133,7 @@ describe("ETS", function () {
       nftAddress,
       tokenId,
       chainId,
-      tagString: ["#land"]
+      tagStrings: ["#land"]
     }
 
     const taggerSignature = {
@@ -143,7 +143,7 @@ describe("ETS", function () {
     }
 
     await MockNftTagger.sponsoredTag(
-      tagParams,
+      [tagParams],
       taggerSignature,
       accounts.ETSPublisher.address,
       false,
