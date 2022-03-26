@@ -24,7 +24,7 @@ function getDomainSeparator(contractAddress, contractName, contractVersion) {
   );
 }
 
-function getTagStructHash(contractAddress, contractName, contractVersion, targetURI) {
+function getTagStructHash(contractAddress, contractName, contractVersion, taggingRecords) {
   const DOMAIN_SEPARATOR = getDomainSeparator(contractAddress, contractName, contractVersion);
 
   return keccak256(
@@ -37,7 +37,9 @@ function getTagStructHash(contractAddress, contractName, contractVersion, target
         keccak256(
           defaultAbiCoder.encode(
             ['bytes32', 'bytes32'],
-            [_TAG_TYPEHASH, keccak256(toUtf8Bytes(targetURI))]
+            [_TAG_TYPEHASH, keccak256(defaultAbiCoder.encode(
+              ['tuple(string nftAddress, string tokenId, string chainId, bool ensure, string[] tagStrings)'], taggingRecords
+            ))]
           )
         )
       ]
@@ -45,12 +47,12 @@ function getTagStructHash(contractAddress, contractName, contractVersion, target
   );
 }
 
-function signTagRequest(contractAddress, contractName, contractVersion, targetURI, signerPrivateKey) {
+function signTagRequest(contractAddress, contractName, contractVersion, taggingRecords, signerPrivateKey) {
   const messageStructHash = getTagStructHash(
     contractAddress,
     contractName,
     contractVersion,
-    targetURI
+    taggingRecords
   )
 
   const {v, r, s} = ecsign(

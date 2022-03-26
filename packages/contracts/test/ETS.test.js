@@ -111,7 +111,7 @@ describe("ETS", function () {
     // define tag target (nft params)
     const nftAddress = "0x8ee9a60cb5c0e7db414031856cb9e0f1f05988d1"
     const tokenId = "3061"
-    const chainId = "2"
+    const chainId = "1"
 
     // sign over target URI as a way of approving tag using Hardhat private key for account #1 of HH node
     const expectedTargetURI = await MockNftTagger.computeTargetURI(
@@ -120,21 +120,34 @@ describe("ETS", function () {
       chainId
     ) // we compute same target URI as a real tagging event
 
+    const testPublicKey = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
     const testPrivateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
-    const {v,r,s} = signTagRequest(
-      MockNftTagger.address,
-      await MockNftTagger.name(),
-      await MockNftTagger.version(),
-      expectedTargetURI,
-      testPrivateKey
-    )
 
     const tagParams = {
       nftAddress,
       tokenId,
       chainId,
-      tagStrings: ["#land"]
+      ensure: false,
+      tagStrings: ["#land", "#cute", "#wow"]
     }
+
+    const tagParams2 = {
+      nftAddress,
+      tokenId,
+      chainId: "3",
+      ensure: false,
+      tagStrings: ["#cute"]
+    }
+
+    const taggingRecords = [tagParams, tagParams2]
+
+    const { v, r, s } = signTagRequest(
+      MockNftTagger.address,
+      await MockNftTagger.name(),
+      await MockNftTagger.version(),
+      taggingRecords,
+      testPrivateKey
+    )
 
     const taggerSignature = {
       v,
@@ -143,7 +156,7 @@ describe("ETS", function () {
     }
 
     await MockNftTagger.sponsoredTag(
-      [tagParams],
+      taggingRecords,
       taggerSignature,
       accounts.ETSPublisher.address,
       false,
@@ -157,9 +170,9 @@ describe("ETS", function () {
     const targetRes = await ETS.targets(taggingRecord.targetId.toString())
     expect(targetRes.targetURI).to.be.equal(expectedTargetURI)
 
-    console.log('\nexpectedTargetURI',expectedTargetURI)
+    console.log('\nexpectedTargetURI', expectedTargetURI)
 
-    expect(taggingRecord.tagger.toLowerCase()).to.be.equal('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'.toLowerCase())
+    expect(taggingRecord.tagger.toLowerCase()).to.be.equal(testPublicKey.toLowerCase())
   })
 
   describe("Validate setup", function () {

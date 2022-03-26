@@ -25,16 +25,17 @@ abstract contract TargetTypeSignatureModule is Initializable, EIP712Upgradeable 
 
         // tagParamsHash will be keccak256 of targetURI
         _TAG_TYPEHASH = keccak256("Tag(bytes32 tagParamsHash)");
+        // todo - update above name
     }
 
     function recoverAddress(
-        string memory _targetURI,
+        bytes32 _taggingRecordsHash,
         uint8 _v,
         bytes32 _r,
         bytes32 _s
     ) internal view returns (address) {
         bytes32 tagStructHash = keccak256(
-            abi.encode(_TAG_TYPEHASH, keccak256(bytes(_targetURI)))
+            abi.encode(_TAG_TYPEHASH, _taggingRecordsHash)
         );
 
         return ECDSAUpgradeable.recover(

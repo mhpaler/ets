@@ -46,117 +46,116 @@ contract MockNftTagger is IETSTargetType, TargetTypeSignatureModule, OwnableUpgr
     override
     {}
 
-    /// @notice Entry point for a user to tag an EVM NFT which will call into ETS
-    /// @dev This will be deprecated and removed in favour of a mandatory signature requirement from tagger
-    function tag(
-        string calldata _nftAddress,
-        string calldata _tokenId,
-        string calldata _chainId,
-        string calldata _tagString,
-        address payable _publisher,
-        address _tagger,
-        bool _ensure
-    ) external payable {
-        // compute concatenated target URI from tag params
-        string memory targetURI = computeTargetURI(
-            _nftAddress,
-            _tokenId,
-            _chainId
-        );
-
-        // call ETS informing of a new tag
-        _tag(
-            targetURI,
-            _publisher,
-            _tagString,
-            _tagger,
-            _ensure
-        );
-    }
+//    /// @notice Entry point for a user to tag an EVM NFT which will call into ETS
+//    /// @dev This will be deprecated and removed in favour of a mandatory signature requirement from tagger
+//    function tag(
+//        string calldata _nftAddress,
+//        string calldata _tokenId,
+//        string calldata _chainId,
+//        string calldata _tagString,
+//        address payable _publisher,
+//        address _tagger,
+//        bool _ensure
+//    ) external payable {
+//        // compute concatenated target URI from tag params
+//        string memory targetURI = computeTargetURI(
+//            _nftAddress,
+//            _tokenId,
+//            _chainId
+//        );
+//
+//        // call ETS informing of a new tag
+//        _tag(
+//            targetURI,
+//            _publisher,
+//            _tagString,
+//            _tagger,
+//            _ensure
+//        );
+//    }
 
     struct TagParams {
         string nftAddress;
         string tokenId;
         string chainId;
+        bool ensure;
         string[] tagStrings;
     }
 
     /// @notice where tagger does an off chain signature and the tx gas is sponsored by anyone
     function sponsoredTag(
-        TagParams[] calldata _tagParams, // todo - make sure to sign over whole tag params including tag strings
+        TagParams[] calldata _taggingRecords, // todo - make sure to sign over whole tag params including tag strings
         Signature calldata _taggerSignature,
-        address payable _publisher,// todo - need a publisher signature + pass down sponsor which is msg.sender
-        bool _ensure
+        address payable _publisher// todo - need a publisher signature + pass down sponsor which is msg.sender
     ) external payable {
-        // compute concatenated target URI from tag params
-        string memory targetURI = computeTargetURI(
-            _tagParams[0].nftAddress,
-            _tagParams[0].tokenId,
-            _tagParams[0].chainId
-        );
+        bytes32 taggingRecordsHash = keccak256(abi.encode(_taggingRecords));
 
         address tagger = recoverAddress(
-            targetURI,
+            taggingRecordsHash,
             _taggerSignature.v,
             _taggerSignature.r,
             _taggerSignature.s
         );
 
-        // call ETS informing of a new tag
-        _tag(
-            targetURI,
-            _publisher,
-            _tagParams[0].tagStrings[0],
-            tagger,
-            _ensure
-        );
+        for (uint256 i; i < _taggingRecords.length; ++i) {
+            // call ETS informing of a new tag
+            _tag(
+                _taggingRecords[i],
+                _publisher,
+                tagger
+            );
+        }
     }
 
-    /// @notice where publisher is sponsoring the tag (no need to pass publisher as a param)
-    function publisherSponsoredTag(
-        TagParams calldata _tagParams,
-        Signature calldata _taggerSignature,
-        bool _ensure
-    ) external payable {
-        // compute concatenated target URI from tag params
-        string memory targetURI = computeTargetURI(
-            _tagParams.nftAddress,
-            _tagParams.tokenId,
-            _tagParams.chainId
-        );
-
-        address tagger = recoverAddress(
-            targetURI,
-            _taggerSignature.v,
-            _taggerSignature.r,
-            _taggerSignature.s
-        );
-
-        // call ETS informing of a new tag
-        _tag(
-            targetURI,
-            payable(msg.sender), // msg.sender is whitelisted publisher
-            _tagParams.tagStrings[0],
-            tagger,
-            _ensure
-        );
-    }
+//    /// @notice where publisher is sponsoring the tag (no need to pass publisher as a param)
+//    function publisherSponsoredTag(
+//        TagParams calldata _tagParams,
+//        Signature calldata _taggerSignature,
+//        bool _ensure
+//    ) external payable {
+//        // compute concatenated target URI from tag params
+//        string memory targetURI = computeTargetURI(
+//            _tagParams.nftAddress,
+//            _tagParams.tokenId,
+//            _tagParams.chainId
+//        );
+//
+//        address tagger = recoverAddress(
+//            targetURI,
+//            _taggerSignature.v,
+//            _taggerSignature.r,
+//            _taggerSignature.s
+//        );
+//
+//        // call ETS informing of a new tag
+//        _tag(
+//            targetURI,
+//            payable(msg.sender), // msg.sender is whitelisted publisher
+//            _tagParams.tagStrings[0],
+//            tagger,
+//            _ensure
+//        );
+//    }
 
     function _tag(
-        string memory _targetURI,
+        TagParams calldata _taggingRecord,
         address payable _publisher,
-        string calldata _tagString,
-        address _tagger,
-        bool _ensure
+        address _tagger
+        //bool _ensure
     ) internal {
-        _performTaggingChecks(_tagger, _publisher);
+        // compute concatenated target URI from tag params
+        string memory targetURI = computeTargetURI(
+            _taggingRecord.nftAddress,
+            _taggingRecord.tokenId,
+            _taggingRecord.chainId
+        );
 
         ets.tagTarget{ value: msg.value }(
-            _tagString,
-            _targetURI,
+            _taggingRecord.tagStrings,
+            targetURI,
             _publisher,
             _tagger,
-            _ensure
+            _taggingRecord.ensure
         );
     }
 
@@ -170,14 +169,6 @@ contract MockNftTagger is IETSTargetType, TargetTypeSignatureModule, OwnableUpgr
         // targetURI boilerplate format for EVM Nft is contract address|token id|chain id
         // eg "0x8ee9a60cb5c0e7db414031856cb9e0f1f05988d1|3061|1"
         return string(abi.encodePacked(_nftAddress, "|", _tokenId, "|", _chainId));
-    }
-
-    // Perform any checks on input data from the tagging event
-    function _performTaggingChecks(
-        address _tagger,
-        address _publisher
-    ) internal pure {
-        require(_tagger != _publisher, "Tagger cannot be publisher");
     }
 
     /// @notice Allow owner to toggle pausing on and off

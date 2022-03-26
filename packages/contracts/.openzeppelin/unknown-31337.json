@@ -1713,12 +1713,12 @@
     },
     {
       "address": "0x24B8c87B9b2D53D220f79334Bb3f566A0bDD9064",
-      "txHash": "0x5e651fed31aa3439fb2f7735437481b58ad57ca6f6c6ec3e4fabd53762a4b6de",
+      "txHash": "0xd6fa759d6243109c38dcb109420fd2c3f4e995886857d9b3114c5bcc09e9a42b",
       "kind": "uups"
     },
     {
       "address": "0x2561750e279Fd2B5551e52F3446D23f5263BB9DD",
-      "txHash": "0x52ae58844dd8a0ad745d54c0ff92a9abfcf54a0265c91c488ed9020d546ff00d",
+      "txHash": "0x20ea44debb465c4597b8e634f09113c679e749b1412af7721714f47bf20b9f2e",
       "kind": "uups"
     }
   ],
@@ -4218,7 +4218,7 @@
             "label": "accessControls",
             "offset": 0,
             "slot": "407",
-            "type": "t_contract(ETSAccessControls)6728",
+            "type": "t_contract(ETSAccessControls)6781",
             "contract": "ETSTag",
             "src": "contracts/core/ETSTag.sol:43"
           },
@@ -4226,7 +4226,7 @@
             "label": "tokenIdToTag",
             "offset": 0,
             "slot": "408",
-            "type": "t_mapping(t_uint256,t_struct(Tag)6961_storage)",
+            "type": "t_mapping(t_uint256,t_struct(Tag)7014_storage)",
             "contract": "ETSTag",
             "src": "contracts/core/ETSTag.sol:46"
           },
@@ -4272,7 +4272,7 @@
             "label": "bool",
             "numberOfBytes": "1"
           },
-          "t_contract(ETSAccessControls)6728": {
+          "t_contract(ETSAccessControls)6781": {
             "label": "contract ETSAccessControls",
             "numberOfBytes": "20"
           },
@@ -4296,7 +4296,7 @@
             "label": "mapping(uint256 => address)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(Tag)6961_storage)": {
+          "t_mapping(t_uint256,t_struct(Tag)7014_storage)": {
             "label": "mapping(uint256 => struct ETSTag.Tag)",
             "numberOfBytes": "32"
           },
@@ -4312,7 +4312,7 @@
             "label": "string",
             "numberOfBytes": "32"
           },
-          "t_struct(Tag)6961_storage": {
+          "t_struct(Tag)7014_storage": {
             "label": "struct ETSTag.Tag",
             "members": [
               {
@@ -4349,9 +4349,9 @@
         }
       }
     },
-    "c93ff5d5f21d1b50778a043306aac3d71ab1d80471b1356cf2cf535bb80baae1": {
+    "be041256811935a5ec81c4303f969b0baef94a405c7a29121e67ec93db7f0d09": {
       "address": "0x1798e020Ae3D5C5A05e27Db930a9D6502a4b08Fa",
-      "txHash": "0x3bb7233ccddbe08e42dc14ac2e4c6d8cc10bc7fd87d76f8479c99472ab1de939",
+      "txHash": "0xb750ba70c06022a6262a994bdddcbeb004cb6174ace2dd365c1e4793259cbdcb",
       "layout": {
         "storage": [
           {
@@ -4414,7 +4414,7 @@
             "label": "accessControls",
             "offset": 0,
             "slot": "201",
-            "type": "t_contract(ETSAccessControls)6728",
+            "type": "t_contract(ETSAccessControls)6781",
             "contract": "ETS",
             "src": "contracts/core/ETS.sol:25"
           },
@@ -4422,7 +4422,7 @@
             "label": "etsTag",
             "offset": 0,
             "slot": "202",
-            "type": "t_contract(ETSTag)7614",
+            "type": "t_contract(ETSTag)7667",
             "contract": "ETS",
             "src": "contracts/core/ETS.sol:28"
           },
@@ -4430,7 +4430,7 @@
             "label": "etsEnsure",
             "offset": 0,
             "slot": "203",
-            "type": "t_contract(ETSEnsure)6865",
+            "type": "t_contract(ETSEnsure)6918",
             "contract": "ETS",
             "src": "contracts/core/ETS.sol:31"
           },
@@ -4502,7 +4502,7 @@
             "label": "taggingRecords",
             "offset": 0,
             "slot": "212",
-            "type": "t_mapping(t_uint256,t_struct(TaggingRecord)5588_storage)",
+            "type": "t_mapping(t_uint256,t_struct(TaggingRecord)5589_storage)",
             "contract": "ETS",
             "src": "contracts/core/ETS.sol:58"
           },
@@ -4510,7 +4510,7 @@
             "label": "targets",
             "offset": 0,
             "slot": "213",
-            "type": "t_mapping(t_uint256,t_struct(Target)5601_storage)",
+            "type": "t_mapping(t_uint256,t_struct(Target)5602_storage)",
             "contract": "ETS",
             "src": "contracts/core/ETS.sol:61"
           }
@@ -4528,19 +4528,23 @@
             "label": "uint256[50]",
             "numberOfBytes": "1600"
           },
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]",
+            "numberOfBytes": "32"
+          },
           "t_bool": {
             "label": "bool",
             "numberOfBytes": "1"
           },
-          "t_contract(ETSAccessControls)6728": {
+          "t_contract(ETSAccessControls)6781": {
             "label": "contract ETSAccessControls",
             "numberOfBytes": "20"
           },
-          "t_contract(ETSEnsure)6865": {
+          "t_contract(ETSEnsure)6918": {
             "label": "contract ETSEnsure",
             "numberOfBytes": "20"
           },
-          "t_contract(ETSTag)7614": {
+          "t_contract(ETSTag)7667": {
             "label": "contract ETSTag",
             "numberOfBytes": "20"
           },
@@ -4552,11 +4556,11 @@
             "label": "mapping(uint256 => bool)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(TaggingRecord)5588_storage)": {
+          "t_mapping(t_uint256,t_struct(TaggingRecord)5589_storage)": {
             "label": "mapping(uint256 => struct ETS.TaggingRecord)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(Target)5601_storage)": {
+          "t_mapping(t_uint256,t_struct(Target)5602_storage)": {
             "label": "mapping(uint256 => struct ETS.Target)",
             "numberOfBytes": "32"
           },
@@ -4564,12 +4568,12 @@
             "label": "string",
             "numberOfBytes": "32"
           },
-          "t_struct(TaggingRecord)5588_storage": {
+          "t_struct(TaggingRecord)5589_storage": {
             "label": "struct ETS.TaggingRecord",
             "members": [
               {
-                "label": "etsTagId",
-                "type": "t_uint256",
+                "label": "etsTagIds",
+                "type": "t_array(t_uint256)dyn_storage",
                 "offset": 0,
                 "slot": "0"
               },
@@ -4600,7 +4604,7 @@
             ],
             "numberOfBytes": "160"
           },
-          "t_struct(Target)5601_storage": {
+          "t_struct(Target)5602_storage": {
             "label": "struct ETS.Target",
             "members": [
               {
@@ -4649,9 +4653,9 @@
         }
       }
     },
-    "d1f3bd56000c6c22a6b7fe8d0113095d81468a49f32b361a0b990dcd5c16a243": {
+    "46f079ba4c6c72a8259c527f9e6693ab956ada3c20d20156a32382b89ec11add": {
       "address": "0x955A2670f65CeE919A6236Ceda8FDDb3A3d18eE6",
-      "txHash": "0xf8c9106d60c9be92bfac731f351d2b980008a89ca9c828ff2c08fb368d617119",
+      "txHash": "0x161326aba02bc18dbce98f2353758e4d7505e0f4017b5605997937fcc67d1f03",
       "layout": {
         "storage": [
           {
@@ -4770,7 +4774,7 @@
             "label": "ets",
             "offset": 0,
             "slot": "305",
-            "type": "t_contract(IETS)7632",
+            "type": "t_contract(IETS)7686",
             "contract": "MockNftTagger",
             "src": "contracts/mocks/MockNftTagger.sol:20"
           }
@@ -4800,7 +4804,7 @@
             "label": "bytes32",
             "numberOfBytes": "32"
           },
-          "t_contract(IETS)7632": {
+          "t_contract(IETS)7686": {
             "label": "contract IETS",
             "numberOfBytes": "20"
           },

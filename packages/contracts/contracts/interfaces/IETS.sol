@@ -9,7 +9,7 @@ interface IETS {
     /// @notice Tag a target with an tag string.
     /// TODO: Finish documenting.
     function tagTarget(
-        string calldata _tagString,
+        string[] calldata _tagStrings,
         string calldata _targetURI,
         address payable _publisher,
         address _tagger,
