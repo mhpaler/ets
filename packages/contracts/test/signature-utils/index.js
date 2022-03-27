@@ -27,6 +27,14 @@ function getDomainSeparator(contractAddress, contractName, contractVersion) {
 function getTagStructHash(contractAddress, contractName, contractVersion, taggingRecords) {
   const DOMAIN_SEPARATOR = getDomainSeparator(contractAddress, contractName, contractVersion);
 
+  console.log('num of tagging records', taggingRecords.length)
+  const taggingRecordsHash = keccak256(
+    defaultAbiCoder.encode(
+      ['tuple[](string nftAddress, string tokenId, string chainId, bool ensure, string[] tagStrings)'],
+      [taggingRecords]
+    )
+  )
+
   return keccak256(
     solidityPack(
       ['bytes1', 'bytes1', 'bytes32', 'bytes32'],
@@ -37,9 +45,7 @@ function getTagStructHash(contractAddress, contractName, contractVersion, taggin
         keccak256(
           defaultAbiCoder.encode(
             ['bytes32', 'bytes32'],
-            [_TAG_TYPEHASH, keccak256(defaultAbiCoder.encode(
-              ['tuple(string nftAddress, string tokenId, string chainId, bool ensure, string[] tagStrings)'], taggingRecords
-            ))]
+            [_TAG_TYPEHASH, taggingRecordsHash]
           )
         )
       ]

@@ -139,7 +139,10 @@ describe("ETS", function () {
       tagStrings: ["#cute"]
     }
 
-    const taggingRecords = [tagParams, tagParams2]
+    const taggingRecords = [
+      tagParams,
+      tagParams2
+    ]
 
     const { v, r, s } = signTagRequest(
       MockNftTagger.address,
@@ -159,9 +162,8 @@ describe("ETS", function () {
       taggingRecords,
       taggerSignature,
       accounts.ETSPublisher.address,
-      false,
       {
-        value: taggingFee
+        value: ethers.BigNumber.from(taggingFee).mul('4')
       }
     )
 

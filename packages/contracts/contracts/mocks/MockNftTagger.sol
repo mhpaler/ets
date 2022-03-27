@@ -97,14 +97,19 @@ contract MockNftTagger is IETSTargetType, TargetTypeSignatureModule, OwnableUpgr
             _taggerSignature.s
         );
 
+        uint256 currentTaggingFee = ets.taggingFee();
+
         for (uint256 i; i < _taggingRecords.length; ++i) {
             // call ETS informing of a new tag
             _tag(
                 _taggingRecords[i],
                 _publisher,
-                tagger
+                tagger,
+                currentTaggingFee
             );
         }
+
+        assert(address(this).balance == 0);
     }
 
 //    /// @notice where publisher is sponsoring the tag (no need to pass publisher as a param)
@@ -140,8 +145,8 @@ contract MockNftTagger is IETSTargetType, TargetTypeSignatureModule, OwnableUpgr
     function _tag(
         TagParams calldata _taggingRecord,
         address payable _publisher,
-        address _tagger
-        //bool _ensure
+        address _tagger,
+        uint256 _currentFee
     ) internal {
         // compute concatenated target URI from tag params
         string memory targetURI = computeTargetURI(
@@ -150,11 +155,15 @@ contract MockNftTagger is IETSTargetType, TargetTypeSignatureModule, OwnableUpgr
             _taggingRecord.chainId
         );
 
-        ets.tagTarget{ value: msg.value }(
+        uint256 valueToSendForTagging = (_currentFee * _taggingRecord.tagStrings.length);
+        require(address(this).balance >= valueToSendForTagging, "Not enough funds to complete tagging");
+
+        ets.tagTarget{ value: valueToSendForTagging }(
             _taggingRecord.tagStrings,
             targetURI,
             _publisher,
             _tagger,
+            msg.sender,
             _taggingRecord.ensure
         );
     }

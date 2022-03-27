@@ -43,7 +43,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     uint256 public taggingCounter;
 
     /// @dev Fee in ETH Collected by ETS for tagging.
-    uint256 public taggingFee;
+    uint256 public override taggingFee;
 
     /// @dev Map for holding amount accrued to participant address wallets.
     mapping(address => uint256) public accrued;
@@ -81,7 +81,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         uint256 targetId;
         address tagger;
         address publisher;
-        uint256 timestamp;
+        address sponsor;
     }
 
     /**
@@ -222,13 +222,15 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         string calldata _targetURI,
         address payable _publisher,
         address _tagger,
-        // todo-sponsor param
+        address _sponsor,
         bool _ensure
     ) public override payable nonReentrant {
         require(accessControls.isTargetTypeAndNotPaused(msg.sender), "Only target type");
         require(accessControls.isPublisher(_publisher), "Tag: The publisher must be whitelisted");
-        require(_tagStrings.length > 0, "No tag strings supplied");
-        require(msg.value >= taggingFee, "Tag: You must send the fee");//todo-check this is still correct
+
+        uint256 numberOfTagStrings = _tagStrings.length;
+        require(numberOfTagStrings > 0, "No tag strings supplied");
+        require(msg.value == (taggingFee * numberOfTagStrings), "Tag: You must send the fee");
 
         // Get targetId if the target exists, otherwise, create a new one.
         uint256 targetId = getTargetId(
@@ -237,8 +239,8 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         );
 
         // Get etsTagId if the tag exists, otherwise, mint a new one.
-        uint256[] memory etsTagIds = new uint256[](_tagStrings.length);
-        for (uint256 i; i < _tagStrings.length; ++i) {
+        uint256[] memory etsTagIds = new uint256[](numberOfTagStrings);
+        for (uint256 i; i < numberOfTagStrings; ++i) {
             uint256 etsTagId = getOrCreateTagId(
                 _tagStrings[i],
                 _publisher,
@@ -258,7 +260,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
         // TODO: could probably put a conditional in here that
         // only tags target if it's ensured.
-        _tagTarget(etsTagIds, targetId, _publisher, _tagger);
+        _tagTarget(etsTagIds, targetId, _publisher, _tagger, _sponsor);
     }
 
     /// @notice Fetch an etstagId from tag string.
@@ -394,7 +396,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @return _targetId Id of tagging target.
     /// @return _tagger Address that tagged the NFT asset.
     /// @return _publisher Publisher through which the tag took place.
-    /// @return _timestamp When the tagging record took place.
+    /// @return _sponsor Address that paid for the transaction fee
     function getTaggingRecord(uint256 _taggingId)
         external
         view
@@ -403,7 +405,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
           uint256 _targetId,
           address _tagger,
           address _publisher,
-          uint256 _timestamp
+          address _sponsor
         )
     {
         TaggingRecord storage taggingRecord = taggingRecords[_taggingId];
@@ -412,7 +414,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
             taggingRecord.targetId,
             taggingRecord.tagger,
             taggingRecord.publisher,
-            taggingRecord.timestamp
+            taggingRecord.sponsor
         );
     }
 
@@ -447,7 +449,8 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         uint256[] memory _etsTagIds,
         uint256 _targetId,
         address _publisher,
-        address _tagger
+        address _tagger,
+        address _sponsor
     ) private {
 
         // Generate a new taggging record
@@ -456,7 +459,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
             targetId: _targetId,
             tagger: _tagger,
             publisher: _publisher,
-            timestamp: block.timestamp
+            sponsor: _sponsor
         });
 
         // Log that a target has been tagged.

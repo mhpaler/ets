@@ -1,3 +1,4 @@
 [
-  "function tagTarget(string[],string,address,address,bool) payable"
+  "function tagTarget(string[],string,address,address,address,bool) payable",
+  "function taggingFee() returns (uint256)"
 ]
