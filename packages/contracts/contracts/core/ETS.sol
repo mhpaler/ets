@@ -121,18 +121,6 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
       string ipfsHash;
     }
 
-    /// @notice Get a target Id from target type and target uri.
-    /// TODO: Perhaps rename this with a better name, because it's
-    /// also creating a target record if it doesn't exist?
-    // Or perthaps breakout another function called create target?
-    function getTargetId(string memory _targetType, string memory _targetURI) public returns (uint256 targetId) {
-        uint256 _targetId = _makeTargetId(_targetType, _targetURI);
-        if (targets[_targetId].created != 0) {
-          return _targetId;
-        }
-        return createTarget(_targetType, _targetURI);
-    }
-
     /// Events
 
     event TargetTagged(
@@ -209,6 +197,18 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     // Ensure that only address with admin role can upgrade.
     function _authorizeUpgrade(address) internal override onlyAdmin {}
 
+    /// @notice Get a target Id from target type and target uri.
+    /// TODO: Perhaps rename this with a better name, because it's
+    /// also creating a target record if it doesn't exist?
+    // Or perthaps breakout another function called create target?
+    function _getTargetId(string memory _targetType, string memory _targetURI) public returns (uint256 targetId) {
+        uint256 _targetId = _makeTargetId(_targetType, _targetURI);
+        if (targets[_targetId].created != 0) {
+            return _targetId;
+        }
+        return _createTarget(_targetType, _targetURI);
+    }
+
     // External write
 
     /// @notice Tag a target with an tag string.
@@ -233,7 +233,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         require(msg.value == (taggingFee * numberOfTagStrings), "Tag: You must send the fee");
 
         // Get targetId if the target exists, otherwise, create a new one.
-        uint256 targetId = getTargetId(
+        uint256 targetId = _getTargetId(
             accessControls.targetTypeContractName(msg.sender),
             _targetURI
         );
@@ -283,7 +283,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     }
 
     /// TODO: Finish documentation.
-    function createTarget(string memory _targetType, string memory _targetURI) public returns (uint256 targetId){
+    function _createTarget(string memory _targetType, string memory _targetURI) internal returns (uint256 targetId){
         uint256 _targetId = _makeTargetId(_targetType, _targetURI);
         targets[_targetId] = Target({
             targetType: _targetType,
@@ -452,7 +452,6 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address _tagger,
         address _sponsor
     ) private {
-
         // Generate a new taggging record
         taggingRecords[++taggingCounter] = TaggingRecord({
             etsTagIds: _etsTagIds,

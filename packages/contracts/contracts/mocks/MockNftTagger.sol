@@ -13,6 +13,15 @@ import { IETS } from "../interfaces/IETS.sol";
 // example implementation of 1 target type tagging subcontract
 contract MockNftTagger is IETSTargetType, TargetTypeSignatureModule, OwnableUpgradeable, UUPSUpgradeable, PausableUpgradeable {
 
+    /// @notice Definition of an NFT tag event
+    struct TagParams {
+        string nftAddress;
+        string tokenId;
+        string chainId;
+        bool ensure;
+        string[] tagStrings;
+    }
+
     /// @notice Address that built the target type smart contract
     address payable public override creator;
 
@@ -46,47 +55,11 @@ contract MockNftTagger is IETSTargetType, TargetTypeSignatureModule, OwnableUpgr
     override
     {}
 
-//    /// @notice Entry point for a user to tag an EVM NFT which will call into ETS
-//    /// @dev This will be deprecated and removed in favour of a mandatory signature requirement from tagger
-//    function tag(
-//        string calldata _nftAddress,
-//        string calldata _tokenId,
-//        string calldata _chainId,
-//        string calldata _tagString,
-//        address payable _publisher,
-//        address _tagger,
-//        bool _ensure
-//    ) external payable {
-//        // compute concatenated target URI from tag params
-//        string memory targetURI = computeTargetURI(
-//            _nftAddress,
-//            _tokenId,
-//            _chainId
-//        );
-//
-//        // call ETS informing of a new tag
-//        _tag(
-//            targetURI,
-//            _publisher,
-//            _tagString,
-//            _tagger,
-//            _ensure
-//        );
-//    }
-
-    struct TagParams {
-        string nftAddress;
-        string tokenId;
-        string chainId;
-        bool ensure;
-        string[] tagStrings;
-    }
-
-    /// @notice where tagger does an off chain signature and the tx gas is sponsored by anyone
-    function sponsoredTag(
-        TagParams[] calldata _taggingRecords, // todo - make sure to sign over whole tag params including tag strings
+    /// @notice Tagging an NFT target where taggers can be offered the ability to have the GAS sponsored
+    function tag(
+        TagParams[] calldata _taggingRecords,
         Signature calldata _taggerSignature,
-        address payable _publisher// todo - need a publisher signature + pass down sponsor which is msg.sender
+        Signature calldata _publisherSignature
     ) external payable {
         bytes32 taggingRecordsHash = keccak256(abi.encode(_taggingRecords));
 
@@ -97,13 +70,20 @@ contract MockNftTagger is IETSTargetType, TargetTypeSignatureModule, OwnableUpgr
             _taggerSignature.s
         );
 
+        address payable publisher = payable(recoverAddress(
+            taggingRecordsHash,
+            _publisherSignature.v,
+            _publisherSignature.r,
+            _publisherSignature.s
+        ));
+
         uint256 currentTaggingFee = ets.taggingFee();
 
         for (uint256 i; i < _taggingRecords.length; ++i) {
             // call ETS informing of a new tag
             _tag(
                 _taggingRecords[i],
-                _publisher,
+                publisher,
                 tagger,
                 currentTaggingFee
             );
@@ -111,36 +91,6 @@ contract MockNftTagger is IETSTargetType, TargetTypeSignatureModule, OwnableUpgr
 
         assert(address(this).balance == 0);
     }
-
-//    /// @notice where publisher is sponsoring the tag (no need to pass publisher as a param)
-//    function publisherSponsoredTag(
-//        TagParams calldata _tagParams,
-//        Signature calldata _taggerSignature,
-//        bool _ensure
-//    ) external payable {
-//        // compute concatenated target URI from tag params
-//        string memory targetURI = computeTargetURI(
-//            _tagParams.nftAddress,
-//            _tagParams.tokenId,
-//            _tagParams.chainId
-//        );
-//
-//        address tagger = recoverAddress(
-//            targetURI,
-//            _taggerSignature.v,
-//            _taggerSignature.r,
-//            _taggerSignature.s
-//        );
-//
-//        // call ETS informing of a new tag
-//        _tag(
-//            targetURI,
-//            payable(msg.sender), // msg.sender is whitelisted publisher
-//            _tagParams.tagStrings[0],
-//            tagger,
-//            _ensure
-//        );
-//    }
 
     function _tag(
         TagParams calldata _taggingRecord,
