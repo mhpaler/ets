@@ -8,7 +8,7 @@ export default class MyDocument extends Document {
         <Head />
         <body className={
           pageProps.isDark ? 'dark-mode' : 'light-mode',
-          'selection:bg-sky-200 selection:text-sky-700'
+          'selection:bg-sky-200 selection:text-sky-700 font-inter'
         }>
           <Main />
           <NextScript />
