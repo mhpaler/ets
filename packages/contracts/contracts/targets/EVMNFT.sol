@@ -10,7 +10,7 @@ import { TargetTypeSignatureModule } from "../signature/TargetTypeSignatureModul
 import { IETSTargetType, IERC165 } from "../interfaces/IETSTargetType.sol";
 import { IETS } from "../interfaces/IETS.sol";
 
-/// @title ETS EVMNFT Target Type Tagger Contract 
+/// @title ETS EVMNFT Target Type Tagger Contract
 /// @author Ethereum Tag Service <security@ets.xyz>
 /// @notice Contract that moderates tagging of EVM compatible NFTs on the ETS platform.
 /// @dev UUPS upgradable.
@@ -24,14 +24,14 @@ contract EVMNFT is IETSTargetType, TargetTypeSignatureModule, OwnableUpgradeable
     /// @param nftAddress Contract address of the target NFT as a string.
     /// @param tokenId Token Id of the target nft as a string.
     /// @param chainId EVM Chain Id the target nft is on as a string.
-    /// @param ensure Boolean whether to ensure the target using ETS Ensure API.
     /// @param tagStrings Array of strings to tag the target with.
+    /// @param ensure Boolean whether to ensure the target using ETS Ensure API.
     struct TaggingRecordParams {
         string nftAddress;
         string tokenId;
         string chainId;
-        bool ensure;
         string[] tagStrings;
+        bool ensure;
     }
 
     /// @notice Address that built the target type smart contract.
@@ -69,9 +69,9 @@ contract EVMNFT is IETSTargetType, TargetTypeSignatureModule, OwnableUpgradeable
     /// or more json objects that conform to the TaggingRecordParams struct.
     /// "Publisher sponsored" means the tagger is receiving attribution for
     /// the tagging record and the publisher is paying for the transaction.
-    /// 
+    ///
     /// @param _taggingRecords Array of TaggingRecordParams structs.
-    /// @param _taggerSignature EIP712 signature signed by tagger. 
+    /// @param _taggerSignature EIP712 signature signed by tagger.
     /// @param _publisherSignature EIP712 signature signed by publisher.
     function tag(
         TaggingRecordParams[] calldata _taggingRecords,
@@ -111,7 +111,7 @@ contract EVMNFT is IETSTargetType, TargetTypeSignatureModule, OwnableUpgradeable
 
     /// @dev Internal function that ads global tagging record via ETS Core.
     /// @param _taggingRecord Array of json of TaggingRecordParams structs.
-    /// @param _publisher Address of publisher, extracted from _publisherSignature. 
+    /// @param _publisher Address of publisher, extracted from _publisherSignature.
     /// @param _tagger Address of tagger, extracted from _taggerSignature.
     /// @param _currentFee ETS tagging fee per tag.
     function _tag(
@@ -144,7 +144,7 @@ contract EVMNFT is IETSTargetType, TargetTypeSignatureModule, OwnableUpgradeable
     /// @param _nftAddress Contract address of the target NFT as a string.
     /// @param _tokenId Token Id of the target nft as a string.
     /// @param _chainId EVM Chain Id the target nft is on as a string.
-    /// @return ETS Ensure API compatible string. 
+    /// @return ETS Ensure API compatible string.
     function composeTargetURI(
         string calldata _nftAddress,
         string calldata _tokenId,

@@ -30,7 +30,7 @@ function getTagStructHash(contractAddress, contractName, contractVersion, taggin
   console.log('num of tagging records', taggingRecords.length)
   const taggingRecordsHash = keccak256(
     defaultAbiCoder.encode(
-      ['tuple[](string nftAddress, string tokenId, string chainId, bool ensure, string[] tagStrings)'],
+      ['tuple[](string nftAddress, string tokenId, string chainId, string[] tagStrings, bool ensure)'],
       [taggingRecords]
     )
   )
