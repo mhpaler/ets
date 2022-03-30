@@ -212,13 +212,13 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     // External write
 
     /// @notice Tag a target with an tag string.
-    /// @param _tagStrings Strings target is being tagged with.
+    /// @param _tags Strings target is being tagged with.
     /// @param _targetURI Uniform resource identifier of the target being tagged.
     /// @param _publisher Address of publisher enabling the tagging record.
     /// @param _tagger Address of tagger being credited performing tagging record.
     /// @param _ensure Boolean flag, set true to ensure the target at time of tagging.
     function tagTarget(
-        string[] calldata _tagStrings,
+        string[] calldata _tags,
         string calldata _targetURI,
         address payable _publisher,
         address _tagger,
@@ -228,9 +228,9 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         require(accessControls.isTargetTypeAndNotPaused(msg.sender), "Only target type");
         require(accessControls.isPublisher(_publisher), "Tag: The publisher must be whitelisted");
 
-        uint256 numberOfTagStrings = _tagStrings.length;
-        require(numberOfTagStrings > 0, "No tag strings supplied");
-        require(msg.value == (taggingFee * numberOfTagStrings), "Tag: You must send the fee");
+        uint256 tagCount = _tags.length;
+        require(tagCount > 0, "No tag strings supplied");
+        require(msg.value == (taggingFee * tagCount), "Tag: You must send the fee");
 
         // Get targetId if the target exists, otherwise, create a new one.
         uint256 targetId = _getTargetId(
@@ -239,10 +239,10 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         );
 
         // Get etsTagId if the tag exists, otherwise, mint a new one.
-        uint256[] memory etsTagIds = new uint256[](numberOfTagStrings);
-        for (uint256 i; i < numberOfTagStrings; ++i) {
+        uint256[] memory etsTagIds = new uint256[](tagCount);
+        for (uint256 i; i < tagCount; ++i) {
             uint256 etsTagId = getOrCreateTagId(
-                _tagStrings[i],
+                _tags[i],
                 _publisher,
                 _tagger
             );
