@@ -43,7 +43,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     uint256 public taggingCounter;
 
     /// @dev Fee in ETH Collected by ETS for tagging.
-    uint256 public taggingFee;
+    uint256 public override taggingFee;
 
     /// @dev Map for holding amount accrued to participant address wallets.
     mapping(address => uint256) public accrued;
@@ -70,18 +70,18 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     /**
      * @dev Data structure for a tagging record.
-     * @param etsTagId Id of ETSTAG token being used to tag a target.
+     * @param etsTagIds Ids of ETSTAG token being used to tag a target.
      * @param targetId Id of target being tagged with ETSTAG.
      * @param tagger Address of wallet being credited with tagging record.
      * @param publisher Address of wallet being credited with enabling tagging record.
      * @param timestamp Time when target was tagged.
      */
     struct TaggingRecord {//tagging a target to a tag. the link
-        uint256 etsTagId;
+        uint256[] etsTagIds;
         uint256 targetId;
         address tagger;
         address publisher;
-        uint256 timestamp;
+        address sponsor;
     }
 
     /**
@@ -119,18 +119,6 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
       uint lastEnsured;
       uint status;
       string ipfsHash;
-    }
-
-    /// @notice Get a target Id from target type and target uri.
-    /// TODO: Perhaps rename this with a better name, because it's
-    /// also creating a target record if it doesn't exist?
-    // Or perthaps breakout another function called create target?
-    function getTargetId(string memory _targetType, string memory _targetURI) public returns (uint256 targetId) {
-        uint256 _targetId = _makeTargetId(_targetType, _targetURI);
-        if (targets[_targetId].created != 0) {
-          return _targetId;
-        }
-        return createTarget(_targetType, _targetURI);
     }
 
     /// Events
@@ -209,34 +197,60 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     // Ensure that only address with admin role can upgrade.
     function _authorizeUpgrade(address) internal override onlyAdmin {}
 
+    /// @notice Get a target Id from target type and target uri.
+    /// TODO: Perhaps rename this with a better name, because it's
+    /// also creating a target record if it doesn't exist?
+    // Or perthaps breakout another function called create target?
+    function _getTargetId(string memory _targetType, string memory _targetURI) public returns (uint256 targetId) {
+        uint256 _targetId = _makeTargetId(_targetType, _targetURI);
+        if (targets[_targetId].created != 0) {
+            return _targetId;
+        }
+        return _createTarget(_targetType, _targetURI);
+    }
+
     // External write
 
     /// @notice Tag a target with an tag string.
-    /// @param _tagString String target is being tagged with.
+    /// @param _tags Strings target is being tagged with.
     /// @param _targetURI Uniform resource identifier of the target being tagged.
     /// @param _publisher Address of publisher enabling the tagging record.
     /// @param _tagger Address of tagger being credited performing tagging record.
     /// @param _ensure Boolean flag, set true to ensure the target at time of tagging.
     function tagTarget(
-        string calldata _tagString,
+        string[] calldata _tags,
         string calldata _targetURI,
         address payable _publisher,
         address _tagger,
+        address _sponsor,
         bool _ensure
     ) public override payable nonReentrant {
         require(accessControls.isTargetTypeAndNotPaused(msg.sender), "Only target type");
         require(accessControls.isPublisher(_publisher), "Tag: The publisher must be whitelisted");
-        require(msg.value >= taggingFee, "Tag: You must send the fee");
-        // require(targetType[_targetType], "Target type: Type not permitted");
+
+        uint256 tagCount = _tags.length;
+        require(tagCount > 0, "No tag strings supplied");
+        require(msg.value == (taggingFee * tagCount), "Tag: You must send the fee");
 
         // Get targetId if the target exists, otherwise, create a new one.
-        uint256 targetId = getTargetId(
+        uint256 targetId = _getTargetId(
             accessControls.targetTypeContractName(msg.sender),
             _targetURI
         );
 
         // Get etsTagId if the tag exists, otherwise, mint a new one.
-        uint256 etsTagId = getTagId(_tagString, _publisher, _tagger);
+        uint256[] memory etsTagIds = new uint256[](tagCount);
+        for (uint256 i; i < tagCount; ++i) {
+            uint256 etsTagId = getOrCreateTagId(
+                _tags[i],
+                _publisher,
+                _tagger
+            );
+
+            _processAccrued(etsTagId, _publisher);
+
+            etsTagIds[i] = etsTagId;
+        }
 
         if (_ensure) {
             // TODO: Only ensure if not previously ensured or user wants to re-ensure.
@@ -246,7 +260,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
         // TODO: could probably put a conditional in here that
         // only tags target if it's ensured.
-        _tagTarget(etsTagId, targetId, _publisher, _tagger);
+        _tagTarget(etsTagIds, targetId, _publisher, _tagger, _sponsor);
     }
 
     /// @notice Fetch an etstagId from tag string.
@@ -256,7 +270,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @param _publisher publisher address, to attribute new ETSTag to if one s minted
     /// @param _tagger tagger address, to attribute new ETSTag to if one s minted
     /// @return etstagId Id of ETSTag token.
-    function getTagId(
+    function getOrCreateTagId(
         string calldata _tagString,
         address payable _publisher,
         address _tagger
@@ -269,7 +283,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     }
 
     /// TODO: Finish documentation.
-    function createTarget(string memory _targetType, string memory _targetURI) public returns (uint256 targetId){
+    function _createTarget(string memory _targetType, string memory _targetURI) internal returns (uint256 targetId){
         uint256 _targetId = _makeTargetId(_targetType, _targetURI);
         targets[_targetId] = Target({
             targetType: _targetType,
@@ -378,29 +392,29 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     /// @dev Retrieves a tagging record.
     /// @param _taggingId ID of the tagging record.
-    /// @return _etsTagId token ID of ETSTAG used.
+    /// @return _etsTagIds token ID of ETSTAG used.
     /// @return _targetId Id of tagging target.
     /// @return _tagger Address that tagged the NFT asset.
     /// @return _publisher Publisher through which the tag took place.
-    /// @return _timestamp When the tagging record took place.
+    /// @return _sponsor Address that paid for the transaction fee
     function getTaggingRecord(uint256 _taggingId)
         external
         view
         returns (
-          uint256 _etsTagId,
+          uint256[] memory _etsTagIds,
           uint256 _targetId,
           address _tagger,
           address _publisher,
-          uint256 _timestamp
+          address _sponsor
         )
     {
         TaggingRecord storage taggingRecord = taggingRecords[_taggingId];
         return (
-            taggingRecord.etsTagId,
+            taggingRecord.etsTagIds,
             taggingRecord.targetId,
             taggingRecord.tagger,
             taggingRecord.publisher,
-            taggingRecord.timestamp
+            taggingRecord.sponsor
         );
     }
 
@@ -432,23 +446,26 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     }
 
    function _tagTarget(
-        uint256 _etsTagId,
+        uint256[] memory _etsTagIds,
         uint256 _targetId,
         address _publisher,
-        address _tagger
+        address _tagger,
+        address _sponsor
     ) private {
-
-        // Generate a new taggging record id.
-        uint256 taggingId = ++taggingCounter;
-
-        taggingRecords[taggingId] = TaggingRecord({
-            etsTagId: _etsTagId,
+        // Generate a new taggging record
+        taggingRecords[++taggingCounter] = TaggingRecord({
+            etsTagIds: _etsTagIds,
             targetId: _targetId,
             tagger: _tagger,
             publisher: _publisher,
-            timestamp: block.timestamp
+            sponsor: _sponsor
         });
 
+        // Log that a target has been tagged.
+        emit TargetTagged(taggingCounter);
+    }
+
+    function _processAccrued(uint256 _etsTagId, address _publisher) internal {
         (address _platform, address _owner) = etsTag.getPaymentAddresses(_etsTagId);
 
         // pre-auction.
@@ -466,8 +483,5 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
             accrued[_owner] = accrued[_owner] + ((msg.value * remainingPercentage) / modulo);
         }
-
-        // Log that a target has been tagged.
-        emit TargetTagged(taggingId);
     }
 }

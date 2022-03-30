@@ -9,12 +9,15 @@ interface IETS {
     /// @notice Tag a target with an tag string.
     /// TODO: Finish documenting.
     function tagTarget(
-        string calldata _tagString,
+        string[] calldata _tagStrings,
         string calldata _targetURI,
         address payable _publisher,
         address _tagger,
+        address _sponsor,
         bool _ensure
     ) external payable;
+
+    function taggingFee() external returns (uint256);
 
     //todo - go through what else should be part of the interface that other smart contracts may want to interface with. For example;
     //-permittedNftChainIds
