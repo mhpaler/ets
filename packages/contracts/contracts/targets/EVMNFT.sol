@@ -21,17 +21,17 @@ contract EVMNFT is IETSTargetType, TargetTypeSignatureModule, OwnableUpgradeable
     /// subcontract (this) requires that the following paramaters be supplied
     /// supplied to the tag() as a json formatted string:
     ///
-    /// @param tagStrings Array of strings to tag the target with.
     /// @param nftAddress Contract address of the target NFT as a string.
     /// @param tokenId Token Id of the target nft as a string.
     /// @param chainId EVM Chain Id the target nft is on as a string.
     /// @param ensure Boolean whether to ensure the target using ETS Ensure API.
+    /// @param tagStrings Array of strings to tag the target with.
     struct TaggingRecordParams {
-        string[] tagStrings;
         string nftAddress;
         string tokenId;
         string chainId;
         bool ensure;
+        string[] tagStrings;
     }
 
     /// @notice Address that built the target type smart contract.
@@ -105,7 +105,7 @@ contract EVMNFT is IETSTargetType, TargetTypeSignatureModule, OwnableUpgradeable
     }
 
     /// @dev Internal function that ads global tagging record via ETS Core.
-    /// @param _taggingRecords Array of json of TaggingRecordParams structs.
+    /// @param _taggingRecord Array of json of TaggingRecordParams structs.
     /// @param _publisher Address of publisher, extracted from _publisherSignature. 
     /// @param _tagger Address of tagger, extracted from _taggerSignature.
     /// @param _currentFee ETS tagging fee per tag.

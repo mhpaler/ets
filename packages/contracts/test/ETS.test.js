@@ -117,7 +117,7 @@ describe("ETS", function () {
     const chainId = "1"
 
     // sign over target URI as a way of approving tag using Hardhat private key for account #1 of HH node
-    const expectedTargetURI = await EVMNFT.computeTargetURI(
+    const expectedTargetURI = await EVMNFT.composeTargetURI(
       nftAddress,
       tokenId,
       chainId
@@ -130,16 +130,16 @@ describe("ETS", function () {
       nftAddress,
       tokenId,
       chainId,
+      tagStrings: ["#land", "#cute", "#wow"],
       ensure: false,
-      tagStrings: ["#land", "#cute", "#wow"]
     }
 
     const tagParams2 = {
       nftAddress,
       tokenId,
       chainId: "3",
+      tagStrings: ["#cute"],
       ensure: false,
-      tagStrings: ["#cute"]
     }
 
     const taggingRecords = [

@@ -4250,9 +4250,9 @@
         }
       }
     },
-    "97c612f44265dd2a1c3760011787e60e630c5db375daf411c0fe8a3870789e05": {
+    "7be14ea2c900be310ffd50054f5c34c3a27d65395f006ad2fc9442a8044be0b5": {
       "address": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
-      "txHash": "0xbf746d7ae2c4d09dccbb010b30c064db5704ab972c3808e270c18897c99e5530",
+      "txHash": "0x19006fab6ce4a2f8fe485ab85d073d29421e5541784e5c49b9f561e2e9d633a0",
       "layout": {
         "storage": [
           {
@@ -4365,7 +4365,7 @@
             "slot": "304",
             "type": "t_address_payable",
             "contract": "EVMNFT",
-            "src": "contracts/targets/EVMNFT.sol:26"
+            "src": "contracts/targets/EVMNFT.sol:38"
           },
           {
             "label": "ets",
@@ -4373,7 +4373,7 @@
             "slot": "305",
             "type": "t_contract(IETS)7703",
             "contract": "EVMNFT",
-            "src": "contracts/targets/EVMNFT.sol:29"
+            "src": "contracts/targets/EVMNFT.sol:41"
           }
         ],
         "types": {

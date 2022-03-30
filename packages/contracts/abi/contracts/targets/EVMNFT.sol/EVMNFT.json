@@ -7,7 +7,7 @@
   "event TargetTypePaused(string,bool)",
   "event Unpaused(address)",
   "event Upgraded(address indexed)",
-  "function computeTargetURI(string,string,string) pure returns (string)",
+  "function composeTargetURI(string,string,string) pure returns (string)",
   "function creator() view returns (address)",
   "function ets() view returns (address)",
   "function initialize(address,address,address)",
