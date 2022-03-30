@@ -7,7 +7,7 @@ const { utils, constants } = ethers;
 
 const { signTagRequest } = require('./signature-utils');
 
-let accounts, factories, artifact, ETSAccessControls, ETSTag, ETS, ERC721Mock, MockNftTagger;
+let accounts, factories, artifact, ETSAccessControls, ETSTag, ETS, ERC721Mock, EVMNFT;
 let taggingFee, platformPercentage, publisherPercentage, taggerPercentage;
 
 describe("ETS", function () {
@@ -31,7 +31,7 @@ describe("ETS", function () {
       ETSTag: await ethers.getContractFactory("ETSTag"),
       ETS: await ethers.getContractFactory("ETS"),
       ERC721BurnableMock: await ethers.getContractFactory("ERC721BurnableMock"),
-      MockNftTagger: await ethers.getContractFactory("MockNftTagger"),
+      EVMNFT: await ethers.getContractFactory("EVMNFT"),
     };
 
     artifact = {
@@ -70,14 +70,14 @@ describe("ETS", function () {
     ERC721Mock = await factories.ERC721BurnableMock.deploy("NFT", "NFT");
     await ERC721Mock.deployed();
 
-    MockNftTagger = await upgrades.deployProxy(
-      factories.MockNftTagger,
+    EVMNFT = await upgrades.deployProxy(
+      factories.EVMNFT,
       [ETS.address, accounts.ETSAdmin.address, accounts.ETSAdmin.address],
       { kind: "uups" },
     );
 
     await ETSAccessControls.addTargetType(
-      MockNftTagger.address,
+      EVMNFT.address,
       "nft_evm",
       { from: accounts.ETSAdmin.address },
     );
@@ -117,7 +117,7 @@ describe("ETS", function () {
     const chainId = "1"
 
     // sign over target URI as a way of approving tag using Hardhat private key for account #1 of HH node
-    const expectedTargetURI = await MockNftTagger.computeTargetURI(
+    const expectedTargetURI = await EVMNFT.computeTargetURI(
       nftAddress,
       tokenId,
       chainId
@@ -148,23 +148,23 @@ describe("ETS", function () {
     ]
 
     const taggerSignature = signTagRequest(
-      MockNftTagger.address,
-      await MockNftTagger.name(),
-      await MockNftTagger.version(),
+      EVMNFT.address,
+      await EVMNFT.name(),
+      await EVMNFT.version(),
       taggingRecords,
       testPrivateKey
     )
 
     const publisherPrivateKey = '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
     const publisherSignature = signTagRequest(
-      MockNftTagger.address,
-      await MockNftTagger.name(),
-      await MockNftTagger.version(),
+      EVMNFT.address,
+      await EVMNFT.name(),
+      await EVMNFT.version(),
       taggingRecords,
       publisherPrivateKey
     )
 
-    await MockNftTagger.tag(
+    await EVMNFT.tag(
       taggingRecords,
       taggerSignature,
       publisherSignature,

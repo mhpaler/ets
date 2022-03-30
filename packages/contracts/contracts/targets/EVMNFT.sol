@@ -11,7 +11,7 @@ import { IETSTargetType, IERC165 } from "../interfaces/IETSTargetType.sol";
 import { IETS } from "../interfaces/IETS.sol";
 
 // example implementation of 1 target type tagging subcontract
-contract MockNftTagger is IETSTargetType, TargetTypeSignatureModule, OwnableUpgradeable, UUPSUpgradeable, PausableUpgradeable {
+contract EVMNFT is IETSTargetType, TargetTypeSignatureModule, OwnableUpgradeable, UUPSUpgradeable, PausableUpgradeable {
 
     /// @notice Definition of an NFT tag event
     struct TagParams {
@@ -148,7 +148,7 @@ contract MockNftTagger is IETSTargetType, TargetTypeSignatureModule, OwnableUpgr
 
     /// @inheritdoc IETSTargetType
     function name() public override pure returns (string memory) {
-        return "MockNftTagger";
+        return "EVMNFT";
     }
 
     /// @inheritdoc IETSTargetType
