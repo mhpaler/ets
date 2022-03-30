@@ -12,14 +12,14 @@ import { IETS } from "../interfaces/IETS.sol";
 
 /// @title ETS EVMNFT Target Type Tagger Contract 
 /// @author Ethereum Tag Service <security@ets.xyz>
-/// @notice Contract that enable tagging of EVM compatible NFTs on the ETS platform.
+/// @notice Contract that moderates tagging of EVM compatible NFTs on the ETS platform.
 /// @dev UUPS upgradable.
 contract EVMNFT is IETSTargetType, TargetTypeSignatureModule, OwnableUpgradeable, UUPSUpgradeable, PausableUpgradeable {
 
-    /// @dev EVMNFT Target Type input structure.
-    /// When tagging a EVM compatible NFT on ETS, the EVMNFT Target Type
-    /// subcontract (this) requires that the following paramaters be supplied
-    /// supplied to the tag() as a json formatted string:
+    /// @notice EVMNFT Target Type tagging record input structure.
+    /// When tagging an EVM compatible NFT on ETS, the EVMNFT Target Type
+    /// subcontract (this) tag() function requires a tagging record be
+    /// supplied as an array of json strings structured as follows:
     ///
     /// @param nftAddress Contract address of the target NFT as a string.
     /// @param tokenId Token Id of the target nft as a string.
@@ -63,9 +63,14 @@ contract EVMNFT is IETSTargetType, TargetTypeSignatureModule, OwnableUpgradeable
     /// @notice Ownable based upgrade authorisation.
     function _authorizeUpgrade(address newImplementation) internal onlyOwner override {}
 
-    /// @notice Tagging an NFT target where taggers can be offered the ability
-    /// to have the GAS sponsored
-    /// @param _taggingRecords Array of json of TaggingRecordParams structs.
+    /// @notice Publisher sponsored recording of one or more tagging records to
+    /// ETS Core. A "tagging record" here is an EVMNFT target tagged with one
+    /// or more tag strings. Tagging records are passed in as an array of one
+    /// or more json objects that conform to the TaggingRecordParams struct.
+    /// "Publisher sponsored" means the tagger is receiving attribution for
+    /// the tagging record and the publisher is paying for the transaction.
+    /// 
+    /// @param _taggingRecords Array of TaggingRecordParams structs.
     /// @param _taggerSignature EIP712 signature signed by tagger. 
     /// @param _publisherSignature EIP712 signature signed by publisher.
     function tag(
