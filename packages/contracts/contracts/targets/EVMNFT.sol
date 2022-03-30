@@ -10,29 +10,41 @@ import { TargetTypeSignatureModule } from "../signature/TargetTypeSignatureModul
 import { IETSTargetType, IERC165 } from "../interfaces/IETSTargetType.sol";
 import { IETS } from "../interfaces/IETS.sol";
 
-// example implementation of 1 target type tagging subcontract
+/// @title ETS EVMNFT Target Type Tagger Contract 
+/// @author Ethereum Tag Service <security@ets.xyz>
+/// @notice Contract that enable tagging of EVM compatible NFTs on the ETS platform.
+/// @dev UUPS upgradable.
 contract EVMNFT is IETSTargetType, TargetTypeSignatureModule, OwnableUpgradeable, UUPSUpgradeable, PausableUpgradeable {
 
-    /// @notice Definition of an NFT tag event
-    struct TagParams {
+    /// @dev EVMNFT Target Type input structure.
+    /// When tagging a EVM compatible NFT on ETS, the EVMNFT Target Type
+    /// subcontract (this) requires that the following paramaters be supplied
+    /// supplied to the tag() as a json formatted string:
+    ///
+    /// @param tagStrings Array of strings to tag the target with.
+    /// @param nftAddress Contract address of the target NFT as a string.
+    /// @param tokenId Token Id of the target nft as a string.
+    /// @param chainId EVM Chain Id the target nft is on as a string.
+    /// @param ensure Boolean whether to ensure the target using ETS Ensure API.
+    struct TaggingRecordParams {
+        string[] tagStrings;
         string nftAddress;
         string tokenId;
         string chainId;
         bool ensure;
-        string[] tagStrings;
     }
 
-    /// @notice Address that built the target type smart contract
+    /// @notice Address that built the target type smart contract.
     address payable public override creator;
 
-    /// @notice Address and interface for ETS core
+    /// @notice Address and interface for ETS core.
     IETS public ets;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {}
 
-    /// @param _creator Creator of the target type smart contract
-    /// @param _owner Who will become owner and able to upgrade the contract
+    /// @param _creator Creator of the target type smart contract.
+    /// @param _owner Who will become owner and able to upgrade the contract.
     function initialize(
         IETS _ets,
         address payable _creator,
@@ -48,16 +60,16 @@ contract EVMNFT is IETSTargetType, TargetTypeSignatureModule, OwnableUpgradeable
         transferOwnership(_owner);
     }
 
-    /// @notice Ownable based upgrade authorisation
-    function _authorizeUpgrade(address newImplementation)
-    internal
-    onlyOwner
-    override
-    {}
+    /// @notice Ownable based upgrade authorisation.
+    function _authorizeUpgrade(address newImplementation) internal onlyOwner override {}
 
-    /// @notice Tagging an NFT target where taggers can be offered the ability to have the GAS sponsored
+    /// @notice Tagging an NFT target where taggers can be offered the ability
+    /// to have the GAS sponsored
+    /// @param _taggingRecords Array of json of TaggingRecordParams structs.
+    /// @param _taggerSignature EIP712 signature signed by tagger. 
+    /// @param _publisherSignature EIP712 signature signed by publisher.
     function tag(
-        TagParams[] calldata _taggingRecords,
+        TaggingRecordParams[] calldata _taggingRecords,
         Signature calldata _taggerSignature,
         Signature calldata _publisherSignature
     ) external payable {
@@ -92,14 +104,19 @@ contract EVMNFT is IETSTargetType, TargetTypeSignatureModule, OwnableUpgradeable
         assert(address(this).balance == 0);
     }
 
+    /// @dev Internal function that ads global tagging record via ETS Core.
+    /// @param _taggingRecords Array of json of TaggingRecordParams structs.
+    /// @param _publisher Address of publisher, extracted from _publisherSignature. 
+    /// @param _tagger Address of tagger, extracted from _taggerSignature.
+    /// @param _currentFee ETS tagging fee per tag.
     function _tag(
-        TagParams calldata _taggingRecord,
+        TaggingRecordParams calldata _taggingRecord,
         address payable _publisher,
         address _tagger,
         uint256 _currentFee
     ) internal {
         // compute concatenated target URI from tag params
-        string memory targetURI = computeTargetURI(
+        string memory targetURI = composeTargetURI(
             _taggingRecord.nftAddress,
             _taggingRecord.tokenId,
             _taggingRecord.chainId
@@ -118,14 +135,18 @@ contract EVMNFT is IETSTargetType, TargetTypeSignatureModule, OwnableUpgradeable
         );
     }
 
-    // Based on tagging params, concatenate the string in an ensure-compliant way
-    function computeTargetURI(
+    /// @dev Compose target type input params into a format expected by ETS Ensure API.
+    /// @param _nftAddress Contract address of the target NFT as a string.
+    /// @param _tokenId Token Id of the target nft as a string.
+    /// @param _chainId EVM Chain Id the target nft is on as a string.
+    /// @return ETS Ensure API compatible string. 
+    function composeTargetURI(
         string calldata _nftAddress,
         string calldata _tokenId,
         string calldata _chainId
     ) public pure returns (string memory) {
         // Extra layers that could be added: if EVM is from the same chain, validation can be performed
-        // targetURI boilerplate format for EVM Nft is contract address|token id|chain id
+        // ETS Ensure targetURI boilerplate format for EVMNFT is contract address|token id|chain id
         // eg "0x8ee9a60cb5c0e7db414031856cb9e0f1f05988d1|3061|1"
         return string(abi.encodePacked(_nftAddress, "|", _tokenId, "|", _chainId));
     }
