@@ -70,7 +70,7 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
         address originalPublisher;
         address creator;
         string displayVersion;
-        string machineName;
+        //string machineName;
     }
 
     /// Events
@@ -116,6 +116,10 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
         return super.supportsInterface(interfaceId);
     }
 
+    function computeTagId(string memory _machineName) public pure returns (uint256) {
+        return uint256(keccak256(bytes(_machineName)));
+    }
+
     /// Minting
 
     /// @notice Mint a new ETSTAG token.
@@ -132,28 +136,22 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
         require(accessControls.isPublisher(_publisher), "Mint: The publisher must be whitelisted");
 
         // Perform basic tag string validation.
-        string memory machineName = _assertTagIsValid(_tag);
-
-        // generate the new ETSTAG token id.
-        tokenPointer = tokenPointer.add(1);
-        uint256 tokenId = tokenPointer;
+        uint256 tagId = _assertTagIsValid(_tag);
 
         // mint the token, transferring it to the platform.
-        _safeMint(platform, tokenId);
+        _safeMint(platform, tagId);//todo - need to add a re-entrancy guard if we are going to use safe mint
 
         // Store ETSTAG data in state.
-        tokenIdToTag[tokenId] = Tag({
+        tokenIdToTag[tagId] = Tag({
             displayVersion: _tag,
-            machineName: machineName,
+            //machineName: machineName, TODO - need to sense check this. I don't believe machine name needs to be stored because it can always be computed from displayVersion field
             originalPublisher: _publisher,
             creator: _creator
         });
 
-        // Store a reverse lookup.
-        tagToTokenId[machineName] = tokenId;
-
-        emit MintTag(tokenId, _tag, _publisher, _creator);
-        return tokenId;
+        // todo - I believe this event can be removed. The internal mint method already emits an event and you can get everything from the token ID
+        emit MintTag(tagId, _tag, _publisher, _creator);
+        return tagId;
     }
 
     /// @notice Burns a given tokenId.
@@ -308,9 +306,13 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
     /// @notice Private method used for validating a ETSTAG string before minting.
     /// @dev A series of assertions are performed reverting the transaction for any validation violations.
     /// @param _tag Proposed tag string.
-    function _assertTagIsValid(string memory _tag) private view returns (string memory) {
+    function _assertTagIsValid(string memory _tag) private view returns (uint256 _tagId) {
         string memory tagKey = __lower(_tag);
-        require(tagToTokenId[tagKey] == 0, "ERC721: token already minted");
+
+        // generate token ID from machine name
+        uint256 tagId = computeTagId(tagKey);
+
+        require(!_exists(tagId), "ERC721: token already minted");
 
         bytes memory tagStringBytes = bytes(_tag);
         require(
@@ -328,6 +330,7 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
                 "Space found: tag may not contain spaces"
             );
         }
-        return tagKey;
+
+        return tagId;
     }
 }

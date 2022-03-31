@@ -133,6 +133,28 @@ Burns a given tokenId.
 |---|---|---|
 | tokenId | uint256 | Token Id to burn. |
 
+### computeTagId
+
+```solidity
+function computeTagId(string _machineName) external pure returns (uint256)
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _machineName | string | undefined |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | uint256 | undefined |
+
 ### exists
 
 ```solidity
@@ -679,7 +701,7 @@ Last time a ETSTAG was transfered.
 ### tokenIdToTag
 
 ```solidity
-function tokenIdToTag(uint256) external view returns (address originalPublisher, address creator, string displayVersion, string machineName)
+function tokenIdToTag(uint256) external view returns (address originalPublisher, address creator, string displayVersion)
 ```
 
 Map of ETSTAG id to ETSTAG record.
@@ -699,7 +721,6 @@ Map of ETSTAG id to ETSTAG record.
 | originalPublisher | address | undefined |
 | creator | address | undefined |
 | displayVersion | string | undefined |
-| machineName | string | undefined |
 
 ### tokenPointer
 
