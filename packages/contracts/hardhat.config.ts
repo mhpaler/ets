@@ -67,7 +67,7 @@ const config: HardhatUserConfig = {
   dodoc: {
     runOnCompile: true,
     include: ["core"],
-    outputDir: "../../apps/site/pages/docs/sol",
+    //outputDir: "../../apps/site/pages/docs/sol",
     //debugMode: false,
     // More options...
   },
