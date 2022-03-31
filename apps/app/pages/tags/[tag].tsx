@@ -67,12 +67,13 @@ const Tag: NextPage = () => {
       <Head>
         <title>{data && data.tag[0].name} | Ethereum Tag Service</title>
       </Head>
-      <h1 className="text-3xl font-bold lg:text-5xl">{data && data.tag[0].name}</h1>
+
+      <h1 className="text-3xl font-bold text-slate-700">{data && data.tag[0].name}</h1>
 
       <div className="gap-12 mx-auto mt-8 space-y-8 md:space-y-0 md:grid sm:w-full md:grid-cols-3">
         <div className="col-span-1">
           <div className="overflow-hidden rounded shadow-xl shadow-slate-300">
-            <svg className="w-full text-white bg-black" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+            <svg className="w-full text-white bg-slate-900" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
               <text fill="currentColor" fontFamily="Helvetica" fontSize="50" fontWeight="700" letterSpacing="-.02em" transform="translate(625.71 898.94)">0.904 MATIC</text>
               <text strokeWidth="2" fill="none" stroke="currentColor" strokeMiterlimit="10" fontFamily="Helvetica" fontSize="50" fontWeight="700" letterSpacing=".1em" transform="translate(801.55 844.81)">TVL</text>
               <path fill="currentColor" d="m100 775 125-125H100Zm250 125V775L225 900ZM225 650l125 125V650Z" />
@@ -88,7 +89,7 @@ const Tag: NextPage = () => {
         <div className="grid w-full col-span-2 gap-12 mx-auto">
           <div>
             <div className="border border-b-0 border-slate-900">
-              <h2 className="px-6 py-3 text-xs tracking-wider text-left uppercase text-slate-900">{t('overview')}</h2>
+              <h2 className="px-6 py-3 text-sm font-bold tracking-wider text-left uppercase text-slate-900">{t('overview')}</h2>
             </div>
 
             <div className="border divide-y border-slate-900 divide-slate-200">
@@ -181,7 +182,7 @@ const Tag: NextPage = () => {
 
           <div>
             <div className="border border-b-0 border-slate-900">
-              <h2 className="px-6 py-3 text-xs tracking-wider text-left uppercase text-slate-900">{t('revenue')}</h2>
+              <h2 className="px-6 py-3 text-sm font-bold tracking-wider text-left uppercase text-slate-900">{t('revenue')}</h2>
             </div>
 
             <div className="border divide-y border-slate-900 divide-slate-200">
@@ -222,38 +223,6 @@ const Tag: NextPage = () => {
                 </div>
               </div>
 
-              <div className="grid grid-flow-col grid-cols-4 px-6 py-4 space-x-4">
-                <div className="text-slate-500">
-                  {t('owner')}
-                </div>
-                <div className="flex col-span-3 space-x-2">
-                  <div className="grid flex-grow grid-cols-1 md:grid-flow-col">
-                    <div className="overflow-hidden text-right text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
-                      <Link href={`/owners/${data && data.tag[0].owner}`}>
-                        <a className="text-pink-600 hover:text-pink-700">{data && data.tag[0].owner}</a>
-                      </Link>
-                    </div>
-                  </div>
-                  <CopyAndPaste value={data && data.tag[0].owner} />
-                </div>
-              </div>
-
-              <div className="grid grid-flow-col grid-cols-4 px-6 py-4 space-x-4">
-                <div className="text-slate-500">
-                  {t('publisher')}
-                </div>
-                <div className="flex col-span-3 space-x-2">
-                  <div className="grid flex-grow grid-cols-1 md:grid-flow-col">
-                    <div className="overflow-hidden text-right text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
-                      <Link href={`/publishers/${data && data.tag[0].publisher}`}>
-                        <a className="text-pink-600 hover:text-pink-700">{data && data.tag[0].publisher}</a>
-                      </Link>
-                    </div>
-                  </div>
-                  <CopyAndPaste value={data && data.tag[0].publisher} />
-                </div>
-              </div>
-
             </div>
           </div>
         </div>
@@ -261,7 +230,7 @@ const Tag: NextPage = () => {
         <div className="col-span-3">
           <div>
             <div className="border border-b-0 border-slate-900">
-              <h2 className="px-6 py-3 text-xs tracking-wider text-left uppercase text-slate-900">{t('tagged-content')}</h2>
+              <h2 className="px-6 py-3 text-sm font-bold tracking-wider text-left uppercase text-slate-900">{t('tagged-content')}</h2>
             </div>
 
             <div className="border border-slate-900">

@@ -30,6 +30,7 @@
     "one": "{{count, number}} tag",
     "other": "{{count, number}} tags"
   },
+  "tags": "Tags",
   "token-id": "Token ID",
   "top-creators": "Top creators",
   "top-publishers": "Top publishers",

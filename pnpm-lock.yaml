@@ -53,6 +53,7 @@ importers:
       '@tailwindcss/forms': ^0.4.0
       '@tailwindcss/typography': ^0.5.0
       '@types/node': 17.0.0
+      '@types/nprogress': ^0.2.0
       '@types/react': 17.0.37
       '@types/react-timeago': ^4.1.3
       autoprefixer: ^10.4.0
@@ -64,6 +65,7 @@ importers:
       next: 12.0.7
       next-translate: ^1.3.3
       next-transpile-modules: 9.0.0
+      nprogress: ^0.2.0
       postcss: ^8.4.5
       postcss-import: ^14.0.2
       react: 17.0.2
@@ -72,6 +74,7 @@ importers:
       react-timeago: ^6.2.1
       swr: ^1.1.2-beta.0
       tailwindcss: ^3.0.6
+      tailwindcss-font-inter: ^3.0.1
       turbo: ^1.0.19
       typescript: 4.5.4
     dependencies:
@@ -84,6 +87,7 @@ importers:
       graphql-request: 3.7.0_graphql@16.2.0
       next: 12.0.7_react-dom@17.0.2+react@17.0.2
       next-translate: 1.3.3_next@12.0.7+react@17.0.2
+      nprogress: 0.2.0
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-super-responsive-table: 5.2.0_react-dom@17.0.2+react@17.0.2
@@ -95,6 +99,7 @@ importers:
       '@tailwindcss/forms': 0.4.0_tailwindcss@3.0.23
       '@tailwindcss/typography': 0.5.0_tailwindcss@3.0.23
       '@types/node': 17.0.0
+      '@types/nprogress': 0.2.0
       '@types/react': 17.0.37
       '@types/react-timeago': 4.1.3
       autoprefixer: 10.4.2_postcss@8.4.6
@@ -103,6 +108,7 @@ importers:
       postcss: 8.4.6
       postcss-import: 14.0.2_postcss@8.4.6
       tailwindcss: 3.0.23_autoprefixer@10.4.2
+      tailwindcss-font-inter: 3.0.1_tailwindcss@3.0.23
       turbo: 1.0.28
       typescript: 4.5.4
 
@@ -117,21 +123,23 @@ importers:
       eslint: 8.4.1
       next: 12.0.7
       next-transpile-modules: ^9.0.0
-      nextra: 2.0.0-alpha.24
-      nextra-theme-docs: 2.0.0-alpha.24
+      nextra: 2.0.0-alpha.44
+      nextra-theme-docs: 2.0.0-alpha.44
       postcss: ^8.4.6
       react: 17.0.2
       react-dom: 17.0.2
+      swagger-ui-react: ^4.6.2
       tailwindcss: ^3.0.23
       typescript: 4.5.4
       typewriter-effect: ^2.18.2
     dependencies:
       '@ets/ui': link:../../packages/ui
       next: 12.0.7_react-dom@17.0.2+react@17.0.2
-      nextra: 2.0.0-alpha.24_react@17.0.2
-      nextra-theme-docs: 2.0.0-alpha.24_29eed56be0bdeede098eb6f2e43fa1df
+      nextra: 2.0.0-alpha.44_react@17.0.2
+      nextra-theme-docs: 2.0.0-alpha.44_d837ce8f3acb2f60f8b7454672a9bcea
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
+      swagger-ui-react: 4.6.2_react-dom@17.0.2+react@17.0.2
       typewriter-effect: 2.18.2_react-dom@17.0.2+react@17.0.2
     devDependencies:
       '@ets/config': link:../../packages/config
@@ -171,6 +179,7 @@ importers:
       '@openzeppelin/contracts-upgradeable': ^4.4.1
       '@openzeppelin/hardhat-upgrades': ^1.12.0
       '@openzeppelin/test-helpers': ^0.5.15
+      '@primitivefi/hardhat-dodoc': ^0.2.3
       '@typechain/ethers-v5': ^7.0.1
       '@typechain/hardhat': ^2.0.2
       '@types/chai': ^4.2.18
@@ -179,6 +188,7 @@ importers:
       chai: ^4.3.4
       dotenv: ^10.0.0
       ethereum-waffle: ^3.3.0
+      ethereumjs-util: ^7.1.4
       ethers: ^5.5.3
       hardhat: ^2.8.3
       hardhat-abi-exporter: ^2.4.0
@@ -197,6 +207,7 @@ importers:
     dependencies:
       '@openzeppelin/contracts': 4.4.1
       '@openzeppelin/contracts-upgradeable': 4.4.1
+      '@primitivefi/hardhat-dodoc': 0.2.3_hardhat@2.9.1
     devDependencies:
       '@ethersproject/abstract-signer': 5.6.0
       '@ets/tsconfig': link:../tsconfig
@@ -215,6 +226,7 @@ importers:
       chai: 4.3.6
       dotenv: 10.0.0
       ethereum-waffle: 3.4.0_typescript@4.6.2
+      ethereumjs-util: 7.1.4
       ethers: 5.6.1
       hardhat: 2.9.1
       hardhat-abi-exporter: 2.8.0_hardhat@2.9.1
@@ -1657,6 +1669,17 @@ packages:
       react-dom: 17.0.2_react@17.0.2
     dev: false
 
+  /@headlessui/react/1.5.0_react-dom@17.0.2+react@17.0.2:
+    resolution: {integrity: sha512-aaRnYxBb3MU2FNJf3Ut9RMTUqqU3as0aI1lQhgo2n9Fa67wRu14iOGqx93xB+uMNVfNwZ5B3y/Ndm7qZGuFeMQ==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: ^16 || ^17 || ^18
+      react-dom: ^16 || ^17 || ^18
+    dependencies:
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+    dev: false
+
   /@humanwhocodes/config-array/0.9.2:
     resolution: {integrity: sha512-UXOuFCGcwciWckOpmfKDq/GyhlTf9pN/BzG//x8p8zTOFEcGuA68ANXheFS0AGvy3qgZqLBUkMs7hqzqCKOVwA==}
     engines: {node: '>=10.10.0'}
@@ -1684,8 +1707,8 @@ packages:
     resolution: {integrity: sha512-4JQNk+3mVzK3xh2rqd6RB4J46qUR19azEHBneZyTZM+c456qOrbbM/5xcR8huNCCcbVt7+UmizG6GuUvPvKUYg==}
     dev: false
 
-  /@mdx-js/mdx/2.0.0:
-    resolution: {integrity: sha512-Q/Zv+gdm80qcxpmL/Dtd/b9+UyZjjJUCQeZyywLAQqre648hRYgeGNPu7Bl2hB7M8/WBLXpabQEKW3dmGdDTDQ==}
+  /@mdx-js/mdx/2.1.0:
+    resolution: {integrity: sha512-AuZGNLSGrytOd7a81E2SsWAOYg/eV5I51BlUPc11PPmPwhpovu7mwfyQ8PH1jxhdH0Is6aRtXHERuDxon0TluQ==}
     dependencies:
       '@types/estree-jsx': 0.0.1
       '@types/mdx': 2.0.1
@@ -1696,10 +1719,10 @@ packages:
       hast-util-to-estree: 2.0.2
       markdown-extensions: 1.1.1
       periscopic: 3.0.4
-      remark-mdx: 2.0.0
+      remark-mdx: 2.1.0
       remark-parse: 10.0.1
       remark-rehype: 10.1.0
-      unified: 10.1.1
+      unified: 10.1.2
       unist-util-position-from-estree: 1.1.1
       unist-util-stringify-position: 3.0.0
       unist-util-visit: 4.1.0
@@ -1708,8 +1731,8 @@ packages:
       - supports-color
     dev: false
 
-  /@mdx-js/react/2.0.0_react@17.0.2:
-    resolution: {integrity: sha512-icpMd43xqORnHSVRwALZv3ELN3IS7VS3BL+FyH2FFergQPSQ21FX0lN+OMIs0X+3dGY1L0DLhBCkMfPO+yDG7Q==}
+  /@mdx-js/react/2.1.0_react@17.0.2:
+    resolution: {integrity: sha512-RlPnY2WcVe91pOilf3Rmu1pArKj7gSK03uoaMFKjPWTyh9t6t1VYGSX40twlpChNSPmbcQ29D0xvSBOVMWA6yw==}
     peerDependencies:
       react: '>=16'
     dependencies:
@@ -2178,6 +2201,15 @@ packages:
       recursive-fs: 1.1.2
     transitivePeerDependencies:
       - debug
+    dev: false
+
+  /@primitivefi/hardhat-dodoc/0.2.3_hardhat@2.9.1:
+    resolution: {integrity: sha512-ver9uHa79LTDTeebOKZ/eOVRL/FP1k0s0x/5Bo/8ZaDdLWFVClKqZyZYVjjW4CJqTPCt8uU9b9p71P2vzH4O9A==}
+    peerDependencies:
+      hardhat: ^2.6.4
+    dependencies:
+      hardhat: 2.9.1
+      squirrelly: 8.0.8
     dev: false
 
   /@protobufjs/aspromise/1.1.2:
@@ -2880,8 +2912,16 @@ packages:
   /@types/node/17.0.21:
     resolution: {integrity: sha512-DBZCJbhII3r90XbQxI8Y9IjjiiOGlZ0Hr32omXIZvwwZ7p4DMMXGrKXVyPfuoBOri9XNtL0UK69jYIBIsRX3QQ==}
 
+  /@types/nprogress/0.2.0:
+    resolution: {integrity: sha512-1cYJrqq9GezNFPsWTZpFut/d4CjpZqA0vhqDUPFWYKF1oIyBz5qnoYMzR+0C/T96t3ebLAC1SSnwrVOm5/j74A==}
+    dev: true
+
   /@types/parse-json/4.0.0:
     resolution: {integrity: sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==}
+
+  /@types/parse-unit/1.0.1:
+    resolution: {integrity: sha512-p6QazF9lsJKxD+l/jcPQSGthgFbtKQuNSOH48zdPCnItg2qrvKGwaDd5KRmdsC/qmJ20zGafQ/VzNtIfi7AfiA==}
+    dev: true
 
   /@types/pbkdf2/3.1.0:
     resolution: {integrity: sha512-Cf63Rv7jCQ0LaL8tNXmEyqTHuIJxRdlS5vMh1mj5voN4+QFhVZnlZruezqpWYDiJ8UTzhP0VmeLXCmBk66YrMQ==}
@@ -10698,11 +10738,14 @@ packages:
       mdast-util-to-markdown: 1.3.0
     dev: false
 
-  /mdast-util-gfm-table/1.0.3:
-    resolution: {integrity: sha512-B/tgpJjND1qIZM2WZst+NYnb0notPE6m0J+YOe3NOHXyEmvK38ytxaOsgz4BvrRPQQcNbRrTzSHMPnBkj1fCjg==}
+  /mdast-util-gfm-table/1.0.4:
+    resolution: {integrity: sha512-aEuoPwZyP4iIMkf2cLWXxx3EQ6Bmh2yKy9MVCg4i6Sd3cX80dcLEfXO/V4ul3pGH9czBK4kp+FAl+ZHmSUt9/w==}
     dependencies:
       markdown-table: 3.0.2
+      mdast-util-from-markdown: 1.2.0
       mdast-util-to-markdown: 1.3.0
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /mdast-util-gfm-task-list-item/1.0.1:
@@ -10712,14 +10755,18 @@ packages:
       mdast-util-to-markdown: 1.3.0
     dev: false
 
-  /mdast-util-gfm/2.0.0:
-    resolution: {integrity: sha512-wMwejlTN3EQADPFuvxe8lmGsay3+f6gSJKdAHR6KBJzpcxvsjJSILB9K6u6G7eQLC7iOTyVIHYGui9uBc9r1Tg==}
+  /mdast-util-gfm/2.0.1:
+    resolution: {integrity: sha512-42yHBbfWIFisaAfV1eixlabbsa6q7vHeSPY+cg+BBjX51M8xhgMacqH9g6TftB/9+YkcI0ooV4ncfrJslzm/RQ==}
     dependencies:
+      mdast-util-from-markdown: 1.2.0
       mdast-util-gfm-autolink-literal: 1.0.2
       mdast-util-gfm-footnote: 1.0.1
       mdast-util-gfm-strikethrough: 1.0.1
-      mdast-util-gfm-table: 1.0.3
+      mdast-util-gfm-table: 1.0.4
       mdast-util-gfm-task-list-item: 1.0.1
+      mdast-util-to-markdown: 1.3.0
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /mdast-util-mdx-expression/1.2.0:
@@ -11675,10 +11722,10 @@ packages:
       - openapi-types
     dev: false
 
-  /next-themes/0.0.15_d837ce8f3acb2f60f8b7454672a9bcea:
-    resolution: {integrity: sha512-LTmtqYi03c4gMTJmWwVK9XkHL7h0/+XrtR970Ujvtu3s0kZNeJN24aJsi4rkZOI8i19+qq6f8j+8Duwy5jqcrQ==}
+  /next-themes/0.2.0-beta.0_d837ce8f3acb2f60f8b7454672a9bcea:
+    resolution: {integrity: sha512-vzF6V1cWo6LVuMZkTpsP3+7roc14X8VTRgyiZT/6TWzcd7sLdE+y/6F1WiXEvKg+IqwdUb8g3KwC20Fo1yUYqw==}
     peerDependencies:
-      next: '*'
+      next: '>=11.1.1'
       react: '*'
       react-dom: '*'
     dependencies:
@@ -11835,15 +11882,15 @@ packages:
       - webpack
     dev: false
 
-  /nextra-theme-docs/2.0.0-alpha.24_29eed56be0bdeede098eb6f2e43fa1df:
-    resolution: {integrity: sha512-yAUPC1WKezamNWkL9gXHWNxoKINOmTxA2II/nSzDvfpHYsurzvQQFPdihsYpuErqot9DOrr+lQt5l5vcsf8xEA==}
+  /nextra-theme-docs/2.0.0-alpha.44_d837ce8f3acb2f60f8b7454672a9bcea:
+    resolution: {integrity: sha512-KeLaaQNOgkS4TWr38T7CQ7CXP5A8zgJuadmzl/uMNkq9YWS5XPIzicvmd0ltr+fCdxzBqVFAIeIX54XB/qUlYA==}
     peerDependencies:
       next: '>=9.5.3'
       react: '>=16.13.1'
       react-dom: '>=16.13.1'
     dependencies:
-      '@headlessui/react': 1.4.3_react-dom@17.0.2+react@17.0.2
-      '@mdx-js/react': 2.0.0_react@17.0.2
+      '@headlessui/react': 1.5.0_react-dom@17.0.2+react@17.0.2
+      '@mdx-js/react': 2.1.0_react@17.0.2
       '@reach/skip-nav': 0.16.0_react-dom@17.0.2+react@17.0.2
       classnames: 2.3.1
       flexsearch: 0.7.21
@@ -11852,22 +11899,19 @@ packages:
       intersection-observer: 0.12.0
       match-sorter: 4.2.1
       next: 12.0.7_react-dom@17.0.2+react@17.0.2
-      next-themes: 0.0.15_d837ce8f3acb2f60f8b7454672a9bcea
+      next-themes: 0.2.0-beta.0_d837ce8f3acb2f60f8b7454672a9bcea
       parse-git-url: 1.0.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
-      react-innertext: 1.1.5_cfedea9b3ed0faf0dded75c187406c5e
       title: 3.4.4
-    transitivePeerDependencies:
-      - '@types/react'
     dev: false
 
-  /nextra/2.0.0-alpha.24_react@17.0.2:
-    resolution: {integrity: sha512-Vt98hlyTEWQguRnkALq9aXhUcxDVwNN3LND/NXvXCSYxZjEY6f2Ujdew1HxBn78xa3k0WCmne1Xzb39Yy9dbNg==}
+  /nextra/2.0.0-alpha.44_react@17.0.2:
+    resolution: {integrity: sha512-PZBQAHlrZbf4sg2XEUvqe+SoI5XU/Ui4Z/9ENmGFRCrtKd3oy9Ea9uMrS6V0s8e+cwOjlKCW4TRoG24aORefog==}
     peerDependencies:
       react: '>=16.13.1'
     dependencies:
-      '@mdx-js/mdx': 2.0.0
+      '@mdx-js/mdx': 2.1.0
       github-slugger: 1.4.0
       graceful-fs: 4.2.9
       gray-matter: 4.0.3
@@ -12068,6 +12112,10 @@ packages:
       gauge: 2.7.4
       set-blocking: 2.0.0
     dev: true
+
+  /nprogress/0.2.0:
+    resolution: {integrity: sha1-y480xTIT2JVyP8urkH6UIq28r7E=}
+    dev: false
 
   /nth-check/2.0.1:
     resolution: {integrity: sha512-it1vE95zF6dTT9lBsYbxvqh0Soy4SPowchj0UBGj/V6cTPnXXtQOPUbhZ6CmGzAD/rW22LQK6E96pcdJXk4A4w==}
@@ -12475,6 +12523,10 @@ packages:
   /parse-numeric-range/1.3.0:
     resolution: {integrity: sha512-twN+njEipszzlMJd4ONUYgSfZPDxgHhT9Ahed5uTigpQn90FggW4SA/AIPq/6a149fTbE9qBEcSwE3FAEp6wQQ==}
     dev: false
+
+  /parse-unit/1.0.1:
+    resolution: {integrity: sha1-fhu21b7zh0wo45JSaiVBFwKR7s8=}
+    dev: true
 
   /parse5-htmlparser2-tree-adapter/6.0.1:
     resolution: {integrity: sha512-qPuWvbLgvDGilKc5BoicRovlT4MtYT6JfJyBOMDsKoiT+GiuP5qyrPCnR9HcPECIJJmZh5jRndyNThnhhb/vlA==}
@@ -12888,6 +12940,7 @@ packages:
     resolution: {integrity: sha512-s7PoyDv/II1ObgQunCbB9PdLmUcBZcnWOcxDh7O0N/UwDEsHyqkW+Qh28jW+mVuCdx7gLB0BotYI1Y6uI9iyew==}
     engines: {node: '>=4'}
     hasBin: true
+    requiresBuild: true
 
   /prettier/2.6.0:
     resolution: {integrity: sha512-m2FgJibYrBGGgQXNzfd0PuDGShJgRavjUoRCw1mZERIWVSXF0iLzLm+aOqTAbLnC3n6JzUhAA8uZnFVghHJ86A==}
@@ -13289,16 +13342,6 @@ packages:
       react-dom: 17.0.2_react@17.0.2
     dev: false
 
-  /react-innertext/1.1.5_cfedea9b3ed0faf0dded75c187406c5e:
-    resolution: {integrity: sha512-PWAqdqhxhHIv80dT9znP2KvS+hfkbRovFp4zFYHFFlOoQLRiawIic81gKb3U1wEyJZgMwgs3JoLtwryASRWP3Q==}
-    peerDependencies:
-      '@types/react': '>=0.0.0 <=99'
-      react: '>=0.0.0 <=99'
-    dependencies:
-      '@types/react': 17.0.37
-      react: 17.0.2
-    dev: false
-
   /react-inspector/5.1.1_react@17.0.2:
     resolution: {integrity: sha512-GURDaYzoLbW8pMGXwYPDBIv6nqei4kK7LPRZ9q9HCZF54wqXz/dnylBp/kfE9XmekBhHvLDdcYeyIwSrvtOiWg==}
     peerDependencies:
@@ -13606,13 +13649,15 @@ packages:
     resolution: {integrity: sha512-lEFDoi2PICJyNrACFOfDD3JlLkuSbOa5Wd8EPt06HUdptv8Gn0bxYTdbU/XXQ3swAPkEaGxxPN9cbnMHvVu1Ig==}
     dependencies:
       '@types/mdast': 3.0.10
-      mdast-util-gfm: 2.0.0
+      mdast-util-gfm: 2.0.1
       micromark-extension-gfm: 2.0.1
-      unified: 10.1.1
+      unified: 10.1.2
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
-  /remark-mdx/2.0.0:
-    resolution: {integrity: sha512-TDnjSv77Oynf+K1deGWZPKSwh3/9hykVAxVm9enAw6BmicCGklREET8s19KYnjGsNPms0pNDJLmp+bnHDVItAQ==}
+  /remark-mdx/2.1.0:
+    resolution: {integrity: sha512-J6Yqw566SaEy6A9Neni1JJTaEjbjsM3OsKqL04TtCvZhevRtFi8CG8GIQPzvxIRKRCAOnWw1Vpk1AInB1OpNqA==}
     dependencies:
       mdast-util-mdx: 2.0.0
       micromark-extension-mdxjs: 1.0.0
@@ -13625,7 +13670,7 @@ packages:
     dependencies:
       '@types/mdast': 3.0.10
       mdast-util-from-markdown: 1.2.0
-      unified: 10.1.1
+      unified: 10.1.2
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -13636,7 +13681,7 @@ packages:
       '@types/hast': 2.3.4
       '@types/mdast': 3.0.10
       mdast-util-to-hast: 12.1.1
-      unified: 10.1.1
+      unified: 10.1.2
     dev: false
 
   /remarkable/2.0.1:
@@ -14181,7 +14226,7 @@ packages:
     resolution: {integrity: sha512-iczxaIYeBFHTFrQPb9DVy2SKgYxC4Wo7Iucm7C17cCh2Ge/refnvHscUOxM85u57MfLoNOtjoEFUWt9gBexblA==}
     dependencies:
       jsonc-parser: 3.0.0
-      vscode-oniguruma: 1.6.1
+      vscode-oniguruma: 1.6.2
       vscode-textmate: 5.2.0
     dev: false
 
@@ -14311,7 +14356,7 @@ packages:
     dependencies:
       command-exists: 1.2.9
       commander: 3.0.2
-      follow-redirects: 1.14.9
+      follow-redirects: 1.14.9_debug@4.3.3
       fs-extra: 0.30.0
       js-sha3: 0.8.0
       memorystream: 0.3.1
@@ -14516,6 +14561,11 @@ packages:
 
   /sprintf-js/1.0.3:
     resolution: {integrity: sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=}
+
+  /squirrelly/8.0.8:
+    resolution: {integrity: sha512-7dyZJ9Gw86MmH0dYLiESsjGOTj6KG8IWToTaqBuB6LwPI+hyNb6mbQaZwrfnAQ4cMDnSWMUvX/zAYDLTSWLk/w==}
+    engines: {node: '>=6.0.0'}
+    dev: false
 
   /sshpk/1.17.0:
     resolution: {integrity: sha512-/9HIEs1ZXGhSPE8X6Ccm7Nam1z8KcoCqPdI7ecm1N33EzAetWahvQWVqLZtaZQ+IDKX4IyA2o0gBzqIMkAagHQ==}
@@ -15001,6 +15051,16 @@ packages:
       string-width: 3.1.0
     dev: true
 
+  /tailwindcss-font-inter/3.0.1_tailwindcss@3.0.23:
+    resolution: {integrity: sha512-wN0uIB+OzQk8ItqFoEl/eQM4H05AgNbqlI++IDb5B4Fqz8imee2dJAy85jyARwTUUouMwdwdBjx7yxXf22CyCg==}
+    peerDependencies:
+      tailwindcss: ^2.0.0 || ^3.0.0
+    dependencies:
+      '@types/parse-unit': 1.0.1
+      parse-unit: 1.0.1
+      tailwindcss: 3.0.23_autoprefixer@10.4.2
+    dev: true
+
   /tailwindcss/3.0.23_autoprefixer@10.4.2:
     resolution: {integrity: sha512-+OZOV9ubyQ6oI2BXEhzw4HrqvgcARY38xv3zKcjnWtMIZstEsXdI9xftd1iB7+RbOnj2HOEzkA0OyB5BaSxPQA==}
     engines: {node: '>=12.13.0'}
@@ -15318,8 +15378,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /trough/2.0.2:
-    resolution: {integrity: sha512-FnHq5sTMxC0sk957wHDzRnemFnNBvt/gSY99HzK8F7UP5WAbvP70yX5bd7CjEQkN+TjdxwI7g7lJ6podqrG2/w==}
+  /trough/2.1.0:
+    resolution: {integrity: sha512-AqTiAOLcj85xS7vQ8QkAV41hPDIJ71XJB4RCUrzo/1GM2CQwhkJGaf9Hgr7BOugMRpgGUrqRg/DrBDl4H40+8g==}
     dev: false
 
   /true-case-path/2.2.1:
@@ -15775,15 +15835,15 @@ packages:
     resolution: {integrity: sha512-F9p7yYCn6cIW9El1zi0HI6vqpeIvBsr3dSuRO6Xuppb1u5rXpCPmMvLSyECLhybr9isec8Ohl0hPekMVrEinDA==}
     dev: false
 
-  /unified/10.1.1:
-    resolution: {integrity: sha512-v4ky1+6BN9X3pQrOdkFIPWAaeDsHPE1svRDxq7YpTc2plkIqFMwukfqM+l0ewpP9EfwARlt9pPFAeWYhHm8X9w==}
+  /unified/10.1.2:
+    resolution: {integrity: sha512-pUSWAi/RAnVy1Pif2kAoeWNBa3JVrx0MId2LASj8G+7AiHWoKZNTomq6LG326T68U7/e263X6fTdcXIy7XnF7Q==}
     dependencies:
       '@types/unist': 2.0.6
       bail: 2.0.2
       extend: 3.0.2
       is-buffer: 2.0.5
       is-plain-obj: 4.0.0
-      trough: 2.0.2
+      trough: 2.1.0
       vfile: 5.3.0
     dev: false
 
@@ -16115,8 +16175,8 @@ packages:
   /vm-browserify/1.1.2:
     resolution: {integrity: sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==}
 
-  /vscode-oniguruma/1.6.1:
-    resolution: {integrity: sha512-vc4WhSIaVpgJ0jJIejjYxPvURJavX6QG41vu0mGhqywMkQqulezEqEQ3cO3gc8GvcOpX6ycmKGqRoROEMBNXTQ==}
+  /vscode-oniguruma/1.6.2:
+    resolution: {integrity: sha512-KH8+KKov5eS/9WhofZR8M8dMHWN2gTxjMsG4jd04YhpbPR91fUj7rYQ2/XjeHCJWbg7X++ApRIU9NUwM2vTvLA==}
     dev: false
 
   /vscode-textmate/5.2.0:

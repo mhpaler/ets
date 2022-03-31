@@ -27,7 +27,7 @@
 }
 
 .responsiveTable tbody tr {
-  @apply px-6 py-6;
+  @apply px-6 py-4;
 }
 
 .responsiveTable tbody {
@@ -89,11 +89,20 @@
   }
 
   .responsiveTable {
-    @apply w-full;
+    border-spacing: 0;
+    @apply w-full overflow-auto border-separate;
   }
 
   .responsiveTable thead {
-    @apply border-b border-slate-200 bg-slate-50;
+    @apply bg-slate-50;
+  }
+
+  .responsiveTable thead tr {
+    /* @apply sticky top-0 z-10 shadow-lg shadow-slate-400/20; */
+  }
+
+  .responsiveTable thead th {
+    @apply sticky top-0 z-10 border-t border-b bg-slate-50/75 border-slate-200 backdrop-blur backdrop-filter;
   }
 
   .responsiveTable td .tdBefore {
@@ -101,12 +110,12 @@
   }
 
   .responsiveTable th {
-    @apply text-xs tracking-wider text-left uppercase whitespace-nowrap text-slate-900;
+    @apply text-sm font-semibold text-left whitespace-nowrap text-slate-700;
   }
 
   .responsiveTable th,
   .responsiveTable td {
-    @apply py-3;
+    @apply py-3.5;
   }
 
   .responsiveTable tr th:first-child,
@@ -123,8 +132,12 @@
     @apply !divide-y !divide-slate-200 pr-0;
   }
 
+  .responsiveTable tbody tr {
+    @apply py-0;
+  }
+
   .responsiveTable td.pivoted {
-    @apply table-cell py-3 pl-0 pr-6 space-x-0 text-left whitespace-normal max-w-none;
+    @apply table-cell py-4 pl-0 pr-6 space-x-0 text-left whitespace-normal max-w-none;
   }
 
   .responsiveTable td .tdBefore {
