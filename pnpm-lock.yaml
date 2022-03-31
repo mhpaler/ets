@@ -179,6 +179,7 @@ importers:
       '@openzeppelin/contracts-upgradeable': ^4.4.1
       '@openzeppelin/hardhat-upgrades': ^1.12.0
       '@openzeppelin/test-helpers': ^0.5.15
+      '@primitivefi/hardhat-dodoc': ^0.2.3
       '@typechain/ethers-v5': ^7.0.1
       '@typechain/hardhat': ^2.0.2
       '@types/chai': ^4.2.18
@@ -187,6 +188,7 @@ importers:
       chai: ^4.3.4
       dotenv: ^10.0.0
       ethereum-waffle: ^3.3.0
+      ethereumjs-util: ^7.1.4
       ethers: ^5.5.3
       hardhat: ^2.8.3
       hardhat-abi-exporter: ^2.4.0
@@ -205,6 +207,7 @@ importers:
     dependencies:
       '@openzeppelin/contracts': 4.4.1
       '@openzeppelin/contracts-upgradeable': 4.4.1
+      '@primitivefi/hardhat-dodoc': 0.2.3_hardhat@2.9.1
     devDependencies:
       '@ethersproject/abstract-signer': 5.6.0
       '@ets/tsconfig': link:../tsconfig
@@ -223,6 +226,7 @@ importers:
       chai: 4.3.6
       dotenv: 10.0.0
       ethereum-waffle: 3.4.0_typescript@4.6.2
+      ethereumjs-util: 7.1.4
       ethers: 5.6.1
       hardhat: 2.9.1
       hardhat-abi-exporter: 2.8.0_hardhat@2.9.1
@@ -2197,6 +2201,15 @@ packages:
       recursive-fs: 1.1.2
     transitivePeerDependencies:
       - debug
+    dev: false
+
+  /@primitivefi/hardhat-dodoc/0.2.3_hardhat@2.9.1:
+    resolution: {integrity: sha512-ver9uHa79LTDTeebOKZ/eOVRL/FP1k0s0x/5Bo/8ZaDdLWFVClKqZyZYVjjW4CJqTPCt8uU9b9p71P2vzH4O9A==}
+    peerDependencies:
+      hardhat: ^2.6.4
+    dependencies:
+      hardhat: 2.9.1
+      squirrelly: 8.0.8
     dev: false
 
   /@protobufjs/aspromise/1.1.2:
@@ -12927,6 +12940,7 @@ packages:
     resolution: {integrity: sha512-s7PoyDv/II1ObgQunCbB9PdLmUcBZcnWOcxDh7O0N/UwDEsHyqkW+Qh28jW+mVuCdx7gLB0BotYI1Y6uI9iyew==}
     engines: {node: '>=4'}
     hasBin: true
+    requiresBuild: true
 
   /prettier/2.6.0:
     resolution: {integrity: sha512-m2FgJibYrBGGgQXNzfd0PuDGShJgRavjUoRCw1mZERIWVSXF0iLzLm+aOqTAbLnC3n6JzUhAA8uZnFVghHJ86A==}
@@ -14342,7 +14356,7 @@ packages:
     dependencies:
       command-exists: 1.2.9
       commander: 3.0.2
-      follow-redirects: 1.14.9
+      follow-redirects: 1.14.9_debug@4.3.3
       fs-extra: 0.30.0
       js-sha3: 0.8.0
       memorystream: 0.3.1
@@ -14547,6 +14561,11 @@ packages:
 
   /sprintf-js/1.0.3:
     resolution: {integrity: sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=}
+
+  /squirrelly/8.0.8:
+    resolution: {integrity: sha512-7dyZJ9Gw86MmH0dYLiESsjGOTj6KG8IWToTaqBuB6LwPI+hyNb6mbQaZwrfnAQ4cMDnSWMUvX/zAYDLTSWLk/w==}
+    engines: {node: '>=6.0.0'}
+    dev: false
 
   /sshpk/1.17.0:
     resolution: {integrity: sha512-/9HIEs1ZXGhSPE8X6Ccm7Nam1z8KcoCqPdI7ecm1N33EzAetWahvQWVqLZtaZQ+IDKX4IyA2o0gBzqIMkAagHQ==}
