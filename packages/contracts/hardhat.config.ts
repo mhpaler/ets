@@ -6,6 +6,7 @@ import 'hardhat-abi-exporter';
 import '@nomiclabs/hardhat-web3';
 import '@nomiclabs/hardhat-ethers';
 import '@nomiclabs/hardhat-waffle';
+import '@primitivefi/hardhat-dodoc';
 import '@nomiclabs/hardhat-truffle5';
 import '@nomiclabs/hardhat-etherscan';
 import '@openzeppelin/hardhat-upgrades';
@@ -62,6 +63,13 @@ const config: HardhatUserConfig = {
     clear: true,
     pretty: true,
     flat: false,
+  },
+  dodoc: {
+    runOnCompile: true,
+    include: ["core"],
+    //outputDir: "../../apps/site/pages/docs/sol",
+    //debugMode: false,
+    // More options...
   },
   // ETS administration accounts.
   namedAccounts: {
