@@ -1,4 +1,5 @@
 @import "./responsive-table.css";
+@import "./nprogress.css";
 
 @tailwind base;
 @tailwind components;

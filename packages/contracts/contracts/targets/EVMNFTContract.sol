@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.12;
 
 import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import { StringsUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
+import { TargetTypeSignatureModule } from "../signature/TargetTypeSignatureModule.sol";
 import { IETSTargetType, IERC165 } from "../interfaces/IETSTargetType.sol";
 import { IETS } from "../interfaces/IETS.sol";
 
-// example implementation of 1 target type tagging subcontract
-contract MockNftTagger is IETSTargetType, OwnableUpgradeable, UUPSUpgradeable, PausableUpgradeable {
+contract EVMNFTContract is IETSTargetType, TargetTypeSignatureModule, OwnableUpgradeable, UUPSUpgradeable, PausableUpgradeable {
 
     /// @notice Address that built the target type smart contract
     address payable public override creator;
@@ -31,6 +31,7 @@ contract MockNftTagger is IETSTargetType, OwnableUpgradeable, UUPSUpgradeable, P
         __Ownable_init();
         __UUPSUpgradeable_init();
         __Pausable_init();
+        __TargetTypeSignatureModule_init(name(), version());
 
         ets = _ets;
         creator = _creator;
@@ -44,32 +45,8 @@ contract MockNftTagger is IETSTargetType, OwnableUpgradeable, UUPSUpgradeable, P
     override
     {}
 
-    /// @notice Entry point for a user to tag an EVM NFT which will call into ETS
-    function tag(
-        string calldata _nftAddress,
-        string calldata _tokenId,
-        string calldata _chainId,
-        address payable _publisher,
-        address _tagger,
-        string calldata _tagString,
-        bool _ensure
-    ) external payable {
-        // TODO - consider whether such a check would be useful
-        // require(_tagger != _publisher, "");
-
-        // Extra layers that could be added: if EVM is from the same chain, validation can be performed
-        // targetURI boilerplate format for EVM Nft is contract address|token id|chain id
-        // eg "0x8ee9a60cb5c0e7db414031856cb9e0f1f05988d1|3061|1"
-        string memory targetURI = string(abi.encodePacked(_nftAddress, "|", _tokenId, "|", _chainId));
-
-        ets.tagTarget{ value: msg.value }(
-            _tagString,
-            targetURI,
-            _publisher,
-            _tagger,
-            _ensure
-        );
-    }
+    /// @notice Tagging an NFT target where taggers can be offered the ability to have the GAS sponsored
+    function tag() external payable {}
 
     /// @notice Allow owner to toggle pausing on and off
     function toggleTargetTypePaused() external onlyOwner {
@@ -89,11 +66,11 @@ contract MockNftTagger is IETSTargetType, OwnableUpgradeable, UUPSUpgradeable, P
 
     /// @inheritdoc IETSTargetType
     function name() public override pure returns (string memory) {
-        return "NFT";
+        return "EVMNFTContract";
     }
 
     /// @inheritdoc IETSTargetType
-    function version() external override pure returns (string memory) {
+    function version() public override pure returns (string memory) {
         return "0.0.1";
     }
 

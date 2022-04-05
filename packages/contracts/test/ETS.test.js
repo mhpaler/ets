@@ -5,7 +5,9 @@ const { expect, assert } = require("chai");
 
 const { utils, constants } = ethers;
 
-let accounts, factories, artifact, ETSAccessControls, ETSTag, ETS, ERC721Mock, MockNftTagger;
+const { signTagRequest } = require('./signature-utils');
+
+let accounts, factories, artifact, ETSAccessControls, ETSTag, ETS, ERC721Mock, EVMNFT;
 let taggingFee, platformPercentage, publisherPercentage, taggerPercentage;
 
 describe("ETS", function () {
@@ -29,7 +31,7 @@ describe("ETS", function () {
       ETSTag: await ethers.getContractFactory("ETSTag"),
       ETS: await ethers.getContractFactory("ETS"),
       ERC721BurnableMock: await ethers.getContractFactory("ERC721BurnableMock"),
-      MockNftTagger: await ethers.getContractFactory("MockNftTagger"),
+      EVMNFT: await ethers.getContractFactory("EVMNFT"),
     };
 
     artifact = {
@@ -49,6 +51,9 @@ describe("ETS", function () {
     // add a publisher to the protocol
     await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER"), accounts.ETSPublisher.address);
 
+    // hardhat account #2 - private key is 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
+    await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER"), "0x70997970c51812dc3a010c7d01b50e0d17dc79c8");
+
     // Deploy the initial proxy contract.
     ETSTag = await upgrades.deployProxy(
       factories.ETSTag,
@@ -65,14 +70,14 @@ describe("ETS", function () {
     ERC721Mock = await factories.ERC721BurnableMock.deploy("NFT", "NFT");
     await ERC721Mock.deployed();
 
-    MockNftTagger = await upgrades.deployProxy(
-      factories.MockNftTagger,
+    EVMNFT = await upgrades.deployProxy(
+      factories.EVMNFT,
       [ETS.address, accounts.ETSAdmin.address, accounts.ETSAdmin.address],
       { kind: "uups" },
     );
 
     await ETSAccessControls.addTargetType(
-      MockNftTagger.address,
+      EVMNFT.address,
       "nft_evm",
       { from: accounts.ETSAdmin.address },
     );
@@ -104,28 +109,78 @@ describe("ETS", function () {
     await ERC721Mock.mint(accounts.RandomOne.address, nftTwoId); //#2
   });
 
-  it.only('works', async function() {
-    await MockNftTagger.tag(
-      "0x8ee9a60cb5c0e7db414031856cb9e0f1f05988d1",
-      "3061",
-      "1",
-      accounts.ETSPublisher.address,
-      accounts.ETSPublisher.address,
-      "#land",
-      false,
+  // todo - move to mock tagger test file
+  it.only('get tagger to sign the tag request works', async function() {
+    // define tag target (nft params)
+    const nftAddress = "0x8ee9a60cb5c0e7db414031856cb9e0f1f05988d1"
+    const tokenId = "3061"
+    const chainId = "1"
+
+    // sign over target URI as a way of approving tag using Hardhat private key for account #1 of HH node
+    const expectedTargetURI = await EVMNFT.composeTargetURI(
+      nftAddress,
+      tokenId,
+      chainId
+    ) // we compute same target URI as a real tagging event
+
+    const testPublicKey = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+    const testPrivateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+
+    const tagParams = {
+      nftAddress,
+      tokenId,
+      chainId,
+      tagStrings: ["#land", "#cute", "#wow"],
+      ensure: false,
+    }
+
+    const tagParams2 = {
+      nftAddress,
+      tokenId,
+      chainId: "3",
+      tagStrings: ["#cute"],
+      ensure: false,
+    }
+
+    const taggingRecords = [
+      tagParams,
+      tagParams2
+    ]
+
+    const taggerSignature = signTagRequest(
+      EVMNFT.address,
+      await EVMNFT.name(),
+      await EVMNFT.version(),
+      taggingRecords,
+      testPrivateKey
+    )
+
+    const publisherPrivateKey = '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+    const publisherSignature = signTagRequest(
+      EVMNFT.address,
+      await EVMNFT.name(),
+      await EVMNFT.version(),
+      taggingRecords,
+      publisherPrivateKey
+    )
+
+    await EVMNFT.tag(
+      taggingRecords,
+      taggerSignature,
+      publisherSignature,
       {
-        value: taggingFee
+        value: ethers.BigNumber.from(taggingFee).mul('4')
       }
     )
 
-    const res = await ETS.taggingRecords('1')
-    console.log('res', res)
-    console.log('target ID', res.targetId.toString())
+    const taggingRecord = await ETS.taggingRecords('1')
 
-    const targetRes = await ETS.targets(res.targetId.toString())
-    console.log(targetRes)
+    const targetRes = await ETS.targets(taggingRecord.targetId.toString())
+    expect(targetRes.targetURI).to.be.equal(expectedTargetURI)
 
-    console.log(targetRes.targetURI)
+    console.log('\nexpectedTargetURI', expectedTargetURI)
+
+    expect(taggingRecord.tagger.toLowerCase()).to.be.equal(testPublicKey.toLowerCase())
   })
 
   describe("Validate setup", function () {
