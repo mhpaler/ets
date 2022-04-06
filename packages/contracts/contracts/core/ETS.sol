@@ -121,60 +121,6 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
       string ipfsHash;
     }
 
-    /// Events
-
-    event TargetTagged(
-        uint256 taggingId
-    );
-
-    event FundsWithdrawn(
-        address indexed who,
-        uint256 amount
-    );
-
-    event TaggingFeeSet(
-        uint256 previousFee,
-        uint256 taggingFee
-    );
-
-    event AccessControlsUpdated(
-        ETSAccessControls previousAccessControls,
-        ETSAccessControls newAccessControls
-    );
-
-    event ETSEnsureUpdated(
-        ETSEnsure previousETSEnsure,
-        ETSEnsure newETSEnsure
-    );
-
-    event PercentagesSet(
-        uint256 platformPercentage,
-        uint256 publisherPercentage,
-        uint256 remainingPercentage
-    );
-
-    event PermittedNftChainIdSet(
-        uint256 nftChainId,
-        bool setting
-    );
-
-    event TargetTypeSet(
-        string typeName,
-        bool setting
-    );
-
-    event TargetCreated(
-        uint256 targetId
-    );
-
-    event TargetUpdated(
-        uint256 targetId
-    );
-
-    event RequestEnsureTarget(
-      uint256 targetId
-    );
-
     /// Modifiers
 
     /// @dev When applied to a method, only allows execution when the sender has the admin role.
@@ -346,7 +292,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         require(address(_accessControls) != address(0), "ETS.updateAccessControls: Cannot be zero");
         ETSAccessControls prevAccessControls = accessControls;
         accessControls = _accessControls;
-        emit AccessControlsUpdated(prevAccessControls, accessControls);
+        emit AccessControlsUpdated(address(prevAccessControls), address(accessControls));
     }
 
     /// @notice Admin functionality for updating the ETSEnsure contract address.
@@ -355,7 +301,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         require(address(_etsEnsure) != address(0), "ETS.updateETSEnsure: Cannot be zero");
         ETSEnsure previousETSEnsure = etsEnsure;
         etsEnsure = _etsEnsure;
-        emit ETSEnsureUpdated(previousETSEnsure, etsEnsure);
+        emit ETSEnsureUpdated(address(previousETSEnsure), address(etsEnsure));
     }
 
     /// @notice Admin functionality for updating the percentages.

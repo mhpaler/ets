@@ -674,7 +674,7 @@ function version() external pure returns (string)
 ### AccessControlsUpdated
 
 ```solidity
-event AccessControlsUpdated(contract ETSAccessControls previousAccessControls, contract ETSAccessControls newAccessControls)
+event AccessControlsUpdated(address previousAccessControls, address newAccessControls)
 ```
 
 
@@ -685,8 +685,8 @@ event AccessControlsUpdated(contract ETSAccessControls previousAccessControls, c
 
 | Name | Type | Description |
 |---|---|---|
-| previousAccessControls  | contract ETSAccessControls | undefined |
-| newAccessControls  | contract ETSAccessControls | undefined |
+| previousAccessControls  | address | undefined |
+| newAccessControls  | address | undefined |
 
 ### AdminChanged
 
@@ -724,7 +724,7 @@ event BeaconUpgraded(address indexed beacon)
 ### ETSEnsureUpdated
 
 ```solidity
-event ETSEnsureUpdated(contract ETSEnsure previousETSEnsure, contract ETSEnsure newETSEnsure)
+event ETSEnsureUpdated(address previousETSEnsure, address newETSEnsure)
 ```
 
 
@@ -735,8 +735,8 @@ event ETSEnsureUpdated(contract ETSEnsure previousETSEnsure, contract ETSEnsure 
 
 | Name | Type | Description |
 |---|---|---|
-| previousETSEnsure  | contract ETSEnsure | undefined |
-| newETSEnsure  | contract ETSEnsure | undefined |
+| previousETSEnsure  | address | undefined |
+| newETSEnsure  | address | undefined |
 
 ### FundsWithdrawn
 
