@@ -89,18 +89,6 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     // Ensure that only address with admin role can upgrade.
     function _authorizeUpgrade(address) internal override onlyAdmin {}
 
-    /// @notice Get a target Id from target type and target uri.
-    /// TODO: Perhaps rename this with a better name, because it's
-    /// also creating a target record if it doesn't exist?
-    // Or perthaps breakout another function called create target?
-    function _getTargetId(string memory _targetType, string memory _targetURI) public returns (uint256 targetId) {
-        uint256 _targetId = _makeTargetId(_targetType, _targetURI);
-        if (targets[_targetId].created != 0) {
-            return _targetId;
-        }
-        return _createTarget(_targetType, _targetURI);
-    }
-
     // External write
 
     /// @notice Tag a target with an tag string.
@@ -125,7 +113,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         require(msg.value == (taggingFee * tagCount), "Tag: You must send the fee");
 
         // Get targetId if the target exists, otherwise, create a new one.
-        uint256 targetId = _getTargetId(
+        uint256 targetId = _getOrCreateTargetId(
             accessControls.targetTypeContractName(msg.sender), // return "nft"
             _targetURI
         );
@@ -172,9 +160,21 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         return _etstagId;
     }
 
+    /// @notice Get a target Id from target type and target uri.
+    /// TODO: Perhaps rename this with a better name, because it's
+    /// also creating a target record if it doesn't exist?
+    // Or perthaps breakout another function called create target?
+    function _getOrCreateTargetId(string memory _targetType, string memory _targetURI) private returns (uint256 targetId) {
+        uint256 _targetId = computeTargetId(_targetType, _targetURI);
+        if (targets[_targetId].created != 0) {
+            return _targetId;
+        }
+        return _createTarget(_targetType, _targetURI);
+    }
+
     /// TODO: Finish documentation.
-    function _createTarget(string memory _targetType, string memory _targetURI) internal returns (uint256 targetId){
-        uint256 _targetId = _makeTargetId(_targetType, _targetURI);
+    function _createTarget(string memory _targetType, string memory _targetURI) private returns (uint256 targetId){
+        uint256 _targetId = computeTargetId(_targetType, _targetURI);
         targets[_targetId] = Target({
             targetType: _targetType,
             targetURI: _targetURI, // todo: consider ways to encode _targetURI as some sort of fixed length bytes type.
@@ -332,7 +332,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     /// Internal
 
-    function _makeTargetId(string memory _targetType, string memory _targetURI) private pure returns (uint256 targetId) {
+    function computeTargetId(string memory _targetType, string memory _targetURI) public pure returns (uint256 targetId) {
         string memory parts = string(abi.encodePacked(_targetType, _targetURI));
         // The following is how ENS creates ID for their domain names.
         bytes32 label = keccak256(bytes(parts));
@@ -347,11 +347,13 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address _sponsor
     ) private {
         // Generate a new tagging record
-        // with a deterministic ID todo: move into its own appropriately named method i.e. compute
-
-        uint256 id = uint256(keccak256(
-                abi.encodePacked(_targetId, _tagger, _publisher, _sponsor)
-           ));
+        // with a deterministic ID
+        uint256 id = computeTaggingRecordId(
+            _targetId,
+            _tagger,
+            _publisher,
+            _sponsor
+        );
 
         taggingRecords[id] = TaggingRecord({
             etsTagIds: _etsTagIds,
@@ -363,6 +365,18 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
         // Log that a target has been tagged.
         emit TargetTagged(id);
+    }
+
+    /// @notice Deterministically compute the tagging record identifier
+    function computeTaggingRecordId(
+        uint256 _targetId,
+        address _publisher,
+        address _tagger,
+        address _sponsor
+    ) public pure returns (uint256 taggingRecordId) {
+        taggingRecordId = uint256(keccak256(
+                abi.encodePacked(_targetId, _tagger, _publisher, _sponsor)
+            ));
     }
 
     function _processAccrued(uint256 _etsTagId, address _publisher) internal {

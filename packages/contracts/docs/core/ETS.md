@@ -44,29 +44,6 @@ function VERSION() external view returns (string)
 |---|---|---|
 | _0 | string | undefined |
 
-### _getTargetId
-
-```solidity
-function _getTargetId(string _targetType, string _targetURI) external nonpayable returns (uint256 targetId)
-```
-
-Get a target Id from target type and target uri. TODO: Perhaps rename this with a better name, because it&#39;s also creating a target record if it doesn&#39;t exist?
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _targetType | string | undefined |
-| _targetURI | string | undefined |
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| targetId | uint256 | undefined |
-
 ### accessControls
 
 ```solidity
@@ -105,6 +82,54 @@ function accrued(address) external view returns (uint256)
 | Name | Type | Description |
 |---|---|---|
 | _0 | uint256 | undefined |
+
+### computeTaggingRecordId
+
+```solidity
+function computeTaggingRecordId(uint256 _targetId, address _publisher, address _tagger, address _sponsor) external pure returns (uint256 taggingRecordId)
+```
+
+Deterministically compute the tagging record identifier
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _targetId | uint256 | undefined |
+| _publisher | address | undefined |
+| _tagger | address | undefined |
+| _sponsor | address | undefined |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| taggingRecordId | uint256 | undefined |
+
+### computeTargetId
+
+```solidity
+function computeTargetId(string _targetType, string _targetURI) external pure returns (uint256 targetId)
+```
+
+Internal
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _targetType | string | undefined |
+| _targetURI | string | undefined |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| targetId | uint256 | undefined |
 
 ### drawDown
 
