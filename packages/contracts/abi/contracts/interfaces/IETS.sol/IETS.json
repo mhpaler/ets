@@ -11,5 +11,5 @@
   "event TargetTypeSet(string,bool)",
   "event TargetUpdated(uint256)",
   "function tagTarget(string[],string,address,address,address,bool) payable",
-  "function taggingFee() returns (uint256)"
+  "function taggingFee() view returns (uint256)"
 ]

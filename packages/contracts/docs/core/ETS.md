@@ -245,6 +245,28 @@ function initialize(contract ETSAccessControls _accessControls, contract ETSTag 
 | _accessControls | contract ETSAccessControls | undefined |
 | _etsTag | contract ETSTag | undefined |
 
+### isTargetEnsured
+
+```solidity
+function isTargetEnsured(uint256 _targetId) external view returns (bool)
+```
+
+External read
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _targetId | uint256 | undefined |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | bool | undefined |
+
 ### modulo
 
 ```solidity

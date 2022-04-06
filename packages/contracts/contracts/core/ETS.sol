@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+
 pragma solidity 0.8.12;
 
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
@@ -66,61 +67,6 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     string public constant VERSION = "0.0.1";
     uint256 public constant modulo = 100;
 
-    /// Structs
-
-    /**
-     * @dev Data structure for a tagging record.
-     * @param etsTagIds Ids of ETSTAG token being used to tag a target.
-     * @param targetId Id of target being tagged with ETSTAG.
-     * @param tagger Address of wallet being credited with tagging record.
-     * @param publisher Address of wallet being credited with enabling tagging record.
-     * @param timestamp Time when target was tagged.
-     */
-    struct TaggingRecord {//tagging a target to a tag. the link
-        uint256[] etsTagIds;
-        uint256 targetId;
-        address tagger;
-        address publisher;
-        address sponsor;
-    }
-
-    /**
-     * @dev Data structure for tagging targets
-     * @param targetType Identifier for type of target being tagged
-     *        TODO:
-     *         1) Consider renaming in the struct to just 'type'
-     *         2) depending on how types are coded/handled. consider
-     *         a better datatype to hold this. eg. bytes2, bytes4
-     *         and perhaps have that be a map of it's own eg:
-     *           struct TaggingType {
-     *             bytes8 name; // human readable name.
-     *             address implemenation; // address of type contract implementation.
-     *             address publisher; // address of third party that published implementation.
-     *             uint created;
-     *             bool enabled;
-     *          }
-     * @param targetURI Unique resource identifier for tagging target
-     *        TODO:
-     *        1) Consider calling just 'uri'
-     *        2) Storage opmtimization of input string from client. eg.
-     *           is there anyway to store URI as bytes32?
-     * @param created timestamp of when target was created in ETS.
-     * @param lastEnsured timestamp of when target was last ensured. Defaults to 0
-     * @param status https status of last response from ensure target api eg. "404", "200". defaults to 0.
-     * @param ipfsHash ipfsHash of additional metadata surrounding target provided by ETS Ensure target API.
-     *        TODO:
-     *        1) Optimization. Would be nice to do better than a string here (eg. bytes32).
-     *        There's much talk/issues around the length of IPFS hashes and how to store them as bytes
-     */
-    struct Target {
-      string targetType;
-      string targetURI;
-      uint created;
-      uint lastEnsured;
-      uint status;
-      string ipfsHash;
-    }
-
     /// Modifiers
 
     /// @dev When applied to a method, only allows execution when the sender has the admin role.
@@ -130,7 +76,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     }
 
     /// @dev Replaces contructor function for UUPS Proxy contracts. Called upon first deployment.
-    function initialize(ETSAccessControls _accessControls, ETSTag _etsTag) public initializer {
+    function initialize(ETSAccessControls _accessControls, ETSTag _etsTag) external initializer {
         accessControls = _accessControls;
         etsTag = _etsTag;
         taggingCounter = 0;
@@ -170,7 +116,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address _tagger,
         address _sponsor,
         bool _ensure
-    ) public override payable nonReentrant {
+    ) external override payable nonReentrant {
         require(accessControls.isTargetTypeAndNotPaused(msg.sender), "Only target type");
         require(accessControls.isPublisher(_publisher), "Tag: The publisher must be whitelisted");
 
@@ -180,7 +126,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
         // Get targetId if the target exists, otherwise, create a new one.
         uint256 targetId = _getTargetId(
-            accessControls.targetTypeContractName(msg.sender),
+            accessControls.targetTypeContractName(msg.sender), // return "nft"
             _targetURI
         );
 
@@ -199,8 +145,6 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         }
 
         if (_ensure) {
-            // TODO: Only ensure if not previously ensured or user wants to re-ensure.
-            // TODO: put all of this into it's own function in ETS?
             etsEnsure.requestEnsureTarget(targetId);
         }
 
@@ -329,6 +273,10 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     /// External read
 
+    function isTargetEnsured(uint256 _targetId) external view returns (bool) {
+        return targets[_targetId].lastEnsured != 0;
+    }
+
     /// @notice Used to check how much ETH has been accrued by an address factoring in amount paid out.
     /// @param _account Address of the account being queried.
     /// @return _due Amount of WEI in ETH due to account.
@@ -398,8 +346,14 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address _tagger,
         address _sponsor
     ) private {
-        // Generate a new taggging record
-        taggingRecords[++taggingCounter] = TaggingRecord({
+        // Generate a new tagging record
+        // with a deterministic ID todo: move into its own appropriately named method i.e. compute
+
+        uint256 id = uint256(keccak256(
+                abi.encodePacked(_targetId, _tagger, _publisher, _sponsor)
+           ));
+
+        taggingRecords[id] = TaggingRecord({
             etsTagIds: _etsTagIds,
             targetId: _targetId,
             tagger: _tagger,
@@ -408,7 +362,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         });
 
         // Log that a target has been tagged.
-        emit TargetTagged(taggingCounter);
+        emit TargetTagged(id);
     }
 
     function _processAccrued(uint256 _etsTagId, address _publisher) internal {
