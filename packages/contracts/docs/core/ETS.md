@@ -181,10 +181,10 @@ function etsTag() external view returns (contract ETSTag)
 |---|---|---|
 | _0 | contract ETSTag | undefined |
 
-### getOrCreateTagId
+### getOrCreateTag
 
 ```solidity
-function getOrCreateTagId(string _tagString, address payable _publisher, address _tagger) external payable returns (uint256 etstagId)
+function getOrCreateTag(string _tagString, address payable _publisher, address _tagger) external payable returns (uint256 tagId)
 ```
 
 Fetch an etstagId from tag string.
@@ -203,7 +203,7 @@ Fetch an etstagId from tag string.
 
 | Name | Type | Description |
 |---|---|---|
-| etstagId | uint256 | Id of ETSTag token. |
+| tagId | uint256 | Id of ETSTag token. |
 
 ### getPermittedNftChainId
 
@@ -230,12 +230,41 @@ Check if a target chain is permitted for tagging.
 ### getTaggingRecord
 
 ```solidity
-function getTaggingRecord(uint256 _taggingId) external view returns (uint256[] _etsTagIds, uint256 _targetId, address _tagger, address _publisher, address _sponsor)
+function getTaggingRecord(uint256 _targetId, address _tagger, address _publisher, address _sponsor) external view returns (uint256[] etsTagIds, uint256 targetId, address tagger, address publisher, address sponsor)
+```
+
+Get tagging record from composite key parts
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _targetId | uint256 | undefined |
+| _tagger | address | undefined |
+| _publisher | address | undefined |
+| _sponsor | address | undefined |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| etsTagIds | uint256[] | undefined |
+| targetId | uint256 | undefined |
+| tagger | address | undefined |
+| publisher | address | undefined |
+| sponsor | address | undefined |
+
+### getTaggingRecordFromId
+
+```solidity
+function getTaggingRecordFromId(uint256 _taggingId) external view returns (uint256[] etsTagIds, uint256 targetId, address tagger, address publisher, address sponsor)
 ```
 
 
 
-*Retrieves a tagging record.*
+*Retrieves a tagging record from tagging ID*
 
 #### Parameters
 
@@ -247,11 +276,11 @@ function getTaggingRecord(uint256 _taggingId) external view returns (uint256[] _
 
 | Name | Type | Description |
 |---|---|---|
-| _etsTagIds | uint256[] | token ID of ETSTAG used. |
-| _targetId | uint256 | Id of tagging target. |
-| _tagger | address | Address that tagged the NFT asset. |
-| _publisher | address | Publisher through which the tag took place. |
-| _sponsor | address | Address that paid for the transaction fee |
+| etsTagIds | uint256[] | token ID of ETSTAG used. |
+| targetId | uint256 | Id of tagging target. |
+| tagger | address | Address that tagged the NFT asset. |
+| publisher | address | Publisher through which the tag took place. |
+| sponsor | address | Address that paid for the transaction fee |
 
 ### initialize
 

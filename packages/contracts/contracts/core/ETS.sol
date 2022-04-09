@@ -3,9 +3,7 @@
 pragma solidity 0.8.12;
 
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
@@ -105,7 +103,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address _sponsor,
         bool _ensure
     ) external override payable nonReentrant {
-        require(accessControls.isTargetTypeAndNotPaused(msg.sender), "Only target type");
+        require(accessControls.isTargetTypeAndNotPaused(_msgSender()), "Only target type");
         require(accessControls.isPublisher(_publisher), "Tag: The publisher must be whitelisted");
 
         uint256 tagCount = _tags.length;
@@ -113,15 +111,15 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         require(msg.value == (taggingFee * tagCount), "Tag: You must send the fee");
 
         // Get targetId if the target exists, otherwise, create a new one.
-        uint256 targetId = _getOrCreateTargetId(
-            accessControls.targetTypeContractName(msg.sender), // return "nft"
+        uint256 targetId = _getOrCreateTarget(
+            accessControls.targetTypeContractName(_msgSender()), // return "nft"
             _targetURI
         );
 
         // Get etsTagId if the tag exists, otherwise, mint a new one.
         uint256[] memory etsTagIds = new uint256[](tagCount);
         for (uint256 i; i < tagCount; ++i) {
-            uint256 etsTagId = getOrCreateTagId(
+            uint256 etsTagId = getOrCreateTag(
                 _tags[i],
                 _publisher,
                 _tagger
@@ -147,13 +145,13 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @param _tagString tag string for ETSTag we are looking up.
     /// @param _publisher publisher address, to attribute new ETSTag to if one s minted
     /// @param _tagger tagger address, to attribute new ETSTag to if one s minted
-    /// @return etstagId Id of ETSTag token.
-    function getOrCreateTagId(
+    /// @return tagId Id of ETSTag token.
+    function getOrCreateTag(
         string calldata _tagString,
         address payable _publisher,
-        address _tagger
-    ) public payable returns (uint256 etstagId) {
-        uint256 _etstagId = etsTag.getTagId(_tagString);
+        address _tagger // TODO: look into tagger attribution + publisher attribution
+    ) public payable returns (uint256 tagId) {
+        uint256 _etstagId = etsTag.computeTagId(_tagString);
         if (_etstagId == 0) {
             _etstagId = etsTag.mint(_tagString, _publisher, _tagger);
         }
@@ -164,7 +162,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// TODO: Perhaps rename this with a better name, because it's
     /// also creating a target record if it doesn't exist?
     // Or perthaps breakout another function called create target?
-    function _getOrCreateTargetId(string memory _targetType, string memory _targetURI) private returns (uint256 targetId) {
+    function _getOrCreateTarget(string memory _targetType, string memory _targetURI) private returns (uint256 targetId) {
         uint256 _targetId = computeTargetId(_targetType, _targetURI);
         if (targets[_targetId].created != 0) {
             return _targetId;
@@ -173,7 +171,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     }
 
     /// TODO: Finish documentation.
-    function _createTarget(string memory _targetType, string memory _targetURI) private returns (uint256 targetId){
+    function _createTarget(string memory _targetType, string memory _targetURI) private returns (uint256 targetId) {
         uint256 _targetId = computeTargetId(_targetType, _targetURI);
         targets[_targetId] = Target({
             targetType: _targetType,
@@ -198,7 +196,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         uint _lastEnsured,
         uint _status,
         string calldata _ipfsHash
-    ) external returns(bool success) {
+    ) external returns (bool success) {
         targets[_targetId].targetType = _targetType;
         targets[_targetId].targetURI = _targetURI;
         targets[_targetId].lastEnsured = _lastEnsured;
@@ -281,28 +279,63 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @param _account Address of the account being queried.
     /// @return _due Amount of WEI in ETH due to account.
     function totalDue(address _account) external view returns (uint256 _due) {
-        return accrued[_account]- paid[_account];
+        return accrued[_account] - paid[_account];
     }
 
-    /// @dev Retrieves a tagging record.
+    /// @dev Retrieves a tagging record from tagging ID
     /// @param _taggingId ID of the tagging record.
-    /// @return _etsTagIds token ID of ETSTAG used.
-    /// @return _targetId Id of tagging target.
-    /// @return _tagger Address that tagged the NFT asset.
-    /// @return _publisher Publisher through which the tag took place.
-    /// @return _sponsor Address that paid for the transaction fee
-    function getTaggingRecord(uint256 _taggingId)
+    /// @return etsTagIds token ID of ETSTAG used.
+    /// @return targetId Id of tagging target.
+    /// @return tagger Address that tagged the NFT asset.
+    /// @return publisher Publisher through which the tag took place.
+    /// @return sponsor Address that paid for the transaction fee
+    function getTaggingRecordFromId(uint256 _taggingId)
         external
         view
         returns (
-          uint256[] memory _etsTagIds,
-          uint256 _targetId,
-          address _tagger,
-          address _publisher,
-          address _sponsor
+          uint256[] memory etsTagIds,
+          uint256 targetId,
+          address tagger,
+          address publisher,
+          address sponsor
         )
     {
         TaggingRecord storage taggingRecord = taggingRecords[_taggingId];
+        return (
+            taggingRecord.etsTagIds,
+            taggingRecord.targetId,
+            taggingRecord.tagger,
+            taggingRecord.publisher,
+            taggingRecord.sponsor
+        );
+    }
+
+    /// @notice Get tagging record from composite key parts
+    function getTaggingRecord(
+        uint256 _targetId,
+        address _tagger,
+        address _publisher,
+        address _sponsor
+    )
+        external
+        view
+        returns (
+            uint256[] memory etsTagIds,
+            uint256 targetId,
+            address tagger,
+            address publisher,
+            address sponsor
+        )
+    {
+        uint256 taggingId = computeTaggingRecordId(
+            _targetId,
+            _tagger,
+            _publisher,
+            _sponsor
+        );
+
+        TaggingRecord storage taggingRecord = taggingRecords[taggingId];
+
         return (
             taggingRecord.etsTagIds,
             taggingRecord.targetId,
@@ -317,14 +350,14 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @return true for enabled, false for disabled.
     function getPermittedNftChainId(uint256 _nftChainId) external view returns (bool) {
         return permittedNftChainIds[_nftChainId];
-    }
+    }// todo - does this need to be in ETS core?
 
     /// @notice check for existence of target.
     /// @param targetId token ID.
     /// @return true if exists.
     function targetExists(uint256 targetId) external view returns (bool) {
         return targets[targetId].created > 0 ? true : false;
-    }
+    } // todo - what's the equivalent
 
     function version() external pure returns (string memory) {
         return VERSION;

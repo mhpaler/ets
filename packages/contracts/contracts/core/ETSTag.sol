@@ -45,9 +45,6 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
     /// @notice Map of ETSTAG id to ETSTAG record.
     mapping(uint256 => Tag) public tokenIdToTag;
 
-    /// @notice lookup of (lowercase) tag string to ETSTAG Id.
-    mapping(string => uint256) public tagToTokenId;
-
     /// @notice Last time a ETSTAG was transfered.
     mapping(uint256 => uint256) public tokenIdToLastTransferTime;
 
@@ -116,7 +113,8 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
         return super.supportsInterface(interfaceId);
     }
 
-    function computeTagId(string memory _machineName) public pure returns (uint256) {
+    function computeTagId(string memory _tag) public pure returns (uint256) {
+        string memory _machineName = __lower(_tag);
         return uint256(keccak256(bytes(_machineName)));
     }
 
@@ -248,10 +246,6 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
 
     /// external/public view functions
 
-    function getTagId(string calldata tag) public view returns (uint256 etstagId) {
-        return (tagToTokenId[__lower(tag)]);
-    }
-
     /// @notice Existence check on a ETSTAG token.
     /// @param tokenId token ID.
     /// @return true if exists.
@@ -307,10 +301,8 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
     /// @dev A series of assertions are performed reverting the transaction for any validation violations.
     /// @param _tag Proposed tag string.
     function _assertTagIsValid(string memory _tag) private view returns (uint256 _tagId) {
-        string memory tagKey = __lower(_tag);
-
         // generate token ID from machine name
-        uint256 tagId = computeTagId(tagKey);
+        uint256 tagId = computeTagId(_tag);
 
         require(!_exists(tagId), "ERC721: token already minted");
 

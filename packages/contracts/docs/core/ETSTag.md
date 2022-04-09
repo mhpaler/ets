@@ -136,7 +136,7 @@ Burns a given tokenId.
 ### computeTagId
 
 ```solidity
-function computeTagId(string _machineName) external pure returns (uint256)
+function computeTagId(string _tag) external pure returns (uint256)
 ```
 
 
@@ -147,7 +147,7 @@ function computeTagId(string _machineName) external pure returns (uint256)
 
 | Name | Type | Description |
 |---|---|---|
-| _machineName | string | undefined |
+| _tag | string | undefined |
 
 #### Returns
 
@@ -243,28 +243,6 @@ Returns the commission addresses related to a token.
 |---|---|---|
 | _platform | address payable | Platform commission address. |
 | _owner | address payable | Address of the owner of the ETSTAG. |
-
-### getTagId
-
-```solidity
-function getTagId(string tag) external view returns (uint256 etstagId)
-```
-
-external/public view functions
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| tag | string | undefined |
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| etstagId | uint256 | undefined |
 
 ### initialize
 
@@ -647,28 +625,6 @@ minimum ETSTAG string length.
 
 
 
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | uint256 | undefined |
-
-### tagToTokenId
-
-```solidity
-function tagToTokenId(string) external view returns (uint256)
-```
-
-lookup of (lowercase) tag string to ETSTAG Id.
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | string | undefined |
 
 #### Returns
 
