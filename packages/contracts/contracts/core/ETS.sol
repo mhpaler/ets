@@ -50,9 +50,6 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @dev Map for holding lifetime amount drawn down from accrued by participants.
     mapping(address => uint256) public paid;
 
-    /// @dev Map for holding permitted tagging target chain ids.
-    mapping(uint256 => bool) public permittedNftChainIds;
-
     /// @dev Map of tagging id to tagging record.
     mapping(uint256 => TaggingRecord) public taggingRecords;
 
@@ -187,7 +184,6 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
 
     /// @notice Updates a target with new values.
-    /// @dev TODO: gate this function to be callable only by platform?
     /// @return success boolean
     function updateTarget(
         uint256 _targetId,
@@ -197,11 +193,15 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         uint _status,
         string calldata _ipfsHash
     ) external returns (bool success) {
+        // TODO - check whether anyone else needs access to this method
+        require(msg.sender == address(etsEnsure), "Only ETS ensure");
+
         targets[_targetId].targetType = _targetType;
         targets[_targetId].targetURI = _targetURI;
         targets[_targetId].lastEnsured = _lastEnsured;
         targets[_targetId].status = _status;
         targets[_targetId].ipfsHash = _ipfsHash;
+
         emit TargetUpdated(_targetId);
         return true;
     }
@@ -222,7 +222,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     /// @notice Sets the fee required to tag an NFT asset.
     /// @param _fee Value of the fee in WEI.
-    function setTaggingFee(uint256 _fee) external onlyAdmin {
+    function updateTaggingFee(uint256 _fee) external onlyAdmin {
         uint previousFee = taggingFee;
         taggingFee = _fee;
         emit TaggingFeeSet(previousFee, taggingFee);
@@ -259,14 +259,6 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         remainingPercentage = modulo - platformPercentage - publisherPercentage;
 
         emit PercentagesSet(platformPercentage, publisherPercentage, remainingPercentage);
-    }
-
-    /// @notice Admin functionality for enabling/disabling target chains.
-    /// @param _nftChainId EVM compatible chain id.
-    /// @param _setting Boolean, set true for enabled, false for disabled.
-    function setPermittedNftChainId(uint256 _nftChainId, bool _setting) external onlyAdmin {
-        permittedNftChainIds[_nftChainId] = _setting;
-        emit PermittedNftChainIdSet(_nftChainId, _setting);
     }
 
     /// External read
@@ -345,19 +337,17 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         );
     }
 
-    /// @notice Check if a target chain is permitted for tagging.
-    /// @param _nftChainId EVM compatible chain id.
-    /// @return true for enabled, false for disabled.
-    function getPermittedNftChainId(uint256 _nftChainId) external view returns (bool) {
-        return permittedNftChainIds[_nftChainId];
-    }// todo - does this need to be in ETS core?
-
     /// @notice check for existence of target.
-    /// @param targetId token ID.
+    /// @param _targetId token ID.
     /// @return true if exists.
-    function targetExists(uint256 targetId) external view returns (bool) {
-        return targets[targetId].created > 0 ? true : false;
+    function targetExists(uint256 _targetId) external view returns (bool) {
+        return targets[_targetId].created > 0 ? true : false;
     } // todo - what's the equivalent
+
+    function targetExists(string memory _targetType, string memory _targetURI) external view returns (bool) {
+        uint256 targetId = computeTargetId(_targetType, _targetURI);
+        return targets[targetId].created > 0 ? true : false;
+    }
 
     function version() external pure returns (string memory) {
         return VERSION;
@@ -381,14 +371,14 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     ) private {
         // Generate a new tagging record
         // with a deterministic ID
-        uint256 id = computeTaggingRecordId(
+        uint256 taggingRecordId = computeTaggingRecordId(
             _targetId,
             _tagger,
             _publisher,
             _sponsor
         );
 
-        taggingRecords[id] = TaggingRecord({
+        taggingRecords[taggingRecordId] = TaggingRecord({
             etsTagIds: _etsTagIds,
             targetId: _targetId,
             tagger: _tagger,
@@ -397,7 +387,25 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         });
 
         // Log that a target has been tagged.
-        emit TargetTagged(id);
+        emit TargetTagged(taggingRecordId);
+    }
+
+    // TODO - I am assuming here you need to pay some fee to update?
+    // TODO - otherwise, you could pay 1 tag and then 'update' to include 3 more tags circumventing the payment of multiple tags
+    // TODO - one solution could involve comparing array lengths and only charge when new array length is greater than old so deletions are free (after GAS costs) but additions cost $$
+    function updateTaggingRecord(
+        uint256 _taggingRecordId,
+        uint256[] calldata _tagIds
+    ) external {
+        TaggingRecord storage taggingRecord = taggingRecords[_taggingRecordId];
+        address sender = _msgSender();
+
+        require(
+            sender == taggingRecord.tagger || sender == taggingRecord.sponsor,
+            "Only tagger or sponsor"
+        );
+
+        taggingRecord.etsTagIds = _tagIds;
     }
 
     /// @notice Deterministically compute the tagging record identifier

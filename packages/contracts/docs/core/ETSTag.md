@@ -155,28 +155,6 @@ function computeTagId(string _tag) external pure returns (uint256)
 |---|---|---|
 | _0 | uint256 | undefined |
 
-### exists
-
-```solidity
-function exists(uint256 tokenId) external view returns (bool)
-```
-
-Existence check on a ETSTAG token.
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| tokenId | uint256 | token ID. |
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | bool | true if exists. |
-
 ### getApproved
 
 ```solidity
@@ -495,70 +473,6 @@ function setApprovalForAll(address operator, bool approved) external nonpayable
 | operator | address | undefined |
 | approved | bool | undefined |
 
-### setBaseURI
-
-```solidity
-function setBaseURI(string newBaseURI) external nonpayable
-```
-
-
-
-*Set base metadata api url.*
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| newBaseURI | string | base url |
-
-### setOwnershipTermLength
-
-```solidity
-function setOwnershipTermLength(uint256 _ownershipTermLength) external nonpayable
-```
-
-Admin method for updating the ownership term length for all ETSTAG tokens.
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _ownershipTermLength | uint256 | New length in unix epoch seconds. |
-
-### setPlatform
-
-```solidity
-function setPlatform(address payable _platform) external nonpayable
-```
-
-Admin method for updating the address that receives the commission on behalf of the platform.
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _platform | address payable | Address that receives minted NFTs. |
-
-### setTagMaxStringLength
-
-```solidity
-function setTagMaxStringLength(uint256 _tagMaxStringLength) external nonpayable
-```
-
-Admin method for updating the max string length of an ETSTAG.
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _tagMaxStringLength | uint256 | max length. |
-
 ### supportsInterface
 
 ```solidity
@@ -597,6 +511,50 @@ function symbol() external view returns (string)
 | Name | Type | Description |
 |---|---|---|
 | _0 | string | undefined |
+
+### tagExists
+
+```solidity
+function tagExists(string _tag) external view returns (bool)
+```
+
+Existence check by string tag primary key
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _tag | string | undefined |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | bool | undefined |
+
+### tagExists
+
+```solidity
+function tagExists(uint256 _tokenId) external view returns (bool)
+```
+
+Existence check on a ETSTAG token.
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _tokenId | uint256 | token ID. |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | bool | true if exists. |
 
 ### tagMaxStringLength
 
@@ -761,6 +719,70 @@ Admin functionality for updating the access controls.
 | Name | Type | Description |
 |---|---|---|
 | _accessControls | contract ETSAccessControls | Address of the access controls contract. |
+
+### updateBaseURI
+
+```solidity
+function updateBaseURI(string newBaseURI) external nonpayable
+```
+
+
+
+*Set base metadata api url.*
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| newBaseURI | string | base url |
+
+### updateOwnershipTermLength
+
+```solidity
+function updateOwnershipTermLength(uint256 _ownershipTermLength) external nonpayable
+```
+
+Admin method for updating the ownership term length for all ETSTAG tokens.
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _ownershipTermLength | uint256 | New length in unix epoch seconds. |
+
+### updatePlatform
+
+```solidity
+function updatePlatform(address payable _platform) external nonpayable
+```
+
+Admin method for updating the address that receives the commission on behalf of the platform.
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _platform | address payable | Address that receives minted NFTs. |
+
+### updateTagMaxStringLength
+
+```solidity
+function updateTagMaxStringLength(uint256 _tagMaxStringLength) external nonpayable
+```
+
+Admin method for updating the max string length of an ETSTAG.
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _tagMaxStringLength | uint256 | max length. |
 
 ### upgradeTo
 

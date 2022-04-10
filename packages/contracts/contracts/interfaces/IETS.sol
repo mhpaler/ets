@@ -92,11 +92,6 @@ interface IETS {
         uint256 remainingPercentage
     );
 
-    event PermittedNftChainIdSet(
-        uint256 nftChainId,
-        bool setting
-    );
-
     event TargetTypeSet(
         string typeName,
         bool setting

@@ -49,8 +49,6 @@ contract ETSEnsure is Initializable, ContextUpgradeable, UUPSUpgradeable {
         ets = _ets;
     }
 
-
-
     function _authorizeUpgrade(address) internal override onlyAdmin {}
 
     /// @notice Ensure a target Id using the off chain ETS Ensure Target API.
@@ -74,7 +72,7 @@ contract ETSEnsure is Initializable, ContextUpgradeable, UUPSUpgradeable {
     /// @param _targetId Unique id of target being ensured.
     /// @param _ipfsHash IPFS hash containing metadata related to the unique target.
     /// @param _status HTTP response code from ETS Ensure Target API.
-    function fulfillEnsureTarget(uint256 _targetId, string calldata _ipfsHash, uint _status) public {
+    function fulfillEnsureTarget(uint256 _targetId, string calldata _ipfsHash, uint256 _status) public {
         // Load up current values for this target.
         // Note: not naming unnecessary local variable avoids compiler warnings.
         (string memory targetType, string memory targetURI,,,,) = ets.targets(_targetId);

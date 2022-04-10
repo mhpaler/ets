@@ -205,28 +205,6 @@ Fetch an etstagId from tag string.
 |---|---|---|
 | tagId | uint256 | Id of ETSTag token. |
 
-### getPermittedNftChainId
-
-```solidity
-function getPermittedNftChainId(uint256 _nftChainId) external view returns (bool)
-```
-
-Check if a target chain is permitted for tagging.
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _nftChainId | uint256 | EVM compatible chain id. |
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | bool | true for enabled, false for disabled. |
-
 ### getTaggingRecord
 
 ```solidity
@@ -360,28 +338,6 @@ function paid(address) external view returns (uint256)
 |---|---|---|
 | _0 | uint256 | undefined |
 
-### permittedNftChainIds
-
-```solidity
-function permittedNftChainIds(uint256) external view returns (bool)
-```
-
-
-
-*Map for holding permitted tagging target chain ids.*
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | uint256 | undefined |
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | bool | undefined |
-
 ### platformPercentage
 
 ```solidity
@@ -432,23 +388,6 @@ function remainingPercentage() external view returns (uint256)
 | Name | Type | Description |
 |---|---|---|
 | _0 | uint256 | undefined |
-
-### setPermittedNftChainId
-
-```solidity
-function setPermittedNftChainId(uint256 _nftChainId, bool _setting) external nonpayable
-```
-
-Admin functionality for enabling/disabling target chains.
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _nftChainId | uint256 | EVM compatible chain id. |
-| _setting | bool | Boolean, set true for enabled, false for disabled. |
 
 ### setTaggingFee
 
@@ -549,7 +488,7 @@ function taggingRecords(uint256) external view returns (uint256 targetId, addres
 ### targetExists
 
 ```solidity
-function targetExists(uint256 targetId) external view returns (bool)
+function targetExists(uint256 _targetId) external view returns (bool)
 ```
 
 check for existence of target.
@@ -560,13 +499,36 @@ check for existence of target.
 
 | Name | Type | Description |
 |---|---|---|
-| targetId | uint256 | token ID. |
+| _targetId | uint256 | token ID. |
 
 #### Returns
 
 | Name | Type | Description |
 |---|---|---|
 | _0 | bool | true if exists. |
+
+### targetExists
+
+```solidity
+function targetExists(string _targetType, string _targetURI) external view returns (bool)
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _targetType | string | undefined |
+| _targetURI | string | undefined |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | bool | undefined |
 
 ### targets
 
@@ -666,6 +628,23 @@ Admin functionality for updating the percentages.
 | _platformPercentage | uint256 | percentage for platform. |
 | _publisherPercentage | uint256 | percentage for publisher. |
 
+### updateTaggingRecord
+
+```solidity
+function updateTaggingRecord(uint256 _taggingRecordId, uint256[] _tagIds) external nonpayable
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _taggingRecordId | uint256 | undefined |
+| _tagIds | uint256[] | undefined |
+
 ### updateTarget
 
 ```solidity
@@ -674,7 +653,7 @@ function updateTarget(uint256 _targetId, string _targetType, string _targetURI, 
 
 Updates a target with new values.
 
-*TODO: gate this function to be callable only by platform?*
+
 
 #### Parameters
 
@@ -848,23 +827,6 @@ event PercentagesSet(uint256 platformPercentage, uint256 publisherPercentage, ui
 | platformPercentage  | uint256 | undefined |
 | publisherPercentage  | uint256 | undefined |
 | remainingPercentage  | uint256 | undefined |
-
-### PermittedNftChainIdSet
-
-```solidity
-event PermittedNftChainIdSet(uint256 nftChainId, bool setting)
-```
-
-
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| nftChainId  | uint256 | undefined |
-| setting  | bool | undefined |
 
 ### RequestEnsureTarget
 

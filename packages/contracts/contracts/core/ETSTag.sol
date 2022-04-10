@@ -206,14 +206,14 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
 
     /// @dev Set base metadata api url.
     /// @param newBaseURI base url
-    function setBaseURI(string calldata newBaseURI) public onlyAdmin {
+    function updateBaseURI(string calldata newBaseURI) public onlyAdmin {
         baseURI = newBaseURI;
         emit NewBaseURI(baseURI);
     }
 
     /// @notice Admin method for updating the max string length of an ETSTAG.
     /// @param _tagMaxStringLength max length.
-    function setTagMaxStringLength(uint256 _tagMaxStringLength) public onlyAdmin {
+    function updateTagMaxStringLength(uint256 _tagMaxStringLength) public onlyAdmin {
         uint256 prevTagMaxStringLength = tagMaxStringLength;
         tagMaxStringLength = _tagMaxStringLength;
         emit TagMaxStringLengthUpdated(prevTagMaxStringLength, _tagMaxStringLength);
@@ -221,7 +221,7 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
 
     /// @notice Admin method for updating the ownership term length for all ETSTAG tokens.
     /// @param _ownershipTermLength New length in unix epoch seconds.
-    function setOwnershipTermLength(uint256 _ownershipTermLength) public onlyAdmin {
+    function updateOwnershipTermLength(uint256 _ownershipTermLength) public onlyAdmin {
         uint256 prevOwnershipTermLength = ownershipTermLength;
         ownershipTermLength = _ownershipTermLength;
         emit OwnershipTermLengthUpdated(prevOwnershipTermLength, _ownershipTermLength);
@@ -229,7 +229,7 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
 
     /// @notice Admin method for updating the address that receives the commission on behalf of the platform.
     /// @param _platform Address that receives minted NFTs.
-    function setPlatform(address payable _platform) external onlyAdmin {
+    function updatePlatform(address payable _platform) external onlyAdmin {
         address prevPlatform = platform;
         platform = _platform;
         emit PlatformSet(prevPlatform, _platform);
@@ -247,10 +247,15 @@ contract ETSTag is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpg
     /// external/public view functions
 
     /// @notice Existence check on a ETSTAG token.
-    /// @param tokenId token ID.
+    /// @param _tokenId token ID.
     /// @return true if exists.
-    function exists(uint256 tokenId) external view returns (bool) {
-        return _exists(tokenId);
+    function tagExists(uint256 _tokenId) external view returns (bool) {
+        return _exists(_tokenId);
+    }
+
+    /// @notice Existence check by string tag primary key
+    function tagExists(string calldata _tag) external view returns (bool) {
+        return _exists(computeTagId(_tag));
     }
 
     /// @notice Returns the commission addresses related to a token.

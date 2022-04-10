@@ -3,7 +3,6 @@
   "event ETSEnsureUpdated(address,address)",
   "event FundsWithdrawn(address indexed,uint256)",
   "event PercentagesSet(uint256,uint256,uint256)",
-  "event PermittedNftChainIdSet(uint256,bool)",
   "event RequestEnsureTarget(uint256)",
   "event TaggingFeeSet(uint256,uint256)",
   "event TargetCreated(uint256)",
