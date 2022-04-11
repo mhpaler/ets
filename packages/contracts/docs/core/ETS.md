@@ -389,22 +389,6 @@ function remainingPercentage() external view returns (uint256)
 |---|---|---|
 | _0 | uint256 | undefined |
 
-### setTaggingFee
-
-```solidity
-function setTaggingFee(uint256 _fee) external nonpayable
-```
-
-Sets the fee required to tag an NFT asset.
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _fee | uint256 | Value of the fee in WEI. |
-
 ### tagTarget
 
 ```solidity
@@ -628,10 +612,26 @@ Admin functionality for updating the percentages.
 | _platformPercentage | uint256 | percentage for platform. |
 | _publisherPercentage | uint256 | percentage for publisher. |
 
+### updateTaggingFee
+
+```solidity
+function updateTaggingFee(uint256 _fee) external nonpayable
+```
+
+Sets the fee required to tag an NFT asset.
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _fee | uint256 | Value of the fee in WEI. |
+
 ### updateTaggingRecord
 
 ```solidity
-function updateTaggingRecord(uint256 _taggingRecordId, uint256[] _tagIds) external nonpayable
+function updateTaggingRecord(uint256 _taggingRecordId, uint256[] _tagIds) external payable
 ```
 
 

@@ -390,20 +390,39 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         emit TargetTagged(taggingRecordId);
     }
 
-    // TODO - I am assuming here you need to pay some fee to update?
-    // TODO - otherwise, you could pay 1 tag and then 'update' to include 3 more tags circumventing the payment of multiple tags
-    // TODO - one solution could involve comparing array lengths and only charge when new array length is greater than old so deletions are free (after GAS costs) but additions cost $$
+    // TODO - natspec
     function updateTaggingRecord(
         uint256 _taggingRecordId,
         uint256[] calldata _tagIds
-    ) external {
+    ) external payable {
+        // todo - I think this makes sense but should a user be allowed to completely remove all tags, does that mean deleting the record completely?
+        require(_tagIds.length > 0, "Empty array");
+
         TaggingRecord storage taggingRecord = taggingRecords[_taggingRecordId];
         address sender = _msgSender();
+
+        uint256 currentNumberOfTags = taggingRecord.etsTagIds.length;
+        if (_tagIds.length > currentNumberOfTags) {
+            uint256 numberOfAdditionalTags = _tagIds.length - currentNumberOfTags;
+            require(
+                msg.value == numberOfAdditionalTags * taggingFee,
+                "Additional tags require fees"
+            );
+        }
 
         require(
             sender == taggingRecord.tagger || sender == taggingRecord.sponsor,
             "Only tagger or sponsor"
         );
+
+        unchecked {
+            for (uint256 i; i < _tagIds.length; ++i) {
+                require(
+                    etsTag.tagExists(_tagIds[i]),
+                    "Invalid tag ID"
+                );
+            }
+        }
 
         taggingRecord.etsTagIds = _tagIds;
     }
