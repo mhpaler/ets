@@ -390,20 +390,20 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         emit TargetTagged(taggingRecordId);
     }
 
-    // TODO - natspec
+    /// @notice Allow either a tagger or a sponsor to update the tags for a tagging record pointing to a target
     function updateTaggingRecord(
         uint256 _taggingRecordId,
-        uint256[] calldata _tagIds // array
+        string[] calldata _tags
     ) external payable {
         // todo - I think this makes sense but should a user be allowed to completely remove all tags, does that mean deleting the record completely?
-        require(_tagIds.length > 0, "Empty array");
+        require(_tags.length > 0, "Empty array");
 
         TaggingRecord storage taggingRecord = taggingRecords[_taggingRecordId];
         address sender = _msgSender();
 
         uint256 currentNumberOfTags = taggingRecord.etsTagIds.length;
-        if (_tagIds.length > currentNumberOfTags) {
-            uint256 numberOfAdditionalTags = _tagIds.length - currentNumberOfTags;
+        if (_tags.length > currentNumberOfTags) {
+            uint256 numberOfAdditionalTags = _tags.length - currentNumberOfTags;
             require(
                 msg.value == numberOfAdditionalTags * taggingFee,
                 "Additional tags require fees"
@@ -416,15 +416,20 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         );
 
         unchecked {
-            for (uint256 i; i < _tagIds.length; ++i) {
-                require(
-                    etsTag.tagExists(_tagIds[i]),
-                    "Invalid tag ID"
+            uint256 tagCount = _tags.length;
+            uint256[] memory etsTagIds = new uint256[](tagCount);
+            for (uint256 i; i < tagCount; ++i) {
+                uint256 etsTagId = getOrCreateTag(
+                    _tags[i],
+                    payable(taggingRecord.publisher),
+                    taggingRecord.tagger
                 );
-            }
-        }
 
-        taggingRecord.etsTagIds = _tagIds;
+                etsTagIds[i] = etsTagId;
+            }
+
+            taggingRecord.etsTagIds = etsTagIds;
+        }
     }
 
     /// @notice Deterministically compute the tagging record identifier

@@ -60,7 +60,7 @@ contract ETSEnsure is Initializable, ContextUpgradeable, UUPSUpgradeable {
     /// via fulfillEnsureTarget()
     /// @param _targetId Unique id of target to be ensured.
     function requestEnsureTarget(uint256 _targetId) public {
-        require(ets.targetExists(_targetId) == true, "Invalid target");
+        require(ets.targetExistsFromId(_targetId) == true, "Invalid target");
         require(!ets.isTargetEnsured(_targetId), "Already ensured");
         emit RequestEnsureTarget(_targetId);
     }

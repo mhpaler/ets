@@ -472,28 +472,6 @@ function taggingRecords(uint256) external view returns (uint256 targetId, addres
 ### targetExists
 
 ```solidity
-function targetExists(uint256 _targetId) external view returns (bool)
-```
-
-check for existence of target.
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _targetId | uint256 | token ID. |
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | bool | true if exists. |
-
-### targetExists
-
-```solidity
 function targetExists(string _targetType, string _targetURI) external view returns (bool)
 ```
 
@@ -513,6 +491,28 @@ function targetExists(string _targetType, string _targetURI) external view retur
 | Name | Type | Description |
 |---|---|---|
 | _0 | bool | undefined |
+
+### targetExistsFromId
+
+```solidity
+function targetExistsFromId(uint256 _targetId) external view returns (bool)
+```
+
+check for existence of target.
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _targetId | uint256 | token ID. |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | bool | true if exists. |
 
 ### targets
 
@@ -631,10 +631,10 @@ Sets the fee required to tag an NFT asset.
 ### updateTaggingRecord
 
 ```solidity
-function updateTaggingRecord(uint256 _taggingRecordId, uint256[] _tagIds) external payable
+function updateTaggingRecord(uint256 _taggingRecordId, string[] _tags) external payable
 ```
 
-
+Allow either a tagger or a sponsor to update the tags for a tagging record pointing to a target
 
 
 
@@ -643,7 +643,7 @@ function updateTaggingRecord(uint256 _taggingRecordId, uint256[] _tagIds) extern
 | Name | Type | Description |
 |---|---|---|
 | _taggingRecordId | uint256 | undefined |
-| _tagIds | uint256[] | undefined |
+| _tags | string[] | undefined |
 
 ### updateTarget
 
