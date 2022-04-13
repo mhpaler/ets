@@ -340,7 +340,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @notice check for existence of target.
     /// @param _targetId token ID.
     /// @return true if exists.
-    function targetExists(uint256 _targetId) external view returns (bool) {
+    function targetExistsFromId(uint256 _targetId) external view returns (bool) {
         return targets[_targetId].created > 0 ? true : false;
     } // todo - what's the equivalent
 
@@ -393,7 +393,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     // TODO - natspec
     function updateTaggingRecord(
         uint256 _taggingRecordId,
-        uint256[] calldata _tagIds
+        uint256[] calldata _tagIds // array
     ) external payable {
         // todo - I think this makes sense but should a user be allowed to completely remove all tags, does that mean deleting the record completely?
         require(_tagIds.length > 0, "Empty array");
