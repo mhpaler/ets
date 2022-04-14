@@ -100,7 +100,10 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address _sponsor,
         bool _ensure
     ) external override payable nonReentrant {
-        require(accessControls.isTargetTypeAndNotPaused(_msgSender()), "Only target type");
+        require(
+            accessControls.isTargetTypeAndNotPaused(_msgSender()) || accessControls.isAdmin(_msgSender()),
+            "Only target type"
+        );
         require(accessControls.isPublisher(_publisher), "Tag: The publisher must be whitelisted");
 
         uint256 tagCount = _tags.length;
