@@ -1,27 +1,28 @@
 {
-  "name": "hashtag-subgraph",
-  "version": "0.1.0",
-  "license": "UNLICENSED",
+  "name": "@ets/subgraph",
+  "version": "1.0.0",
   "scripts": {
-    "precodegen:local": "node scripts/generate-yaml.js --deployment localhost",
-    "precodegen:mumbai": "node scripts/generate-yaml.js --deployment mumbai",
-    "codegen:local": "rimraf src/generated && yarn graph codegen --output-dir src/generated",
-    "build": "graph build",
-    "create:local": "graph create --node http://localhost:8020/ hashtag-protocol/hashtag-local",
-    "remove:local": "graph remove --node http://localhost:8020/ hashtag-protocol/hashtag-local",
-    "deploy:local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 hashtag-protocol/hashtag-local --version-label dev",
-    "deploy:mumbai": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ hashtag-protocol/hashtag-polygon-mumbai",
-    "deploy:mumbai-northport": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ hashtag-protocol/hashtag-mumbai-northport",
-    "redeploy:local": "yarn codegen:local && yarn deploy:local"
+    "clean-graph-node": "rm -rf graph-node/data/",
+    "prerun-graph-node": "yarn clean-graph-node",
+    "run-graph-node": "cd graph-node && docker-compose up",
+    "remove-graph-node": "cd graph-node && docker-compose down",
+    "prepare-local": "node scripts/generate-yaml.js --deployment localhost",
+    "prepare-mumbai": "node scripts/generate-yaml.js --deployment mumbai",
+    "codegen": "graph codegen --output-dir src/generated",
+    "graph-build": "graph build",
+    "create-local": "graph create --node http://localhost:8020/ ets/ets-local",
+    "remove-local": "graph remove --node http://localhost:8020/ ets/ets-local",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 ets/ets-local --version-label dev",
+    "deploy-mumbai": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ hashtag-protocol/hashtag-polygon-mumbai",
+    "ship-local": "yarn prepare-local && yarn codegen && yarn deploy-local",
+    "ship-mumbai": "yarn prepare-mumbai && yarn codegen && yarn deploy-mumbai"
   },
   "dependencies": {
-    "matchstick-as": "^0.2.0"
+    "@graphprotocol/graph-cli": "^0.22.1",
+    "@graphprotocol/graph-ts": "^0.22.1"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.21.1",
-    "@graphprotocol/graph-ts": "^0.20.1",
     "fs-extra": "^10.0.0",
-    "handlebars": "^4.7.7",
-    "rimraf": "^3.0.2"
+    "handlebars": "^4.7.7"
   }
 }

@@ -9,7 +9,7 @@ module.exports = async ({
     const ETSAccessControls = await deployments.get("ETSAccessControls");
     const ETS = await deployments.get("ETS");
     const ETSEnsure = await deployments.get("ETSEnsure");
-    const MockNftTagger = await deployments.get("MockNftTagger");
+    const MockNftTagger = await deployments.get("EVMNFT");
 
     const etsAccessControls = await ethers.getContractAt("ETSAccessControls", ETSAccessControls.address);
     const ets = await ethers.getContractAt("ETS", ETS.address);
