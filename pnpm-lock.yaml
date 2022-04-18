@@ -70,7 +70,6 @@ importers:
       postcss-import: ^14.0.2
       react: 17.0.2
       react-dom: 17.0.2
-      react-super-responsive-table: ^5.2.0
       react-timeago: ^6.2.1
       swr: ^1.1.2-beta.0
       tailwindcss: ^3.0.6
@@ -90,7 +89,6 @@ importers:
       nprogress: 0.2.0
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
-      react-super-responsive-table: 5.2.0_react-dom@17.0.2+react@17.0.2
       react-timeago: 6.2.1_react@17.0.2
       swr: 1.1.2_react@17.0.2
     devDependencies:
@@ -13385,17 +13383,6 @@ packages:
   /react-refresh/0.8.3:
     resolution: {integrity: sha512-X8jZHc7nCMjaCqoU+V2I0cOhNW+QMBwSUkeXnTi8IPe6zaRWfn60ZzvFDZqWPfmSJfjub7dDW1SP0jaHWLu/hg==}
     engines: {node: '>=0.10.0'}
-    dev: false
-
-  /react-super-responsive-table/5.2.0_react-dom@17.0.2+react@17.0.2:
-    resolution: {integrity: sha512-gC6QX/+HNt7d5QDvhp83Q8AV8/44mbeRo4Z4UQ9KfBbY9dyHkQZUXRbaWPFp6CHmfSyVlJaRseTHzwMKmJjRKA==}
-    peerDependencies:
-      prop-types: '>= 15'
-      react: ^16.9.0 || ^17.0.0
-      react-dom: ^16.9.0 || ^17.0.0
-    dependencies:
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
     dev: false
 
   /react-syntax-highlighter/15.5.0_react@17.0.2:
