@@ -6,7 +6,7 @@ import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/securit
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import { StringsUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
-import { TargetTypeSignatureModule } from "../signature/TargetTypeSignatureModule.sol";
+import { TargetTypeSignatureModule } from "../module/TargetTypeSignatureModule.sol";
 import { IETSTargetType, IERC165 } from "../interfaces/IETSTargetType.sol";
 import { IETS } from "../interfaces/IETS.sol";
 
