@@ -19,7 +19,7 @@
 
 /* Remove these to get rid of the spinner */
 #nprogress .spinner {
-  /* @apply block fixed z-[1031] top-[15px] right-[15px]; */
+  @apply hidden;
 }
 
 #nprogress .spinner-icon {
