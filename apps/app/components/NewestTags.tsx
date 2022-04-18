@@ -1,25 +1,12 @@
 import Link from 'next/link';
-import useSWR from 'swr';
 import { TimeAgo } from '../components/TimeAgo';
 import useTranslation from 'next-translate/useTranslation';
 import { CopyAndPaste } from '../components/CopyAndPaste';
+import { useTags } from '../hooks/useTags';
 
 const NewestTags = () => {
   const { t } = useTranslation('common');
-  const { data, error } = useSWR(
-    `{
-      hashtags(first: 5, orderBy: timestamp, orderDirection: desc) {
-        id
-        name
-        hashtagWithoutHash
-        displayHashtag
-        owner
-        creator
-        publisher
-        timestamp
-        tagCount
-      }
-    }`);
+  const { tags } = useTags({ pageSize: 5 });
 
   return (
     <div className="w-full mx-auto">
@@ -40,34 +27,34 @@ const NewestTags = () => {
 
         <div className="border divide-y border-slate-200 rounded-b-md divide-slate-200">
           {/* TODO: update :any to use type */}
-          {data && data.hashtags.map((hashtag: any) => (
-            <div className="px-6 py-4 md:grid-flow-col md:space-x-4 md:grid md:grid-cols-2" key={hashtag.id}>
+          {tags && tags.map((tag: any) => (
+            <div className="px-6 py-4 md:grid-flow-col md:space-x-4 md:grid md:grid-cols-2" key={tag.id}>
               <div className="grid grid-cols-2 space-x-4 md:block md:space-x-0">
                 <div className="overflow-hidden text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
-                  <Link href={`/tags/${hashtag.hashtagWithoutHash}`}>
-                    <a className="text-pink-600 hover:text-pink-700">{hashtag.name}</a>
+                  <Link href={`/tags/${tag.tagWithoutHash}`}>
+                    <a className="text-pink-600 hover:text-pink-700">{tag.name}</a>
                   </Link>
                 </div>
-                <div className="text-sm leading-6 text-slate-500"><TimeAgo date={hashtag.timestamp * 1000} /></div>
+                <div className="text-sm leading-6 text-slate-500"><TimeAgo date={tag.timestamp * 1000} /></div>
               </div>
               <div className="grid grid-cols-2 space-x-4 md:block md:space-x-0">
                 <div className="flex space-x-2">
                   <span className="mr-1 text-slate-500">{t('creator')}</span>
                   <div className="flex-grow overflow-hidden text-right text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
-                    <Link href={`/creators/${hashtag.creator}`}>
-                      <a className="text-pink-600 hover:text-pink-700">{hashtag.creator}</a>
+                    <Link href={`/creators/${tag.creator}`}>
+                      <a className="text-pink-600 hover:text-pink-700">{tag.creator}</a>
                     </Link>
                   </div>
-                  <CopyAndPaste value={hashtag.creator} />
+                  <CopyAndPaste value={tag.creator} />
                 </div>
                 <div className="flex space-x-2">
                   <span className="mr-1 text-slate-500">{t('publisher')}</span>
                   <div className="flex-grow overflow-hidden text-right text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
-                    <Link href={`/publishers/${hashtag.publisher}`}>
-                      <a className="text-pink-600 hover:text-pink-700">{hashtag.publisher}</a>
+                    <Link href={`/publishers/${tag.publisher}`}>
+                      <a className="text-pink-600 hover:text-pink-700">{tag.publisher}</a>
                     </Link>
                   </div>
-                  <CopyAndPaste value={hashtag.creator} />
+                  <CopyAndPaste value={tag.creator} />
                 </div>
               </div>
             </div>

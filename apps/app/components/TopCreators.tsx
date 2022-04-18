@@ -1,20 +1,12 @@
 import Link from 'next/link';
-import useSWR from 'swr';
 import useTranslation from 'next-translate/useTranslation';
 import { toDp, toEth } from '../utils';
 import { CopyAndPaste } from '../components/CopyAndPaste';
+import { useCreators } from '../hooks/useCreators';
 
 const TopCreators = () => {
   const { t } = useTranslation('common');
-  const { data, error } = useSWR(
-    `{
-      creators(first: 3, orderBy: tagCount, orderDirection: desc) {
-        id
-        mintCount
-        tagCount
-        tagFees
-      }
-    }`);
+  const { creators } = useCreators({ pageSize: 3 });
 
   return (
     <div className="w-full mx-auto">
@@ -35,7 +27,7 @@ const TopCreators = () => {
 
         <div className="border divide-y border-slate-200 rounded-b-md divide-slate-200">
           {/* TODO: update :any to use type */}
-          {data && data.creators.map((creator: any) => (
+          {creators && creators.map((creator: any) => (
             <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4" key={creator.id}>
               <div>
                 <div className="flex space-x-2">

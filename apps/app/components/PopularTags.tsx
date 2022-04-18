@@ -1,21 +1,10 @@
 import Link from 'next/link';
-import useSWR from 'swr';
 import useTranslation from 'next-translate/useTranslation';
+import { useTags } from '../hooks/useTags';
 
 const PopularTags = () => {
   const { t } = useTranslation('common');
-  const { data, error } = useSWR(
-    `{
-      popular: hashtags(first: 5, orderBy: tagCount, orderDirection: desc) {
-        id
-        name
-        displayHashtag
-        hashtagWithoutHash
-        owner
-        publisher
-        tagCount
-      }
-    }`);
+  const { tags } = useTags({ pageSize: 5, orderBy: 'tagCount' });
 
   return (
     <div className="w-full mx-auto">
@@ -36,7 +25,7 @@ const PopularTags = () => {
 
         <div className="border divide-y border-slate-200 rounded-b-md divide-slate-200">
           {/* TODO: update :any to use type */}
-          {data && data.popular.map((tag: any) => (
+          {tags && tags.map((tag: any) => (
             <div className="flex justify-between px-6 py-4 space-x-4" key={tag.id}>
               <div className="overflow-hidden text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
                 <Link href={`/tags/${tag.hashtagWithoutHash}`}>

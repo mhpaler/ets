@@ -1,30 +1,12 @@
 import Link from 'next/link';
-import useSWR from 'swr';
 import { TimeAgo } from '../components/TimeAgo';
 import useTranslation from 'next-translate/useTranslation';
 import { shorter } from '../utils';
+import { useTaggingRecords } from '../hooks/useTaggingRecords';
 
 const RecentlyTagged = () => {
   const { t } = useTranslation('common');
-  const { data, error } = useSWR(
-    `{
-      tags(first: 5, orderBy: timestamp, orderDirection: desc) {
-        id
-        hashtagId
-        hashtagDisplayHashtag
-        hashtagWithoutHash
-        nftContract
-        nftContractName
-        nftImage
-        nftName
-        nftDescription
-        nftId
-        tagger
-        timestamp
-        publisher
-        nftChainId
-      }
-    }`);
+  const { tags } = useTaggingRecords({ pageSize: 5 });
 
   const chainName: { [key: number]: string } = {
     1: 'Ethereum',
@@ -50,7 +32,7 @@ const RecentlyTagged = () => {
 
         <div className="border divide-y border-slate-200 rounded-b-md divide-slate-200">
           {/* TODO: update :any to use type */}
-          {data && data.tags.map((tag: any) => (
+          {tags && tags.map((tag: any) => (
             <div className="flex px-6 py-4 space-x-4" key={tag.id}>
               <div className="grid flex-grow grid-cols-2 space-x-4 md:grid-flow-col">
                 <div>

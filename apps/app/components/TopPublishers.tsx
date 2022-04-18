@@ -1,20 +1,12 @@
 import Link from 'next/link';
-import useSWR from 'swr';
 import useTranslation from 'next-translate/useTranslation';
 import { toDp, toEth } from '../utils';
 import { CopyAndPaste } from '../components/CopyAndPaste';
+import { usePublishers } from '../hooks/usePublishers';
 
 const TopPublishers = () => {
   const { t } = useTranslation('common');
-  const { data, error } = useSWR(
-    `{
-      publishers(first: 10, orderBy: tagCount, orderDirection: desc) {
-        id
-        mintCount
-        tagCount
-        tagFees
-      }
-    }`);
+  const { publishers } = usePublishers({ pageSize: 3 });
 
   return (
     <div className="w-full mx-auto">
@@ -35,7 +27,7 @@ const TopPublishers = () => {
 
         <div className="border divide-y border-slate-200 rounded-b-md divide-slate-200">
           {/* TODO: update :any to use type */}
-          {data && data.publishers.map((publisher: any) => (
+          {publishers && publishers.map((publisher: any) => (
             <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4" key={publisher.id}>
               <div>
                 <div className="flex space-x-2">

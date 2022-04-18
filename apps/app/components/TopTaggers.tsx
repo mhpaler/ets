@@ -1,17 +1,11 @@
 import Link from 'next/link';
-import useSWR from 'swr';
 import useTranslation from 'next-translate/useTranslation';
 import { CopyAndPaste } from '../components/CopyAndPaste';
+import { useTaggers } from '../hooks/useTaggers';
 
 const TopTaggers = () => {
   const { t } = useTranslation('common');
-  const { data, error } = useSWR(
-    `{
-      taggers(first: 5, orderBy: tagCount, orderDirection: desc) {
-        id
-        tagCount
-      }
-    }`);
+  const { taggers } = useTaggers({ pageSize: 5 });
 
   return (
     <div className="w-full mx-auto">
@@ -32,7 +26,7 @@ const TopTaggers = () => {
 
         <div className="border divide-y border-slate-200 rounded-b-md divide-slate-200">
           {/* TODO: update :any to use type */}
-          {data && data.taggers.map((tagger: any) => (
+          {taggers && taggers.map((tagger: any) => (
             <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4" key={tagger.id}>
               <div className="flex space-x-2">
                 <div className="flex-grow overflow-hidden text-right text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
