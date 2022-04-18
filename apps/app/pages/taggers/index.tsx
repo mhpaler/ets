@@ -1,23 +1,22 @@
-import { useMemo, useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import useTranslation from 'next-translate/useTranslation';
-import { Button } from '../../components/Button';
+import { useTaggers } from '../../hooks/useTaggers';
 import { Table } from '../../components/Table';
+import { Button } from '../../components/Button';
 import useNumberFormatter from '../../hooks/useNumberFormatter';
-import { useTags } from '../../hooks/useTags';
-import { TimeAgo } from '../../components/TimeAgo';
 
 const pageSize = 20;
 
-const Tags: NextPage = () => {
+const Creators: NextPage = () => {
   const [ skip, setSkip ] = useState(0);
   const { query } = useRouter();
   const { tag } = query;
-  const { number } = useNumberFormatter();
   const { t } = useTranslation('common');
-  const { tags, nextTags, mutate } = useTags({
+  const { number } = useNumberFormatter();
+  const { taggers, nextTaggers, mutate } = useTaggers({
     pageSize,
     skip,
     config: {
@@ -30,11 +29,6 @@ const Tags: NextPage = () => {
     },
   });
 
-  const chainName: { [key: number]: string } = {
-    1: 'Ethereum',
-    80001: 'Polygon Mumbai',
-  };
-
   const nextPage = () => {
     setSkip(skip + 20);
     mutate();
@@ -46,40 +40,30 @@ const Tags: NextPage = () => {
   }
 
   const columns = useMemo(() => [
-    'Tag',
-    t('date'),
-    t('creator'),
-    t('owner'),
-    t('publisher'),
+    t('tagger'),
     'Tag count',
   ], [t]);
 
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>
-        <title>{t('tags')} | Ethereum Tag Service</title>
+        <title>{t('taggers')} | Ethereum Tag Service</title>
       </Head>
 
       <Table
-        loading={!tags}
+        loading={!taggers}
         rows={pageSize}>
-        <Table.Title>{t('tags')}</Table.Title>
+        <Table.Title>{t('taggers')}</Table.Title>
         <Table.Head>
           <Table.Tr>
             {columns && columns.map(column => <Table.Th key={column}>{column}</Table.Th>)}
           </Table.Tr>
         </Table.Head>
         <Table.Body>
-          {tags && tags.map((tag: any) => (
-            <Table.Tr key={tag.id}>
-              <Table.Cell value={tag.name} url={`/tags/${tag.hashtagWithoutHash}`} />
-              <Table.CellWithChildren>
-                <div className="overflow-hidden text-ellipsis whitespace-nowrap"><TimeAgo date={tag.timestamp * 1000} /></div>
-              </Table.CellWithChildren>
-              <Table.Cell value={tag.creator} url={`/creators/${tag.creator}`} copyAndPaste />
-              <Table.Cell value={tag.owner} url={`/owners/${tag.owner}`} copyAndPaste />
-              <Table.Cell value={tag.publisher} url={`/publishers/${tag.publisher}`} copyAndPaste />
-              <Table.Cell value={number(parseInt(tag.tagCount))} right />
+          {taggers && taggers.map((tagger: any) => (
+            <Table.Tr key={tagger.id}>
+              <Table.Cell value={tagger.id} url={`/taggers/${tagger.id}`} copyAndPaste />
+              <Table.Cell value={number(parseInt(tagger.tagCount))} right />
             </Table.Tr>
           ))}
         </Table.Body>
@@ -93,7 +77,7 @@ const Tags: NextPage = () => {
           </svg>
           Prev
         </Button>
-        <Button disabled={nextTags && nextTags.length === 0} onClick={() => nextPage()}>
+        <Button disabled={nextTaggers && nextTaggers.length === 0} onClick={() => nextPage()}>
           Next
           <svg className="relative inline-flex w-6 h-6 ml-2 -mr-1" fill="none" viewBox="0 0 24 24">
             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.75 6.75L19.25 12L13.75 17.25"></path>
@@ -105,4 +89,4 @@ const Tags: NextPage = () => {
   );
 }
 
-export default Tags;
+export default Creators;
