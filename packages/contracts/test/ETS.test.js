@@ -1,13 +1,10 @@
 const { expectEvent } = require("@openzeppelin/test-helpers");
-
 const { ethers, upgrades, artifacts } = require("hardhat");
 const { expect, assert } = require("chai");
-
 const { utils, constants } = ethers;
+const { signTagRequest, getSignerPrivateKey } = require('./signature-utils');
 
-const { signTagRequest } = require('./signature-utils');
-
-let accounts, factories, artifact, ETSAccessControls, ETSTag, ETS, ERC721Mock, EVMNFT;
+let accounts, factories, artifact, ETSAccessControls, ETSTag, ETS, ERC721Mock, EVMNFT, EVMNFTName;
 let taggingFee, platformPercentage, publisherPercentage, taggerPercentage;
 
 describe("ETS", function () {
@@ -76,9 +73,10 @@ describe("ETS", function () {
       { kind: "uups" },
     );
 
+    EVMNFTName = await EVMNFT.name();
     await ETSAccessControls.addTargetType(
       EVMNFT.address,
-      "nft_evm",
+      EVMNFTName,
       { from: accounts.ETSAdmin.address },
     );
 
@@ -96,7 +94,7 @@ describe("ETS", function () {
     taggerPercentage = taggerPercentage.toString();
 
     // Set permitted target NFT chain id.
-    await ETS.setPermittedNftChainId(constants.One, true);
+    // await ETS.setPermittedNftChainId(constants.One, true);
 
     // Mint a HASHTAG token for tagging.
     await ETSTag.mint("#kittypower", accounts.ETSPublisher.address, accounts.Tagger.address);
@@ -123,8 +121,11 @@ describe("ETS", function () {
       chainId
     ) // we compute same target URI as a real tagging event
 
-    const testPublicKey = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
-    const testPrivateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+//    console.log("accounts.Tagger.address", accounts.Tagger.address);
+//
+//    const testPublicKey = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+//    const testPrivateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+    // const publisherPK = getSignerPrivateKey("ETSAdmin");
 
     const tagParams = {
       nftAddress,
@@ -152,16 +153,16 @@ describe("ETS", function () {
       await EVMNFT.name(),
       await EVMNFT.version(),
       taggingRecords,
-      testPrivateKey
+      getSignerPrivateKey("Tagger")
     )
 
-    const publisherPrivateKey = '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+//    const publisherPrivateKey = '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
     const publisherSignature = signTagRequest(
       EVMNFT.address,
       await EVMNFT.name(),
       await EVMNFT.version(),
       taggingRecords,
-      publisherPrivateKey
+      getSignerPrivateKey("ETSPublisher")
     )
 
     await EVMNFT.tag(
@@ -173,14 +174,19 @@ describe("ETS", function () {
       }
     )
 
-    const taggingRecord = await ETS.taggingRecords('1')
+    const targetId = await ETS.computeTargetId(EVMNFTName, expectedTargetURI);
+    const taggingRecord = await ETS.getTaggingRecord(
+      targetId,
+      accounts.Tagger.address,
+      accounts.ETSPublisher.address,
+      accounts.ETSAdmin.address // sponsor/caller
+    );
 
-    const targetRes = await ETS.targets(taggingRecord.targetId.toString())
-    expect(targetRes.targetURI).to.be.equal(expectedTargetURI)
+    const taggingRecordTarget = await ETS.targets(taggingRecord.targetId.toString());
 
-    console.log('\nexpectedTargetURI', expectedTargetURI)
-
-    expect(taggingRecord.tagger.toLowerCase()).to.be.equal(testPublicKey.toLowerCase())
+    expect(taggingRecord.targetId.toString()).to.be.equal(targetId);
+    expect(taggingRecordTarget.targetURI).to.be.equal(expectedTargetURI);
+    expect(taggingRecord.tagger.toLowerCase()).to.be.equal(accounts.Tagger.address.toLowerCase());
   })
 
   describe("Validate setup", function () {
