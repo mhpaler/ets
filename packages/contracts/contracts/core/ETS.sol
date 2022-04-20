@@ -12,6 +12,8 @@ import "./ETSTag.sol";
 import "../interfaces/IETS.sol";
 import "./ETSEnsure.sol";
 
+import "hardhat/console.sol";
+
 /// @title ETS Core
 /// @author Ethereum Tag Service <security@ets.xyz>
 /// @notice Core tagging contract that enables any online target to be tagged with an ETSTAG token.

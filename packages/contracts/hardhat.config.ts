@@ -17,6 +17,7 @@ import { extendEnvironment } from "hardhat/config";
 import { HardhatUserConfig } from "hardhat/types";
 
 import './tasks/accounts';
+import './tasks/signers';
 import './tasks/api-consumer';
 
 
