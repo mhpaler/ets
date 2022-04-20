@@ -9,7 +9,8 @@ module.exports = async ({
     const ETSAccessControls = await deployments.get("ETSAccessControls");
     const ETS = await deployments.get("ETS");
     const ETSEnsure = await deployments.get("ETSEnsure");
-    const MockNftTagger = await deployments.get("MockNftTagger");
+    const EVMNFT = await deployments.get("EVMNFT");
+    const EVMNFTName = await EVMNFT.name();
 
     const etsAccessControls = await ethers.getContractAt("ETSAccessControls", ETSAccessControls.address);
     const ets = await ethers.getContractAt("ETS", ETS.address);
@@ -24,8 +25,9 @@ module.exports = async ({
     await ets.updateETSEnsure(ETSEnsure.address);
     console.log(`ets.ETSEnsure contract set to ${ETSEnsure.address}`);
 
-    await etsAccessControls.addTargetType(MockNftTagger.address, "nft_evm");
-    console.log('Target type role granted to', MockNftTagger.address)
+
+    await etsAccessControls.addTargetType(EVMNFT.address, EVMNFTName);
+    console.log('Target type role granted to', EVMNFT.address)
 };
 
 module.exports.tags = ['ets_deploy'];
