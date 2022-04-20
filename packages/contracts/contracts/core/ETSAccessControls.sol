@@ -75,11 +75,16 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, UUPSUpgra
         return isTargetType(_smartContract) && !isTargetTypePaused[_smartContract];
     }
 
-    /// @notice Add a new target type smart contract to the ETS protocol
+    /// @notice Add a new target type smart contract to the ETS protocol. Tagging a target
+    /// is executed through a target type "subcontract" calling ETS core.
+    /// Note: Admin addresses can be added as target type to permit calling ETS core directly
+    /// for tagging testing and debugging purposes.
     function addTargetType(address _smartContract, string calldata _name) external {
         require(
-            IERC165(_smartContract).supportsInterface(type(IETSTargetType).interfaceId),
-            "Required interface not supported"
+            IERC165(_smartContract).supportsInterface(type(IETSTargetType).interfaceId)
+            // TODO: The following should but doesn't work.
+            // Throws error: ProviderError: Error: Transaction reverted: function returned an unexpected amount of data
+            // || isAdmin(_smartContract), "Required interface not supported or not admin address"
         );
         targetTypeToContract[_name] = _smartContract;
         targetTypeContractName[_smartContract] = _name;

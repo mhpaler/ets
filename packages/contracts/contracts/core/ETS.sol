@@ -127,7 +127,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
                 _tagger
             );
 
-            _processAccrued(etsTagId, _publisher);
+           // _processAccrued(etsTagId, _publisher);
 
             etsTagIds[i] = etsTagId;
         }
