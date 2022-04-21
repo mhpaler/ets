@@ -121,7 +121,7 @@ const Table = ({
     <TableContext.Provider value={value}>
       <div className={containerClasses}>
         {title}
-        <div onScroll={scrollHandler} className="grid grid-cols-1 gap-2 overflow-x-scroll">
+        <div onScroll={scrollHandler} className="grid grid-cols-1 gap-2 overflow-x-auto">
           <table ref={tableRef} className={tableClasses}>
             {children}
           </table>
