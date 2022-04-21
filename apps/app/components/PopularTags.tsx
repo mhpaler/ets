@@ -10,7 +10,7 @@ const PopularTags = () => {
     <div className="w-full mx-auto">
       <div className="rounded-md shadow-lg shadow-slate-400/20 ring-1 ring-slate-200">
         <div className="border-b border-slate-200">
-          <Link href="/tags">
+          <Link href="/tags?orderBy=tagCount">
             <a className="flex justify-between rounded-t-md">
               <div>
                 <h2 className="px-6 py-3 font-semibold text-left text-slate-700">{t('popular-tags')}</h2>

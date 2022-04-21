@@ -14,12 +14,17 @@ const pageSize = 20;
 const Tags: NextPage = () => {
   const [ skip, setSkip ] = useState(0);
   const { query } = useRouter();
-  const { tag } = query;
+  const { orderBy } = query;
   const { number } = useNumberFormatter();
   const { t } = useTranslation('common');
   const { tags, nextTags, mutate } = useTags({
     pageSize,
     skip,
+    // Prob another way to make this more elegant... we are spreading
+    // orderBy if it exists and the type is a string. This ensures
+    // that the default set in useTags() doesn't get overridden by
+    // an empty string which will stop the query from running.
+    ...orderBy && typeof orderBy === 'string' && { orderBy },
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,

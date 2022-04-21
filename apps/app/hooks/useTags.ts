@@ -32,7 +32,7 @@ export function useTags({
     {
       skip,
       first: pageSize,
-      orderBy: orderBy,
+      orderBy,
     },
   ], config);
 
