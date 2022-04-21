@@ -35,11 +35,6 @@ const Tags: NextPage = () => {
     },
   });
 
-  const chainName: { [key: number]: string } = {
-    1: 'Ethereum',
-    80001: 'Polygon Mumbai',
-  };
-
   const nextPage = () => {
     setSkip(skip + 20);
     mutate();
