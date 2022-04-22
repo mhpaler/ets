@@ -33,7 +33,7 @@ const NewestTags = () => {
             <div className="px-6 py-4 md:grid-flow-col md:space-x-4 md:grid md:grid-cols-2" key={tag.id}>
               <div className="grid grid-cols-2 space-x-4 md:block md:space-x-0">
                 <div className="overflow-hidden text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
-                  <Link href={`/tags/${tag.tagWithoutHash}`}>
+                  <Link href={`/tags/${tag.hashtagWithoutHash}`}>
                     <a className="text-pink-600 hover:text-pink-700">{tag.name}</a>
                   </Link>
                 </div>
