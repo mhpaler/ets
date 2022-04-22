@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -7,7 +8,7 @@ import useTranslation from 'next-translate/useTranslation';
 import { timestampToString } from '../../utils';
 import { toDp, toEth } from '../../utils';
 import { Number } from '../../components/Number';
-import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table';
+import { Table } from '../../components/Table';
 import { TimeAgo } from '../../components/TimeAgo';
 import { CopyAndPaste } from '../../components/CopyAndPaste';
 import { Share } from '../../components/Share';
@@ -61,6 +62,15 @@ const Tag: NextPage = () => {
     1: 'Ethereum',
     80001: 'Polygon Mumbai',
   };
+
+  const columns = useMemo(() => [
+    t('contract'),
+    t('token-id'),
+    t('chain'),
+    t('date'),
+    t('tagger'),
+    t('publisher'),
+  ], [t]);
 
   return (
     <div className="max-w-6xl mx-auto mt-12">
@@ -228,93 +238,31 @@ const Tag: NextPage = () => {
         </div>
 
         <div className="col-span-3">
-          <div>
-            <div className="border border-b-0 border-slate-900">
-              <h2 className="px-6 py-3 text-sm font-bold tracking-wider text-left uppercase text-slate-900">{t('tagged-content')}</h2>
-            </div>
 
-            <div className="border border-slate-900">
-              <Table>
-                <Thead>
-                  <Tr>
-                    {/* <Th></Th> */}
-                    <Th>{t('contract')}</Th>
-                    <Th>{t('token-id')}</Th>
-                    <Th>{t('chain')}</Th>
-                    <Th>{t('date')}</Th>
-                    <Th>{t('tagger')}</Th>
-                    <Th>{t('publisher')}</Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  {data && data.tags.map((tag: any) => (
-                    <Tr key={tag.nftId}>
-                      {/* <Td className="w-0 !pl-0 md:!pl-6 whitespace-nowrap !space-x-0">
-                        <div className="w-12 h-12 mb-2 md:mb-0 bg-slate-100"></div>
-                      </Td> */}
-                      <Td>
-                        <div className="flex lg:max-w-[200px] col-span-3 space-x-2">
-                          <div className="grid flex-grow grid-cols-1 md:grid-flow-col">
-                            <div className="overflow-hidden text-right text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
-                              <Link href={`/tagger/${tag.tagger}`}>
-                                <a className="text-pink-600 hover:text-pink-700">{tag.tagger}</a>
-                              </Link>
-                            </div>
-                          </div>
-                          <CopyAndPaste value={tag.tagger} />
-                        </div>
-                      </Td>
-                      <Td>
-                          <div className="grid lg:max-w-[250px] col-span-3">
-                            <div className="overflow-hidden text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
-                              <Link href={`/${tag.nftContract}/${tag.nftId}`}>
-                                <a className="text-pink-600 hover:text-pink-700" title={tag.nftName}>{tag.nftId}</a>
-                              </Link>
-                            </div>
-                        </div>
-                      </Td>
-                      <Td>
-                        <div className="col-span-3">
-                          {chainName[tag.nftChainId]}
-                        </div>
-                      </Td>
-                      <Td>
-                        <div className="col-span-3">
-                          <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                            <TimeAgo date={tag.timestamp * 1000} />
-                          </div>
-                        </div>
-                      </Td>
-                      <Td>
-                        <div className="flex lg:max-w-[200px] col-span-3 space-x-2">
-                          <div className="grid flex-grow grid-cols-1 md:grid-flow-col">
-                            <div className="overflow-hidden text-right text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
-                              <Link href={`/tagger/${tag.tagger}`}>
-                                <a className="text-pink-600 hover:text-pink-700">{tag.tagger}</a>
-                              </Link>
-                            </div>
-                          </div>
-                          <CopyAndPaste value={tag.tagger} />
-                        </div>
-                      </Td>
-                      <Td>
-                        <div className="flex lg:max-w-[200px] col-span-3 space-x-2">
-                          <div className="grid flex-grow grid-cols-1 md:grid-flow-col">
-                            <div className="overflow-hidden text-right text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
-                              <Link href={`/tagger/${tag.publisher}`}>
-                                <a className="text-pink-600 hover:text-pink-700">{tag.publisher}</a>
-                              </Link>
-                            </div>
-                          </div>
-                          <CopyAndPaste value={tag.publisher} />
-                        </div>
-                      </Td>
-                    </Tr>
-                  ))}
-                </Tbody>
-              </Table>
-            </div>
-          </div>
+          <Table loading={!data} rows={20}>
+            <Table.Title>{t('tagged-content')}</Table.Title>
+            <Table.Head>
+              <Table.Tr>
+                {columns && columns.map(column => <Table.Th key={column}>{column}</Table.Th>)}
+              </Table.Tr>
+            </Table.Head>
+            <Table.Body>
+              {data && data.tags.map((tag: any) => (
+                <Table.Tr key={tag.id}>
+                  <Table.Cell value={tag.tagger} url={`/taggers/${tag.tagger}`} copyAndPaste />
+                  <Table.Cell value={tag.nftId} url={`/${tag.nftContract}/${tag.nftId}`} />
+                  <Table.Cell value={chainName[tag.nftChainId]} />
+                  <Table.CellWithChildren>
+                    <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+                      <TimeAgo date={tag.timestamp * 1000} />
+                    </div>
+                  </Table.CellWithChildren>
+                  <Table.Cell value={tag.tagger} url={`/taggers/${tag.tagger}`} copyAndPaste />
+                  <Table.Cell value={tag.publisher} url={`/publishers/${tag.publisher}`} copyAndPaste />
+                </Table.Tr>
+              ))}
+            </Table.Body>
+          </Table>
 
         </div>
       </div>

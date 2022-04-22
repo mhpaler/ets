@@ -1,30 +1,23 @@
-import { useMemo, useState } from 'react';
+import { useState, useMemo, Suspense } from 'react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import useTranslation from 'next-translate/useTranslation';
-import { Button } from '../../components/Button';
-import { Table } from '../../components/Table';
-import useNumberFormatter from '../../hooks/useNumberFormatter';
-import { useTags } from '../../hooks/useTags';
 import { TimeAgo } from '../../components/TimeAgo';
+import { useTaggingRecords } from '../../hooks/useTaggingRecords';
+import { Table } from '../../components/Table';
+import { Button } from '../../components/Button';
 
 const pageSize = 20;
 
-const Tags: NextPage = () => {
+const RecentlyTagged: NextPage = () => {
   const [ skip, setSkip ] = useState(0);
   const { query } = useRouter();
-  const { orderBy } = query;
-  const { number } = useNumberFormatter();
+  const { tag } = query;
   const { t } = useTranslation('common');
-  const { tags, nextTags, mutate } = useTags({
+  const { tags, nextTags, mutate } = useTaggingRecords({
     pageSize,
     skip,
-    // Prob another way to make this more elegant... we are spreading
-    // orderBy if it exists and the type is a string. This ensures
-    // that the default set in useTags() doesn't get overridden by
-    // an empty string which will stop the query from running.
-    ...orderBy && typeof orderBy === 'string' && { orderBy },
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -34,6 +27,11 @@ const Tags: NextPage = () => {
       refreshInterval: 0,
     },
   });
+
+  const chainName: { [key: number]: string } = {
+    1: 'Ethereum',
+    80001: 'Polygon Mumbai',
+  };
 
   const nextPage = () => {
     setSkip(skip + 20);
@@ -46,24 +44,24 @@ const Tags: NextPage = () => {
   }
 
   const columns = useMemo(() => [
+    'Target',
     'Tag',
+    'Tagging record',
     t('date'),
-    t('creator'),
-    t('owner'),
+    t('tagger'),
     t('publisher'),
-    'Tag count',
   ], [t]);
 
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>
-        <title>{t('tags')} | Ethereum Tag Service</title>
+        <title>{t('recently-tagged')} | Ethereum Tag Service</title>
       </Head>
 
       <Table
         loading={!tags}
         rows={pageSize}>
-        <Table.Title>{t('tags')}</Table.Title>
+        <Table.Title>{t('recently-tagged')}</Table.Title>
         <Table.Head>
           <Table.Tr>
             {columns && columns.map(column => <Table.Th key={column}>{column}</Table.Th>)}
@@ -72,14 +70,21 @@ const Tags: NextPage = () => {
         <Table.Body>
           {tags && tags.map((tag: any) => (
             <Table.Tr key={tag.id}>
-              <Table.Cell value={tag.name} url={`/tags/${tag.hashtagWithoutHash}`} />
+              <Table.CellWithChildren>
+                <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+                  <span className="inline-flex items-center px-2 mr-2 text-xs py-0.5 font-bold rounded-full bg-slate-100 text-slate-500">
+                    NFT
+                  </span>
+                  {chainName[tag.nftChainId]}
+                </div>
+              </Table.CellWithChildren>
+              <Table.Cell value={tag.hashtagDisplayHashtag} url={`/tags/${tag.hashtagWithoutHash}`} />
+              <Table.Cell value={tag.transaction} url={`/transactions/${tag.transaction}`} copyAndPaste />
               <Table.CellWithChildren>
                 <div className="overflow-hidden text-ellipsis whitespace-nowrap"><TimeAgo date={tag.timestamp * 1000} /></div>
               </Table.CellWithChildren>
-              <Table.Cell value={tag.creator} url={`/creators/${tag.creator}`} copyAndPaste />
-              <Table.Cell value={tag.owner} url={`/owners/${tag.owner}`} copyAndPaste />
+              <Table.Cell value={tag.tagger} url={`/taggers/${tag.tagger}`} copyAndPaste />
               <Table.Cell value={tag.publisher} url={`/publishers/${tag.publisher}`} copyAndPaste />
-              <Table.Cell value={number(parseInt(tag.tagCount))} right />
             </Table.Tr>
           ))}
         </Table.Body>
@@ -105,4 +110,4 @@ const Tags: NextPage = () => {
   );
 }
 
-export default Tags;
+export default RecentlyTagged;
