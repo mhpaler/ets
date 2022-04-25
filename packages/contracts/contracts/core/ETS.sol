@@ -102,10 +102,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address _sponsor,
         bool _ensure
     ) external override payable nonReentrant {
-        require(
-            accessControls.isTargetTypeAndNotPaused(_msgSender()) || accessControls.isAdmin(_msgSender()),
-            "Only target type"
-        );
+        require(accessControls.isTargetTypeAndNotPaused(_msgSender()), "Only authorized addresses may call ETS core");
         require(accessControls.isPublisher(_publisher), "Tag: The publisher must be whitelisted");
 
         uint256 tagCount = _tags.length;
@@ -127,7 +124,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
                 _tagger
             );
 
-           // _processAccrued(etsTagId, _publisher);
+           _processAccrued(etsTagId, _publisher);
 
             etsTagIds[i] = etsTagId;
         }
@@ -154,7 +151,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address _tagger // TODO: look into tagger attribution + publisher attribution
     ) public payable returns (uint256 tagId) {
         uint256 _etstagId = etsTag.computeTagId(_tagString);
-        if (_etstagId == 0) {
+        if (!etsTag.tagExists(_etstagId)) {
             _etstagId = etsTag.mint(_tagString, _publisher, _tagger);
         }
         return _etstagId;

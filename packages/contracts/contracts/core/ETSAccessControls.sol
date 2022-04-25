@@ -81,10 +81,9 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, UUPSUpgra
     /// for tagging testing and debugging purposes.
     function addTargetType(address _smartContract, string calldata _name) external {
         require(
-            IERC165(_smartContract).supportsInterface(type(IETSTargetType).interfaceId)
-            // TODO: The following should but doesn't work.
-            // Throws error: ProviderError: Error: Transaction reverted: function returned an unexpected amount of data
-            // || isAdmin(_smartContract), "Required interface not supported or not admin address"
+            isAdmin(_smartContract) || 
+            IERC165(_smartContract).supportsInterface(type(IETSTargetType).interfaceId),
+            "Required interface not supported or not admin address"         
         );
         targetTypeToContract[_name] = _smartContract;
         targetTypeContractName[_smartContract] = _name;

@@ -10,17 +10,18 @@ let taggingFee, platformPercentage, publisherPercentage, taggerPercentage;
 describe("ETS", function () {
   beforeEach("Setup test", async function () {
     // See namedAccounts section of hardhat.config.js
+    // Call extensions to ethers provided by hardhat deploy.
     const namedAccounts = await ethers.getNamedSigners();
     const unnamedAccounts = await ethers.getUnnamedSigners();
     accounts = {
       ETSAdmin: namedAccounts["ETSAdmin"],
       ETSPublisher: namedAccounts["ETSPublisher"],
       ETSPlatform: namedAccounts["ETSPlatform"],
-      Buyer: unnamedAccounts[0],
+      Buyer: unnamedAccounts[0], // Wallet 3
       RandomOne: unnamedAccounts[1],
       RandomTwo: unnamedAccounts[2],
       Creator: unnamedAccounts[3],
-      Tagger: unnamedAccounts[4],
+      Tagger: unnamedAccounts[4], // Wallet #7
     };
 
     factories = {
