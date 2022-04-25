@@ -83,7 +83,7 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, UUPSUpgra
         require(
             isAdmin(_smartContract) || 
             IERC165(_smartContract).supportsInterface(type(IETSTargetType).interfaceId),
-            "Required interface not supported or not admin address"         
+            "Address not admin or required interface"  
         );
         targetTypeToContract[_name] = _smartContract;
         targetTypeContractName[_smartContract] = _name;
