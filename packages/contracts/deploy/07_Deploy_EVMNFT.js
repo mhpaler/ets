@@ -11,7 +11,7 @@ module.exports = async ({
     const networkConfig = readNetworkConfig();
     const chainId = await getChainId();
     const { ETSAdmin } = await getNamedAccounts()
-    const MockNftTagger = await ethers.getContractFactory("MockNftTagger");
+    const EVMNFT = await ethers.getContractFactory("EVMNFT");
     let etsAddress;
 
     if (chainId == 31337) {
@@ -23,7 +23,7 @@ module.exports = async ({
 
     // Deploy ETS core using OpenZeppelin upgrades plugin.
     const deployment = await upgrades.deployProxy(
-      MockNftTagger,
+      EVMNFT,
       [ etsAddress, ETSAdmin, ETSAdmin ],
       { kind: "uups" },
     );
@@ -32,24 +32,24 @@ module.exports = async ({
 
     const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
 
-    if (!(process.env.DISABLE_MockNftTagger_VERIFICATION === 'true')) {
+    if (!(process.env.DISABLE_EVMNFT_VERIFICATION === 'true')) {
       // Verify & Update network configuration file.
-      await verify("MockNftTagger", deployment, implementation, []);
+      await verify("EVMNFT", deployment, implementation, []);
     }
 
-    await saveNetworkConfig("MockNftTagger", deployment, implementation, false);
+    await saveNetworkConfig("EVMNFT", deployment, implementation, false);
 
     // Add to hardhat-deploy deployments.
-    artifact = await deployments.getExtendedArtifact('MockNftTagger');
+    artifact = await deployments.getExtendedArtifact('EVMNFT');
     proxyDeployments = {
       address: deployment.address,
       ...artifact
     }
-    await save('MockNftTagger', proxyDeployments);
+    await save('EVMNFT', proxyDeployments);
 
     log("====================================================");
-    log('MockNftTagger proxy deployed to -> ' + deployment.address);
-    log('MockNftTagger implementation deployed to -> ' + implementation);
+    log('EVMNFT proxy deployed to -> ' + deployment.address);
+    log('EVMNFT implementation deployed to -> ' + implementation);
     log("====================================================");
 };
 
