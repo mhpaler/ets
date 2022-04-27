@@ -44,29 +44,6 @@ function VERSION() external view returns (string)
 |---|---|---|
 | _0 | string | undefined |
 
-### _getTargetId
-
-```solidity
-function _getTargetId(string _targetType, string _targetURI) external nonpayable returns (uint256 targetId)
-```
-
-Get a target Id from target type and target uri. TODO: Perhaps rename this with a better name, because it&#39;s also creating a target record if it doesn&#39;t exist?
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _targetType | string | undefined |
-| _targetURI | string | undefined |
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| targetId | uint256 | undefined |
-
 ### accessControls
 
 ```solidity
@@ -105,6 +82,54 @@ function accrued(address) external view returns (uint256)
 | Name | Type | Description |
 |---|---|---|
 | _0 | uint256 | undefined |
+
+### computeTaggingRecordId
+
+```solidity
+function computeTaggingRecordId(uint256 _targetId, address _publisher, address _tagger, address _sponsor) external pure returns (uint256 taggingRecordId)
+```
+
+Deterministically compute the tagging record identifier
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _targetId | uint256 | undefined |
+| _publisher | address | undefined |
+| _tagger | address | undefined |
+| _sponsor | address | undefined |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| taggingRecordId | uint256 | undefined |
+
+### computeTargetId
+
+```solidity
+function computeTargetId(string _targetType, string _targetURI) external pure returns (uint256 targetId)
+```
+
+Internal
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _targetType | string | undefined |
+| _targetURI | string | undefined |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| targetId | uint256 | undefined |
 
 ### drawDown
 
@@ -156,10 +181,10 @@ function etsTag() external view returns (contract ETSTag)
 |---|---|---|
 | _0 | contract ETSTag | undefined |
 
-### getOrCreateTagId
+### getOrCreateTag
 
 ```solidity
-function getOrCreateTagId(string _tagString, address payable _publisher, address _tagger) external payable returns (uint256 etstagId)
+function getOrCreateTag(string _tagString, address payable _publisher, address _tagger) external payable returns (uint256 tagId)
 ```
 
 Fetch an etstagId from tag string.
@@ -178,15 +203,15 @@ Fetch an etstagId from tag string.
 
 | Name | Type | Description |
 |---|---|---|
-| etstagId | uint256 | Id of ETSTag token. |
+| tagId | uint256 | Id of ETSTag token. |
 
-### getPermittedNftChainId
+### getTaggingRecord
 
 ```solidity
-function getPermittedNftChainId(uint256 _nftChainId) external view returns (bool)
+function getTaggingRecord(uint256 _targetId, address _tagger, address _publisher, address _sponsor) external view returns (uint256[] etsTagIds, uint256 targetId, address tagger, address publisher, address sponsor)
 ```
 
-Check if a target chain is permitted for tagging.
+Get tagging record from composite key parts
 
 
 
@@ -194,23 +219,30 @@ Check if a target chain is permitted for tagging.
 
 | Name | Type | Description |
 |---|---|---|
-| _nftChainId | uint256 | EVM compatible chain id. |
+| _targetId | uint256 | undefined |
+| _tagger | address | undefined |
+| _publisher | address | undefined |
+| _sponsor | address | undefined |
 
 #### Returns
 
 | Name | Type | Description |
 |---|---|---|
-| _0 | bool | true for enabled, false for disabled. |
+| etsTagIds | uint256[] | undefined |
+| targetId | uint256 | undefined |
+| tagger | address | undefined |
+| publisher | address | undefined |
+| sponsor | address | undefined |
 
-### getTaggingRecord
+### getTaggingRecordFromId
 
 ```solidity
-function getTaggingRecord(uint256 _taggingId) external view returns (uint256[] _etsTagIds, uint256 _targetId, address _tagger, address _publisher, address _sponsor)
+function getTaggingRecordFromId(uint256 _taggingId) external view returns (uint256[] etsTagIds, uint256 targetId, address tagger, address publisher, address sponsor)
 ```
 
 
 
-*Retrieves a tagging record.*
+*Retrieves a tagging record from tagging ID*
 
 #### Parameters
 
@@ -222,11 +254,11 @@ function getTaggingRecord(uint256 _taggingId) external view returns (uint256[] _
 
 | Name | Type | Description |
 |---|---|---|
-| _etsTagIds | uint256[] | token ID of ETSTAG used. |
-| _targetId | uint256 | Id of tagging target. |
-| _tagger | address | Address that tagged the NFT asset. |
-| _publisher | address | Publisher through which the tag took place. |
-| _sponsor | address | Address that paid for the transaction fee |
+| etsTagIds | uint256[] | token ID of ETSTAG used. |
+| targetId | uint256 | Id of tagging target. |
+| tagger | address | Address that tagged the NFT asset. |
+| publisher | address | Publisher through which the tag took place. |
+| sponsor | address | Address that paid for the transaction fee |
 
 ### initialize
 
@@ -244,6 +276,28 @@ function initialize(contract ETSAccessControls _accessControls, contract ETSTag 
 |---|---|---|
 | _accessControls | contract ETSAccessControls | undefined |
 | _etsTag | contract ETSTag | undefined |
+
+### isTargetEnsured
+
+```solidity
+function isTargetEnsured(uint256 _targetId) external view returns (bool)
+```
+
+External read
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _targetId | uint256 | undefined |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | bool | undefined |
 
 ### modulo
 
@@ -283,28 +337,6 @@ function paid(address) external view returns (uint256)
 | Name | Type | Description |
 |---|---|---|
 | _0 | uint256 | undefined |
-
-### permittedNftChainIds
-
-```solidity
-function permittedNftChainIds(uint256) external view returns (bool)
-```
-
-
-
-*Map for holding permitted tagging target chain ids.*
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | uint256 | undefined |
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | bool | undefined |
 
 ### platformPercentage
 
@@ -356,39 +388,6 @@ function remainingPercentage() external view returns (uint256)
 | Name | Type | Description |
 |---|---|---|
 | _0 | uint256 | undefined |
-
-### setPermittedNftChainId
-
-```solidity
-function setPermittedNftChainId(uint256 _nftChainId, bool _setting) external nonpayable
-```
-
-Admin functionality for enabling/disabling target chains.
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _nftChainId | uint256 | EVM compatible chain id. |
-| _setting | bool | Boolean, set true for enabled, false for disabled. |
-
-### setTaggingFee
-
-```solidity
-function setTaggingFee(uint256 _fee) external nonpayable
-```
-
-Sets the fee required to tag an NFT asset.
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _fee | uint256 | Value of the fee in WEI. |
 
 ### tagTarget
 
@@ -473,7 +472,30 @@ function taggingRecords(uint256) external view returns (uint256 targetId, addres
 ### targetExists
 
 ```solidity
-function targetExists(uint256 targetId) external view returns (bool)
+function targetExists(string _targetType, string _targetURI) external view returns (bool)
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _targetType | string | undefined |
+| _targetURI | string | undefined |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | bool | undefined |
+
+### targetExistsFromId
+
+```solidity
+function targetExistsFromId(uint256 _targetId) external view returns (bool)
 ```
 
 check for existence of target.
@@ -484,7 +506,7 @@ check for existence of target.
 
 | Name | Type | Description |
 |---|---|---|
-| targetId | uint256 | token ID. |
+| _targetId | uint256 | token ID. |
 
 #### Returns
 
@@ -590,6 +612,39 @@ Admin functionality for updating the percentages.
 | _platformPercentage | uint256 | percentage for platform. |
 | _publisherPercentage | uint256 | percentage for publisher. |
 
+### updateTaggingFee
+
+```solidity
+function updateTaggingFee(uint256 _fee) external nonpayable
+```
+
+Sets the fee required to tag an NFT asset.
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _fee | uint256 | Value of the fee in WEI. |
+
+### updateTaggingRecord
+
+```solidity
+function updateTaggingRecord(uint256 _taggingRecordId, string[] _tags) external payable
+```
+
+Allow either a tagger or a sponsor to update the tags for a tagging record pointing to a target
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _taggingRecordId | uint256 | undefined |
+| _tags | string[] | undefined |
+
 ### updateTarget
 
 ```solidity
@@ -598,7 +653,7 @@ function updateTarget(uint256 _targetId, string _targetType, string _targetURI, 
 
 Updates a target with new values.
 
-*TODO: gate this function to be callable only by platform?*
+
 
 #### Parameters
 
@@ -674,7 +729,7 @@ function version() external pure returns (string)
 ### AccessControlsUpdated
 
 ```solidity
-event AccessControlsUpdated(contract ETSAccessControls previousAccessControls, contract ETSAccessControls newAccessControls)
+event AccessControlsUpdated(address previousAccessControls, address newAccessControls)
 ```
 
 
@@ -685,8 +740,8 @@ event AccessControlsUpdated(contract ETSAccessControls previousAccessControls, c
 
 | Name | Type | Description |
 |---|---|---|
-| previousAccessControls  | contract ETSAccessControls | undefined |
-| newAccessControls  | contract ETSAccessControls | undefined |
+| previousAccessControls  | address | undefined |
+| newAccessControls  | address | undefined |
 
 ### AdminChanged
 
@@ -724,7 +779,7 @@ event BeaconUpgraded(address indexed beacon)
 ### ETSEnsureUpdated
 
 ```solidity
-event ETSEnsureUpdated(contract ETSEnsure previousETSEnsure, contract ETSEnsure newETSEnsure)
+event ETSEnsureUpdated(address previousETSEnsure, address newETSEnsure)
 ```
 
 
@@ -735,8 +790,8 @@ event ETSEnsureUpdated(contract ETSEnsure previousETSEnsure, contract ETSEnsure 
 
 | Name | Type | Description |
 |---|---|---|
-| previousETSEnsure  | contract ETSEnsure | undefined |
-| newETSEnsure  | contract ETSEnsure | undefined |
+| previousETSEnsure  | address | undefined |
+| newETSEnsure  | address | undefined |
 
 ### FundsWithdrawn
 
@@ -772,23 +827,6 @@ event PercentagesSet(uint256 platformPercentage, uint256 publisherPercentage, ui
 | platformPercentage  | uint256 | undefined |
 | publisherPercentage  | uint256 | undefined |
 | remainingPercentage  | uint256 | undefined |
-
-### PermittedNftChainIdSet
-
-```solidity
-event PermittedNftChainIdSet(uint256 nftChainId, bool setting)
-```
-
-
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| nftChainId  | uint256 | undefined |
-| setting  | bool | undefined |
 
 ### RequestEnsureTarget
 

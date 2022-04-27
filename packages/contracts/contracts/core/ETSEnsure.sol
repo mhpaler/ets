@@ -49,8 +49,6 @@ contract ETSEnsure is Initializable, ContextUpgradeable, UUPSUpgradeable {
         ets = _ets;
     }
 
-
-
     function _authorizeUpgrade(address) internal override onlyAdmin {}
 
     /// @notice Ensure a target Id using the off chain ETS Ensure Target API.
@@ -60,12 +58,11 @@ contract ETSEnsure is Initializable, ContextUpgradeable, UUPSUpgradeable {
     /// With these, OZ makes callout to ETS Ensure Target API which collects
     /// metadata for target, pins it to IPFS and returns pin to ETS blockchain
     /// via fulfillEnsureTarget()
-    /// @param targetId Unique id of target to be ensured.
-    function requestEnsureTarget(uint256 targetId) public {
-        require (ets.targetExists(targetId) == true, "Invalid target");
-        // TODO: Only ensure if not previously ensured or user wants to re-ensure.
-        //require(ets.targets(targetId).ip);
-        emit RequestEnsureTarget(targetId);
+    /// @param _targetId Unique id of target to be ensured.
+    function requestEnsureTarget(uint256 _targetId) public {
+        require(ets.targetExistsFromId(_targetId) == true, "Invalid target");
+        require(!ets.isTargetEnsured(_targetId), "Already ensured");
+        emit RequestEnsureTarget(_targetId);
     }
 
     /// @notice Decorates target with additional metadata stored in IPFS hash.
@@ -75,7 +72,7 @@ contract ETSEnsure is Initializable, ContextUpgradeable, UUPSUpgradeable {
     /// @param _targetId Unique id of target being ensured.
     /// @param _ipfsHash IPFS hash containing metadata related to the unique target.
     /// @param _status HTTP response code from ETS Ensure Target API.
-    function fulfillEnsureTarget(uint256 _targetId, string calldata _ipfsHash, uint _status) public {
+    function fulfillEnsureTarget(uint256 _targetId, string calldata _ipfsHash, uint256 _status) public {
         // Load up current values for this target.
         // Note: not naming unnecessary local variable avoids compiler warnings.
         (string memory targetType, string memory targetURI,,,,) = ets.targets(_targetId);

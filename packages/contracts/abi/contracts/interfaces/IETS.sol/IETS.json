@@ -1,4 +1,14 @@
 [
+  "event AccessControlsUpdated(address,address)",
+  "event ETSEnsureUpdated(address,address)",
+  "event FundsWithdrawn(address indexed,uint256)",
+  "event PercentagesSet(uint256,uint256,uint256)",
+  "event RequestEnsureTarget(uint256)",
+  "event TaggingFeeSet(uint256,uint256)",
+  "event TargetCreated(uint256)",
+  "event TargetTagged(uint256)",
+  "event TargetTypeSet(string,bool)",
+  "event TargetUpdated(uint256)",
   "function tagTarget(string[],string,address,address,address,bool) payable",
-  "function taggingFee() returns (uint256)"
+  "function taggingFee() view returns (uint256)"
 ]

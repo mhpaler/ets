@@ -133,7 +133,7 @@ ETS Platform account.
 ### requestEnsureTarget
 
 ```solidity
-function requestEnsureTarget(uint256 targetId) external nonpayable
+function requestEnsureTarget(uint256 _targetId) external nonpayable
 ```
 
 Ensure a target Id using the off chain ETS Ensure Target API.
@@ -144,7 +144,7 @@ Ensure a target Id using the off chain ETS Ensure Target API.
 
 | Name | Type | Description |
 |---|---|---|
-| targetId | uint256 | Unique id of target to be ensured. |
+| _targetId | uint256 | Unique id of target to be ensured. |
 
 ### upgradeTo
 

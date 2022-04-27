@@ -5,6 +5,7 @@ import { TopCreators } from '../components/TopCreators';
 import { TopPublishers } from '../components/TopPublishers';
 import { TopTaggers } from '../components/TopTaggers';
 import { PopularTags } from '../components/PopularTags';
+import { Stats } from '../components/Stats';
 // import Image from 'next/image';
 
 // import Greeter from '../src/artifacts/contracts/Greeter.sol/Greeter.json';
@@ -15,13 +16,16 @@ import { PopularTags } from '../components/PopularTags';
 
 const Home: NextPage = () => {
   return (
-    <div className="max-w-6xl gap-12 mx-auto mt-12 space-y-8 md:space-y-0 md:grid sm:w-full md:grid-cols-2">
-      <RecentlyTagged />
-      <NewestTags />
-      <TopCreators />
-      <TopPublishers />
-      <TopTaggers />
-      <PopularTags />
+    <div className="grid max-w-6xl gap-6 mx-auto mt-12 lg:gap-12 md:space-y-0 sm:w-full">
+      <Stats />
+      <div className="grid gap-6 md:grid-cols-2 lg:gap-12">
+        <RecentlyTagged />
+        <NewestTags />
+        <TopCreators />
+        <TopPublishers />
+        <TopTaggers />
+        <PopularTags />
+      </div>
     </div>
   );
 }

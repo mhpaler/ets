@@ -118,7 +118,7 @@ function VERSION() external view returns (string)
 function addTargetType(address _smartContract, string _name) external nonpayable
 ```
 
-Add a new target type smart contract to the ETS protocol
+Add a new target type smart contract to the ETS protocol. Tagging a target is executed through a target type &quot;subcontract&quot; calling ETS core. Note: Admin addresses can be added as target type to permit calling ETS core directly for tagging testing and debugging purposes.
 
 
 

@@ -7,6 +7,23 @@ const _TAG_TYPEHASH = keccak256(
   toUtf8Bytes('Tag(bytes32 tagParamsHash)')
 );
 
+function getSignerPrivateKey(accountName) {
+
+  const namedAccounts = {
+    "ETSPublisher": "m/44'/60'/0'/0/1",
+    // Named account "Tagger" is account #7.
+    "Tagger": "m/44'/60'/0'/0/7",
+  };
+
+  if (!namedAccounts[accountName]) {
+    throw new Error(`Private key for named signer ${accountName} not found `)
+  }
+
+  let mnemonic = process.env.MNEMONIC;
+  const hdNode = ethers.utils.HDNode.fromMnemonic(mnemonic);
+  return hdNode.derivePath(namedAccounts[accountName]).privateKey;
+}
+
 function getDomainSeparator(contractAddress, contractName, contractVersion) {
   return keccak256(
     defaultAbiCoder.encode(
@@ -70,5 +87,6 @@ function signTagRequest(contractAddress, contractName, contractVersion, taggingR
 }
 
 module.exports = {
-  signTagRequest
+  signTagRequest,
+  getSignerPrivateKey
 }
