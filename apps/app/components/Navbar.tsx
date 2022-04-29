@@ -48,7 +48,7 @@ const Navbar = () => {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-slate-900/80"></div>
+            <div className="fixed inset-0 bg-slate-900/80" />
           </Transition.Child>
 
           <div className="fixed inset-0 overflow-y-auto">
