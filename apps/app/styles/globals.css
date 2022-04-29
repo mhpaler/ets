@@ -19,7 +19,7 @@
   }
 }
 
-@layer components {
+@layer utilities {
   .text-outlined {
     -webkit-text-stroke: 1px #0f172a;
     color: white;
