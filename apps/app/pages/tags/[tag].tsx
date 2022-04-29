@@ -80,21 +80,25 @@ const Tag: NextPage = () => {
         <title>{data && data.tag[0].name} | Ethereum Tag Service</title>
       </Head>
 
-      <h1 className="text-3xl font-bold text-slate-700">{data && data.tag[0].name}</h1>
+      <div className="md:flex">
+        <div className="flex items-center mb-6 md:flex-grow md:mb-0">
+          <h1 className="text-3xl font-bold text-slate-700">{data && data.tag[0].name}</h1>
+        </div>
+        <div className="">
+          <Share url="https://ets.xyz" />
+        </div>
+      </div>
 
       <div className="grid gap-6 mx-auto mt-8 lg:gap-12 md:space-y-0 md:grid sm:w-full md:grid-cols-3">
-        <div className="grid gap-6 md:col-span-1 lg:gap-12">
-          <div className="grid gap-6">
-            <div className="overflow-hidden rounded shadow-xl shadow-slate-300">
-              <svg className="w-full text-white bg-slate-900" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
-                <text fill="currentColor" fontFamily="Helvetica" fontSize="50" fontWeight="700" letterSpacing="-.02em" transform="translate(625.71 898.94)">0.904 MATIC</text>
-                <text strokeWidth="2" fill="none" stroke="currentColor" strokeMiterlimit="10" fontFamily="Helvetica" fontSize="50" fontWeight="700" letterSpacing=".1em" transform="translate(801.55 844.81)">TVL</text>
-                <path fill="currentColor" d="m100 775 125-125H100Zm250 125V775L225 900ZM225 650l125 125V650Z" />
-                <circle fill="currentColor" cx="137.36" cy="862.38" r="12.5" />
-                <text fill="currentColor" stroke="none" strokeMiterlimit="10" fontFamily="HelveticaNeue-Bold,Helvetica Neue" fontSize="50" fontWeight="700" transform="translate(100 150)">{data && data.tag[0].name}</text>
-              </svg>
-            </div>
-            <Share url="https://ets.xyz" />
+        <div className="grid content-start gap-6 md:col-span-1 lg:gap-12">
+          <div className="overflow-hidden rounded shadow-xl shadow-slate-300">
+            <svg className="w-full text-white bg-slate-900" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+              <text fill="currentColor" fontFamily="Helvetica" fontSize="50" fontWeight="700" letterSpacing="-.02em" transform="translate(625.71 898.94)">0.904 MATIC</text>
+              <text strokeWidth="2" fill="none" stroke="currentColor" strokeMiterlimit="10" fontFamily="Helvetica" fontSize="50" fontWeight="700" letterSpacing=".1em" transform="translate(801.55 844.81)">TVL</text>
+              <path fill="currentColor" d="m100 775 125-125H100Zm250 125V775L225 900ZM225 650l125 125V650Z" />
+              <circle fill="currentColor" cx="137.36" cy="862.38" r="12.5" />
+              <text fill="currentColor" stroke="none" strokeMiterlimit="10" fontFamily="HelveticaNeue-Bold,Helvetica Neue" fontSize="50" fontWeight="700" transform="translate(100 150)">{data && data.tag[0].name}</text>
+            </svg>
           </div>
           <Auction />
         </div>
