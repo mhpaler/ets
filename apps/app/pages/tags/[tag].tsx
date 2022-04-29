@@ -84,9 +84,7 @@ const Tag: NextPage = () => {
         <div className="flex items-center mb-6 md:flex-grow md:mb-0">
           <h1 className="text-3xl font-bold text-slate-700">{data && data.tag[0].name}</h1>
         </div>
-        <div className="">
-          <Share url="https://ets.xyz" />
-        </div>
+        <Share url="https://ets.xyz" />
       </div>
 
       <div className="grid gap-6 mx-auto mt-8 lg:gap-12 md:space-y-0 md:grid sm:w-full md:grid-cols-3">
