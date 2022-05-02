@@ -80,3 +80,55 @@ export function handleMintTag(event: MintTag): void {
     creator.save();
   }
 }
+
+// ////////////////////////////////////////////////////////////
+//   //Version 2
+//   ////////////////////////////////////////////////////////////
+//   let hashtagEntity_v2 = new Hashtag_v2(event.params.tokenId.toString());
+//   let hashtagContract_v2 = HashtagProtocol.bind(event.address);
+//   let hashtag_v2 = hashtagContract_v2.tokenIdToHashtag(event.params.tokenId);
+
+//   hashtagEntity_v2.name = hashtag_v2.value2;
+//   hashtagEntity_v2.displayHashtag = event.params.displayHashtag;
+
+//   let displayHashtag_v2: string = event.params.displayHashtag;
+//   let lowerHashtag_v2: string = toLowerCase(displayHashtag_v2);
+
+//   hashtagEntity_v2.hashtag = lowerHashtag_v2;
+//   hashtagEntity_v2.hashtagWithoutHash = lowerHashtag_v2.substring(1, lowerHashtag_v2.length);
+//   hashtagEntity_v2.timestamp = event.block.timestamp;
+//   hashtagEntity_v2.tagCount = BigInt.fromI32(0);
+//   hashtagEntity_v2.ownerRevenue = BigInt.fromI32(0);
+//   hashtagEntity_v2.publisherRevenue = BigInt.fromI32(0);
+//   hashtagEntity_v2.protocolRevenue = BigInt.fromI32(0);
+//   hashtagEntity_v2.creatorRevenue = BigInt.fromI32(0);
+
+  
+
+//   let owner_v2 = ensureOwner(event.params.creator.toHexString());
+//   owner_v2.mintCount = owner_v2.mintCount.plus(ONE);
+//   owner_v2.save();
+//   hashtagEntity_v2.owner = owner_v2.id;
+
+//   // publisher
+//   let publisher_v2 = ensurePublisher(event.params.publisher.toHexString());
+//   publisher_v2.mintCount = publisher_v2.mintCount.plus(ONE);
+//   publisher_v2.save();
+//   hashtagEntity_v2.publisher = publisher_v2.id;
+ 
+  
+  
+
+
+//   // platform
+//   let platform_v2 = safeLoadPlatform("platform");
+//   platform_v2.save();
+
+//   // creator
+//   let creator_v2 = ensureCreator(hashtag.value1.toHexString());
+//   creator_v2.mintCount = creator_v2.mintCount.plus(ONE);
+//   creator_v2.save();
+//   hashtagEntity_v2.creator = creator_v2.id;
+
+
+//   hashtagEntity_v2.save();

@@ -3,7 +3,7 @@
 
 import { TargetTagged,  ETS} from "../generated/ETS/ETS";
 import { ETSTag } from "../generated/ETSTag/ETSTag";
-import { Tag, Tagging_Record } from "../generated/schema";
+import { Tag, Tagging_Record,  Target, NFT_EVM} from "../generated/schema";
 
 import {
   toLowerCase,
@@ -14,6 +14,22 @@ import {
   safeLoadCreator,
   ONE,
 } from "../utils/helpers";
+
+import {
+  ensureOwner,
+} from "../entities/Owner";
+
+import {
+  ensurePublisher,
+} from "../entities/Publisher";
+
+import {
+  ensurePlatform,
+} from "../entities/Platform";
+
+import {
+  ensureTagger,
+} from "../entities/Tagger";
 
 /*
  * Track the tagging of an NFT asset
@@ -73,7 +89,7 @@ export function handleTagRegistered(event: TargetTagged): void {
       etsTag.ownerRevenue = etsTag.ownerRevenue.plus(remainingFee);
 
       // Update owner counts and fees
-      let ownerEntity = safeLoadOwner(owner.toHexString());
+      let ownerEntity = ensureOwner(owner.toHexString());
 
       if (ownerEntity) {
         ownerEntity.tagCount = ownerEntity.tagCount.plus(ONE);
@@ -91,21 +107,22 @@ export function handleTagRegistered(event: TargetTagged): void {
     etsTag.save();
   }
 
+  let nft = new NFT_EVM(event.params.tagId.toString());
+  nft.nftContract = registryContract.getTaggingRecord(event.params.taggingId).value1;
+  nft.nftId = registryContract.getTaggingRecord(event.params.taggingId).value2.toString();
+  nft.nftChainId = registryContract.getTaggingRecord(event.params.taggingId).value6;
+  nft.timestamp = registryContract.getTaggingRecord(event.params.taggingId).value4;
+  nft.save();
+
   // Store tag information
   let taggingRecord = new Tagging_Record(event.params.taggingId.toString());
 
   if (taggingRecord && etsTag) {
-    taggingRecord.tagId = etsTagId.toString();
-    taggingRecord.nftContract = registryContract.getTaggingRecord(event.params.taggingId).value1;
-    taggingRecord.nftId = registryContract.getTaggingRecord(event.params.taggingId).value2.toString();
-    taggingRecord.nftChainId = registryContract.getTaggingRecord(event.params.taggingId).value6;
     taggingRecord.tagger = registryContract.getTaggingRecord(event.params.taggingId).value3;
-    taggingRecord.timestamp = registryContract.getTaggingRecord(event.params.taggingId).value4;
     taggingRecord.publisher = registryContract.getTaggingRecord(event.params.taggingId).value5;
-    taggingRecord.displayTag = etsTag.displayTag;
-    let lowerTag = toLowerCase(etsTag.displayTag);
-    taggingRecord.tag = lowerTag;
-    taggingRecord.tagWithoutHash = lowerTag.substring(1, lowerTag.length);
+    taggingRecord.tagName = etsTag.hashtag;
+    taggingRecord.tag = etsTag.id;
+    taggingRecord.target = nft.id;
     taggingRecord.save();
   }
   //let erc721Contract = HashtagProtocol.bind(event.params.nftContract);
@@ -122,7 +139,7 @@ export function handleTagRegistered(event: TargetTagged): void {
   //}
 
   // update publisher counts and fees
-  let publisherEntity = safeLoadPublisher(registryContract.getTaggingRecord(event.params.taggingId).value5.toString());
+  let publisherEntity = ensurePublisher(registryContract.getTaggingRecord(event.params.taggingId).value5.toString());
 
   if (publisherEntity) {
     publisherEntity.tagCount = publisherEntity.tagCount.plus(ONE);
@@ -131,7 +148,7 @@ export function handleTagRegistered(event: TargetTagged): void {
   }
 
   // update platform fees
-  let platform = safeLoadPlatform("platform");
+  let platform = ensurePlatform("platform");
 
   if (platform) {
     platform.tagFees = platform.tagFees.plus(platformFee);
@@ -139,7 +156,7 @@ export function handleTagRegistered(event: TargetTagged): void {
   }
 
   // update tagger counts
-  let tagger = safeLoadTagger(registryContract.getTaggingRecord(event.params.taggingId).value3.toString());
+  let tagger = ensureTagger(registryContract.getTaggingRecord(event.params.taggingId).value3.toString());
 
   if (tagger) {
     tagger.tagCount = tagger.tagCount.plus(ONE);
@@ -147,3 +164,127 @@ export function handleTagRegistered(event: TargetTagged): void {
     tagger.save();
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ////////////////////////////////////////////////////////////
+// //// version 2
+// ////////////////////////////////////////////////////////////
+// let registryContract_v2 = ERC721HashtagRegistry.bind(event.address);
+// let tagFee_v2 = event.params.tagFee;
+
+// let modulo_v2 = registryContract.modulo();
+// let platformPercentageOfTagFee_v2 = registryContract_v2.platformPercentage();
+// let publisherPercentageOfTagFee_v2 = registryContract_v2.publisherPercentage();
+// let remainingPercentage_v2 = modulo.minus(platformPercentageOfTagFee).minus(publisherPercentageOfTagFee);
+
+// let protocolAddress_v2 = registryContract_v2.hashtagProtocol();
+// let protocolContract_v2 = HashtagProtocol.bind(protocolAddress_v2);
+// let platformAddress_v2 = protocolContract_v2.platform();
+
+// let hashtagId_v2 = event.params.hashtagId;
+// let owner_v2 = protocolContract_v2.ownerOf(hashtagId_v2);
+
+// let publisherFee_v2 = tagFee_v2.times(publisherPercentageOfTagFee_v2).div(modulo_v2);
+// let platformFee_v2 = tagFee_v2.times(platformPercentageOfTagFee_v2).div(modulo_v2);
+// let remainingFee_v2 = tagFee_v2.times(remainingPercentage_v2).div(modulo_v2);
+
+// let hashtag_v2 = Hashtag_v2.load(hashtagId_v2.toString());
+
+// // this is a pre-auction state if true or post-auction if false
+// if (owner_v2.equals(platformAddress_v2)) {
+//   hashtag_v2.creatorRevenue = hashtag_v2.creatorRevenue.plus(remainingFee_v2);
+
+//   //  Update creator counts and fees
+//   let creator_v2 = protocolContract_v2.getCreatorAddress(hashtagId_v2);
+//   let creatorEntity_v2 = ensureCreator(creator_v2.toHexString());
+//   creatorEntity_v2.tagCount = creatorEntity_v2.tagCount.plus(ONE);
+//   creatorEntity_v2.tagFees = creatorEntity_v2.tagFees.plus(remainingFee_v2);
+//   creatorEntity_v2.save();
+// } else {
+//   hashtag_v2.ownerRevenue = hashtag_v2.ownerRevenue.plus(remainingFee_v2);
+
+//   // Update owner counts and fees
+//   let ownerEntity_v2 = ensureOwner(owner.toHexString());
+//   ownerEntity_v2.tagCount = ownerEntity_v2.tagCount.plus(ONE);
+//   ownerEntity_v2.tagFees = ownerEntity_v2.tagFees.plus(remainingFee_v2);
+//   ownerEntity_v2.save();
+// }
+
+// // Update rest of hashtag data
+// hashtag_v2.tagCount = hashtag_v2.tagCount.plus(ONE);
+// hashtag_v2.publisherRevenue = hashtag_v2.publisherRevenue.plus(publisherFee_v2);
+// hashtag_v2.protocolRevenue = hashtag.protocolRevenue.plus(platformFee_v2);
+// hashtag_v2.save();
+
+// //create the NFT entity
+
+// let nft_v2 = new NFT_v2(event.params.tagId.toString());
+// nft_v2.nftContract = event.params.nftContract;
+// nft_v2.nftId = event.params.nftId.toString();
+// nft_v2.nftChainId = event.params.nftChainId;
+// nft_v2.timestamp = event.block.timestamp;
+// nft_v2.save();
+
+// // Store tag information
+// let tagEntity_v2 = new Tag_v2(event.params.tagId.toString());
+// tagEntity_v2.transaction = event.transaction.hash.toHexString();
+// tagEntity_v2.hashtag = hashtag_v2.id;
+// tagEntity_v2.target = nft_v2.id;
+// tagEntity_v2.hashtagName = hashtag_v2.hashtag;
+
+
+
+// // let erc721Contract = HashtagProtocol.bind(event.params.nftContract);
+// // tagEntity.nftContractName = erc721Contract.name();
+// // let tokenUriCallResult = erc721Contract.try_tokenURI(event.params.nftId);
+// // tagEntity.nftTokenUri = tokenUriCallResult.reverted ? null : tokenUriCallResult.value;
+// // if (!tokenUriCallResult.reverted) {
+// //  let nftMetadata = extractNftIPFSMetadata(tagEntity.nftTokenUri);
+// //  if (nftMetadata) {
+// //    tagEntity.nftName = nftMetadata.nftName;
+// //    tagEntity.nftDescription = nftMetadata.nftDescription;
+// //    tagEntity.nftImage = nftMetadata.nftImage;
+// //  }
+// // }
+
+// // update publisher counts and fees
+// let publisherEntity_v2 = ensurePublisher(event.params.publisher.toHexString());
+// publisherEntity_v2.tagCount = publisherEntity_v2.tagCount.plus(ONE);
+// publisherEntity_v2.tagFees = publisherEntity_v2.tagFees.plus(publisherFee_v2);
+// publisherEntity_v2.save();
+
+// tagEntity_v2.publisher = publisherEntity_v2.id;
+
+// // update platform fees
+// let platform_v2 = ensurePlatform("platform");
+// platform_v2.tagFees = platform_v2.tagFees.plus(platformFee_v2);
+// platform_v2.save();
+
+
+// // update tagger counts
+// let tagger_v2 = ensureTagger(event.params.tagger.toHexString());
+// tagger_v2.tagCount = tagger_v2.tagCount.plus(ONE);
+// tagger_v2.feesPaid = tagger_v2.feesPaid.plus(tagFee_v2);
+// tagger_v2.save();
+
+// tagEntity_v2.tagger = tagger_v2.id;
+
+
+
+// tagEntity_v2.save();

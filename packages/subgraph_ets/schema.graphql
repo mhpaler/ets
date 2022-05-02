@@ -14,6 +14,7 @@ type NFT_EVM implements Target @entity {
   nftDescription: String
   nftImage: String
   nftChainId: BigInt!
+  ipfsHash: String
 }
 
 #rename to tag
