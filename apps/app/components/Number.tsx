@@ -1,10 +1,8 @@
-import useTranslation from 'next-translate/useTranslation';
-import { numberFormatters } from '../i18n';
+import useNumberFormatter from '../hooks/useNumberFormatter';
 
 const Number = ({ value }: { value: number }) => {
-  const { lang } = useTranslation();
-
-  return <>{numberFormatters[lang].format(value)}</>;
+  const { number } = useNumberFormatter();
+  return <>{number(value)}</>;
 }
 
 export { Number };

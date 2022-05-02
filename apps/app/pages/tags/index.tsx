@@ -2,57 +2,38 @@ import { useMemo, useState } from 'react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import useSWR from 'swr';
 import useTranslation from 'next-translate/useTranslation';
-// import { timestampToString } from '../../utils';
-// import { toDp, toEth } from '../../utils';
 import { Button } from '../../components/Button';
-// import { Share } from '../../components/Share';
 import { Table } from '../../components/Table';
+import useNumberFormatter from '../../hooks/useNumberFormatter';
+import { useTags } from '../../hooks/useTags';
+import { TimeAgo } from '../../components/TimeAgo';
 
-const PAGE_SIZE = 20;
+const pageSize = 20;
 
 const Tags: NextPage = () => {
   const [ skip, setSkip ] = useState(0);
   const { query } = useRouter();
-  const { tag } = query;
-
+  const { orderBy } = query;
+  const { number } = useNumberFormatter();
   const { t } = useTranslation('common');
-  const { data, mutate, isValidating, error } = useSWR([
-    `query tags($first: Int!, $skip: Int!) {
-      tags: hashtags(first: $first, skip: $skip, orderBy: timestamp, orderDirection: desc) {
-        id
-        name
-        hashtagWithoutHash
-        displayHashtag
-        owner
-        creator
-        publisher
-        timestamp
-        tagCount
-      }
-      nextTags: hashtags(first: ${PAGE_SIZE}, skip: ${skip + 20}, orderBy: timestamp, orderDirection: desc) {
-        id
-      }
-    }`,
-    {
-      skip,
-      first: PAGE_SIZE,
+  const { tags, nextTags, mutate } = useTags({
+    pageSize,
+    skip,
+    // Prob another way to make this more elegant... we are spreading
+    // orderBy if it exists and the type is a string. This ensures
+    // that the default set in useTags() doesn't get overridden by
+    // an empty string which will stop the query from running.
+    ...orderBy && typeof orderBy === 'string' && { orderBy },
+    config: {
+      revalidateOnFocus: false,
+      revalidateOnMount: true,
+      revalidateOnReconnect: false,
+      refreshWhenOffline: false,
+      refreshWhenHidden: false,
+      refreshInterval: 0,
     },
-  ],
-  {
-    revalidateOnFocus: false,
-    revalidateOnMount: true,
-    revalidateOnReconnect: false,
-    refreshWhenOffline: false,
-    refreshWhenHidden: false,
-    refreshInterval: 0
   });
-
-  const chainName: { [key: number]: string } = {
-    1: 'Ethereum',
-    80001: 'Polygon Mumbai',
-  };
 
   const nextPage = () => {
     setSkip(skip + 20);
@@ -79,9 +60,30 @@ const Tags: NextPage = () => {
         <title>{t('tags')} | Ethereum Tag Service</title>
       </Head>
 
-      {/* <h1 className="text-3xl font-bold text-slate-700">{t('tags')}</h1> */}
-
-      <Table title={t('tags')} columns={columns} data={data} />
+      <Table
+        loading={!tags}
+        rows={pageSize}>
+        <Table.Title>{t('tags')}</Table.Title>
+        <Table.Head>
+          <Table.Tr>
+            {columns && columns.map(column => <Table.Th key={column}>{column}</Table.Th>)}
+          </Table.Tr>
+        </Table.Head>
+        <Table.Body>
+          {tags && tags.map((tag: any) => (
+            <Table.Tr key={tag.id}>
+              <Table.Cell value={tag.name} url={`/tags/${tag.hashtagWithoutHash}`} />
+              <Table.CellWithChildren>
+                <div className="overflow-hidden text-ellipsis whitespace-nowrap"><TimeAgo date={tag.timestamp * 1000} /></div>
+              </Table.CellWithChildren>
+              <Table.Cell value={tag.creator} url={`/creators/${tag.creator}`} copyAndPaste />
+              <Table.Cell value={tag.owner} url={`/owners/${tag.owner}`} copyAndPaste />
+              <Table.Cell value={tag.publisher} url={`/publishers/${tag.publisher}`} copyAndPaste />
+              <Table.Cell value={number(parseInt(tag.tagCount))} right />
+            </Table.Tr>
+          ))}
+        </Table.Body>
+      </Table>
 
       <div className="flex justify-between mt-8">
         <Button disabled={skip === 0} onClick={() => prevPage()}>
@@ -91,7 +93,7 @@ const Tags: NextPage = () => {
           </svg>
           Prev
         </Button>
-        <Button disabled={data && data.nextTags.length === 0} onClick={() => nextPage()}>
+        <Button disabled={nextTags && nextTags.length === 0} onClick={() => nextPage()}>
           Next
           <svg className="relative inline-flex w-6 h-6 ml-2 -mr-1" fill="none" viewBox="0 0 24 24">
             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.75 6.75L19.25 12L13.75 17.25"></path>

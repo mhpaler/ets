@@ -17,6 +17,7 @@ import { extendEnvironment } from "hardhat/config";
 import { HardhatUserConfig } from "hardhat/types";
 
 import './tasks/accounts';
+import './tasks/signers';
 import './tasks/api-consumer';
 
 
@@ -141,6 +142,8 @@ const config: HardhatUserConfig = {
 extendEnvironment((hre) => {
   hre.ethernalSync = process.env.ETHERNAL_ENABLED == "true" ? true : false;
   hre.ethernalWorkspace = process.env.ETHERNAL_WORKSPACE ? process.env.ETHERNAL_WORKSPACE : "none";
+  hre.ethernalTrace = false;
+  hre.ethernalResetOnStart = process.env.ETHERNAL_WORKSPACE ? process.env.ETHERNAL_WORKSPACE : "none";;
 });
 
 export default config;

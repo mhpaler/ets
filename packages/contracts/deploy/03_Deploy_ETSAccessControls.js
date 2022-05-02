@@ -30,18 +30,6 @@ module.exports = async ({
     }
     await save('ETSAccessControls', proxyDeployments);
 
-    // Initialize some application level settings.
-    // TODO: consider moving this into it's own script?
-    await deployment.grantRole(
-      await deployment.SMART_CONTRACT_ROLE(),
-      ETSAdmin,
-      {
-        from: ETSAdmin,
-      },
-    );
-    // add a publisher to the protocol
-    // await deployment.grantRole(ethers.utils.id("PUBLISHER"), ETSPublisher);
-
     log("====================================================");
     log('ETSAccessControls proxy deployed to -> ' + deployment.address);
     log('ETSAccessControls implementation deployed to -> ' + implementation);
@@ -49,4 +37,3 @@ module.exports = async ({
 };
 
 module.exports.tags = ['ets_access_controls'];
-//module.exports.dependencies = ['api']
