@@ -380,10 +380,6 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
             _sponsor
         );
 
-        if (taggingRecords[taggingRecordId]) {
-
-        }
-
         taggingRecords[taggingRecordId] = TaggingRecord({
             etsTagIds: _etsTagIds,
             targetId: _targetId,
