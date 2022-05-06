@@ -109,6 +109,10 @@ interface IETS {
         uint256 targetId
     );
 
+    event TaggingRecordUpdated (
+      uint256 taggingId
+    );
+
     /// @notice Tag a target with an tag string.
     /// TODO: Finish documenting.
     function tagTarget(
