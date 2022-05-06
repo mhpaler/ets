@@ -61,9 +61,6 @@ const config: HardhatUserConfig = {
   abiExporter: {
     path: './abi',
     runOnCompile: true,
-    clear: true,
-    pretty: true,
-    flat: false,
   },
   dodoc: {
     runOnCompile: true,
