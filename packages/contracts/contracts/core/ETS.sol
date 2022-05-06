@@ -380,6 +380,10 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
             _sponsor
         );
 
+        if (taggingRecords[taggingRecordId]) {
+
+        }
+
         taggingRecords[taggingRecordId] = TaggingRecord({
             etsTagIds: _etsTagIds,
             targetId: _targetId,
@@ -393,6 +397,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     }
 
     /// @notice Allow either a tagger or a sponsor to update the tags for a tagging record pointing to a target
+    /// Append or replace
     function updateTaggingRecord(
         uint256 _taggingRecordId,
         string[] calldata _tags
@@ -432,6 +437,9 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
             taggingRecord.etsTagIds = etsTagIds;
         }
+
+        // Log that a tagging record has been tagged.
+        emit TaggingRecordUpdated(_taggingRecordId);
     }
 
     /// @notice Deterministically compute the tagging record identifier

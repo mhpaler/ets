@@ -35,7 +35,8 @@ packages/**/data
 # Hardhat files
 packages/contracts/*.txt
 packages/contracts/cache*
-packages/contracts/artifacts*
+packages/contracts/artifacts/
+packages/contracts/deployments/
 packages/contracts/.openzeppelin/*
 
 # subgraph
