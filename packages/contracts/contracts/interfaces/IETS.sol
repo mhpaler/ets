@@ -62,10 +62,6 @@ interface IETS {
 
     /// Events
 
-    event TargetTagged(
-        uint256 taggingId
-    );
-
     event FundsWithdrawn(
         address indexed who,
         uint256 amount
@@ -109,8 +105,12 @@ interface IETS {
         uint256 targetId
     );
 
+    event TargetTagged(
+        uint256 taggingRecordId
+    );
+
     event TaggingRecordUpdated (
-      uint256 taggingId
+      uint256 taggingRecordId
     );
 
     /// @notice Tag a target with an tag string.
