@@ -63,7 +63,7 @@ interface IETS {
     /// Events
 
     event TargetTagged(
-        uint256 taggingId
+        uint256 taggingRecordId
     );
 
     event FundsWithdrawn(
