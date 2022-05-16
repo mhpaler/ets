@@ -16,7 +16,7 @@ const withNextra = require('nextra')({
     return [
       {
         source: '/explorer',
-        destination: 'https://app-f0rqgtug1-ethereum-tag-service.vercel.app/',
+        destination: 'https://stage.app.ets.xyz/',
         permanent: false,
         basePath: false
       },
