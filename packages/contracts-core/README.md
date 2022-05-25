@@ -1,27 +1,68 @@
-# Hashtag Protocol Deployment
+# Contracts
 
-Contained in this folder are two different implementations of hardhat deployment scripts.
+Contracts are located in `packages/contracts`.
 
-`/hardhat-deploy/` contains deployment scripts that utilize [hardhat-deploy plugin](https://hardhat.org/plugins/hardhat-deploy.html) `/hardhat-upgrades/` contains scripts that utilize [hardhat-upgrades](https://hardhat.org/plugins/openzeppelin-hardhat-upgrades.html)
+We use [Hardhat](https://hardhat.org/) as our Solidity smart contract development environment. Before using Hardhat, make a copy of `.env.example` in the project root named `.env`. The default settings in there should be enough to get you going. Next, start up Hardhat:
 
-The scripts in `hardhat-upgrades` are our production scripts at the moment. While the hardhat-deploy plugin is indeed powerful, we had great difficulty getting it to work with UUPS proxy upgrades, the upgrade pattern used for HTPs main contracts.
-
-The actual scripts called to kick off a deployment are in /scripts. A deployment script instantiates a `Deployer` object (defined in `utils/deployer.js`), and passes to it one or more `tags` which correspond to deployment `tasks` defined in `utils/tasks.js`.
-
-For example, the script `scripts/upgrade_all.js` executes the tasks with the these tags `"upgrade_ets_access_controls", "upgrade_ets_tag", "upgrade_ets"`
-
-To deploy the Hashtag Protocol contracts locally, perform the following from the root of `/hashtag-contracts/`:
-
-``` bash
-hardhat run --network <network> deploy/hardhat-upgrades/scripts/deploy_all.js
+```bash
+npm hardhat
 ```
 
-To test the upgrade of a contract, for example HashtagAccessControls.sol, you would perform the following:
+Running `npm hardhat` spins up a Hardhat network instance that you can connect to using MetaMask. In a different terminal in the same directory, run:
 
-``` bash
-hardhat run --network <network> deploy/hardhat-upgrades/scripts/upgrade_ets_access_controls.js
+```bash
+npm hardhat:deploy
 ```
 
-Note that when deployments are run, deployment artifacts (ie contract addresses per network) are saved to both `/.deployments/[chainid].json` and `/config/config.json`.
+This will deploy the contracts to the Hardhat network.
 
-Also node, a nice improvement to this set up would be a single task handler script that tags tags as arguments.
+Or, if you would like to deploy and then watch the [contracts](#contracts) for changes and auto-deploy them to the local Hardhat network, you can just run:
+
+```bash
+npm hardhat:watch
+```
+
+Deployment and watching scripts are located in `packages/contracts/scripts` and `packages/contracts/deploy`.
+
+#### Ethernal
+
+We are big fans of using [Ethernal](https://doc.tryethernal.com/) to help with smart contract development. Think of Ethernal like Etherscan, but for your locally running Hardhat blockchain. We use it to quickly interact with our locally deployed contracts.
+
+Once you have Ethernal setup, enable it for local ETS development by setting the following in your .env file:
+
+```text
+ETHERNAL_ENABLED=true
+ETHERNAL_WORKSPACE=[you local workspace name]
+```
+
+Now when you run `npm hardhat:deploy` your contracts will be automatically verified in the Ethernal interface allowing you to directly interact with them.
+
+Note: its a good idea when re-deploying contracts to first reset your Ethernal workspace by issuing the following command:
+
+```txt
+ethernal reset [workspace name]
+```
+
+Remember to use quotes around `workspace name` if it has spaces.
+
+### Tests
+
+To run tests:
+
+```bash
+npm hardhat:test
+```
+
+### Deployments
+
+To deploy contracts to Polygon Mumbai, run:
+
+```bash
+npm hardhat:deploy-mumbai
+```
+
+To deploy the subgraph:
+
+```bash
+npm graph:ship-mumbai
+```
