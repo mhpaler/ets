@@ -1,16 +1,210 @@
 [
-  "event AdminChanged(address,address)",
-  "event BeaconUpgraded(address indexed)",
-  "event RequestEnsureTarget(uint256)",
-  "event Upgraded(address indexed)",
-  "function NAME() view returns (string)",
-  "function VERSION() view returns (string)",
-  "function accessControls() view returns (address)",
-  "function ets() view returns (address)",
-  "function fulfillEnsureTarget(uint256,string,uint256)",
-  "function initialize(address,address)",
-  "function platform() view returns (address)",
-  "function requestEnsureTarget(uint256)",
-  "function upgradeTo(address)",
-  "function upgradeToAndCall(address,bytes) payable"
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "previousAdmin",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newAdmin",
+        "type": "address"
+      }
+    ],
+    "name": "AdminChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "beacon",
+        "type": "address"
+      }
+    ],
+    "name": "BeaconUpgraded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "targetId",
+        "type": "uint256"
+      }
+    ],
+    "name": "RequestEnsureTarget",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "implementation",
+        "type": "address"
+      }
+    ],
+    "name": "Upgraded",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "NAME",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "VERSION",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "accessControls",
+    "outputs": [
+      {
+        "internalType": "contract ETSAccessControls",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ets",
+    "outputs": [
+      {
+        "internalType": "contract ETS",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_targetId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_ipfsHash",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_status",
+        "type": "uint256"
+      }
+    ],
+    "name": "fulfillEnsureTarget",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract ETSAccessControls",
+        "name": "_accessControls",
+        "type": "address"
+      },
+      {
+        "internalType": "contract ETS",
+        "name": "_ets",
+        "type": "address"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "platform",
+    "outputs": [
+      {
+        "internalType": "address payable",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_targetId",
+        "type": "uint256"
+      }
+    ],
+    "name": "requestEnsureTarget",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newImplementation",
+        "type": "address"
+      }
+    ],
+    "name": "upgradeTo",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newImplementation",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "name": "upgradeToAndCall",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  }
 ]
