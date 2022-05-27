@@ -11,10 +11,11 @@ const Error = ["None", "RevertWithMessage", "RevertWithoutMessage", "Panic"].red
   {},
 );
 
-const firstTokenId = new BN("1");
-const secondTokenId = new BN("2");
+const tag1 = "#TokenizeEverything";
+const tag2 = "#trustless";
+const firstTokenId = "26056379909737856550015515958401490153572348305968831462962556214796192847542";
+const secondTokenId = "38593528540894169991277332302023612800646425531175410200147135177119611307149";
 const nonExistentTokenId = new BN("999999999");
-
 const RECEIVER_MAGIC_VALUE = "0x150b7a02";
 
 let receipt;
@@ -34,8 +35,8 @@ function shouldBehaveLikeERC721(
 
   context("with minted tokens", function () {
     beforeEach(async function () {
-      await this.token.mint("#TokenizeEverything", publisher, creator);
-      await this.token.mint("#trustless", publisher, creator);
+      await this.token.mint(tag1, publisher, creator);
+      await this.token.mint(tag2, publisher, creator);
       this.toWhom = other; // default to other for toWhom in context-dependent tests
     });
 
@@ -584,7 +585,7 @@ function shouldBehaveLikeERC721(
 
     context("with minted token", async function () {
       beforeEach(async function () {
-        receipt = await this.token.mint("#TokenizeEverything", publisher, creator);
+        receipt = await this.token.mint(tag1, publisher, creator);
       });
 
       it("emits a Transfer event", function () {
@@ -597,7 +598,7 @@ function shouldBehaveLikeERC721(
       });
 
       it("reverts when adding a token id that already exists", async function () {
-        await expectRevert(this.token.mint("#TokenizeEverything", publisher, creator), "ERC721: token already minted");
+        await expectRevert(this.token.mint(tag1, publisher, creator), "ERC721: token already minted");
       });
     });
   });
@@ -609,8 +610,8 @@ function shouldBehaveLikeERC721(
 
     context("with minted tokens", function () {
       beforeEach(async function () {
-        await this.token.mint("#TokenizeEverything", publisher, creator);
-        await this.token.mint("#trustless", publisher, creator);
+        await this.token.mint(tag1, publisher, creator);
+        await this.token.mint(tag2, publisher, creator);
       });
 
       context("with burnt token", function () {
@@ -798,11 +799,12 @@ function shouldBehaveLikeERC721Metadata(errorPrefix, name, symbol, owner, publis
 
     describe("token URI", function () {
       beforeEach(async function () {
-        await this.token.mint("#TokenizeEverything", publisher, creator);
+        await this.token.mint(tag1, publisher, creator);
       });
 
       it("return empty string by default", async function () {
-        expect(await this.token.tokenURI(firstTokenId.toNumber())).to.be.equal("https://api.hashtag-protocol.io/1");
+        const baseURI = await this.token.baseURI();
+        expect(await this.token.tokenURI(firstTokenId)).to.be.equal(`${baseURI}${firstTokenId}`);
       });
 
       it("reverts when queried for non existent token id", async function () {

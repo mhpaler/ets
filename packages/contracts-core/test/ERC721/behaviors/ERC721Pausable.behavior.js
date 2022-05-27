@@ -2,7 +2,7 @@ const { BN, constants, expectRevert } = require("@openzeppelin/test-helpers");
 const { expect } = require("chai");
 const { ZERO_ADDRESS } = constants;
 
-const firstTokenId = new BN("1");
+const firstTokenId = "26056379909737856550015515958401490153572348305968831462962556214796192847542";
 const mockData = "0x42";
 
 function shouldBehaveLikeERC721Pausable(
@@ -89,7 +89,7 @@ function shouldBehaveLikeERC721Pausable(
 
     describe("exists", function () {
       it("returns token existence", async function () {
-        expect(await this.token.exists(firstTokenId)).to.equal(true);
+        expect(await this.token.tagExists(firstTokenId)).to.equal(true);
       });
     });
 

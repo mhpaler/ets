@@ -4,13 +4,13 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "address",
+        "internalType": "contract ETSAccessControls",
         "name": "previousAccessControls",
         "type": "address"
       },
       {
         "indexed": false,
-        "internalType": "address",
+        "internalType": "contract ETSAccessControls",
         "name": "newAccessControls",
         "type": "address"
       }
@@ -43,6 +43,56 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "approved",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "Approval",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "operator",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "approved",
+        "type": "bool"
+      }
+    ],
+    "name": "ApprovalForAll",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "beacon",
         "type": "address"
       }
@@ -54,134 +104,31 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "address",
-        "name": "previousETSEnsure",
-        "type": "address"
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
       },
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "newETSEnsure",
-        "type": "address"
-      }
-    ],
-    "name": "ETSEnsureUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
+        "internalType": "string",
+        "name": "displayVersion",
+        "type": "string"
+      },
       {
         "indexed": true,
         "internalType": "address",
-        "name": "who",
+        "name": "publisher",
         "type": "address"
       },
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
       }
     ],
-    "name": "FundsWithdrawn",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "platformPercentage",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "publisherPercentage",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "remainingPercentage",
-        "type": "uint256"
-      }
-    ],
-    "name": "PercentagesSet",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "targetId",
-        "type": "uint256"
-      }
-    ],
-    "name": "RequestEnsureTarget",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "previousFee",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "taggingFee",
-        "type": "uint256"
-      }
-    ],
-    "name": "TaggingFeeSet",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "taggingRecordId",
-        "type": "uint256"
-      }
-    ],
-    "name": "TaggingRecordUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "targetId",
-        "type": "uint256"
-      }
-    ],
-    "name": "TargetCreated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "taggingRecordId",
-        "type": "uint256"
-      }
-    ],
-    "name": "TargetTagged",
+    "name": "MintTag",
     "type": "event"
   },
   {
@@ -190,17 +137,11 @@
       {
         "indexed": false,
         "internalType": "string",
-        "name": "typeName",
+        "name": "baseURI",
         "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "setting",
-        "type": "bool"
       }
     ],
-    "name": "TargetTypeSet",
+    "name": "NewBaseURI",
     "type": "event"
   },
   {
@@ -209,11 +150,176 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "targetId",
+        "name": "originalOwnershipLength",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "updatedOwnershipLength",
         "type": "uint256"
       }
     ],
-    "name": "TargetUpdated",
+    "name": "OwnershipTermLengthUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "Paused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "previousPlatformAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newPlatformAddress",
+        "type": "address"
+      }
+    ],
+    "name": "PlatformSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "originalRenewalPeriod",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "updatedRenewalPeriod",
+        "type": "uint256"
+      }
+    ],
+    "name": "RenewalPeriodUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "TagBurned",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "previousMaxStringLength",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newMaxStringLength",
+        "type": "uint256"
+      }
+    ],
+    "name": "TagMaxStringLengthUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "TagRecycled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "TagRenewed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "Transfer",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "Unpaused",
     "type": "event"
   },
   {
@@ -272,100 +378,34 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "accrued",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_targetId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_publisher",
+        "name": "to",
         "type": "address"
       },
       {
-        "internalType": "address",
-        "name": "_tagger",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_sponsor",
-        "type": "address"
-      }
-    ],
-    "name": "computeTaggingRecordId",
-    "outputs": [
-      {
         "internalType": "uint256",
-        "name": "taggingRecordId",
+        "name": "tokenId",
         "type": "uint256"
       }
     ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_targetType",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_targetURI",
-        "type": "string"
-      }
-    ],
-    "name": "computeTargetId",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "targetId",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address payable",
-        "name": "_account",
-        "type": "address"
-      }
-    ],
-    "name": "drawDown",
+    "name": "approve",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "etsEnsure",
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "balanceOf",
     "outputs": [
       {
-        "internalType": "contract ETSEnsure",
+        "internalType": "uint256",
         "name": "",
-        "type": "address"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -373,94 +413,62 @@
   },
   {
     "inputs": [],
-    "name": "etsTag",
+    "name": "baseURI",
     "outputs": [
       {
-        "internalType": "contract ETSTag",
+        "internalType": "string",
         "name": "",
-        "type": "address"
+        "type": "string"
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "burn",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
       {
         "internalType": "string",
-        "name": "_tagString",
+        "name": "_tag",
         "type": "string"
-      },
-      {
-        "internalType": "address payable",
-        "name": "_publisher",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_tagger",
-        "type": "address"
       }
     ],
-    "name": "getOrCreateTag",
+    "name": "computeTagId",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "tagId",
+        "name": "",
         "type": "uint256"
       }
     ],
-    "stateMutability": "payable",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_targetId",
+        "name": "tokenId",
         "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_tagger",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_publisher",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_sponsor",
-        "type": "address"
       }
     ],
-    "name": "getTaggingRecord",
+    "name": "getApproved",
     "outputs": [
       {
-        "internalType": "uint256[]",
-        "name": "etsTagIds",
-        "type": "uint256[]"
-      },
-      {
-        "internalType": "uint256",
-        "name": "targetId",
-        "type": "uint256"
-      },
-      {
         "internalType": "address",
-        "name": "tagger",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "publisher",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "sponsor",
+        "name": "",
         "type": "address"
       }
     ],
@@ -471,35 +479,39 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_id",
+        "name": "_tokenId",
         "type": "uint256"
       }
     ],
-    "name": "getTaggingRecordFromId",
+    "name": "getCreatorAddress",
     "outputs": [
       {
-        "internalType": "uint256[]",
-        "name": "etsTagIds",
-        "type": "uint256[]"
-      },
+        "internalType": "address",
+        "name": "_creator",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
         "internalType": "uint256",
-        "name": "targetId",
+        "name": "_tokenId",
         "type": "uint256"
-      },
+      }
+    ],
+    "name": "getPaymentAddresses",
+    "outputs": [
       {
-        "internalType": "address",
-        "name": "tagger",
+        "internalType": "address payable",
+        "name": "_platform",
         "type": "address"
       },
       {
-        "internalType": "address",
-        "name": "publisher",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "sponsor",
+        "internalType": "address payable",
+        "name": "_owner",
         "type": "address"
       }
     ],
@@ -514,8 +526,8 @@
         "type": "address"
       },
       {
-        "internalType": "contract ETSTag",
-        "name": "_etsTag",
+        "internalType": "address payable",
+        "name": "_platform",
         "type": "address"
       }
     ],
@@ -527,12 +539,17 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_targetId",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "operator",
+        "type": "address"
       }
     ],
-    "name": "isTargetEnsured",
+    "name": "isApprovedForAll",
     "outputs": [
       {
         "internalType": "bool",
@@ -544,86 +561,10 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "modulo",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "paid",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "platformPercentage",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "publisherPercentage",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "remainingPercentage",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string[]",
-        "name": "_tags",
-        "type": "string[]"
-      },
       {
         "internalType": "string",
-        "name": "_targetURI",
+        "name": "_tag",
         "type": "string"
       },
       {
@@ -633,28 +574,56 @@
       },
       {
         "internalType": "address",
-        "name": "_tagger",
+        "name": "_creator",
         "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_sponsor",
-        "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "_ensure",
-        "type": "bool"
       }
     ],
-    "name": "tagTarget",
-    "outputs": [],
+    "name": "mint",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "payable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "taggingCounter",
+    "name": "name",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "ownerOf",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ownershipTermLength",
     "outputs": [
       {
         "internalType": "uint256",
@@ -667,12 +636,32 @@
   },
   {
     "inputs": [],
-    "name": "taggingFee",
+    "name": "pause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "paused",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "bool",
         "name": "",
-        "type": "uint256"
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "platform",
+    "outputs": [
+      {
+        "internalType": "address payable",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -682,31 +671,124 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_tokenId",
         "type": "uint256"
       }
     ],
-    "name": "taggingRecords",
-    "outputs": [
+    "name": "recycleTag",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
         "internalType": "uint256",
-        "name": "targetId",
+        "name": "_tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "renewTag",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "safeTransferFrom",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
         "type": "uint256"
       },
       {
+        "internalType": "bytes",
+        "name": "_data",
+        "type": "bytes"
+      }
+    ],
+    "name": "safeTransferFrom",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
-        "name": "tagger",
+        "name": "operator",
         "type": "address"
       },
       {
-        "internalType": "address",
-        "name": "publisher",
-        "type": "address"
-      },
+        "internalType": "bool",
+        "name": "approved",
+        "type": "bool"
+      }
+    ],
+    "name": "setApprovalForAll",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
-        "internalType": "address",
-        "name": "sponsor",
-        "type": "address"
+        "internalType": "bytes4",
+        "name": "interfaceId",
+        "type": "bytes4"
+      }
+    ],
+    "name": "supportsInterface",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "symbol",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
       }
     ],
     "stateMutability": "view",
@@ -716,16 +798,11 @@
     "inputs": [
       {
         "internalType": "string",
-        "name": "_targetType",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_targetURI",
+        "name": "_tag",
         "type": "string"
       }
     ],
-    "name": "targetExists",
+    "name": "tagExists",
     "outputs": [
       {
         "internalType": "bool",
@@ -740,11 +817,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_targetId",
+        "name": "_tokenId",
         "type": "uint256"
       }
     ],
-    "name": "targetExistsFromId",
+    "name": "tagExists",
     "outputs": [
       {
         "internalType": "bool",
@@ -756,6 +833,32 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "tagMaxStringLength",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "tagMinStringLength",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -763,36 +866,59 @@
         "type": "uint256"
       }
     ],
-    "name": "targets",
+    "name": "tokenIdToLastTransferTime",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "tokenIdToTag",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "originalPublisher",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "displayVersion",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "tokenURI",
     "outputs": [
       {
         "internalType": "string",
-        "name": "targetType",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "targetURI",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "created",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "lastEnsured",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "status",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "ipfsHash",
+        "name": "",
         "type": "string"
       }
     ],
@@ -803,19 +929,30 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_account",
+        "name": "from",
         "type": "address"
-      }
-    ],
-    "name": "totalDue",
-    "outputs": [
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
       {
         "internalType": "uint256",
-        "name": "_due",
+        "name": "tokenId",
         "type": "uint256"
       }
     ],
-    "stateMutability": "view",
+    "name": "transferFrom",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "unPause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -834,12 +971,38 @@
   {
     "inputs": [
       {
-        "internalType": "contract ETSEnsure",
-        "name": "_etsEnsure",
+        "internalType": "string",
+        "name": "newBaseURI",
+        "type": "string"
+      }
+    ],
+    "name": "updateBaseURI",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_ownershipTermLength",
+        "type": "uint256"
+      }
+    ],
+    "name": "updateOwnershipTermLength",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address payable",
+        "name": "_platform",
         "type": "address"
       }
     ],
-    "name": "updateETSEnsure",
+    "name": "updatePlatform",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -848,92 +1011,12 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_platformPercentage",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_publisherPercentage",
+        "name": "_tagMaxStringLength",
         "type": "uint256"
       }
     ],
-    "name": "updatePercentages",
+    "name": "updateTagMaxStringLength",
     "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_fee",
-        "type": "uint256"
-      }
-    ],
-    "name": "updateTaggingFee",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_taggingRecordId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string[]",
-        "name": "_tags",
-        "type": "string[]"
-      }
-    ],
-    "name": "updateTaggingRecord",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_targetId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "_targetType",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_targetURI",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_lastEnsured",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_status",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "_ipfsHash",
-        "type": "string"
-      }
-    ],
-    "name": "updateTarget",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "success",
-        "type": "bool"
-      }
-    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },

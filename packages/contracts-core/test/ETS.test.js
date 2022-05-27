@@ -1,39 +1,28 @@
-const { expectEvent } = require("@openzeppelin/test-helpers");
-const { ethers, upgrades, artifacts } = require("hardhat");
+const { ethers, upgrades } = require("hardhat");
 const { expect, assert } = require("chai");
-const { utils, constants } = ethers;
-const { signTagRequest, getSignerPrivateKey } = require('./signature-utils');
+const { BigNumber, constants } = ethers;
 
-let accounts, factories, artifact, ETSAccessControls, ETSTag, ETS, ERC721Mock, EVMNFT, EVMNFTName;
-let taggingFee, platformPercentage, publisherPercentage, taggerPercentage;
+let accounts, factories, ETSAccessControls, ETS;
 
-describe("ETS", function () {
+describe("ETS Core Tests", function () {
+  // we create a setup function that can be called by every test and setup variable for easy to read tests
   beforeEach("Setup test", async function () {
     // See namedAccounts section of hardhat.config.js
-    // Call extensions to ethers provided by hardhat deploy.
     const namedAccounts = await ethers.getNamedSigners();
     const unnamedAccounts = await ethers.getUnnamedSigners();
     accounts = {
       ETSAdmin: namedAccounts["ETSAdmin"],
       ETSPublisher: namedAccounts["ETSPublisher"],
       ETSPlatform: namedAccounts["ETSPlatform"],
-      Buyer: unnamedAccounts[0], // Wallet 3
+      Buyer: unnamedAccounts[0],
       RandomOne: unnamedAccounts[1],
       RandomTwo: unnamedAccounts[2],
       Creator: unnamedAccounts[3],
-      Tagger: unnamedAccounts[4], // Wallet #7
     };
 
     factories = {
       ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
-      ETSTag: await ethers.getContractFactory("ETSTag"),
       ETS: await ethers.getContractFactory("ETS"),
-      ERC721BurnableMock: await ethers.getContractFactory("ERC721BurnableMock"),
-      EVMNFT: await ethers.getContractFactory("EVMNFT"),
-    };
-
-    artifact = {
-      ETS: await artifacts.readArtifactSync("ETS"),
     };
 
     // Deploy the initial proxy contract.
@@ -49,178 +38,176 @@ describe("ETS", function () {
     // add a publisher to the protocol
     await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER"), accounts.ETSPublisher.address);
 
-    // hardhat account #2 - private key is 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
-    await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER"), "0x70997970c51812dc3a010c7d01b50e0d17dc79c8");
-
     // Deploy the initial proxy contract.
-    ETSTag = await upgrades.deployProxy(
-      factories.ETSTag,
+    ETS = await upgrades.deployProxy(
+      factories.ETS,
       [ETSAccessControls.address, accounts.ETSPlatform.address],
       { kind: "uups" },
     );
-
-    ETS = await upgrades.deployProxy(
-      factories.ETS,
-      [ETSAccessControls.address, ETSTag.address],
-      { kind: "uups" },
-    );
-
-    ERC721Mock = await factories.ERC721BurnableMock.deploy("NFT", "NFT");
-    await ERC721Mock.deployed();
-
-    EVMNFT = await upgrades.deployProxy(
-      factories.EVMNFT,
-      [ETS.address, accounts.ETSAdmin.address, accounts.ETSAdmin.address],
-      { kind: "uups" },
-    );
-
-    EVMNFTName = await EVMNFT.name();
-    await ETSAccessControls.addTargetType(
-      EVMNFT.address,
-      EVMNFTName,
-      { from: accounts.ETSAdmin.address },
-    );
-
-    // Fetch tags fee
-    taggingFee = await ETS.taggingFee();
-    taggingFee = taggingFee.toString();
-
-    platformPercentage = await ETS.platformPercentage();
-    platformPercentage = platformPercentage.toString();
-
-    publisherPercentage = await ETS.publisherPercentage();
-    publisherPercentage = publisherPercentage.toString();
-
-    taggerPercentage = await ETS.remainingPercentage();
-    taggerPercentage = taggerPercentage.toString();
-
-    // Set permitted target NFT chain id.
-    // await ETS.setPermittedNftChainId(constants.One, true);
-
-    // Mint a HASHTAG token for tagging.
-    await ETSTag.mint("#kittypower", accounts.ETSPublisher.address, accounts.Tagger.address);
-    //await ETSTag.hashtagToTokenId("#kittypower");
-
-    // Mint two target nfts.
-    const nftOneId = constants.One;
-    const nftTwoId = constants.Two;
-    await ERC721Mock.mint(accounts.RandomOne.address, nftOneId); //#1
-    await ERC721Mock.mint(accounts.RandomOne.address, nftTwoId); //#2
   });
 
-  // todo - move to mock tagger test file
-  it.only('get tagger to sign the tag request works', async function() {
-    // define tag target (nft params)
-    const nftAddress = "0x8ee9a60cb5c0e7db414031856cb9e0f1f05988d1"
-    const tokenId = "3061"
-    const chainId = "1"
-
-    // sign over target URI as a way of approving tag using Hardhat private key for account #1 of HH node
-    const expectedTargetURI = await EVMNFT.composeTargetURI(
-      nftAddress,
-      tokenId,
-      chainId
-    ) // we compute same target URI as a real tagging event
-
-//    console.log("accounts.Tagger.address", accounts.Tagger.address);
-//
-//    const testPublicKey = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
-//    const testPrivateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
-    // const publisherPK = getSignerPrivateKey("ETSAdmin");
-
-    const tagParams = {
-      nftAddress,
-      tokenId,
-      chainId,
-      tagStrings: ["#land", "#cute", "#wow"],
-      ensure: false,
-    }
-
-    const tagParams2 = {
-      nftAddress,
-      tokenId,
-      chainId: "3",
-      tagStrings: ["#cute"],
-      ensure: false,
-    }
-
-    const taggingRecords = [
-      tagParams,
-      tagParams2
-    ]
-
-    const taggerSignature = signTagRequest(
-      EVMNFT.address,
-      await EVMNFT.name(),
-      await EVMNFT.version(),
-      taggingRecords,
-      getSignerPrivateKey("Tagger")
-    )
-
-//    const publisherPrivateKey = '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
-    const publisherSignature = signTagRequest(
-      EVMNFT.address,
-      await EVMNFT.name(),
-      await EVMNFT.version(),
-      taggingRecords,
-      getSignerPrivateKey("ETSPublisher")
-    )
-
-    await EVMNFT.tag(
-      taggingRecords,
-      taggerSignature,
-      publisherSignature,
-      {
-        value: ethers.BigNumber.from(taggingFee).mul('4')
-      }
-    )
-
-    const targetId = await ETS.computeTargetId(EVMNFTName, expectedTargetURI);
-    const taggingRecord = await ETS.getTaggingRecord(
-      targetId,
-      accounts.Tagger.address,
-      accounts.ETSPublisher.address,
-      accounts.ETSAdmin.address // sponsor/caller
-    );
-
-    const taggingRecordTarget = await ETS.targets(taggingRecord.targetId.toString());
-
-    expect(taggingRecord.targetId.toString()).to.be.equal(targetId);
-    expect(taggingRecordTarget.targetURI).to.be.equal(expectedTargetURI);
-    expect(taggingRecord.tagger.toLowerCase()).to.be.equal(accounts.Tagger.address.toLowerCase());
-  })
-
-  describe("Validate setup", function () {
-    describe("Initial state", async function () {
-      it("should have total tags of zero", async function () {
-        expect(await ETS.taggingCounter()).to.be.equal("0");
-      });
-
-      it("should have Eth mainnet (chain id 1) permitted", async function () {
-        expect((await ETS.getPermittedNftChainId(1)) == true);
-      });
-
-      it("should have Polygon mainnet (chain id 137) not permitted", async function () {
-        expect((await ETS.getPermittedNftChainId(137)) == false);
-      });
+  describe("Validate setup", async function () {
+    it("should have name and symbol", async function () {
+      expect(await ETS.name()).to.be.equal("Ethereum Tag Service");
+      expect(await ETS.symbol()).to.be.equal("CTAG");
+      expect(await ETS.platform()).to.be.equal(accounts.ETSPlatform.address);
+    });
+    it("should have default configs", async function () {
+      expect(await ETS.ownershipTermLength()).to.be.equal("63072000");
     });
   });
 
-  describe("Only addresses with Admin access", async function () {
-    it("can set tag fee", async function () {
-      expect(await ETS.taggingFee()).to.be.equal(taggingFee);
-      await ETS.connect(accounts.ETSAdmin).setTaggingFee(utils.parseEther("1"));
-      expect(await ETS.taggingFee()).to.be.equal(utils.parseEther("1"));
+  describe("Minting tags", async function () {
+    describe("Validation", function () {
+      const RandomTwoTag = "asupersupersupersupersuperlongasstag";
 
-      await expect(ETS.connect(accounts.RandomTwo).setTaggingFee(utils.parseEther("1"))).to.be.reverted;
+      it("should revert if exists (case-insensitive)", async function () {
+        await ETS.connect(accounts.ETSPublisher).mint(
+          "#blockrocket",
+          accounts.ETSPublisher.address,
+          accounts.Creator.address,
+        );
+
+        await expect(
+          ETS.connect(accounts.ETSPublisher).mint(
+            "#BlockRocket",
+            accounts.ETSPublisher.address,
+            accounts.Creator.address,
+          ),
+        ).to.be.revertedWith("ERC721: token already minted");
+      });
+
+      it("should revert if tag does not meet min length requirements", async function () {
+        const tagMinStringLength = await ETS.tagMinStringLength();
+        const shortTag = "#" + RandomTwoTag.substring(0, tagMinStringLength - 2);
+        await expect(
+          ETS.connect(accounts.ETSPublisher).mint(
+            shortTag,
+            accounts.ETSPublisher.address,
+            accounts.Creator.address,
+          ),
+        ).to.be.revertedWith(`Invalid format: tag does not meet min/max length requirements`);
+      });
+
+      it("should revert if tag exceeds max length requirements", async function () {
+        const tagMaxStringLength = await ETS.tagMaxStringLength();
+        const longTag = "#" + RandomTwoTag.substring(0, tagMaxStringLength);
+        await expect(
+          ETS.connect(accounts.ETSPublisher).mint(
+            longTag,
+            accounts.ETSPublisher.address,
+            accounts.Creator.address,
+          ),
+        ).to.be.revertedWith(`Invalid format: tag does not meet min/max length requirements`);
+      });
+
+      it("should revert if tag has spaces", async function () {
+        const invalidTag = "#x art";
+        await expect(
+          ETS.connect(accounts.ETSPublisher).mint(
+            invalidTag,
+            accounts.ETSPublisher.address,
+            accounts.Creator.address,
+          ),
+        ).to.be.revertedWith("Space found: tag may not contain spaces");
+      });
+
+      it("should revert if does not start with #", async function () {
+        const invalidTag = "ART";
+        await expect(
+          ETS.connect(accounts.ETSPublisher).mint(
+            invalidTag,
+            accounts.ETSPublisher.address,
+            accounts.Creator.address,
+          ),
+        ).to.be.revertedWith("Tag must start with #");
+      });
+
+      it("should revert if tag prefix found after first char", async function () {
+        const invalidTag = "#Hash#";
+        await expect(
+          ETS.connect(accounts.ETSPublisher).mint(
+            invalidTag,
+            accounts.ETSPublisher.address,
+            accounts.Creator.address,
+          ),
+        ).to.be.revertedWith("Tag may not contain prefix");
+      });
+
+      it("should allow a mix of upper and lowercase characters", async function () {
+        await ETS.connect(accounts.ETSPublisher).mint(
+          "#Awesome123",
+          accounts.ETSPublisher.address,
+          accounts.Creator.address,
+        );
+      });
+    });
+
+    it("should mint", async function () {
+      const tag = "#BlockRocket";
+      const lowerTag = "#blockrocket";
+      await ETS.connect(accounts.RandomTwo).mint(
+        tag,
+        accounts.ETSPublisher.address,
+        accounts.Creator.address,
+      );
+
+      const tokenId = await ETS.computeTagId(tag);
+      const tagData = await ETS.tokenIdToTag(tokenId.toString());
+
+
+      // The following gives ETS.tagExists is not a function!!
+      // expect(await ETS.tagExists(tokenId)).to.be.equal(true);
+      expect(tagData.displayVersion.toLowerCase()).to.be.equal(lowerTag);
+      expect(tagData.displayVersion).to.be.equal(tag);
+      expect(tagData.originalPublisher).to.be.equal(accounts.ETSPublisher.address);
+      expect(tagData.creator).to.be.equal(accounts.Creator.address);
+    });
+
+    it("should mint from platform", async function () {
+      const tag = "#blockrocket";
+      await ETS.connect(accounts.ETSPlatform);
+      await ETS.mint(tag, accounts.ETSPublisher.address, accounts.Creator.address);
+
+      const tokenId = await ETS.computeTagId(tag);
+      const tagData = await ETS.tokenIdToTag(tokenId.toString());
+
+      expect(tagData.displayVersion.toLowerCase()).to.be.equal("#blockrocket");
+      expect(tagData.originalPublisher).to.be.equal(accounts.ETSPublisher.address);
+    });
+
+    it("should revert if the publisher is not whitelisted", async function () {
+      await expect(
+        ETS.connect(accounts.ETSPlatform).mint(
+          "#blockrocket",
+          accounts.RandomTwo.address,
+          accounts.Creator.address,
+        ),
+      ).to.be.revertedWith("Mint: The publisher must be whitelisted");
+    });
+  });
+
+  describe("Platform", async function () {
+    it("should be able to set platform as owner", async function () {
+      expect(await ETS.platform()).to.be.equal(accounts.ETSPlatform.address);
+
+      await ETS.connect(accounts.ETSAdmin).updatePlatform(accounts.RandomOne.address);
+
+      expect(await ETS.platform()).to.be.equal(accounts.RandomOne.address);
+    });
+
+    it("should revert if not owner", async function () {
+      await expect(ETS.connect(accounts.Buyer).updatePlatform(accounts.RandomOne.address)).to.be.revertedWith(
+        "Caller must have administrator access",
+      );
     });
 
     it("should update access controls", async function () {
       await ETS.connect(accounts.ETSAdmin).updateAccessControls(accounts.RandomTwo.address);
       expect(await ETS.accessControls()).to.be.equal(accounts.RandomTwo.address);
 
-      await expect(ETS.connect(accounts.RandomTwo).updateAccessControls(accounts.RandomTwo.address))
-        .to.be.reverted;
+      await expect(ETS.connect(accounts.RandomTwo).updateAccessControls(accounts.RandomTwo.address)).to.be
+        .reverted;
     });
 
     it("should revert when updating access controls to zero address", async function () {
@@ -230,491 +217,246 @@ describe("ETS", function () {
     });
   });
 
-  describe("Tagging", async function () {
-    it("should be able to mint and tag", async function () {
-      const targetNftId = constants.One;
-      const targetNftChainId = constants.One;
-
-      // Try tagging with a new tag.
-      const receipt = await ETS.connect(accounts.Tagger).tag(
-        "#macbook",
-        ERC721Mock.address,
-        targetNftId,
+  describe("Metadata", async function () {
+    it("should return tokenUri", async function () {
+      const tag = "#BlockRocket";
+      await ETS.connect(accounts.RandomTwo).mint(
+        tag,
         accounts.ETSPublisher.address,
-        accounts.Tagger.address,
-        targetNftChainId,
-        { value: taggingFee },
+        accounts.Creator.address,
       );
+      const tokenId = await ETS.computeTagId(tag);
+      let baseURI = await ETS.baseURI();
+      expect(await ETS.tokenURI(tokenId)).to.be.equal(`${baseURI}${tokenId}`);
 
-      await expectEvent.inTransaction(receipt.hash, artifact.ETS, "TargetTagged", {
-        taggingId: constants.One,
-      });
-
-      expect(await ETS.taggingCounter()).to.be.equal(1);
-
-      const {
-        _etsTagId,
-        _nftContract,
-        _nftId,
-        _tagger,
-        _timestamp,
-        _publisher,
-        _nftChainId,
-      } = await ETS.getTaggingRecord(constants.One);
-
-      // The newly minted ETSTAG should have id = 2
-      // because ETSTAG #1 was minted in the setup script.
-      expect(_etsTagId).to.be.equal(constants.Two);
-      expect(_nftContract).to.be.equal(ERC721Mock.address);
-      expect(_nftId).to.be.equal(targetNftId);
-      expect(_tagger).to.be.equal(accounts.Tagger.address);
-      expect(_timestamp).to.exist;
-      expect(Number(_timestamp.toString())).to.be.gt(0);
-      expect(_publisher).to.be.equal(accounts.ETSPublisher.address);
-      expect(_nftChainId).to.be.equal(targetNftChainId);
-
-      // Check accrued values
-      // Only one tag event happened, so it's tagging fee/participant %
-      expect(await ETS.accrued(accounts.ETSPublisher.address)).to.be.equal(
-        taggingFee * (publisherPercentage / 100),
-      );
-      expect(await ETS.accrued(accounts.ETSPlatform.address)).to.be.equal(
-        taggingFee * (platformPercentage / 100),
-      );
-      expect(await ETS.accrued(accounts.Tagger.address)).to.be.equal(
-        taggingFee * (taggerPercentage / 100),
-      );
-    });
-
-    it("should be able to tag a cryptokittie with #kittypower (pre-auction of #kittypower)", async function () {
-      const targetNftId = constants.One;
-      const targetNftChainId = constants.One;
-      const tagId = constants.One; // the id of the tagging event.
-
-      const receipt = await ETS.connect(accounts.Tagger).tag(
-        "#kittypower",
-        ERC721Mock.address,
-        targetNftId,
-        accounts.ETSPublisher.address,
-        accounts.Tagger.address,
-        targetNftChainId,
-        { value: taggingFee },
-      );
-
-      await expectEvent.inTransaction(receipt.hash, artifact.ETS, "TargetTagged", {
-        taggingId: constants.One,
-      });
-
-      expect(await ETS.taggingCounter()).to.be.equal(1);
-
-      const {
-        _etsTagId,
-        _nftContract,
-        _nftId,
-        _tagger,
-        _timestamp,
-        _publisher,
-        _nftChainId,
-      } = await ETS.getTaggingRecord(tagId);
-
-      expect(_etsTagId).to.be.equal(constants.One);
-      expect(_nftContract).to.be.equal(ERC721Mock.address);
-      expect(_nftId).to.be.equal(targetNftId);
-      expect(_tagger).to.be.equal(accounts.Tagger.address);
-      expect(_timestamp).to.exist;
-      expect(Number(_timestamp.toString())).to.be.gt(0);
-      expect(_publisher).to.be.equal(accounts.ETSPublisher.address);
-      expect(_nftChainId).to.be.equal(targetNftChainId);
-
-      // check accrued values
-      expect(await ETS.accrued(accounts.ETSPublisher.address)).to.be.equal(
-        taggingFee * (publisherPercentage / 100),
-      );
-      expect(await ETS.accrued(accounts.ETSPlatform.address)).to.be.equal(
-        taggingFee * (platformPercentage / 100),
-      );
-      expect(await ETS.accrued(accounts.Tagger.address)).to.be.equal(
-        taggingFee * (taggerPercentage / 100),
-      );
-    });
-
-    it("should be able to tag a Polygon NFT with #kittycat (pre-auction of #kittycat)", async function () {
-      // Attempt to tag this actual Matic NFT
-      // https://opensea.io/assets/matic/0xd5a5ddd6f4e7d839db2978e8a4ee9923ac088cb3/9268
-      const targetNftAddress = utils.getAddress("0xd5a5ddd6f4e7d839db2978e8a4ee9923ac088cb3");
-      const targetNftId = "9368";
-      const matic = "137";
-
-      // Permit tagging of assets on chain id 137.
-      await ETS.connect(accounts.ETSAdmin).setPermittedNftChainId(matic, true);
-      expect((await ETS.getPermittedNftChainId(matic)) == true);
-
-      const receipt = await ETS.connect(accounts.Tagger).tag(
-        "#kittypower",
-        targetNftAddress,
-        targetNftId,
-        accounts.ETSPublisher.address,
-        accounts.Tagger.address,
-        matic,
-        { value: taggingFee },
-      );
-
-      await expectEvent.inTransaction(receipt.hash, artifact.ETS, "TargetTagged", {
-        taggingId: constants.One,
-      });
-    });
-
-    it("should be able to tag a cryptokittie on mainnet with #kittypower (pre and post auction of #kittypower)", async function () {
-      const targetNftChainId = constants.One;
-      const targetNftId = constants.One;
-
-      // Tag pre auction and make sure that accrued values are correct
-      await ETS.connect(accounts.Tagger).tag(
-        "#kittypower",
-        ERC721Mock.address,
-        targetNftId,
-        accounts.ETSPublisher.address,
-        accounts.Tagger.address,
-        targetNftChainId,
-        { value: taggingFee },
-      );
-
-      expect(await ETS.taggingCounter()).to.be.equal(1);
-
-      const {
-        _etsTagId,
-        _nftContract,
-        _nftId,
-        _tagger,
-        _timestamp,
-        _publisher,
-        _nftChainId,
-      } = await ETS.getTaggingRecord(constants.One);
-
-      expect(_etsTagId).to.be.equal(constants.One);
-      expect(_nftContract).to.be.equal(ERC721Mock.address);
-      expect(_nftId).to.be.equal(targetNftId);
-      expect(_tagger).to.be.equal(accounts.Tagger.address);
-      expect(_timestamp).to.exist;
-      expect(Number(_timestamp.toString())).to.be.gt(0);
-      expect(_publisher).to.be.equal(accounts.ETSPublisher.address);
-      expect(_nftChainId).to.be.equal(targetNftChainId);
-
-      // check accrued values
-      expect(await ETS.accrued(accounts.ETSPublisher.address)).to.be.equal(
-        taggingFee * (publisherPercentage / 100),
-      );
-      expect(await ETS.accrued(accounts.ETSPlatform.address)).to.be.equal(
-        taggingFee * (platformPercentage / 100),
-      );
-      expect(await ETS.accrued(accounts.Tagger.address)).to.be.equal(
-        taggingFee * (taggerPercentage / 100),
-      );
-    });
-
-    it("should be able to tag a cryptokittie on mainnet with #kittycat (pre and post auction of #kittycat)", async function () {
-      // Tag pre auction and make sure that accrued values are correct
-      const targetNftId = constants.One;
-      const targetNftChainId = constants.One;
-
-      // Tag targetNft #1.
-      await ETS.connect(accounts.Tagger).tag(
-        "#kittypower",
-        ERC721Mock.address,
-        targetNftId,
-        accounts.ETSPublisher.address,
-        accounts.Tagger.address,
-        targetNftChainId,
-        { value: taggingFee },
-      );
-
-      expect(await ETS.taggingCounter()).to.be.equal(1);
-
-      // check accrued values
-      expect(await ETS.accrued(accounts.ETSPublisher.address)).to.be.equal(
-        taggingFee * (publisherPercentage / 100),
-      );
-      expect(await ETS.accrued(accounts.ETSPlatform.address)).to.be.equal(
-        taggingFee * (platformPercentage / 100),
-      );
-      expect(await ETS.accrued(accounts.Tagger.address)).to.be.equal(
-        taggingFee * (taggerPercentage / 100),
-      );
-
-      // Transfer #kittypower to accountBuyer. Simulates purchase.
-      await ETSTag.connect(accounts.ETSPlatform).transferFrom(
-        accounts.ETSPlatform.address,
-        accounts.Buyer.address,
-        constants.One,
-      );
-
-      // Tag targetNFT #2 with #kittypower.
-      const targetNftTwo = constants.Two;
-      await ETS.connect(accounts.Tagger).tag(
-        "#kittypower",
-        ERC721Mock.address,
-        targetNftTwo,
-        accounts.ETSPublisher.address,
-        accounts.Tagger.address,
-        targetNftChainId,
-        { value: taggingFee },
-      );
-
-      expect(await ETS.taggingCounter()).to.be.equal(2);
-
-      // Now check accrued for all players. Publisher 2x tags, Platform 2x tags,
-      // accounts.Tagger and accountBuyer 1x tag each.
-      expect(await ETS.totalDue(accounts.ETSPublisher.address)).to.be.equal(
-        2 * (taggingFee * (publisherPercentage / 100)),
-      );
-      expect(await ETS.totalDue(accounts.ETSPlatform.address)).to.be.equal(
-        2 * (taggingFee * (platformPercentage / 100)),
-      );
-      expect(await ETS.totalDue(accounts.Tagger.address)).to.be.equal(
-        taggingFee * (taggerPercentage / 100),
-      );
-      expect(await ETS.totalDue(accounts.Buyer.address)).to.be.equal(
-        taggingFee * (taggerPercentage / 100),
-      );
-    });
-
-    it("mints new tag when it does not exist", async function () {
-      const targetNftChainId = constants.One;
-      const targetNftId = constants.One;
-
-      const receipt = await ETS.connect(accounts.ETSPublisher).tag(
-        "#unknowntag", // Non-existent tag
-        ERC721Mock.address,
-        constants.One,
-        accounts.ETSPublisher.address,
-        accounts.Tagger.address,
-        targetNftChainId,
-        { value: taggingFee },
-      );
-
-      await expectEvent.inTransaction(receipt.hash, artifact.ETS, "TargetTagged", {
-        taggingId: constants.One,
-      });
-    });
-
-    it("Reverts when new tag is invalid.", async function () {
-      const targetNftChainId = constants.One;
-
-      await expect(
-        ETS.tag(
-          "#bad hashtag",
-          ETSTag.address,
-          constants.One,
-          accounts.ETSPublisher.address,
-          accounts.Tagger.address,
-          targetNftChainId,
-          { value: taggingFee },
-        ),
-      ).to.be.revertedWith("Invalid character found: tag may only contain characters A-Z, a-z, 0-9 and #");
-    });
-
-    it("Reverts when target NFT is ETSTAG token.", async function () {
-      const targetNftChainId = constants.One;
-
-      await expect(
-        ETS.tag(
-          "#kittypower",
-          ETSTag.address,
-          constants.One,
-          accounts.ETSPublisher.address,
-          accounts.Tagger.address,
-          targetNftChainId,
-          { value: taggingFee },
-        ),
-      ).to.be.revertedWith("Tagging other tags is not permitted");
-    });
-
-    it("Reverts when missing tagging fee during mint and tag.", async function () {
-      const targetNftChainId = constants.One;
-
-      await expect(
-        ETS.mintAndTag(
-          "#hello",
-          ERC721Mock.address,
-          constants.One,
-          accounts.ETSPublisher.address,
-          accounts.Tagger.address,
-          targetNftChainId,
-        ),
-      ).to.be.revertedWith("Mint and tag: You must send the tag fee");
-    });
-
-    it("Reverts when missing tagging fee during tagging", async function () {
-      const targetNftChainId = constants.One;
-
-      await expect(
-        ETS.tag(
-          "#kittypower",
-          ERC721Mock.address,
-          constants.One,
-          accounts.ETSPublisher.address,
-          accounts.Tagger.address,
-          targetNftChainId,
-        ),
-      ).to.be.revertedWith("Tag: You must send the fee");
-    });
-
-    it("Reverts when non-whitelisted publisher attempts mint and tag", async function () {
-      const targetNftChainId = constants.One;
-
-      await expect(
-        ETS.mintAndTag(
-          "#hullo",
-          ERC721Mock.address,
-          constants.One,
-          accounts.RandomOne.address, // Non publisher account.
-          accounts.Tagger.address,
-          targetNftChainId,
-          { value: taggingFee },
-        ),
-      ).to.be.revertedWith("Mint and tag: The publisher must be whitelisted");
-    });
-
-    it("Reverts when non-whitelisted publisher attempts tagging", async function () {
-      const targetNftChainId = constants.One;
-
-      await expect(
-        ETS.tag(
-          "#kittypower",
-          ERC721Mock.address,
-          constants.One,
-          accounts.RandomOne.address,
-          accounts.Tagger.address,
-          targetNftChainId,
-          { value: taggingFee },
-        ),
-      ).to.be.revertedWith("Tag: The publisher must be whitelisted");
-    });
-
-    it("Reverts when target chain id is not permitted when mint and tagging", async function () {
-      const nonPermittedNftChainId = 5;
-
-      await expect(
-        ETS.mintAndTag(
-          "#hullo",
-          ERC721Mock.address,
-          constants.One,
-          accounts.ETSPublisher.address,
-          accounts.Tagger.address,
-          nonPermittedNftChainId,
-          { value: taggingFee },
-        ),
-      ).to.be.revertedWith("Mint and tag: Tagging target chain not permitted");
-    });
-
-    it("Reverts when target chain id is not permitted during tagging", async function () {
-      const nonPermittedNftChainId = 5;
-
-      await expect(
-        ETS.tag(
-          "#kittypower",
-          ERC721Mock.address,
-          constants.One,
-          accounts.ETSPublisher.address,
-          accounts.Tagger.address,
-          nonPermittedNftChainId,
-          { value: taggingFee },
-        ),
-      ).to.be.revertedWith("Tag: Tagging target chain not permitted");
-    });
-
-    it("Reverts when previously permitted target chain id is no longer permitted", async function () {
-      const revertedNftChainId = 1;
-
-      await ETS.connect(accounts.ETSAdmin).setPermittedNftChainId(revertedNftChainId, false);
-      expect((await ETS.getPermittedNftChainId(revertedNftChainId)) == false);
-
-      await expect(
-        ETS.tag(
-          "#kittypower",
-          ERC721Mock.address,
-          constants.One,
-          accounts.ETSPublisher.address,
-          accounts.Tagger.address,
-          revertedNftChainId,
-          { value: taggingFee },
-        ),
-      ).to.be.revertedWith("Tag: Tagging target chain not permitted");
+      await ETS.connect(accounts.ETSAdmin).updateBaseURI("hashtag.io/");
+      const newBaseURI = await ETS.baseURI();
+      expect(await ETS.tokenURI(tokenId)).to.be.equal(`${newBaseURI}${tokenId}`);
     });
   });
 
-  describe("Drawing down", async function () {
+  describe("Renewing a tag", async function () {
+    let lastTransferTime;
+    let tokenId;
     beforeEach(async function () {
-      await ETS.connect(accounts.Tagger).tag(
-        "#macbook",
-        ERC721Mock.address, // Target nft contract
-        constants.One, // Target nft id
+      const tag = "#BlockRocket";
+      await ETS.connect(accounts.RandomTwo).mint(
+        tag,
         accounts.ETSPublisher.address,
-        accounts.Tagger.address,
-        constants.One, // Target chain id.
-        { value: taggingFee },
+        accounts.Creator.address,
+      );
+
+      tokenId = await ETS.computeTagId(tag);
+
+      // This sets the last transfer time for all tests to now
+      // accounts.ETSPlatform is owner of new tags.
+      await ETS.connect(accounts.ETSPlatform).renewTag(tokenId);
+      lastTransferTime = await ETS.tokenIdToLastTransferTime(tokenId);
+    });
+
+    it("will fail if not the owner", async function () {
+      await expect(ETS.connect(accounts.RandomTwo).renewTag(tokenId)).to.be.revertedWith(
+        "renewTag: Invalid sender",
       );
     });
 
-    it("Can draw down on behalf of the platform", async function () {
-      // Account A can draw down accumulated funds of
-      // Account B to wallet of Account B.
-
-      const platformBalanceBefore = await accounts.ETSPlatform.getBalance();
-
-      // accountRandomOne is triggering the drawdown of ETH accrued in
-      // accounts.ETSPlatform.
-      await ETS.connect(accounts.RandomOne).drawDown(accounts.ETSPlatform.address);
-      const platformBalanceAfter = await accounts.ETSPlatform.getBalance();
-
-      // In this case we are expecting the value drawn down to be the
-      // platform percentage cut of one tagging event.
-      expect(platformBalanceAfter.sub(platformBalanceBefore)).to.be.equal(taggingFee * (platformPercentage / 100));
+    it("will fail if token does not exist", async function () {
+      await expect(ETS.connect(accounts.RandomTwo).renewTag(constants.Two)).to.be.revertedWith(
+        "ERC721: owner query for nonexistent token",
+      );
     });
 
-    it("Can draw down as the platform", async function () {
-      const platformBalanceBefore = await accounts.ETSPlatform.getBalance();
-      await ETS.connect(accounts.RandomOne).drawDown(accounts.ETSPlatform.address);
-      const platformBalanceAfter = await accounts.ETSPlatform.getBalance();
-      expect(platformBalanceAfter.sub(platformBalanceBefore)).to.be.equal(taggingFee * (platformPercentage / 100));
+    it("can be reset before renewal period has passed", async function () {
+      const lastRenewTime = Number(lastTransferTime.toString());
+
+      let blockNum = await ethers.provider.getBlockNumber();
+      let block = await ethers.provider.getBlock(blockNum);
+      let timestamp = block.timestamp;
+
+      // Verify current block timestamp and last renewTime are equal.
+      expect(timestamp).to.be.equal(lastRenewTime);
+
+      // Advance current time by 30 days less than ownershipTermLength (2 years).
+      const thirtyDays = 30 * 24 * 60 * 60;
+      let advanceTime = lastTransferTime.add((await ETS.ownershipTermLength()) - thirtyDays);
+
+      advanceTime = Number(advanceTime.toString());
+
+      await ethers.provider.send("evm_increaseTime", [advanceTime]);
+      await ethers.provider.send("evm_mine");
+
+      // Renew the tag again.
+      await expect(ETS.connect(accounts.ETSPlatform).renewTag(tokenId))
+        .to.emit(ETS, "TagRenewed")
+        .withArgs(tokenId, accounts.ETSPlatform.address);
+
+      // check timestamp has increased
+      blockNum = await ethers.provider.getBlockNumber();
+      block = await ethers.provider.getBlock(blockNum);
+      timestamp = block.timestamp;
+
+      let newRenewTime = await ETS.tokenIdToLastTransferTime(tokenId);
+
+      newRenewTime = Number(newRenewTime.toString());
+      expect(newRenewTime).to.be.equal(timestamp);
+      // Check that newRenewTime is equal to lastRenewTime + 1year + 1microsecond.
+      expect(newRenewTime).to.be.equal(lastRenewTime + advanceTime + 1 || lastRenewTime + advanceTime);
     });
 
-    it("Does nothing after a double draw down", async function () {
-      const platformBalanceBefore = await accounts.ETSPlatform.getBalance();
-      await ETS.connect(accounts.RandomOne).drawDown(accounts.ETSPlatform.address);
-      const platformBalanceAfter = await accounts.ETSPlatform.getBalance();
+    it("once reset, last transfer time reset", async function () {
+      // increase by 2 years and 30 days
+      const thirtyDays = 30 * 24 * 60 * 60;
+      let advanceTime = lastTransferTime.add((await ETS.ownershipTermLength()) + thirtyDays);
+      advanceTime = Number(advanceTime.toString());
+      // Advance current block time by ownership length (2 years) + 1 day.
+      await ethers.provider.send("evm_increaseTime", [advanceTime]);
+      await ethers.provider.send("evm_mine");
+      // Renew the HASHTAG token.
+      await expect(ETS.connect(accounts.ETSPlatform).renewTag(tokenId))
+        .to.emit(ETS, "TagRenewed")
+        .withArgs(tokenId, accounts.ETSPlatform.address);
+      let newRenewTime = await ETS.tokenIdToLastTransferTime(tokenId);
+      newRenewTime = Number(newRenewTime.toString());
+      const lastRenewTime = Number(lastTransferTime.toString());
+      // There seems to be a 1 microsecond variance depending on whether test is
+      // run locally or up on Github using test runner. Probably a better way to deal with this...
+      expect(newRenewTime).to.be.equal(lastRenewTime + advanceTime + 1 || lastRenewTime + advanceTime);
+    });
+  });
+  //
+  describe("Admin functions", async function () {
+    it("should be able to set max tag length as admin", async function () {
+      expect(await ETSAccessControls.isAdmin(accounts.ETSAdmin.address)).to.be.equal(true);
 
-      expect(platformBalanceAfter.sub(platformBalanceBefore)).to.be.equal(taggingFee * (platformPercentage / 100));
+      const currentMaxLength = await ETS.tagMaxStringLength();
+      expect(currentMaxLength).to.be.equal(32);
 
-      const balanceBeforeSecondDraw = await accounts.ETSPlatform.getBalance();
-      await ETS.connect(accounts.RandomOne).drawDown(accounts.ETSPlatform.address);
-      const balanceAfterSecondDraw = await accounts.ETSPlatform.getBalance();
+      await ETS.connect(accounts.ETSAdmin).updateTagMaxStringLength(64);
 
-      expect(balanceAfterSecondDraw.sub(balanceBeforeSecondDraw)).to.be.equal("0");
+      const newMaxLength = await ETS.tagMaxStringLength();
+      expect(newMaxLength).to.be.equal(64);
+    });
+
+    it("should revert if setting max tag length if not admin", async function () {
+      await expect(ETS.connect(accounts.Buyer).updateTagMaxStringLength(55)).to.be.revertedWith(
+        "Caller must have administrator access",
+      );
     });
   });
 
-  describe("Updating percentages", async function () {
-    it("Reverts if not admin", async function () {
-      await expect(ETS.connect(accounts.Tagger).updatePercentages(10, 10)).to.be.revertedWith(
-        "Caller must be admin",
+  describe("Recycling a tag", async function () {
+    let lastTransferTime;
+    let tokenId;
+    beforeEach(async function () {
+      const tag = "#BlockRocket";
+      await ETS.connect(accounts.RandomTwo).mint(
+        tag,
+        accounts.ETSPublisher.address,
+        accounts.Creator.address,
+      );
+
+      tokenId = await ETS.computeTagId(tag);
+
+      // This sets the last transfer time for all tests to now
+      // accounts.ETSPlatform is owner of new tags.
+      await ETS.connect(accounts.ETSPlatform).renewTag(tokenId);
+      lastTransferTime = await ETS.tokenIdToLastTransferTime(tokenId);
+    });
+
+    it("will fail if token does not exist", async function () {
+      await expect(ETS.connect(accounts.RandomTwo).recycleTag(constants.Two)).to.be.revertedWith(
+        "recycleTag: Invalid token ID",
       );
     });
 
-    it("Reverts if greater than 100", async function () {
-      await expect(ETS.connect(accounts.ETSAdmin).updatePercentages(90, 11)).to.be.revertedWith(
-        "ETS.updatePercentages: percentages must not be over 100",
+    it("will fail if already owned by the platform", async function () {
+      await expect(ETS.connect(accounts.ETSPlatform).recycleTag(tokenId)).to.be.revertedWith(
+        "recycleTag: Tag already owned by the platform",
       );
     });
 
-    it("With correct credentials can update percentages", async function () {
-      await ETS.connect(accounts.ETSAdmin).updatePercentages(30, 20);
+    it("will fail if token not not eligible yet", async function () {
+      // Transfer the token to a accounts.RandomTwo owner.
+      await ETS.connect(accounts.ETSPlatform).transferFrom(
+        accounts.ETSPlatform.address,
+        accounts.RandomTwo.address,
+        tokenId,
+      );
 
-      expect(await ETS.platformPercentage()).to.be.equal(30);
-      expect(await ETS.publisherPercentage()).to.be.equal(20);
-      expect(await ETS.remainingPercentage()).to.be.equal(50);
+      // Advance current blocktime by 30 days less than ownershipTermLength (2 years).
+      const thirtyDays = 30 * 24 * 60 * 60;
+      let advanceTime = (await ETS.ownershipTermLength()) - thirtyDays;
+      await ethers.provider.send("evm_increaseTime", [advanceTime]);
+      await ethers.provider.send("evm_mine");
+
+      // Attempt to recycle by accounts.RandomTwo address, should fail.
+      await expect(ETS.connect(accounts.RandomTwo).recycleTag(tokenId)).to.be.revertedWith(
+        "recycleTag: Token not eligible for recycling yet",
+      );
     });
 
+    it("will succeed once renewal period has passed", async function () {
+      // Transfer HASHTAG to accounts.RandomTwo address, simulating ownership.
+      await ETS.connect(accounts.ETSPlatform).transferFrom(
+        accounts.ETSPlatform.address,
+        accounts.RandomTwo.address,
+        tokenId,
+      );
 
+      // Advance current time by 30 days more than ownershipTermLength (2 years).
+      const thirtyDays = 30 * 24 * 60 * 60;
+      let advanceTime = lastTransferTime.add((await ETS.ownershipTermLength()) + thirtyDays);
+      advanceTime = Number(advanceTime.toString());
+      await ethers.provider.send("evm_increaseTime", [advanceTime]);
+      await ethers.provider.send("evm_mine");
+
+      // Now attempt to recycle tag as accountRandomOne address.
+      // This is to simulate owner missing their window to recycle
+      // and accountRandomOne perspective owner wanting to recycle the token.
+      await expect(ETS.connect(accounts.RandomOne).recycleTag(tokenId))
+        .to.emit(ETS, "TagRecycled")
+        .withArgs(tokenId, accounts.RandomOne.address);
+
+      // check timestamp has increased
+      const newTransferTime = await ETS.tokenIdToLastTransferTime(tokenId);
+
+      expect(Number(BigNumber.from(newTransferTime))).to.be.greaterThan(Number(lastTransferTime.toString()));
+      // platform now once again owns the token
+      expect(await ETS.ownerOf(tokenId)).to.be.equal(accounts.ETSPlatform.address);
+    });
+
+    it("when being recycled to the platform, the platforms balance increases and the owners balance decreases", async function () {
+      expect((await ETS.balanceOf(accounts.ETSPlatform.address)).toString()).to.be.equal("1");
+
+      // Transfer HASHTAG to accounts.RandomTwo address.
+      await ETS.connect(accounts.ETSPlatform).transferFrom(
+        accounts.ETSPlatform.address,
+        accounts.RandomTwo.address,
+        tokenId,
+      );
+
+      expect((await ETS.balanceOf(accounts.ETSPlatform.address)).toString()).to.be.equal("0");
+      expect((await ETS.balanceOf(accounts.RandomTwo.address)).toString()).to.be.equal("1");
+
+      // Advance current time by 30 days more than ownershipTermLength (2 years).
+      const thirtyDays = 30 * 24 * 60 * 60;
+      let advanceTime = lastTransferTime.add((await ETS.ownershipTermLength()) + thirtyDays);
+      advanceTime = Number(advanceTime.toString());
+      await ethers.provider.send("evm_increaseTime", [advanceTime]);
+      await ethers.provider.send("evm_mine");
+
+      // Recycle the tag as current owner.
+      await expect(ETS.connect(accounts.RandomTwo).recycleTag(tokenId))
+        .to.emit(ETS, "TagRecycled")
+        .withArgs(tokenId, accounts.RandomTwo.address);
+
+      // Check that transfer time has increased
+      const newTransferTime = await ETS.tokenIdToLastTransferTime(tokenId);
+      expect(Number(BigNumber.from(newTransferTime))).to.be.greaterThan(Number(lastTransferTime.toString()));
+
+      // both balances back to zero
+      expect((await ETS.balanceOf(accounts.ETSPlatform.address)).toString()).to.be.equal("1");
+      expect((await ETS.balanceOf(accounts.RandomTwo.address)).toString()).to.be.equal("0");
+    });
   });
 });

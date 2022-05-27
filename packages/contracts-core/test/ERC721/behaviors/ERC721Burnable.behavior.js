@@ -2,7 +2,7 @@ const { BN, constants, expectEvent, expectRevert } = require("@openzeppelin/test
 const { expect } = require("chai");
 const { ZERO_ADDRESS } = constants;
 
-const firstTokenId = new BN("1");
+const firstTokenId = "26056379909737856550015515958401490153572348305968831462962556214796192847542";
 const unknownTokenId = new BN("999999999");
 
 let receipt;

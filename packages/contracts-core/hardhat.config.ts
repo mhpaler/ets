@@ -18,8 +18,6 @@ import { HardhatUserConfig } from "hardhat/types";
 
 import './tasks/accounts';
 import './tasks/signers';
-import './tasks/api-consumer';
-
 
 dotenvConfig({ path: resolve(__dirname, "../../.env") });
 

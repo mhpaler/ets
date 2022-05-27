@@ -4,11 +4,12 @@ This ERC721 test suite is derived from the tests provided in the OpenZeppelin ba
 contracts repository. It's meant to test the core functionality of the ERC721
 standard common to all ERC721 contracts.
 
-Tests are not included in the imported contracts package, so these are manually copied and pasted here. In addition, the tests provided by OpenZeppelin have been adjusted slightly to work with the Hashtag
-Protocol use case.
+Tests are not included in the imported contracts package, so these are manually
+copied and pasted here. In addition, the tests provided by OpenZeppelin have
+been adjusted slightly to work with the ETS use case.
 
 To run call `hardhat test test/ERC721/ERC721.test.js` from within the
-`hashtag-contracts` directory.
+`contracts-core` directory.
 
 The original tests can be found here:
 

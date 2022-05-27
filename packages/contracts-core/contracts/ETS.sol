@@ -8,7 +8,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "hardhat/console.sol";
 
 import {ETSAccessControls} from "./ETSAccessControls.sol";
-import "../utils/StringHelpers.sol";
+import "./utils/StringHelpers.sol";
 
 /// @title ETS ERC-721 NFT contract
 /// @author Ethereum Tag Service <security@ets.xyz>
@@ -26,9 +26,6 @@ contract ETS is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpgrad
 
     /// @notice Term length in seconds that a CTAG is owned before it needs to be renewed.
     uint256 public ownershipTermLength;
-
-    /// @notice Sequential integer counter for CTAG Id and total count.
-    uint256 public tokenPointer;
 
     /// @notice minimum CTAG string length.
     uint256 public tagMinStringLength;
@@ -103,7 +100,7 @@ contract ETS is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpgrad
         platform = _platform;
         ownershipTermLength = 730 days;
         baseURI = "https://api.hashtag-protocol.io/";
-        tagMinStringLength = 1;
+        tagMinStringLength = 2;
         tagMaxStringLength = 32;
     }
 
@@ -249,12 +246,12 @@ contract ETS is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpgrad
     /// @notice Existence check on a CTAG token.
     /// @param _tokenId token ID.
     /// @return true if exists.
-    function tagExists(uint256 _tokenId) external view returns (bool) {
+    function tagExists(uint256 _tokenId) public view returns (bool) {
         return _exists(_tokenId);
     }
 
     /// @notice Existence check by string tag primary key
-    function tagExists(string calldata _tag) external view returns (bool) {
+    function tagExists(string calldata _tag) public view returns (bool) {
         return _exists(computeTagId(_tag));
     }
 
@@ -325,6 +322,10 @@ contract ETS is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpgrad
             require(
                 char != 0x20,
                 "Space found: tag may not contain spaces"
+            );
+            require(
+                char != 0x23,
+                "Tag may not contain prefix"
             );
         }
 
