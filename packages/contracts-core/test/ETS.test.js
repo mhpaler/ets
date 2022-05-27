@@ -155,8 +155,9 @@ describe("ETS Core Tests", function () {
       const tokenId = await ETS.computeTagId(tag);
       const tagData = await ETS.tokenIdToTag(tokenId.toString());
 
+
       // The following gives ETS.tagExists is not a function!!
-      // expect(await ETS.tagExists(tag)).to.be.equal(true);
+      // expect(await ETS.tagExists(tokenId)).to.be.equal(true);
       expect(tagData.displayVersion.toLowerCase()).to.be.equal(lowerTag);
       expect(tagData.displayVersion).to.be.equal(tag);
       expect(tagData.originalPublisher).to.be.equal(accounts.ETSPublisher.address);

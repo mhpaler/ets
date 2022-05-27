@@ -246,12 +246,12 @@ contract ETS is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpgrad
     /// @notice Existence check on a CTAG token.
     /// @param _tokenId token ID.
     /// @return true if exists.
-    function tagExists(uint256 _tokenId) external view returns (bool) {
+    function tagExists(uint256 _tokenId) public view returns (bool) {
         return _exists(_tokenId);
     }
 
     /// @notice Existence check by string tag primary key
-    function tagExists(string calldata _tag) external view returns (bool) {
+    function tagExists(string calldata _tag) public view returns (bool) {
         return _exists(computeTagId(_tag));
     }
 

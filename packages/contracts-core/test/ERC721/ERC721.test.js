@@ -4,7 +4,7 @@ const { shouldBehaveLikeERC721, shouldBehaveLikeERC721Metadata } = require("./be
 const { shouldBehaveLikeERC721Pausable } = require("./behaviors/ERC721Pausable.behavior");
 const { shouldBehaveLikeERC721Burnable } = require("./behaviors/ERC721Burnable.behavior");
 const ETSAccessControls = artifacts.require("ETSAccessControls");
-const ETSTag = artifacts.require("ETSTag");
+const ETS = artifacts.require("ETS");
 
 contract("ERC721", function (accounts) {
   const [ETSAdmin, ETSPublisher] = accounts;
@@ -19,12 +19,12 @@ contract("ERC721", function (accounts) {
     // add a publisher to the protocol
     await this.accessControls.grantRole(ethers.utils.id("PUBLISHER"), ETSPublisher);
 
-    this.token = await ETSTag.new();
+    this.token = await ETS.new();
     await this.token.initialize(this.accessControls.address, ETSAdmin);
   });
 
   const name = "Ethereum Tag Service";
-  const symbol = "ETSTAG";
+  const symbol = "CTAG";
 
   shouldBehaveLikeERC721("ERC721", ...accounts);
   shouldBehaveLikeERC721Pausable("ERC721", ...accounts);
