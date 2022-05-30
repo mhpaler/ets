@@ -1,54 +1,64 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "./interfaces/IETS.sol";
+import "./interfaces/IETSAccessControls.sol";
+import "./utils/StringHelpers.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721PausableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "hardhat/console.sol";
-
-import {ETSAccessControls} from "./ETSAccessControls.sol";
-import "./utils/StringHelpers.sol";
 
 /// @title ETS ERC-721 NFT contract
 /// @author Ethereum Tag Service <security@ets.xyz>
 /// @notice Contract that governs the creation of CTAG non-fungible tokens.
 /// @dev UUPS upgradable.
-contract ETS is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpgradeable, StringHelpers {
+contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers {
+
     using AddressUpgradeable for address;
     using StringsUpgradeable for uint256;
     using SafeMathUpgradeable for uint256;
 
-    /// Variable storage
+    /// Events
+    event TagRecycled(uint256 indexed tokenId, address indexed owner);
 
-    // baseURI for looking up tokenURI for a token
-    string public baseURI;
+    event TagRenewed(uint256 indexed tokenId, address indexed caller);
 
-    /// @notice Term length in seconds that a CTAG is owned before it needs to be renewed.
-    uint256 public ownershipTermLength;
+    event RenewalPeriodUpdated(uint256 originalRenewalPeriod, uint256 updatedRenewalPeriod);
 
-    /// @notice minimum CTAG string length.
-    uint256 public tagMinStringLength;
+    event OwnershipTermLengthUpdated(uint256 originalOwnershipLength, uint256 updatedOwnershipLength);
 
-    /// @notice maximum CTAG string length.
-    uint256 public tagMaxStringLength;
+    event TagMaxStringLengthUpdated(uint256 previousMaxStringLength, uint256 newMaxStringLength);
 
-    /// @notice ETS Platform account.
-    address payable public platform;
+    event PlatformSet(address previousPlatformAddress, address newPlatformAddress);
 
-    /// @notice ETS access controls smart contract.
-    ETSAccessControls public accessControls;
+    event AccessControlsUpdated(IETSAccessControls previousAccessControls, IETSAccessControls newAccessControls);
 
-    /// @notice Map of CTAG id to CTAG record.
-    mapping(uint256 => Tag) public tokenIdToTag;
+    event NewBaseURI(string baseURI);
 
-    /// @notice Last time a CTAG was transfered.
-    mapping(uint256 => uint256) public tokenIdToLastTransferTime;
+    IETSAccessControls public accessControls;
 
     /// Public constants
 
     string public constant NAME = "CTAG Token";
     string public constant VERSION = "0.2.0";
+
+    // baseURI for looking up tokenURI for a token
+    string public baseURI;
+
+    /// @dev Term length in seconds that a CTAG is owned before it needs to be renewed.
+    uint256 public ownershipTermLength;
+
+    uint256 public tagMinStringLength;
+    uint256 public tagMaxStringLength;
+
+    /// @dev ETS Platform account.
+    address payable public platform;
+
+    /// @dev Map of CTAG id to CTAG record.
+    mapping(uint256 => Tag) public tokenIdToTag;
+
+    /// @notice Last time a CTAG was transfered.
+    mapping(uint256 => uint256) public tokenIdToLastTransferTime;
 
     /// Modifiers
 
@@ -57,43 +67,9 @@ contract ETS is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpgrad
         _;
     }
 
-    /// Structs
-
-    // Container for CTAG token
-    struct Tag {
-        address originalPublisher;
-        address creator;
-        string displayVersion;
-        //string machineName;
-    }
-
-    /// Events
-
-    event MintTag(uint256 indexed tokenId, string displayVersion, address indexed publisher, address creator);
-
-    event TagBurned(uint256 indexed tokenId);
-
-    event TagRecycled(uint256 indexed tokenId, address indexed owner);
-
-    event TagRenewed(uint256 indexed tokenId, address indexed caller);
-
-    event OwnershipTermLengthUpdated(uint256 originalOwnershipLength, uint256 updatedOwnershipLength);
-
-    event TagMaxStringLengthUpdated(uint256 previousMaxStringLength, uint256 newMaxStringLength);
-
-    event PlatformSet(address previousPlatformAddress, address newPlatformAddress);
-
-    event AccessControlsUpdated(ETSAccessControls previousAccessControls, ETSAccessControls newAccessControls);
-
-    event NewBaseURI(string baseURI);
-
-    event RenewalPeriodUpdated(uint256 originalRenewalPeriod, uint256 updatedRenewalPeriod);
-
-    function initialize(ETSAccessControls _accessControls, address payable _platform) public initializer {
+    function initialize(IETSAccessControls _accessControls, address payable _platform) public initializer {
         __ERC721_init("Ethereum Tag Service", "CTAG");
         __ERC721Pausable_init();
-        __ERC721Burnable_init();
-
         // Initialize access controls.
         accessControls = _accessControls;
         // Set platform address.
@@ -110,56 +86,6 @@ contract ETS is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpgrad
         return super.supportsInterface(interfaceId);
     }
 
-    function computeTagId(string memory _tag) public pure returns (uint256) {
-        string memory _machineName = __lower(_tag);
-        return uint256(keccak256(bytes(_machineName)));
-    }
-
-    /// Minting
-
-    /// @notice Mint a new CTAG token.
-    /// @dev Tag string must pass validation and publisher must be whitelisted.
-    /// @param _tag Tag string to mint - must include hashtag (#) at beginning of string.
-    /// @param _publisher Address to be logged as publisher.
-    /// @param _creator Address to be logged as creator.
-    /// @return _tokenId for newly minted CTAG.
-    function mint(
-        string calldata _tag,
-        address payable _publisher,
-        address _creator
-    ) external payable returns (uint256 _tokenId) {
-        require(accessControls.isPublisher(_publisher), "Mint: The publisher must be whitelisted");
-
-        // Perform basic tag string validation.
-        uint256 tagId = _assertTagIsValid(_tag);
-
-        // mint the token, transferring it to the platform.
-        _safeMint(platform, tagId);//todo - need to add a re-entrancy guard if we are going to use safe mint
-
-        // Store CTAG data in state.
-        tokenIdToTag[tagId] = Tag({
-            displayVersion: _tag,
-            //machineName: machineName, TODO - need to sense check this. I don't believe machine name needs to be stored because it can always be computed from displayVersion field
-            originalPublisher: _publisher,
-            creator: _creator
-        });
-
-        // todo - I believe this event can be removed. The internal mint method already emits an event and you can get everything from the token ID
-        emit MintTag(tagId, _tag, _publisher, _creator);
-        return tagId;
-    }
-
-    /// @notice Burns a given tokenId.
-    /// @param tokenId Token Id to burn.
-    /// @dev Caller must have administrator role.
-    function burn(uint256 tokenId) public virtual override onlyAdmin {
-        //solhint-disable-next-line max-line-length
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721Burnable: caller is not owner nor approved");
-        _burn(tokenId);
-
-        emit TagBurned(tokenId);
-    }
-
     /// @notice Renews an CTAG by setting its last transfer time to current time.
     /// @dev Can only be called by token owner.
     /// @param _tokenId The identifier for etstag token.
@@ -171,25 +97,7 @@ contract ETS is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpgrad
         emit TagRenewed(_tokenId, _msgSender());
     }
 
-    /// @notice Recycling an CTAG i.e. transferring ownership back to the platform due to stale ownership.
-    /// @dev Token must exist, be not already be owned by platform and time of TX must be greater than lastTransferTime.
-    /// @param _tokenId The id of the CTAG being recycled.
-    function recycleTag(uint256 _tokenId) external {
-        require(_exists(_tokenId), "recycleTag: Invalid token ID");
-        require(ownerOf(_tokenId) != platform, "recycleTag: Tag already owned by the platform");
-
-        uint256 lastTransferTime = tokenIdToLastTransferTime[_tokenId];
-        require(
-            lastTransferTime.add(ownershipTermLength) < block.timestamp,
-            "recycleTag: Token not eligible for recycling yet"
-        );
-
-        _transfer(ownerOf(_tokenId), platform, _tokenId);
-
-        emit TagRecycled(_tokenId, _msgSender());
-    }
-
-    /// Administration
+    // ============ OWNER INTERFACE ============
 
     /// @dev Pause CTAG token contract.
     function pause() external onlyAdmin {
@@ -234,14 +142,49 @@ contract ETS is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpgrad
 
     /// @notice Admin functionality for updating the access controls.
     /// @param _accessControls Address of the access controls contract.
-    function updateAccessControls(ETSAccessControls _accessControls) external onlyAdmin {
+    function updateAccessControls(IETSAccessControls _accessControls) external onlyAdmin {
         require(address(_accessControls) != address(0), "ETS.updateAccessControls: Cannot be zero");
-        ETSAccessControls prevAccessControls = accessControls;
+        IETSAccessControls prevAccessControls = accessControls;
         accessControls = _accessControls;
         emit AccessControlsUpdated(prevAccessControls, _accessControls);
     }
 
-    /// external/public view functions
+    // ============ PUBLIC INTERFACE ============
+
+    /// @notice Mint a new CTAG token.
+    /// @dev Tag string must pass validation and publisher must be whitelisted.
+    /// @param _tag Tag string to mint - must include hashtag (#) at beginning of string.
+    /// @param _publisher Address to be logged as publisher.
+    /// @return _tokenId for newly minted CTAG.
+    function createTag(
+        string calldata _tag,
+        address payable _publisher
+    ) external payable returns (uint256 _tokenId) {
+        require(accessControls.isPublisher(_publisher), "Mint: The publisher must be whitelisted");
+
+        // Perform basic tag string validation.
+        uint256 tagId = _assertTagIsValid(_tag);
+
+        // mint the token, transferring it to the platform.
+        _safeMint(platform, tagId);//todo - need to add a re-entrancy guard if we are going to use safe mint
+
+        // Store CTAG data in state.
+        tokenIdToTag[tagId] = Tag({
+            displayVersion: _tag,
+            //machineName: machineName, TODO - need to sense check this. I don't believe machine name needs to be stored because it can always be computed from displayVersion field
+            originalPublisher: _publisher,
+            creator: _msgSender()
+        });
+
+        // todo - I believe this event can be removed. The internal mint method already emits an event and you can get everything from the token ID
+        emit TagMinted(tagId, _tag, _publisher, _msgSender());
+        return tagId;
+    }
+
+    function computeTagId(string memory _tag) public pure returns (uint256) {
+        string memory _machineName = __lower(_tag);
+        return uint256(keccak256(bytes(_machineName)));
+    }
 
     /// @notice Existence check on a CTAG token.
     /// @param _tokenId token ID.
@@ -274,6 +217,24 @@ contract ETS is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpgrad
         return tokenIdToTag[_tokenId].creator;
     }
 
+    /// @notice Recycling an CTAG i.e. transferring ownership back to the platform due to stale ownership.
+    /// @dev Token must exist, be not already be owned by platform and time of TX must be greater than lastTransferTime.
+    /// @param _tokenId The id of the CTAG being recycled.
+    function recycleTag(uint256 _tokenId) external {
+        require(_exists(_tokenId), "recycleTag: Invalid token ID");
+        require(ownerOf(_tokenId) != platform, "recycleTag: Tag already owned by the platform");
+
+        uint256 lastTransferTime = tokenIdToLastTransferTime[_tokenId];
+        require(
+            lastTransferTime.add(ownershipTermLength) < block.timestamp,
+            "recycleTag: Token not eligible for recycling yet"
+        );
+
+        _transfer(ownerOf(_tokenId), platform, _tokenId);
+
+        emit TagRecycled(_tokenId, _msgSender());
+    }
+
     function version() external pure returns (string memory) {
         return VERSION;
     }
@@ -290,7 +251,7 @@ contract ETS is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, UUPSUpgrad
         address from,
         address to,
         uint256 tokenId
-    ) internal virtual override(ERC721PausableUpgradeable, ERC721Upgradeable) {
+    ) internal virtual override(ERC721PausableUpgradeable) {
         super._beforeTokenTransfer(from, to, tokenId);
 
         require(!paused(), "ERC721Pausable: token transfer while paused");

@@ -3,236 +3,55 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "address",
-        "name": "previousAccessControls",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "newAccessControls",
-        "type": "address"
-      }
-    ],
-    "name": "AccessControlsUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "previousETSEnsure",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "newETSEnsure",
-        "type": "address"
-      }
-    ],
-    "name": "ETSEnsureUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": true,
-        "internalType": "address",
-        "name": "who",
-        "type": "address"
-      },
-      {
-        "indexed": false,
         "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "FundsWithdrawn",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "platformPercentage",
+        "name": "tokenId",
         "type": "uint256"
       },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "publisherPercentage",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "remainingPercentage",
-        "type": "uint256"
-      }
-    ],
-    "name": "PercentagesSet",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "targetId",
-        "type": "uint256"
-      }
-    ],
-    "name": "RequestEnsureTarget",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "previousFee",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "taggingFee",
-        "type": "uint256"
-      }
-    ],
-    "name": "TaggingFeeSet",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "taggingRecordId",
-        "type": "uint256"
-      }
-    ],
-    "name": "TaggingRecordUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "targetId",
-        "type": "uint256"
-      }
-    ],
-    "name": "TargetCreated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "taggingRecordId",
-        "type": "uint256"
-      }
-    ],
-    "name": "TargetTagged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
       {
         "indexed": false,
         "internalType": "string",
-        "name": "typeName",
+        "name": "displayVersion",
         "type": "string"
       },
       {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "setting",
-        "type": "bool"
-      }
-    ],
-    "name": "TargetTypeSet",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "targetId",
-        "type": "uint256"
-      }
-    ],
-    "name": "TargetUpdated",
-    "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string[]",
-        "name": "_tagStrings",
-        "type": "string[]"
+        "indexed": true,
+        "internalType": "address",
+        "name": "publisher",
+        "type": "address"
       },
       {
+        "indexed": false,
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+      }
+    ],
+    "name": "TagMinted",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "string",
-        "name": "_targetURI",
+        "name": "_tag",
         "type": "string"
       },
       {
         "internalType": "address payable",
         "name": "_publisher",
         "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_tagger",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_sponsor",
-        "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "_ensure",
-        "type": "bool"
       }
     ],
-    "name": "tagTarget",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "taggingFee",
+    "name": "createTag",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_tokenId",
         "type": "uint256"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "payable",
     "type": "function"
   }
 ]

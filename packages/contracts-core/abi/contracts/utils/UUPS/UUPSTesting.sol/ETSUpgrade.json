@@ -4,13 +4,13 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "contract ETSAccessControls",
+        "internalType": "contract IETSAccessControls",
         "name": "previousAccessControls",
         "type": "address"
       },
       {
         "indexed": false,
-        "internalType": "contract ETSAccessControls",
+        "internalType": "contract IETSAccessControls",
         "name": "newAccessControls",
         "type": "address"
       }
@@ -104,37 +104,6 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "displayVersion",
-        "type": "string"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "publisher",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "creator",
-        "type": "address"
-      }
-    ],
-    "name": "MintTag",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": false,
         "internalType": "string",
         "name": "baseURI",
@@ -218,19 +187,6 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "TagBurned",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": false,
         "internalType": "uint256",
         "name": "previousMaxStringLength",
@@ -244,6 +200,37 @@
       }
     ],
     "name": "TagMaxStringLengthUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "displayVersion",
+        "type": "string"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "publisher",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+      }
+    ],
+    "name": "TagMinted",
     "type": "event"
   },
   {
@@ -366,7 +353,7 @@
     "name": "accessControls",
     "outputs": [
       {
-        "internalType": "contract ETSAccessControls",
+        "internalType": "contract IETSAccessControls",
         "name": "",
         "type": "address"
       }
@@ -427,19 +414,6 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "burn",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "string",
         "name": "_tag",
         "type": "string"
@@ -454,6 +428,30 @@
       }
     ],
     "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_tag",
+        "type": "string"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_publisher",
+        "type": "address"
+      }
+    ],
+    "name": "createTag",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -521,7 +519,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ETSAccessControls",
+        "internalType": "contract IETSAccessControls",
         "name": "_accessControls",
         "type": "address"
       },
@@ -558,35 +556,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_tag",
-        "type": "string"
-      },
-      {
-        "internalType": "address payable",
-        "name": "_publisher",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_creator",
-        "type": "address"
-      }
-    ],
-    "name": "mint",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -958,7 +927,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ETSAccessControls",
+        "internalType": "contract IETSAccessControls",
         "name": "_accessControls",
         "type": "address"
       }
