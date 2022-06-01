@@ -56,8 +56,8 @@
     "web3-utils": "^1.2.1"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.4.1",
-    "@openzeppelin/contracts-upgradeable": "^4.4.1",
+    "@openzeppelin/contracts": "^4.6.0",
+    "@openzeppelin/contracts-upgradeable": "^4.6.0",
     "@primitivefi/hardhat-dodoc": "^0.2.3"
   },
   "peerDependencies": {

@@ -38,8 +38,7 @@ contract ETSLifeCycleControls is IETSLifeCycleControls, Initializable, UUPSUpgra
     }
 
     modifier tagExists(uint256 tokenId) {
-        console.log("tagExists", ets.tagExists(tokenId));
-        require(ets.tagExists(tokenId), "CTAG: Token not found");
+        require(ets.tagExists(tokenId), "CTAG renew/recycle: Token not found");
         _;
     }
 
@@ -54,12 +53,6 @@ contract ETSLifeCycleControls is IETSLifeCycleControls, Initializable, UUPSUpgra
 
     // ============ OWNER INTERFACE ============
 
-    function setOwnershipTermLength(uint256 _ownershipTermLength) public onlyAdmin {
-        uint256 prevOwnershipTermLength = ownershipTermLength;
-        ownershipTermLength = _ownershipTermLength;
-        emit OwnershipTermLengthSet(prevOwnershipTermLength, _ownershipTermLength);
-    }
-
     function setETS(IETS _ets) public onlyAdmin {
         require(address(_ets) != address(0), "setETS: Address cannot be zero");
         IETS prevETS = ets;
@@ -67,35 +60,46 @@ contract ETSLifeCycleControls is IETSLifeCycleControls, Initializable, UUPSUpgra
         emit EtsSet(prevETS, _ets);
     }
 
+    function setOwnershipTermLength(uint256 _ownershipTermLength) public onlyAdmin {
+        uint256 prevOwnershipTermLength = ownershipTermLength;
+        ownershipTermLength = _ownershipTermLength;
+        emit OwnershipTermLengthSet(prevOwnershipTermLength, _ownershipTermLength);
+    }
+
+    function setLastRenewed(uint256 _tokenId, uint256 _timestamp) public {
+        // TODO: Restrict this. Msg.sender should equal tag owner?
+        tokenIdToLastRenewed[_tokenId] = _timestamp;
+    }
+
     // ============ PUBLIC INTERFACE ============
 
     function renewTag(uint256 _tokenId) public tagExists(_tokenId) {
-        //require(ets.tagExists(_tokenId), "renewTag: Invalid token ID");
-        require(msg.sender == ets.ownerOf(_tokenId), "renewTag: Not owner");
+        require(msg.sender == ets.ownerOf(_tokenId) || msg.sender == address(ets), "renewTag: Invalid sender");
         tokenIdToLastRenewed[_tokenId] = block.timestamp;
         emit TagRenewed(_tokenId, msg.sender);
     }
 
     function recycleTag(uint256 _tokenId) public tagExists(_tokenId) {
-        // require(ets.tagExists(_tokenId), "recycleTag: Invalid token ID");
-        uint256 lastRenewed = tokenIdToLastRenewed[_tokenId];
-        require(
-            lastRenewed.add(ownershipTermLength) < block.timestamp,
-            "ETS: CTAG not eligible for recycling"
-        );
-        require(ets.ownerOf(_tokenId) != ets.getPlatformAddress(), "ETS: CTAG already owned by the platform");
-
-        // If tag ownership is expired, anyone can transfer back to platform for resale.
-        ets.safeTransferFrom(ets.ownerOf(_tokenId), ets.getPlatformAddress(), _tokenId);
-        emit TagRecycled(_tokenId, msg.sender);
-    }
-
-    function setLastRenewed(uint256 _tokenId) public {
-        // TODO: Restrict this. Msg.sender should equal tag owner?
-        tokenIdToLastRenewed[_tokenId] = block.timestamp;
+        ets.recycleTag(_tokenId);
+//        require(ets.tagExists(_tokenId), "recycleTag: Invalid token ID");
+//        uint256 lastRenewed = tokenIdToLastRenewed[_tokenId];
+//        require(
+//            lastRenewed.add(ownershipTermLength) < block.timestamp,
+//            "ETS: CTAG not eligible for recycling"
+//        );
+//        require(ets.ownerOf(_tokenId) != ets.getPlatformAddress(), "ETS: CTAG already owned by the platform");
+//
+//        // If tag ownership is expired, anyone can transfer back to platform for resale.
+//        // Note safeTransferFrom resets last renewed to zero. @see ets._afterTokenTransfer() 
+//        ets.safeTransferFrom(ets.ownerOf(_tokenId), ets.getPlatformAddress(), _tokenId);
+//        emit TagRecycled(_tokenId, msg.sender);
     }
     
     // ============ PUBLIC VIEW FUNCTIONS ============
+
+    function getOwnershipTermLength() public view returns (uint256) {
+        return ownershipTermLength;
+    }
 
     function getLastRenewed(uint256 _tokenId) public view returns (uint256) {
         return tokenIdToLastRenewed[_tokenId];

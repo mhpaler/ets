@@ -16,7 +16,6 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, UUPSUpgra
     string public constant VERSION = "0.0.1";
     bytes32 public constant PUBLISHER_ROLE = keccak256("PUBLISHER");
     bytes32 public constant SMART_CONTRACT_ROLE = keccak256("SMART_CONTRACT");
-    bytes32 public constant TARGET_TYPE_ROLE = keccak256("TARGET_TYPE");
 
     function initialize() public initializer {
         __AccessControl_init();

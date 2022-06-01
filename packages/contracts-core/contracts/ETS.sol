@@ -161,6 +161,21 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
         return tagId;
     }
 
+    function recycleTag(uint256 _tokenId) external {
+        require(_exists(_tokenId), "ETS: CTAG not found");
+        require(ownerOf(_tokenId) != platform, "ETS: CTAG owned by platform");
+
+        uint256 lastRenewed =  lifeCycleControls.getLastRenewed(_tokenId);
+        
+        require(
+            lastRenewed.add(lifeCycleControls.getOwnershipTermLength()) < block.timestamp,
+            "ETS: CTAG not eligible for recycling"
+        );
+
+        _transfer(ownerOf(_tokenId), platform, _tokenId);
+        emit TagRecycled(_tokenId, _msgSender());
+    }
+
     // ============ PUBLIC VIEW FUNCTIONS ============
 
     function computeTagId(string memory _tag) public pure returns (uint256) {
@@ -168,15 +183,10 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
         return uint256(keccak256(bytes(_machineName)));
     }
 
-    /// @notice Existence check on a CTAG token.
-    /// @param _tokenId token ID.
-    /// @return true if exists.
     function tagExists(uint256 _tokenId) public view returns (bool) {
-        console.log("ets.tagExists", _tokenId);
         return _exists(_tokenId);
     }
 
-    /// @notice Existence check by string tag primary key
     function tagExists(string calldata _tag) public view returns (bool) {
         return _exists(computeTagId(_tag));
     }
@@ -186,11 +196,17 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
     /// @return _platform Platform commission address.
     /// @return _owner Address of the owner of the CTAG.
     function getPaymentAddresses(uint256 _tokenId)
-        public
-        view
-        returns (address payable _platform, address payable _owner)
+        public 
+        view 
+        returns (
+            address payable _platform,
+            address payable _owner
+        )
     {
-        return (platform, payable(ownerOf(_tokenId)));
+        return (
+            platform,
+            payable(ownerOf(_tokenId))
+        );
     }
 
     /// @notice Returns creator of a CTAG token.
@@ -208,7 +224,7 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
         return VERSION;
     }
 
-    /// internal functions
+    // ============ INTERNAL FUNCTIONS ============
 
     /// @dev Base URI for computing {tokenURI}.
     function _baseURI() internal view override(ERC721Upgradeable) returns (string memory) {
@@ -220,14 +236,17 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
         address from,
         address to,
         uint256 tokenId
-    ) internal virtual override(IERC721Upgradeable) {
+    ) internal virtual override {
         super._afterTokenTransfer(from, to, tokenId);
 
         require(!paused(), "ERC721Pausable: token transfer while paused");
 
-        // Set last renew time for lifecycle functionality.
-        console.log("after token transfer", _exists(tokenId));
-//        lifeCycleControls.renewTag(tokenId);
+        // Token ownership term is set any time token is transfered away from platform.
+        if (to != platform) {
+            lifeCycleControls.renewTag(tokenId);
+        } else {
+            lifeCycleControls.setLastRenewed(tokenId, 0);
+        }
     }
 
     /// @notice Private method used for validating a CTAG string before minting.

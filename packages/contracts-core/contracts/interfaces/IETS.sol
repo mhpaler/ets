@@ -15,6 +15,7 @@ interface IETS is IERC721Upgradeable {
 
     // Events
     event TagMinted(uint256 indexed tokenId, string displayVersion, address indexed publisher, address creator);
+    event TagRecycled(uint256 indexed tokenId, address indexed caller);
 
 
     /// @notice Mint a new CTAG token.
@@ -27,6 +28,7 @@ interface IETS is IERC721Upgradeable {
         address payable _publisher
     ) external payable returns (uint256 _tokenId);
 
+    function recycleTag(uint256 _tokenId) external;
     function tagExists(uint256 _tokenId) external view returns (bool);
     function getPlatformAddress() external view returns (address);
 }
