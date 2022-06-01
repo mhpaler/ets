@@ -29,8 +29,6 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
     event AccessControlsUpdated(IETSAccessControls previousAccessControls, IETSAccessControls newAccessControls);
     event LifeCycleControlsSet(IETSLifeCycleControls previousLifeCycleControls, IETSLifeCycleControls newLifeCycleControls);
 
-    event NewBaseURI(string baseURI);
-
 
     IETSAccessControls public accessControls;
     IETSLifeCycleControls public lifeCycleControls;
@@ -42,7 +40,6 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
 
 
     // baseURI for looking up tokenURI for a token
-    string public baseURI;
     uint256 public tagMinStringLength;
     uint256 public tagMaxStringLength;
 
@@ -71,7 +68,6 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
         lifeCycleControls = _lifeCycleControls;
         platform = _platform;
 
-        baseURI = "https://api.hashtag-protocol.io/";
         tagMinStringLength = 2;
         tagMaxStringLength = 32;
     }
@@ -93,13 +89,6 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
     /// @dev Unpause CTAG token contract.
     function unPause() external onlyAdmin {
         _unpause();
-    }
-
-    /// @dev Set base metadata api url.
-    /// @param newBaseURI base url
-    function updateBaseURI(string calldata newBaseURI) public onlyAdmin {
-        baseURI = newBaseURI;
-        emit NewBaseURI(baseURI);
     }
 
     /// @notice Admin method for updating the max string length of an CTAG.
@@ -225,11 +214,6 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
     }
 
     // ============ INTERNAL FUNCTIONS ============
-
-    /// @dev Base URI for computing {tokenURI}.
-    function _baseURI() internal view override(ERC721Upgradeable) returns (string memory) {
-        return baseURI;
-    }
 
     /// @dev See {ERC721-_beforeTokenTransfer}. Contract must not be paused.
     function _afterTokenTransfer(

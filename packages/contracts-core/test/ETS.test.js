@@ -218,20 +218,6 @@ describe("ETS Core Tests", function () {
     });
   });
 
-  describe("Metadata", async function () {
-    it("should return tokenUri", async function () {
-      const tag = "#BlockRocket";
-      await ETS.connect(accounts.RandomTwo).createTag(tag, accounts.ETSPublisher.address);
-      const tokenId = await ETS.computeTagId(tag);
-      let baseURI = await ETS.baseURI();
-      expect(await ETS.tokenURI(tokenId)).to.be.equal(`${baseURI}${tokenId}`);
-
-      await ETS.connect(accounts.ETSAdmin).updateBaseURI("hashtag.io/");
-      const newBaseURI = await ETS.baseURI();
-      expect(await ETS.tokenURI(tokenId)).to.be.equal(`${newBaseURI}${tokenId}`);
-    });
-  });
-
   describe("Admin functions", async function () {
     it("should be able to set max tag length as admin", async function () {
       expect(await ETSAccessControls.isAdmin(accounts.ETSAdmin.address)).to.be.equal(true);
