@@ -5,4 +5,5 @@ interface IETSAccessControls {
     function isSmartContract(address _addr) external view returns (bool);
     function isAdmin(address _addr) external view returns (bool);
     function isPublisher(address _addr) external view returns (bool);
+    function version() external view returns (string memory);
 }

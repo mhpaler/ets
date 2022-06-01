@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
+
 /// @notice ETS core interface exposing ability for external contracts to mint and use CTAGs.
-interface IETS {
+interface IETS is IERC721Upgradeable {
 
     // Container for CTAG token data.
     struct Tag {
@@ -25,4 +27,6 @@ interface IETS {
         address payable _publisher
     ) external payable returns (uint256 _tokenId);
 
+    function tagExists(uint256 _tokenId) external view returns (bool);
+    function getPlatformAddress() external view returns (address);
 }

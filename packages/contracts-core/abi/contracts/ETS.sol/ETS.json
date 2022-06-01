@@ -105,12 +105,18 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "string",
-        "name": "baseURI",
-        "type": "string"
+        "internalType": "contract IETSLifeCycleControls",
+        "name": "previousLifeCycleControls",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "contract IETSLifeCycleControls",
+        "name": "newLifeCycleControls",
+        "type": "address"
       }
     ],
-    "name": "NewBaseURI",
+    "name": "LifeCycleControlsSet",
     "type": "event"
   },
   {
@@ -118,18 +124,12 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "originalOwnershipLength",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "updatedOwnershipLength",
-        "type": "uint256"
+        "internalType": "string",
+        "name": "baseURI",
+        "type": "string"
       }
     ],
-    "name": "OwnershipTermLengthUpdated",
+    "name": "NewBaseURI",
     "type": "event"
   },
   {
@@ -162,25 +162,6 @@
       }
     ],
     "name": "PlatformSet",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "originalRenewalPeriod",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "updatedRenewalPeriod",
-        "type": "uint256"
-      }
-    ],
-    "name": "RenewalPeriodUpdated",
     "type": "event"
   },
   {
@@ -231,44 +212,6 @@
       }
     ],
     "name": "TagMinted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      }
-    ],
-    "name": "TagRecycled",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "caller",
-        "type": "address"
-      }
-    ],
-    "name": "TagRenewed",
     "type": "event"
   },
   {
@@ -517,10 +460,28 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "getPlatformAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "contract IETSAccessControls",
         "name": "_accessControls",
+        "type": "address"
+      },
+      {
+        "internalType": "contract IETSLifeCycleControls",
+        "name": "_lifeCycleControls",
         "type": "address"
       },
       {
@@ -560,6 +521,19 @@
   },
   {
     "inputs": [],
+    "name": "lifeCycleControls",
+    "outputs": [
+      {
+        "internalType": "contract IETSLifeCycleControls",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "name",
     "outputs": [
       {
@@ -585,19 +559,6 @@
         "internalType": "address",
         "name": "",
         "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "ownershipTermLength",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -634,32 +595,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "recycleTag",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "renewTag",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -727,6 +662,19 @@
       }
     ],
     "name": "setApprovalForAll",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IETSLifeCycleControls",
+        "name": "_lifeCycleControls",
+        "type": "address"
+      }
+    ],
+    "name": "setLifeCycleControls",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -817,25 +765,6 @@
   {
     "inputs": [],
     "name": "tagMinStringLength",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "tokenIdToLastTransferTime",
     "outputs": [
       {
         "internalType": "uint256",
@@ -946,19 +875,6 @@
       }
     ],
     "name": "updateBaseURI",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_ownershipTermLength",
-        "type": "uint256"
-      }
-    ],
-    "name": "updateOwnershipTermLength",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
