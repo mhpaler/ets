@@ -4,7 +4,7 @@ const { BigNumber, constants } = ethers;
 
 let accounts, factories, ETSAccessControls, ETSLifeCycleControls, ETS;
 
-describe("ETS Lifecycle Tests", function () {
+describe("ETS Lifecycle Admin Tests", function () {
   // we create a setup function that can be called by every test and setup variable for easy to read tests
   beforeEach("Setup test", async function () {
     // See namedAccounts section of hardhat.config.js
@@ -45,6 +45,7 @@ describe("ETS Lifecycle Tests", function () {
     );
 
     assert((await ETSLifeCycleControls.version()) === "0.1.0");
+    assert((await ETSLifeCycleControls.ets()) === constants.AddressZero);
 
     ETS = await upgrades.deployProxy(
       factories.ETS,
@@ -53,6 +54,7 @@ describe("ETS Lifecycle Tests", function () {
     );
 
     await ETSLifeCycleControls.setETS(ETS.address);
+
   });
 
   describe("Validate setup", async function () {
@@ -64,7 +66,66 @@ describe("ETS Lifecycle Tests", function () {
 
     it("should have default configs", async function () {
       assert((await ETSLifeCycleControls.version()) === "0.1.0");
+      assert((await ETSLifeCycleControls.ets()) === ETS.address);
+      assert((await ETSLifeCycleControls.accessControls()) === ETSAccessControls.address);
       expect(await ETSLifeCycleControls.ownershipTermLength()).to.be.equal("63072000");
     });
+  });
+
+  describe("Owner/Admin functions", async function () {
+    it("Admin should be able to set ownership term", async function() {
+      const thirtyDays = 30 * 24 * 60 * 60;
+      await ETSLifeCycleControls.setOwnershipTermLength(thirtyDays);
+      expect(await ETSLifeCycleControls.ownershipTermLength()).to.be.equal(thirtyDays);
+    });
+
+    it("Only admin should be able to set ownership term", async function() {
+      await expect(
+        ETSLifeCycleControls.connect(accounts.RandomTwo).setOwnershipTermLength(10)).to.be.revertedWith(
+        "Caller must have administrator access",
+      );
+    });
+  });
+
+  describe("Renewing a tag", async function () {
+    let lastTransferTime, tokenId;
+
+    beforeEach(async function () {
+      const tag = "#BlockRocket";
+
+      // RandomTwo account creates a tag.
+      await ETS.connect(accounts.RandomTwo).createTag(tag, accounts.ETSPublisher.address);
+      tokenId = await ETS.computeTagId(tag);
+
+      //assert((await ETSLifeCycleControls.version()) === "0.1.0");
+      //await ETSLifeCycleControls.connETSLifeCycleControls.ETSPlatform).renewTag(tokenId);
+      //lastTransferTime = await ETS.lifeCycleControls.getLastTransfer(tokenId);
+
+    });
+
+    it("Last renewed for newly minted token should be block timestamp", async function () {
+
+      lastRenewed = await ETSLifeCycleControls.getLastRenewed(tokenId);
+
+      console.log(Number(lastRenewed.toString()));
+
+      let blockNum = await ethers.provider.getBlockNumber();
+      let block = await ethers.provider.getBlock(blockNum);
+      let timestamp = block.timestamp;
+
+      // Verify current block timestamp and last renewTime are equal.
+      expect(timestamp).to.be.equal(lastRenewed);
+
+      
+       
+//      console.log("lastTransferTime", lastTransferTime);
+
+     //await expect(ETS.connect(accounts.RandomTwo).lifeCycleControls.renewTag(tokenId)).to.be.revertedWith(
+     //  "renewTag: Invalid sender",
+     //);
+
+
+    });
+
   });
 });

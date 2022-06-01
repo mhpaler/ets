@@ -9,6 +9,9 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721Pausab
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
+import "hardhat/console.sol";
+
+
 /// @title ETS ERC-721 NFT contract
 /// @author Ethereum Tag Service <security@ets.xyz>
 /// @notice Contract that governs the creation of CTAG non-fungible tokens.
@@ -169,6 +172,7 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
     /// @param _tokenId token ID.
     /// @return true if exists.
     function tagExists(uint256 _tokenId) public view returns (bool) {
+        console.log("ets.tagExists", _tokenId);
         return _exists(_tokenId);
     }
 
@@ -212,17 +216,18 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
     }
 
     /// @dev See {ERC721-_beforeTokenTransfer}. Contract must not be paused.
-    function _beforeTokenTransfer(
+    function _afterTokenTransfer(
         address from,
         address to,
         uint256 tokenId
-    ) internal virtual override(ERC721PausableUpgradeable) {
-        super._beforeTokenTransfer(from, to, tokenId);
+    ) internal virtual override(IERC721Upgradeable) {
+        super._afterTokenTransfer(from, to, tokenId);
 
         require(!paused(), "ERC721Pausable: token transfer while paused");
 
-        // Set last transfer time for lifecycle functionality.
-        lifeCycleControls.setLastTransfer(tokenId);
+        // Set last renew time for lifecycle functionality.
+        console.log("after token transfer", _exists(tokenId));
+//        lifeCycleControls.renewTag(tokenId);
     }
 
     /// @notice Private method used for validating a CTAG string before minting.

@@ -9,6 +9,8 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts/interfaces/IERC165.sol";
 
+import "hardhat/console.sol";
+
 /// @title ETS CTAG Token lifecycle controls
 /// @author Ethereum Tag Service <security@ets.xyz>
 /// @dev Maintains a mapping of ethereum addresses and roles they have within the protocol
@@ -27,7 +29,7 @@ contract ETSLifeCycleControls is IETSLifeCycleControls, Initializable, UUPSUpgra
 
 
     /// @dev Last time a CTAG was transfered.
-    mapping(uint256 => uint256) public tokenIdToLastTransferTime;
+    mapping(uint256 => uint256) public tokenIdToLastRenewed;
 
 
     modifier onlyAdmin() {
@@ -36,6 +38,7 @@ contract ETSLifeCycleControls is IETSLifeCycleControls, Initializable, UUPSUpgra
     }
 
     modifier tagExists(uint256 tokenId) {
+        console.log("tagExists", ets.tagExists(tokenId));
         require(ets.tagExists(tokenId), "CTAG: Token not found");
         _;
     }
@@ -66,18 +69,18 @@ contract ETSLifeCycleControls is IETSLifeCycleControls, Initializable, UUPSUpgra
 
     // ============ PUBLIC INTERFACE ============
 
-    function renewTag(uint256 _tokenId) external tagExists(_tokenId) {
+    function renewTag(uint256 _tokenId) public tagExists(_tokenId) {
         //require(ets.tagExists(_tokenId), "renewTag: Invalid token ID");
         require(msg.sender == ets.ownerOf(_tokenId), "renewTag: Not owner");
-        tokenIdToLastTransferTime[_tokenId] = block.timestamp;
+        tokenIdToLastRenewed[_tokenId] = block.timestamp;
         emit TagRenewed(_tokenId, msg.sender);
     }
 
-    function recycleTag(uint256 _tokenId) external tagExists(_tokenId) {
+    function recycleTag(uint256 _tokenId) public tagExists(_tokenId) {
         // require(ets.tagExists(_tokenId), "recycleTag: Invalid token ID");
-        uint256 lastTransferTime = tokenIdToLastTransferTime[_tokenId];
+        uint256 lastRenewed = tokenIdToLastRenewed[_tokenId];
         require(
-            lastTransferTime.add(ownershipTermLength) < block.timestamp,
+            lastRenewed.add(ownershipTermLength) < block.timestamp,
             "ETS: CTAG not eligible for recycling"
         );
         require(ets.ownerOf(_tokenId) != ets.getPlatformAddress(), "ETS: CTAG already owned by the platform");
@@ -87,15 +90,15 @@ contract ETSLifeCycleControls is IETSLifeCycleControls, Initializable, UUPSUpgra
         emit TagRecycled(_tokenId, msg.sender);
     }
 
-    function setLastTransfer(uint256 _tokenId) external {
+    function setLastRenewed(uint256 _tokenId) public {
         // TODO: Restrict this. Msg.sender should equal tag owner?
-        tokenIdToLastTransferTime[_tokenId] = block.timestamp;
+        tokenIdToLastRenewed[_tokenId] = block.timestamp;
     }
     
     // ============ PUBLIC VIEW FUNCTIONS ============
 
-    function getLastTransfer(uint256 _tokenId) public view returns (uint256) {
-        return tokenIdToLastTransferTime[_tokenId];
+    function getLastRenewed(uint256 _tokenId) public view returns (uint256) {
+        return tokenIdToLastRenewed[_tokenId];
     }
 
     function version() public pure returns (string memory) {
