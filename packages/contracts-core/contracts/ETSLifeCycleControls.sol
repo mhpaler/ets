@@ -24,11 +24,11 @@ contract ETSLifeCycleControls is IETSLifeCycleControls, Initializable, UUPSUpgra
 
     /// @dev Upgrade version.
     string public constant VERSION = "0.1.0";
-    /// @dev Term length in seconds that a CTAG is owned before it needs to be renewed.
+    /// @dev CTAG ownership term length in seconds.
     uint256 public ownershipTermLength;
 
 
-    /// @dev Last time a CTAG was transfered.
+    /// @dev Mapping of tokenId to last renewal. 
     mapping(uint256 => uint256) public tokenIdToLastRenewed;
 
 
@@ -42,6 +42,7 @@ contract ETSLifeCycleControls is IETSLifeCycleControls, Initializable, UUPSUpgra
         _;
     }
 
+    // ============ UUPS INTERFACE ============
 
     function initialize(IETSAccessControls _accessControls) public initializer {
         __UUPSUpgradeable_init();
@@ -74,25 +75,25 @@ contract ETSLifeCycleControls is IETSLifeCycleControls, Initializable, UUPSUpgra
     // ============ PUBLIC INTERFACE ============
 
     function renewTag(uint256 _tokenId) public tagExists(_tokenId) {
-        require(msg.sender == ets.ownerOf(_tokenId) || msg.sender == address(ets), "renewTag: Invalid sender");
-        tokenIdToLastRenewed[_tokenId] = block.timestamp;
+
+        require(
+            msg.sender == ets.ownerOf(_tokenId) || 
+            msg.sender == address(ets),
+            "renewTag: Invalid sender"
+        );
+
+        // Handle new and recycled CTAGS.
+        if (ets.ownerOf(_tokenId) == ets.getPlatformAddress()) {
+            _setLastRenewed(_tokenId, 0);
+        } else {
+            _setLastRenewed(_tokenId, block.timestamp);
+        }
+
         emit TagRenewed(_tokenId, msg.sender);
     }
 
     function recycleTag(uint256 _tokenId) public tagExists(_tokenId) {
         ets.recycleTag(_tokenId);
-//        require(ets.tagExists(_tokenId), "recycleTag: Invalid token ID");
-//        uint256 lastRenewed = tokenIdToLastRenewed[_tokenId];
-//        require(
-//            lastRenewed.add(ownershipTermLength) < block.timestamp,
-//            "ETS: CTAG not eligible for recycling"
-//        );
-//        require(ets.ownerOf(_tokenId) != ets.getPlatformAddress(), "ETS: CTAG already owned by the platform");
-//
-//        // If tag ownership is expired, anyone can transfer back to platform for resale.
-//        // Note safeTransferFrom resets last renewed to zero. @see ets._afterTokenTransfer() 
-//        ets.safeTransferFrom(ets.ownerOf(_tokenId), ets.getPlatformAddress(), _tokenId);
-//        emit TagRecycled(_tokenId, msg.sender);
     }
     
     // ============ PUBLIC VIEW FUNCTIONS ============
@@ -108,4 +109,10 @@ contract ETSLifeCycleControls is IETSLifeCycleControls, Initializable, UUPSUpgra
     function version() public pure returns (string memory) {
         return VERSION;
     }
+
+   // ============ INTERNAL FUNCTIONS ============
+
+   function _setLastRenewed(uint256 _tokenId, uint256 _timestamp) internal {
+       tokenIdToLastRenewed[_tokenId] = _timestamp;
+   }
 }

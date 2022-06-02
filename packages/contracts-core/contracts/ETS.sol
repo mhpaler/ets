@@ -226,11 +226,7 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
         require(!paused(), "ERC721Pausable: token transfer while paused");
 
         // Token ownership term is set any time token is transfered away from platform.
-        if (to != platform) {
-            lifeCycleControls.renewTag(tokenId);
-        } else {
-            lifeCycleControls.setLastRenewed(tokenId, 0);
-        }
+        lifeCycleControls.renewTag(tokenId);
     }
 
     /// @notice Private method used for validating a CTAG string before minting.

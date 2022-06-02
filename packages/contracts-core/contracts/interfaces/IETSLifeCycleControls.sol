@@ -15,8 +15,6 @@ interface IETSLifeCycleControls {
     function renewTag(uint256 _tokenId) external;
     /// @dev Recycling an CTAG i.e. transferring ownership back to the platform.
     function recycleTag(uint256 _tokenId) external;
-
-    function setLastRenewed(uint256 _tokenId, uint256 _timestamp) external;
     function getLastRenewed(uint256 _tokenId) external view returns (uint256);
 
     function setOwnershipTermLength(uint256 _ownershipTermLength) external;

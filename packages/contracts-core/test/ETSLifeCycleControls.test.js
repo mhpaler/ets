@@ -336,7 +336,6 @@ describe("ETS CTAG ownership lifecycle tests", function () {
       expect((await ETS.balanceOf(accounts.ETSPlatform.address)).toString()).to.be.equal("1");
       expect((await ETS.balanceOf(accounts.RandomTwo.address)).toString()).to.be.equal("0");
     });
-
   });
   
 });
