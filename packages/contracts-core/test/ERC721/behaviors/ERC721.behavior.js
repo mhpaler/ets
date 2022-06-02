@@ -35,8 +35,8 @@ function shouldBehaveLikeERC721(
 
   context("with minted tokens", function () {
     beforeEach(async function () {
-      await this.token.mint(tag1, publisher, creator);
-      await this.token.mint(tag2, publisher, creator);
+      await this.token.createTag(tag1, publisher);
+      await this.token.createTag(tag2, publisher);
       this.toWhom = other; // default to other for toWhom in context-dependent tests
     });
 
@@ -191,7 +191,7 @@ function shouldBehaveLikeERC721(
           it("reverts", async function () {
             await expectRevert(
               transferFunction.call(this, other, other, tokenId, { from: owner }),
-              "ERC721: transfer of token that is not own",
+              "ERC721: transfer from incorrect owner",
             );
           });
         });
@@ -585,7 +585,7 @@ function shouldBehaveLikeERC721(
 
     context("with minted token", async function () {
       beforeEach(async function () {
-        receipt = await this.token.mint(tag1, publisher, creator);
+        receipt = await this.token.createTag(tag1, publisher);
       });
 
       it("emits a Transfer event", function () {
@@ -598,7 +598,7 @@ function shouldBehaveLikeERC721(
       });
 
       it("reverts when adding a token id that already exists", async function () {
-        await expectRevert(this.token.mint(tag1, publisher, creator), "ERC721: token already minted");
+        await expectRevert(this.token.createTag(tag1, publisher), "ERC721: token already minted");
       });
     });
   });
@@ -610,8 +610,8 @@ function shouldBehaveLikeERC721(
 
     context("with minted tokens", function () {
       beforeEach(async function () {
-        await this.token.mint(tag1, publisher, creator);
-        await this.token.mint(tag2, publisher, creator);
+        await this.token.createTag(tag1, publisher);
+        await this.token.createTag(tag2, publisher);
       });
 
       context("with burnt token", function () {
@@ -799,7 +799,7 @@ function shouldBehaveLikeERC721Metadata(errorPrefix, name, symbol, owner, publis
 
     describe("token URI", function () {
       beforeEach(async function () {
-        await this.token.mint(tag1, publisher, creator);
+        await this.token.createTag(tag1, publisher);
       });
 
       it("return empty string by default", async function () {
