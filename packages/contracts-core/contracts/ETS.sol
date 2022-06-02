@@ -24,9 +24,9 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
 
 
     /// Events
-    event TagMaxStringLengthUpdated(uint256 previousMaxStringLength, uint256 newMaxStringLength);
+    event TagMaxStringLengthSet(uint256 previousMaxStringLength, uint256 newMaxStringLength);
     event PlatformSet(address previousPlatformAddress, address newPlatformAddress);
-    event AccessControlsUpdated(IETSAccessControls previousAccessControls, IETSAccessControls newAccessControls);
+    event AccessControlsSet(IETSAccessControls previousAccessControls, IETSAccessControls newAccessControls);
     event LifeCycleControlsSet(IETSLifeCycleControls previousLifeCycleControls, IETSLifeCycleControls newLifeCycleControls);
 
 
@@ -91,33 +91,27 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
         _unpause();
     }
 
-    /// @notice Admin method for updating the max string length of an CTAG.
-    /// @param _tagMaxStringLength max length.
-    function updateTagMaxStringLength(uint256 _tagMaxStringLength) public onlyAdmin {
+    function setTagMaxStringLength(uint256 _tagMaxStringLength) public onlyAdmin {
         uint256 prevTagMaxStringLength = tagMaxStringLength;
         tagMaxStringLength = _tagMaxStringLength;
-        emit TagMaxStringLengthUpdated(prevTagMaxStringLength, _tagMaxStringLength);
+        emit TagMaxStringLengthSet(prevTagMaxStringLength, _tagMaxStringLength);
     }
 
-    /// @notice Admin method for updating the address that receives the commission on behalf of the platform.
-    /// @param _platform Address that receives minted NFTs.
-    function updatePlatform(address payable _platform) external onlyAdmin {
+    function setPlatform(address payable _platform) public onlyAdmin {
         address prevPlatform = platform;
         platform = _platform;
         emit PlatformSet(prevPlatform, _platform);
     }
 
-    /// @notice Admin functionality for updating the access controls.
-    /// @param _accessControls Address of the access controls contract.
-    function updateAccessControls(IETSAccessControls _accessControls) external onlyAdmin {
-        require(address(_accessControls) != address(0), "ETS.updateAccessControls: Cannot be zero");
+    function setAccessControls(IETSAccessControls _accessControls) public onlyAdmin {
+        require(address(_accessControls) != address(0), "ETS: Access controls cannot be zero");
         IETSAccessControls prevAccessControls = accessControls;
         accessControls = _accessControls;
-        emit AccessControlsUpdated(prevAccessControls, _accessControls);
+        emit AccessControlsSet(prevAccessControls, _accessControls);
     }
 
-    function setLifeCycleControls(IETSLifeCycleControls _lifeCycleControls) external onlyAdmin {
-        require(address(_lifeCycleControls) != address(0), "ETS.setLifeCycleControls: Cannot be zero");
+    function setLifeCycleControls(IETSLifeCycleControls _lifeCycleControls) public onlyAdmin {
+        require(address(_lifeCycleControls) != address(0), "ETS: Lifecycle controls cannot be zero");
         IETSLifeCycleControls prevlifeCycleControls = lifeCycleControls;
         lifeCycleControls = _lifeCycleControls;
         emit LifeCycleControlsSet(prevlifeCycleControls, _lifeCycleControls);

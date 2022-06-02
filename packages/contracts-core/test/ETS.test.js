@@ -192,29 +192,29 @@ describe("ETS Core Tests", function () {
     it("should be able to set platform as owner", async function () {
       expect(await ETS.platform()).to.be.equal(accounts.ETSPlatform.address);
 
-      await ETS.connect(accounts.ETSAdmin).updatePlatform(accounts.RandomOne.address);
+      await ETS.connect(accounts.ETSAdmin).setPlatform(accounts.RandomOne.address);
 
       expect(await ETS.platform()).to.be.equal(accounts.RandomOne.address);
     });
 
     it("should revert if not owner", async function () {
-      await expect(ETS.connect(accounts.Buyer).updatePlatform(accounts.RandomOne.address)).to.be.revertedWith(
+      await expect(ETS.connect(accounts.Buyer).setPlatform(accounts.RandomOne.address)).to.be.revertedWith(
         "Caller must have administrator access",
       );
     });
 
-    it("should update access controls", async function () {
-      await ETS.connect(accounts.ETSAdmin).updateAccessControls(accounts.RandomTwo.address);
+    it("should set access controls", async function () {
+      await ETS.connect(accounts.ETSAdmin).setAccessControls(accounts.RandomTwo.address);
       expect(await ETS.accessControls()).to.be.equal(accounts.RandomTwo.address);
 
-      await expect(ETS.connect(accounts.RandomTwo).updateAccessControls(accounts.RandomTwo.address)).to.be
+      await expect(ETS.connect(accounts.RandomTwo).setAccessControls(accounts.RandomTwo.address)).to.be
         .reverted;
     });
 
     it("should revert when updating access controls to zero address", async function () {
       await expect(
-        ETS.connect(accounts.ETSAdmin).updateAccessControls(constants.AddressZero),
-      ).to.be.revertedWith("ETS.updateAccessControls: Cannot be zero");
+        ETS.connect(accounts.ETSAdmin).setAccessControls(constants.AddressZero),
+      ).to.be.revertedWith("ETS: Access controls cannot be zero");
     });
   });
 
@@ -225,14 +225,14 @@ describe("ETS Core Tests", function () {
       const currentMaxLength = await ETS.tagMaxStringLength();
       expect(currentMaxLength).to.be.equal(32);
 
-      await ETS.connect(accounts.ETSAdmin).updateTagMaxStringLength(64);
+      await ETS.connect(accounts.ETSAdmin).setTagMaxStringLength(64);
 
       const newMaxLength = await ETS.tagMaxStringLength();
       expect(newMaxLength).to.be.equal(64);
     });
 
     it("should revert if setting max tag length if not admin", async function () {
-      await expect(ETS.connect(accounts.Buyer).updateTagMaxStringLength(55)).to.be.revertedWith(
+      await expect(ETS.connect(accounts.Buyer).setTagMaxStringLength(55)).to.be.revertedWith(
         "Caller must have administrator access",
       );
     });

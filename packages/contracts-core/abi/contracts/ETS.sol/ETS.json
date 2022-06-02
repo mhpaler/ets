@@ -15,7 +15,7 @@
         "type": "address"
       }
     ],
-    "name": "AccessControlsUpdated",
+    "name": "AccessControlsSet",
     "type": "event"
   },
   {
@@ -180,7 +180,7 @@
         "type": "uint256"
       }
     ],
-    "name": "TagMaxStringLengthUpdated",
+    "name": "TagMaxStringLengthSet",
     "type": "event"
   },
   {
@@ -683,6 +683,19 @@
   {
     "inputs": [
       {
+        "internalType": "contract IETSAccessControls",
+        "name": "_accessControls",
+        "type": "address"
+      }
+    ],
+    "name": "setAccessControls",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "operator",
         "type": "address"
@@ -707,6 +720,32 @@
       }
     ],
     "name": "setLifeCycleControls",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address payable",
+        "name": "_platform",
+        "type": "address"
+      }
+    ],
+    "name": "setPlatform",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tagMaxStringLength",
+        "type": "uint256"
+      }
+    ],
+    "name": "setTagMaxStringLength",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -881,45 +920,6 @@
   {
     "inputs": [],
     "name": "unPause",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "contract IETSAccessControls",
-        "name": "_accessControls",
-        "type": "address"
-      }
-    ],
-    "name": "updateAccessControls",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address payable",
-        "name": "_platform",
-        "type": "address"
-      }
-    ],
-    "name": "updatePlatform",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_tagMaxStringLength",
-        "type": "uint256"
-      }
-    ],
-    "name": "updateTagMaxStringLength",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
