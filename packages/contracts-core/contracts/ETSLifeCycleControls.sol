@@ -13,7 +13,10 @@ import "hardhat/console.sol";
 
 /// @title ETS CTAG Token lifecycle controls
 /// @author Ethereum Tag Service <security@ets.xyz>
-/// @dev Maintains a mapping of ethereum addresses and roles they have within the protocol
+/// @dev System for maintaining CTAG owernship term length.
+/// Sets up a ownership term that must be renewed by CTAG owner
+/// every two years. If not renewed, anyone may "recycle" the CTAG
+/// thus transferring it back to ETS platform for re-auction. 
 contract ETSLifeCycleControls is IETSLifeCycleControls, Initializable, UUPSUpgradeable {
     using SafeMathUpgradeable for uint256;
 
@@ -65,11 +68,6 @@ contract ETSLifeCycleControls is IETSLifeCycleControls, Initializable, UUPSUpgra
         uint256 prevOwnershipTermLength = ownershipTermLength;
         ownershipTermLength = _ownershipTermLength;
         emit OwnershipTermLengthSet(prevOwnershipTermLength, _ownershipTermLength);
-    }
-
-    function setLastRenewed(uint256 _tokenId, uint256 _timestamp) public {
-        // TODO: Restrict this. Msg.sender should equal tag owner?
-        tokenIdToLastRenewed[_tokenId] = _timestamp;
     }
 
     // ============ PUBLIC INTERFACE ============
