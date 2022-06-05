@@ -6,6 +6,9 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/interfaces/IERC165.sol";
 
+import "hardhat/console.sol";
+
+
 /// @title ETS access controls
 /// @author Ethereum Tag Service <security@ets.xyz>
 /// @dev Maintains a mapping of ethereum addresses and roles they have within the protocol
@@ -15,7 +18,11 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, UUPSUpgra
     string public constant NAME = "ETS access controls";
     string public constant VERSION = "0.0.1";
     bytes32 public constant PUBLISHER_ROLE = keccak256("PUBLISHER");
+    bytes32 public constant PUBLISHER_ROLE_ADMIN = keccak256("PUBLISHER_ADMIN");
     bytes32 public constant SMART_CONTRACT_ROLE = keccak256("SMART_CONTRACT");
+
+
+    // ============ UUPS INTERFACE ============
 
     function initialize() public initializer {
         __AccessControl_init();
@@ -27,25 +34,28 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, UUPSUpgra
     // Ensure that only address with admin role can upgrade.
     function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
-    /// @dev Checks whether an address has a smart contract role.
-    /// @param _addr Address being checked.
-    /// @return bool True if the address has the role, false if not.
+    // ============ OWNER INTERFACE ============
+
+    function setRoleAdmin(bytes32 _role, bytes32 _adminRole) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        _setRoleAdmin(_role, _adminRole);
+    }
+
+    // ============ PUBLIC INTERFACE ============
+
     function isSmartContract(address _addr) public view returns (bool) {
         return hasRole(SMART_CONTRACT_ROLE, _addr);
     }
 
-    /// @dev Checks whether an address has an admin role
-    /// @param _addr Address being checked
-    /// @return bool True if the address has the role, false if not
     function isAdmin(address _addr) public view returns (bool) {
         return hasRole(DEFAULT_ADMIN_ROLE, _addr);
     }
 
-    /// @dev Checks whether an address has a publisher role
-    /// @param _addr Address being checked
-    /// @return bool True if the address has the role, false if not
     function isPublisher(address _addr) public view returns (bool) {
         return hasRole(PUBLISHER_ROLE, _addr);
+    }
+
+    function isPublisherAdmin(address _addr) public view returns (bool) {
+        return hasRole(PUBLISHER_ROLE_ADMIN, _addr);
     }
 
     function version() external pure returns (string memory) {

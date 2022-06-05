@@ -5,13 +5,7 @@
       {
         "indexed": false,
         "internalType": "contract IETSAccessControls",
-        "name": "previousAccessControls",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "contract IETSAccessControls",
-        "name": "newAccessControls",
+        "name": "etsAccessControls",
         "type": "address"
       }
     ],
@@ -118,18 +112,12 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "contract IETSLifeCycleControls",
-        "name": "previousLifeCycleControls",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "contract IETSLifeCycleControls",
-        "name": "newLifeCycleControls",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "termLength",
+        "type": "uint256"
       }
     ],
-    "name": "LifeCycleControlsSet",
+    "name": "OwnershipTermLengthSet",
     "type": "event"
   },
   {
@@ -151,13 +139,7 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "previousPlatformAddress",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "newPlatformAddress",
+        "name": "platformAddress",
         "type": "address"
       }
     ],
@@ -170,13 +152,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "previousMaxStringLength",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newMaxStringLength",
+        "name": "maxStringLength",
         "type": "uint256"
       }
     ],
@@ -231,6 +207,25 @@
       }
     ],
     "name": "TagRecycled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "TagRenewed",
     "type": "event"
   },
   {
@@ -449,6 +444,38 @@
         "type": "uint256"
       }
     ],
+    "name": "getLastRenewed",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getOwnershipTermLength",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      }
+    ],
     "name": "getPaymentAddresses",
     "outputs": [
       {
@@ -483,11 +510,6 @@
       {
         "internalType": "contract IETSAccessControls",
         "name": "_accessControls",
-        "type": "address"
-      },
-      {
-        "internalType": "contract IETSLifeCycleControls",
-        "name": "_lifeCycleControls",
         "type": "address"
       },
       {
@@ -527,19 +549,6 @@
   },
   {
     "inputs": [],
-    "name": "lifeCycleControls",
-    "outputs": [
-      {
-        "internalType": "contract IETSLifeCycleControls",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "name",
     "outputs": [
       {
@@ -565,6 +574,19 @@
         "internalType": "address",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ownershipTermLength",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -625,6 +647,19 @@
       }
     ],
     "name": "recycleTag",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "renewTag",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -714,12 +749,12 @@
   {
     "inputs": [
       {
-        "internalType": "contract IETSLifeCycleControls",
-        "name": "_lifeCycleControls",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "_ownershipTermLength",
+        "type": "uint256"
       }
     ],
-    "name": "setLifeCycleControls",
+    "name": "setOwnershipTermLength",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -836,6 +871,25 @@
   {
     "inputs": [],
     "name": "tagMinStringLength",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "tokenIdToLastRenewed",
     "outputs": [
       {
         "internalType": "uint256",

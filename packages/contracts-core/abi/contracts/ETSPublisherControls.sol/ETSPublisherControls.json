@@ -211,6 +211,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "ets",
+    "outputs": [
+      {
+        "internalType": "contract IETS",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "bytes32",
@@ -355,6 +368,19 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "promoteToPublisher",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "proxiableUUID",
     "outputs": [
@@ -399,6 +425,19 @@
       }
     ],
     "name": "revokeRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IETS",
+        "name": "_ets",
+        "type": "address"
+      }
+    ],
+    "name": "setETS",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

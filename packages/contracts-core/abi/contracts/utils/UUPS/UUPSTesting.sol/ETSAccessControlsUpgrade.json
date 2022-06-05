@@ -173,6 +173,19 @@
   },
   {
     "inputs": [],
+    "name": "PUBLISHER_ROLE_ADMIN",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "SMART_CONTRACT_ROLE",
     "outputs": [
       {
@@ -311,6 +324,25 @@
         "type": "address"
       }
     ],
+    "name": "isPublisherAdmin",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_addr",
+        "type": "address"
+      }
+    ],
     "name": "isSmartContract",
     "outputs": [
       {
@@ -367,6 +399,24 @@
       }
     ],
     "name": "revokeRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_adminRole",
+        "type": "bytes32"
+      }
+    ],
+    "name": "setRoleAdmin",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

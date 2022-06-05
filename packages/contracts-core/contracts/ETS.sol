@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "./interfaces/IETS.sol";
 import "./interfaces/IETSAccessControls.sol";
-import "./interfaces/IETSLifeCycleControls.sol";
+//import "./interfaces/IETSPublisherControls.sol";
 import "./utils/StringHelpers.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
@@ -23,31 +23,27 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
     using SafeMathUpgradeable for uint256;
 
 
-    /// Events
-    event TagMaxStringLengthSet(uint256 previousMaxStringLength, uint256 newMaxStringLength);
-    event PlatformSet(address previousPlatformAddress, address newPlatformAddress);
-    event AccessControlsSet(IETSAccessControls previousAccessControls, IETSAccessControls newAccessControls);
-    event LifeCycleControlsSet(IETSLifeCycleControls previousLifeCycleControls, IETSLifeCycleControls newLifeCycleControls);
-
-
     IETSAccessControls public accessControls;
-    IETSLifeCycleControls public lifeCycleControls;
+    // IETSPublisherControls public etsPublisherControls;
 
 
     /// Public constants
     string public constant NAME = "CTAG Token";
     string public constant VERSION = "0.1.0";
 
-
-    // baseURI for looking up tokenURI for a token
     uint256 public tagMinStringLength;
     uint256 public tagMaxStringLength;
+    uint256 public ownershipTermLength;
 
     /// @dev ETS Platform account.
     address payable public platform;
 
     /// @dev Map of CTAG id to CTAG record.
     mapping(uint256 => Tag) public tokenIdToTag;
+
+    /// @dev Mapping of tokenId to last renewal.
+    mapping(uint256 => uint256) public tokenIdToLastRenewed;
+
 
     /// Modifiers
 
@@ -56,20 +52,24 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
         _;
     }
 
+    // ============ UUPS INTERFACE ============
+
     function initialize(
         IETSAccessControls _accessControls,
-        IETSLifeCycleControls _lifeCycleControls,
+        // IETSPublisherControls _etsPublisherControls,
         address payable _platform
     ) public initializer {
         __ERC721_init("Ethereum Tag Service", "CTAG");
         __ERC721Pausable_init();
 
         accessControls = _accessControls;
-        lifeCycleControls = _lifeCycleControls;
+        //etsPublisherControls = _etsPublisherControls;
         platform = _platform;
 
         tagMinStringLength = 2;
         tagMaxStringLength = 32;
+        ownershipTermLength = 730 days;
+
     }
 
     function _authorizeUpgrade(address) internal override onlyAdmin {}
@@ -92,29 +92,24 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
     }
 
     function setTagMaxStringLength(uint256 _tagMaxStringLength) public onlyAdmin {
-        uint256 prevTagMaxStringLength = tagMaxStringLength;
         tagMaxStringLength = _tagMaxStringLength;
-        emit TagMaxStringLengthSet(prevTagMaxStringLength, _tagMaxStringLength);
+        emit TagMaxStringLengthSet(_tagMaxStringLength);
+    }
+
+    function setOwnershipTermLength(uint256 _ownershipTermLength) public onlyAdmin {
+        ownershipTermLength = _ownershipTermLength;
+        emit OwnershipTermLengthSet(_ownershipTermLength);
     }
 
     function setPlatform(address payable _platform) public onlyAdmin {
-        address prevPlatform = platform;
         platform = _platform;
-        emit PlatformSet(prevPlatform, _platform);
+        emit PlatformSet(_platform);
     }
 
     function setAccessControls(IETSAccessControls _accessControls) public onlyAdmin {
         require(address(_accessControls) != address(0), "ETS: Access controls cannot be zero");
-        IETSAccessControls prevAccessControls = accessControls;
         accessControls = _accessControls;
-        emit AccessControlsSet(prevAccessControls, _accessControls);
-    }
-
-    function setLifeCycleControls(IETSLifeCycleControls _lifeCycleControls) public onlyAdmin {
-        require(address(_lifeCycleControls) != address(0), "ETS: Lifecycle controls cannot be zero");
-        IETSLifeCycleControls prevlifeCycleControls = lifeCycleControls;
-        lifeCycleControls = _lifeCycleControls;
-        emit LifeCycleControlsSet(prevlifeCycleControls, _lifeCycleControls);
+        emit AccessControlsSet(_accessControls);
     }
 
     // ============ PUBLIC INTERFACE ============
@@ -134,24 +129,41 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
         // Store CTAG data in state.
         tokenIdToTag[tagId] = Tag({
             displayVersion: _tag,
-            //machineName: machineName, TODO - need to sense check this. I don't believe machine name needs to be stored because it can always be computed from displayVersion field
+            // TODO - need to sense check this. I don't believe machine name needs to be stored because it can always be computed from displayVersion field
+            // machineName: machineName,
             originalPublisher: _publisher,
             creator: _msgSender()
         });
 
         // todo - I believe this event can be removed. The internal mint method already emits an event and you can get everything from the token ID
-        emit TagMinted(tagId, _tag, _publisher, _msgSender());
+        // emit TagMinted(tagId, _tag, _publisher, _msgSender());
         return tagId;
     }
 
-    function recycleTag(uint256 _tokenId) external {
+    function renewTag(uint256 _tokenId) public {
+        require(_exists(_tokenId), "ETS: CTAG not found");
+        // Handle new and recycled CTAGS.
+        if (ownerOf(_tokenId) == platform) {
+            _setLastRenewed(_tokenId, 0);
+        } else {
+            // require(ownerOf(_tokenId) == msg.sender, "ETS: Renew tag invalid sender");
+            _setLastRenewed(_tokenId, block.timestamp);
+        }
+
+        emit TagRenewed(_tokenId, msg.sender);
+    }
+
+    /**
+     * @dev allows anyone or thing to recycle a CTAG back to platform if
+       ownership term is expired.
+     */
+    function recycleTag(uint256 _tokenId) public {
         require(_exists(_tokenId), "ETS: CTAG not found");
         require(ownerOf(_tokenId) != platform, "ETS: CTAG owned by platform");
-
-        uint256 lastRenewed =  lifeCycleControls.getLastRenewed(_tokenId);
-        
+   
+        uint256 lastRenewed = getLastRenewed(_tokenId);
         require(
-            lastRenewed.add(lifeCycleControls.getOwnershipTermLength()) < block.timestamp,
+            lastRenewed.add(getOwnershipTermLength()) < block.timestamp,
             "ETS: CTAG not eligible for recycling"
         );
 
@@ -174,13 +186,21 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
         return _exists(computeTagId(_tag));
     }
 
+    function getOwnershipTermLength() public view returns (uint256) {
+        return ownershipTermLength;
+    }
+
+    function getLastRenewed(uint256 _tokenId) public view returns (uint256) {
+        return tokenIdToLastRenewed[_tokenId];
+    }
+
     /// @notice Returns the commission addresses related to a token.
     /// @param _tokenId ID of a CTAG.
     /// @return _platform Platform commission address.
     /// @return _owner Address of the owner of the CTAG.
     function getPaymentAddresses(uint256 _tokenId)
-        public 
-        view 
+        public
+        view
         returns (
             address payable _platform,
             address payable _owner
@@ -209,7 +229,7 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
 
     // ============ INTERNAL FUNCTIONS ============
 
-    /// @dev See {ERC721-_beforeTokenTransfer}. Contract must not be paused.
+    /// @dev See {ERC721-_afterTokenTransfer}. Contract must not be paused.
     function _afterTokenTransfer(
         address from,
         address to,
@@ -219,8 +239,12 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
 
         require(!paused(), "ERC721Pausable: token transfer while paused");
 
-        // Token ownership term is set any time token is transfered away from platform.
-        lifeCycleControls.renewTag(tokenId);
+        // Reset token ownership term.
+        renewTag(tokenId);
+        
+        // if (from == platform) {
+        //     etsPublisherControls.promoteToPublisher(to);
+        // }
     }
 
     /// @notice Private method used for validating a CTAG string before minting.
@@ -255,4 +279,8 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
 
         return tagId;
     }
+
+   function _setLastRenewed(uint256 _tokenId, uint256 _timestamp) internal {
+       tokenIdToLastRenewed[_tokenId] = _timestamp;
+   }
 }
