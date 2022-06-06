@@ -212,10 +212,10 @@
   },
   {
     "inputs": [],
-    "name": "ets",
+    "name": "etsToken",
     "outputs": [
       {
-        "internalType": "contract IETS",
+        "internalType": "contract IETSToken",
         "name": "",
         "type": "address"
       }
@@ -432,8 +432,8 @@
   {
     "inputs": [
       {
-        "internalType": "contract IETS",
-        "name": "_ets",
+        "internalType": "contract IETSToken",
+        "name": "_etsToken",
         "type": "address"
       }
     ],

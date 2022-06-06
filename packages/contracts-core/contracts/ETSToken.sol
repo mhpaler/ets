@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./interfaces/IETS.sol";
+import "./interfaces/IETSToken.sol";
 import "./interfaces/IETSAccessControls.sol";
 //import "./interfaces/IETSPublisherControls.sol";
 import "./utils/StringHelpers.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
@@ -16,16 +17,15 @@ import "hardhat/console.sol";
 /// @author Ethereum Tag Service <security@ets.xyz>
 /// @notice Contract that governs the creation of CTAG non-fungible tokens.
 /// @dev UUPS upgradable.
-contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers {
+contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETSToken, UUPSUpgradeable, StringHelpers {
 
     using AddressUpgradeable for address;
     using StringsUpgradeable for uint256;
     using SafeMathUpgradeable for uint256;
 
 
-    IETSAccessControls public accessControls;
+    IETSAccessControls public etsAccessControls;
     // IETSPublisherControls public etsPublisherControls;
-
 
     /// Public constants
     string public constant NAME = "CTAG Token";
@@ -48,21 +48,22 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
     /// Modifiers
 
     modifier onlyAdmin() {
-        require(accessControls.isAdmin(_msgSender()), "Caller must have administrator access");
+        require(etsAccessControls.isAdmin(_msgSender()), "Caller must have administrator access");
         _;
     }
 
     // ============ UUPS INTERFACE ============
 
     function initialize(
-        IETSAccessControls _accessControls,
+        IETSAccessControls _etsAccessControls,
         // IETSPublisherControls _etsPublisherControls,
         address payable _platform
     ) public initializer {
         __ERC721_init("Ethereum Tag Service", "CTAG");
         __ERC721Pausable_init();
+        __ERC721Burnable_init();
 
-        accessControls = _accessControls;
+        etsAccessControls = _etsAccessControls;
         //etsPublisherControls = _etsPublisherControls;
         platform = _platform;
 
@@ -91,6 +92,10 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
         _unpause();
     }
 
+    function burn(uint256 tokenId) public override onlyAdmin {
+        _burn(tokenId);
+    }
+
     function setTagMaxStringLength(uint256 _tagMaxStringLength) public onlyAdmin {
         tagMaxStringLength = _tagMaxStringLength;
         emit TagMaxStringLengthSet(_tagMaxStringLength);
@@ -106,10 +111,10 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
         emit PlatformSet(_platform);
     }
 
-    function setAccessControls(IETSAccessControls _accessControls) public onlyAdmin {
-        require(address(_accessControls) != address(0), "ETS: Access controls cannot be zero");
-        accessControls = _accessControls;
-        emit AccessControlsSet(_accessControls);
+    function setAccessControls(IETSAccessControls _etsAccessControls) public onlyAdmin {
+        require(address(_etsAccessControls) != address(0), "ETS: Access controls cannot be zero");
+        etsAccessControls = _etsAccessControls;
+        emit AccessControlsSet(_etsAccessControls);
     }
 
     // ============ PUBLIC INTERFACE ============
@@ -118,7 +123,7 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
         string calldata _tag,
         address payable _publisher
     ) external payable returns (uint256 _tokenId) {
-        require(accessControls.isPublisher(_publisher), "Mint: The publisher must be whitelisted");
+        require(etsAccessControls.isPublisher(_publisher), "ETS: Not a publisher");
 
         // Perform basic tag string validation.
         uint256 tagId = _assertTagIsValid(_tag);
@@ -194,7 +199,7 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
         return tokenIdToLastRenewed[_tokenId];
     }
 
-    /// @notice Returns the commission addresses related to a token.
+    /// @dev Returns the commission addresses related to a token.
     /// @param _tokenId ID of a CTAG.
     /// @return _platform Platform commission address.
     /// @return _owner Address of the owner of the CTAG.
@@ -229,20 +234,26 @@ contract ETS is ERC721PausableUpgradeable, IETS, UUPSUpgradeable, StringHelpers 
 
     // ============ INTERNAL FUNCTIONS ============
 
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal override(ERC721PausableUpgradeable, ERC721Upgradeable) {
+        super._beforeTokenTransfer(from, to, amount);
+    }
+
     /// @dev See {ERC721-_afterTokenTransfer}. Contract must not be paused.
     function _afterTokenTransfer(
         address from,
         address to,
         uint256 tokenId
-    ) internal virtual override {
+    ) internal virtual override(ERC721Upgradeable) {
         super._afterTokenTransfer(from, to, tokenId);
 
         require(!paused(), "ERC721Pausable: token transfer while paused");
 
         // Reset token ownership term.
-        renewTag(tokenId);
-        
-        // if (from == platform) {
+        if (to != address(0)) {
+            renewTag(tokenId);
+        }
+        // TODO: After auction is set up.
+        // if () {
         //     etsPublisherControls.promoteToPublisher(to);
         // }
     }

@@ -5,7 +5,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol"
 import "./IETSAccessControls.sol";
 
 /// @notice ETS core interface exposing ability for external contracts to mint and use CTAGs.
-interface IETS is IERC721Upgradeable {
+interface IETSToken is IERC721Upgradeable {
 
     // Container for CTAG token data.
     struct Tag {

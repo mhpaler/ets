@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./interfaces/IETS.sol";
+import "./interfaces/IETSToken.sol";
 import "./ETSAccessControls.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
@@ -18,7 +18,7 @@ contract ETSPublisherControls is Initializable, UUPSUpgradeable, ETSAccessContro
 
     //bytes32 public constant PUBLISHER_ROLE = keccak256("PUBLISHER");
 
-    IETS public ets;
+    IETSToken public etsToken;
     //ETSAccessControls public etsAccessControls;
 
     modifier onlyAdmin() {
@@ -47,16 +47,16 @@ contract ETSPublisherControls is Initializable, UUPSUpgradeable, ETSAccessContro
 
     // ============ OWNER INTERFACE ============
 
-    function setETS(IETS _ets) public onlyAdmin {
-        require(address(ets) == address(0), "setETS: Cannot set twice");
-        require(address(_ets) != address(0), "setETS: Address cannot be zero");
-        ets = _ets;
+    function setETS(IETSToken _etsToken) public onlyAdmin {
+        require(address(etsToken) == address(0), "setETS: Cannot set twice");
+        require(address(_etsToken) != address(0), "setETS: Address cannot be zero");
+        etsToken = _etsToken;
     }
 
     // ============ PUBLIC INTERFACE ============
 
     function promoteToPublisher(address owner) public {
-        if (ets.balanceOf(owner) > 0) {
+        if (etsToken.balanceOf(owner) > 0) {
             _grantRole(PUBLISHER_ROLE, owner);
         }
     }

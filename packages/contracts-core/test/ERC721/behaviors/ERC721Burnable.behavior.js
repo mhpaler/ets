@@ -2,7 +2,10 @@ const { BN, constants, expectEvent, expectRevert } = require("@openzeppelin/test
 const { expect } = require("chai");
 const { ZERO_ADDRESS } = constants;
 
+const tag1 = "#TokenizeEverything";
+const tag2 = "#trustless";
 const firstTokenId = "26056379909737856550015515958401490153572348305968831462962556214796192847542";
+const secondTokenId = "38593528540894169991277332302023612800646425531175410200147135177119611307149";
 const unknownTokenId = new BN("999999999");
 
 let receipt;
@@ -20,8 +23,8 @@ function shouldBehaveLikeERC721Burnable(
 ) {
   context("like a burnable ERC721", function () {
     beforeEach(async function () {
-      await this.token.mint("#TokenizeEverything", publisher, creator);
-      await this.token.mint("#trustless", publisher, creator);
+      await this.token.createTag(tag1, publisher);
+      await this.token.createTag(tag2, publisher);
     });
 
     describe("burn", function () {
@@ -63,7 +66,7 @@ function shouldBehaveLikeERC721Burnable(
         it("reverts", async function () {
           await expectRevert(
             this.token.burn(unknownTokenId, { from: admin }),
-            "ERC721: operator query for nonexistent token",
+            "ERC721: owner query for nonexistent token",
           );
         });
       });
