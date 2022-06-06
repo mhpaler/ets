@@ -1,35 +1,73 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: GPL-3.0
 
-import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
-import "./IETSAccessControls.sol";
+pragma solidity ^0.8.6;
 
-/// @notice ETS core interface exposing ability for external contracts to mint and use CTAGs.
-interface IETSToken is IERC721Upgradeable {
-
-    // Container for CTAG token data.
-    struct Tag {
-        address originalPublisher;
-        address creator;
-        string displayVersion;
+/**
+ * @title Interface for ETS Auction House
+ */
+interface IETSAuctionHouse {
+    struct Auction {
+        // ID for the ERC721 token
+        uint256 tokenId;
+        // The current highest bid amount
+        uint256 amount;
+        // The length of time to run the auction for, after the first bid was made
+        uint256 duration;
+        // The time of the first bid
+        uint256 firstBidTime;
+        // The minimum price of the first bid
+        uint256 reservePrice;
+        // The address of the current highest bid
+        address payable bidder;
     }
 
-    // Events
-    event OwnershipTermLengthSet(uint256 termLength);
-    event TagMaxStringLengthSet(uint256 maxStringLength);
-    event PlatformSet(address platformAddress);
-    event AccessControlsSet(IETSAccessControls etsAccessControls);
-    event TagMinted(uint256 indexed tokenId, string displayVersion, address indexed publisher, address creator);
-    event TagRenewed(uint256 indexed tokenId, address indexed caller);
-    event TagRecycled(uint256 indexed tokenId, address indexed caller);
+    event AuctionCreated(uint256 indexed auctionId);
 
-    function setOwnershipTermLength(uint256 _ownershipTermLength) external;
-    function createTag(string calldata _tag, address payable _publisher) external payable returns (uint256 _tokenId);
-    function renewTag(uint256 _tokenId) external;
-    function recycleTag(uint256 _tokenId) external;
-
-    function tagExists(uint256 _tokenId) external view returns (bool);
-    function getPlatformAddress() external view returns (address);
-    function getLastRenewed(uint256 _tokenId) external view returns (uint256);
-    function getOwnershipTermLength() external view returns (uint256);
+    event AuctionReservePriceSet(uint256 reservePrice);
+//
+//    event AuctionBid(
+//        uint256 indexed auctionId,
+//        uint256 indexed tokenId,
+//        address indexed tokenContract,
+//        address sender,
+//        uint256 value,
+//        bool firstBid,
+//        bool extended
+//    );
+//
+//    event AuctionDurationExtended(
+//        uint256 indexed auctionId,
+//        uint256 indexed tokenId,
+//        address indexed tokenContract,
+//        uint256 duration
+//    );
+//
+//    event AuctionEnded(
+//        uint256 indexed auctionId,
+//        uint256 indexed tokenId,
+//        address indexed tokenContract,
+//        address tokenOwner,
+//        address curator,
+//        address winner,
+//        uint256 amount,
+//        uint256 curatorFee,
+//        address auctionCurrency
+//    );
+//
+//    event AuctionCanceled(
+//        uint256 indexed auctionId,
+//        uint256 indexed tokenId,
+//        address indexed tokenContract,
+//        address tokenOwner
+//    );
+//
+//    function setReservePrice(uint256 _reservePrice) external;
+//
+    function createAuction(uint256 tokenId) external returns (uint256);
+//
+//    function createBid(uint256 auctionId, uint256 amount) external payable;
+//
+//    function endAuction(uint256 auctionId) external;
+//
+//    function cancelAuction(uint256 auctionId) external;
 }

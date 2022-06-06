@@ -18,11 +18,18 @@ async function setup() {
 
     const factories = {
       ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
+      ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
       ETSToken: await ethers.getContractFactory("ETSToken"),
     };
 
     const ETSAccessControls = await upgrades.deployProxy(factories.ETSAccessControls, { kind: "uups" });
     const ETSToken = await upgrades.deployProxy(
+      factories.ETSToken,
+      [ETSAccessControls.address, accounts.ETSPlatform.address],
+      { kind: "uups" },
+    );
+
+    const ETSAuctionHouse = await upgrades.deployProxy(
       factories.ETSToken,
       [ETSAccessControls.address, accounts.ETSPlatform.address],
       { kind: "uups" },
