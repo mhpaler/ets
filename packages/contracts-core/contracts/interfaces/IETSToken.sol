@@ -28,7 +28,9 @@ interface IETSToken is IERC721Upgradeable {
     function renewTag(uint256 _tokenId) external;
     function recycleTag(uint256 _tokenId) external;
 
-    function tagExists(uint256 _tokenId) external view returns (bool);
+    function tokenIdExists(uint256 _tokenId) external view returns (bool);
+    function tagExists(string calldata _tag) external view returns (bool);
+    function getTag(uint256 _tokenId) external view returns (Tag memory);
     function getPlatformAddress() external view returns (address);
     function getLastRenewed(uint256 _tokenId) external view returns (uint256);
     function getOwnershipTermLength() external view returns (uint256);

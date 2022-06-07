@@ -323,6 +323,42 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getTag",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "originalPublisher",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "creator",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "displayVersion",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IETSToken.Tag",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "owner",
         "type": "address"
@@ -493,12 +529,31 @@
   {
     "inputs": [
       {
+        "internalType": "string",
+        "name": "_tag",
+        "type": "string"
+      }
+    ],
+    "name": "tagExists",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "_tokenId",
         "type": "uint256"
       }
     ],
-    "name": "tagExists",
+    "name": "tokenIdExists",
     "outputs": [
       {
         "internalType": "bool",

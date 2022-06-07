@@ -4,9 +4,10 @@ pragma solidity ^0.8.6;
 
 import { PausableUpgradeable } from '@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol';
 import { ReentrancyGuardUpgradeable } from '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { SafeMath } from "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import { SafeERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import { SafeMathUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
 import { IETSAuctionHouse } from "./interfaces/IETSAuctionHouse.sol";
 import { IETSToken } from './interfaces/IETSToken.sol';
@@ -15,17 +16,17 @@ import { IWETH } from './interfaces/IWETH.sol';
 /**
  * @title An open auction house, enabling collectors and curators to run their own auctions
  */
-contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGuardUpgradeable {
+contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
 
-    using SafeMath for uint256;
-    using SafeERC20 for IERC20;
+    using SafeMathUpgradeable for uint256;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
     // The ETS ERC721 token contract
     IETSToken public etsToken;
     IETSAccessControls public etsAccessControls;
 
     /// Public constants
-    string public constant NAME = "CTAG Token";
+    string public constant NAME = "ETS Auction House";
     string public constant VERSION = "0.1.0";
 
     /// Public variables
@@ -53,8 +54,8 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
 
 
     /// Modifiers
-    modifier tagExists(uint256 tokenId) {
-        require(etsToken.tagExists(tokenId), "CTAG doesn't exist");
+    modifier tokenIdExists(uint256 tokenId) {
+        require(etsToken.tokenIdExists(tokenId), "CTAG doesn't exist");
         _;
     }
 
@@ -97,6 +98,9 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         duration = _duration;
     }
 
+    function _authorizeUpgrade(address) internal override onlyAdmin {}
+
+
     // ============ OWNER/ADMIN INTERFACE ============
 
     function setReservePrice(uint256 _reservePrice) public onlyAdmin {
@@ -133,13 +137,21 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         return _tokenId;
     }
 
-    /**
-     * @notice Create a bid on a token, with a given amount.
-     * @dev If provided a valid bid, transfers the provided amount to this contract.
-     * If the auction is run in native ETH, the ETH is wrapped so it can be identically to other
-     * auction currencies in this contract.
-     */
-//    function createBid(uint256 auctionId, uint256 amount)
+
+    function createBid (uint256 _tokenId, uint256 _amount) public payable nonReentrant platformOwned(_tokenId) {
+        
+        // does the auction exist?
+        emit AuctionBid(_tokenId, _amount);
+    }
+
+    // ============ PUBLIC VIEW FUNCTIONS ============
+
+    function version() external pure returns (string memory) {
+        return VERSION;
+    }
+
+//
+//    function createBidOrig(uint256 auctionId, uint256 amount)
 //    external
 //    override
 //    payable

@@ -24,16 +24,14 @@ interface IETSAuctionHouse {
     event AuctionCreated(uint256 indexed auctionId);
 
     event AuctionReservePriceSet(uint256 reservePrice);
-//
-//    event AuctionBid(
-//        uint256 indexed auctionId,
-//        uint256 indexed tokenId,
-//        address indexed tokenContract,
-//        address sender,
-//        uint256 value,
-//        bool firstBid,
-//        bool extended
-//    );
+
+    event AuctionBid(
+        uint256 indexed tokenId,
+        // address sender,
+        uint256 value
+        // bool firstBid,
+        // bool extended
+    );
 //
 //    event AuctionDurationExtended(
 //        uint256 indexed auctionId,
@@ -64,8 +62,8 @@ interface IETSAuctionHouse {
 //    function setReservePrice(uint256 _reservePrice) external;
 //
     function createAuction(uint256 tokenId) external returns (uint256);
-//
-//    function createBid(uint256 auctionId, uint256 amount) external payable;
+
+    function createBid(uint256 auctionId, uint256 amount) external payable;
 //
 //    function endAuction(uint256 auctionId) external;
 //

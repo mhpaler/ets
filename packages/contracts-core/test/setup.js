@@ -2,6 +2,7 @@ const { ethers, upgrades } = require("hardhat");
 const { expect, assert } = require("chai");
 const { BigNumber, constants } = ethers;
 
+const tokenAbi = require("../abi/contracts/ETSToken.sol/ETSToken.json");
 async function setup() {
 
   const namedAccounts = await ethers.getNamedSigners();
@@ -17,21 +18,33 @@ async function setup() {
     };
 
     const factories = {
+      WETH: await ethers.getContractFactory("WETH"),
       ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
       ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
       ETSToken: await ethers.getContractFactory("ETSToken"),
     };
 
+    const WETH = await factories.WETH.deploy();
     const ETSAccessControls = await upgrades.deployProxy(factories.ETSAccessControls, { kind: "uups" });
-    const ETSToken = await upgrades.deployProxy(
+    let ETSToken = await upgrades.deployProxy(
       factories.ETSToken,
       [ETSAccessControls.address, accounts.ETSPlatform.address],
       { kind: "uups" },
     );
 
+    ETSToken = new ethers.Contract(ETSToken.address, tokenAbi, accounts.ETSAdmin);
+
     const ETSAuctionHouse = await upgrades.deployProxy(
-      factories.ETSToken,
-      [ETSAccessControls.address, accounts.ETSPlatform.address],
+      factories.ETSAuctionHouse,
+      [
+        ETSToken.address,
+        ETSAccessControls.address,
+        WETH.address,      // _weth
+        30,                 // _timeBuffer (30 secs)
+        1,                  // _reservePrice in wei
+        5,                  // _minBidIncrementPercentage,
+        60 * 2              // _duration (2 mins)
+      ],
       { kind: "uups" },
     );
 
@@ -45,7 +58,7 @@ async function setup() {
     await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER"), accounts.ETSPublisher.address);
     assert((await ETSAccessControls.isAdmin(accounts.ETSAdmin.address)) === true);
 
-    return [accounts, ETSAccessControls, ETSToken];
+    return [accounts, ETSAccessControls, ETSToken, ETSAuctionHouse];
 }
 
 module.exports = {

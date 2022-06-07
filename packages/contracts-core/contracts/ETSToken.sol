@@ -183,12 +183,16 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
         return uint256(keccak256(bytes(_machineName)));
     }
 
-    function tagExists(uint256 _tokenId) public view returns (bool) {
+    function tokenIdExists(uint256 _tokenId) public view returns (bool) {
         return _exists(_tokenId);
     }
 
     function tagExists(string calldata _tag) public view returns (bool) {
         return _exists(computeTagId(_tag));
+    }
+
+    function getTag(uint256 _tokenId) public view returns (Tag memory) {
+        return tokenIdToTag[_tokenId];
     }
 
     function getOwnershipTermLength() public view returns (uint256) {
