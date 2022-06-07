@@ -17,6 +17,7 @@ const firstTokenId = "2605637990973785655001551595840149015357234830596883146296
 const secondTokenId = "38593528540894169991277332302023612800646425531175410200147135177119611307149";
 const nonExistentTokenId = new BN("999999999");
 const RECEIVER_MAGIC_VALUE = "0x150b7a02";
+const baseURI = "https://api.com/v2/";
 
 let receipt;
 
@@ -35,8 +36,8 @@ function shouldBehaveLikeERC721(
 
   context("with minted tokens", function () {
     beforeEach(async function () {
-      await this.token.mint(tag1, publisher, creator);
-      await this.token.mint(tag2, publisher, creator);
+      await this.token.createTag(tag1, publisher);
+      await this.token.createTag(tag2, publisher);
       this.toWhom = other; // default to other for toWhom in context-dependent tests
     });
 
@@ -191,7 +192,7 @@ function shouldBehaveLikeERC721(
           it("reverts", async function () {
             await expectRevert(
               transferFunction.call(this, other, other, tokenId, { from: owner }),
-              "ERC721: transfer of token that is not own",
+              "ERC721: transfer from incorrect owner",
             );
           });
         });
@@ -585,7 +586,7 @@ function shouldBehaveLikeERC721(
 
     context("with minted token", async function () {
       beforeEach(async function () {
-        receipt = await this.token.mint(tag1, publisher, creator);
+        receipt = await this.token.createTag(tag1, publisher);
       });
 
       it("emits a Transfer event", function () {
@@ -598,20 +599,20 @@ function shouldBehaveLikeERC721(
       });
 
       it("reverts when adding a token id that already exists", async function () {
-        await expectRevert(this.token.mint(tag1, publisher, creator), "ERC721: token already minted");
+        await expectRevert(this.token.createTag(tag1, publisher), "ERC721: token already minted");
       });
     });
   });
 
   describe("_burn", function () {
     it("reverts when burning a non-existent token id", async function () {
-      await expectRevert(this.token.burn(nonExistentTokenId), "ERC721: operator query for nonexistent token");
+      await expectRevert(this.token.burn(nonExistentTokenId), "ERC721: owner query for nonexistent token");
     });
 
     context("with minted tokens", function () {
       beforeEach(async function () {
-        await this.token.mint(tag1, publisher, creator);
-        await this.token.mint(tag2, publisher, creator);
+        await this.token.createTag(tag1, publisher);
+        await this.token.createTag(tag2, publisher);
       });
 
       context("with burnt token", function () {
@@ -633,7 +634,7 @@ function shouldBehaveLikeERC721(
         });
 
         it("reverts when burning a token id that has been deleted", async function () {
-          await expectRevert(this.token.burn(firstTokenId), "ERC721: operator query for nonexistent token");
+          await expectRevert(this.token.burn(firstTokenId), "ERC721: owner query for nonexistent token");
         });
       });
     });
@@ -799,12 +800,11 @@ function shouldBehaveLikeERC721Metadata(errorPrefix, name, symbol, owner, publis
 
     describe("token URI", function () {
       beforeEach(async function () {
-        await this.token.mint(tag1, publisher, creator);
+        await this.token.createTag(tag1, publisher);
       });
 
       it("return empty string by default", async function () {
-        const baseURI = await this.token.baseURI();
-        expect(await this.token.tokenURI(firstTokenId)).to.be.equal(`${baseURI}${firstTokenId}`);
+        expect(await this.token.tokenURI(firstTokenId)).to.be.equal('');
       });
 
       it("reverts when queried for non existent token id", async function () {
@@ -820,8 +820,6 @@ function shouldBehaveLikeERC721Metadata(errorPrefix, name, symbol, owner, publis
             this.skip();
           }
         });
-
-        const baseURI = "https://api.com/v2/";
 
         it("base URI can be set", async function () {
           await this.token.setBaseURI(baseURI);

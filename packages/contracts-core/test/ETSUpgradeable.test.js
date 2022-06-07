@@ -7,12 +7,13 @@ let factories, artifact, deployed, accounts;
 before("get factories", async function () {
   artifact = {
     ETSAccessControlsUpgrade: await artifacts.readArtifactSync("ETSAccessControlsUpgrade"),
+    ETSUpgrade: await artifacts.readArtifactSync("ETSUpgrade"),
   };
 
   factories = {
     ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
     ETSAccessControlsUpgrade: await ethers.getContractFactory("ETSAccessControlsUpgrade"),
-    ETS: await ethers.getContractFactory("ETS"),
+    ETSToken: await ethers.getContractFactory("ETSToken"),
     ETSUpgrade: await ethers.getContractFactory("ETSUpgrade"),
   };
 
@@ -27,7 +28,8 @@ before("get factories", async function () {
   // Set deployed contract placeholders so they are shareable b/w tests.
   deployed = {
     ETSAccessControls: {},
-    ETS: {},
+    ETSLifeCycleControls: {},
+    ETSToken: {},
   };
 });
 
@@ -51,29 +53,29 @@ describe("ETSAccessControl", function () {
   });
 });
 
-describe("ETS", function () {
+describe("ETSToken", function () {
   it("is upgradeable", async function () {
     // Deploy the initial proxy contract.
-    deployed.ETS = await upgrades.deployProxy(
-      factories.ETS,
+    deployed.ETSToken = await upgrades.deployProxy(
+      factories.ETSToken,
       [deployed.ETSAccessControls.address, accounts.ETSPlatform.address],
       { kind: "uups" },
     );
 
-    assert((await deployed.ETS.name()) === "Ethereum Tag Service");
-    assert((await deployed.ETS.symbol()) === "CTAG");
+    assert((await deployed.ETSToken.name()) === "Ethereum Tag Service");
+    assert((await deployed.ETSToken.symbol()) === "CTAG");
 
     // Upgrade the proxy.
-    deployed.ETS = await upgrades.upgradeProxy(
-      deployed.ETS.address,
+    deployed.ETSToken = await upgrades.upgradeProxy(
+      deployed.ETSToken.address,
       factories.ETSUpgrade,
     );
 
-    const deployTxn = deployed.ETS.deployTransaction.hash;
-    await expectEvent.inTransaction(deployTxn, artifact.ETSAccessControlsUpgrade, "Upgraded");
-    assert((await deployed.ETS.name()) === "Ethereum Tag Service");
-    assert((await deployed.ETS.symbol()) === "CTAG");
+    const deployTxn = deployed.ETSToken.deployTransaction.hash;
+    await expectEvent.inTransaction(deployTxn, artifact.ETSUpgrade, "Upgraded");
+    assert((await deployed.ETSToken.name()) === "Ethereum Tag Service");
+    assert((await deployed.ETSToken.symbol()) === "CTAG");
     // Upgraded contract has new function upgradeTest()
-    assert((await deployed.ETS.upgradeTest()) === true);
+    assert((await deployed.ETSToken.upgradeTest()) === true);
   });
 });

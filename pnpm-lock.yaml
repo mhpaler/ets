@@ -283,8 +283,8 @@ importers:
       '@nomiclabs/hardhat-truffle5': ^2.0.3
       '@nomiclabs/hardhat-waffle': ^2.0.1
       '@nomiclabs/hardhat-web3': ^2.0.0
-      '@openzeppelin/contracts': ^4.4.1
-      '@openzeppelin/contracts-upgradeable': ^4.4.1
+      '@openzeppelin/contracts': ^4.6.0
+      '@openzeppelin/contracts-upgradeable': ^4.6.0
       '@openzeppelin/hardhat-upgrades': ^1.12.0
       '@openzeppelin/test-helpers': ^0.5.15
       '@primitivefi/hardhat-dodoc': ^0.2.3
@@ -320,8 +320,8 @@ importers:
       web3-eth-abi: ^1.2.1
       web3-utils: ^1.2.1
     dependencies:
-      '@openzeppelin/contracts': 4.4.1
-      '@openzeppelin/contracts-upgradeable': 4.4.1
+      '@openzeppelin/contracts': 4.6.0
+      '@openzeppelin/contracts-upgradeable': 4.6.0
       '@primitivefi/hardhat-dodoc': 0.2.3_hardhat@2.9.3
     devDependencies:
       '@ethersproject/abi': 5.6.1
@@ -2563,12 +2563,20 @@ packages:
     resolution: {integrity: sha512-84dUN+TBY42D52BzUc4RHxU4KORs8Ys7dj3nH0WX1QKtlS6rrN45gL+sxaotkPdCqFLVLPyj+kd8GfJ4puxVjA==}
     dev: false
 
+  /@openzeppelin/contracts-upgradeable/4.6.0:
+    resolution: {integrity: sha512-5OnVuO4HlkjSCJO165a4i2Pu1zQGzMs//o54LPrwUgxvEO2P3ax1QuaSI0cEHHTveA77guS0PnNugpR2JMsPfA==}
+    dev: false
+
   /@openzeppelin/contracts/3.4.2:
     resolution: {integrity: sha512-z0zMCjyhhp4y7XKAcDAi3Vgms4T2PstwBdahiO0+9NaGICQKjynK3wduSRplTgk4LXmoO1yfDGO5RbjKYxtuxA==}
     dev: false
 
   /@openzeppelin/contracts/4.4.1:
     resolution: {integrity: sha512-o+pHCf/yMLSlV5MkDQEzEQL402i6SoRnktru+0rdSxVEFZcTzzGhZCAtZjUFyKGazMSv1TilzMg+RbED1N8XHQ==}
+    dev: false
+
+  /@openzeppelin/contracts/4.6.0:
+    resolution: {integrity: sha512-8vi4d50NNya/bQqCmaVzvHNmwHvS0OBKb7HNtuNwEE3scXWrP31fKQoGxNMT+KbzmrNZzatE3QK5p2gFONI/hg==}
     dev: false
 
   /@openzeppelin/hardhat-upgrades/1.16.1_mbxll6dls2xkogruh2aldmbgiy:
@@ -2578,7 +2586,7 @@ packages:
       '@nomiclabs/hardhat-ethers': ^2.0.0
       hardhat: ^2.0.2
     dependencies:
-      '@nomiclabs/hardhat-ethers': /hardhat-deploy-ethers/0.3.0-beta.13_ethers@5.6.1+hardhat@2.9.3
+      '@nomiclabs/hardhat-ethers': /hardhat-deploy-ethers/0.3.0-beta.13_ethers@5.6.4+hardhat@2.9.3
       '@openzeppelin/upgrades-core': 1.14.1
       chalk: 4.1.2
       hardhat: 2.9.3
@@ -3174,7 +3182,7 @@ packages:
       typechain: ^3.0.0
     dependencies:
       ethers: 5.6.1
-      typechain: 3.0.0_typescript@4.6.2
+      typechain: 3.0.0_typescript@4.6.3
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -9352,7 +9360,7 @@ packages:
       source-map: 0.6.1
       wordwrap: 1.0.0
     optionalDependencies:
-      uglify-js: 3.15.4
+      uglify-js: 3.15.5
     dev: true
 
   /har-schema/2.0.0:
@@ -9441,7 +9449,7 @@ packages:
       hardhat: ^2.9.1
     dependencies:
       '@firebase/firestore-types': 2.2.0_@firebase+app-types@0.7.0
-      '@nomiclabs/hardhat-ethers': /hardhat-deploy-ethers/0.3.0-beta.13_ethers@5.6.1+hardhat@2.9.3
+      '@nomiclabs/hardhat-ethers': /hardhat-deploy-ethers/0.3.0-beta.13_ethers@5.6.4+hardhat@2.9.3
       configstore: 5.0.1
       firebase: 8.2.6
       hardhat: 2.9.3
@@ -15485,7 +15493,7 @@ packages:
     dependencies:
       command-exists: 1.2.9
       commander: 3.0.2
-      follow-redirects: 1.14.9
+      follow-redirects: 1.14.9_debug@4.3.3
       fs-extra: 0.30.0
       js-sha3: 0.8.0
       memorystream: 0.3.1
@@ -17209,8 +17217,8 @@ packages:
       uglify-to-browserify: 1.0.2
     dev: true
 
-  /uglify-js/3.15.4:
-    resolution: {integrity: sha512-vMOPGDuvXecPs34V74qDKk4iJ/SN4vL3Ow/23ixafENYvtrNvtbcgUeugTcUGRGsOF/5fU8/NYSL5Hyb3l1OJA==}
+  /uglify-js/3.15.5:
+    resolution: {integrity: sha512-hNM5q5GbBRB5xB+PMqVRcgYe4c8jbyZ1pzZhS6jbq54/4F2gFK869ZheiE5A8/t+W5jtTNpWef/5Q9zk639FNQ==}
     engines: {node: '>=0.8.0'}
     hasBin: true
     requiresBuild: true

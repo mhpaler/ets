@@ -4,7 +4,7 @@ const { shouldBehaveLikeERC721, shouldBehaveLikeERC721Metadata } = require("./be
 const { shouldBehaveLikeERC721Pausable } = require("./behaviors/ERC721Pausable.behavior");
 const { shouldBehaveLikeERC721Burnable } = require("./behaviors/ERC721Burnable.behavior");
 const ETSAccessControls = artifacts.require("ETSAccessControls");
-const ETS = artifacts.require("ETS");
+const ETSToken = artifacts.require("ETSToken");
 
 contract("ERC721", function (accounts) {
   const [ETSAdmin, ETSPublisher] = accounts;
@@ -12,15 +12,17 @@ contract("ERC721", function (accounts) {
   beforeEach(async function () {
     this.accessControls = await ETSAccessControls.new({ from: ETSAdmin });
     await this.accessControls.initialize();
-    await this.accessControls.grantRole(await this.accessControls.SMART_CONTRACT_ROLE(), ETSAdmin, {
-      from: ETSAdmin,
-    });
-
-    // add a publisher to the protocol
-    await this.accessControls.grantRole(ethers.utils.id("PUBLISHER"), ETSPublisher);
-
-    this.token = await ETS.new();
+  
+    this.token = await ETSToken.new();
     await this.token.initialize(this.accessControls.address, ETSAdmin);
+
+    await this.accessControls.grantRole(
+      await this.accessControls.SMART_CONTRACT_ROLE(),
+      ETSAdmin, 
+      { from: ETSAdmin }
+    );
+    await this.accessControls.grantRole(ethers.utils.id("PUBLISHER"), ETSPublisher);  
+
   });
 
   const name = "Ethereum Tag Service";

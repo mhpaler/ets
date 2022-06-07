@@ -237,18 +237,18 @@ Get tagging record from composite key parts
 ### getTaggingRecordFromId
 
 ```solidity
-function getTaggingRecordFromId(uint256 _taggingId) external view returns (uint256[] etsTagIds, uint256 targetId, address tagger, address publisher, address sponsor)
+function getTaggingRecordFromId(uint256 _id) external view returns (uint256[] etsTagIds, uint256 targetId, address tagger, address publisher, address sponsor)
 ```
 
 
 
-*Retrieves a tagging record from tagging ID*
+*Retrieves a tagging record from tagging record ID*
 
 #### Parameters
 
 | Name | Type | Description |
 |---|---|---|
-| _taggingId | uint256 | ID of the tagging record. |
+| _id | uint256 | ID of the tagging record. |
 
 #### Returns
 
@@ -634,7 +634,7 @@ Sets the fee required to tag an NFT asset.
 function updateTaggingRecord(uint256 _taggingRecordId, string[] _tags) external payable
 ```
 
-Allow either a tagger or a sponsor to update the tags for a tagging record pointing to a target
+Allow either a tagger or a sponsor to update the tags for a tagging record pointing to a target Append or replace
 
 
 
@@ -799,7 +799,7 @@ event ETSEnsureUpdated(address previousETSEnsure, address newETSEnsure)
 event FundsWithdrawn(address indexed who, uint256 amount)
 ```
 
-
+Events
 
 
 
@@ -861,6 +861,22 @@ event TaggingFeeSet(uint256 previousFee, uint256 taggingFee)
 | previousFee  | uint256 | undefined |
 | taggingFee  | uint256 | undefined |
 
+### TaggingRecordUpdated
+
+```solidity
+event TaggingRecordUpdated(uint256 taggingRecordId)
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| taggingRecordId  | uint256 | undefined |
+
 ### TargetCreated
 
 ```solidity
@@ -880,10 +896,10 @@ event TargetCreated(uint256 targetId)
 ### TargetTagged
 
 ```solidity
-event TargetTagged(uint256 taggingId)
+event TargetTagged(uint256 taggingRecordId)
 ```
 
-Events
+
 
 
 
@@ -891,7 +907,7 @@ Events
 
 | Name | Type | Description |
 |---|---|---|
-| taggingId  | uint256 | undefined |
+| taggingRecordId  | uint256 | undefined |
 
 ### TargetTypeSet
 

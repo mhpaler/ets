@@ -1,6 +1,60 @@
 [
-  "event TargetTypePaused(string,bool)",
-  "function pauseTargetType()",
-  "function targetTypePaused() view returns (bool)",
-  "function validateTargetURI(string) view returns (bool)"
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "targetType",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "paused",
+        "type": "bool"
+      }
+    ],
+    "name": "TargetTypePaused",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "pauseTargetType",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "targetTypePaused",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "targetURI",
+        "type": "string"
+      }
+    ],
+    "name": "validateTargetURI",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
 ]

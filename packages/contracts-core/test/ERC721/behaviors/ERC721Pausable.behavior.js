@@ -18,7 +18,7 @@ function shouldBehaveLikeERC721Pausable(
 ) {
   context("when token is paused", function () {
     beforeEach(async function () {
-      await this.token.mint("#TokenizeEverything", publisher, creator);
+      await this.token.createTag("#TokenizeEverything", publisher);
       await this.token.pause();
     });
 
@@ -47,7 +47,7 @@ function shouldBehaveLikeERC721Pausable(
 
     it("reverts when trying to mint", async function () {
       await expectRevert(
-        this.token.mint("#trustless", publisher, creator),
+        this.token.createTag("#trustless", publisher),
         "ERC721Pausable: token transfer while paused",
       );
     });

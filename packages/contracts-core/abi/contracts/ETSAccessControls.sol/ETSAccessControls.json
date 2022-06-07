@@ -35,6 +35,19 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
+      }
+    ],
+    "name": "Initialized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "bytes32",
         "name": "role",
@@ -160,7 +173,7 @@
   },
   {
     "inputs": [],
-    "name": "SMART_CONTRACT_ROLE",
+    "name": "PUBLISHER_ROLE_ADMIN",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -173,7 +186,7 @@
   },
   {
     "inputs": [],
-    "name": "TARGET_TYPE_ROLE",
+    "name": "SMART_CONTRACT_ROLE",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -311,12 +324,44 @@
         "type": "address"
       }
     ],
+    "name": "isPublisherAdmin",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_addr",
+        "type": "address"
+      }
+    ],
     "name": "isSmartContract",
     "outputs": [
       {
         "internalType": "bool",
         "name": "",
         "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "proxiableUUID",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -354,6 +399,24 @@
       }
     ],
     "name": "revokeRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_adminRole",
+        "type": "bytes32"
+      }
+    ],
+    "name": "setRoleAdmin",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
