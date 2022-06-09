@@ -13,6 +13,8 @@ import { IETSAuctionHouse } from "./interfaces/IETSAuctionHouse.sol";
 import { IETSToken } from './interfaces/IETSToken.sol';
 import { IWETH } from './interfaces/IWETH.sol';
 
+import "hardhat/console.sol";
+
 /**
  * @title An open auction house, enabling collectors and curators to run their own auctions
  */
@@ -28,6 +30,7 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
     /// Public constants
     string public constant NAME = "ETS Auction House";
     string public constant VERSION = "0.1.0";
+    uint256 public constant modulo = 100;
 
     /// Public variables
     // The address of the WETH/WMATIC contract
@@ -48,29 +51,45 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
     // The duration of a single auction
     uint256 public duration;
 
+    /// @dev Percentage of auction proceeds allocated to CTAG Creator
+    uint256 public creatorPercentage;
+
+    /// @dev Percentage of auction proceeds allocated to CTAG Publisher.
+    uint256 public publisherPercentage;
+
+    /// @dev Percentage of auction proceeds allocated to ETS.
+    uint256 public platformPercentage;
+
 
     /// @dev Mapping of active auctions
     mapping(uint256 => IETSAuctionHouse.Auction) public auctions;
 
 
     /// Modifiers
+
     modifier tokenIdExists(uint256 tokenId) {
-        require(etsToken.tokenIdExists(tokenId), "CTAG doesn't exist");
+        require(etsToken.tokenIdExists(tokenId), "CTAG doe not exist");
         _;
     }
 
     modifier platformOwned(uint256 tokenId) {
+        // Returns "ERC721: owner query for nonexistent token" for non-existent token.
         require(etsToken.ownerOf(tokenId) == etsToken.getPlatformAddress(), "CTAG not owned by ETS");
         _;
     }
 
-    modifier auctionExists(uint256 auctionId) {
-        require(_exists(auctionId), "Auction doesn't exist");
+    // modifier notReserved(uint256 tokenId) {
+    //     require(!etsToken.reserved, "CTAG reserved");
+    //     _;
+    // }
+
+    modifier auctionExists(uint256 tokenId) {
+        require(_exists(tokenId), "Auction doesn't exist");
         _;
     }
 
     modifier onlyAdmin() {
-        require(etsAccessControls.isAdmin(_msgSender()), "Caller must have administrator access");
+        require(etsAccessControls.isAdmin(_msgSender()), "Caller must be administrator");
         _;
     }
 
@@ -83,12 +102,14 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         uint256 _timeBuffer,
         uint256 _reservePrice,
         uint8 _minBidIncrementPercentage,
-        uint256 _duration
+        uint256 _duration,
+        uint256 _publisherPercentage,
+        uint256 _creatorPercentage,
+        uint256 _platformPercentage
     ) external initializer {
         __Pausable_init();
         __ReentrancyGuard_init();
 
-       //_pause();
         etsToken = _etsToken;
         etsAccessControls = _etsAccessControls;
         weth = _weth;
@@ -96,6 +117,9 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         reservePrice = _reservePrice; 
         minBidIncrementPercentage = _minBidIncrementPercentage; // 5
         duration = _duration;
+        publisherPercentage = _publisherPercentage;
+        creatorPercentage = _creatorPercentage;
+        platformPercentage = _platformPercentage;
     }
 
     function _authorizeUpgrade(address) internal override onlyAdmin {}
@@ -108,246 +132,152 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         emit AuctionReservePriceSet(_reservePrice);
     }
 
+    function setTimeBuffer(uint256 _timeBuffer) public onlyAdmin {
+        timeBuffer = _timeBuffer;
+        emit AuctionTimeBufferSet(_timeBuffer);
+    }
+
+    /// @dev Admin functionality for updating auction proceed percentages.
+    /// @param _platformPercentage percentage for platform.
+    /// @param _publisherPercentage percentage for publisher.
+    function setProceedPercentages(uint256 _platformPercentage, uint256 _publisherPercentage) public onlyAdmin {
+        require(
+            _platformPercentage + _publisherPercentage <= 100,
+            "Input must not exceed 100%"
+        );
+        platformPercentage = _platformPercentage;
+        publisherPercentage = _publisherPercentage;
+        creatorPercentage = modulo - platformPercentage - publisherPercentage;
+
+        emit AuctionProceedPercentagesSet(platformPercentage, publisherPercentage, creatorPercentage);
+    }
+
     // ============ PUBLIC INTERFACE ============
 
+    function createBid (uint256 _tokenId) 
+        public
+        payable 
+        nonReentrant 
+        platformOwned(_tokenId)
+        // TODO: Reserved/Premum tags. see issue https://github.com/ethereum-tag-service/ets/issues/129
+        // notReserved(_tokenId)
+    {
+        // Retrieve active auction or create new one if _tokenId exists and is platform owned.
+        Auction memory auction = _getAuction(_tokenId);
+
+        require(block.timestamp < auction.endTime, 'Auction ended');
+        require(msg.value >= reservePrice, 'Must send at least reservePrice');
+        require(
+            msg.value >= auction.amount + ((auction.amount * minBidIncrementPercentage) / 100),
+            'Must send more than last bid by minBidIncrementPercentage amount'
+        );
+
+        address payable lastBidder = auction.bidder;
+        //console.log("Last bidder", lastBidder);
+
+        // Refund the last bidder, if applicable
+        if (lastBidder != address(0)) {
+            //console.log("refund last bidder");
+            _safeTransferETHWithFallback(lastBidder, auction.amount);
+        }
+
+        auctions[_tokenId].amount = msg.value;
+        auctions[_tokenId].bidder = payable(msg.sender);
+
+        // Extend the auction if the bid was received within `timeBuffer` of the auction end time
+        bool extended = auction.endTime - block.timestamp < timeBuffer;
+        if (extended) {
+            auctions[_tokenId].endTime = auction.endTime = block.timestamp + timeBuffer;
+            emit AuctionExtended(_tokenId, auction.endTime);
+        }
+
+        emit AuctionBid(_tokenId, msg.sender, msg.value, extended);
+
+    }
+
     /**
-     * @notice Create an auction.
-     * @dev Store the auction details in the auctions mapping and emit an AuctionCreated event.
+     * @notice Settle an auction, finalizing the bid and paying out to the owner.
+     * @dev If there are no bids, the Noun is burned.
      */
-    function createAuction(uint256 _tokenId) public nonReentrant platformOwned(_tokenId) returns (uint256) {
+    function settleAuction(uint256 _tokenId)
+        public
+        nonReentrant
+        auctionExists(_tokenId)
+    {
 
+        Auction memory auction = _getAuction(_tokenId);
 
-        // TODO: Require token owned by platform
-        // TODO: If the token is reserved, require it to be released first.
+        require(block.timestamp >= auction.endTime, "Auction hasn't completed");
+
+        // Transfer CTAG Token to winner.
+        etsToken.transferFrom(etsToken.getPlatformAddress(), auction.bidder, _tokenId);
+
+        // Distribute proceeds to actors.
+        IETSToken.Tag memory ctag = etsToken.getTag(_tokenId);
+        uint publisherProceeds = (auction.amount * publisherPercentage) / modulo;
+        uint creatorProceeds = (auction.amount * creatorPercentage) / modulo;
+        _safeTransferETHWithFallback(ctag.originalPublisher, publisherProceeds);
+        _safeTransferETHWithFallback(ctag.creator, creatorProceeds);
+
+        emit AuctionSettled(_tokenId, auction.bidder, auction.amount, publisherProceeds, creatorProceeds);
+        delete auctions[_tokenId];
+    }
+
+    // ============ INTERNAL FUNCTIONS ============
+
+    function _getAuction(uint256 _tokenId) private returns (Auction memory auction) {
+        if (auctions[_tokenId].startTime > 0) {
+            return auctions[_tokenId];
+        }
+        return _createAuction(_tokenId);
+    }
+
+    function _createAuction(uint256 _tokenId) private returns (Auction memory auction) {
+        // TODO: Have duration & reserve price configurable by standard vs. premium.
         auctions[_tokenId] = Auction({
-            tokenId: _tokenId,
             amount: 0,
-            // TODO: Have duration configurable by standard vs. premium.
-            duration: duration,
-            firstBidTime: 0,
+            startTime: block.timestamp,
+            endTime: block.timestamp + duration,
             reservePrice: reservePrice,
             bidder: payable(address(0))
         });
 
-        // TODO: Do we even need to do this? Or can it stay held by platform
-        // till auction is complete.
-        etsToken.transferFrom(etsToken.getPlatformAddress(), address(this), _tokenId);
-
         emit AuctionCreated(_tokenId);
-        return _tokenId;
+        return auctions[_tokenId];
     }
 
 
-    function createBid (uint256 _tokenId, uint256 _amount) public payable nonReentrant platformOwned(_tokenId) {
-        
-        // does the auction exist?
-        emit AuctionBid(_tokenId, _amount);
+    /**
+     * @notice Transfer ETH. If the ETH transfer fails, wrap the ETH and try send it as WETH.
+     */
+    function _safeTransferETHWithFallback(address to, uint256 amount) internal {
+        if (!_safeTransferETH(to, amount)) {
+            IWETH(weth).deposit{ value: amount }();
+            IERC20Upgradeable(weth).transfer(to, amount);
+        }
+    }
+
+    function _safeTransferETH(address to, uint256 value) internal returns (bool) {
+        (bool success, ) = to.call{ value: value, gas: 30_000 }(new bytes(0));
+        return success;
+    }
+
+    function _exists(uint256 _tokenId) internal view returns(bool) {
+        return (auctions[_tokenId].startTime != 0);
     }
 
     // ============ PUBLIC VIEW FUNCTIONS ============
 
-    function version() external pure returns (string memory) {
-        return VERSION;
+    function auctionActive(uint256 _tokenId) public view returns (bool) {
+        return _exists(_tokenId);
     }
 
-//
-//    function createBidOrig(uint256 auctionId, uint256 amount)
-//    external
-//    override
-//    payable
-//    auctionExists(auctionId)
-//    nonReentrant
-//    {
-//        address payable lastBidder = auctions[auctionId].bidder;
-//        require(
-//            auctions[auctionId].firstBidTime == 0 ||
-//            block.timestamp <
-//            auctions[auctionId].firstBidTime.add(auctions[auctionId].duration),
-//            "Auction expired"
-//        );
-//        require(
-//            amount >= auctions[auctionId].reservePrice,
-//                "Must send at least reservePrice"
-//        );
-//        require(
-//            amount >= auctions[auctionId].amount.add(
-//                auctions[auctionId].amount.mul(minBidIncrementPercentage).div(100)
-//            ),
-//            "Must send more than last bid by minBidIncrementPercentage amount"
-//        );
-//
-//        // If this is the first valid bid, we should set the starting time now.
-//        // If it's not, then we should refund the last bidder
-//        if(auctions[auctionId].firstBidTime == 0) {
-//            auctions[auctionId].firstBidTime = block.timestamp;
-//        } else if(lastBidder != address(0)) {
-//            _handleOutgoingBid(lastBidder, auctions[auctionId].amount, auctions[auctionId].auctionCurrency);
-//        }
-//
-//        _handleIncomingBid(amount, auctions[auctionId].auctionCurrency);
-//
-//        auctions[auctionId].amount = amount;
-//        auctions[auctionId].bidder = msg.sender;
-//
-//
-//        bool extended = false;
-//        // at this point we know that the timestamp is less than start + duration (since the auction would be over, otherwise)
-//        // we want to know by how much the timestamp is less than start + duration
-//        // if the difference is less than the timeBuffer, increase the duration by the timeBuffer
-//        if (
-//            auctions[auctionId].firstBidTime.add(auctions[auctionId].duration).sub(
-//                block.timestamp
-//            ) < timeBuffer
-//        ) {
-//            // Playing code golf for gas optimization:
-//            // uint256 expectedEnd = auctions[auctionId].firstBidTime.add(auctions[auctionId].duration);
-//            // uint256 timeRemaining = expectedEnd.sub(block.timestamp);
-//            // uint256 timeToAdd = timeBuffer.sub(timeRemaining);
-//            // uint256 newDuration = auctions[auctionId].duration.add(timeToAdd);
-//            uint256 oldDuration = auctions[auctionId].duration;
-//            auctions[auctionId].duration =
-//                oldDuration.add(timeBuffer.sub(auctions[auctionId].firstBidTime.add(oldDuration).sub(block.timestamp)));
-//            extended = true;
-//        }
-//
-//        emit AuctionBid(
-//            auctionId,
-//            auctions[auctionId].tokenId,
-//            msg.sender,
-//            amount,
-//            lastBidder == address(0), // firstBid boolean
-//            extended
-//        );
-//
-//        if (extended) {
-//            emit AuctionDurationExtended(
-//                auctionId,
-//                auctions[auctionId].tokenId,
-//                auctions[auctionId].duration
-//            );
-//        }
-//    }
-//
-//    /**
-//     * @notice End an auction, finalizing the bid on Zora if applicable and paying out the respective parties.
-//     * @dev If for some reason the auction cannot be finalized (invalid token recipient, for example),
-//     * The auction is reset and the NFT is transferred back to the auction creator.
-//     */
-//    function endAuction(uint256 auctionId) external override auctionExists(auctionId) nonReentrant {
-//        require(
-//            uint256(auctions[auctionId].firstBidTime) != 0,
-//            "Auction hasn't begun"
-//        );
-//        require(
-//            block.timestamp >=
-//            auctions[auctionId].firstBidTime.add(auctions[auctionId].duration),
-//            "Auction hasn't completed"
-//        );
-//
-//        address currency = auctions[auctionId].auctionCurrency == address(0) ? wethAddress : auctions[auctionId].auctionCurrency;
-//        uint256 curatorFee = 0;
-//
-//        uint256 tokenOwnerProfit = auctions[auctionId].amount;
-//        
-//        // Otherwise, transfer the token to the winner and pay out the participants below
-//        try etsToken.safeTransferFrom(
-//            address(this),
-//            auctions[auctionId].bidder, 
-//            auctions[auctionId].tokenId
-//        ) {} catch {
-//            _handleOutgoingBid(auctions[auctionId].bidder, auctions[auctionId].amount, auctions[auctionId].auctionCurrency);
-//            _cancelAuction(auctionId);
-//            return;
-//        }
-//
-//        _handleOutgoingBid(auctions[auctionId].tokenOwner, tokenOwnerProfit, auctions[auctionId].auctionCurrency);
-//
-//        emit AuctionEnded(
-//            auctionId,
-//            auctions[auctionId].tokenId,
-//            auctions[auctionId].tokenContract,
-//            auctions[auctionId].tokenOwner,
-//            auctions[auctionId].curator,
-//            auctions[auctionId].bidder,
-//            tokenOwnerProfit,
-//            curatorFee,
-//            currency
-//        );
-//        delete auctions[auctionId];
-//    }
-//
-//    /**
-//     * @notice Cancel an auction.
-//     * @dev Transfers the NFT back to the auction creator and emits an AuctionCanceled event
-//     */
-//    function cancelAuction(uint256 auctionId) external override nonReentrant auctionExists(auctionId) {
-//        require(
-//            auctions[auctionId].tokenOwner == msg.sender || auctions[auctionId].curator == msg.sender,
-//            "Can only be called by auction creator or curator"
-//        );
-//        require(
-//            uint256(auctions[auctionId].firstBidTime) == 0,
-//            "Can't cancel an auction once it's begun"
-//        );
-//        _cancelAuction(auctionId);
-//    }
-//
-//    /**
-//     * @dev Given an amount and a currency, transfer the currency to this contract.
-//     * If the currency is ETH (0x0), attempt to wrap the amount as WETH
-//     */
-//    function _handleIncomingBid(uint256 amount, address currency) internal {
-//        // If this is an ETH bid, ensure they sent enough and convert it to WETH under the hood
-//        if(currency == address(0)) {
-//            require(msg.value == amount, "Sent ETH Value does not match specified bid amount");
-//            IWETH(wethAddress).deposit{value: amount}();
-//        } else {
-//            // We must check the balance that was actually transferred to the auction,
-//            // as some tokens impose a transfer fee and would not actually transfer the
-//            // full amount to the market, resulting in potentally locked funds
-//            IERC20 token = IERC20(currency);
-//            uint256 beforeBalance = token.balanceOf(address(this));
-//            token.safeTransferFrom(msg.sender, address(this), amount);
-//            uint256 afterBalance = token.balanceOf(address(this));
-//            require(beforeBalance.add(amount) == afterBalance, "Token transfer call did not transfer expected amount");
-//        }
-//    }
-//
-//    function _handleOutgoingBid(address to, uint256 amount, address currency) internal {
-//        // If the auction is in ETH, unwrap it from its underlying WETH and try to send it to the recipient.
-//        if(currency == address(0)) {
-//            IWETH(wethAddress).withdraw(amount);
-//
-//            // If the ETH transfer fails (sigh), rewrap the ETH and try send it as WETH.
-//            if(!_safeTransferETH(to, amount)) {
-//                IWETH(wethAddress).deposit{value: amount}();
-//                IERC20(wethAddress).safeTransfer(to, amount);
-//            }
-//        } else {
-//            IERC20(currency).safeTransfer(to, amount);
-//        }
-//    }
-//
-//    function _safeTransferETH(address to, uint256 value) internal returns (bool) {
-//        (bool success, ) = to.call{value: value}(new bytes(0));
-//        return success;
-//    }
-//
-//    function _cancelAuction(uint256 auctionId) internal {
-//        address tokenOwner = auctions[auctionId].tokenOwner;
-//        IERC721(auctions[auctionId].tokenContract).safeTransferFrom(address(this), tokenOwner, auctions[auctionId].tokenId);
-//
-//        emit AuctionCanceled(auctionId, auctions[auctionId].tokenId, auctions[auctionId].tokenContract, tokenOwner);
-//        delete auctions[auctionId];
-//    }
-//
-//    function _approveAuction(uint256 auctionId, bool approved) internal {
-//        auctions[auctionId].approved = approved;
-//        emit AuctionApprovalUpdated(auctionId, auctions[auctionId].tokenId, auctions[auctionId].tokenContract, approved);
-//    }
+    function getAuction(uint256 _tokenId) public view returns (Auction memory) {
+        return auctions[_tokenId];
+    }
 
-    function _exists(uint256 auctionId) internal view returns(bool) {
-        return (auctions[auctionId].duration != 0);
+    function version() external pure returns (string memory) {
+        return VERSION;
     }
 
     // TODO: consider reverting if the message sender is not WETH
