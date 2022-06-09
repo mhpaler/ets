@@ -5,7 +5,17 @@ const { BigNumber, constants } = ethers;
 const tokenAbi = require("../abi/contracts/ETSToken.sol/ETSToken.json");
 async function setup() {
 
-  const namedAccounts = await ethers.getNamedSigners();
+    const auctionSettings = {
+      TIME_BUFFER: 600, // 600 secs / 10 minutes
+      RESERVE_PRICE: 200, // 200 WEI
+      MIN_INCREMENT_BID_PERCENTAGE: 5,
+      DURATION: 30 * 60, // 30 minutes
+      PUBLISHER_PERCENTAGE: 20,
+      CREATOR_PERCENTAGE: 40,
+      PLATFORM_PERCENTAGE: 40
+    };
+
+    const namedAccounts = await ethers.getNamedSigners();
     const unnamedAccounts = await ethers.getUnnamedSigners();
     const accounts = {
       ETSAdmin: namedAccounts["ETSAdmin"],
@@ -39,11 +49,14 @@ async function setup() {
       [
         ETSToken.address,
         ETSAccessControls.address,
-        WETH.address,      // _weth
-        30,                 // _timeBuffer (30 secs)
-        1,                  // _reservePrice in wei
-        5,                  // _minBidIncrementPercentage,
-        60 * 2              // _duration (2 mins)
+        WETH.address,
+        auctionSettings.TIME_BUFFER,
+        auctionSettings.RESERVE_PRICE,
+        auctionSettings.MIN_INCREMENT_BID_PERCENTAGE,
+        auctionSettings.DURATION,
+        auctionSettings.PUBLISHER_PERCENTAGE,
+        auctionSettings.CREATOR_PERCENTAGE,
+        auctionSettings.PLATFORM_PERCENTAGE
       ],
       { kind: "uups" },
     );
@@ -58,7 +71,11 @@ async function setup() {
     await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER"), accounts.ETSPublisher.address);
     assert((await ETSAccessControls.isAdmin(accounts.ETSAdmin.address)) === true);
 
-    return [accounts, ETSAccessControls, ETSToken, ETSAuctionHouse];
+    // Grant auction house approval to move tokens.
+    await ETSToken.connect(accounts.ETSPlatform).setApprovalForAll(ETSAuctionHouse.address, true);
+    assert(await ETSToken.isApprovedForAll(accounts.ETSPlatform.address, ETSAuctionHouse.address) == true);
+
+    return [accounts, ETSAccessControls, ETSToken, ETSAuctionHouse, WETH, auctionSettings];
 }
 
 module.exports = {
