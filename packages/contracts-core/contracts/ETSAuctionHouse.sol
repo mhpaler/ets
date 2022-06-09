@@ -23,32 +23,36 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
     using SafeMathUpgradeable for uint256;
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
-    // The ETS ERC721 token contract
+
     IETSToken public etsToken;
     IETSAccessControls public etsAccessControls;
 
+
     /// Public constants
+
     string public constant NAME = "ETS Auction House";
     string public constant VERSION = "0.1.0";
     uint256 public constant modulo = 100;
 
+
     /// Public variables
-    // The address of the WETH/WMATIC contract
+
+    /// @dev The address of the WETH/WMATIC contract
     address public weth;
 
-    // The minimum amount of time left in an auction after a new bid is created
+    /// @dev The minimum amount of time left in an auction after a new bid is created
     uint256 public timeBuffer;
 
-    // The minimum price accepted in an auction
+    /// @dev The minimum price accepted in an auction
     uint256 public reservePrice;
 
-    // The minimum percentage difference between the last bid amount and the current bid
+    /// @dev The minimum percentage difference between the last bid amount and the current bid
     uint8 public minBidIncrementPercentage;
 
-    // / The address of the WETH contract, so that any ETH transferred can be handled as an ERC-20
+    /// @dev The address of the WETH contract, so that any ETH transferred can be handled as an ERC-20
     address public wethAddress;
 
-    // The duration of a single auction
+    /// @dev The duration of a single auction
     uint256 public duration;
 
     /// @dev Percentage of auction proceeds allocated to CTAG Creator
@@ -137,9 +141,6 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         emit AuctionTimeBufferSet(_timeBuffer);
     }
 
-    /// @dev Admin functionality for updating auction proceed percentages.
-    /// @param _platformPercentage percentage for platform.
-    /// @param _publisherPercentage percentage for publisher.
     function setProceedPercentages(uint256 _platformPercentage, uint256 _publisherPercentage) public onlyAdmin {
         require(
             _platformPercentage + _publisherPercentage <= 100,
@@ -173,11 +174,9 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         );
 
         address payable lastBidder = auction.bidder;
-        //console.log("Last bidder", lastBidder);
 
         // Refund the last bidder, if applicable
         if (lastBidder != address(0)) {
-            //console.log("refund last bidder");
             _safeTransferETHWithFallback(lastBidder, auction.amount);
         }
 
@@ -195,10 +194,6 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
 
     }
 
-    /**
-     * @notice Settle an auction, finalizing the bid and paying out to the owner.
-     * @dev If there are no bids, the Noun is burned.
-     */
     function settleAuction(uint256 _tokenId)
         public
         nonReentrant
@@ -246,10 +241,6 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         return auctions[_tokenId];
     }
 
-
-    /**
-     * @notice Transfer ETH. If the ETH transfer fails, wrap the ETH and try send it as WETH.
-     */
     function _safeTransferETHWithFallback(address to, uint256 amount) internal {
         if (!_safeTransferETH(to, amount)) {
             IWETH(weth).deposit{ value: amount }();
@@ -280,7 +271,6 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         return VERSION;
     }
 
-    // TODO: consider reverting if the message sender is not WETH
     receive() external payable {}
     fallback() external payable {}
 }
