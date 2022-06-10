@@ -8,7 +8,7 @@ const { BigNumber, constants } = ethers;
 describe("ETSToken Core Tests", function () {
   // we create a setup function that can be called by every test and setup variable for easy to read tests
   beforeEach("Setup test", async function () {
-    [accounts, ETSAccessControls, ETSToken] = await setup();   
+    [accounts, ETSAccessControls, ETSToken, ETSAuctionHouse, WETH, auctionSettings] = await setup();
   });
 
   describe("Validate setup", async function () {
@@ -16,6 +16,50 @@ describe("ETSToken Core Tests", function () {
       expect(await ETSToken.name()).to.be.equal("Ethereum Tag Service");
       expect(await ETSToken.symbol()).to.be.equal("CTAG");
       expect(await ETSToken.platform()).to.be.equal(accounts.ETSPlatform.address);
+    });
+  });
+
+
+  describe("Only administrator", async function () {
+    it("should be able to set platform as owner", async function () {
+      await expect(ETSToken.connect(accounts.Buyer).setPlatform(accounts.RandomOne.address)).to.be.revertedWith(
+        "Caller must have administrator access",
+      );
+
+      expect(await ETSToken.platform()).to.be.equal(accounts.ETSPlatform.address);
+      await ETSToken.connect(accounts.ETSAdmin).setPlatform(accounts.RandomOne.address);
+      expect(await ETSToken.platform()).to.be.equal(accounts.RandomOne.address);
+    });
+
+    it("should be able to set max tag length as admin", async function () {
+      expect(await ETSAccessControls.isAdmin(accounts.ETSAdmin.address)).to.be.equal(true);
+      const currentMaxLength = await ETSToken.tagMaxStringLength();
+      expect(currentMaxLength).to.be.equal(32);
+      await ETSToken.connect(accounts.ETSAdmin).setTagMaxStringLength(64);
+      const newMaxLength = await ETSToken.tagMaxStringLength();
+      expect(newMaxLength).to.be.equal(64);
+    });
+
+    it("should be able to set max tag length", async function () {
+      await expect(ETSToken.connect(accounts.Buyer).setTagMaxStringLength(55)).to.be.revertedWith(
+        "Caller must have administrator access",
+      );
+    });
+
+    it("should be able to set access controls", async function () {
+      await ETSToken.connect(accounts.ETSAdmin).setAccessControls(accounts.RandomTwo.address);
+      expect(await ETSToken.etsAccessControls()).to.be.equal(accounts.RandomTwo.address);
+
+      await expect(ETSToken.connect(accounts.RandomTwo).setAccessControls(accounts.RandomTwo.address)).to.be
+        .reverted;
+    });
+  });
+
+  describe("Setting access controls", async () => {
+    it("should revert when setting to zero address", async function () {
+      await expect(
+        ETSToken.connect(accounts.ETSAdmin).setAccessControls(constants.AddressZero),
+      ).to.be.revertedWith("ETS: Access controls cannot be zero");
     });
   });
 
@@ -132,53 +176,6 @@ describe("ETSToken Core Tests", function () {
       await expect(
         ETSToken.connect(accounts.ETSPlatform).createTag("#blockrocket", accounts.RandomTwo.address),
       ).to.be.revertedWith("ETS: Not a publisher");
-    });
-  });
-
-  describe("Platform", async function () {
-    it("should be able to set platform as owner", async function () {
-      expect(await ETSToken.platform()).to.be.equal(accounts.ETSPlatform.address);
-
-      await ETSToken.connect(accounts.ETSAdmin).setPlatform(accounts.RandomOne.address);
-
-      expect(await ETSToken.platform()).to.be.equal(accounts.RandomOne.address);
-    });
-
-    it("should revert if not owner", async function () {
-      await expect(ETSToken.connect(accounts.Buyer).setPlatform(accounts.RandomOne.address)).to.be.revertedWith(
-        "Caller must have administrator access",
-      );
-    });
-
-    it("should set access controls", async function () {
-      await ETSToken.connect(accounts.ETSAdmin).setAccessControls(accounts.RandomTwo.address);
-      expect(await ETSToken.etsAccessControls()).to.be.equal(accounts.RandomTwo.address);
-
-      await expect(ETSToken.connect(accounts.RandomTwo).setAccessControls(accounts.RandomTwo.address)).to.be
-        .reverted;
-    });
-
-    it("should revert when updating access controls to zero address", async function () {
-      await expect(
-        ETSToken.connect(accounts.ETSAdmin).setAccessControls(constants.AddressZero),
-      ).to.be.revertedWith("ETS: Access controls cannot be zero");
-    });
-  });
-
-  describe("Admin functions", async function () {
-    it("should be able to set max tag length as admin", async function () {
-      expect(await ETSAccessControls.isAdmin(accounts.ETSAdmin.address)).to.be.equal(true);
-      const currentMaxLength = await ETSToken.tagMaxStringLength();
-      expect(currentMaxLength).to.be.equal(32);
-      await ETSToken.connect(accounts.ETSAdmin).setTagMaxStringLength(64);
-      const newMaxLength = await ETSToken.tagMaxStringLength();
-      expect(newMaxLength).to.be.equal(64);
-    });
-
-    it("should revert if setting max tag length if not admin", async function () {
-      await expect(ETSToken.connect(accounts.Buyer).setTagMaxStringLength(55)).to.be.revertedWith(
-        "Caller must have administrator access",
-      );
     });
   });
 

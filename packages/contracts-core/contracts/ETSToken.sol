@@ -3,7 +3,6 @@ pragma solidity ^0.8.0;
 
 import "./interfaces/IETSToken.sol";
 import "./interfaces/IETSAccessControls.sol";
-//import "./interfaces/IETSPublisherControls.sol";
 import "./utils/StringHelpers.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
@@ -25,7 +24,6 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
 
 
     IETSAccessControls public etsAccessControls;
-    // IETSPublisherControls public etsPublisherControls;
 
     /// Public constants
     string public constant NAME = "CTAG Token";
@@ -52,11 +50,15 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
         _;
     }
 
+    modifier onlyPublisher() {
+        require(etsAccessControls.isPublisher(_msgSender()), "Caller is not publisher");
+        _;
+    }
+
     // ============ UUPS INTERFACE ============
 
     function initialize(
         IETSAccessControls _etsAccessControls,
-        // IETSPublisherControls _etsPublisherControls,
         address payable _platform
     ) public initializer {
         __ERC721_init("Ethereum Tag Service", "CTAG");
@@ -64,9 +66,7 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
         __ERC721Burnable_init();
 
         etsAccessControls = _etsAccessControls;
-        //etsPublisherControls = _etsPublisherControls;
         platform = _platform;
-
         tagMinStringLength = 2;
         tagMaxStringLength = 32;
         ownershipTermLength = 730 days;
@@ -119,10 +119,12 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
 
     // ============ PUBLIC INTERFACE ============
 
-    function createTag(
-        string calldata _tag,
-        address payable _publisher
-    ) external payable returns (uint256 _tokenId) {
+    function createTag(string calldata _tag, address payable _publisher)
+        external
+        payable
+        whenNotPaused
+        returns (uint256 _tokenId) 
+    {
         require(etsAccessControls.isPublisher(_publisher), "ETS: Not a publisher");
 
         // Perform basic tag string validation.
@@ -147,11 +149,10 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
 
     function renewTag(uint256 _tokenId) public {
         require(_exists(_tokenId), "ETS: CTAG not found");
-        // Handle new and recycled CTAGS.
+
         if (ownerOf(_tokenId) == platform) {
             _setLastRenewed(_tokenId, 0);
         } else {
-            // require(ownerOf(_tokenId) == msg.sender, "ETS: Renew tag invalid sender");
             _setLastRenewed(_tokenId, block.timestamp);
         }
 
@@ -204,9 +205,7 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
     }
 
     /// @dev Returns the commission addresses related to a token.
-    /// @param _tokenId ID of a CTAG.
-    /// @return _platform Platform commission address.
-    /// @return _owner Address of the owner of the CTAG.
+    /// TODO: Refactor so it passes all key addresses. platform, publisher, creator, owner
     function getPaymentAddresses(uint256 _tokenId)
         public
         view
@@ -238,28 +237,30 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
 
     // ============ INTERNAL FUNCTIONS ============
 
-    function _beforeTokenTransfer(address from, address to, uint256 amount) internal override(ERC721PausableUpgradeable, ERC721Upgradeable) {
+    function _beforeTokenTransfer(address from, address to, uint256 amount)
+        internal
+        whenNotPaused 
+        override(ERC721PausableUpgradeable, ERC721Upgradeable)
+    {
         super._beforeTokenTransfer(from, to, amount);
+        require(!paused(), "ERC721Pausable: token transfer while paused");
     }
 
     /// @dev See {ERC721-_afterTokenTransfer}. Contract must not be paused.
-    function _afterTokenTransfer(
-        address from,
-        address to,
-        uint256 tokenId
-    ) internal virtual override(ERC721Upgradeable) {
+    function _afterTokenTransfer(address from, address to, uint256 tokenId)
+        internal
+        virtual 
+        override(ERC721Upgradeable)
+    {
         super._afterTokenTransfer(from, to, tokenId);
-
-        require(!paused(), "ERC721Pausable: token transfer while paused");
 
         // Reset token ownership term.
         if (to != address(0)) {
             renewTag(tokenId);
+            etsAccessControls.assessOwner(to);
         }
-        // TODO: After auction is set up.
-        // if () {
-        //     etsPublisherControls.promoteToPublisher(to);
-        // }
+            
+
     }
 
     /// @notice Private method used for validating a CTAG string before minting.

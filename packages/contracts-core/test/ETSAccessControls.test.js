@@ -3,7 +3,7 @@ const { ethers, upgrades } = require("hardhat");
 const { expect } = require("chai");
 
 before("Setup test", async function () {
-  [accounts, ETSAccessControls, ETS] = await setup();
+  [accounts, ETSAccessControls, ETSToken, ETSAuctionHouse, WETH, auctionSettings] = await setup();
 });
 
 describe("ETSAccessControls", function () {
@@ -19,4 +19,15 @@ describe("Publisher", async function () {
     await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER"), accounts.ETSPublisher.address);
     expect(await ETSAccessControls.isPublisher(accounts.ETSPublisher.address)).to.be.equal(true);
   });
+});
+
+describe("When being assesed post transfer the token owner", async () => {
+  it("should be promoted to publisher if they meet the publisher threshold", async function () {
+
+  });
+
+  it("should have publisher role revoked if they fall below publisher threshold", async function () {
+
+  });
+
 });
