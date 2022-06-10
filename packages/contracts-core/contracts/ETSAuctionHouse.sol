@@ -131,6 +131,14 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
 
     // ============ OWNER/ADMIN INTERFACE ============
 
+    function pause() public onlyAdmin {
+        _pause();
+    }
+
+    function unpause() public onlyAdmin {
+        _unpause();
+    }
+
     function setReservePrice(uint256 _reservePrice) public onlyAdmin {
         reservePrice = _reservePrice;
         emit AuctionReservePriceSet(_reservePrice);
@@ -158,7 +166,8 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
     function createBid (uint256 _tokenId) 
         public
         payable 
-        nonReentrant 
+        nonReentrant
+        whenNotPaused
         platformOwned(_tokenId)
         // TODO: Reserved/Premum tags. see issue https://github.com/ethereum-tag-service/ets/issues/129
         // notReserved(_tokenId)

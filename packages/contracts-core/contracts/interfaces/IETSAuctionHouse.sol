@@ -33,6 +33,10 @@ interface IETSAuctionHouse {
 
     event AuctionProceedPercentagesSet(uint256 platformPercentage, uint256 publisherPercentage, uint256 creatorPercentage);
 
+    function pause() external;
+
+    function unpause() external;
+
     function setReservePrice(uint256 _reservePrice) external;
 
     function setTimeBuffer(uint256 timeBuffer) external;
