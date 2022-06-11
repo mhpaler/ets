@@ -2,7 +2,7 @@ import Link from 'next/link';
 import useTranslation from 'next-translate/useTranslation';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
-export default function Example() {
+export default function Navbar() {
   const { t } = useTranslation('common');
 
   return (
