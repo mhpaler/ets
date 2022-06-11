@@ -41,7 +41,7 @@ const Creators: NextPage = () => {
   }
 
   const columns = useMemo(() => [
-    t('creator'),
+    t('address'),
     t('tags'),
     'Tag count',
     t('revenue'),
