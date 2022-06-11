@@ -7,13 +7,13 @@ const Panel = ({
   children,
 }: {
   href?: string
-  title: string,
+  title?: string,
   children: ReactNode,
 }) => {
   return (
     <div className="w-full mx-auto">
       <div className="rounded-md shadow-lg shadow-slate-400/20 ring-1 ring-slate-200">
-        <div className="border-b border-slate-200">
+        {title && <div className="border-b border-slate-200">
           {href ? (
             <Link href={href}>
               <a className="flex justify-between rounded-t-md">
@@ -31,7 +31,7 @@ const Panel = ({
           ) : (
             <h2 className="px-6 py-3 font-semibold text-left text-slate-700">{title}</h2>
           )}
-        </div>
+        </div>}
 
         <div className="divide-y rounded-b-md divide-slate-200">
           {children}
