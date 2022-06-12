@@ -44,6 +44,11 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
     /// @dev Mapping of tokenId to last renewal.
     mapping(uint256 => uint256) public tokenIdToLastRenewed;
 
+    /// @notice Defines whether a tag has been set up as premium
+    mapping(string => bool) public isTagPremium;
+
+    /// @notice For a given premium tag, whether it is released for auction. When false, it cannot be auctioned
+    mapping(string => bool) public isTagReleasedForAuction;
 
     /// Modifiers
 
@@ -75,7 +80,7 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
 
     function _authorizeUpgrade(address) internal override onlyAdmin {}
 
-    // @vince Not sure if we need this at all?
+    // @vince Not sure if we need this at all? << todo we will need to ensure that the base 721 has minimal 165 requirements before removing
     //function supportsInterface(bytes4 interfaceId) public view virtual override(IERC721Upgradeable) returns (bool) {
     //    return super.supportsInterface(interfaceId);
     //}
@@ -117,6 +122,45 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
         emit AccessControlsSet(_etsAccessControls);
     }
 
+    /// @dev Pre-minting, specify the tag strings that are premium or remove the premium flag where required
+    function setupPremiumTags(string[] calldata _tags, bool _enabled) public onlyAdmin {
+        require(_tags.length > 0, "Empty array");
+        for(uint256 i; i < _tags.length; ++i) {
+            string memory tag = __lower(_tags[i]);
+            isTagPremium[tag] = _enabled;
+            emit PremiumTagUpdated(tag, _enabled);
+        }
+    }
+
+    /// @dev For minted tags, allow management of the premium tag including removing the tag in the event of an error
+    function updatePremiumFlagForMintedTags(
+        uint256[] calldata _tokenIds,
+        bool _isPremium
+    ) public onlyAdmin {
+        require(_tokenIds.length > 0, "Empty array");
+        for(uint256 i; i < _tokenIds.length; ++i) {
+            uint256 tokenId = _tokenIds[i];
+            require(ownerOf(tokenId) == platform, "Not owned by platform");
+            tokenIdToTag[tokenId].isPremium = _isPremium;
+            emit MintedPremiumTagUpdated(tokenId, _isPremium);
+        }
+    }
+
+    /// @dev For minted tags, allow the tags to be released or un-do the release to prevent an auction take place
+    function updateReleasedFlagForMintedTags(uint256[] calldata _tokenIds, bool _isReleased) public onlyAdmin {
+        require(_tokenIds.length > 0, "Empty array");
+        for(uint256 i; i < _tokenIds.length; ++i) {
+            uint256 tokenId = _tokenIds[i];
+            Tag storage mintedTag = tokenIdToTag[tokenId];
+
+            require(mintedTag.isPremium, "Tag is not premium");
+            require(ownerOf(tokenId) == platform, "Token not owned by platform");
+
+            mintedTag.isReleasedForAuction = _isReleased;
+            emit MintedPremiumTagReleased(tokenId, _isReleased);
+        }
+    }
+
     // ============ PUBLIC INTERFACE ============
 
     function createTag(
@@ -137,7 +181,8 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
             // TODO - need to sense check this. I don't believe machine name needs to be stored because it can always be computed from displayVersion field
             // machineName: machineName,
             originalPublisher: _publisher,
-            creator: _msgSender()
+            creator: _msgSender(),
+            isPremium: isTagPremium[__lower(_tag)]
         });
 
         // todo - I believe this event can be removed. The internal mint method already emits an event and you can get everything from the token ID
@@ -165,7 +210,7 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
     function recycleTag(uint256 _tokenId) public {
         require(_exists(_tokenId), "ETS: CTAG not found");
         require(ownerOf(_tokenId) != platform, "ETS: CTAG owned by platform");
-   
+
         uint256 lastRenewed = getLastRenewed(_tokenId);
         require(
             lastRenewed.add(getOwnershipTermLength()) < block.timestamp,

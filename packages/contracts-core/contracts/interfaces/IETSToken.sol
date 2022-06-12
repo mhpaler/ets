@@ -12,6 +12,8 @@ interface IETSToken is IERC721Upgradeable {
         address originalPublisher;
         address creator;
         string displayVersion;
+        bool isPremium;
+        bool isReleasedForAuction;
     }
 
     // Events
@@ -22,6 +24,10 @@ interface IETSToken is IERC721Upgradeable {
     event TagMinted(uint256 indexed tokenId, string displayVersion, address indexed publisher, address creator);
     event TagRenewed(uint256 indexed tokenId, address indexed caller);
     event TagRecycled(uint256 indexed tokenId, address indexed caller);
+    event PremiumTagUpdated(string tag, bool isPremium);
+    event MintedPremiumTagUpdated(uint256 tagId, bool isPremium);
+    event MintedPremiumTagReleased(uint256 tagId, bool isReleased);
+
 
     function setOwnershipTermLength(uint256 _ownershipTermLength) external;
     function createTag(string calldata _tag, address payable _publisher) external payable returns (uint256 _tokenId);
