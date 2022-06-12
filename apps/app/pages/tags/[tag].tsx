@@ -12,6 +12,8 @@ import { Table } from '../../components/Table';
 import { TimeAgo } from '../../components/TimeAgo';
 import { CopyAndPaste } from '../../components/CopyAndPaste';
 import { Share } from '../../components/Share';
+import { Panel } from '../../components/Panel';
+import { Auction } from '../../components/Auction';
 
 const Tag: NextPage = () => {
   const { query } = useRouter();
@@ -78,10 +80,15 @@ const Tag: NextPage = () => {
         <title>{data && data.tag[0].name} | Ethereum Tag Service</title>
       </Head>
 
-      <h1 className="text-3xl font-bold text-slate-700">{data && data.tag[0].name}</h1>
+      <div className="md:flex">
+        <div className="flex items-center mb-6 md:flex-grow md:mb-0">
+          <h1 className="text-3xl font-bold text-slate-700">{data && data.tag[0].name}</h1>
+        </div>
+        <Share url="https://ets.xyz" />
+      </div>
 
-      <div className="gap-12 mx-auto mt-8 space-y-8 md:space-y-0 md:grid sm:w-full md:grid-cols-3">
-        <div className="col-span-1">
+      <div className="grid gap-6 mx-auto mt-8 lg:gap-12 md:space-y-0 md:grid sm:w-full md:grid-cols-3">
+        <div className="grid content-start gap-6 md:col-span-1 lg:gap-12">
           <div className="overflow-hidden rounded shadow-xl shadow-slate-300">
             <svg className="w-full text-white bg-slate-900" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
               <text fill="currentColor" fontFamily="Helvetica" fontSize="50" fontWeight="700" letterSpacing="-.02em" transform="translate(625.71 898.94)">0.904 MATIC</text>
@@ -91,19 +98,12 @@ const Tag: NextPage = () => {
               <text fill="currentColor" stroke="none" strokeMiterlimit="10" fontFamily="HelveticaNeue-Bold,Helvetica Neue" fontSize="50" fontWeight="700" transform="translate(100 150)">{data && data.tag[0].name}</text>
             </svg>
           </div>
-          <div className="mt-6">
-            <Share url="https://ets.xyz" />
-          </div>
+          <Auction />
         </div>
 
-        <div className="grid w-full col-span-2 gap-12 mx-auto">
+        <div className="grid content-start w-full gap-6 mx-auto md:col-span-2 lg:gap-12">
           <div>
-            <div className="border border-b-0 border-slate-900">
-              <h2 className="px-6 py-3 text-sm font-bold tracking-wider text-left uppercase text-slate-900">{t('overview')}</h2>
-            </div>
-
-            <div className="border divide-y border-slate-900 divide-slate-200">
-
+            <Panel title={t('overview')}>
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col">
                 <div className="text-slate-500">
                   {t('etstag-id')}
@@ -140,13 +140,13 @@ const Tag: NextPage = () => {
                 </div>
               </div>
 
-              <div className="grid grid-flow-col grid-cols-4 px-6 py-4 space-x-4">
+              <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4">
                 <div className="text-slate-500">
                   {t('creator')}
                 </div>
-                <div className="flex col-span-3 space-x-2">
-                  <div className="grid flex-grow grid-cols-1 space-x-4 md:grid-flow-col">
-                    <div className="overflow-hidden text-right text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
+                <div className="flex space-x-1">
+                  <div className="grid flex-grow md:grid-flow-col">
+                    <div className="text-pink-600 truncate hover:text-pink-700">
                       <Link href={`/creators/${data && data.tag[0].creator}`}>
                         <a className="text-pink-600 hover:text-pink-700">{data && data.tag[0].creator}</a>
                       </Link>
@@ -156,11 +156,11 @@ const Tag: NextPage = () => {
                 </div>
               </div>
 
-              <div className="grid grid-flow-col grid-cols-4 px-6 py-4 space-x-4">
+              <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4">
                 <div className="flex-grow text-slate-500">
                   {t('owner')}
                 </div>
-                <div className="flex col-span-3 space-x-2">
+                <div className="flex col-span-3 space-x-1">
                   <div className="grid flex-grow grid-cols-1 md:grid-flow-col">
                     <div className="overflow-hidden text-right text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
                       <Link href={`/owners/${data && data.tag[0].owner}`}>
@@ -172,11 +172,11 @@ const Tag: NextPage = () => {
                 </div>
               </div>
 
-              <div className="grid grid-flow-col grid-cols-4 px-6 py-4 space-x-4">
+              <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4">
                 <div className="text-slate-500">
                   {t('publisher')}
                 </div>
-                <div className="flex col-span-3 space-x-2">
+                <div className="flex col-span-3 space-x-1">
                   <div className="grid flex-grow grid-cols-1 md:grid-flow-col">
                     <div className="overflow-hidden text-right text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
                       <Link href={`/publishers/${data && data.tag[0].publisher}`}>
@@ -187,16 +187,11 @@ const Tag: NextPage = () => {
                   <CopyAndPaste value={data && data.tag[0].publisher} />
                 </div>
               </div>
-            </div>
+            </Panel>
           </div>
 
           <div>
-            <div className="border border-b-0 border-slate-900">
-              <h2 className="px-6 py-3 text-sm font-bold tracking-wider text-left uppercase text-slate-900">{t('revenue')}</h2>
-            </div>
-
-            <div className="border divide-y border-slate-900 divide-slate-200">
-
+            <Panel title={t('revenue')}>
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col">
                 <div className="text-slate-500">
                   {t('creator')}
@@ -232,13 +227,11 @@ const Tag: NextPage = () => {
                   <div className="text-slate-500">{data && toDp(toEth(data.tag[0].protocolRevenue))} {t('matic')}</div>
                 </div>
               </div>
-
-            </div>
+            </Panel>
           </div>
         </div>
 
-        <div className="col-span-3">
-
+        <div className="md:col-span-3">
           <Table loading={!data} rows={20}>
             <Table.Title>{t('tagged-content')}</Table.Title>
             <Table.Head>

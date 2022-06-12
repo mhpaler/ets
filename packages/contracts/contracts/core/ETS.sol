@@ -276,14 +276,14 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         return accrued[_account] - paid[_account];
     }
 
-    /// @dev Retrieves a tagging record from tagging ID
-    /// @param _taggingId ID of the tagging record.
+    /// @dev Retrieves a tagging record from tagging record ID
+    /// @param _id ID of the tagging record.
     /// @return etsTagIds token ID of ETSTAG used.
     /// @return targetId Id of tagging target.
     /// @return tagger Address that tagged the NFT asset.
     /// @return publisher Publisher through which the tag took place.
     /// @return sponsor Address that paid for the transaction fee
-    function getTaggingRecordFromId(uint256 _taggingId)
+    function getTaggingRecordFromId(uint256 _id)
         external
         view
         returns (
@@ -294,7 +294,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
           address sponsor
         )
     {
-        TaggingRecord storage taggingRecord = taggingRecords[_taggingId];
+        TaggingRecord storage taggingRecord = taggingRecords[_id];
         return (
             taggingRecord.etsTagIds,
             taggingRecord.targetId,
@@ -321,14 +321,14 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
             address sponsor
         )
     {
-        uint256 taggingId = computeTaggingRecordId(
+        uint256 taggingRecordId = computeTaggingRecordId(
             _targetId,
             _tagger,
             _publisher,
             _sponsor
         );
 
-        TaggingRecord storage taggingRecord = taggingRecords[taggingId];
+        TaggingRecord storage taggingRecord = taggingRecords[taggingRecordId];
 
         return (
             taggingRecord.etsTagIds,
@@ -393,6 +393,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     }
 
     /// @notice Allow either a tagger or a sponsor to update the tags for a tagging record pointing to a target
+    /// Append or replace
     function updateTaggingRecord(
         uint256 _taggingRecordId,
         string[] calldata _tags
@@ -432,6 +433,9 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
             taggingRecord.etsTagIds = etsTagIds;
         }
+
+        // Log that a tagging record has been tagged.
+        emit TaggingRecordUpdated(_taggingRecordId);
     }
 
     /// @notice Deterministically compute the tagging record identifier

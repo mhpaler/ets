@@ -1,4 +1,5 @@
 {
+  "auction": "Auction",
   "chain": "Chain",
   "connect-wallet": "Connect Wallet",
   "contract": "Contract",
@@ -37,5 +38,6 @@
   "token-id": "Token ID",
   "top-creators": "Top creators",
   "top-publishers": "Top publishers",
-  "top-taggers": "Top taggers"
+  "top-taggers": "Top taggers",
+  "view-all-bids": "View all bids"
 }
