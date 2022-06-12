@@ -47,9 +47,6 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
     /// @notice Defines whether a tag has been set up as premium
     mapping(string => bool) public isTagPremium;
 
-    /// @notice For a given premium tag, whether it is released for auction. When false, it cannot be auctioned
-    mapping(string => bool) public isTagReleasedForAuction;
-
     /// Modifiers
 
     modifier onlyAdmin() {
@@ -182,7 +179,8 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
             // machineName: machineName,
             originalPublisher: _publisher,
             creator: _msgSender(),
-            isPremium: isTagPremium[__lower(_tag)]
+            isPremium: isTagPremium[__lower(_tag)],
+            isReleasedForAuction: false
         });
 
         // todo - I believe this event can be removed. The internal mint method already emits an event and you can get everything from the token ID

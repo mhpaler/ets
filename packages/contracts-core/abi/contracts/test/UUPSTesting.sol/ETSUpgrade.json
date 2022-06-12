@@ -113,6 +113,44 @@
       {
         "indexed": false,
         "internalType": "uint256",
+        "name": "tagId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isReleased",
+        "type": "bool"
+      }
+    ],
+    "name": "MintedPremiumTagReleased",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tagId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isPremium",
+        "type": "bool"
+      }
+    ],
+    "name": "MintedPremiumTagUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "termLength",
         "type": "uint256"
       }
@@ -144,6 +182,25 @@
       }
     ],
     "name": "PlatformSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "tag",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isPremium",
+        "type": "bool"
+      }
+    ],
+    "name": "PremiumTagUpdated",
     "type": "event"
   },
   {
@@ -544,6 +601,16 @@
             "internalType": "string",
             "name": "displayVersion",
             "type": "string"
+          },
+          {
+            "internalType": "bool",
+            "name": "isPremium",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isReleasedForAuction",
+            "type": "bool"
           }
         ],
         "internalType": "struct IETSToken.Tag",
@@ -586,6 +653,25 @@
       }
     ],
     "name": "isApprovedForAll",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "name": "isTagPremium",
     "outputs": [
       {
         "internalType": "bool",
@@ -837,6 +923,24 @@
   {
     "inputs": [
       {
+        "internalType": "string[]",
+        "name": "_tags",
+        "type": "string[]"
+      },
+      {
+        "internalType": "bool",
+        "name": "_enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "setupPremiumTags",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes4",
         "name": "interfaceId",
         "type": "bytes4"
@@ -973,6 +1077,16 @@
         "internalType": "string",
         "name": "displayVersion",
         "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "isPremium",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "isReleasedForAuction",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -1023,6 +1137,42 @@
   {
     "inputs": [],
     "name": "unPause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "_tokenIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "bool",
+        "name": "_isPremium",
+        "type": "bool"
+      }
+    ],
+    "name": "updatePremiumFlagForMintedTags",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "_tokenIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "bool",
+        "name": "_isReleased",
+        "type": "bool"
+      }
+    ],
+    "name": "updateReleasedFlagForMintedTags",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

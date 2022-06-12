@@ -68,6 +68,44 @@
       {
         "indexed": false,
         "internalType": "uint256",
+        "name": "tagId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isReleased",
+        "type": "bool"
+      }
+    ],
+    "name": "MintedPremiumTagReleased",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tagId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isPremium",
+        "type": "bool"
+      }
+    ],
+    "name": "MintedPremiumTagUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "termLength",
         "type": "uint256"
       }
@@ -86,6 +124,25 @@
       }
     ],
     "name": "PlatformSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "tag",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isPremium",
+        "type": "bool"
+      }
+    ],
+    "name": "PremiumTagUpdated",
     "type": "event"
   },
   {
@@ -346,6 +403,16 @@
             "internalType": "string",
             "name": "displayVersion",
             "type": "string"
+          },
+          {
+            "internalType": "bool",
+            "name": "isPremium",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isReleasedForAuction",
+            "type": "bool"
           }
         ],
         "internalType": "struct IETSToken.Tag",
