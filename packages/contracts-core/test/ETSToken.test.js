@@ -8,7 +8,7 @@ const { BigNumber, constants } = ethers;
 describe("ETSToken Core Tests", function () {
   // we create a setup function that can be called by every test and setup variable for easy to read tests
   beforeEach("Setup test", async function () {
-    [accounts, ETSAccessControls, ETSToken] = await setup();   
+    [accounts, ETSAccessControls, ETSToken] = await setup();
   });
 
   describe("Validate setup", async function () {
@@ -182,4 +182,119 @@ describe("ETSToken Core Tests", function () {
     });
   });
 
+  describe("Premium tags", function () {
+    const premiumTags = ["#apple", "#google"]
+
+    describe("setupPremiumTags", function () {
+      it('Can set up premium tags pre-minting as admin', async function () {
+        for(let i = 0; i < premiumTags.length; i++) {
+          expect(
+            await ETSToken.isTagPremium(premiumTags[i])
+          ).to.be.false
+        }
+
+        await ETSToken.connect(accounts.ETSAdmin).setupPremiumTags(
+          premiumTags,
+          true
+        )
+
+        for(let j = 0; j < premiumTags.length; j++) {
+          expect(
+            await ETSToken.isTagPremium(premiumTags[j])
+          ).to.be.true
+        }
+      })
+
+      it('Pre-minting, premium status can be revoked', async function () {
+        await ETSToken.connect(accounts.ETSAdmin).setupPremiumTags(
+          premiumTags,
+          true
+        )
+
+        for(let j = 0; j < premiumTags.length; j++) {
+          expect(
+            await ETSToken.isTagPremium(premiumTags[j])
+          ).to.be.true
+        }
+
+        await ETSToken.connect(accounts.ETSAdmin).setupPremiumTags(
+          premiumTags,
+          false
+        )
+
+        for(let i = 0; i < premiumTags.length; i++) {
+          expect(
+            await ETSToken.isTagPremium(premiumTags[i])
+          ).to.be.false
+        }
+      })
+
+      it('Cannot set up if not admin', async function () {
+        await expect(
+          ETSToken.connect(accounts.ETSPlatform).setupPremiumTags(
+            premiumTags,
+            true
+          )
+        ).to.be.revertedWith("Caller must have administrator access")
+      })
+    })
+
+    describe("updatePremiumFlagForMintedTags", function () {
+      it('Can update premium flag for minted tag as admin', async function () {
+        await ETSToken.connect(accounts.ETSAdmin).setupPremiumTags(
+          premiumTags,
+          true
+        )
+
+        const tagString = premiumTags[0]
+        await ETSToken.connect(accounts.RandomTwo).createTag(
+          tagString,
+          accounts.ETSPublisher.address
+        )
+
+        const tokenId = await ETSToken.computeTagId(tagString)
+        const tag = await ETSToken.getTag(tokenId)
+        expect(tag.isPremium).to.be.true
+        expect(tag.isReleasedForAuction).to.be.false
+
+        await ETSToken.connect(accounts.ETSAdmin).updatePremiumFlagForMintedTags(
+          [tokenId],
+          false
+        )
+
+        const tagAfter = await ETSToken.getTag(tokenId)
+        expect(tagAfter.isPremium).to.be.false
+        expect(tagAfter.isReleasedForAuction).to.be.false
+      })
+    })
+
+    describe("updateReleasedFlagForMintedTags", function () {
+      it('Can update released flag for minted tag as admin', async function () {
+        await ETSToken.connect(accounts.ETSAdmin).setupPremiumTags(
+          premiumTags,
+          true
+        )
+
+        const tagString = premiumTags[0]
+        await ETSToken.connect(accounts.RandomTwo).createTag(
+          tagString,
+          accounts.ETSPublisher.address
+        )
+
+        const tokenId = await ETSToken.computeTagId(tagString)
+        const tag = await ETSToken.getTag(tokenId)
+        expect(tag.isPremium).to.be.true
+        expect(tag.isReleasedForAuction).to.be.false
+
+        await ETSToken.connect(accounts.ETSAdmin).updateReleasedFlagForMintedTags(
+          [tokenId],
+          true
+        )
+
+        const tagAfter = await ETSToken.getTag(tokenId)
+        expect(tagAfter.isPremium).to.be.true
+        expect(tagAfter.isReleasedForAuction).to.be.true
+      })
+    })
+  })
 });
