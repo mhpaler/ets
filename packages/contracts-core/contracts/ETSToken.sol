@@ -125,12 +125,12 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
         for(uint256 i; i < _tags.length; ++i) {
             string memory tag = __lower(_tags[i]);
             isTagPremium[tag] = _enabled;
-            emit PremiumTagUpdated(tag, _enabled);
+            emit PremiumTagSet(tag, _enabled);
         }
     }
 
-    /// @dev For minted tags, allow management of the premium tag including removing the tag in the event of an error
-    function updatePremiumFlagForMintedTags(
+    /// @dev For minted tags, allow set/unset of the premium flag
+    function setPremiumFlag(
         uint256[] calldata _tokenIds,
         bool _isPremium
     ) public onlyAdmin {
@@ -138,23 +138,19 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
         for(uint256 i; i < _tokenIds.length; ++i) {
             uint256 tokenId = _tokenIds[i];
             require(ownerOf(tokenId) == platform, "Not owned by platform");
-            tokenIdToTag[tokenId].isPremium = _isPremium;
-            emit MintedPremiumTagUpdated(tokenId, _isPremium);
+            tokenIdToTag[tokenId].premium = _isPremium;
+            emit PremiumFlagSet(tokenId, _isPremium);
         }
     }
 
     /// @dev For minted tags, allow the tags to be released or un-do the release to prevent an auction take place
-    function updateReleasedFlagForMintedTags(uint256[] calldata _tokenIds, bool _isReleased) public onlyAdmin {
+    function setReservedFlag(uint256[] calldata _tokenIds, bool _reserved) public onlyAdmin {
         require(_tokenIds.length > 0, "Empty array");
         for(uint256 i; i < _tokenIds.length; ++i) {
             uint256 tokenId = _tokenIds[i];
-            Tag storage mintedTag = tokenIdToTag[tokenId];
-
-            require(mintedTag.isPremium, "Tag is not premium");
             require(ownerOf(tokenId) == platform, "Token not owned by platform");
-
-            mintedTag.isReleasedForAuction = _isReleased;
-            emit MintedPremiumTagReleased(tokenId, _isReleased);
+            tokenIdToTag[tokenId].reserved = _reserved;
+            emit ReservedFlagSet(tokenId, _reserved);
         }
     }
 
@@ -163,28 +159,24 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
     function createTag(
         string calldata _tag,
         address payable _publisher
-    ) external payable returns (uint256 _tokenId) {
+    ) external payable returns (uint256 _tokenId) { // todo - add nonReentrant due to safeMint
         require(etsAccessControls.isPublisher(_publisher), "ETS: Not a publisher");
 
         // Perform basic tag string validation.
         uint256 tagId = _assertTagIsValid(_tag);
 
         // mint the token, transferring it to the platform.
-        _safeMint(platform, tagId);//todo - need to add a re-entrancy guard if we are going to use safe mint
+        _safeMint(platform, tagId);
 
         // Store CTAG data in state.
         tokenIdToTag[tagId] = Tag({
             displayVersion: _tag,
-            // TODO - need to sense check this. I don't believe machine name needs to be stored because it can always be computed from displayVersion field
-            // machineName: machineName,
             originalPublisher: _publisher,
             creator: _msgSender(),
-            isPremium: isTagPremium[__lower(_tag)],
-            isReleasedForAuction: false
+            premium: isTagPremium[__lower(_tag)],
+            reserved: isTagPremium[__lower(_tag)]
         });
 
-        // todo - I believe this event can be removed. The internal mint method already emits an event and you can get everything from the token ID
-        // emit TagMinted(tagId, _tag, _publisher, _msgSender());
         return tagId;
     }
 

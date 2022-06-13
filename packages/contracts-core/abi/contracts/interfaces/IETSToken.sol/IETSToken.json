@@ -68,44 +68,6 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "tagId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "isReleased",
-        "type": "bool"
-      }
-    ],
-    "name": "MintedPremiumTagReleased",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "tagId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "isPremium",
-        "type": "bool"
-      }
-    ],
-    "name": "MintedPremiumTagUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
         "name": "termLength",
         "type": "uint256"
       }
@@ -131,6 +93,25 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "uint256",
+        "name": "tagId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isPremium",
+        "type": "bool"
+      }
+    ],
+    "name": "PremiumFlagSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "string",
         "name": "tag",
         "type": "string"
@@ -142,7 +123,26 @@
         "type": "bool"
       }
     ],
-    "name": "PremiumTagUpdated",
+    "name": "PremiumTagSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tagId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isReleased",
+        "type": "bool"
+      }
+    ],
+    "name": "ReservedFlagSet",
     "type": "event"
   },
   {
@@ -406,12 +406,12 @@
           },
           {
             "internalType": "bool",
-            "name": "isPremium",
+            "name": "premium",
             "type": "bool"
           },
           {
             "internalType": "bool",
-            "name": "isReleasedForAuction",
+            "name": "reserved",
             "type": "bool"
           }
         ],

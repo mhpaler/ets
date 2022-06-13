@@ -239,7 +239,7 @@ describe("ETSToken Core Tests", function () {
       })
     })
 
-    describe("updatePremiumFlagForMintedTags", function () {
+    describe("setPremiumFlag", function () {
       it('Can update premium flag for minted tag as admin', async function () {
         await ETSToken.connect(accounts.ETSAdmin).setupPremiumTags(
           premiumTags,
@@ -254,21 +254,21 @@ describe("ETSToken Core Tests", function () {
 
         const tokenId = await ETSToken.computeTagId(tagString)
         const tag = await ETSToken.getTag(tokenId)
-        expect(tag.isPremium).to.be.true
-        expect(tag.isReleasedForAuction).to.be.false
+        expect(tag.premium).to.be.true
+        expect(tag.reserved).to.be.true
 
-        await ETSToken.connect(accounts.ETSAdmin).updatePremiumFlagForMintedTags(
+        await ETSToken.connect(accounts.ETSAdmin).setPremiumFlag(
           [tokenId],
           false
         )
 
         const tagAfter = await ETSToken.getTag(tokenId)
-        expect(tagAfter.isPremium).to.be.false
-        expect(tagAfter.isReleasedForAuction).to.be.false
+        expect(tagAfter.premium).to.be.false
+        expect(tagAfter.reserved).to.be.true
       })
     })
 
-    describe("updateReleasedFlagForMintedTags", function () {
+    describe("setReservedFlag", function () {
       it('Can update released flag for minted tag as admin', async function () {
         await ETSToken.connect(accounts.ETSAdmin).setupPremiumTags(
           premiumTags,
@@ -283,17 +283,17 @@ describe("ETSToken Core Tests", function () {
 
         const tokenId = await ETSToken.computeTagId(tagString)
         const tag = await ETSToken.getTag(tokenId)
-        expect(tag.isPremium).to.be.true
-        expect(tag.isReleasedForAuction).to.be.false
+        expect(tag.premium).to.be.true
+        expect(tag.reserved).to.be.true
 
-        await ETSToken.connect(accounts.ETSAdmin).updateReleasedFlagForMintedTags(
+        await ETSToken.connect(accounts.ETSAdmin).setReservedFlag(
           [tokenId],
           true
         )
 
         const tagAfter = await ETSToken.getTag(tokenId)
-        expect(tagAfter.isPremium).to.be.true
-        expect(tagAfter.isReleasedForAuction).to.be.true
+        expect(tagAfter.premium).to.be.true
+        expect(tagAfter.reserved).to.be.true
       })
     })
   })
