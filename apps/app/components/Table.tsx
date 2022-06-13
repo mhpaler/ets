@@ -5,16 +5,13 @@ import React, {
   useState,
   useEffect,
   Children,
-  useRef,
-  UIEvent,
-  CSSProperties,
   ReactElement,
 } from 'react';
 import { getChildrenByType, removeChildrenByType } from 'react-nanny';
 import Link from 'next/link';
 import { CopyAndPaste } from '../components/CopyAndPaste';
 import { classNames } from '../utils/classNames';
-import { useWindowSize, useWindowScrollPosition } from 'rooks';
+
 interface TableContext {
   tableLoading: boolean;
   setTableLoading: (loading: boolean) => void;
@@ -22,10 +19,6 @@ interface TableContext {
   setColumnCount: (count: number) => void;
   rowsPerPage: number;
   setRowsPerPage: (rows: number) => void;
-  headerScrollLeft: number;
-  setHeaderScrollLeft: (position: number) => void;
-  tableWidth: number;
-  setTableWidth: (width: number) => void;
 }
 
 const TableContext = createContext<TableContext>({
@@ -35,10 +28,6 @@ const TableContext = createContext<TableContext>({
   setColumnCount: () => {},
   rowsPerPage: 0,
   setRowsPerPage: () => {},
-  headerScrollLeft: 0,
-  setHeaderScrollLeft: () => {},
-  tableWidth: 0,
-  setTableWidth: () => {},
 });
 
 function useTableContext(component: string) {
@@ -69,12 +58,6 @@ const Table = ({
   const [tableLoading, setTableLoading] = useState<boolean>(loading);
   const [columnCount, setColumnCount] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(20);
-  const [headerScrollLeft, setHeaderScrollLeft] = useState<number>(0);
-  const [tableWidth, setTableWidth] = useState<number>(0);
-
-  const tableRef = useRef<HTMLTableElement>(null);
-
-  const { innerWidth } = useWindowSize();
 
   useEffect(() => {
     setRowsPerPage(rows);
@@ -82,8 +65,7 @@ const Table = ({
 
   useEffect(() => {
     setTableLoading(loading);
-    setTableWidth(tableRef.current!.scrollWidth);
-  }, [loading, innerWidth]);
+  }, [loading]);
 
   const value = {
     tableLoading,
@@ -92,19 +74,11 @@ const Table = ({
     setColumnCount,
     rowsPerPage,
     setRowsPerPage,
-    headerScrollLeft,
-    setHeaderScrollLeft,
-    tableWidth,
-    setTableWidth,
   };
 
   // Get the Title component so we can move it to where we want it
   const title = getChildrenByType(children, [Title]);
   children = removeChildrenByType(children, [Title]);
-
-  const scrollHandler = (event: UIEvent<HTMLDivElement>) => {
-    setHeaderScrollLeft(event.currentTarget.scrollLeft);
-  };
 
   const tableClasses = classNames(
     'grid min-w-full border-separate text-slate-500',
@@ -121,8 +95,8 @@ const Table = ({
     <TableContext.Provider value={value}>
       <div className={containerClasses}>
         {title}
-        <div onScroll={scrollHandler} className="grid grid-cols-1 gap-2 overflow-x-auto">
-          <table ref={tableRef} className={tableClasses}>
+        <div className="grid grid-cols-1 gap-2 overflow-x-auto">
+          <table className={tableClasses}>
             {children}
           </table>
         </div>
@@ -139,50 +113,11 @@ const Title = ({ children }: { children: ReactNode }) => {
 };
 
 const Head = ({ children }: { children: ReactElement }) => {
-  const { columnCount, setColumnCount, headerScrollLeft, tableWidth } = useTableContext('Table.Head');
-
-  const [isSticky, setIsSticky] = useState<boolean>(false);
-  const [theadStyle, setTheadStyle] = useState<CSSProperties>({});
-  const [theadTop, setTheadTop] = useState<number>(0);
-
-  const theadRef = useRef<HTMLTableSectionElement>(null);
-  const theadHiddenRef = useRef<HTMLTableSectionElement>(null);
-
-  const { innerWidth } = useWindowSize();
-  const { scrollY } = useWindowScrollPosition();
+  const { columnCount, setColumnCount } = useTableContext('Table.Head');
 
   useEffect(() => {
-    setTheadTop(theadRef.current!.getBoundingClientRect().top);
     setColumnCount(Children.count(children.props.children));
-  }, [setColumnCount, children, theadTop]);
-
-  useEffect(() => {
-    const shouldBeStyle = {
-      display: isSticky ? 'grid' : 'none',
-      // Adjust the sticky header to the size of the table overflow width
-      width: `${tableWidth}px`,
-      // Whenever we scroll left, change the translateX value so
-      // we have a sticky header that follows horizontal scroll
-      transform: isSticky && headerScrollLeft ? `translateX(-${headerScrollLeft}px)` : 'none',
-    }
-
-    // Compare so we aren't calling setTheadStyle every single time something happens
-    if (JSON.stringify(shouldBeStyle) === JSON.stringify(theadStyle)) return;
-
-    setTheadStyle(shouldBeStyle);
-  }, [headerScrollLeft, isSticky, tableWidth, innerWidth, theadStyle]);
-
-  useEffect(() => {
-    if (Math.abs(scrollY) > Math.abs(theadTop)) {
-      if (!isSticky) {
-        setIsSticky(true);
-      }
-    } else {
-      if (isSticky) {
-        setIsSticky(false);
-      }
-    }
-  }, [isSticky, scrollY, theadTop]);
+  }, [setColumnCount, children]);
 
   const theadClasses = classNames(
     'z-[1] col-span-full grid min-w-fit',
@@ -194,15 +129,9 @@ const Head = ({ children }: { children: ReactElement }) => {
   );
 
   return (
-    <>
-      <thead ref={theadRef} className={theadClasses}>
-        {children}
-      </thead>
-      {/* The following is a duplicate that only shows when sticky header is activated */}
-      <thead ref={theadHiddenRef} className={`${theadClasses} fixed top-0`} style={{ ...theadStyle }}>
-        {children}
-      </thead>
-    </>
+    <thead className={theadClasses}>
+      {children}
+    </thead>
   );
 };
 
