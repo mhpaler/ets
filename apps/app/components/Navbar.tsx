@@ -25,19 +25,19 @@ export default function Navbar() {
               <div className="hidden mr-6 space-x-6 lg:flex">
                 <Link href="/auctions">
                   <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
-                    Auctions
+                    {t('auctions')}
                   </a>
                 </Link>
 
                 <Link href="/publishers">
                   <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
-                    Publishers
+                    {t('publishers')}
                   </a>
                 </Link>
 
                 <Link href="/playground">
                   <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
-                    Playground
+                    {t('playground')}
                   </a>
                 </Link>
               </div>
@@ -49,19 +49,19 @@ export default function Navbar() {
         <div className="flex flex-wrap justify-center py-4 space-x-8 lg:hidden">
           <Link href="/auctions">
             <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
-              Auctions
+              {t('auctions')}
             </a>
           </Link>
 
           <Link href="/publishers">
             <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
-              Publishers
+              {t('publishers')}
             </a>
           </Link>
 
           <Link href="/playground">
             <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
-              Playground
+              {t('playground')}
             </a>
           </Link>
         </div>

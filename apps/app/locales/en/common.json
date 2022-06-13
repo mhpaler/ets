@@ -1,6 +1,7 @@
 {
   "address": "Address",
   "auction": "Auction",
+  "auctions": "Auctions",
   "chain": "Chain",
   "connect-wallet": "Connect Wallet",
   "contract": "Contract",
@@ -20,6 +21,7 @@
   "overview": "Overview",
   "owner": "Owner",
   "permalink": "Permalink",
+  "playground": "Playground",
   "popular-tags": "Popular tags",
   "protocol": "Protocol",
   "publisher": "Publisher",
