@@ -6,9 +6,9 @@ export default function Navbar() {
   const { t } = useTranslation('common');
 
   return (
-    <header>
+    <header className="px-4">
       <nav className="max-w-6xl mx-auto" aria-label="Top">
-        <div className="flex items-center justify-between w-full px-4 py-5 border-b border-slate-100 md:border-none">
+        <div className="flex items-center justify-between w-full py-5 border-b border-slate-100 md:border-none">
           <div className="flex items-center">
             <Link href="/">
               <a>
