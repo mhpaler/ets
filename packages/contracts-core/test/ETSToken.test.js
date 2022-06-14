@@ -11,7 +11,7 @@ describe("ETSToken Core Tests", function () {
     [accounts, ETSAccessControls, ETSToken, ETSAuctionHouse, WETH, auctionSettings] = await setup();
   });
 
-  describe("Validate setup", async function () {
+  describe("Valid setup", async function () {
     it("should have name and symbol", async function () {
       expect(await ETSToken.name()).to.be.equal("Ethereum Tag Service");
       expect(await ETSToken.symbol()).to.be.equal("CTAG");

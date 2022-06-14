@@ -218,7 +218,7 @@ describe("ETS Auction House Tests", function () {
          );
      });
  
-     it ("should emit an `AuctionBid` event on a successful sencond bid", async function () {
+     it ("should emit an `AuctionBid` event on a successful second bid", async function () {
  
        // RandomTwo successfully increments the bid.
        await expect(ETSAuctionHouse.connect(accounts.RandomTwo).createBid(etsOwnedTagId, { value: auctionSettings.RESERVE_PRICE * 2 }))

@@ -49,9 +49,6 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
     /// @dev The minimum percentage difference between the last bid amount and the current bid
     uint8 public minBidIncrementPercentage;
 
-    /// @dev The address of the WETH contract, so that any ETH transferred can be handled as an ERC-20
-    address public wethAddress;
-
     /// @dev The duration of a single auction
     uint256 public duration;
 

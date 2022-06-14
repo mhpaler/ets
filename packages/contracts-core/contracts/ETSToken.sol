@@ -254,13 +254,12 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
     {
         super._afterTokenTransfer(from, to, tokenId);
 
-        // Reset token ownership term.
         if (to != address(0)) {
+            // Reset token ownership term.
             renewTag(tokenId);
-            etsAccessControls.assessOwner(to);
+            // Grant / revoke publisher role.
+            etsAccessControls.assessOwners(from, to);
         }
-            
-
     }
 
     /// @notice Private method used for validating a CTAG string before minting.
