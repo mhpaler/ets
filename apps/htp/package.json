@@ -1,5 +1,5 @@
 {
-  "name": "htp",
+  "name": "@ets/htp",
   "version": "0.1.0",
   "private": true,
   "scripts": {
