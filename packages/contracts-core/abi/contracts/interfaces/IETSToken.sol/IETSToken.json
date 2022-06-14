@@ -94,6 +94,63 @@
       {
         "indexed": false,
         "internalType": "uint256",
+        "name": "tagId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isPremium",
+        "type": "bool"
+      }
+    ],
+    "name": "PremiumFlagSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "tag",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isPremium",
+        "type": "bool"
+      }
+    ],
+    "name": "PremiumTagSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tagId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isReleased",
+        "type": "bool"
+      }
+    ],
+    "name": "ReservedFlagSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "maxStringLength",
         "type": "uint256"
       }
@@ -346,6 +403,16 @@
             "internalType": "string",
             "name": "displayVersion",
             "type": "string"
+          },
+          {
+            "internalType": "bool",
+            "name": "premium",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "reserved",
+            "type": "bool"
           }
         ],
         "internalType": "struct IETSToken.Tag",

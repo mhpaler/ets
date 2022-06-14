@@ -152,6 +152,63 @@
       {
         "indexed": false,
         "internalType": "uint256",
+        "name": "tagId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isPremium",
+        "type": "bool"
+      }
+    ],
+    "name": "PremiumFlagSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "tag",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isPremium",
+        "type": "bool"
+      }
+    ],
+    "name": "PremiumTagSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tagId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isReleased",
+        "type": "bool"
+      }
+    ],
+    "name": "ReservedFlagSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "maxStringLength",
         "type": "uint256"
       }
@@ -544,6 +601,16 @@
             "internalType": "string",
             "name": "displayVersion",
             "type": "string"
+          },
+          {
+            "internalType": "bool",
+            "name": "premium",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "reserved",
+            "type": "bool"
           }
         ],
         "internalType": "struct IETSToken.Tag",
@@ -586,6 +653,25 @@
       }
     ],
     "name": "isApprovedForAll",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "name": "isTagPremium",
     "outputs": [
       {
         "internalType": "bool",
@@ -824,12 +910,66 @@
   {
     "inputs": [
       {
+        "internalType": "uint256[]",
+        "name": "_tokenIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "bool",
+        "name": "_isPremium",
+        "type": "bool"
+      }
+    ],
+    "name": "setPremiumFlag",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "_tokenIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "bool",
+        "name": "_reserved",
+        "type": "bool"
+      }
+    ],
+    "name": "setReservedFlag",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "_tagMaxStringLength",
         "type": "uint256"
       }
     ],
     "name": "setTagMaxStringLength",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string[]",
+        "name": "_tags",
+        "type": "string[]"
+      },
+      {
+        "internalType": "bool",
+        "name": "_enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "setupPremiumTags",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -973,6 +1113,16 @@
         "internalType": "string",
         "name": "displayVersion",
         "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "premium",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "reserved",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
