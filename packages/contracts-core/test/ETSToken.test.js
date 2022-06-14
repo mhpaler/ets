@@ -8,7 +8,7 @@ const { BigNumber, constants } = ethers;
 describe("ETSToken Core Tests", function () {
   // we create a setup function that can be called by every test and setup variable for easy to read tests
   beforeEach("Setup test", async function () {
-    [accounts, ETSAccessControls, ETSToken, ETSAuctionHouse, WETH, auctionSettings] = await setup();
+    [accounts, ETSAccessControls, ETSToken] = await setup();
   });
 
   describe("Valid setup", async function () {
@@ -179,4 +179,169 @@ describe("ETSToken Core Tests", function () {
     });
   });
 
+<<<<<<< HEAD
+=======
+  describe("Platform", async function () {
+    it("should be able to set platform as owner", async function () {
+      expect(await ETSToken.platform()).to.be.equal(accounts.ETSPlatform.address);
+
+      await ETSToken.connect(accounts.ETSAdmin).setPlatform(accounts.RandomOne.address);
+
+      expect(await ETSToken.platform()).to.be.equal(accounts.RandomOne.address);
+    });
+
+    it("should revert if not owner", async function () {
+      await expect(ETSToken.connect(accounts.Buyer).setPlatform(accounts.RandomOne.address)).to.be.revertedWith(
+        "Caller must have administrator access",
+      );
+    });
+
+    it("should set access controls", async function () {
+      await ETSToken.connect(accounts.ETSAdmin).setAccessControls(accounts.RandomTwo.address);
+      expect(await ETSToken.etsAccessControls()).to.be.equal(accounts.RandomTwo.address);
+
+      await expect(ETSToken.connect(accounts.RandomTwo).setAccessControls(accounts.RandomTwo.address)).to.be
+        .reverted;
+    });
+
+    it("should revert when updating access controls to zero address", async function () {
+      await expect(
+        ETSToken.connect(accounts.ETSAdmin).setAccessControls(constants.AddressZero),
+      ).to.be.revertedWith("ETS: Access controls cannot be zero");
+    });
+  });
+
+  describe("Admin functions", async function () {
+    it("should be able to set max tag length as admin", async function () {
+      expect(await ETSAccessControls.isAdmin(accounts.ETSAdmin.address)).to.be.equal(true);
+      const currentMaxLength = await ETSToken.tagMaxStringLength();
+      expect(currentMaxLength).to.be.equal(32);
+      await ETSToken.connect(accounts.ETSAdmin).setTagMaxStringLength(64);
+      const newMaxLength = await ETSToken.tagMaxStringLength();
+      expect(newMaxLength).to.be.equal(64);
+    });
+
+    it("should revert if setting max tag length if not admin", async function () {
+      await expect(ETSToken.connect(accounts.Buyer).setTagMaxStringLength(55)).to.be.revertedWith(
+        "Caller must have administrator access",
+      );
+    });
+  });
+
+  describe("Premium tags", function () {
+    const premiumTags = ["#apple", "#google"]
+
+    describe("setupPremiumTags", function () {
+      it('Can set up premium tags pre-minting as admin', async function () {
+        for(let i = 0; i < premiumTags.length; i++) {
+          expect(
+            await ETSToken.isTagPremium(premiumTags[i])
+          ).to.be.false
+        }
+
+        await ETSToken.connect(accounts.ETSAdmin).setupPremiumTags(
+          premiumTags,
+          true
+        )
+
+        for(let j = 0; j < premiumTags.length; j++) {
+          expect(
+            await ETSToken.isTagPremium(premiumTags[j])
+          ).to.be.true
+        }
+      })
+
+      it('Pre-minting, premium status can be revoked', async function () {
+        await ETSToken.connect(accounts.ETSAdmin).setupPremiumTags(
+          premiumTags,
+          true
+        )
+
+        for(let j = 0; j < premiumTags.length; j++) {
+          expect(
+            await ETSToken.isTagPremium(premiumTags[j])
+          ).to.be.true
+        }
+
+        await ETSToken.connect(accounts.ETSAdmin).setupPremiumTags(
+          premiumTags,
+          false
+        )
+
+        for(let i = 0; i < premiumTags.length; i++) {
+          expect(
+            await ETSToken.isTagPremium(premiumTags[i])
+          ).to.be.false
+        }
+      })
+
+      it('Cannot set up if not admin', async function () {
+        await expect(
+          ETSToken.connect(accounts.ETSPlatform).setupPremiumTags(
+            premiumTags,
+            true
+          )
+        ).to.be.revertedWith("Caller must have administrator access")
+      })
+    })
+
+    describe("setPremiumFlag", function () {
+      it('Can update premium flag for minted tag as admin', async function () {
+        await ETSToken.connect(accounts.ETSAdmin).setupPremiumTags(
+          premiumTags,
+          true
+        )
+
+        const tagString = premiumTags[0]
+        await ETSToken.connect(accounts.RandomTwo).createTag(
+          tagString,
+          accounts.ETSPublisher.address
+        )
+
+        const tokenId = await ETSToken.computeTagId(tagString)
+        const tag = await ETSToken.getTag(tokenId)
+        expect(tag.premium).to.be.true
+        expect(tag.reserved).to.be.true
+
+        await ETSToken.connect(accounts.ETSAdmin).setPremiumFlag(
+          [tokenId],
+          false
+        )
+
+        const tagAfter = await ETSToken.getTag(tokenId)
+        expect(tagAfter.premium).to.be.false
+        expect(tagAfter.reserved).to.be.true
+      })
+    })
+
+    describe("setReservedFlag", function () {
+      it('Can update released flag for minted tag as admin', async function () {
+        await ETSToken.connect(accounts.ETSAdmin).setupPremiumTags(
+          premiumTags,
+          true
+        )
+
+        const tagString = premiumTags[0]
+        await ETSToken.connect(accounts.RandomTwo).createTag(
+          tagString,
+          accounts.ETSPublisher.address
+        )
+
+        const tokenId = await ETSToken.computeTagId(tagString)
+        const tag = await ETSToken.getTag(tokenId)
+        expect(tag.premium).to.be.true
+        expect(tag.reserved).to.be.true
+
+        await ETSToken.connect(accounts.ETSAdmin).setReservedFlag(
+          [tokenId],
+          true
+        )
+
+        const tagAfter = await ETSToken.getTag(tokenId)
+        expect(tagAfter.premium).to.be.true
+        expect(tagAfter.reserved).to.be.true
+      })
+    })
+  })
+>>>>>>> stage
 });
