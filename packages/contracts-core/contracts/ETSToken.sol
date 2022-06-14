@@ -44,6 +44,8 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
     /// @dev Mapping of tokenId to last renewal.
     mapping(uint256 => uint256) public tokenIdToLastRenewed;
 
+    /// @notice Defines whether a tag has been set up as premium
+    mapping(string => bool) public isTagPremium;
 
     /// Modifiers
 
@@ -75,7 +77,7 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
 
     function _authorizeUpgrade(address) internal override onlyAdmin {}
 
-    // @vince Not sure if we need this at all?
+    // @vince Not sure if we need this at all? << todo we will need to ensure that the base 721 has minimal 165 requirements before removing
     //function supportsInterface(bytes4 interfaceId) public view virtual override(IERC721Upgradeable) returns (bool) {
     //    return super.supportsInterface(interfaceId);
     //}
@@ -117,31 +119,64 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
         emit AccessControlsSet(_etsAccessControls);
     }
 
+    /// @dev Pre-minting, specify the tag strings that are premium or remove the premium flag where required
+    function setupPremiumTags(string[] calldata _tags, bool _enabled) public onlyAdmin {
+        require(_tags.length > 0, "Empty array");
+        for(uint256 i; i < _tags.length; ++i) {
+            string memory tag = __lower(_tags[i]);
+            isTagPremium[tag] = _enabled;
+            emit PremiumTagSet(tag, _enabled);
+        }
+    }
+
+    /// @dev For minted tags, allow set/unset of the premium flag
+    function setPremiumFlag(
+        uint256[] calldata _tokenIds,
+        bool _isPremium
+    ) public onlyAdmin {
+        require(_tokenIds.length > 0, "Empty array");
+        for(uint256 i; i < _tokenIds.length; ++i) {
+            uint256 tokenId = _tokenIds[i];
+            require(ownerOf(tokenId) == platform, "Not owned by platform");
+            tokenIdToTag[tokenId].premium = _isPremium;
+            emit PremiumFlagSet(tokenId, _isPremium);
+        }
+    }
+
+    /// @dev For minted tags, allow the tags to be released or un-do the release to prevent an auction take place
+    function setReservedFlag(uint256[] calldata _tokenIds, bool _reserved) public onlyAdmin {
+        require(_tokenIds.length > 0, "Empty array");
+        for(uint256 i; i < _tokenIds.length; ++i) {
+            uint256 tokenId = _tokenIds[i];
+            require(ownerOf(tokenId) == platform, "Token not owned by platform");
+            tokenIdToTag[tokenId].reserved = _reserved;
+            emit ReservedFlagSet(tokenId, _reserved);
+        }
+    }
+
     // ============ PUBLIC INTERFACE ============
 
     function createTag(
         string calldata _tag,
         address payable _publisher
-    ) external payable returns (uint256 _tokenId) {
+    ) external payable returns (uint256 _tokenId) { // todo - add nonReentrant due to safeMint
         require(etsAccessControls.isPublisher(_publisher), "ETS: Not a publisher");
 
         // Perform basic tag string validation.
         uint256 tagId = _assertTagIsValid(_tag);
 
         // mint the token, transferring it to the platform.
-        _safeMint(platform, tagId);//todo - need to add a re-entrancy guard if we are going to use safe mint
+        _safeMint(platform, tagId);
 
         // Store CTAG data in state.
         tokenIdToTag[tagId] = Tag({
             displayVersion: _tag,
-            // TODO - need to sense check this. I don't believe machine name needs to be stored because it can always be computed from displayVersion field
-            // machineName: machineName,
             originalPublisher: _publisher,
-            creator: _msgSender()
+            creator: _msgSender(),
+            premium: isTagPremium[__lower(_tag)],
+            reserved: isTagPremium[__lower(_tag)]
         });
 
-        // todo - I believe this event can be removed. The internal mint method already emits an event and you can get everything from the token ID
-        // emit TagMinted(tagId, _tag, _publisher, _msgSender());
         return tagId;
     }
 
@@ -165,7 +200,7 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
     function recycleTag(uint256 _tokenId) public {
         require(_exists(_tokenId), "ETS: CTAG not found");
         require(ownerOf(_tokenId) != platform, "ETS: CTAG owned by platform");
-   
+
         uint256 lastRenewed = getLastRenewed(_tokenId);
         require(
             lastRenewed.add(getOwnershipTermLength()) < block.timestamp,
