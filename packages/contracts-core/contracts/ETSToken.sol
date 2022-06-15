@@ -331,8 +331,8 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
         return tagId;
     }
 
-   function _setLastRenewed(uint256 _tokenId, uint256 _timestamp) internal {
+    function _setLastRenewed(uint256 _tokenId, uint256 _timestamp) internal {
         tokenIdToLastRenewed[_tokenId] = _timestamp;
         emit TagRenewed(_tokenId, msg.sender);
-   }
+    }
 }
