@@ -30,8 +30,11 @@ interface IETSToken is IERC721Upgradeable {
     event TagRenewed(uint256 indexed tokenId, address indexed caller);
 
     event TagRecycled(uint256 indexed tokenId, address indexed caller);
-    event PremiumTagSet(string tag, bool isPremium);
+
+    event PremiumTagPreSet(string tag, bool isPremium);
+
     event PremiumFlagSet(uint256 tagId, bool isPremium);
+
     event ReservedFlagSet(uint256 tagId, bool isReleased);
 
 

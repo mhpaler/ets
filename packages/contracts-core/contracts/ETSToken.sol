@@ -119,17 +119,17 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
         emit AccessControlsSet(_etsAccessControls);
     }
 
-    /// @dev Pre-minting, specify the tag strings that are premium or remove the premium flag where required
-    function setupPremiumTags(string[] calldata _tags, bool _enabled) public onlyAdmin {
+    /// @dev Pre-minting, flag / unflag tag strings as premium tags.
+    function preSetPremiumTags(string[] calldata _tags, bool _enabled) public onlyAdmin {
         require(_tags.length > 0, "Empty array");
         for(uint256 i; i < _tags.length; ++i) {
             string memory tag = __lower(_tags[i]);
             isTagPremium[tag] = _enabled;
-            emit PremiumTagSet(tag, _enabled);
+            emit PremiumTagPreSet(tag, _enabled);
         }
     }
 
-    /// @dev For minted tags, allow set/unset of the premium flag
+    /// @dev set/unset premium flag on tags owned by platform.
     function setPremiumFlag(
         uint256[] calldata _tokenIds,
         bool _isPremium
@@ -144,8 +144,7 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
     }
 
     /// @dev Add or remove reserved flag from one or more tags.
-    /// Reserved set to true prevents bidding at ETSAuctionHouse.
-    /// @see ETSAuctionHouse.createBid()
+    /// Reserved flag prevents bidding on token at ETSAuctionHouse.
     function setReservedFlag(uint256[] calldata _tokenIds, bool _reserved) public onlyAdmin {
         require(_tokenIds.length > 0, "Empty array");
         for(uint256 i; i < _tokenIds.length; ++i) {
@@ -190,13 +189,11 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
         } else {
             _setLastRenewed(_tokenId, block.timestamp);
         }
-
-        emit TagRenewed(_tokenId, msg.sender);
     }
 
     /**
      * @dev allows anyone or thing to recycle a CTAG back to platform if
-       ownership term is expired.
+     * ownership term is expired.
      */
     function recycleTag(uint256 _tokenId) public {
         require(_exists(_tokenId), "ETS: CTAG not found");
@@ -291,7 +288,11 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
 
         if (to != address(0)) {
             // Reset token ownership term.
-            renewTag(tokenId);
+            if (to == platform) {
+                _setLastRenewed(tokenId, 0);
+            } else {
+                _setLastRenewed(tokenId, block.timestamp);
+            }
             // Grant / revoke publisher role.
             etsAccessControls.assessOwners(from, to);
         }
@@ -331,6 +332,7 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
     }
 
    function _setLastRenewed(uint256 _tokenId, uint256 _timestamp) internal {
-       tokenIdToLastRenewed[_tokenId] = _timestamp;
+        tokenIdToLastRenewed[_tokenId] = _timestamp;
+        emit TagRenewed(_tokenId, msg.sender);
    }
 }

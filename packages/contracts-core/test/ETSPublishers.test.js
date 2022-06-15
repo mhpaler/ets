@@ -36,10 +36,12 @@ const { BigNumber, constants } = ethers;
 
         // Note: ETSToken is granted PUBLISHER_ADMIN by default in setup.js
         // so revoking will make transfer revert. 
-        await contracts.ETSAccessControls.connect(accounts.ETSPlatform).revokeRole(
-          ethers.utils.id("PUBLISHER_ADMIN"),
-          contracts.ETSToken.address
-        );
+        await contracts.ETSAccessControls
+          .connect(accounts.ETSPlatform)
+          .revokeRole(
+            ethers.utils.id("PUBLISHER_ADMIN"),
+            contracts.ETSToken.address
+          );
 
         const tx = contracts.ETSToken.connect(accounts.ETSPlatform)
           .transferFrom(
@@ -55,7 +57,8 @@ const { BigNumber, constants } = ethers;
         await contracts.ETSAccessControls.connect(accounts.ETSPlatform)
           .setPublisherDefaultThreshold(1);
 
-        const tx = contracts.ETSToken.connect(accounts.ETSPlatform)
+        const tx = contracts.ETSToken
+          .connect(accounts.ETSPlatform)
           .transferFrom(
             accounts.ETSPlatform.address,
             accounts.RandomTwo.address,
@@ -71,113 +74,128 @@ const { BigNumber, constants } = ethers;
       });
     });
    
-     describe("With publisherDefaultThreshold set to 2", async function () {
-       describe("Purchasing one tag", async () => {
-         beforeEach("Setup test", async function () {
-           // transfer token to owner to simulate a purchase.
-           await contracts.ETSToken
-           .connect(accounts.ETSPlatform)
-             .transferFrom(
-               accounts.ETSPlatform.address,
-               accounts.RandomTwo.address,
-               tag1Id
-             );
-         });
-         it("does not grant new owner publisher role", async function () {
-           expect(await contracts.ETSAccessControls.isPublisher(accounts.RandomTwo.address)).to.be.equal(false);
-         });
-       });
- 
-       describe("Purchasing two tags", async () => {
-         beforeEach("Setup test", async function () {
-           // transfer token to owner to simulate a purchase.
-           await contracts.ETSToken
-           .connect(accounts.ETSPlatform)
-             .transferFrom(
-               accounts.ETSPlatform.address,
-               accounts.RandomTwo.address,
-               tag1Id
-             );
- 
-           await contracts.ETSToken
-           .connect(accounts.ETSPlatform)
-             .transferFrom(
-               accounts.ETSPlatform.address,
-               accounts.RandomTwo.address,
-               tag2Id
-             );
-         });
-         
-         it("should grant owner publisher role", async function () {
-           expect(await contracts.ETSAccessControls.isPublisher(accounts.RandomTwo.address)).to.be.equal(true);
-         });
-       });
-
-       describe("Purchasing two tags and selling one", async () => {
+    describe("With publisherDefaultThreshold set to 2", async function () {
+      describe("Purchasing one tag", async () => {
         beforeEach("Setup test", async function () {
           // transfer token to owner to simulate a purchase.
           await contracts.ETSToken
-          .connect(accounts.ETSPlatform)
+            .connect(accounts.ETSPlatform)
             .transferFrom(
               accounts.ETSPlatform.address,
               accounts.RandomTwo.address,
               tag1Id
             );
-
+        });
+        it("should not grant new owner publisher role", async function () {
+          expect(
+            await contracts.ETSAccessControls.isPublisher(accounts.RandomTwo.address)
+          ).to.be.equal(false);
+        });
+      });
+ 
+      describe("Purchasing two tags", async () => {
+        beforeEach("Setup test", async function () {
+          // transfer token to owner to simulate a purchase.
           await contracts.ETSToken
-          .connect(accounts.ETSPlatform)
+            .connect(accounts.ETSPlatform)
             .transferFrom(
               accounts.ETSPlatform.address,
               accounts.RandomTwo.address,
-              tag2Id
+              tag1Id
             );
+ 
+          await contracts.ETSToken
+            .connect(accounts.ETSPlatform)
+              .transferFrom(
+                accounts.ETSPlatform.address,
+                accounts.RandomTwo.address,
+                tag2Id
+              );
+        });
+        
+        it("should grant owner publisher role", async function () {
+          expect(
+            await contracts.ETSAccessControls.isPublisher(accounts.RandomTwo.address)
+          ).to.be.equal(true);
+        });
+      });
+
+      describe("Purchasing two tags and selling one", async () => {
+        beforeEach("Setup test", async function () {
+          // transfer token to owner to simulate a purchase.
+          await contracts.ETSToken
+            .connect(accounts.ETSPlatform)
+              .transferFrom(
+                accounts.ETSPlatform.address,
+                accounts.RandomTwo.address,
+                tag1Id
+              );
+
+          await contracts.ETSToken
+            .connect(accounts.ETSPlatform)
+              .transferFrom(
+                accounts.ETSPlatform.address,
+                accounts.RandomTwo.address,
+                tag2Id
+              );
         });
 
         it("should revoke publisher role", async function () {
 
-          const threshold = await contracts.ETSAccessControls.getPublisherThreshold(accounts.RandomTwo.address);
-          console.log("threshold", threshold.toString());
-
-          expect(await contracts.ETSAccessControls.isPublisher(accounts.RandomTwo.address)).to.be.equal(true);
-          await contracts.ETSToken
-          .connect(accounts.RandomTwo)
+          let publisher_role = await contracts.ETSAccessControls.isPublisher(accounts.RandomTwo.address);
+          expect(publisher_role).to.be.equal(true);
+          
+          await contracts.ETSToken.connect(accounts.RandomTwo)
             .transferFrom(
               accounts.RandomTwo.address,
               accounts.RandomOne.address,
               tag2Id
             );
-          expect(await contracts.ETSAccessControls.isPublisher(accounts.RandomTwo.address)).to.be.equal(false);
+          
+          publisher_role = await contracts.ETSAccessControls.isPublisher(accounts.RandomTwo.address);
+          expect(publisher_role).to.be.equal(false);
         });
       });
+    });
 
-//      describe("Acquiring tag from address other than platform", async () => {
-//        beforeEach("Setup test", async function () {
-//                  // Set publisherDefaultThreshold to 1 tag.
-//          await contracts.ETSAccessControls.connect(accounts.ETSPlatform)
-//          .setPublisherDefaultThreshold(1);
-//          // transfer token to owner to simulate a purchase.
-//          await contracts.ETSToken
-//          .connect(accounts.ETSPlatform)
-//            .transferFrom(
-//              accounts.ETSPlatform.address,
-//              accounts.RandomTwo.address,
-//              tag1Id
-//            );
-//        });
-//
-//        it("does not grant publisher role", async function () {
-//          expect(await contracts.ETSAccessControls.isPublisher(accounts.RandomTwo.address)).to.be.equal(true);
-//          await contracts.ETSToken
-//          .connect(accounts.RandomTwo)
-//            .transferFrom(
-//              accounts.RandomTwo.address,
-//              accounts.RandomOne.address,
-//              tag2Id
-//            );
-//          expect(await contracts.ETSAccessControls.isPublisher(accounts.RandomTwo.address)).to.be.equal(false);
-//          expect(await contracts.ETSAccessControls.isPublisher(accounts.RandomOne.address)).to.be.equal(false);
-//        });
-//      });
-      
-     });
+
+    describe("With publisherDefaultThreshold set to 1", async function () {
+      describe("Receiving tag from address other than platform", async () => {
+        beforeEach("Setup test", async function () {
+                  // Set publisherDefaultThreshold to 1 tag.
+          await contracts.ETSAccessControls.connect(accounts.ETSPlatform)
+          .setPublisherDefaultThreshold(1);
+          // transfer token to owner to simulate a purchase.
+          await contracts.ETSToken.connect(accounts.ETSPlatform)
+            .transferFrom(
+              accounts.ETSPlatform.address,
+              accounts.RandomTwo.address,
+              tag1Id
+            );
+        });
+
+        it("does not grant publisher role to recipient", async function () {
+          expect(
+            await contracts.ETSAccessControls.isPublisher(accounts.RandomTwo.address)
+          ).to.be.equal(true);
+          
+          await contracts.ETSToken
+            .connect(accounts.RandomTwo)
+              .transferFrom(
+                accounts.RandomTwo.address,
+                accounts.RandomOne.address,
+                tag1Id
+              );
+
+          // Sender looses publisher role. But recipient doesn't gain role.
+          expect(
+            await contracts.ETSAccessControls.isPublisher(accounts.RandomTwo.address)
+          ).to.be.equal(false);
+
+          expect(
+            await contracts.ETSAccessControls.isPublisher(accounts.RandomOne.address)
+          ).to.be.equal(false);
+        });
+      });
+    });
  });

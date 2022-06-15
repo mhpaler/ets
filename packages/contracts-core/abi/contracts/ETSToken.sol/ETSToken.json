@@ -181,7 +181,7 @@
         "type": "bool"
       }
     ],
-    "name": "PremiumTagSet",
+    "name": "PremiumTagPreSet",
     "type": "event"
   },
   {
@@ -761,6 +761,24 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "string[]",
+        "name": "_tags",
+        "type": "string[]"
+      },
+      {
+        "internalType": "bool",
+        "name": "_enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "preSetPremiumTags",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "proxiableUUID",
     "outputs": [
@@ -952,24 +970,6 @@
       }
     ],
     "name": "setTagMaxStringLength",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string[]",
-        "name": "_tags",
-        "type": "string[]"
-      },
-      {
-        "internalType": "bool",
-        "name": "_enabled",
-        "type": "bool"
-      }
-    ],
-    "name": "setupPremiumTags",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

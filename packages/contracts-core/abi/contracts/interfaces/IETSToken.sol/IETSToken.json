@@ -123,7 +123,7 @@
         "type": "bool"
       }
     ],
-    "name": "PremiumTagSet",
+    "name": "PremiumTagPreSet",
     "type": "event"
   },
   {

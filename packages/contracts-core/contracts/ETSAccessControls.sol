@@ -29,7 +29,7 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     bytes32 public constant SMART_CONTRACT_ROLE = keccak256("SMART_CONTRACT");
 
 
-    /// @dev number of owned tags required to acquire/maintain publisher role.
+    /// @dev number of owned tags needed to acquire/maintain publisher role.
     uint256 public publisherDefaultThreshold; 
 
     /// @dev Mapping of publisher address to grandfathered publisherThreshold.
@@ -74,16 +74,25 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     ///@dev Grant or revoke publisher role for CTAG Token owners.
     function assessOwners(address _from, address _to) public {
 
-        uint256 threshold = getPublisherThreshold(_addr);
+        // Grant recipient publisher role when receiving
+        // from platform and balance meets threshold.
+        if (_from == etsToken.getPlatformAddress()) {
+            uint256 threshold = getPublisherThreshold(_to);
 
-        if (etsToken.balanceOf(_addr) >= threshold && !hasRole(PUBLISHER_ROLE, _addr)) {
-            grantRole(PUBLISHER_ROLE, _addr);
-            publisherThresholds[_addr] = threshold;
-        }
+            if (etsToken.balanceOf(_to) >= threshold && !hasRole(PUBLISHER_ROLE, _to)) {
+                grantRole(PUBLISHER_ROLE, _to);
+                publisherThresholds[_to] = threshold;
+            }
+        } 
+        
+        // Revoke publisher role from sender if balance falls below threshold.
+        if (_from != etsToken.getPlatformAddress() && _from != address(0)) {
+            uint256 threshold = getPublisherThreshold(_from);
 
-        if (etsToken.balanceOf(_addr) < threshold && hasRole(PUBLISHER_ROLE, _addr)) {
-            revokeRole(PUBLISHER_ROLE, _addr);
-            delete publisherThresholds[_addr];
+            if (etsToken.balanceOf(_from) < threshold && hasRole(PUBLISHER_ROLE, _from)) {
+                revokeRole(PUBLISHER_ROLE, _from);
+                delete publisherThresholds[_from];
+            }
         }
     }
 
