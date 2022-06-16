@@ -61,7 +61,10 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
 
     function initialize(
         IETSAccessControls _etsAccessControls,
-        address payable _platform
+        address payable _platform,
+        uint256 _tagMinStringLength,
+        uint256 _tagMaxStringLength,
+        uint256 _ownershipTermLength
     ) public initializer {
         __ERC721_init("Ethereum Tag Service", "CTAG");
         __ERC721Pausable_init();
@@ -69,9 +72,9 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
 
         etsAccessControls = _etsAccessControls;
         platform = _platform;
-        tagMinStringLength = 2;
-        tagMaxStringLength = 32;
-        ownershipTermLength = 730 days;
+        tagMinStringLength = _tagMinStringLength;
+        tagMaxStringLength = _tagMaxStringLength;
+        ownershipTermLength = _ownershipTermLength;
 
     }
 
