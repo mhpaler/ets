@@ -16,13 +16,13 @@ const { BigNumber, constants } = ethers;
 
     // Mint a couple tags
     tag1 = "#Love";
-    await contracts.ETSToken.connect(accounts.RandomTwo).createTag(tag1, accounts.ETSPublisher.address);
+    await contracts.ETSToken.connect(accounts.RandomTwo).createTag(tag1, accounts.ETSPlatform.address);
     tag1Id = await contracts.ETSToken.computeTagId(tag1);
     tag1Id = tag1Id.toString();
 
     // Mint a tag and transfer away from platform.
     tag2 = "#Incredible";
-    await contracts.ETSToken.connect(accounts.RandomTwo).createTag(tag2, accounts.ETSPublisher.address);
+    await contracts.ETSToken.connect(accounts.RandomTwo).createTag(tag2, accounts.ETSPlatform.address);
     tag2Id = await contracts.ETSToken.computeTagId(tag2);
     tag2Id = tag2Id.toString();
  

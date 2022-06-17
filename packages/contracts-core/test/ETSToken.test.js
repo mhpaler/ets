@@ -68,15 +68,15 @@ describe("ETSToken Core Tests", function () {
       const RandomTwoTag = "asupersupersupersupersuperlongasstag";
 
       it("should revert if exists (case-insensitive)", async function () {
-        await contracts.ETSToken.connect(accounts.ETSPublisher).createTag(
+        await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(
           "#blockrocket",
-          accounts.ETSPublisher.address
+          accounts.ETSPlatform.address
         );
 
         await expect(
-          contracts.ETSToken.connect(accounts.ETSPublisher).createTag(
+          contracts.ETSToken.connect(accounts.ETSPlatform).createTag(
             "#BlockRocket",
-            accounts.ETSPublisher.address
+            accounts.ETSPlatform.address
           ),
         ).to.be.revertedWith("ERC721: token already minted");
       });
@@ -85,9 +85,9 @@ describe("ETSToken Core Tests", function () {
         const tagMinStringLength = await contracts.ETSToken.tagMinStringLength();
         const shortTag = "#" + RandomTwoTag.substring(0, tagMinStringLength - 2);
         await expect(
-          contracts.ETSToken.connect(accounts.ETSPublisher).createTag(
+          contracts.ETSToken.connect(accounts.ETSPlatform).createTag(
             shortTag,
-            accounts.ETSPublisher.address
+            accounts.ETSPlatform.address
           ),
         ).to.be.revertedWith(`Invalid format: tag does not meet min/max length requirements`);
       });
@@ -96,9 +96,9 @@ describe("ETSToken Core Tests", function () {
         const tagMaxStringLength = await contracts.ETSToken.tagMaxStringLength();
         const longTag = "#" + RandomTwoTag.substring(0, tagMaxStringLength);
         await expect(
-          contracts.ETSToken.connect(accounts.ETSPublisher).createTag(
+          contracts.ETSToken.connect(accounts.ETSPlatform).createTag(
             longTag,
-            accounts.ETSPublisher.address
+            accounts.ETSPlatform.address
           ),
         ).to.be.revertedWith(`Invalid format: tag does not meet min/max length requirements`);
       });
@@ -106,9 +106,9 @@ describe("ETSToken Core Tests", function () {
       it("should revert if tag has spaces", async function () {
         const invalidTag = "#x art";
         await expect(
-          contracts.ETSToken.connect(accounts.ETSPublisher).createTag(
+          contracts.ETSToken.connect(accounts.ETSPlatform).createTag(
             invalidTag,
-            accounts.ETSPublisher.address
+            accounts.ETSPlatform.address
           ),
         ).to.be.revertedWith("Space found: tag may not contain spaces");
       });
@@ -116,9 +116,9 @@ describe("ETSToken Core Tests", function () {
       it("should revert if does not start with #", async function () {
         const invalidTag = "ART";
         await expect(
-          contracts.ETSToken.connect(accounts.ETSPublisher).createTag(
+          contracts.ETSToken.connect(accounts.ETSPlatform).createTag(
             invalidTag,
-            accounts.ETSPublisher.address
+            accounts.ETSPlatform.address
           ),
         ).to.be.revertedWith("Tag must start with #");
       });
@@ -126,17 +126,17 @@ describe("ETSToken Core Tests", function () {
       it("should revert if tag prefix found after first char", async function () {
         const invalidTag = "#Hash#";
         await expect(
-          contracts.ETSToken.connect(accounts.ETSPublisher).createTag(
+          contracts.ETSToken.connect(accounts.ETSPlatform).createTag(
             invalidTag,
-            accounts.ETSPublisher.address
+            accounts.ETSPlatform.address
           ),
         ).to.be.revertedWith("Tag may not contain prefix");
       });
 
       it("should allow a mix of upper and lowercase characters", async function () {
-        await contracts.ETSToken.connect(accounts.ETSPublisher).createTag(
+        await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(
           "#Awesome123",
-          accounts.ETSPublisher.address
+          accounts.ETSPlatform.address
         );
       });
     });
@@ -146,7 +146,7 @@ describe("ETSToken Core Tests", function () {
       const lowerTag = "#blockrocket";
       await contracts.ETSToken.connect(accounts.RandomTwo).createTag(
         tag,
-        accounts.ETSPublisher.address
+        accounts.ETSPlatform.address
       );
 
       const tokenId = await contracts.ETSToken.computeTagId(tag);
@@ -156,20 +156,20 @@ describe("ETSToken Core Tests", function () {
       // expect(await contracts.ETSToken.tagExists(tokenId)).to.be.equal(true);
       expect(tagData.displayVersion.toLowerCase()).to.be.equal(lowerTag);
       expect(tagData.displayVersion).to.be.equal(tag);
-      expect(tagData.originalPublisher).to.be.equal(accounts.ETSPublisher.address);
+      expect(tagData.originalPublisher).to.be.equal(accounts.ETSPlatform.address);
       expect(tagData.creator).to.be.equal(accounts.RandomTwo.address);
     });
 
     it("should mint from platform", async function () {
       const tag = "#blockrocket";
       await contracts.ETSToken.connect(accounts.ETSPlatform);
-      await contracts.ETSToken.createTag(tag, accounts.ETSPublisher.address);
+      await contracts.ETSToken.createTag(tag, accounts.ETSPlatform.address);
 
       const tokenId = await contracts.ETSToken.computeTagId(tag);
       const tagData = await contracts.ETSToken.tokenIdToTag(tokenId.toString());
 
       expect(tagData.displayVersion.toLowerCase()).to.be.equal("#blockrocket");
-      expect(tagData.originalPublisher).to.be.equal(accounts.ETSPublisher.address);
+      expect(tagData.originalPublisher).to.be.equal(accounts.ETSPlatform.address);
     });
 
     it("should revert if the publisher is not whitelisted", async function () {
@@ -275,7 +275,7 @@ describe("ETSToken Core Tests", function () {
 
       it('Cannot set up if not admin', async function () {
         await expect(
-          contracts.ETSToken.connect(accounts.ETSPlatform).preSetPremiumTags(
+          contracts.ETSToken.connect(accounts.RandomTwo).preSetPremiumTags(
             premiumTags,
             true
           )
@@ -293,7 +293,7 @@ describe("ETSToken Core Tests", function () {
         const tagString = premiumTags[0]
         await contracts.ETSToken.connect(accounts.RandomTwo).createTag(
           tagString,
-          accounts.ETSPublisher.address
+          accounts.ETSPlatform.address
         )
 
         const tokenId = await contracts.ETSToken.computeTagId(tagString)
@@ -322,7 +322,7 @@ describe("ETSToken Core Tests", function () {
         const tagString = premiumTags[0]
         await contracts.ETSToken.connect(accounts.RandomTwo).createTag(
           tagString,
-          accounts.ETSPublisher.address
+          accounts.ETSPlatform.address
         )
 
         const tokenId = await contracts.ETSToken.computeTagId(tagString)

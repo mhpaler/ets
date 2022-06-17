@@ -10,7 +10,7 @@ const _TAG_TYPEHASH = keccak256(
 function getSignerPrivateKey(accountName) {
 
   const namedAccounts = {
-    "ETSPublisher": "m/44'/60'/0'/0/1",
+    "ETSPlatform": "m/44'/60'/0'/0/1",
     // Named account "Tagger" is account #7.
     "Tagger": "m/44'/60'/0'/0/7",
   };

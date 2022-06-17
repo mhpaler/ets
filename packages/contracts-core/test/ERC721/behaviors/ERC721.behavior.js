@@ -33,7 +33,7 @@ function shouldBehaveLikeERC721(
   creator,
 ) {
   shouldSupportInterfaces(["ERC165", "ERC721"]);
-
+  
   context("with minted tokens", function () {
     beforeEach(async function () {
       await this.token.createTag(tag1, publisher);

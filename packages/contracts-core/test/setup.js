@@ -1,12 +1,30 @@
 const { ethers, upgrades, artifacts } = require("hardhat");
-// const { expect, assert } = require("chai");
-// const { BigNumber, constants } = ethers;
+
+const initSettings = {
+  // Access controls
+  PUBLISHER_DEFAULT_THRESHOLD: 1,
+  // Token
+  TAG_MIN_STRING_LENGTH: 2,
+  TAG_MAX_STRING_LENGTH: 32,
+  OWNERSHIP_TERM_LENGTH: 730,
+  // Auction
+  TIME_BUFFER: 600, // 600 secs / 10 minutes
+  RESERVE_PRICE: 200, // 200 WEI
+  MIN_INCREMENT_BID_PERCENTAGE: 5,
+  DURATION: 30 * 60, // 30 minutes
+  PUBLISHER_PERCENTAGE: 20,
+  CREATOR_PERCENTAGE: 40,
+  PLATFORM_PERCENTAGE: 40
+};
 
 async function getArtifacts() {
   const justTheFacts = {
-      ETSAccessControlsUpgrade: artifacts.readArtifactSync("ETSAccessControlsUpgrade"),
-      ETSTokenUpgrade: artifacts.readArtifactSync("ETSTokenUpgrade"),
-      ETSAuctionHouseUpgrade: artifacts.readArtifactSync("ETSAuctionHouseUpgrade"),
+    ETSAccessControls: artifacts.readArtifactSync("ETSAccessControls"),
+    ETSToken: artifacts.readArtifactSync("ETSToken"),
+    ETSAuctionHouse: artifacts.readArtifactSync("ETSAuctionHouse"),
+    ETSAccessControlsUpgrade: artifacts.readArtifactSync("ETSAccessControlsUpgrade"),
+    ETSTokenUpgrade: artifacts.readArtifactSync("ETSTokenUpgrade"),
+    ETSAuctionHouseUpgrade: artifacts.readArtifactSync("ETSAuctionHouseUpgrade"),
   };
   return justTheFacts;
 }
@@ -24,6 +42,10 @@ async function getFactories() {
   return allFactories;
 }
 
+function getInitSettings() {
+  return initSettings;
+}
+
 async function setup() {
 
   const factories = {
@@ -33,22 +55,22 @@ async function setup() {
     ETSToken: await ethers.getContractFactory("ETSToken"),
   };
 
-  const initSettings = {
-    // Access controls
-    PUBLISHER_DEFAULT_THRESHOLD: 1,
-    // Token
-    TAG_MIN_STRING_LENGTH: 2,
-    TAG_MAX_STRING_LENGTH: 32,
-    OWNERSHIP_TERM_LENGTH: 730,
-    // Auction
-    TIME_BUFFER: 600, // 600 secs / 10 minutes
-    RESERVE_PRICE: 200, // 200 WEI
-    MIN_INCREMENT_BID_PERCENTAGE: 5,
-    DURATION: 30 * 60, // 30 minutes
-    PUBLISHER_PERCENTAGE: 20,
-    CREATOR_PERCENTAGE: 40,
-    PLATFORM_PERCENTAGE: 40
-  };
+  //const initSettings = {
+  //  // Access controls
+  //  PUBLISHER_DEFAULT_THRESHOLD: 1,
+  //  // Token
+  //  TAG_MIN_STRING_LENGTH: 2,
+  //  TAG_MAX_STRING_LENGTH: 32,
+  //  OWNERSHIP_TERM_LENGTH: 730,
+  //  // Auction
+  //  TIME_BUFFER: 600, // 600 secs / 10 minutes
+  //  RESERVE_PRICE: 200, // 200 WEI
+  //  MIN_INCREMENT_BID_PERCENTAGE: 5,
+  //  DURATION: 30 * 60, // 30 minutes
+  //  PUBLISHER_PERCENTAGE: 20,
+  //  CREATOR_PERCENTAGE: 40,
+  //  PLATFORM_PERCENTAGE: 40
+  //};
 
   // ============ SETUP TEST ACCOUNTS ============
 
@@ -56,7 +78,6 @@ async function setup() {
   const unnamedAccounts = await ethers.getUnnamedSigners();
   const accounts = {
     ETSAdmin: namedAccounts["ETSAdmin"],
-    ETSPublisher: namedAccounts["ETSPublisher"],
     ETSPlatform: namedAccounts["ETSPlatform"],
     Buyer: unnamedAccounts[0],
     RandomOne: unnamedAccounts[1],
@@ -135,7 +156,7 @@ async function setup() {
   // Consider only using platform address as ETS publisher.
 //  await ETSAccessControls.grantRole(
 //    ethers.utils.id("PUBLISHER"),
-//    accounts.ETSPublisher.address
+//    accounts.ETSPlatform.address
 //  );
 
   // Set PUBLISHER role admin.
@@ -166,6 +187,7 @@ async function setup() {
 }
 
 module.exports = {
+  getInitSettings,
   getArtifacts,
   getFactories,
   setup

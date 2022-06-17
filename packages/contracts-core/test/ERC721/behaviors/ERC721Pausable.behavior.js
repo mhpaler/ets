@@ -25,14 +25,14 @@ function shouldBehaveLikeERC721Pausable(
     it("reverts when trying to transferFrom", async function () {
       await expectRevert(
         this.token.transferFrom(owner, newOwner, firstTokenId, { from: owner }),
-        "ERC721Pausable: token transfer while paused",
+        "Pausable: paused",
       );
     });
 
     it("reverts when trying to safeTransferFrom", async function () {
       await expectRevert(
         this.token.safeTransferFrom(owner, newOwner, firstTokenId, { from: owner }),
-        "ERC721Pausable: token transfer while paused",
+        "Pausable: paused",
       );
     });
 
@@ -41,25 +41,25 @@ function shouldBehaveLikeERC721Pausable(
         this.token.methods["safeTransferFrom(address,address,uint256,bytes)"](owner, newOwner, firstTokenId, mockData, {
           from: owner,
         }),
-        "ERC721Pausable: token transfer while paused",
+        "Pausable: paused",
       );
     });
 
     it("reverts when trying to mint", async function () {
       await expectRevert(
         this.token.createTag("#trustless", publisher),
-        "ERC721Pausable: token transfer while paused",
+        "Pausable: paused",
       );
     });
 
     it("reverts when trying to burn", async function () {
-      await expectRevert(this.token.burn(firstTokenId), "ERC721Pausable: token transfer while paused");
+      await expectRevert(this.token.burn(firstTokenId), "Pausable: paused");
     });
 
     it("transfers after unpause", async function () {
       await expectRevert(
         this.token.safeTransferFrom(owner, newOwner, firstTokenId, { from: owner }),
-        "ERC721Pausable: token transfer while paused",
+        "Pausable: paused",
       );
       await this.token.unPause();
       await this.token.safeTransferFrom(owner, newOwner, firstTokenId, { from: owner }),
@@ -89,7 +89,7 @@ function shouldBehaveLikeERC721Pausable(
 
     describe("exists", function () {
       it("returns token existence", async function () {
-        expect(await this.token.tagExists(firstTokenId)).to.equal(true);
+        expect(await this.token.tokenIdExists(firstTokenId)).to.equal(true);
       });
     });
 

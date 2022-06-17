@@ -17,8 +17,8 @@ describe("ETSAccessControls Tests", function () {
       expect(await contracts.ETSAccessControls.isAdmin(accounts.ETSPlatform.address)).to.be.equal(true);
     });
 
-    it("grants ETSPublisher the PUBLISHER role", async function () {
-      expect(await contracts.ETSAccessControls.isPublisher(accounts.ETSPublisher.address)).to.be.equal(true);
+    it("grants ETSPlatform the PUBLISHER role", async function () {
+      expect(await contracts.ETSAccessControls.isPublisher(accounts.ETSPlatform.address)).to.be.equal(true);
     });
 
     it("grants ETSPlatform the PUBLISHER role", async function () {
