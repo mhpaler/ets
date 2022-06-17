@@ -16,43 +16,25 @@
       "ETSAccessControls": {
         "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
         "implementation": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-        "deploymentBlock": 9,
+        "deploymentBlock": "0x10",
         "upgradeBlock": null
       },
-      "ETSTag": {
+      "ETSToken": {
         "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
         "implementation": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-        "deploymentBlock": 12,
+        "deploymentBlock": "0x11",
         "upgradeBlock": null
       },
-      "ETS": {
-        "address": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
-        "implementation": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
-        "deploymentBlock": 13,
+      "ETSAuctionHouse": {
+        "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+        "implementation": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+        "deploymentBlock": "0x13",
         "upgradeBlock": null
       },
-      "ETSEnsure": {
-        "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
-        "implementation": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
-        "deploymentBlock": "0xa",
-        "upgradeBlock": null
-      },
-      "MockNftTagger": {
-        "address": "0x31130D3Ad9e408D502a799495e7D24073743b5D2",
-        "implementation": "0x5860f0C0F5cf2408B1bA0dCaE03bADf0d9D9957f",
-        "deploymentBlock": "0xb",
-        "upgradeBlock": null
-      },
-      "EVMNFT": {
-        "address": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
-        "implementation": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
-        "deploymentBlock": "0xb",
-        "upgradeBlock": null
-      },
-      "EVMNFTMock": {
-        "address": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
-        "implementation": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
-        "deploymentBlock": "0xb9",
+      "WETH": {
+        "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+        "implementation": null,
+        "deploymentBlock": "0x19",
         "upgradeBlock": null
       }
     }

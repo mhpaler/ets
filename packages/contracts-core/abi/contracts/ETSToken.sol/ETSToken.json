@@ -632,6 +632,21 @@
         "internalType": "address payable",
         "name": "_platform",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_tagMinStringLength",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_tagMaxStringLength",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_ownershipTermLength",
+        "type": "uint256"
       }
     ],
     "name": "initialize",

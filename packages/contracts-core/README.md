@@ -1,17 +1,17 @@
 # Contracts
 
-Contracts are located in `packages/contracts`.
+Contracts are located in `packages/contracts-core`.
 
-We use [Hardhat](https://hardhat.org/) as our Solidity smart contract development environment. Before using Hardhat, make a copy of `.env.example` in the project root named `.env`. The default settings in there should be enough to get you going. Next, start up Hardhat:
+We use [Hardhat](https://hardhat.org/) as our Solidity smart contract development environment. Before using Hardhat, make a copy of `.env.example` in the project root named `.env`. The default settings in there should be enough to get you going. Next, starting in the `contracts-core` directory, start up Hardhat:
 
 ```bash
-npm hardhat
+pnpm hardhat
 ```
 
-Running `npm hardhat` spins up a Hardhat network instance that you can connect to using MetaMask. In a different terminal in the same directory, run:
+Running `pnpm hardhat` spins up a Hardhat network instance that you can connect to using MetaMask. In a different terminal in the same directory, run:
 
 ```bash
-npm hardhat:deploy
+pnpm deploy
 ```
 
 This will deploy the contracts to the Hardhat network.
@@ -19,7 +19,7 @@ This will deploy the contracts to the Hardhat network.
 Or, if you would like to deploy and then watch the [contracts](#contracts) for changes and auto-deploy them to the local Hardhat network, you can just run:
 
 ```bash
-npm hardhat:watch
+pnpm watch
 ```
 
 Deployment and watching scripts are located in `packages/contracts/scripts` and `packages/contracts/deploy`.
@@ -50,7 +50,7 @@ Remember to use quotes around `workspace name` if it has spaces.
 To run tests:
 
 ```bash
-npm hardhat:test
+pnpm hardhat-test
 ```
 
 ### Deployments
@@ -58,11 +58,5 @@ npm hardhat:test
 To deploy contracts to Polygon Mumbai, run:
 
 ```bash
-npm hardhat:deploy-mumbai
-```
-
-To deploy the subgraph:
-
-```bash
-npm graph:ship-mumbai
+pnpm deploy-mumbai
 ```
