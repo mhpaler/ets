@@ -36,8 +36,10 @@ function shouldBehaveLikeERC721(
 
   context("with minted tokens", function () {
     beforeEach(async function () {
-      await this.token.createTag(tag1, publisher);
-      await this.token.createTag(tag2, publisher);
+      await this.token.methods["createTag(string)"](tag1);
+      await this.token.methods["createTag(string)"](tag2);
+      //await this.token.createTag(tag1);
+      //await this.token.createTag(tag2);
       this.toWhom = other; // default to other for toWhom in context-dependent tests
     });
 
@@ -586,7 +588,7 @@ function shouldBehaveLikeERC721(
 
     context("with minted token", async function () {
       beforeEach(async function () {
-        receipt = await this.token.createTag(tag1, publisher);
+        receipt = await this.token.methods["createTag(string)"](tag1);
       });
 
       it("emits a Transfer event", function () {
@@ -599,7 +601,7 @@ function shouldBehaveLikeERC721(
       });
 
       it("reverts when adding a token id that already exists", async function () {
-        await expectRevert(this.token.createTag(tag1, publisher), "ERC721: token already minted");
+        await expectRevert(this.token.methods["createTag(string)"](tag1), "ERC721: token already minted");
       });
     });
   });
@@ -611,8 +613,8 @@ function shouldBehaveLikeERC721(
 
     context("with minted tokens", function () {
       beforeEach(async function () {
-        await this.token.createTag(tag1, publisher);
-        await this.token.createTag(tag2, publisher);
+        await this.token.methods["createTag(string)"](tag1);
+        await this.token.methods["createTag(string)"](tag2);
       });
 
       context("with burnt token", function () {
@@ -800,11 +802,11 @@ function shouldBehaveLikeERC721Metadata(errorPrefix, name, symbol, owner, publis
 
     describe("token URI", function () {
       beforeEach(async function () {
-        await this.token.createTag(tag1, publisher);
+        await this.token.methods["createTag(string)"](tag1);
       });
 
       it("return empty string by default", async function () {
-        expect(await this.token.tokenURI(firstTokenId)).to.be.equal('');
+        expect(await this.token.tokenURI(firstTokenId)).to.be.equal("");
       });
 
       it("reverts when queried for non existent token id", async function () {

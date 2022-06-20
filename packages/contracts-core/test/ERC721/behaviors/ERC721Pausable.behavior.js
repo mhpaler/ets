@@ -1,8 +1,9 @@
-const { BN, constants, expectRevert } = require("@openzeppelin/test-helpers");
+const { constants, expectRevert } = require("@openzeppelin/test-helpers");
 const { expect } = require("chai");
 const { ZERO_ADDRESS } = constants;
 
-const firstTokenId = "26056379909737856550015515958401490153572348305968831462962556214796192847542";
+const tag = "#tokenize";
+const firstTokenId = "15318105376098803643693821590273941289334768905701457798908674577654908912688";
 const mockData = "0x42";
 
 function shouldBehaveLikeERC721Pausable(
@@ -18,21 +19,18 @@ function shouldBehaveLikeERC721Pausable(
 ) {
   context("when token is paused", function () {
     beforeEach(async function () {
-      await this.token.createTag("#TokenizeEverything", publisher);
+      await this.token.methods["createTag(string)"](tag);
       await this.token.pause();
     });
 
     it("reverts when trying to transferFrom", async function () {
-      await expectRevert(
-        this.token.transferFrom(owner, newOwner, firstTokenId, { from: owner }),
-        "ERC721Pausable: token transfer while paused",
-      );
+      await expectRevert(this.token.transferFrom(owner, newOwner, firstTokenId, { from: owner }), "Pausable: paused");
     });
 
     it("reverts when trying to safeTransferFrom", async function () {
       await expectRevert(
         this.token.safeTransferFrom(owner, newOwner, firstTokenId, { from: owner }),
-        "ERC721Pausable: token transfer while paused",
+        "Pausable: paused",
       );
     });
 
@@ -41,25 +39,22 @@ function shouldBehaveLikeERC721Pausable(
         this.token.methods["safeTransferFrom(address,address,uint256,bytes)"](owner, newOwner, firstTokenId, mockData, {
           from: owner,
         }),
-        "ERC721Pausable: token transfer while paused",
+        "Pausable: paused",
       );
     });
 
     it("reverts when trying to mint", async function () {
-      await expectRevert(
-        this.token.createTag("#trustless", publisher),
-        "ERC721Pausable: token transfer while paused",
-      );
+      await expectRevert(this.token.methods["createTag(string)"]("#trustless"), "Pausable: paused");
     });
 
     it("reverts when trying to burn", async function () {
-      await expectRevert(this.token.burn(firstTokenId), "ERC721Pausable: token transfer while paused");
+      await expectRevert(this.token.burn(firstTokenId), "Pausable: paused");
     });
 
     it("transfers after unpause", async function () {
       await expectRevert(
         this.token.safeTransferFrom(owner, newOwner, firstTokenId, { from: owner }),
-        "ERC721Pausable: token transfer while paused",
+        "Pausable: paused",
       );
       await this.token.unPause();
       await this.token.safeTransferFrom(owner, newOwner, firstTokenId, { from: owner }),
@@ -89,7 +84,7 @@ function shouldBehaveLikeERC721Pausable(
 
     describe("exists", function () {
       it("returns token existence", async function () {
-        expect(await this.token.tagExists(firstTokenId)).to.equal(true);
+        expect(await this.token.methods["tagExists(uint256)"](firstTokenId)).to.equal(true);
       });
     });
 

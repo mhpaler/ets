@@ -1,18 +1,16 @@
-const { ethers, upgrades } = require("hardhat");
+const { upgrades } = require("hardhat");
+const { setup } = require("./setup.js");
 const { verify } = require("./utils/verify.js");
 const { saveNetworkConfig, readNetworkConfig } = require("./utils/config.js");
-// const { networkConfig } = require('./../helper-hardhat-config');
 
 module.exports = async ({
   getChainId,
-  getNamedAccounts,
   deployments
 }) => {
     const { save, log } = deployments;
-    const {ETSPlatform} = await getNamedAccounts();
+    [accounts, factories, initSettings] = await setup();
     const networkConfig = readNetworkConfig();
     const chainId = await getChainId();
-    const ETSTag = await ethers.getContractFactory("ETSTag");
     let etsAccessControlsAddress;
 
     if (chainId == 31337) {
@@ -22,35 +20,41 @@ module.exports = async ({
       etsAccessControlsAddress = networkConfig[chainId].contracts['ETSAccessControls'].address;
     }
 
-    // Deploy ETSTag
+    // Deploy ETSToken
     const deployment = await upgrades.deployProxy(
-      ETSTag,
-      [etsAccessControlsAddress, ETSPlatform],
+      factories.ETSToken,
+      [
+        etsAccessControlsAddress,
+        accounts.ETSPlatform.address,
+        initSettings.TAG_MIN_STRING_LENGTH,
+        initSettings.TAG_MAX_STRING_LENGTH,
+        initSettings.OWNERSHIP_TERM_LENGTH
+      ],
       { kind: "uups" },
     );
     await deployment.deployed();
     const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
 
-    if (!(process.env.DISABLE_ETSTag_VERIFICATION === 'true')) {
+    if (!(process.env.DISABLE_ETSToken_VERIFICATION === 'true')) {
       // Verify & Update network configuration file.
-      await verify("ETSTag", deployment, implementation, []);
+      await verify("ETSToken", deployment, implementation, []);
     }
 
-    await saveNetworkConfig("ETSTag", deployment, implementation, false);
+    await saveNetworkConfig("ETSToken", deployment, implementation, false);
 
     // Add to deployments.
-    let artifact = await deployments.getExtendedArtifact('ETSTag');
+    let artifact = await deployments.getExtendedArtifact('ETSToken');
     let proxyDeployments = {
       address: deployment.address,
       ...artifact
     }
-    await save('ETSTag', proxyDeployments);
+    await save('ETSToken', proxyDeployments);
 
     log("====================================================");
-    log('ETSTag proxy deployed to -> ' + deployment.address);
-    log('ETSTag implementation deployed to -> ' + implementation);
+    log('ETSToken proxy deployed to -> ' + deployment.address);
+    log('ETSToken implementation deployed to -> ' + implementation);
     log("====================================================");
 
 };
-module.exports.tags = ['ets_tag'];
-module.exports.dependencies = ['ets_access_controls']
+module.exports.tags = ['ETSToken'];
+module.exports.dependencies = ['ETSAccessControls']

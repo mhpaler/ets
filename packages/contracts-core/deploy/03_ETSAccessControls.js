@@ -1,17 +1,19 @@
 const { ethers, upgrades } = require("hardhat");
+const { setup } = require("./setup.js");
 const { verify } = require("./utils/verify.js");
 const { saveNetworkConfig } = require("./utils/config.js");
 
 module.exports = async ({
-  getNamedAccounts,
   deployments
 }) => {
     const { save, log } = deployments;
-    const {ETSAdmin, ETSPublisher} = await getNamedAccounts();
-    const ETSAccessControls = await ethers.getContractFactory("ETSAccessControls");
+    [accounts, factories, initSettings] = await setup();
 
     // Deploy ETS Access Controls.
-    const deployment = await upgrades.deployProxy(ETSAccessControls, { kind: "uups" });
+    const deployment = await upgrades.deployProxy(
+      factories.ETSAccessControls,
+      [ initSettings.PUBLISHER_DEFAULT_THRESHOLD ],
+      { kind: "uups" });
     await deployment.deployed();
     const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
 
@@ -36,4 +38,4 @@ module.exports = async ({
     log("====================================================");
 };
 
-module.exports.tags = ['ets_access_controls'];
+module.exports.tags = ['ETSAccessControls'];

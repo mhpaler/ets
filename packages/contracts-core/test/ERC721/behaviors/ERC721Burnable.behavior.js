@@ -23,8 +23,8 @@ function shouldBehaveLikeERC721Burnable(
 ) {
   context("like a burnable ERC721", function () {
     beforeEach(async function () {
-      await this.token.createTag(tag1, publisher);
-      await this.token.createTag(tag2, publisher);
+      await this.token.methods["createTag(string)"](tag1);
+      await this.token.methods["createTag(string)"](tag2);
     });
 
     describe("burn", function () {

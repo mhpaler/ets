@@ -181,7 +181,7 @@
         "type": "bool"
       }
     ],
-    "name": "PremiumTagSet",
+    "name": "PremiumTagPreSet",
     "type": "event"
   },
   {
@@ -632,6 +632,21 @@
         "internalType": "address payable",
         "name": "_platform",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_tagMinStringLength",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_tagMaxStringLength",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_ownershipTermLength",
+        "type": "uint256"
       }
     ],
     "name": "initialize",
@@ -758,6 +773,24 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string[]",
+        "name": "_tags",
+        "type": "string[]"
+      },
+      {
+        "internalType": "bool",
+        "name": "_enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "preSetPremiumTags",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -952,24 +985,6 @@
       }
     ],
     "name": "setTagMaxStringLength",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string[]",
-        "name": "_tags",
-        "type": "string[]"
-      },
-      {
-        "internalType": "bool",
-        "name": "_enabled",
-        "type": "bool"
-      }
-    ],
-    "name": "setupPremiumTags",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
