@@ -67,8 +67,8 @@ contract ETSAuctionHouse is
 
     /// Modifiers
 
-    modifier tokenIdExists(uint256 tokenId) {
-        require(etsToken.tokenIdExists(tokenId), "CTAG doe not exist");
+    modifier tagExists(uint256 tokenId) {
+        require(etsToken.tagExists(tokenId), "CTAG does not exist");
         _;
     }
 

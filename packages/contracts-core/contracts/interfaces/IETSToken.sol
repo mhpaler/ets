@@ -54,9 +54,9 @@ interface IETSToken is IERC721Upgradeable {
 
     function computeTagId(string memory _tag) external pure returns (uint256);
 
-    function tokenIdExists(uint256 _tokenId) external view returns (bool);
-
     function tagExists(string calldata _tag) external view returns (bool);
+
+    function tagExists(uint256 _tokenId) external view returns (bool);
 
     function getTag(string calldata _tag) external view returns (Tag memory);
 

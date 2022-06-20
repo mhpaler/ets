@@ -84,7 +84,7 @@ function shouldBehaveLikeERC721Pausable(
 
     describe("exists", function () {
       it("returns token existence", async function () {
-        expect(await this.token.tokenIdExists(firstTokenId)).to.equal(true);
+        expect(await this.token.methods["tagExists(uint256)"](firstTokenId)).to.equal(true);
       });
     });
 

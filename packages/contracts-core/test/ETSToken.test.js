@@ -200,7 +200,7 @@ describe("ETSToken Core Tests", function () {
 
       it("should succeed if Platform is both creator & publisher", async function () {
         await contracts.ETSToken.connect(accounts.ETSPlatform)["createTag(string)"](tag);
-        assert((await contracts.ETSToken.tagExists(tag)) == true);
+        assert((await contracts.ETSToken["tagExists(string)"](tag)) == true);
       });
     });
 

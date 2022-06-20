@@ -262,12 +262,12 @@ contract ETSToken is
         return uint256(keccak256(bytes(_machineName)));
     }
 
-    function tokenIdExists(uint256 _tokenId) public view returns (bool) {
-        return _exists(_tokenId);
-    }
-
     function tagExists(string calldata _tag) public view returns (bool) {
         return _exists(computeTagId(_tag));
+    }
+
+    function tagExists(uint256 _tokenId) public view returns (bool) {
+        return _exists(_tokenId);
     }
 
     function getTag(string calldata _tag) public view returns (Tag memory) {
