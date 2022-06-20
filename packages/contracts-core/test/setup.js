@@ -14,7 +14,7 @@ const initSettings = {
   DURATION: 30 * 60, // 30 minutes
   PUBLISHER_PERCENTAGE: 20,
   CREATOR_PERCENTAGE: 40,
-  PLATFORM_PERCENTAGE: 40
+  PLATFORM_PERCENTAGE: 40,
 };
 
 async function getArtifacts() {
@@ -47,30 +47,12 @@ function getInitSettings() {
 }
 
 async function setup() {
-
   const factories = {
     WETH: await ethers.getContractFactory("WETH"),
     ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
     ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
     ETSToken: await ethers.getContractFactory("ETSToken"),
   };
-
-  //const initSettings = {
-  //  // Access controls
-  //  PUBLISHER_DEFAULT_THRESHOLD: 1,
-  //  // Token
-  //  TAG_MIN_STRING_LENGTH: 2,
-  //  TAG_MAX_STRING_LENGTH: 32,
-  //  OWNERSHIP_TERM_LENGTH: 730,
-  //  // Auction
-  //  TIME_BUFFER: 600, // 600 secs / 10 minutes
-  //  RESERVE_PRICE: 200, // 200 WEI
-  //  MIN_INCREMENT_BID_PERCENTAGE: 5,
-  //  DURATION: 30 * 60, // 30 minutes
-  //  PUBLISHER_PERCENTAGE: 20,
-  //  CREATOR_PERCENTAGE: 40,
-  //  PLATFORM_PERCENTAGE: 40
-  //};
 
   // ============ SETUP TEST ACCOUNTS ============
 
@@ -90,10 +72,8 @@ async function setup() {
   const WETH = await factories.WETH.deploy();
   const ETSAccessControls = await upgrades.deployProxy(
     factories.ETSAccessControls,
-    [
-      initSettings.PUBLISHER_DEFAULT_THRESHOLD
-    ], 
-    { kind: "uups" }
+    [initSettings.PUBLISHER_DEFAULT_THRESHOLD],
+    { kind: "uups" },
   );
   const ETSToken = await upgrades.deployProxy(
     factories.ETSToken,
@@ -102,7 +82,7 @@ async function setup() {
       accounts.ETSPlatform.address,
       initSettings.TAG_MIN_STRING_LENGTH,
       initSettings.TAG_MAX_STRING_LENGTH,
-      initSettings.OWNERSHIP_TERM_LENGTH
+      initSettings.OWNERSHIP_TERM_LENGTH,
     ],
     { kind: "uups" },
   );
@@ -118,7 +98,7 @@ async function setup() {
       initSettings.DURATION,
       initSettings.PUBLISHER_PERCENTAGE,
       initSettings.CREATOR_PERCENTAGE,
-      initSettings.PLATFORM_PERCENTAGE
+      initSettings.PLATFORM_PERCENTAGE,
     ],
     { kind: "uups" },
   );
@@ -132,56 +112,40 @@ async function setup() {
 
   // ============ GRANT ROLES & APPROVALS ============
 
-  await ETSAccessControls.grantRole(
-    await ETSAccessControls.SMART_CONTRACT_ROLE(),
-    accounts.ETSAdmin.address,
-    { from: accounts.ETSAdmin.address },
-  );
+  await ETSAccessControls.grantRole(await ETSAccessControls.SMART_CONTRACT_ROLE(), accounts.ETSAdmin.address, {
+    from: accounts.ETSAdmin.address,
+  });
 
   // Grant DEFAULT_ADMIN_ROLE to platform
   // Plan here is to transfer admin control to
-  // platform multisig after deployment 
-  await ETSAccessControls.grantRole(
-    await ETSAccessControls.DEFAULT_ADMIN_ROLE(),
-    accounts.ETSPlatform.address
-  );
+  // platform multisig after deployment
+  await ETSAccessControls.grantRole(await ETSAccessControls.DEFAULT_ADMIN_ROLE(), accounts.ETSPlatform.address);
 
   // Grant PUBLISHER role to platform
-  await ETSAccessControls.grantRole(
-    ethers.utils.id("PUBLISHER"),
-    accounts.ETSPlatform.address
-  );
+  await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER"), accounts.ETSPlatform.address);
 
   // Grant PUBLISHER role to ETS owned address
   // Consider only using platform address as ETS publisher.
-//  await ETSAccessControls.grantRole(
-//    ethers.utils.id("PUBLISHER"),
-//    accounts.ETSPlatform.address
-//  );
+  //  await ETSAccessControls.grantRole(
+  //    ethers.utils.id("PUBLISHER"),
+  //    accounts.ETSPlatform.address
+  //  );
 
   // Set PUBLISHER role admin.
   // Contracts or addresses given PUBLISHER_ADMIN role
   // can grant PUBLISHER role. This role
   // should be given to ETSAccessControls so it can
   // grant PUBLISHER role.
-  await ETSAccessControls.setRoleAdmin(
-    ethers.utils.id("PUBLISHER"),
-    ethers.utils.id("PUBLISHER_ADMIN")
-  );
+  await ETSAccessControls.setRoleAdmin(ethers.utils.id("PUBLISHER"), ethers.utils.id("PUBLISHER_ADMIN"));
 
   // Grant PUBLISHER_ADMIN role to ETSAccessControls contract
-  await ETSAccessControls.grantRole(
-    ethers.utils.id("PUBLISHER_ADMIN"),
-    ETSAccessControls.address
-  );
+  await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), ETSAccessControls.address);
 
   // Set token access controls.
-  await ETSAccessControls.connect(accounts.ETSPlatform)
-    .setETSToken(ETSToken.address);
-  
+  await ETSAccessControls.connect(accounts.ETSPlatform).setETSToken(ETSToken.address);
+
   // Approve auction house contract to move tokens owned by platform.
-  await ETSToken.connect(accounts.ETSPlatform)
-    .setApprovalForAll(ETSAuctionHouse.address, true);
+  await ETSToken.connect(accounts.ETSPlatform).setApprovalForAll(ETSAuctionHouse.address, true);
 
   return [accounts, contracts, initSettings];
 }
@@ -190,5 +154,5 @@ module.exports = {
   getInitSettings,
   getArtifacts,
   getFactories,
-  setup
+  setup,
 };

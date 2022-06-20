@@ -226,37 +226,6 @@
         "type": "uint256"
       },
       {
-        "indexed": false,
-        "internalType": "string",
-        "name": "displayVersion",
-        "type": "string"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "publisher",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "creator",
-        "type": "address"
-      }
-    ],
-    "name": "TagMinted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
         "indexed": true,
         "internalType": "address",
         "name": "caller",
@@ -608,7 +577,7 @@
         "components": [
           {
             "internalType": "address",
-            "name": "originalPublisher",
+            "name": "publisher",
             "type": "address"
           },
           {
@@ -618,7 +587,53 @@
           },
           {
             "internalType": "string",
-            "name": "displayVersion",
+            "name": "display",
+            "type": "string"
+          },
+          {
+            "internalType": "bool",
+            "name": "premium",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "reserved",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct IETSToken.Tag",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_tag",
+        "type": "string"
+      }
+    ],
+    "name": "getTag",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "publisher",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "creator",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "display",
             "type": "string"
           },
           {
@@ -1135,7 +1150,7 @@
     "outputs": [
       {
         "internalType": "address",
-        "name": "originalPublisher",
+        "name": "publisher",
         "type": "address"
       },
       {
@@ -1145,7 +1160,7 @@
       },
       {
         "internalType": "string",
-        "name": "displayVersion",
+        "name": "display",
         "type": "string"
       },
       {

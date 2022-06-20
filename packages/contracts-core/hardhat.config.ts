@@ -1,23 +1,23 @@
-import 'hardhat-deploy';
-import 'hardhat-ethernal';
+import "hardhat-deploy";
+import "hardhat-ethernal";
 // import '@typechain/hardhat';
 import "solidity-coverage";
-import 'hardhat-abi-exporter';
-import '@nomiclabs/hardhat-web3';
-import '@nomiclabs/hardhat-ethers';
-import '@nomiclabs/hardhat-waffle';
-import '@primitivefi/hardhat-dodoc';
-import '@nomiclabs/hardhat-truffle5';
-import '@nomiclabs/hardhat-etherscan';
-import '@openzeppelin/hardhat-upgrades';
+import "hardhat-abi-exporter";
+import "@nomiclabs/hardhat-web3";
+import "@nomiclabs/hardhat-ethers";
+import "@nomiclabs/hardhat-waffle";
+import "@primitivefi/hardhat-dodoc";
+import "@nomiclabs/hardhat-truffle5";
+import "@nomiclabs/hardhat-etherscan";
+import "@openzeppelin/hardhat-upgrades";
 
-import { resolve } from 'path';
+import { resolve } from "path";
 import { config as dotenvConfig } from "dotenv";
 import { extendEnvironment } from "hardhat/config";
 import { HardhatUserConfig } from "hardhat/types";
 
-import './tasks/accounts';
-import './tasks/signers';
+import "./tasks/accounts";
+import "./tasks/signers";
 
 dotenvConfig({ path: resolve(__dirname, "../../.env") });
 
@@ -50,14 +50,14 @@ const config: HardhatUserConfig = {
       chainId: 80001,
       accounts: mnemonic ? { mnemonic } : undefined,
       gas: 2100000,
-      gasPrice: 8000000000
-    }
+      gasPrice: 8000000000,
+    },
   },
   //paths: {
   //  artifacts: '../app/artifacts',
   //},
   abiExporter: {
-    path: './abi',
+    path: "./abi",
     runOnCompile: true,
   },
   dodoc: {
@@ -73,12 +73,8 @@ const config: HardhatUserConfig = {
       default: 0,
       mumbai: "0x93A5f58566D436Cae0711ED4d2815B85A26924e6",
     },
-    ETSPublisher: {
-      default: 1,
-      mumbai: "0xE9FBC1a1925F6f117211C59b89A55b576182e1e9",
-    },
     ETSPlatform: {
-      default: 2,
+      default: 1,
       mumbai: "0x60F2760f0D99330A555c5fc350099b634971C6Eb",
     },
   },
@@ -128,7 +124,7 @@ const config: HardhatUserConfig = {
             runs: 1000,
           },
         },
-      }
+      },
     ],
   },
 };
@@ -138,7 +134,7 @@ extendEnvironment((hre) => {
   hre.ethernalSync = process.env.ETHERNAL_ENABLED == "true" ? true : false;
   hre.ethernalWorkspace = process.env.ETHERNAL_WORKSPACE ? process.env.ETHERNAL_WORKSPACE : "none";
   hre.ethernalTrace = false;
-  hre.ethernalResetOnStart = process.env.ETHERNAL_WORKSPACE ? process.env.ETHERNAL_WORKSPACE : "none";;
+  hre.ethernalResetOnStart = process.env.ETHERNAL_WORKSPACE ? process.env.ETHERNAL_WORKSPACE : "none";
 });
 
 export default config;

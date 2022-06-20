@@ -235,7 +235,7 @@ contract ETSAuctionHouse is
         uint256 publisherProceeds = (auction.amount * publisherPercentage) /
             modulo;
         uint256 creatorProceeds = (auction.amount * creatorPercentage) / modulo;
-        _safeTransferETHWithFallback(ctag.originalPublisher, publisherProceeds);
+        _safeTransferETHWithFallback(ctag.publisher, publisherProceeds);
         _safeTransferETHWithFallback(ctag.creator, creatorProceeds);
 
         emit AuctionSettled(

@@ -11,7 +11,7 @@ interface IETSAccessControls is IAccessControlUpgradeable {
     function togglePublisher() external returns (bool toggled);
 
     /**
-     * @dev set pointer to ETSToken contract.
+     * @dev Point ETSAccessControls to ETSToken contract.
      */
     function setETSToken(IETSToken _etsToken) external;
 

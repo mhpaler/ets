@@ -1,12 +1,15 @@
 const { setup } = require("./setup.js");
-const { ethers, upgrades } = require("hardhat");
+const { ethers } = require("hardhat");
 const { expect, assert } = require("chai");
-const { BigNumber, constants } = ethers;
+const { constants } = ethers;
 
 describe("contracts.ETSToken CTAG ownership lifecycle tests", function () {
   // we create a setup function that can be called by every test and setup variable for easy to read tests
   beforeEach("Setup test", async function () {
     [accounts, contracts, initSettings] = await setup();
+
+    console.log("admin", accounts.ETSAdmin.address);
+    console.log("platform", accounts.ETSPlatform.address);
   });
 
   describe("Validate setup", async function () {
@@ -22,15 +25,14 @@ describe("contracts.ETSToken CTAG ownership lifecycle tests", function () {
   });
 
   describe("Owner/Admin functions", async function () {
-    it("Admin should be able to set ownership term", async function() {
+    it("Admin should be able to set ownership term", async function () {
       const thirtyDays = 30 * 24 * 60 * 60;
       await contracts.ETSToken.setOwnershipTermLength(thirtyDays);
       expect(await contracts.ETSToken.ownershipTermLength()).to.be.equal(thirtyDays);
     });
 
-    it("Only admin should be able to set ownership term", async function() {
-      await expect(
-        contracts.ETSToken.connect(accounts.RandomTwo).setOwnershipTermLength(10)).to.be.revertedWith(
+    it("Only admin should be able to set ownership term", async function () {
+      await expect(contracts.ETSToken.connect(accounts.RandomTwo).setOwnershipTermLength(10)).to.be.revertedWith(
         "Caller must have administrator access",
       );
     });
@@ -47,9 +49,8 @@ describe("contracts.ETSToken CTAG ownership lifecycle tests", function () {
       //console.log("accounts.RandomTwo",accounts.RandomTwo.address);
       //console.log("accounts.ETSPlatform", accounts.ETSPlatform.address);
 
-      await contracts.ETSToken.connect(accounts.RandomTwo).createTag(tag, accounts.ETSPlatform.address);
+      await contracts.ETSToken.connect(accounts.RandomTwo)["createTag(string)"](tag);
       tokenId = await contracts.ETSToken.computeTagId(tag);
-
     });
 
     it("for newly minted tag should have last renewed be zero", async function () {
@@ -57,11 +58,11 @@ describe("contracts.ETSToken CTAG ownership lifecycle tests", function () {
       assert(Number(lastRenewed.toString()) === 0);
     });
 
-    it("will occur only when token is transferred away from platform", async function() {
+    it("will occur only when token is transferred away from platform", async function () {
       await contracts.ETSToken.connect(accounts.ETSPlatform).transferFrom(
         accounts.ETSPlatform.address,
         accounts.RandomTwo.address,
-        tokenId
+        tokenId,
       );
       lastRenewed = await contracts.ETSToken.getLastRenewed(tokenId);
       let blockNum = await ethers.provider.getBlockNumber();
@@ -72,24 +73,22 @@ describe("contracts.ETSToken CTAG ownership lifecycle tests", function () {
     });
 
     it("is reset when transferred back to platform", async function () {
-
       // Transfer tag away from platform.
       await contracts.ETSToken.connect(accounts.ETSPlatform).transferFrom(
         accounts.ETSPlatform.address,
         accounts.RandomTwo.address,
-        tokenId
+        tokenId,
       );
 
       // Send back to platform.
       await contracts.ETSToken.connect(accounts.RandomTwo).transferFrom(
         accounts.RandomTwo.address,
         accounts.ETSPlatform.address,
-        tokenId
+        tokenId,
       );
 
       lastRenewed = await contracts.ETSToken.getLastRenewed(tokenId);
       assert(Number(lastRenewed) === 0);
-
     });
 
     it("will not fail if renewer not the owner", async function () {
@@ -104,12 +103,11 @@ describe("contracts.ETSToken CTAG ownership lifecycle tests", function () {
     });
 
     it("can be done before renewal period has passed", async function () {
-
       // Transfer tag away from platform.
       await contracts.ETSToken.connect(accounts.ETSPlatform).transferFrom(
         accounts.ETSPlatform.address,
         accounts.RandomTwo.address,
-        tokenId
+        tokenId,
       );
 
       lastRenewed = await contracts.ETSToken.getLastRenewed(tokenId);
@@ -137,16 +135,17 @@ describe("contracts.ETSToken CTAG ownership lifecycle tests", function () {
 
       expect(newRenewTime).to.be.equal(timestamp);
       // Check that newRenewTime is equal to lastRenewed + 1year + 1microsecond.
-      expect(newRenewTime).to.be.equal(Number(lastRenewed) + Number(advanceTime) + 1 || Number(lastRenewed) + Number(advanceTime));
+      expect(newRenewTime).to.be.equal(
+        Number(lastRenewed) + Number(advanceTime) + 1 || Number(lastRenewed) + Number(advanceTime),
+      );
     });
 
     it("can be done after renewal period has passed", async function () {
-
       // Transfer tag away from platform.
       await contracts.ETSToken.connect(accounts.ETSPlatform).transferFrom(
         accounts.ETSPlatform.address,
         accounts.RandomTwo.address,
-        tokenId
+        tokenId,
       );
 
       lastRenewed = await contracts.ETSToken.getLastRenewed(tokenId);
@@ -174,9 +173,10 @@ describe("contracts.ETSToken CTAG ownership lifecycle tests", function () {
 
       expect(newRenewTime).to.be.equal(timestamp);
       // Check that newRenewTime is equal to lastRenewed + 1year + 1microsecond.
-      expect(newRenewTime).to.be.equal(Number(lastRenewed) + Number(advanceTime) + 1 || Number(lastRenewed) + Number(advanceTime));
+      expect(newRenewTime).to.be.equal(
+        Number(lastRenewed) + Number(advanceTime) + 1 || Number(lastRenewed) + Number(advanceTime),
+      );
     });
-
   });
 
   describe("Recycling a tag", async function () {
@@ -186,16 +186,15 @@ describe("contracts.ETSToken CTAG ownership lifecycle tests", function () {
       const tag = "#BlockRocket";
 
       // RandomTwo account creates a tag.
-      await contracts.ETSToken.connect(accounts.RandomTwo).createTag(tag, accounts.ETSPlatform.address);
+      await contracts.ETSToken.connect(accounts.RandomTwo)["createTag(string)"](tag);
       tokenId = await contracts.ETSToken.computeTagId(tag);
 
       // Transfer to RandomTwo (simulates sale).
       await contracts.ETSToken.connect(accounts.ETSPlatform).transferFrom(
         accounts.ETSPlatform.address,
         accounts.RandomTwo.address,
-        tokenId
+        tokenId,
       );
-
     });
 
     it("will fail if token does not exist", async function () {
@@ -209,7 +208,7 @@ describe("contracts.ETSToken CTAG ownership lifecycle tests", function () {
       await contracts.ETSToken.connect(accounts.RandomTwo).transferFrom(
         accounts.RandomTwo.address,
         accounts.ETSPlatform.address,
-        tokenId
+        tokenId,
       );
       await expect(contracts.ETSToken.connect(accounts.RandomTwo).recycleTag(tokenId)).to.be.revertedWith(
         "ETS: CTAG owned by platform",
@@ -231,7 +230,6 @@ describe("contracts.ETSToken CTAG ownership lifecycle tests", function () {
     });
 
     it("will succeed once renewal period has passed", async function () {
-
       lastRenewed = await contracts.ETSToken.getLastRenewed(tokenId);
 
       // Advance current time by 30 days more than ownershipTermLength (2 years).
@@ -257,7 +255,6 @@ describe("contracts.ETSToken CTAG ownership lifecycle tests", function () {
     });
 
     it("will increase platform balance and decrease owner balance", async function () {
-
       expect((await contracts.ETSToken.balanceOf(accounts.ETSPlatform.address)).toString()).to.be.equal("0");
       expect((await contracts.ETSToken.balanceOf(accounts.RandomTwo.address)).toString()).to.be.equal("1");
 
@@ -279,5 +276,4 @@ describe("contracts.ETSToken CTAG ownership lifecycle tests", function () {
       expect((await contracts.ETSToken.balanceOf(accounts.RandomTwo.address)).toString()).to.be.equal("0");
     });
   });
-  
 });
