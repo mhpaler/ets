@@ -5,20 +5,27 @@ import "./IETSToken.sol";
 import "@openzeppelin/contracts-upgradeable/access/IAccessControlUpgradeable.sol";
 
 interface IETSAccessControls is IAccessControlUpgradeable {
-
     event ETSTokenSet(IETSToken etsToken);
-
     event PublisherDefaultThresholdSet(uint256 threshold);
 
+    function togglePublisher() external returns (bool toggled);
+
+    /**
+     * @dev set pointer to ETSToken contract.
+     */
     function setETSToken(IETSToken _etsToken) external;
 
+    /**
+     * @dev set the role admin for a role.
+     */
     function setRoleAdmin(bytes32 _role, bytes32 _adminRole) external;
 
     function setPublisherDefaultThreshold(uint256 _threshold) external;
 
-    function assessOwners(address _from, address _to) external;
-
-    function getPublisherThreshold(address _addr) external view returns (uint256);
+    function getPublisherThreshold(address _addr)
+        external
+        view
+        returns (uint256);
 
     function getPublisherDefaultThreshold() external view returns (uint256);
 
@@ -29,6 +36,4 @@ interface IETSAccessControls is IAccessControlUpgradeable {
     function isPublisher(address _addr) external view returns (bool);
 
     function isPublisherAdmin(address _addr) external view returns (bool);
-
-    function version() external view returns (string memory);
 }

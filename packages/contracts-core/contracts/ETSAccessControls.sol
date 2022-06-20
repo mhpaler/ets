@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import { IETSToken } from './interfaces/IETSToken.sol';
-import { IETSAccessControls } from './interfaces/IETSAccessControls.sol';
+import { IETSToken } from "./interfaces/IETSToken.sol";
+import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
@@ -11,12 +11,15 @@ import "@openzeppelin/contracts/interfaces/IERC165.sol";
 
 import "hardhat/console.sol";
 
-
 /// @title ETS access controls
 /// @author Ethereum Tag Service <security@ets.xyz>
 /// @dev Maintains a mapping of ethereum addresses and roles they have within the protocol
-contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAccessControls, UUPSUpgradeable {
-
+contract ETSAccessControls is
+    Initializable,
+    AccessControlUpgradeable,
+    IETSAccessControls,
+    UUPSUpgradeable
+{
     using SafeMathUpgradeable for uint256;
 
     IETSToken public etsToken;
@@ -28,71 +31,80 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     bytes32 public constant PUBLISHER_ROLE_ADMIN = keccak256("PUBLISHER_ADMIN");
     bytes32 public constant SMART_CONTRACT_ROLE = keccak256("SMART_CONTRACT");
 
-
     /// @dev number of owned tags needed to acquire/maintain publisher role.
-    uint256 public publisherDefaultThreshold; 
+    uint256 public publisherDefaultThreshold;
 
     /// @dev Mapping of publisher address to grandfathered publisherThreshold.
     mapping(address => uint256) public publisherThresholds;
 
     // ============ UUPS INTERFACE ============
 
-    function initialize(
-        uint256 _publisherDefaultThreshold
-    ) public initializer {
+    function initialize(uint256 _publisherDefaultThreshold) public initializer {
         __AccessControl_init();
         // Give default admin role to the deployer.
         // setupRole is should only be called within initialize().
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
 
         publisherDefaultThreshold = _publisherDefaultThreshold;
-
     }
 
     // Ensure that only addresses with admin role can upgrade.
-    function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
+    function _authorizeUpgrade(address)
+        internal
+        override
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {}
 
     // ============ OWNER INTERFACE ============
 
-    function setETSToken(IETSToken _etsToken) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(address(_etsToken) != address(0), "ETS: Address cannot be zero");
+    function setETSToken(IETSToken _etsToken)
+        public
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        require(
+            address(_etsToken) != address(0),
+            "ETS: Address cannot be zero"
+        );
         etsToken = _etsToken;
         emit ETSTokenSet(_etsToken);
     }
 
-    function setRoleAdmin(bytes32 _role, bytes32 _adminRole) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setRoleAdmin(bytes32 _role, bytes32 _adminRole)
+        public
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
         _setRoleAdmin(_role, _adminRole);
     }
 
-    function setPublisherDefaultThreshold(uint256 _threshold) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setPublisherDefaultThreshold(uint256 _threshold)
+        public
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
         publisherDefaultThreshold = _threshold;
         emit PublisherDefaultThresholdSet(_threshold);
-    } 
+    }
 
     // ============ PUBLIC INTERFACE ============
 
     ///@dev Grant or revoke publisher role for CTAG Token owners.
-    function assessOwners(address _from, address _to) public {
+    function togglePublisher() public returns (bool toggled) {
+        // Grant publisher role to sender if token balance meets threshold.
+        uint256 threshold = getPublisherThreshold(msg.sender);
 
-        // Grant recipient publisher role when receiving
-        // from platform and balance meets threshold.
-        if (_from == etsToken.getPlatformAddress()) {
-            uint256 threshold = getPublisherThreshold(_to);
+        if (
+            etsToken.balanceOf(msg.sender) >= threshold &&
+            !hasRole(PUBLISHER_ROLE, msg.sender)
+        ) {
+            this.grantRole(PUBLISHER_ROLE, msg.sender);
+            publisherThresholds[msg.sender] = threshold;
+            return true;
+        }
 
-            if (etsToken.balanceOf(_to) >= threshold && !hasRole(PUBLISHER_ROLE, _to)) {
-                grantRole(PUBLISHER_ROLE, _to);
-                publisherThresholds[_to] = threshold;
-            }
-        } 
-        
-        // Revoke publisher role from sender if balance falls below threshold.
-        if (_from != etsToken.getPlatformAddress() && _from != address(0)) {
-            uint256 threshold = getPublisherThreshold(_from);
-
-            if (etsToken.balanceOf(_from) < threshold && hasRole(PUBLISHER_ROLE, _from)) {
-                revokeRole(PUBLISHER_ROLE, _from);
-                delete publisherThresholds[_from];
-            }
+        // Revoke publisher role from sender.
+        if (hasRole(PUBLISHER_ROLE, msg.sender)) {
+            this.revokeRole(PUBLISHER_ROLE, msg.sender);
+            delete publisherThresholds[msg.sender];
+            return true;
         }
     }
 
@@ -114,7 +126,11 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
         return hasRole(PUBLISHER_ROLE_ADMIN, _addr);
     }
 
-    function getPublisherThreshold(address _addr) public view returns (uint256) {
+    function getPublisherThreshold(address _addr)
+        public
+        view
+        returns (uint256)
+    {
         if (hasRole(PUBLISHER_ROLE, _addr)) {
             return publisherThresholds[_addr];
         }
@@ -128,5 +144,4 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     function version() external pure returns (string memory) {
         return VERSION;
     }
-
 }

@@ -2,7 +2,7 @@ const { ethers, upgrades, artifacts } = require("hardhat");
 
 const initSettings = {
   // Access controls
-  PUBLISHER_DEFAULT_THRESHOLD: 1,
+  PUBLISHER_DEFAULT_THRESHOLD: 0,
   // Token
   TAG_MIN_STRING_LENGTH: 2,
   TAG_MAX_STRING_LENGTH: 32,
@@ -169,10 +169,10 @@ async function setup() {
     ethers.utils.id("PUBLISHER_ADMIN")
   );
 
-  // Grant PUBLISHER_ADMIN role to ETSToken contract
+  // Grant PUBLISHER_ADMIN role to ETSAccessControls contract
   await ETSAccessControls.grantRole(
     ethers.utils.id("PUBLISHER_ADMIN"),
-    ETSToken.address
+    ETSAccessControls.address
   );
 
   // Set token access controls.

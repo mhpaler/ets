@@ -11,331 +11,375 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 import "hardhat/console.sol";
 
-
 /// @title ETS ERC-721 NFT contract
 /// @author Ethereum Tag Service <security@ets.xyz>
 /// @notice Contract that governs the creation of CTAG non-fungible tokens.
 /// @dev UUPS upgradable.
-contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETSToken, UUPSUpgradeable, StringHelpers {
+contract ETSToken is
+	ERC721PausableUpgradeable,
+	ERC721BurnableUpgradeable,
+	IETSToken,
+	UUPSUpgradeable,
+	StringHelpers
+{
+	using AddressUpgradeable for address;
+	using StringsUpgradeable for uint256;
+	using SafeMathUpgradeable for uint256;
 
-    using AddressUpgradeable for address;
-    using StringsUpgradeable for uint256;
-    using SafeMathUpgradeable for uint256;
+	IETSAccessControls public etsAccessControls;
 
+	/// Public constants
+	string public constant NAME = "CTAG Token";
+	string public constant VERSION = "0.1.0";
 
-    IETSAccessControls public etsAccessControls;
+	uint256 public tagMinStringLength;
+	uint256 public tagMaxStringLength;
+	uint256 public ownershipTermLength;
 
-    /// Public constants
-    string public constant NAME = "CTAG Token";
-    string public constant VERSION = "0.1.0";
+	/// @dev ETS Platform account.
+	address payable public platform;
 
-    uint256 public tagMinStringLength;
-    uint256 public tagMaxStringLength;
-    uint256 public ownershipTermLength;
+	/// @dev Map of CTAG id to CTAG record.
+	mapping(uint256 => Tag) public tokenIdToTag;
 
-    /// @dev ETS Platform account.
-    address payable public platform;
+	/// @dev Mapping of tokenId to last renewal.
+	mapping(uint256 => uint256) public tokenIdToLastRenewed;
 
-    /// @dev Map of CTAG id to CTAG record.
-    mapping(uint256 => Tag) public tokenIdToTag;
+	/// @notice Defines whether a tag has been set up as premium
+	mapping(string => bool) public isTagPremium;
 
-    /// @dev Mapping of tokenId to last renewal.
-    mapping(uint256 => uint256) public tokenIdToLastRenewed;
+	/// Modifiers
 
-    /// @notice Defines whether a tag has been set up as premium
-    mapping(string => bool) public isTagPremium;
+	modifier onlyAdmin() {
+		require(
+			etsAccessControls.isAdmin(_msgSender()),
+			"Caller must have administrator access"
+		);
+		_;
+	}
 
-    /// Modifiers
+	modifier onlyPublisher() {
+		require(
+			etsAccessControls.isPublisher(_msgSender()),
+			"Caller is not publisher"
+		);
+		_;
+	}
 
-    modifier onlyAdmin() {
-        require(etsAccessControls.isAdmin(_msgSender()), "Caller must have administrator access");
-        _;
-    }
+	// ============ UUPS INTERFACE ============
 
-    modifier onlyPublisher() {
-        require(etsAccessControls.isPublisher(_msgSender()), "Caller is not publisher");
-        _;
-    }
+	function initialize(
+		IETSAccessControls _etsAccessControls,
+		address payable _platform,
+		uint256 _tagMinStringLength,
+		uint256 _tagMaxStringLength,
+		uint256 _ownershipTermLength
+	) public initializer {
+		__ERC721_init("Ethereum Tag Service", "CTAG");
+		__ERC721Pausable_init();
+		__ERC721Burnable_init();
 
-    // ============ UUPS INTERFACE ============
+		etsAccessControls = _etsAccessControls;
+		platform = _platform;
+		tagMinStringLength = _tagMinStringLength;
+		tagMaxStringLength = _tagMaxStringLength;
+		ownershipTermLength = _ownershipTermLength;
+	}
 
-    function initialize(
-        IETSAccessControls _etsAccessControls,
-        address payable _platform,
-        uint256 _tagMinStringLength,
-        uint256 _tagMaxStringLength,
-        uint256 _ownershipTermLength
-    ) public initializer {
-        __ERC721_init("Ethereum Tag Service", "CTAG");
-        __ERC721Pausable_init();
-        __ERC721Burnable_init();
+	function _authorizeUpgrade(address) internal override onlyAdmin {}
 
-        etsAccessControls = _etsAccessControls;
-        platform = _platform;
-        tagMinStringLength = _tagMinStringLength;
-        tagMaxStringLength = _tagMaxStringLength;
-        ownershipTermLength = _ownershipTermLength;
+	// @vince Not sure if we need this at all? << todo we will need to ensure that the base 721 has minimal 165 requirements before removing
+	//function supportsInterface(bytes4 interfaceId) public view virtual override(IERC721Upgradeable) returns (bool) {
+	//    return super.supportsInterface(interfaceId);
+	//}
 
-    }
+	// ============ OWNER INTERFACE ============
 
-    function _authorizeUpgrade(address) internal override onlyAdmin {}
+	/// @dev Pause CTAG token contract.
+	function pause() external onlyAdmin {
+		_pause();
+	}
 
-    // @vince Not sure if we need this at all? << todo we will need to ensure that the base 721 has minimal 165 requirements before removing
-    //function supportsInterface(bytes4 interfaceId) public view virtual override(IERC721Upgradeable) returns (bool) {
-    //    return super.supportsInterface(interfaceId);
-    //}
+	/// @dev Unpause CTAG token contract.
+	function unPause() external onlyAdmin {
+		_unpause();
+	}
 
-    // ============ OWNER INTERFACE ============
+	function burn(uint256 tokenId) public override onlyAdmin {
+		_burn(tokenId);
+	}
 
-    /// @dev Pause CTAG token contract.
-    function pause() external onlyAdmin {
-        _pause();
-    }
+	function setTagMaxStringLength(uint256 _tagMaxStringLength)
+		public
+		onlyAdmin
+	{
+		tagMaxStringLength = _tagMaxStringLength;
+		emit TagMaxStringLengthSet(_tagMaxStringLength);
+	}
 
-    /// @dev Unpause CTAG token contract.
-    function unPause() external onlyAdmin {
-        _unpause();
-    }
+	function setOwnershipTermLength(uint256 _ownershipTermLength)
+		public
+		onlyAdmin
+	{
+		ownershipTermLength = _ownershipTermLength;
+		emit OwnershipTermLengthSet(_ownershipTermLength);
+	}
 
-    function burn(uint256 tokenId) public override onlyAdmin {
-        _burn(tokenId);
-    }
+	function setPlatform(address payable _platform) public onlyAdmin {
+		platform = _platform;
+		emit PlatformSet(_platform);
+	}
 
-    function setTagMaxStringLength(uint256 _tagMaxStringLength) public onlyAdmin {
-        tagMaxStringLength = _tagMaxStringLength;
-        emit TagMaxStringLengthSet(_tagMaxStringLength);
-    }
+	function setAccessControls(IETSAccessControls _etsAccessControls)
+		public
+		onlyAdmin
+	{
+		require(
+			address(_etsAccessControls) != address(0),
+			"ETS: Access controls cannot be zero"
+		);
+		etsAccessControls = _etsAccessControls;
+		emit AccessControlsSet(_etsAccessControls);
+	}
 
-    function setOwnershipTermLength(uint256 _ownershipTermLength) public onlyAdmin {
-        ownershipTermLength = _ownershipTermLength;
-        emit OwnershipTermLengthSet(_ownershipTermLength);
-    }
+	/// @dev Pre-minting, flag / unflag tag strings as premium tags.
+	function preSetPremiumTags(string[] calldata _tags, bool _enabled)
+		public
+		onlyAdmin
+	{
+		require(_tags.length > 0, "Empty array");
+		for (uint256 i; i < _tags.length; ++i) {
+			string memory tag = __lower(_tags[i]);
+			isTagPremium[tag] = _enabled;
+			emit PremiumTagPreSet(tag, _enabled);
+		}
+	}
 
-    function setPlatform(address payable _platform) public onlyAdmin {
-        platform = _platform;
-        emit PlatformSet(_platform);
-    }
+	/// @dev set/unset premium flag on tags owned by platform.
+	function setPremiumFlag(uint256[] calldata _tokenIds, bool _isPremium)
+		public
+		onlyAdmin
+	{
+		require(_tokenIds.length > 0, "Empty array");
+		for (uint256 i; i < _tokenIds.length; ++i) {
+			uint256 tokenId = _tokenIds[i];
+			require(ownerOf(tokenId) == platform, "Not owned by platform");
+			tokenIdToTag[tokenId].premium = _isPremium;
+			emit PremiumFlagSet(tokenId, _isPremium);
+		}
+	}
 
-    function setAccessControls(IETSAccessControls _etsAccessControls) public onlyAdmin {
-        require(address(_etsAccessControls) != address(0), "ETS: Access controls cannot be zero");
-        etsAccessControls = _etsAccessControls;
-        emit AccessControlsSet(_etsAccessControls);
-    }
+	/// @dev Add or remove reserved flag from one or more tags.
+	/// Reserved flag prevents bidding on token at ETSAuctionHouse.
+	function setReservedFlag(uint256[] calldata _tokenIds, bool _reserved)
+		public
+		onlyAdmin
+	{
+		require(_tokenIds.length > 0, "Empty array");
+		for (uint256 i; i < _tokenIds.length; ++i) {
+			uint256 tokenId = _tokenIds[i];
+			require(
+				ownerOf(tokenId) == platform,
+				"Token not owned by platform"
+			);
+			tokenIdToTag[tokenId].reserved = _reserved;
+			emit ReservedFlagSet(tokenId, _reserved);
+		}
+	}
 
-    /// @dev Pre-minting, flag / unflag tag strings as premium tags.
-    function preSetPremiumTags(string[] calldata _tags, bool _enabled) public onlyAdmin {
-        require(_tags.length > 0, "Empty array");
-        for(uint256 i; i < _tags.length; ++i) {
-            string memory tag = __lower(_tags[i]);
-            isTagPremium[tag] = _enabled;
-            emit PremiumTagPreSet(tag, _enabled);
-        }
-    }
+	// ============ PUBLIC INTERFACE ============
 
-    /// @dev set/unset premium flag on tags owned by platform.
-    function setPremiumFlag(
-        uint256[] calldata _tokenIds,
-        bool _isPremium
-    ) public onlyAdmin {
-        require(_tokenIds.length > 0, "Empty array");
-        for(uint256 i; i < _tokenIds.length; ++i) {
-            uint256 tokenId = _tokenIds[i];
-            require(ownerOf(tokenId) == platform, "Not owned by platform");
-            tokenIdToTag[tokenId].premium = _isPremium;
-            emit PremiumFlagSet(tokenId, _isPremium);
-        }
-    }
+	function createTag(string calldata _tag)
+		public
+		payable
+		returns (uint256 _tokenId)
+	{
+		// todo - add nonReentrant due to safeMint
+		return createTag(_tag, platform);
+	}
 
-    /// @dev Add or remove reserved flag from one or more tags.
-    /// Reserved flag prevents bidding on token at ETSAuctionHouse.
-    function setReservedFlag(uint256[] calldata _tokenIds, bool _reserved) public onlyAdmin {
-        require(_tokenIds.length > 0, "Empty array");
-        for(uint256 i; i < _tokenIds.length; ++i) {
-            uint256 tokenId = _tokenIds[i];
-            require(ownerOf(tokenId) == platform, "Token not owned by platform");
-            tokenIdToTag[tokenId].reserved = _reserved;
-            emit ReservedFlagSet(tokenId, _reserved);
-        }
-    }
+	function createTag(string calldata _tag, address payable _publisher)
+		public
+		payable
+		returns (uint256 _tokenId)
+	{
+		// todo - add nonReentrant due to safeMint
+		require(
+			etsAccessControls.isPublisher(_publisher),
+			"ETS: Not a publisher"
+		);
 
-    // ============ PUBLIC INTERFACE ============
+		// Perform basic tag string validation.
+		uint256 tagId = _assertTagIsValid(_tag);
 
-    function createTag(
-        string calldata _tag,
-        address payable _publisher
-    ) external payable returns (uint256 _tokenId) { // todo - add nonReentrant due to safeMint
-        require(etsAccessControls.isPublisher(_publisher), "ETS: Not a publisher");
+		// mint the token, transferring it to the platform.
+		_safeMint(platform, tagId);
 
-        // Perform basic tag string validation.
-        uint256 tagId = _assertTagIsValid(_tag);
+		// Store CTAG data in state.
+		tokenIdToTag[tagId] = Tag({
+			displayVersion: _tag,
+			originalPublisher: _publisher,
+			creator: _msgSender(),
+			premium: isTagPremium[__lower(_tag)],
+			reserved: isTagPremium[__lower(_tag)]
+		});
 
-        // mint the token, transferring it to the platform.
-        _safeMint(platform, tagId);
+		return tagId;
+	}
 
-        // Store CTAG data in state.
-        tokenIdToTag[tagId] = Tag({
-            displayVersion: _tag,
-            originalPublisher: _publisher,
-            creator: _msgSender(),
-            premium: isTagPremium[__lower(_tag)],
-            reserved: isTagPremium[__lower(_tag)]
-        });
+	function renewTag(uint256 _tokenId) public {
+		require(_exists(_tokenId), "ETS: CTAG not found");
 
-        return tagId;
-    }
+		if (ownerOf(_tokenId) == platform) {
+			_setLastRenewed(_tokenId, 0);
+		} else {
+			_setLastRenewed(_tokenId, block.timestamp);
+		}
+	}
 
-    function renewTag(uint256 _tokenId) public {
-        require(_exists(_tokenId), "ETS: CTAG not found");
+	/**
+	 * @dev allows anyone or thing to recycle a CTAG back to platform if
+	 * ownership term is expired.
+	 */
+	function recycleTag(uint256 _tokenId) public {
+		require(_exists(_tokenId), "ETS: CTAG not found");
+		require(ownerOf(_tokenId) != platform, "ETS: CTAG owned by platform");
 
-        if (ownerOf(_tokenId) == platform) {
-            _setLastRenewed(_tokenId, 0);
-        } else {
-            _setLastRenewed(_tokenId, block.timestamp);
-        }
-    }
+		uint256 lastRenewed = getLastRenewed(_tokenId);
+		require(
+			lastRenewed.add(getOwnershipTermLength()) < block.timestamp,
+			"ETS: CTAG not eligible for recycling"
+		);
 
-    /**
-     * @dev allows anyone or thing to recycle a CTAG back to platform if
-     * ownership term is expired.
-     */
-    function recycleTag(uint256 _tokenId) public {
-        require(_exists(_tokenId), "ETS: CTAG not found");
-        require(ownerOf(_tokenId) != platform, "ETS: CTAG owned by platform");
+		_transfer(ownerOf(_tokenId), platform, _tokenId);
+		emit TagRecycled(_tokenId, _msgSender());
+	}
 
-        uint256 lastRenewed = getLastRenewed(_tokenId);
-        require(
-            lastRenewed.add(getOwnershipTermLength()) < block.timestamp,
-            "ETS: CTAG not eligible for recycling"
-        );
+	// ============ PUBLIC VIEW FUNCTIONS ============
 
-        _transfer(ownerOf(_tokenId), platform, _tokenId);
-        emit TagRecycled(_tokenId, _msgSender());
-    }
+	function computeTagId(string memory _tag) public pure returns (uint256) {
+		string memory _machineName = __lower(_tag);
+		return uint256(keccak256(bytes(_machineName)));
+	}
 
-    // ============ PUBLIC VIEW FUNCTIONS ============
+	function tokenIdExists(uint256 _tokenId) public view returns (bool) {
+		return _exists(_tokenId);
+	}
 
-    function computeTagId(string memory _tag) public pure returns (uint256) {
-        string memory _machineName = __lower(_tag);
-        return uint256(keccak256(bytes(_machineName)));
-    }
+	function tagExists(string calldata _tag) public view returns (bool) {
+		return _exists(computeTagId(_tag));
+	}
 
-    function tokenIdExists(uint256 _tokenId) public view returns (bool) {
-        return _exists(_tokenId);
-    }
+	function getTag(uint256 _tokenId) public view returns (Tag memory) {
+		return tokenIdToTag[_tokenId];
+	}
 
-    function tagExists(string calldata _tag) public view returns (bool) {
-        return _exists(computeTagId(_tag));
-    }
+	function getOwnershipTermLength() public view returns (uint256) {
+		return ownershipTermLength;
+	}
 
-    function getTag(uint256 _tokenId) public view returns (Tag memory) {
-        return tokenIdToTag[_tokenId];
-    }
+	function getLastRenewed(uint256 _tokenId) public view returns (uint256) {
+		return tokenIdToLastRenewed[_tokenId];
+	}
 
-    function getOwnershipTermLength() public view returns (uint256) {
-        return ownershipTermLength;
-    }
+	/// @dev Returns the commission addresses related to a token.
+	/// TODO: Refactor so it passes all key addresses. platform, publisher, creator, owner
+	function getPaymentAddresses(uint256 _tokenId)
+		public
+		view
+		returns (address payable _platform, address payable _owner)
+	{
+		return (platform, payable(ownerOf(_tokenId)));
+	}
 
-    function getLastRenewed(uint256 _tokenId) public view returns (uint256) {
-        return tokenIdToLastRenewed[_tokenId];
-    }
+	/// @notice Returns creator of a CTAG token.
+	/// @param _tokenId ID of a CTAG.
+	/// @return _creator creator of the CTAG.
+	function getCreatorAddress(uint256 _tokenId)
+		public
+		view
+		returns (address _creator)
+	{
+		return tokenIdToTag[_tokenId].creator;
+	}
 
-    /// @dev Returns the commission addresses related to a token.
-    /// TODO: Refactor so it passes all key addresses. platform, publisher, creator, owner
-    function getPaymentAddresses(uint256 _tokenId)
-        public
-        view
-        returns (
-            address payable _platform,
-            address payable _owner
-        )
-    {
-        return (
-            platform,
-            payable(ownerOf(_tokenId))
-        );
-    }
+	function getPlatformAddress() public view returns (address) {
+		return platform;
+	}
 
-    /// @notice Returns creator of a CTAG token.
-    /// @param _tokenId ID of a CTAG.
-    /// @return _creator creator of the CTAG.
-    function getCreatorAddress(uint256 _tokenId) public view returns (address _creator) {
-        return tokenIdToTag[_tokenId].creator;
-    }
+	function version() external pure returns (string memory) {
+		return VERSION;
+	}
 
-    function getPlatformAddress() public view returns (address) {
-        return platform;
-    }
+	// ============ INTERNAL FUNCTIONS ============
 
-    function version() external pure returns (string memory) {
-        return VERSION;
-    }
+	function _beforeTokenTransfer(
+		address from,
+		address to,
+		uint256 amount
+	)
+		internal
+		override(ERC721PausableUpgradeable, ERC721Upgradeable)
+		whenNotPaused
+	{
+		super._beforeTokenTransfer(from, to, amount);
+		require(!paused(), "ERC721Pausable: token transfer while paused");
+	}
 
-    // ============ INTERNAL FUNCTIONS ============
+	/// @dev See {ERC721-_afterTokenTransfer}. Contract must not be paused.
+	function _afterTokenTransfer(
+		address from,
+		address to,
+		uint256 tokenId
+	) internal virtual override(ERC721Upgradeable) {
+		super._afterTokenTransfer(from, to, tokenId);
 
-    function _beforeTokenTransfer(address from, address to, uint256 amount)
-        internal
-        whenNotPaused 
-        override(ERC721PausableUpgradeable, ERC721Upgradeable)
-    {
-        super._beforeTokenTransfer(from, to, amount);
-        require(!paused(), "ERC721Pausable: token transfer while paused");
-    }
+		if (to != address(0)) {
+			// Reset token ownership term.
+			if (to == platform) {
+				_setLastRenewed(tokenId, 0);
+			} else {
+				_setLastRenewed(tokenId, block.timestamp);
+			}
+			// Grant / revoke publisher role.
+			//etsAccessControls.assessOwners(from, to);
+		}
+	}
 
-    /// @dev See {ERC721-_afterTokenTransfer}. Contract must not be paused.
-    function _afterTokenTransfer(address from, address to, uint256 tokenId)
-        internal
-        virtual 
-        override(ERC721Upgradeable)
-    {
-        super._afterTokenTransfer(from, to, tokenId);
+	/// @notice Private method used for validating a CTAG string before minting.
+	/// @dev A series of assertions are performed reverting the transaction for any validation violations.
+	/// @param _tag Proposed tag string.
+	function _assertTagIsValid(string memory _tag)
+		private
+		view
+		returns (uint256 _tagId)
+	{
+		// generate token ID from machine name
+		uint256 tagId = computeTagId(_tag);
 
-        if (to != address(0)) {
-            // Reset token ownership term.
-            if (to == platform) {
-                _setLastRenewed(tokenId, 0);
-            } else {
-                _setLastRenewed(tokenId, block.timestamp);
-            }
-            // Grant / revoke publisher role.
-            etsAccessControls.assessOwners(from, to);
-        }
-    }
+		require(!_exists(tagId), "ERC721: token already minted");
 
-    /// @notice Private method used for validating a CTAG string before minting.
-    /// @dev A series of assertions are performed reverting the transaction for any validation violations.
-    /// @param _tag Proposed tag string.
-    function _assertTagIsValid(string memory _tag) private view returns (uint256 _tagId) {
-        // generate token ID from machine name
-        uint256 tagId = computeTagId(_tag);
+		bytes memory tagStringBytes = bytes(_tag);
+		require(
+			tagStringBytes.length >= tagMinStringLength &&
+				tagStringBytes.length <= tagMaxStringLength,
+			"Invalid format: tag does not meet min/max length requirements"
+		);
 
-        require(!_exists(tagId), "ERC721: token already minted");
+		require(tagStringBytes[0] == 0x23, "Tag must start with #");
 
-        bytes memory tagStringBytes = bytes(_tag);
-        require(
-            tagStringBytes.length >= tagMinStringLength && tagStringBytes.length <= tagMaxStringLength,
-            "Invalid format: tag does not meet min/max length requirements"
-        );
+		// start from first char after #
+		for (uint256 i = 1; i < tagStringBytes.length; i++) {
+			bytes1 char = tagStringBytes[i];
+			require(char != 0x20, "Space found: tag may not contain spaces");
+			require(char != 0x23, "Tag may not contain prefix");
+		}
 
-        require(tagStringBytes[0] == 0x23, "Tag must start with #");
+		return tagId;
+	}
 
-        // start from first char after #
-        for (uint256 i = 1; i < tagStringBytes.length; i++) {
-            bytes1 char = tagStringBytes[i];
-            require(
-                char != 0x20,
-                "Space found: tag may not contain spaces"
-            );
-            require(
-                char != 0x23,
-                "Tag may not contain prefix"
-            );
-        }
-
-        return tagId;
-    }
-
-    function _setLastRenewed(uint256 _tokenId, uint256 _timestamp) internal {
-        tokenIdToLastRenewed[_tokenId] = _timestamp;
-        emit TagRenewed(_tokenId, msg.sender);
-    }
+	function _setLastRenewed(uint256 _tokenId, uint256 _timestamp) internal {
+		tokenIdToLastRenewed[_tokenId] = _timestamp;
+		emit TagRenewed(_tokenId, msg.sender);
+	}
 }
