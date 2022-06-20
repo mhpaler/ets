@@ -1,7 +1,6 @@
 const { ethers } = require("hardhat");
 
 async function setup() {
-
   const namedAccounts = await ethers.getNamedSigners();
   const accounts = {
     ETSAdmin: namedAccounts["ETSAdmin"],
@@ -18,7 +17,7 @@ async function setup() {
 
   const initSettings = {
     // Access controls
-    PUBLISHER_DEFAULT_THRESHOLD: 1,
+    PUBLISHER_DEFAULT_THRESHOLD: 0,
     // Token
     TAG_MIN_STRING_LENGTH: 2,
     TAG_MAX_STRING_LENGTH: 32,
@@ -30,7 +29,7 @@ async function setup() {
     DURATION: 30 * 60, // 30 minutes
     PUBLISHER_PERCENTAGE: 20,
     CREATOR_PERCENTAGE: 40,
-    PLATFORM_PERCENTAGE: 40
+    PLATFORM_PERCENTAGE: 40,
   };
 
   // ============ SETUP TEST ACCOUNTS ============
@@ -39,5 +38,5 @@ async function setup() {
 }
 
 module.exports = {
-  setup
+  setup,
 };
