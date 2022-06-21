@@ -11,19 +11,14 @@ import { SafeMathUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/m
 import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
 import { IETSAuctionHouse } from "./interfaces/IETSAuctionHouse.sol";
 import { IETSToken } from "./interfaces/IETSToken.sol";
-import { IWETH } from "./interfaces/IWETH.sol";
+import { IWMATIC } from "./interfaces/IWMATIC.sol";
 
 import "hardhat/console.sol";
 
 /**
  * @title
  */
-contract ETSAuctionHouse is
-    IETSAuctionHouse,
-    PausableUpgradeable,
-    ReentrancyGuardUpgradeable,
-    UUPSUpgradeable
-{
+contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
     using SafeMathUpgradeable for uint256;
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -38,8 +33,8 @@ contract ETSAuctionHouse is
 
     /// Public variables
 
-    /// @dev The address of the WETH/WMATIC contract
-    address public weth;
+    /// @dev The address of the WMATIC contract
+    address public wmatic;
 
     /// @dev The minimum amount of time left in an auction after a new bid is created
     uint256 public timeBuffer;
@@ -74,10 +69,7 @@ contract ETSAuctionHouse is
 
     modifier platformOwned(uint256 tokenId) {
         // Returns "ERC721: owner query for nonexistent token" for non-existent token.
-        require(
-            etsToken.ownerOf(tokenId) == etsToken.getPlatformAddress(),
-            "CTAG not owned by ETS"
-        );
+        require(etsToken.ownerOf(tokenId) == etsToken.getPlatformAddress(), "CTAG not owned by ETS");
         _;
     }
 
@@ -92,10 +84,7 @@ contract ETSAuctionHouse is
     }
 
     modifier onlyAdmin() {
-        require(
-            etsAccessControls.isAdmin(_msgSender()),
-            "Caller must be administrator"
-        );
+        require(etsAccessControls.isAdmin(_msgSender()), "Caller must be administrator");
         _;
     }
 
@@ -104,7 +93,7 @@ contract ETSAuctionHouse is
     function initialize(
         IETSToken _etsToken,
         IETSAccessControls _etsAccessControls,
-        address _weth,
+        address _wmatic,
         uint256 _timeBuffer,
         uint256 _reservePrice,
         uint8 _minBidIncrementPercentage,
@@ -118,7 +107,7 @@ contract ETSAuctionHouse is
 
         etsToken = _etsToken;
         etsAccessControls = _etsAccessControls;
-        weth = _weth;
+        wmatic = _wmatic;
         timeBuffer = _timeBuffer; // 5 * 60 = extend 5 minutes after every bid made in last 15 minutes
         reservePrice = _reservePrice;
         minBidIncrementPercentage = _minBidIncrementPercentage; // 5
@@ -150,23 +139,13 @@ contract ETSAuctionHouse is
         emit AuctionTimeBufferSet(_timeBuffer);
     }
 
-    function setProceedPercentages(
-        uint256 _platformPercentage,
-        uint256 _publisherPercentage
-    ) public onlyAdmin {
-        require(
-            _platformPercentage + _publisherPercentage <= 100,
-            "Input must not exceed 100%"
-        );
+    function setProceedPercentages(uint256 _platformPercentage, uint256 _publisherPercentage) public onlyAdmin {
+        require(_platformPercentage + _publisherPercentage <= 100, "Input must not exceed 100%");
         platformPercentage = _platformPercentage;
         publisherPercentage = _publisherPercentage;
         creatorPercentage = modulo - platformPercentage - publisherPercentage;
 
-        emit AuctionProceedPercentagesSet(
-            platformPercentage,
-            publisherPercentage,
-            creatorPercentage
-        );
+        emit AuctionProceedPercentagesSet(platformPercentage, publisherPercentage, creatorPercentage);
     }
 
     // ============ PUBLIC INTERFACE ============
@@ -186,9 +165,7 @@ contract ETSAuctionHouse is
         require(block.timestamp < auction.endTime, "Auction ended");
         require(msg.value >= reservePrice, "Must send at least reservePrice");
         require(
-            msg.value >=
-                auction.amount +
-                    ((auction.amount * minBidIncrementPercentage) / 100),
+            msg.value >= auction.amount + ((auction.amount * minBidIncrementPercentage) / 100),
             "Must send more than last bid by minBidIncrementPercentage amount"
         );
 
@@ -205,65 +182,42 @@ contract ETSAuctionHouse is
         // Extend the auction if the bid was received within `timeBuffer` of the auction end time
         bool extended = auction.endTime - block.timestamp < timeBuffer;
         if (extended) {
-            auctions[_tokenId].endTime = auction.endTime =
-                block.timestamp +
-                timeBuffer;
+            auctions[_tokenId].endTime = auction.endTime = block.timestamp + timeBuffer;
             emit AuctionExtended(_tokenId, auction.endTime);
         }
 
         emit AuctionBid(_tokenId, msg.sender, msg.value, extended);
     }
 
-    function settleAuction(uint256 _tokenId)
-        public
-        nonReentrant
-        auctionExists(_tokenId)
-    {
+    function settleAuction(uint256 _tokenId) public nonReentrant auctionExists(_tokenId) {
         Auction memory auction = _getAuction(_tokenId);
 
         require(block.timestamp >= auction.endTime, "Auction hasn't completed");
 
         // Transfer CTAG Token to winner.
-        etsToken.transferFrom(
-            etsToken.getPlatformAddress(),
-            auction.bidder,
-            _tokenId
-        );
+        etsToken.transferFrom(etsToken.getPlatformAddress(), auction.bidder, _tokenId);
 
         // Distribute proceeds to actors.
         IETSToken.Tag memory ctag = etsToken.getTag(_tokenId);
-        uint256 publisherProceeds = (auction.amount * publisherPercentage) /
-            modulo;
+        uint256 publisherProceeds = (auction.amount * publisherPercentage) / modulo;
         uint256 creatorProceeds = (auction.amount * creatorPercentage) / modulo;
         _safeTransferETHWithFallback(ctag.publisher, publisherProceeds);
         _safeTransferETHWithFallback(ctag.creator, creatorProceeds);
 
-        emit AuctionSettled(
-            _tokenId,
-            auction.bidder,
-            auction.amount,
-            publisherProceeds,
-            creatorProceeds
-        );
+        emit AuctionSettled(_tokenId, auction.bidder, auction.amount, publisherProceeds, creatorProceeds);
         delete auctions[_tokenId];
     }
 
     // ============ INTERNAL FUNCTIONS ============
 
-    function _getAuction(uint256 _tokenId)
-        private
-        returns (Auction memory auction)
-    {
+    function _getAuction(uint256 _tokenId) private returns (Auction memory auction) {
         if (auctions[_tokenId].startTime > 0) {
             return auctions[_tokenId];
         }
         return _createAuction(_tokenId);
     }
 
-    function _createAuction(uint256 _tokenId)
-        private
-        returns (Auction memory auction)
-    {
+    function _createAuction(uint256 _tokenId) private returns (Auction memory auction) {
         // TODO: Have duration & reserve price configurable by standard vs. premium.
         auctions[_tokenId] = Auction({
             amount: 0,
@@ -279,15 +233,12 @@ contract ETSAuctionHouse is
 
     function _safeTransferETHWithFallback(address to, uint256 amount) internal {
         if (!_safeTransferETH(to, amount)) {
-            IWETH(weth).deposit{ value: amount }();
-            IERC20Upgradeable(weth).transfer(to, amount);
+            IWMATIC(wmatic).deposit{ value: amount }();
+            IERC20Upgradeable(wmatic).transfer(to, amount);
         }
     }
 
-    function _safeTransferETH(address to, uint256 value)
-        internal
-        returns (bool)
-    {
+    function _safeTransferETH(address to, uint256 value) internal returns (bool) {
         (bool success, ) = to.call{ value: value, gas: 30_000 }(new bytes(0));
         return success;
     }

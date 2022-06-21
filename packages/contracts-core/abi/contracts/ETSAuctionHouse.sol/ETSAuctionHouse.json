@@ -447,7 +447,7 @@
       },
       {
         "internalType": "address",
-        "name": "_weth",
+        "name": "_wmatic",
         "type": "address"
       },
       {
@@ -712,7 +712,7 @@
   },
   {
     "inputs": [],
-    "name": "weth",
+    "name": "wmatic",
     "outputs": [
       {
         "internalType": "address",

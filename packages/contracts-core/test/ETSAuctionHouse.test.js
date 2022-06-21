@@ -216,7 +216,7 @@ describe("ETS Auction House Tests", function () {
       expect(RandomOnePostRefundBalance).to.equal(RandomOnePostBidBalance.add(initSettings.RESERVE_PRICE));
     });
 
-    it("should cap the maximum bid griefing cost at 30K gas + the cost to wrap and transfer contracts.WETH", async () => {
+    it("should cap the maximum bid griefing cost at 30K gas + the cost to wrap and transfer WMATIC", async () => {
       const maliciousBidder = await (await (await ethers.getContractFactory("MaliciousBidder")).deploy()).deployed();
       const maliciousBid = await maliciousBidder
         .connect(accounts.RandomOne)
