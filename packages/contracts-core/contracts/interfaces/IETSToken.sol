@@ -38,15 +38,9 @@ interface IETSToken is IERC721Upgradeable {
 
     function setAccessControls(IETSAccessControls _etsAccessControls) external;
 
-    function createTag(string calldata _tag)
-        external
-        payable
-        returns (uint256 _tokenId);
+    function createTag(string calldata _tag) external payable returns (uint256 _tokenId);
 
-    function createTag(string calldata _tag, address payable _publisher)
-        external
-        payable
-        returns (uint256 _tokenId);
+    function createTag(string calldata _tag, address payable _publisher) external payable returns (uint256 _tokenId);
 
     function renewTag(uint256 _tokenId) external;
 

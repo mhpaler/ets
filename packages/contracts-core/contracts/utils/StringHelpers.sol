@@ -5,7 +5,6 @@ pragma solidity ^0.8.0;
 /// @author Ethereum Tag Service <security@ets.xyz>
 /// @notice Helper functions for common string operations.
 abstract contract StringHelpers {
-
     /// @notice Convert a string to its lowercase equivalent.
     /// @param _base String to convert.
     /// @return string Lowercase version of string supplied.

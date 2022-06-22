@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.0.0;
 
 import "./interfaces/IETSToken.sol";
 import "./interfaces/IETSAccessControls.sol";
@@ -15,13 +15,7 @@ import "hardhat/console.sol";
 /// @author Ethereum Tag Service <security@ets.xyz>
 /// @notice Contract that governs the creation of CTAG non-fungible tokens.
 /// @dev UUPS upgradable.
-contract ETSToken is
-    ERC721PausableUpgradeable,
-    ERC721BurnableUpgradeable,
-    IETSToken,
-    UUPSUpgradeable,
-    StringHelpers
-{
+contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETSToken, UUPSUpgradeable, StringHelpers {
     using AddressUpgradeable for address;
     using StringsUpgradeable for uint256;
     using SafeMathUpgradeable for uint256;
@@ -51,18 +45,12 @@ contract ETSToken is
     /// Modifiers
 
     modifier onlyAdmin() {
-        require(
-            etsAccessControls.isAdmin(_msgSender()),
-            "Caller must have administrator access"
-        );
+        require(etsAccessControls.isAdmin(_msgSender()), "Caller must have administrator access");
         _;
     }
 
     modifier onlyPublisher() {
-        require(
-            etsAccessControls.isPublisher(_msgSender()),
-            "Caller is not publisher"
-        );
+        require(etsAccessControls.isPublisher(_msgSender()), "Caller is not publisher");
         _;
     }
 
@@ -109,18 +97,12 @@ contract ETSToken is
         _burn(tokenId);
     }
 
-    function setTagMaxStringLength(uint256 _tagMaxStringLength)
-        public
-        onlyAdmin
-    {
+    function setTagMaxStringLength(uint256 _tagMaxStringLength) public onlyAdmin {
         tagMaxStringLength = _tagMaxStringLength;
         emit TagMaxStringLengthSet(_tagMaxStringLength);
     }
 
-    function setOwnershipTermLength(uint256 _ownershipTermLength)
-        public
-        onlyAdmin
-    {
+    function setOwnershipTermLength(uint256 _ownershipTermLength) public onlyAdmin {
         ownershipTermLength = _ownershipTermLength;
         emit OwnershipTermLengthSet(_ownershipTermLength);
     }
@@ -130,23 +112,14 @@ contract ETSToken is
         emit PlatformSet(_platform);
     }
 
-    function setAccessControls(IETSAccessControls _etsAccessControls)
-        public
-        onlyAdmin
-    {
-        require(
-            address(_etsAccessControls) != address(0),
-            "ETS: Access controls cannot be zero"
-        );
+    function setAccessControls(IETSAccessControls _etsAccessControls) public onlyAdmin {
+        require(address(_etsAccessControls) != address(0), "ETS: Access controls cannot be zero");
         etsAccessControls = _etsAccessControls;
         emit AccessControlsSet(_etsAccessControls);
     }
 
     /// @dev Pre-minting, flag / unflag tag strings as premium tags.
-    function preSetPremiumTags(string[] calldata _tags, bool _enabled)
-        public
-        onlyAdmin
-    {
+    function preSetPremiumTags(string[] calldata _tags, bool _enabled) public onlyAdmin {
         require(_tags.length > 0, "Empty array");
         for (uint256 i; i < _tags.length; ++i) {
             string memory tag = __lower(_tags[i]);
@@ -156,10 +129,7 @@ contract ETSToken is
     }
 
     /// @dev set/unset premium flag on tags owned by platform.
-    function setPremiumFlag(uint256[] calldata _tokenIds, bool _isPremium)
-        public
-        onlyAdmin
-    {
+    function setPremiumFlag(uint256[] calldata _tokenIds, bool _isPremium) public onlyAdmin {
         require(_tokenIds.length > 0, "Empty array");
         for (uint256 i; i < _tokenIds.length; ++i) {
             uint256 tokenId = _tokenIds[i];
@@ -171,17 +141,11 @@ contract ETSToken is
 
     /// @dev Add or remove reserved flag from one or more tags.
     /// Reserved flag prevents bidding on token at ETSAuctionHouse.
-    function setReservedFlag(uint256[] calldata _tokenIds, bool _reserved)
-        public
-        onlyAdmin
-    {
+    function setReservedFlag(uint256[] calldata _tokenIds, bool _reserved) public onlyAdmin {
         require(_tokenIds.length > 0, "Empty array");
         for (uint256 i; i < _tokenIds.length; ++i) {
             uint256 tokenId = _tokenIds[i];
-            require(
-                ownerOf(tokenId) == platform,
-                "Token not owned by platform"
-            );
+            require(ownerOf(tokenId) == platform, "Token not owned by platform");
             tokenIdToTag[tokenId].reserved = _reserved;
             emit ReservedFlagSet(tokenId, _reserved);
         }
@@ -189,25 +153,14 @@ contract ETSToken is
 
     // ============ PUBLIC INTERFACE ============
 
-    function createTag(string calldata _tag)
-        public
-        payable
-        returns (uint256 _tokenId)
-    {
+    function createTag(string calldata _tag) public payable returns (uint256 _tokenId) {
         // todo - add nonReentrant due to safeMint
         return createTag(_tag, platform);
     }
 
-    function createTag(string calldata _tag, address payable _publisher)
-        public
-        payable
-        returns (uint256 _tokenId)
-    {
+    function createTag(string calldata _tag, address payable _publisher) public payable returns (uint256 _tokenId) {
         // todo - add nonReentrant due to safeMint
-        require(
-            etsAccessControls.isPublisher(_publisher),
-            "ETS: Not a publisher"
-        );
+        require(etsAccessControls.isPublisher(_publisher), "ETS: Not a publisher");
 
         // Perform basic tag string validation.
         uint256 tagId = _assertTagIsValid(_tag);
@@ -246,10 +199,7 @@ contract ETSToken is
         require(ownerOf(_tokenId) != platform, "ETS: CTAG owned by platform");
 
         uint256 lastRenewed = getLastRenewed(_tokenId);
-        require(
-            lastRenewed.add(getOwnershipTermLength()) < block.timestamp,
-            "ETS: CTAG not eligible for recycling"
-        );
+        require(lastRenewed.add(getOwnershipTermLength()) < block.timestamp, "ETS: CTAG not eligible for recycling");
 
         _transfer(ownerOf(_tokenId), platform, _tokenId);
         emit TagRecycled(_tokenId, _msgSender());
@@ -299,11 +249,7 @@ contract ETSToken is
     /// @notice Returns creator of a CTAG token.
     /// @param _tokenId ID of a CTAG.
     /// @return _creator creator of the CTAG.
-    function getCreatorAddress(uint256 _tokenId)
-        public
-        view
-        returns (address _creator)
-    {
+    function getCreatorAddress(uint256 _tokenId) public view returns (address _creator) {
         return tokenIdToTag[_tokenId].creator;
     }
 
@@ -321,11 +267,7 @@ contract ETSToken is
         address from,
         address to,
         uint256 amount
-    )
-        internal
-        override(ERC721PausableUpgradeable, ERC721Upgradeable)
-        whenNotPaused
-    {
+    ) internal override(ERC721PausableUpgradeable, ERC721Upgradeable) whenNotPaused {
         super._beforeTokenTransfer(from, to, amount);
         require(!paused(), "ERC721Pausable: token transfer while paused");
     }
@@ -353,11 +295,7 @@ contract ETSToken is
     /// @notice Private method used for validating a CTAG string before minting.
     /// @dev A series of assertions are performed reverting the transaction for any validation violations.
     /// @param _tag Proposed tag string.
-    function _assertTagIsValid(string memory _tag)
-        private
-        view
-        returns (uint256 _tagId)
-    {
+    function _assertTagIsValid(string memory _tag) private view returns (uint256 _tagId) {
         // generate token ID from machine name
         uint256 tagId = computeTagId(_tag);
 
@@ -365,8 +303,7 @@ contract ETSToken is
 
         bytes memory tagStringBytes = bytes(_tag);
         require(
-            tagStringBytes.length >= tagMinStringLength &&
-                tagStringBytes.length <= tagMaxStringLength,
+            tagStringBytes.length >= tagMinStringLength && tagStringBytes.length <= tagMaxStringLength,
             "Invalid format: tag does not meet min/max length requirements"
         );
 

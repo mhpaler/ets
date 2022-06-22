@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity ^0.8.6;
+pragma solidity ^0.8.6 .0;
 
 /**
  * @title Interface for ETS Auction House
@@ -25,13 +25,23 @@ interface IETSAuctionHouse {
 
     event AuctionExtended(uint256 indexed tokenId, uint256 endTime);
 
-    event AuctionSettled(uint256 indexed tokenId, address winner, uint256 totalProceeds, uint256 publisherProceeds, uint256 creatorProceeds);
+    event AuctionSettled(
+        uint256 indexed tokenId,
+        address winner,
+        uint256 totalProceeds,
+        uint256 publisherProceeds,
+        uint256 creatorProceeds
+    );
 
     event AuctionReservePriceSet(uint256 reservePrice);
 
     event AuctionTimeBufferSet(uint256 timeBuffer);
 
-    event AuctionProceedPercentagesSet(uint256 platformPercentage, uint256 publisherPercentage, uint256 creatorPercentage);
+    event AuctionProceedPercentagesSet(
+        uint256 platformPercentage,
+        uint256 publisherPercentage,
+        uint256 creatorPercentage
+    );
 
     function pause() external;
 
@@ -48,5 +58,4 @@ interface IETSAuctionHouse {
     function getAuction(uint256 _tokenId) external returns (Auction memory auction);
 
     function settleAuction(uint256 _tokenId) external;
-
 }

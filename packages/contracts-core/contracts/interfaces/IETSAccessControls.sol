@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.0 .0;
 
 import "./IETSToken.sol";
 import "@openzeppelin/contracts-upgradeable/access/IAccessControlUpgradeable.sol";
@@ -22,10 +22,7 @@ interface IETSAccessControls is IAccessControlUpgradeable {
 
     function setPublisherDefaultThreshold(uint256 _threshold) external;
 
-    function getPublisherThreshold(address _addr)
-        external
-        view
-        returns (uint256);
+    function getPublisherThreshold(address _addr) external view returns (uint256);
 
     function getPublisherDefaultThreshold() external view returns (uint256);
 

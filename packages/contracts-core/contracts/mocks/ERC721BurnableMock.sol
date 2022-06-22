@@ -6,6 +6,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 
 contract ERC721BurnableMock is ERC721Burnable {
+    // solhint-disable no-empty-blocks
     constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
 
     function exists(uint256 tokenId) public view returns (bool) {
