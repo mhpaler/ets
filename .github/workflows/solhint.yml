@@ -3,14 +3,8 @@ name: Run Solhint on Contracts
 on:
   workflow_dispatch:
   pull_request:
-<<<<<<< Updated upstream
-    paths:
-      - 'packages/contracts-core/contracts/**'
-=======
->>>>>>> Stashed changes
 
 jobs:
-
   # JOB to run change detection
   changes:
     runs-on: ubuntu-latest
