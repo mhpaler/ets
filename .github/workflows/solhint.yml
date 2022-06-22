@@ -2,6 +2,7 @@ name: Run Solhint on Contracts
 
 on:
   workflow_dispatch:
+  push:
   pull_request:
 
 jobs:
