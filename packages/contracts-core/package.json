@@ -56,6 +56,6 @@
     "deploy": "hardhat deploy --tags deployAll --network localhost",
     "deploy-mumbai": "hardhat deploy --tags deployAll --network mumbai",
     "prettier": "prettier --write 'contracts/**/*.sol'",
-    "solhint": "./node_modules/.bin/solhint -f table contracts/**/*.sol"
+    "solhint": "./node_modules/.bin/solhint contracts/*.sol contracts/**/*.sol"
   }
 }
