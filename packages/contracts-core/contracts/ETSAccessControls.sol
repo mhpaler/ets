@@ -14,12 +14,7 @@ import "hardhat/console.sol";
 /// @title ETS access controls
 /// @author Ethereum Tag Service <security@ets.xyz>
 /// @dev Maintains a mapping of ethereum addresses and roles they have within the protocol
-contract ETSAccessControls is
-    Initializable,
-    AccessControlUpgradeable,
-    IETSAccessControls,
-    UUPSUpgradeable
-{
+contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAccessControls, UUPSUpgradeable {
     using SafeMathUpgradeable for uint256;
 
     IETSToken public etsToken;
@@ -49,37 +44,21 @@ contract ETSAccessControls is
     }
 
     // Ensure that only addresses with admin role can upgrade.
-    function _authorizeUpgrade(address)
-        internal
-        override
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {}
+    function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
     // ============ OWNER INTERFACE ============
 
-    function setETSToken(IETSToken _etsToken)
-        public
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
-        require(
-            address(_etsToken) != address(0),
-            "ETS: Address cannot be zero"
-        );
+    function setETSToken(IETSToken _etsToken) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(address(_etsToken) != address(0), "ETS: Address cannot be zero");
         etsToken = _etsToken;
         emit ETSTokenSet(_etsToken);
     }
 
-    function setRoleAdmin(bytes32 _role, bytes32 _adminRole)
-        public
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
+    function setRoleAdmin(bytes32 _role, bytes32 _adminRole) public onlyRole(DEFAULT_ADMIN_ROLE) {
         _setRoleAdmin(_role, _adminRole);
     }
 
-    function setPublisherDefaultThreshold(uint256 _threshold)
-        public
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
+    function setPublisherDefaultThreshold(uint256 _threshold) public onlyRole(DEFAULT_ADMIN_ROLE) {
         publisherDefaultThreshold = _threshold;
         emit PublisherDefaultThresholdSet(_threshold);
     }
@@ -91,10 +70,7 @@ contract ETSAccessControls is
         // Grant publisher role to sender if token balance meets threshold.
         uint256 threshold = getPublisherThreshold(msg.sender);
 
-        if (
-            etsToken.balanceOf(msg.sender) >= threshold &&
-            !hasRole(PUBLISHER_ROLE, msg.sender)
-        ) {
+        if (etsToken.balanceOf(msg.sender) >= threshold && !hasRole(PUBLISHER_ROLE, msg.sender)) {
             this.grantRole(PUBLISHER_ROLE, msg.sender);
             publisherThresholds[msg.sender] = threshold;
             return true;
@@ -126,11 +102,7 @@ contract ETSAccessControls is
         return hasRole(PUBLISHER_ROLE_ADMIN, _addr);
     }
 
-    function getPublisherThreshold(address _addr)
-        public
-        view
-        returns (uint256)
-    {
+    function getPublisherThreshold(address _addr) public view returns (uint256) {
         if (hasRole(PUBLISHER_ROLE, _addr)) {
             return publisherThresholds[_addr];
         }
