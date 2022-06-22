@@ -36,4 +36,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install
+        run: |
+          pnpm install
+          cd packages/contracts-core/
+          pnpm solhint
