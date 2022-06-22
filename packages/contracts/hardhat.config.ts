@@ -133,14 +133,14 @@ const config: HardhatUserConfig = {
       }
     ],
   },
+  ethernal: {
+    disableSync: false,
+    disableTrace: true,
+    workspace: process.env.ETHERNAL_WORKSPACE ? process.env.ETHERNAL_WORKSPACE : undefined,
+    uploadAst: false,
+    disabled: process.env.ETHERNAL_DISABLED == "true" ? true : false,
+    resetOnStart: process.env.ETHERNAL_WORKSPACE ? process.env.ETHERNAL_WORKSPACE : undefined,
+  },
 };
-
-// Environment extension to support Ethernal.
-extendEnvironment((hre) => {
-  hre.ethernalSync = process.env.ETHERNAL_ENABLED == "true" ? true : false;
-  hre.ethernalWorkspace = process.env.ETHERNAL_WORKSPACE ? process.env.ETHERNAL_WORKSPACE : "none";
-  hre.ethernalTrace = false;
-  hre.ethernalResetOnStart = process.env.ETHERNAL_WORKSPACE ? process.env.ETHERNAL_WORKSPACE : "none";;
-});
 
 export default config;
