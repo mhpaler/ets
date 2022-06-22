@@ -1,6 +1,10 @@
 name: Solhint Runner
 
-on: [push, pull_request]
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'packages/contracts-core/**'
 
 jobs:
   cache-and-install:
@@ -36,7 +40,9 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: |
-          pnpm install
+        run:  pnpm install
+
+      - name: Lint Solidity
+        run: |  
           cd packages/contracts-core/
           pnpm solhint
