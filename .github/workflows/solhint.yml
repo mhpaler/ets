@@ -13,6 +13,7 @@ jobs:
       contracts: ${{ steps.filter.outputs.contracts }}
     steps:
     # For pull requests it's not necessary to checkout the code
+    - uses: actions/checkout@v2
     - uses: dorny/paths-filter@v2
       id: filter
       with:
