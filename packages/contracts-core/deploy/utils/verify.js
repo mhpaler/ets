@@ -1,4 +1,4 @@
-const { network, ethernal, run, ethernalSync } = require("hardhat");
+const { network, ethernal, run } = require("hardhat");
 const networkName = network.name;
 const chainId = network.config.chainId;
 
@@ -15,10 +15,10 @@ const chainId = network.config.chainId;
  * address in as the implementation argument.
  */
 async function verify(name, deployment, implementation, args) {
-
-  // If we are on hardhat local chain and ethernalSync is enabled.
+  const ethernalSync = true;
+  // If we are on hardhat local chain and ethernal is enabled.
   if (chainId == 31337) {
-    if (ethernalSync) {
+    if (ethernal) {
       console.log(`Verifying ${name} on Ethernal`);
       try {
         await ethernal.push({

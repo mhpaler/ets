@@ -16,9 +16,9 @@ module.exports = async ({
     let wethAddress;
 
     if (chainId == 31337) { // Hardhat
-      const weth = await factories.WETH.deploy();
+      const weth = await factories.WMATIC.deploy();
       await weth.deployed();
-      await saveNetworkConfig("WETH", weth, null, false);
+      await saveNetworkConfig("WMATIC", weth, null, false);
       wethAddress = weth.address;
 
       let etsAccessControls = await deployments.get('ETSAccessControls');
@@ -27,7 +27,7 @@ module.exports = async ({
       etsTokenAddress = etsToken.address
     } else {
       // Change to WMATIC
-      wethAddress = networkConfig[chainId].contracts['WETH'].address;
+      wethAddress = networkConfig[chainId].contracts['WMATIC'].address;
       etsAccessControlsAddress = networkConfig[chainId].contracts['ETSAccessControls'].address;
       etsTokenAddress = networkConfig[chainId].contracts['ETSToken'].address;
     }

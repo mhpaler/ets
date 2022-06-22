@@ -9,7 +9,7 @@ async function setup() {
   };
 
   const factories = {
-    WETH: await ethers.getContractFactory("WETH"),
+    WMATIC: await ethers.getContractFactory("WMATIC"),
     ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
     ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
     ETSToken: await ethers.getContractFactory("ETSToken"),
