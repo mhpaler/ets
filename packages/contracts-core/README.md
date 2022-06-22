@@ -31,7 +31,7 @@ We are big fans of using [Ethernal](https://doc.tryethernal.com/) to help with s
 Once you have Ethernal setup, enable it for local ETS development by setting the following in your .env file:
 
 ```text
-ETHERNAL_ENABLED=true
+ETHERNAL_DISABLED=false
 ETHERNAL_WORKSPACE=[you local workspace name]
 ```
 
