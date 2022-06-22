@@ -1,9 +1,7 @@
 name: Run Solhint on Contracts
 
 on:
-  workflow_dispatch:
-  push:
-  pull_request:
+  [push, pull_request]
 
 jobs:
   # JOB to run change detection
