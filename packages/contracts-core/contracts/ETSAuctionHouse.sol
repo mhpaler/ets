@@ -134,9 +134,7 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         emit AuctionReservePriceSet(_reservePrice);
     }
 
-    function setTimeBuffer(uint256 _timeBuffer) 
-    public 
-    onlyAdmin {
+    function setTimeBuffer(uint256 _timeBuffer) public onlyAdmin {
         timeBuffer = _timeBuffer;
         emit AuctionTimeBufferSet(_timeBuffer);
     }

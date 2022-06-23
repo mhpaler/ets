@@ -45,7 +45,7 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
     /// Modifiers
 
     modifier onlyAdmin() {
-        require(etsAccessControls.isAdmin(_msgSender()), "Caller must have administrator access");
+        require(etsAccessControls.isAdmin(_msgSender()), "Caller not administrator");
         _;
     }
 
