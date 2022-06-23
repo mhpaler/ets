@@ -1,11 +1,8 @@
-name: Solhint
+name: Solidity screener
 
 on:
   push:
   pull_request:
-    paths:
-      - 'packages/contracts-core/contracts/**'
-
 
 jobs:
   # JOB to run change detection
@@ -25,7 +22,8 @@ jobs:
         filters: |
           contracts:
             - 'packages/contracts-core/contracts/**'
-  solhint-contracts:
+
+  solhint:
     needs: changes
     if: ${{ needs.changes.outputs.contracts == 'true' }}
     runs-on: ubuntu-latest
