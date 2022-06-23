@@ -23,7 +23,8 @@ jobs:
           contracts:
             - 'packages/contracts-core/contracts/**'
 
-  solhint:
+  tests:
+    name: Solhint & Tests
     needs: changes
     if: ${{ needs.changes.outputs.contracts == 'true' }}
     runs-on: ubuntu-latest
@@ -59,7 +60,12 @@ jobs:
       - name: Install dependencies
         run:  pnpm install
 
-      - name: Lint Solidity
+      - name: Run Solhint
         run: |  
           cd packages/contracts-core/
           pnpm solhint
+          
+      - name: Run Tests
+        run: pnpm hardhat:test
+          
+      
