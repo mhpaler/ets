@@ -31,7 +31,7 @@ async function getArtifacts() {
 
 async function getFactories() {
   const allFactories = {
-    WETH: await ethers.getContractFactory("WETH"),
+    WMATIC: await ethers.getContractFactory("WMATIC"),
     ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
     ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
     ETSToken: await ethers.getContractFactory("ETSToken"),
@@ -48,7 +48,7 @@ function getInitSettings() {
 
 async function setup() {
   const factories = {
-    WETH: await ethers.getContractFactory("WETH"),
+    WMATIC: await ethers.getContractFactory("WMATIC"),
     ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
     ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
     ETSToken: await ethers.getContractFactory("ETSToken"),
@@ -69,7 +69,7 @@ async function setup() {
 
   // ============ DEPLOY CONTRACTS ============
 
-  const WETH = await factories.WETH.deploy();
+  const WMATIC = await factories.WMATIC.deploy();
   const ETSAccessControls = await upgrades.deployProxy(
     factories.ETSAccessControls,
     [initSettings.PUBLISHER_DEFAULT_THRESHOLD],
@@ -91,7 +91,7 @@ async function setup() {
     [
       ETSToken.address,
       ETSAccessControls.address,
-      WETH.address,
+      WMATIC.address,
       initSettings.TIME_BUFFER,
       initSettings.RESERVE_PRICE,
       initSettings.MIN_INCREMENT_BID_PERCENTAGE,
@@ -104,7 +104,7 @@ async function setup() {
   );
 
   const contracts = {
-    WETH: WETH,
+    WMATIC: WMATIC,
     ETSAccessControls: ETSAccessControls,
     ETSAuctionHouse: ETSAuctionHouse,
     ETSToken: ETSToken,
