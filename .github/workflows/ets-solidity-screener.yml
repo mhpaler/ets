@@ -1,16 +1,34 @@
-name: Solhint
+name: ETS Solidity screener
 
 on:
   push:
   pull_request:
-    paths:
-      - 'packages/contracts-core/contracts/**'
-
 
 jobs:
-  solhint:
+  # JOB to run change detection
+  changes:
+    name: Detect changes
     runs-on: ubuntu-latest
+    # Set job outputs to values from filter step
+    outputs:
+      contracts: ${{ steps.filter.outputs.contracts }}
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v2
+    
+    # For pull requests it's not necessary to checkout the code
+    - uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        filters: |
+          contracts:
+            - 'packages/contracts-core/contracts/**'
 
+  screener:
+    name: Run Solhint & Tests
+    needs: changes
+    if: ${{ needs.changes.outputs.contracts == 'true' }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -43,7 +61,12 @@ jobs:
       - name: Install dependencies
         run:  pnpm install
 
-      - name: Lint Solidity
+      - name: Run Solhint
         run: |  
           cd packages/contracts-core/
           pnpm solhint
+          
+      - name: Run Tests
+        run: pnpm hardhat:test
+          
+      
