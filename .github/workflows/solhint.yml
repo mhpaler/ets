@@ -1,9 +1,14 @@
-name: Solhint Runner
+name: Solhint
 
-on: pull_request
+on:
+  push:
+  pull_request:
+    paths:
+      - 'packages/contracts-core/contracts/**'
+
 
 jobs:
-  cache-and-install:
+  solhint:
     runs-on: ubuntu-latest
 
     steps:
