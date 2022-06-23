@@ -1,4 +1,4 @@
-name: Solidity screener
+name: ETS Solidity screener
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
 jobs:
   # JOB to run change detection
   changes:
+    name: Detect changes
     runs-on: ubuntu-latest
     # Set job outputs to values from filter step
     outputs:
@@ -23,8 +24,8 @@ jobs:
           contracts:
             - 'packages/contracts-core/contracts/**'
 
-  tests:
-    name: Solhint & Tests
+  screener:
+    name: Run Solhint & Tests
     needs: changes
     if: ${{ needs.changes.outputs.contracts == 'true' }}
     runs-on: ubuntu-latest
