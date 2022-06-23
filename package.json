@@ -31,6 +31,7 @@
     "hardhat:deploy-mumbai": "cd packages/contracts-core && pnpm run deploy-mumbai",
     "hardhat:compile": "cd packages/contracts-core && pnpm run compile",
     "hardhat:watch": "cd packages/contracts-core && pnpm run watch",
+    "hardhat:solhint": "cd packages/contracts-core && pnpm solhint",
     "hardhat:test": "cd packages/contracts-core && pnpm run hardhat-test",
     "hardhat:clean": "cd packages/hardhat && pnpm hardhat clean",
     "docker:start": "cd packages/subgraph && npm run run-graph-node",

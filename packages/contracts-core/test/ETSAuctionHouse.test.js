@@ -17,7 +17,7 @@ describe("ETS Auction House Tests", function () {
   beforeEach("Setup test", async function () {
     [accounts, contracts, initSettings] = await setup();
 
-    //[accounts, contracts.ETSAccessControls, contracts.ETSToken, contracts.ETSAuctionHouse, contracts.WETH, initSettings] = await setup();
+    //[accounts, contracts.ETSAccessControls, contracts.ETSToken, contracts.ETSAuctionHouse, contracts.WMATIC, initSettings] = await setup();
 
     // Mint a tag by random user. ETS is Publisher, retained by platform.
     etsOwnedTag = "#Love";
@@ -52,7 +52,7 @@ describe("ETS Auction House Tests", function () {
       const tx = contracts.ETSAuctionHouse.initialize(
         contracts.ETSAuctionHouse.address,
         contracts.ETSAccessControls.address,
-        contracts.WETH.address,
+        contracts.WMATIC.address,
         initSettings.TIME_BUFFER,
         initSettings.RESERVE_PRICE,
         initSettings.MIN_INCREMENT_BID_PERCENTAGE,
@@ -232,7 +232,7 @@ describe("ETS Auction House Tests", function () {
       const result = await tx.wait();
 
       expect(result.gasUsed.toNumber()).to.be.lessThan(200_000);
-      expect(await contracts.WETH.balanceOf(maliciousBidder.address)).to.equal(initSettings.RESERVE_PRICE * 2);
+      expect(await contracts.WMATIC.balanceOf(maliciousBidder.address)).to.equal(initSettings.RESERVE_PRICE * 2);
     });
 
     it("should emit an `AuctionExtended` event if the auction end time is within the time buffer", async () => {
