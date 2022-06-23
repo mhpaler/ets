@@ -113,7 +113,7 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
     }
 
     function setAccessControls(IETSAccessControls _etsAccessControls) public onlyAdmin {
-        require(address(_etsAccessControls) != address(0), "ETS: Access controls cannot be zero");
+        require(address(_etsAccessControls) != address(0), "Access controls cannot be zero");
         etsAccessControls = _etsAccessControls;
         emit AccessControlsSet(_etsAccessControls);
     }

@@ -110,7 +110,7 @@ describe("ETSToken Core Tests", function () {
     it("should revert when setting to zero address", async function () {
       await expect(
         contracts.ETSToken.connect(accounts.ETSPlatform).setAccessControls(constants.AddressZero),
-      ).to.be.revertedWith("ETS: Access controls cannot be zero");
+      ).to.be.revertedWith("Access controls cannot be zero");
     });
   });
 
