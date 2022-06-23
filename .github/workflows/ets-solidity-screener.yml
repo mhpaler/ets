@@ -1,5 +1,8 @@
 name: ETS Solidity screener
 
+env:
+  MNEMONIC: test test test test test test test test test test test junk
+  
 on:
   push:
   pull_request:
