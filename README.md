@@ -1,6 +1,6 @@
 # Ethereum Tag Service
 
-Ethereum Tag Service, aka ETS, is the community-owned incentivized cross-chain content tagging protocol for the decentralized web.
+Ethereum Tag Service is the community-owned incentivized cross-chain content tagging protocol for the decentralized web.
 
 This repository uses Turborepo and [pnpm](https://pnpm.io/) as a package manager for the monorepo.
 
