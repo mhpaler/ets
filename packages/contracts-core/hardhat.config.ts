@@ -27,13 +27,6 @@ if (!mnemonic) {
   throw new Error("Please set your MNEMONIC in a .env file");
 }
 
-// @TODO: Pretty sure we can nix this.
-// const infuraApiKey: string | undefined = process.env.INFURA_API_KEY;
-// 
-// if (!infuraApiKey) {
-//   throw new Error("Please set your INFURA_API_KEY in a .env file");
-// }
-
 const config: HardhatUserConfig = {
   networks: {
     hardhat: {
