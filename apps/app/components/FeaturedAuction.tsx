@@ -26,7 +26,7 @@ const Bid = ({
       </div>
       <div className="flex items-center flex-none text-right text-slate-700">
         <strong className="font-semibold">{amount} MATIC</strong>
-        <a href={`https://etherscan.io/tx/${transaction}`} target="_blank" className="ml-1 text-pink-600 hover:text-pink-700">
+        <a href={`https://etherscan.io/tx/${transaction}`} target="_blank" rel="noreferrer" className="ml-1 text-pink-600 hover:text-pink-700">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.25 4.75H6.75C5.64543 4.75 4.75 5.64543 4.75 6.75V17.25C4.75 18.3546 5.64543 19.25 6.75 19.25H17.25C18.3546 19.25 19.25 18.3546 19.25 17.25V14.75"></path>
             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19.25 9.25V4.75H14.75"></path>

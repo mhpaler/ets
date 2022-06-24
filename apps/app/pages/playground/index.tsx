@@ -7,7 +7,7 @@ import { Button } from '../../components/Button';
 import PageTitle from '../../components/PageTitle';
 import { Listbox, Transition } from '@headlessui/react';
 import { useContractWrite } from 'wagmi';
-import ETSTokenABI from '@ets/contracts-core/artifacts/contracts/ETSToken.sol/ETSToken.json';
+import ETSTokenABI from '../../abi/ETSToken.json';
 
 const people = [
   { name: 'zachwilliams.eth' },
