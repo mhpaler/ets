@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -11,16 +11,16 @@ import { Number } from '../../components/Number';
 import { Table } from '../../components/Table';
 import { TimeAgo } from '../../components/TimeAgo';
 import { CopyAndPaste } from '../../components/CopyAndPaste';
-import { Share } from '../../components/Share';
 import { Panel } from '../../components/Panel';
 import { Auction } from '../../components/Auction';
+import PageTitle from '../../components/PageTitle';
 
 const Tag: NextPage = () => {
   const { query } = useRouter();
   const { tag } = query;
   const variables = { name: tag };
-
   const { t } = useTranslation('common');
+
   const { data, error } = useSWR([
     `query tag($name: String!) {
       tag: hashtags(first: 1, where: {hashtagWithoutHash: $name}) {
@@ -80,12 +80,7 @@ const Tag: NextPage = () => {
         <title>{data && data.tag[0].name} | Ethereum Tag Service</title>
       </Head>
 
-      <div className="md:flex">
-        <div className="flex items-center mb-6 md:flex-grow md:mb-0">
-          <h1 className="text-3xl font-bold text-slate-700">{data && data.tag[0].name}</h1>
-        </div>
-        <Share url="https://ets.xyz" />
-      </div>
+      <PageTitle title={data && data.tag[0].name} shareUrl="https://ets.xyz" />
 
       <div className="grid gap-6 mx-auto mt-8 lg:gap-12 md:space-y-0 md:grid sm:w-full md:grid-cols-3">
         <div className="grid content-start gap-6 md:col-span-1 lg:gap-12">
@@ -98,6 +93,7 @@ const Tag: NextPage = () => {
               <text fill="currentColor" stroke="none" strokeMiterlimit="10" fontFamily="HelveticaNeue-Bold,Helvetica Neue" fontSize="50" fontWeight="700" transform="translate(100 150)">{data && data.tag[0].name}</text>
             </svg>
           </div>
+
           <Auction />
         </div>
 

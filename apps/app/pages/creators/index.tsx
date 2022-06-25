@@ -8,6 +8,7 @@ import { Table } from '../../components/Table';
 import { Button } from '../../components/Button';
 import useNumberFormatter from '../../hooks/useNumberFormatter';
 import { toEth, toDp } from '../../utils';
+import PageTitle from '../../components/PageTitle';
 
 const pageSize = 20;
 
@@ -52,6 +53,8 @@ const Creators: NextPage = () => {
       <Head>
         <title>{t('creators')} | Ethereum Tag Service</title>
       </Head>
+
+      <PageTitle title={t('creators')} />
 
       <Table
         loading={!creators}

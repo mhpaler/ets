@@ -5,6 +5,35 @@ module.exports = {
   ],
   theme: {
     extend: {
+      animation: {
+        'ets-outer': 'ets-outer 300ms ease-out',
+        'ets-inner': 'ets-inner 300ms ease-out 1 300ms',
+        'ets-dot': 'spin 3s linear infinite',
+      },
+      keyframes: {
+        'ets-outer': {
+          '0%': {
+            transform: 'rotate(0deg) scale(0)',
+            transformOrigin: 'center',
+          },
+          '100%': {
+            transform: 'rotate(90deg) scale(1)',
+            transformOrigin: 'center',
+          },
+        },
+        'ets-inner': {
+          '0%': {
+            opacity: 0,
+            transform: 'rotate(0deg) scale(0)',
+            transformOrigin: 'center',
+          },
+          '100%': {
+            opacity: 1,
+            transform: 'rotate(135deg) scale(1)',
+            transformOrigin: 'center',
+          },
+        }
+      },
       fontFamily: {
         "sans": ["Helvetica", "Helvetica Neue", "Arial", "ui-sans-serif", "system-ui"],
       },

@@ -8,6 +8,7 @@ import { Table } from '../../components/Table';
 import useNumberFormatter from '../../hooks/useNumberFormatter';
 import { useTags } from '../../hooks/useTags';
 import { TimeAgo } from '../../components/TimeAgo';
+import PageTitle from '../../components/PageTitle';
 
 const pageSize = 20;
 
@@ -59,6 +60,8 @@ const Tags: NextPage = () => {
       <Head>
         <title>{t('tags')} | Ethereum Tag Service</title>
       </Head>
+
+      <PageTitle title={t('tags')} />
 
       <Table
         loading={!tags}
