@@ -1,7 +1,9 @@
 import { Bytes } from "@graphprotocol/graph-ts";
 
-import { RoleGranted } from "../generated/HashtagAccessControls/HashtagAccessControls";
-import { safeLoadPublisher } from "../utils/helpers";
+import { RoleGranted } from "../generated/ETSAccessControls/ETSAccessControls";
+
+import { ensurePublisher } from "../entities/Publisher";
+
 
 // const ADMIN_ROLE = Bytes.fromHexString("0x0000000000000000000000000000000000000000000000000000000000000000");
 const PUBLISHER_ROLE = Bytes.fromHexString("0xad312f08b8889cfe65ec2f1faae419f8b47f0153a3483ea6130918c055c8183d");
@@ -16,7 +18,9 @@ const PUBLISHER_ROLE = Bytes.fromHexString("0xad312f08b8889cfe65ec2f1faae419f8b4
  */
 export function handleRoleGranted(event: RoleGranted): void {
   if (event.params.role.equals(PUBLISHER_ROLE)) {
-    let entity = safeLoadPublisher(event.params.account.toHexString());
-    entity.save();
+    let entity = ensurePublisher(event.params.account.toHexString());
+    if(entity){
+      entity.save();
+    }
   }
 }

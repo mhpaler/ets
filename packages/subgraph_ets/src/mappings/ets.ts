@@ -39,9 +39,9 @@ export function handleMintTag(event: MintTag): void {
   tagEntity.tag = lowerTag;
   tagEntity.tagWithoutHash = lowerTag.substring(1, lowerTag.length);
 
-  tagEntity.owner = tagContract.platform();
-  tagEntity.creator = tag.value1;
-  tagEntity.publisher = event.params.publisher;
+  tagEntity.owner = tagContract.platform().toString();
+  tagEntity.creator = tag.value1.toString();
+  tagEntity.publisher = event.params.publisher.toString();
   tagEntity.timestamp = event.block.timestamp;
   tagEntity.tagCount = BigInt.fromI32(0);
   tagEntity.ownerRevenue = BigInt.fromI32(0);

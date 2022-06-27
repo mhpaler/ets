@@ -1,4 +1,4 @@
-import {Owner_v2} from "../generated/schema";
+import {Owner} from "../generated/schema";
 import {BigInt} from "@graphprotocol/graph-ts/index";
 
 /*
@@ -7,11 +7,11 @@ import {BigInt} from "@graphprotocol/graph-ts/index";
 export const ONE = BigInt.fromI32(1);
 export const ZERO = BigInt.fromI32(0);
 
-export function ensureOwner(id: string): Owner_v2 | null {
-    let entity = Owner_v2.load(id);
+export function ensureOwner(id: string): Owner | null {
+    let entity = Owner.load(id);
 
     if (entity === null) {
-        entity = new Owner_v2(id);
+        entity = new Owner(id);
         entity.mintCount = ZERO;
         entity.tagCount = ZERO;
         entity.tagFees = ZERO;

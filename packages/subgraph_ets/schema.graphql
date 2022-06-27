@@ -6,7 +6,7 @@ interface Target {
 type NFT_EVM implements Target @entity {
   id: ID!
   timestamp: BigInt!
-  nftContract: Bytes!
+  nftContract: String!
   nftId: String!
   nftContractName: String
   nftTokenUri: String
@@ -41,11 +41,12 @@ type Tag @entity {
 type Tagging_Record @entity {
   id: ID!
   transaction: String!
-  tag: Hashtag!
+  tag: [Tag!]!
   tagger: Tagger!
   publisher: Publisher!
   target: Target!
   tagName: String!
+  timestamp: BigInt!
 }
 
 type Publisher @entity {

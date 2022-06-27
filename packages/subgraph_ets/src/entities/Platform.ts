@@ -1,4 +1,4 @@
-import {Platform_v2} from "../generated/schema";
+import {Platform} from "../generated/schema";
 import {BigInt} from "@graphprotocol/graph-ts/index";
 
 /*
@@ -7,11 +7,11 @@ import {BigInt} from "@graphprotocol/graph-ts/index";
 export const ONE = BigInt.fromI32(1);
 export const ZERO = BigInt.fromI32(0);
 
-export function ensurePlatform(id: string): Platform_v2 | null {
-    let entity = Platform_v2.load(id);
+export function ensurePlatform(id: string): Platform | null {
+    let entity = Platform.load(id);
 
     if (entity === null) {
-        entity = new Platform_v2(id);
+        entity = new Platform(id);
         entity.tagFees = ZERO;
     }
 

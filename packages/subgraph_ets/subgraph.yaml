@@ -3,63 +3,63 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: HashtagProtocol
+    name: ETSTag
+    network: mainnet
+    source:
+      address: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
+      abi: ETSTag
+      startBlock: 12
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - MintTag
+      abis:
+        - name: ETSTag
+          file: ./../contracts/abi/contracts/core/ETSTag.sol/ETSTag.json
+      eventHandlers:
+        - event: MintTag(indexed uint256,string,indexed address,address)
+          handler: handleMintTag
+      file: ./src/mappings/ets.ts
+  - kind: ethereum/contract
+    name: ETS
     network: mainnet
     source:
       address: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"
-      abi: HashtagProtocol
-      startBlock: 6
+      abi: ETS
+      startBlock: 13
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - MintHashtag
+        - Tagged
       abis:
-        - name: HashtagProtocol
-          file: ../hashtag-contracts/abi/contracts/release/HashtagProtocol.sol/HashtagProtocol.json
+        - name: ETS
+          file: ./../contracts/abi/contracts/core/ETS.sol/ETS.json
+        - name: ETSTag
+          file: ./../contracts/abi/contracts/core/ETSTag.sol/ETSTag.json
       eventHandlers:
-        - event: MintHashtag(indexed uint256,string,indexed address,address)
-          handler: handleMintHashtag
-      file: ./src/mappings/protocol-mapping.ts
+        - event: TargetTagged(uint256)
+          handler: handleTagRegistered
+      file: ./src/mappings/tagging-record-registry.ts
   - kind: ethereum/contract
-    name: ERC721HashtagRegistry
-    network: mainnet
-    source:
-      address: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"
-      abi: ERC721HashtagRegistry
-      startBlock: 8
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      entities:
-        - HashtagRegistered
-      abis:
-        - name: ERC721HashtagRegistry
-          file: ../hashtag-contracts/abi/contracts/release/ERC721HashtagRegistry.sol/ERC721HashtagRegistry.json
-        - name: HashtagProtocol
-          file: ../hashtag-contracts/abi/contracts/release/HashtagProtocol.sol/HashtagProtocol.json
-      eventHandlers:
-        - event: HashtagRegistered(indexed address,indexed address,indexed address,uint256,uint256,uint256,uint256,uint256)
-          handler: handleHashtagRegistered
-      file: ./src/mappings/erc721-hashtag-registry.ts
-  - kind: ethereum/contract
-    name: HashtagAccessControls
+    name: ETSAccessControls
     network: mainnet
     source:
       address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
-      abi: HashtagAccessControls
-      startBlock: 2
+      abi: ETSAccessControls
+      startBlock: 9
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
         - RoleGranted
       abis:
-        - name: HashtagAccessControls
-          file: ../hashtag-contracts/abi/contracts/release/HashtagAccessControls.sol/HashtagAccessControls.json
+        - name: ETSAccessControls
+          file: ./../contracts/abi/contracts/core/ETSAccessControls.sol/ETSAccessControls.json
       eventHandlers:
         - event: RoleGranted(indexed bytes32,indexed address,indexed address)
           handler: handleRoleGranted

@@ -6,7 +6,7 @@
  * Where [network] is the destination the subgraph.
  * See const networks for supported networks.
 **/
-const configFile = "./../hardhat/config/config.json";
+const configFile = "./../contracts/config/config.json";
 const fs = require("fs-extra");
 const Handlebars = require("handlebars");
 
@@ -54,7 +54,7 @@ try {
 const chainId = networks[network].chainId;
 
 const contractsInfo = {
-  contracts: config.networks[chainId].contracts,
+  contracts: config[chainId].contracts,
   network: networks[network].name,
 };
 const template = Handlebars.compile(fs.readFileSync("./templates/subgraph.yaml").toString());
