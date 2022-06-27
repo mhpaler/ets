@@ -153,6 +153,26 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
 
     // ============ PUBLIC INTERFACE ============
 
+    function getOrCreateTag(string calldata _tag, address payable _publisher) public payable returns (Tag memory tag) {
+        uint256 tokenId = computeTagId(_tag);
+        if (!tagExists(tokenId)) {
+            tokenId = createTag(_tag, _publisher);
+        }
+        return tokenIdToTag[tokenId];
+    }
+
+    function getOrCreateTagId(string calldata _tag, address payable _publisher)
+        public
+        payable
+        returns (uint256 tokenId)
+    {
+        uint256 _tokenId = computeTagId(_tag);
+        if (!tagExists(_tokenId)) {
+            _tokenId = createTag(_tag, _publisher);
+        }
+        return _tokenId;
+    }
+
     function createTag(string calldata _tag) public payable returns (uint256 _tokenId) {
         // todo - add nonReentrant due to safeMint
         return createTag(_tag, platform);
