@@ -1,4 +1,8 @@
 {
+  "active": "Active",
+  "address": "Address",
+  "auction": "Auction",
+  "auctions": "Auctions",
   "chain": "Chain",
   "connect-wallet": "Connect Wallet",
   "contract": "Contract",
@@ -17,11 +21,15 @@
   "num": "{{count, number}}",
   "overview": "Overview",
   "owner": "Owner",
+  "pending-bid": "Pending bid",
   "permalink": "Permalink",
+  "playground": "Playground",
   "popular-tags": "Popular tags",
   "protocol": "Protocol",
   "publisher": "Publisher",
   "publishers": "Publishers",
+  "recently-minted": "Recently minted",
+  "recently-purchased": "Recently purchased",
   "recently-tagged": "Recently tagged",
   "revenue": "Revenue",
   "share": "Share",
@@ -37,5 +45,6 @@
   "token-id": "Token ID",
   "top-creators": "Top creators",
   "top-publishers": "Top publishers",
-  "top-taggers": "Top taggers"
+  "top-taggers": "Top taggers",
+  "view-all-bids": "View all bids"
 }

@@ -20,7 +20,7 @@ export function usePublishers({
         tagCount
         tagFees
       },
-      nextCreators: publishers(first: ${pageSize}, skip: ${skip + pageSize}, orderBy: $orderBy, orderDirection: desc) {
+      nextPublishers: publishers(first: ${pageSize}, skip: ${skip + pageSize}, orderBy: $orderBy, orderDirection: desc) {
         id
       }
     }`,

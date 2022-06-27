@@ -8,6 +8,7 @@ import { Table } from '../../components/Table';
 import { Button } from '../../components/Button';
 import useNumberFormatter from '../../hooks/useNumberFormatter';
 import { toEth, toDp } from '../../utils';
+import PageTitle from '../../components/PageTitle';
 
 const pageSize = 20;
 
@@ -41,7 +42,7 @@ const Creators: NextPage = () => {
   }
 
   const columns = useMemo(() => [
-    t('creator'),
+    t('address'),
     t('tags'),
     'Tag count',
     t('revenue'),
@@ -52,6 +53,8 @@ const Creators: NextPage = () => {
       <Head>
         <title>{t('publishers')} | Ethereum Tag Service</title>
       </Head>
+
+      <PageTitle title={t('publishers')} />
 
       <Table
         loading={!publishers}

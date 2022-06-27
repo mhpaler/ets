@@ -1,0 +1,3 @@
+{
+  "extends": "@ets/tsconfig/hardhat.json"
+}

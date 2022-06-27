@@ -2,7 +2,7 @@
 
 Ethereum Tag Service is the community-owned incentivized cross-chain content tagging protocol for the decentralized web.
 
-This repository uses Turborepo and [PNpm](https://pnpm.io/) as a package manager for the monorepo.
+This repository uses Turborepo and [pnpm](https://pnpm.io/) as a package manager for the monorepo.
 
 We are using `npm run` for commands. By default, `pnpm` doesn't run arbitrary `pre` and `post` hooks for user-defined scripts (such as prestart). More info on that [here](https://pnpm.io/cli/run#differences-with-npm-run).
 
@@ -11,37 +11,6 @@ We are using `npm run` for commands. By default, `pnpm` doesn't run arbitrary `p
 - Docs: [ets.xyz/docs](https://ets.xyz/docs)
 - Twitter: [@etsxyz](https://twitter.com/etsxyz)
 - Discord: ETS (soon)
-
-## Contracts
-
-v0.0.1 Mumbai - [view on Polygonscan](https://mumbai.polygonscan.com/address/0x9eF10ACe338F8A9241b2C41D58aF1F6b8A0dc40C#readProxyContract)
-
-```json
-"ETS": {
-  "address": "0x9eF10ACe338F8A9241b2C41D58aF1F6b8A0dc40C",
-  "implementation": "0x70cD4eDB009F430BF77F11386cDD70eE66e7489C",
-  "deploymentBlock": "0x17805b5",
-  "upgradeBlock": "0x17a7165"
-},
-"ETSAccessControls": {
-  "address": "0x3b730100763b729a979Ec318ff68a1a533C143AA",
-  "implementation": "0x5AaA1Ab9F2616E280407dD36beAdF19A3D02B697",
-  "deploymentBlock": "0x17805a7",
-  "upgradeBlock": null
-      },
-"ETSTag": {
-  "address": "0x8A4416d512b8e49458bB19acD458d0c8323e4DE3",
-  "implementation": "0xa24BE44db1fbcabf52f6f7d397aE70123805D4F9",
-  "deploymentBlock": "0x17805ac",
-  "upgradeBlock": null
-},
-"ETSEnsure": {
-  "address": "0x7C7E69f0e3d02072f7970e209424111A7De45fbD",
-  "implementation": "0x3dAF07a80C4BFa1A566d77847B87D84EBa629DD8",
-  "deploymentBlock": "0x179f9b3",
-  "upgradeBlock": null
-}
-```
 
 ## Quick Start
 
@@ -93,6 +62,21 @@ This will start up the Next.js development server and your site will be availabl
 The App is built with Next.js and can be found in `apps/app`.
 
 To interact with the local contract, be sure to switch your MetaMask Network to `Localhost 8545`.
+
+#### Translations
+
+The `apps/app` app uses [next-translate](https://github.com/vinissimus/next-translate) for i18n.
+
+Translation files are located in the `apps/app/locales` directory.
+
+To create a new translation, you'll need to:
+
+- Copy the `en` translation directory inside `apps/app/locales` to the desired language and update the strings to reflect the language.
+- Update `apps/app/i18n.js` to include the new locale (update both the locales and formatters) and `react-timeago` language files or create a new one and import it if the language file does not exist
+
+In order to access different translations of the app, you'll change the URL. For example, if we had Spanish setup (we have an example Spanish translation currently setup), we'd be able to access the Spanish app via [app.ets.xyz/es](https://app.ets.xyz/es). You can read more about internationalized routing in Next.js here: [nextjs.org/docs/advanced-features/i18n-routing](https://nextjs.org/docs/advanced-features/i18n-routing)
+
+The Next.js [Link](https://nextjs.org/docs/api-reference/next/link) component automatically prepends the active locale to links.
 
 <a name="docs"></a>
 

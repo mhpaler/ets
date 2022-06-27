@@ -119,6 +119,22 @@
       {
         "indexed": false,
         "internalType": "uint256",
+<<<<<<< HEAD
+=======
+        "name": "taggingRecordId",
+        "type": "uint256"
+      }
+    ],
+    "name": "TaggingRecordUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+>>>>>>> 938594378be48139956968df43eb4ee688aeb25d
         "name": "targetId",
         "type": "uint256"
       }
@@ -132,7 +148,11 @@
       {
         "indexed": false,
         "internalType": "uint256",
+<<<<<<< HEAD
         "name": "taggingId",
+=======
+        "name": "taggingRecordId",
+>>>>>>> 938594378be48139956968df43eb4ee688aeb25d
         "type": "uint256"
       }
     ],

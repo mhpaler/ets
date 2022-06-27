@@ -7,6 +7,7 @@ import { useTaggers } from '../../hooks/useTaggers';
 import { Table } from '../../components/Table';
 import { Button } from '../../components/Button';
 import useNumberFormatter from '../../hooks/useNumberFormatter';
+import PageTitle from '../../components/PageTitle';
 
 const pageSize = 20;
 
@@ -49,6 +50,8 @@ const Creators: NextPage = () => {
       <Head>
         <title>{t('taggers')} | Ethereum Tag Service</title>
       </Head>
+
+      <PageTitle title={t('taggers')} />
 
       <Table
         loading={!taggers}

@@ -1,0 +1,80 @@
+{
+  "1": {
+    "contracts": {}
+  },
+  "4": {
+    "name": "rinkeby",
+    "contracts": {}
+  },
+  "137": {
+    "name": "polygon",
+    "contracts": {}
+  },
+  "31337": {
+    "name": "localhost",
+    "contracts": {
+      "ETSAccessControls": {
+        "address": "0x367761085BF3C12e5DA2Df99AC6E1a824612b8fb",
+        "implementation": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "deploymentBlock": "0x10",
+        "upgradeBlock": null
+      },
+      "ETSToken": {
+        "address": "0x4C2F7092C2aE51D986bEFEe378e50BD4dB99C901",
+        "implementation": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+        "deploymentBlock": "0x11",
+        "upgradeBlock": null
+      },
+      "ETSAuctionHouse": {
+        "address": "0x49fd2BE640DB2910c2fAb69bB8531Ab6E76127ff",
+        "implementation": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+        "deploymentBlock": "0x13",
+        "upgradeBlock": null
+      },
+      "WETH": {
+        "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+        "implementation": null,
+        "deploymentBlock": "0x19",
+        "upgradeBlock": null
+      },
+      "WMATIC": {
+        "address": "0x7A9Ec1d04904907De0ED7b6839CcdD59c3716AC9",
+        "implementation": null,
+        "deploymentBlock": "0x5",
+        "upgradeBlock": null
+      }
+    }
+  },
+  "80001": {
+    "name": "mumbai",
+    "contracts": {
+      "ETSAccessControls": {
+        "address": "0x3b730100763b729a979Ec318ff68a1a533C143AA",
+        "implementation": "0x5AaA1Ab9F2616E280407dD36beAdF19A3D02B697",
+        "deploymentBlock": "0x17805a7",
+        "upgradeBlock": null
+      },
+      "ETSTag": {
+        "address": "0x8A4416d512b8e49458bB19acD458d0c8323e4DE3",
+        "implementation": "0xa24BE44db1fbcabf52f6f7d397aE70123805D4F9",
+        "deploymentBlock": "0x17805ac",
+        "upgradeBlock": null
+      },
+      "ETS": {
+        "address": "0x9eF10ACe338F8A9241b2C41D58aF1F6b8A0dc40C",
+        "implementation": "0x70cD4eDB009F430BF77F11386cDD70eE66e7489C",
+        "deploymentBlock": "0x17805b5",
+        "upgradeBlock": "0x17a7165"
+      },
+      "ETSEnsure": {
+        "address": "0x7C7E69f0e3d02072f7970e209424111A7De45fbD",
+        "implementation": "0x3dAF07a80C4BFa1A566d77847B87D84EBa629DD8",
+        "deploymentBlock": "0x179f9b3",
+        "upgradeBlock": null
+      }
+    }
+  },
+  "default": {
+    "name": "hardhat"
+  }
+}

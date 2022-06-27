@@ -1,0 +1,8 @@
+{
+  "pathToRoot": "./",
+  "repoUrl": "https://github.com/ethereum-tag-service/ets/tree/stage/packages/contracts-core",
+  "outputPath": "../contracts-core/docs",
+  "noCompilation": false,
+  "compiler": "truffle compile",
+  "language": "en"
+}
