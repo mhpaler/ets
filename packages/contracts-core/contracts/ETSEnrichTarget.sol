@@ -1,52 +1,44 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "./interfaces/IETSTarget.sol";
+import "./interfaces/IETSEnrichTarget.sol";
+import "./interfaces/IETSAccessControls.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import {ETSAccessControls} from "./ETSAccessControls.sol";
-import {ETS} from "./ETS.sol";
-
 
 /// @title ETSEnsure target contract.
 /// @author Ethereum Tag Service <security@ets.xyz>
 /// @dev Used by ETS to ensure targets using off-chain data.
-contract ETSEnsure is Initializable, ContextUpgradeable, UUPSUpgradeable {
-
+contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable, UUPSUpgradeable {
     /// Variable storage
     /// @notice ETS access controls smart contract.
-    ETSAccessControls public accessControls;
+    IETSAccessControls public etsAccessControls;
 
     /// @notice ETS access controls smart contract.
-    ETS public ets;
-
-    /// @notice ETS Platform account.
-    address payable public platform;
+    IETSTarget public etsTarget;
 
     /// Public constants
 
-    string public constant NAME = "ETSEnsure";
+    string public constant NAME = "ETSEnrichTarget";
     string public constant VERSION = "0.0.1";
 
     /// Events
 
-    event RequestEnsureTarget(
-      uint256 targetId
-    );
-
     /// Modifiers
 
     modifier onlyAdmin() {
-        require(accessControls.isAdmin(_msgSender()), "Caller must have administrator access");
+        require(etsAccessControls.isAdmin(_msgSender()), "Caller must have administrator access");
         _;
     }
 
     /// Initialization
 
-    function initialize(ETSAccessControls _accessControls, ETS _ets) public initializer {
+    function initialize(IETSAccessControls _etsAccessControls, IETSTarget _etsTarget) public initializer {
         // Initialize access controls & ETS
-        accessControls = _accessControls;
-        ets = _ets;
+        etsAccessControls = _etsAccessControls;
+        etsTarget = _etsTarget;
     }
 
     function _authorizeUpgrade(address) internal override onlyAdmin {}
@@ -59,10 +51,10 @@ contract ETSEnsure is Initializable, ContextUpgradeable, UUPSUpgradeable {
     /// metadata for target, pins it to IPFS and returns pin to ETS blockchain
     /// via fulfillEnsureTarget()
     /// @param _targetId Unique id of target to be ensured.
-    function requestEnsureTarget(uint256 _targetId) public {
-        require(ets.targetExistsFromId(_targetId) == true, "Invalid target");
-        require(!ets.isTargetEnsured(_targetId), "Already ensured");
-        emit RequestEnsureTarget(_targetId);
+    function requestEnrichTarget(uint256 _targetId) public {
+        require(etsTarget.targetExists(_targetId) == true, "Invalid target");
+        // require(!etsTarget.isTargetEnsured(_targetId), "Already ensured");
+        emit RequestEnrichTarget(_targetId);
     }
 
     /// @notice Decorates target with additional metadata stored in IPFS hash.
@@ -72,10 +64,13 @@ contract ETSEnsure is Initializable, ContextUpgradeable, UUPSUpgradeable {
     /// @param _targetId Unique id of target being ensured.
     /// @param _ipfsHash IPFS hash containing metadata related to the unique target.
     /// @param _status HTTP response code from ETS Ensure Target API.
-    function fulfillEnsureTarget(uint256 _targetId, string calldata _ipfsHash, uint256 _status) public {
-        // Load up current values for this target.
-        // Note: not naming unnecessary local variable avoids compiler warnings.
-        (string memory targetType, string memory targetURI,,,,) = ets.targets(_targetId);
-        ets.updateTarget(_targetId, targetType, targetURI, block.timestamp, _status, _ipfsHash);
+    function fulfillEnrichTarget(
+        uint256 _targetId,
+        string calldata _ipfsHash,
+        uint256 _status
+    ) public {
+        // Note: vince how's this looking for you?.
+        IETSTarget.Target memory target = etsTarget.getTarget(_targetId);
+        etsTarget.updateTarget(_targetId, target.targetType, target.targetURI, block.timestamp, _status, _ipfsHash);
     }
 }

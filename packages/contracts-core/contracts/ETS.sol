@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-
-pragma solidity 0.8.12;
+pragma solidity ^0.8.0;
 
 // import "./ETSToken.sol";
-import "./ETSEnsure.sol";
-import "../interfaces/IETS.sol";
-import "../interfaces/IETSToken.sol";
-import "../interfaces/IETSAccessControls.sol";
+import "./interfaces/IETS.sol";
+import "./interfaces/IETSToken.sol";
+import "./interfaces/IETSTarget.sol";
+import "./interfaces/IETSEnrichTarget.sol";
+import "./interfaces/IETSAccessControls.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
@@ -26,8 +26,11 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @dev CTAG erc-721 token contract.
     IETSToken public etsToken;
 
-    /// @dev ETSEnsure target contract.
-    ETSEnsure public etsEnsure;
+    /// @dev ETS Targets contract.
+    IETSTarget public etsTarget;
+
+    /// @dev Enrich target contract.
+    IETSEnrichTarget public etsEnrichTarget;
 
     /// @dev Percentage of tagging fee allocated to ETS.
     uint256 public platformPercentage;
@@ -66,9 +69,14 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     // ============ UUPS INTERFACE ============
 
-    function initialize(IETSAccessControls _etsAccessControls, IETSToken _etsToken) external initializer {
+    function initialize(
+        IETSAccessControls _etsAccessControls,
+        IETSToken _etsToken,
+        IETSTarget _etsTarget
+    ) public initializer {
         etsAccessControls = _etsAccessControls;
         etsToken = _etsToken;
+        etsTarget = _etsTarget;
         taggingFee = 0.001 ether;
         platformPercentage = 20;
         publisherPercentage = 30;
@@ -82,7 +90,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     /// @notice Sets the fee required to tag an NFT asset.
     /// @param _fee Value of the fee in WEI.
-    function setTaggingFee(uint256 _fee) external onlyAdmin {
+    function setTaggingFee(uint256 _fee) public onlyAdmin {
         uint256 previousFee = taggingFee;
         taggingFee = _fee;
         emit TaggingFeeSet(previousFee, taggingFee);
@@ -90,26 +98,26 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     /// @notice Admin functionality for updating the access controls.
     /// @param _accessControls Address of the access controls contract.
-    function setAccessControls(ETSAccessControls _accessControls) external onlyAdmin {
+    function setAccessControls(IETSAccessControls _accessControls) public onlyAdmin {
         require(address(_accessControls) != address(0), "ETS.updateAccessControls: Cannot be zero");
-        ETSAccessControls prevAccessControls = etsAccessControls;
+        IETSAccessControls prevAccessControls = etsAccessControls;
         etsAccessControls = _accessControls;
         emit AccessControlsSet(address(prevAccessControls), address(etsAccessControls));
     }
 
-    /// @notice Admin functionality for updating the ETSEnsure contract address.
-    /// @param _etsEnsure Address of the ETSEnsure contract.
-    function setETSEnsure(ETSEnsure _etsEnsure) external onlyAdmin {
-        require(address(_etsEnsure) != address(0), "ETS.updateETSEnsure: Cannot be zero");
-        ETSEnsure previousETSEnsure = etsEnsure;
-        etsEnsure = _etsEnsure;
-        emit ETSEnsureSet(address(previousETSEnsure), address(etsEnsure));
+    /// @notice Admin functionality for updating the IETSEnrichTarget contract address.
+    /// @param _etsEnrichTarget Address of the IETSEnrichTarget contract.
+    function setETSEnrichTarget(IETSEnrichTarget _etsEnrichTarget) public onlyAdmin {
+        require(address(_etsEnrichTarget) != address(0), "Address cannot be zero");
+        IETSEnrichTarget previousEtsEnrichTarget = etsEnrichTarget;
+        etsEnrichTarget = _etsEnrichTarget;
+        emit ETSEnsureSet(address(previousEtsEnrichTarget), address(etsEnrichTarget));
     }
 
     /// @notice Admin functionality for updating the percentages.
     /// @param _platformPercentage percentage for platform.
     /// @param _publisherPercentage percentage for publisher.
-    function setPercentages(uint256 _platformPercentage, uint256 _publisherPercentage) external onlyAdmin {
+    function setPercentages(uint256 _platformPercentage, uint256 _publisherPercentage) public onlyAdmin {
         require(
             _platformPercentage + _publisherPercentage <= 100,
             "ETS.updatePercentages: percentages must not be over 100"
@@ -129,57 +137,53 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address payable _publisher,
         address _tagger,
         bool _enrich
-    ) external payable override nonReentrant {
-        require(
-            etsAccessControls.isTargetTypeAndNotPaused(_msgSender()),
-            "Only authorized addresses may call ETS core"
-        );
+    ) public payable nonReentrant {
+        require(etsTarget.isTargetTypeTaggerAndNotPaused(_msgSender()), "Only authorized contracts may call ETS core");
         require(etsAccessControls.isPublisher(_publisher), "Publisher not activated");
         require(_tagIds.length > 0, "No tags supplied");
-        require(msg.value == (taggingFee * _tagIds.length), "Tag: You must send the fee");
+        require(msg.value == (taggingFee * _tagIds.length), "Insufficient tagging fee supplied");
 
         for (uint256 i; i < _tagIds.length; ++i) {
             _processAccrued(_tagIds[i], _publisher);
         }
 
         if (_enrich) {
-            etsEnsure.requestEnsureTarget(targetId);
+            etsEnrichTarget.requestEnrichTarget(_targetId);
         }
 
-        // TODO: could probably put a conditional in here that
-        // only tags target if it's ensured.
-        _tagTarget(_tagIds, targetId, _publisher, _tagger);
+        _tagTarget(_tagIds, _targetId, _publisher, _tagger);
     }
 
-    /// @notice Allow a tagger to update the tags for a tagging record pointing to a target
-    /// Append or replace
+    /// @notice Allow a tagger to update the tags for a tagging record.
     function updateTaggingRecord(uint256 _taggingRecordId, string[] calldata _tags) external payable {
-        // todo - I think this makes sense but should a user be allowed to completely remove all tags,
+        // todo - I think this makes sense but should
+        // user be allowed to completely remove all tags,
         // does that mean deleting the record completely?
-        require(_tags.length > 0, "Empty array");
-        require(taggingRecords[_taggingRecordId] != 0, "Tagging record not found");
+        //require(_tags.length > 0, "Empty array");
+        require(taggingRecords[_taggingRecordId].tagIds.length > 0, "Tagging record not found");
 
         TaggingRecord storage taggingRecord = taggingRecords[_taggingRecordId];
+
         address sender = _msgSender();
 
-        uint256 currentNumberOfTags = taggingRecord.tagIds.length;
+        uint256 currentNumberOfTags = taggingRecords[_taggingRecordId].tagIds.length;
         if (_tags.length > currentNumberOfTags) {
             uint256 numberOfAdditionalTags = _tags.length - currentNumberOfTags;
             require(msg.value == numberOfAdditionalTags * taggingFee, "Additional tags require fees");
         }
 
-        require(sender == taggingRecord.tagger, "Only tagger");
+        require(sender == taggingRecord.tagger, "Only original tagger can update");
 
         unchecked {
             uint256 tagCount = _tags.length;
             uint256[] memory tagIds = new uint256[](tagCount);
             for (uint256 i; i < tagCount; ++i) {
-                uint256 tagId = getOrCreateTag(_tags[i], payable(taggingRecord.publisher), taggingRecord.tagger);
+                uint256 tagId = etsToken.getOrCreateTagId(_tags[i], payable(taggingRecord.publisher));
 
                 tagIds[i] = tagId;
             }
 
-            taggingRecord.tagIds = tagIds;
+            taggingRecords[_taggingRecordId].tagIds = tagIds;
         }
 
         // Log that a tagging record has been updated.
@@ -201,10 +205,6 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     }
 
     // ============ PUBLIC VIEW FUNCTIONS ============
-
-    function isTargetEnsured(uint256 _targetId) external view returns (bool) {
-        return targets[_targetId].lastEnsured != 0;
-    }
 
     /// @notice Deterministically compute the tagging record identifier
     function computeTaggingRecordId(
@@ -239,7 +239,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         )
     {
         TaggingRecord storage taggingRecord = taggingRecords[_id];
-        return (taggingRecord.etsTagIds, taggingRecord.targetId, taggingRecord.tagger, taggingRecord.publisher);
+        return (taggingRecord.tagIds, taggingRecord.targetId, taggingRecord.tagger, taggingRecord.publisher);
     }
 
     /// @notice Get tagging record from composite key parts
@@ -261,7 +261,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
         TaggingRecord storage taggingRecord = taggingRecords[taggingRecordId];
 
-        return (taggingRecord.etsTagIds, taggingRecord.targetId, taggingRecord.tagger, taggingRecord.publisher);
+        return (taggingRecord.tagIds, taggingRecord.targetId, taggingRecord.tagger, taggingRecord.publisher);
     }
 
     function version() external pure returns (string memory) {
@@ -271,7 +271,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     // ============ INTERNAL FUNCTIONS ============
 
     function _tagTarget(
-        uint256[] memory _etsTagIds,
+        uint256[] memory _tagIds,
         uint256 _targetId,
         address _publisher,
         address _tagger
@@ -281,7 +281,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         uint256 taggingRecordId = computeTaggingRecordId(_targetId, _tagger, _publisher);
 
         taggingRecords[taggingRecordId] = TaggingRecord({
-            etsTagIds: _etsTagIds,
+            tagIds: _tagIds,
             targetId: _targetId,
             tagger: _tagger,
             publisher: _publisher
@@ -291,22 +291,23 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         emit TargetTagged(taggingRecordId);
     }
 
-    function _processAccrued(uint256 _etsTagId, address _publisher) internal {
-        (address _platform, address _owner) = etsToken.getPaymentAddresses(_etsTagId);
+    function _processAccrued(uint256 _tagId, address _publisher) internal {
+        address owner = etsToken.ownerOf(_tagId);
+        address platform = etsToken.getPlatformAddress();
 
         // pre-auction.
-        if (_owner == _platform) {
-            accrued[_platform] = accrued[_platform] + ((msg.value * platformPercentage) / modulo);
+        if (owner == platform) {
+            accrued[platform] = accrued[platform] + ((msg.value * platformPercentage) / modulo);
             accrued[_publisher] = accrued[_publisher] + ((msg.value * publisherPercentage) / modulo);
 
-            address creator = etsToken.getCreatorAddress(_etsTagId);
+            address creator = etsToken.getCreatorAddress(_tagId);
             accrued[creator] = accrued[creator] + ((msg.value * remainingPercentage) / modulo);
         }
         // post-auction.
         else {
-            accrued[_platform] = accrued[_platform] + ((msg.value * platformPercentage) / modulo);
+            accrued[platform] = accrued[platform] + ((msg.value * platformPercentage) / modulo);
             accrued[_publisher] = accrued[_publisher] + ((msg.value * publisherPercentage) / modulo);
-            accrued[_owner] = accrued[_owner] + ((msg.value * remainingPercentage) / modulo);
+            accrued[owner] = accrued[owner] + ((msg.value * remainingPercentage) / modulo);
         }
     }
 }

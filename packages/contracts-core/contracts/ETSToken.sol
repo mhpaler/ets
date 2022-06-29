@@ -256,20 +256,10 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
         return tokenIdToLastRenewed[_tokenId];
     }
 
-    /// @dev Returns the commission addresses related to a token.
-    /// TODO: Refactor so it passes all key addresses. platform, publisher, creator, owner
-    function getPaymentAddresses(uint256 _tokenId)
-        public
-        view
-        returns (address payable _platform, address payable _owner)
-    {
-        return (platform, payable(ownerOf(_tokenId)));
-    }
-
     /// @notice Returns creator of a CTAG token.
     /// @param _tokenId ID of a CTAG.
     /// @return _creator creator of the CTAG.
-    function getCreatorAddress(uint256 _tokenId) public view returns (address _creator) {
+    function getCreatorAddress(uint256 _tokenId) public view returns (address) {
         return tokenIdToTag[_tokenId].creator;
     }
 
@@ -307,8 +297,6 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
             } else {
                 _setLastRenewed(tokenId, block.timestamp);
             }
-            // Grant / revoke publisher role.
-            //etsAccessControls.assessOwners(from, to);
         }
     }
 

@@ -6,19 +6,18 @@ import "hardhat-abi-exporter";
 import "@nomiclabs/hardhat-web3";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
-import "@primitivefi/hardhat-dodoc";
 import "@nomiclabs/hardhat-truffle5";
 import "@nomiclabs/hardhat-etherscan";
 import "@openzeppelin/hardhat-upgrades";
 
-import { resolve } from "path";
-import { config as dotenvConfig } from "dotenv";
-import { HardhatUserConfig } from "hardhat/types";
+import {resolve} from "path";
+import {config as dotenvConfig} from "dotenv";
+import {HardhatUserConfig} from "hardhat/types";
 
 import "./tasks/accounts";
 import "./tasks/signers";
 
-dotenvConfig({ path: resolve(__dirname, "../../.env") });
+dotenvConfig({path: resolve(__dirname, "../../.env")});
 
 // Ensure that we have all the environment variables we need.
 const mnemonic: string | undefined = process.env.MNEMONIC;
@@ -30,18 +29,18 @@ if (!mnemonic) {
 const config: HardhatUserConfig = {
   networks: {
     hardhat: {
-      accounts: mnemonic ? { mnemonic } : undefined,
+      accounts: mnemonic ? {mnemonic} : undefined,
       chainId: 31337,
     },
     localhost: {
       url: "http://localhost:8545",
-      accounts: mnemonic ? { mnemonic } : undefined,
+      accounts: mnemonic ? {mnemonic} : undefined,
       chainId: 31337,
     },
     mumbai: {
       url: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 80001,
-      accounts: mnemonic ? { mnemonic } : undefined,
+      accounts: mnemonic ? {mnemonic} : undefined,
       gas: 2100000,
       gasPrice: 8000000000,
     },
@@ -52,13 +51,6 @@ const config: HardhatUserConfig = {
   abiExporter: {
     path: "./abi",
     runOnCompile: true,
-  },
-  dodoc: {
-    runOnCompile: true,
-    include: ["core"],
-    //outputDir: "../../apps/site/pages/docs/sol",
-    //debugMode: false,
-    // More options...
   },
   // ETS administration accounts.
   namedAccounts: {

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.12;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
@@ -19,7 +19,6 @@ import "hardhat/console.sol";
 /// @notice Core tagging contract that enables any online target to be tagged with an ETSTAG token.
 /// @dev ETS Core utilizes Open Zeppelin UUPS upgradability pattern.
 contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
-
     /// Storage
 
     /// @dev ETS access controls contract.
@@ -101,7 +100,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address _tagger,
         address _sponsor,
         bool _ensure
-    ) external override payable nonReentrant {
+    ) external payable override nonReentrant {
         require(accessControls.isTargetTypeAndNotPaused(_msgSender()), "Only authorized addresses may call ETS core");
         require(accessControls.isPublisher(_publisher), "Tag: The publisher must be whitelisted");
 
@@ -118,11 +117,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         // Get etsTagId if the tag exists, otherwise, mint a new one.
         uint256[] memory etsTagIds = new uint256[](tagCount);
         for (uint256 i; i < tagCount; ++i) {
-            uint256 etsTagId = getOrCreateTag(
-                _tags[i],
-                _publisher,
-                _tagger
-            );
+            uint256 etsTagId = getOrCreateTag(_tags[i], _publisher, _tagger);
 
             _processAccrued(etsTagId, _publisher);
 
@@ -161,7 +156,10 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// TODO: Perhaps rename this with a better name, because it's
     /// also creating a target record if it doesn't exist?
     // Or perthaps breakout another function called create target?
-    function _getOrCreateTarget(string memory _targetType, string memory _targetURI) private returns (uint256 targetId) {
+    function _getOrCreateTarget(string memory _targetType, string memory _targetURI)
+        private
+        returns (uint256 targetId)
+    {
         uint256 _targetId = computeTargetId(_targetType, _targetURI);
         if (targets[_targetId].created != 0) {
             return _targetId;
@@ -184,15 +182,14 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         return _targetId;
     }
 
-
     /// @notice Updates a target with new values.
     /// @return success boolean
     function updateTarget(
         uint256 _targetId,
         string calldata _targetType,
         string calldata _targetURI,
-        uint _lastEnsured,
-        uint _status,
+        uint256 _lastEnsured,
+        uint256 _status,
         string calldata _ipfsHash
     ) external returns (bool success) {
         // TODO - check whether anyone else needs access to this method
@@ -213,7 +210,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @dev Does nothing when there is nothing due to the account.
     /// @param _account Target address that has had accrued ETH and which will receive the ETH.
     function drawDown(address payable _account) external nonReentrant {
-        uint256 balanceDue = accrued[_account]- paid[_account];
+        uint256 balanceDue = accrued[_account] - paid[_account];
         if (balanceDue > 0 && balanceDue <= address(this).balance) {
             paid[_account] = paid[_account] + balanceDue;
             _account.transfer(balanceDue);
@@ -225,7 +222,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @notice Sets the fee required to tag an NFT asset.
     /// @param _fee Value of the fee in WEI.
     function updateTaggingFee(uint256 _fee) external onlyAdmin {
-        uint previousFee = taggingFee;
+        uint256 previousFee = taggingFee;
         taggingFee = _fee;
         emit TaggingFeeSet(previousFee, taggingFee);
     }
@@ -287,11 +284,11 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         external
         view
         returns (
-          uint256[] memory etsTagIds,
-          uint256 targetId,
-          address tagger,
-          address publisher,
-          address sponsor
+            uint256[] memory etsTagIds,
+            uint256 targetId,
+            address tagger,
+            address publisher,
+            address sponsor
         )
     {
         TaggingRecord storage taggingRecord = taggingRecords[_id];
@@ -321,12 +318,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
             address sponsor
         )
     {
-        uint256 taggingRecordId = computeTaggingRecordId(
-            _targetId,
-            _tagger,
-            _publisher,
-            _sponsor
-        );
+        uint256 taggingRecordId = computeTaggingRecordId(_targetId, _tagger, _publisher, _sponsor);
 
         TaggingRecord storage taggingRecord = taggingRecords[taggingRecordId];
 
@@ -357,14 +349,18 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     /// Internal
 
-    function computeTargetId(string memory _targetType, string memory _targetURI) public pure returns (uint256 targetId) {
+    function computeTargetId(string memory _targetType, string memory _targetURI)
+        public
+        pure
+        returns (uint256 targetId)
+    {
         string memory parts = string(abi.encodePacked(_targetType, _targetURI));
         // The following is how ENS creates ID for their domain names.
         bytes32 label = keccak256(bytes(parts));
         return uint256(label);
     }
 
-   function _tagTarget(
+    function _tagTarget(
         uint256[] memory _etsTagIds,
         uint256 _targetId,
         address _publisher,
@@ -373,12 +369,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     ) private {
         // Generate a new tagging record
         // with a deterministic ID
-        uint256 taggingRecordId = computeTaggingRecordId(
-            _targetId,
-            _tagger,
-            _publisher,
-            _sponsor
-        );
+        uint256 taggingRecordId = computeTaggingRecordId(_targetId, _tagger, _publisher, _sponsor);
 
         taggingRecords[taggingRecordId] = TaggingRecord({
             etsTagIds: _etsTagIds,
@@ -394,10 +385,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     /// @notice Allow either a tagger or a sponsor to update the tags for a tagging record pointing to a target
     /// Append or replace
-    function updateTaggingRecord(
-        uint256 _taggingRecordId,
-        string[] calldata _tags
-    ) external payable {
+    function updateTaggingRecord(uint256 _taggingRecordId, string[] calldata _tags) external payable {
         // todo - I think this makes sense but should a user be allowed to completely remove all tags, does that mean deleting the record completely?
         require(_tags.length > 0, "Empty array");
 
@@ -407,26 +395,16 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         uint256 currentNumberOfTags = taggingRecord.etsTagIds.length;
         if (_tags.length > currentNumberOfTags) {
             uint256 numberOfAdditionalTags = _tags.length - currentNumberOfTags;
-            require(
-                msg.value == numberOfAdditionalTags * taggingFee,
-                "Additional tags require fees"
-            );
+            require(msg.value == numberOfAdditionalTags * taggingFee, "Additional tags require fees");
         }
 
-        require(
-            sender == taggingRecord.tagger || sender == taggingRecord.sponsor,
-            "Only tagger or sponsor"
-        );
+        require(sender == taggingRecord.tagger || sender == taggingRecord.sponsor, "Only tagger or sponsor");
 
         unchecked {
             uint256 tagCount = _tags.length;
             uint256[] memory etsTagIds = new uint256[](tagCount);
             for (uint256 i; i < tagCount; ++i) {
-                uint256 etsTagId = getOrCreateTag(
-                    _tags[i],
-                    payable(taggingRecord.publisher),
-                    taggingRecord.tagger
-                );
+                uint256 etsTagId = getOrCreateTag(_tags[i], payable(taggingRecord.publisher), taggingRecord.tagger);
 
                 etsTagIds[i] = etsTagId;
             }
@@ -445,9 +423,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address _tagger,
         address _sponsor
     ) public pure returns (uint256 taggingRecordId) {
-        taggingRecordId = uint256(keccak256(
-                abi.encodePacked(_targetId, _tagger, _publisher, _sponsor)
-            ));
+        taggingRecordId = uint256(keccak256(abi.encodePacked(_targetId, _tagger, _publisher, _sponsor)));
     }
 
     function _processAccrued(uint256 _etsTagId, address _publisher) internal {

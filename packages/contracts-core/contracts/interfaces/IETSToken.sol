@@ -53,7 +53,7 @@ interface IETSToken is IERC721Upgradeable {
 
     function recycleTag(uint256 _tokenId) external;
 
-    function computeTagId(string memory _tag) external pure returns (uint256);
+    function computeTagId(string memory _tag) external view returns (uint256);
 
     function tagExists(string calldata _tag) external view returns (bool);
 
@@ -64,6 +64,8 @@ interface IETSToken is IERC721Upgradeable {
     function getTag(uint256 _tokenId) external view returns (Tag memory);
 
     function getPlatformAddress() external view returns (address);
+
+    function getCreatorAddress(uint256 _tokenId) external view returns (address);
 
     function getLastRenewed(uint256 _tokenId) external view returns (uint256);
 

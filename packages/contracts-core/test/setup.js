@@ -1,4 +1,4 @@
-const { ethers, upgrades, artifacts } = require("hardhat");
+const {ethers, upgrades, artifacts} = require("hardhat");
 
 const initSettings = {
   // Access controls
@@ -21,6 +21,7 @@ async function getArtifacts() {
   const justTheFacts = {
     ETSAccessControls: artifacts.readArtifactSync("ETSAccessControls"),
     ETSToken: artifacts.readArtifactSync("ETSToken"),
+    ETSTarget: artifacts.readArtifactSync("ETSTarget"),
     ETSAuctionHouse: artifacts.readArtifactSync("ETSAuctionHouse"),
     ETSAccessControlsUpgrade: artifacts.readArtifactSync("ETSAccessControlsUpgrade"),
     ETSTokenUpgrade: artifacts.readArtifactSync("ETSTokenUpgrade"),
@@ -35,6 +36,7 @@ async function getFactories() {
     ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
     ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
     ETSToken: await ethers.getContractFactory("ETSToken"),
+    ETSTarget: await ethers.getContractFactory("ETSTarget"),
     ETSAccessControlsUpgrade: await ethers.getContractFactory("ETSAccessControlsUpgrade"),
     ETSAuctionHouseUpgrade: await ethers.getContractFactory("ETSAuctionHouseUpgrade"),
     ETSTokenUpgrade: await ethers.getContractFactory("ETSTokenUpgrade"),
@@ -52,6 +54,7 @@ async function setup() {
     ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
     ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
     ETSToken: await ethers.getContractFactory("ETSToken"),
+    ETSTarget: await ethers.getContractFactory("ETSTarget"),
   };
 
   // ============ SETUP TEST ACCOUNTS ============
@@ -73,7 +76,7 @@ async function setup() {
   const ETSAccessControls = await upgrades.deployProxy(
     factories.ETSAccessControls,
     [initSettings.PUBLISHER_DEFAULT_THRESHOLD],
-    { kind: "uups" },
+    {kind: "uups"},
   );
   const ETSToken = await upgrades.deployProxy(
     factories.ETSToken,
@@ -84,7 +87,7 @@ async function setup() {
       initSettings.TAG_MAX_STRING_LENGTH,
       initSettings.OWNERSHIP_TERM_LENGTH,
     ],
-    { kind: "uups" },
+    {kind: "uups"},
   );
   const ETSAuctionHouse = await upgrades.deployProxy(
     factories.ETSAuctionHouse,
@@ -100,7 +103,7 @@ async function setup() {
       initSettings.CREATOR_PERCENTAGE,
       initSettings.PLATFORM_PERCENTAGE,
     ],
-    { kind: "uups" },
+    {kind: "uups"},
   );
 
   const contracts = {
