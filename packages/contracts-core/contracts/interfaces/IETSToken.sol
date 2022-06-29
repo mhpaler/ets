@@ -16,17 +16,16 @@ interface IETSToken is IERC721Upgradeable {
     }
 
     // Events
-    event OwnershipTermLengthSet(uint256 termLength);
 
     event TagMaxStringLengthSet(uint256 maxStringLength);
+
+    event TagMinStringLengthSet(uint256 minStringLength);
+
+    event OwnershipTermLengthSet(uint256 termLength);
 
     event PlatformSet(address platformAddress);
 
     event AccessControlsSet(IETSAccessControls etsAccessControls);
-
-    event TagRenewed(uint256 indexed tokenId, address indexed caller);
-
-    event TagRecycled(uint256 indexed tokenId, address indexed caller);
 
     event PremiumTagPreSet(string tag, bool isPremium);
 
@@ -34,9 +33,29 @@ interface IETSToken is IERC721Upgradeable {
 
     event ReservedFlagSet(uint256 tagId, bool isReleased);
 
+    event TagRenewed(uint256 indexed tokenId, address indexed caller);
+
+    event TagRecycled(uint256 indexed tokenId, address indexed caller);
+
+    // ============ OWNER INTERFACE ============
+
+    function setTagMaxStringLength(uint256 _tagMaxStringLength) external;
+
+    function setTagMinStringLength(uint256 _tagMinStringLength) external;
+
     function setOwnershipTermLength(uint256 _ownershipTermLength) external;
 
+    function setPlatform(address payable _platform) external;
+
     function setAccessControls(IETSAccessControls _etsAccessControls) external;
+
+    function preSetPremiumTags(string[] calldata _tags, bool _enabled) external;
+
+    function setPremiumFlag(uint256[] calldata _tokenIds, bool _isPremium) external;
+
+    function setReservedFlag(uint256[] calldata _tokenIds, bool _reserved) external;
+
+    // ============ PUBLIC INTERFACE ============
 
     function createTag(string calldata _tag) external payable returns (uint256 _tokenId);
 
@@ -45,6 +64,8 @@ interface IETSToken is IERC721Upgradeable {
     function renewTag(uint256 _tokenId) external;
 
     function recycleTag(uint256 _tokenId) external;
+
+    // ============ PUBLIC VIEW FUNCTIONS ============
 
     function computeTagId(string memory _tag) external pure returns (uint256);
 
