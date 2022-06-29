@@ -1,4 +1,4 @@
-const { ethers, upgrades, artifacts } = require("hardhat");
+const {ethers, upgrades, artifacts} = require("hardhat");
 
 const initSettings = {
   // Access controls
@@ -73,7 +73,7 @@ async function setup() {
   const ETSAccessControls = await upgrades.deployProxy(
     factories.ETSAccessControls,
     [initSettings.PUBLISHER_DEFAULT_THRESHOLD],
-    { kind: "uups" },
+    {kind: "uups"},
   );
   const ETSToken = await upgrades.deployProxy(
     factories.ETSToken,
@@ -84,7 +84,7 @@ async function setup() {
       initSettings.TAG_MAX_STRING_LENGTH,
       initSettings.OWNERSHIP_TERM_LENGTH,
     ],
-    { kind: "uups" },
+    {kind: "uups"},
   );
   const ETSAuctionHouse = await upgrades.deployProxy(
     factories.ETSAuctionHouse,
@@ -100,7 +100,7 @@ async function setup() {
       initSettings.CREATOR_PERCENTAGE,
       initSettings.PLATFORM_PERCENTAGE,
     ],
-    { kind: "uups" },
+    {kind: "uups"},
   );
 
   const contracts = {
@@ -123,13 +123,6 @@ async function setup() {
 
   // Grant PUBLISHER role to platform
   await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER"), accounts.ETSPlatform.address);
-
-  // Grant PUBLISHER role to ETS owned address
-  // Consider only using platform address as ETS publisher.
-  //  await ETSAccessControls.grantRole(
-  //    ethers.utils.id("PUBLISHER"),
-  //    accounts.ETSPlatform.address
-  //  );
 
   // Set PUBLISHER role admin.
   // Contracts or addresses given PUBLISHER_ADMIN role
