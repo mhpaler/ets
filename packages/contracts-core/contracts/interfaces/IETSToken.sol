@@ -16,17 +16,16 @@ interface IETSToken is IERC721Upgradeable {
     }
 
     // Events
-    event OwnershipTermLengthSet(uint256 termLength);
 
     event TagMaxStringLengthSet(uint256 maxStringLength);
+
+    event TagMinStringLengthSet(uint256 minStringLength);
+
+    event OwnershipTermLengthSet(uint256 termLength);
 
     event PlatformSet(address platformAddress);
 
     event AccessControlsSet(IETSAccessControls etsAccessControls);
-
-    event TagRenewed(uint256 indexed tokenId, address indexed caller);
-
-    event TagRecycled(uint256 indexed tokenId, address indexed caller);
 
     event PremiumTagPreSet(string tag, bool isPremium);
 
@@ -34,11 +33,29 @@ interface IETSToken is IERC721Upgradeable {
 
     event ReservedFlagSet(uint256 tagId, bool isReleased);
 
+    event TagRenewed(uint256 indexed tokenId, address indexed caller);
+
+    event TagRecycled(uint256 indexed tokenId, address indexed caller);
+
+    // ============ OWNER INTERFACE ============
+
+    function setTagMaxStringLength(uint256 _tagMaxStringLength) external;
+
+    function setTagMinStringLength(uint256 _tagMinStringLength) external;
+
     function setOwnershipTermLength(uint256 _ownershipTermLength) external;
+
+    function setPlatform(address payable _platform) external;
 
     function setAccessControls(IETSAccessControls _etsAccessControls) external;
 
-    function getOrCreateTag(string calldata _tag, address payable publisher) external payable returns (Tag memory tag);
+    function preSetPremiumTags(string[] calldata _tags, bool _enabled) external;
+
+    function setPremiumFlag(uint256[] calldata _tokenIds, bool _isPremium) external;
+
+    function setReservedFlag(uint256[] calldata _tokenIds, bool _reserved) external;
+
+    // ============ PUBLIC INTERFACE ============
 
     function getOrCreateTagId(string calldata _tag, address payable publisher)
         external
@@ -53,7 +70,9 @@ interface IETSToken is IERC721Upgradeable {
 
     function recycleTag(uint256 _tokenId) external;
 
-    function computeTagId(string memory _tag) external view returns (uint256);
+    // ============ PUBLIC VIEW FUNCTIONS ============
+
+    function computeTagId(string memory _tag) external pure returns (uint256);
 
     function tagExists(string calldata _tag) external view returns (bool);
 

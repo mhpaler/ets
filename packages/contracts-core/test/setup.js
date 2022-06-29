@@ -127,13 +127,6 @@ async function setup() {
   // Grant PUBLISHER role to platform
   await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER"), accounts.ETSPlatform.address);
 
-  // Grant PUBLISHER role to ETS owned address
-  // Consider only using platform address as ETS publisher.
-  //  await ETSAccessControls.grantRole(
-  //    ethers.utils.id("PUBLISHER"),
-  //    accounts.ETSPlatform.address
-  //  );
-
   // Set PUBLISHER role admin.
   // Contracts or addresses given PUBLISHER_ADMIN role
   // can grant PUBLISHER role. This role
