@@ -3,12 +3,12 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: ETSTag
+    name: ETSToken
     network: mainnet
     source:
       address: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
-      abi: ETSTag
-      startBlock: 12
+      abi: ETSToken
+      startBlock: 0x11
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -16,41 +16,19 @@ dataSources:
       entities:
         - MintTag
       abis:
-        - name: ETSTag
-          file: ./../contracts/abi/contracts/core/ETSTag.sol/ETSTag.json
+        - name: ETSToken
+          file: ./../contracts-core/abi/contracts/ETSToken.sol/ETSToken.json
       eventHandlers:
         - event: MintTag(indexed uint256,string,indexed address,address)
           handler: handleMintTag
       file: ./src/mappings/ets.ts
-  - kind: ethereum/contract
-    name: ETS
-    network: mainnet
-    source:
-      address: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"
-      abi: ETS
-      startBlock: 13
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - Tagged
-      abis:
-        - name: ETS
-          file: ./../contracts/abi/contracts/core/ETS.sol/ETS.json
-        - name: ETSTag
-          file: ./../contracts/abi/contracts/core/ETSTag.sol/ETSTag.json
-      eventHandlers:
-        - event: TargetTagged(uint256)
-          handler: handleTagRegistered
-      file: ./src/mappings/tagging-record-registry.ts
   - kind: ethereum/contract
     name: ETSAccessControls
     network: mainnet
     source:
       address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
       abi: ETSAccessControls
-      startBlock: 9
+      startBlock: 0x10
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
