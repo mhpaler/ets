@@ -1,7 +1,7 @@
-const { setup } = require("./setup.js");
-const { ethers } = require("hardhat");
-const { expect, assert } = require("chai");
-const { constants } = ethers;
+const {setup} = require("./setup.js");
+const {ethers} = require("hardhat");
+const {expect, assert} = require("chai");
+const {constants} = ethers;
 
 //let accounts, factories, contracts.ETSAccessControls, ETSLifeCycleControls, contracts.ETSToken;
 
@@ -13,7 +13,7 @@ describe("ETSToken Core Tests", function () {
 
   describe("Valid setup", async function () {
     it("should have Platform address set to named account ETSPlatform", async function () {
-      expect(await contracts.ETSToken.platform()).to.be.equal(accounts.ETSPlatform.address);
+      expect(await contracts.ETSToken.getPlatformAddress()).to.be.equal(accounts.ETSPlatform.address);
     });
 
     it("should have Platform address granted administrator role", async function () {

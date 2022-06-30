@@ -13,7 +13,7 @@ import "hardhat/console.sol";
 
 /// @title ETS ERC-721 NFT contract
 /// @author Ethereum Tag Service <security@ets.xyz>
-/// @notice Contract that governs the creation of CTAG non-fungible tokens.
+/// @notice Contract that governs ETS CTAG non-fungible tokens.
 /// @dev UUPS upgradable.
 contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETSToken, UUPSUpgradeable, StringHelpers {
     using AddressUpgradeable for address;
@@ -67,19 +67,19 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
         __ERC721Pausable_init();
         __ERC721Burnable_init();
 
+        // Initialize ETSToken settings using public
+        // functions so our subgraph can capture them.
+        // To call them requires etsAccessControls being
+        // set so we set that manually first.
         etsAccessControls = _etsAccessControls;
-        platform = _platform;
-        tagMinStringLength = _tagMinStringLength;
-        tagMaxStringLength = _tagMaxStringLength;
-        ownershipTermLength = _ownershipTermLength;
+        setAccessControls(_etsAccessControls);
+        setPlatform(_platform);
+        setTagMinStringLength(_tagMinStringLength);
+        setTagMaxStringLength(_tagMaxStringLength);
+        setOwnershipTermLength(_ownershipTermLength);
     }
 
     function _authorizeUpgrade(address) internal override onlyAdmin {}
-
-    // @vince Not sure if we need this at all? << todo we will need to ensure that the base 721 has minimal 165 requirements before removing
-    //function supportsInterface(bytes4 interfaceId) public view virtual override(IERC721Upgradeable) returns (bool) {
-    //    return super.supportsInterface(interfaceId);
-    //}
 
     // ============ OWNER INTERFACE ============
 
@@ -100,6 +100,11 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
     function setTagMaxStringLength(uint256 _tagMaxStringLength) public onlyAdmin {
         tagMaxStringLength = _tagMaxStringLength;
         emit TagMaxStringLengthSet(_tagMaxStringLength);
+    }
+
+    function setTagMinStringLength(uint256 _tagMinStringLength) public onlyAdmin {
+        tagMinStringLength = _tagMinStringLength;
+        emit TagMinStringLengthSet(_tagMinStringLength);
     }
 
     function setOwnershipTermLength(uint256 _ownershipTermLength) public onlyAdmin {
@@ -180,6 +185,11 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
         return tagId;
     }
 
+    /**
+     * @dev Extends a CTAG ownership term by setting last renewed date for a token.
+     *
+     * @param _tokenId CTAG token Id
+     */
     function renewTag(uint256 _tokenId) public {
         require(_exists(_tokenId), "ETS: CTAG not found");
 
@@ -191,8 +201,10 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
     }
 
     /**
-     * @dev allows anyone or thing to recycle a CTAG back to platform if
-     * ownership term is expired.
+     * @dev Recycles a CTAG back to platform if ownership term is expired.
+     * Purpose of renew/recyle is to prevent lost tags.
+     *
+     * @param _tokenId CTAG token Id
      */
     function recycleTag(uint256 _tokenId) public {
         require(_exists(_tokenId), "ETS: CTAG not found");
@@ -203,6 +215,16 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
 
         _transfer(ownerOf(_tokenId), platform, _tokenId);
         emit TagRecycled(_tokenId, _msgSender());
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ERC721Upgradeable, IERC165Upgradeable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
     }
 
     // ============ PUBLIC VIEW FUNCTIONS ============
