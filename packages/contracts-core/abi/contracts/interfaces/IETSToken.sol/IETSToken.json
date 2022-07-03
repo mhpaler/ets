@@ -80,19 +80,6 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "platformAddress",
-        "type": "address"
-      }
-    ],
-    "name": "PlatformSet",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
         "internalType": "uint256",
         "name": "tagId",
         "type": "uint256"
@@ -287,7 +274,7 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -403,57 +390,6 @@
         "type": "address"
       }
     ],
-    "name": "getOrCreateTag",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "publisher",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "creator",
-            "type": "address"
-          },
-          {
-            "internalType": "string",
-            "name": "display",
-            "type": "string"
-          },
-          {
-            "internalType": "bool",
-            "name": "premium",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "reserved",
-            "type": "bool"
-          }
-        ],
-        "internalType": "struct IETSToken.Tag",
-        "name": "tag",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_tag",
-        "type": "string"
-      },
-      {
-        "internalType": "address payable",
-        "name": "publisher",
-        "type": "address"
-      }
-    ],
     "name": "getOrCreateTagId",
     "outputs": [
       {
@@ -483,7 +419,7 @@
     "name": "getPlatformAddress",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "address payable",
         "name": "",
         "type": "address"
       }
@@ -761,19 +697,6 @@
       }
     ],
     "name": "setOwnershipTermLength",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address payable",
-        "name": "_platform",
-        "type": "address"
-      }
-    ],
-    "name": "setPlatform",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

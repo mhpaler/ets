@@ -17,6 +17,19 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "platformAddress",
+        "type": "address"
+      }
+    ],
+    "name": "PlatformSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "uint256",
         "name": "threshold",
         "type": "uint256"
@@ -99,6 +112,19 @@
     ],
     "name": "RoleRevoked",
     "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "getPlatformAddress",
+    "outputs": [
+      {
+        "internalType": "address payable",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],
@@ -314,6 +340,19 @@
       }
     ],
     "name": "setETSToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address payable",
+        "name": "_platform",
+        "type": "address"
+      }
+    ],
+    "name": "setPlatform",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
