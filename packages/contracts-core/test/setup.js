@@ -82,7 +82,6 @@ async function setup() {
     factories.ETSToken,
     [
       ETSAccessControls.address,
-      accounts.ETSPlatform.address,
       initSettings.TAG_MIN_STRING_LENGTH,
       initSettings.TAG_MAX_STRING_LENGTH,
       initSettings.OWNERSHIP_TERM_LENGTH,
@@ -119,22 +118,19 @@ async function setup() {
     from: accounts.ETSAdmin.address,
   });
 
-  // Grant DEFAULT_ADMIN_ROLE to platform
-  // Plan here is to transfer admin control to
-  // platform multisig after deployment
+  // Set Core Dev Team address as "platform" address. In production this will be a multisig.
+  await ETSAccessControls.setPlatform(accounts.ETSPlatform.address);
+
+  // Grant DEFAULT_ADMIN_ROLE to platform address. This platform address full administrator privileges.
   await ETSAccessControls.grantRole(await ETSAccessControls.DEFAULT_ADMIN_ROLE(), accounts.ETSPlatform.address);
 
-  // Grant PUBLISHER role to platform
+  // Grant PUBLISHER role to platform, cause sometimes the platform will act as publisher.
   await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER"), accounts.ETSPlatform.address);
 
-  // Set PUBLISHER role admin.
-  // Contracts or addresses given PUBLISHER_ADMIN role
-  // can grant PUBLISHER role. This role
-  // should be given to ETSAccessControls so it can
-  // grant PUBLISHER role.
+  // Set PUBLISHER role admin role. Contracts or addresses given PUBLISHER_ADMIN role can grant PUBLISHER role.
   await ETSAccessControls.setRoleAdmin(ethers.utils.id("PUBLISHER"), ethers.utils.id("PUBLISHER_ADMIN"));
 
-  // Grant PUBLISHER_ADMIN role to ETSAccessControls contract
+  // Grant PUBLISHER_ADMIN role to ETSAccessControls contract so it can grant publisher role all on its own.
   await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), ETSAccessControls.address);
 
   // Set token access controls.

@@ -13,7 +13,7 @@ describe("ETSToken Core Tests", function () {
 
   describe("Valid setup", async function () {
     it("should have Platform address set to named account ETSPlatform", async function () {
-      expect(await contracts.ETSToken.getPlatformAddress()).to.be.equal(accounts.ETSPlatform.address);
+      expect(await contracts.ETSAccessControls.getPlatformAddress()).to.be.equal(accounts.ETSPlatform.address);
     });
 
     it("should have Platform address granted administrator role", async function () {
@@ -27,22 +27,12 @@ describe("ETSToken Core Tests", function () {
     it("should have name and symbol", async function () {
       expect(await contracts.ETSToken.name()).to.be.equal("Ethereum Tag Service");
       expect(await contracts.ETSToken.symbol()).to.be.equal("CTAG");
-      expect(await contracts.ETSToken.platform()).to.be.equal(accounts.ETSPlatform.address);
     });
   });
 
   describe("Administrator role", async function () {
     const tag = "#love";
     const premiumTags = ["#apple", "#google"];
-
-    it("should be able to set Platform address", async function () {
-      await expect(
-        contracts.ETSToken.connect(accounts.Buyer).setPlatform(accounts.RandomOne.address),
-      ).to.be.revertedWith("Caller must have administrator access");
-
-      await contracts.ETSToken.connect(accounts.ETSPlatform).setPlatform(accounts.RandomOne.address);
-      expect(await contracts.ETSToken.platform()).to.be.equal(accounts.RandomOne.address);
-    });
 
     it("should be able to set max tag length", async function () {
       await expect(contracts.ETSToken.connect(accounts.Buyer).setTagMaxStringLength(55)).to.be.revertedWith(

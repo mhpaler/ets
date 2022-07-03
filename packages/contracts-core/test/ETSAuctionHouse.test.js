@@ -1,7 +1,7 @@
-const { setup } = require("./setup.js");
-const { ethers } = require("hardhat");
-const { expect, assert } = require("chai");
-const { constants } = ethers;
+const {setup} = require("./setup.js");
+const {ethers} = require("hardhat");
+const {expect, assert} = require("chai");
+const {constants} = ethers;
 
 // Auction settings
 // initSettings.TIME_BUFFER = 10 * 60; // 10 minutes
@@ -44,8 +44,8 @@ describe("ETS Auction House Tests", function () {
       expect(await contracts.ETSToken.symbol()).to.be.equal("CTAG");
       expect(await contracts.ETSAuctionHouse.version()).to.be.equal("0.1.0");
       expect(await contracts.ETSToken["tagExists(uint256)"](etsOwnedTagId)).to.be.equal(true);
-      const addresses = await contracts.ETSToken.getPaymentAddresses(userOwnedTagId);
-      assert(addresses._owner === accounts.RandomTwo.address);
+      const owner = await contracts.ETSToken.ownerOf(userOwnedTagId);
+      assert(owner === accounts.RandomTwo.address);
     });
 
     it("should revert if a second initialization is attempted", async () => {
@@ -191,7 +191,7 @@ describe("ETS Auction House Tests", function () {
       const low_bid_increment =
         Number(auction.amount) + Number(auction.amount) * ((initSettings.MIN_INCREMENT_BID_PERCENTAGE - 3) / 100);
       await expect(
-        contracts.ETSAuctionHouse.connect(accounts.RandomTwo).createBid(etsOwnedTagId, { value: low_bid_increment }),
+        contracts.ETSAuctionHouse.connect(accounts.RandomTwo).createBid(etsOwnedTagId, {value: low_bid_increment}),
       ).to.be.revertedWith("Must send more than last bid by minBidIncrementPercentage amount");
     });
 
