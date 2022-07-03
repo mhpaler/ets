@@ -11,6 +11,8 @@ interface IETSAccessControls is IAccessControlUpgradeable {
 
     event PublisherDefaultThresholdSet(uint256 threshold);
 
+    event TargetTaggerPauseToggled(bool newValue);
+
     function togglePublisher() external returns (bool toggled);
 
     /**
@@ -19,6 +21,12 @@ interface IETSAccessControls is IAccessControlUpgradeable {
     function setETSToken(IETSToken _etsToken) external;
 
     function setPlatform(address payable _platform) external;
+
+    function addTargetTagger(address _taggerAddress, string calldata _name) external;
+
+    function removeTargetTagger(address _taggerAddress) external;
+
+    function toggleIsTargetTaggerPaused(address _taggerAddress) external;
 
     /**
      * @dev set the role admin for a role.
@@ -40,4 +48,8 @@ interface IETSAccessControls is IAccessControlUpgradeable {
     function isPublisher(address _addr) external view returns (bool);
 
     function isPublisherAdmin(address _addr) external view returns (bool);
+
+    function isTargetTagger(address _taggerAddress) external view returns (bool);
+
+    function isTargetTaggerAndNotPaused(address _taggerAddress) external view returns (bool);
 }

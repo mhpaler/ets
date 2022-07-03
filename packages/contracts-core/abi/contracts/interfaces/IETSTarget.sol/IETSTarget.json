@@ -43,45 +43,6 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "smartContract",
-        "type": "address"
-      }
-    ],
-    "name": "TargetTaggerAdded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "newValue",
-        "type": "bool"
-      }
-    ],
-    "name": "TargetTaggerPauseToggled",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "smartContract",
-        "type": "address"
-      }
-    ],
-    "name": "TargetTaggerRemoved",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
         "internalType": "uint256",
         "name": "targetId",
         "type": "uint256"
@@ -89,24 +50,6 @@
     ],
     "name": "TargetUpdated",
     "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_smartContract",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "_name",
-        "type": "string"
-      }
-    ],
-    "name": "addTargetTagger",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
   },
   {
     "inputs": [
@@ -270,57 +213,6 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_smartContract",
-        "type": "address"
-      }
-    ],
-    "name": "isTargetTagger",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_smartContract",
-        "type": "address"
-      }
-    ],
-    "name": "isTargetTaggerAndNotPaused",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_smartContract",
-        "type": "address"
-      }
-    ],
-    "name": "removeTargetTagger",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "contract IETSAccessControls",
         "name": "_etsAccessControls",
         "type": "address"
@@ -380,19 +272,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_smartContract",
-        "type": "address"
-      }
-    ],
-    "name": "toggleIsTargetTaggerPaused",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

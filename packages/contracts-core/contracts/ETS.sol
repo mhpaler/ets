@@ -138,7 +138,10 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address _tagger,
         bool _enrich
     ) public payable nonReentrant {
-        require(etsTarget.isTargetTaggerAndNotPaused(_msgSender()), "Only authorized contracts may call ETS core");
+        require(
+            etsAccessControls.isTargetTaggerAndNotPaused(_msgSender()),
+            "Only authorized contracts may call ETS core"
+        );
         require(etsAccessControls.isPublisher(_publisher), "Publisher not activated");
         require(_tagIds.length > 0, "No tags supplied");
         require(msg.value == (taggingFee * _tagIds.length), "Insufficient tagging fee supplied");

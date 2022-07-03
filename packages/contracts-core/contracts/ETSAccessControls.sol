@@ -2,12 +2,13 @@
 pragma solidity ^0.8.0;
 
 import { IETSToken } from "./interfaces/IETSToken.sol";
+import { IETSTargetTagger } from "./interfaces/IETSTargetTagger.sol";
 import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
+import "@openzeppelin/contracts/interfaces/IERC165.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
-import "@openzeppelin/contracts/interfaces/IERC165.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 import "hardhat/console.sol";
 
@@ -25,6 +26,7 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     bytes32 public constant PUBLISHER_ROLE = keccak256("PUBLISHER");
     bytes32 public constant PUBLISHER_ROLE_ADMIN = keccak256("PUBLISHER_ADMIN");
     bytes32 public constant SMART_CONTRACT_ROLE = keccak256("SMART_CONTRACT");
+    bytes32 public constant TARGET_TAGGER_ROLE = keccak256("TARGET_TAGGER");
 
     /// @dev number of owned tags needed to acquire/maintain publisher role.
     uint256 public publisherDefaultThreshold;
@@ -35,6 +37,15 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
 
     /// @dev Mapping of publisher address to grandfathered publisherThreshold.
     mapping(address => uint256) public publisherThresholds;
+
+    /// @notice If Target Tagger is paused by the protocol
+    mapping(address => bool) public isTargetTaggerPaused;
+
+    /// @notice Target type name to target type contract address or zero if nothing assigned
+    mapping(string => address) public targetTaggerNameToContract;
+
+    /// @notice Target type contract address to registered name or empty string if nothing assigned
+    mapping(address => string) public targetTaggerContractToName;
 
     // ============ UUPS INTERFACE ============
 
@@ -57,19 +68,49 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
         emit PlatformSet(_platform);
     }
 
+    function setRoleAdmin(bytes32 _role, bytes32 _adminRole) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        _setRoleAdmin(_role, _adminRole);
+    }
+
     function setETSToken(IETSToken _etsToken) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(address(_etsToken) != address(0), "ETS: Address cannot be zero");
         etsToken = _etsToken;
         emit ETSTokenSet(_etsToken);
     }
 
-    function setRoleAdmin(bytes32 _role, bytes32 _adminRole) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        _setRoleAdmin(_role, _adminRole);
-    }
-
     function setPublisherDefaultThreshold(uint256 _threshold) public onlyRole(DEFAULT_ADMIN_ROLE) {
         publisherDefaultThreshold = _threshold;
         emit PublisherDefaultThresholdSet(_threshold);
+    }
+
+    /// @notice Add a new Target Tagger smart contract to the ETS protocol
+    /// Note: Admin addresses can be added as target type to permit calling ETS core directly
+    /// for tagging testing and debugging purposes.
+    function addTargetTagger(address _taggerAddress, string calldata _name) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(
+            isAdmin(_taggerAddress) || IERC165(_taggerAddress).supportsInterface(type(IETSTargetTagger).interfaceId),
+            "Address not admin or required interface"
+        );
+        targetTaggerNameToContract[_name] = _taggerAddress;
+        targetTaggerContractToName[_taggerAddress] = _name;
+        // Note: grantRole emits RoleGranted event.
+        grantRole(TARGET_TAGGER_ROLE, _taggerAddress);
+    }
+
+    /// @notice Remove a target type smart contract from the protocol
+    function removeTargetTagger(address _taggerAddress) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(isTargetTagger(_taggerAddress), "invalid target tagger");
+        string memory targetTaggerName = targetTaggerContractToName[_taggerAddress];
+        delete targetTaggerNameToContract[targetTaggerName];
+        delete targetTaggerContractToName[_taggerAddress];
+        // Note: revokeRole emits RoleRevoked event.
+        revokeRole(TARGET_TAGGER_ROLE, _taggerAddress);
+    }
+
+    /// @notice Toggle whether the target type is paused or not
+    function toggleIsTargetTaggerPaused(address _taggerAddress) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        isTargetTaggerPaused[_taggerAddress] = !isTargetTaggerPaused[_taggerAddress];
+        emit TargetTaggerPauseToggled(isTargetTaggerPaused[_taggerAddress]);
     }
 
     // ============ PUBLIC INTERFACE ============
@@ -109,6 +150,23 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
 
     function isPublisherAdmin(address _addr) public view returns (bool) {
         return hasRole(PUBLISHER_ROLE_ADMIN, _addr);
+    }
+
+    function isTargetTagger(string memory _taggerName) public view returns (bool) {
+        return targetTaggerNameToContract[_taggerName] != address(0);
+    }
+
+    /// @notice Checks whether an address has the tagging contract role
+    /// @param _taggerAddress Address being checked
+    /// @return bool True if the address has the role, false if not
+    function isTargetTagger(address _taggerAddress) public view returns (bool) {
+        return hasRole(TARGET_TAGGER_ROLE, _taggerAddress);
+    }
+
+    /// @notice Checks whether an address has the target type contract role and is not paused from tagging
+    /// @param _taggerAddress Address being checked
+    function isTargetTaggerAndNotPaused(address _taggerAddress) public view returns (bool) {
+        return isTargetTagger(_taggerAddress) && !isTargetTaggerPaused[_taggerAddress];
     }
 
     function getPlatformAddress() public view returns (address payable) {

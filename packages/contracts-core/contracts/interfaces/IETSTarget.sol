@@ -60,12 +60,6 @@ interface IETSTarget {
 
     event EnrichTargetSet(IETSEnrichTarget etsEnrichTarget);
 
-    event TargetTaggerAdded(address smartContract);
-
-    event TargetTaggerRemoved(address smartContract);
-
-    event TargetTaggerPauseToggled(bool newValue);
-
     event TargetCreated(uint256 targetId);
 
     event TargetUpdated(uint256 targetId);
@@ -85,12 +79,6 @@ interface IETSTarget {
      * @param _etsEnrichTarget Address of ETSEnrichTarget contract.
      */
     function setEnrichTarget(IETSEnrichTarget _etsEnrichTarget) external;
-
-    function addTargetTagger(address _smartContract, string calldata _name) external;
-
-    function removeTargetTagger(address _smartContract) external;
-
-    function toggleIsTargetTaggerPaused(address _smartContract) external;
 
     function getOrCreateTargetId(string memory _targetURI) external returns (uint256);
 
@@ -113,8 +101,4 @@ interface IETSTarget {
     function getTarget(string memory _targetURI) external view returns (Target memory);
 
     function getTarget(uint256 _targetId) external view returns (Target memory);
-
-    function isTargetTagger(address _smartContract) external view returns (bool);
-
-    function isTargetTaggerAndNotPaused(address _smartContract) external view returns (bool);
 }
