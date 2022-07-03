@@ -71,6 +71,6 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
     ) public {
         // Note: vince how's this looking for you?.
         IETSTarget.Target memory target = etsTarget.getTarget(_targetId);
-        etsTarget.updateTarget(_targetId, target.targetType, target.targetURI, block.timestamp, _status, _ipfsHash);
+        etsTarget.updateTarget(_targetId, target.targetURI, block.timestamp, _status, _ipfsHash);
     }
 }

@@ -5,7 +5,10 @@ import "./IETSToken.sol";
 import "@openzeppelin/contracts-upgradeable/access/IAccessControlUpgradeable.sol";
 
 interface IETSAccessControls is IAccessControlUpgradeable {
+    event PlatformSet(address platformAddress);
+
     event ETSTokenSet(IETSToken etsToken);
+
     event PublisherDefaultThresholdSet(uint256 threshold);
 
     function togglePublisher() external returns (bool toggled);
@@ -15,10 +18,14 @@ interface IETSAccessControls is IAccessControlUpgradeable {
      */
     function setETSToken(IETSToken _etsToken) external;
 
+    function setPlatform(address payable _platform) external;
+
     /**
      * @dev set the role admin for a role.
      */
     function setRoleAdmin(bytes32 _role, bytes32 _adminRole) external;
+
+    function getPlatformAddress() external view returns (address payable);
 
     function setPublisherDefaultThreshold(uint256 _threshold) external;
 

@@ -6,6 +6,7 @@ import "./interfaces/IETSAccessControls.sol";
 import "./utils/StringHelpers.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
@@ -22,16 +23,14 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
 
     IETSAccessControls public etsAccessControls;
 
-    /// Public constants
+    // Public constants
     string public constant NAME = "CTAG Token";
     string public constant VERSION = "0.1.0";
 
+    // Public variables
     uint256 public tagMinStringLength;
     uint256 public tagMaxStringLength;
     uint256 public ownershipTermLength;
-
-    /// @dev ETS Platform account.
-    address payable public platform;
 
     /// @dev Map of CTAG id to CTAG record.
     mapping(uint256 => Tag) public tokenIdToTag;
@@ -58,7 +57,6 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
 
     function initialize(
         IETSAccessControls _etsAccessControls,
-        address payable _platform,
         uint256 _tagMinStringLength,
         uint256 _tagMaxStringLength,
         uint256 _ownershipTermLength
@@ -73,7 +71,6 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
         // set so we set that manually first.
         etsAccessControls = _etsAccessControls;
         setAccessControls(_etsAccessControls);
-        setPlatform(_platform);
         setTagMinStringLength(_tagMinStringLength);
         setTagMaxStringLength(_tagMaxStringLength);
         setOwnershipTermLength(_ownershipTermLength);
@@ -112,11 +109,6 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
         emit OwnershipTermLengthSet(_ownershipTermLength);
     }
 
-    function setPlatform(address payable _platform) public onlyAdmin {
-        platform = _platform;
-        emit PlatformSet(_platform);
-    }
-
     function setAccessControls(IETSAccessControls _etsAccessControls) public onlyAdmin {
         require(address(_etsAccessControls) != address(0), "Access controls cannot be zero");
         etsAccessControls = _etsAccessControls;
@@ -138,7 +130,7 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
         require(_tokenIds.length > 0, "Empty array");
         for (uint256 i; i < _tokenIds.length; ++i) {
             uint256 tokenId = _tokenIds[i];
-            require(ownerOf(tokenId) == platform, "Not owned by platform");
+            require(ownerOf(tokenId) == getPlatformAddress(), "Not owned by platform");
             tokenIdToTag[tokenId].premium = _isPremium;
             emit PremiumFlagSet(tokenId, _isPremium);
         }
@@ -150,7 +142,7 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
         require(_tokenIds.length > 0, "Empty array");
         for (uint256 i; i < _tokenIds.length; ++i) {
             uint256 tokenId = _tokenIds[i];
-            require(ownerOf(tokenId) == platform, "Token not owned by platform");
+            require(ownerOf(tokenId) == getPlatformAddress(), "Token not owned by platform");
             tokenIdToTag[tokenId].reserved = _reserved;
             emit ReservedFlagSet(tokenId, _reserved);
         }
@@ -180,7 +172,7 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
 
     function createTag(string calldata _tag) public payable returns (uint256 _tokenId) {
         // todo - add nonReentrant due to safeMint
-        return createTag(_tag, platform);
+        return createTag(_tag, getPlatformAddress());
     }
 
     function createTag(string calldata _tag, address payable _publisher) public payable returns (uint256 _tokenId) {
@@ -191,7 +183,7 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
         uint256 tagId = _assertTagIsValid(_tag);
 
         // mint the token, transferring it to the platform.
-        _safeMint(platform, tagId);
+        _safeMint(getPlatformAddress(), tagId);
 
         // Store CTAG data in state.
         tokenIdToTag[tagId] = Tag({
@@ -213,7 +205,7 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
     function renewTag(uint256 _tokenId) public {
         require(_exists(_tokenId), "ETS: CTAG not found");
 
-        if (ownerOf(_tokenId) == platform) {
+        if (ownerOf(_tokenId) == getPlatformAddress()) {
             _setLastRenewed(_tokenId, 0);
         } else {
             _setLastRenewed(_tokenId, block.timestamp);
@@ -228,12 +220,12 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
      */
     function recycleTag(uint256 _tokenId) public {
         require(_exists(_tokenId), "ETS: CTAG not found");
-        require(ownerOf(_tokenId) != platform, "ETS: CTAG owned by platform");
+        require(ownerOf(_tokenId) != getPlatformAddress(), "ETS: CTAG owned by platform");
 
         uint256 lastRenewed = getLastRenewed(_tokenId);
         require(lastRenewed.add(getOwnershipTermLength()) < block.timestamp, "ETS: CTAG not eligible for recycling");
 
-        _transfer(ownerOf(_tokenId), platform, _tokenId);
+        _transfer(ownerOf(_tokenId), getPlatformAddress(), _tokenId);
         emit TagRecycled(_tokenId, _msgSender());
     }
 
@@ -278,15 +270,15 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
         return tokenIdToLastRenewed[_tokenId];
     }
 
+    function getPlatformAddress() public view returns (address payable) {
+        return etsAccessControls.getPlatformAddress();
+    }
+
     /// @notice Returns creator of a CTAG token.
     /// @param _tokenId ID of a CTAG.
     /// @return _creator creator of the CTAG.
     function getCreatorAddress(uint256 _tokenId) public view returns (address) {
         return tokenIdToTag[_tokenId].creator;
-    }
-
-    function getPlatformAddress() public view returns (address) {
-        return platform;
     }
 
     function version() external pure returns (string memory) {
@@ -314,7 +306,7 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
 
         if (to != address(0)) {
             // Reset token ownership term.
-            if (to == platform) {
+            if (to == getPlatformAddress()) {
                 _setLastRenewed(tokenId, 0);
             } else {
                 _setLastRenewed(tokenId, block.timestamp);

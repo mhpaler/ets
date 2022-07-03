@@ -23,8 +23,6 @@ interface IETSToken is IERC721Upgradeable {
 
     event OwnershipTermLengthSet(uint256 termLength);
 
-    event PlatformSet(address platformAddress);
-
     event AccessControlsSet(IETSAccessControls etsAccessControls);
 
     event PremiumTagPreSet(string tag, bool isPremium);
@@ -44,8 +42,6 @@ interface IETSToken is IERC721Upgradeable {
     function setTagMinStringLength(uint256 _tagMinStringLength) external;
 
     function setOwnershipTermLength(uint256 _ownershipTermLength) external;
-
-    function setPlatform(address payable _platform) external;
 
     function setAccessControls(IETSAccessControls _etsAccessControls) external;
 
@@ -82,7 +78,7 @@ interface IETSToken is IERC721Upgradeable {
 
     function getTag(uint256 _tokenId) external view returns (Tag memory);
 
-    function getPlatformAddress() external view returns (address);
+    function getPlatformAddress() external view returns (address payable);
 
     function getCreatorAddress(uint256 _tokenId) external view returns (address);
 

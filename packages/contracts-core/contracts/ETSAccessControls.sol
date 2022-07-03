@@ -29,6 +29,10 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     /// @dev number of owned tags needed to acquire/maintain publisher role.
     uint256 public publisherDefaultThreshold;
 
+    /// @dev ETS Platform account. Core Dev Team multisig in production.
+    /// There will only be one "Platform" so no need to make it a role.
+    address payable internal platform;
+
     /// @dev Mapping of publisher address to grandfathered publisherThreshold.
     mapping(address => uint256) public publisherThresholds;
 
@@ -47,6 +51,11 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
     // ============ OWNER INTERFACE ============
+
+    function setPlatform(address payable _platform) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        platform = _platform;
+        emit PlatformSet(_platform);
+    }
 
     function setETSToken(IETSToken _etsToken) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(address(_etsToken) != address(0), "ETS: Address cannot be zero");
@@ -100,6 +109,10 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
 
     function isPublisherAdmin(address _addr) public view returns (bool) {
         return hasRole(PUBLISHER_ROLE_ADMIN, _addr);
+    }
+
+    function getPlatformAddress() public view returns (address payable) {
+        return platform;
     }
 
     function getPublisherThreshold(address _addr) public view returns (uint256) {

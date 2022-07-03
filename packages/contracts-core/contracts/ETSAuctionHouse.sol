@@ -69,7 +69,7 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
 
     modifier platformOwned(uint256 tokenId) {
         // Returns "ERC721: owner query for nonexistent token" for non-existent token.
-        require(etsToken.ownerOf(tokenId) == etsToken.getPlatformAddress(), "CTAG not owned by ETS");
+        require(etsToken.ownerOf(tokenId) == etsAccessControls.getPlatformAddress(), "CTAG not owned by ETS");
         _;
     }
 
@@ -195,7 +195,7 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         require(block.timestamp >= auction.endTime, "Auction hasn't completed");
 
         // Transfer CTAG Token to winner.
-        etsToken.transferFrom(etsToken.getPlatformAddress(), auction.bidder, _tokenId);
+        etsToken.transferFrom(etsAccessControls.getPlatformAddress(), auction.bidder, _tokenId);
 
         // Distribute proceeds to actors.
         IETSToken.Tag memory ctag = etsToken.getTag(_tokenId);

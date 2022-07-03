@@ -12,43 +12,44 @@ import "./IETSAccessControls.sol";
  */
 interface IETSTarget {
     /**
-     * @notice Data structure for a Target Type Tagger. Target Type Tagger contracts are the interfaces through
+     * @notice Data structure for a Target Tagger. Target Tagger contracts are the interfaces through
      * which external partes may call the ETS Core tagTarget() function and thereby record a tagging record.
-     * Put another way, ETS Core tagging records may only be recorded though a Target Type Tagger contract.
+     * Put another way, ETS Core tagging records may only be recorded though a Target Tagger contract.
      *
-     * Target Type Tagger contracts deployed by third-parties must be approved/activated by ETS Core dev team.
-     * As it's name implies, a Target Type Tagger permits tagging of a specific target type. Target types are
-     * any internet addressable artifact, entities or objects registered within ETS. See "setTargetType()" below
-     * for more details.
-     *
-     * @param name Internal machine name for target type tagger. Must be unique among all TTTs
-     * @param targetType Valid & enabled machine name for type of target this tagger may tag
-     * @param taggerAddress Address of deployed Target Type Tagger address
+     * @param name Internal machine name for Target Tagger. Must be unique among all TTTs
+     * @param taggerAddress Address of deployed Target Tagger address
      */
-    struct TargetTypeTagger {
+    struct TargetTagger {
         string name;
-        string targetType;
         address taggerAddress;
     }
     /**
      * @notice Data structure for an ETS Target. The core utility of ETS is to record connections between CTAGs
-     * (our NFT token that represents a tag) and Targets. In ETS, a "Target" is data structure, stored onchain,
-     * that references/points to to a uniquely identifiable artifact or entity on the internet.
+     * (our NFT token that represents a tag) and Targets. In ETS, a "Target" is our data structure, stored onchain,
+     * that references/points to a URI.
      *
-     * Examples of Targets include an EVM Compatible NFT, a wallet address on any blockchain, a website or web page,
-     * a Tweet. Each Target in ETS is identified by a unique, uint256 ID that is a composite key of targetType
-     * and targetURI.
+     * For context, from Wikipedia, URI is short for Uniform Resource Identifier and is a unique sequence of
+     * characters that identifies a logical or physical resource used by web technologies. URIs may be used to
+     * identify anything, including real-world objects, such as people and places, concepts, or information
+     * resources such as web pages and books.
      *
-     * @param targetType Valid & enabled machine name for type of target this tagger may tag
+     * For our purposes, as much as possible, we are restricting our interpretation of URIs to the more technical
+     * parameters defined by the IETF in RFC3986 (https://www.rfc-editor.org/rfc/rfc3986). For newer protocols, such
+     * as blockchains, other newer standards such a standards
+     *
+     * The thing to keep in mind with Targets & URIs is that differently shaped URIs can sometimes point to the same
+     * resource. The effect of that is that different Target IDs in ETS can similarly point to the same resource.
+     *
      * @param targetURI Unique resource identifier for a target
+     * @param createdBy Address of TargetTagger that created target
      * @param created block timestamp when target was created in ETS
      * @param enriched block timestamp when target was last enriched. Defaults to 0
      * @param status https status of last response from ensure enrich api eg. "404", "200". defaults to 0
      * @param ipfsHash ipfsHash of additional metadata for target collected by ETS Enrich target API
      */
     struct Target {
-        string targetType;
         string targetURI;
+        address createdBy;
         uint256 created;
         uint256 enriched;
         uint256 status;
@@ -59,59 +60,61 @@ interface IETSTarget {
 
     event EnrichTargetSet(IETSEnrichTarget etsEnrichTarget);
 
-    event TargetTypeAdded(string _targetType, bool enabled);
+    event TargetTaggerAdded(address smartContract);
 
-    event TargetTypeTaggerAdded(address smartContract);
+    event TargetTaggerRemoved(address smartContract);
 
-    event TargetTypeTaggerRemoved(address smartContract);
-
-    event TargetTypeTaggerPauseToggled(address targetType, bool newValue);
+    event TargetTaggerPauseToggled(bool newValue);
 
     event TargetCreated(uint256 targetId);
 
     event TargetUpdated(uint256 targetId);
 
+    /**
+     * @notice Sets ETS access controls on the ETSTarget contract so that
+     * functions can be restricted to being called by ETS platform only.
+     *
+     * @param _etsAccessControls Address of ETSAccessControls contract.
+     */
     function setAccessControls(IETSAccessControls _etsAccessControls) external;
 
+    /**
+     * @notice Sets ETS Enrich target contract address so that target metadata enrichment
+     * functions can be called from ETSTarget.
+     *
+     * @param _etsEnrichTarget Address of ETSEnrichTarget contract.
+     */
     function setEnrichTarget(IETSEnrichTarget _etsEnrichTarget) external;
 
-    function addTargetType(string calldata _targetType, bool _enabled) external;
+    function addTargetTagger(address _smartContract, string calldata _name) external;
 
-    function addTargetTypeTagger(address _smartContract, string calldata _name) external;
+    function removeTargetTagger(address _smartContract) external;
 
-    function removeTargetTypeTagger(address _smartContract) external;
+    function toggleIsTargetTaggerPaused(address _smartContract) external;
 
-    function toggleIsTargetTypeTaggerPaused(address _smartContract) external;
+    function getOrCreateTargetId(string memory _targetURI) external returns (uint256);
 
-    function getOrCreateTargetId(string memory _targetType, string memory _targetURI) external returns (uint256);
-
-    function createTarget(string memory _targetType, string memory _targetURI) external returns (uint256 targetId);
+    function createTarget(string memory _targetURI) external returns (uint256 targetId);
 
     function updateTarget(
         uint256 _targetId,
-        string calldata _targetType,
         string calldata _targetURI,
         uint256 _enriched,
         uint256 _status,
         string calldata _ipfsHash
     ) external returns (bool success);
 
-    function computeTargetId(string memory _targetType, string memory _targetURI)
-        external
-        view
-        returns (uint256 targetId);
+    function computeTargetId(string memory _targetURI) external view returns (uint256 targetId);
 
-    function targetExists(string memory _targetType, string memory _targetURI) external view returns (bool);
+    function targetExists(string memory _targetURI) external view returns (bool);
 
     function targetExists(uint256 _targetId) external view returns (bool);
 
-    function getTarget(string memory _targetType, string memory _targetURI) external view returns (Target memory);
+    function getTarget(string memory _targetURI) external view returns (Target memory);
 
     function getTarget(uint256 _targetId) external view returns (Target memory);
 
-    function isTargetType(string memory _targetTypeName) external view returns (bool);
+    function isTargetTagger(address _smartContract) external view returns (bool);
 
-    function isTargetTypeTagger(address _smartContract) external view returns (bool);
-
-    function isTargetTypeTaggerAndNotPaused(address _smartContract) external view returns (bool);
+    function isTargetTaggerAndNotPaused(address _smartContract) external view returns (bool);
 }
