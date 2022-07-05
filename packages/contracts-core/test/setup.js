@@ -22,6 +22,7 @@ async function getArtifacts() {
     ETSAccessControls: artifacts.readArtifactSync("ETSAccessControls"),
     ETSToken: artifacts.readArtifactSync("ETSToken"),
     ETSTarget: artifacts.readArtifactSync("ETSTarget"),
+    ETSEnrichTarget: artifacts.readArtifactSync("ETSEnrichTarget"),
     ETSAuctionHouse: artifacts.readArtifactSync("ETSAuctionHouse"),
     ETSAccessControlsUpgrade: artifacts.readArtifactSync("ETSAccessControlsUpgrade"),
     ETSTokenUpgrade: artifacts.readArtifactSync("ETSTokenUpgrade"),
@@ -32,11 +33,12 @@ async function getArtifacts() {
 
 async function getFactories() {
   const allFactories = {
-    WMATIC: await ethers.getContractFactory("WMATIC"),
     ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
-    ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
     ETSToken: await ethers.getContractFactory("ETSToken"),
     ETSTarget: await ethers.getContractFactory("ETSTarget"),
+    ETSEnrichTarget: artifacts.readArtifactSync("ETSEnrichTarget"),
+    ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
+    WMATIC: await ethers.getContractFactory("WMATIC"),
     ETSAccessControlsUpgrade: await ethers.getContractFactory("ETSAccessControlsUpgrade"),
     ETSAuctionHouseUpgrade: await ethers.getContractFactory("ETSAuctionHouseUpgrade"),
     ETSTokenUpgrade: await ethers.getContractFactory("ETSTokenUpgrade"),
@@ -55,6 +57,7 @@ async function setup() {
     ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
     ETSToken: await ethers.getContractFactory("ETSToken"),
     ETSTarget: await ethers.getContractFactory("ETSTarget"),
+    ETSEnrichTarget: artifacts.readArtifactSync("ETSEnrichTarget"),
   };
 
   // ============ SETUP TEST ACCOUNTS ============
@@ -78,6 +81,7 @@ async function setup() {
     [initSettings.PUBLISHER_DEFAULT_THRESHOLD],
     {kind: "uups"},
   );
+
   const ETSToken = await upgrades.deployProxy(
     factories.ETSToken,
     [
@@ -88,6 +92,17 @@ async function setup() {
     ],
     {kind: "uups"},
   );
+
+  const ETSTarget = await upgrades.deployProxy(factories.ETSTarget, [ETSAccessControls.address], {kind: "uups"});
+
+  const ETSEnrichTarget = await upgrades.deployProxy(
+    factories.ETSEnrichTarget,
+    [ETSAccessControls.address, ETSTarget.address],
+    {
+      kind: "uups",
+    },
+  );
+
   const ETSAuctionHouse = await upgrades.deployProxy(
     factories.ETSAuctionHouse,
     [
@@ -104,12 +119,13 @@ async function setup() {
     ],
     {kind: "uups"},
   );
-
   const contracts = {
     WMATIC: WMATIC,
     ETSAccessControls: ETSAccessControls,
     ETSAuctionHouse: ETSAuctionHouse,
     ETSToken: ETSToken,
+    ETSTarget: ETSTarget,
+    ETSEnrichTarget: ETSEnrichTarget,
   };
 
   // ============ GRANT ROLES & APPROVALS ============
@@ -135,6 +151,8 @@ async function setup() {
 
   // Set token access controls.
   await ETSAccessControls.connect(accounts.ETSPlatform).setETSToken(ETSToken.address);
+
+  await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(ETSEnrichTarget.address);
 
   // Approve auction house contract to move tokens owned by platform.
   await ETSToken.connect(accounts.ETSPlatform).setApprovalForAll(ETSAuctionHouse.address, true);

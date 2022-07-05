@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 import "./utils/StringHelpers.sol";
 import "./interfaces/IETSTarget.sol";
 import "./interfaces/IETSEnrichTarget.sol";
-// import "./interfaces/IETSTargetTagger.sol";
 import "./interfaces/IETSAccessControls.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
@@ -51,7 +50,7 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
     // ============ OWNER INTERFACE ============
 
     function setAccessControls(IETSAccessControls _etsAccessControls) public onlyAdmin {
-        require(address(_etsAccessControls) != address(0), "ETSAccessControls address cannot be zero");
+        require(address(_etsAccessControls) != address(0), "Access controls cannot be zero");
         etsAccessControls = _etsAccessControls;
         emit AccessControlsSet(_etsAccessControls);
     }
