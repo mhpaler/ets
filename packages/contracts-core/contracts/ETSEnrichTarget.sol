@@ -69,7 +69,7 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
         string calldata _ipfsHash,
         uint256 _status
     ) public {
-        // Note: vince how's this looking for you?.
+        require(etsAccessControls.getPlatformAddress() == msg.sender, "only platform may enrich target");
         IETSTarget.Target memory target = etsTarget.getTarget(_targetId);
         etsTarget.updateTarget(_targetId, target.targetURI, block.timestamp, _status, _ipfsHash);
     }

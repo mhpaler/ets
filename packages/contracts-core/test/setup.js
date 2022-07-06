@@ -36,7 +36,7 @@ async function getFactories() {
     ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
     ETSToken: await ethers.getContractFactory("ETSToken"),
     ETSTarget: await ethers.getContractFactory("ETSTarget"),
-    ETSEnrichTarget: artifacts.readArtifactSync("ETSEnrichTarget"),
+    ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
     ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
     WMATIC: await ethers.getContractFactory("WMATIC"),
     ETSAccessControlsUpgrade: await ethers.getContractFactory("ETSAccessControlsUpgrade"),
@@ -57,7 +57,7 @@ async function setup() {
     ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
     ETSToken: await ethers.getContractFactory("ETSToken"),
     ETSTarget: await ethers.getContractFactory("ETSTarget"),
-    ETSEnrichTarget: artifacts.readArtifactSync("ETSEnrichTarget"),
+    ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
   };
 
   // ============ SETUP TEST ACCOUNTS ============

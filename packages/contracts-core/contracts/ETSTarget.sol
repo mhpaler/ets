@@ -34,11 +34,6 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
         _;
     }
 
-    modifier onlyPublisher() {
-        require(etsAccessControls.isPublisher(msg.sender), "Caller is not publisher");
-        _;
-    }
-
     // ============ UUPS INTERFACE ============
 
     function initialize(IETSAccessControls _etsAccessControls) public initializer {
@@ -81,7 +76,7 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
             targetURI: _targetURI,
             createdBy: msg.sender,
             created: block.timestamp,
-            enriched: 0, // if null, target has never been ensured.
+            enriched: 0,
             status: 0,
             ipfsHash: ""
         });
@@ -98,7 +93,7 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
         uint256 _status,
         string calldata _ipfsHash
     ) external returns (bool success) {
-        require(msg.sender == address(etsEnrichTarget), "Only ETS ensure");
+        require(msg.sender == address(etsEnrichTarget), "Only ETSEnrichTarget may update target");
         targets[_targetId].targetURI = _targetURI;
         targets[_targetId].enriched = _enriched;
         targets[_targetId].status = _status;

@@ -12,18 +12,6 @@ import "./IETSAccessControls.sol";
  */
 interface IETSTarget {
     /**
-     * @notice Data structure for a Target Tagger. Target Tagger contracts are the interfaces through
-     * which external partes may call the ETS Core tagTarget() function and thereby record a tagging record.
-     * Put another way, ETS Core tagging records may only be recorded though a Target Tagger contract.
-     *
-     * @param name Internal machine name for Target Tagger. Must be unique among all TTTs
-     * @param taggerAddress Address of deployed Target Tagger address
-     */
-    struct TargetTagger {
-        string name;
-        address taggerAddress;
-    }
-    /**
      * @notice Data structure for an ETS Target. The core utility of ETS is to record connections between CTAGs
      * (our NFT token that represents a tag) and Targets. In ETS, a "Target" is our data structure, stored onchain,
      * that references/points to a URI.
