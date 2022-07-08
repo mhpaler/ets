@@ -19,11 +19,9 @@ interface IETS {
         address publisher;
     }
 
-    event TaggingFeeSet(uint256 previousFee, uint256 taggingFee);
+    event AccessControlsSet(address newAccessControls);
 
-    event AccessControlsSet(address previousAccessControls, address newAccessControls);
-
-    event ETSEnsureSet(address previousETSEnsure, address newETSEnsure);
+    event TaggingFeeSet(uint256 newTaggingFee);
 
     event PercentagesSet(uint256 platformPercentage, uint256 publisherPercentage, uint256 remainingPercentage);
 
@@ -33,27 +31,19 @@ interface IETS {
 
     event FundsWithdrawn(address indexed who, uint256 amount);
 
-    event RequestEnsureTarget(uint256 targetId);
-
     /// @notice Tag a target with an one or more tags.
     /// @param _tagIds Tags target is being tagged with, passed in as array of CTAG Token Ids.
     /// @param _targetId Target Id of the target being tagged.
-    /// @param _publisher Address of publisher enabling the tagging record.
     /// @param _tagger Address of tagger being credited performing tagging record.
-    /// @param _enrich Boolean flag, set true to enrich the target at time of tagging.
     function tagTarget(
         uint256[] calldata _tagIds,
         uint256 _targetId,
-        address payable _publisher,
-        address _tagger,
-        bool _enrich
+        address payable _tagger
     ) external payable;
 
     function updateTaggingRecord(uint256 _taggingRecordId, string[] calldata _tags) external payable;
 
     function drawDown(address payable _account) external;
-
-    function taggingFee() external view returns (uint256);
 
     function computeTaggingRecordId(
         uint256 _targetId,
@@ -84,4 +74,11 @@ interface IETS {
             address tagger,
             address publisher
         );
+
+    /// @notice Used to check how much MATIC has been accrued by an address factoring in amount paid out.
+    /// @param _account Address of the account being queried.
+    /// @return _due Amount of WEI in ETH due to account.
+    function totalDue(address _account) external view returns (uint256 _due);
+
+    function taggingFee() external view returns (uint256);
 }

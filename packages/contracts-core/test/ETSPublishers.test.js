@@ -1,7 +1,7 @@
-const { setup } = require("./setup.js");
-const { ethers, upgrades } = require("hardhat");
-const { expect, assert } = require("chai");
-const { BigNumber, constants } = ethers;
+const {setup} = require("./setup.js");
+const {ethers, upgrades} = require("hardhat");
+const {expect, assert} = require("chai");
+const {BigNumber, constants} = ethers;
 
 describe("ETSToken grant/revoke publisher role tests", function () {
   // we create a setup function that can be called by every test and setup variable for easy to read tests
@@ -10,16 +10,13 @@ describe("ETSToken grant/revoke publisher role tests", function () {
 
     // Mint a couple tags
     tag1 = "#Love";
-    await contracts.ETSToken.connect(accounts.RandomTwo)["createTag(string)"](tag1);
+    await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(tag1, accounts.RandomTwo.address);
     tag1Id = await contracts.ETSToken.computeTagId(tag1);
     tag1Id = tag1Id.toString();
 
     // Mint a tag and transfer away from platform.
     tag2 = "#Incredible";
-    await contracts.ETSToken.connect(accounts.RandomTwo)["createTag(string,address)"](
-      tag2,
-      accounts.ETSPlatform.address,
-    );
+    await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(tag2, accounts.RandomTwo.address);
     tag2Id = await contracts.ETSToken.computeTagId(tag2);
     tag2Id = tag2Id.toString();
   });

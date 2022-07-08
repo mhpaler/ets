@@ -53,14 +53,12 @@ interface IETSToken is IERC721Upgradeable {
 
     // ============ PUBLIC INTERFACE ============
 
-    function getOrCreateTagId(string calldata _tag, address payable publisher)
+    function getOrCreateTagId(string calldata _tag, address payable _creator)
         external
         payable
         returns (uint256 tokenId);
 
-    function createTag(string calldata _tag) external payable returns (uint256 tokenId);
-
-    function createTag(string calldata _tag, address payable _publisher) external payable returns (uint256 tokenId);
+    function createTag(string calldata _tag, address payable _creator) external payable returns (uint256 tokenId);
 
     function renewTag(uint256 _tokenId) external;
 

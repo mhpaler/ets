@@ -17,17 +17,15 @@ describe("ETS Auction House Tests", function () {
   beforeEach("Setup test", async function () {
     [accounts, contracts, initSettings] = await setup();
 
-    //[accounts, contracts.ETSAccessControls, contracts.ETSToken, contracts.ETSAuctionHouse, contracts.WMATIC, initSettings] = await setup();
-
     // Mint a tag by random user. ETS is Publisher, retained by platform.
     etsOwnedTag = "#Love";
-    await contracts.ETSToken.connect(accounts.RandomTwo)["createTag(string)"](etsOwnedTag);
+    await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(etsOwnedTag, accounts.RandomTwo.address);
     etsOwnedTagId = await contracts.ETSToken.computeTagId(etsOwnedTag);
     etsOwnedTagId = etsOwnedTagId.toString();
 
     // Mint a tag and transfer away from platform.
     userOwnedTag = "#Incredible";
-    await contracts.ETSToken.connect(accounts.RandomTwo)["createTag(string)"](userOwnedTag);
+    await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(userOwnedTag, accounts.RandomTwo.address);
     userOwnedTagId = await contracts.ETSToken.computeTagId(userOwnedTag);
     userOwnedTagId = userOwnedTagId.toString();
 

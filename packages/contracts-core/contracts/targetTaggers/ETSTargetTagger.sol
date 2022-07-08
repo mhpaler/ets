@@ -9,6 +9,8 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { Pausable } from "@openzeppelin/contracts/security/Pausable.sol";
 
+import "hardhat/console.sol";
+
 /**
  * @title ETSTargetTagger
  * @author Ethereum Tag Service <security@ets.xyz>
@@ -26,7 +28,7 @@ import { Pausable } from "@openzeppelin/contracts/security/Pausable.sol";
  * minted and as well as the tagging record. To learn more about the role and incentives for Publisher in ETS,
  * please see. todo: link to docs.
  */
-abstract contract ETSTargetTagger is IETSTargetTagger, Ownable, Pausable {
+contract ETSTargetTagger is IETSTargetTagger, Ownable, Pausable {
     /**
      * @notice Data structure to pass into the tagEVMNFTs() function
      *
@@ -96,18 +98,20 @@ abstract contract ETSTargetTagger is IETSTargetTagger, Ownable, Pausable {
      * @param _taggingRecords Array of TaggingRecord stucts.
      */
     function tagTarget(TaggingRecord[] calldata _taggingRecords) public payable {
+        // Pull tagging fee here so wo don't need to recalculate for each tagging reccord.
         uint256 currentTaggingFee = ets.taggingFee();
 
         for (uint256 i; i < _taggingRecords.length; ++i) {
-            _processTaggingRecord(_taggingRecords[i], msg.sender, currentTaggingFee);
+            _processTaggingRecord(_taggingRecords[i], payable(msg.sender), currentTaggingFee);
         }
 
+        // Confirms that all funds sent here are forwarded along.
         assert(address(this).balance == 0);
     }
 
     // ============ PUBLIC VIEW FUNCTIONS ============
 
-    function getName() public pure returns (string memory) {
+    function getTaggerName() public pure returns (string memory) {
         return name;
     }
 
@@ -132,7 +136,7 @@ abstract contract ETSTargetTagger is IETSTargetTagger, Ownable, Pausable {
 
     function _processTaggingRecord(
         TaggingRecord calldata _taggingRecord,
-        address _tagger,
+        address payable _tagger,
         uint256 _currentFee
     ) internal {
         uint256 valueToSendForTagging = (_currentFee * _taggingRecord.tagStrings.length);
@@ -141,11 +145,11 @@ abstract contract ETSTargetTagger is IETSTargetTagger, Ownable, Pausable {
         // First let's derive tagIds for the tagStrings.
         uint256[] memory tagIds = new uint256[](_taggingRecord.tagStrings.length);
         for (uint256 i; i < _taggingRecord.tagStrings.length; ++i) {
-            // etsToken.createTag() can accept a publisher argument. Here we are giving
-            // publisher credit to the owner of this Target Tagger. In this case
-            // the Publisher is ETS.
-            uint256 tagId = etsToken.getOrCreateTagId(_taggingRecord.tagStrings[i], getOwner());
-            // _processAccrued(tagId, _publisher);
+            // etsToken.createTag() accepts a publisher argument. Here we are giving
+            // publisher credit to this Target Tagger contract. Any funds accrued to this contract
+            // can be withdrawn by the contract owner.
+            uint256 tagId = etsToken.getOrCreateTagId(_taggingRecord.tagStrings[i], _tagger);
+
             tagIds[i] = tagId;
         }
 
@@ -154,6 +158,6 @@ abstract contract ETSTargetTagger is IETSTargetTagger, Ownable, Pausable {
         uint256 targetId = etsTarget.getOrCreateTargetId(_taggingRecord.targetURI);
 
         // Finally, call the core tagTarget() function to record the tagging record.
-        ets.tagTarget{ value: valueToSendForTagging }(tagIds, targetId, getOwner(), _tagger, _taggingRecord.enrich);
+        ets.tagTarget{ value: valueToSendForTagging }(tagIds, targetId, _tagger);
     }
 }

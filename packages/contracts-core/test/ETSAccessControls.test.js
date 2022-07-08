@@ -24,10 +24,6 @@ describe("ETSAccessControls Tests", function () {
       expect(await contracts.ETSAccessControls.isPublisher(accounts.ETSPlatform.address)).to.be.equal(true);
     });
 
-    it("grants ETSPlatform the PUBLISHER role", async function () {
-      expect(await contracts.ETSAccessControls.isPublisher(accounts.ETSPlatform.address)).to.be.equal(true);
-    });
-
     it("sets publisherDefaultThreshold", async function () {
       expect(await contracts.ETSAccessControls.getPublisherDefaultThreshold()).to.be.equal(
         initSettings.PUBLISHER_DEFAULT_THRESHOLD,

@@ -26,7 +26,6 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     bytes32 public constant PUBLISHER_ROLE = keccak256("PUBLISHER");
     bytes32 public constant PUBLISHER_ROLE_ADMIN = keccak256("PUBLISHER_ADMIN");
     bytes32 public constant SMART_CONTRACT_ROLE = keccak256("SMART_CONTRACT");
-    bytes32 public constant TARGET_TAGGER_ROLE = keccak256("TARGET_TAGGER");
 
     /// @dev number of owned tags needed to acquire/maintain publisher role.
     uint256 public publisherDefaultThreshold;
@@ -94,7 +93,7 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
         targetTaggerNameToContract[_name] = _taggerAddress;
         targetTaggerContractToName[_taggerAddress] = _name;
         // Note: grantRole emits RoleGranted event.
-        grantRole(TARGET_TAGGER_ROLE, _taggerAddress);
+        grantRole(PUBLISHER_ROLE, _taggerAddress);
     }
 
     /// @notice Remove a target type smart contract from the protocol
@@ -104,7 +103,7 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
         delete targetTaggerNameToContract[targetTaggerName];
         delete targetTaggerContractToName[_taggerAddress];
         // Note: revokeRole emits RoleRevoked event.
-        revokeRole(TARGET_TAGGER_ROLE, _taggerAddress);
+        revokeRole(PUBLISHER_ROLE, _taggerAddress);
     }
 
     /// @notice Toggle whether the target type is paused or not
@@ -156,11 +155,12 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
         return targetTaggerNameToContract[_taggerName] != address(0);
     }
 
-    /// @notice Checks whether an address has the tagging contract role
+    /// @notice Checks whether an address is an Target Tagger contract
     /// @param _taggerAddress Address being checked
-    /// @return bool True if the address has the role, false if not
+    /// @return bool True if the address is a Target Tagger
     function isTargetTagger(address _taggerAddress) public view returns (bool) {
-        return hasRole(TARGET_TAGGER_ROLE, _taggerAddress);
+        return
+            keccak256(abi.encodePacked(targetTaggerContractToName[_taggerAddress])) != keccak256(abi.encodePacked(""));
     }
 
     /// @notice Checks whether an address has the target type contract role and is not paused from tagging

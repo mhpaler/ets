@@ -283,29 +283,10 @@
         "internalType": "string",
         "name": "_tag",
         "type": "string"
-      }
-    ],
-    "name": "createTag",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_tag",
-        "type": "string"
       },
       {
         "internalType": "address payable",
-        "name": "_publisher",
+        "name": "_creator",
         "type": "address"
       }
     ],
@@ -386,7 +367,7 @@
       },
       {
         "internalType": "address payable",
-        "name": "publisher",
+        "name": "_creator",
         "type": "address"
       }
     ],

@@ -5,12 +5,6 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "previousAccessControls",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
         "name": "newAccessControls",
         "type": "address"
       }
@@ -48,25 +42,6 @@
       }
     ],
     "name": "BeaconUpgraded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "previousETSEnsure",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "newETSEnsure",
-        "type": "address"
-      }
-    ],
-    "name": "ETSEnsureSet",
     "type": "event"
   },
   {
@@ -132,26 +107,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "targetId",
-        "type": "uint256"
-      }
-    ],
-    "name": "RequestEnsureTarget",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "previousFee",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "taggingFee",
+        "name": "newTaggingFee",
         "type": "uint256"
       }
     ],
@@ -200,19 +156,6 @@
   {
     "inputs": [],
     "name": "NAME",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "VERSION",
     "outputs": [
       {
         "internalType": "string",
@@ -299,19 +242,6 @@
   },
   {
     "inputs": [],
-    "name": "etsEnrichTarget",
-    "outputs": [
-      {
-        "internalType": "contract IETSEnrichTarget",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "etsTarget",
     "outputs": [
       {
@@ -358,7 +288,7 @@
     "outputs": [
       {
         "internalType": "uint256[]",
-        "name": "etsTagIds",
+        "name": "tagIds",
         "type": "uint256[]"
       },
       {
@@ -392,7 +322,7 @@
     "outputs": [
       {
         "internalType": "uint256[]",
-        "name": "etsTagIds",
+        "name": "tagIds",
         "type": "uint256[]"
       },
       {
@@ -430,6 +360,21 @@
         "internalType": "contract IETSTarget",
         "name": "_etsTarget",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_taggingFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_platformPercentage",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_publisherPercentage",
+        "type": "uint256"
       }
     ],
     "name": "initialize",
@@ -537,19 +482,6 @@
   {
     "inputs": [
       {
-        "internalType": "contract IETSEnrichTarget",
-        "name": "_etsEnrichTarget",
-        "type": "address"
-      }
-    ],
-    "name": "setETSEnrichTarget",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "uint256",
         "name": "_platformPercentage",
         "type": "uint256"
@@ -592,18 +524,8 @@
       },
       {
         "internalType": "address payable",
-        "name": "_publisher",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
         "name": "_tagger",
         "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "_enrich",
-        "type": "bool"
       }
     ],
     "name": "tagTarget",
@@ -719,19 +641,6 @@
     "name": "upgradeToAndCall",
     "outputs": [],
     "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "version",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "pure",
     "type": "function"
   }
 ]

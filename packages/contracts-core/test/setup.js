@@ -1,5 +1,5 @@
 const {ethers, upgrades, artifacts} = require("hardhat");
-
+const {utils} = require("ethers");
 const initSettings = {
   // Access controls
   PUBLISHER_DEFAULT_THRESHOLD: 0,
@@ -15,6 +15,10 @@ const initSettings = {
   PUBLISHER_PERCENTAGE: 20,
   CREATOR_PERCENTAGE: 40,
   PLATFORM_PERCENTAGE: 40,
+  // ETS core (Tagging records)
+  TAGGING_FEE: "0.1", // .1 MATIC
+  TAGGING_FEE_PLATFORM_PERCENTAGE: 20,
+  TAGGING_FEE_PUBLISHER_PERCENTAGE: 30,
 };
 
 async function getArtifacts() {
@@ -24,6 +28,9 @@ async function getArtifacts() {
     ETSTarget: artifacts.readArtifactSync("ETSTarget"),
     ETSEnrichTarget: artifacts.readArtifactSync("ETSEnrichTarget"),
     ETSAuctionHouse: artifacts.readArtifactSync("ETSAuctionHouse"),
+    ETS: artifacts.readArtifactSync("ETS"),
+    ETSTargetTagger: artifacts.readArtifactSync("ETSTargetTagger"),
+    /// .sol test contracts.
     ETSAccessControlsUpgrade: artifacts.readArtifactSync("ETSAccessControlsUpgrade"),
     ETSTokenUpgrade: artifacts.readArtifactSync("ETSTokenUpgrade"),
     ETSAuctionHouseUpgrade: artifacts.readArtifactSync("ETSAuctionHouseUpgrade"),
@@ -38,6 +45,9 @@ async function getFactories() {
     ETSTarget: await ethers.getContractFactory("ETSTarget"),
     ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
     ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
+    ETS: await ethers.getContractFactory("ETS"),
+    ETSTargetTagger: await ethers.getContractFactory("ETSTargetTagger"),
+    /// .sol test contracts.
     WMATIC: await ethers.getContractFactory("WMATIC"),
     ETSAccessControlsUpgrade: await ethers.getContractFactory("ETSAccessControlsUpgrade"),
     ETSAuctionHouseUpgrade: await ethers.getContractFactory("ETSAuctionHouseUpgrade"),
@@ -58,6 +68,8 @@ async function setup() {
     ETSToken: await ethers.getContractFactory("ETSToken"),
     ETSTarget: await ethers.getContractFactory("ETSTarget"),
     ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
+    ETS: await ethers.getContractFactory("ETS"),
+    ETSTargetTagger: await ethers.getContractFactory("ETSTargetTagger"),
   };
 
   // ============ SETUP TEST ACCOUNTS ============
@@ -93,16 +105,6 @@ async function setup() {
     {kind: "uups"},
   );
 
-  const ETSTarget = await upgrades.deployProxy(factories.ETSTarget, [ETSAccessControls.address], {kind: "uups"});
-
-  const ETSEnrichTarget = await upgrades.deployProxy(
-    factories.ETSEnrichTarget,
-    [ETSAccessControls.address, ETSTarget.address],
-    {
-      kind: "uups",
-    },
-  );
-
   const ETSAuctionHouse = await upgrades.deployProxy(
     factories.ETSAuctionHouse,
     [
@@ -119,13 +121,51 @@ async function setup() {
     ],
     {kind: "uups"},
   );
+
+  const ETSTarget = await upgrades.deployProxy(factories.ETSTarget, [ETSAccessControls.address], {kind: "uups"});
+
+  const ETSEnrichTarget = await upgrades.deployProxy(
+    factories.ETSEnrichTarget,
+    [ETSAccessControls.address, ETSTarget.address],
+    {
+      kind: "uups",
+    },
+  );
+
+  const ETS = await upgrades.deployProxy(
+    factories.ETS,
+    [
+      ETSAccessControls.address,
+      ETSToken.address,
+      ETSTarget.address,
+      utils.parseEther(initSettings.TAGGING_FEE),
+      initSettings.TAGGING_FEE_PLATFORM_PERCENTAGE,
+      initSettings.TAGGING_FEE_PUBLISHER_PERCENTAGE,
+    ],
+    {
+      kind: "uups",
+    },
+  );
+
+  // Deploy a target tagger with accounts.Creator as the creator/deployer and accounts.RandomTwo as the owner
+  // This will simulate a third-party deploying their own Target Tagger.
+  const ETSTargetTagger = await factories.ETSTargetTagger.deploy(
+    ETS.address,
+    ETSToken.address,
+    ETSTarget.address,
+    accounts.Creator.address,
+    accounts.RandomTwo.address,
+  );
+
   const contracts = {
     WMATIC: WMATIC,
     ETSAccessControls: ETSAccessControls,
-    ETSAuctionHouse: ETSAuctionHouse,
     ETSToken: ETSToken,
+    ETSAuctionHouse: ETSAuctionHouse,
     ETSTarget: ETSTarget,
     ETSEnrichTarget: ETSEnrichTarget,
+    ETS: ETS,
+    ETSTargetTagger: ETSTargetTagger,
   };
 
   // ============ GRANT ROLES & APPROVALS ============
@@ -149,6 +189,9 @@ async function setup() {
   // Grant PUBLISHER_ADMIN role to ETSAccessControls contract so it can grant publisher role all on its own.
   await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), ETSAccessControls.address);
 
+  // Grant PUBLISHER role to platform, cause sometimes the platform will act as publisher.
+  await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), accounts.ETSPlatform.address);
+
   // Set token access controls.
   await ETSAccessControls.connect(accounts.ETSPlatform).setETSToken(ETSToken.address);
 
@@ -156,6 +199,12 @@ async function setup() {
 
   // Approve auction house contract to move tokens owned by platform.
   await ETSToken.connect(accounts.ETSPlatform).setApprovalForAll(ETSAuctionHouse.address, true);
+
+  // Add & Enable ETSTargetTagger as a Target Tagger.
+  await ETSAccessControls.connect(accounts.ETSPlatform).addTargetTagger(
+    ETSTargetTagger.address,
+    await ETSTargetTagger.getTaggerName(),
+  );
 
   return [accounts, contracts, initSettings];
 }

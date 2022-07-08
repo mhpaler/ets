@@ -5,36 +5,11 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "previousAccessControls",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
         "name": "newAccessControls",
         "type": "address"
       }
     ],
     "name": "AccessControlsSet",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "previousETSEnsure",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "newETSEnsure",
-        "type": "address"
-      }
-    ],
-    "name": "ETSEnsureSet",
     "type": "event"
   },
   {
@@ -87,26 +62,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "targetId",
-        "type": "uint256"
-      }
-    ],
-    "name": "RequestEnsureTarget",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "previousFee",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "taggingFee",
+        "name": "newTaggingFee",
         "type": "uint256"
       }
     ],
@@ -273,18 +229,8 @@
       },
       {
         "internalType": "address payable",
-        "name": "_publisher",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
         "name": "_tagger",
         "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "_enrich",
-        "type": "bool"
       }
     ],
     "name": "tagTarget",
@@ -299,6 +245,25 @@
       {
         "internalType": "uint256",
         "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_account",
+        "type": "address"
+      }
+    ],
+    "name": "totalDue",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_due",
         "type": "uint256"
       }
     ],

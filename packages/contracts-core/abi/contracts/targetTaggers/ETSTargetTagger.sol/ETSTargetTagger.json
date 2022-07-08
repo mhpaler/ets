@@ -1,5 +1,36 @@
 [
   {
+    "inputs": [
+      {
+        "internalType": "contract IETS",
+        "name": "_ets",
+        "type": "address"
+      },
+      {
+        "internalType": "contract IETSToken",
+        "name": "_etsToken",
+        "type": "address"
+      },
+      {
+        "internalType": "contract IETSTarget",
+        "name": "_etsTarget",
+        "type": "address"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_creator",
+        "type": "address"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_owner",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -120,19 +151,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getName",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "pure",
     "type": "function"
   },
   {

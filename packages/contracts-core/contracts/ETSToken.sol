@@ -16,7 +16,14 @@ import "hardhat/console.sol";
 /// @author Ethereum Tag Service <security@ets.xyz>
 /// @notice Contract that governs ETS CTAG non-fungible tokens.
 /// @dev UUPS upgradable.
-contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETSToken, UUPSUpgradeable, StringHelpers {
+contract ETSToken is
+    ERC721PausableUpgradeable,
+    ERC721BurnableUpgradeable,
+    IETSToken,
+    ReentrancyGuardUpgradeable,
+    UUPSUpgradeable,
+    StringHelpers
+{
     using AddressUpgradeable for address;
     using StringsUpgradeable for uint256;
     using SafeMathUpgradeable for uint256;
@@ -64,6 +71,7 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
         __ERC721_init("Ethereum Tag Service", "CTAG");
         __ERC721Pausable_init();
         __ERC721Burnable_init();
+        __ReentrancyGuard_init();
 
         // Initialize ETSToken settings using public
         // functions so our subgraph can capture them.
@@ -150,35 +158,29 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
 
     // ============ PUBLIC INTERFACE ============
 
-    function getOrCreateTag(string calldata _tag, address payable _publisher) public payable returns (Tag memory tag) {
+    function getOrCreateTag(string calldata _tag, address payable _creator) public payable returns (Tag memory tag) {
         uint256 tokenId = computeTagId(_tag);
         if (!tagExists(tokenId)) {
-            tokenId = createTag(_tag, _publisher);
+            tokenId = createTag(_tag, _creator);
         }
         return tokenIdToTag[tokenId];
     }
 
-    function getOrCreateTagId(string calldata _tag, address payable _publisher)
-        public
-        payable
-        returns (uint256 tokenId)
-    {
+    function getOrCreateTagId(string calldata _tag, address payable _creator) public payable returns (uint256 tokenId) {
         uint256 _tokenId = computeTagId(_tag);
         if (!tagExists(_tokenId)) {
-            _tokenId = createTag(_tag, _publisher);
+            _tokenId = createTag(_tag, _creator);
         }
         return _tokenId;
     }
 
-    function createTag(string calldata _tag) public payable returns (uint256 _tokenId) {
-        // todo - add nonReentrant due to safeMint
-        return createTag(_tag, getPlatformAddress());
-    }
-
-    function createTag(string calldata _tag, address payable _publisher) public payable returns (uint256 _tokenId) {
-        // todo - add nonReentrant due to safeMint
-        require(etsAccessControls.isPublisher(_publisher), "ETS: Not a publisher");
-
+    function createTag(string calldata _tag, address payable _creator)
+        public
+        payable
+        nonReentrant
+        onlyPublisher
+        returns (uint256 _tokenId)
+    {
         // Perform basic tag string validation.
         uint256 tagId = _assertTagIsValid(_tag);
 
@@ -188,8 +190,8 @@ contract ETSToken is ERC721PausableUpgradeable, ERC721BurnableUpgradeable, IETST
         // Store CTAG data in state.
         tokenIdToTag[tagId] = Tag({
             display: _tag,
-            publisher: _publisher,
-            creator: _msgSender(),
+            publisher: _msgSender(),
+            creator: _creator,
             premium: isTagPremium[__lower(_tag)],
             reserved: isTagPremium[__lower(_tag)]
         });
