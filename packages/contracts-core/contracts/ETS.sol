@@ -28,7 +28,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @dev ETS Targets contract.
     IETSTarget public etsTarget;
 
-    /// @dev Fee in MAZTIC Collected by ETS for tagging.
+    /// @dev Fee in MATIC Collected by ETS for tagging.
     uint256 public override taggingFee;
 
     /// @dev Percentage of tagging fee allocated to ETS.
