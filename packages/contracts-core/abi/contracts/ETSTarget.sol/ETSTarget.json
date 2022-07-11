@@ -252,7 +252,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "status",
+            "name": "httpstatus",
             "type": "uint256"
           },
           {
@@ -303,7 +303,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "status",
+            "name": "httpstatus",
             "type": "uint256"
           },
           {
@@ -442,7 +442,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "status",
+        "name": "httpstatus",
         "type": "uint256"
       },
       {
@@ -473,7 +473,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "_status",
+        "name": "_httpstatus",
         "type": "uint256"
       },
       {
