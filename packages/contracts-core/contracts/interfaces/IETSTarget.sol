@@ -32,7 +32,7 @@ interface IETSTarget {
      * @param createdBy Address of TargetTagger that created target
      * @param created block timestamp when target was created in ETS
      * @param enriched block timestamp when target was last enriched. Defaults to 0
-     * @param status https status of last response from ensure enrich api eg. "404", "200". defaults to 0
+     * @param httpstatus https status of last response from ensure enrich api eg. "404", "200". defaults to 0
      * @param ipfsHash ipfsHash of additional metadata for target collected by ETS Enrich target API
      */
     struct Target {
@@ -40,7 +40,7 @@ interface IETSTarget {
         address createdBy;
         uint256 created;
         uint256 enriched;
-        uint256 status;
+        uint256 httpstatus;
         string ipfsHash;
     }
 
@@ -76,7 +76,7 @@ interface IETSTarget {
         uint256 _targetId,
         string calldata _targetURI,
         uint256 _enriched,
-        uint256 _status,
+        uint256 _httpstatus,
         string calldata _ipfsHash
     ) external returns (bool success);
 

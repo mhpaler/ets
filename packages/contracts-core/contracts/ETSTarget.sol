@@ -77,7 +77,7 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
             createdBy: msg.sender,
             created: block.timestamp,
             enriched: 0,
-            status: 0,
+            httpstatus: 0,
             ipfsHash: ""
         });
         emit TargetCreated(_targetId);
@@ -90,13 +90,13 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
         uint256 _targetId,
         string calldata _targetURI,
         uint256 _enriched,
-        uint256 _status,
+        uint256 _httpstatus,
         string calldata _ipfsHash
     ) external returns (bool success) {
         require(msg.sender == address(etsEnrichTarget), "Only ETSEnrichTarget may update target");
         targets[_targetId].targetURI = _targetURI;
         targets[_targetId].enriched = _enriched;
-        targets[_targetId].status = _status;
+        targets[_targetId].httpstatus = _httpstatus;
         targets[_targetId].ipfsHash = _ipfsHash;
 
         emit TargetUpdated(_targetId);
