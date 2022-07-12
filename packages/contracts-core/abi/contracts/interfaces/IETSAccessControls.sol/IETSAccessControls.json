@@ -4,19 +4,6 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "contract IETSToken",
-        "name": "etsToken",
-        "type": "address"
-      }
-    ],
-    "name": "ETSTokenSet",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
         "internalType": "address",
         "name": "platformAddress",
         "type": "address"
@@ -152,38 +139,6 @@
         "internalType": "address payable",
         "name": "",
         "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getPublisherDefaultThreshold",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_addr",
-        "type": "address"
-      }
-    ],
-    "name": "getPublisherThreshold",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -416,38 +371,12 @@
   {
     "inputs": [
       {
-        "internalType": "contract IETSToken",
-        "name": "_etsToken",
-        "type": "address"
-      }
-    ],
-    "name": "setETSToken",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address payable",
         "name": "_platform",
         "type": "address"
       }
     ],
     "name": "setPlatform",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_threshold",
-        "type": "uint256"
-      }
-    ],
-    "name": "setPublisherDefaultThreshold",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -480,19 +409,6 @@
     ],
     "name": "toggleIsTargetTaggerPaused",
     "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "togglePublisher",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "toggled",
-        "type": "bool"
-      }
-    ],
     "stateMutability": "nonpayable",
     "type": "function"
   }

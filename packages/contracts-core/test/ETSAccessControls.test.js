@@ -1,5 +1,5 @@
 const {setup} = require("./setup.js");
-const {ethers, upgrades} = require("hardhat");
+const {ethers} = require("hardhat");
 const {expect} = require("chai");
 
 describe("ETSAccessControls Tests", function () {
@@ -24,12 +24,6 @@ describe("ETSAccessControls Tests", function () {
       expect(await contracts.ETSAccessControls.isPublisher(accounts.ETSPlatform.address)).to.be.equal(true);
     });
 
-    it("sets publisherDefaultThreshold", async function () {
-      expect(await contracts.ETSAccessControls.getPublisherDefaultThreshold()).to.be.equal(
-        initSettings.PUBLISHER_DEFAULT_THRESHOLD,
-      );
-    });
-
     it("sets PUBLISHER_ADMIN as the role that can administer PUBLISHER role.", async () => {
       expect(await contracts.ETSAccessControls.getRoleAdmin(ethers.utils.id("PUBLISHER"))).to.be.equal(
         await ethers.utils.id("PUBLISHER_ADMIN"),
@@ -44,23 +38,6 @@ describe("ETSAccessControls Tests", function () {
 
       await contracts.ETSAccessControls.connect(accounts.ETSPlatform).setPlatform(accounts.RandomOne.address);
       expect(await contracts.ETSAccessControls.getPlatformAddress()).to.be.equal(accounts.RandomOne.address);
-    });
-
-    it("should be able to set token", async function () {
-      await expect(contracts.ETSAccessControls.connect(accounts.RandomOne).setETSToken(contracts.ETSToken.address)).to
-        .be.reverted;
-
-      await expect(contracts.ETSAccessControls.connect(accounts.ETSPlatform).setETSToken(contracts.ETSToken.address))
-        .to.emit(contracts.ETSAccessControls, "ETSTokenSet")
-        .withArgs(contracts.ETSToken.address);
-    });
-    it("can set publisherDefaultThreshold", async function () {
-      await expect(contracts.ETSAccessControls.connect(accounts.RandomOne).setPublisherDefaultThreshold(10)).to.be
-        .reverted;
-
-      await expect(contracts.ETSAccessControls.connect(accounts.ETSPlatform).setPublisherDefaultThreshold(10))
-        .to.emit(contracts.ETSAccessControls, "PublisherDefaultThresholdSet")
-        .withArgs(10);
     });
   });
 });

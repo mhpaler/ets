@@ -6,7 +6,7 @@ const {constants} = ethers;
 //let accounts, factories, contracts.ETSAccessControls, ETSLifeCycleControls, contracts.ETSToken;
 let targetURI;
 
-describe("======================== ETS TEST SUITE SETTINGS ============================", function () {
+describe("============= ETS TEST SUITE SETTINGS =============", function () {
   // we create a setup function that can be called by every test and setup variable for easy to read tests
   it("is running with the preceding settings", async function () {
     [accounts, contracts, initSettings] = await setup();

@@ -4,21 +4,37 @@ pragma solidity ^0.8.0;
 import "./IETSToken.sol";
 import "@openzeppelin/contracts-upgradeable/access/IAccessControlUpgradeable.sol";
 
+/**
+ * @title IETSAccessControls
+ * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ * @notice This is the interface for the ETSAccessControls which allows ETS Core Dev team to
+ * administer roles and control access to various parts of the ETS Platform. ETSAccessControls,
+ * itself an implementation of Open Zeppelin Access Controls, contains a mix of public and
+ * administrator only functions.
+ */
 interface IETSAccessControls is IAccessControlUpgradeable {
+    /**
+     * @dev emitted when the ETS Platform address is set.
+     *
+     * @param platformAddress wallet address platform is set to.
+     */
     event PlatformSet(address platformAddress);
 
-    event ETSTokenSet(IETSToken etsToken);
-
+    /**
+     * @dev emitted when the publisherDefaultThreshold is set. See function below
+     * for explanation of publisherDefaultThreshold.
+     *
+     * @param threshold number of CTAGs required to own.
+     */
     event PublisherDefaultThresholdSet(uint256 threshold);
 
-    event TargetTaggerPauseToggled(bool newValue);
-
-    function togglePublisher() external returns (bool toggled);
-
     /**
-     * @dev Point ETSAccessControls to ETSToken contract.
+     * @dev emitted when a Target Tagger contract is paused or unpaused.
+     *
+     * @param newValue Boolean contract pause state. True for paused; false for unpaused.
      */
-    function setETSToken(IETSToken _etsToken) external;
+    event TargetTaggerPauseToggled(bool newValue);
 
     function setPlatform(address payable _platform) external;
 
@@ -34,12 +50,6 @@ interface IETSAccessControls is IAccessControlUpgradeable {
     function setRoleAdmin(bytes32 _role, bytes32 _adminRole) external;
 
     function getPlatformAddress() external view returns (address payable);
-
-    function setPublisherDefaultThreshold(uint256 _threshold) external;
-
-    function getPublisherThreshold(address _addr) external view returns (uint256);
-
-    function getPublisherDefaultThreshold() external view returns (uint256);
 
     function isSmartContract(address _addr) external view returns (bool);
 

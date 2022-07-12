@@ -1,8 +1,6 @@
 const {ethers, upgrades, artifacts} = require("hardhat");
 const {utils} = require("ethers");
 const initSettings = {
-  // Access controls
-  PUBLISHER_DEFAULT_THRESHOLD: 0,
   // Token
   TAG_MIN_STRING_LENGTH: 2,
   TAG_MAX_STRING_LENGTH: 32,
@@ -88,11 +86,7 @@ async function setup() {
   // ============ DEPLOY CONTRACTS ============
 
   const WMATIC = await factories.WMATIC.deploy();
-  const ETSAccessControls = await upgrades.deployProxy(
-    factories.ETSAccessControls,
-    [initSettings.PUBLISHER_DEFAULT_THRESHOLD],
-    {kind: "uups"},
-  );
+  const ETSAccessControls = await upgrades.deployProxy(factories.ETSAccessControls, [], {kind: "uups"});
 
   const ETSToken = await upgrades.deployProxy(
     factories.ETSToken,
@@ -191,9 +185,6 @@ async function setup() {
 
   // Grant PUBLISHER role to platform, cause sometimes the platform will act as publisher.
   await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), accounts.ETSPlatform.address);
-
-  // Set token access controls.
-  await ETSAccessControls.connect(accounts.ETSPlatform).setETSToken(ETSToken.address);
 
   await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(ETSEnrichTarget.address);
 

@@ -161,19 +161,10 @@ describe("ETSToken Core Tests", function () {
 
     // End tag string validation
     describe("(provenance & attribution)", async function () {
-      it("should revert if the publisher has not activated", async function () {
+      it("should revert if caller is not a publisher", async function () {
         await expect(
           contracts.ETSToken.connect(accounts.RandomTwo).createTag("#Awesome123", accounts.RandomOne.address),
         ).to.be.revertedWith("Caller is not publisher");
-      });
-
-      it("should succeed if the publisher has activated their address", async function () {
-        await contracts.ETSAccessControls.connect(accounts.RandomOne).togglePublisher();
-        const tokenId = await contracts.ETSToken.computeTagId("#love");
-        tx = await contracts.ETSToken.connect(accounts.RandomOne).createTag("#love", accounts.RandomTwo.address);
-        await expect(tx)
-          .to.emit(contracts.ETSToken, "Transfer")
-          .withArgs(constants.AddressZero, accounts.ETSPlatform.address, tokenId);
       });
 
       it("should succeed if Platform is both creator & publisher", async function () {
