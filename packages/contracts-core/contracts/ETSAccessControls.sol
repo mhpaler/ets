@@ -11,9 +11,14 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 
 import "hardhat/console.sol";
 
-/// @title ETS access controls
-/// @author Ethereum Tag Service <security@ets.xyz>
-/// @dev Maintains a mapping of ethereum addresses and roles they have within the protocol
+/**
+ * @title IETSAccessControls
+ * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ * @notice This is the interface for the ETSAccessControls contract which allows ETS Core Dev
+ * Team to administer roles and control access to various parts of the ETS Platform.
+ * ETSAccessControls contract contains a mix of public and administrator only functions.
+ */
 contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAccessControls, UUPSUpgradeable {
     using SafeMathUpgradeable for uint256;
 
@@ -27,13 +32,13 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     /// There will only be one "Platform" so no need to make it a role.
     address payable internal platform;
 
-    /// @notice If Target Tagger is paused by the protocol
+    /// @notice Mapping to contain whether Target Tagger is paused by the protocol.
     mapping(address => bool) public isTargetTaggerPaused;
 
-    /// @notice Target type name to target type contract address or zero if nothing assigned
+    /// @notice Target Tagger name to contract address.
     mapping(string => address) public targetTaggerNameToContract;
 
-    /// @notice Target type contract address to registered name or empty string if nothing assigned
+    /// @notice Target Tagger contract address to human readable name.
     mapping(address => string) public targetTaggerContractToName;
 
     // ============ UUPS INTERFACE ============
@@ -50,18 +55,18 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
 
     // ============ OWNER INTERFACE ============
 
+    /// @inheritdoc IETSAccessControls
     function setPlatform(address payable _platform) public onlyRole(DEFAULT_ADMIN_ROLE) {
         platform = _platform;
         emit PlatformSet(_platform);
     }
 
+    /// @inheritdoc IETSAccessControls
     function setRoleAdmin(bytes32 _role, bytes32 _adminRole) public onlyRole(DEFAULT_ADMIN_ROLE) {
         _setRoleAdmin(_role, _adminRole);
     }
 
-    /// @notice Add a new Target Tagger smart contract to the ETS protocol
-    /// Note: Admin addresses can be added as target type to permit calling ETS core directly
-    /// for tagging testing and debugging purposes.
+    /// @inheritdoc IETSAccessControls
     function addTargetTagger(address _taggerAddress, string calldata _name) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(
             isAdmin(_taggerAddress) || IERC165(_taggerAddress).supportsInterface(type(IETSTargetTagger).interfaceId),
@@ -73,7 +78,7 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
         grantRole(PUBLISHER_ROLE, _taggerAddress);
     }
 
-    /// @notice Remove a target type smart contract from the protocol
+    /// @inheritdoc IETSAccessControls
     function removeTargetTagger(address _taggerAddress) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(isTargetTagger(_taggerAddress), "invalid target tagger");
         string memory targetTaggerName = targetTaggerContractToName[_taggerAddress];
@@ -83,7 +88,7 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
         revokeRole(PUBLISHER_ROLE, _taggerAddress);
     }
 
-    /// @notice Toggle whether the target type is paused or not
+    /// @inheritdoc IETSAccessControls
     function toggleIsTargetTaggerPaused(address _taggerAddress) public onlyRole(DEFAULT_ADMIN_ROLE) {
         isTargetTaggerPaused[_taggerAddress] = !isTargetTaggerPaused[_taggerAddress];
         emit TargetTaggerPauseToggled(isTargetTaggerPaused[_taggerAddress]);
@@ -91,40 +96,42 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
 
     // ============ PUBLIC VIEW FUNCTIONS ============
 
+    /// @inheritdoc IETSAccessControls
     function isSmartContract(address _addr) public view returns (bool) {
         return hasRole(SMART_CONTRACT_ROLE, _addr);
     }
 
+    /// @inheritdoc IETSAccessControls
     function isAdmin(address _addr) public view returns (bool) {
         return hasRole(DEFAULT_ADMIN_ROLE, _addr);
     }
 
+    /// @inheritdoc IETSAccessControls
     function isPublisher(address _addr) public view returns (bool) {
         return hasRole(PUBLISHER_ROLE, _addr);
     }
 
+    /// @inheritdoc IETSAccessControls
     function isPublisherAdmin(address _addr) public view returns (bool) {
         return hasRole(PUBLISHER_ROLE_ADMIN, _addr);
     }
 
-    function isTargetTagger(string memory _taggerName) public view returns (bool) {
-        return targetTaggerNameToContract[_taggerName] != address(0);
+    /// @inheritdoc IETSAccessControls
+    function isTargetTagger(string memory _name) public view returns (bool) {
+        return targetTaggerNameToContract[_name] != address(0);
     }
 
-    /// @notice Checks whether an address is an Target Tagger contract
-    /// @param _taggerAddress Address being checked
-    /// @return bool True if the address is a Target Tagger
-    function isTargetTagger(address _taggerAddress) public view returns (bool) {
-        return
-            keccak256(abi.encodePacked(targetTaggerContractToName[_taggerAddress])) != keccak256(abi.encodePacked(""));
+    /// @inheritdoc IETSAccessControls
+    function isTargetTagger(address _addr) public view returns (bool) {
+        return keccak256(abi.encodePacked(targetTaggerContractToName[_addr])) != keccak256(abi.encodePacked(""));
     }
 
-    /// @notice Checks whether an address has the target type contract role and is not paused from tagging
-    /// @param _taggerAddress Address being checked
-    function isTargetTaggerAndNotPaused(address _taggerAddress) public view returns (bool) {
-        return isTargetTagger(_taggerAddress) && !isTargetTaggerPaused[_taggerAddress];
+    /// @inheritdoc IETSAccessControls
+    function isTargetTaggerAndNotPaused(address _addr) public view returns (bool) {
+        return isTargetTagger(_addr) && !isTargetTaggerPaused[_addr];
     }
 
+    /// @inheritdoc IETSAccessControls
     function getPlatformAddress() public view returns (address payable) {
         return platform;
     }
