@@ -26,6 +26,7 @@ module.exports = async ({deployments}) => {
 
   // Set Core Dev Team address as "platform" address. In production this will be a multisig.
   await ETSAccessControls.setPlatform(accounts.ETSPlatform.address);
+  console.log(`Platform address set to ETSPlatform.address (${ETSPlatform.address})`);
 
   // Grant DEFAULT_ADMIN_ROLE to platform address. This platform address full administrator privileges.
   await ETSAccessControls.grantRole(await ETSAccessControls.DEFAULT_ADMIN_ROLE(), accounts.ETSPlatform.address, {
@@ -47,15 +48,16 @@ module.exports = async ({deployments}) => {
 
   // Grant PUBLISHER_ADMIN role to ETSAccessControls contract so it can grant publisher role all on its own.
   await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), ETSAccessControls.address);
-
+  console.log("PUBLISHER_ADMIN role granted to ETSAccessControls contract");
   // Grant PUBLISHER role to platform, cause sometimes the platform will act as publisher.
   await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), accounts.ETSPlatform.address);
-
+  console.log("PUBLISHER_ADMIN role granted to ETSPlatform.address");
   // Set token access controls.
   await ETSAccessControls.connect(accounts.ETSPlatform).setETSToken(ETSToken.address);
   console.log(`ETSToken set on ETSAccessControls ${ETSToken.address}`);
 
   await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(ETSEnrichTarget.address);
+  console.log(`ETSEnrichTarget contract set on ETSTarget`);
 
   // Approve auction house contract to move tokens owned by platform.
   await ETSToken.connect(accounts.ETSPlatform).setApprovalForAll(ETSAuctionHouse.address, true);
