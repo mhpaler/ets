@@ -8,11 +8,7 @@ module.exports = async ({deployments}) => {
   [accounts, factories, initSettings] = await setup();
 
   // Deploy ETS Access Controls.
-  const deployment = await upgrades.deployProxy(
-    factories.ETSAccessControls,
-    [initSettings.PUBLISHER_DEFAULT_THRESHOLD],
-    {kind: "uups"},
-  );
+  const deployment = await upgrades.deployProxy(factories.ETSAccessControls, [], {kind: "uups"});
   await deployment.deployed();
   const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
 

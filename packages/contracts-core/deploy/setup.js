@@ -20,8 +20,6 @@ async function setup() {
   };
 
   const initSettings = {
-    // Access controls
-    PUBLISHER_DEFAULT_THRESHOLD: 0,
     // Token
     TAG_MIN_STRING_LENGTH: 2,
     TAG_MAX_STRING_LENGTH: 32,

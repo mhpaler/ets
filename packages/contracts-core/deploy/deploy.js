@@ -52,9 +52,6 @@ module.exports = async ({deployments}) => {
   // Grant PUBLISHER role to platform, cause sometimes the platform will act as publisher.
   await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), accounts.ETSPlatform.address);
   console.log("PUBLISHER_ADMIN role granted to ETSPlatform.address");
-  // Set token access controls.
-  await ETSAccessControls.connect(accounts.ETSPlatform).setETSToken(ETSToken.address);
-  console.log(`ETSToken set on ETSAccessControls ${ETSToken.address}`);
 
   await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(ETSEnrichTarget.address);
   console.log(`ETSEnrichTarget contract set on ETSTarget`);
