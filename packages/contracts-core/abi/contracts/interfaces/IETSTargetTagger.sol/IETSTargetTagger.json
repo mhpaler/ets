@@ -84,6 +84,36 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "targetURI",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "tagStrings",
+            "type": "string[]"
+          },
+          {
+            "internalType": "bool",
+            "name": "enrich",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct IETSTargetTagger.TaggingRecord[]",
+        "name": "_taggingRecords",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "tagTarget",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "toggleTargetTaggerPaused",
     "outputs": [],

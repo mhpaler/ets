@@ -29,19 +29,6 @@ import "hardhat/console.sol";
  * please see. todo: link to docs.
  */
 contract ETSTargetTagger is IETSTargetTagger, Ownable, Pausable {
-    /**
-     * @notice Data structure to pass into the tagEVMNFTs() function
-     *
-     * @param targetURI Target being tagged. Please see docs for more about targets.
-     * @param tagStrings Array of strings to tag the target with.
-     * @param enrich Boolean whether to ensure the target using ETS Enrich API.
-     */
-    struct TaggingRecord {
-        string targetURI;
-        string[] tagStrings;
-        bool enrich;
-    }
-
     /// @notice Address and interface for ETS Core.
     IETS public ets;
 

@@ -277,7 +277,7 @@
             "type": "bool"
           }
         ],
-        "internalType": "struct ETSTargetTagger.TaggingRecord[]",
+        "internalType": "struct IETSTargetTagger.TaggingRecord[]",
         "name": "_taggingRecords",
         "type": "tuple[]"
       }
