@@ -57,8 +57,8 @@ contract("ERC721", function (accounts) {
   const name = "Ethereum Tag Service";
   const symbol = "CTAG";
 
-  //shouldBehaveLikeERC721("ERC721", ...accounts);
-  //shouldBehaveLikeERC721Pausable("ERC721", ...accounts);
-  //shouldBehaveLikeERC721Burnable("ERC721", ...accounts);
+  shouldBehaveLikeERC721("ERC721", ...accounts);
+  shouldBehaveLikeERC721Pausable("ERC721", ...accounts);
+  shouldBehaveLikeERC721Burnable("ERC721", ...accounts);
   shouldBehaveLikeERC721Metadata("ERC721", name, symbol, ...accounts);
 });

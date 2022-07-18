@@ -9,12 +9,14 @@ interface IETS {
      * or more CTAGs and a Target struct.
      * @param tagIds Ids of CTAG token(s) being used to tag a target.
      * @param targetId Id of target being tagged.
+     * @param recordType Identifier for type of tagging record. Defaults to "tag".
      * @param tagger Address of wallet credited with tagging record.
      * @param publisher Address of wallet being credited with enabling tagging record.
      */
     struct TaggingRecord {
         uint256[] tagIds;
         uint256 targetId;
+        string recordType;
         address tagger;
         address publisher;
     }
@@ -38,6 +40,7 @@ interface IETS {
     function tagTarget(
         uint256[] calldata _tagIds,
         uint256 _targetId,
+        string memory _recordType,
         address payable _tagger
     ) external payable;
 
@@ -47,12 +50,14 @@ interface IETS {
 
     function computeTaggingRecordId(
         uint256 _targetId,
+        string memory _recordType,
         address _publisher,
         address _tagger
     ) external pure returns (uint256 taggingRecordId);
 
     function getTaggingRecord(
         uint256 _targetId,
+        string memory _recordType,
         address _tagger,
         address _publisher
     )
@@ -61,6 +66,7 @@ interface IETS {
         returns (
             uint256[] memory etsTagIds,
             uint256 targetId,
+            string memory recordType,
             address tagger,
             address publisher
         );
@@ -71,6 +77,7 @@ interface IETS {
         returns (
             uint256[] memory etsTagIds,
             uint256 targetId,
+            string memory recordType,
             address tagger,
             address publisher
         );

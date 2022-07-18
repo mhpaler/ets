@@ -272,6 +272,11 @@
             "type": "string[]"
           },
           {
+            "internalType": "string",
+            "name": "recordType",
+            "type": "string"
+          },
+          {
             "internalType": "bool",
             "name": "enrich",
             "type": "bool"

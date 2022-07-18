@@ -127,14 +127,28 @@ describe("ETS Core tests", function () {
   describe("Writing a tagging record directly to the ETS Core", async () => {
     it("should revert when tagger is not an enabled Target Tagger", async function () {
       await expect(
-        contracts.ETS.connect(accounts.RandomOne).tagTarget([12345], 12345, accounts.RandomOne.address),
+        contracts.ETS.connect(accounts.RandomOne).tagTarget([12345], 12345, "bookmark", accounts.RandomOne.address),
       ).to.be.revertedWith("Only IETSTargetTagger contracts may call ETS core");
     });
 
     it("should revert when no tags are supplied", async function () {
       await expect(
-        contracts.ETS.connect(accounts.ETSPlatform).tagTarget([], targetId, accounts.RandomOne.address),
+        contracts.ETS.connect(accounts.ETSPlatform).tagTarget([], targetId, "bookmark", accounts.RandomOne.address),
       ).to.be.revertedWith("No tags supplied");
+    });
+
+    it("should revert when record type is too long", async function () {
+      await expect(
+        contracts.ETS.connect(accounts.ETSPlatform).tagTarget(
+          [etsOwnedTagId],
+          targetId,
+          "reallyReallyreallyReallyreallyReallyreallyReallyreallyReallyLongRecordType",
+          accounts.RandomOne.address,
+          {
+            value: ethers.BigNumber.from(taggingFee).mul("1"),
+          },
+        ),
+      ).to.be.revertedWith("Record type too long");
     });
 
     it("should revert when insufficient tagging fee is supplied", async function () {
@@ -142,6 +156,7 @@ describe("ETS Core tests", function () {
         contracts.ETS.connect(accounts.ETSPlatform).tagTarget(
           [etsOwnedTagId, userOwnedTagId],
           targetId,
+          "bookmark",
           accounts.RandomOne.address,
           {
             value: ethers.BigNumber.from(taggingFee).mul("1"),
@@ -155,6 +170,7 @@ describe("ETS Core tests", function () {
       const tx = await contracts.ETS.connect(accounts.ETSPlatform).tagTarget(
         tags,
         targetId,
+        "bookmark",
         accounts.RandomOne.address,
         {
           value: ethers.BigNumber.from(taggingFee).mul("2"),
@@ -178,6 +194,7 @@ describe("ETS Core tests", function () {
       const tagParams = {
         targetURI: targetURI,
         tagStrings: ["#love", "#hate"],
+        recordType: "bookmark",
         enrich: false,
       };
       const taggingRecords = [tagParams];
@@ -192,6 +209,7 @@ describe("ETS Core tests", function () {
       const tagParams = {
         targetURI: targetURI,
         tagStrings: ["#love", "#hate"],
+        recordType: "bookmark",
         enrich: false,
       };
       const taggingRecords = [tagParams];
@@ -208,6 +226,7 @@ describe("ETS Core tests", function () {
       // First confirm there's no pre-existing tagging record for this composite key.
       const taggingRecord = await contracts.ETS.getTaggingRecord(
         targetId,
+        "bookmark",
         accounts.RandomOne.address,
         contracts.ETSTargetTagger.address,
       );
@@ -217,6 +236,7 @@ describe("ETS Core tests", function () {
       const tagParams = {
         targetURI: targetURI, // "https://google.com"
         tagStrings: ["#dex", "#ethereum"],
+        recordType: "bookmark",
         enrich: false,
       };
       const taggingRecords = [tagParams];
@@ -228,6 +248,7 @@ describe("ETS Core tests", function () {
       // Store tagging record Id for use in tests.
       taggingRecordId = await contracts.ETS.computeTaggingRecordId(
         targetId,
+        "bookmark",
         accounts.RandomOne.address,
         contracts.ETSTargetTagger.address,
       );
@@ -237,6 +258,7 @@ describe("ETS Core tests", function () {
       // check that new tagging record values are same as input values (tagParams).
       const taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
       expect(taggingRecord.targetId.toString()).to.be.equal(targetId);
+      expect(taggingRecord.recordType).to.be.equal("bookmark");
       expect(taggingRecord.tagger).to.be.equal(accounts.RandomOne.address);
       expect(taggingRecord.publisher).to.be.equal(contracts.ETSTargetTagger.address);
       for (i = 0; i < taggingRecord.tagIds; i++) {
@@ -248,6 +270,7 @@ describe("ETS Core tests", function () {
     it("should be retrievable by it's unique composite key", async () => {
       const taggingRecord = await contracts.ETS.getTaggingRecord(
         targetId,
+        "bookmark",
         accounts.RandomOne.address,
         contracts.ETSTargetTagger.address,
       );
@@ -271,6 +294,7 @@ describe("ETS Core tests", function () {
       const taggingRecordInputParams = {
         targetURI: targetURI, // "https://google.com"
         tagStrings: ["#dex", "#ethereum"],
+        recordType: "bookmark",
         enrich: false,
       };
       const taggingRecordsInput = [taggingRecordInputParams];
@@ -282,12 +306,14 @@ describe("ETS Core tests", function () {
       // Get tagging record id from composite key.
       const newTaggingRecordId = await contracts.ETS.computeTaggingRecordId(
         existingTargetId,
+        "bookmark",
         accounts.RandomTwo.address,
         contracts.ETSTargetTagger.address,
       );
       expect(newTaggingRecordId).to.not.be.equal(taggingRecordId);
       const newTaggingRecord = await contracts.ETS.getTaggingRecordFromId(newTaggingRecordId);
       expect(newTaggingRecord.targetId.toString()).to.be.equal(existingTargetId);
+      expect(newTaggingRecord.recordType).to.be.equal("bookmark");
       expect(newTaggingRecord.tagger).to.be.equal(accounts.RandomTwo.address);
       expect(newTaggingRecord.publisher).to.be.equal(contracts.ETSTargetTagger.address);
       for (i = 0; i < newTaggingRecord.tagIds; i++) {
@@ -312,6 +338,7 @@ describe("ETS Core tests", function () {
       const taggingRecordInputParams = {
         targetURI: "https://uniswap.org",
         tagStrings: ["#Love"],
+        recordType: "bookmark",
         enrich: false,
       };
       const taggingRecordsInput = [taggingRecordInputParams];
@@ -346,6 +373,7 @@ describe("ETS Core tests", function () {
       const taggingRecordInputParams = {
         targetURI: "https://uniswap.org",
         tagStrings: ["#Incredible"],
+        recordType: "bookmark",
         enrich: false,
       };
       const taggingRecordsInput = [taggingRecordInputParams];
@@ -381,6 +409,7 @@ describe("ETS Core tests", function () {
       const taggingRecordInputParams = {
         targetURI: "https://uniswap.org",
         tagStrings: ["#Love"],
+        recordType: "bookmark",
         enrich: false,
       };
       const taggingRecordsInput = [taggingRecordInputParams];

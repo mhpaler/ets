@@ -16,8 +16,10 @@ interface IETSTargetTagger is IERC165 {
     struct TaggingRecord {
         string targetURI;
         string[] tagStrings;
+        string recordType;
         bool enrich;
     }
+
     /**
      * @dev Emitted when an IETSTargetTypeTagger contract is paused/unpaused.
      */
