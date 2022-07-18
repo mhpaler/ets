@@ -117,6 +117,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     function tagTarget(
         uint256[] calldata _tagIds,
         uint256 _targetId,
+        string memory _recordType,
         address payable _tagger
     ) public payable nonReentrant {
         require(
@@ -124,16 +125,17 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
             "Only IETSTargetTagger contracts may call ETS core"
         );
         require(_tagIds.length > 0, "No tags supplied");
+        require(bytes(_recordType).length < 31, "Record type too long");
         require(msg.value == (taggingFee * _tagIds.length), "Insufficient tagging fee supplied");
         address platform = etsAccessControls.getPlatformAddress();
         for (uint256 i; i < _tagIds.length; ++i) {
             _processAccrued(_tagIds[i], platform);
         }
 
-        _tagTarget(_tagIds, _targetId, _msgSender(), _tagger);
+        _tagTarget(_tagIds, _targetId, _recordType, _msgSender(), _tagger);
     }
 
-    /// @notice Allow a tagger to update the tags for a tagging record.
+    /// @notice Allow tagger to update the tags for a tagging record.
     function updateTaggingRecord(uint256 _taggingRecordId, string[] calldata _tags) external payable {
         // todo - I think this makes sense but should
         // user be allowed to completely remove all tags,
@@ -183,16 +185,18 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @notice Deterministically compute the tagging record identifier
     function computeTaggingRecordId(
         uint256 _targetId,
+        string memory _recordType,
         address _publisher,
         address _tagger
     ) public pure returns (uint256 taggingRecordId) {
-        taggingRecordId = uint256(keccak256(abi.encodePacked(_targetId, _tagger, _publisher)));
+        taggingRecordId = uint256(keccak256(abi.encodePacked(_targetId, _recordType, _tagger, _publisher)));
     }
 
     /// @dev Retrieves a tagging record from tagging record ID
     /// @param _id ID of the tagging record.
     /// @return tagIds CTAG token ids used to tag target.
     /// @return targetId Id of tagging target.
+    /// @return recordType Type of tagging record.
     /// @return tagger Address that tagged the NFT asset.
     /// @return publisher Publisher through which the tag took place.
     function getTaggingRecordFromId(uint256 _id)
@@ -201,17 +205,25 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         returns (
             uint256[] memory tagIds,
             uint256 targetId,
+            string memory recordType,
             address tagger,
             address publisher
         )
     {
         TaggingRecord storage taggingRecord = taggingRecords[_id];
-        return (taggingRecord.tagIds, taggingRecord.targetId, taggingRecord.tagger, taggingRecord.publisher);
+        return (
+            taggingRecord.tagIds,
+            taggingRecord.targetId,
+            taggingRecord.recordType,
+            taggingRecord.tagger,
+            taggingRecord.publisher
+        );
     }
 
     /// @notice Get tagging record from composite key parts
     function getTaggingRecord(
         uint256 _targetId,
+        string memory _recordType,
         address _tagger,
         address _publisher
     )
@@ -220,15 +232,22 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         returns (
             uint256[] memory tagIds,
             uint256 targetId,
+            string memory recordType,
             address tagger,
             address publisher
         )
     {
-        uint256 taggingRecordId = computeTaggingRecordId(_targetId, _tagger, _publisher);
+        uint256 taggingRecordId = computeTaggingRecordId(_targetId, _recordType, _tagger, _publisher);
 
         TaggingRecord storage taggingRecord = taggingRecords[taggingRecordId];
 
-        return (taggingRecord.tagIds, taggingRecord.targetId, taggingRecord.tagger, taggingRecord.publisher);
+        return (
+            taggingRecord.tagIds,
+            taggingRecord.targetId,
+            taggingRecord.recordType,
+            taggingRecord.tagger,
+            taggingRecord.publisher
+        );
     }
 
     /// @notice Used to check how much ETH has been accrued by an address factoring in amount paid out.
@@ -243,14 +262,16 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     function _tagTarget(
         uint256[] memory _tagIds,
         uint256 _targetId,
+        string memory _recordType,
         address _publisher,
         address _tagger
     ) private {
-        uint256 taggingRecordId = computeTaggingRecordId(_targetId, _tagger, _publisher);
+        uint256 taggingRecordId = computeTaggingRecordId(_targetId, _recordType, _tagger, _publisher);
 
         taggingRecords[taggingRecordId] = TaggingRecord({
             tagIds: _tagIds,
             targetId: _targetId,
+            recordType: _recordType,
             tagger: _tagger,
             publisher: _publisher
         });

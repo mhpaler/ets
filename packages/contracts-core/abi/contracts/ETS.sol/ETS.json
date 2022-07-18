@@ -193,6 +193,11 @@
         "type": "uint256"
       },
       {
+        "internalType": "string",
+        "name": "_recordType",
+        "type": "string"
+      },
+      {
         "internalType": "address",
         "name": "_publisher",
         "type": "address"
@@ -274,6 +279,11 @@
         "type": "uint256"
       },
       {
+        "internalType": "string",
+        "name": "_recordType",
+        "type": "string"
+      },
+      {
         "internalType": "address",
         "name": "_tagger",
         "type": "address"
@@ -295,6 +305,11 @@
         "internalType": "uint256",
         "name": "targetId",
         "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "recordType",
+        "type": "string"
       },
       {
         "internalType": "address",
@@ -329,6 +344,11 @@
         "internalType": "uint256",
         "name": "targetId",
         "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "recordType",
+        "type": "string"
       },
       {
         "internalType": "address",
@@ -523,6 +543,11 @@
         "type": "uint256"
       },
       {
+        "internalType": "string",
+        "name": "_recordType",
+        "type": "string"
+      },
+      {
         "internalType": "address payable",
         "name": "_tagger",
         "type": "address"
@@ -560,6 +585,11 @@
         "internalType": "uint256",
         "name": "targetId",
         "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "recordType",
+        "type": "string"
       },
       {
         "internalType": "address",

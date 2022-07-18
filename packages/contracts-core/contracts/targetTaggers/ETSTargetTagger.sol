@@ -145,6 +145,6 @@ contract ETSTargetTagger is IETSTargetTagger, Ownable, Pausable {
         uint256 targetId = etsTarget.getOrCreateTargetId(_taggingRecord.targetURI);
 
         // Finally, call the core tagTarget() function to record the tagging record.
-        ets.tagTarget{ value: valueToSendForTagging }(tagIds, targetId, _tagger);
+        ets.tagTarget{ value: valueToSendForTagging }(tagIds, targetId, _taggingRecord.recordType, _tagger);
     }
 }
