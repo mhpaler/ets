@@ -22,15 +22,6 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, UUPSUpgra
     bytes32 public constant SMART_CONTRACT_ROLE = keccak256("SMART_CONTRACT");
     bytes32 public constant TARGET_TYPE_ROLE = keccak256("TARGET_TYPE");
 
-    /// @notice Target type name to target type contract address or zero if nothing assigned
-    mapping(string => address) public targetTypeToContract;
-
-    /// @notice Target type contract address to registered name or empty string if nothing assigned
-    mapping(address => string) public targetTypeContractName;
-
-    /// @notice If target type is paused by the protocol
-    mapping(address => bool) public isTargetTypePaused;
-
     function initialize() public initializer {
         __AccessControl_init();
         // Give default admin role to the deployer.
@@ -60,47 +51,6 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, UUPSUpgra
     /// @return bool True if the address has the role, false if not
     function isPublisher(address _addr) public view returns (bool) {
         return hasRole(PUBLISHER_ROLE, _addr);
-    }
-
-    /// @notice Checks whether an address has the tagging contract role
-    /// @param _smartContract Address being checked
-    /// @return bool True if the address has the role, false if not
-    function isTargetType(address _smartContract) public view returns (bool) {
-        return hasRole(TARGET_TYPE_ROLE, _smartContract);
-    }
-
-    /// @notice Checks whether an address has the target type contract role and is not paused from tagging
-    /// @param _smartContract Address being checked
-    function isTargetTypeAndNotPaused(address _smartContract) public view returns (bool) {
-        return isTargetType(_smartContract) && !isTargetTypePaused[_smartContract];
-    }
-
-    /// @notice Add a new target type smart contract to the ETS protocol. Tagging a target
-    /// is executed through a target type "subcontract" calling ETS core.
-    /// Note: Admin addresses can be added as target type to permit calling ETS core directly
-    /// for tagging testing and debugging purposes.
-    function addTargetType(address _smartContract, string calldata _name) external {
-        require(
-            isAdmin(_smartContract) || 
-            IERC165(_smartContract).supportsInterface(type(IETSTargetType).interfaceId),
-            "Address not admin or required interface"  
-        );
-        targetTypeToContract[_name] = _smartContract;
-        targetTypeContractName[_smartContract] = _name;
-        grantRole(TARGET_TYPE_ROLE, _smartContract);
-    }
-
-    /// @notice Remove a target type smart contract from the protocol
-    function removeTargetType(address _smartContract) external {
-        delete targetTypeToContract[targetTypeContractName[_smartContract]];
-        delete targetTypeContractName[_smartContract];
-        revokeRole(TARGET_TYPE_ROLE, _smartContract);
-    }
-
-    /// @notice Toggle whether the target type is paused or not
-    function toggleIsTargetTypePaused(address _smartContract) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        isTargetTypePaused[_smartContract] = !isTargetTypePaused[_smartContract];
-        emit TargetTypePauseToggled(isTargetTypePaused[_smartContract]);
     }
 
     function version() external pure returns (string memory) {

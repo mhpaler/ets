@@ -4,33 +4,138 @@ pragma solidity ^0.8.0;
 import "./IETSToken.sol";
 import "@openzeppelin/contracts-upgradeable/access/IAccessControlUpgradeable.sol";
 
+/**
+ * @title IETSAccessControls
+ * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ * @notice This is the interface for the ETSAccessControls contract which allows ETS Core Dev
+ * Team to administer roles and control access to various parts of the ETS Platform.
+ * ETSAccessControls contract contains a mix of public and administrator only functions.
+ */
 interface IETSAccessControls is IAccessControlUpgradeable {
-    event ETSTokenSet(IETSToken etsToken);
+    /**
+     * @dev emitted when the ETS Platform address is set.
+     *
+     * @param platformAddress wallet address platform is set to.
+     */
+    event PlatformSet(address platformAddress);
+
+    /**
+     * @dev emitted when the publisherDefaultThreshold is set. See function below
+     * for explanation of publisherDefaultThreshold.
+     *
+     * @param threshold number of CTAGs required to own.
+     */
     event PublisherDefaultThresholdSet(uint256 threshold);
 
-    function togglePublisher() external returns (bool toggled);
-
     /**
-     * @dev Point ETSAccessControls to ETSToken contract.
+     * @dev emitted when a Target Tagger contract is paused or unpaused.
+     *
+     * @param newValue Boolean contract pause state. True for paused; false for unpaused.
      */
-    function setETSToken(IETSToken _etsToken) external;
+    event TargetTaggerPauseToggled(bool newValue);
 
     /**
-     * @dev set the role admin for a role.
+     * @notice Sets the Platform wallet address. Can only be called by address with DEFAULT_ADMIN_ROLE.
+     *
+     * @param _platform The new Platform address to set.
+     */
+    function setPlatform(address payable _platform) external;
+
+    /**
+     * @notice Adds a Target Tagger contract to ETS. Can only be called by address
+     * with DEFAULT_ADMIN_ROLE.
+     *
+     * @param _taggerAddress Address of the Target Tagger contract. Must conform to IETSTargetTagger.
+     * @param _name Human readable name of the Target Tagger.
+     */
+    function addTargetTagger(address _taggerAddress, string calldata _name) external;
+
+    /**
+     * @notice Removes a Target Tagger contract from ETS. Can only be called by address
+     * with DEFAULT_ADMIN_ROLE.
+     *
+     * @param _taggerAddress Address of the Target Tagger contract.
+     */
+    function removeTargetTagger(address _taggerAddress) external;
+
+    /**
+     * @notice Pauses/Unpauses a Target Tagger contract. Can only be called by address
+     * with DEFAULT_ADMIN_ROLE.
+     *
+     * @param _taggerAddress Address of the Target Tagger contract.
+     */
+    function toggleIsTargetTaggerPaused(address _taggerAddress) external;
+
+    /**
+     * @notice Sets the role admin for a given role. An address with role admin can grant or
+     * revoke that role for other addresses. Can only be called by address with DEFAULT_ADMIN_ROLE.
+     *
+     * @param _role bytes32 representation of role being administered.
+     * @param _adminRole bytes32 representation of administering role.
      */
     function setRoleAdmin(bytes32 _role, bytes32 _adminRole) external;
 
-    function setPublisherDefaultThreshold(uint256 _threshold) external;
+    /**
+     * @notice Returns wallet address for ETS Platform.
+     *
+     * @return ETS Platform address.
+     */
+    function getPlatformAddress() external view returns (address payable);
 
-    function getPublisherThreshold(address _addr) external view returns (uint256);
-
-    function getPublisherDefaultThreshold() external view returns (uint256);
-
+    /**
+     * @notice Checks whether given address has SMART_CONTRACT role.
+     *
+     * @param _addr Address being checked.
+     * @return boolean True if address has SMART_CONTRACT role.
+     */
     function isSmartContract(address _addr) external view returns (bool);
 
+    /**
+     * @notice Checks whether given address has DEFAULT_ADMIN_ROLE role.
+     *
+     * @param _addr Address being checked.
+     * @return boolean True if address has DEFAULT_ADMIN_ROLE role.
+     */
     function isAdmin(address _addr) external view returns (bool);
 
+    /**
+     * @notice Checks whether given address has PUBLISHER role.
+     *
+     * @param _addr Address being checked.
+     * @return boolean True if address has PUBLISHER role.
+     */
     function isPublisher(address _addr) external view returns (bool);
 
+    /**
+     * @notice Checks whether given address has PUBLISHER_ADMIN role.
+     *
+     * @param _addr Address being checked.
+     * @return boolean True if address has PUBLISHER_ADMIN role.
+     */
     function isPublisherAdmin(address _addr) external view returns (bool);
+
+    /**
+     * @notice Checks whether given Tagger Name is a registered Target Tagger.
+     *
+     * @param _name Name being checked.
+     * @return boolean True if _name is a Target Tagger.
+     */
+    function isTargetTagger(string calldata _name) external view returns (bool);
+
+    /**
+     * @notice Checks whether given address is a registered Target Tagger.
+     *
+     * @param _addr Address being checked.
+     * @return boolean True if address is a Target Tagger.
+     */
+    function isTargetTagger(address _addr) external view returns (bool);
+
+    /**
+     * @notice Checks whether given address is a registered Target Tagger and not paused.
+     *
+     * @param _addr Address being checked.
+     * @return boolean True if address is a Target Tagger and not paused.
+     */
+    function isTargetTaggerAndNotPaused(address _addr) external view returns (bool);
 }

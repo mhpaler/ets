@@ -1,4 +1,4 @@
-const { ethers } = require("hardhat");
+const {ethers} = require("hardhat");
 
 async function setup() {
   const namedAccounts = await ethers.getNamedSigners();
@@ -11,13 +11,15 @@ async function setup() {
   const factories = {
     WMATIC: await ethers.getContractFactory("WMATIC"),
     ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
-    ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
     ETSToken: await ethers.getContractFactory("ETSToken"),
+    ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
+    ETSTarget: await ethers.getContractFactory("ETSTarget"),
+    ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
+    ETS: await ethers.getContractFactory("ETS"),
+    ETSTargetTagger: await ethers.getContractFactory("ETSTargetTagger"),
   };
 
   const initSettings = {
-    // Access controls
-    PUBLISHER_DEFAULT_THRESHOLD: 0,
     // Token
     TAG_MIN_STRING_LENGTH: 2,
     TAG_MAX_STRING_LENGTH: 32,
@@ -30,6 +32,10 @@ async function setup() {
     PUBLISHER_PERCENTAGE: 20,
     CREATOR_PERCENTAGE: 40,
     PLATFORM_PERCENTAGE: 40,
+    // ETS core (Tagging records)
+    TAGGING_FEE: "0.1", // .1 MATIC
+    TAGGING_FEE_PLATFORM_PERCENTAGE: 20,
+    TAGGING_FEE_PUBLISHER_PERCENTAGE: 30,
   };
 
   // ============ SETUP TEST ACCOUNTS ============

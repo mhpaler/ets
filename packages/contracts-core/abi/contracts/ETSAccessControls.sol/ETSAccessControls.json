@@ -36,12 +36,12 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "contract IETSToken",
-        "name": "etsToken",
-        "type": "address"
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
       }
     ],
-    "name": "ETSTokenSet",
+    "name": "Initialized",
     "type": "event"
   },
   {
@@ -49,12 +49,12 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint8",
-        "name": "version",
-        "type": "uint8"
+        "internalType": "address",
+        "name": "platformAddress",
+        "type": "address"
       }
     ],
-    "name": "Initialized",
+    "name": "PlatformSet",
     "type": "event"
   },
   {
@@ -149,6 +149,19 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "newValue",
+        "type": "bool"
+      }
+    ],
+    "name": "TargetTaggerPauseToggled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "address",
         "name": "implementation",
@@ -224,58 +237,31 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "VERSION",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "etsToken",
-    "outputs": [
-      {
-        "internalType": "contract IETSToken",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getPublisherDefaultThreshold",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "address",
-        "name": "_addr",
+        "name": "_taggerAddress",
         "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
       }
     ],
-    "name": "getPublisherThreshold",
+    "name": "addTargetTagger",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getPlatformAddress",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "address payable",
         "name": "",
-        "type": "uint256"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -343,13 +329,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_publisherDefaultThreshold",
-        "type": "uint256"
-      }
-    ],
+    "inputs": [],
     "name": "initialize",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -432,26 +412,57 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "proxiableUUID",
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_addr",
+        "type": "address"
+      }
+    ],
+    "name": "isTargetTagger",
     "outputs": [
       {
-        "internalType": "bytes32",
+        "internalType": "bool",
         "name": "",
-        "type": "bytes32"
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "publisherDefaultThreshold",
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
+      }
+    ],
+    "name": "isTargetTagger",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "bool",
         "name": "",
-        "type": "uint256"
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_addr",
+        "type": "address"
+      }
+    ],
+    "name": "isTargetTaggerAndNotPaused",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -465,15 +476,41 @@
         "type": "address"
       }
     ],
-    "name": "publisherThresholds",
+    "name": "isTargetTaggerPaused",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "bool",
         "name": "",
-        "type": "uint256"
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "proxiableUUID",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_taggerAddress",
+        "type": "address"
+      }
+    ],
+    "name": "removeTargetTagger",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -515,25 +552,12 @@
   {
     "inputs": [
       {
-        "internalType": "contract IETSToken",
-        "name": "_etsToken",
+        "internalType": "address payable",
+        "name": "_platform",
         "type": "address"
       }
     ],
-    "name": "setETSToken",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_threshold",
-        "type": "uint256"
-      }
-    ],
-    "name": "setPublisherDefaultThreshold",
+    "name": "setPlatform",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -576,15 +600,53 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "togglePublisher",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "bool",
-        "name": "toggled",
-        "type": "bool"
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
+    "name": "targetTaggerContractToName",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "name": "targetTaggerNameToContract",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_taggerAddress",
+        "type": "address"
+      }
+    ],
+    "name": "toggleIsTargetTaggerPaused",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -617,19 +679,6 @@
     "name": "upgradeToAndCall",
     "outputs": [],
     "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "version",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "pure",
     "type": "function"
   }
 ]

@@ -1,0 +1,291 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newAccessControls",
+        "type": "address"
+      }
+    ],
+    "name": "AccessControlsSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "who",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "FundsWithdrawn",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "platformPercentage",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "publisherPercentage",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "remainingPercentage",
+        "type": "uint256"
+      }
+    ],
+    "name": "PercentagesSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newTaggingFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "TaggingFeeSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "taggingRecordId",
+        "type": "uint256"
+      }
+    ],
+    "name": "TaggingRecordUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "taggingRecordId",
+        "type": "uint256"
+      }
+    ],
+    "name": "TargetTagged",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_targetId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_publisher",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_tagger",
+        "type": "address"
+      }
+    ],
+    "name": "computeTaggingRecordId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "taggingRecordId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address payable",
+        "name": "_account",
+        "type": "address"
+      }
+    ],
+    "name": "drawDown",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_targetId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_tagger",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_publisher",
+        "type": "address"
+      }
+    ],
+    "name": "getTaggingRecord",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "etsTagIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "targetId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "tagger",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "publisher",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_id",
+        "type": "uint256"
+      }
+    ],
+    "name": "getTaggingRecordFromId",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "etsTagIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "targetId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "tagger",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "publisher",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "_tagIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_targetId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_tagger",
+        "type": "address"
+      }
+    ],
+    "name": "tagTarget",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "taggingFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_account",
+        "type": "address"
+      }
+    ],
+    "name": "totalDue",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_due",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taggingRecordId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string[]",
+        "name": "_tags",
+        "type": "string[]"
+      }
+    ],
+    "name": "updateTaggingRecord",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  }
+]
