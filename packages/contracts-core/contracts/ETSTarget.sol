@@ -106,8 +106,8 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
     // ============ PUBLIC VIEW FUNCTIONS ============
 
     function computeTargetId(string memory _targetURI) public pure returns (uint256) {
-        string memory parts = string(abi.encodePacked(_targetURI));
-        bytes32 targetId = keccak256(bytes(parts));
+        // ? Should we lowercase _targetURI?
+        bytes32 targetId = keccak256(bytes(_targetURI));
         return uint256(targetId);
     }
 

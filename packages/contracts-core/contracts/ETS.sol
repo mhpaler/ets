@@ -14,7 +14,7 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "hardhat/console.sol";
 
 /// @title ETS Core Tagging Contract
-/// @author Ethereum Tag Service <security@ets.xyz>
+/// @author Ethereum Tag Service <team@ets.xyz>
 /// @notice Core tagging contract that enables any online target to be tagged with an ETSTAG token.
 contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
     // Public variables
