@@ -28,7 +28,6 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
     /// Public constants
 
     string public constant NAME = "ETS Auction House";
-    string public constant VERSION = "0.1.0";
     uint256 public constant modulo = 100;
 
     /// Public variables
@@ -255,10 +254,6 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
 
     function getAuction(uint256 _tokenId) public view returns (Auction memory) {
         return auctions[_tokenId];
-    }
-
-    function version() external pure returns (string memory) {
-        return VERSION;
     }
 
     receive() external payable {}

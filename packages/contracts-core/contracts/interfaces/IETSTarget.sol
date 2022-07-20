@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./IETSEnrichTarget.sol";
-import "./IETSAccessControls.sol";
-
 /**
  * @title IETSTarget
  * @author Ethereum Tag Service
@@ -44,9 +41,9 @@ interface IETSTarget {
         string ipfsHash;
     }
 
-    event AccessControlsSet(IETSAccessControls etsAccessControls);
+    event AccessControlsSet(address etsAccessControls);
 
-    event EnrichTargetSet(IETSEnrichTarget etsEnrichTarget);
+    event EnrichTargetSet(address etsEnrichTarget);
 
     event TargetCreated(uint256 targetId);
 
@@ -58,7 +55,7 @@ interface IETSTarget {
      *
      * @param _etsAccessControls Address of ETSAccessControls contract.
      */
-    function setAccessControls(IETSAccessControls _etsAccessControls) external;
+    function setAccessControls(address _etsAccessControls) external;
 
     /**
      * @notice Sets ETS Enrich target contract address so that target metadata enrichment
@@ -66,7 +63,7 @@ interface IETSTarget {
      *
      * @param _etsEnrichTarget Address of ETSEnrichTarget contract.
      */
-    function setEnrichTarget(IETSEnrichTarget _etsEnrichTarget) external;
+    function setEnrichTarget(address _etsEnrichTarget) external;
 
     function getOrCreateTargetId(string memory _targetURI) external returns (uint256);
 

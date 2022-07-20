@@ -22,7 +22,6 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
     /// Public constants
 
     string public constant NAME = "ETSTarget";
-    string public constant VERSION = "0.0.1";
 
     /// @dev Map of targetId to Target struct.
     mapping(uint256 => Target) public targets;
@@ -36,23 +35,23 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
 
     // ============ UUPS INTERFACE ============
 
-    function initialize(IETSAccessControls _etsAccessControls) public initializer {
-        etsAccessControls = _etsAccessControls;
+    function initialize(address _etsAccessControls) public initializer {
+        etsAccessControls = IETSAccessControls(_etsAccessControls);
     }
 
     function _authorizeUpgrade(address) internal override onlyAdmin {}
 
     // ============ OWNER INTERFACE ============
 
-    function setAccessControls(IETSAccessControls _etsAccessControls) public onlyAdmin {
+    function setAccessControls(address _etsAccessControls) public onlyAdmin {
         require(address(_etsAccessControls) != address(0), "Access controls cannot be zero");
-        etsAccessControls = _etsAccessControls;
-        emit AccessControlsSet(_etsAccessControls);
+        etsAccessControls = IETSAccessControls(_etsAccessControls);
+        emit AccessControlsSet(address(_etsAccessControls));
     }
 
-    function setEnrichTarget(IETSEnrichTarget _etsEnrichTarget) public onlyAdmin {
+    function setEnrichTarget(address _etsEnrichTarget) public onlyAdmin {
         require(address(_etsEnrichTarget) != address(0), "ETSEnrichTarget address cannot be zero");
-        etsEnrichTarget = _etsEnrichTarget;
+        etsEnrichTarget = IETSEnrichTarget(_etsEnrichTarget);
         emit EnrichTargetSet(_etsEnrichTarget);
     }
 
@@ -106,7 +105,7 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
     // ============ PUBLIC VIEW FUNCTIONS ============
 
     function computeTargetId(string memory _targetURI) public pure returns (uint256) {
-        // ? Should we lowercase _targetURI?
+        // ? Should we lowercase
         bytes32 targetId = keccak256(bytes(_targetURI));
         return uint256(targetId);
     }

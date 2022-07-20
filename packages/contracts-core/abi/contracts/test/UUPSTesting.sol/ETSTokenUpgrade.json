@@ -4,7 +4,7 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "contract IETSAccessControls",
+        "internalType": "address",
         "name": "etsAccessControls",
         "type": "address"
       }
@@ -308,19 +308,6 @@
   {
     "inputs": [],
     "name": "NAME",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "VERSION",
     "outputs": [
       {
         "internalType": "string",
@@ -690,7 +677,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract IETSAccessControls",
+        "internalType": "address",
         "name": "_etsAccessControls",
         "type": "address"
       },
@@ -934,7 +921,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract IETSAccessControls",
+        "internalType": "address",
         "name": "_etsAccessControls",
         "type": "address"
       }
@@ -1282,19 +1269,6 @@
     "name": "upgradeToAndCall",
     "outputs": [],
     "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "version",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "pure",
     "type": "function"
   }
 ]

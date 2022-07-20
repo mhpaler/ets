@@ -32,7 +32,6 @@ contract ETSToken is
 
     // Public constants
     string public constant NAME = "CTAG Token";
-    string public constant VERSION = "0.1.0";
 
     // Public variables
     uint256 public tagMinStringLength;
@@ -63,7 +62,7 @@ contract ETSToken is
     // ============ UUPS INTERFACE ============
 
     function initialize(
-        IETSAccessControls _etsAccessControls,
+        address _etsAccessControls,
         uint256 _tagMinStringLength,
         uint256 _tagMaxStringLength,
         uint256 _ownershipTermLength
@@ -77,7 +76,7 @@ contract ETSToken is
         // functions so our subgraph can capture them.
         // To call them requires etsAccessControls being
         // set so we set that manually first.
-        etsAccessControls = _etsAccessControls;
+        etsAccessControls = IETSAccessControls(_etsAccessControls);
         setAccessControls(_etsAccessControls);
         setTagMinStringLength(_tagMinStringLength);
         setTagMaxStringLength(_tagMaxStringLength);
@@ -117,9 +116,9 @@ contract ETSToken is
         emit OwnershipTermLengthSet(_ownershipTermLength);
     }
 
-    function setAccessControls(IETSAccessControls _etsAccessControls) public onlyAdmin {
+    function setAccessControls(address _etsAccessControls) public onlyAdmin {
         require(address(_etsAccessControls) != address(0), "Access controls cannot be zero");
-        etsAccessControls = _etsAccessControls;
+        etsAccessControls = IETSAccessControls(_etsAccessControls);
         emit AccessControlsSet(_etsAccessControls);
     }
 
@@ -281,10 +280,6 @@ contract ETSToken is
     /// @return _creator creator of the CTAG.
     function getCreatorAddress(uint256 _tokenId) public view returns (address) {
         return tokenIdToTag[_tokenId].creator;
-    }
-
-    function version() external pure returns (string memory) {
-        return VERSION;
     }
 
     // ============ INTERNAL FUNCTIONS ============
