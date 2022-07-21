@@ -3,7 +3,7 @@ const {ethers} = require("hardhat");
 const {expect} = require("chai");
 const {constants} = ethers;
 
-let targetURI, targetId;
+let targetURI, targetId, taggingRecordId;
 
 describe("ETS Core tests", function () {
   beforeEach("Setup test", async function () {
@@ -224,11 +224,11 @@ describe("ETS Core tests", function () {
   describe("A tagging record", async () => {
     beforeEach("create a tagging record", async () => {
       // First confirm there's no pre-existing tagging record for this composite key.
-      const taggingRecord = await contracts.ETS.getTaggingRecord(
+      let taggingRecord = await contracts.ETS.getTaggingRecord(
         targetId,
         "bookmark",
-        accounts.RandomOne.address,
         contracts.ETSTargetTagger.address,
+        accounts.RandomOne.address,
       );
       expect(taggingRecord.targetId).to.be.equal(0);
 
@@ -249,8 +249,8 @@ describe("ETS Core tests", function () {
       taggingRecordId = await contracts.ETS.computeTaggingRecordId(
         targetId,
         "bookmark",
-        accounts.RandomOne.address,
         contracts.ETSTargetTagger.address,
+        accounts.RandomOne.address,
       );
     });
 
@@ -271,8 +271,8 @@ describe("ETS Core tests", function () {
       const taggingRecord = await contracts.ETS.getTaggingRecord(
         targetId,
         "bookmark",
-        accounts.RandomOne.address,
         contracts.ETSTargetTagger.address,
+        accounts.RandomOne.address,
       );
 
       expect(taggingRecord.targetId.toString()).to.be.equal(targetId);
@@ -307,8 +307,8 @@ describe("ETS Core tests", function () {
       const newTaggingRecordId = await contracts.ETS.computeTaggingRecordId(
         existingTargetId,
         "bookmark",
-        accounts.RandomTwo.address,
         contracts.ETSTargetTagger.address,
+        accounts.RandomTwo.address,
       );
       expect(newTaggingRecordId).to.not.be.equal(taggingRecordId);
       const newTaggingRecord = await contracts.ETS.getTaggingRecordFromId(newTaggingRecordId);
