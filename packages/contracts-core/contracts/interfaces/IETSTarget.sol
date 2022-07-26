@@ -8,7 +8,9 @@ pragma solidity ^0.8.0;
  * @notice This is the standard interface for the core ETSTarget.sol contract. It includes both public
  * and administration functions.
  *
- * In ETS, a "Target" is our data structure, stored onchain, that references/points to a URI.
+ * In ETS, a "Target" is our data structure, stored onchain, that references/points to a URI. Target records
+ * are identified in ETS by their Id (targetId) which is a unsigned integer computed from the URI string.
+ * Target Ids are combined with CTAG Ids by ETS core (ETS.sol) to form "Tagging Records".
  *
  * For context, from Wikipedia, URI is short for Uniform Resource Identifier and is a unique sequence of
  * characters that identifies a logical or physical resource used by web technologies. URIs may be used to
@@ -90,7 +92,7 @@ interface IETSTarget {
     /**
      * @notice Get ETS targetId from URI.
      *
-     * Combo function that given a URI streing will return it's ETS targetId if it exists,
+     * Combo function that given a URI string will return it's ETS targetId if it exists,
      * or create a new Target record and return corresponding targetId.
      *
      * @param _targetURI URI passed in as string

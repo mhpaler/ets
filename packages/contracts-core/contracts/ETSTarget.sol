@@ -15,10 +15,12 @@ import "hardhat/console.sol";
  * @title IETSTarget
  * @author Ethereum Tag Service <team@ets.xyz>
  *
- * @notice This is the standard interface for the core ETSTarget.sol contract. It includes both public
+ * @notice This is core ETSTarget.sol contract for creating Target records in ETS. It includes both public
  * and administration functions.
  *
- * In ETS, a "Target" is our data structure, stored onchain, that references/points to a URI.
+ * In ETS, a "Target" is our data structure, stored onchain, that references/points to a URI. Target records
+ * are identified in ETS by their Id (targetId) which is a unsigned integer computed from the URI string.
+ * Target Ids are combined with CTAG Ids by ETS core (ETS.sol) to form "Tagging Records".
  *
  * For context, from Wikipedia, URI is short for Uniform Resource Identifier and is a unique sequence of
  * characters that identifies a logical or physical resource used by web technologies. URIs may be used to

@@ -87,42 +87,45 @@ contract ETSToken is
 
     // ============ OWNER INTERFACE ============
 
-    /// @dev Pause CTAG token contract.
-    function pause() external onlyAdmin {
+    function pause() public onlyAdmin {
         _pause();
     }
 
-    /// @dev Unpause CTAG token contract.
-    function unPause() external onlyAdmin {
+    function unPause() public onlyAdmin {
         _unpause();
     }
 
+    /// @inheritdoc ERC721BurnableUpgradeable
     function burn(uint256 tokenId) public override onlyAdmin {
         _burn(tokenId);
     }
 
+    /// @inheritdoc IETSToken
     function setTagMaxStringLength(uint256 _tagMaxStringLength) public onlyAdmin {
         tagMaxStringLength = _tagMaxStringLength;
         emit TagMaxStringLengthSet(_tagMaxStringLength);
     }
 
+    /// @inheritdoc IETSToken
     function setTagMinStringLength(uint256 _tagMinStringLength) public onlyAdmin {
         tagMinStringLength = _tagMinStringLength;
         emit TagMinStringLengthSet(_tagMinStringLength);
     }
 
+    /// @inheritdoc IETSToken
     function setOwnershipTermLength(uint256 _ownershipTermLength) public onlyAdmin {
         ownershipTermLength = _ownershipTermLength;
         emit OwnershipTermLengthSet(_ownershipTermLength);
     }
 
+    /// @inheritdoc IETSToken
     function setAccessControls(address _etsAccessControls) public onlyAdmin {
         require(address(_etsAccessControls) != address(0), "Access controls cannot be zero");
         etsAccessControls = IETSAccessControls(_etsAccessControls);
         emit AccessControlsSet(_etsAccessControls);
     }
 
-    /// @dev Pre-minting, flag / unflag tag strings as premium tags.
+    /// @inheritdoc IETSToken
     function preSetPremiumTags(string[] calldata _tags, bool _enabled) public onlyAdmin {
         require(_tags.length > 0, "Empty array");
         for (uint256 i; i < _tags.length; ++i) {
@@ -132,7 +135,7 @@ contract ETSToken is
         }
     }
 
-    /// @dev set/unset premium flag on tags owned by platform.
+    /// @inheritdoc IETSToken
     function setPremiumFlag(uint256[] calldata _tokenIds, bool _isPremium) public onlyAdmin {
         require(_tokenIds.length > 0, "Empty array");
         for (uint256 i; i < _tokenIds.length; ++i) {
@@ -143,8 +146,7 @@ contract ETSToken is
         }
     }
 
-    /// @dev Add or remove reserved flag from one or more tags.
-    /// Reserved flag prevents bidding on token at ETSAuctionHouse.
+    /// @inheritdoc IETSToken
     function setReservedFlag(uint256[] calldata _tokenIds, bool _reserved) public onlyAdmin {
         require(_tokenIds.length > 0, "Empty array");
         for (uint256 i; i < _tokenIds.length; ++i) {
@@ -165,6 +167,7 @@ contract ETSToken is
         return tokenIdToTag[tokenId];
     }
 
+    /// @inheritdoc IETSToken
     function getOrCreateTagId(string calldata _tag, address payable _creator) public payable returns (uint256 tokenId) {
         uint256 _tokenId = computeTagId(_tag);
         if (!tagExists(_tokenId)) {
@@ -173,6 +176,7 @@ contract ETSToken is
         return _tokenId;
     }
 
+    /// @inheritdoc IETSToken
     function createTag(string calldata _tag, address payable _creator)
         public
         payable
@@ -198,11 +202,7 @@ contract ETSToken is
         return tagId;
     }
 
-    /**
-     * @dev Extends a CTAG ownership term by setting last renewed date for a token.
-     *
-     * @param _tokenId CTAG token Id
-     */
+    /// @inheritdoc IETSToken
     function renewTag(uint256 _tokenId) public {
         require(_exists(_tokenId), "ETS: CTAG not found");
 
@@ -213,12 +213,7 @@ contract ETSToken is
         }
     }
 
-    /**
-     * @dev Recycles a CTAG back to platform if ownership term is expired.
-     * Purpose of renew/recyle is to prevent lost tags.
-     *
-     * @param _tokenId CTAG token Id
-     */
+    /// @inheritdoc IETSToken
     function recycleTag(uint256 _tokenId) public {
         require(_exists(_tokenId), "ETS: CTAG not found");
         require(ownerOf(_tokenId) != getPlatformAddress(), "ETS: CTAG owned by platform");
@@ -242,42 +237,48 @@ contract ETSToken is
 
     // ============ PUBLIC VIEW FUNCTIONS ============
 
+    /// @inheritdoc IETSToken
     function computeTagId(string memory _tag) public pure returns (uint256) {
         string memory _machineName = __lower(_tag);
         return uint256(keccak256(bytes(_machineName)));
     }
 
+    /// @inheritdoc IETSToken
     function tagExists(string calldata _tag) public view returns (bool) {
         return _exists(computeTagId(_tag));
     }
 
+    /// @inheritdoc IETSToken
     function tagExists(uint256 _tokenId) public view returns (bool) {
         return _exists(_tokenId);
     }
 
+    /// @inheritdoc IETSToken
     function getTag(string calldata _tag) public view returns (Tag memory) {
         return getTag(computeTagId(_tag));
     }
 
+    /// @inheritdoc IETSToken
     function getTag(uint256 _tokenId) public view returns (Tag memory) {
         return tokenIdToTag[_tokenId];
     }
 
+    /// @inheritdoc IETSToken
     function getOwnershipTermLength() public view returns (uint256) {
         return ownershipTermLength;
     }
 
+    /// @inheritdoc IETSToken
     function getLastRenewed(uint256 _tokenId) public view returns (uint256) {
         return tokenIdToLastRenewed[_tokenId];
     }
 
+    /// @inheritdoc IETSToken
     function getPlatformAddress() public view returns (address payable) {
         return etsAccessControls.getPlatformAddress();
     }
 
-    /// @notice Returns creator of a CTAG token.
-    /// @param _tokenId ID of a CTAG.
-    /// @return _creator creator of the CTAG.
+    /// @inheritdoc IETSToken
     function getCreatorAddress(uint256 _tokenId) public view returns (address) {
         return tokenIdToTag[_tokenId].creator;
     }
@@ -311,9 +312,13 @@ contract ETSToken is
         }
     }
 
-    /// @notice Private method used for validating a CTAG string before minting.
-    /// @dev A series of assertions are performed reverting the transaction for any validation violations.
-    /// @param _tag Proposed tag string.
+    /**
+     * @dev Private method used for validating a CTAG string before minting.
+     *
+     * A series of assertions are performed reverting the transaction for any validation violations.
+     *
+     * @param _tag Proposed tag string.
+     */
     function _assertTagIsValid(string memory _tag) private view returns (uint256 _tagId) {
         // generate token ID from machine name
         uint256 tagId = computeTagId(_tag);
