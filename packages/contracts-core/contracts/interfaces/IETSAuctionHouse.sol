@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0
-
 pragma solidity ^0.8.6;
 
 /**
- * @title Interface for ETS Auction House
+ * @title IETSAuctionHouse
+ * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ * @notice This is the standard interface for the ETSAuctionHouse.sol contract. It includes both public
+ * and administration functions.
  */
 interface IETSAuctionHouse {
     struct Auction {

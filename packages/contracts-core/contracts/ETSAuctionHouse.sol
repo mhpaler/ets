@@ -1,5 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0
 
+// ETSAuctionHouse.sol is a modified version of Nouns NounsAuctionHouse.sol:
+// https://github.com/nounsDAO/nouns-monorepo/blob/master/packages/nouns-contracts/contracts/NounsAuctionHouse.sol
+// which itself is a modified version of Zora AuctionHouse.sol
+//
+// AuctionHouse.sol source code Copyright Zora licensed under the GPL-3.0 license.
+// With modifications by Ethereum Tag Service.
+
 pragma solidity ^0.8.6;
 
 import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
@@ -16,7 +23,10 @@ import { IWMATIC } from "./interfaces/IWMATIC.sol";
 import "hardhat/console.sol";
 
 /**
- * @title
+ * @title ETSAuctionHouse
+ * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ * @notice ETSAuctionHouse contract governs the sale of Ethereum Tag Service composable tags (CTAGs).
  */
 contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
     using SafeMathUpgradeable for uint256;
