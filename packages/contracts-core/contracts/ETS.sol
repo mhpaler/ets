@@ -13,9 +13,14 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 
 import "hardhat/console.sol";
 
-/// @title ETS Core Tagging Contract
-/// @author Ethereum Tag Service <security@ets.xyz>
-/// @notice Core tagging contract that enables any online target to be tagged with an ETSTAG token.
+/**
+ * @title ETS
+ * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ * @notice This is the core ETS tagging contract that records TaggingRecords to the blockchain.
+ * It also contains some governance functions around tagging fees as well as means for market
+ * participants to access accrued funds.
+ */
 contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
     // Public variables
 
@@ -114,6 +119,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     // ============ PUBLIC INTERFACE ============
 
+    /// @inheritdoc IETS
     function tagTarget(
         uint256[] calldata _tagIds,
         uint256 _targetId,
@@ -135,12 +141,10 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         _tagTarget(_tagIds, _targetId, _recordType, _msgSender(), _tagger);
     }
 
-    /// @notice Allow tagger to update the tags for a tagging record.
+    /// @inheritdoc IETS
     function updateTaggingRecord(uint256 _taggingRecordId, string[] calldata _tags) external payable {
-        // todo - I think this makes sense but should
-        // user be allowed to completely remove all tags,
+        // todo - should user be allowed to completely remove all tags,
         // does that mean deleting the record completely?
-        //require(_tags.length > 0, "Empty array");
         require(taggingRecords[_taggingRecordId].tagIds.length > 0, "Tagging record not found");
         require(_msgSender() == taggingRecords[_taggingRecordId].tagger, "Only original tagger can update");
 
@@ -166,10 +170,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         emit TaggingRecordUpdated(_taggingRecordId);
     }
 
-    /// @notice Enables anyone to send ETH accrued by an account.
-    /// @dev Can be called by the account owner or on behalf of someone.
-    /// @dev Does nothing when there is nothing due to the account.
-    /// @param _account Target address that has had accrued ETH and which will receive the ETH.
+    /// @inheritdoc IETS
     function drawDown(address payable _account) external nonReentrant {
         uint256 balanceDue = accrued[_account] - paid[_account];
         if (balanceDue > 0 && balanceDue <= address(this).balance) {
@@ -182,23 +183,17 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     // ============ PUBLIC VIEW FUNCTIONS ============
 
-    /// @notice Deterministically compute the tagging record identifier
+    /// @inheritdoc IETS
     function computeTaggingRecordId(
         uint256 _targetId,
         string memory _recordType,
         address _publisher,
         address _tagger
     ) public pure returns (uint256 taggingRecordId) {
-        taggingRecordId = uint256(keccak256(abi.encodePacked(_targetId, _recordType, _tagger, _publisher)));
+        taggingRecordId = uint256(keccak256(abi.encodePacked(_targetId, _recordType, _publisher, _tagger)));
     }
 
-    /// @dev Retrieves a tagging record from tagging record ID
-    /// @param _id ID of the tagging record.
-    /// @return tagIds CTAG token ids used to tag target.
-    /// @return targetId Id of tagging target.
-    /// @return recordType Type of tagging record.
-    /// @return tagger Address that tagged the NFT asset.
-    /// @return publisher Publisher through which the tag took place.
+    /// @inheritdoc IETS
     function getTaggingRecordFromId(uint256 _id)
         external
         view
@@ -206,8 +201,8 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
             uint256[] memory tagIds,
             uint256 targetId,
             string memory recordType,
-            address tagger,
-            address publisher
+            address publisher,
+            address tagger
         )
     {
         TaggingRecord storage taggingRecord = taggingRecords[_id];
@@ -215,17 +210,17 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
             taggingRecord.tagIds,
             taggingRecord.targetId,
             taggingRecord.recordType,
-            taggingRecord.tagger,
-            taggingRecord.publisher
+            taggingRecord.publisher,
+            taggingRecord.tagger
         );
     }
 
-    /// @notice Get tagging record from composite key parts
+    /// @inheritdoc IETS
     function getTaggingRecord(
         uint256 _targetId,
         string memory _recordType,
-        address _tagger,
-        address _publisher
+        address _publisher,
+        address _tagger
     )
         external
         view
@@ -233,11 +228,11 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
             uint256[] memory tagIds,
             uint256 targetId,
             string memory recordType,
-            address tagger,
-            address publisher
+            address publisher,
+            address tagger
         )
     {
-        uint256 taggingRecordId = computeTaggingRecordId(_targetId, _recordType, _tagger, _publisher);
+        uint256 taggingRecordId = computeTaggingRecordId(_targetId, _recordType, _publisher, _tagger);
 
         TaggingRecord storage taggingRecord = taggingRecords[taggingRecordId];
 
@@ -245,20 +240,19 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
             taggingRecord.tagIds,
             taggingRecord.targetId,
             taggingRecord.recordType,
-            taggingRecord.tagger,
-            taggingRecord.publisher
+            taggingRecord.publisher,
+            taggingRecord.tagger
         );
     }
 
-    /// @notice Used to check how much ETH has been accrued by an address factoring in amount paid out.
-    /// @param _account Address of the account being queried.
-    /// @return _due Amount of WEI in ETH due to account.
+    /// @inheritdoc IETS
     function totalDue(address _account) public view returns (uint256 _due) {
         return accrued[_account] - paid[_account];
     }
 
     // ============ INTERNAL FUNCTIONS ============
 
+    /// @dev write a tagging record, mapping a taggingRecordId to a TaggingRecord struct.
     function _tagTarget(
         uint256[] memory _tagIds,
         uint256 _targetId,
@@ -266,19 +260,20 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address _publisher,
         address _tagger
     ) private {
-        uint256 taggingRecordId = computeTaggingRecordId(_targetId, _recordType, _tagger, _publisher);
+        uint256 taggingRecordId = computeTaggingRecordId(_targetId, _recordType, _publisher, _tagger);
 
         taggingRecords[taggingRecordId] = TaggingRecord({
             tagIds: _tagIds,
             targetId: _targetId,
             recordType: _recordType,
-            tagger: _tagger,
-            publisher: _publisher
+            publisher: _publisher,
+            tagger: _tagger
         });
 
         emit TargetTagged(taggingRecordId);
     }
 
+    // @dev Internal function to divide up the tagging fee and accrue it to ETS participants.
     function _processAccrued(uint256 _tagId, address _platform) internal {
         // Note: This will cause tag target to revert if tagId doesn't exist.
         address owner = etsToken.ownerOf(_tagId);

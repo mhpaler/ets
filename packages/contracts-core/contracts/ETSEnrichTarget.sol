@@ -8,32 +8,47 @@ import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-/// @title ETSEnsure target contract.
-/// @author Ethereum Tag Service <security@ets.xyz>
-/// @dev Used by ETS to ensure targets using off-chain data.
+/**
+ * @title ETSEnrichTarget
+ * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ * @notice Contract that handles the enrichment of Target metadata using off-chain APIs.
+ *
+ * In order to keep the on-chain recording of new Target records lightweight and inexpensive,
+ * the createTarget() function (ETSTarget.sol) requires only a URI string (targetURI).
+ *
+ * To augment this, we are developing a hybrid onchain/off-chain Enrich Target flow for the purpose of
+ * collecting additional metadata about a Target and saving it back on-chain.
+ *
+ * The flow begins with the requestEnrichTarget() function (see below) which takes a targetId as an
+ * argument. If the Target exists, the function emits the targetId via the RequestEnrichTarget event.
+ *
+ * An OpenZeppelin Defender Sentinel is listening for this event, and when detected, passes the
+ * targetId to an ETS off-chain service we call the Enrich Target API, which extracts the Target URI,
+ * collects metadata about the URI and saves it in json format to IPFS. The IPFS entpoint is posted
+ * back on-chain via fulfillEnrichTarget() thus updating the Target data struct.
+ *
+ * Future implementation should utilize ChainLink in place of OpenZeppelin for better decentralization.
+ */
 contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable, UUPSUpgradeable {
-    /// Variable storage
-    /// @notice ETS access controls smart contract.
+    /// @dev ETS access controls smart contract.
     IETSAccessControls public etsAccessControls;
 
-    /// @notice ETS access controls smart contract.
+    /// @dev ETS access controls smart contract.
     IETSTarget public etsTarget;
 
-    /// Public constants
+    // Public constants
 
     string public constant NAME = "ETSEnrichTarget";
-    string public constant VERSION = "0.0.1";
 
-    /// Events
-
-    /// Modifiers
+    // Modifiers
 
     modifier onlyAdmin() {
         require(etsAccessControls.isAdmin(_msgSender()), "Caller must have administrator access");
         _;
     }
 
-    /// Initialization
+    // ============ UUPS INTERFACE ============
 
     function initialize(IETSAccessControls _etsAccessControls, IETSTarget _etsTarget) public initializer {
         // Initialize access controls & ETS
@@ -43,34 +58,25 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
 
     function _authorizeUpgrade(address) internal override onlyAdmin {}
 
-    /// @notice Ensure a target Id using the off chain ETS Ensure Target API.
-    /// @dev Emits a RequestEnsureTarget event with targetId to Openzeppelin
-    /// Defender which is listening for event. When event is detected, OZ makes
-    /// callout to ETS.targets(targetId) to collect targetType and targetURI.
-    /// With these, OZ makes callout to ETS Ensure Target API which collects
-    /// metadata for target, pins it to IPFS and returns pin to ETS blockchain
-    /// via fulfillEnsureTarget()
-    /// @param _targetId Unique id of target to be ensured.
+    // ============ PUBLIC INTERFACE ============
+
+    /// @inheritdoc IETSEnrichTarget
     function requestEnrichTarget(uint256 _targetId) public {
         require(etsTarget.targetExists(_targetId) == true, "Invalid target");
         // require(!etsTarget.isTargetEnsured(_targetId), "Already ensured");
         emit RequestEnrichTarget(_targetId);
     }
 
-    /// @notice Decorates target with additional metadata stored in IPFS hash.
-    /// see requestEnsureTarget()
-    /// TODO: 1) consider access restricting this? ie. not public function.
-    /// 2) add another field for 200 status, but failed metadata collection.
-    /// @param _targetId Unique id of target being ensured.
-    /// @param _ipfsHash IPFS hash containing metadata related to the unique target.
-    /// @param _status HTTP response code from ETS Ensure Target API.
+    // ============ OWNER INTERFACE ============
+
+    /// @inheritdoc IETSEnrichTarget
     function fulfillEnrichTarget(
         uint256 _targetId,
         string calldata _ipfsHash,
-        uint256 _status
+        uint256 _httpStatus
     ) public {
         require(etsAccessControls.getPlatformAddress() == msg.sender, "only platform may enrich target");
         IETSTarget.Target memory target = etsTarget.getTarget(_targetId);
-        etsTarget.updateTarget(_targetId, target.targetURI, block.timestamp, _status, _ipfsHash);
+        etsTarget.updateTarget(_targetId, target.targetURI, block.timestamp, _httpStatus, _ipfsHash);
     }
 }

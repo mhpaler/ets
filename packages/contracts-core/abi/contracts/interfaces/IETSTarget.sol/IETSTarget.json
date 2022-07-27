@@ -4,7 +4,7 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "contract IETSAccessControls",
+        "internalType": "address",
         "name": "etsAccessControls",
         "type": "address"
       }
@@ -17,7 +17,7 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "contract IETSEnrichTarget",
+        "internalType": "address",
         "name": "etsEnrichTarget",
         "type": "address"
       }
@@ -213,7 +213,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract IETSAccessControls",
+        "internalType": "address",
         "name": "_etsAccessControls",
         "type": "address"
       }
@@ -226,7 +226,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract IETSEnrichTarget",
+        "internalType": "address",
         "name": "_etsEnrichTarget",
         "type": "address"
       }

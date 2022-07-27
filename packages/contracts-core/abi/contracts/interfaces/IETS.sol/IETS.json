@@ -156,12 +156,12 @@
       },
       {
         "internalType": "address",
-        "name": "_tagger",
+        "name": "_publisher",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "_publisher",
+        "name": "_tagger",
         "type": "address"
       }
     ],
@@ -169,7 +169,7 @@
     "outputs": [
       {
         "internalType": "uint256[]",
-        "name": "etsTagIds",
+        "name": "tagIds",
         "type": "uint256[]"
       },
       {
@@ -184,12 +184,12 @@
       },
       {
         "internalType": "address",
-        "name": "tagger",
+        "name": "publisher",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "publisher",
+        "name": "tagger",
         "type": "address"
       }
     ],
@@ -208,7 +208,7 @@
     "outputs": [
       {
         "internalType": "uint256[]",
-        "name": "etsTagIds",
+        "name": "tagIds",
         "type": "uint256[]"
       },
       {
@@ -223,12 +223,12 @@
       },
       {
         "internalType": "address",
-        "name": "tagger",
+        "name": "publisher",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "publisher",
+        "name": "tagger",
         "type": "address"
       }
     ],
