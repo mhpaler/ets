@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 
 /**
- * @title ETS
+ * @title IETSToken
  * @author Ethereum Tag Service <team@ets.xyz>
  *
  * @notice This is the interface for the ETSToken.sol core contract that governs the creation & management

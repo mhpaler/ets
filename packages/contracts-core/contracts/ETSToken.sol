@@ -12,10 +12,24 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 import "hardhat/console.sol";
 
-/// @title ETS ERC-721 NFT contract
-/// @author Ethereum Tag Service <security@ets.xyz>
-/// @notice Contract that governs ETS CTAG non-fungible tokens.
-/// @dev UUPS upgradable.
+/**
+ * @title ETSToken
+ * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ * @notice This is the core ETSToken.sol contract that governs the creation & management of
+ * Ethereum Tag Service composable tags (CTAGs).
+ *
+ * CTAGs are ERC-721 non-fungible tokens that store a single tag string and origin attribution data
+ * including a "Publisher" address and a "Creator" address. The tag string must conform to a few simple
+ * validation rules.
+ *
+ * CTAGs are identified in ETS by their Id (tagId) which is an unsigned integer computed from the lowercased
+ * tag "display" string. Given this, only one CTAG exists for a tag string regardless of its case. For
+ * example, #Punks, #punks and #PUNKS all resolve to the same CTAG.
+ *
+ * CTAG Ids are combined with Target Ids (see ETSTarget.sol) by ETS core (ETS.sol) to form "Tagging Records".
+ * See ETS.sol for more details on Tagging Records.
+ */
 contract ETSToken is
     ERC721PausableUpgradeable,
     ERC721BurnableUpgradeable,
