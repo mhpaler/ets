@@ -174,13 +174,8 @@ importers:
       nextra-theme-docs: 2.0.0-alpha.44_d837ce8f3acb2f60f8b7454672a9bcea
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
-<<<<<<< HEAD
       swagger-ui-react: 4.12.0_react-dom@17.0.2+react@17.0.2
-      typewriter-effect: 2.18.2_react-dom@17.0.2+react@17.0.2
-=======
-      swagger-ui-react: 4.12.0_sfoxds7t5ydpegc3knd667wn6m
-      typewriter-effect: 2.19.0_sfoxds7t5ydpegc3knd667wn6m
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
+      typewriter-effect: 2.19.0_react-dom@17.0.2+react@17.0.2
     devDependencies:
       '@ets/config': link:../../packages/config
       '@ets/tsconfig': link:../../packages/tsconfig
@@ -3603,6 +3598,10 @@ packages:
       find-up: 2.1.0
       lodash: 4.17.21
       original-require: 1.0.1
+    transitivePeerDependencies:
+      - bufferutil
+      - supports-color
+      - utf-8-validate
     dev: false
     optional: true
 
@@ -3666,8 +3665,10 @@ packages:
     optionalDependencies:
       '@truffle/db': 1.0.12
     transitivePeerDependencies:
+      - bufferutil
       - encoding
       - supports-color
+      - utf-8-validate
     dev: false
 
   /@truffle/db/1.0.12:
@@ -3695,8 +3696,10 @@ packages:
       pouchdb-find: 7.3.0
       web3-utils: 1.7.4
     transitivePeerDependencies:
+      - bufferutil
       - encoding
       - supports-color
+      - utf-8-validate
     dev: false
     optional: true
 
@@ -3794,15 +3797,7 @@ packages:
     dependencies:
       bn.js: 5.2.1
       ethers: 4.0.49
-<<<<<<< HEAD
-      web3: 1.5.3
-=======
       web3: 1.7.4
-    transitivePeerDependencies:
-      - bufferutil
-      - supports-color
-      - utf-8-validate
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
     dev: false
     optional: true
 
@@ -3823,18 +3818,11 @@ packages:
     resolution: {integrity: sha512-9mz03psTeWkL45IrF3NUTiKO46HUi+9Lkco3rVjqzUQ+5rAhld0TwOljKbLvVKbDFtHl5LVuC+H4uQP8fpoXSg==}
     dependencies:
       '@truffle/error': 0.1.0
-<<<<<<< HEAD
-      '@truffle/interface-adapter': 0.5.17
-      web3: 1.5.3
-=======
       '@truffle/interface-adapter': 0.5.18
       debug: 4.3.4
       web3: 1.7.4
     transitivePeerDependencies:
-      - bufferutil
       - supports-color
-      - utf-8-validate
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
     dev: false
     optional: true
 
@@ -4070,7 +4058,7 @@ packages:
   /@types/hoist-non-react-statics/3.3.1:
     resolution: {integrity: sha512-iMIqiko6ooLrTh1joXodJK5X9xeEALT1kM5G3ZLhD3hszxBdIEd5C75U834D9mLcINgD4OyZf5uQXjkuYydWvA==}
     dependencies:
-      '@types/react': 17.0.39
+      '@types/react': 17.0.47
       hoist-non-react-statics: 3.3.2
     dev: false
 
@@ -4222,7 +4210,7 @@ packages:
     resolution: {integrity: sha512-7FkurKcS1k0FHZEtdbbgN8Oc6b+stGSfZYjQGicofJ0j4U0qIn/jaSvnP2pLwZKiai3/17xqqxkkrxTgN8UNbQ==}
     dependencies:
       '@types/hoist-non-react-statics': 3.3.1
-      '@types/react': 17.0.39
+      '@types/react': 17.0.47
       hoist-non-react-statics: 3.3.2
       redux: 4.2.0
     dev: false
@@ -4261,7 +4249,6 @@ packages:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.2
       csstype: 3.1.0
-    dev: true
 
   /@types/resolve/0.0.8:
     resolution: {integrity: sha512-auApPaJf3NPfe18hSoJkp8EbZzer2ISk7o8mCC3M9he/a04+gbMF97NkpD2S8riMGvm4BMRI59/SZQSaLTKpsQ==}
@@ -4363,13 +4350,8 @@ packages:
       - supports-color
     dev: true
 
-<<<<<<< HEAD
-  /@typescript-eslint/parser/5.29.0_eslint@8.9.0+typescript@4.5.5:
-    resolution: {integrity: sha512-ruKWTv+x0OOxbzIw9nW5oWlUopvP/IQDjB5ZqmTglLIoDTctLlAJpAQFpNPJP/ZI7hTT9sARBosEfaKbcFuECw==}
-=======
-  /@typescript-eslint/parser/5.30.5_fhzmdq77bspfhxkfuzq4fbrdsy:
+  /@typescript-eslint/parser/5.30.5_eslint@8.9.0+typescript@4.5.5:
     resolution: {integrity: sha512-zj251pcPXI8GO9NDKWWmygP6+UjwWmrdf9qMW/L/uQJBM/0XbU2inxe5io/234y/RCvwpKEYjZ6c1YrXERkK4Q==}
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
       eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
@@ -5524,7 +5506,7 @@ packages:
   /autolinker/3.15.0:
     resolution: {integrity: sha512-N/5Dk5AZnqL9k6kkHdFIGLm/0/rRuSnJwqYYhLCJjU7ZtiaJwCBzNTvjzy1zzJADngv/wvtHYcrPHytPnASeFA==}
     dependencies:
-      tslib: 2.3.1
+      tslib: 2.4.0
     dev: false
 
   /autoprefixer/10.4.7_postcss@8.4.14:
@@ -7286,6 +7268,7 @@ packages:
 
   /core-js-pure/3.21.1:
     resolution: {integrity: sha512-12VZfFIu+wyVbBebyHmRTuEE/tZrB4tJToWcwAMcsp3h4+sHR+fMJWbKpYiCRWlhFBq+KNyO8rIV9rTkeVmznQ==}
+    deprecated: core-js-pure@<3.23.3 is no longer maintained and not recommended for usage due to the number of issues. Because of the V8 engine whims, feature detection in old core-js versions could cause a slowdown up to 100x even if nothing is polyfilled. Some versions have web compatibility issues. Please, upgrade your dependencies to the actual version of core-js-pure.
     requiresBuild: true
 
   /core-js/2.6.12:
@@ -8387,21 +8370,12 @@ packages:
         optional: true
     dependencies:
       '@next/eslint-plugin-next': 12.0.10
-<<<<<<< HEAD
-      '@rushstack/eslint-patch': 1.1.3
-      '@typescript-eslint/parser': 5.29.0_eslint@8.9.0+typescript@4.5.5
+      '@rushstack/eslint-patch': 1.1.4
+      '@typescript-eslint/parser': 5.30.5_eslint@8.9.0+typescript@4.5.5
       eslint: 8.9.0
       eslint-import-resolver-node: 0.3.6
       eslint-import-resolver-typescript: 2.7.1_61253d928a38e7663a4dccd41e1ab158
       eslint-plugin-import: 2.26.0_eslint@8.9.0
-=======
-      '@rushstack/eslint-patch': 1.1.4
-      '@typescript-eslint/parser': 5.30.5_fhzmdq77bspfhxkfuzq4fbrdsy
-      eslint: 8.9.0
-      eslint-import-resolver-node: 0.3.6
-      eslint-import-resolver-typescript: 2.7.1_mest3eukhdtwmosnztkb4gvrla
-      eslint-plugin-import: 2.26.0_bxsmhkeaoibzn6vuewvyfytgci
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
       eslint-plugin-jsx-a11y: 6.6.0_eslint@8.9.0
       eslint-plugin-react: 7.30.1_eslint@8.9.0
       eslint-plugin-react-hooks: 4.6.0_eslint@8.9.0
@@ -8426,13 +8400,8 @@ packages:
       '@typescript-eslint/parser': 5.30.5_eslint@8.17.0
       eslint: 8.17.0
       eslint-import-resolver-node: 0.3.6
-<<<<<<< HEAD
       eslint-import-resolver-typescript: 2.7.1_de2e8b5f32821e366389b4575f54c566
       eslint-plugin-import: 2.26.0_eslint@8.17.0
-=======
-      eslint-import-resolver-typescript: 2.7.1_3yxiwxzsqipdmy4jwrlv6vgfmy
-      eslint-plugin-import: 2.26.0_kqcyfwcynfudl34oj72eqorr2i
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
       eslint-plugin-jsx-a11y: 6.6.0_eslint@8.17.0
       eslint-plugin-react: 7.30.1_eslint@8.17.0
       eslint-plugin-react-hooks: 4.6.0_eslint@8.17.0
@@ -8454,13 +8423,8 @@ packages:
       '@rushstack/eslint-patch': 1.1.4
       '@typescript-eslint/parser': 5.30.5_typescript@4.7.3
       eslint-import-resolver-node: 0.3.6
-<<<<<<< HEAD
       eslint-import-resolver-typescript: 2.7.1_eslint-plugin-import@2.26.0
       eslint-plugin-import: 2.26.0
-=======
-      eslint-import-resolver-typescript: 2.7.1_fkfqfehjtk7sk2efaqbgxsuasa
-      eslint-plugin-import: 2.26.0_ptlxfd3vlb2o4b6jxc5iuqar6u
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
       eslint-plugin-jsx-a11y: 6.6.0
       eslint-plugin-react: 7.30.1
       eslint-plugin-react-hooks: 4.6.0
@@ -8490,13 +8454,8 @@ packages:
       eslint-plugin-import: '*'
     dependencies:
       debug: 4.3.4
-<<<<<<< HEAD
       eslint: 8.9.0
       eslint-plugin-import: 2.26.0_eslint@8.9.0
-=======
-      eslint: 8.17.0
-      eslint-plugin-import: 2.26.0_kqcyfwcynfudl34oj72eqorr2i
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
       glob: 7.2.0
       is-glob: 4.0.3
       resolve: 1.22.0
@@ -8513,12 +8472,8 @@ packages:
       eslint-plugin-import: '*'
     dependencies:
       debug: 4.3.4
-<<<<<<< HEAD
       eslint: 8.17.0
       eslint-plugin-import: 2.26.0_eslint@8.17.0
-=======
-      eslint-plugin-import: 2.26.0_ptlxfd3vlb2o4b6jxc5iuqar6u
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
       glob: 7.2.0
       is-glob: 4.0.3
       resolve: 1.22.0
@@ -8535,12 +8490,8 @@ packages:
       eslint-plugin-import: '*'
     dependencies:
       debug: 4.3.4
-<<<<<<< HEAD
-      eslint-plugin-import: 2.26.0
-=======
       eslint: 8.9.0
-      eslint-plugin-import: 2.26.0_bxsmhkeaoibzn6vuewvyfytgci
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
+      eslint-plugin-import: 2.26.0
       glob: 7.2.0
       is-glob: 4.0.3
       resolve: 1.22.0
@@ -8549,45 +8500,25 @@ packages:
       - supports-color
     dev: false
 
-<<<<<<< HEAD
   /eslint-module-utils/2.7.3:
-=======
-  /eslint-module-utils/2.7.3_ngc5pgxzrdnldt43xbcfncn6si:
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
     resolution: {integrity: sha512-088JEC7O3lDZM9xGe0RerkOMd0EjFl+Yvd1jPWIkMT5u3H9+HC34mWWPnqPrN13gieT9pBOO+Qt07Nb/6TresQ==}
     engines: {node: '>=4'}
     dependencies:
-<<<<<<< HEAD
-=======
-      '@typescript-eslint/parser': 5.30.5_fhzmdq77bspfhxkfuzq4fbrdsy
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
       debug: 3.2.7
       find-up: 2.1.0
 
-<<<<<<< HEAD
   /eslint-plugin-import/2.26.0:
-=======
-  /eslint-plugin-import/2.26.0_bxsmhkeaoibzn6vuewvyfytgci:
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
     resolution: {integrity: sha512-hYfi3FXaM8WPLf4S1cikh/r4IxnO6zrhZbEGz2b660EJRbuxgpDS5gkCuYgGWg2xxh2rBuIr4Pvhve/7c31koA==}
     engines: {node: '>=4'}
     peerDependencies:
       eslint: ^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0 || ^8
     dependencies:
-<<<<<<< HEAD
-=======
-      '@typescript-eslint/parser': 5.30.5_fhzmdq77bspfhxkfuzq4fbrdsy
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
       array-includes: 3.1.5
       array.prototype.flat: 1.3.0
       debug: 2.6.9
       doctrine: 2.1.0
       eslint-import-resolver-node: 0.3.6
-<<<<<<< HEAD
       eslint-module-utils: 2.7.3
-=======
-      eslint-module-utils: 2.7.3_ngc5pgxzrdnldt43xbcfncn6si
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
       has: 1.0.3
       is-core-module: 2.9.0
       is-glob: 4.0.3
@@ -8597,31 +8528,19 @@ packages:
       tsconfig-paths: 3.14.1
     dev: false
 
-<<<<<<< HEAD
   /eslint-plugin-import/2.26.0_eslint@8.17.0:
-=======
-  /eslint-plugin-import/2.26.0_kqcyfwcynfudl34oj72eqorr2i:
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
     resolution: {integrity: sha512-hYfi3FXaM8WPLf4S1cikh/r4IxnO6zrhZbEGz2b660EJRbuxgpDS5gkCuYgGWg2xxh2rBuIr4Pvhve/7c31koA==}
     engines: {node: '>=4'}
     peerDependencies:
       eslint: ^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0 || ^8
     dependencies:
-<<<<<<< HEAD
-=======
-      '@typescript-eslint/parser': 5.30.5_eslint@8.17.0
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
       array-includes: 3.1.5
       array.prototype.flat: 1.3.0
       debug: 2.6.9
       doctrine: 2.1.0
       eslint: 8.17.0
       eslint-import-resolver-node: 0.3.6
-<<<<<<< HEAD
       eslint-module-utils: 2.7.3
-=======
-      eslint-module-utils: 2.7.3_ngc5pgxzrdnldt43xbcfncn6si
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
       has: 1.0.3
       is-core-module: 2.9.0
       is-glob: 4.0.3
@@ -8629,40 +8548,21 @@ packages:
       object.values: 1.1.5
       resolve: 1.22.0
       tsconfig-paths: 3.14.1
-<<<<<<< HEAD
     dev: true
 
   /eslint-plugin-import/2.26.0_eslint@8.9.0:
-=======
-    transitivePeerDependencies:
-      - eslint-import-resolver-typescript
-      - eslint-import-resolver-webpack
-      - supports-color
-    dev: true
-
-  /eslint-plugin-import/2.26.0_ptlxfd3vlb2o4b6jxc5iuqar6u:
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
     resolution: {integrity: sha512-hYfi3FXaM8WPLf4S1cikh/r4IxnO6zrhZbEGz2b660EJRbuxgpDS5gkCuYgGWg2xxh2rBuIr4Pvhve/7c31koA==}
     engines: {node: '>=4'}
     peerDependencies:
       eslint: ^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0 || ^8
     dependencies:
-<<<<<<< HEAD
-=======
-      '@typescript-eslint/parser': 5.30.5_typescript@4.7.3
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
       array-includes: 3.1.5
       array.prototype.flat: 1.3.0
       debug: 2.6.9
       doctrine: 2.1.0
-<<<<<<< HEAD
       eslint: 8.9.0
       eslint-import-resolver-node: 0.3.6
       eslint-module-utils: 2.7.3
-=======
-      eslint-import-resolver-node: 0.3.6
-      eslint-module-utils: 2.7.3_ngc5pgxzrdnldt43xbcfncn6si
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
       has: 1.0.3
       is-core-module: 2.9.0
       is-glob: 4.0.3
@@ -8670,15 +8570,7 @@ packages:
       object.values: 1.1.5
       resolve: 1.22.0
       tsconfig-paths: 3.14.1
-<<<<<<< HEAD
     dev: true
-=======
-    transitivePeerDependencies:
-      - eslint-import-resolver-typescript
-      - eslint-import-resolver-webpack
-      - supports-color
-    dev: false
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
 
   /eslint-plugin-jsx-a11y/6.6.0:
     resolution: {integrity: sha512-kTeLuIzpNhXL2CwLlc8AHI0aFRwWHcg483yepO9VQiHzM9bZwJdzTkzBszbuPrbgGmq2rlX/FaT2fJQsjUSHsw==}
@@ -10231,14 +10123,9 @@ packages:
     resolution: {integrity: sha512-r5wGx7YeOwNWNlCA0wQ86zKyDLMQr+/RB8xy74M4hTphfmjlijTSSXGuH8rnvKZnfT9i+75zmd8jcKdMR4O6jA==}
     dev: true
 
-<<<<<<< HEAD
-  /flatted/3.2.5:
-    resolution: {integrity: sha512-WIWGi2L3DyTUvUrwRKgGi9TwxQMUEqPOPQBVi71R96jZXJdFskXEmf54BoZaS1kknGODoIGASGEzBUYdyMCBJg==}
-    dev: true
-=======
   /flatted/3.2.6:
     resolution: {integrity: sha512-0sQoMh9s0BYsm+12Huy/rkKxVu4R1+r96YX5cG44rHV0pQ6iC3Q+mkoMFaGWObMFYQxCVT+ssG1ksneA2MI9KQ==}
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
+    dev: true
 
   /flexsearch/0.7.21:
     resolution: {integrity: sha512-W7cHV7Hrwjid6lWmy0IhsWDFQboWSng25U3VVywpHOTJnnAZNPScog67G+cVpeX9f7yDD21ih0WDrMMT+JoaYg==}
@@ -16182,7 +16069,7 @@ packages:
       once: 1.4.0
 
   /punycode/1.3.2:
-    resolution: {integrity: sha512-RofWgt/7fL5wP1Y7fxE7/EmTLzQVnB0ycyibJ0OOHIlJqTNzglYFxVwETOcIoJqJmpDXJ9xImDv+Fq34F/d4Dw==}
+    resolution: {integrity: sha1-llOgNvt8HuQjQvIyXM7v6jkmxI0=}
 
   /punycode/1.4.1:
     resolution: {integrity: sha512-jmYNElW7yvO7TV33CjSmvSiE2yco3bV2czu/OzDKdMNVZQWfxCblURLhf+47syQRBntjfLdd/H0egrzIG+oaFQ==}
@@ -16260,7 +16147,7 @@ packages:
     engines: {node: '>=0.4.x'}
 
   /querystring/0.2.0:
-    resolution: {integrity: sha1-sgmEkgO7Jd+CDadW50cAWHhSFiA=}
+    resolution: {integrity: sha512-X/xY82scca2tau62i9mDyU9K+I+djTMUsvwf7xnUX5GLvVzgJybOJf4Y6o9Zx3oJK/LSXg5tTZBjwzqVPaPO2g==}
     engines: {node: '>=0.4.x'}
     deprecated: The querystring API is considered Legacy. new code should use the URLSearchParams API instead.
 
@@ -16415,7 +16302,7 @@ packages:
     peerDependencies:
       react: ^16.8.4 || ^17.0.0
     dependencies:
-      '@babel/runtime': 7.17.7
+      '@babel/runtime': 7.18.6
       is-dom: 1.1.0
       prop-types: 15.8.1
       react: 17.0.2
@@ -16469,7 +16356,7 @@ packages:
       react-native:
         optional: true
     dependencies:
-      '@babel/runtime': 7.17.7
+      '@babel/runtime': 7.18.6
       '@types/react-redux': 7.1.24
       hoist-non-react-statics: 3.3.2
       loose-envify: 1.4.0
@@ -16541,7 +16428,7 @@ packages:
     peerDependencies:
       react: '>= 0.14.0'
     dependencies:
-      '@babel/runtime': 7.17.7
+      '@babel/runtime': 7.18.6
       highlight.js: 10.7.3
       lowlight: 1.20.0
       prismjs: 1.28.0
@@ -16719,7 +16606,7 @@ packages:
   /redux/4.2.0:
     resolution: {integrity: sha512-oSBmcKKIuIR4ME29/AeNUnl5L+hvBq7OaJWzaptTQJAntaPvxIJqfnjbaEiCzzaIz+XmVILfqAM3Ob0aXLPfjA==}
     dependencies:
-      '@babel/runtime': 7.17.7
+      '@babel/runtime': 7.18.6
     dev: false
 
   /refractor/3.6.0:
@@ -18693,8 +18580,10 @@ packages:
     optionalDependencies:
       '@truffle/db': 1.0.12
     transitivePeerDependencies:
+      - bufferutil
       - encoding
       - supports-color
+      - utf-8-validate
     dev: false
 
   /ts-command-line-args/2.2.1:
@@ -19146,13 +19035,8 @@ packages:
     resolution: {integrity: sha512-J9alhjVHupW3Wfz6qFRGgQw0N3gr8hOkw6zm7FZ6UR1Cse/oD9/JVok7DNE9TT9IbciDHX2Ex9+ksE6cRmtymw==}
     dev: true
 
-<<<<<<< HEAD
-  /typewriter-effect/2.18.2_react-dom@17.0.2+react@17.0.2:
-    resolution: {integrity: sha512-I6VLfaICftFgZ3sauoVrvHmqzD2r1t+roopD6pyQ1EV4fmq3kZ4ssfLJk9mPd1VHdnwb9XxSnDH09QHNJ/HrXw==}
-=======
-  /typewriter-effect/2.19.0_sfoxds7t5ydpegc3knd667wn6m:
+  /typewriter-effect/2.19.0_react-dom@17.0.2+react@17.0.2:
     resolution: {integrity: sha512-rhUX1ukmAXNFWUnMFx8CDU1uLWJQ7pRYzDU7WfHJRq43i6SmWSP9vFiUsOGfXINodUAgZiJ5xnzwLciHxZDGDg==}
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
     peerDependencies:
       react: ^17.x || ^18.x
       react-dom: ^17.x || ^18.x
@@ -19778,14 +19662,7 @@ packages:
       '@types/node': 12.20.48
       got: 9.6.0
       swarm-js: 0.1.40
-<<<<<<< HEAD
-=======
-    transitivePeerDependencies:
-      - bufferutil
-      - supports-color
-      - utf-8-validate
     dev: true
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
 
   /web3-bzz/1.7.1:
     resolution: {integrity: sha512-sVeUSINx4a4pfdnT+3ahdRdpDPvZDf4ZT/eBF5XtqGWq1mhGTl8XaQAk15zafKVm6Onq28vN8abgB/l+TrG8kA==}
@@ -19805,10 +19682,6 @@ packages:
       '@types/node': 12.20.48
       got: 9.6.0
       swarm-js: 0.1.40
-    transitivePeerDependencies:
-      - bufferutil
-      - supports-color
-      - utf-8-validate
     dev: false
 
   /web3-core-helpers/1.2.11:
@@ -20021,12 +19894,7 @@ packages:
       web3-providers-http: 1.5.3
       web3-providers-ipc: 1.5.3
       web3-providers-ws: 1.5.3
-<<<<<<< HEAD
-=======
-    transitivePeerDependencies:
-      - supports-color
     dev: true
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
 
   /web3-core-requestmanager/1.7.1:
     resolution: {integrity: sha512-/EHVTiMShpZKiq0Jka0Vgguxi3vxq1DAHKxg42miqHdUsz4/cDWay2wGALDR2x3ofDB9kqp7pb66HsvQImQeag==}
@@ -20048,8 +19916,6 @@ packages:
       web3-providers-http: 1.7.4
       web3-providers-ipc: 1.7.4
       web3-providers-ws: 1.7.4
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /web3-core-subscriptions/1.2.11:
@@ -20155,12 +20021,7 @@ packages:
       web3-core-method: 1.5.3
       web3-core-requestmanager: 1.5.3
       web3-utils: 1.5.3
-<<<<<<< HEAD
-=======
-    transitivePeerDependencies:
-      - supports-color
     dev: true
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
 
   /web3-core/1.7.1:
     resolution: {integrity: sha512-HOyDPj+4cNyeNPwgSeUkhtS0F+Pxc2obcm4oRYPW5ku6jnTO34pjaij0us+zoY3QEusR8FfAKVK1kFPZnS7Dzw==}
@@ -20186,8 +20047,6 @@ packages:
       web3-core-method: 1.7.4
       web3-core-requestmanager: 1.7.4
       web3-utils: 1.7.4
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /web3-eth-abi/1.2.11:
@@ -20309,12 +20168,7 @@ packages:
       web3-core-helpers: 1.5.3
       web3-core-method: 1.5.3
       web3-utils: 1.5.3
-<<<<<<< HEAD
-=======
-    transitivePeerDependencies:
-      - supports-color
     dev: true
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
 
   /web3-eth-accounts/1.7.1:
     resolution: {integrity: sha512-3xGQ2bkTQc7LFoqGWxp5cQDrKndlX05s7m0rAFVoyZZODMqrdSGjMPMqmWqHzJRUswNEMc+oelqSnGBubqhguQ==}
@@ -20348,8 +20202,6 @@ packages:
       web3-core-helpers: 1.7.4
       web3-core-method: 1.7.4
       web3-utils: 1.7.4
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /web3-eth-contract/1.2.11:
@@ -20410,12 +20262,7 @@ packages:
       web3-core-subscriptions: 1.5.3
       web3-eth-abi: 1.5.3
       web3-utils: 1.5.3
-<<<<<<< HEAD
-=======
-    transitivePeerDependencies:
-      - supports-color
     dev: true
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
 
   /web3-eth-contract/1.7.1:
     resolution: {integrity: sha512-HpnbkPYkVK3lOyos2SaUjCleKfbF0SP3yjw7l551rAAi5sIz/vwlEzdPWd0IHL7ouxXbO0tDn7jzWBRcD3sTbA==}
@@ -20443,8 +20290,6 @@ packages:
       web3-core-subscriptions: 1.7.4
       web3-eth-abi: 1.7.4
       web3-utils: 1.7.4
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /web3-eth-ens/1.2.11:
@@ -20505,12 +20350,7 @@ packages:
       web3-eth-abi: 1.5.3
       web3-eth-contract: 1.5.3
       web3-utils: 1.5.3
-<<<<<<< HEAD
-=======
-    transitivePeerDependencies:
-      - supports-color
     dev: true
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
 
   /web3-eth-ens/1.7.1:
     resolution: {integrity: sha512-DVCF76i9wM93DrPQwLrYiCw/UzxFuofBsuxTVugrnbm0SzucajLLNftp3ITK0c4/lV3x9oo5ER/wD6RRMHQnvw==}
@@ -20538,8 +20378,6 @@ packages:
       web3-eth-abi: 1.7.4
       web3-eth-contract: 1.7.4
       web3-utils: 1.7.4
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /web3-eth-iban/1.2.11:
@@ -20638,12 +20476,7 @@ packages:
       web3-core-method: 1.5.3
       web3-net: 1.5.3
       web3-utils: 1.5.3
-<<<<<<< HEAD
-=======
-    transitivePeerDependencies:
-      - supports-color
     dev: true
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
 
   /web3-eth-personal/1.7.1:
     resolution: {integrity: sha512-02H6nFBNfNmFjMGZL6xcDi0r7tUhxrUP91FTFdoLyR94eIJDadPp4rpXfG7MVES873i1PReh4ep5pSCHbc3+Pg==}
@@ -20667,8 +20500,6 @@ packages:
       web3-core-method: 1.7.4
       web3-net: 1.7.4
       web3-utils: 1.7.4
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /web3-eth/1.2.11:
@@ -20745,12 +20576,7 @@ packages:
       web3-eth-personal: 1.5.3
       web3-net: 1.5.3
       web3-utils: 1.5.3
-<<<<<<< HEAD
-=======
-    transitivePeerDependencies:
-      - supports-color
     dev: true
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
 
   /web3-eth/1.7.1:
     resolution: {integrity: sha512-Uz3gO4CjTJ+hMyJZAd2eiv2Ur1uurpN7sTMATWKXYR/SgG+SZgncnk/9d8t23hyu4lyi2GiVL1AqVqptpRElxg==}
@@ -20786,8 +20612,6 @@ packages:
       web3-eth-personal: 1.7.4
       web3-net: 1.7.4
       web3-utils: 1.7.4
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /web3-net/1.2.11:
@@ -20825,12 +20649,7 @@ packages:
       web3-core: 1.5.3
       web3-core-method: 1.5.3
       web3-utils: 1.5.3
-<<<<<<< HEAD
-=======
-    transitivePeerDependencies:
-      - supports-color
     dev: true
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
 
   /web3-net/1.7.1:
     resolution: {integrity: sha512-8yPNp2gvjInWnU7DCoj4pIPNhxzUjrxKlODsyyXF8j0q3Z2VZuQp+c63gL++r2Prg4fS8t141/HcJw4aMu5sVA==}
@@ -20848,8 +20667,6 @@ packages:
       web3-core: 1.7.4
       web3-core-method: 1.7.4
       web3-utils: 1.7.4
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /web3-provider-engine/14.2.1:
@@ -21016,12 +20833,7 @@ packages:
       eventemitter3: 4.0.4
       web3-core-helpers: 1.5.3
       websocket: 1.0.34
-<<<<<<< HEAD
-=======
-    transitivePeerDependencies:
-      - supports-color
     dev: true
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
 
   /web3-providers-ws/1.7.1:
     resolution: {integrity: sha512-Uj0n5hdrh0ESkMnTQBsEUS2u6Unqdc7Pe4Zl+iZFb7Yn9cIGsPJBl7/YOP4137EtD5ueXAv+MKwzcelpVhFiFg==}
@@ -21039,8 +20851,6 @@ packages:
       eventemitter3: 4.0.4
       web3-core-helpers: 1.7.4
       websocket: 1.0.34
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /web3-shh/1.2.11:
@@ -21084,12 +20894,7 @@ packages:
       web3-core-method: 1.5.3
       web3-core-subscriptions: 1.5.3
       web3-net: 1.5.3
-<<<<<<< HEAD
-=======
-    transitivePeerDependencies:
-      - supports-color
     dev: true
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
 
   /web3-shh/1.7.1:
     resolution: {integrity: sha512-NO+jpEjo8kYX6c7GiaAm57Sx93PLYkWYUCWlZmUOW7URdUcux8VVluvTWklGPvdM9H1WfDrol91DjuSW+ykyqg==}
@@ -21111,8 +20916,6 @@ packages:
       web3-core-method: 1.7.4
       web3-core-subscriptions: 1.7.4
       web3-net: 1.7.4
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /web3-utils/1.2.11:
@@ -21251,14 +21054,7 @@ packages:
       web3-net: 1.5.3
       web3-shh: 1.5.3
       web3-utils: 1.5.3
-<<<<<<< HEAD
-=======
-    transitivePeerDependencies:
-      - bufferutil
-      - supports-color
-      - utf-8-validate
     dev: true
->>>>>>> dc742821908693c144e4efc18780a4e475da0586
 
   /web3/1.7.1:
     resolution: {integrity: sha512-RKVdyZ5FuVEykj62C1o2tc0teJciSOh61jpVB9yb344dBHO3ZV4XPPP24s/PPqIMXmVFN00g2GD9M/v1SoHO/A==}
@@ -21286,10 +21082,6 @@ packages:
       web3-net: 1.7.4
       web3-shh: 1.7.4
       web3-utils: 1.7.4
-    transitivePeerDependencies:
-      - bufferutil
-      - supports-color
-      - utf-8-validate
     dev: false
 
   /webidl-conversions/3.0.1:
