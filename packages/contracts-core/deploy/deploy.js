@@ -33,12 +33,19 @@ module.exports = async ({deployments}) => {
     from: deployer,
   });
   console.log(`DEFAULT_ADMIN_ROLE role granted to ETSPlatform.address (${ETSPlatform.address})`);
+  
 
   // Grant PUBLISHER role to platform, cause sometimes the platform will act as publisher.
   await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER"), accounts.ETSPlatform.address, {
     from: deployer,
   });
   console.log(`PUBLISHER role granted to ${ETSPlatform.address}`);
+
+    // Grant PUBLISHER role to platform, cause sometimes the platform will act as publisher.
+    await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER"), accounts.ETSAdmin.address, {
+      from: deployer,
+    });
+    console.log(`PUBLISHER role granted to ${ETSAdmin.address}`);
 
   // Set PUBLISHER role admin role. Contracts or addresses given PUBLISHER_ADMIN role can grant PUBLISHER role.
   await ETSAccessControls.setRoleAdmin(ethers.utils.id("PUBLISHER"), ethers.utils.id("PUBLISHER_ADMIN"), {

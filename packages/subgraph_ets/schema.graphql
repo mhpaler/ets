@@ -18,19 +18,26 @@ type NFT_EVM implements Target @entity {
   isPremium: Boolean
 }
 
+type Lens_Publication implements Target @entity {
+  id: ID!
+  timestamp: BigInt!
+  profileID: String!
+  incrementalID: String!
+}
+
 #rename to tag
 type Tag @entity {
   id: ID!
-  name: String!
-  displayTag: String!
-  tag: String!
-  tagWithoutHash: String!
+  machineName: String!
+  display: String!
   owner: Owner!
   creator: Creator!
   publisher: Publisher!
   timestamp: BigInt!
   tagCount: BigInt!
   sponsor: Sponsor!
+  premium: Boolean!
+  reserved: Boolean!
 
   #tagging revenue
   ownerRevenue: BigInt!

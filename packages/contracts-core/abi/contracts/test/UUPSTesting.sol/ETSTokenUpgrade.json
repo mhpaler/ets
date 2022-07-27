@@ -183,7 +183,7 @@
       {
         "indexed": false,
         "internalType": "bool",
-        "name": "isReleased",
+        "name": "isReserved",
         "type": "bool"
       }
     ],

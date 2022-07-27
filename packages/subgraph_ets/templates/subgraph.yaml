@@ -14,14 +14,14 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - MintTag
+        - Transfer
       abis:
         - name: ETSToken
           file: ./../contracts-core/abi/contracts/ETSToken.sol/ETSToken.json
       eventHandlers:
-        - event: MintTag(indexed uint256,string,indexed address,address)
-          handler: handleMintTag
-      file: ./src/mappings/ets.ts
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleCreateTag
+      file: ./src/mappings/etsToken.ts
   - kind: ethereum/contract
     name: ETSAccessControls
     network: {{network}}

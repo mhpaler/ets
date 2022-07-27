@@ -123,7 +123,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "_status",
+        "name": "_httpStatus",
         "type": "uint256"
       }
     ],

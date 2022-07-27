@@ -1,5 +1,5 @@
 import { BigInt } from "@graphprotocol/graph-ts";
-import { MintTag, ETSTag } from "../generated/ETS/ETSTag";
+import { Transfer, ETSToken } from "../generated/ETSToken/ETSToken"
 import { Tag } from "../generated/schema";
 import {
   toLowerCase,
@@ -25,23 +25,20 @@ import {
  *   - Count of how many tags owned by an Ethereum address
  *   - Fees earned by the platform and publishers across all minting events
  */
-export function handleMintTag(event: MintTag): void {
+export function handleCreateTag(event: Transfer): void {
   let tagEntity = new Tag(event.params.tokenId.toString());
-  let tagContract = ETSTag.bind(event.address);
-  let tag = tagContract.tokenIdToTag(event.params.tokenId);
+  let tagContract = ETSToken.bind(event.address);
+  let tagStruct = tagContract.tokenIdToTag(event.params.tokenId);
 
-  tagEntity.name = tag.value2;
-  tagEntity.displayTag = event.params.displayVersion;
+  tagEntity.display = tagStruct.value2;
 
-  let displayTag: string = event.params.displayVersion;
-  let lowerTag: string = toLowerCase(displayTag);
+  let lowerTag: string = toLowerCase(tagStruct.value2);
 
-  tagEntity.tag = lowerTag;
-  tagEntity.tagWithoutHash = lowerTag.substring(1, lowerTag.length);
+  tagEntity.machineName = lowerTag.substring(1, lowerTag.length);
 
-  tagEntity.owner = tagContract.platform().toString();
-  tagEntity.creator = tag.value1.toString();
-  tagEntity.publisher = event.params.publisher.toString();
+  tagEntity.owner = tagContract.getPlatformAddress().toString();
+  tagEntity.creator = tagStruct.value1.toString();
+  tagEntity.publisher = tagStruct.value0.toString();
   tagEntity.timestamp = event.block.timestamp;
   tagEntity.tagCount = BigInt.fromI32(0);
   tagEntity.ownerRevenue = BigInt.fromI32(0);
@@ -50,7 +47,7 @@ export function handleMintTag(event: MintTag): void {
   tagEntity.creatorRevenue = BigInt.fromI32(0);
   tagEntity.save();
 
-  let owner = safeLoadOwner(event.params.creator.toHexString());
+  let owner = safeLoadOwner(tagEntity.owner);
 
   if (owner) {
     owner.mintCount = owner.mintCount.plus(ONE);
@@ -58,7 +55,7 @@ export function handleMintTag(event: MintTag): void {
   }
 
   // publisher
-  let publisher = safeLoadPublisher(event.params.publisher.toHexString());
+  let publisher = safeLoadPublisher(tagEntity.publisher);
 
   if (publisher) {
     publisher.mintCount = publisher.mintCount.plus(ONE);
@@ -73,7 +70,7 @@ export function handleMintTag(event: MintTag): void {
   }
 
   // creator
-  let creator = safeLoadCreator(tag.value1.toHexString());
+  let creator = safeLoadCreator(tagStruct.value1.toHexString());
 
   if (creator) {
     creator.mintCount = creator.mintCount.plus(ONE);
