@@ -125,7 +125,7 @@
       {
         "indexed": false,
         "internalType": "bool",
-        "name": "isReleased",
+        "name": "isReserved",
         "type": "bool"
       }
     ],
@@ -552,7 +552,7 @@
       },
       {
         "internalType": "bool",
-        "name": "_enabled",
+        "name": "_isPremium",
         "type": "bool"
       }
     ],
