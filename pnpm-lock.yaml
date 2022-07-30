@@ -204,83 +204,6 @@ importers:
     devDependencies:
       typescript: 4.7.3
 
-  packages/contracts:
-    specifiers:
-      '@ethersproject/abstract-signer': ^5.6.0
-      '@ets/tsconfig': workspace:*
-      '@nomiclabs/hardhat-ethers': npm:hardhat-deploy-ethers
-      '@nomiclabs/hardhat-etherscan': ^2.1.8
-      '@nomiclabs/hardhat-truffle5': ^2.0.3
-      '@nomiclabs/hardhat-waffle': ^2.0.1
-      '@nomiclabs/hardhat-web3': ^2.0.0
-      '@openzeppelin/contracts': ^4.4.1
-      '@openzeppelin/contracts-upgradeable': ^4.4.1
-      '@openzeppelin/hardhat-upgrades': ^1.12.0
-      '@openzeppelin/test-helpers': ^0.5.15
-      '@primitivefi/hardhat-dodoc': ^0.2.3
-      '@typechain/ethers-v5': ^10.0.0
-      '@typechain/hardhat': ^6.0.0
-      '@types/chai': ^4.2.18
-      '@types/mocha': ^9.1.0
-      '@types/node': ^17.0.25
-      chai: ^4.3.4
-      dotenv: ^16.0.0
-      ethereum-waffle: ^3.3.0
-      ethereumjs-util: ^7.1.4
-      ethers: ^5.5.3
-      hardhat: ^2.9.3
-      hardhat-abi-exporter: ^2.4.0
-      hardhat-deploy: ^0.9.28
-      hardhat-ethernal: 1.0.0
-      lodash.merge: ^4.6.2
-      node-watch: ^0.7.2
-      prettier: ^2.5.1
-      prettier-plugin-solidity: ^1.0.0-beta.19
-      solhint: ^3.3.6
-      solhint-plugin-prettier: ^0.0.5
-      solidity-coverage: ^0.7.20
-      ts-node: ^10.0.0
-      typechain: ^8.0.0
-      typescript: ^4.3.2
-    dependencies:
-      '@openzeppelin/contracts': 4.6.0
-      '@openzeppelin/contracts-upgradeable': 4.6.0
-      '@primitivefi/hardhat-dodoc': 0.2.3_hardhat@2.9.3
-    devDependencies:
-      '@ethersproject/abstract-signer': 5.6.2
-      '@ets/tsconfig': link:../tsconfig
-      '@nomiclabs/hardhat-ethers': /hardhat-deploy-ethers/0.3.0-beta.13_ethers@5.6.4+hardhat@2.9.3
-      '@nomiclabs/hardhat-etherscan': 2.1.8_hardhat@2.9.3
-      '@nomiclabs/hardhat-truffle5': 2.0.6_zc5yaqjgz5qppvixfwadrvbe2i
-      '@nomiclabs/hardhat-waffle': 2.0.3_6dslra4pupuf5qf45wlvctsgje
-      '@nomiclabs/hardhat-web3': 2.0.0_hardhat@2.9.3
-      '@openzeppelin/hardhat-upgrades': 1.16.1_mbxll6dls2xkogruh2aldmbgiy
-      '@openzeppelin/test-helpers': 0.5.15
-      '@typechain/ethers-v5': 10.0.0_5jbaxgnnwwz2dzi6gbppdvfvc4
-      '@typechain/hardhat': 6.0.0_eezlnyxq6edrdlpmthflpyeaau
-      '@types/chai': 4.3.0
-      '@types/mocha': 9.1.0
-      '@types/node': 17.0.42
-      chai: 4.3.6
-      dotenv: 16.0.0
-      ethereum-waffle: 3.4.0_typescript@4.7.3
-      ethereumjs-util: 7.1.4
-      ethers: 5.6.4
-      hardhat: 2.9.3
-      hardhat-abi-exporter: 2.8.0_hardhat@2.9.3
-      hardhat-deploy: 0.9.29_hardhat@2.9.3
-      hardhat-ethernal: 1.0.0_mbxll6dls2xkogruh2aldmbgiy
-      lodash.merge: 4.6.2
-      node-watch: 0.7.3
-      prettier: 2.7.1
-      prettier-plugin-solidity: 1.0.0-beta.19_prettier@2.7.1
-      solhint: 3.3.7
-      solhint-plugin-prettier: 0.0.5_crqb3mgkdppjha35dqdzgwofw4
-      solidity-coverage: 0.7.20
-      ts-node: 10.7.0_wpmar7q2se7jlmxe5wggegnl2m
-      typechain: 8.0.0_typescript@4.7.3
-      typescript: 4.7.3
-
   packages/contracts-core:
     specifiers:
       '@ethersproject/abstract-signer': ^5.6.0
@@ -315,6 +238,7 @@ importers:
       solhint: ^3.3.6
       solhint-plugin-prettier: ^0.0.5
       solidity-coverage: ^0.7.20
+      solidity-docgen: 0.6.0-beta.22
       ts-node: ^10.0.0
       typechain: ^8.0.0
       typescript: ^4.3.2
@@ -352,13 +276,13 @@ importers:
       solhint: 3.3.7
       solhint-plugin-prettier: 0.0.5_crqb3mgkdppjha35dqdzgwofw4
       solidity-coverage: 0.7.20
+      solidity-docgen: 0.6.0-beta.22_hardhat@2.9.3
       ts-node: 10.7.0_dd2irc23mdgahaqg64nfzl5hb4
       typechain: 8.0.0_typescript@4.7.3
       typescript: 4.7.3
 
   packages/defender:
     specifiers:
-      '@ets/contracts': workspace:*
       '@ets/tsconfig': workspace:*
       '@openzeppelin/contracts': ^3.3.0
       '@rollup/plugin-commonjs': ^16.0.0
@@ -388,7 +312,6 @@ importers:
       random-words: 1.2.0
       web3: 1.2.9
     devDependencies:
-      '@ets/contracts': link:../contracts
       '@ets/tsconfig': link:../tsconfig
       '@rollup/plugin-commonjs': 16.0.0_rollup@2.75.7
       '@rollup/plugin-json': 4.1.0_rollup@2.75.7
@@ -3130,15 +3053,6 @@ packages:
       recursive-fs: 1.1.2
     transitivePeerDependencies:
       - debug
-    dev: false
-
-  /@primitivefi/hardhat-dodoc/0.2.3_hardhat@2.9.3:
-    resolution: {integrity: sha512-ver9uHa79LTDTeebOKZ/eOVRL/FP1k0s0x/5Bo/8ZaDdLWFVClKqZyZYVjjW4CJqTPCt8uU9b9p71P2vzH4O9A==}
-    peerDependencies:
-      hardhat: ^2.6.4
-    dependencies:
-      hardhat: 2.9.3
-      squirrelly: 8.0.8
     dev: false
 
   /@protobufjs/aspromise/1.1.2:
@@ -16192,6 +16106,7 @@ packages:
     resolution: {integrity: sha512-N9iVG+CGJsI4b4ZGazjwLnxErD2d9Pe4DPvvXSxYA9tFNu8ymXME4Qs5HIQ0LMJpNM7zj+m0NlNnNeqFpKzqnA==}
     deprecated: Unmaintained
     dev: false
+    bundledDependencies: []
 
   /prop-types/15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
@@ -17745,7 +17660,7 @@ packages:
     dependencies:
       command-exists: 1.2.9
       commander: 3.0.2
-      follow-redirects: 1.14.9_debug@4.3.4
+      follow-redirects: 1.14.9
       fs-extra: 0.30.0
       js-sha3: 0.8.0
       memorystream: 0.3.1
@@ -17794,6 +17709,10 @@ packages:
     resolution: {integrity: sha512-3xsQIbZEPx6w7+sQokuOvk1RkMb5GIpuK0GblQDIH6IAkU4+uyJQVJIRNP+8KwhzkViwRKq0hS4zLqQNLKpxOA==}
     dev: true
 
+  /solidity-ast/0.4.35:
+    resolution: {integrity: sha512-F5bTDLh3rmDxRmLSrs3qt3nvxJprWSEkS7h2KmuXDx7XTfJ6ZKVTV1rtPIYCqJAuPsU/qa8YUeFn7jdOAZcTPA==}
+    dev: true
+
   /solidity-comments-extractor/0.0.7:
     resolution: {integrity: sha512-wciNMLg/Irp8OKGrh3S2tfvZiZ0NEyILfcRCXCD4mp7SgK/i9gzLfhY2hY7VMCQJ3kH9UB9BzNdibIVMchzyYw==}
     dev: true
@@ -17824,6 +17743,16 @@ packages:
       - bufferutil
       - supports-color
       - utf-8-validate
+    dev: true
+
+  /solidity-docgen/0.6.0-beta.22_hardhat@2.9.3:
+    resolution: {integrity: sha512-DDxyqsCHdOxPD+Pk/RBje/flxniVCcyPsc+fjmiPY/yUseebd09f+qGs085BF709MJ0XPFwIiU5t/cHze5/vng==}
+    peerDependencies:
+      hardhat: ^2.8.0
+    dependencies:
+      handlebars: 4.7.7
+      hardhat: 2.9.3
+      solidity-ast: 0.4.35
     dev: true
 
   /sonic-boom/0.7.7:
@@ -17985,11 +17914,6 @@ packages:
       - supports-color
     dev: false
     optional: true
-
-  /squirrelly/8.0.8:
-    resolution: {integrity: sha512-7dyZJ9Gw86MmH0dYLiESsjGOTj6KG8IWToTaqBuB6LwPI+hyNb6mbQaZwrfnAQ4cMDnSWMUvX/zAYDLTSWLk/w==}
-    engines: {node: '>=6.0.0'}
-    dev: false
 
   /sshpk/1.17.0:
     resolution: {integrity: sha512-/9HIEs1ZXGhSPE8X6Ccm7Nam1z8KcoCqPdI7ecm1N33EzAetWahvQWVqLZtaZQ+IDKX4IyA2o0gBzqIMkAagHQ==}
@@ -18954,37 +18878,6 @@ packages:
       '@tsconfig/node14': 1.0.1
       '@tsconfig/node16': 1.0.2
       '@types/node': 17.0.26
-      acorn: 8.7.0
-      acorn-walk: 8.2.0
-      arg: 4.1.3
-      create-require: 1.1.1
-      diff: 4.0.2
-      make-error: 1.3.6
-      typescript: 4.7.3
-      v8-compile-cache-lib: 3.0.0
-      yn: 3.1.1
-    dev: true
-
-  /ts-node/10.7.0_wpmar7q2se7jlmxe5wggegnl2m:
-    resolution: {integrity: sha512-TbIGS4xgJoX2i3do417KSaep1uRAW/Lu+WAL2doDHC0D6ummjirVOXU5/7aiZotbQ5p1Zp9tP7U6cYhA0O7M8A==}
-    hasBin: true
-    peerDependencies:
-      '@swc/core': '>=1.2.50'
-      '@swc/wasm': '>=1.2.50'
-      '@types/node': '*'
-      typescript: '>=2.7'
-    peerDependenciesMeta:
-      '@swc/core':
-        optional: true
-      '@swc/wasm':
-        optional: true
-    dependencies:
-      '@cspotcode/source-map-support': 0.7.0
-      '@tsconfig/node10': 1.0.8
-      '@tsconfig/node12': 1.0.9
-      '@tsconfig/node14': 1.0.1
-      '@tsconfig/node16': 1.0.2
-      '@types/node': 17.0.42
       acorn: 8.7.0
       acorn-walk: 8.2.0
       arg: 4.1.3
