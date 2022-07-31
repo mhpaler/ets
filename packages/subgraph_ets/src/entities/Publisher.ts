@@ -1,21 +1,24 @@
-import {Publisher} from "../generated/schema";
-import {BigInt} from "@graphprotocol/graph-ts/index";
+import { Publisher } from "../generated/schema";
+import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 
-/*
- * constants for common BigInt numbers
- */
-export const ONE = BigInt.fromI32(1);
 export const ZERO = BigInt.fromI32(0);
 
-export function ensurePublisher(id: string): Publisher | null {
-    let entity = Publisher.load(id);
+export function ensurePublisher(
+  publisherAddress: Address,
+  event: ethereum.Event
+): Publisher {
+  let publisher = Publisher.load(publisherAddress.toHex()) as Publisher;
 
-    if (entity === null) {
-        entity = new Publisher(id);
-        entity.mintCount = ZERO;
-        entity.tagCount = ZERO;
-        entity.tagFees = ZERO;
-    }
+  if (publisher) {
+    return publisher;
+  }
 
-    return entity;
+  publisher = new Publisher(publisherAddress.toHex());
+  publisher.firstSeen = event.block.timestamp;
+  publisher.mintCount = ZERO;
+  publisher.tagCount = ZERO;
+  publisher.tagFees = ZERO;
+  publisher.save();
+
+  return publisher;
 }

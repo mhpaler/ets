@@ -1,22 +1,24 @@
-import {Creator} from "../generated/schema";
-import {BigInt} from "@graphprotocol/graph-ts/index";
+import { Creator } from "../generated/schema";
+import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 
-
-/*
- * constants for common BigInt numbers
- */
-export const ONE = BigInt.fromI32(1);
 export const ZERO = BigInt.fromI32(0);
 
-export function ensureCreator(id: string): Creator | null {
-    let entity = Creator.load(id);
+export function ensureCreator(
+  creatorAddress: Address,
+  event: ethereum.Event
+): Creator {
+  let creator = Creator.load(creatorAddress.toHex()) as Creator;
 
-    if (entity === null) {
-        entity = new Creator(id);
-        entity.mintCount = ZERO;
-        entity.tagCount = ZERO;
-        entity.tagFees = ZERO;
-    }
+  if (creator) {
+    return creator;
+  }
 
-    return entity;
+  creator = new Creator(creatorAddress.toHex());
+  creator.firstSeen = event.block.timestamp;
+  creator.mintCount = ZERO;
+  creator.tagCount = ZERO;
+  creator.tagFees = ZERO;
+  creator.save();
+
+  return creator;
 }

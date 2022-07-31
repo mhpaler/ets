@@ -3,8 +3,8 @@
 
 import { TargetTagged, ETS } from "../generated/ETS/ETS";
 import { ETSTag } from "../generated/ETSTag/ETSTag";
-import { Tag, Tagging_Record, NFT_EVM } from "../generated/schema";
-import { log } from '@graphprotocol/graph-ts'
+import { Tag, TaggingRecord, NFT_EVM } from "../generated/schema";
+import { log } from "@graphprotocol/graph-ts";
 
 import {
   toLowerCase,
@@ -67,7 +67,7 @@ export function handleTagRegistered(event: TargetTagged): void {
   let platformFee = tagFee.times(platformPercentageOfTagFee).div(modulo);
   let remainingFee = tagFee.times(remainingPercentage).div(modulo);
   const tagIDList: string[] = [];
-  for(let i = 0; i < etsTagList.length; i++) {
+  for (let i = 0; i < etsTagList.length; i++) {
     let etsTag = Tag.load(etsTagList[i].toString());
     let owner = protocolContract.ownerOf(etsTagList[i]);
 
@@ -112,7 +112,6 @@ export function handleTagRegistered(event: TargetTagged): void {
 
   let targetID = taggingRecordResponse.value1;
 
-
   let nft = ensureNFT_EVM(targetID.toString(), registryContract, event);
 
   // Store tag information
@@ -123,7 +122,7 @@ export function handleTagRegistered(event: TargetTagged): void {
     taggingRecord.publisher = taggingRecordResponse.value3.toHexString();
     taggingRecord.timestamp = event.block.timestamp;
     taggingRecord.tag = tagIDList;
-    if(nft){
+    if (nft) {
       taggingRecord.target = nft.id;
     }
     taggingRecord.save();
@@ -161,9 +160,7 @@ export function handleTagRegistered(event: TargetTagged): void {
   }
 
   // update tagger counts
-  let tagger = ensureTagger(
-    taggingRecordResponse.value2.toHexString()
-  );
+  let tagger = ensureTagger(taggingRecordResponse.value2.toHexString());
 
   if (tagger) {
     tagger.tagCount = tagger.tagCount.plus(ONE);

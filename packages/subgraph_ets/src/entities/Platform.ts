@@ -1,19 +1,22 @@
-import {Platform} from "../generated/schema";
-import {BigInt} from "@graphprotocol/graph-ts/index";
+import { Platform } from "../generated/schema";
+import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 
-/*
- * constants for common BigInt numbers
- */
-export const ONE = BigInt.fromI32(1);
 export const ZERO = BigInt.fromI32(0);
 
-export function ensurePlatform(id: string): Platform | null {
-    let entity = Platform.load(id);
+export function ensurePlatform(
+  platformAddress: Address,
+  event: ethereum.Event
+): Platform {
+  let platform = Platform.load(platformAddress.toHex()) as Platform;
 
-    if (entity === null) {
-        entity = new Platform(id);
-        entity.tagFees = ZERO;
-    }
+  if (platform) {
+    return platform;
+  }
 
-    return entity;
+  platform = new Platform(platformAddress.toHex());
+  platform.firstSeen = event.block.timestamp;
+  platform.tagFees = ZERO;
+  platform.save();
+
+  return platform;
 }

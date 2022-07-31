@@ -35,7 +35,6 @@ type Tag @entity {
   publisher: Publisher!
   timestamp: BigInt!
   tagCount: BigInt!
-  sponsor: Sponsor!
   premium: Boolean!
   reserved: Boolean!
 
@@ -46,7 +45,7 @@ type Tag @entity {
   creatorRevenue: BigInt!
 }
 
-type Tagging_Record @entity {
+type TaggingRecord @entity {
   id: ID!
   transaction: String!
   tag: [Tag!]!
@@ -57,8 +56,40 @@ type Tagging_Record @entity {
   timestamp: BigInt!
 }
 
+type TargetTagger @entity {
+  id: ID!
+  firstSeen: BigInt!
+  name: String!
+  paused: Boolean!
+}
+
+type Administrator @entity {
+  id: ID!
+  firstSeen: BigInt!
+}
+
+type Platform @entity {
+  id: ID!
+  firstSeen: BigInt!
+  tagFees: BigInt!
+}
+
+type PublisherAdmin @entity {
+  id: ID!
+  firstSeen: BigInt!
+}
+
 type Publisher @entity {
   id: ID!
+  firstSeen: BigInt!
+  mintCount: BigInt!
+  tagCount: BigInt!
+  tagFees: BigInt!
+}
+
+type Creator @entity {
+  id: ID!
+  firstSeen: BigInt!
   mintCount: BigInt!
   tagCount: BigInt!
   tagFees: BigInt!
@@ -66,6 +97,7 @@ type Publisher @entity {
 
 type Owner @entity {
   id: ID!
+  firstSeen: BigInt!
   mintCount: BigInt!
   tagCount: BigInt!
   tagFees: BigInt!
@@ -73,22 +105,7 @@ type Owner @entity {
 
 type Tagger @entity {
   id: ID!
+  firstSeen: BigInt!
   tagCount: BigInt!
   feesPaid: BigInt!
-}
-
-type Platform @entity {
-  id: ID!
-  tagFees: BigInt!
-}
-
-type Creator @entity {
-  id: ID!
-  mintCount: BigInt!
-  tagCount: BigInt!
-  tagFees: BigInt!
-}
-
-type Sponsor @entity {
-  id: ID!
 }

@@ -1,5 +1,5 @@
 import { BigInt } from "@graphprotocol/graph-ts";
-import { Transfer, ETSToken } from "../generated/ETSToken/ETSToken"
+import { Transfer, ETSToken } from "../generated/ETSToken/ETSToken";
 import { Tag } from "../generated/schema";
 import {
   toLowerCase,
@@ -100,8 +100,6 @@ export function handleCreateTag(event: Transfer): void {
 //   hashtagEntity_v2.protocolRevenue = BigInt.fromI32(0);
 //   hashtagEntity_v2.creatorRevenue = BigInt.fromI32(0);
 
-  
-
 //   let owner_v2 = ensureOwner(event.params.creator.toHexString());
 //   owner_v2.mintCount = owner_v2.mintCount.plus(ONE);
 //   owner_v2.save();
@@ -112,10 +110,6 @@ export function handleCreateTag(event: Transfer): void {
 //   publisher_v2.mintCount = publisher_v2.mintCount.plus(ONE);
 //   publisher_v2.save();
 //   hashtagEntity_v2.publisher = publisher_v2.id;
- 
-  
-  
-
 
 //   // platform
 //   let platform_v2 = safeLoadPlatform("platform");
@@ -126,6 +120,5 @@ export function handleCreateTag(event: Transfer): void {
 //   creator_v2.mintCount = creator_v2.mintCount.plus(ONE);
 //   creator_v2.save();
 //   hashtagEntity_v2.creator = creator_v2.id;
-
 
 //   hashtagEntity_v2.save();
