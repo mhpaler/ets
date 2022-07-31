@@ -3,6 +3,7 @@ node_modules/
 build/
 generated/
 graph-node/data/
+subgraph.yaml
 
 # local env files
 .env.local
