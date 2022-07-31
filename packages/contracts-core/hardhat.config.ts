@@ -1,6 +1,7 @@
 import "hardhat-deploy";
 import "hardhat-ethernal";
 // import '@typechain/hardhat';
+import "solidity-docgen";
 import "solidity-coverage";
 import "hardhat-abi-exporter";
 import "@nomiclabs/hardhat-web3";
@@ -65,6 +66,11 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
+  },
+  docgen: {
+    pages: "files",
+    templates: "./templates",
+    exclude: ["libraries", "mocks", "test", "utils"],
   },
   // typechain: {
   //   outDir: '../app/types',

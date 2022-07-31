@@ -1,18 +1,37 @@
 # Ethereum Tag Service
 
-Ethereum Tag Service is the community-owned incentivized cross-chain content tagging protocol for the decentralized web.
+Ethereum Tag Service (ETS) is a decentralized tagging service that enables third-party services (dApps, platforms, applications, smart contracts) and/or their customers to tag any addressable online artifact (nft, URL, transaction record) and record it to the blockchain. Once recorded, ETS indexes the tagging data and exposes it via public APIs.
 
-This repository uses Turborepo and [pnpm](https://pnpm.io/) as a package manager for the monorepo.
+The service employs a novel design whereby the tags themselves are ERC-721 non-fungible tokens that can be re-used by any participant of the system. These composable tags, or “CTAGs”, thus become data hubs connecting people, places and things across Web 3.
 
-We are using `npm run` for commands. By default, `pnpm` doesn't run arbitrary `pre` and `post` hooks for user-defined scripts (such as prestart). More info on that [here](https://pnpm.io/cli/run#differences-with-npm-run).
-
-- Website: [ets.xyz](https://ets.xyz)
-- App: [app.ets.xyz](https://app.ets.xyz)
-- Docs: [ets.xyz/docs](https://ets.xyz/docs)
-- Twitter: [@etsxyz](https://twitter.com/etsxyz)
-- Discord: ETS (soon)
+For projects (dApps, applications, smart contracts) that are actively tagging or considering tagging content, our solution will replace centralized infrastructure; simplify & automate tagging; increase customer engagement; and generate additional revenue streams.
 
 ## Quick Start
+
+### from a contract
+
+```solidity
+// Provide example of installing ETS Contracts package and using from within a smart contract.
+
+```
+
+### from a dApp
+
+```bash
+
+// Ethers
+
+// Wagmi
+
+```
+
+## Developer Guide
+
+Questions and feedback are encouraged & welcome in our [discussion forum](https://github.com/ethereum-tag-service/ets/discussions)
+
+This repository uses [Turborepo](https://turborepo.org/) and [pnpm](https://pnpm.io/) as a package manager for the monorepo.
+
+### Cloning repo
 
 ```bash
 git clone https://github.com/ethereum-tag-service/ets.git
@@ -20,6 +39,8 @@ cd ets
 
 pnpm install
 ```
+
+We are using `npm run` for commands. By default, `pnpm` doesn't run arbitrary `pre` and `post` hooks for user-defined scripts (such as prestart). More info on that [here](https://pnpm.io/cli/run#differences-with-npm-run).
 
 Get started with:
 
