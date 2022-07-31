@@ -21,7 +21,7 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleCreateTag
-      file: ./src/mappings/etsToken.ts
+      file: ./src/mappings/ETSToken.ts
   - kind: ethereum/contract
     name: ETSAccessControls
     network: {{network}}
@@ -34,11 +34,23 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - RoleGranted
+        - Administrator
+        - Platform
+        - Publisher
+        - PublisherAdmin
+        - TargetTagger      
       abis:
         - name: ETSAccessControls
-          file: ./../contracts/abi/contracts/core/ETSAccessControls.sol/ETSAccessControls.json
+          file: ./../contracts-core/abi/contracts/ETSAccessControls.sol/ETSAccessControls.json
       eventHandlers:
         - event: RoleGranted(indexed bytes32,indexed address,indexed address)
           handler: handleRoleGranted
-      file: ./src/mappings/access-control-mapping.ts
+        - event: RoleRevoked(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleRevoked
+        - event: PlatformSet(address,address)
+          handler: handlePlatformSet
+        - event: TargetTaggerAdded(address)
+          handler: handleTargetTaggerAdded
+        - event: TargetTaggerPauseToggled(bool)
+          handler: handleTargetTaggerPauseToggled
+      file: ./src/mappings/ETSAccessControls.ts

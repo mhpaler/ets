@@ -1,11 +1,10 @@
-
 /**
  * Generate subgraph.yaml file automatically.
  *
  * Usage: ./generate-yaml.js --deployment [network]
  * Where [network] is the destination the subgraph.
  * See const networks for supported networks.
-**/
+ **/
 const configFile = "./../contracts-core/config/config.json";
 const fs = require("fs-extra");
 const Handlebars = require("handlebars");
@@ -57,9 +56,12 @@ const contractsInfo = {
   contracts: config[chainId].contracts,
   network: networks[network].name,
 };
-const template = Handlebars.compile(fs.readFileSync("./templates/subgraph.yaml").toString());
+const template = Handlebars.compile(
+  fs.readFileSync("./templates/subgraph.yaml.mustache").toString()
+);
 const result = template(contractsInfo);
 fs.writeFileSync("./subgraph.yaml", result);
 
-console.log(network + " configuration file written to /subgraph_ets/subgraph.yaml");
- 
+console.log(
+  network + " configuration file written to /subgraph_ets/subgraph.yaml"
+);
