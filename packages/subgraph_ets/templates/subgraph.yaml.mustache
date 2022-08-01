@@ -39,14 +39,8 @@ dataSources:
         - name: ETSTarget
           file: ./../contracts-core/abi/contracts/ETSTarget.sol/ETSTarget.json
       eventHandlers:
-        - event: AccessControlsSet(address)
-          handler: handleAccessControlsSet
-        - event: EnrichTargetSet(address)
-          handler: EnrichTargetSet
         - event: TargetCreated(uint256)
           handler: handleTargetCreated
-        - event: TargetUpdated(uint256)
-          handler: handleTargetUpdated
       file: ./src/mappings/ETSTarget.ts
   - kind: ethereum/contract
     name: ETSAccessControls
