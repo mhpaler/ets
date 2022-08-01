@@ -2,20 +2,15 @@ import { TargetTagger } from "../generated/schema";
 import { Address, ethereum } from "@graphprotocol/graph-ts";
 
 export function ensureTargetTagger(
-  targetTaggerAddress: Address,
+  address: Address,
   event: ethereum.Event
 ): TargetTagger {
-  let targetTagger = TargetTagger.load(
-    targetTaggerAddress.toHex()
-  ) as TargetTagger;
+  let targetTagger = TargetTagger.load(address.toHexString());
 
-  if (targetTagger) {
-    return targetTagger;
+  if (targetTagger === null) {
+    targetTagger = new TargetTagger(address.toHexString());
+    targetTagger.firstSeen = event.block.timestamp;
+    targetTagger.save();
   }
-
-  targetTagger = new TargetTagger(targetTaggerAddress.toHex());
-  targetTagger.firstSeen = event.block.timestamp;
-  targetTagger.save();
-
-  return targetTagger;
+  return targetTagger as TargetTagger;
 }

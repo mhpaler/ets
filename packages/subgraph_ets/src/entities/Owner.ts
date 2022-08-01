@@ -6,14 +6,14 @@ export const ZERO = BigInt.fromI32(0);
 export function ensureOwner(
   ownerAddress: Address,
   event: ethereum.Event
-): Owner {
-  let owner = Owner.load(ownerAddress.toHex()) as Owner;
+): Owner | null {
+  let owner = Owner.load(ownerAddress.toHexString()) as Owner;
 
   if (owner) {
     return owner;
   }
 
-  owner = new Owner(ownerAddress.toHex());
+  owner = new Owner(ownerAddress.toHexString());
   owner.firstSeen = event.block.timestamp;
   owner.mintCount = ZERO;
   owner.tagCount = ZERO;

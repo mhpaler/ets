@@ -14,7 +14,7 @@
     "remove-local": "graph remove --node http://localhost:8020/ ets/ets-local",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 ets/ets-local --version-label dev",
     "deploy-mumbai": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ hashtag-protocol/hashtag-polygon-mumbai",
-    "ship-local": "pnpm prepare-local && pnpm codegen && pnpm deploy-local",
+    "ship-local": "pnpm prepare-local && pnpm codegen && pnpm remove-local && pnpm create-local && pnpm deploy-local",
     "ship-mumbai": "pnpm prepare-mumbai && pnpm codegen && pnpm deploy-mumbai"
   },
   "dependencies": {

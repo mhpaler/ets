@@ -4,19 +4,15 @@ import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 export const ZERO = BigInt.fromI32(0);
 
 export function ensurePlatform(
-  platformAddress: Address,
+  address: Address,
   event: ethereum.Event
 ): Platform {
-  let platform = Platform.load(platformAddress.toHex()) as Platform;
-
-  if (platform) {
-    return platform;
+  let platform = Platform.load(address.toHexString());
+  if (platform === null) {
+    platform = new Platform(address.toHexString());
+    platform.firstSeen = event.block.timestamp;
+    platform.tagFees = ZERO;
+    platform.save();
   }
-
-  platform = new Platform(platformAddress.toHex());
-  platform.firstSeen = event.block.timestamp;
-  platform.tagFees = ZERO;
-  platform.save();
-
-  return platform;
+  return platform as Platform;
 }

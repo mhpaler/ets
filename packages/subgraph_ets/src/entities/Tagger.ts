@@ -6,14 +6,14 @@ export const ZERO = BigInt.fromI32(0);
 export function ensureTagger(
   taggerAddress: Address,
   event: ethereum.Event
-): Tagger {
-  let tagger = Tagger.load(taggerAddress.toHex()) as Tagger;
+): Tagger | null {
+  let tagger = Tagger.load(taggerAddress.toHexString()) as Tagger;
 
   if (tagger) {
     return tagger;
   }
 
-  tagger = new Tagger(taggerAddress.toHex());
+  tagger = new Tagger(taggerAddress.toHexString());
   tagger.firstSeen = event.block.timestamp;
   tagger.tagCount = ZERO;
   tagger.feesPaid = ZERO;

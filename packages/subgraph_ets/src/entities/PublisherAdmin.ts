@@ -2,20 +2,16 @@ import { PublisherAdmin } from "../generated/schema";
 import { Address, ethereum } from "@graphprotocol/graph-ts";
 
 export function ensurePublisherAdmin(
-  publisherAdminAddress: Address,
+  address: Address,
   event: ethereum.Event
 ): PublisherAdmin {
-  let publisherAdmin = PublisherAdmin.load(
-    publisherAdminAddress.toHex()
-  ) as PublisherAdmin;
+  let publisherAdmin = PublisherAdmin.load(address.toHexString());
 
-  if (publisherAdmin) {
-    return publisherAdmin;
+  if (publisherAdmin === null) {
+    publisherAdmin = new PublisherAdmin(address.toHexString());
+    publisherAdmin.firstSeen = event.block.timestamp;
+    publisherAdmin.save();
   }
 
-  publisherAdmin = new PublisherAdmin(publisherAdminAddress.toHex());
-  publisherAdmin.firstSeen = event.block.timestamp;
-  publisherAdmin.save();
-
-  return publisherAdmin;
+  return publisherAdmin as PublisherAdmin;
 }

@@ -6,14 +6,14 @@ export const ZERO = BigInt.fromI32(0);
 export function ensureCreator(
   creatorAddress: Address,
   event: ethereum.Event
-): Creator {
-  let creator = Creator.load(creatorAddress.toHex()) as Creator;
+): Creator | null {
+  let creator = Creator.load(creatorAddress.toHexString()) as Creator;
 
   if (creator) {
     return creator;
   }
 
-  creator = new Creator(creatorAddress.toHex());
+  creator = new Creator(creatorAddress.toHexString());
   creator.firstSeen = event.block.timestamp;
   creator.mintCount = ZERO;
   creator.tagCount = ZERO;
