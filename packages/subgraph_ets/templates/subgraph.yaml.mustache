@@ -23,6 +23,32 @@ dataSources:
           handler: handleCreateTag
       file: ./src/mappings/ETSToken.ts
   - kind: ethereum/contract
+    name: ETSTarget
+    network: {{network}}
+    source:
+      address: "{{contracts.ETSTarget.address}}"
+      abi: ETSTarget
+      startBlock: {{contracts.ETSTarget.deploymentBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - TargetMiscellaneous
+      abis:
+        - name: ETSTarget
+          file: ./../contracts-core/abi/contracts/ETSTarget.sol/ETSTarget.json
+      eventHandlers:
+        - event: AccessControlsSet(address)
+          handler: handleAccessControlsSet
+        - event: EnrichTargetSet(address)
+          handler: EnrichTargetSet
+        - event: TargetCreated(uint256)
+          handler: handleTargetCreated
+        - event: TargetUpdated(uint256)
+          handler: handleTargetUpdated
+      file: ./src/mappings/ETSTarget.ts
+  - kind: ethereum/contract
     name: ETSAccessControls
     network: {{network}}
     source:

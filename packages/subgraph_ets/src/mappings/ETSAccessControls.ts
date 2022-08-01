@@ -5,7 +5,6 @@ import {
   RoleRevoked,
   PlatformSet,
   TargetTaggerAdded,
-  //TargetTaggerPauseToggled,
 } from "../generated/ETSAccessControls/ETSAccessControls";
 
 import { ensureAdministrator } from "../entities/Administrator";
