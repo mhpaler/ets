@@ -58,11 +58,11 @@ type TaggingRecord @entity {
 
 type TargetTagger @entity {
   id: ID!
-  name: String!
+  name: String
   firstSeen: BigInt!
-  paused: Boolean!
-  owner: String!
-  creator: String!
+  paused: Boolean
+  owner: String
+  creator: String
 }
 
 type Administrator @entity {
