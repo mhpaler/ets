@@ -57,8 +57,9 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
 
     /// @inheritdoc IETSAccessControls
     function setPlatform(address payable _platform) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        address prevAddress = platform;
         platform = _platform;
-        emit PlatformSet(_platform);
+        emit PlatformSet(_platform, prevAddress);
     }
 
     /// @inheritdoc IETSAccessControls
@@ -76,6 +77,7 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
         targetTaggerContractToName[_taggerAddress] = _name;
         // Note: grantRole emits RoleGranted event.
         grantRole(PUBLISHER_ROLE, _taggerAddress);
+        emit TargetTaggerAdded(_taggerAddress);
     }
 
     /// @inheritdoc IETSAccessControls

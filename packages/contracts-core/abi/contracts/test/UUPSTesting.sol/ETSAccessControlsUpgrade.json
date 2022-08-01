@@ -50,24 +50,17 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "platformAddress",
+        "name": "newAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "prevAddress",
         "type": "address"
       }
     ],
     "name": "PlatformSet",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "threshold",
-        "type": "uint256"
-      }
-    ],
-    "name": "PublisherDefaultThresholdSet",
     "type": "event"
   },
   {
@@ -143,6 +136,19 @@
       }
     ],
     "name": "RoleRevoked",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "targetTagger",
+        "type": "address"
+      }
+    ],
+    "name": "TargetTaggerAdded",
     "type": "event"
   },
   {

@@ -15,17 +15,17 @@ interface IETSAccessControls is IAccessControlUpgradeable {
     /**
      * @dev emitted when the ETS Platform address is set.
      *
-     * @param platformAddress wallet address platform is set to.
+     * @param newAddress wallet address platform is being set to.
+     * @param prevAddress previous platform address.
      */
-    event PlatformSet(address platformAddress);
+    event PlatformSet(address newAddress, address prevAddress);
 
     /**
-     * @dev emitted when the publisherDefaultThreshold is set. See function below
-     * for explanation of publisherDefaultThreshold.
+     * @dev emitted when a Target Tagger contract is added & enabled in ETS.
      *
-     * @param threshold number of CTAGs required to own.
+     * @param targetTagger Target Tagger contract address.
      */
-    event PublisherDefaultThresholdSet(uint256 threshold);
+    event TargetTaggerAdded(address targetTagger);
 
     /**
      * @dev emitted when a Target Tagger contract is paused or unpaused.
