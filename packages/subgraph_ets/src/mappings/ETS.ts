@@ -2,47 +2,20 @@
 // import { log } from "@graphprotocol/graph-ts";
 
 import { TargetTagged, ETS } from "../generated/ETS/ETS";
-import { ETSTag } from "../generated/ETSTag/ETSTag";
-import { Tag, TaggingRecord, NFT_EVM } from "../generated/schema";
+import { ETSToken } from "../generated/ETSToken/ETSToken";
+import { Tag, Target, TaggingRecord } from "../generated/schema";
 import { log } from "@graphprotocol/graph-ts";
 
-import {
-  toLowerCase,
-  safeLoadPublisher,
-  safeLoadPlatform,
-  safeLoadOwner,
-  safeLoadTagger,
-  safeLoadCreator,
-  ONE,
-} from "../utils/helpers";
-
-import { ensureOwner } from "../entities/Owner";
-
-import { ensurePublisher } from "../entities/Publisher";
+import { ONE } from "../utils/helpers";
 
 import { ensurePlatform } from "../entities/Platform";
-
-import { ensureCreator } from "../entities/Creator";
-
+import { ensurePublisher } from "../entities/Publisher";
 import { ensureTagger } from "../entities/Tagger";
-import { ensureNFT_EVM } from "../entities/NFT_EVM";
+import { ensureCreator } from "../entities/Creator";
+import { ensureOwner } from "../entities/Owner";
+import { ensureToken } from "../entities/Tag";
+import { ensureTarget } from "../entities/Target";
 
-/*
- * Track the tagging of an NFT asset
- *
- * event.params.tagId NFT ID of the tag
- * event.params.nftContract Contract address of the NFT asset being tagged
- * event.params.nftId NFT ID of the NFT asset being tagged
- * event.params.tagger Ethereum address that initiated the tag
- * event.params.publisher Publisher that facilitated the tag
- * event.params.tagFee Fee earned by the tag Protocol
- * event.params.nftChainId Chain Id the target nft is on
- *
- * Notes
- *    A number of data points are generated off the back of this tagging event:
- *     - Tag / usage count for a tag
- *     - Tagging fees earned by the tag owner, publisher and platform
- */
 export function handleTagRegistered(event: TargetTagged): void {
   let registryContract = ETS.bind(event.address);
   let tagFee = registryContract.taggingFee();
