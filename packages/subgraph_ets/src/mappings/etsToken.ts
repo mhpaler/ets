@@ -10,6 +10,8 @@ import {
   safeLoadCreator,
 } from "../utils/helpers";
 
+import { ensureTag } from "../entities/Tag";
+
 /*
  * Track the minting of a tag
  *
@@ -26,25 +28,7 @@ import {
  *   - Fees earned by the platform and publishers across all minting events
  */
 export function handleCreateTag(event: Transfer): void {
-  let tagEntity = new Tag(event.params.tokenId.toString());
-  let tagContract = ETSToken.bind(event.address);
-  let tagStruct = tagContract.tokenIdToTag(event.params.tokenId);
-
-  tagEntity.display = tagStruct.value2;
-
-  let lowerTag: string = toLowerCase(tagStruct.value2);
-
-  tagEntity.machineName = lowerTag.substring(1, lowerTag.length);
-
-  tagEntity.owner = tagContract.getPlatformAddress().toString();
-  tagEntity.creator = tagStruct.value1.toString();
-  tagEntity.publisher = tagStruct.value0.toString();
-  tagEntity.timestamp = event.block.timestamp;
-  tagEntity.tagCount = BigInt.fromI32(0);
-  tagEntity.ownerRevenue = BigInt.fromI32(0);
-  tagEntity.publisherRevenue = BigInt.fromI32(0);
-  tagEntity.protocolRevenue = BigInt.fromI32(0);
-  tagEntity.creatorRevenue = BigInt.fromI32(0);
+  let tagEntity = ensureTag(event.params.tokenId.toString(), event)
   tagEntity.save();
 
   let owner = safeLoadOwner(tagEntity.owner);
@@ -70,7 +54,7 @@ export function handleCreateTag(event: Transfer): void {
   }
 
   // creator
-  let creator = safeLoadCreator(tagStruct.value1.toHexString());
+  let creator = safeLoadCreator(tagEntity.creator);
 
   if (creator) {
     creator.mintCount = creator.mintCount.plus(ONE);
