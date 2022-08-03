@@ -1,6 +1,6 @@
-const { BN, constants, expectEvent, expectRevert } = require("@openzeppelin/test-helpers");
-const { expect } = require("chai");
-const { ZERO_ADDRESS } = constants;
+const {BN, constants, expectEvent, expectRevert} = require("@openzeppelin/test-helpers");
+const {expect} = require("chai");
+const {ZERO_ADDRESS} = constants;
 
 const tag1 = "#TokenizeEverything";
 const tag2 = "#trustless";
@@ -12,8 +12,8 @@ let receipt;
 
 function shouldBehaveLikeERC721Burnable(
   errorPrefix,
-  admin,
-  publisher,
+  deployer,
+  owner,
   operator,
   approved,
   anotherApproved,
@@ -23,8 +23,8 @@ function shouldBehaveLikeERC721Burnable(
 ) {
   context("like a burnable ERC721", function () {
     beforeEach(async function () {
-      await this.token.methods["createTag(string)"](tag1);
-      await this.token.methods["createTag(string)"](tag2);
+      await this.token.createTag(tag1, creator);
+      await this.token.createTag(tag2, creator);
     });
 
     describe("burn", function () {
@@ -32,17 +32,17 @@ function shouldBehaveLikeERC721Burnable(
 
       describe("when successful", function () {
         beforeEach(async function () {
-          receipt = await this.token.burn(tokenId, { from: admin });
+          receipt = await this.token.burn(tokenId, {from: owner});
         });
 
-        it("burns the given token ID and adjusts the balance of the admin", async function () {
+        it("burns the given token ID and adjusts the balance of the owner", async function () {
           await expectRevert(this.token.ownerOf(tokenId), "ERC721: owner query for nonexistent token");
-          expect(await this.token.balanceOf(admin)).to.be.bignumber.equal("1");
+          expect(await this.token.balanceOf(owner)).to.be.bignumber.equal("1");
         });
 
         it("emits a burn event", async function () {
           expectEvent(receipt, "Transfer", {
-            from: admin,
+            from: owner,
             to: ZERO_ADDRESS,
             tokenId: tokenId,
           });
@@ -51,8 +51,8 @@ function shouldBehaveLikeERC721Burnable(
 
       describe("when there is a previous approval burned", function () {
         beforeEach(async function () {
-          await this.token.approve(approved, tokenId, { from: admin });
-          receipt = await this.token.burn(tokenId, { from: admin });
+          await this.token.approve(approved, tokenId, {from: owner});
+          receipt = await this.token.burn(tokenId, {from: owner});
         });
 
         context("getApproved", function () {
@@ -65,7 +65,7 @@ function shouldBehaveLikeERC721Burnable(
       describe("when the given token ID was not tracked by this contract", function () {
         it("reverts", async function () {
           await expectRevert(
-            this.token.burn(unknownTokenId, { from: admin }),
+            this.token.burn(unknownTokenId, {from: owner}),
             "ERC721: owner query for nonexistent token",
           );
         });
@@ -73,13 +73,10 @@ function shouldBehaveLikeERC721Burnable(
 
       describe("when attempted by non-administrator", function () {
         it("reverts", async function () {
-          await this.token.transferFrom(admin, newOwner, firstTokenId, { from: admin });
-          expect(await this.token.balanceOf(admin)).to.be.bignumber.equal("1");
+          await this.token.transferFrom(owner, newOwner, firstTokenId, {from: owner});
+          expect(await this.token.balanceOf(owner)).to.be.bignumber.equal("1");
           expect(await this.token.balanceOf(newOwner)).to.be.bignumber.equal("1");
-          await expectRevert(
-            this.token.burn(firstTokenId, { from: newOwner }),
-            "Caller must have administrator access",
-          );
+          await expectRevert(this.token.burn(firstTokenId, {from: newOwner}), "Caller must have administrator access");
         });
       });
     });

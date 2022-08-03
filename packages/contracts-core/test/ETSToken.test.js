@@ -13,7 +13,7 @@ describe("ETSToken Core Tests", function () {
 
   describe("Valid setup", async function () {
     it("should have Platform address set to named account ETSPlatform", async function () {
-      expect(await contracts.ETSToken.getPlatformAddress()).to.be.equal(accounts.ETSPlatform.address);
+      expect(await contracts.ETSAccessControls.getPlatformAddress()).to.be.equal(accounts.ETSPlatform.address);
     });
 
     it("should have Platform address granted administrator role", async function () {
@@ -27,22 +27,12 @@ describe("ETSToken Core Tests", function () {
     it("should have name and symbol", async function () {
       expect(await contracts.ETSToken.name()).to.be.equal("Ethereum Tag Service");
       expect(await contracts.ETSToken.symbol()).to.be.equal("CTAG");
-      expect(await contracts.ETSToken.platform()).to.be.equal(accounts.ETSPlatform.address);
     });
   });
 
   describe("Administrator role", async function () {
     const tag = "#love";
     const premiumTags = ["#apple", "#google"];
-
-    it("should be able to set Platform address", async function () {
-      await expect(
-        contracts.ETSToken.connect(accounts.Buyer).setPlatform(accounts.RandomOne.address),
-      ).to.be.revertedWith("Caller must have administrator access");
-
-      await contracts.ETSToken.connect(accounts.ETSPlatform).setPlatform(accounts.RandomOne.address);
-      expect(await contracts.ETSToken.platform()).to.be.equal(accounts.RandomOne.address);
-    });
 
     it("should be able to set max tag length", async function () {
       await expect(contracts.ETSToken.connect(accounts.Buyer).setTagMaxStringLength(55)).to.be.revertedWith(
@@ -84,7 +74,7 @@ describe("ETSToken Core Tests", function () {
     });
 
     it("can set premium flag on CTAG", async function () {
-      await contracts.ETSToken.connect(accounts.RandomTwo)["createTag(string)"](tag);
+      await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(tag, accounts.RandomTwo.address);
       const tokenId = await contracts.ETSToken.computeTagId(tag);
       let ctag = await contracts.ETSToken["getTag(uint256)"](tokenId);
       expect(ctag.premium).to.be.false;
@@ -95,7 +85,7 @@ describe("ETSToken Core Tests", function () {
     });
 
     it("Can set reserved flag on CTAG", async function () {
-      await contracts.ETSToken.connect(accounts.RandomTwo)["createTag(string)"](tag);
+      await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(tag, accounts.RandomTwo.address);
       const tokenId = await contracts.ETSToken.computeTagId(tag);
       let ctag = await contracts.ETSToken["getTag(uint256)"](tokenId);
       expect(ctag.reserved).to.be.false;
@@ -121,92 +111,71 @@ describe("ETSToken Core Tests", function () {
     describe("(tag string validation)", async function () {
       // Tag string validation tests
       it("should revert if exists (case-insensitive)", async function () {
-        await contracts.ETSToken.connect(accounts.RandomTwo)["createTag(string)"]("#love");
-        await expect(contracts.ETSToken.connect(accounts.RandomTwo)["createTag(string)"]("#love")).to.be.revertedWith(
-          "ERC721: token already minted",
-        );
+        await contracts.ETSToken.connect(accounts.ETSPlatform).createTag("#love", accounts.RandomTwo.address);
+        await expect(
+          contracts.ETSToken.connect(accounts.ETSPlatform).createTag("#love", accounts.RandomTwo.address),
+        ).to.be.revertedWith("ERC721: token already minted");
       });
 
       it("should revert if tag string does not meet min length requirements", async function () {
         const tagMinStringLength = await contracts.ETSToken.tagMinStringLength();
         const shortTag = "#" + RandomTwoTag.substring(0, tagMinStringLength - 2);
         await expect(
-          contracts.ETSToken.connect(accounts.ETSPlatform)["createTag(string)"](shortTag),
+          contracts.ETSToken.connect(accounts.ETSPlatform).createTag(shortTag, accounts.RandomTwo.address),
         ).to.be.revertedWith(`Invalid format: tag does not meet min/max length requirements`);
       });
 
       it("should revert if tag string exceeds max length requirements", async function () {
         const tagMaxStringLength = await contracts.ETSToken.tagMaxStringLength();
         const longTag = "#" + RandomTwoTag.substring(0, tagMaxStringLength);
-        await expect(contracts.ETSToken.connect(accounts.ETSPlatform)["createTag(string)"](longTag)).to.be.revertedWith(
-          `Invalid format: tag does not meet min/max length requirements`,
-        );
+        await expect(
+          contracts.ETSToken.connect(accounts.ETSPlatform).createTag(longTag, accounts.RandomTwo.address),
+        ).to.be.revertedWith(`Invalid format: tag does not meet min/max length requirements`);
       });
 
       it("should revert if tag string has spaces", async function () {
         const invalidTag = "#x art";
         await expect(
-          contracts.ETSToken.connect(accounts.ETSPlatform)["createTag(string)"](invalidTag),
+          contracts.ETSToken.connect(accounts.ETSPlatform).createTag(invalidTag, accounts.RandomTwo.address),
         ).to.be.revertedWith("Space found: tag may not contain spaces");
       });
 
       it("should revert if tag string does not start with #", async function () {
         const invalidTag = "ART";
         await expect(
-          contracts.ETSToken.connect(accounts.ETSPlatform)["createTag(string)"](invalidTag),
+          contracts.ETSToken.connect(accounts.ETSPlatform).createTag(invalidTag, accounts.RandomTwo.address),
         ).to.be.revertedWith("Tag must start with #");
       });
 
       it("should revert if tag string prefix found after first char", async function () {
         const invalidTag = "#Hash#";
         await expect(
-          contracts.ETSToken.connect(accounts.ETSPlatform)["createTag(string)"](invalidTag),
+          contracts.ETSToken.connect(accounts.ETSPlatform).createTag(invalidTag, accounts.RandomTwo.address),
         ).to.be.revertedWith("Tag may not contain prefix");
       });
 
       it("should allow a mix of upper and lowercase characters in tag string", async function () {
-        await contracts.ETSToken.connect(accounts.ETSPlatform)["createTag(string)"]("#Awesome123");
+        await contracts.ETSToken.connect(accounts.ETSPlatform).createTag("#Awesome123", accounts.RandomTwo.address);
       });
     });
 
     // End tag string validation
     describe("(provenance & attribution)", async function () {
-      it("should revert if the publisher has not activated", async function () {
+      it("should revert if caller is not a publisher", async function () {
         await expect(
-          contracts.ETSToken.connect(accounts.RandomTwo)["createTag(string,address)"](
-            "#love",
-            accounts.RandomOne.address,
-          ),
-        ).to.be.revertedWith("ETS: Not a publisher");
-      });
-
-      it("should succeed if the publisher has activated their address", async function () {
-        await contracts.ETSAccessControls.connect(accounts.RandomOne).togglePublisher();
-        const tokenId = await contracts.ETSToken.computeTagId("#love");
-        tx = await contracts.ETSToken.connect(accounts.RandomTwo)["createTag(string,address)"](
-          "#love",
-          accounts.RandomOne.address,
-        );
-        await expect(tx)
-          .to.emit(contracts.ETSToken, "Transfer")
-          .withArgs(constants.AddressZero, accounts.ETSPlatform.address, tokenId);
-      });
-
-      it("should set Platform as publisher if no publisher is supplied", async function () {
-        await contracts.ETSToken.connect(accounts.RandomTwo)["createTag(string)"](tag);
-        const tagData = await contracts.ETSToken["getTag(string)"](tag);
-        expect(tagData.publisher).to.be.equal(accounts.ETSPlatform.address);
+          contracts.ETSToken.connect(accounts.RandomTwo).createTag("#Awesome123", accounts.RandomOne.address),
+        ).to.be.revertedWith("Caller is not publisher");
       });
 
       it("should succeed if Platform is both creator & publisher", async function () {
-        await contracts.ETSToken.connect(accounts.ETSPlatform)["createTag(string)"](tag);
+        await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(tag, accounts.ETSPlatform.address);
         assert((await contracts.ETSToken["tagExists(string)"](tag)) == true);
       });
     });
 
     describe("(CTAG struct/token attributes)", async function () {
       it("should store msg.sender as Creator", async function () {
-        await contracts.ETSToken.connect(accounts.RandomTwo)["createTag(string)"](tag);
+        await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(tag, accounts.RandomTwo.address);
         const tagData = await contracts.ETSToken["getTag(string)"](tag);
         expect(tagData.creator).to.be.equal(accounts.RandomTwo.address);
       });
@@ -214,7 +183,7 @@ describe("ETSToken Core Tests", function () {
       it("should store the display version of the CTAG", async function () {
         const displayVersion = "#TagWithCapitals";
         const machineVersion = "#tagwithcapitals";
-        await contracts.ETSToken.connect(accounts.RandomTwo)["createTag(string)"](displayVersion);
+        await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(displayVersion, accounts.RandomTwo.address);
         const tagData = await contracts.ETSToken["getTag(string)"](machineVersion);
         expect(tagData.display).to.be.equal(displayVersion);
       });
@@ -222,7 +191,7 @@ describe("ETSToken Core Tests", function () {
       it("should flag CTAG as premium & reserved if it's on the premium list", async function () {
         const premiumTags = ["#apple", "#google"];
         await contracts.ETSToken.connect(accounts.ETSPlatform).preSetPremiumTags(premiumTags, true);
-        await contracts.ETSToken.connect(accounts.RandomTwo)["createTag(string)"](premiumTags[0]);
+        await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(premiumTags[0], accounts.RandomTwo.address);
         const tagData = await contracts.ETSToken["getTag(string)"](premiumTags[0]);
         expect(tagData.premium).to.be.equal(true);
         expect(tagData.reserved).to.be.equal(true);

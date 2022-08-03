@@ -17,7 +17,7 @@ dataSources:
         - MintHashtag
       abis:
         - name: ETSTag
-          file: ./abi/ETSTag.json
+          file: ./../contracts/abi/contracts/core/ETSTag.sol/ETSTag.json
       eventHandlers:
         - event: MintHashtag(indexed uint256,string,indexed address,address)
           handler: handleMintHashtag
@@ -37,9 +37,9 @@ dataSources:
         - HashtagRegistered
       abis:
         - name: ETS
-          file: ./abi/ETS.json
+          file: ./../contracts/abi/contracts/core/ETS.sol/ETS.json
         - name: ETSTag
-          file: ./abi/ETSTag.json
+          file: ./../contracts/abi/contracts/core/ETSTag.sol/ETSTag.json
       eventHandlers:
         - event: HashtagRegistered(indexed address,indexed address,indexed address,uint256,uint256,uint256,uint256,uint256)
           handler: handleHashtagRegistered
@@ -59,7 +59,7 @@ dataSources:
         - RoleGranted
       abis:
         - name: ETSAccessControls
-          file: ./abi/ETSAccessControls.json
+          file: ./../contracts/abi/contracts/core/ETSAccessControls.sol/ETSAccessControls.json
       eventHandlers:
         - event: RoleGranted(indexed bytes32,indexed address,indexed address)
           handler: handleRoleGranted

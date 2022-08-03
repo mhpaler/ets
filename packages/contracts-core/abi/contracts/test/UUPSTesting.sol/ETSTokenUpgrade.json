@@ -4,7 +4,7 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "contract IETSAccessControls",
+        "internalType": "address",
         "name": "etsAccessControls",
         "type": "address"
       }
@@ -138,19 +138,6 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "platformAddress",
-        "type": "address"
-      }
-    ],
-    "name": "PlatformSet",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
         "internalType": "uint256",
         "name": "tagId",
         "type": "uint256"
@@ -196,7 +183,7 @@
       {
         "indexed": false,
         "internalType": "bool",
-        "name": "isReleased",
+        "name": "isReserved",
         "type": "bool"
       }
     ],
@@ -332,19 +319,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "VERSION",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "address",
@@ -419,29 +393,10 @@
         "internalType": "string",
         "name": "_tag",
         "type": "string"
-      }
-    ],
-    "name": "createTag",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_tag",
-        "type": "string"
       },
       {
         "internalType": "address payable",
-        "name": "_publisher",
+        "name": "_creator",
         "type": "address"
       }
     ],
@@ -500,7 +455,7 @@
     "outputs": [
       {
         "internalType": "address",
-        "name": "_creator",
+        "name": "",
         "type": "address"
       }
     ],
@@ -527,6 +482,81 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_tag",
+        "type": "string"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_creator",
+        "type": "address"
+      }
+    ],
+    "name": "getOrCreateTag",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "publisher",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "creator",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "display",
+            "type": "string"
+          },
+          {
+            "internalType": "bool",
+            "name": "premium",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "reserved",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct IETSToken.Tag",
+        "name": "tag",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_tag",
+        "type": "string"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_creator",
+        "type": "address"
+      }
+    ],
+    "name": "getOrCreateTagId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "getOwnershipTermLength",
     "outputs": [
@@ -540,35 +570,11 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getPaymentAddresses",
-    "outputs": [
-      {
-        "internalType": "address payable",
-        "name": "_platform",
-        "type": "address"
-      },
-      {
-        "internalType": "address payable",
-        "name": "_owner",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "getPlatformAddress",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "address payable",
         "name": "",
         "type": "address"
       }
@@ -671,13 +677,8 @@
   {
     "inputs": [
       {
-        "internalType": "contract IETSAccessControls",
+        "internalType": "address",
         "name": "_etsAccessControls",
-        "type": "address"
-      },
-      {
-        "internalType": "address payable",
-        "name": "_platform",
         "type": "address"
       },
       {
@@ -810,19 +811,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "platform",
-    "outputs": [
-      {
-        "internalType": "address payable",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "string[]",
@@ -933,7 +921,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract IETSAccessControls",
+        "internalType": "address",
         "name": "_etsAccessControls",
         "type": "address"
       }
@@ -970,19 +958,6 @@
       }
     ],
     "name": "setOwnershipTermLength",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address payable",
-        "name": "_platform",
-        "type": "address"
-      }
-    ],
-    "name": "setPlatform",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1294,19 +1269,6 @@
     "name": "upgradeToAndCall",
     "outputs": [],
     "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "version",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "pure",
     "type": "function"
   }
 ]

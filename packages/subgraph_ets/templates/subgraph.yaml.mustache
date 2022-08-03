@@ -1,0 +1,103 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: ETSAccessControls
+    network: {{network}}
+    source:
+      address: "{{contracts.ETSAccessControls.address}}"
+      abi: ETSAccessControls
+      startBlock: {{contracts.ETSAccessControls.deploymentBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Administrator
+        - Platform
+        - Publisher
+        - PublisherAdmin
+        - TargetTagger      
+      abis:
+        - name: ETSAccessControls
+          file: ./../contracts-core/abi/contracts/ETSAccessControls.sol/ETSAccessControls.json
+      eventHandlers:
+        - event: RoleGranted(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleGranted
+        - event: RoleRevoked(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleRevoked
+        - event: PlatformSet(address,address)
+          handler: handlePlatformSet
+        - event: TargetTaggerAdded(address)
+          handler: handleTargetTaggerAdded
+        - event: TargetTaggerPauseToggled(bool)
+          handler: handleTargetTaggerPauseToggled
+      file: ./src/mappings/ETSAccessControls.ts
+  - kind: ethereum/contract
+    name: ETSToken
+    network: {{network}}
+    source:
+      address: "{{contracts.ETSToken.address}}"
+      abi: ETSToken
+      startBlock: {{contracts.ETSToken.deploymentBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Transfer
+      abis:
+        - name: ETSToken
+          file: ./../contracts-core/abi/contracts/ETSToken.sol/ETSToken.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleCreateTag
+      file: ./src/mappings/ETSToken.ts
+  - kind: ethereum/contract
+    name: ETSTarget
+    network: {{network}}
+    source:
+      address: "{{contracts.ETSTarget.address}}"
+      abi: ETSTarget
+      startBlock: {{contracts.ETSTarget.deploymentBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - TargetMiscellaneous
+      abis:
+        - name: ETSTarget
+          file: ./../contracts-core/abi/contracts/ETSTarget.sol/ETSTarget.json
+      eventHandlers:
+        - event: TargetCreated(uint256)
+          handler: handleTargetCreated
+      file: ./src/mappings/ETSTarget.ts
+  - kind: ethereum/contract
+    name: ETS
+    network: {{network}}
+    source:
+      address: "{{contracts.ETS.address}}"
+      abi: ETS
+      startBlock: {{contracts.ETS.deploymentBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - TaggingRecord
+      abis:
+        - name: ETSAccessControls
+          file: ./../contracts-core/abi/contracts/ETSAccessControls.sol/ETSAccessControls.json
+        - name: ETSToken
+          file: ./../contracts-core/abi/contracts/ETSToken.sol/ETSToken.json
+        - name: ETSTarget
+          file: ./../contracts-core/abi/contracts/ETSTarget.sol/ETSTarget.json
+        - name: ETS
+          file: ./../contracts-core/abi/contracts/ETS.sol/ETS.json
+      eventHandlers:
+        - event: TargetTagged(uint256)
+          handler: handleTaggingRecordCreated
+      file: ./src/mappings/ETS.ts
+

@@ -1,0 +1,66 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: HashtagProtocol
+    network: mainnet
+    source:
+      address: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"
+      abi: HashtagProtocol
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - MintHashtag
+      abis:
+        - name: HashtagProtocol
+          file: ../hashtag-contracts/abi/contracts/release/HashtagProtocol.sol/HashtagProtocol.json
+      eventHandlers:
+        - event: MintHashtag(indexed uint256,string,indexed address,address)
+          handler: handleMintHashtag
+      file: ./src/mappings/protocol-mapping.ts
+  - kind: ethereum/contract
+    name: ERC721HashtagRegistry
+    network: mainnet
+    source:
+      address: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"
+      abi: ERC721HashtagRegistry
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - HashtagRegistered
+      abis:
+        - name: ERC721HashtagRegistry
+          file: ../hashtag-contracts/abi/contracts/release/ERC721HashtagRegistry.sol/ERC721HashtagRegistry.json
+        - name: HashtagProtocol
+          file: ../hashtag-contracts/abi/contracts/release/HashtagProtocol.sol/HashtagProtocol.json
+      eventHandlers:
+        - event: HashtagRegistered(indexed address,indexed address,indexed address,uint256,uint256,uint256,uint256,uint256)
+          handler: handleHashtagRegistered
+      file: ./src/mappings/erc721-hashtag-registry.ts
+  - kind: ethereum/contract
+    name: HashtagAccessControls
+    network: mainnet
+    source:
+      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+      abi: HashtagAccessControls
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - RoleGranted
+      abis:
+        - name: HashtagAccessControls
+          file: ../hashtag-contracts/abi/contracts/release/HashtagAccessControls.sol/HashtagAccessControls.json
+      eventHandlers:
+        - event: RoleGranted(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleGranted
+      file: ./src/mappings/access-control-mapping.ts

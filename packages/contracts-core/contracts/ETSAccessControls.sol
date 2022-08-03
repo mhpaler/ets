@@ -1,46 +1,53 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import { IETSToken } from "./interfaces/IETSToken.sol";
+import { IETSTargetTagger } from "./interfaces/IETSTargetTagger.sol";
 import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
+import "@openzeppelin/contracts/interfaces/IERC165.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
-import "@openzeppelin/contracts/interfaces/IERC165.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 import "hardhat/console.sol";
 
-/// @title ETS access controls
-/// @author Ethereum Tag Service <security@ets.xyz>
-/// @dev Maintains a mapping of ethereum addresses and roles they have within the protocol
+/**
+ * @title IETSAccessControls
+ * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ * @notice This is the interface for the ETSAccessControls contract which allows ETS Core Dev
+ * Team to administer roles and control access to various parts of the ETS Platform.
+ * ETSAccessControls contract contains a mix of public and administrator only functions.
+ */
 contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAccessControls, UUPSUpgradeable {
     using SafeMathUpgradeable for uint256;
 
-    IETSToken public etsToken;
-
     /// Public constants
     string public constant NAME = "ETS access controls";
-    string public constant VERSION = "0.0.1";
     bytes32 public constant PUBLISHER_ROLE = keccak256("PUBLISHER");
     bytes32 public constant PUBLISHER_ROLE_ADMIN = keccak256("PUBLISHER_ADMIN");
     bytes32 public constant SMART_CONTRACT_ROLE = keccak256("SMART_CONTRACT");
 
-    /// @dev number of owned tags needed to acquire/maintain publisher role.
-    uint256 public publisherDefaultThreshold;
+    /// @dev ETS Platform account. Core Dev Team multisig in production.
+    /// There will only be one "Platform" so no need to make it a role.
+    address payable internal platform;
 
-    /// @dev Mapping of publisher address to grandfathered publisherThreshold.
-    mapping(address => uint256) public publisherThresholds;
+    /// @notice Mapping to contain whether Target Tagger is paused by the protocol.
+    mapping(address => bool) public isTargetTaggerPaused;
+
+    /// @notice Target Tagger name to contract address.
+    mapping(string => address) public targetTaggerNameToContract;
+
+    /// @notice Target Tagger contract address to human readable name.
+    mapping(address => string) public targetTaggerContractToName;
 
     // ============ UUPS INTERFACE ============
 
-    function initialize(uint256 _publisherDefaultThreshold) public initializer {
+    function initialize() public initializer {
         __AccessControl_init();
         // Give default admin role to the deployer.
         // setupRole is should only be called within initialize().
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
-
-        publisherDefaultThreshold = _publisherDefaultThreshold;
     }
 
     // Ensure that only addresses with admin role can upgrade.
@@ -48,72 +55,86 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
 
     // ============ OWNER INTERFACE ============
 
-    function setETSToken(IETSToken _etsToken) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(address(_etsToken) != address(0), "ETS: Address cannot be zero");
-        etsToken = _etsToken;
-        emit ETSTokenSet(_etsToken);
+    /// @inheritdoc IETSAccessControls
+    function setPlatform(address payable _platform) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        address prevAddress = platform;
+        platform = _platform;
+        emit PlatformSet(_platform, prevAddress);
     }
 
+    /// @inheritdoc IETSAccessControls
     function setRoleAdmin(bytes32 _role, bytes32 _adminRole) public onlyRole(DEFAULT_ADMIN_ROLE) {
         _setRoleAdmin(_role, _adminRole);
     }
 
-    function setPublisherDefaultThreshold(uint256 _threshold) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        publisherDefaultThreshold = _threshold;
-        emit PublisherDefaultThresholdSet(_threshold);
+    /// @inheritdoc IETSAccessControls
+    function addTargetTagger(address _taggerAddress, string calldata _name) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(
+            isAdmin(_taggerAddress) || IERC165(_taggerAddress).supportsInterface(type(IETSTargetTagger).interfaceId),
+            "Address not admin or required interface"
+        );
+        targetTaggerNameToContract[_name] = _taggerAddress;
+        targetTaggerContractToName[_taggerAddress] = _name;
+        // Note: grantRole emits RoleGranted event.
+        grantRole(PUBLISHER_ROLE, _taggerAddress);
+        emit TargetTaggerAdded(_taggerAddress);
     }
 
-    // ============ PUBLIC INTERFACE ============
+    /// @inheritdoc IETSAccessControls
+    function removeTargetTagger(address _taggerAddress) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(isTargetTagger(_taggerAddress), "invalid target tagger");
+        string memory targetTaggerName = targetTaggerContractToName[_taggerAddress];
+        delete targetTaggerNameToContract[targetTaggerName];
+        delete targetTaggerContractToName[_taggerAddress];
+        // Note: revokeRole emits RoleRevoked event.
+        revokeRole(PUBLISHER_ROLE, _taggerAddress);
+    }
 
-    ///@dev Grant or revoke publisher role for CTAG Token owners.
-    function togglePublisher() public returns (bool toggled) {
-        // Grant publisher role to sender if token balance meets threshold.
-        uint256 threshold = getPublisherThreshold(msg.sender);
-
-        if (etsToken.balanceOf(msg.sender) >= threshold && !hasRole(PUBLISHER_ROLE, msg.sender)) {
-            this.grantRole(PUBLISHER_ROLE, msg.sender);
-            publisherThresholds[msg.sender] = threshold;
-            return true;
-        }
-
-        // Revoke publisher role from sender.
-        if (hasRole(PUBLISHER_ROLE, msg.sender)) {
-            this.revokeRole(PUBLISHER_ROLE, msg.sender);
-            delete publisherThresholds[msg.sender];
-            return true;
-        }
+    /// @inheritdoc IETSAccessControls
+    function toggleIsTargetTaggerPaused(address _taggerAddress) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        isTargetTaggerPaused[_taggerAddress] = !isTargetTaggerPaused[_taggerAddress];
+        emit TargetTaggerPauseToggled(isTargetTaggerPaused[_taggerAddress]);
     }
 
     // ============ PUBLIC VIEW FUNCTIONS ============
 
+    /// @inheritdoc IETSAccessControls
     function isSmartContract(address _addr) public view returns (bool) {
         return hasRole(SMART_CONTRACT_ROLE, _addr);
     }
 
+    /// @inheritdoc IETSAccessControls
     function isAdmin(address _addr) public view returns (bool) {
         return hasRole(DEFAULT_ADMIN_ROLE, _addr);
     }
 
+    /// @inheritdoc IETSAccessControls
     function isPublisher(address _addr) public view returns (bool) {
         return hasRole(PUBLISHER_ROLE, _addr);
     }
 
+    /// @inheritdoc IETSAccessControls
     function isPublisherAdmin(address _addr) public view returns (bool) {
         return hasRole(PUBLISHER_ROLE_ADMIN, _addr);
     }
 
-    function getPublisherThreshold(address _addr) public view returns (uint256) {
-        if (hasRole(PUBLISHER_ROLE, _addr)) {
-            return publisherThresholds[_addr];
-        }
-        return getPublisherDefaultThreshold();
+    /// @inheritdoc IETSAccessControls
+    function isTargetTagger(string memory _name) public view returns (bool) {
+        return targetTaggerNameToContract[_name] != address(0);
     }
 
-    function getPublisherDefaultThreshold() public view returns (uint256) {
-        return publisherDefaultThreshold;
+    /// @inheritdoc IETSAccessControls
+    function isTargetTagger(address _addr) public view returns (bool) {
+        return keccak256(abi.encodePacked(targetTaggerContractToName[_addr])) != keccak256(abi.encodePacked(""));
     }
 
-    function version() external pure returns (string memory) {
-        return VERSION;
+    /// @inheritdoc IETSAccessControls
+    function isTargetTaggerAndNotPaused(address _addr) public view returns (bool) {
+        return isTargetTagger(_addr) && !isTargetTaggerPaused[_addr];
+    }
+
+    /// @inheritdoc IETSAccessControls
+    function getPlatformAddress() public view returns (address payable) {
+        return platform;
     }
 }

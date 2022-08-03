@@ -1,0 +1,151 @@
+interface Target {
+  id: ID!
+
+  "Block timestamp when target was created in ETS"
+  created: BigInt!
+
+  "Address that created Target"
+  createdBy: String!
+
+  "Unique resource identifier Target points to"
+  targetURI: String!
+
+  #"blink:polygon:mumbai:0x60Ae865ee4C725cd04353b5AAb364553f56ceF82:0x8635-0x0b"
+  #"https://apple.com/ipad"
+  #"https://twitter.com/Mortonopoulis/status/1554121066787643392"
+  #type: ["blink", "polygon", "mumbai", "Lens Protocol"]
+
+  "Block timestamp of last target enrichment"
+  enriched: BigInt!
+
+  "https status of last response from ETSEnrichTarget API eg. 404, 200. defaults to 0"
+  httpStatus: BigInt!
+
+  "Json metadata for target"
+  metadataURI: String!
+}
+
+type TargetMisc implements Target @entity {
+  id: ID!
+  created: BigInt!
+  createdBy: String!
+  targetURI: String!
+  enriched: BigInt!
+  httpStatus: BigInt!
+  metadataURI: String!
+}
+
+# type LensPublication implements Target @entity {
+#   id: ID!
+#   created: BigInt!
+#   creator: Creator! ?
+#   targetURI: String!
+#   type: String! ?
+#   enriched: BigInt!
+#   httpStatus: BigInt!
+#   metadataURI: String!
+#   #timestamp: BigInt!
+#   publicationId: String!
+# }
+
+# type EVM_NFT implements Target @entity {
+#   id: ID!
+#   timestamp: BigInt!
+#   nftContract: String!
+#   nftId: String!
+#   nftContractName: String
+#   nftTokenUri: String
+#   nftName: String
+#   nftDescription: String
+#   nftImage: String
+#   nftChainId: BigInt!
+#   ipfsHash: String
+#   isPremium: Boolean
+# }
+
+#rename to tag
+type Tag @entity {
+  id: ID!
+  machineName: String!
+  display: String!
+  owner: Owner!
+  creator: Creator!
+  publisher: Publisher!
+  timestamp: BigInt!
+  tagCount: BigInt!
+  premium: Boolean!
+  reserved: Boolean!
+
+  #tagging revenue
+  ownerRevenue: BigInt!
+  publisherRevenue: BigInt!
+  protocolRevenue: BigInt!
+  creatorRevenue: BigInt!
+}
+
+type TaggingRecord @entity {
+  id: ID!
+  transaction: String!
+  tag: [Tag!]!
+  tagger: Tagger!
+  publisher: Publisher!
+  target: Target!
+  tagName: String!
+  timestamp: BigInt!
+}
+
+type TargetTagger @entity {
+  id: ID!
+  name: String
+  firstSeen: BigInt!
+  paused: Boolean
+  owner: String
+  creator: String
+}
+
+type Administrator @entity {
+  id: ID!
+  firstSeen: BigInt!
+}
+
+type Platform @entity {
+  id: ID!
+  firstSeen: BigInt!
+  tagFees: BigInt!
+}
+
+type PublisherAdmin @entity {
+  id: ID!
+  firstSeen: BigInt!
+}
+
+type Publisher @entity {
+  id: ID!
+  firstSeen: BigInt!
+  mintCount: BigInt!
+  tagCount: BigInt!
+  tagFees: BigInt!
+}
+
+type Creator @entity {
+  id: ID!
+  firstSeen: BigInt!
+  mintCount: BigInt!
+  tagCount: BigInt!
+  tagFees: BigInt!
+}
+
+type Owner @entity {
+  id: ID!
+  firstSeen: BigInt!
+  mintCount: BigInt!
+  tagCount: BigInt!
+  tagFees: BigInt!
+}
+
+type Tagger @entity {
+  id: ID!
+  firstSeen: BigInt!
+  tagCount: BigInt!
+  feesPaid: BigInt!
+}

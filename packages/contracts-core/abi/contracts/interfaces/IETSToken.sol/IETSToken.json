@@ -4,7 +4,7 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "contract IETSAccessControls",
+        "internalType": "address",
         "name": "etsAccessControls",
         "type": "address"
       }
@@ -80,19 +80,6 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "platformAddress",
-        "type": "address"
-      }
-    ],
-    "name": "PlatformSet",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
         "internalType": "uint256",
         "name": "tagId",
         "type": "uint256"
@@ -138,7 +125,7 @@
       {
         "indexed": false,
         "internalType": "bool",
-        "name": "isReleased",
+        "name": "isReserved",
         "type": "bool"
       }
     ],
@@ -296,29 +283,10 @@
         "internalType": "string",
         "name": "_tag",
         "type": "string"
-      }
-    ],
-    "name": "createTag",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_tag",
-        "type": "string"
       },
       {
         "internalType": "address payable",
-        "name": "_publisher",
+        "name": "_creator",
         "type": "address"
       }
     ],
@@ -326,7 +294,7 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "_tokenId",
+        "name": "tokenId",
         "type": "uint256"
       }
     ],
@@ -360,6 +328,25 @@
         "type": "uint256"
       }
     ],
+    "name": "getCreatorAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      }
+    ],
     "name": "getLastRenewed",
     "outputs": [
       {
@@ -369,6 +356,30 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_tag",
+        "type": "string"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_creator",
+        "type": "address"
+      }
+    ],
+    "name": "getOrCreateTagId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -389,7 +400,7 @@
     "name": "getPlatformAddress",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "address payable",
         "name": "",
         "type": "address"
       }
@@ -541,7 +552,7 @@
       },
       {
         "internalType": "bool",
-        "name": "_enabled",
+        "name": "_isPremium",
         "type": "bool"
       }
     ],
@@ -630,7 +641,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract IETSAccessControls",
+        "internalType": "address",
         "name": "_etsAccessControls",
         "type": "address"
       }
@@ -667,19 +678,6 @@
       }
     ],
     "name": "setOwnershipTermLength",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address payable",
-        "name": "_platform",
-        "type": "address"
-      }
-    ],
-    "name": "setPlatform",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

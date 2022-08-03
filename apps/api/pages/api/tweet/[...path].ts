@@ -8,8 +8,6 @@ type Data = {
   data: JSON;
 };
 
-const ETH_ENDPOINT = "https://cloudflare-eth.com";
-const POLY_ENDPOINT = "https://polygon-mainnet.g.alchemy.com/v2/JiSFPKQ2VatFtjl4hS--gjtXGlVGI7EE";
 
 const handleError = () => "failed";
 
@@ -18,32 +16,11 @@ const pinata = pinataSDK(
   process.env.PINATA_SECRET ?? "No Secret"
 );
 
-function chainHandler(chain: string): string {
-  let chainVal = parseInt(chain);
-  if(chainVal == 1) {
-    return ETH_ENDPOINT;
-  }else if(chainVal == 4){
-    console.log("checking Polygon");
-    return POLY_ENDPOINT;
-  }else{
-    return "chain not available";
-  }
-}
-
-const getTokenMetadata = async (
-  address: string,
-  tokenID: string,
-  chain: string,
+const getTweetMetadata = async (
+  id: string,
 ): Promise<any> => {
-  const abi = ["function tokenURI(uint256 _tokenId) view returns (string URI)"];
-  const { JsonRpcProvider } = ethers.providers;
-  const provider = new JsonRpcProvider(chainHandler(chain));
-  const contract = new ethers.Contract(address, abi, provider);
 
-  const token = await Promise.all([
-    contract.tokenURI(tokenID).catch(handleError),
-  ]);
-  return token;
+  //make axios call for tweets by id
 };
 
 export default async function handler(
@@ -51,11 +28,9 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   const { path } = req.query;
-  var contract = path[0];
-  var tokenID = path[1];
-  var chain = path[2];
+  var id = path[0];
   var jsonBuilder: any = {};
-  getTokenMetadata(contract, tokenID, chain).then((token) => {
+  getTweetMetadata(id).then((token) => {
     if (token[0] === "failed") {
       jsonBuilder.IpfsHash = "not found";
       res.status(200).json({ data: jsonBuilder });

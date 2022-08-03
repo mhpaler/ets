@@ -1,5 +1,5 @@
-const { network } = require("hardhat");
-const { provider } = network;
+const {network} = require("hardhat");
+const {provider} = network;
 const fs = require("fs");
 const merge = require("lodash.merge");
 const configPath = "./config/config.json";
@@ -18,28 +18,26 @@ const emptyConfig = {
  * @param {boolean} upgrade Set true to indicate deployment was an upgrade.
  */
 async function saveNetworkConfig(name, deployment, implementation, upgrade) {
-
   const config = readNetworkConfig();
 
   // We use OpenZeppelin Upgrades plugin for deployment. Their deployment
   // receipt signature looks different than vanilla hardhat deploy receipts.
   // (OZ uses "deployedTransaction" for the deployment receipt key vs. "receipt"
   // for hardhat-deploy)
-  // const receipt = deployment.receipt ? deployment.receipt : deployment.deployTransaction;
-  const receipt = await provider.send('eth_getTransactionReceipt', [deployment.deployTransaction.hash]);
-
+  const receipt = deployment.receipt ? deployment.receipt : deployment.deployTransaction;
+  //const receipt = await provider.send('eth_getTransactionReceipt', [deployment.deployTransaction.hash]);
 
   // Load up deployment block from config if it exists.
   let deploymentBlock = null;
   if (
-    config[network.config.chainId]
-    && config[network.config.chainId].contracts
-    && config[network.config.chainId].contracts[name]
+    config[network.config.chainId] &&
+    config[network.config.chainId].contracts &&
+    config[network.config.chainId].contracts[name]
   ) {
     deploymentBlock = config[network.config.chainId].contracts[name].deploymentBlock;
   }
 
-  // If deployment block has been set, use that; otherwise this is a new 
+  // If deployment block has been set, use that; otherwise this is a new
   // contract deployment, so set the initial deployment block from the receipt.
   deploymentBlock = deploymentBlock ? deploymentBlock : receipt.blockNumber;
   const upgradeBlock = upgrade ? receipt.blockNumber : null;
@@ -52,10 +50,10 @@ async function saveNetworkConfig(name, deployment, implementation, upgrade) {
           address: deployment.address,
           implementation: implementation,
           deploymentBlock: deploymentBlock,
-          upgradeBlock: upgradeBlock
+          upgradeBlock: upgradeBlock,
         },
       },
-    }
+    },
   });
   mergeNetworkConfig(newConfig);
 }

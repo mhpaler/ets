@@ -1,22 +1,18 @@
-const { setup } = require("./setup.js");
-const { ethers } = require("hardhat");
-const { expect, assert } = require("chai");
-const { constants } = ethers;
+const {setup} = require("./setup.js");
+const {ethers} = require("hardhat");
+const {expect, assert} = require("chai");
+const {constants} = ethers;
 
-describe("contracts.ETSToken CTAG ownership lifecycle tests", function () {
+describe("CTAG ownership lifecycle tests", function () {
   // we create a setup function that can be called by every test and setup variable for easy to read tests
   beforeEach("Setup test", async function () {
     [accounts, contracts, initSettings] = await setup();
-
-    console.log("admin", accounts.ETSAdmin.address);
-    console.log("platform", accounts.ETSPlatform.address);
   });
 
   describe("Validate setup", async function () {
     it("should have name and symbol", async function () {
       expect(await contracts.ETSToken.name()).to.be.equal("Ethereum Tag Service");
       expect(await contracts.ETSToken.symbol()).to.be.equal("CTAG");
-      expect(await contracts.ETSToken.platform()).to.be.equal(accounts.ETSPlatform.address);
     });
 
     it("should have default configs", async function () {
@@ -48,8 +44,7 @@ describe("contracts.ETSToken CTAG ownership lifecycle tests", function () {
       //console.log("contracts.ETSToken.address", contracts.ETSToken.address);
       //console.log("accounts.RandomTwo",accounts.RandomTwo.address);
       //console.log("accounts.ETSPlatform", accounts.ETSPlatform.address);
-
-      await contracts.ETSToken.connect(accounts.RandomTwo)["createTag(string)"](tag);
+      await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(tag, accounts.RandomTwo.address);
       tokenId = await contracts.ETSToken.computeTagId(tag);
     });
 
@@ -186,7 +181,7 @@ describe("contracts.ETSToken CTAG ownership lifecycle tests", function () {
       const tag = "#BlockRocket";
 
       // RandomTwo account creates a tag.
-      await contracts.ETSToken.connect(accounts.RandomTwo)["createTag(string)"](tag);
+      await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(tag, accounts.RandomTwo.address);
       tokenId = await contracts.ETSToken.computeTagId(tag);
 
       // Transfer to RandomTwo (simulates sale).

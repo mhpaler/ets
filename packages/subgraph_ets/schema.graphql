@@ -1,0 +1,145 @@
+interface TargetTypeInterface {
+  id: ID!
+  typeName: TargetTypeName!
+}
+
+enum TargetTypeName {
+  Miscellaneous
+  Blink
+  Tweet
+}
+
+enum BlinkChainAssetType {
+  Txn
+  Block
+  Wallet
+  Record
+  Token
+  Nft
+}
+
+type Target @entity {
+  id: ID!
+  created: BigInt!
+  createdBy: String!
+  targetURI: String!
+  enriched: BigInt!
+  httpStatus: BigInt!
+  metadataURI: String!
+  targetType: TargetTypeInterface
+  targetTypeKeywords: [String!]
+}
+
+type TargetTypeMisc implements TargetTypeInterface @entity {
+  id: ID!
+  typeName: TargetTypeName!
+}
+
+type TargetTypeBlink implements TargetTypeInterface @entity {
+  "Id of target"
+  id: ID!
+
+  "String identifier for TargetType."
+  typeName: TargetTypeName!
+
+  "The value of the chainName property MUST refer to a specific Blockchain or DLT type. Possible examples include bitcoin, ethereum, or hyperledger-indy."
+  chainName: String!
+
+  "The value of the chainNetwork property MUST refer to a specific operational network of the preceding chainName. Possible examples include mainnet, testnet, or ropsten."
+  chainNetwork: String!
+
+  "The value of the chainAssetId property MUST refer to a specific asset from the preceding chainNetwork from the preceding chainName. chainAssetId SHALL be well defined by a specific Blink chain specification in order to reference available assets. Assets MAY include blocks, transactions, smart contracts, or other available assets depending on the DLT. The necessary information needed to look up a given asset MAY include multiple asset ID's, as seperated by a :. A possible example includes abc123:321cba if looking up transaction 321cba on block abc123."
+  chainAssetId: String!
+
+  "Type of chain asset, taken from BlinkChainAssetType enum"
+  chainAssetType: BlinkChainAssetType!
+
+  "Arbitrary additional identifier for extending chainAssetType. For example Lens Publication"
+  chainAssetSubtype: String!
+}
+
+#rename to tag
+type Tag @entity {
+  id: ID!
+  machineName: String!
+  display: String!
+  owner: Owner!
+  creator: Creator!
+  publisher: Publisher!
+  timestamp: BigInt!
+  tagCount: BigInt!
+  premium: Boolean!
+  reserved: Boolean!
+
+  #tagging revenue
+  ownerRevenue: BigInt!
+  publisherRevenue: BigInt!
+  protocolRevenue: BigInt!
+  creatorRevenue: BigInt!
+}
+
+type TaggingRecord @entity {
+  id: ID!
+  tags: [Tag!]!
+  target: Target!
+  recordType: String!
+  tagger: Tagger!
+  publisher: Publisher!
+  timestamp: BigInt!
+}
+
+type TargetTagger @entity {
+  id: ID!
+  name: String
+  firstSeen: BigInt!
+  paused: Boolean
+  owner: String
+  creator: String
+}
+
+type Administrator @entity {
+  id: ID!
+  firstSeen: BigInt!
+}
+
+type Platform @entity {
+  id: ID!
+  firstSeen: BigInt!
+  tagFees: BigInt!
+}
+
+type PublisherAdmin @entity {
+  id: ID!
+  firstSeen: BigInt!
+}
+
+type Publisher @entity {
+  id: ID!
+  firstSeen: BigInt!
+  mintCount: BigInt!
+  tagCount: BigInt!
+  tagFees: BigInt!
+}
+
+type Creator @entity {
+  id: ID!
+  firstSeen: BigInt!
+  mintCount: BigInt!
+  tagCount: BigInt!
+  tagFees: BigInt!
+}
+
+type Owner @entity {
+  id: ID!
+  firstSeen: BigInt!
+  mintCount: BigInt!
+  tagCount: BigInt!
+  tagFees: BigInt!
+}
+
+type Tagger @entity {
+  id: ID!
+  firstSeen: BigInt!
+  tagCount: BigInt!
+  feesPaid: BigInt!
+}

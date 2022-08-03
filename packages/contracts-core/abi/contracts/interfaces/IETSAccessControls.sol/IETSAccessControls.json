@@ -4,25 +4,18 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "contract IETSToken",
-        "name": "etsToken",
+        "internalType": "address",
+        "name": "newAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "prevAddress",
         "type": "address"
       }
     ],
-    "name": "ETSTokenSet",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "threshold",
-        "type": "uint256"
-      }
-    ],
-    "name": "PublisherDefaultThresholdSet",
+    "name": "PlatformSet",
     "type": "event"
   },
   {
@@ -101,32 +94,57 @@
     "type": "event"
   },
   {
-    "inputs": [],
-    "name": "getPublisherDefaultThreshold",
-    "outputs": [
+    "anonymous": false,
+    "inputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "indexed": false,
+        "internalType": "address",
+        "name": "targetTagger",
+        "type": "address"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
+    "name": "TargetTaggerAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "newValue",
+        "type": "bool"
+      }
+    ],
+    "name": "TargetTaggerPauseToggled",
+    "type": "event"
   },
   {
     "inputs": [
       {
         "internalType": "address",
-        "name": "_addr",
+        "name": "_taggerAddress",
         "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
       }
     ],
-    "name": "getPublisherThreshold",
+    "name": "addTargetTagger",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getPlatformAddress",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "address payable",
         "name": "",
-        "type": "uint256"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -272,6 +290,76 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "_addr",
+        "type": "address"
+      }
+    ],
+    "name": "isTargetTagger",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
+      }
+    ],
+    "name": "isTargetTagger",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_addr",
+        "type": "address"
+      }
+    ],
+    "name": "isTargetTaggerAndNotPaused",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_taggerAddress",
+        "type": "address"
+      }
+    ],
+    "name": "removeTargetTagger",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes32",
         "name": "role",
         "type": "bytes32"
@@ -308,25 +396,12 @@
   {
     "inputs": [
       {
-        "internalType": "contract IETSToken",
-        "name": "_etsToken",
+        "internalType": "address payable",
+        "name": "_platform",
         "type": "address"
       }
     ],
-    "name": "setETSToken",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_threshold",
-        "type": "uint256"
-      }
-    ],
-    "name": "setPublisherDefaultThreshold",
+    "name": "setPlatform",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -350,15 +425,15 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "togglePublisher",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "bool",
-        "name": "toggled",
-        "type": "bool"
+        "internalType": "address",
+        "name": "_taggerAddress",
+        "type": "address"
       }
     ],
+    "name": "toggleIsTargetTaggerPaused",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   }
