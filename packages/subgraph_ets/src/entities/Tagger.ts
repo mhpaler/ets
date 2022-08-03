@@ -1,23 +1,21 @@
 import { Tagger } from "../generated/schema";
-import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { BigInt, ethereum } from "@graphprotocol/graph-ts";
 
 export const ZERO = BigInt.fromI32(0);
 
 export function ensureTagger(
-  taggerAddress: Address,
+  taggerAddress: string,
   event: ethereum.Event
 ): Tagger | null {
-  let tagger = Tagger.load(taggerAddress.toHexString()) as Tagger;
+  let tagger = Tagger.load(taggerAddress);
 
-  if (tagger) {
-    return tagger;
+  if (tagger === null) {
+    tagger = new Tagger(taggerAddress);
+    tagger.firstSeen = event.block.timestamp;
+    tagger.tagCount = ZERO;
+    tagger.feesPaid = ZERO;
+    tagger.save();
   }
 
-  tagger = new Tagger(taggerAddress.toHexString());
-  tagger.firstSeen = event.block.timestamp;
-  tagger.tagCount = ZERO;
-  tagger.feesPaid = ZERO;
-  tagger.save();
-
-  return tagger;
+  return tagger as Tagger;
 }

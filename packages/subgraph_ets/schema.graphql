@@ -58,34 +58,6 @@ type TargetTypeBlink implements TargetTypeInterface @entity {
   chainAssetSubtype: String!
 }
 
-# type LensPublication implements Target @entity {
-#   id: ID!
-#   created: BigInt!
-#   creator: Creator! ?
-#   targetURI: String!
-#   type: String! ?
-#   enriched: BigInt!
-#   httpStatus: BigInt!
-#   metadataURI: String!
-#   #timestamp: BigInt!
-#   publicationId: String!
-# }
-
-# type EVM_NFT implements Target @entity {
-#   id: ID!
-#   timestamp: BigInt!
-#   nftContract: String!
-#   nftId: String!
-#   nftContractName: String
-#   nftTokenUri: String
-#   nftName: String
-#   nftDescription: String
-#   nftImage: String
-#   nftChainId: BigInt!
-#   ipfsHash: String
-#   isPremium: Boolean
-# }
-
 #rename to tag
 type Tag @entity {
   id: ID!
@@ -108,12 +80,11 @@ type Tag @entity {
 
 type TaggingRecord @entity {
   id: ID!
-  transaction: String!
-  tag: [Tag!]!
+  tags: [Tag!]!
+  target: Target!
+  recordType: String!
   tagger: Tagger!
   publisher: Publisher!
-  target: Target!
-  tagName: String!
   timestamp: BigInt!
 }
 

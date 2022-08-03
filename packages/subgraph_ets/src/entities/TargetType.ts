@@ -1,11 +1,10 @@
+import { ethereum } from "@graphprotocol/graph-ts";
 import { TargetTypeBlink, TargetTypeMisc } from "../generated/schema";
-
-import { TargetCreated } from "../generated/ETSTarget/ETSTarget";
 
 export function ensureTargetType(
   id: string,
   targetURI: string,
-  event: TargetCreated
+  event: ethereum.Event
 ): string[] {
   let parts = targetURI.split(":");
 
@@ -16,7 +15,7 @@ export function ensureTargetType(
     let targetType = TargetTypeBlink.load(id);
     let terms: string[] = [];
     if (targetType === null) {
-      targetType = new TargetTypeBlink(event.params.targetId.toString());
+      targetType = new TargetTypeBlink(id);
       targetType.typeName = "Blink";
       targetType.chainName = parts[1];
       targetType.chainNetwork = parts[2];
@@ -53,7 +52,7 @@ export function ensureTargetType(
     let terms: string[] = [];
     let targetType = TargetTypeMisc.load(id);
     if (targetType === null) {
-      targetType = new TargetTypeMisc(event.params.targetId.toString());
+      targetType = new TargetTypeMisc(id);
       targetType.typeName = "Miscellaneous";
       targetType.save();
       terms = [targetType.id, targetType.typeName];

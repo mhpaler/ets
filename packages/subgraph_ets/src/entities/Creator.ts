@@ -1,24 +1,21 @@
 import { Creator } from "../generated/schema";
-import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { BigInt, ethereum } from "@graphprotocol/graph-ts";
 
 export const ZERO = BigInt.fromI32(0);
 
 export function ensureCreator(
-  creatorAddress: Address,
+  creatorAddress: string,
   event: ethereum.Event
-): Creator | null {
-  let creator = Creator.load(creatorAddress.toHexString()) as Creator;
+): Creator {
+  let creator = Creator.load(creatorAddress);
 
-  if (creator) {
-    return creator;
+  if (creator === null) {
+    creator = new Creator(creatorAddress);
+    creator.firstSeen = event.block.timestamp;
+    creator.mintCount = ZERO;
+    creator.tagCount = ZERO;
+    creator.tagFees = ZERO;
+    creator.save();
   }
-
-  creator = new Creator(creatorAddress.toHexString());
-  creator.firstSeen = event.block.timestamp;
-  creator.mintCount = ZERO;
-  creator.tagCount = ZERO;
-  creator.tagFees = ZERO;
-  creator.save();
-
-  return creator;
+  return creator as Creator;
 }

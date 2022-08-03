@@ -1,11 +1,11 @@
-import { Target, TargetTypeBlink, TargetTypeMisc } from "../generated/schema";
+import { Target } from "../generated/schema";
 import { ETSTarget, TargetCreated } from "../generated/ETSTarget/ETSTarget";
 import { ensureTargetType } from "../entities/TargetType";
 
 export function ensureTarget(id: string, event: TargetCreated): Target {
   let target = Target.load(id);
 
-  if (target === null) {
+  if (target === null && event) {
     // Ensure the target type.
     let targetContract = ETSTarget.bind(event.address);
     let targetStruct = targetContract.getTarget1(event.params.targetId);

@@ -26,30 +26,28 @@ const PUBLISHER_ROLE_ADMIN = Bytes.fromHexString(
 //   "0x5474431f81b75a7b45d74ffe5ff51964b4290ef4c86184accd4e4a9822dae901"
 // );
 
-/**
- * Track roles that are granted to Ethereum accounts
- *
- * event.params.role - Role being granted (A SHA3 hash of the role name)
- * event.params.account - Account that's been given the role
- * event.params.sender - Account that issued the role
- *
- */
 export function handleRoleGranted(event: RoleGranted): void {
   if (event.params.role.equals(DEFAULT_ADMIN_ROLE)) {
-    let administrator = ensureAdministrator(event.params.account, event);
+    let administrator = ensureAdministrator(
+      event.params.account.toHexString(),
+      event
+    );
     // Not sure we need to save here as new publisher is saved via ensurePublisher.
     if (administrator) {
       administrator.save();
     }
   }
   if (event.params.role.equals(PUBLISHER_ROLE_ADMIN)) {
-    let publisherAdmin = ensurePublisherAdmin(event.params.account, event);
+    let publisherAdmin = ensurePublisherAdmin(
+      event.params.account.toHexString(),
+      event
+    );
     if (publisherAdmin) {
       publisherAdmin.save();
     }
   }
   if (event.params.role.equals(PUBLISHER_ROLE)) {
-    let publisher = ensurePublisher(event.params.account, event);
+    let publisher = ensurePublisher(event.params.account.toHexString(), event);
     if (publisher) {
       publisher.save();
     }
@@ -58,19 +56,25 @@ export function handleRoleGranted(event: RoleGranted): void {
 
 export function handleRoleRevoked(event: RoleRevoked): void {
   if (event.params.role.equals(DEFAULT_ADMIN_ROLE)) {
-    let administrator = ensureAdministrator(event.params.account, event);
+    let administrator = ensureAdministrator(
+      event.params.account.toHexString(),
+      event
+    );
     if (administrator) {
       store.remove("Administrator", administrator.id);
     }
   }
   if (event.params.role.equals(PUBLISHER_ROLE_ADMIN)) {
-    let publisherAdmin = ensurePublisherAdmin(event.params.account, event);
+    let publisherAdmin = ensurePublisherAdmin(
+      event.params.account.toHexString(),
+      event
+    );
     if (publisherAdmin) {
       store.remove("PublisherAdmin", publisherAdmin.id);
     }
   }
   if (event.params.role.equals(PUBLISHER_ROLE)) {
-    let publisher = ensurePublisher(event.params.account, event);
+    let publisher = ensurePublisher(event.params.account.toHexString(), event);
     if (publisher) {
       store.remove("Publisher", publisher.id);
     }
@@ -79,18 +83,24 @@ export function handleRoleRevoked(event: RoleRevoked): void {
 
 export function handlePlatformSet(event: PlatformSet): void {
   //Fetch current platform address
-  let prevPlatform = ensurePlatform(event.params.prevAddress, event);
+  let prevPlatform = ensurePlatform(
+    event.params.prevAddress.toHexString(),
+    event
+  );
   if (prevPlatform) {
     store.remove("Platform", prevPlatform.id);
   }
-  let platform = ensurePlatform(event.params.newAddress, event);
+  let platform = ensurePlatform(event.params.newAddress.toHexString(), event);
   if (platform) {
     platform.save();
   }
 }
 
 export function handleTargetTaggerAdded(event: TargetTaggerAdded): void {
-  let targetTagger = ensureTargetTagger(event.params.targetTagger, event);
+  let targetTagger = ensureTargetTagger(
+    event.params.targetTagger.toHexString(),
+    event
+  );
   if (targetTagger) {
     targetTagger.save();
   }

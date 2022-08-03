@@ -4,13 +4,13 @@ import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 export const ZERO = BigInt.fromI32(0);
 
 export function ensurePublisher(
-  address: Address,
+  address: string,
   event: ethereum.Event
 ): Publisher {
-  let publisher = Publisher.load(address.toHexString());
+  let publisher = Publisher.load(address);
 
   if (publisher === null) {
-    publisher = new Publisher(address.toHexString());
+    publisher = new Publisher(address);
     publisher.firstSeen = event.block.timestamp;
     publisher.mintCount = ZERO;
     publisher.tagCount = ZERO;

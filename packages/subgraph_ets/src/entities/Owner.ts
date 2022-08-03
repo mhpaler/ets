@@ -1,24 +1,22 @@
 import { Owner } from "../generated/schema";
-import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { BigInt, ethereum } from "@graphprotocol/graph-ts";
 
 export const ZERO = BigInt.fromI32(0);
 
 export function ensureOwner(
-  ownerAddress: Address,
+  ownerAddress: string,
   event: ethereum.Event
-): Owner | null {
-  let owner = Owner.load(ownerAddress.toHexString()) as Owner;
+): Owner {
+  let owner = Owner.load(ownerAddress);
 
-  if (owner) {
-    return owner;
+  if (owner === null) {
+    owner = new Owner(ownerAddress);
+    owner.firstSeen = event.block.timestamp;
+    owner.mintCount = ZERO;
+    owner.tagCount = ZERO;
+    owner.tagFees = ZERO;
+    owner.save();
   }
-
-  owner = new Owner(ownerAddress.toHexString());
-  owner.firstSeen = event.block.timestamp;
-  owner.mintCount = ZERO;
-  owner.tagCount = ZERO;
-  owner.tagFees = ZERO;
-  owner.save();
 
   return owner;
 }

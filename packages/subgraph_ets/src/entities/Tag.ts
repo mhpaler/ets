@@ -6,32 +6,28 @@ import { toLowerCase } from "../utils/helpers";
 
 export const ZERO = BigInt.fromI32(0);
 
-export function ensureTag(
-  id: string,
-  event: Transfer
-): Tag {
+export function ensureTag(id: string, event: Transfer | null): Tag {
   let tag = Tag.load(id);
 
-  if (tag === null) {
-    tag = new Tag(event.params.tokenId.toString());
+  if (tag === null && event) {
+    tag = new Tag(id);
     let tagContract = ETSToken.bind(event.address);
     let tagStruct = tagContract.getTag(event.params.tokenId);
-  
-    tag.display = tagStruct.display;
-  
     let lowerTag: string = toLowerCase(tagStruct.display);
-  
+
     tag.machineName = lowerTag.substring(1, lowerTag.length);
-  
-    tag.owner = tagContract.getPlatformAddress().toString();
-    tag.creator = tagStruct.creator.toString();
-    tag.publisher = tagStruct.publisher.toString();
+    tag.display = tagStruct.display;
+    tag.owner = tagContract.getPlatformAddress().toHexString();
+    tag.creator = tagStruct.creator.toHexString();
+    tag.publisher = tagStruct.publisher.toHexString();
     tag.timestamp = event.block.timestamp;
-    tag.tagCount = BigInt.fromI32(0);
-    tag.ownerRevenue = BigInt.fromI32(0);
-    tag.publisherRevenue = BigInt.fromI32(0);
-    tag.protocolRevenue = BigInt.fromI32(0);
-    tag.creatorRevenue = BigInt.fromI32(0);
+    tag.tagCount = ZERO;
+    tag.premium = tagStruct.premium;
+    tag.reserved = tagStruct.reserved;
+    tag.ownerRevenue = ZERO;
+    tag.publisherRevenue = ZERO;
+    tag.protocolRevenue = ZERO;
+    tag.creatorRevenue = ZERO;
     tag.save();
   }
 

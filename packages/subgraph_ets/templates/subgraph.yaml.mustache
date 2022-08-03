@@ -75,26 +75,6 @@ dataSources:
           handler: handleTargetCreated
       file: ./src/mappings/ETSTarget.ts
   - kind: ethereum/contract
-    name: ETSToken
-    network: {{network}}
-    source:
-      address: "{{contracts.ETSToken.address}}"
-      abi: ETSToken
-      startBlock: {{contracts.ETSToken.deploymentBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - Transfer
-      abis:
-        - name: ETSToken
-          file: ./../contracts-core/abi/contracts/ETSToken.sol/ETSToken.json
-      eventHandlers:
-        - event: Transfer(indexed address,indexed address,indexed uint256)
-          handler: handleCreateTag
-      file: ./src/mappings/ETSToken.ts
-  - kind: ethereum/contract
     name: ETS
     network: {{network}}
     source:
@@ -108,10 +88,16 @@ dataSources:
       entities:
         - TaggingRecord
       abis:
+        - name: ETSAccessControls
+          file: ./../contracts-core/abi/contracts/ETSAccessControls.sol/ETSAccessControls.json
+        - name: ETSToken
+          file: ./../contracts-core/abi/contracts/ETSToken.sol/ETSToken.json
+        - name: ETSTarget
+          file: ./../contracts-core/abi/contracts/ETSTarget.sol/ETSTarget.json
         - name: ETS
           file: ./../contracts-core/abi/contracts/ETS.sol/ETS.json
       eventHandlers:
-        - event: TargetTagged(uint256);
+        - event: TargetTagged(uint256)
           handler: handleTaggingRecordCreated
       file: ./src/mappings/ETS.ts
 
