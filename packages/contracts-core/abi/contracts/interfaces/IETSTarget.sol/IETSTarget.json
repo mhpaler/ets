@@ -204,19 +204,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_etsAccessControls",
-        "type": "address"
-      }
-    ],
-    "name": "setAccessControls",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
         "name": "_etsEnrichTarget",
         "type": "address"
       }

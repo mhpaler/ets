@@ -94,7 +94,9 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
     // ============ UUPS INTERFACE ============
 
     /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() public initializer {}
+    constructor() {
+        _disableInitializers();
+    }
 
     function initialize(
         IETSToken _etsToken,

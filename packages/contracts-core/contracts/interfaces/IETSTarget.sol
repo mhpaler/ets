@@ -72,14 +72,6 @@ interface IETSTarget {
     event TargetUpdated(uint256 targetId);
 
     /**
-     * @notice Sets ETSAccessControls on the ETSTarget contract so functions can be
-     * restricted to ETS platform only.
-     *
-     * @param _etsAccessControls Address of ETSAccessControls contract.
-     */
-    function setAccessControls(address _etsAccessControls) external;
-
-    /**
      * @notice Sets ETSEnrichTarget contract address so that Target metadata enrichment
      * functions can be called from ETSTarget.
      *

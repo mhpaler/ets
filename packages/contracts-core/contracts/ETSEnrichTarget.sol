@@ -51,7 +51,9 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
     // ============ UUPS INTERFACE ============
 
     /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() public initializer {}
+    constructor() {
+        _disableInitializers();
+    }
 
     function initialize(IETSAccessControls _etsAccessControls, IETSTarget _etsTarget) public initializer {
         // Initialize access controls & ETS

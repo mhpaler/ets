@@ -64,7 +64,9 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     // ============ UUPS INTERFACE ============
 
     /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() public initializer {}
+    constructor() {
+        _disableInitializers();
+    }
 
     function initialize(
         IETSAccessControls _etsAccessControls,
@@ -86,10 +88,16 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     // ============ OWNER INTERFACE ============
 
-    /// @notice Admin functionality for updating the access controls.
-    /// @param _accessControls Address of the access controls contract.
+    /**
+     * @notice Sets ETSAccessControls on the ETSTarget contract so functions can be
+     * restricted to ETS platform only. Note Caller of this function must be deployer
+     * or pre-set as admin of new contract.
+     *
+     * @param _accessControls Address of ETSAccessControls contract.
+     */
     function setAccessControls(IETSAccessControls _accessControls) public onlyAdmin {
         require(address(_accessControls) != address(0), "Address cannot be zero");
+        require(_accessControls.isAdmin(_msgSender()), "Caller not admin in new contract");
         etsAccessControls = _accessControls;
         emit AccessControlsSet(address(etsAccessControls));
     }
@@ -170,7 +178,9 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         uint256 balanceDue = totalDue(_account);
         if (balanceDue > 0 && balanceDue <= address(this).balance) {
             paid[_account] = paid[_account] + balanceDue;
-            _account.transfer(balanceDue);
+
+            (bool success, ) = _account.call{ value: balanceDue }("");
+            require(success, "Transfer failed.");
 
             emit FundsWithdrawn(_account, balanceDue);
         }

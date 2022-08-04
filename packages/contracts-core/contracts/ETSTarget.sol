@@ -56,7 +56,9 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
     // ============ UUPS INTERFACE ============
 
     /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() public initializer {}
+    constructor() {
+        _disableInitializers();
+    }
 
     function initialize(address _etsAccessControls) public initializer {
         etsAccessControls = IETSAccessControls(_etsAccessControls);
@@ -66,11 +68,18 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
 
     // ============ OWNER INTERFACE ============
 
-    /// @inheritdoc IETSTarget
-    function setAccessControls(address _etsAccessControls) public onlyAdmin {
-        require(address(_etsAccessControls) != address(0), "Access controls cannot be zero");
-        etsAccessControls = IETSAccessControls(_etsAccessControls);
-        emit AccessControlsSet(address(_etsAccessControls));
+    /**
+     * @notice Sets ETSAccessControls on the ETSTarget contract so functions can be
+     * restricted to ETS platform only. Note Caller of this function must be deployer
+     * or pre-set as admin of new contract.
+     *
+     * @param _accessControls Address of ETSAccessControls contract.
+     */
+    function setAccessControls(IETSAccessControls _accessControls) public onlyAdmin {
+        require(address(_accessControls) != address(0), "Address cannot be zero");
+        require(_accessControls.isAdmin(msg.sender), "Caller not admin in new contract");
+        etsAccessControls = _accessControls;
+        emit AccessControlsSet(address(etsAccessControls));
     }
 
     /// @inheritdoc IETSTarget
