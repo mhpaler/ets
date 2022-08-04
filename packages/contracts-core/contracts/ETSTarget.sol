@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.10;
 
 import "./utils/StringHelpers.sol";
 import "./interfaces/IETSTarget.sol";
@@ -7,9 +7,6 @@ import "./interfaces/IETSEnrichTarget.sol";
 import "./interfaces/IETSAccessControls.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
-
-import "hardhat/console.sol";
 
 /**
  * @title IETSTarget
@@ -37,7 +34,6 @@ import "hardhat/console.sol";
  */
 contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
     using AddressUpgradeable for address;
-    using SafeMathUpgradeable for uint256;
 
     IETSAccessControls public etsAccessControls;
 
@@ -59,6 +55,11 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
 
     // ============ UUPS INTERFACE ============
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
     function initialize(address _etsAccessControls) public initializer {
         etsAccessControls = IETSAccessControls(_etsAccessControls);
     }
@@ -67,11 +68,18 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
 
     // ============ OWNER INTERFACE ============
 
-    /// @inheritdoc IETSTarget
-    function setAccessControls(address _etsAccessControls) public onlyAdmin {
-        require(address(_etsAccessControls) != address(0), "Access controls cannot be zero");
-        etsAccessControls = IETSAccessControls(_etsAccessControls);
-        emit AccessControlsSet(address(_etsAccessControls));
+    /**
+     * @notice Sets ETSAccessControls on the ETSTarget contract so functions can be
+     * restricted to ETS platform only. Note Caller of this function must be deployer
+     * or pre-set as admin of new contract.
+     *
+     * @param _accessControls Address of ETSAccessControls contract.
+     */
+    function setAccessControls(IETSAccessControls _accessControls) public onlyAdmin {
+        require(address(_accessControls) != address(0), "Address cannot be zero");
+        require(_accessControls.isAdmin(msg.sender), "Caller not admin in new contract");
+        etsAccessControls = _accessControls;
+        emit AccessControlsSet(address(etsAccessControls));
     }
 
     /// @inheritdoc IETSTarget
@@ -86,7 +94,7 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
     /// @inheritdoc IETSTarget
     function getOrCreateTargetId(string memory _targetURI) public returns (uint256) {
         uint256 _targetId = computeTargetId(_targetURI);
-        if (targets[_targetId].created != 0) {
+        if (bytes(targets[_targetId].targetURI).length > 0) {
             return _targetId;
         }
 
@@ -96,12 +104,12 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
     /// @inheritdoc IETSTarget
     function createTarget(string memory _targetURI) public returns (uint256 targetId) {
         require(!targetExists(_targetURI), "target id exists");
+        require(bytes(_targetURI).length > 0, "empty target");
 
         uint256 _targetId = computeTargetId(_targetURI);
         targets[_targetId] = Target({
             targetURI: _targetURI,
             createdBy: msg.sender,
-            created: block.timestamp,
             enriched: 0,
             httpStatus: 0,
             ipfsHash: ""
@@ -145,7 +153,7 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
 
     /// @inheritdoc IETSTarget
     function targetExists(uint256 _targetId) public view returns (bool) {
-        return targets[_targetId].created > 0 ? true : false;
+        return bytes(targets[_targetId].targetURI).length > 0 ? true : false;
     }
 
     /// @inheritdoc IETSTarget

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.10;
 
 /**
  * @title ETS
@@ -53,9 +53,8 @@ interface IETS {
      *
      * @param platformPercentage percentage of tagging fee allocated to ETS.
      * @param publisherPercentage percentage of tagging fee allocated to publisher of record for CTAG being used in tagging record.
-     * @param remainingPercentage percentage of tagging fee allocated to creator or owner of CTAG being used in tagging record.
      */
-    event PercentagesSet(uint256 platformPercentage, uint256 publisherPercentage, uint256 remainingPercentage);
+    event PercentagesSet(uint256 platformPercentage, uint256 publisherPercentage);
 
     /**
      * @dev emitted when a new tagging record is recorded within ETS.

@@ -132,11 +132,6 @@
           },
           {
             "internalType": "uint256",
-            "name": "created",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
             "name": "enriched",
             "type": "uint256"
           },
@@ -183,11 +178,6 @@
           },
           {
             "internalType": "uint256",
-            "name": "created",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
             "name": "enriched",
             "type": "uint256"
           },
@@ -208,19 +198,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_etsAccessControls",
-        "type": "address"
-      }
-    ],
-    "name": "setAccessControls",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

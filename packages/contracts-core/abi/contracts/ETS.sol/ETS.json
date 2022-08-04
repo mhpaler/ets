@@ -1,5 +1,10 @@
 [
   {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -89,12 +94,6 @@
         "indexed": false,
         "internalType": "uint256",
         "name": "publisherPercentage",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "remainingPercentage",
         "type": "uint256"
       }
     ],
@@ -463,19 +462,6 @@
   {
     "inputs": [],
     "name": "publisherPercentage",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "remainingPercentage",
     "outputs": [
       {
         "internalType": "uint256",

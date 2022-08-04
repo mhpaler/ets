@@ -1,5 +1,5 @@
-const {setup} = require("./setup.js");
-const {ethers} = require("hardhat");
+const {setup, getFactories} = require("./setup.js");
+const {ethers, upgrades} = require("hardhat");
 const {expect} = require("chai");
 const {constants} = ethers;
 
@@ -69,23 +69,40 @@ describe("ETS Core tests", function () {
   });
 
   describe("Setting access controls", async () => {
-    it("should revert if caller is not administrator", async function () {
-      await expect(contracts.ETS.connect(accounts.RandomTwo).setAccessControls(accounts.RandomOne.address)).to.be
-        .reverted;
-    });
-
     it("should revert if set to zero address", async function () {
       await expect(
         contracts.ETS.connect(accounts.ETSPlatform).setAccessControls(constants.AddressZero),
       ).to.be.revertedWith("Address cannot be zero");
     });
 
-    it("should emit AccessControlsSet", async function () {
-      await expect(contracts.ETS.connect(accounts.ETSPlatform).setAccessControls(accounts.RandomTwo.address))
-        .to.emit(contracts.ETS, "AccessControlsSet")
-        .withArgs(accounts.RandomTwo.address);
+    it("should revert if caller is not administrator", async function () {
+      await expect(contracts.ETS.connect(accounts.RandomTwo).setAccessControls(accounts.RandomOne.address)).to.be
+        .reverted;
+    });
 
-      expect(await contracts.ETS.etsAccessControls()).to.be.equal(accounts.RandomTwo.address);
+    it("should revert if a access controls is set to a non-access control contract", async function () {
+      await expect(contracts.ETS.connect(accounts.ETSPlatform).setAccessControls(accounts.RandomTwo.address)).to.be
+        .reverted;
+    });
+
+    it("should revert if caller is not set as admin in contract being set.", async function () {
+      factories = await getFactories();
+      const ETSAccessControlsNew = await upgrades.deployProxy(factories.ETSAccessControls, [], {kind: "uups"});
+
+      // ETS Platform is not set as admin in access controls.
+      await expect(
+        contracts.ETS.connect(accounts.ETSPlatform).setAccessControls(ETSAccessControlsNew.address),
+      ).to.be.revertedWith("Caller not admin in new contract");
+    });
+
+    it("should emit AccessControlsSet", async function () {
+      factories = await getFactories();
+      const ETSAccessControlsNew = await upgrades.deployProxy(factories.ETSAccessControls, [], {kind: "uups"});
+
+      await expect(contracts.ETS.connect(accounts.ETSAdmin).setAccessControls(ETSAccessControlsNew.address))
+        .to.emit(contracts.ETS, "AccessControlsSet")
+        .withArgs(ETSAccessControlsNew.address);
+      expect(await contracts.ETS.etsAccessControls()).to.be.equal(ETSAccessControlsNew.address);
     });
   });
 
@@ -116,11 +133,10 @@ describe("ETS Core tests", function () {
     it("should emit PercentagesSet", async function () {
       await expect(contracts.ETS.connect(accounts.ETSPlatform).setPercentages(30, 30))
         .to.emit(contracts.ETS, "PercentagesSet")
-        .withArgs(30, 30, 40);
+        .withArgs(30, 30);
 
       expect(await contracts.ETS.platformPercentage()).to.be.equal(30);
       expect(await contracts.ETS.publisherPercentage()).to.be.equal(30);
-      expect(await contracts.ETS.remainingPercentage()).to.be.equal(40);
     });
   });
 
@@ -353,18 +369,17 @@ describe("ETS Core tests", function () {
       publisherPostTagAccrued = await contracts.ETS.accrued(accounts.RandomOne.address);
       creatorPostTagAccrued = await contracts.ETS.accrued(accounts.Creator.address);
 
-      expect(platformPostTagAccrued).to.equal(
-        platformPreTagAccrued + taggingFee * ((await contracts.ETS.platformPercentage()) / 100),
-      );
+      const platformPercentage = (await contracts.ETS.platformPercentage()) / 100;
+      const publisherPercentage = (await contracts.ETS.publisherPercentage()) / 100;
+
+      expect(platformPostTagAccrued).to.equal(platformPreTagAccrued + taggingFee * platformPercentage);
 
       // Publisher accrued.
-      expect(publisherPostTagAccrued).to.equal(
-        publisherPreTagAccrued + taggingFee * ((await contracts.ETS.publisherPercentage()) / 100),
-      );
+      expect(publisherPostTagAccrued).to.equal(publisherPreTagAccrued + taggingFee * publisherPercentage);
 
       // Token creator
       expect(creatorPostTagAccrued).to.equal(
-        creatorPreTagAccrued + taggingFee * ((await contracts.ETS.remainingPercentage()) / 100),
+        creatorPreTagAccrued + taggingFee * (1 - (platformPercentage + publisherPercentage)),
       );
     });
 
@@ -388,18 +403,17 @@ describe("ETS Core tests", function () {
       publisherPostTagAccrued = await contracts.ETS.accrued(accounts.RandomOne.address);
       ownerPostTagAccrued = await contracts.ETS.accrued(accounts.RandomTwo.address);
 
-      expect(platformPostTagAccrued).to.equal(
-        platformPreTagAccrued + taggingFee * ((await contracts.ETS.platformPercentage()) / 100),
-      );
+      const platformPercentage = (await contracts.ETS.platformPercentage()) / 100;
+      const publisherPercentage = (await contracts.ETS.publisherPercentage()) / 100;
+
+      expect(platformPostTagAccrued).to.equal(platformPreTagAccrued + taggingFee * platformPercentage);
 
       // Publisher accrued.
-      expect(publisherPostTagAccrued).to.equal(
-        publisherPreTagAccrued + taggingFee * ((await contracts.ETS.publisherPercentage()) / 100),
-      );
+      expect(publisherPostTagAccrued).to.equal(publisherPreTagAccrued + taggingFee * publisherPercentage);
 
       // Token creator
       expect(ownerPostTagAccrued).to.equal(
-        ownerPostTagAccrued + taggingFee * ((await contracts.ETS.remainingPercentage()) / 100),
+        ownerPreTagAccrued + taggingFee * (1 - (platformPercentage + publisherPercentage)),
       );
     });
   });

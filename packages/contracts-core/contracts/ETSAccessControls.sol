@@ -1,15 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.10;
 
 import { IETSTargetTagger } from "./interfaces/IETSTargetTagger.sol";
 import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
 import "@openzeppelin/contracts/interfaces/IERC165.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-
-import "hardhat/console.sol";
 
 /**
  * @title IETSAccessControls
@@ -20,8 +17,6 @@ import "hardhat/console.sol";
  * ETSAccessControls contract contains a mix of public and administrator only functions.
  */
 contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAccessControls, UUPSUpgradeable {
-    using SafeMathUpgradeable for uint256;
-
     /// Public constants
     string public constant NAME = "ETS access controls";
     bytes32 public constant PUBLISHER_ROLE = keccak256("PUBLISHER");
@@ -42,6 +37,11 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     mapping(address => string) public targetTaggerContractToName;
 
     // ============ UUPS INTERFACE ============
+
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
 
     function initialize() public initializer {
         __AccessControl_init();

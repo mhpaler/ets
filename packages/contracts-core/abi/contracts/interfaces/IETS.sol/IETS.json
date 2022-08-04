@@ -45,12 +45,6 @@
         "internalType": "uint256",
         "name": "publisherPercentage",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "remainingPercentage",
-        "type": "uint256"
       }
     ],
     "name": "PercentagesSet",

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.10;
 
 import "../interfaces/IETS.sol";
 import "../interfaces/IETSToken.sol";
@@ -8,8 +8,6 @@ import "../interfaces/IETSTargetTagger.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { Pausable } from "@openzeppelin/contracts/security/Pausable.sol";
-
-import "hardhat/console.sol";
 
 /**
  * @title ETSTargetTagger
