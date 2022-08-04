@@ -18,7 +18,11 @@ module.exports = async ({getChainId, deployments}) => {
   }
 
   // Deploy ETSTarget
-  const deployment = await upgrades.deployProxy(factories.ETSTarget, [etsAccessControlsAddress], {kind: "uups"});
+  const deployment = await upgrades.deployProxy(factories.ETSTarget, [etsAccessControlsAddress], {
+    kind: "uups",
+    pollingInterval: 3000,
+    timeout: 0,
+  });
   await deployment.deployed();
   const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
 
@@ -43,4 +47,4 @@ module.exports = async ({getChainId, deployments}) => {
   log("====================================================");
 };
 module.exports.tags = ["ETSTarget"];
-module.exports.dependencies = ["ETSAuctionHouse"];
+//module.exports.dependencies = ["ETSAuctionHouse"];

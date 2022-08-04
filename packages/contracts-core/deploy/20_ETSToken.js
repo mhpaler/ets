@@ -26,7 +26,7 @@ module.exports = async ({getChainId, deployments}) => {
       initSettings.TAG_MAX_STRING_LENGTH,
       initSettings.OWNERSHIP_TERM_LENGTH,
     ],
-    {kind: "uups"},
+    {kind: "uups", pollingInterval: 3000, timeout: 0},
   );
   await deployment.deployed();
   const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);

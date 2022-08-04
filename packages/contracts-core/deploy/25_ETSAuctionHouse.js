@@ -45,7 +45,7 @@ module.exports = async ({getChainId, deployments}) => {
       initSettings.CREATOR_PERCENTAGE,
       initSettings.PLATFORM_PERCENTAGE,
     ],
-    {kind: "uups"},
+    {kind: "uups", pollingInterval: 3000, timeout: 0},
   );
   await deployment.deployed();
   const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
