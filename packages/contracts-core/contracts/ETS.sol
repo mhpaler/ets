@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.10;
 
-// import "./ETSToken.sol";
 import "./interfaces/IETS.sol";
 import "./interfaces/IETSToken.sol";
 import "./interfaces/IETSTarget.sol";
@@ -10,8 +9,6 @@ import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-
-import "hardhat/console.sol";
 
 /**
  * @title ETS
@@ -42,9 +39,6 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @dev Percentage of tagging fee allocated to Publisher.
     uint256 public publisherPercentage;
 
-    /// @dev Percentage of tagging fee allocated to CTAG Creator or Owner.
-    uint256 public remainingPercentage;
-
     /// @dev Map for holding amount accrued to participant address wallets.
     mapping(address => uint256) public accrued;
 
@@ -69,6 +63,9 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     // ============ UUPS INTERFACE ============
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() public initializer {}
+
     function initialize(
         IETSAccessControls _etsAccessControls,
         IETSToken _etsToken,
@@ -81,8 +78,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         etsToken = _etsToken;
         etsTarget = _etsTarget;
         taggingFee = _taggingFee;
-        platformPercentage = _platformPercentage;
-        publisherPercentage = _publisherPercentage;
+        setPercentages(_platformPercentage, _publisherPercentage);
     }
 
     // Ensure that only address with admin role can upgrade.
@@ -112,9 +108,8 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         require(_platformPercentage + _publisherPercentage <= 100, "percentages must not be over 100");
         platformPercentage = _platformPercentage;
         publisherPercentage = _publisherPercentage;
-        remainingPercentage = modulo - platformPercentage - publisherPercentage;
 
-        emit PercentagesSet(platformPercentage, publisherPercentage, remainingPercentage);
+        emit PercentagesSet(platformPercentage, publisherPercentage);
     }
 
     // ============ PUBLIC INTERFACE ============
@@ -172,7 +167,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     /// @inheritdoc IETS
     function drawDown(address payable _account) external nonReentrant {
-        uint256 balanceDue = accrued[_account] - paid[_account];
+        uint256 balanceDue = totalDue(_account);
         if (balanceDue > 0 && balanceDue <= address(this).balance) {
             paid[_account] = paid[_account] + balanceDue;
             _account.transfer(balanceDue);
@@ -279,17 +274,20 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address owner = etsToken.ownerOf(_tagId);
         IETSToken.Tag memory tag = etsToken.getTag(_tagId);
 
+        uint256 platformAllocation = (msg.value * platformPercentage) / modulo;
+        uint256 publisherAllocation = (msg.value * publisherPercentage) / modulo;
+        uint256 remainingAllocation = msg.value - (platformAllocation + publisherAllocation);
+
+        accrued[_platform] = accrued[_platform] + platformAllocation;
+        accrued[tag.publisher] = accrued[tag.publisher] + publisherAllocation;
+
         // pre-auction.
         if (owner == _platform) {
-            accrued[_platform] = accrued[_platform] + ((msg.value * platformPercentage) / modulo);
-            accrued[tag.publisher] = accrued[tag.publisher] + ((msg.value * publisherPercentage) / modulo);
-            accrued[tag.creator] = accrued[tag.creator] + ((msg.value * remainingPercentage) / modulo);
+            accrued[tag.creator] = accrued[tag.creator] + remainingAllocation;
         }
         // post-auction.
         else {
-            accrued[_platform] = accrued[_platform] + ((msg.value * platformPercentage) / modulo);
-            accrued[tag.publisher] = accrued[tag.publisher] + ((msg.value * publisherPercentage) / modulo);
-            accrued[owner] = accrued[owner] + ((msg.value * remainingPercentage) / modulo);
+            accrued[owner] = accrued[owner] + remainingAllocation;
         }
     }
 }

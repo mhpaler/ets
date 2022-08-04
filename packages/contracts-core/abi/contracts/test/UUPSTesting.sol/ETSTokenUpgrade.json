@@ -677,7 +677,7 @@
   {
     "inputs": [
       {
-        "internalType": "address",
+        "internalType": "contract IETSAccessControls",
         "name": "_etsAccessControls",
         "type": "address"
       },
@@ -921,7 +921,7 @@
   {
     "inputs": [
       {
-        "internalType": "address",
+        "internalType": "contract IETSAccessControls",
         "name": "_etsAccessControls",
         "type": "address"
       }

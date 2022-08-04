@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.10;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 
@@ -131,14 +131,6 @@ interface IETSToken is IERC721Upgradeable {
      * @param _ownershipTermLength Ownership term length in days.
      */
     function setOwnershipTermLength(uint256 _ownershipTermLength) external;
-
-    /**
-     * @notice Sets ETSAccessControls on the ETSTarget contract so functions can be
-     * restricted to ETS platform only.
-     *
-     * @param _etsAccessControls Address of ETSAccessControls contract.
-     */
-    function setAccessControls(address _etsAccessControls) external;
 
     /**
      * @notice Admin function to flag/unflag tag string(s) as premium prior to minting.

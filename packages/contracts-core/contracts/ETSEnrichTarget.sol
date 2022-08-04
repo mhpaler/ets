@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.10;
 
 import "./interfaces/IETSTarget.sol";
 import "./interfaces/IETSEnrichTarget.sol";
@@ -49,6 +49,9 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
     }
 
     // ============ UUPS INTERFACE ============
+
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() public initializer {}
 
     function initialize(IETSAccessControls _etsAccessControls, IETSTarget _etsTarget) public initializer {
         // Initialize access controls & ETS

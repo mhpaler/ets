@@ -116,11 +116,10 @@ describe("ETS Core tests", function () {
     it("should emit PercentagesSet", async function () {
       await expect(contracts.ETS.connect(accounts.ETSPlatform).setPercentages(30, 30))
         .to.emit(contracts.ETS, "PercentagesSet")
-        .withArgs(30, 30, 40);
+        .withArgs(30, 30);
 
       expect(await contracts.ETS.platformPercentage()).to.be.equal(30);
       expect(await contracts.ETS.publisherPercentage()).to.be.equal(30);
-      expect(await contracts.ETS.remainingPercentage()).to.be.equal(40);
     });
   });
 
@@ -353,18 +352,17 @@ describe("ETS Core tests", function () {
       publisherPostTagAccrued = await contracts.ETS.accrued(accounts.RandomOne.address);
       creatorPostTagAccrued = await contracts.ETS.accrued(accounts.Creator.address);
 
-      expect(platformPostTagAccrued).to.equal(
-        platformPreTagAccrued + taggingFee * ((await contracts.ETS.platformPercentage()) / 100),
-      );
+      const platformPercentage = (await contracts.ETS.platformPercentage()) / 100;
+      const publisherPercentage = (await contracts.ETS.publisherPercentage()) / 100;
+
+      expect(platformPostTagAccrued).to.equal(platformPreTagAccrued + taggingFee * platformPercentage);
 
       // Publisher accrued.
-      expect(publisherPostTagAccrued).to.equal(
-        publisherPreTagAccrued + taggingFee * ((await contracts.ETS.publisherPercentage()) / 100),
-      );
+      expect(publisherPostTagAccrued).to.equal(publisherPreTagAccrued + taggingFee * publisherPercentage);
 
       // Token creator
       expect(creatorPostTagAccrued).to.equal(
-        creatorPreTagAccrued + taggingFee * ((await contracts.ETS.remainingPercentage()) / 100),
+        creatorPreTagAccrued + taggingFee * (1 - (platformPercentage + publisherPercentage)),
       );
     });
 
@@ -388,18 +386,17 @@ describe("ETS Core tests", function () {
       publisherPostTagAccrued = await contracts.ETS.accrued(accounts.RandomOne.address);
       ownerPostTagAccrued = await contracts.ETS.accrued(accounts.RandomTwo.address);
 
-      expect(platformPostTagAccrued).to.equal(
-        platformPreTagAccrued + taggingFee * ((await contracts.ETS.platformPercentage()) / 100),
-      );
+      const platformPercentage = (await contracts.ETS.platformPercentage()) / 100;
+      const publisherPercentage = (await contracts.ETS.publisherPercentage()) / 100;
+
+      expect(platformPostTagAccrued).to.equal(platformPreTagAccrued + taggingFee * platformPercentage);
 
       // Publisher accrued.
-      expect(publisherPostTagAccrued).to.equal(
-        publisherPreTagAccrued + taggingFee * ((await contracts.ETS.publisherPercentage()) / 100),
-      );
+      expect(publisherPostTagAccrued).to.equal(publisherPreTagAccrued + taggingFee * publisherPercentage);
 
       // Token creator
       expect(ownerPostTagAccrued).to.equal(
-        ownerPostTagAccrued + taggingFee * ((await contracts.ETS.remainingPercentage()) / 100),
+        ownerPreTagAccrued + taggingFee * (1 - (platformPercentage + publisherPercentage)),
       );
     });
   });

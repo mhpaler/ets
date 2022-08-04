@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.10;
 
 /**
  * @title IETSTarget
@@ -31,7 +31,6 @@ interface IETSTarget {
      *
      * @param targetURI Unique resource identifier Target points to
      * @param createdBy Address of IETSTargetTagger implementation that created Target
-     * @param created block timestamp when Target was created in ETS
      * @param enriched block timestamp when Target was last enriched. Defaults to 0
      * @param httpStatus https status of last response from ETSEnrichTarget API eg. "404", "200". defaults to 0
      * @param ipfsHash ipfsHash of additional metadata for Target collected by ETSEnrichTarget API
@@ -39,7 +38,6 @@ interface IETSTarget {
     struct Target {
         string targetURI;
         address createdBy;
-        uint256 created;
         uint256 enriched;
         uint256 httpStatus;
         string ipfsHash;

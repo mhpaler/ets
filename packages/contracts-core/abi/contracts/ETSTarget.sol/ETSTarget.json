@@ -1,5 +1,10 @@
 [
   {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -229,11 +234,6 @@
           },
           {
             "internalType": "uint256",
-            "name": "created",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
             "name": "enriched",
             "type": "uint256"
           },
@@ -277,11 +277,6 @@
             "internalType": "address",
             "name": "createdBy",
             "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "created",
-            "type": "uint256"
           },
           {
             "internalType": "uint256",
@@ -416,11 +411,6 @@
         "internalType": "address",
         "name": "createdBy",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "created",
-        "type": "uint256"
       },
       {
         "internalType": "uint256",

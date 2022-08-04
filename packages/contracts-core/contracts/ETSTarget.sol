@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.10;
 
 import "./utils/StringHelpers.sol";
 import "./interfaces/IETSTarget.sol";
@@ -7,9 +7,6 @@ import "./interfaces/IETSEnrichTarget.sol";
 import "./interfaces/IETSAccessControls.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
-
-import "hardhat/console.sol";
 
 /**
  * @title IETSTarget
@@ -37,7 +34,6 @@ import "hardhat/console.sol";
  */
 contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
     using AddressUpgradeable for address;
-    using SafeMathUpgradeable for uint256;
 
     IETSAccessControls public etsAccessControls;
 
@@ -58,6 +54,9 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
     }
 
     // ============ UUPS INTERFACE ============
+
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() public initializer {}
 
     function initialize(address _etsAccessControls) public initializer {
         etsAccessControls = IETSAccessControls(_etsAccessControls);
@@ -86,7 +85,7 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
     /// @inheritdoc IETSTarget
     function getOrCreateTargetId(string memory _targetURI) public returns (uint256) {
         uint256 _targetId = computeTargetId(_targetURI);
-        if (targets[_targetId].created != 0) {
+        if (bytes(targets[_targetId].targetURI).length > 0) {
             return _targetId;
         }
 
@@ -96,12 +95,12 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
     /// @inheritdoc IETSTarget
     function createTarget(string memory _targetURI) public returns (uint256 targetId) {
         require(!targetExists(_targetURI), "target id exists");
+        require(bytes(_targetURI).length > 0, "empty target");
 
         uint256 _targetId = computeTargetId(_targetURI);
         targets[_targetId] = Target({
             targetURI: _targetURI,
             createdBy: msg.sender,
-            created: block.timestamp,
             enriched: 0,
             httpStatus: 0,
             ipfsHash: ""
@@ -145,7 +144,7 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
 
     /// @inheritdoc IETSTarget
     function targetExists(uint256 _targetId) public view returns (bool) {
-        return targets[_targetId].created > 0 ? true : false;
+        return bytes(targets[_targetId].targetURI).length > 0 ? true : false;
     }
 
     /// @inheritdoc IETSTarget

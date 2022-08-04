@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.10;
 
 import "./interfaces/IETSToken.sol";
 import "./interfaces/IETSAccessControls.sol";
@@ -7,10 +7,7 @@ import "./utils/StringHelpers.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-
-import "hardhat/console.sol";
 
 /**
  * @title ETSToken
@@ -40,7 +37,6 @@ contract ETSToken is
 {
     using AddressUpgradeable for address;
     using StringsUpgradeable for uint256;
-    using SafeMathUpgradeable for uint256;
 
     IETSAccessControls public etsAccessControls;
 
@@ -75,8 +71,11 @@ contract ETSToken is
 
     // ============ UUPS INTERFACE ============
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() public initializer {}
+
     function initialize(
-        address _etsAccessControls,
+        IETSAccessControls _etsAccessControls,
         uint256 _tagMinStringLength,
         uint256 _tagMaxStringLength,
         uint256 _ownershipTermLength
@@ -90,8 +89,7 @@ contract ETSToken is
         // functions so our subgraph can capture them.
         // To call them requires etsAccessControls being
         // set so we set that manually first.
-        etsAccessControls = IETSAccessControls(_etsAccessControls);
-        setAccessControls(_etsAccessControls);
+        etsAccessControls = _etsAccessControls;
         setTagMinStringLength(_tagMinStringLength);
         setTagMaxStringLength(_tagMaxStringLength);
         setOwnershipTermLength(_ownershipTermLength);
@@ -101,11 +99,29 @@ contract ETSToken is
 
     // ============ OWNER INTERFACE ============
 
-    function pause() public onlyAdmin {
+    /**
+     * @notice Sets ETSAccessControls on the ETSTarget contract so functions can be
+     * restricted to ETS platform only.
+     *
+     * @param _etsAccessControls Address of ETSAccessControls contract.
+     */
+    function setAccessControls(IETSAccessControls _etsAccessControls) public onlyAdmin {
+        require(address(_etsAccessControls) != address(0), "Access controls cannot be zero");
+        etsAccessControls = _etsAccessControls;
+        emit AccessControlsSet(address(_etsAccessControls));
+    }
+
+    /**
+     * @notice Pauses ETSToken contract.
+     */
+    function pause() public onlyAdmin whenNotPaused {
         _pause();
     }
 
-    function unPause() public onlyAdmin {
+    /**
+     * @notice Unpauses ETSToken contract.
+     */
+    function unPause() public onlyAdmin whenPaused {
         _unpause();
     }
 
@@ -130,13 +146,6 @@ contract ETSToken is
     function setOwnershipTermLength(uint256 _ownershipTermLength) public onlyAdmin {
         ownershipTermLength = _ownershipTermLength;
         emit OwnershipTermLengthSet(_ownershipTermLength);
-    }
-
-    /// @inheritdoc IETSToken
-    function setAccessControls(address _etsAccessControls) public onlyAdmin {
-        require(address(_etsAccessControls) != address(0), "Access controls cannot be zero");
-        etsAccessControls = IETSAccessControls(_etsAccessControls);
-        emit AccessControlsSet(_etsAccessControls);
     }
 
     /// @inheritdoc IETSToken
@@ -233,7 +242,7 @@ contract ETSToken is
         require(ownerOf(_tokenId) != getPlatformAddress(), "ETS: CTAG owned by platform");
 
         uint256 lastRenewed = getLastRenewed(_tokenId);
-        require(lastRenewed.add(getOwnershipTermLength()) < block.timestamp, "ETS: CTAG not eligible for recycling");
+        require(lastRenewed + getOwnershipTermLength() < block.timestamp, "ETS: CTAG not eligible for recycling");
 
         _transfer(ownerOf(_tokenId), getPlatformAddress(), _tokenId);
         emit TagRecycled(_tokenId, _msgSender());
