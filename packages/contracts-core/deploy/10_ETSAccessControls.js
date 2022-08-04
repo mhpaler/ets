@@ -1,4 +1,4 @@
-const {ethers, upgrades} = require("hardhat");
+const {upgrades} = require("hardhat");
 const {setup} = require("./setup.js");
 const {verify} = require("./utils/verify.js");
 const {saveNetworkConfig} = require("./utils/config.js");
@@ -8,7 +8,11 @@ module.exports = async ({deployments}) => {
   [accounts, factories, initSettings] = await setup();
 
   // Deploy ETS Access Controls.
-  const deployment = await upgrades.deployProxy(factories.ETSAccessControls, [], {kind: "uups"});
+  const deployment = await upgrades.deployProxy(factories.ETSAccessControls, [], {
+    kind: "uups",
+    pollingInterval: 3000,
+    timeout: 0,
+  });
   await deployment.deployed();
   const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
 
