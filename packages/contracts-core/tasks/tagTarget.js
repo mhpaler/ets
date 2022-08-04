@@ -39,5 +39,8 @@ task("tagTarget", 'Tag a uri. eg: hh tagTarget --tags "#another,#blah" --uri "ht
 
     const tx = await etsTargetTagger.tagTarget(taggingRecords, {
       value: ethers.BigNumber.from(taggingFee).mul(tags.length),
+      gasPrice: ethers.utils.parseUnits("100", "gwei"),
+      gasLimit: 500000,
+      nonce: nonce || undefined,
     });
   });
