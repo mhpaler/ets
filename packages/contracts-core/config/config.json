@@ -14,51 +14,51 @@
     "name": "localhost",
     "contracts": {
       "ETSAccessControls": {
-        "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-        "implementation": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-        "deploymentBlock": "0x6",
+        "address": "0x437342AB955F9700c3FB8D2a3A56E718AA20035e",
+        "implementation": "0xE58497d48018CB780b6FcC7662B93E2ca8Fe8E36",
+        "deploymentBlock": 72,
         "upgradeBlock": null
       },
       "ETSToken": {
-        "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-        "implementation": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-        "deploymentBlock": "0x8",
+        "address": "0x46fbc0a46Da013751D2A906376b748CFEE7A973F",
+        "implementation": "0xb2ed2ccBEA697976c4015c0a978705b0B0cF72F3",
+        "deploymentBlock": 73,
         "upgradeBlock": null
       },
       "WMATIC": {
-        "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+        "address": "0x2be6f03b8FBac1Cbeb987E0A40031276232a3681",
         "implementation": null,
-        "deploymentBlock": "0x9",
+        "deploymentBlock": 74,
         "upgradeBlock": null
       },
       "ETSAuctionHouse": {
-        "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
-        "implementation": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
-        "deploymentBlock": "0xb",
+        "address": "0x4c16cCd3c238a79592a813f15584078a613218cF",
+        "implementation": "0x3c30aF8641b6e412d69c40E732A514B000d3fcE9",
+        "deploymentBlock": 75,
         "upgradeBlock": null
       },
       "ETSTarget": {
-        "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
-        "implementation": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
-        "deploymentBlock": "0x16",
+        "address": "0xDc7517059CE953bb4D3b84e675eE1f94d3aF698E",
+        "implementation": "0x0300c9f3FE108bf683D03005B6B66EA1db74007A",
+        "deploymentBlock": 76,
         "upgradeBlock": null
       },
       "ETSEnrichTarget": {
-        "address": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
-        "implementation": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
-        "deploymentBlock": "0x18",
+        "address": "0x5c8037C500bcA43414b9a2dB6C43e0c30D7Ddd51",
+        "implementation": "0x1e49622AfF007569fdc99e5989E267d55218b066",
+        "deploymentBlock": 77,
         "upgradeBlock": null
       },
       "ETS": {
-        "address": "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
-        "implementation": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
-        "deploymentBlock": "0x1e",
+        "address": "0x945f8d0534E6e774Db73A3843568B8c5be2167C0",
+        "implementation": "0xbFC3A550Fc6c260B5B788755Aecd3c4822b7b52f",
+        "deploymentBlock": 78,
         "upgradeBlock": null
       },
       "ETSTargetTagger": {
-        "address": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
+        "address": "0x428fcc3Ac338d8a691eAD046DC9B83B042AEF636",
         "implementation": "",
-        "deploymentBlock": "0x24",
+        "deploymentBlock": 79,
         "upgradeBlock": null
       }
     }
@@ -69,18 +69,19 @@
       "ETSAccessControls": {
         "address": "0x6704debCE03d98A9A11A97dACAf795711041ee09",
         "implementation": "0xFece74B1a566eFDf1330Cf95acD3aF159F35c05f",
-        "deploymentBlock": "0x17805a7",
+        "deploymentBlock": "27475649",
         "upgradeBlock": null
       },
       "ETS": {
         "address": "0x7a50DcF4f4610271Ccd834825Acf8af74F673c4C",
         "implementation": "0x9aCFDabac0F732B66A345d228a0101cEDD46B6Ab",
-        "deploymentBlock": "0x17805b5",
+        "deploymentBlock": "27476354",
         "upgradeBlock": null
       },
       "ETSToken": {
         "address": "0x14e129C0304f0f9A4BCf53Ce672fdDACb7D70E7C",
         "implementation": "0x9c536e884C0289ac65Ed831B9B721B64a1A303fB",
+        "deploymentBlock": "27475952",
         "upgradeBlock": null
       },
       "WMATIC": {
@@ -92,16 +93,19 @@
       "ETSAuctionHouse": {
         "address": "0x95241A8AcFb3C95A8344F6A6A48f3b6CEEe30813",
         "implementation": "0xe7c3559B63Dcf17aB854e6A2266C8893C532762d",
+        "deploymentBlock": "27475959",
         "upgradeBlock": null
       },
       "ETSTarget": {
         "address": "0x45f656CE5432eB93a0eA90d2499fe9bb51550a8a",
         "implementation": "0x8169DA0Ee739d26903817109f233d6Cd921460Bf",
+        "deploymentBlock": "27476143",
         "upgradeBlock": null
       },
       "ETSEnrichTarget": {
         "address": "0x0Fb64246b4b0BEF018c54F7ae420E70FE23ED1F4",
         "implementation": "0xc41565C77AEced96f65a998944c80e1161B525E4",
+        "deploymentBlock": "27476157",
         "upgradeBlock": null
       },
       "ETSTargetTagger": {
