@@ -12,6 +12,8 @@ export function ensureTargetType(
     // We have a blink
     // blink:[chain-name]:[chain-network]:[block]:[transaction]
     //"blink:polygon:mumbai:0x60Ae865ee4C725cd04353b5AAb364553f56ceF82:0x8635-0x0b"
+    // https://lenster.xyz/posts/0x8635-0x17
+    //"blink:polygon:mainnet:0xDb46d1Dc155634FbC732f92E853b10B288AD5a1d:0x8635-0x17"
     let targetType = TargetTypeBlink.load(id);
     let terms: string[] = [];
     if (targetType === null) {
