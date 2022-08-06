@@ -19,6 +19,20 @@ const initSettings = {
   TAGGING_FEE_PUBLISHER_PERCENTAGE: 30,
 };
 
+async function getAccounts() {
+  const namedAccounts = await ethers.getNamedSigners();
+  const unnamedAccounts = await ethers.getUnnamedSigners();
+  const accounts = {
+    ETSAdmin: namedAccounts["ETSAdmin"],
+    ETSPlatform: namedAccounts["ETSPlatform"],
+    Buyer: unnamedAccounts[0],
+    RandomOne: unnamedAccounts[1],
+    RandomTwo: unnamedAccounts[2],
+    Creator: unnamedAccounts[3],
+  };
+  return accounts;
+}
+
 async function getArtifacts() {
   const justTheFacts = {
     ETSAccessControls: artifacts.readArtifactSync("ETSAccessControls"),
@@ -202,6 +216,7 @@ async function setup() {
 
 module.exports = {
   getInitSettings,
+  getAccounts,
   getArtifacts,
   getFactories,
   setup,

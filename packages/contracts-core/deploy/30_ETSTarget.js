@@ -47,4 +47,4 @@ module.exports = async ({getChainId, deployments}) => {
   log("====================================================");
 };
 module.exports.tags = ["ETSTarget"];
-//module.exports.dependencies = ["ETSAuctionHouse"];
+module.exports.dependencies = ["ETSAuctionHouse"];
