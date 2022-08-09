@@ -15,6 +15,7 @@ import { ensureCreator } from "../entities/Creator";
 import { ensureOwner } from "../entities/Owner";
 import { ensureTag } from "../entities/Tag";
 import { ensureTarget } from "../entities/Target";
+import { log } from "@graphprotocol/graph-ts";
 
 export function handleTaggingRecordCreated(event: TargetTagged): void {
   let ets = ETS.bind(event.address);
@@ -133,6 +134,10 @@ export function handleTaggingRecordCreated(event: TargetTagged): void {
   if (tagger) {
     tagger.tagCount = tagger.tagCount.plus(ONE);
     tagger.feesPaid = tagger.feesPaid.plus(tagFee);
+    let items = tagger.tags.concat(tagIDList);
+      //log.info('My value is: {}', [items])
+      tagger.tags = items
+    
     tagger.save();
   }
 }
