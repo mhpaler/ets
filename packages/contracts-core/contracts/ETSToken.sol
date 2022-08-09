@@ -188,7 +188,7 @@ contract ETSToken is
 
     function getOrCreateTag(string calldata _tag, address payable _creator) public payable returns (Tag memory tag) {
         uint256 tokenId = computeTagId(_tag);
-        if (!tagExists(tokenId)) {
+        if (!tagExistsById(tokenId)) {
             tokenId = createTag(_tag, _creator);
         }
         return tokenIdToTag[tokenId];
@@ -197,7 +197,7 @@ contract ETSToken is
     /// @inheritdoc IETSToken
     function getOrCreateTagId(string calldata _tag, address payable _creator) public payable returns (uint256 tokenId) {
         uint256 _tokenId = computeTagId(_tag);
-        if (!tagExists(_tokenId)) {
+        if (!tagExistsById(_tokenId)) {
             _tokenId = createTag(_tag, _creator);
         }
         return _tokenId;
@@ -271,22 +271,22 @@ contract ETSToken is
     }
 
     /// @inheritdoc IETSToken
-    function tagExists(string calldata _tag) public view returns (bool) {
+    function tagExistsByString(string calldata _tag) public view returns (bool) {
         return _exists(computeTagId(_tag));
     }
 
     /// @inheritdoc IETSToken
-    function tagExists(uint256 _tokenId) public view returns (bool) {
+    function tagExistsById(uint256 _tokenId) public view returns (bool) {
         return _exists(_tokenId);
     }
 
     /// @inheritdoc IETSToken
-    function getTag(string calldata _tag) public view returns (Tag memory) {
-        return getTag(computeTagId(_tag));
+    function getTagByString(string calldata _tag) public view returns (Tag memory) {
+        return getTagById(computeTagId(_tag));
     }
 
     /// @inheritdoc IETSToken
-    function getTag(uint256 _tokenId) public view returns (Tag memory) {
+    function getTagById(uint256 _tokenId) public view returns (Tag memory) {
         return tokenIdToTag[_tokenId];
     }
 

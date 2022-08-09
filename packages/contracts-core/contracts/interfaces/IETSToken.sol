@@ -234,7 +234,7 @@ interface IETSToken is IERC721Upgradeable {
      * @param _tag Tag string.
      * @return true if CTAG token exists; false if not.
      */
-    function tagExists(string calldata _tag) external view returns (bool);
+    function tagExistsByString(string calldata _tag) external view returns (bool);
 
     /**
      * @notice Check that CTAG token exists for a given computed token Id.
@@ -242,7 +242,7 @@ interface IETSToken is IERC721Upgradeable {
      * @param _tokenId Token Id uint computed from tag string via computeTargetId().
      * @return true if CTAG token exists; false if not.
      */
-    function tagExists(uint256 _tokenId) external view returns (bool);
+    function tagExistsById(uint256 _tokenId) external view returns (bool);
 
     /**
      * @notice Retrieve a CTAG record for a given tag string.
@@ -252,7 +252,7 @@ interface IETSToken is IERC721Upgradeable {
      * @param _tag Tag string.
      * @return CTAG record as Tag struct.
      */
-    function getTag(string calldata _tag) external view returns (Tag memory);
+    function getTagByString(string calldata _tag) external view returns (Tag memory);
 
     /**
      * @notice Retrieve a CTAG record for a given token Id.
@@ -262,7 +262,7 @@ interface IETSToken is IERC721Upgradeable {
      * @param _tokenId CTAG token Id.
      * @return CTAG record as Tag struct.
      */
-    function getTag(uint256 _tokenId) external view returns (Tag memory);
+    function getTagById(uint256 _tokenId) external view returns (Tag memory);
 
     /**
      * @notice Retrieve wallet address for ETS Platform.

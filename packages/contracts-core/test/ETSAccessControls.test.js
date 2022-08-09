@@ -90,7 +90,7 @@ describe("ETSAccessControls Tests", function () {
     });
   });
 
-  describe.only("Third party Target Taggers", async () => {
+  describe("Third party Target Taggers", async () => {
     beforeEach("Setup test", async () => {
       TargetTaggerMock = await ethers.getContractFactory("TargetTaggerMock", accounts.RandomOne);
       targetTaggerMock = await TargetTaggerMock.deploy(

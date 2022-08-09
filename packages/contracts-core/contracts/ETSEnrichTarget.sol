@@ -67,7 +67,7 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
 
     /// @inheritdoc IETSEnrichTarget
     function requestEnrichTarget(uint256 _targetId) public {
-        require(etsTarget.targetExists(_targetId) == true, "Invalid target");
+        require(etsTarget.targetExistsById(_targetId) == true, "Invalid target");
         // require(!etsTarget.isTargetEnsured(_targetId), "Already ensured");
         emit RequestEnrichTarget(_targetId);
     }
@@ -81,7 +81,7 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
         uint256 _httpStatus
     ) public {
         require(etsAccessControls.getPlatformAddress() == msg.sender, "only platform may enrich target");
-        IETSTarget.Target memory target = etsTarget.getTarget(_targetId);
+        IETSTarget.Target memory target = etsTarget.getTargetById(_targetId);
         etsTarget.updateTarget(_targetId, target.targetURI, block.timestamp, _httpStatus, _ipfsHash);
     }
 }

@@ -46,6 +46,9 @@ async function getArtifacts() {
     ETSAccessControlsUpgrade: artifacts.readArtifactSync("ETSAccessControlsUpgrade"),
     ETSTokenUpgrade: artifacts.readArtifactSync("ETSTokenUpgrade"),
     ETSAuctionHouseUpgrade: artifacts.readArtifactSync("ETSAuctionHouseUpgrade"),
+    ETSEnrichTargetUpgrade: artifacts.readArtifactSync("ETSEnrichTargetUpgrade"),
+    ETSTargetUpgrade: artifacts.readArtifactSync("ETSTargetUpgrade"),
+    ETSUpgrade: artifacts.readArtifactSync("ETSUpgrade"),
   };
   return justTheFacts;
 }
@@ -64,6 +67,9 @@ async function getFactories() {
     ETSAccessControlsUpgrade: await ethers.getContractFactory("ETSAccessControlsUpgrade"),
     ETSAuctionHouseUpgrade: await ethers.getContractFactory("ETSAuctionHouseUpgrade"),
     ETSTokenUpgrade: await ethers.getContractFactory("ETSTokenUpgrade"),
+    ETSEnrichTargetUpgrade: await ethers.getContractFactory("ETSEnrichTargetUpgrade"),
+    ETSTargetUpgrade: await ethers.getContractFactory("ETSTargetUpgrade"),
+    ETSUpgrade: await ethers.getContractFactory("ETSUpgrade"),
   };
   return allFactories;
 }
