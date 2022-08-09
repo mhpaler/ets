@@ -76,6 +76,7 @@ type Tag @entity {
   publisherRevenue: BigInt!
   protocolRevenue: BigInt!
   creatorRevenue: BigInt!
+  TaggingRecords: [TaggingRecord!]! @derivedFrom(field: "tags")
 }
 
 type TaggingRecord @entity {
@@ -142,4 +143,5 @@ type Tagger @entity {
   firstSeen: BigInt!
   tagCount: BigInt!
   feesPaid: BigInt!
+  tags: [Tag!]!
 }
