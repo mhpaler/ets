@@ -82,18 +82,19 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
 
     /// @inheritdoc IETSAccessControls
     function removeTargetTagger(address _taggerAddress) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(isTargetTagger(_taggerAddress), "invalid target tagger");
+        require(isTargetTaggerByAddress(_taggerAddress), "invalid target tagger");
         string memory targetTaggerName = targetTaggerContractToName[_taggerAddress];
         delete targetTaggerNameToContract[targetTaggerName];
         delete targetTaggerContractToName[_taggerAddress];
         // Note: revokeRole emits RoleRevoked event.
         revokeRole(PUBLISHER_ROLE, _taggerAddress);
+        emit TargetTaggerRemoved(_taggerAddress);
     }
 
     /// @inheritdoc IETSAccessControls
     function toggleIsTargetTaggerPaused(address _taggerAddress) public onlyRole(DEFAULT_ADMIN_ROLE) {
         isTargetTaggerPaused[_taggerAddress] = !isTargetTaggerPaused[_taggerAddress];
-        emit TargetTaggerPauseToggled(isTargetTaggerPaused[_taggerAddress]);
+        emit TargetTaggerPauseToggled(_taggerAddress);
     }
 
     // ============ PUBLIC VIEW FUNCTIONS ============
@@ -119,18 +120,18 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     }
 
     /// @inheritdoc IETSAccessControls
-    function isTargetTagger(string memory _name) public view returns (bool) {
+    function isTargetTaggerByName(string memory _name) public view returns (bool) {
         return targetTaggerNameToContract[_name] != address(0);
     }
 
     /// @inheritdoc IETSAccessControls
-    function isTargetTagger(address _addr) public view returns (bool) {
+    function isTargetTaggerByAddress(address _addr) public view returns (bool) {
         return keccak256(abi.encodePacked(targetTaggerContractToName[_addr])) != keccak256(abi.encodePacked(""));
     }
 
     /// @inheritdoc IETSAccessControls
     function isTargetTaggerAndNotPaused(address _addr) public view returns (bool) {
-        return isTargetTagger(_addr) && !isTargetTaggerPaused[_addr];
+        return isTargetTaggerByAddress(_addr) && !isTargetTaggerPaused[_addr];
     }
 
     /// @inheritdoc IETSAccessControls

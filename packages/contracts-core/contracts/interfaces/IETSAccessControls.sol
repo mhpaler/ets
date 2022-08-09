@@ -28,11 +28,18 @@ interface IETSAccessControls is IAccessControlUpgradeable {
     event TargetTaggerAdded(address targetTagger);
 
     /**
+     * @dev emitted when a Target Tagger contract is removed from ETS.
+     *
+     * @param targetTagger Target Tagger contract address.
+     */
+    event TargetTaggerRemoved(address targetTagger);
+
+    /**
      * @dev emitted when a Target Tagger contract is paused or unpaused.
      *
-     * @param newValue Boolean contract pause state. True for paused; false for unpaused.
+     * @param taggerAddress Address that had pause toggled.
      */
-    event TargetTaggerPauseToggled(bool newValue);
+    event TargetTaggerPauseToggled(address taggerAddress);
 
     /**
      * @notice Sets the Platform wallet address. Can only be called by address with DEFAULT_ADMIN_ROLE.
@@ -120,7 +127,7 @@ interface IETSAccessControls is IAccessControlUpgradeable {
      * @param _name Name being checked.
      * @return boolean True if _name is a Target Tagger.
      */
-    function isTargetTagger(string calldata _name) external view returns (bool);
+    function isTargetTaggerByName(string calldata _name) external view returns (bool);
 
     /**
      * @notice Checks whether given address is a registered Target Tagger.
@@ -128,7 +135,7 @@ interface IETSAccessControls is IAccessControlUpgradeable {
      * @param _addr Address being checked.
      * @return boolean True if address is a Target Tagger.
      */
-    function isTargetTagger(address _addr) external view returns (bool);
+    function isTargetTaggerByAddress(address _addr) external view returns (bool);
 
     /**
      * @notice Checks whether given address is a registered Target Tagger and not paused.

@@ -206,10 +206,10 @@ async function setup() {
   await ETSToken.connect(accounts.ETSPlatform).setApprovalForAll(ETSAuctionHouse.address, true);
 
   // Add & Enable ETSTargetTagger as a Target Tagger.
-  await ETSAccessControls.connect(accounts.ETSPlatform).addTargetTagger(
-    ETSTargetTagger.address,
-    await ETSTargetTagger.getTaggerName(),
-  );
+  //await ETSAccessControls.connect(accounts.ETSPlatform).addTargetTagger(
+  //  ETSTargetTagger.address,
+  //  await ETSTargetTagger.getTaggerName(),
+  //);
 
   return [accounts, contracts, initSettings];
 }
