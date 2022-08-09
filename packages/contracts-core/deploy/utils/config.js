@@ -18,7 +18,12 @@ const emptyConfig = {
  * @param {boolean} upgrade Set true to indicate deployment was an upgrade.
  */
 async function saveNetworkConfig(name, deployment, implementation, upgrade) {
-  const config = readNetworkConfig();
+  let config = readNetworkConfig();
+
+  if (network.config.chainId == 31337) {
+    // If on localhost, flush any previous config.
+    config[network.config.chainId].contracts = {};
+  }
 
   // We use OpenZeppelin Upgrades plugin for deployment. Their deployment
   // receipt signature looks different than vanilla hardhat deploy receipts.
