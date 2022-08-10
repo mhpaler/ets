@@ -69,10 +69,10 @@ describe("ETSToken Core Tests", function () {
     it("can set premium flag on CTAG", async function () {
       await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(tag, accounts.RandomTwo.address);
       const tokenId = await contracts.ETSToken.computeTagId(tag);
-      let ctag = await contracts.ETSToken["getTag(uint256)"](tokenId);
+      let ctag = await contracts.ETSToken.getTagById(tokenId);
       expect(ctag.premium).to.be.false;
       await contracts.ETSToken.connect(accounts.ETSPlatform).setPremiumFlag([tokenId], true);
-      ctag = await contracts.ETSToken["getTag(uint256)"](tokenId);
+      ctag = await contracts.ETSToken.getTagById(tokenId);
       expect(ctag.premium).to.be.true;
       expect(ctag.reserved).to.be.false;
     });
@@ -80,10 +80,10 @@ describe("ETSToken Core Tests", function () {
     it("Can set reserved flag on CTAG", async function () {
       await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(tag, accounts.RandomTwo.address);
       const tokenId = await contracts.ETSToken.computeTagId(tag);
-      let ctag = await contracts.ETSToken["getTag(uint256)"](tokenId);
+      let ctag = await contracts.ETSToken.getTagById(tokenId);
       expect(ctag.reserved).to.be.false;
       await contracts.ETSToken.connect(accounts.ETSPlatform).setReservedFlag([tokenId], true);
-      ctag = await contracts.ETSToken["getTag(uint256)"](tokenId);
+      ctag = await contracts.ETSToken.getTagById(tokenId);
       expect(ctag.reserved).to.be.true;
       expect(ctag.premium).to.be.false;
     });
@@ -192,30 +192,29 @@ describe("ETSToken Core Tests", function () {
 
       it("should succeed if Platform is both creator & publisher", async function () {
         await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(tag, accounts.ETSPlatform.address);
-        assert((await contracts.ETSToken["tagExists(string)"](tag)) == true);
+        assert((await contracts.ETSToken.tagExistsByString(tag)) == true);
       });
     });
 
     describe("(CTAG struct/token attributes)", async function () {
       it("should store msg.sender as Creator", async function () {
         await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(tag, accounts.RandomTwo.address);
-        const tagData = await contracts.ETSToken["getTag(string)"](tag);
+        const tagData = await contracts.ETSToken.getTagByString(tag);
         expect(tagData.creator).to.be.equal(accounts.RandomTwo.address);
       });
 
       it("should store the display version of the CTAG", async function () {
         const displayVersion = "#TagWithCapitals";
-        const machineVersion = "#tagwithcapitals";
         await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(displayVersion, accounts.RandomTwo.address);
-        const tagData = await contracts.ETSToken["getTag(string)"](machineVersion);
-        expect(tagData.display).to.be.equal(displayVersion);
+        const tagData = await contracts.ETSToken.getTagByString(displayVersion);
+        expect(tagData.display.toString()).to.be.equal(displayVersion);
       });
 
       it("should flag CTAG as premium & reserved if it's on the premium list", async function () {
         const premiumTags = ["#apple", "#google"];
         await contracts.ETSToken.connect(accounts.ETSPlatform).preSetPremiumTags(premiumTags, true);
         await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(premiumTags[0], accounts.RandomTwo.address);
-        const tagData = await contracts.ETSToken["getTag(string)"](premiumTags[0]);
+        const tagData = await contracts.ETSToken.getTagByString(premiumTags[0]);
         expect(tagData.premium).to.be.equal(true);
         expect(tagData.reserved).to.be.equal(true);
       });

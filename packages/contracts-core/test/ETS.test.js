@@ -45,7 +45,7 @@ describe("ETS Core tests", function () {
     // Add a target to ETS.
     targetURI = "https://google.com";
     await contracts.ETSTarget.connect(accounts.RandomOne).getOrCreateTargetId(targetURI);
-    expect(await contracts.ETSTarget["targetExists(string)"](targetURI)).to.be.equal(true);
+    expect(await contracts.ETSTarget.targetExistsByURI(targetURI)).to.be.equal(true);
     targetId = await contracts.ETSTarget.computeTargetId(targetURI);
     //targetId = targetId.toString();
 
@@ -53,6 +53,12 @@ describe("ETS Core tests", function () {
     await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addTargetTagger(
       accounts.ETSPlatform.address,
       "ETSPlatform",
+    );
+
+    // Also adding a target tagger contract.
+    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addTargetTagger(
+      contracts.ETSTargetTagger.address,
+      await contracts.ETSTargetTagger.getTaggerName(),
     );
   });
 
@@ -278,7 +284,7 @@ describe("ETS Core tests", function () {
       expect(taggingRecord.tagger).to.be.equal(accounts.RandomOne.address);
       expect(taggingRecord.publisher).to.be.equal(contracts.ETSTargetTagger.address);
       for (i = 0; i < taggingRecord.tagIds; i++) {
-        const tag = contracts.ETSToken.getTag(taggingRecord.tagIds[i].toString());
+        const tag = contracts.ETSToken.getTagByString(taggingRecord.tagIds[i].toString());
         expect(tagParams.tagStrings.includes(tag.display.toString())).to.be.equal(true);
       }
     });

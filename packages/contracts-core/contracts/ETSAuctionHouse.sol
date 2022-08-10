@@ -66,7 +66,7 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
     /// Modifiers
 
     modifier tagExists(uint256 tokenId) {
-        require(etsToken.tagExists(tokenId), "CTAG does not exist");
+        require(etsToken.tagExistsById(tokenId), "CTAG does not exist");
         _;
     }
 
@@ -206,7 +206,7 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         etsToken.transferFrom(etsAccessControls.getPlatformAddress(), auction.bidder, _tokenId);
 
         // Distribute proceeds to actors.
-        IETSToken.Tag memory ctag = etsToken.getTag(_tokenId);
+        IETSToken.Tag memory ctag = etsToken.getTagById(_tokenId);
         uint256 publisherProceeds = (auction.amount * publisherPercentage) / modulo;
         uint256 creatorProceeds = (auction.amount * creatorPercentage) / modulo;
         _safeTransferETHWithFallback(ctag.publisher, publisherProceeds);

@@ -595,7 +595,7 @@
         "type": "uint256"
       }
     ],
-    "name": "getTag",
+    "name": "getTagById",
     "outputs": [
       {
         "components": [
@@ -641,7 +641,7 @@
         "type": "string"
       }
     ],
-    "name": "getTag",
+    "name": "getTagByString",
     "outputs": [
       {
         "components": [
@@ -1064,12 +1064,12 @@
   {
     "inputs": [
       {
-        "internalType": "string",
-        "name": "_tag",
-        "type": "string"
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
       }
     ],
-    "name": "tagExists",
+    "name": "tagExistsById",
     "outputs": [
       {
         "internalType": "bool",
@@ -1083,12 +1083,12 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
+        "internalType": "string",
+        "name": "_tag",
+        "type": "string"
       }
     ],
-    "name": "tagExists",
+    "name": "tagExistsByString",
     "outputs": [
       {
         "internalType": "bool",

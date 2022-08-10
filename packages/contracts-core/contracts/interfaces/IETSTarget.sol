@@ -136,7 +136,7 @@ interface IETSTarget {
      * @param _targetURI Unique resource identifier Target record points to.
      * @return true if Target record exists; false if not.
      */
-    function targetExists(string memory _targetURI) external view returns (bool);
+    function targetExistsByURI(string memory _targetURI) external view returns (bool);
 
     /**
      * @notice Check that a Target record exists for a given computed targetId.
@@ -144,7 +144,7 @@ interface IETSTarget {
      * @param _targetId targetId uint computed from URI via computeTargetId().
      * @return true if Target record exists; false if not.
      */
-    function targetExists(uint256 _targetId) external view returns (bool);
+    function targetExistsById(uint256 _targetId) external view returns (bool);
 
     /**
      * @notice Retrieve a Target record for a given URI string.
@@ -154,7 +154,7 @@ interface IETSTarget {
      * @param _targetURI Unique resource identifier Target record points to.
      * @return Target record.
      */
-    function getTarget(string memory _targetURI) external view returns (Target memory);
+    function getTargetByURI(string memory _targetURI) external view returns (Target memory);
 
     /**
      * @notice Retrieve a Target record for a computed targetId.
@@ -164,5 +164,5 @@ interface IETSTarget {
      * @param _targetId targetId uint computed from URI via computeTargetId().
      * @return Target record.
      */
-    function getTarget(uint256 _targetId) external view returns (Target memory);
+    function getTargetById(uint256 _targetId) external view returns (Target memory);
 }

@@ -103,7 +103,7 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
 
     /// @inheritdoc IETSTarget
     function createTarget(string memory _targetURI) public returns (uint256 targetId) {
-        require(!targetExists(_targetURI), "target id exists");
+        require(!targetExistsByURI(_targetURI), "target id exists");
         require(bytes(_targetURI).length > 0, "empty target");
 
         uint256 _targetId = computeTargetId(_targetURI);
@@ -146,24 +146,24 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
     }
 
     /// @inheritdoc IETSTarget
-    function targetExists(string memory _targetURI) public view returns (bool) {
+    function targetExistsByURI(string memory _targetURI) public view returns (bool) {
         uint256 targetId = computeTargetId(_targetURI);
-        return targetExists(targetId);
+        return targetExistsById(targetId);
     }
 
     /// @inheritdoc IETSTarget
-    function targetExists(uint256 _targetId) public view returns (bool) {
+    function targetExistsById(uint256 _targetId) public view returns (bool) {
         return bytes(targets[_targetId].targetURI).length > 0 ? true : false;
     }
 
     /// @inheritdoc IETSTarget
-    function getTarget(string memory _targetURI) public view returns (Target memory) {
+    function getTargetByURI(string memory _targetURI) public view returns (Target memory) {
         uint256 targetId = computeTargetId(_targetURI);
-        return getTarget(targetId);
+        return getTargetById(targetId);
     }
 
     /// @inheritdoc IETSTarget
-    function getTarget(uint256 _targetId) public view returns (Target memory) {
+    function getTargetById(uint256 _targetId) public view returns (Target memory) {
         return targets[_targetId];
     }
 }

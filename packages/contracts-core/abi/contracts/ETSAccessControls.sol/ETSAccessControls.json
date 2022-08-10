@@ -161,12 +161,25 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "bool",
-        "name": "newValue",
-        "type": "bool"
+        "internalType": "address",
+        "name": "taggerAddress",
+        "type": "address"
       }
     ],
     "name": "TargetTaggerPauseToggled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "targetTagger",
+        "type": "address"
+      }
+    ],
+    "name": "TargetTaggerRemoved",
     "type": "event"
   },
   {
@@ -430,26 +443,7 @@
         "type": "address"
       }
     ],
-    "name": "isTargetTagger",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_name",
-        "type": "string"
-      }
-    ],
-    "name": "isTargetTagger",
+    "name": "isTargetTaggerAndNotPaused",
     "outputs": [
       {
         "internalType": "bool",
@@ -468,7 +462,26 @@
         "type": "address"
       }
     ],
-    "name": "isTargetTaggerAndNotPaused",
+    "name": "isTargetTaggerByAddress",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
+      }
+    ],
+    "name": "isTargetTaggerByName",
     "outputs": [
       {
         "internalType": "bool",

@@ -81,13 +81,13 @@ describe("ETS Target tests", function () {
     it("should work with either target URI or target Id", async () => {
       await contracts.ETSTarget.connect(accounts.RandomOne).getOrCreateTargetId(targetURI);
       // Fetch target object using target URI string.
-      const targetObjViaURI = await contracts.ETSTarget["getTarget(string)"](targetURI);
+      const targetObjViaURI = await contracts.ETSTarget.getTargetByURI(targetURI);
       expect(targetObjViaURI.targetURI.toString()).to.be.equal(targetURI);
       expect(targetObjViaURI.createdBy).to.be.equal(accounts.RandomOne.address);
 
       // Fetch target object using target Id.
       const targetId = await contracts.ETSTarget.computeTargetId(targetURI);
-      const targetObjViaId = await contracts.ETSTarget["getTarget(uint256)"](targetId);
+      const targetObjViaId = await contracts.ETSTarget.getTargetById(targetId);
       expect(targetObjViaId.targetURI.toString()).to.be.equal(targetURI);
       expect(targetObjViaId.createdBy).to.be.equal(accounts.RandomOne.address);
     });

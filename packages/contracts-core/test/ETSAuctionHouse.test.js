@@ -40,7 +40,7 @@ describe("ETS Auction House Tests", function () {
     it("should have the right stuff", async function () {
       expect(await contracts.ETSToken.name()).to.be.equal("Ethereum Tag Service");
       expect(await contracts.ETSToken.symbol()).to.be.equal("CTAG");
-      expect(await contracts.ETSToken["tagExists(uint256)"](etsOwnedTagId)).to.be.equal(true);
+      expect(await contracts.ETSToken.tagExistsById(etsOwnedTagId)).to.be.equal(true);
       const owner = await contracts.ETSToken.ownerOf(userOwnedTagId);
       assert(owner === accounts.RandomTwo.address);
     });

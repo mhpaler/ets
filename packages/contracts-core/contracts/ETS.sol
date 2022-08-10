@@ -282,7 +282,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     function _processAccrued(uint256 _tagId, address _platform) internal {
         // Note: This will cause tag target to revert if tagId doesn't exist.
         address owner = etsToken.ownerOf(_tagId);
-        IETSToken.Tag memory tag = etsToken.getTag(_tagId);
+        IETSToken.Tag memory tag = etsToken.getTagById(_tagId);
 
         uint256 platformAllocation = (msg.value * platformPercentage) / modulo;
         uint256 publisherAllocation = (msg.value * publisherPercentage) / modulo;
