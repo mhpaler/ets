@@ -14,6 +14,7 @@ export function ensureTagger(
     tagger.firstSeen = event.block.timestamp;
     tagger.tagCount = ZERO;
     tagger.feesPaid = ZERO;
+    tagger.tags = [];
     tagger.save();
   }
 

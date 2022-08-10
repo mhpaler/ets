@@ -61,6 +61,7 @@ apps/*/build
 
 # contracts
 # packages/app/src/contracts/*
+apps/.pnpm-debug.log
 apps/app/artifacts/@openzeppelin/*
 apps/app/artifacts/build-info/*
 apps/app/artifacts/hardhat/*
