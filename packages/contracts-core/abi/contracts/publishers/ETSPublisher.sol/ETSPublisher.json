@@ -72,7 +72,7 @@
         "type": "bool"
       }
     ],
-    "name": "TargetTaggerPaused",
+    "name": "PublisherPaused",
     "type": "event"
   },
   {
@@ -113,7 +113,7 @@
             "type": "bool"
           }
         ],
-        "internalType": "struct IETSTargetTagger.TaggingRecord[]",
+        "internalType": "struct IETSPublisher.TaggingRecord[]",
         "name": "_taggingRecords",
         "type": "tuple[]"
       }
@@ -203,7 +203,7 @@
   },
   {
     "inputs": [],
-    "name": "getTaggerName",
+    "name": "getPublisherName",
     "outputs": [
       {
         "internalType": "string",
@@ -212,19 +212,6 @@
       }
     ],
     "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "isTargetTaggerPaused",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -255,33 +242,14 @@
   },
   {
     "inputs": [],
-    "name": "paused",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "renounceOwnership",
+    "name": "pause",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "bytes4",
-        "name": "interfaceId",
-        "type": "bytes4"
-      }
-    ],
-    "name": "supportsInterface",
+    "inputs": [],
+    "name": "paused",
     "outputs": [
       {
         "internalType": "bool",
@@ -317,21 +285,75 @@
             "type": "bool"
           }
         ],
-        "internalType": "struct IETSTargetTagger.TaggingRecord[]",
+        "internalType": "struct IETSPublisher.TaggingRecord[]",
         "name": "_taggingRecords",
         "type": "tuple[]"
       }
     ],
-    "name": "tagTarget",
+    "name": "removeTags",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "toggleTargetTaggerPaused",
+    "name": "renounceOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "targetURI",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "tagStrings",
+            "type": "string[]"
+          },
+          {
+            "internalType": "string",
+            "name": "recordType",
+            "type": "string"
+          },
+          {
+            "internalType": "bool",
+            "name": "enrich",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct IETSPublisher.TaggingRecord[]",
+        "name": "_taggingRecords",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "replaceTags",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "interfaceId",
+        "type": "bytes4"
+      }
+    ],
+    "name": "supportsInterface",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -343,6 +365,13 @@
       }
     ],
     "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "unpause",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

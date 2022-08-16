@@ -22,6 +22,45 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "address",
+        "name": "publisher",
+        "type": "address"
+      }
+    ],
+    "name": "PublisherAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "publisher",
+        "type": "address"
+      }
+    ],
+    "name": "PublisherPauseToggled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "publisher",
+        "type": "address"
+      }
+    ],
+    "name": "PublisherRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "bytes32",
         "name": "role",
@@ -94,49 +133,10 @@
     "type": "event"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "targetTagger",
-        "type": "address"
-      }
-    ],
-    "name": "TargetTaggerAdded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "taggerAddress",
-        "type": "address"
-      }
-    ],
-    "name": "TargetTaggerPauseToggled",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "targetTagger",
-        "type": "address"
-      }
-    ],
-    "name": "TargetTaggerRemoved",
-    "type": "event"
-  },
-  {
     "inputs": [
       {
         "internalType": "address",
-        "name": "_taggerAddress",
+        "name": "_publisher",
         "type": "address"
       },
       {
@@ -145,7 +145,7 @@
         "type": "string"
       }
     ],
-    "name": "addTargetTagger",
+    "name": "addPublisher",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -289,7 +289,7 @@
         "type": "address"
       }
     ],
-    "name": "isSmartContract",
+    "name": "isPublisherAndNotPaused",
     "outputs": [
       {
         "internalType": "bool",
@@ -308,26 +308,7 @@
         "type": "address"
       }
     ],
-    "name": "isTargetTaggerAndNotPaused",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_addr",
-        "type": "address"
-      }
-    ],
-    "name": "isTargetTaggerByAddress",
+    "name": "isPublisherByAddress",
     "outputs": [
       {
         "internalType": "bool",
@@ -346,7 +327,7 @@
         "type": "string"
       }
     ],
-    "name": "isTargetTaggerByName",
+    "name": "isPublisherByName",
     "outputs": [
       {
         "internalType": "bool",
@@ -361,11 +342,30 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_taggerAddress",
+        "name": "_addr",
         "type": "address"
       }
     ],
-    "name": "removeTargetTagger",
+    "name": "isSmartContract",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_publisher",
+        "type": "address"
+      }
+    ],
+    "name": "removePublisher",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -441,11 +441,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_taggerAddress",
+        "name": "_publisher",
         "type": "address"
       }
     ],
-    "name": "toggleIsTargetTaggerPaused",
+    "name": "toggleIsPublisherPaused",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

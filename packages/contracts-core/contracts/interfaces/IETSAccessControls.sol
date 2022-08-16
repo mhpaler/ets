@@ -21,25 +21,25 @@ interface IETSAccessControls is IAccessControlUpgradeable {
     event PlatformSet(address newAddress, address prevAddress);
 
     /**
-     * @dev emitted when a Target Tagger contract is added & enabled in ETS.
+     * @dev emitted when a Publisher contract is added & enabled in ETS.
      *
-     * @param targetTagger Target Tagger contract address.
+     * @param publisher Publisher contract address.
      */
-    event TargetTaggerAdded(address targetTagger);
+    event PublisherAdded(address publisher);
 
     /**
-     * @dev emitted when a Target Tagger contract is removed from ETS.
+     * @dev emitted when a Publisher contract is removed from ETS.
      *
-     * @param targetTagger Target Tagger contract address.
+     * @param publisher Publisher contract address.
      */
-    event TargetTaggerRemoved(address targetTagger);
+    event PublisherRemoved(address publisher);
 
     /**
-     * @dev emitted when a Target Tagger contract is paused or unpaused.
+     * @dev emitted when a Publisher contract is paused or unpaused.
      *
-     * @param taggerAddress Address that had pause toggled.
+     * @param publisher Address that had pause toggled.
      */
-    event TargetTaggerPauseToggled(address taggerAddress);
+    event PublisherPauseToggled(address publisher);
 
     /**
      * @notice Sets the Platform wallet address. Can only be called by address with DEFAULT_ADMIN_ROLE.
@@ -49,29 +49,29 @@ interface IETSAccessControls is IAccessControlUpgradeable {
     function setPlatform(address payable _platform) external;
 
     /**
-     * @notice Adds a Target Tagger contract to ETS. Can only be called by address
+     * @notice Adds a Publisher contract to ETS. Can only be called by address
      * with DEFAULT_ADMIN_ROLE.
      *
-     * @param _taggerAddress Address of the Target Tagger contract. Must conform to IETSTargetTagger.
-     * @param _name Human readable name of the Target Tagger.
+     * @param _publisher Address of the Publisher contract. Must conform to IETSPublisher.
+     * @param _name Human readable name of the Publisher.
      */
-    function addTargetTagger(address _taggerAddress, string calldata _name) external;
+    function addPublisher(address _publisher, string calldata _name) external;
 
     /**
-     * @notice Removes a Target Tagger contract from ETS. Can only be called by address
+     * @notice Removes a Publisher contract from ETS. Can only be called by address
      * with DEFAULT_ADMIN_ROLE.
      *
-     * @param _taggerAddress Address of the Target Tagger contract.
+     * @param _publisher Address of the Publisher contract.
      */
-    function removeTargetTagger(address _taggerAddress) external;
+    function removePublisher(address _publisher) external;
 
     /**
-     * @notice Pauses/Unpauses a Target Tagger contract. Can only be called by address
+     * @notice Pauses/Unpauses a Publisher contract. Can only be called by address
      * with DEFAULT_ADMIN_ROLE.
      *
-     * @param _taggerAddress Address of the Target Tagger contract.
+     * @param _publisher Address of the Publisher contract.
      */
-    function toggleIsTargetTaggerPaused(address _taggerAddress) external;
+    function toggleIsPublisherPaused(address _publisher) external;
 
     /**
      * @notice Sets the role admin for a given role. An address with role admin can grant or
@@ -122,26 +122,26 @@ interface IETSAccessControls is IAccessControlUpgradeable {
     function isPublisherAdmin(address _addr) external view returns (bool);
 
     /**
-     * @notice Checks whether given Tagger Name is a registered Target Tagger.
+     * @notice Checks whether given Publisher Name is a registered Publisher.
      *
      * @param _name Name being checked.
-     * @return boolean True if _name is a Target Tagger.
+     * @return boolean True if _name is a Publisher.
      */
-    function isTargetTaggerByName(string calldata _name) external view returns (bool);
+    function isPublisherByName(string calldata _name) external view returns (bool);
 
     /**
-     * @notice Checks whether given address is a registered Target Tagger.
+     * @notice Checks whether given address is a registered Publisher.
      *
      * @param _addr Address being checked.
-     * @return boolean True if address is a Target Tagger.
+     * @return boolean True if address is a registered Publisher.
      */
-    function isTargetTaggerByAddress(address _addr) external view returns (bool);
+    function isPublisherByAddress(address _addr) external view returns (bool);
 
     /**
-     * @notice Checks whether given address is a registered Target Tagger and not paused.
+     * @notice Checks whether given address is a registered Publisher and not paused.
      *
      * @param _addr Address being checked.
-     * @return boolean True if address is a Target Tagger and not paused.
+     * @return boolean True if address is a Publisher and not paused.
      */
-    function isTargetTaggerAndNotPaused(address _addr) external view returns (bool);
+    function isPublisherAndNotPaused(address _addr) external view returns (bool);
 }

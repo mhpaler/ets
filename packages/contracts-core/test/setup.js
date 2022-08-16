@@ -41,7 +41,7 @@ async function getArtifacts() {
     ETSEnrichTarget: artifacts.readArtifactSync("ETSEnrichTarget"),
     ETSAuctionHouse: artifacts.readArtifactSync("ETSAuctionHouse"),
     ETS: artifacts.readArtifactSync("ETS"),
-    ETSTargetTagger: artifacts.readArtifactSync("ETSTargetTagger"),
+    ETSPublisher: artifacts.readArtifactSync("ETSPublisher"),
     /// .sol test contracts.
     ETSAccessControlsUpgrade: artifacts.readArtifactSync("ETSAccessControlsUpgrade"),
     ETSTokenUpgrade: artifacts.readArtifactSync("ETSTokenUpgrade"),
@@ -61,7 +61,7 @@ async function getFactories() {
     ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
     ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
     ETS: await ethers.getContractFactory("ETS"),
-    ETSTargetTagger: await ethers.getContractFactory("ETSTargetTagger"),
+    ETSPublisher: await ethers.getContractFactory("ETSPublisher"),
     /// .sol test contracts.
     WMATIC: await ethers.getContractFactory("WMATIC"),
     ETSAccessControlsUpgrade: await ethers.getContractFactory("ETSAccessControlsUpgrade"),
@@ -87,7 +87,7 @@ async function setup() {
     ETSTarget: await ethers.getContractFactory("ETSTarget"),
     ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
     ETS: await ethers.getContractFactory("ETS"),
-    ETSTargetTagger: await ethers.getContractFactory("ETSTargetTagger"),
+    ETSPublisher: await ethers.getContractFactory("ETSPublisher"),
   };
 
   // ============ SETUP TEST ACCOUNTS ============
@@ -163,7 +163,7 @@ async function setup() {
 
   // Deploy a target tagger with accounts.Creator as the creator/deployer and accounts.RandomTwo as the owner
   // This will simulate a third-party deploying their own Target Tagger.
-  const ETSTargetTagger = await factories.ETSTargetTagger.deploy(
+  const ETSPublisher = await factories.ETSPublisher.deploy(
     ETS.address,
     ETSToken.address,
     ETSTarget.address,
@@ -179,7 +179,7 @@ async function setup() {
     ETSTarget: ETSTarget,
     ETSEnrichTarget: ETSEnrichTarget,
     ETS: ETS,
-    ETSTargetTagger: ETSTargetTagger,
+    ETSPublisher: ETSPublisher,
   };
 
   // ============ GRANT ROLES & APPROVALS ============
@@ -210,12 +210,6 @@ async function setup() {
 
   // Approve auction house contract to move tokens owned by platform.
   await ETSToken.connect(accounts.ETSPlatform).setApprovalForAll(ETSAuctionHouse.address, true);
-
-  // Add & Enable ETSTargetTagger as a Target Tagger.
-  //await ETSAccessControls.connect(accounts.ETSPlatform).addTargetTagger(
-  //  ETSTargetTagger.address,
-  //  await ETSTargetTagger.getTaggerName(),
-  //);
 
   return [accounts, contracts, initSettings];
 }

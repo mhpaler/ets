@@ -4,29 +4,17 @@ pragma solidity ^0.8.10;
 import "../interfaces/IETS.sol";
 import "../interfaces/IETSToken.sol";
 import "../interfaces/IETSTarget.sol";
-import "../interfaces/IETSTargetTagger.sol";
+import "../interfaces/IETSPublisher.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { Pausable } from "@openzeppelin/contracts/security/Pausable.sol";
 
 /**
- * @title ETSTargetTagger
- * @author Ethereum Tag Service <security@ets.xyz>
- * @notice Sample implementation if IETSTargetTagger
- *
- * To use it, call the public tagTarget() function with an array of TaggingRecord structs
- * and a publisher address.
- *
- * The tagTarget() function will process each TaggingRecord struct as follows:
- *   - Get or create a targetId for the target.
- *   - Get or create tagIds (CTAG token ids) for the tag strings.
- *   - Call the core ETS.tagTarget() with the tagIds and targetId function to write a tagging record to ETS.
- *
- * Note: When ETSTargetTagger (this contract) is utilized for tagging, ETS is credited as the Publisher of any CTAGs
- * minted and as well as the tagging record. To learn more about the role and incentives for Publisher in ETS,
- * please see. todo: link to docs.
+ * @title ETSPublisher
+ * @author Ethereum Tag Service <team@ets.xyz>
+ * @notice Sample implementation of IETSPublisher
  */
-contract ETSTargetTagger is IETSTargetTagger, Ownable, Pausable {
+contract ETSPublisher is IETSPublisher, Ownable, Pausable {
     /// @notice Address and interface for ETS Core.
     IETS public ets;
 
@@ -39,7 +27,7 @@ contract ETSTargetTagger is IETSTargetTagger, Ownable, Pausable {
     // Public constants
 
     /// @notice machine name for this target tagger.
-    string public constant name = "ETSTargetTagger";
+    string public constant name = "ETSPublisher";
 
     // Public variables
 
@@ -62,41 +50,48 @@ contract ETSTargetTagger is IETSTargetTagger, Ownable, Pausable {
 
     // ============ OWNER INTERFACE ============
 
-    function toggleTargetTaggerPaused() public onlyOwner {
-        if (paused()) {
-            _unpause();
-        } else {
-            _pause();
-        }
+    /**
+     * @notice Pause this publisher contract.
+     * @dev This function can only be called by the owner when the contract is unpaused.
+     */
+    function pause() public onlyOwner {
+        _pause();
+    }
 
-        emit TargetTaggerPaused(paused());
+    /**
+     * @notice Unpause this publisher contract.
+     * @dev This function can only be called by the owner when the contract is paused.
+     */
+    function unpause() public onlyOwner {
+        _unpause();
     }
 
     // ============ PUBLIC INTERFACE ============
 
-    /**
-     * @notice public interface provided by ETS allowing any client to tag a target.
-     *
-     * This tagger permits the tagging of one or more Targets with one or more tags
-     * in one transaction.
-     *
-     * @param _taggingRecords Array of TaggingRecord stucts.
-     */
-    function tagTarget(TaggingRecord[] calldata _taggingRecords) public payable {
+    function applyTags(TaggingRecord[] calldata _taggingRecords) public payable whenNotPaused {
         // Pull tagging fee here so wo don't need to recalculate for each tagging reccord.
         uint256 currentTaggingFee = ets.taggingFee();
 
         for (uint256 i; i < _taggingRecords.length; ++i) {
-            _processTaggingRecord(_taggingRecords[i], payable(msg.sender), currentTaggingFee);
+            _applyTags(_taggingRecords[i], payable(msg.sender), currentTaggingFee);
         }
 
         // Confirms that all funds sent here are forwarded along.
         assert(address(this).balance == 0);
     }
 
+    function removeTags(TaggingRecord[] calldata _taggingRecords) public payable {
+        for (uint256 i; i < _taggingRecords.length; ++i) {
+            _removeTags(_taggingRecords[i], payable(msg.sender));
+        }
+    }
+
+    // TODO
+    function replaceTags(TaggingRecord[] calldata _taggingRecords) public payable {}
+
     // ============ PUBLIC VIEW FUNCTIONS ============
 
-    function getTaggerName() public pure returns (string memory) {
+    function getPublisherName() public pure returns (string memory) {
         return name;
     }
 
@@ -108,18 +103,13 @@ contract ETSTargetTagger is IETSTargetTagger, Ownable, Pausable {
         return payable(owner());
     }
 
-    /// @inheritdoc IETSTargetTagger
-    function isTargetTaggerPaused() public view override returns (bool) {
-        return paused();
-    }
-
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IERC165).interfaceId || interfaceId == type(IETSTargetTagger).interfaceId;
+        return interfaceId == type(IERC165).interfaceId || interfaceId == type(IETSPublisher).interfaceId;
     }
 
     // ============ INTERNAL FUNCTIONS ============
 
-    function _processTaggingRecord(
+    function _applyTags(
         TaggingRecord calldata _taggingRecord,
         address payable _tagger,
         uint256 _currentFee
@@ -143,6 +133,19 @@ contract ETSTargetTagger is IETSTargetTagger, Ownable, Pausable {
         uint256 targetId = etsTarget.getOrCreateTargetId(_taggingRecord.targetURI);
 
         // Finally, call the core tagTarget() function to record the tagging record.
-        ets.tagTarget{ value: valueToSendForTagging }(tagIds, targetId, _taggingRecord.recordType, _tagger);
+        ets.applyTags{ value: valueToSendForTagging }(tagIds, targetId, _taggingRecord.recordType, _tagger);
+    }
+
+    function _removeTags(TaggingRecord calldata _taggingRecord, address payable _tagger) internal {
+        // Derive tagIds for the tagStrings.
+        uint256[] memory tagIds = new uint256[](_taggingRecord.tagStrings.length);
+        for (uint256 i; i < _taggingRecord.tagStrings.length; ++i) {
+            uint256 tagId = etsToken.getOrCreateTagId(_taggingRecord.tagStrings[i], _tagger);
+            tagIds[i] = tagId;
+        }
+
+        uint256 targetId = etsTarget.getOrCreateTargetId(_taggingRecord.targetURI);
+
+        ets.removeTags(tagIds, targetId, _taggingRecord.recordType, _tagger);
     }
 }

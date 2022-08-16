@@ -4,12 +4,12 @@ pragma solidity ^0.8.10;
 import "../interfaces/IETS.sol";
 import "../interfaces/IETSToken.sol";
 import "../interfaces/IETSTarget.sol";
-import "../interfaces/IETSTargetTagger.sol";
+import "../interfaces/IETSPublisher.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { Pausable } from "@openzeppelin/contracts/security/Pausable.sol";
 
-contract TargetTaggerMock is IETSTargetTagger, Ownable, Pausable {
+contract PublisherMock is IETSPublisher, Ownable, Pausable {
     /// @notice Address and interface for ETS Core.
     IETS public ets;
 
@@ -22,7 +22,7 @@ contract TargetTaggerMock is IETSTargetTagger, Ownable, Pausable {
     // Public constants
 
     /// @notice machine name for this target tagger.
-    string public constant name = "TargetTaggerMock";
+    string public constant name = "PublisherMock";
 
     // Public variables
 
@@ -45,23 +45,25 @@ contract TargetTaggerMock is IETSTargetTagger, Ownable, Pausable {
 
     // ============ OWNER INTERFACE ============
 
-    function toggleTargetTaggerPaused() public onlyOwner {
-        if (paused()) {
-            _unpause();
-        } else {
-            _pause();
-        }
+    function pause() public onlyOwner {
+        _pause();
+    }
 
-        emit TargetTaggerPaused(paused());
+    function unpause() public onlyOwner {
+        _unpause();
     }
 
     // ============ PUBLIC INTERFACE ============
 
-    function tagTarget(TaggingRecord[] calldata _taggingRecords) public payable {}
+    function applyTags(TaggingRecord[] calldata _taggingRecords) public payable {}
+
+    function removeTags(TaggingRecord[] calldata _taggingRecords) public payable {}
+
+    function replaceTags(TaggingRecord[] calldata _taggingRecords) public payable {}
 
     // ============ PUBLIC VIEW FUNCTIONS ============
 
-    function getTaggerName() public pure returns (string memory) {
+    function getPublisherName() public pure returns (string memory) {
         return name;
     }
 
@@ -69,14 +71,7 @@ contract TargetTaggerMock is IETSTargetTagger, Ownable, Pausable {
 
     function getOwner() public view returns (address payable) {}
 
-    /// @inheritdoc IETSTargetTagger
-    function isTargetTaggerPaused() public view override returns (bool) {
-        return paused();
-    }
-
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IERC165).interfaceId || interfaceId == type(IETSTargetTagger).interfaceId;
+        return interfaceId == type(IERC165).interfaceId || interfaceId == type(IETSPublisher).interfaceId;
     }
-
-    // ============ INTERNAL FUNCTIONS ============
 }

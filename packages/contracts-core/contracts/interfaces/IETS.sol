@@ -79,15 +79,15 @@ interface IETS {
     event FundsWithdrawn(address indexed who, uint256 amount);
 
     /**
-     * @notice Core ETS tagging function that records an ETS tagging record to the blockchain.
-     * This function can only be called by IETSTargetTagger implementation contracts & ETS admins.
+     * @notice Records new ETS Tagging Record to the blockchain or appends tags if Tagging Record already
+     * exists. This function can only be called by IETSTargetTagger implementation contracts & ETS admins.
      *
      * @param _tagIds Array of CTAG token Ids.
      * @param _targetId targetId of the URI being tagged. See ETSTarget.sol
      * @param _recordType Arbitrary identifier for type of tagging record.
      * @param _tagger Address of that calls IETSTargetTagger to create tagging record.
      */
-    function tagTarget(
+    function applyTags(
         uint256[] calldata _tagIds,
         uint256 _targetId,
         string memory _recordType,
@@ -95,13 +95,68 @@ interface IETS {
     ) external payable;
 
     /**
-     * @notice Function for updating the tags in a tagging record. Takes raw tag strings as input.
-     * may only be called by original tagger.
+     * @notice Appends tags to a tagging record.
      *
-     * @param _taggingRecordId Array of CTAG token Ids.
-     * @param _tags Array of tag strings.
+     * Existing tag Ids will be skipped; new tags will be appended to tagging record.
+     *
+     * @param _taggingRecordId tagging record being updated.
+     * @param _tagIds Array of CTAG token Ids.
      */
-    function updateTaggingRecord(uint256 _taggingRecordId, string[] calldata _tags) external payable;
+    function applyTagsByTaggingRecordId(uint256 _taggingRecordId, uint256[] calldata _tagIds) external payable;
+
+    /**
+     * @notice Removes tags from a tagging record.
+     *
+     * Reverts if tagging record does not exist for composite keys.
+     *
+     * @param _tagIds Array of CTAG token Ids.
+     * @param _targetId targetId of the URI being tagged. See ETSTarget.sol
+     * @param _recordType Arbitrary identifier for type of tagging record.
+     * @param _tagger Address of that calls IETSTargetTagger to create tagging record.
+     */
+    function removeTags(
+        uint256[] calldata _tagIds,
+        uint256 _targetId,
+        string memory _recordType,
+        address payable _tagger
+    ) external;
+
+    /**
+     * @notice Removes tags from a tagging record.
+     *
+     * @param _taggingRecordId tagging record being updated.
+     * @param _tagIds Array of CTAG token Ids.
+     */
+    function removeTagsByTaggingRecordId(uint256 _taggingRecordId, uint256[] calldata _tagIds) external;
+
+    /**
+     * @notice Replaces tags in tagging record.
+     *
+     * This function overwrites the tags in a tagging record with the supplied tags, only
+     * charging for the new tags in the replacement set.
+     *
+     * @param _tagIds Array of CTAG token Ids.
+     * @param _targetId targetId of the URI being tagged. See ETSTarget.sol
+     * @param _recordType Arbitrary identifier for type of tagging record.
+     * @param _tagger Address of that calls IETSTargetTagger to create tagging record.
+     */
+    function replaceTags(
+        uint256[] calldata _tagIds,
+        uint256 _targetId,
+        string memory _recordType,
+        address payable _tagger
+    ) external payable;
+
+    /**
+     * @notice Replaces tags in tagging record.
+     *
+     * This function overwrites the tags in a tagging record with the supplied tags, only
+     * charging for the new tags in the replacement set.
+     *
+     * @param _taggingRecordId tagging record being updated.
+     * @param _tagIds Array of CTAG token Ids.
+     */
+    function replaceTagsByTaggingRecordId(uint256 _taggingRecordId, uint256[] calldata _tagIds) external payable;
 
     /**
      * @notice Function for withdrawing funds from an accrual account. Can be called by the account owner
@@ -121,6 +176,7 @@ interface IETS {
      * @param _recordType Arbitrary identifier for type of tagging record.
      * @param _publisher Address of IETSTargetTagger contract that wrote tagging record.
      * @param _tagger Address of wallet that initiated tagging record via publisher.
+     * @return taggingRecordId Unique identifier for a tagging record.
      */
     function computeTaggingRecordId(
         uint256 _targetId,
@@ -180,6 +236,21 @@ interface IETS {
             address publisher,
             address tagger
         );
+
+    /**
+     * @notice Check that a tagging record exists by componsite key parts.
+     */
+    function taggingRecordExists(
+        uint256 _targetId,
+        string memory _recordType,
+        address _publisher,
+        address _tagger
+    ) external view returns (bool);
+
+    /**
+     * @notice Check that a tagging record exsits by it's Id.
+     */
+    function taggingRecordExistsById(uint256 _taggingRecordId) external view returns (bool);
 
     /**
      * @notice Function to check how much MATIC has been accrued by an address factoring in amount paid out.

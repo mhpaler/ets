@@ -182,6 +182,52 @@
   {
     "inputs": [
       {
+        "internalType": "uint256[]",
+        "name": "_tagIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_targetId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_recordType",
+        "type": "string"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_tagger",
+        "type": "address"
+      }
+    ],
+    "name": "applyTags",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taggingRecordId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_tagIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "applyTagsByTaggingRecordId",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "_targetId",
         "type": "uint256"
@@ -470,6 +516,98 @@
   {
     "inputs": [
       {
+        "internalType": "uint256[]",
+        "name": "_tagIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_targetId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_recordType",
+        "type": "string"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_tagger",
+        "type": "address"
+      }
+    ],
+    "name": "removeTags",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taggingRecordId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_tagIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "removeTagsByTaggingRecordId",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "_tagIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_targetId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_recordType",
+        "type": "string"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_tagger",
+        "type": "address"
+      }
+    ],
+    "name": "replaceTags",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taggingRecordId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_tagIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "replaceTagsByTaggingRecordId",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "contract IETSAccessControls",
         "name": "_accessControls",
         "type": "address"
@@ -512,12 +650,20 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "taggingFee",
+    "outputs": [
       {
-        "internalType": "uint256[]",
-        "name": "_tagIds",
-        "type": "uint256[]"
-      },
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
         "internalType": "uint256",
         "name": "_targetId",
@@ -529,24 +675,41 @@
         "type": "string"
       },
       {
-        "internalType": "address payable",
+        "internalType": "address",
+        "name": "_publisher",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "_tagger",
         "type": "address"
       }
     ],
-    "name": "tagTarget",
-    "outputs": [],
-    "stateMutability": "payable",
+    "name": "taggingRecordExists",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "taggingFee",
-    "outputs": [
+    "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_taggingRecordId",
         "type": "uint256"
+      }
+    ],
+    "name": "taggingRecordExistsById",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -603,24 +766,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_taggingRecordId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string[]",
-        "name": "_tags",
-        "type": "string[]"
-      }
-    ],
-    "name": "updateTaggingRecord",
-    "outputs": [],
-    "stateMutability": "payable",
     "type": "function"
   },
   {

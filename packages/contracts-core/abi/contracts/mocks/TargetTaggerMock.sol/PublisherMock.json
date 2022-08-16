@@ -72,7 +72,7 @@
         "type": "bool"
       }
     ],
-    "name": "TargetTaggerPaused",
+    "name": "PublisherPaused",
     "type": "event"
   },
   {
@@ -87,41 +87,6 @@
     ],
     "name": "Unpaused",
     "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "targetURI",
-            "type": "string"
-          },
-          {
-            "internalType": "string[]",
-            "name": "tagStrings",
-            "type": "string[]"
-          },
-          {
-            "internalType": "string",
-            "name": "recordType",
-            "type": "string"
-          },
-          {
-            "internalType": "bool",
-            "name": "enrich",
-            "type": "bool"
-          }
-        ],
-        "internalType": "struct IETSTargetTagger.TaggingRecord[]",
-        "name": "_taggingRecords",
-        "type": "tuple[]"
-      }
-    ],
-    "name": "applyTags",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
   },
   {
     "inputs": [],
@@ -203,7 +168,7 @@
   },
   {
     "inputs": [],
-    "name": "getTaggerName",
+    "name": "getPublisherName",
     "outputs": [
       {
         "internalType": "string",
@@ -216,7 +181,7 @@
   },
   {
     "inputs": [],
-    "name": "isTargetTaggerPaused",
+    "name": "isPublisherPaused",
     "outputs": [
       {
         "internalType": "bool",
@@ -317,7 +282,7 @@
             "type": "bool"
           }
         ],
-        "internalType": "struct IETSTargetTagger.TaggingRecord[]",
+        "internalType": "struct IETSPublisher.TaggingRecord[]",
         "name": "_taggingRecords",
         "type": "tuple[]"
       }
@@ -329,7 +294,7 @@
   },
   {
     "inputs": [],
-    "name": "toggleTargetTaggerPaused",
+    "name": "togglePublisherPaused",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

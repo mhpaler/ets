@@ -19,27 +19,31 @@ describe("ETS Core tests", function () {
     );
 
     // Mint a tag. RandomOne is Publisher, Creator is Creator. Retained by platform.
-    etsOwnedTag = "#Love";
-    await contracts.ETSToken.connect(accounts.RandomOne)["createTag(string,address)"](
-      etsOwnedTag,
-      accounts.Creator.address,
-    );
-    etsOwnedTagId = await contracts.ETSToken.computeTagId(etsOwnedTag);
-    etsOwnedTagId = etsOwnedTagId.toString();
+    tagString1 = "#Love";
+    await contracts.ETSToken.connect(accounts.RandomOne).createTag(tagString1, accounts.Creator.address);
+    etsTag1 = await contracts.ETSToken.computeTagId(tagString1);
+    etsTag1 = etsTag1.toString();
+
+    tagString2 = "#Hate";
+    await contracts.ETSToken.connect(accounts.RandomOne).createTag(tagString2, accounts.Creator.address);
+    etsTag2 = await contracts.ETSToken.computeTagId(tagString2);
+    etsTag2 = etsTag2.toString();
+
+    tagString3 = "#Fear";
+    await contracts.ETSToken.connect(accounts.RandomOne).createTag(tagString3, accounts.Creator.address);
+    etsTag3 = await contracts.ETSToken.computeTagId(tagString3);
+    etsTag3 = etsTag3.toString();
 
     // Mint another tag. RandomOne is Publisher, Creator is Creator. Transferred to (owned by) RandomTwo.
-    userOwnedTag = "#Incredible";
-    await contracts.ETSToken.connect(accounts.RandomOne)["createTag(string,address)"](
-      userOwnedTag,
-      accounts.Creator.address,
-    );
-    userOwnedTagId = await contracts.ETSToken.computeTagId(userOwnedTag);
-    userOwnedTagId = userOwnedTagId.toString();
+    tagString4 = "#Incredible";
+    await contracts.ETSToken.connect(accounts.RandomOne).createTag(tagString4, accounts.Creator.address);
+    userTag1 = await contracts.ETSToken.computeTagId(tagString4);
+    userTag1 = userTag1.toString();
 
     await contracts.ETSToken.connect(accounts.ETSPlatform).transferFrom(
       accounts.ETSPlatform.address,
       accounts.RandomTwo.address,
-      userOwnedTagId,
+      userTag1,
     );
 
     // Add a target to ETS.
@@ -49,19 +53,18 @@ describe("ETS Core tests", function () {
     targetId = await contracts.ETSTarget.computeTargetId(targetURI);
     //targetId = targetId.toString();
 
-    // Here we are adding the platform as a target tagger for testing purposes.
-    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addTargetTagger(
+    // Here we are adding the platform as a publisher for testing purposes.
+    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
       accounts.ETSPlatform.address,
       "ETSPlatform",
     );
 
-    // Also adding a target tagger contract.
-    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addTargetTagger(
-      contracts.ETSTargetTagger.address,
-      await contracts.ETSTargetTagger.getTaggerName(),
+    // Also adding a publisher contract.
+    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
+      contracts.ETSPublisher.address,
+      await contracts.ETSPublisher.getPublisherName(),
     );
   });
-
   describe("Valid setup", async function () {
     it("should have Access controls set to ETSAccessControls contract", async function () {
       expect(await contracts.ETS.etsAccessControls()).to.be.equal(contracts.ETSAccessControls.address);
@@ -73,7 +76,6 @@ describe("ETS Core tests", function () {
       expect(await contracts.ETS.etsTarget()).to.be.equal(contracts.ETSTarget.address);
     });
   });
-
   describe("Setting access controls", async () => {
     it("should revert if set to zero address", async function () {
       await expect(
@@ -111,7 +113,6 @@ describe("ETS Core tests", function () {
       expect(await contracts.ETS.etsAccessControls()).to.be.equal(ETSAccessControlsNew.address);
     });
   });
-
   describe("Setting tagging fee", async () => {
     it("should revert if caller is not administrator", async function () {
       await expect(contracts.ETS.connect(accounts.RandomTwo).setTaggingFee(0)).to.be.reverted;
@@ -125,7 +126,6 @@ describe("ETS Core tests", function () {
       expect(await contracts.ETS.taggingFee()).to.be.equal(1);
     });
   });
-
   describe("Setting tagging fee distribution percentages", async () => {
     it("should revert if caller is not administrator", async function () {
       await expect(contracts.ETS.connect(accounts.RandomTwo).setPercentages(10, 10)).to.be.reverted;
@@ -145,24 +145,23 @@ describe("ETS Core tests", function () {
       expect(await contracts.ETS.publisherPercentage()).to.be.equal(30);
     });
   });
-
-  describe("Writing a tagging record directly to the ETS Core", async () => {
-    it("should revert when tagger is not an enabled Target Tagger", async function () {
+  describe("Creating new tagging records", async () => {
+    it("should revert when tagger is not an enabled Publisher", async function () {
       await expect(
-        contracts.ETS.connect(accounts.RandomOne).tagTarget([12345], 12345, "bookmark", accounts.RandomOne.address),
-      ).to.be.revertedWith("Only IETSTargetTagger contracts may call ETS core");
+        contracts.ETS.connect(accounts.RandomOne).applyTags([12345], 12345, "bookmark", accounts.RandomOne.address),
+      ).to.be.revertedWith("Caller not IETSPublisher contract");
     });
 
     it("should revert when no tags are supplied", async function () {
       await expect(
-        contracts.ETS.connect(accounts.ETSPlatform).tagTarget([], targetId, "bookmark", accounts.RandomOne.address),
+        contracts.ETS.connect(accounts.ETSPlatform).applyTags([], targetId, "bookmark", accounts.RandomOne.address),
       ).to.be.revertedWith("No tags supplied");
     });
 
     it("should revert when record type is too long", async function () {
       await expect(
-        contracts.ETS.connect(accounts.ETSPlatform).tagTarget(
-          [etsOwnedTagId],
+        contracts.ETS.connect(accounts.ETSPlatform).applyTags(
+          [etsTag1],
           targetId,
           "reallyReallyreallyReallyreallyReallyreallyReallyreallyReallyLongRecordType",
           accounts.RandomOne.address,
@@ -175,8 +174,8 @@ describe("ETS Core tests", function () {
 
     it("should revert when insufficient tagging fee is supplied", async function () {
       await expect(
-        contracts.ETS.connect(accounts.ETSPlatform).tagTarget(
-          [etsOwnedTagId, userOwnedTagId],
+        contracts.ETS.connect(accounts.ETSPlatform).applyTags(
+          [etsTag1, userTag1],
           targetId,
           "bookmark",
           accounts.RandomOne.address,
@@ -187,30 +186,541 @@ describe("ETS Core tests", function () {
       ).to.be.revertedWith("Insufficient tagging fee supplied");
     });
 
-    it("should emit TargetTagged when successful", async function () {
-      const tags = [etsOwnedTagId, userOwnedTagId];
-      const tx = await contracts.ETS.connect(accounts.ETSPlatform).tagTarget(
+    it("should emit TargetTagged when new Tagging Record is created", async function () {
+      const tags = [etsTag1];
+      const tx = await contracts.ETS.connect(accounts.ETSPlatform).applyTags(
         tags,
         targetId,
         "bookmark",
         accounts.RandomOne.address,
         {
-          value: ethers.BigNumber.from(taggingFee).mul("2"),
+          value: ethers.BigNumber.from(taggingFee).mul("1"),
         },
       );
       await expect(tx).to.emit(contracts.ETS, "TargetTagged");
     });
+
+    it("should have the correct number of tags", async function () {
+      const tags = [etsTag1, etsTag2, userTag1];
+      await contracts.ETS.connect(accounts.ETSPlatform).applyTags(
+        tags,
+        targetId,
+        "bookmark",
+        accounts.RandomOne.address,
+        {
+          value: ethers.BigNumber.from(taggingFee).mul("3"),
+        },
+      );
+
+      const taggingRecord = await contracts.ETS.getTaggingRecord(
+        targetId,
+        "bookmark",
+        accounts.ETSPlatform.address,
+        accounts.RandomOne.address,
+      );
+
+      expect(taggingRecord.tagIds.length).to.be.equal(3);
+    });
+  });
+  describe("Appending tags to existing tagging record", async () => {
+    beforeEach("Setup test", async () => {
+      const tags = [etsTag1];
+      await contracts.ETS.connect(accounts.ETSPlatform).applyTags(
+        tags,
+        targetId,
+        "bookmark",
+        accounts.RandomOne.address,
+        {
+          value: ethers.BigNumber.from(taggingFee).mul("1"),
+        },
+      );
+
+      taggingRecordId = await contracts.ETS.computeTaggingRecordId(
+        targetId,
+        "bookmark",
+        accounts.ETSPlatform.address,
+        accounts.RandomOne.address,
+      );
+    });
+
+    describe("using taggingRecord composite keys", async () => {
+      it("should revert when insufficient tagging fee is supplied", async function () {
+        // Passing in 3 tags, two of which are new, so fee should be 2x tagging fee.
+        // we supply 1x.
+        const tags = [etsTag1, etsTag2, userTag1];
+        await expect(
+          contracts.ETS.connect(accounts.ETSPlatform).applyTags(
+            tags,
+            targetId,
+            "bookmark",
+            accounts.RandomOne.address,
+            {
+              value: ethers.BigNumber.from(taggingFee).mul("1"),
+            },
+          ),
+        ).to.be.revertedWith("Insufficient tagging fee supplied");
+      });
+
+      it("should emit TaggingRecordUpdated", async function () {
+        let tx = await contracts.ETS.connect(accounts.ETSPlatform).applyTags(
+          [etsTag2, userTag1],
+          targetId,
+          "bookmark",
+          accounts.RandomOne.address,
+          {
+            value: ethers.BigNumber.from(taggingFee).mul("2"),
+          },
+        );
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
+      });
+
+      it("should increase the tag count when new tag is supplied", async function () {
+        let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(1);
+
+        // Should filter out etsTag1 cause it already exists.
+        const newTags = [etsTag1, etsTag2, userTag1];
+        tx = await contracts.ETS.connect(accounts.ETSPlatform).applyTags(
+          newTags,
+          targetId,
+          "bookmark",
+          accounts.RandomOne.address,
+          {
+            value: ethers.BigNumber.from(taggingFee).mul("2"),
+          },
+        );
+        taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(3);
+      });
+
+      it("should not increase the tag count when duplicate tag is supplied", async function () {
+        let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(1);
+
+        const sameTag = [etsTag1];
+        tx = await contracts.ETS.connect(accounts.ETSPlatform).applyTags(
+          sameTag,
+          targetId,
+          "bookmark",
+          accounts.RandomOne.address,
+          {
+            value: ethers.BigNumber.from(taggingFee).mul("1"),
+          },
+        );
+        taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(1);
+      });
+    });
+
+    describe("using taggingRecordId", async () => {
+      it("should revert when insufficient tagging fee is supplied", async function () {
+        // Passing in 3 tags, two of which are new, so fee should be 2x tagging fee.
+        // we supply 1x.
+        const tagsToAppend = [etsTag1, etsTag2, userTag1];
+        await expect(
+          contracts.ETS.connect(accounts.ETSPlatform).applyTagsByTaggingRecordId(taggingRecordId, tagsToAppend, {
+            value: ethers.BigNumber.from(taggingFee).mul("1"),
+          }),
+        ).to.be.revertedWith("Insufficient tagging fee supplied");
+      });
+
+      it("can be done with taggingRecordId", async function () {
+        taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(1);
+        const tagsToAppend = [etsTag1, etsTag2, userTag1];
+        let tx = await contracts.ETS.connect(accounts.ETSPlatform).applyTagsByTaggingRecordId(
+          taggingRecordId,
+          tagsToAppend,
+          {
+            value: ethers.BigNumber.from(taggingFee).mul("2"),
+          },
+        );
+        //await expect(tx).to.emit(contracts.ETS, "TargetTagged");
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
+        taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(3);
+      });
+
+      it("can be performed by original tagger", async function () {
+        // accounts.RandomOne is original tagger.
+        const tagsToAppend = [etsTag1, etsTag2, userTag1];
+        let tx = await contracts.ETS.connect(accounts.RandomOne).applyTagsByTaggingRecordId(
+          taggingRecordId,
+          tagsToAppend,
+          {
+            value: ethers.BigNumber.from(taggingFee).mul("2"),
+          },
+        );
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
+        taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(3);
+      });
+
+      it("can be performed by original publisher", async function () {
+        // accounts.ETSPlatform is original publisher.
+        const tagsToAppend = [etsTag1, etsTag2, userTag1];
+        let tx = await contracts.ETS.connect(accounts.ETSPlatform).applyTagsByTaggingRecordId(
+          taggingRecordId,
+          tagsToAppend,
+          {
+            value: ethers.BigNumber.from(taggingFee).mul("2"),
+          },
+        );
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
+        taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(3);
+      });
+
+      it("can only be performed by original publisher or tagger", async function () {
+        // accounts.RandomTwo is neither original publisher or tagger.
+        const tagsToAppend = [etsTag1, etsTag2, userTag1];
+        await expect(
+          contracts.ETS.connect(accounts.RandomTwo).applyTagsByTaggingRecordId(taggingRecordId, tagsToAppend, {
+            value: ethers.BigNumber.from(taggingFee).mul("2"),
+          }),
+        ).to.be.revertedWith("Caller not original publisher or tagger");
+      });
+    });
   });
 
-  describe("Writing a tagging record via a Target Tagger contract", async () => {
-    it("should revert when Target Tagger is paused", async function () {
-      expect(
-        await contracts.ETSAccessControls.isTargetTaggerAndNotPaused(contracts.ETSTargetTagger.address),
-      ).to.be.equal(true);
+  describe("Removing tags", async () => {
+    beforeEach("Setup test", async () => {
+      const tags = [etsTag1, etsTag2, etsTag3, userTag1];
+      await contracts.ETS.connect(accounts.ETSPlatform).applyTags(
+        tags,
+        targetId,
+        "bookmark",
+        accounts.RandomOne.address,
+        {
+          value: ethers.BigNumber.from(taggingFee).mul("4"),
+        },
+      );
 
-      // Pause ETSTargetTagger
-      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsTargetTaggerPaused(
-        contracts.ETSTargetTagger.address,
+      taggingRecordId = await contracts.ETS.computeTaggingRecordId(
+        targetId,
+        "bookmark",
+        accounts.ETSPlatform.address,
+        accounts.RandomOne.address,
+      );
+    });
+
+    describe("using taggingRecord composite keys", async () => {
+      it("should revert if tagging record not found", async function () {
+        await expect(
+          contracts.ETS.connect(accounts.ETSPlatform).removeTags(
+            [etsTag2],
+            targetId,
+            "discovery",
+            accounts.RandomOne.address,
+          ),
+        ).to.be.revertedWith("Tagging record not found");
+      });
+      it("should revert if no tags supplied", async function () {
+        await expect(
+          contracts.ETS.connect(accounts.ETSPlatform).removeTags([], targetId, "bookmark", accounts.RandomOne.address),
+        ).to.be.revertedWith("No tags supplied");
+      });
+      it("should emit TaggingRecordUpdated", async function () {
+        let tx = await contracts.ETS.connect(accounts.ETSPlatform).removeTags(
+          [etsTag2],
+          targetId,
+          "bookmark",
+          accounts.RandomOne.address,
+        );
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
+      });
+
+      it("should emit TaggingRecordUpdated if the same tag is supplied twice", async function () {
+        let tx = await contracts.ETS.connect(accounts.ETSPlatform).removeTags(
+          [etsTag2, etsTag2],
+          targetId,
+          "bookmark",
+          accounts.RandomOne.address,
+        );
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
+      });
+
+      it("should decrease tag count by two when two tags are removed", async function () {
+        let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(4);
+
+        const removeTags = [etsTag2, userTag1];
+        await contracts.ETS.connect(accounts.ETSPlatform).removeTags(
+          removeTags,
+          targetId,
+          "bookmark",
+          accounts.RandomOne.address,
+        );
+        taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(2);
+      });
+
+      it("should remove the correct tags", async function () {
+        let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(4);
+
+        const removeTags = [etsTag2, userTag1];
+        await contracts.ETS.connect(accounts.ETSPlatform).removeTags(
+          removeTags,
+          targetId,
+          "bookmark",
+          accounts.RandomOne.address,
+        );
+        taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        remainingTags = [etsTag1, etsTag3];
+        for (let i = 0; i < taggingRecord.tagIds; i++) {
+          expect(remainingTags.includes(taggingRecord.tagIds[i])).to.be.true;
+        }
+      });
+
+      it("should revert when too many tags are supplied to remove", async function () {
+        const removeTags = [etsTag1, etsTag2, etsTag3, userTag1, etsTag2, userTag1];
+
+        await expect(
+          contracts.ETS.connect(accounts.ETSPlatform).removeTags(
+            removeTags,
+            targetId,
+            "bookmark",
+            accounts.RandomOne.address,
+          ),
+        ).to.be.revertedWith("Too many tags supplied");
+      });
+
+      it("should emit nothing if supplied tag is not in tagging record", async function () {
+        const removeTags = [etsTag1];
+        let tx = await contracts.ETS.connect(accounts.ETSPlatform).removeTags(
+          removeTags,
+          targetId,
+          "bookmark",
+          accounts.RandomOne.address,
+        );
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
+
+        // Try removing the same tag (no longer in record).
+        tx = await contracts.ETS.connect(accounts.ETSPlatform).removeTags(
+          removeTags,
+          targetId,
+          "bookmark",
+          accounts.RandomOne.address,
+        );
+        await expect(tx).to.not.emit(contracts.ETS, "TaggingRecordUpdated");
+      });
+    });
+
+    describe("using taggingRecordId", async () => {
+      it("can be done with taggingRecordId", async function () {
+        taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(4);
+        let tx = await contracts.ETS.connect(accounts.ETSPlatform).removeTagsByTaggingRecordId(
+          taggingRecordId,
+          [userTag1], // Remove userTag1
+        );
+        //await expect(tx).to.emit(contracts.ETS, "TargetTagged");
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
+        taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(3);
+      });
+
+      it("can be performed by original tagger", async function () {
+        // accounts.RandomOne is original tagger.
+        let tx = await contracts.ETS.connect(accounts.RandomOne).removeTagsByTaggingRecordId(
+          taggingRecordId,
+          [userTag1], // Remove userTag1
+        );
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
+        taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(3);
+      });
+
+      it("can be performed by original publisher", async function () {
+        // accounts.RandomOne is original tagger.
+        let tx = await contracts.ETS.connect(accounts.ETSPlatform).removeTagsByTaggingRecordId(
+          taggingRecordId,
+          [userTag1], // Remove userTag1
+        );
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
+        taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(3);
+      });
+
+      it("can only be performed by original publisher or tagger", async function () {
+        // accounts.RandomTwo is neither original publisher or tagger.
+        await expect(
+          contracts.ETS.connect(accounts.RandomTwo).removeTagsByTaggingRecordId(
+            taggingRecordId,
+            [userTag1], // Remove userTag1
+          ),
+        ).to.be.revertedWith("Caller not original publisher or tagger");
+      });
+    });
+  });
+
+  describe("Replacing (overwrite) tags", async () => {
+    beforeEach("Setup test", async () => {
+      const tags = [etsTag1];
+      await contracts.ETS.connect(accounts.ETSPlatform).applyTags(
+        tags,
+        targetId,
+        "bookmark",
+        accounts.RandomOne.address,
+        {
+          value: ethers.BigNumber.from(taggingFee).mul("1"),
+        },
+      );
+
+      taggingRecordId = await contracts.ETS.computeTaggingRecordId(
+        targetId,
+        "bookmark",
+        accounts.ETSPlatform.address,
+        accounts.RandomOne.address,
+      );
+    });
+
+    describe("using taggingRecord composite keys", async () => {
+      it("should revert when insufficient tagging fee is supplied", async function () {
+        // Passing in 3 tags, two of which are new, so fee should be 2x tagging fee.
+        // we supply 1x.
+        const tags = [etsTag1, etsTag2, userTag1];
+        await expect(
+          contracts.ETS.connect(accounts.ETSPlatform).replaceTags(
+            tags,
+            targetId,
+            "bookmark",
+            accounts.RandomOne.address,
+            {
+              value: ethers.BigNumber.from(taggingFee).mul("1"),
+            },
+          ),
+        ).to.be.revertedWith("Insufficient tagging fee supplied");
+      });
+
+      it("should emit TaggingRecordUpdated", async function () {
+        let tx = await contracts.ETS.connect(accounts.ETSPlatform).replaceTags(
+          [etsTag2, userTag1],
+          targetId,
+          "bookmark",
+          accounts.RandomOne.address,
+          {
+            value: ethers.BigNumber.from(taggingFee).mul("2"),
+          },
+        );
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
+      });
+
+      it("should increase the tag count when new tag is supplied", async function () {
+        let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(1);
+
+        // Should filter out etsTag1 cause it already exists.
+        const newTags = [etsTag2, userTag1];
+        tx = await contracts.ETS.connect(accounts.ETSPlatform).replaceTags(
+          newTags,
+          targetId,
+          "bookmark",
+          accounts.RandomOne.address,
+          {
+            value: ethers.BigNumber.from(taggingFee).mul("2"),
+          },
+        );
+        taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(2);
+      });
+
+      it("should not increase the tag count when duplicate tag is supplied", async function () {
+        let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(1);
+
+        const sameTag = [etsTag1];
+        tx = await contracts.ETS.connect(accounts.ETSPlatform).replaceTags(
+          sameTag,
+          targetId,
+          "bookmark",
+          accounts.RandomOne.address,
+        );
+        taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(1);
+      });
+    });
+
+    describe("using taggingRecordId", async () => {
+      it("should revert when insufficient tagging fee is supplied", async function () {
+        // Passing in 3 tags, two of which are new, so fee should be 2x tagging fee.
+        // we supply 1x.
+        const replacementTags = [etsTag1, etsTag2, userTag1];
+        await expect(
+          contracts.ETS.connect(accounts.ETSPlatform).replaceTagsByTaggingRecordId(taggingRecordId, replacementTags, {
+            value: ethers.BigNumber.from(taggingFee).mul("1"),
+          }),
+        ).to.be.revertedWith("Insufficient tagging fee supplied");
+      });
+
+      it("should emit TaggingRecordUpdated", async function () {
+        taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(1);
+        const replacementTags = [etsTag2, userTag1];
+        let tx = await contracts.ETS.connect(accounts.ETSPlatform).replaceTagsByTaggingRecordId(
+          taggingRecordId,
+          replacementTags,
+          {
+            value: ethers.BigNumber.from(taggingFee).mul("2"),
+          },
+        );
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
+        taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(2);
+      });
+
+      it("can be performed by original tagger", async function () {
+        // accounts.RandomOne is original tagger.
+        const replacementTags = [etsTag1, etsTag2, userTag1];
+        let tx = await contracts.ETS.connect(accounts.RandomOne).replaceTagsByTaggingRecordId(
+          taggingRecordId,
+          replacementTags,
+          {
+            value: ethers.BigNumber.from(taggingFee).mul("2"),
+          },
+        );
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
+        taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(3);
+      });
+
+      it("can be performed by original publisher", async function () {
+        // accounts.ETSPlatform is original publisher.
+        const replacementTags = [etsTag1, etsTag2, userTag1];
+        let tx = await contracts.ETS.connect(accounts.ETSPlatform).replaceTagsByTaggingRecordId(
+          taggingRecordId,
+          replacementTags,
+          {
+            value: ethers.BigNumber.from(taggingFee).mul("2"),
+          },
+        );
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
+        taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+        expect(taggingRecord.tagIds.length).to.be.equal(3);
+      });
+
+      it("can only be performed by original publisher or tagger", async function () {
+        // accounts.RandomTwo is neither original publisher or tagger.
+        const replacementTags = [etsTag1, etsTag2, userTag1];
+        await expect(
+          contracts.ETS.connect(accounts.RandomTwo).replaceTagsByTaggingRecordId(taggingRecordId, replacementTags, {
+            value: ethers.BigNumber.from(taggingFee).mul("2"),
+          }),
+        ).to.be.revertedWith("Caller not original publisher or tagger");
+      });
+    });
+  });
+
+  describe("Writing a tagging record via a Publisher contract", async () => {
+    it("should revert when Publisher is paused", async function () {
+      expect(await contracts.ETSAccessControls.isPublisherAndNotPaused(contracts.ETSPublisher.address)).to.be.equal(
+        true,
+      );
+
+      // Pause ETSPublisher
+      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsPublisherPaused(
+        contracts.ETSPublisher.address,
       );
 
       const tagParams = {
@@ -221,10 +731,10 @@ describe("ETS Core tests", function () {
       };
       const taggingRecords = [tagParams];
       await expect(
-        contracts.ETSTargetTagger.connect(accounts.RandomOne).tagTarget(taggingRecords, {
+        contracts.ETSPublisher.connect(accounts.RandomOne).applyTags(taggingRecords, {
           value: ethers.BigNumber.from(taggingFee).mul("2"),
         }),
-      ).to.be.revertedWith("Only IETSTargetTagger contracts may call ETS core");
+      ).to.be.revertedWith("Caller not IETSPublisher contract");
     });
 
     it('should emit "TargetTagged" when successful', async function () {
@@ -236,20 +746,19 @@ describe("ETS Core tests", function () {
       };
       const taggingRecords = [tagParams];
 
-      const tx = await contracts.ETSTargetTagger.connect(accounts.RandomOne).tagTarget(taggingRecords, {
+      const tx = await contracts.ETSPublisher.connect(accounts.RandomOne).applyTags(taggingRecords, {
         value: ethers.BigNumber.from(taggingFee).mul("2"),
       });
       await expect(tx).to.emit(contracts.ETS, "TargetTagged");
     });
   });
-
   describe("A tagging record", async () => {
     beforeEach("create a tagging record", async () => {
       // First confirm there's no pre-existing tagging record for this composite key.
       let taggingRecord = await contracts.ETS.getTaggingRecord(
         targetId,
         "bookmark",
-        contracts.ETSTargetTagger.address,
+        contracts.ETSPublisher.address,
         accounts.RandomOne.address,
       );
       expect(taggingRecord.targetId).to.be.equal(0);
@@ -262,8 +771,8 @@ describe("ETS Core tests", function () {
         enrich: false,
       };
       const taggingRecords = [tagParams];
-      // RandomOne is tagger, ETSTargetTagger is publisher.
-      await contracts.ETSTargetTagger.connect(accounts.RandomOne).tagTarget(taggingRecords, {
+      // RandomOne is tagger, ETSPublisher is publisher.
+      await contracts.ETSPublisher.connect(accounts.RandomOne).applyTags(taggingRecords, {
         value: ethers.BigNumber.from(taggingFee).mul("2"),
       });
 
@@ -271,7 +780,7 @@ describe("ETS Core tests", function () {
       taggingRecordId = await contracts.ETS.computeTaggingRecordId(
         targetId,
         "bookmark",
-        contracts.ETSTargetTagger.address,
+        contracts.ETSPublisher.address,
         accounts.RandomOne.address,
       );
     });
@@ -282,7 +791,7 @@ describe("ETS Core tests", function () {
       expect(taggingRecord.targetId.toString()).to.be.equal(targetId);
       expect(taggingRecord.recordType).to.be.equal("bookmark");
       expect(taggingRecord.tagger).to.be.equal(accounts.RandomOne.address);
-      expect(taggingRecord.publisher).to.be.equal(contracts.ETSTargetTagger.address);
+      expect(taggingRecord.publisher).to.be.equal(contracts.ETSPublisher.address);
       for (i = 0; i < taggingRecord.tagIds; i++) {
         const tag = contracts.ETSToken.getTagByString(taggingRecord.tagIds[i].toString());
         expect(tagParams.tagStrings.includes(tag.display.toString())).to.be.equal(true);
@@ -293,7 +802,7 @@ describe("ETS Core tests", function () {
       const taggingRecord = await contracts.ETS.getTaggingRecord(
         targetId,
         "bookmark",
-        contracts.ETSTargetTagger.address,
+        contracts.ETSPublisher.address,
         accounts.RandomOne.address,
       );
 
@@ -320,8 +829,8 @@ describe("ETS Core tests", function () {
         enrich: false,
       };
       const taggingRecordsInput = [taggingRecordInputParams];
-      // RandomTwo is tagger, ETSTargetTagger is publisher.
-      await contracts.ETSTargetTagger.connect(accounts.RandomTwo).tagTarget(taggingRecordsInput, {
+      // RandomTwo is tagger, ETSPublisher is publisher.
+      await contracts.ETSPublisher.connect(accounts.RandomTwo).applyTags(taggingRecordsInput, {
         value: ethers.BigNumber.from(taggingFee).mul("2"),
       });
 
@@ -329,7 +838,7 @@ describe("ETS Core tests", function () {
       const newTaggingRecordId = await contracts.ETS.computeTaggingRecordId(
         existingTargetId,
         "bookmark",
-        contracts.ETSTargetTagger.address,
+        contracts.ETSPublisher.address,
         accounts.RandomTwo.address,
       );
       expect(newTaggingRecordId).to.not.be.equal(taggingRecordId);
@@ -337,13 +846,12 @@ describe("ETS Core tests", function () {
       expect(newTaggingRecord.targetId.toString()).to.be.equal(existingTargetId);
       expect(newTaggingRecord.recordType).to.be.equal("bookmark");
       expect(newTaggingRecord.tagger).to.be.equal(accounts.RandomTwo.address);
-      expect(newTaggingRecord.publisher).to.be.equal(contracts.ETSTargetTagger.address);
+      expect(newTaggingRecord.publisher).to.be.equal(contracts.ETSPublisher.address);
       for (i = 0; i < newTaggingRecord.tagIds; i++) {
         expect(reusedTagIds.includes(newTaggingRecord.tagIds[i])).to.be.equal(true);
       }
     });
   });
-
   describe("Tagging fees should accrue", async () => {
     beforeEach("create a tagging record", async () => {
       platformPreTagAccrued = await contracts.ETS.accrued(accounts.ETSPlatform.address);
@@ -365,8 +873,8 @@ describe("ETS Core tests", function () {
       };
       const taggingRecordsInput = [taggingRecordInputParams];
 
-      // RandomTwo is tagger, ETSTargetTagger is publisher.
-      await contracts.ETSTargetTagger.connect(accounts.RandomTwo).tagTarget(taggingRecordsInput, {
+      // RandomTwo is tagger, ETSPublisher is publisher.
+      await contracts.ETSPublisher.connect(accounts.RandomTwo).applyTags(taggingRecordsInput, {
         value: ethers.BigNumber.from(taggingFee),
       });
       // Check that tagging fee for one tag is divided up and distributed correctly.
@@ -399,8 +907,8 @@ describe("ETS Core tests", function () {
       };
       const taggingRecordsInput = [taggingRecordInputParams];
 
-      // RandomTwo is tagger, ETSTargetTagger is publisher.
-      await contracts.ETSTargetTagger.connect(accounts.RandomTwo).tagTarget(taggingRecordsInput, {
+      // RandomTwo is tagger, ETSPublisher is publisher.
+      await contracts.ETSPublisher.connect(accounts.RandomTwo).applyTags(taggingRecordsInput, {
         value: ethers.BigNumber.from(taggingFee),
       });
       // Check that tagging fee for one tag is divided up and distributed correctly.
@@ -423,7 +931,6 @@ describe("ETS Core tests", function () {
       );
     });
   });
-
   describe("Drawing down", async function () {
     beforeEach(async function () {
       const taggingRecordInputParams = {
@@ -434,8 +941,8 @@ describe("ETS Core tests", function () {
       };
       const taggingRecordsInput = [taggingRecordInputParams];
 
-      // RandomTwo is tagger, ETSTargetTagger is publisher.
-      await contracts.ETSTargetTagger.connect(accounts.RandomTwo).tagTarget(taggingRecordsInput, {
+      // RandomTwo is tagger, ETSPublisher is publisher.
+      await contracts.ETSPublisher.connect(accounts.RandomTwo).applyTags(taggingRecordsInput, {
         value: ethers.BigNumber.from(taggingFee),
       });
       // Check that tagging fee for one tag is divided up and distributed correctly.
