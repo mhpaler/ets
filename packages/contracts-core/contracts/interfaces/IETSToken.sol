@@ -63,6 +63,13 @@ interface IETSToken is IERC721Upgradeable {
     event OwnershipTermLengthSet(uint256 termLength);
 
     /**
+     * @dev emitted when the ETS core contract is set.
+     *
+     * @param ets ets core contract address.
+     */
+    event ETSCoreSet(address ets);
+
+    /**
      * @dev emitted when the ETS Access Controls is set.
      *
      * @param etsAccessControls contract address access controls is set to.
@@ -166,29 +173,35 @@ interface IETSToken is IERC721Upgradeable {
      * Combo function that accepts a tag string and returns it's CTAG token Id if it exists,
      * or creates a new CTAG and returns corresponding Id.
      *
-     * Only contracts/addresses with Publisher role can call this function.
+     * Only ETS Core can call this function.
      *
      * @param _tag Tag string.
+     * @param _publisher Address of Publisher contract calling ETS Core.
      * @param _creator Address credited with creating CTAG.
      * @return tokenId Id of CTAG token.
      */
-    function getOrCreateTagId(string calldata _tag, address payable _creator)
-        external
-        payable
-        returns (uint256 tokenId);
+    function getOrCreateTagId(
+        string calldata _tag,
+        address payable _publisher,
+        address payable _creator
+    ) external payable returns (uint256 tokenId);
 
     /**
      * @notice Create CTAG token from tag string.
      *
      * Reverts if tag exists or is invalid.
      *
-     * Only contracts/addresses with Publisher role can call this function.
+     * Only ETS Core can call this function.
      *
      * @param _tag Tag string.
      * @param _creator Address credited with creating CTAG.
      * @return tokenId Id of CTAG token.
      */
-    function createTag(string calldata _tag, address payable _creator) external payable returns (uint256 tokenId);
+    function createTag(
+        string calldata _tag,
+        address payable _publisher,
+        address payable _creator
+    ) external payable returns (uint256 tokenId);
 
     /**
      * @notice Renews ownership term of a CTAG.

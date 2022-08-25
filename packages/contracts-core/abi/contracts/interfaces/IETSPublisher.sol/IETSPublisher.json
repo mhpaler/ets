@@ -13,41 +13,6 @@
     "type": "event"
   },
   {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "targetURI",
-            "type": "string"
-          },
-          {
-            "internalType": "string[]",
-            "name": "tagStrings",
-            "type": "string[]"
-          },
-          {
-            "internalType": "string",
-            "name": "recordType",
-            "type": "string"
-          },
-          {
-            "internalType": "bool",
-            "name": "enrich",
-            "type": "bool"
-          }
-        ],
-        "internalType": "struct IETSPublisher.TaggingRecord[]",
-        "name": "_taggingRecords",
-        "type": "tuple[]"
-      }
-    ],
-    "name": "applyTags",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "getCreator",
     "outputs": [
@@ -91,76 +56,6 @@
     "name": "pause",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "targetURI",
-            "type": "string"
-          },
-          {
-            "internalType": "string[]",
-            "name": "tagStrings",
-            "type": "string[]"
-          },
-          {
-            "internalType": "string",
-            "name": "recordType",
-            "type": "string"
-          },
-          {
-            "internalType": "bool",
-            "name": "enrich",
-            "type": "bool"
-          }
-        ],
-        "internalType": "struct IETSPublisher.TaggingRecord[]",
-        "name": "_taggingRecords",
-        "type": "tuple[]"
-      }
-    ],
-    "name": "removeTags",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "targetURI",
-            "type": "string"
-          },
-          {
-            "internalType": "string[]",
-            "name": "tagStrings",
-            "type": "string[]"
-          },
-          {
-            "internalType": "string",
-            "name": "recordType",
-            "type": "string"
-          },
-          {
-            "internalType": "bool",
-            "name": "enrich",
-            "type": "bool"
-          }
-        ],
-        "internalType": "struct IETSPublisher.TaggingRecord[]",
-        "name": "_taggingRecords",
-        "type": "tuple[]"
-      }
-    ],
-    "name": "replaceTags",
-    "outputs": [],
-    "stateMutability": "payable",
     "type": "function"
   },
   {

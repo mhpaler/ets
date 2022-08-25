@@ -20,14 +20,14 @@ describe("ETSAccessControls Tests", function () {
       expect(await contracts.ETSAccessControls.isAdmin(accounts.ETSPlatform.address)).to.be.equal(true);
     });
 
-    it("grants ETSPlatform the PUBLISHER role", async function () {
-      expect(await contracts.ETSAccessControls.isPublisher(accounts.ETSPlatform.address)).to.be.equal(true);
-    });
-
     it("sets PUBLISHER_ADMIN as the role that can administer PUBLISHER role.", async () => {
       expect(await contracts.ETSAccessControls.getRoleAdmin(ethers.utils.id("PUBLISHER"))).to.be.equal(
         await ethers.utils.id("PUBLISHER_ADMIN"),
       );
+    });
+
+    it("adds ETSPlatform as a publisher", async function () {
+      expect(await contracts.ETSAccessControls.isPublisher(accounts.ETSPlatform.address)).to.be.equal(true);
     });
   });
 

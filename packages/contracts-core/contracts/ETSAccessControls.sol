@@ -68,7 +68,7 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     }
 
     /// @inheritdoc IETSAccessControls
-    function addPublisher(address _publisher, string calldata _name) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function addPublisher(address _publisher, string calldata _name) public onlyRole(PUBLISHER_ROLE_ADMIN) {
         require(
             isAdmin(_publisher) || IERC165(_publisher).supportsInterface(type(IETSPublisher).interfaceId),
             "Address not admin or required interface"
@@ -114,7 +114,7 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
 
     /// @inheritdoc IETSAccessControls
     function isPublisher(address _addr) public view returns (bool) {
-        return hasRole(PUBLISHER_ROLE, _addr);
+        return isPublisherAndNotPaused(_addr);
     }
 
     /// @inheritdoc IETSAccessControls

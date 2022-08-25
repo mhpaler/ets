@@ -194,22 +194,25 @@ async function setup() {
   // Grant DEFAULT_ADMIN_ROLE to platform address. This platform address full administrator privileges.
   await ETSAccessControls.grantRole(await ETSAccessControls.DEFAULT_ADMIN_ROLE(), accounts.ETSPlatform.address);
 
-  // Grant PUBLISHER role to platform, cause sometimes the platform will act as publisher.
-  await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER"), accounts.ETSPlatform.address);
-
   // Set PUBLISHER role admin role. Contracts or addresses given PUBLISHER_ADMIN role can grant PUBLISHER role.
   await ETSAccessControls.setRoleAdmin(ethers.utils.id("PUBLISHER"), ethers.utils.id("PUBLISHER_ADMIN"));
 
-  // Grant PUBLISHER_ADMIN role to ETSAccessControls contract so it can grant publisher role all on its own.
-  await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), ETSAccessControls.address);
-
   // Grant PUBLISHER role to platform, cause sometimes the platform will act as publisher.
   await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), accounts.ETSPlatform.address);
+
+  // Here we are adding the platform as a publisher to call ets core directly for testing purposes.
+  await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
+    accounts.ETSPlatform.address,
+    "ETSPlatform",
+  );
 
   await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(ETSEnrichTarget.address);
 
   // Approve auction house contract to move tokens owned by platform.
   await ETSToken.connect(accounts.ETSPlatform).setApprovalForAll(ETSAuctionHouse.address, true);
+
+  // Set ETS Core on ETSToken.
+  await ETSToken.connect(accounts.ETSPlatform).setETSCore(ETS.address);
 
   return [accounts, contracts, initSettings];
 }

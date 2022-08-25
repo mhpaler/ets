@@ -55,11 +55,11 @@ contract PublisherMock is IETSPublisher, Ownable, Pausable {
 
     // ============ PUBLIC INTERFACE ============
 
-    function applyTags(TaggingRecord[] calldata _taggingRecords) public payable {}
+    function applyTags(IETS.TaggingRecordRawInput[] calldata _rawParts) public payable {}
 
-    function removeTags(TaggingRecord[] calldata _taggingRecords) public payable {}
+    function removeTags(IETS.TaggingRecordRawInput[] calldata _rawParts) public payable {}
 
-    function replaceTags(TaggingRecord[] calldata _taggingRecords) public payable {}
+    function replaceTags(IETS.TaggingRecordRawInput[] calldata _rawParts) public payable {}
 
     // ============ PUBLIC VIEW FUNCTIONS ============
 

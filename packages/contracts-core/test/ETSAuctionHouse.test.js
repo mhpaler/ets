@@ -19,13 +19,13 @@ describe("ETS Auction House Tests", function () {
 
     // Mint a tag by random user. ETS is Publisher, retained by platform.
     etsOwnedTag = "#Love";
-    await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(etsOwnedTag, accounts.RandomTwo.address);
+    await contracts.ETS.connect(accounts.ETSPlatform).createTag(etsOwnedTag, accounts.RandomTwo.address);
     etsOwnedTagId = await contracts.ETSToken.computeTagId(etsOwnedTag);
     etsOwnedTagId = etsOwnedTagId.toString();
 
     // Mint a tag and transfer away from platform.
     userOwnedTag = "#Incredible";
-    await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(userOwnedTag, accounts.RandomTwo.address);
+    await contracts.ETS.connect(accounts.ETSPlatform).createTag(userOwnedTag, accounts.RandomTwo.address);
     userOwnedTagId = await contracts.ETSToken.computeTagId(userOwnedTag);
     userOwnedTagId = userOwnedTagId.toString();
 
