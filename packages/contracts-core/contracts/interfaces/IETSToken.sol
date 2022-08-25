@@ -10,8 +10,8 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol"
  * @notice This is the interface for the ETSToken.sol core contract that governs the creation & management
  * of Ethereum Tag Service composable tags (CTAGs).
  *
- * CTAGs are ERC-721 non-fungible tokens that store a single tag string that must conform to a few simple
- * validation rules and origin attribution data including a "Publisher" address and a "Creator" address.
+ * CTAGs are ERC-721 non-fungible tokens that store a single tag string and origin attribution data including
+ * a "Publisher" address and a "Creator" address. The tag string must conform to a few simple validation rules.
  *
  * CTAGs are identified in ETS by their Id (tagId) which is an unsigned integer computed from the lowercased
  * tag "display" string. Given this, only one CTAG exists for a tag string regardless of its case. For

@@ -11,12 +11,6 @@ interface IETSPublisher is IERC165 {
      */
     event PublisherPaused(bool newValue);
 
-    // function applyTags(TaggingRecordRawInput[] calldata _rawInput) external payable;
-
-    //function removeTags(TaggingRecord[] calldata _taggingRecords) external payable;
-
-    //function replaceTags(TaggingRecord[] calldata _taggingRecords) external payable;
-
     /**
      * @notice Pauses IETSPublisher contract.
      */

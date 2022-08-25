@@ -26,8 +26,8 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
  *
  * For our purposes, as much as possible, we are restricting our interpretation of URIs to the more technical
  * parameters defined by the IETF in [RFC3986](https://www.rfc-editor.org/rfc/rfc3986). For newer protocols, such
- * as blockchains, For newer protocols, such as blockchains we will lean on newer emerging URI standards such
- * as the [Blink](https://w3c-ccg.github.io/blockchain-links) and [BIP-122](https://github.com/bitcoin/bips/blob/master/bip-0122.mediawiki)
+ * as blockchains, we will lean on newer emerging URI standards such as the [Blink](https://w3c-ccg.github.io/blockchain-links)
+ * and [BIP-122](https://github.com/bitcoin/bips/blob/master/bip-0122.mediawiki)
  *
  * One the thing to keep in mind with URIs & ETS Targets is that differently shaped URIs can sometimes point to the same
  * resource. The effect of that is that different Target IDs in ETS can similarly point to the same resource.
