@@ -78,9 +78,6 @@ contract ETSPublisher is IETSPublisher, Ownable, Pausable {
         for (uint256 i; i < _rawParts.length; ++i) {
             _applyTags(_rawParts[i], payable(msg.sender), taggingFee);
         }
-
-        // Confirms that all funds sent here are forwarded along.
-        assert(address(this).balance == 0);
     }
 
     function replaceTags(IETS.TaggingRecordRawInput[] calldata _rawParts) public payable whenNotPaused {
@@ -88,9 +85,6 @@ contract ETSPublisher is IETSPublisher, Ownable, Pausable {
         for (uint256 i; i < _rawParts.length; ++i) {
             _replaceTags(_rawParts[i], payable(msg.sender), taggingFee);
         }
-
-        // Confirms that all funds sent here are forwarded along.
-        assert(address(this).balance == 0);
     }
 
     function removeTags(IETS.TaggingRecordRawInput[] calldata _rawParts) public payable whenNotPaused {

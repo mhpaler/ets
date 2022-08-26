@@ -425,6 +425,16 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
             _tagIds = UintArrayUtils.difference(_tagIds, taggingRecordTags);
         }
+
+        if (keccak256(abi.encodePacked(_action)) == keccak256(abi.encodePacked("remove"))) {
+            // Find tags shared by supplied tags and tagging record tags.
+            _tagIds = UintArrayUtils.intersect(_tagIds, taggingRecords[_taggingRecordId].tagIds);
+
+            // No fee charged for removing tags at the present time, but still nice to give
+            // clients a way to know how many tags will be removed.
+            return (0, _tagIds.length);
+        }
+
         return (_computeTaggingFee(_tagIds.length), _tagIds.length);
     }
 

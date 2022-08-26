@@ -15,10 +15,7 @@ import {resolve} from "path";
 import {config as dotenvConfig} from "dotenv";
 import {HardhatUserConfig} from "hardhat/types";
 
-import "./tasks/accounts";
-import "./tasks/signers";
-import "./tasks/tagTarget";
-import "./tasks/createTag";
+import "./tasks/";
 
 dotenvConfig({path: resolve(__dirname, "../../.env")});
 
