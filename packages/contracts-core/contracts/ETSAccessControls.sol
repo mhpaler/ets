@@ -3,10 +3,12 @@ pragma solidity ^0.8.10;
 
 import { IETSPublisher } from "./interfaces/IETSPublisher.sol";
 import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
-import "@openzeppelin/contracts/interfaces/IERC165.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
+
+import "hardhat/console.sol";
 
 /**
  * @title IETSAccessControls
@@ -70,28 +72,19 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     /// @inheritdoc IETSAccessControls
     function addPublisher(address _publisher, string calldata _name) public onlyRole(PUBLISHER_ROLE_ADMIN) {
         require(
-            isAdmin(_publisher) || IERC165(_publisher).supportsInterface(type(IETSPublisher).interfaceId),
-            "Address not admin or required interface"
+            isPublisherAdmin(_publisher) ||
+                ERC165CheckerUpgradeable.supportsInterface(_publisher, type(IETSPublisher).interfaceId),
+            "Address not required interface"
         );
         require(!isPublisherByAddress(_publisher), "Publisher exists");
+        require(!isPublisherByName(_name), "Publisher name exists");
         publisherNameToContract[_name] = _publisher;
         publisherContractToName[_publisher] = _name;
+        isPublisherPaused[_publisher] = true;
         // Note: grantRole emits RoleGranted event.
         grantRole(PUBLISHER_ROLE, _publisher);
         grantRole(SMART_CONTRACT_ROLE, _publisher);
-        emit PublisherAdded(_publisher);
-    }
-
-    /// @inheritdoc IETSAccessControls
-    function removePublisher(address _publisher) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(isPublisherByAddress(_publisher), "Not publisher address");
-        string memory publisherName = publisherContractToName[_publisher];
-        delete publisherNameToContract[publisherName];
-        delete publisherContractToName[_publisher];
-        // Note: revokeRole emits RoleRevoked event.
-        revokeRole(PUBLISHER_ROLE, _publisher);
-        revokeRole(SMART_CONTRACT_ROLE, _publisher);
-        emit PublisherRemoved(_publisher);
+        emit PublisherAdded(_publisher, isPublisherAdmin(_publisher));
     }
 
     /// @inheritdoc IETSAccessControls

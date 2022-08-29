@@ -12,16 +12,22 @@ describe("ETS Core tests", function () {
     taggingFee = await contracts.ETS.taggingFee();
     taggingFee = taggingFee.toString();
 
-    // Add & enable ETSPublisher as a Publisher contract.
-    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
-      contracts.ETSPublisher.address,
-      await contracts.ETSPublisher.getPublisherName(),
-    );
-
     tagstring1 = "#Love";
     tagstring2 = "#Hate";
     tagstring3 = "#Fear";
     tagstring4 = "#Incredible";
+
+    // Add & unpause ETSPlatform as a Publisher. Using a wallet address as a publisher
+    // is only for testing all ETS core public functions that don't necessarily need to be
+    // included in a proper publisher (IETSPublisher) contract
+    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
+      accounts.ETSPlatform.address,
+      "ETSPlatform",
+    );
+
+    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsPublisherPaused(
+      accounts.ETSPlatform.address,
+    );
 
     // Mint some tags via ETSPublisher. Creator is Creator. Retained by platform.
     await contracts.ETSPublisher.connect(accounts.Creator).getOrCreateTagIds([tagstring1]);
@@ -62,6 +68,14 @@ describe("ETS Core tests", function () {
     });
     it("should have Target set to ETSTarget contract", async () => {
       expect(await contracts.ETS.etsTarget()).to.be.equal(contracts.ETSTarget.address);
+    });
+    it("should have an active publisher contract (ETSPublisher)", async () => {
+      expect(await contracts.ETSAccessControls.isPublisherAndNotPaused(contracts.ETSPublisher.address)).to.be.equal(
+        true,
+      );
+    });
+    it("should have a testing publisher (ETSPlatform)", async () => {
+      expect(await contracts.ETSAccessControls.isPublisherAndNotPaused(accounts.ETSPlatform.address)).to.be.equal(true);
     });
   });
 
@@ -372,7 +386,7 @@ describe("ETS Core tests", function () {
       await expect(tx).to.emit(contracts.ETS, "TaggingRecordCreated");
     });
 
-    it.only("should not require value sent when tagging fee set to zero", async () => {
+    it("should not require value sent when tagging fee set to zero", async () => {
       await contracts.ETS.connect(accounts.ETSPlatform).setTaggingFee(0);
       const tags = [etsTag1];
       const tx = await contracts.ETS.connect(accounts.ETSPlatform).applyTagsWithCompositeKey(

@@ -41,10 +41,7 @@ describe("CTAG ownership lifecycle tests", function () {
       const tag = "#BlockRocket";
 
       // RandomTwo account creates a tag.
-      //console.log("contracts.ETSToken.address", contracts.ETSToken.address);
-      //console.log("accounts.RandomTwo",accounts.RandomTwo.address);
-      //console.log("accounts.ETSPlatform", accounts.ETSPlatform.address);
-      await contracts.ETS.connect(accounts.ETSPlatform).createTag(tag, accounts.RandomTwo.address);
+      await contracts.ETSPublisher.connect(accounts.RandomTwo).getOrCreateTagIds([tag]);
       tokenId = await contracts.ETSToken.computeTagId(tag);
     });
 
@@ -181,7 +178,7 @@ describe("CTAG ownership lifecycle tests", function () {
       const tag = "#BlockRocket";
 
       // RandomTwo account creates a tag.
-      await contracts.ETS.connect(accounts.ETSPlatform).createTag(tag, accounts.RandomTwo.address);
+      await contracts.ETSPublisher.connect(accounts.RandomTwo).getOrCreateTagIds([tag]);
       tokenId = await contracts.ETSToken.computeTagId(tag);
 
       // Transfer to RandomTwo (simulates sale).

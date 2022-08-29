@@ -67,12 +67,12 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "bool",
-        "name": "newValue",
-        "type": "bool"
+        "internalType": "address",
+        "name": "addr",
+        "type": "address"
       }
     ],
-    "name": "PublisherPaused",
+    "name": "PublisherPauseToggledByOwner",
     "type": "event"
   },
   {
@@ -87,6 +87,19 @@
     ],
     "name": "Unpaused",
     "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "IID_IETSPublisher",
+    "outputs": [
+      {
+        "internalType": "bytes4",
+        "name": "",
+        "type": "bytes4"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [

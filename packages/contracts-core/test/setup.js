@@ -200,10 +200,14 @@ async function setup() {
   // Grant PUBLISHER_ADMIN role to ETSPlatform so it can grant publisher role all on its own.
   await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), accounts.ETSPlatform.address);
 
-  // Here we are adding the platform as a publisher to call ets core directly for testing purposes.
+  // Add & enable ETSPublisher as a Publisher contract.
   await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
-    accounts.ETSPlatform.address,
-    "ETSPlatform",
+    contracts.ETSPublisher.address,
+    await contracts.ETSPublisher.getPublisherName(),
+  );
+
+  await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsPublisherPaused(
+    contracts.ETSPublisher.address,
   );
 
   await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(ETSEnrichTarget.address);

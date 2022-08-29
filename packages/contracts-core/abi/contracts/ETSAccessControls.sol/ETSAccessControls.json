@@ -76,6 +76,12 @@
         "internalType": "address",
         "name": "publisher",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isAdmin",
+        "type": "bool"
       }
     ],
     "name": "PublisherAdded",
@@ -92,19 +98,6 @@
       }
     ],
     "name": "PublisherPauseToggled",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "publisher",
-        "type": "address"
-      }
-    ],
-    "name": "PublisherRemoved",
     "type": "event"
   },
   {
@@ -560,19 +553,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_publisher",
-        "type": "address"
-      }
-    ],
-    "name": "removePublisher",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

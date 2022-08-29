@@ -6,18 +6,17 @@ import "../interfaces/IETSToken.sol";
 import "../interfaces/IETSTarget.sol";
 import "../interfaces/IETSPublisher.sol";
 import { UintArrayUtils } from "../libraries/UintArrayUtils.sol";
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+//import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { Pausable } from "@openzeppelin/contracts/security/Pausable.sol";
-
-import "hardhat/console.sol";
 
 /**
  * @title ETSPublisher
  * @author Ethereum Tag Service <team@ets.xyz>
  * @notice Example implementation of IETSPublisher
  */
-contract ETSPublisher is IETSPublisher, Ownable, Pausable {
+contract ETSPublisher is IETSPublisher, ERC165, Ownable, Pausable {
     using UintArrayUtils for uint256[];
 
     /// @dev Address and interface for ETS Core.
@@ -33,6 +32,7 @@ contract ETSPublisher is IETSPublisher, Ownable, Pausable {
 
     /// @notice machine name for this Publisher.
     string public constant name = "ETSPublisher";
+    bytes4 public constant IID_IETSPublisher = type(IETSPublisher).interfaceId;
 
     // Public variables
 
@@ -55,18 +55,12 @@ contract ETSPublisher is IETSPublisher, Ownable, Pausable {
 
     // ============ OWNER INTERFACE ============
 
-    /**
-     * @notice Pause this publisher contract.
-     * @dev This function can only be called by the owner when the contract is unpaused.
-     */
+    /// @inheritdoc IETSPublisher
     function pause() public onlyOwner {
         _pause();
     }
 
-    /**
-     * @notice Unpause this publisher contract.
-     * @dev This function can only be called by the owner when the contract is paused.
-     */
+    /// @inheritdoc IETSPublisher
     function unpause() public onlyOwner {
         _unpause();
     }
@@ -118,20 +112,24 @@ contract ETSPublisher is IETSPublisher, Ownable, Pausable {
         return ets.computeTaggingFee(_taggingRecordId, _tagIds, _action);
     }
 
+    /// @inheritdoc ERC165
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return interfaceId == IID_IETSPublisher || super.supportsInterface(interfaceId);
+    }
+
+    /// @inheritdoc IETSPublisher
     function getPublisherName() public pure returns (string memory) {
         return name;
     }
 
+    /// @inheritdoc IETSPublisher
     function getCreator() public view returns (address payable) {
         return creator;
     }
 
+    /// @inheritdoc IETSPublisher
     function getOwner() public view returns (address payable) {
         return payable(owner());
-    }
-
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IERC165).interfaceId || interfaceId == type(IETSPublisher).interfaceId;
     }
 
     // ============ INTERNAL FUNCTIONS ============

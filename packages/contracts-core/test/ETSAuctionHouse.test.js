@@ -17,6 +17,16 @@ describe("ETS Auction House Tests", function () {
   beforeEach("Setup test", async function () {
     [accounts, contracts, initSettings] = await setup();
 
+    // Add & unpause ETSPlatform as a Publisher.
+    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
+      accounts.ETSPlatform.address,
+      "ETSPlatform",
+    );
+
+    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsPublisherPaused(
+      accounts.ETSPlatform.address,
+    );
+
     // Mint a tag by random user. ETS is Publisher, retained by platform.
     etsOwnedTag = "#Love";
     await contracts.ETS.connect(accounts.ETSPlatform).createTag(etsOwnedTag, accounts.RandomTwo.address);

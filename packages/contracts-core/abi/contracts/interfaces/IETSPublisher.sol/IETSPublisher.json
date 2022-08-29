@@ -4,12 +4,12 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "bool",
-        "name": "newValue",
-        "type": "bool"
+        "internalType": "address",
+        "name": "addr",
+        "type": "address"
       }
     ],
-    "name": "PublisherPaused",
+    "name": "PublisherPauseToggledByOwner",
     "type": "event"
   },
   {
@@ -56,25 +56,6 @@
     "name": "pause",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes4",
-        "name": "interfaceId",
-        "type": "bytes4"
-      }
-    ],
-    "name": "supportsInterface",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {

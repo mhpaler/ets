@@ -9,12 +9,6 @@ describe("ETS Publisher Tests", function () {
   beforeEach("Setup test", async () => {
     [accounts, contracts, initSettings] = await setup();
 
-    // Add & enable ETSPublisher as a Publisher contract.
-    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
-      contracts.ETSPublisher.address,
-      await contracts.ETSPublisher.getPublisherName(),
-    );
-
     taggingFee = await contracts.ETS.taggingFee();
     taggingFee = ethers.BigNumber.from(taggingFee);
     targetURI = "https://google.com";

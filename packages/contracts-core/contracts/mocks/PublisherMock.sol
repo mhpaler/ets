@@ -5,11 +5,11 @@ import "../interfaces/IETS.sol";
 import "../interfaces/IETSToken.sol";
 import "../interfaces/IETSTarget.sol";
 import "../interfaces/IETSPublisher.sol";
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { Pausable } from "@openzeppelin/contracts/security/Pausable.sol";
 
-contract PublisherMock is IETSPublisher, Ownable, Pausable {
+contract PublisherMock is ERC165, IETSPublisher, Ownable, Pausable {
     /// @notice Address and interface for ETS Core.
     IETS public ets;
 
@@ -23,6 +23,7 @@ contract PublisherMock is IETSPublisher, Ownable, Pausable {
 
     /// @notice machine name for this target tagger.
     string public constant name = "PublisherMock";
+    bytes4 public constant IID_IETSPublisher = type(IETSPublisher).interfaceId;
 
     // Public variables
 
@@ -63,6 +64,10 @@ contract PublisherMock is IETSPublisher, Ownable, Pausable {
 
     // ============ PUBLIC VIEW FUNCTIONS ============
 
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return interfaceId == IID_IETSPublisher || super.supportsInterface(interfaceId);
+    }
+
     function getPublisherName() public pure returns (string memory) {
         return name;
     }
@@ -70,8 +75,4 @@ contract PublisherMock is IETSPublisher, Ownable, Pausable {
     function getCreator() public view returns (address payable) {}
 
     function getOwner() public view returns (address payable) {}
-
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IERC165).interfaceId || interfaceId == type(IETSPublisher).interfaceId;
-    }
 }

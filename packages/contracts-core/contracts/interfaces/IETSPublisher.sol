@@ -2,22 +2,22 @@
 
 pragma solidity ^0.8.10;
 
-import "@openzeppelin/contracts/interfaces/IERC165.sol";
-
 /// @title Minimum interface required for ETS Publisher smart contracts.
-interface IETSPublisher is IERC165 {
+interface IETSPublisher {
     /**
      * @dev Emitted when an IETSPublisher contract is paused/unpaused.
      */
-    event PublisherPaused(bool newValue);
+    event PublisherPauseToggledByOwner(address addr);
 
     /**
-     * @notice Pauses IETSPublisher contract.
+     * @notice Pause this publisher contract.
+     * @dev This function can only be called by the owner when the contract is unpaused.
      */
     function pause() external;
 
     /**
-     * @notice Unpauses IETSPublisher contract.
+     * @notice Unpause this publisher contract.
+     * @dev This function can only be called by the owner when the contract is paused.
      */
     function unpause() external;
 

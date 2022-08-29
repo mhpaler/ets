@@ -11,8 +11,6 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title ETS
  * @author Ethereum Tag Service <team@ets.xyz>
@@ -607,7 +605,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     }
 
     function _processTaggingFees(uint256[] memory _tagIds) private {
-        require((msg.value >= _computeTaggingFee(_tagIds.length)), "Insufficient tagging fee supplied");
+        require((msg.value == _computeTaggingFee(_tagIds.length)), "Insufficient tagging fee supplied");
         address platform = etsAccessControls.getPlatformAddress();
         for (uint256 i; i < _tagIds.length; ++i) {
             _processAccrued(_tagIds[i], platform);

@@ -23,16 +23,13 @@ interface IETSAccessControls is IAccessControlUpgradeable {
     /**
      * @dev emitted when a Publisher contract is added & enabled in ETS.
      *
-     * @param publisher Publisher contract address.
-     */
-    event PublisherAdded(address publisher);
-
-    /**
-     * @dev emitted when a Publisher contract is removed from ETS.
+     * Publisher contracts are not required implement all ETS Core API functions. Therefore, to ease
+     * testing of ETS Core API fuinctions, ETS permits addition of ETS owned wallet addresses as Publishers.
      *
      * @param publisher Publisher contract address.
+     * @param isAdmin Publisher address is ETS administrator (used for testing).
      */
-    event PublisherRemoved(address publisher);
+    event PublisherAdded(address publisher, bool isAdmin);
 
     /**
      * @dev emitted when a Publisher contract is paused or unpaused.
@@ -56,14 +53,6 @@ interface IETSAccessControls is IAccessControlUpgradeable {
      * @param _name Human readable name of the Publisher.
      */
     function addPublisher(address _publisher, string calldata _name) external;
-
-    /**
-     * @notice Removes a Publisher contract from ETS. Can only be called by address
-     * with DEFAULT_ADMIN_ROLE.
-     *
-     * @param _publisher Address of the Publisher contract.
-     */
-    function removePublisher(address _publisher) external;
 
     /**
      * @notice Pauses/Unpauses a Publisher contract. Can only be called by address
