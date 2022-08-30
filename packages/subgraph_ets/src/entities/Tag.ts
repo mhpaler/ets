@@ -12,7 +12,7 @@ export function ensureTag(id: string, event: Transfer | null): Tag {
   if (tag === null && event) {
     tag = new Tag(id);
     let tagContract = ETSToken.bind(event.address);
-    let tagStruct = tagContract.getTag(event.params.tokenId);
+    let tagStruct = tagContract.getTagById(event.params.tokenId);
     let lowerTag: string = toLowerCase(tagStruct.display);
 
     tag.machineName = lowerTag.substring(1, lowerTag.length);

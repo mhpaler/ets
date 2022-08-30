@@ -7,14 +7,13 @@ import "../interfaces/IETSTarget.sol";
 import "../interfaces/IETSPublisher.sol";
 import { UintArrayUtils } from "../libraries/UintArrayUtils.sol";
 import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
-//import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { Pausable } from "@openzeppelin/contracts/security/Pausable.sol";
 
 /**
  * @title ETSPublisher
  * @author Ethereum Tag Service <team@ets.xyz>
- * @notice Example implementation of IETSPublisher
+ * @notice Sample implementation of IETSPublisher
  */
 contract ETSPublisher is IETSPublisher, ERC165, Ownable, Pausable {
     using UintArrayUtils for uint256[];
@@ -58,11 +57,19 @@ contract ETSPublisher is IETSPublisher, ERC165, Ownable, Pausable {
     /// @inheritdoc IETSPublisher
     function pause() public onlyOwner {
         _pause();
+        emit PublisherPauseToggledByOwner(address(this));
     }
 
     /// @inheritdoc IETSPublisher
     function unpause() public onlyOwner {
         _unpause();
+        emit PublisherPauseToggledByOwner(address(this));
+    }
+
+    /// @inheritdoc IETSPublisher
+    function changeOwner(address _newOwner) public whenPaused {
+        transferOwnership(_newOwner);
+        emit PublisherOwnerChanged(address(this));
     }
 
     // ============ PUBLIC INTERFACE ============
@@ -104,17 +111,19 @@ contract ETSPublisher is IETSPublisher, ERC165, Ownable, Pausable {
 
     // ============ PUBLIC VIEW FUNCTIONS ============
 
-    function computeTaggingFee(
-        uint256 _taggingRecordId,
-        uint256[] calldata _tagIds,
-        string calldata _action
-    ) public view returns (uint256 fee, uint256 tagCount) {
-        return ets.computeTaggingFee(_taggingRecordId, _tagIds, _action);
+    /// @inheritdoc ERC165
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IETSPublisher) returns (bool) {
+        return interfaceId == IID_IETSPublisher || super.supportsInterface(interfaceId);
     }
 
-    /// @inheritdoc ERC165
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == IID_IETSPublisher || super.supportsInterface(interfaceId);
+    /// @inheritdoc IETSPublisher
+    function isPausedByOwner() public view virtual returns (bool) {
+        return paused();
+    }
+
+    /// @inheritdoc IETSPublisher
+    function getOwner() public view virtual returns (address payable) {
+        return payable(owner());
     }
 
     /// @inheritdoc IETSPublisher
@@ -127,9 +136,12 @@ contract ETSPublisher is IETSPublisher, ERC165, Ownable, Pausable {
         return creator;
     }
 
-    /// @inheritdoc IETSPublisher
-    function getOwner() public view returns (address payable) {
-        return payable(owner());
+    function computeTaggingFee(
+        uint256 _taggingRecordId,
+        uint256[] calldata _tagIds,
+        string calldata _action
+    ) public view returns (uint256 fee, uint256 tagCount) {
+        return ets.computeTaggingFee(_taggingRecordId, _tagIds, _action);
     }
 
     // ============ INTERNAL FUNCTIONS ============

@@ -12,7 +12,10 @@ export function handleCreateTag(event: Transfer): void {
   tagEntity.save();
 
   // publisher
-  let publisher = ensurePublisher(tagEntity.publisher, event);
+  let publisher = ensurePublisher(
+    Address.fromString(tagEntity.publisher),
+    event
+  );
 
   if (publisher) {
     publisher.mintCount = publisher.mintCount.plus(ONE);

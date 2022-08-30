@@ -3,7 +3,7 @@
 pragma solidity ^0.8.10;
 
 /**
- * @title ETS
+ * @title IETS
  * @author Ethereum Tag Service <team@ets.xyz>
  *
  * @notice This is the interface for the ETS.sol core contract that records ETS TaggingRecords to the blockchain.

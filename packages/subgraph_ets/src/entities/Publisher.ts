@@ -1,22 +1,25 @@
 import { Publisher } from "../generated/schema";
-import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
-
-export const ZERO = BigInt.fromI32(0);
+import { Address, BigInt, ethereum, log } from "@graphprotocol/graph-ts";
+const ZERO = BigInt.fromI32(0);
 
 export function ensurePublisher(
-  address: string,
+  publisherAddress: Address,
   event: ethereum.Event
 ): Publisher {
-  let publisher = Publisher.load(address);
+  let publisher = Publisher.load(publisherAddress.toHex()) as Publisher;
 
-  if (publisher === null) {
-    publisher = new Publisher(address);
-    publisher.firstSeen = event.block.timestamp;
-    publisher.mintCount = ZERO;
-    publisher.tagCount = ZERO;
-    publisher.tagFees = ZERO;
-    publisher.save();
+  if (publisher) {
+    return publisher;
   }
 
-  return publisher as Publisher;
+  publisher = new Publisher(publisherAddress.toHex());
+  publisher.name = "poo";
+  publisher.pausedByProtocol = true;
+  publisher.firstSeen = event.block.timestamp;
+  publisher.mintCount = ZERO;
+  publisher.tagCount = ZERO;
+  publisher.tagFees = ZERO;
+  publisher.save();
+
+  return publisher;
 }

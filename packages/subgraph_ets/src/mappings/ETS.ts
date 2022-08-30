@@ -1,7 +1,7 @@
 // import { BigInt, Bytes, ipfs, json, JSONValue } from "@graphprotocol/graph-ts";
 // import { log } from "@graphprotocol/graph-ts";
 
-import { TargetTagged, ETS } from "../generated/ETS/ETS";
+import { TaggingRecordCreated, ETS } from "../generated/ETS/ETS";
 import { ETSToken } from "../generated/ETSToken/ETSToken";
 import { ETSAccessControls } from "../generated/ETSAccessControls/ETSAccessControls";
 import { TaggingRecord } from "../generated/schema";
@@ -17,7 +17,7 @@ import { ensureTag } from "../entities/Tag";
 import { ensureTarget } from "../entities/Target";
 import { log } from "@graphprotocol/graph-ts";
 
-export function handleTaggingRecordCreated(event: TargetTagged): void {
+export function handleTaggingRecordCreated(event: TaggingRecordCreated): void {
   let ets = ETS.bind(event.address);
   let tagFee = ets.taggingFee();
   let taggingRecordResponse = ets.getTaggingRecordFromId(
@@ -107,7 +107,7 @@ export function handleTaggingRecordCreated(event: TargetTagged): void {
 
   // update publisher counts and fees
   let publisherEntity = ensurePublisher(
-    taggingRecordResponse.getPublisher().toHexString(),
+    taggingRecordResponse.getPublisher(),
     event
   );
 
@@ -118,7 +118,7 @@ export function handleTaggingRecordCreated(event: TargetTagged): void {
   }
 
   // update platform fees
-  let platform = ensurePlatform(platformAddress.toHexString(), event);
+  let platform = ensurePlatform(platformAddress, event);
 
   if (platform) {
     platform.tagFees = platform.tagFees.plus(platformFee);
@@ -135,9 +135,9 @@ export function handleTaggingRecordCreated(event: TargetTagged): void {
     tagger.tagCount = tagger.tagCount.plus(ONE);
     tagger.feesPaid = tagger.feesPaid.plus(tagFee);
     let items = tagger.tags.concat(tagIDList);
-      //log.info('My value is: {}', [items])
-      tagger.tags = items
-    
+    //log.info('My value is: {}', [items])
+    tagger.tags = items;
+
     tagger.save();
   }
 }

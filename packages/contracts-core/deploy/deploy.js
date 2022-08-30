@@ -63,9 +63,9 @@ module.exports = async ({deployments}) => {
     await ETSPublisher.getPublisherName(),
   );
   await ETSAccessControls.connect(accounts.ETSPlatform).toggleIsPublisherPaused(ETSPublisher.address);
-  console.log("Authorize ETSPublisher as a Publisher");
+  console.log("Authorize ETSPublisher example contract as a Publisher");
 
-  // Add & Enable ETSPlatform as a Publisher. for testing purposes.
+  // Add & Unpause ETSPlatform as a Publisher. for testing purposes.
   await ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(accounts.ETSPlatform.address, "ETSPlatform");
   await ETSAccessControls.connect(accounts.ETSPlatform).toggleIsPublisherPaused(accounts.ETSPlatform.address);
   console.log("Authorize ETSPlatform wallet as a Publisher");

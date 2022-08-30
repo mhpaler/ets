@@ -162,6 +162,7 @@ describe("ETSAccessControls Tests", function () {
     });
     it("can be paused & unpaused by Owner", async () => {
       expect(await publisherMock.paused()).to.be.equal(false);
+      expect(await publisherMock.isPausedByOwner()).to.be.equal(false);
 
       // Try pausing as non-owner (eg. ETSPlatform)
       await expect(publisherMock.connect(accounts.ETSPlatform).pause()).to.be.revertedWith(

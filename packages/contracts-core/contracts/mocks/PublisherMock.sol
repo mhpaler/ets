@@ -54,6 +54,8 @@ contract PublisherMock is ERC165, IETSPublisher, Ownable, Pausable {
         _unpause();
     }
 
+    function changeOwner(address _newOwner) public whenPaused {}
+
     // ============ PUBLIC INTERFACE ============
 
     function applyTags(IETS.TaggingRecordRawInput[] calldata _rawParts) public payable {}
@@ -64,9 +66,11 @@ contract PublisherMock is ERC165, IETSPublisher, Ownable, Pausable {
 
     // ============ PUBLIC VIEW FUNCTIONS ============
 
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IETSPublisher) returns (bool) {
         return interfaceId == IID_IETSPublisher || super.supportsInterface(interfaceId);
     }
+
+    function isPausedByOwner() public view returns (bool) {}
 
     function getPublisherName() public pure returns (string memory) {
         return name;

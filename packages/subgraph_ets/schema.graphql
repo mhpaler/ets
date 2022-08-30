@@ -89,15 +89,6 @@ type TaggingRecord @entity {
   timestamp: BigInt!
 }
 
-type TargetTagger @entity {
-  id: ID!
-  name: String
-  firstSeen: BigInt!
-  paused: Boolean
-  owner: String
-  creator: String
-}
-
 type Administrator @entity {
   id: ID!
   firstSeen: BigInt!
@@ -116,6 +107,12 @@ type PublisherAdmin @entity {
 
 type Publisher @entity {
   id: ID!
+  name: String!
+  pausedByProtocol: Boolean!
+  #pausedByOwner: Boolean
+  #owner: String!
+  #creator: String!
+  admin: Boolean!
   firstSeen: BigInt!
   mintCount: BigInt!
   tagCount: BigInt!

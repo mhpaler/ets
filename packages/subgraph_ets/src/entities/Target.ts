@@ -8,7 +8,7 @@ export function ensureTarget(id: string, event: TargetCreated): Target {
   if (target === null && event) {
     // Ensure the target type.
     let targetContract = ETSTarget.bind(event.address);
-    let targetStruct = targetContract.getTarget1(event.params.targetId);
+    let targetStruct = targetContract.getTargetById(event.params.targetId);
     let targetURI = targetStruct.targetURI;
     let targetType: string[] = ensureTargetType(id, targetURI, event);
 

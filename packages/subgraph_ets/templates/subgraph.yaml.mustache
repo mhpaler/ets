@@ -13,15 +13,17 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
+      file: ./src/mappings/ETSAccessControls.ts
       entities:
         - Administrator
         - Platform
         - Publisher
-        - PublisherAdmin
-        - TargetTagger      
+        - PublisherAdmin      
       abis:
         - name: ETSAccessControls
           file: ./../contracts-core/abi/contracts/ETSAccessControls.sol/ETSAccessControls.json
+        - name: IETSPublisher
+          file: ./../contracts-core/abi/contracts/interfaces/IETSPublisher.sol/IETSPublisher.json
       eventHandlers:
         - event: RoleGranted(indexed bytes32,indexed address,indexed address)
           handler: handleRoleGranted
@@ -29,11 +31,10 @@ dataSources:
           handler: handleRoleRevoked
         - event: PlatformSet(address,address)
           handler: handlePlatformSet
-        - event: TargetTaggerAdded(address)
-          handler: handleTargetTaggerAdded
-        - event: TargetTaggerPauseToggled(bool)
-          handler: handleTargetTaggerPauseToggled
-      file: ./src/mappings/ETSAccessControls.ts
+        - event: PublisherAdded(address,bool)
+          handler: handlePublisherAdded
+        - event: PublisherPauseToggled(address)
+          handler: handlePublisherToggled
   - kind: ethereum/contract
     name: ETSToken
     network: {{network}}
@@ -45,6 +46,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
+      file: ./src/mappings/ETSToken.ts
       entities:
         - Transfer
       abis:
@@ -53,7 +55,6 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleCreateTag
-      file: ./src/mappings/ETSToken.ts
   - kind: ethereum/contract
     name: ETSTarget
     network: {{network}}
@@ -65,6 +66,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
+      file: ./src/mappings/ETSTarget.ts
       entities:
         - TargetMiscellaneous
       abis:
@@ -73,7 +75,6 @@ dataSources:
       eventHandlers:
         - event: TargetCreated(uint256)
           handler: handleTargetCreated
-      file: ./src/mappings/ETSTarget.ts
   - kind: ethereum/contract
     name: ETS
     network: {{network}}
@@ -85,6 +86,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
+      file: ./src/mappings/ETS.ts
       entities:
         - TaggingRecord
       abis:
@@ -97,7 +99,22 @@ dataSources:
         - name: ETS
           file: ./../contracts-core/abi/contracts/ETS.sol/ETS.json
       eventHandlers:
-        - event: TargetTagged(uint256)
+        - event: TaggingRecordCreated(uint256)
           handler: handleTaggingRecordCreated
-      file: ./src/mappings/ETS.ts
 
+templates:
+  - name: IETSPublisher
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: IETSPublisher
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/mappings/IETSPublisher.ts
+      entities:
+        - Publisher
+      abis:
+        - name: IETSPublisher
+          file: ./../contracts-core/abi/contracts/interfaces/IETSPublisher.sol/IETSPublisher.json
