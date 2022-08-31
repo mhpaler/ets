@@ -139,7 +139,7 @@ contract ETSPublisher is IETSPublisher, ERC165, Ownable, Pausable {
     function computeTaggingFee(
         uint256 _taggingRecordId,
         uint256[] calldata _tagIds,
-        string calldata _action
+        IETS.TaggingAction _action
     ) public view returns (uint256 fee, uint256 tagCount) {
         return ets.computeTaggingFee(_taggingRecordId, _tagIds, _action);
     }
@@ -160,7 +160,7 @@ contract ETSPublisher is IETSPublisher, ERC165, Ownable, Pausable {
                 _rawParts,
                 address(this),
                 _tagger,
-                "apply"
+                IETS.TaggingAction.APPEND
             );
             require(address(this).balance >= valueToSendForTagging, "Not enough funds to complete tagging");
         }
@@ -183,7 +183,7 @@ contract ETSPublisher is IETSPublisher, ERC165, Ownable, Pausable {
                 _rawParts,
                 address(this),
                 _tagger,
-                "apply"
+                IETS.TaggingAction.REPLACE
             );
             require(address(this).balance >= valueToSendForTagging, "Not enough funds to complete tagging");
         }

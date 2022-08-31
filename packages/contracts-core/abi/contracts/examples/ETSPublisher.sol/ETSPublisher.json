@@ -170,9 +170,9 @@
         "type": "uint256[]"
       },
       {
-        "internalType": "string",
+        "internalType": "enum IETS.TaggingAction",
         "name": "_action",
-        "type": "string"
+        "type": "uint8"
       }
     ],
     "name": "computeTaggingFee",

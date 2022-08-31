@@ -78,7 +78,7 @@ describe("ETS Publisher Tests", function () {
       const tx = await contracts.ETSPublisher.connect(accounts.RandomOne).applyTags([appendRecord], {
         value: ethers.BigNumber.from(taggingFee).mul("1"),
       });
-      await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, "append");
+      await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 0);
     });
 
     it('should not emit "TaggingRecordUpdated" when same tags are applied to existing record.', async () => {
@@ -95,7 +95,7 @@ describe("ETS Publisher Tests", function () {
           taggingRecords[i],
           contracts.ETSPublisher.address, // original publisher
           accounts.RandomOne.address, // original tagger
-          "apply",
+          0,
         );
         let {0: fee, 1: actualTagCount} = result;
         calcTaggingFee += fee;
@@ -146,7 +146,7 @@ describe("ETS Publisher Tests", function () {
         enrich: false,
       };
       const tx = await contracts.ETSPublisher.connect(accounts.RandomOne).removeTags([removeTags]);
-      await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, "remove");
+      await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 2);
 
       taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
       expect(taggingRecord.tagIds.length).to.be.equal(1);
@@ -233,8 +233,8 @@ describe("ETS Publisher Tests", function () {
         value: ethers.BigNumber.from(taggingFee).mul("3"),
       });
 
-      await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, "remove");
-      await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, "append");
+      await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 0);
+      await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 2);
 
       taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
       expect(taggingRecord.tagIds.length).to.be.equal(3);
@@ -254,7 +254,7 @@ describe("ETS Publisher Tests", function () {
           taggingRecords[i],
           contracts.ETSPublisher.address, // original publisher
           accounts.RandomOne.address, // original tagger
-          "replace", // action to preform
+          1, // action to preform
         );
         let {0: fee, 1: actualTagCount} = result;
         calcTaggingFee += fee;
@@ -277,7 +277,7 @@ describe("ETS Publisher Tests", function () {
           taggingRecords[i],
           contracts.ETSPublisher.address, // original publisher
           accounts.RandomOne.address, // original tagger
-          "replace", // action to preform
+          1, // action to preform
         );
         let {0: fee, 1: actualTagCount} = result;
         applyTaggingFee += fee;
@@ -304,7 +304,7 @@ describe("ETS Publisher Tests", function () {
           replaceRecords[i],
           contracts.ETSPublisher.address, // original publisher
           accounts.RandomOne.address, // original tagger
-          "replace", // action to preform
+          1, // action to preform
         );
         let {0: fee, 1: actualTagCount} = result;
         replaceTaggingFee += fee;

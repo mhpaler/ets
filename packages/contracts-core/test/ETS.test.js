@@ -151,9 +151,26 @@ describe("ETS Core tests", function () {
     });
   });
 
-  describe("Tagging fees are computed correctly", async () => {
+  describe("Tagging fees", async () => {
     describe("for new tagging records", async () => {
-      it("with raw tagging record parts", async () => {
+      it("should fail when providing an invalid tagging action", async () => {
+        const rawInput = {
+          targetURI: "https://google.com",
+          tagStrings: ["#love", "#hate"],
+          recordType: "bookmark",
+        };
+
+        await expect(
+          contracts.ETS.computeTaggingFeeFromRawInput(
+            rawInput,
+            contracts.ETSPublisher.address,
+            accounts.RandomOne.address,
+            4, // INVALID TaggingAction
+          ),
+        ).to.be.reverted;
+      });
+
+      it("are computed correctly with raw tagging record parts", async () => {
         const rawInput = {
           targetURI: "https://google.com",
           tagStrings: ["#love", "#hate"],
@@ -163,7 +180,7 @@ describe("ETS Core tests", function () {
           rawInput,
           contracts.ETSPublisher.address,
           accounts.RandomOne.address,
-          "apply",
+          0,
         );
 
         const {0: fee, 1: tagCount} = result;
@@ -171,7 +188,7 @@ describe("ETS Core tests", function () {
         expect(fee.toString()).to.be.equal((taggingFee * tagCount).toString());
       });
 
-      it("with composite key inputs", async () => {
+      it("are computed correctly with composite key inputs", async () => {
         const tagIds = [12345, 12356, 88843];
         const result = await contracts.ETS.computeTaggingFeeFromCompositeKey(
           tagIds,
@@ -179,7 +196,7 @@ describe("ETS Core tests", function () {
           "bookmark",
           contracts.ETSPublisher.address,
           accounts.RandomOne.address,
-          "apply",
+          0,
         );
 
         const {0: fee, 1: tagCount} = result;
@@ -209,7 +226,7 @@ describe("ETS Core tests", function () {
           accounts.RandomOne.address,
         );
       });
-      it("when applying new tags using raw inputs", async () => {
+      it("are computed correctly when applying new tags using raw inputs", async () => {
         // Estimate the cost of applying two new tags to an existing record, two of which are already in the tagging record.
         const rawInput = {
           targetURI: targetURI,
@@ -220,7 +237,7 @@ describe("ETS Core tests", function () {
           rawInput,
           accounts.ETSPlatform.address, // original publisher
           accounts.RandomOne.address, // original tagger
-          "apply",
+          0,
         );
 
         const {0: fee, 1: actualTagCount} = result;
@@ -228,7 +245,7 @@ describe("ETS Core tests", function () {
         expect(fee.toString()).to.be.equal((taggingFee * actualTagCount).toString());
       });
 
-      it("when applying new tags and duplicate tags using raw inputs", async () => {
+      it("are computed correctly when applying new tags and duplicate tags using raw inputs", async () => {
         const rawInput = {
           targetURI: targetURI,
           tagStrings: [tagstring1, tagstring1, tagstring3, tagstring4], // applying two duplicate and two new
@@ -238,14 +255,14 @@ describe("ETS Core tests", function () {
           rawInput,
           accounts.ETSPlatform.address, // original publisher
           accounts.RandomOne.address, // original tagger
-          "apply",
+          0,
         );
 
         const {0: fee, 1: actualTagCount} = result;
         expect(actualTagCount).to.be.equal(2);
         expect(fee.toString()).to.be.equal((taggingFee * actualTagCount).toString());
       });
-      it("when applying only duplicate tags using raw inputs", async () => {
+      it("are computed correctly when applying only duplicate tags using raw inputs", async () => {
         const rawInput = {
           targetURI: targetURI,
           tagStrings: [tagstring1, tagstring1], // applying two duplicate and two new
@@ -255,7 +272,7 @@ describe("ETS Core tests", function () {
           rawInput,
           accounts.ETSPlatform.address, // original publisher
           accounts.RandomOne.address, // original tagger
-          "apply",
+          0,
         );
 
         const {0: fee, 1: actualTagCount} = result;
@@ -263,7 +280,7 @@ describe("ETS Core tests", function () {
         expect(fee.toString()).to.be.equal((0).toString());
       });
 
-      it("when replacing with only new tags using raw inputs", async () => {
+      it("are computed correctly when replacing with only new tags using raw inputs", async () => {
         const rawInput = {
           targetURI: targetURI,
           tagStrings: [tagstring3, tagstring4], // replacing with two new
@@ -273,7 +290,7 @@ describe("ETS Core tests", function () {
           rawInput,
           accounts.ETSPlatform.address, // original publisher
           accounts.RandomOne.address, // original tagger
-          "replace",
+          1,
         );
 
         const {0: fee, 1: actualTagCount} = result;
@@ -281,7 +298,7 @@ describe("ETS Core tests", function () {
         expect(fee.toString()).to.be.equal((2 * taggingFee).toString());
       });
 
-      it("when replacing with new & duplicate tags using raw inputs", async () => {
+      it("are computed correctly when replacing with new & duplicate tags using raw inputs", async () => {
         const rawInput = {
           targetURI: targetURI,
           // replacing with one duplicate and two new
@@ -293,7 +310,7 @@ describe("ETS Core tests", function () {
           rawInput,
           accounts.ETSPlatform.address, // original publisher
           accounts.RandomOne.address, // original tagger
-          "replace",
+          1,
         );
 
         const {0: fee, 1: actualTagCount} = result;
@@ -301,7 +318,7 @@ describe("ETS Core tests", function () {
         expect(fee.toString()).to.be.equal((2 * taggingFee).toString());
       });
 
-      it("when replacing with only duplicate tags using raw inputs", async () => {
+      it("are computed correctly when replacing with only duplicate tags using raw inputs", async () => {
         const rawInput = {
           targetURI: targetURI,
           tagStrings: [tagstring2, tagstring1], // replacing with duplicate tags
@@ -311,7 +328,7 @@ describe("ETS Core tests", function () {
           rawInput,
           accounts.ETSPlatform.address, // original publisher
           accounts.RandomOne.address, // original tagger
-          "replace",
+          1,
         );
 
         const {0: fee, 1: actualTagCount} = result;
@@ -472,7 +489,7 @@ describe("ETS Core tests", function () {
           },
         );
 
-        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, "append");
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 0);
       });
 
       it("should increase the tag count when new tag is supplied", async () => {
@@ -545,7 +562,7 @@ describe("ETS Core tests", function () {
             value: ethers.BigNumber.from(taggingFee).mul("2"),
           },
         );
-        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, "append");
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 0);
       });
 
       it("should increase the tag count when new tag is supplied", async () => {
@@ -698,7 +715,7 @@ describe("ETS Core tests", function () {
           rawInput,
           accounts.RandomOne.address,
         );
-        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, "remove");
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 2);
       });
 
       it("should emit TaggingRecordUpdated if the same tag is supplied twice", async () => {
@@ -823,7 +840,7 @@ describe("ETS Core tests", function () {
           "bookmark",
           accounts.RandomOne.address,
         );
-        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, "remove");
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 2);
       });
 
       it("should emit TaggingRecordUpdated if the same tag is supplied twice", async () => {
@@ -1029,7 +1046,7 @@ describe("ETS Core tests", function () {
             value: ethers.BigNumber.from(taggingFee).mul("2"),
           },
         );
-        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, "append");
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 0);
       });
 
       it("should replace rather than append", async () => {
@@ -1050,6 +1067,10 @@ describe("ETS Core tests", function () {
         );
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
         expect(taggingRecord.tagIds.length).to.be.equal(3);
+
+        // Should emit two events, one for removal and one for append.
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 0);
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 2);
       });
 
       it("should not increase the tag count when duplicate tag is supplied", async () => {
@@ -1090,7 +1111,7 @@ describe("ETS Core tests", function () {
 
       it("should emit TaggingRecordUpdated", async () => {
         let tx = await contracts.ETS.connect(accounts.ETSPlatform).replaceTagsWithCompositeKey(
-          [etsTag2, userTag1],
+          [etsTag2, userTag1], // remove etsTag1 and replace with etsTag2 & userTag1
           targetId,
           "bookmark",
           accounts.RandomOne.address,
@@ -1098,7 +1119,8 @@ describe("ETS Core tests", function () {
             value: ethers.BigNumber.from(taggingFee).mul("2"),
           },
         );
-        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, "append");
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 0);
+        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 2);
       });
 
       it("should replace rather than append", async () => {

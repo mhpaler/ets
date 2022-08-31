@@ -48,6 +48,19 @@ interface IETS {
     }
 
     /**
+     * @dev Action types available for tags in a tagging record.
+     *
+     * 0 - APPEND Add tags to a tagging record.
+     * 1 - REPLACE Replace (overwrite) tags in a tagging record.
+     * 2 - REMOVE Remove tags in a tagging record.
+     */
+    enum TaggingAction {
+        APPEND,
+        REPLACE,
+        REMOVE
+    }
+
+    /**
      * @dev emitted when the ETS Access Controls is set.
      *
      * @param newAccessControls contract address access controls is set to.
@@ -80,9 +93,9 @@ interface IETS {
      * @dev emitted when a tagging record is updated.
      *
      * @param taggingRecordId tagging record being updated.
-     * @param updateType String describing update type: "append or "removed".
+     * @param action Type of update applied as TaggingAction enum.
      */
-    event TaggingRecordUpdated(uint256 taggingRecordId, string updateType);
+    event TaggingRecordUpdated(uint256 taggingRecordId, TaggingAction action);
 
     /**
      * @dev emitted when ETS participant draws down funds accrued to their contract or wallet.
@@ -306,7 +319,7 @@ interface IETS {
      * @param _rawInput Raw client input data formed as TaggingRecordRawInput struct.
      * @param _publisher Address of tagging record Publisher contract.
      * @param _tagger Address interacting with Publisher to tag content ("Tagger").
-     * @param _action Tagging action being taken on tagging record. Options are "apply" or "replace".
+     * @param _action Integer representing action to be performed according to enum TaggingAction.
      *
      * @return fee Calculated tagging fee in ETH/Matic
      * @return tagCount Number of new tags being added to tagging record.
@@ -315,7 +328,7 @@ interface IETS {
         TaggingRecordRawInput memory _rawInput,
         address _publisher,
         address _tagger,
-        string calldata _action
+        TaggingAction _action
     ) external view returns (uint256 fee, uint256 tagCount);
 
     /**
@@ -324,7 +337,7 @@ interface IETS {
      * @param _tagIds Array of CTAG token Ids.
      * @param _publisher Address of tagging record Publisher contract.
      * @param _tagger Address interacting with Publisher to tag content ("Tagger").
-     * @param _action Tagging action being taken on tagging record. Options are "apply" or "replace".
+     * @param _action Integer representing action to be performed according to enum TaggingAction.
      *
      * @return fee Calculated tagging fee in ETH/Matic
      * @return tagCount Number of new tags being added to tagging record.
@@ -335,7 +348,7 @@ interface IETS {
         string calldata _recordType,
         address _publisher,
         address _tagger,
-        string calldata _action
+        TaggingAction _action
     ) external view returns (uint256 fee, uint256 tagCount);
 
     /**
@@ -349,7 +362,7 @@ interface IETS {
      *
      * @param _taggingRecordId Id of tagging record.
      * @param _tagIds Array of CTAG token Ids.
-     * @param _action Tagging action being taken on tagging record. Options are "apply" or "replace".
+     * @param _action Integer representing action to be performed according to enum TaggingAction.
      *
      * @return fee Calculated tagging fee in ETH/Matic
      * @return tagCount Number of new tags being added to tagging record.
@@ -357,7 +370,7 @@ interface IETS {
     function computeTaggingFee(
         uint256 _taggingRecordId,
         uint256[] memory _tagIds,
-        string calldata _action
+        TaggingAction _action
     ) external view returns (uint256 fee, uint256 tagCount);
 
     /**

@@ -370,7 +370,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         TaggingRecordRawInput calldata _rawInput,
         address _publisher,
         address _tagger,
-        string calldata _action
+        TaggingAction _action
     ) public view returns (uint256 fee, uint256 tagCount) {
         uint256 rawTagCount = _rawInput.tagStrings.length;
         uint256[] memory tagIds = new uint256[](rawTagCount);
@@ -387,7 +387,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         string calldata _recordType,
         address _publisher,
         address _tagger,
-        string calldata _action
+        TaggingAction _action
     ) public view returns (uint256 fee, uint256 tagCount) {
         return
             computeTaggingFee(
@@ -401,19 +401,19 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     function computeTaggingFee(
         uint256 _taggingRecordId,
         uint256[] memory _tagIds,
-        string calldata _action
+        TaggingAction _action
     ) public view returns (uint256 fee, uint256 tagCount) {
         // Return quickly when no tagging record exists.
         if (!taggingRecordExists(_taggingRecordId)) {
             return (_computeTaggingFee(_tagIds.length), _tagIds.length);
         }
 
-        if (keccak256(abi.encodePacked(_action)) == keccak256(abi.encodePacked("apply"))) {
+        if (TaggingAction(_action) == TaggingAction.APPEND) {
             // remove tagging record tag ids from input tag ids to return number of new tags applied.
             _tagIds = UintArrayUtils.difference(_tagIds, taggingRecords[_taggingRecordId].tagIds);
         }
 
-        if (keccak256(abi.encodePacked(_action)) == keccak256(abi.encodePacked("replace"))) {
+        if (TaggingAction(_action) == TaggingAction.REPLACE) {
             // Remove tags from tagging record not in replacement tag set.
             uint256[] memory taggingRecordTags = taggingRecords[_taggingRecordId].tagIds;
             uint256[] memory tagsToRemove = UintArrayUtils.difference(taggingRecords[_taggingRecordId].tagIds, _tagIds);
@@ -424,7 +424,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
             _tagIds = UintArrayUtils.difference(_tagIds, taggingRecordTags);
         }
 
-        if (keccak256(abi.encodePacked(_action)) == keccak256(abi.encodePacked("remove"))) {
+        if (TaggingAction(_action) == TaggingAction.REMOVE) {
             // Find tags shared by supplied tags and tagging record tags.
             _tagIds = UintArrayUtils.intersect(_tagIds, taggingRecords[_taggingRecordId].tagIds);
 
@@ -576,7 +576,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
             taggingRecords[_taggingRecordId].tagIds,
             _tagIds
         );
-        emit TaggingRecordUpdated(_taggingRecordId, "append");
+        emit TaggingRecordUpdated(_taggingRecordId, TaggingAction.APPEND);
     }
 
     /**
@@ -593,7 +593,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
             taggingRecords[_taggingRecordId].tagIds,
             _tagIds
         );
-        emit TaggingRecordUpdated(_taggingRecordId, "remove");
+        emit TaggingRecordUpdated(_taggingRecordId, TaggingAction.REMOVE);
     }
 
     function _computeTaggingFee(uint256 _tagCount) internal view returns (uint256 _fee) {

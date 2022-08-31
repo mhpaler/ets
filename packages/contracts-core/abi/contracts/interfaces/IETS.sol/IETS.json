@@ -87,9 +87,9 @@
       },
       {
         "indexed": false,
-        "internalType": "string",
-        "name": "updateType",
-        "type": "string"
+        "internalType": "enum IETS.TaggingAction",
+        "name": "action",
+        "type": "uint8"
       }
     ],
     "name": "TaggingRecordUpdated",
@@ -189,9 +189,9 @@
         "type": "uint256[]"
       },
       {
-        "internalType": "string",
+        "internalType": "enum IETS.TaggingAction",
         "name": "_action",
-        "type": "string"
+        "type": "uint8"
       }
     ],
     "name": "computeTaggingFee",
@@ -238,9 +238,9 @@
         "type": "address"
       },
       {
-        "internalType": "string",
+        "internalType": "enum IETS.TaggingAction",
         "name": "_action",
-        "type": "string"
+        "type": "uint8"
       }
     ],
     "name": "computeTaggingFeeFromCompositeKey",
@@ -294,9 +294,9 @@
         "type": "address"
       },
       {
-        "internalType": "string",
+        "internalType": "enum IETS.TaggingAction",
         "name": "_action",
-        "type": "string"
+        "type": "uint8"
       }
     ],
     "name": "computeTaggingFeeFromRawInput",
