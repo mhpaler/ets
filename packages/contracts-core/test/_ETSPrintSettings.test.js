@@ -25,7 +25,7 @@ describe("============= ETS TEST SUITE SETTINGS =============", function () {
     console.log("ETSTarget:", contracts.ETSTarget.address);
     console.log("ETSEnrichTarget:", contracts.ETSEnrichTarget.address);
     console.log("ETS:", contracts.ETS.address);
-    console.log("ETSTargetTagger:", contracts.ETSTargetTagger.address);
+    console.log("ETSPublisher:", contracts.ETSPublisher.address);
     console.log("======================== INIT SETTINGS ============================");
     console.log(initSettings);
   });

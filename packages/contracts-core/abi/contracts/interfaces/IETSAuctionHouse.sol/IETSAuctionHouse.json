@@ -47,6 +47,19 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "duration",
+        "type": "uint256"
+      }
+    ],
+    "name": "AuctionDurationSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "uint256",
         "name": "tokenId",
@@ -60,6 +73,19 @@
       }
     ],
     "name": "AuctionExtended",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "minBidIncrementPercentagePrice",
+        "type": "uint8"
+      }
+    ],
+    "name": "AuctionMinBidIncrementPercentageSet",
     "type": "event"
   },
   {

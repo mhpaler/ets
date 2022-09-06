@@ -99,6 +99,19 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "ets",
+        "type": "address"
+      }
+    ],
+    "name": "ETSCoreSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "uint8",
         "name": "version",
         "type": "uint8"
@@ -396,6 +409,11 @@
       },
       {
         "internalType": "address payable",
+        "name": "_publisher",
+        "type": "address"
+      },
+      {
+        "internalType": "address payable",
         "name": "_creator",
         "type": "address"
       }
@@ -409,6 +427,19 @@
       }
     ],
     "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ets",
+    "outputs": [
+      {
+        "internalType": "contract IETS",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -490,6 +521,11 @@
       },
       {
         "internalType": "address payable",
+        "name": "_publisher",
+        "type": "address"
+      },
+      {
+        "internalType": "address payable",
         "name": "_creator",
         "type": "address"
       }
@@ -538,6 +574,11 @@
         "internalType": "string",
         "name": "_tag",
         "type": "string"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_publisher",
+        "type": "address"
       },
       {
         "internalType": "address payable",
@@ -945,6 +986,19 @@
       }
     ],
     "name": "setApprovalForAll",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IETS",
+        "name": "_ets",
+        "type": "address"
+      }
+    ],
+    "name": "setETSCore",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

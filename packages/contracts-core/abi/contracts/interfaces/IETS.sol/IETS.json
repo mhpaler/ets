@@ -73,7 +73,7 @@
         "type": "uint256"
       }
     ],
-    "name": "TaggingRecordUpdated",
+    "name": "TaggingRecordCreated",
     "type": "event"
   },
   {
@@ -84,10 +84,236 @@
         "internalType": "uint256",
         "name": "taggingRecordId",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum IETS.TaggingAction",
+        "name": "action",
+        "type": "uint8"
       }
     ],
-    "name": "TargetTagged",
+    "name": "TaggingRecordUpdated",
     "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taggingRecordId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_tagIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "appendTags",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "_tagIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_targetId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_recordType",
+        "type": "string"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_tagger",
+        "type": "address"
+      }
+    ],
+    "name": "applyTagsWithCompositeKey",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "targetURI",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "tagStrings",
+            "type": "string[]"
+          },
+          {
+            "internalType": "string",
+            "name": "recordType",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IETS.TaggingRecordRawInput",
+        "name": "_rawInput",
+        "type": "tuple"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_tagger",
+        "type": "address"
+      }
+    ],
+    "name": "applyTagsWithRawInput",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taggingRecordId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_tagIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "enum IETS.TaggingAction",
+        "name": "_action",
+        "type": "uint8"
+      }
+    ],
+    "name": "computeTaggingFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tagCount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "_tagIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_targetId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_recordType",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "_publisher",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_tagger",
+        "type": "address"
+      },
+      {
+        "internalType": "enum IETS.TaggingAction",
+        "name": "_action",
+        "type": "uint8"
+      }
+    ],
+    "name": "computeTaggingFeeFromCompositeKey",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tagCount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "targetURI",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "tagStrings",
+            "type": "string[]"
+          },
+          {
+            "internalType": "string",
+            "name": "recordType",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IETS.TaggingRecordRawInput",
+        "name": "_rawInput",
+        "type": "tuple"
+      },
+      {
+        "internalType": "address",
+        "name": "_publisher",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_tagger",
+        "type": "address"
+      },
+      {
+        "internalType": "enum IETS.TaggingAction",
+        "name": "_action",
+        "type": "uint8"
+      }
+    ],
+    "name": "computeTaggingFeeFromRawInput",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tagCount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [
@@ -112,7 +338,7 @@
         "type": "address"
       }
     ],
-    "name": "computeTaggingRecordId",
+    "name": "computeTaggingRecordIdFromCompositeKey",
     "outputs": [
       {
         "internalType": "uint256",
@@ -121,6 +347,104 @@
       }
     ],
     "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "targetURI",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "tagStrings",
+            "type": "string[]"
+          },
+          {
+            "internalType": "string",
+            "name": "recordType",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IETS.TaggingRecordRawInput",
+        "name": "_rawInput",
+        "type": "tuple"
+      },
+      {
+        "internalType": "address",
+        "name": "_publisher",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_tagger",
+        "type": "address"
+      }
+    ],
+    "name": "computeTaggingRecordIdFromRawInput",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "taggingRecordId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_tag",
+        "type": "string"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_creator",
+        "type": "address"
+      }
+    ],
+    "name": "createTag",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "_tagIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_targetId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_recordType",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "_tagger",
+        "type": "address"
+      }
+    ],
+    "name": "createTaggingRecord",
+    "outputs": [],
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -139,6 +463,30 @@
   {
     "inputs": [
       {
+        "internalType": "string",
+        "name": "_tag",
+        "type": "string"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_creator",
+        "type": "address"
+      }
+    ],
+    "name": "getOrCreateTagId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "_targetId",
         "type": "uint256"
@@ -159,7 +507,7 @@
         "type": "address"
       }
     ],
-    "name": "getTaggingRecord",
+    "name": "getTaggingRecordFromCompositeKey",
     "outputs": [
       {
         "internalType": "uint256[]",
@@ -232,6 +580,90 @@
   {
     "inputs": [
       {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "targetURI",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "tagStrings",
+            "type": "string[]"
+          },
+          {
+            "internalType": "string",
+            "name": "recordType",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IETS.TaggingRecordRawInput",
+        "name": "_rawInput",
+        "type": "tuple"
+      },
+      {
+        "internalType": "address",
+        "name": "_publisher",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_tagger",
+        "type": "address"
+      }
+    ],
+    "name": "getTaggingRecordFromRawInput",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "tagIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "targetId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "recordType",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "publisher",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "tagger",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taggingRecordId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_tagIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "removeTags",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256[]",
         "name": "_tagIds",
         "type": "uint256[]"
@@ -252,7 +684,123 @@
         "type": "address"
       }
     ],
-    "name": "tagTarget",
+    "name": "removeTagsWithCompositeKey",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "targetURI",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "tagStrings",
+            "type": "string[]"
+          },
+          {
+            "internalType": "string",
+            "name": "recordType",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IETS.TaggingRecordRawInput",
+        "name": "_rawInput",
+        "type": "tuple"
+      },
+      {
+        "internalType": "address",
+        "name": "_tagger",
+        "type": "address"
+      }
+    ],
+    "name": "removeTagsWithRawInput",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taggingRecordId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_tagIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "replaceTags",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "_tagIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_targetId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_recordType",
+        "type": "string"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_tagger",
+        "type": "address"
+      }
+    ],
+    "name": "replaceTagsWithCompositeKey",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "targetURI",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "tagStrings",
+            "type": "string[]"
+          },
+          {
+            "internalType": "string",
+            "name": "recordType",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IETS.TaggingRecordRawInput",
+        "name": "_rawInput",
+        "type": "tuple"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_tagger",
+        "type": "address"
+      }
+    ],
+    "name": "replaceTagsWithRawInput",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
@@ -265,6 +813,105 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taggingRecordId",
+        "type": "uint256"
+      }
+    ],
+    "name": "taggingRecordExists",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_targetId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_recordType",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "_publisher",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_tagger",
+        "type": "address"
+      }
+    ],
+    "name": "taggingRecordExistsByCompositeKey",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "targetURI",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "tagStrings",
+            "type": "string[]"
+          },
+          {
+            "internalType": "string",
+            "name": "recordType",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IETS.TaggingRecordRawInput",
+        "name": "_rawInput",
+        "type": "tuple"
+      },
+      {
+        "internalType": "address",
+        "name": "_publisher",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_tagger",
+        "type": "address"
+      }
+    ],
+    "name": "taggingRecordExistsByRawInput",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -287,24 +934,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_taggingRecordId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string[]",
-        "name": "_tags",
-        "type": "string[]"
-      }
-    ],
-    "name": "updateTaggingRecord",
-    "outputs": [],
-    "stateMutability": "payable",
     "type": "function"
   }
 ]

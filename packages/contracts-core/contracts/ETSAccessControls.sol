@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import { IETSTargetTagger } from "./interfaces/IETSTargetTagger.sol";
+import { IETSPublisher } from "./interfaces/IETSPublisher.sol";
 import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
-import "@openzeppelin/contracts/interfaces/IERC165.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
+
+import "hardhat/console.sol";
 
 /**
  * @title IETSAccessControls
@@ -27,14 +29,14 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     /// There will only be one "Platform" so no need to make it a role.
     address payable internal platform;
 
-    /// @notice Mapping to contain whether Target Tagger is paused by the protocol.
-    mapping(address => bool) public isTargetTaggerPaused;
+    /// @notice Mapping to contain whether Publisher is paused by the protocol.
+    mapping(address => bool) public isPublisherPaused;
 
-    /// @notice Target Tagger name to contract address.
-    mapping(string => address) public targetTaggerNameToContract;
+    /// @notice Publisher name to contract address.
+    mapping(string => address) public publisherNameToContract;
 
-    /// @notice Target Tagger contract address to human readable name.
-    mapping(address => string) public targetTaggerContractToName;
+    /// @notice Publisher contract address to human readable name.
+    mapping(address => string) public publisherContractToName;
 
     // ============ UUPS INTERFACE ============
 
@@ -43,11 +45,14 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
         _disableInitializers();
     }
 
-    function initialize() public initializer {
+    function initialize(address _platformAddress) public initializer {
         __AccessControl_init();
-        // Give default admin role to the deployer.
         // setupRole is should only be called within initialize().
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        _setRoleAdmin(PUBLISHER_ROLE, PUBLISHER_ROLE_ADMIN);
+        grantRole(DEFAULT_ADMIN_ROLE, _platformAddress);
+        grantRole(PUBLISHER_ROLE_ADMIN, _platformAddress);
+        setPlatform(payable(_platformAddress));
     }
 
     // Ensure that only addresses with admin role can upgrade.
@@ -68,33 +73,27 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     }
 
     /// @inheritdoc IETSAccessControls
-    function addTargetTagger(address _taggerAddress, string calldata _name) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function addPublisher(address _publisher, string calldata _name) public onlyRole(PUBLISHER_ROLE_ADMIN) {
         require(
-            isAdmin(_taggerAddress) || IERC165(_taggerAddress).supportsInterface(type(IETSTargetTagger).interfaceId),
-            "Address not admin or required interface"
+            isPublisherAdmin(_publisher) ||
+                ERC165CheckerUpgradeable.supportsInterface(_publisher, type(IETSPublisher).interfaceId),
+            "Address not required interface"
         );
-        targetTaggerNameToContract[_name] = _taggerAddress;
-        targetTaggerContractToName[_taggerAddress] = _name;
+        require(!isPublisherByAddress(_publisher), "Publisher exists");
+        require(!isPublisherByName(_name), "Publisher name exists");
+        publisherNameToContract[_name] = _publisher;
+        publisherContractToName[_publisher] = _name;
+        isPublisherPaused[_publisher] = true;
         // Note: grantRole emits RoleGranted event.
-        grantRole(PUBLISHER_ROLE, _taggerAddress);
-        emit TargetTaggerAdded(_taggerAddress);
+        grantRole(PUBLISHER_ROLE, _publisher);
+        grantRole(SMART_CONTRACT_ROLE, _publisher);
+        emit PublisherAdded(_publisher, isPublisherAdmin(_publisher));
     }
 
     /// @inheritdoc IETSAccessControls
-    function removeTargetTagger(address _taggerAddress) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(isTargetTaggerByAddress(_taggerAddress), "invalid target tagger");
-        string memory targetTaggerName = targetTaggerContractToName[_taggerAddress];
-        delete targetTaggerNameToContract[targetTaggerName];
-        delete targetTaggerContractToName[_taggerAddress];
-        // Note: revokeRole emits RoleRevoked event.
-        revokeRole(PUBLISHER_ROLE, _taggerAddress);
-        emit TargetTaggerRemoved(_taggerAddress);
-    }
-
-    /// @inheritdoc IETSAccessControls
-    function toggleIsTargetTaggerPaused(address _taggerAddress) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        isTargetTaggerPaused[_taggerAddress] = !isTargetTaggerPaused[_taggerAddress];
-        emit TargetTaggerPauseToggled(_taggerAddress);
+    function toggleIsPublisherPaused(address _publisher) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        isPublisherPaused[_publisher] = !isPublisherPaused[_publisher];
+        emit PublisherPauseToggled(_publisher);
     }
 
     // ============ PUBLIC VIEW FUNCTIONS ============
@@ -111,7 +110,7 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
 
     /// @inheritdoc IETSAccessControls
     function isPublisher(address _addr) public view returns (bool) {
-        return hasRole(PUBLISHER_ROLE, _addr);
+        return isPublisherAndNotPaused(_addr);
     }
 
     /// @inheritdoc IETSAccessControls
@@ -120,18 +119,18 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     }
 
     /// @inheritdoc IETSAccessControls
-    function isTargetTaggerByName(string memory _name) public view returns (bool) {
-        return targetTaggerNameToContract[_name] != address(0);
+    function isPublisherByName(string memory _name) public view returns (bool) {
+        return publisherNameToContract[_name] != address(0);
     }
 
     /// @inheritdoc IETSAccessControls
-    function isTargetTaggerByAddress(address _addr) public view returns (bool) {
-        return keccak256(abi.encodePacked(targetTaggerContractToName[_addr])) != keccak256(abi.encodePacked(""));
+    function isPublisherByAddress(address _addr) public view returns (bool) {
+        return keccak256(abi.encodePacked(publisherContractToName[_addr])) != keccak256(abi.encodePacked(""));
     }
 
     /// @inheritdoc IETSAccessControls
-    function isTargetTaggerAndNotPaused(address _addr) public view returns (bool) {
-        return isTargetTaggerByAddress(_addr) && !isTargetTaggerPaused[_addr];
+    function isPublisherAndNotPaused(address _addr) public view returns (bool) {
+        return isPublisherByAddress(_addr) && !isPublisherPaused[_addr];
     }
 
     /// @inheritdoc IETSAccessControls

@@ -1,107 +1,78 @@
-import { Bytes, store } from "@graphprotocol/graph-ts";
-// import { ETSAccessControls } from "../generated/ETSAccessControls/ETSAccessControls";
+import { Bytes, store, BigInt, log } from "@graphprotocol/graph-ts";
+import { Publisher } from "../generated/schema";
 import {
+  ETSAccessControls,
   RoleGranted,
   RoleRevoked,
   PlatformSet,
-  TargetTaggerAdded,
+  PublisherAdded,
+  PublisherPauseToggled,
+  Initialized,
+  Upgraded,
 } from "../generated/ETSAccessControls/ETSAccessControls";
-
+import { ensureRelease } from "../entities/Release";
 import { ensureAdministrator } from "../entities/Administrator";
 import { ensurePublisherAdmin } from "../entities/PublisherAdmin";
 import { ensurePublisher } from "../entities/Publisher";
 import { ensurePlatform } from "../entities/Platform";
-import { ensureTargetTagger } from "../entities/TargetTagger";
 
-const DEFAULT_ADMIN_ROLE = Bytes.fromHexString(
-  "0x0000000000000000000000000000000000000000000000000000000000000000"
-);
-const PUBLISHER_ROLE = Bytes.fromHexString(
-  "0xad312f08b8889cfe65ec2f1faae419f8b47f0153a3483ea6130918c055c8183d"
-);
-const PUBLISHER_ROLE_ADMIN = Bytes.fromHexString(
-  "0xceef0c25ed6578df50c5ed05e86b9a2fbef843ddc8e477a6712c47ac29939361"
-);
-// const SMART_CONTRACT_ROLE = Bytes.fromHexString(
-//   "0x5474431f81b75a7b45d74ffe5ff51964b4290ef4c86184accd4e4a9822dae901"
-// );
+import { ZERO } from "../utils/constants";
+
+const DEFAULT_ADMIN_ROLE = Bytes.fromHexString("0x0000000000000000000000000000000000000000000000000000000000000000");
+const PUBLISHER_ROLE = Bytes.fromHexString("0xad312f08b8889cfe65ec2f1faae419f8b47f0153a3483ea6130918c055c8183d");
+const PUBLISHER_ROLE_ADMIN = Bytes.fromHexString("0xceef0c25ed6578df50c5ed05e86b9a2fbef843ddc8e477a6712c47ac29939361");
+
+export function handleInitialized(event: Initialized): void {
+  let settings = ensureRelease();
+  settings.etsAccessControls = event.address.toHexString();
+  settings.etsAccessControlsVersion = BigInt.fromI32(event.params.version);
+  settings.etsAccessControlsVersionDate = event.block.timestamp;
+  settings.save();
+}
+
+export function handleUpgraded(event: Upgraded): void {}
+
+export function handlePlatformSet(event: PlatformSet): void {
+  let platform = ensurePlatform(event);
+  if (platform) {
+    platform.address = event.params.newAddress.toHexString();
+    platform.save();
+  }
+}
+
+export function handlePublisherAdded(event: PublisherAdded): void {
+  ensurePublisher(event.params.publisher, event);
+}
+
+export function handlePublisherToggled(event: PublisherPauseToggled): void {
+  let publisher = ensurePublisher(event.params.publisher, event);
+  if (publisher) {
+    publisher.pausedByProtocol = !publisher.pausedByProtocol;
+    publisher.save();
+  }
+}
 
 export function handleRoleGranted(event: RoleGranted): void {
   if (event.params.role.equals(DEFAULT_ADMIN_ROLE)) {
-    let administrator = ensureAdministrator(
-      event.params.account.toHexString(),
-      event
-    );
-    // Not sure we need to save here as new publisher is saved via ensurePublisher.
-    if (administrator) {
-      administrator.save();
-    }
+    ensureAdministrator(event.params.account, event);
   }
+
   if (event.params.role.equals(PUBLISHER_ROLE_ADMIN)) {
-    let publisherAdmin = ensurePublisherAdmin(
-      event.params.account.toHexString(),
-      event
-    );
-    if (publisherAdmin) {
-      publisherAdmin.save();
-    }
-  }
-  if (event.params.role.equals(PUBLISHER_ROLE)) {
-    let publisher = ensurePublisher(event.params.account.toHexString(), event);
-    if (publisher) {
-      publisher.save();
-    }
+    ensurePublisherAdmin(event.params.account, event);
   }
 }
 
 export function handleRoleRevoked(event: RoleRevoked): void {
   if (event.params.role.equals(DEFAULT_ADMIN_ROLE)) {
-    let administrator = ensureAdministrator(
-      event.params.account.toHexString(),
-      event
-    );
+    let administrator = ensureAdministrator(event.params.account, event);
     if (administrator) {
       store.remove("Administrator", administrator.id);
     }
   }
   if (event.params.role.equals(PUBLISHER_ROLE_ADMIN)) {
-    let publisherAdmin = ensurePublisherAdmin(
-      event.params.account.toHexString(),
-      event
-    );
+    let publisherAdmin = ensurePublisherAdmin(event.params.account, event);
     if (publisherAdmin) {
       store.remove("PublisherAdmin", publisherAdmin.id);
     }
-  }
-  if (event.params.role.equals(PUBLISHER_ROLE)) {
-    let publisher = ensurePublisher(event.params.account.toHexString(), event);
-    if (publisher) {
-      store.remove("Publisher", publisher.id);
-    }
-  }
-}
-
-export function handlePlatformSet(event: PlatformSet): void {
-  //Fetch current platform address
-  let prevPlatform = ensurePlatform(
-    event.params.prevAddress.toHexString(),
-    event
-  );
-  if (prevPlatform) {
-    store.remove("Platform", prevPlatform.id);
-  }
-  let platform = ensurePlatform(event.params.newAddress.toHexString(), event);
-  if (platform) {
-    platform.save();
-  }
-}
-
-export function handleTargetTaggerAdded(event: TargetTaggerAdded): void {
-  let targetTagger = ensureTargetTagger(
-    event.params.targetTagger.toHexString(),
-    event
-  );
-  if (targetTagger) {
-    targetTagger.save();
   }
 }

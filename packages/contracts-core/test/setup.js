@@ -41,7 +41,7 @@ async function getArtifacts() {
     ETSEnrichTarget: artifacts.readArtifactSync("ETSEnrichTarget"),
     ETSAuctionHouse: artifacts.readArtifactSync("ETSAuctionHouse"),
     ETS: artifacts.readArtifactSync("ETS"),
-    ETSTargetTagger: artifacts.readArtifactSync("ETSTargetTagger"),
+    ETSPublisher: artifacts.readArtifactSync("ETSPublisher"),
     /// .sol test contracts.
     ETSAccessControlsUpgrade: artifacts.readArtifactSync("ETSAccessControlsUpgrade"),
     ETSTokenUpgrade: artifacts.readArtifactSync("ETSTokenUpgrade"),
@@ -61,7 +61,7 @@ async function getFactories() {
     ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
     ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
     ETS: await ethers.getContractFactory("ETS"),
-    ETSTargetTagger: await ethers.getContractFactory("ETSTargetTagger"),
+    ETSPublisher: await ethers.getContractFactory("ETSPublisher"),
     /// .sol test contracts.
     WMATIC: await ethers.getContractFactory("WMATIC"),
     ETSAccessControlsUpgrade: await ethers.getContractFactory("ETSAccessControlsUpgrade"),
@@ -87,7 +87,7 @@ async function setup() {
     ETSTarget: await ethers.getContractFactory("ETSTarget"),
     ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
     ETS: await ethers.getContractFactory("ETS"),
-    ETSTargetTagger: await ethers.getContractFactory("ETSTargetTagger"),
+    ETSPublisher: await ethers.getContractFactory("ETSPublisher"),
   };
 
   // ============ SETUP TEST ACCOUNTS ============
@@ -106,7 +106,9 @@ async function setup() {
   // ============ DEPLOY CONTRACTS ============
 
   const WMATIC = await factories.WMATIC.deploy();
-  const ETSAccessControls = await upgrades.deployProxy(factories.ETSAccessControls, [], {kind: "uups"});
+  const ETSAccessControls = await upgrades.deployProxy(factories.ETSAccessControls, [accounts.ETSPlatform.address], {
+    kind: "uups",
+  });
 
   const ETSToken = await upgrades.deployProxy(
     factories.ETSToken,
@@ -130,7 +132,6 @@ async function setup() {
       initSettings.MIN_INCREMENT_BID_PERCENTAGE,
       initSettings.DURATION,
       initSettings.PUBLISHER_PERCENTAGE,
-      initSettings.CREATOR_PERCENTAGE,
       initSettings.PLATFORM_PERCENTAGE,
     ],
     {kind: "uups"},
@@ -163,7 +164,7 @@ async function setup() {
 
   // Deploy a target tagger with accounts.Creator as the creator/deployer and accounts.RandomTwo as the owner
   // This will simulate a third-party deploying their own Target Tagger.
-  const ETSTargetTagger = await factories.ETSTargetTagger.deploy(
+  const ETSPublisher = await factories.ETSPublisher.deploy(
     ETS.address,
     ETSToken.address,
     ETSTarget.address,
@@ -179,7 +180,7 @@ async function setup() {
     ETSTarget: ETSTarget,
     ETSEnrichTarget: ETSEnrichTarget,
     ETS: ETS,
-    ETSTargetTagger: ETSTargetTagger,
+    ETSPublisher: ETSPublisher,
   };
 
   // ============ GRANT ROLES & APPROVALS ============
@@ -189,33 +190,34 @@ async function setup() {
   });
 
   // Set Core Dev Team address as "platform" address. In production this will be a multisig.
-  await ETSAccessControls.setPlatform(accounts.ETSPlatform.address);
+  //await ETSAccessControls.setPlatform(accounts.ETSPlatform.address);
 
   // Grant DEFAULT_ADMIN_ROLE to platform address. This platform address full administrator privileges.
-  await ETSAccessControls.grantRole(await ETSAccessControls.DEFAULT_ADMIN_ROLE(), accounts.ETSPlatform.address);
-
-  // Grant PUBLISHER role to platform, cause sometimes the platform will act as publisher.
-  await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER"), accounts.ETSPlatform.address);
+  // await ETSAccessControls.grantRole(await ETSAccessControls.DEFAULT_ADMIN_ROLE(), accounts.ETSPlatform.address);
 
   // Set PUBLISHER role admin role. Contracts or addresses given PUBLISHER_ADMIN role can grant PUBLISHER role.
-  await ETSAccessControls.setRoleAdmin(ethers.utils.id("PUBLISHER"), ethers.utils.id("PUBLISHER_ADMIN"));
+  //await ETSAccessControls.setRoleAdmin(ethers.utils.id("PUBLISHER"), ethers.utils.id("PUBLISHER_ADMIN"));
 
-  // Grant PUBLISHER_ADMIN role to ETSAccessControls contract so it can grant publisher role all on its own.
-  await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), ETSAccessControls.address);
+  // Grant PUBLISHER_ADMIN role to ETSPlatform so it can grant publisher role all on its own.
+  // await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), accounts.ETSPlatform.address);
 
-  // Grant PUBLISHER role to platform, cause sometimes the platform will act as publisher.
-  await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), accounts.ETSPlatform.address);
+  // Add & unpause ETSPublisher as a Publisher contract.
+  await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
+    contracts.ETSPublisher.address,
+    await contracts.ETSPublisher.getPublisherName(),
+  );
+
+  await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsPublisherPaused(
+    contracts.ETSPublisher.address,
+  );
 
   await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(ETSEnrichTarget.address);
 
   // Approve auction house contract to move tokens owned by platform.
   await ETSToken.connect(accounts.ETSPlatform).setApprovalForAll(ETSAuctionHouse.address, true);
 
-  // Add & Enable ETSTargetTagger as a Target Tagger.
-  //await ETSAccessControls.connect(accounts.ETSPlatform).addTargetTagger(
-  //  ETSTargetTagger.address,
-  //  await ETSTargetTagger.getTaggerName(),
-  //);
+  // Set ETS Core on ETSToken.
+  await ETSToken.connect(accounts.ETSPlatform).setETSCore(ETS.address);
 
   return [accounts, contracts, initSettings];
 }

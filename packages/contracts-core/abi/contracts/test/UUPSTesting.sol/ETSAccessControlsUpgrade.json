@@ -67,6 +67,38 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "address",
+        "name": "publisher",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isAdmin",
+        "type": "bool"
+      }
+    ],
+    "name": "PublisherAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "publisher",
+        "type": "address"
+      }
+    ],
+    "name": "PublisherPauseToggled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "bytes32",
         "name": "role",
@@ -136,45 +168,6 @@
       }
     ],
     "name": "RoleRevoked",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "targetTagger",
-        "type": "address"
-      }
-    ],
-    "name": "TargetTaggerAdded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "taggerAddress",
-        "type": "address"
-      }
-    ],
-    "name": "TargetTaggerPauseToggled",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "targetTagger",
-        "type": "address"
-      }
-    ],
-    "name": "TargetTaggerRemoved",
     "type": "event"
   },
   {
@@ -259,7 +252,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_taggerAddress",
+        "name": "_publisher",
         "type": "address"
       },
       {
@@ -268,7 +261,7 @@
         "type": "string"
       }
     ],
-    "name": "addTargetTagger",
+    "name": "addPublisher",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -348,7 +341,13 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_platformAddress",
+        "type": "address"
+      }
+    ],
     "name": "initialize",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -419,7 +418,7 @@
         "type": "address"
       }
     ],
-    "name": "isSmartContract",
+    "name": "isPublisherAndNotPaused",
     "outputs": [
       {
         "internalType": "bool",
@@ -438,26 +437,7 @@
         "type": "address"
       }
     ],
-    "name": "isTargetTaggerAndNotPaused",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_addr",
-        "type": "address"
-      }
-    ],
-    "name": "isTargetTaggerByAddress",
+    "name": "isPublisherByAddress",
     "outputs": [
       {
         "internalType": "bool",
@@ -476,7 +456,7 @@
         "type": "string"
       }
     ],
-    "name": "isTargetTaggerByName",
+    "name": "isPublisherByName",
     "outputs": [
       {
         "internalType": "bool",
@@ -495,7 +475,26 @@
         "type": "address"
       }
     ],
-    "name": "isTargetTaggerPaused",
+    "name": "isPublisherPaused",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_addr",
+        "type": "address"
+      }
+    ],
+    "name": "isSmartContract",
     "outputs": [
       {
         "internalType": "bool",
@@ -523,13 +522,38 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_taggerAddress",
+        "name": "",
         "type": "address"
       }
     ],
-    "name": "removeTargetTagger",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "name": "publisherContractToName",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "name": "publisherNameToContract",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -622,49 +646,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "_publisher",
         "type": "address"
       }
     ],
-    "name": "targetTaggerContractToName",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "name": "targetTaggerNameToContract",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_taggerAddress",
-        "type": "address"
-      }
-    ],
-    "name": "toggleIsTargetTaggerPaused",
+    "name": "toggleIsPublisherPaused",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

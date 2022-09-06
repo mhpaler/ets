@@ -8,7 +8,7 @@ module.exports = async ({deployments}) => {
   [accounts, factories, initSettings] = await setup();
 
   // Deploy ETS Access Controls.
-  const deployment = await upgrades.deployProxy(factories.ETSAccessControls, [], {
+  const deployment = await upgrades.deployProxy(factories.ETSAccessControls, [accounts.ETSPlatform.address], {
     kind: "uups",
     pollingInterval: 3000,
     timeout: 0,

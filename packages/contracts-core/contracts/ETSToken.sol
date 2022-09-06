@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
+import "./interfaces/IETS.sol";
 import "./interfaces/IETSToken.sol";
 import "./interfaces/IETSAccessControls.sol";
 import "./utils/StringHelpers.sol";
@@ -38,6 +39,7 @@ contract ETSToken is
     using AddressUpgradeable for address;
     using StringsUpgradeable for uint256;
 
+    IETS public ets;
     IETSAccessControls public etsAccessControls;
 
     // Public constants
@@ -58,6 +60,10 @@ contract ETSToken is
     mapping(string => bool) public isTagPremium;
 
     /// Modifiers
+    modifier onlyETSCore() {
+        require(_msgSender() == address(ets), "Caller is not ETS core");
+        _;
+    }
 
     modifier onlyAdmin() {
         require(etsAccessControls.isAdmin(_msgSender()), "Caller must have administrator access");
@@ -102,7 +108,19 @@ contract ETSToken is
     // ============ OWNER INTERFACE ============
 
     /**
-     * @notice Sets ETSAccessControls on the ETSTarget contract so functions can be
+     * @notice Sets ETS core on the ETSToken contract so functions can be
+     * restricted to ETS platform only.
+     *
+     * @param _ets Address of ETS contract.
+     */
+    function setETSCore(IETS _ets) public onlyAdmin {
+        require(address(_ets) != address(0), "Address cannot be zero");
+        ets = _ets;
+        emit ETSCoreSet(address(ets));
+    }
+
+    /**
+     * @notice Sets ETSAccessControls on the ETSToken contract function calls can be
      * restricted to ETS platform only. Note: Caller of this function must be deployer
      * or pre-set as admin of new contract.
      *
@@ -186,31 +204,37 @@ contract ETSToken is
 
     // ============ PUBLIC INTERFACE ============
 
-    function getOrCreateTag(string calldata _tag, address payable _creator) public payable returns (Tag memory tag) {
+    function getOrCreateTag(
+        string calldata _tag,
+        address payable _publisher,
+        address payable _creator
+    ) public payable returns (Tag memory tag) {
         uint256 tokenId = computeTagId(_tag);
         if (!tagExistsById(tokenId)) {
-            tokenId = createTag(_tag, _creator);
+            tokenId = createTag(_tag, _publisher, _creator);
         }
         return tokenIdToTag[tokenId];
     }
 
     /// @inheritdoc IETSToken
-    function getOrCreateTagId(string calldata _tag, address payable _creator) public payable returns (uint256 tokenId) {
+    function getOrCreateTagId(
+        string calldata _tag,
+        address payable _publisher,
+        address payable _creator
+    ) public payable returns (uint256 tokenId) {
         uint256 _tokenId = computeTagId(_tag);
         if (!tagExistsById(_tokenId)) {
-            _tokenId = createTag(_tag, _creator);
+            _tokenId = createTag(_tag, _publisher, _creator);
         }
         return _tokenId;
     }
 
     /// @inheritdoc IETSToken
-    function createTag(string calldata _tag, address payable _creator)
-        public
-        payable
-        nonReentrant
-        onlyPublisher
-        returns (uint256 _tokenId)
-    {
+    function createTag(
+        string calldata _tag,
+        address payable _publisher,
+        address payable _creator
+    ) public payable nonReentrant onlyETSCore returns (uint256 _tokenId) {
         // Perform basic tag string validation.
         uint256 tagId = _assertTagIsValid(_tag);
 
@@ -220,7 +244,7 @@ contract ETSToken is
         // Store CTAG data in state.
         tokenIdToTag[tagId] = Tag({
             display: _tag,
-            publisher: _msgSender(),
+            publisher: _publisher,
             creator: _creator,
             premium: isTagPremium[__lower(_tag)],
             reserved: isTagPremium[__lower(_tag)]

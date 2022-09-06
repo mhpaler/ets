@@ -3,6 +3,7 @@ task("createTag", "Create a tag")
   .setAction(async (taskArgs) => {
     const {getAccounts} = require("../test/setup.js");
     const config = require("../config/config.json");
+    const ETSABI = require("../abi/contracts/ETS.sol/ETS.json");
     const ETSTokenABI = require("../abi/contracts/ETSToken.sol/ETSToken.json");
     const ETSAccessControlsABI = require("../abi/contracts/ETSAccessControls.sol/ETSAccessControls.json");
     const chainId = hre.network.config.chainId;
@@ -19,16 +20,18 @@ task("createTag", "Create a tag")
     const ETSTokenAddress = config[chainId].contracts.ETSToken.address;
     const etsToken = new ethers.Contract(ETSTokenAddress, ETSTokenABI, accounts.ETSPlatform);
 
-    console.log(`Minting "${taskArgs.tag}" at ${ETSTokenAddress}`);
+    const ETSAddress = config[chainId].contracts.ETS.address;
+    const ets = new ethers.Contract(ETSAddress, ETSABI, accounts.ETSPlatform);
+
+    console.log(`Minting "${taskArgs.tag}" at ${ETSAddress}`);
     const tagId = await etsToken.computeTagId(taskArgs.tag);
 
-    if (await etsToken["tagExists(uint256)"](tagId)) {
+    if (await etsToken.tagExistsById(tagId)) {
       console.log("Tag already exists with ID: ", tagId.toString());
     } else {
-      const tx = await etsToken.connect(accounts.Buyer).createTag(taskArgs.tag, accounts.ETSPlatform.address);
+      const tx = await ets.createTag(taskArgs.tag, accounts.Buyer.address);
       await tx.wait();
-      const tagId = await etsToken.computeTagId(taskArgs.tag);
-      if (await etsToken["tagExists(uint256)"](tagId)) {
+      if (await etsToken.tagExistsById(tagId)) {
         console.log("Tag minted with ID: ", tagId.toString());
       }
     }

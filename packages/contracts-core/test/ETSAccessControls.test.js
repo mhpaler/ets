@@ -5,6 +5,17 @@ const {expect} = require("chai");
 describe("ETSAccessControls Tests", function () {
   beforeEach("Setup test", async function () {
     [accounts, contracts, initSettings] = await setup();
+
+    // ETSPublisher is deployed globally for all tests,
+    // so let's deploy a mock for testing access controls.
+    PublisherMock = await ethers.getContractFactory("PublisherMock", accounts.RandomOne);
+    publisherMock = await PublisherMock.deploy(
+      contracts.ETS.address,
+      contracts.ETSToken.address,
+      contracts.ETSTarget.address,
+      accounts.RandomOne.address, // creator
+      accounts.RandomTwo.address, // transfer to (new owner)
+    );
   });
 
   describe("Valid setup/initialization", async function () {
@@ -20,10 +31,6 @@ describe("ETSAccessControls Tests", function () {
       expect(await contracts.ETSAccessControls.isAdmin(accounts.ETSPlatform.address)).to.be.equal(true);
     });
 
-    it("grants ETSPlatform the PUBLISHER role", async function () {
-      expect(await contracts.ETSAccessControls.isPublisher(accounts.ETSPlatform.address)).to.be.equal(true);
-    });
-
     it("sets PUBLISHER_ADMIN as the role that can administer PUBLISHER role.", async () => {
       expect(await contracts.ETSAccessControls.getRoleAdmin(ethers.utils.id("PUBLISHER"))).to.be.equal(
         await ethers.utils.id("PUBLISHER_ADMIN"),
@@ -31,129 +38,145 @@ describe("ETSAccessControls Tests", function () {
     });
   });
 
-  describe("Only administrator", async function () {
-    it("can set Platform address", async function () {
+  describe("Platform address", async function () {
+    it("can only be set by administrator", async function () {
       await expect(contracts.ETSAccessControls.connect(accounts.Buyer).setPlatform(accounts.RandomOne.address)).to.be
         .reverted;
 
       await contracts.ETSAccessControls.connect(accounts.ETSPlatform).setPlatform(accounts.RandomOne.address);
       expect(await contracts.ETSAccessControls.getPlatformAddress()).to.be.equal(accounts.RandomOne.address);
     });
+  });
 
-    it("can add a Target Tagger", async function () {
+  describe("New publishers", async function () {
+    it("can only be added by PUBLISHER_ROLE_ADMIN role.", async () => {
+      // accounts.RandomOne tries to add Publisher.
       await expect(
-        contracts.ETSAccessControls.connect(accounts.Buyer).addTargetTagger(
-          contracts.ETSTargetTagger.address,
-          await contracts.ETSTargetTagger.getTaggerName(),
+        contracts.ETSAccessControls.connect(accounts.RandomOne).addPublisher(
+          publisherMock.address,
+          await publisherMock.getPublisherName(),
         ),
       ).to.be.reverted;
 
-      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addTargetTagger(
-        contracts.ETSTargetTagger.address,
-        await contracts.ETSTargetTagger.getTaggerName(),
+      const tx = await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
+        publisherMock.address,
+        await publisherMock.getPublisherName(),
+      );
+      await expect(tx).to.emit(contracts.ETSAccessControls, "PublisherAdded").withArgs(publisherMock.address, false);
+    });
+
+    it("can be a wallet address if that address has ETSAdministrator role", async () => {
+      // Having a wallet as a publisher is ONLY for making testing core functions easier.
+      await expect(
+        contracts.ETSAccessControls.connect(accounts.RandomOne).addPublisher(accounts.RandomOne.address, "RandomOne"),
+      ).to.be.reverted;
+
+      // RandomOne wallet MUST have PUBLISHER_ROLE_ADMIN in order to be added as publisher.
+      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).grantRole(
+        await contracts.ETSAccessControls.PUBLISHER_ROLE_ADMIN(),
+        accounts.RandomOne.address,
       );
 
-      expect(await contracts.ETSAccessControls.isTargetTaggerByAddress(contracts.ETSTargetTagger.address)).to.be.equal(
+      // RandomOne adds itself as a publisher.
+      const tx = await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
+        accounts.RandomOne.address,
+        "RandomOne",
+      );
+      await expect(tx)
+        .to.emit(contracts.ETSAccessControls, "PublisherAdded")
+        .withArgs(accounts.RandomOne.address, true);
+    });
+
+    it("are paused when added", async () => {
+      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
+        publisherMock.address,
+        await publisherMock.getPublisherName(),
+      );
+
+      expect(await contracts.ETSAccessControls.isPublisherAndNotPaused(contracts.ETSPublisher.address)).to.be.equal(
         true,
       );
     });
 
-    it("can pause/unpause a Target Tagger via ETSAccessControls", async function () {
-      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addTargetTagger(
-        contracts.ETSTargetTagger.address,
-        await contracts.ETSTargetTagger.getTaggerName(),
-      );
+    it("must implement IETSPublisher interface.", async () => {
+      // Trying to add wallet address as publisher.
+      await expect(
+        contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
+          contracts.ETSPublisher.address,
+          await contracts.ETSPublisher.getPublisherName(),
+        ),
+      ).to.be.reverted;
+    });
 
-      expect(
-        await contracts.ETSAccessControls.isTargetTaggerAndNotPaused(contracts.ETSTargetTagger.address),
-      ).to.be.equal(true);
+    it("must have unique address.", async () => {
+      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
+        publisherMock.address,
+        await publisherMock.getPublisherName(),
+      );
 
       await expect(
-        contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsTargetTaggerPaused(
-          contracts.ETSTargetTagger.address,
+        contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
+          contracts.ETSPublisher.address,
+          await contracts.ETSPublisher.getPublisherName(),
         ),
-      )
-        .to.emit(contracts.ETSAccessControls, "TargetTaggerPauseToggled")
-        .withArgs(contracts.ETSTargetTagger.address);
+      ).to.be.revertedWith("Publisher exists");
+    });
 
-      expect(
-        await contracts.ETSAccessControls.isTargetTaggerAndNotPaused(contracts.ETSTargetTagger.address),
-      ).to.be.equal(false);
-
-      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsTargetTaggerPaused(
-        contracts.ETSTargetTagger.address,
+    it("can be paused/unpaused by Administrator", async () => {
+      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
+        publisherMock.address,
+        await publisherMock.getPublisherName(),
       );
+      // Try unpausing by non-administrator account.
+      await expect(
+        contracts.ETSAccessControls.connect(accounts.RandomOne).toggleIsPublisherPaused(publisherMock.address),
+      ).to.be.reverted;
 
-      expect(
-        await contracts.ETSAccessControls.isTargetTaggerAndNotPaused(contracts.ETSTargetTagger.address),
-      ).to.be.equal(true);
+      await expect(
+        contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsPublisherPaused(publisherMock.address),
+      )
+        .to.emit(contracts.ETSAccessControls, "PublisherPauseToggled")
+        .withArgs(publisherMock.address);
+
+      expect(await contracts.ETSAccessControls.isPublisherAndNotPaused(publisherMock.address)).to.be.equal(true);
+
+      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsPublisherPaused(publisherMock.address);
+      expect(await contracts.ETSAccessControls.isPublisherAndNotPaused(publisherMock.address)).to.be.equal(false);
     });
   });
 
-  describe("Third party Target Taggers", async () => {
+  describe("Active publisher contracts", async () => {
     beforeEach("Setup test", async () => {
-      TargetTaggerMock = await ethers.getContractFactory("TargetTaggerMock", accounts.RandomOne);
-      targetTaggerMock = await TargetTaggerMock.deploy(
-        contracts.ETS.address,
-        contracts.ETSToken.address,
-        contracts.ETSTarget.address,
-        accounts.RandomOne.address, // creator
-        accounts.RandomTwo.address, // transfer to (new owner)
+      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
+        publisherMock.address,
+        "PublisherMock",
+      );
+      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsPublisherPaused(publisherMock.address);
+    });
+    it("can be verified by address", async () => {
+      expect(await contracts.ETSAccessControls.isPublisherByAddress(publisherMock.address)).to.be.equal(true);
+      expect(await contracts.ETSAccessControls.isPublisher(publisherMock.address)).to.be.equal(true);
+    });
+    it("can be verified by name", async () => {
+      expect(await contracts.ETSAccessControls.isPublisherByName("PublisherMock")).to.be.equal(true);
+    });
+    it("can be paused & unpaused by Owner", async () => {
+      expect(await publisherMock.paused()).to.be.equal(false);
+      expect(await publisherMock.isPausedByOwner()).to.be.equal(false);
+
+      // Try pausing as non-owner (eg. ETSPlatform)
+      await expect(publisherMock.connect(accounts.ETSPlatform).pause()).to.be.revertedWith(
+        "Ownable: caller is not the owner",
       );
 
-      const tx = await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addTargetTagger(
-        targetTaggerMock.address,
-        "TargetTaggerMock",
-      );
+      // Now pause as the owner
+      await expect(publisherMock.connect(accounts.RandomTwo).pause())
+        .to.emit(publisherMock, "Paused")
+        .withArgs(accounts.RandomTwo.address);
 
-      // Would be nice to test RoleGranted emission, but another time
-      // We check that it's set below.
-      // const receipt = await tx.wait();
-      //
-      // for (const event of receipt.events) {
-      //   console.log(`Event ${event.event} with args ${event.args}`);
-      //   if (event.event == "RoleGranted") {
-      //
-      //   }
-      // }
-      await expect(tx).to.emit(contracts.ETSAccessControls, "TargetTaggerAdded").withArgs(targetTaggerMock.address);
-      expect(await contracts.ETSAccessControls.isTargetTaggerByAddress(targetTaggerMock.address)).to.be.equal(true);
-      expect(await contracts.ETSAccessControls.isPublisher(targetTaggerMock.address)).to.be.equal(true);
-    });
-    it("Can be verified by address", async () => {
-      expect(await contracts.ETSAccessControls.isTargetTaggerByAddress(targetTaggerMock.address)).to.be.equal(true);
-    });
-    it("Can be verified by name", async () => {
-      expect(await contracts.ETSAccessControls.isTargetTaggerByName("TargetTaggerMock")).to.be.equal(true);
-    });
-    it("Can be paused & unpaused by ETS", async () => {
-      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsTargetTaggerPaused(
-        await contracts.ETSAccessControls.targetTaggerNameToContract("TargetTaggerMock"),
-      );
-
-      expect(
-        await contracts.ETSAccessControls.isTargetTaggerAndNotPaused(
-          await contracts.ETSAccessControls.targetTaggerNameToContract("TargetTaggerMock"),
-        ),
-      ).to.be.equal(false);
-      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsTargetTaggerPaused(
-        await contracts.ETSAccessControls.targetTaggerNameToContract("TargetTaggerMock"),
-      );
-
-      expect(
-        await contracts.ETSAccessControls.isTargetTaggerAndNotPaused(
-          await contracts.ETSAccessControls.targetTaggerNameToContract("TargetTaggerMock"),
-        ),
-      ).to.be.equal(true);
-    });
-    it("Can be removed by ETS", async () => {
-      const tx = await contracts.ETSAccessControls.connect(accounts.ETSPlatform).removeTargetTagger(
-        targetTaggerMock.address,
-      );
-      await expect(tx).to.emit(contracts.ETSAccessControls, "TargetTaggerRemoved").withArgs(targetTaggerMock.address);
-      expect(await contracts.ETSAccessControls.isTargetTaggerByAddress(targetTaggerMock.address)).to.be.equal(false);
-      expect(await contracts.ETSAccessControls.isTargetTaggerByName("TargetTaggerMock")).to.be.equal(false);
-      expect(await contracts.ETSAccessControls.isPublisher(targetTaggerMock.address)).to.be.equal(false);
+      await expect(publisherMock.connect(accounts.RandomTwo).unpause())
+        .to.emit(publisherMock, "Unpaused")
+        .withArgs(accounts.RandomTwo.address);
     });
   });
 });

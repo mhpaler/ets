@@ -17,15 +17,25 @@ describe("ETS Auction House Tests", function () {
   beforeEach("Setup test", async function () {
     [accounts, contracts, initSettings] = await setup();
 
+    // Add & unpause ETSPlatform as a Publisher.
+    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
+      accounts.ETSPlatform.address,
+      "ETSPlatform",
+    );
+
+    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsPublisherPaused(
+      accounts.ETSPlatform.address,
+    );
+
     // Mint a tag by random user. ETS is Publisher, retained by platform.
     etsOwnedTag = "#Love";
-    await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(etsOwnedTag, accounts.RandomTwo.address);
+    await contracts.ETS.connect(accounts.ETSPlatform).createTag(etsOwnedTag, accounts.RandomTwo.address);
     etsOwnedTagId = await contracts.ETSToken.computeTagId(etsOwnedTag);
     etsOwnedTagId = etsOwnedTagId.toString();
 
     // Mint a tag and transfer away from platform.
     userOwnedTag = "#Incredible";
-    await contracts.ETSToken.connect(accounts.ETSPlatform).createTag(userOwnedTag, accounts.RandomTwo.address);
+    await contracts.ETS.connect(accounts.ETSPlatform).createTag(userOwnedTag, accounts.RandomTwo.address);
     userOwnedTagId = await contracts.ETSToken.computeTagId(userOwnedTag);
     userOwnedTagId = userOwnedTagId.toString();
 
@@ -47,7 +57,7 @@ describe("ETS Auction House Tests", function () {
 
     it("should revert if a second initialization is attempted", async () => {
       const tx = contracts.ETSAuctionHouse.initialize(
-        contracts.ETSAuctionHouse.address,
+        contracts.ETSToken.address,
         contracts.ETSAccessControls.address,
         contracts.WMATIC.address,
         initSettings.TIME_BUFFER,
@@ -55,7 +65,6 @@ describe("ETS Auction House Tests", function () {
         initSettings.MIN_INCREMENT_BID_PERCENTAGE,
         initSettings.DURATION,
         initSettings.PUBLISHER_PERCENTAGE,
-        initSettings.CREATOR_PERCENTAGE,
         initSettings.PLATFORM_PERCENTAGE,
       );
       await expect(tx).to.be.revertedWith("Initializable: contract is already initialized");

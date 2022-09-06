@@ -107,7 +107,6 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         uint8 _minBidIncrementPercentage,
         uint256 _duration,
         uint256 _publisherPercentage,
-        uint256 _creatorPercentage,
         uint256 _platformPercentage
     ) external initializer {
         __Pausable_init();
@@ -116,13 +115,11 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         etsToken = _etsToken;
         etsAccessControls = _etsAccessControls;
         wmatic = _wmatic;
-        timeBuffer = _timeBuffer; // 5 * 60 = extend 5 minutes after every bid made in last 15 minutes
-        reservePrice = _reservePrice;
-        minBidIncrementPercentage = _minBidIncrementPercentage; // 5
-        duration = _duration;
-        publisherPercentage = _publisherPercentage;
-        creatorPercentage = _creatorPercentage;
-        platformPercentage = _platformPercentage;
+        setMinBidIncrementPercentage(_minBidIncrementPercentage);
+        setDuration(_duration);
+        setReservePrice(_reservePrice);
+        setTimeBuffer(_timeBuffer);
+        setProceedPercentages(_platformPercentage, _publisherPercentage);
     }
 
     function _authorizeUpgrade(address) internal override onlyAdmin {}
@@ -135,6 +132,16 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
 
     function unpause() public onlyAdmin {
         _unpause();
+    }
+
+    function setDuration(uint256 _duration) public onlyAdmin {
+        duration = _duration;
+        emit AuctionDurationSet(_duration);
+    }
+
+    function setMinBidIncrementPercentage(uint8 _minBidIncrementPercentage) public onlyAdmin {
+        minBidIncrementPercentage = _minBidIncrementPercentage;
+        emit AuctionMinBidIncrementPercentageSet(_minBidIncrementPercentage);
     }
 
     function setReservePrice(uint256 _reservePrice) public onlyAdmin {

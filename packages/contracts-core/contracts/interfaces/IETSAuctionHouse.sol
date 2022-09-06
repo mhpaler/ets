@@ -36,6 +36,10 @@ interface IETSAuctionHouse {
         uint256 creatorProceeds
     );
 
+    event AuctionDurationSet(uint256 duration);
+
+    event AuctionMinBidIncrementPercentageSet(uint8 minBidIncrementPercentagePrice);
+
     event AuctionReservePriceSet(uint256 reservePrice);
 
     event AuctionTimeBufferSet(uint256 timeBuffer);
