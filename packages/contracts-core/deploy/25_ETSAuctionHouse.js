@@ -42,7 +42,6 @@ module.exports = async ({getChainId, deployments}) => {
       initSettings.MIN_INCREMENT_BID_PERCENTAGE,
       initSettings.DURATION,
       initSettings.PUBLISHER_PERCENTAGE,
-      initSettings.CREATOR_PERCENTAGE,
       initSettings.PLATFORM_PERCENTAGE,
     ],
     {kind: "uups", pollingInterval: 3000, timeout: 0},

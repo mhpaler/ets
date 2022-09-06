@@ -98,7 +98,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         etsAccessControls = _etsAccessControls;
         etsToken = _etsToken;
         etsTarget = _etsTarget;
-        taggingFee = _taggingFee;
+        setTaggingFee(_taggingFee);
         setPercentages(_platformPercentage, _publisherPercentage);
     }
 

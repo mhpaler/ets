@@ -106,7 +106,9 @@ async function setup() {
   // ============ DEPLOY CONTRACTS ============
 
   const WMATIC = await factories.WMATIC.deploy();
-  const ETSAccessControls = await upgrades.deployProxy(factories.ETSAccessControls, [], {kind: "uups"});
+  const ETSAccessControls = await upgrades.deployProxy(factories.ETSAccessControls, [accounts.ETSPlatform.address], {
+    kind: "uups",
+  });
 
   const ETSToken = await upgrades.deployProxy(
     factories.ETSToken,
@@ -130,7 +132,6 @@ async function setup() {
       initSettings.MIN_INCREMENT_BID_PERCENTAGE,
       initSettings.DURATION,
       initSettings.PUBLISHER_PERCENTAGE,
-      initSettings.CREATOR_PERCENTAGE,
       initSettings.PLATFORM_PERCENTAGE,
     ],
     {kind: "uups"},
@@ -189,16 +190,16 @@ async function setup() {
   });
 
   // Set Core Dev Team address as "platform" address. In production this will be a multisig.
-  await ETSAccessControls.setPlatform(accounts.ETSPlatform.address);
+  //await ETSAccessControls.setPlatform(accounts.ETSPlatform.address);
 
   // Grant DEFAULT_ADMIN_ROLE to platform address. This platform address full administrator privileges.
-  await ETSAccessControls.grantRole(await ETSAccessControls.DEFAULT_ADMIN_ROLE(), accounts.ETSPlatform.address);
+  // await ETSAccessControls.grantRole(await ETSAccessControls.DEFAULT_ADMIN_ROLE(), accounts.ETSPlatform.address);
 
   // Set PUBLISHER role admin role. Contracts or addresses given PUBLISHER_ADMIN role can grant PUBLISHER role.
-  await ETSAccessControls.setRoleAdmin(ethers.utils.id("PUBLISHER"), ethers.utils.id("PUBLISHER_ADMIN"));
+  //await ETSAccessControls.setRoleAdmin(ethers.utils.id("PUBLISHER"), ethers.utils.id("PUBLISHER_ADMIN"));
 
   // Grant PUBLISHER_ADMIN role to ETSPlatform so it can grant publisher role all on its own.
-  await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), accounts.ETSPlatform.address);
+  // await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), accounts.ETSPlatform.address);
 
   // Add & unpause ETSPublisher as a Publisher contract.
   await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(

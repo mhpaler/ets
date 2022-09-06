@@ -44,7 +44,7 @@ task("applyTags", 'Tag a uri. eg: hh applyTags --tags "#another,#blah" --uri "ht
       tagParams,
       etsPublisher.address, // original publisher
       accounts.RandomOne.address, // original tagger
-      "apply",
+      0,
     );
 
     let {0: fee, 1: actualTagCount} = result;

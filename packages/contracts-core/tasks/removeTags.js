@@ -50,7 +50,7 @@ task(
       tagParams,
       etsPublisher.address, // original publisher
       accounts.RandomOne.address, // original tagger
-      "remove",
+      2,
     );
 
     let {0: fee, 1: actualTagCount} = result;

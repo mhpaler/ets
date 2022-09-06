@@ -118,7 +118,7 @@ interface IETS {
      * @param _tagIds Array of CTAG token Ids.
      * @param _targetId targetId of the URI being tagged. See ETSTarget.sol
      * @param _recordType Arbitrary identifier for type of tagging record.
-     * @param _tagger Address of that calling Publisher contract to create tagging record.
+     * @param _tagger Address calling Publisher contract to create tagging record.
      */
     function createTaggingRecord(
         uint256[] memory _tagIds,

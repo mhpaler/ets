@@ -1,38 +1,73 @@
-import { Address } from "@graphprotocol/graph-ts";
-import { Transfer, ETSToken } from "../generated/ETSToken/ETSToken";
-import { ONE } from "../utils/helpers";
-
+import { Address, BigInt } from "@graphprotocol/graph-ts";
+import {
+  Initialized,
+  Upgraded,
+  TagMaxStringLengthSet,
+  TagMinStringLengthSet,
+  OwnershipTermLengthSet,
+  ETSCoreSet,
+  AccessControlsSet,
+  PremiumTagPreSet,
+  PremiumFlagSet,
+  ReservedFlagSet,
+  TagRenewed,
+  TagRecycled,
+  Transfer,
+} from "../generated/ETSToken/ETSToken";
+import { ensureRelease } from "../entities/Release";
+import { ensureGlobalSettings } from "../entities/GlobalSettings";
 import { ensureTag } from "../entities/Tag";
-import { ensureOwner } from "../entities/Owner";
-import { ensurePublisher } from "../entities/Publisher";
-import { ensureCreator } from "../entities/Creator";
+import { updateOwnerTagStats } from "../entities/Owner";
+import { updatePublisherTagStats } from "../entities/Publisher";
+import { updateCreatorTagStats } from "../entities/Creator";
+import { updatePlatformTagStats } from "../entities/Platform";
 
-export function handleCreateTag(event: Transfer): void {
-  let tagEntity = ensureTag(event.params.tokenId.toString(), event);
-  tagEntity.save();
+export function handleInitialized(event: Initialized): void {
+  let settings = ensureRelease();
+  settings.etsToken = event.address.toHexString();
+  settings.etsTokenVersion = BigInt.fromI32(event.params.version);
+  settings.etsTokenVersionDate = event.block.timestamp;
+  settings.save();
+}
 
-  // publisher
-  let publisher = ensurePublisher(
-    Address.fromString(tagEntity.publisher),
-    event
-  );
+export function handleUpgraded(event: Upgraded): void {}
 
-  if (publisher) {
-    publisher.mintCount = publisher.mintCount.plus(ONE);
-    publisher.save();
-  }
+export function handleTagMaxStringLengthSet(event: TagMaxStringLengthSet): void {
+  let settings = ensureGlobalSettings();
+  settings.tagMaxStringLength = event.params.maxStringLength;
+  settings.save();
+}
 
-  let creator = ensureCreator(tagEntity.creator, event);
+export function handleTagMinStringLengthSet(event: TagMinStringLengthSet): void {
+  let settings = ensureGlobalSettings();
+  settings.tagMinStringLength = event.params.minStringLength;
+  settings.save();
+}
 
-  if (creator) {
-    creator.mintCount = creator.mintCount.plus(ONE);
-    creator.save();
-  }
+export function handleOwnershipTermLengthSet(event: OwnershipTermLengthSet): void {
+  let settings = ensureGlobalSettings();
+  settings.ownershipTermLength = event.params.termLength;
+  settings.save();
+}
 
-  let owner = ensureOwner(tagEntity.owner, event);
+export function handleETSCoreSet(event: ETSCoreSet): void {}
 
-  if (owner) {
-    owner.mintCount = owner.mintCount.plus(ONE);
-    owner.save();
-  }
+export function handleAccessControlsSet(event: AccessControlsSet): void {}
+
+export function handlePremiumTagPreSet(event: PremiumTagPreSet): void {}
+
+export function handlePremiumFlagSet(event: PremiumFlagSet): void {}
+
+export function handleReservedFlagSet(event: ReservedFlagSet): void {}
+
+export function handleTagRenewed(event: TagRenewed): void {}
+
+export function handleTagRecycled(event: TagRecycled): void {}
+
+export function handleTransfer(event: Transfer): void {
+  let tagEntity = ensureTag(event.params.tokenId, event);
+  updatePlatformTagStats(event);
+  updatePublisherTagStats(Address.fromString(tagEntity.publisher), event);
+  updateCreatorTagStats(Address.fromString(tagEntity.creator), event);
+  updateOwnerTagStats(event);
 }

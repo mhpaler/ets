@@ -71,6 +71,19 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "duration",
+        "type": "uint256"
+      }
+    ],
+    "name": "AuctionDurationSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "uint256",
         "name": "tokenId",
@@ -84,6 +97,19 @@
       }
     ],
     "name": "AuctionExtended",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "minBidIncrementPercentagePrice",
+        "type": "uint8"
+      }
+    ],
+    "name": "AuctionMinBidIncrementPercentageSet",
     "type": "event"
   },
   {
@@ -469,11 +495,6 @@
       },
       {
         "internalType": "uint256",
-        "name": "_creatorPercentage",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
         "name": "_platformPercentage",
         "type": "uint256"
       }
@@ -579,6 +600,32 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_duration",
+        "type": "uint256"
+      }
+    ],
+    "name": "setDuration",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "_minBidIncrementPercentage",
+        "type": "uint8"
+      }
+    ],
+    "name": "setMinBidIncrementPercentage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

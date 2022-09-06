@@ -45,11 +45,14 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
         _disableInitializers();
     }
 
-    function initialize() public initializer {
+    function initialize(address _platformAddress) public initializer {
         __AccessControl_init();
-        // Give default admin role to the deployer.
         // setupRole is should only be called within initialize().
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        _setRoleAdmin(PUBLISHER_ROLE, PUBLISHER_ROLE_ADMIN);
+        grantRole(DEFAULT_ADMIN_ROLE, _platformAddress);
+        grantRole(PUBLISHER_ROLE_ADMIN, _platformAddress);
+        setPlatform(payable(_platformAddress));
     }
 
     // Ensure that only addresses with admin role can upgrade.

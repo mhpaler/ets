@@ -1,26 +1,28 @@
+import { BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { Target } from "../generated/schema";
-import { ETSTarget, TargetCreated } from "../generated/ETSTarget/ETSTarget";
-import { ensureTargetType } from "../entities/TargetType";
+import { ETSTarget } from "../generated/ETSTarget/ETSTarget";
+import { getTargetType } from "../utils/getTargetType";
+import { getTargetTypeKeywords } from "../utils/getTargetTypeKeywords";
+import { logCritical } from "../utils/logCritical";
 
-export function ensureTarget(id: string, event: TargetCreated): Target {
-  let target = Target.load(id);
-
+export function ensureTarget(targetId: BigInt, event: ethereum.Event): Target {
+  let target = Target.load(targetId.toString());
   if (target === null && event) {
-    // Ensure the target type.
-    let targetContract = ETSTarget.bind(event.address);
-    let targetStruct = targetContract.getTargetById(event.params.targetId);
-    let targetURI = targetStruct.targetURI;
-    let targetType: string[] = ensureTargetType(id, targetURI, event);
+    let contract = ETSTarget.bind(event.address);
+    let targetCall = contract.try_getTargetById(targetId);
 
-    target = new Target(id);
+    if (targetCall.reverted) {
+      logCritical("getTargetById() reverted for {}", [targetId.toString()]);
+    }
+    target = new Target(targetId.toString());
     target.created = event.block.timestamp;
-    target.createdBy = targetStruct.createdBy.toHexString();
-    target.targetURI = targetStruct.targetURI;
-    target.enriched = targetStruct.enriched;
-    target.httpStatus = targetStruct.httpStatus;
-    target.metadataURI = targetStruct.ipfsHash;
-    target.targetType = targetType[0];
-    target.targetTypeKeywords = targetType;
+    target.createdBy = targetCall.value.createdBy.toHexString();
+    target.targetURI = targetCall.value.targetURI;
+    target.enriched = targetCall.value.enriched;
+    target.httpStatus = targetCall.value.httpStatus;
+    target.metadataURI = targetCall.value.ipfsHash;
+    target.targetType = getTargetType(target.targetURI);
+    target.targetTypeKeywords = getTargetTypeKeywords(target.targetURI);
     target.save();
   }
   return target as Target;

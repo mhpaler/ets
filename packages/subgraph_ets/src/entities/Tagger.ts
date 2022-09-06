@@ -1,22 +1,61 @@
 import { Tagger } from "../generated/schema";
-import { BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { ensureGlobalSettings } from "../entities/GlobalSettings";
+import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { ZERO, ONE, CREATE, APPEND, REMOVE } from "../utils/constants";
+import { arrayDiff } from "../utils/arrayDiff";
 
-export const ZERO = BigInt.fromI32(0);
-
-export function ensureTagger(
-  taggerAddress: string,
-  event: ethereum.Event
-): Tagger | null {
-  let tagger = Tagger.load(taggerAddress);
-
-  if (tagger === null) {
-    tagger = new Tagger(taggerAddress);
+export function ensureTagger(taggerAddress: Address, event: ethereum.Event): Tagger {
+  let tagger = Tagger.load(taggerAddress.toHex());
+  if (tagger === null && event) {
+    tagger = new Tagger(taggerAddress.toHex());
     tagger.firstSeen = event.block.timestamp;
-    tagger.tagCount = ZERO;
+    tagger.taggingRecordsCreated = ZERO;
+    tagger.taggingRecordTxns = ZERO;
+    tagger.tagsApplied = ZERO;
+    tagger.tagsRemoved = ZERO;
     tagger.feesPaid = ZERO;
-    tagger.tags = [];
     tagger.save();
   }
 
   return tagger as Tagger;
+}
+
+export function updateTaggerTaggingRecordStats(
+  taggerAddress: Address,
+  newTagIds: string[] | null,
+  previousTagIds: string[] | null,
+  action: BigInt,
+  event: ethereum.Event,
+): void {
+  let tagger = ensureTagger(taggerAddress, event);
+
+  // Log the transaction in tagger lifetime count regardless of action.
+  tagger.taggingRecordTxns = tagger.taggingRecordTxns.plus(ONE);
+
+  if (action == CREATE) {
+    tagger.taggingRecordsCreated = tagger.taggingRecordsCreated.plus(ONE);
+  }
+
+  if (newTagIds && previousTagIds) {
+    let settings = ensureGlobalSettings();
+
+    if (action == CREATE) {
+      tagger.tagsApplied = tagger.tagsApplied.plus(BigInt.fromI32(newTagIds.length));
+      tagger.feesPaid = tagger.feesPaid.plus(BigInt.fromI32(newTagIds.length).times(settings.taggingFee));
+    }
+
+    if (action == APPEND) {
+      // newTags - previousTags
+      let appendedTagIds = arrayDiff(newTagIds, previousTagIds);
+      tagger.tagsApplied = tagger.tagsApplied.plus(BigInt.fromI32(appendedTagIds.length));
+      tagger.feesPaid = tagger.feesPaid.plus(BigInt.fromI32(appendedTagIds.length).times(settings.taggingFee));
+    }
+
+    if (action == REMOVE) {
+      let removedTagIds = arrayDiff(previousTagIds, newTagIds);
+      tagger.tagsRemoved = tagger.tagsRemoved.plus(BigInt.fromI32(removedTagIds.length));
+    }
+  }
+
+  tagger.save();
 }
