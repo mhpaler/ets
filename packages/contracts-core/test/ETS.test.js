@@ -98,7 +98,11 @@ describe("ETS Core tests", function () {
 
     it("should revert if caller is not set as admin in contract being set.", async () => {
       factories = await getFactories();
-      const ETSAccessControlsNew = await upgrades.deployProxy(factories.ETSAccessControls, [], {kind: "uups"});
+      const ETSAccessControlsNew = await upgrades.deployProxy(
+        factories.ETSAccessControls,
+        [accounts.RandomOne.address],
+        {kind: "uups"},
+      );
 
       // ETS Platform is not set as admin in access controls.
       await expect(
@@ -108,7 +112,11 @@ describe("ETS Core tests", function () {
 
     it("should emit AccessControlsSet", async () => {
       factories = await getFactories();
-      const ETSAccessControlsNew = await upgrades.deployProxy(factories.ETSAccessControls, [], {kind: "uups"});
+      const ETSAccessControlsNew = await upgrades.deployProxy(
+        factories.ETSAccessControls,
+        [accounts.ETSPlatform.address],
+        {kind: "uups"},
+      );
 
       await expect(contracts.ETS.connect(accounts.ETSAdmin).setAccessControls(ETSAccessControlsNew.address))
         .to.emit(contracts.ETS, "AccessControlsSet")

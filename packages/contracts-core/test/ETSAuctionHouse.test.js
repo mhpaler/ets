@@ -57,7 +57,7 @@ describe("ETS Auction House Tests", function () {
 
     it("should revert if a second initialization is attempted", async () => {
       const tx = contracts.ETSAuctionHouse.initialize(
-        contracts.ETSAuctionHouse.address,
+        contracts.ETSToken.address,
         contracts.ETSAccessControls.address,
         contracts.WMATIC.address,
         initSettings.TIME_BUFFER,
@@ -65,7 +65,6 @@ describe("ETS Auction House Tests", function () {
         initSettings.MIN_INCREMENT_BID_PERCENTAGE,
         initSettings.DURATION,
         initSettings.PUBLISHER_PERCENTAGE,
-        initSettings.CREATOR_PERCENTAGE,
         initSettings.PLATFORM_PERCENTAGE,
       );
       await expect(tx).to.be.revertedWith("Initializable: contract is already initialized");
