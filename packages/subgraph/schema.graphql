@@ -252,6 +252,9 @@ type Tagger @entity {
   "Total lifetime tagging fees paid."
   feesPaid: BigInt!
 
+  "Tags applied by this Tagger"
+  tags: [Tag!]!
+
   "Tagging records created by this Tagger."
   taggingRecords: [TaggingRecord!]! @derivedFrom(field: "tagger")
 }
