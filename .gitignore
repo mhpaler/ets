@@ -32,6 +32,7 @@ yarn-error.log*
 node_modules
 packages/**/data
 packages/*/node_modules
+packages/.pnpm-debug.log
 
 # Hardhat files
 packages/contracts*/*.txt
