@@ -24,6 +24,7 @@ module.exports = async ({getChainId, deployments}) => {
   }
 
   // Deploy ETSEnrichTarget
+  //
   await deploy("ETSPublisher", {
     from: accounts.ETSAdmin.address,
     args: [etsAddress, etsTokenAddress, etsTargetAddress, accounts.ETSPlatform.address, accounts.ETSPlatform.address],
@@ -32,7 +33,13 @@ module.exports = async ({getChainId, deployments}) => {
   const deployment = await deployments.get("ETSPublisher");
   if (process.env.ETHERNAL_DISABLED === "false") {
     // Verify & Update network configuration file.
-    await verify("ETSPublisher", deployment, deployment, []);
+    await verify("ETSPublisher", deployment, deployment, [
+      etsAddress,
+      etsTokenAddress,
+      etsTargetAddress,
+      accounts.ETSPlatform.address,
+      accounts.ETSPlatform.address,
+    ]);
   }
 
   await saveNetworkConfig("ETSPublisher", deployment, "", false);
