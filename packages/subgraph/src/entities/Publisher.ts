@@ -86,14 +86,33 @@ export function updatePublisherTaggingRecordStats(
 
     // Next go through each tag and if publisher is the original tag publisher, log those stats.
     let publisherFee = getTaggingFee(PUBLISHER);
-    for (let i = 0; i < newTagIds.length; i++) {
-      let tag = ensureTag(BigInt.fromString(newTagIds[i]), event);
-      if (tag.publisher == publisherAddress.toHex()) {
-        if (action == APPEND) {
+
+    if (action == CREATE) {
+      for (let i = 0; i < newTagIds.length; i++) {
+        let tag = ensureTag(BigInt.fromString(newTagIds[i]), event);
+        if (tag.publisher == publisherAddress.toHex()) {
           publisher.publishedTagsAddedToTaggingRecords = publisher.publishedTagsAddedToTaggingRecords.plus(ONE);
           publisher.publishedTagsTaggingFeeRevenue = publisher.publishedTagsTaggingFeeRevenue.plus(publisherFee);
         }
-        if (action == REMOVE) {
+      }
+    }
+
+    if (action == APPEND) {
+      let appendedTagIds = arrayDiff(newTagIds, previousTagIds);
+      for (let i = 0; i < appendedTagIds.length; i++) {
+        let tag = ensureTag(BigInt.fromString(appendedTagIds[i]), event);
+        if (tag.publisher == publisherAddress.toHex()) {
+          publisher.publishedTagsAddedToTaggingRecords = publisher.publishedTagsAddedToTaggingRecords.plus(ONE);
+          publisher.publishedTagsTaggingFeeRevenue = publisher.publishedTagsTaggingFeeRevenue.plus(publisherFee);
+        }
+      }
+    }
+
+    if (action == REMOVE) {
+      let removedTagIds = arrayDiff(previousTagIds, newTagIds);
+      for (let i = 0; i < removedTagIds.length; i++) {
+        let tag = ensureTag(BigInt.fromString(removedTagIds[i]), event);
+        if (tag.publisher == publisherAddress.toHex()) {
           publisher.publishedTagsRemovedFromTaggingRecords = publisher.publishedTagsRemovedFromTaggingRecords.plus(ONE);
         }
       }
