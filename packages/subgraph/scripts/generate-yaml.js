@@ -56,9 +56,7 @@ const contractsInfo = {
   contracts: config[chainId].contracts,
   network: networks[network].name,
 };
-const template = Handlebars.compile(
-  fs.readFileSync("./templates/subgraph.yaml.mustache").toString()
-);
+const template = Handlebars.compile(fs.readFileSync("./templates/subgraph.yaml.mustache").toString());
 const result = template(contractsInfo);
 fs.writeFileSync("./subgraph.yaml", result);
 

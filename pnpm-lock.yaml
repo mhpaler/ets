@@ -378,7 +378,7 @@ importers:
       fs-extra: 10.0.1
       handlebars: 4.7.7
 
-  packages/subgraph_ets:
+  packages/subgraph:
     specifiers:
       '@graphprotocol/graph-cli': ^0.33.0
       '@graphprotocol/graph-ts': ^0.27.0

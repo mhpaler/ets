@@ -1,5 +1,5 @@
 {
-  "name": "@ets/subgraph_ets",
+  "name": "@ets/subgraph",
   "version": "1.0.0",
   "scripts": {
     "clean-graph-node": "rm -rf graph-node/data/",
