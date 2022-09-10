@@ -7,6 +7,12 @@ describe("CTAG ownership lifecycle tests", function () {
   // we create a setup function that can be called by every test and setup variable for easy to read tests
   beforeEach("Setup test", async function () {
     [accounts, contracts, initSettings] = await setup();
+
+    // Add & unpause ETSPublisher as a Publisher.
+    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
+      contracts.ETSPublisher.address,
+      "ETSPlatform",
+    );
   });
 
   describe("Validate setup", async function () {

@@ -1,13 +1,20 @@
 const {setup} = require("./setup.js");
 const {ethers} = require("hardhat");
 const {expect} = require("chai");
-const {constants, utils, BigNumber} = require("ethers");
+const {constants} = require("ethers");
 
 let targetURI, targetId, taggingRecordId;
 
 describe("ETS Publisher Tests", function () {
   beforeEach("Setup test", async () => {
+    // Add a test publisher via Publisher factory.
     [accounts, contracts, initSettings] = await setup();
+
+    // Add a new publisher via PublisherFactory
+    await contracts.ETSPublisherFactory.connect(accounts.RandomOne).addPublisherV1("ETS Test Publisher");
+    publisherAddress = await contracts.ETSAccessControls.getPublisherAddressFromName("ETS Test Publisher");
+    etsPublisherV1ABI = require("../abi/contracts/publishers/ETSPublisherV1.sol/ETSPublisherV1.json");
+    contracts.ETSPublisher = new ethers.Contract(publisherAddress, etsPublisherV1ABI, accounts.RandomOne);
 
     taggingFee = await contracts.ETS.taggingFee();
     taggingFee = ethers.BigNumber.from(taggingFee);
@@ -29,7 +36,7 @@ describe("ETS Publisher Tests", function () {
   });
 
   describe("Creating tags", async () => {
-    it("should emit TaggingRecordCreated with new tagId", async () => {
+    it("should emit Transfer", async () => {
       const tagstring1 = "#Love";
       const etsTagId = await contracts.ETSToken.computeTagId(tagstring1);
       const tx = await contracts.ETSPublisher.connect(accounts.Creator).getOrCreateTagIds([tagstring1]);

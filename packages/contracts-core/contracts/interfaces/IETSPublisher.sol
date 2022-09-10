@@ -82,7 +82,7 @@ interface IETSPublisher {
      *
      * @return name of the Publisher contract as a string.
      */
-    function getPublisherName() external pure returns (string memory);
+    function getPublisherName() external view returns (string memory);
 
     /**
      * @notice Returns address of an IETSPublisher contract creator.

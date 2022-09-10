@@ -41,7 +41,10 @@ async function getArtifacts() {
     ETSEnrichTarget: artifacts.readArtifactSync("ETSEnrichTarget"),
     ETSAuctionHouse: artifacts.readArtifactSync("ETSAuctionHouse"),
     ETS: artifacts.readArtifactSync("ETS"),
+    ETSPublisherV1: artifacts.readArtifactSync("ETSPublisherV1"),
+    ETSPublisherFactory: artifacts.readArtifactSync("ETSPublisherFactory"),
     ETSPublisher: artifacts.readArtifactSync("ETSPublisher"),
+
     /// .sol test contracts.
     ETSAccessControlsUpgrade: artifacts.readArtifactSync("ETSAccessControlsUpgrade"),
     ETSTokenUpgrade: artifacts.readArtifactSync("ETSTokenUpgrade"),
@@ -61,7 +64,10 @@ async function getFactories() {
     ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
     ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
     ETS: await ethers.getContractFactory("ETS"),
+    ETSPublisherV1: await ethers.getContractFactory("ETSPublisherV1"),
+    ETSPublisherFactory: await ethers.getContractFactory("ETSPublisherFactory"),
     ETSPublisher: await ethers.getContractFactory("ETSPublisher"),
+
     /// .sol test contracts.
     WMATIC: await ethers.getContractFactory("WMATIC"),
     ETSAccessControlsUpgrade: await ethers.getContractFactory("ETSAccessControlsUpgrade"),
@@ -87,6 +93,8 @@ async function setup() {
     ETSTarget: await ethers.getContractFactory("ETSTarget"),
     ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
     ETS: await ethers.getContractFactory("ETS"),
+    ETSPublisherV1: await ethers.getContractFactory("ETSPublisherV1"),
+    ETSPublisherFactory: await ethers.getContractFactory("ETSPublisherFactory"),
     ETSPublisher: await ethers.getContractFactory("ETSPublisher"),
   };
 
@@ -162,7 +170,15 @@ async function setup() {
     },
   );
 
-  // Deploy a target tagger with accounts.Creator as the creator/deployer and accounts.RandomTwo as the owner
+  const ETSPublisherFactory = await upgrades.deployProxy(
+    factories.ETSPublisherFactory,
+    [ETSAccessControls.address, ETS.address, ETSToken.address, ETSTarget.address],
+    {
+      kind: "uups",
+    },
+  );
+
+  // Deploy a Publisher contract with accounts.Creator as the creator/deployer and accounts.RandomTwo as the owner
   // This will simulate a third-party deploying their own Target Tagger.
   const ETSPublisher = await factories.ETSPublisher.deploy(
     ETS.address,
@@ -172,6 +188,14 @@ async function setup() {
     accounts.RandomTwo.address,
   );
 
+  // Add a test publisher via PublisherFactory. This makes tests really slow.
+  // So this process is only tested in ETSPublisherFactory.test.js. Otherwise,
+  // Manually add examples/ETSPublisher contract via ETSAccessControls.addPublisher() where needed.
+  // await ETSPublisherFactory.connect(accounts.RandomOne).addPublisherV1("ETS Test Publisher");
+  // publisherAddress = await ETSAccessControls.getPublisherAddressFromName("ETS Test Publisher");
+  // etsPublisherV1ABI = require("../abi/contracts/publishers/ETSPublisherV1.sol/ETSPublisherV1.json");
+  // ETSPublisher = new ethers.Contract(publisherAddress, etsPublisherV1ABI, accounts.RandomOne);
+
   const contracts = {
     WMATIC: WMATIC,
     ETSAccessControls: ETSAccessControls,
@@ -180,36 +204,18 @@ async function setup() {
     ETSTarget: ETSTarget,
     ETSEnrichTarget: ETSEnrichTarget,
     ETS: ETS,
+    ETSPublisherFactory: ETSPublisherFactory,
     ETSPublisher: ETSPublisher,
   };
 
   // ============ GRANT ROLES & APPROVALS ============
 
+  // Grant PUBLISHER_ADMIN role to ETSPublisherFactory so it can deploy publisher contracts.
+  await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), ETSPublisherFactory.address);
+
   await ETSAccessControls.grantRole(await ETSAccessControls.SMART_CONTRACT_ROLE(), accounts.ETSAdmin.address, {
     from: accounts.ETSAdmin.address,
   });
-
-  // Set Core Dev Team address as "platform" address. In production this will be a multisig.
-  //await ETSAccessControls.setPlatform(accounts.ETSPlatform.address);
-
-  // Grant DEFAULT_ADMIN_ROLE to platform address. This platform address full administrator privileges.
-  // await ETSAccessControls.grantRole(await ETSAccessControls.DEFAULT_ADMIN_ROLE(), accounts.ETSPlatform.address);
-
-  // Set PUBLISHER role admin role. Contracts or addresses given PUBLISHER_ADMIN role can grant PUBLISHER role.
-  //await ETSAccessControls.setRoleAdmin(ethers.utils.id("PUBLISHER"), ethers.utils.id("PUBLISHER_ADMIN"));
-
-  // Grant PUBLISHER_ADMIN role to ETSPlatform so it can grant publisher role all on its own.
-  // await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), accounts.ETSPlatform.address);
-
-  // Add & unpause ETSPublisher as a Publisher contract.
-  await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
-    contracts.ETSPublisher.address,
-    await contracts.ETSPublisher.getPublisherName(),
-  );
-
-  await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsPublisherPaused(
-    contracts.ETSPublisher.address,
-  );
 
   await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(ETSEnrichTarget.address);
 

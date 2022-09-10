@@ -87,24 +87,19 @@ describe("ETSAccessControls Tests", function () {
         .withArgs(accounts.RandomOne.address, true);
     });
 
-    it("are paused when added", async () => {
+    it("are not paused when added", async () => {
       await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
         publisherMock.address,
         await publisherMock.getPublisherName(),
       );
 
-      expect(await contracts.ETSAccessControls.isPublisherAndNotPaused(contracts.ETSPublisher.address)).to.be.equal(
-        true,
-      );
+      expect(await contracts.ETSAccessControls.isPublisherAndNotPaused(publisherMock.address)).to.be.equal(true);
     });
 
     it("must implement IETSPublisher interface.", async () => {
       // Trying to add wallet address as publisher.
       await expect(
-        contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
-          contracts.ETSPublisher.address,
-          await contracts.ETSPublisher.getPublisherName(),
-        ),
+        contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(accounts.RandomOne.address, "Random"),
       ).to.be.reverted;
     });
 
@@ -116,8 +111,8 @@ describe("ETSAccessControls Tests", function () {
 
       await expect(
         contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
-          contracts.ETSPublisher.address,
-          await contracts.ETSPublisher.getPublisherName(),
+          publisherMock.address,
+          "Duplicate address",
         ),
       ).to.be.revertedWith("Publisher exists");
     });
@@ -138,10 +133,10 @@ describe("ETSAccessControls Tests", function () {
         .to.emit(contracts.ETSAccessControls, "PublisherPauseToggled")
         .withArgs(publisherMock.address);
 
-      expect(await contracts.ETSAccessControls.isPublisherAndNotPaused(publisherMock.address)).to.be.equal(true);
+      expect(await contracts.ETSAccessControls.isPublisherAndNotPaused(publisherMock.address)).to.be.equal(false);
 
       await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsPublisherPaused(publisherMock.address);
-      expect(await contracts.ETSAccessControls.isPublisherAndNotPaused(publisherMock.address)).to.be.equal(false);
+      expect(await contracts.ETSAccessControls.isPublisherAndNotPaused(publisherMock.address)).to.be.equal(true);
     });
   });
 
@@ -151,7 +146,6 @@ describe("ETSAccessControls Tests", function () {
         publisherMock.address,
         "PublisherMock",
       );
-      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsPublisherPaused(publisherMock.address);
     });
     it("can be verified by address", async () => {
       expect(await contracts.ETSAccessControls.isPublisherByAddress(publisherMock.address)).to.be.equal(true);

@@ -72,13 +72,6 @@ interface IETSAccessControls is IAccessControlUpgradeable {
     function setRoleAdmin(bytes32 _role, bytes32 _adminRole) external;
 
     /**
-     * @notice Returns wallet address for ETS Platform.
-     *
-     * @return ETS Platform address.
-     */
-    function getPlatformAddress() external view returns (address payable);
-
-    /**
      * @notice Checks whether given address has SMART_CONTRACT role.
      *
      * @param _addr Address being checked.
@@ -133,4 +126,27 @@ interface IETSAccessControls is IAccessControlUpgradeable {
      * @return boolean True if address is a Publisher and not paused.
      */
     function isPublisherAndNotPaused(address _addr) external view returns (bool);
+
+    /**
+     * @notice Get publisher address from it's name.
+     *
+     * @param _name Name of publisher.
+     * @return Address of publisher.
+     */
+    function getPublisherAddressFromName(string calldata _name) external view returns (address);
+
+    /**
+     * @notice Get publisher name from it's address.
+     *
+     * @param _address Adsdress of publisher.
+     * @return Name of publisher.
+     */
+    function getPublisherNameFromAddress(address _address) external view returns (string calldata);
+
+    /**
+     * @notice Returns wallet address for ETS Platform.
+     *
+     * @return ETS Platform address.
+     */
+    function getPlatformAddress() external view returns (address payable);
 }

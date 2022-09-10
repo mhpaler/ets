@@ -23,9 +23,9 @@ describe("ETS Auction House Tests", function () {
       "ETSPlatform",
     );
 
-    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsPublisherPaused(
-      accounts.ETSPlatform.address,
-    );
+    //await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsPublisherPaused(
+    //  accounts.ETSPlatform.address,
+    //);
 
     // Mint a tag by random user. ETS is Publisher, retained by platform.
     etsOwnedTag = "#Love";

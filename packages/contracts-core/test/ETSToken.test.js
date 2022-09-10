@@ -17,10 +17,6 @@ describe("ETSToken Core Tests", function () {
       accounts.ETSPlatform.address,
       "ETSPlatform",
     );
-
-    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsPublisherPaused(
-      accounts.ETSPlatform.address,
-    );
   });
 
   describe("Valid setup", async function () {

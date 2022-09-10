@@ -8,8 +8,6 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title IETSAccessControls
  * @author Ethereum Tag Service <team@ets.xyz>
@@ -37,6 +35,14 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
 
     /// @notice Publisher contract address to human readable name.
     mapping(address => string) public publisherContractToName;
+
+    modifier onlyValidName(string calldata _name) {
+        require(!isPublisherByName(_name), "Publisher name exists");
+        bytes memory nameBytes = bytes(_name);
+        require(nameBytes.length >= 2, "Publisher name too short");
+        require(nameBytes.length <= 32, "Publisher name too long");
+        _;
+    }
 
     // ============ UUPS INTERFACE ============
 
@@ -73,20 +79,24 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     }
 
     /// @inheritdoc IETSAccessControls
-    function addPublisher(address _publisher, string calldata _name) public onlyRole(PUBLISHER_ROLE_ADMIN) {
+    function addPublisher(address _publisher, string calldata _name)
+        public
+        onlyRole(PUBLISHER_ROLE_ADMIN)
+        onlyValidName(_name)
+    {
         require(
             isPublisherAdmin(_publisher) ||
                 ERC165CheckerUpgradeable.supportsInterface(_publisher, type(IETSPublisher).interfaceId),
             "Address not required interface"
         );
+
         require(!isPublisherByAddress(_publisher), "Publisher exists");
-        require(!isPublisherByName(_name), "Publisher name exists");
+
         publisherNameToContract[_name] = _publisher;
         publisherContractToName[_publisher] = _name;
-        isPublisherPaused[_publisher] = true;
+        isPublisherPaused[_publisher] = false;
         // Note: grantRole emits RoleGranted event.
         grantRole(PUBLISHER_ROLE, _publisher);
-        grantRole(SMART_CONTRACT_ROLE, _publisher);
         emit PublisherAdded(_publisher, isPublisherAdmin(_publisher));
     }
 
@@ -131,6 +141,16 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     /// @inheritdoc IETSAccessControls
     function isPublisherAndNotPaused(address _addr) public view returns (bool) {
         return isPublisherByAddress(_addr) && !isPublisherPaused[_addr];
+    }
+
+    /// @inheritdoc IETSAccessControls
+    function getPublisherAddressFromName(string memory _name) public view returns (address) {
+        return publisherNameToContract[_name];
+    }
+
+    /// @inheritdoc IETSAccessControls
+    function getPublisherNameFromAddress(address _address) public view returns (string memory) {
+        return publisherContractToName[_address];
     }
 
     /// @inheritdoc IETSAccessControls
