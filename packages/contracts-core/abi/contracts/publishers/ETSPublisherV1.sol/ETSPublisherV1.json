@@ -2,6 +2,11 @@
   {
     "inputs": [
       {
+        "internalType": "string",
+        "name": "_publisherName",
+        "type": "string"
+      },
+      {
         "internalType": "contract IETS",
         "name": "_ets",
         "type": "address"
@@ -67,12 +72,25 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "bool",
-        "name": "newValue",
-        "type": "bool"
+        "internalType": "address",
+        "name": "publisherAddress",
+        "type": "address"
       }
     ],
-    "name": "TargetTaggerPaused",
+    "name": "PublisherOwnerChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "publisherAddress",
+        "type": "address"
+      }
+    ],
+    "name": "PublisherPauseToggledByOwner",
     "type": "event"
   },
   {
@@ -87,6 +105,32 @@
     ],
     "name": "Unpaused",
     "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "IID_IETSPublisher",
+    "outputs": [
+      {
+        "internalType": "bytes4",
+        "name": "",
+        "type": "bytes4"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "NAME",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [
@@ -106,21 +150,63 @@
             "internalType": "string",
             "name": "recordType",
             "type": "string"
-          },
-          {
-            "internalType": "bool",
-            "name": "enrich",
-            "type": "bool"
           }
         ],
-        "internalType": "struct IETSTargetTagger.TaggingRecord[]",
-        "name": "_taggingRecords",
+        "internalType": "struct IETS.TaggingRecordRawInput[]",
+        "name": "_rawParts",
         "type": "tuple[]"
       }
     ],
     "name": "applyTags",
     "outputs": [],
     "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "changeOwner",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taggingRecordId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_tagIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "enum IETS.TaggingAction",
+        "name": "_action",
+        "type": "uint8"
+      }
+    ],
+    "name": "computeTaggingFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tagCount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -189,6 +275,25 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "string[]",
+        "name": "_tags",
+        "type": "string[]"
+      }
+    ],
+    "name": "getOrCreateTagIds",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "_tagIds",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "getOwner",
     "outputs": [
@@ -203,25 +308,12 @@
   },
   {
     "inputs": [],
-    "name": "getTaggerName",
+    "name": "getPublisherName",
     "outputs": [
       {
         "internalType": "string",
         "name": "",
         "type": "string"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "isTargetTaggerPaused",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -229,12 +321,12 @@
   },
   {
     "inputs": [],
-    "name": "name",
+    "name": "isPausedByOwner",
     "outputs": [
       {
-        "internalType": "string",
+        "internalType": "bool",
         "name": "",
-        "type": "string"
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -255,6 +347,13 @@
   },
   {
     "inputs": [],
+    "name": "pause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "paused",
     "outputs": [
       {
@@ -268,9 +367,82 @@
   },
   {
     "inputs": [],
+    "name": "publisherName",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "targetURI",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "tagStrings",
+            "type": "string[]"
+          },
+          {
+            "internalType": "string",
+            "name": "recordType",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IETS.TaggingRecordRawInput[]",
+        "name": "_rawParts",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "removeTags",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "renounceOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "targetURI",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "tagStrings",
+            "type": "string[]"
+          },
+          {
+            "internalType": "string",
+            "name": "recordType",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IETS.TaggingRecordRawInput[]",
+        "name": "_rawParts",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "replaceTags",
+    "outputs": [],
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -295,54 +467,19 @@
   {
     "inputs": [
       {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "targetURI",
-            "type": "string"
-          },
-          {
-            "internalType": "string[]",
-            "name": "tagStrings",
-            "type": "string[]"
-          },
-          {
-            "internalType": "string",
-            "name": "recordType",
-            "type": "string"
-          },
-          {
-            "internalType": "bool",
-            "name": "enrich",
-            "type": "bool"
-          }
-        ],
-        "internalType": "struct IETSTargetTagger.TaggingRecord[]",
-        "name": "_taggingRecords",
-        "type": "tuple[]"
-      }
-    ],
-    "name": "tagTarget",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "toggleTargetTaggerPaused",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
         "name": "newOwner",
         "type": "address"
       }
     ],
     "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "unpause",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
