@@ -1,3 +1,4 @@
 {
-  "extends": "@ets/tsconfig/hardhat.json"
+  "extends": "@ets/tsconfig/hardhat.json",
+  "files": ["./hardhat.config.ts"]
 }
