@@ -35,7 +35,7 @@ async function setup() {
     ETSTarget: await ethers.getContractFactory("ETSTarget", signer),
     ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget", signer),
     ETS: await ethers.getContractFactory("ETS", signer),
-    ETSPublisher: await ethers.getContractFactory("ETSPublisher", signer),
+    ETSPublisherFactory: await ethers.getContractFactory("ETSPublisherFactory", signer),
   };
 
   const initSettings = {

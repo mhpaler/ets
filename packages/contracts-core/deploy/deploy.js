@@ -16,8 +16,8 @@ module.exports = async ({deployments}) => {
   const ETSEnrichTarget = await ethers.getContractAt("ETSEnrichTarget", etsEnrichTarget.address);
   const ets = await deployments.get("ETS");
   const ETS = await ethers.getContractAt("ETS", ets.address);
-  const etsPublisher = await deployments.get("ETSPublisher");
-  const ETSPublisher = await ethers.getContractAt("ETSPublisher", etsPublisher.address);
+  const etsPublisherFactory = await deployments.get("ETSPublisherFactory");
+  const ETSPublisherFactory = await ethers.getContractAt("ETSPublisherFactory", etsPublisherFactory.address);
 
   console.log("============ CONFIGURE ROLES & APPROVALS ============");
 
@@ -26,25 +26,9 @@ module.exports = async ({deployments}) => {
   });
   console.log(`SMART_CONTRACT_ROLE granted to ETSPlatform.address (${ETSPlatform.address})`);
 
-  // Set Core Dev Team address as "platform" address. In production this will be a multisig.
-  //await ETSAccessControls.setPlatform(accounts.ETSPlatform.address);
-  //console.log(`Platform address set to ETSPlatform.address (${ETSPlatform.address})`);
-
-  //  // Grant DEFAULT_ADMIN_ROLE to platform address. This platform address full administrator privileges.
-  //  await ETSAccessControls.grantRole(await ETSAccessControls.DEFAULT_ADMIN_ROLE(), accounts.ETSPlatform.address, {
-  //    from: deployer,
-  //  });
-  //  console.log(`DEFAULT_ADMIN_ROLE role granted to ETSPlatform.address (${ETSPlatform.address})`);
-  //
-  //  // Set PUBLISHER role admin role. Contracts or addresses given PUBLISHER_ADMIN role can grant PUBLISHER role.
-  //  await ETSAccessControls.setRoleAdmin(ethers.utils.id("PUBLISHER"), ethers.utils.id("PUBLISHER_ADMIN"), {
-  //    from: deployer,
-  //  });
-  //  console.log("PUBLISHER_ADMIN set as role admin for PUBLISHER");
-  //
-  //  // Grant PUBLISHER_ADMIN role to ETSPlatform so it can grant publisher role all on its own.
-  //  await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), accounts.ETSPlatform.address);
-  //  console.log("PUBLISHER_ADMIN role granted to ETSPlatform.address");
+  // Grant PUBLISHER_ADMIN role to ETSPublisherFactory so it can deploy publisher contracts.
+  await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), ETSPublisherFactory.address);
+  console.log(`PUBLISHER_ADMIN granted to ETSPublisherFactory.address (${ETSPublisherFactory.address})`);
 
   await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(ETSEnrichTarget.address);
   console.log(`ETSEnrichTarget contract set on ETSTarget`);
@@ -57,19 +41,10 @@ module.exports = async ({deployments}) => {
   await ETSToken.connect(accounts.ETSPlatform).setETSCore(ETS.address);
   console.log("ETS set on ETSToken.");
 
-  // Add & unpause ETSPublisher as a Publisher.
-  await ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
-    ETSPublisher.address,
-    await ETSPublisher.getPublisherName(),
-  );
-  await ETSAccessControls.connect(accounts.ETSPlatform).toggleIsPublisherPaused(ETSPublisher.address);
-  console.log("Authorize ETSPublisher example contract as a Publisher");
-
   // Add & Unpause ETSPlatform as a Publisher. for testing purposes.
   await ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(accounts.ETSPlatform.address, "ETSPlatform");
-  await ETSAccessControls.connect(accounts.ETSPlatform).toggleIsPublisherPaused(accounts.ETSPlatform.address);
   console.log("Authorize ETSPlatform wallet as a Publisher");
 };
 
 module.exports.tags = ["deployAll"];
-module.exports.dependencies = ["ETSPublisher"];
+module.exports.dependencies = ["ETSPublisherFactory"];
