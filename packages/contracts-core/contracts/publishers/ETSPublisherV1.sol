@@ -4,7 +4,7 @@ pragma solidity ^0.8.10;
 import "../interfaces/IETS.sol";
 import "../interfaces/IETSToken.sol";
 import "../interfaces/IETSTarget.sol";
-import "../interfaces/IETSPublisher.sol";
+import "./IETSPublisherV1.sol";
 import { UintArrayUtils } from "../libraries/UintArrayUtils.sol";
 import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
@@ -15,7 +15,7 @@ import { Pausable } from "@openzeppelin/contracts/security/Pausable.sol";
  * @author Ethereum Tag Service <team@ets.xyz>
  * @notice Sample implementation of IETSPublisher
  */
-contract ETSPublisherV1 is IETSPublisher, ERC165, Ownable, Pausable {
+contract ETSPublisherV1 is IETSPublisherV1, ERC165, Ownable, Pausable {
     using UintArrayUtils for uint256[];
 
     /// @dev Address and interface for ETS Core.
