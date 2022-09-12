@@ -1,0 +1,139 @@
+{
+  "1": {
+    "contracts": {}
+  },
+  "4": {
+    "name": "rinkeby",
+    "contracts": {}
+  },
+  "137": {
+    "name": "polygon",
+    "contracts": {}
+  },
+  "31337": {
+    "name": "localhost",
+    "contracts": {
+      "ETSAccessControls": {
+        "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+        "implementation": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "deploymentBlock": 2,
+        "upgradeBlock": null
+      },
+      "ETSToken": {
+        "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+        "implementation": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+        "deploymentBlock": 4,
+        "upgradeBlock": null
+      },
+      "WMATIC": {
+        "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+        "implementation": null,
+        "deploymentBlock": 5,
+        "upgradeBlock": null
+      },
+      "ETSAuctionHouse": {
+        "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+        "implementation": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+        "deploymentBlock": 7,
+        "upgradeBlock": null
+      },
+      "ETSTarget": {
+        "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+        "implementation": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+        "deploymentBlock": 9,
+        "upgradeBlock": null
+      },
+      "ETSEnrichTarget": {
+        "address": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
+        "implementation": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
+        "deploymentBlock": 11,
+        "upgradeBlock": null
+      },
+      "ETS": {
+        "address": "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
+        "implementation": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
+        "deploymentBlock": 13,
+        "upgradeBlock": null
+      },
+      "ETSTargetTagger": {
+        "address": "0x1429859428C0aBc9C2C47C8Ee9FBaf82cFA0F20f",
+        "implementation": "",
+        "deploymentBlock": 71,
+        "upgradeBlock": null
+      },
+      "ETSPublisher": {
+        "address": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
+        "implementation": "",
+        "deploymentBlock": 14,
+        "upgradeBlock": null
+      },
+      "ETSPublisherFactory": {
+        "address": "0x9A676e781A523b5d0C0e43731313A708CB607508",
+        "implementation": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
+        "deploymentBlock": 15,
+        "upgradeBlock": null
+      }
+    }
+  },
+  "80001": {
+    "name": "mumbai",
+    "contracts": {
+      "ETSAccessControls": {
+        "address": "0x82427211cD99a3B83E0D199013D03811f9592EC8",
+        "implementation": "0x12e427757aD47b3FC264A912149DB60AbffEbf0b",
+        "deploymentBlock": 27475649,
+        "upgradeBlock": null
+      },
+      "ETS": {
+        "address": "0xCe8F3538aD93fC0230fB67C4B00CD6C783e61B39",
+        "implementation": "0x79FeB77ebfb68271665994667C425a5F960ca164",
+        "deploymentBlock": 27476354,
+        "upgradeBlock": null
+      },
+      "ETSToken": {
+        "address": "0xa283E84b176C527909632453a406302968460b71",
+        "implementation": "0xB151E7bCF23C8FA75D2EA74Ab96Ea5b6b2daF6D2",
+        "deploymentBlock": 27475952,
+        "upgradeBlock": null
+      },
+      "WMATIC": {
+        "address": "0x7E2e0D6c54DB1d71a356d15f8bE79127C9cBdE4c",
+        "implementation": null,
+        "upgradeBlock": null
+      },
+      "ETSAuctionHouse": {
+        "address": "0x9d74B89918F1C205eE2adB8c13BeF5D97c466F57",
+        "implementation": "0x2f2FeF2b5d17c76a18f0Ac380804768976d56Ea5",
+        "deploymentBlock": 27475959,
+        "upgradeBlock": null
+      },
+      "ETSTarget": {
+        "address": "0x80468567502547A79848fcD40077d98Df6926d7b",
+        "implementation": "0x046106C4974f05036F8eB92B39FF316Ea3D77Cb2",
+        "deploymentBlock": 27476143,
+        "upgradeBlock": null
+      },
+      "ETSEnrichTarget": {
+        "address": "0x5BE00A7ec338F035D3ba0aeE4BE4259A81C9A7Ff",
+        "implementation": "0xA49EE231295D8c3aAAf92aFd49dcea84A4D5A550",
+        "deploymentBlock": 27476157,
+        "upgradeBlock": null
+      },
+      "ETSTargetTagger": {
+        "address": "0x8697e9c4a00190E6592e468b72CcB569C7d2a526",
+        "implementation": "",
+        "deploymentBlock": 27476364,
+        "upgradeBlock": null
+      },
+      "ETSPublisher": {
+        "address": "0x1ADA663E7E1C0a2C6B787BAa3cf22C26Ca00C3bE",
+        "implementation": "",
+        "deploymentBlock": 27966961,
+        "upgradeBlock": null
+      }
+    }
+  },
+  "default": {
+    "name": "hardhat"
+  }
+}

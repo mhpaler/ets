@@ -187,9 +187,16 @@ type Publisher @entity {
 
   "Publisher contract is paused."
   pausedByProtocol: Boolean!
-  #pausedByOwner: Boolean
-  #owner: String!
-  #creator: String!
+
+  "Publisher contract paused by owner"
+  pausedByOwner: Boolean
+
+  "Owner of publisher contract"
+  owner: String!
+
+  "Initial creator of publisher contract"
+  creator: String!
+
   "Publisher is a protocol address for testing purposes."
   admin: Boolean!
 

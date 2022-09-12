@@ -5,7 +5,7 @@
  * Where [network] is the destination the subgraph.
  * See const networks for supported networks.
  **/
-const configFile = "./../contracts-core/config/config.json";
+const configFile = "./../contracts/config/config.json";
 const fs = require("fs-extra");
 const Handlebars = require("handlebars");
 

@@ -1,5 +1,6 @@
 import { Bytes, store, BigInt, log } from "@graphprotocol/graph-ts";
 import { Publisher } from "../generated/schema";
+import { ETSPublisherV1 } from "../generated/templates";
 import {
   ETSAccessControls,
   RoleGranted,
@@ -42,6 +43,7 @@ export function handlePlatformSet(event: PlatformSet): void {
 
 export function handlePublisherAdded(event: PublisherAdded): void {
   ensurePublisher(event.params.publisher, event);
+  ETSPublisherV1.create(event.params.publisher);
 }
 
 export function handlePublisherToggled(event: PublisherPauseToggled): void {
