@@ -1,11 +1,16 @@
 task(
   "applyTags",
-  'Tag a uri. eg: hh applyTags --tags "#another,#blah" --uri "https://google.com" --recordType "bookmark" --publisher "Uniswap" --network localhost',
+  'Tag a uri. eg: hh applyTags --tags "#USDC, #Solana" --uri "https://google.com" --recordType "bookmark" --publisher "Uniswap" --network localhost',
 )
   .addParam("uri", 'URI being tagged eg. --uri "https://google.com"')
-  .addParam("tags", 'Hashtags separated by commas. eg. --tags "#another,#blah"')
+  .addParam("tags", 'Hashtags separated by commas. eg. --tags "#USDC, #Solana"')
   .addParam("recordType", 'Arbitrary record type identifier. eg. "bookmark"', "bookmark")
   .addParam("publisher", "Publisher name")
+  .addParam(
+    "tagger",
+    'Named wallets. options are "Buyer", "RandomOne", "RandomTwo", "Creator". Defaults to "RandomOne"',
+    "RandomOne",
+  )
   .setAction(async (taskArgs) => {
     const {getAccounts} = require("../test/setup.js");
     const chainId = hre.network.config.chainId;
@@ -22,8 +27,12 @@ task(
     const etsAddress = config[chainId].contracts.ETS.address;
 
     // Contract instances
-    const etsAccessControls = new ethers.Contract(etsAccessControlsAddress, etsAccessControlsABI, accounts.ETSPlatform);
-    const ets = new ethers.Contract(etsAddress, etsABI, accounts.ETSPlatform);
+    const etsAccessControls = new ethers.Contract(
+      etsAccessControlsAddress,
+      etsAccessControlsABI,
+      accounts[taskArgs.tagger],
+    );
+    const ets = new ethers.Contract(etsAddress, etsABI, accounts[taskArgs.tagger]);
 
     // Check that Publisher that caller (tagger) is using exists.
     let etsPublisherV1;
@@ -32,7 +41,7 @@ task(
       console.log(`"${taskArgs.publisher}" is not a publisher`);
       return;
     } else {
-      etsPublisherV1 = new ethers.Contract(publisherAddress, etsPublisherV1ABI, accounts.RandomOne);
+      etsPublisherV1 = new ethers.Contract(publisherAddress, etsPublisherV1ABI, accounts[taskArgs.tagger]);
     }
 
     const tags = taskArgs.tags.replace(/\s+/g, "").split(","); // remove spaces & split on comma
@@ -49,7 +58,7 @@ task(
     const taggingRecordId = await ets.computeTaggingRecordIdFromRawInput(
       tagParams,
       publisherAddress,
-      accounts.RandomOne.address,
+      accounts[taskArgs.tagger].address,
     );
     const existingRecord = await ets.taggingRecordExists(taggingRecordId);
 
@@ -58,7 +67,7 @@ task(
     let result = await ets.computeTaggingFeeFromRawInput(
       tagParams,
       publisherAddress, // original publisher
-      accounts.RandomOne.address, // original tagger
+      accounts[taskArgs.tagger].address, // original tagger
       0,
     );
 
@@ -79,5 +88,5 @@ task(
     } else {
       console.log(`New tagging record created with ${actualTagCount} tag(s) and id: ${taggingRecordId}`);
     }
-    console.log(`Tagger charged for ${actualTagCount} tags`);
+    console.log(`${taskArgs.tagger} charged for ${actualTagCount} tags`);
   });
