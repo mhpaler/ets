@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "../interfaces/IETS.sol";
-import "../interfaces/IETSPublisher.sol";
+import "./IETSPublisher.sol";
+import "../../interfaces/IETS.sol";
 
 /**
  * @title IETSPublisherV1

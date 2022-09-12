@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "./utils/StringHelpers.sol";
 import "./interfaces/IETSTarget.sol";
 import "./interfaces/IETSEnrichTarget.sol";
 import "./interfaces/IETSAccessControls.sol";
+import "./utils/StringHelpers.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
