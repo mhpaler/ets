@@ -26,8 +26,8 @@ dataSources:
           file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol/Initializable.json
         - name: ETSAccessControls
           file: ./../contracts/abi/contracts/ETSAccessControls.sol/ETSAccessControls.json
-        - name: IETSPublisher
-          file: ./../contracts/abi/contracts/interfaces/IETSPublisher.sol/IETSPublisher.json
+        - name: ETSPublisherV1
+          file: ./../contracts/abi/contracts/publishers/ETSPublisherV1.sol/ETSPublisherV1.json
       eventHandlers:
         - event: Initialized(uint8)
           handler: handleInitialized
@@ -171,18 +171,33 @@ dataSources:
           handler: handleFundsWithdrawn
 
 templates:
-  - name: IETSPublisher
+  - name: ETSPublisherV1
     kind: ethereum/contract
     network: {{network}}
     source:
-      abi: IETSPublisher
+      abi: ETSPublisherV1
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
       language: wasm/assemblyscript
-      file: ./src/mappings/IETSPublisher.ts
+      file: ./src/mappings/ETSPublisherV1.ts
       entities:
         - Publisher
       abis:
-        - name: IETSPublisher
-          file: ./../contracts/abi/contracts/interfaces/IETSPublisher.sol/IETSPublisher.json
+        - name: ETSPublisherV1
+          file: ./../contracts/abi/contracts/publishers/ETSPublisherV1.sol/ETSPublisherV1.json
+        - name: Ownable
+          file: ./../contracts/abi/@openzeppelin/contracts/access/Ownable.sol/Ownable.json
+        - name: Pausable
+          file: ./../contracts/abi/@openzeppelin/contracts/security/Pausable.sol/Pausable.json
+      eventHandlers:
+        - event: PublisherPauseToggledByOwner(address)
+          handler: handlePublisherPauseToggledByOwner
+        - event: PublisherOwnerChanged(address)
+          handler: handlePublisherOwnerChanged
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Paused(address)
+          handler: handlePausedByOwner
+        - event: Unpaused(address)
+          handler: handleUnpausedByOwner

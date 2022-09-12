@@ -3,6 +3,7 @@ import { Release, Publisher } from "../generated/schema";
 import { Transfer } from "../generated/ETSToken/ETSToken";
 import { ensureTag } from "../entities/Tag";
 import { ETSAccessControls } from "../generated/ETSAccessControls/ETSAccessControls";
+import { ETSPublisherV1 } from "../generated/templates/ETSPublisherV1/ETSPublisherV1";
 import { getTaggingFee } from "../utils/getTaggingFee";
 import { arrayDiff } from "../utils/arrayDiff";
 import { logCritical } from "../utils/logCritical";
@@ -27,10 +28,41 @@ export function ensurePublisher(publisherAddress: Address, event: ethereum.Event
       logCritical("isPublisherPaused reverted for {}", [publisherAddress.toString()]);
     }
 
+    let owner: string = publisherAddress.toHex();
+    let creator: string = publisherAddress.toHex();
+    let isPausedByOwner: boolean = false;
+
+    if (isPublisherAdminCall.value == false) {
+      // This is a PublisherFactory contract. Let's fetch some onchain values.
+      let publisherContract = ETSPublisherV1.bind(publisherAddress);
+      let getOwnerCall = publisherContract.try_getOwner();
+      if (getOwnerCall.reverted) {
+        logCritical("getOwnerCall reverted for {}", [publisherAddress.toString()]);
+      } else {
+        owner = getOwnerCall.value.toHex();
+      }
+
+      let getCreatorCall = publisherContract.try_getCreator();
+      if (getCreatorCall.reverted) {
+        logCritical("getCreatorCall reverted for {}", [publisherAddress.toString()]);
+      } else {
+        creator = getCreatorCall.value.toHex();
+      }
+      let isPausedByOwnerCall = publisherContract.try_isPausedByOwner();
+      if (isPausedByOwnerCall.reverted) {
+        logCritical("isPausedByOwnerCall reverted for {}", [publisherAddress.toString()]);
+      } else {
+        isPausedByOwner = isPausedByOwnerCall.value;
+      }
+    }
+
     publisher = new Publisher(publisherAddress.toHex());
     publisher.name = contractToNameCall.value;
     publisher.admin = isPublisherAdminCall.value;
     publisher.pausedByProtocol = isPublisherPaused.value;
+    publisher.owner = owner;
+    publisher.creator = creator;
+    publisher.pausedByOwner = isPausedByOwner;
     publisher.firstSeen = event.block.timestamp;
     publisher.tagsPublished = ZERO;
     publisher.tagsApplied = ZERO;
