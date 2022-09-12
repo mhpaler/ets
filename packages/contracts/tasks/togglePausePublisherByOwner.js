@@ -1,11 +1,10 @@
 const {ethers} = require("ethers");
 
-task("createTags", "Create CTAGs")
-  .addParam("tags", 'Hashtags separated by commas. eg. --tags "#USDC, #Solana"')
+task("togglePausePublisherByOwner", "Pauses/Unpauses a Publisher contract by owner")
   .addParam("publisher", "Publisher name.")
   .addParam(
     "signer",
-    'Named wallets. options are "Buyer", "RandomOne", "RandomTwo", "Creator". Defaults to "Creator"',
+    'Owner of publisher. Options are "Buyer", "RandomOne", "RandomTwo", "Creator". Defaults to "Creator"',
     "Creator",
   )
   .setAction(async (taskArgs) => {
@@ -15,13 +14,11 @@ task("createTags", "Create CTAGs")
     const config = require("../config/config.json");
 
     // ABIs
-    const ETSTokenABI = require("../abi/contracts/ETSToken.sol/ETSToken.json");
     const ETSAccessControlsABI = require("../abi/contracts/ETSAccessControls.sol/ETSAccessControls.json");
     const ETSPublisherV1ABI = require("../abi/contracts/publishers/ETSPublisherV1.sol/ETSPublisherV1.json");
 
     // Contract Addresses
     const ETSAccessControlsAddress = config[chainId].contracts.ETSAccessControls.address;
-    const ETSTokenAddress = config[chainId].contracts.ETSToken.address;
 
     // Contract instances
     const etsAccessControls = new ethers.Contract(
@@ -29,7 +26,6 @@ task("createTags", "Create CTAGs")
       ETSAccessControlsABI,
       accounts[taskArgs.signer],
     );
-    const etsToken = new ethers.Contract(ETSTokenAddress, ETSTokenABI, accounts[taskArgs.signer]);
 
     // Check that caller is using a valid publisher.
     let etsPublisherV1;
@@ -41,28 +37,22 @@ task("createTags", "Create CTAGs")
       etsPublisherV1 = new ethers.Contract(publisherAddress, ETSPublisherV1ABI, accounts[taskArgs.signer]);
     }
 
-    const tags = taskArgs.tags.replace(/\s+/g, "").split(","); // remove spaces & split on comma
-    let tagsToMint = [];
-
-    for (let i = 0; i < tags.length; i++) {
-      const tagId = await etsToken.computeTagId(tags[i]);
-      if (await etsToken.tagExistsById(tagId)) {
-        console.log(`${tags[i]} already exists`);
-      } else {
-        tagsToMint.push(tags[i]);
-      }
+    if (accounts[taskArgs.signer].address !== (await etsPublisherV1.getOwner())) {
+      console.log(`${taskArgs.signer} is not the owner of "${taskArgs.publisher}" publisher contract`);
+      return;
     }
 
-    if (tagsToMint.length > 0) {
-      console.log(`Minting CTAGs "${tagsToMint.toString()}"`);
-      const tx = await etsPublisherV1.getOrCreateTagIds(tagsToMint);
+    if (await etsPublisherV1.paused()) {
+      const tx = await etsPublisherV1.unpause();
       await tx.wait();
+    } else {
+      const tx = await etsPublisherV1.pause();
+      await tx.wait();
+    }
 
-      for (let i = 0; i < tagsToMint.length; i++) {
-        const tagId = await etsToken.computeTagId(tags[i]);
-        if (await etsToken.tagExistsById(tagId)) {
-          console.log(`${tagsToMint[i]} minted by ${taskArgs.signer} with id ${tagId}`);
-        }
-      }
+    if ((await etsPublisherV1.isPausedByOwner()) === true) {
+      console.log(`${taskArgs.publisher} paused`);
+    } else {
+      console.log(`${taskArgs.publisher} unpaused`);
     }
   });

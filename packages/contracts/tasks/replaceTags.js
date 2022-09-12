@@ -7,7 +7,7 @@ task(
   .addParam("recordType", 'Arbitrary record type identifier. eg. "bookmark"', "bookmark")
   .addParam("publisher", "Publisher name")
   .addParam(
-    "tagger",
+    "signer",
     'Named wallets. options are "Buyer", "RandomOne", "RandomTwo", "Creator". Defaults to "RandomOne"',
     "RandomOne",
   )
@@ -30,18 +30,18 @@ task(
     const etsAccessControls = new ethers.Contract(
       etsAccessControlsAddress,
       etsAccessControlsABI,
-      accounts[taskArgs.tagger],
+      accounts[taskArgs.signer],
     );
-    const ets = new ethers.Contract(etsAddress, etsABI, accounts[taskArgs.tagger]);
+    const ets = new ethers.Contract(etsAddress, etsABI, accounts[taskArgs.signer]);
 
-    // Check that Publisher that caller (tagger) is using exists.
+    // Check that Publisher that caller (signer) is using exists.
     let etsPublisherV1;
     const publisherAddress = await etsAccessControls.getPublisherAddressFromName(taskArgs.publisher);
     if ((await etsAccessControls.isPublisher(publisherAddress)) === false) {
       console.log(`"${taskArgs.publisher}" is not a publisher`);
       return;
     } else {
-      etsPublisherV1 = new ethers.Contract(publisherAddress, etsPublisherV1ABI, accounts[taskArgs.tagger]);
+      etsPublisherV1 = new ethers.Contract(publisherAddress, etsPublisherV1ABI, accounts[taskArgs.signer]);
     }
 
     const tags = taskArgs.tags.replace(/\s+/g, "").split(","); // remove spaces & split on comma
@@ -57,7 +57,7 @@ task(
     const taggingRecordId = await ets.computeTaggingRecordIdFromRawInput(
       tagParams,
       publisherAddress,
-      accounts[taskArgs.tagger].address,
+      accounts[taskArgs.signer].address,
     );
     const existingRecord = await ets.taggingRecordExists(taggingRecordId);
     if (!existingRecord) {
@@ -70,7 +70,7 @@ task(
     let result = await ets.computeTaggingFeeFromRawInput(
       tagParams,
       publisherAddress, // original publisher
-      accounts[taskArgs.tagger].address, // original tagger
+      accounts[taskArgs.signer].address, // original signer
       1, // 1 = replace
     );
 
@@ -85,5 +85,5 @@ task(
     console.log(`started txn ${tx.hash.toString()}`);
     tx.wait();
     console.log(`${actualTagCount} tag(s) replaced in ${taggingRecordId}`);
-    console.log(`${taskArgs.tagger} charged for ${actualTagCount} tags`);
+    console.log(`${taskArgs.signer} charged for ${actualTagCount} tags`);
   });
