@@ -22,11 +22,15 @@ export function ensurePublisher(publisherAddress: Address, event: ethereum.Event
     if (isPublisherAdminCall.reverted) {
       logCritical("isPublisherAdminCall reverted for {}", [publisherAddress.toString()]);
     }
+    let isPublisherPaused = contract.try_isPublisherPaused(publisherAddress);
+    if (isPublisherPaused.reverted) {
+      logCritical("isPublisherPaused reverted for {}", [publisherAddress.toString()]);
+    }
 
     publisher = new Publisher(publisherAddress.toHex());
     publisher.name = contractToNameCall.value;
     publisher.admin = isPublisherAdminCall.value;
-    publisher.pausedByProtocol = true;
+    publisher.pausedByProtocol = isPublisherPaused.value;
     publisher.firstSeen = event.block.timestamp;
     publisher.tagsPublished = ZERO;
     publisher.tagsApplied = ZERO;
