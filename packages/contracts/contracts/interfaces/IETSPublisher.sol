@@ -8,7 +8,7 @@ pragma solidity ^0.8.10;
  *
  * @notice Minimum interface required for ETS Publisher smart contracts. Contracts implementing this
  * interface will need to import OpenZeppelin ERC165, Ownable and Pausable contracts.
- * See https://github.com/ethereum-tag-service/ets/blob/stage/packages/contracts-core/contracts/examples/ETSPublisher.sol
+ * See https://github.com/ethereum-tag-service/ets/blob/stage/packages/contracts/contracts/examples/ETSPublisher.sol
  * for a sample implementation.
  */
 interface IETSPublisher {

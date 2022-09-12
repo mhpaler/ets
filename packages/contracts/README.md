@@ -1,8 +1,8 @@
 # Contracts
 
-Contracts are located in `packages/contracts-core`.
+Contracts are located in `packages/contracts`.
 
-We use [Hardhat](https://hardhat.org/) as our Solidity smart contract development environment. Before using Hardhat, make a copy of `.env.example` in the project root named `.env`. The default settings in there should be enough to get you going. Next, starting in the `contracts-core` directory, start up Hardhat:
+We use [Hardhat](https://hardhat.org/) as our Solidity smart contract development environment. Before using Hardhat, make a copy of `.env.example` in the project root named `.env`. The default settings in there should be enough to get you going. Next, starting in the `contracts` directory, start up Hardhat:
 
 ```bash
 pnpm hardhat
@@ -57,7 +57,7 @@ pnpm hardhat-test
 
 ### Quickstart
 
-Configure hardhat.config.js to meet your needs, then from within the contracts-core root, run
+Configure hardhat.config.js to meet your needs, then from within the contracts root, run
 
 ```bash
 # for localhost

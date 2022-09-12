@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@ets/ui": "workspace:*",
-    "@ets/contracts-core": "workspace:*",
+    "@ets/contracts": "workspace:*",
     "@headlessui/react": "^1.6.4",
     "@iconicicons/react": "^1.5.0",
     "@rainbow-me/rainbowkit": "^0.2.3",
