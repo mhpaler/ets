@@ -1,8 +1,8 @@
 const {ethers} = require("hardhat");
+const {setup} = require("./setup.js");
 
 module.exports = async ({deployments}) => {
-  const {ETSAdmin, ETSPlatform} = await ethers.getNamedSigners();
-  const deployer = ETSAdmin.address;
+  [accounts, factories, initSettings] = await setup();
 
   const etsAccessControls = await deployments.get("ETSAccessControls");
   const ETSAccessControls = await ethers.getContractAt("ETSAccessControls", etsAccessControls.address);
@@ -24,7 +24,7 @@ module.exports = async ({deployments}) => {
   await ETSAccessControls.grantRole(await ETSAccessControls.SMART_CONTRACT_ROLE(), accounts.ETSAdmin.address, {
     from: accounts.ETSAdmin.address,
   });
-  console.log(`SMART_CONTRACT_ROLE granted to ETSPlatform.address (${ETSPlatform.address})`);
+  console.log(`SMART_CONTRACT_ROLE granted to ETSPlatform.address (${accounts.ETSAdmin.address})`);
 
   // Grant PUBLISHER_ADMIN role to ETSPublisherFactory so it can deploy publisher contracts.
   await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), ETSPublisherFactory.address);
@@ -47,4 +47,4 @@ module.exports = async ({deployments}) => {
 };
 
 module.exports.tags = ["deployAll"];
-module.exports.dependencies = ["ETSPublisherFactory"];
+// module.exports.dependencies = ["ETSPublisherFactory"];

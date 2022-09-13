@@ -13,6 +13,7 @@ import "@openzeppelin/hardhat-upgrades";
 
 import {resolve} from "path";
 import {config as dotenvConfig} from "dotenv";
+import {HttpNetworkAccountsUserConfig} from "hardhat/types";
 import {HardhatUserConfig} from "hardhat/types";
 
 import "./tasks/";
@@ -29,26 +30,23 @@ if (!mnemonic) {
 const config: HardhatUserConfig = {
   networks: {
     hardhat: {
-      accounts: mnemonic ? {mnemonic} : undefined,
+      accounts: {mnemonic},
       chainId: 31337,
     },
     localhost: {
       url: "http://localhost:8545",
-      accounts: mnemonic ? {mnemonic} : undefined,
+      accounts: {mnemonic},
       chainId: 31337,
     },
     mumbai: {
       url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_MUMBAI}`,
       //url: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 80001,
-      accounts: mnemonic ? {mnemonic} : undefined,
+      accounts: {mnemonic},
       gas: 2100000,
       gasPrice: 8000000000,
     },
   },
-  //paths: {
-  //  artifacts: '../app/artifacts',
-  //},
   abiExporter: {
     path: "./abi",
     runOnCompile: true,
