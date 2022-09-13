@@ -8,11 +8,11 @@ task(
   .addParam("publisher", "Publisher name")
   .addParam(
     "signer",
-    'Named wallets. options are "Buyer", "RandomOne", "RandomTwo", "Creator". Defaults to "RandomOne"',
-    "RandomOne",
+    'Named wallet accounts. options are "Zero", "One", "Two", "Three", "Four", "Five". Defaults to "Zero"',
+    "Zero",
   )
   .setAction(async (taskArgs) => {
-    const {getAccounts} = require("../test/setup.js");
+    const {getAccounts} = require("./utils/getAccounts");
     const chainId = hre.network.config.chainId;
     const accounts = await getAccounts();
     const config = require("../config/config.json");

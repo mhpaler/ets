@@ -1,24 +1,12 @@
 task("accounts", "Prints the list of accounts", async () => {
+  const accounts = await ethers.getSigners();
 
-  let mnemonic = process.env.MNEMONIC;
-  const hdNode = ethers.utils.HDNode.fromMnemonic(mnemonic);
-
-//  const firstAccount = hdNode.derivePath(`m/44'/60'/0'/0/0`); 
-//  const secondAccount = hdNode.derivePath(`m/44'/60'/0'/0/1`);
-//  const thirdAccount = hdNode.derivePath(`m/44'/60'/0'/0/2`);
-//
-//  console.log("firstAccount",firstAccount);
-//  console.log("secondAccount",secondAccount);
-
-  const accounts = await ethers.getSigners()
-
-  //let mnemonicWallet = ethers.Wallet.fromMnemonic(mnemonic);
-  //console.log(mnemonicWallet.privateKey);
-
-  for (const account of accounts) {
-    
-    console.log("account:", account)
+  for (let i = 0; i < accounts.length; i++) {
+    let balance = await accounts[i].getBalance();
+    balance = ethers.utils.formatEther(balance);
+    console.log(" ");
+    console.log(`Account ${i}: ${accounts[i].address} Balance: ${balance}`);
   }
-})
+});
 
-module.exports = {}
+module.exports = {};

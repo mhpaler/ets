@@ -4,11 +4,11 @@ task("togglePausePublisherByOwner", "Pauses/Unpauses a Publisher contract by own
   .addParam("publisher", "Publisher name.")
   .addParam(
     "signer",
-    'Owner of publisher. Options are "Buyer", "RandomOne", "RandomTwo", "Creator". Defaults to "Creator"',
-    "Creator",
+    'Named wallet accounts. options are "Zero", "One", "Two", "Three", "Four", "Five". Defaults to "Zero"',
+    "Zero",
   )
   .setAction(async (taskArgs) => {
-    const {getAccounts} = require("../test/setup.js");
+    const {getAccounts} = require("./utils/getAccounts");
     const accounts = await getAccounts();
     const chainId = hre.network.config.chainId;
     const config = require("../config/config.json");

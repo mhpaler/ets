@@ -5,11 +5,11 @@ task(
   .addParam("name", 'Publisher Name eg. "Uniswap"')
   .addParam(
     "signer",
-    'Named wallets. options are "Buyer", "RandomOne", "RandomTwo", "Creator". Defaults to "Creator"',
-    "RandomOne",
+    'Named wallet accounts. options are "Zero", "One", "Two", "Three", "Four", "Five". Defaults to "Zero"',
+    "Zero",
   )
   .setAction(async (taskArgs) => {
-    const {getAccounts} = require("../test/setup.js");
+    const {getAccounts} = require("./utils/getAccounts");
     const config = require("../config/config.json");
     const ETSAccessControlsABI = require("../abi/contracts/ETSAccessControls.sol/ETSAccessControls.json");
     const ETSPublisherFactoryABI = require("../abi/contracts/ETSPublisherFactory.sol/ETSPublisherFactory.json");
@@ -34,7 +34,12 @@ task(
       return;
     }
 
-    let tx = await etsPublisherFactory.addPublisherV1(taskArgs.name);
+    let tx = await etsPublisherFactory.addPublisherV1(taskArgs.name, {
+      //value: 0,
+      //gasPrice: ethers.utils.parseUnits("5", "gwei"), // do we need this?
+      //gasLimit: 2339248,
+    });
+    console.log(`started txn ${tx.hash.toString()}`);
     await tx.wait();
 
     const publisherAddress = await etsAccessControls.getPublisherAddressFromName(taskArgs.name);
