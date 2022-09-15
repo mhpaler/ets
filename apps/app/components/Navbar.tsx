@@ -1,12 +1,24 @@
-import Link from 'next/link';
-import useTranslation from 'next-translate/useTranslation';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import Link from "next/link";
+import useTranslation from "next-translate/useTranslation";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export default function Navbar() {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation("common");
 
   return (
     <header className="px-4">
+      <div className="relative bg-pink-500 -mx-4">
+        <div className="mx-auto max-w-7xl py-3 px-3 sm:px-6 lg:px-8">
+          <div className="pr-16 sm:px-16 sm:text-center">
+            <p className="font-medium text-white">
+              <span className="hidden md:inline">
+                ETS is alpha software running on Polygon Mumbai Testnet. Use at
+                your own risk.
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
       <nav className="max-w-6xl mx-auto" aria-label="Top">
         <div className="flex items-center justify-between w-full py-5 border-b border-slate-100 lg:border-none">
           <div className="flex items-center">
@@ -17,8 +29,15 @@ export default function Navbar() {
                   <circle cx="14.9" cy="84.7" r="5" />
                 </svg> */}
                 <div className="relative flex items-center">
-                  <svg className="h-8 text-slate-800" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-                    <path fill="currentColor" d="M0 50 50 0H0v50zm100 50V50l-50 50h50zM50 0l50 50V0H50zM19.9 84.9c0 2.8-2.2 5-5 5s-5-2.2-5-5 2.2-5 5-5 5 2.3 5 5z"/>
+                  <svg
+                    className="h-8 text-slate-800"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 100 100"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M0 50 50 0H0v50zm100 50V50l-50 50h50zM50 0l50 50V0H50zM19.9 84.9c0 2.8-2.2 5-5 5s-5-2.2-5-5 2.2-5 5-5 5 2.3 5 5z"
+                    />
                   </svg>
                   {/* <svg className="h-8 text-slate-800" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
                     <rect className="animate-ets-outer" fill="currentColor" mask="url(#mask)" x="0" y="0" width="100" height="100" />
@@ -28,8 +47,12 @@ export default function Navbar() {
                     </mask>
                     <circle className="dot" fill="currentColor" cx="15" cy="85" r="5"/>
                   </svg> */}
-                  <span className="xl:hidden ml-2.5 text-2xl font-medium text-slate-900">ETS</span>
-                  <span className="hidden xl:inline-flex ml-2.5 text-xl font-medium text-slate-900">Ethereum Tag Service</span>
+                  <span className="xl:hidden ml-2.5 text-2xl font-medium text-slate-900">
+                    ETS
+                  </span>
+                  <span className="hidden xl:inline-flex ml-2.5 text-xl font-medium text-slate-900">
+                    Ethereum Tag Service
+                  </span>
                 </div>
                 <h1 className="sr-only">Ethereum Tag Service</h1>
               </a>
@@ -40,19 +63,19 @@ export default function Navbar() {
               <div className="hidden mr-6 space-x-6 lg:flex">
                 <Link href="/auctions">
                   <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
-                    {t('auctions')}
+                    {t("auctions")}
                   </a>
                 </Link>
 
                 <Link href="/publishers">
                   <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
-                    {t('publishers')}
+                    {t("publishers")}
                   </a>
                 </Link>
 
                 <Link href="/playground">
                   <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
-                    {t('playground')}
+                    {t("playground")}
                   </a>
                 </Link>
               </div>
@@ -64,23 +87,23 @@ export default function Navbar() {
         <div className="flex flex-wrap justify-center py-4 space-x-8 lg:hidden">
           <Link href="/auctions">
             <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
-              {t('auctions')}
+              {t("auctions")}
             </a>
           </Link>
 
           <Link href="/publishers">
             <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
-              {t('publishers')}
+              {t("publishers")}
             </a>
           </Link>
 
           <Link href="/playground">
             <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
-              {t('playground')}
+              {t("playground")}
             </a>
           </Link>
         </div>
       </nav>
     </header>
-  )
+  );
 }
