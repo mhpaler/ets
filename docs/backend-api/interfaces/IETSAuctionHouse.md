@@ -79,6 +79,18 @@ event AuctionExtended(uint256 tokenId, uint256 endTime)
 event AuctionSettled(uint256 tokenId, address winner, uint256 totalProceeds, uint256 publisherProceeds, uint256 creatorProceeds)
 ```
 
+### AuctionDurationSet
+
+```solidity
+event AuctionDurationSet(uint256 duration)
+```
+
+### AuctionMinBidIncrementPercentageSet
+
+```solidity
+event AuctionMinBidIncrementPercentageSet(uint8 minBidIncrementPercentagePrice)
+```
+
 ### AuctionReservePriceSet
 
 ```solidity

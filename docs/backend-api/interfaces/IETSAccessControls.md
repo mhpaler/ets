@@ -18,45 +18,32 @@ Sets the Platform wallet address. Can only be called by address with DEFAULT_ADM
 | ---- | ---- | ----------- |
 | _platform | address payable | The new Platform address to set. |
 
-### addTargetTagger
+### addPublisher
 
 ```solidity
-function addTargetTagger(address _taggerAddress, string _name) external
+function addPublisher(address _publisher, string _name) external
 ```
 
-Adds a Target Tagger contract to ETS. Can only be called by address
+Adds a Publisher contract to ETS. Can only be called by address
 with DEFAULT_ADMIN_ROLE.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| _taggerAddress | address | Address of the Target Tagger contract. Must conform to IETSTargetTagger. |
-| _name | string | Human readable name of the Target Tagger. |
+| _publisher | address | Address of the Publisher contract. Must conform to IETSPublisher. |
+| _name | string | Human readable name of the Publisher. |
 
-### removeTargetTagger
+### toggleIsPublisherPaused
 
 ```solidity
-function removeTargetTagger(address _taggerAddress) external
+function toggleIsPublisherPaused(address _publisher) external
 ```
 
-Removes a Target Tagger contract from ETS. Can only be called by address
+Pauses/Unpauses a Publisher contract. Can only be called by address
 with DEFAULT_ADMIN_ROLE.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| _taggerAddress | address | Address of the Target Tagger contract. |
-
-### toggleIsTargetTaggerPaused
-
-```solidity
-function toggleIsTargetTaggerPaused(address _taggerAddress) external
-```
-
-Pauses/Unpauses a Target Tagger contract. Can only be called by address
-with DEFAULT_ADMIN_ROLE.
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _taggerAddress | address | Address of the Target Tagger contract. |
+| _publisher | address | Address of the Publisher contract. |
 
 ### setRoleAdmin
 
@@ -71,18 +58,6 @@ revoke that role for other addresses. Can only be called by address with DEFAULT
 | ---- | ---- | ----------- |
 | _role | bytes32 | bytes32 representation of role being administered. |
 | _adminRole | bytes32 | bytes32 representation of administering role. |
-
-### getPlatformAddress
-
-```solidity
-function getPlatformAddress() external view returns (address payable)
-```
-
-Returns wallet address for ETS Platform.
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | address payable | ETS Platform address. |
 
 ### isSmartContract
 
@@ -148,13 +123,13 @@ Checks whether given address has PUBLISHER_ADMIN role.
 | ---- | ---- | ----------- |
 | [0] | bool | boolean True if address has PUBLISHER_ADMIN role. |
 
-### isTargetTagger
+### isPublisherByName
 
 ```solidity
-function isTargetTagger(string _name) external view returns (bool)
+function isPublisherByName(string _name) external view returns (bool)
 ```
 
-Checks whether given Tagger Name is a registered Target Tagger.
+Checks whether given Publisher Name is a registered Publisher.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
@@ -162,15 +137,15 @@ Checks whether given Tagger Name is a registered Target Tagger.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | bool | boolean True if _name is a Target Tagger. |
+| [0] | bool | boolean True if _name is a Publisher. |
 
-### isTargetTagger
+### isPublisherByAddress
 
 ```solidity
-function isTargetTagger(address _addr) external view returns (bool)
+function isPublisherByAddress(address _addr) external view returns (bool)
 ```
 
-Checks whether given address is a registered Target Tagger.
+Checks whether given address is a registered Publisher.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
@@ -178,15 +153,15 @@ Checks whether given address is a registered Target Tagger.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | bool | boolean True if address is a Target Tagger. |
+| [0] | bool | boolean True if address is a registered Publisher. |
 
-### isTargetTaggerAndNotPaused
+### isPublisherAndNotPaused
 
 ```solidity
-function isTargetTaggerAndNotPaused(address _addr) external view returns (bool)
+function isPublisherAndNotPaused(address _addr) external view returns (bool)
 ```
 
-Checks whether given address is a registered Target Tagger and not paused.
+Checks whether given address is a registered Publisher and not paused.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
@@ -194,44 +169,92 @@ Checks whether given address is a registered Target Tagger and not paused.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | bool | boolean True if address is a Target Tagger and not paused. |
+| [0] | bool | boolean True if address is a Publisher and not paused. |
+
+### getPublisherAddressFromName
+
+```solidity
+function getPublisherAddressFromName(string _name) external view returns (address)
+```
+
+Get publisher address from it's name.
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| _name | string | Name of publisher. |
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | address | Address of publisher. |
+
+### getPublisherNameFromAddress
+
+```solidity
+function getPublisherNameFromAddress(address _address) external view returns (string)
+```
+
+Get publisher name from it's address.
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| _address | address | Adsdress of publisher. |
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | string | Name of publisher. |
+
+### getPlatformAddress
+
+```solidity
+function getPlatformAddress() external view returns (address payable)
+```
+
+Returns wallet address for ETS Platform.
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | address payable | ETS Platform address. |
 
 ## Events
 
 ### PlatformSet
 
 ```solidity
-event PlatformSet(address platformAddress)
+event PlatformSet(address newAddress, address prevAddress)
 ```
 
 _emitted when the ETS Platform address is set._
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| platformAddress | address | wallet address platform is set to. |
+| newAddress | address | wallet address platform is being set to. |
+| prevAddress | address | previous platform address. |
 
-### PublisherDefaultThresholdSet
+### PublisherAdded
 
 ```solidity
-event PublisherDefaultThresholdSet(uint256 threshold)
+event PublisherAdded(address publisher, bool isAdmin)
 ```
 
-_emitted when the publisherDefaultThreshold is set. See function below
-for explanation of publisherDefaultThreshold._
+_emitted when a Publisher contract is added & enabled in ETS.
+
+Publisher contracts are not required implement all ETS Core API functions. Therefore, to ease
+testing of ETS Core API fuinctions, ETS permits addition of ETS owned wallet addresses as Publishers._
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| threshold | uint256 | number of CTAGs required to own. |
+| publisher | address | Publisher contract address. |
+| isAdmin | bool | Publisher address is ETS administrator (used for testing). |
 
-### TargetTaggerPauseToggled
+### PublisherPauseToggled
 
 ```solidity
-event TargetTaggerPauseToggled(bool newValue)
+event PublisherPauseToggled(address publisher)
 ```
 
-_emitted when a Target Tagger contract is paused or unpaused._
+_emitted when a Publisher contract is paused or unpaused._
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| newValue | bool | Boolean contract pause state. True for paused; false for unpaused. |
+| publisher | address | Address that had pause toggled. |
 

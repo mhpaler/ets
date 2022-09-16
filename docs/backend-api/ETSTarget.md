@@ -14,13 +14,19 @@ resources such as web pages and books.
 
 For our purposes, as much as possible, we are restricting our interpretation of URIs to the more technical
 parameters defined by the IETF in [RFC3986](https://www.rfc-editor.org/rfc/rfc3986). For newer protocols, such
-as blockchains, For newer protocols, such as blockchains we will lean on newer emerging URI standards such
-as the [Blink](https://w3c-ccg.github.io/blockchain-links) and [BIP-122](https://github.com/bitcoin/bips/blob/master/bip-0122.mediawiki)
+as blockchains, we will lean on newer emerging URI standards such as the [Blink](https://w3c-ccg.github.io/blockchain-links)
+and [BIP-122](https://github.com/bitcoin/bips/blob/master/bip-0122.mediawiki)
 
 One the thing to keep in mind with URIs & ETS Targets is that differently shaped URIs can sometimes point to the same
 resource. The effect of that is that different Target IDs in ETS can similarly point to the same resource.
 
 ## Functions
+
+### constructor
+
+```solidity
+constructor() public
+```
 
 ### initialize
 
@@ -37,15 +43,16 @@ function _authorizeUpgrade(address) internal
 ### setAccessControls
 
 ```solidity
-function setAccessControls(address _etsAccessControls) public
+function setAccessControls(contract IETSAccessControls _accessControls) public
 ```
 
 Sets ETSAccessControls on the ETSTarget contract so functions can be
-restricted to ETS platform only.
+restricted to ETS platform only. Note Caller of this function must be deployer
+or pre-set as admin of new contract.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| _etsAccessControls | address | Address of ETSAccessControls contract. |
+| _accessControls | contract IETSAccessControls | Address of ETSAccessControls contract. |
 
 ### setEnrichTarget
 
@@ -136,10 +143,10 @@ Note: Function does not verify if Target record exists.
 | ---- | ---- | ----------- |
 | [0] | uint256 |  |
 
-### targetExists
+### targetExistsByURI
 
 ```solidity
-function targetExists(string _targetURI) public view returns (bool)
+function targetExistsByURI(string _targetURI) public view returns (bool)
 ```
 
 Check that a Target record exists for a given URI string.
@@ -152,10 +159,10 @@ Check that a Target record exists for a given URI string.
 | ---- | ---- | ----------- |
 | [0] | bool | true if Target record exists; false if not. |
 
-### targetExists
+### targetExistsById
 
 ```solidity
-function targetExists(uint256 _targetId) public view returns (bool)
+function targetExistsById(uint256 _targetId) public view returns (bool)
 ```
 
 Check that a Target record exists for a given computed targetId.
@@ -168,10 +175,10 @@ Check that a Target record exists for a given computed targetId.
 | ---- | ---- | ----------- |
 | [0] | bool | true if Target record exists; false if not. |
 
-### getTarget
+### getTargetByURI
 
 ```solidity
-function getTarget(string _targetURI) public view returns (struct IETSTarget.Target)
+function getTargetByURI(string _targetURI) public view returns (struct IETSTarget.Target)
 ```
 
 Retrieve a Target record for a given URI string.
@@ -186,10 +193,10 @@ Note: returns a struct with empty members when no Target exists.
 | ---- | ---- | ----------- |
 | [0] | struct IETSTarget.Target | Target record. |
 
-### getTarget
+### getTargetById
 
 ```solidity
-function getTarget(uint256 _targetId) public view returns (struct IETSTarget.Target)
+function getTargetById(uint256 _targetId) public view returns (struct IETSTarget.Target)
 ```
 
 Retrieve a Target record for a computed targetId.

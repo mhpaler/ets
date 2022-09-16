@@ -20,6 +20,12 @@ Future implementation should utilize ChainLink in place of OpenZeppelin for bett
 
 ## Functions
 
+### constructor
+
+```solidity
+constructor() public
+```
+
 ### initialize
 
 ```solidity

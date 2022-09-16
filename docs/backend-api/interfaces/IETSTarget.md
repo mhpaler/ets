@@ -22,19 +22,6 @@ resource. The effect of that is that different Target IDs in ETS can similarly p
 
 ## Functions
 
-### setAccessControls
-
-```solidity
-function setAccessControls(address _etsAccessControls) external
-```
-
-Sets ETSAccessControls on the ETSTarget contract so functions can be
-restricted to ETS platform only.
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _etsAccessControls | address | Address of ETSAccessControls contract. |
-
 ### setEnrichTarget
 
 ```solidity
@@ -124,10 +111,10 @@ Note: Function does not verify if Target record exists.
 | ---- | ---- | ----------- |
 | targetId | uint256 | Id of the potential Target record. |
 
-### targetExists
+### targetExistsByURI
 
 ```solidity
-function targetExists(string _targetURI) external view returns (bool)
+function targetExistsByURI(string _targetURI) external view returns (bool)
 ```
 
 Check that a Target record exists for a given URI string.
@@ -140,10 +127,10 @@ Check that a Target record exists for a given URI string.
 | ---- | ---- | ----------- |
 | [0] | bool | true if Target record exists; false if not. |
 
-### targetExists
+### targetExistsById
 
 ```solidity
-function targetExists(uint256 _targetId) external view returns (bool)
+function targetExistsById(uint256 _targetId) external view returns (bool)
 ```
 
 Check that a Target record exists for a given computed targetId.
@@ -156,10 +143,10 @@ Check that a Target record exists for a given computed targetId.
 | ---- | ---- | ----------- |
 | [0] | bool | true if Target record exists; false if not. |
 
-### getTarget
+### getTargetByURI
 
 ```solidity
-function getTarget(string _targetURI) external view returns (struct IETSTarget.Target)
+function getTargetByURI(string _targetURI) external view returns (struct IETSTarget.Target)
 ```
 
 Retrieve a Target record for a given URI string.
@@ -174,10 +161,10 @@ Note: returns a struct with empty members when no Target exists.
 | ---- | ---- | ----------- |
 | [0] | struct IETSTarget.Target | Target record. |
 
-### getTarget
+### getTargetById
 
 ```solidity
-function getTarget(uint256 _targetId) external view returns (struct IETSTarget.Target)
+function getTargetById(uint256 _targetId) external view returns (struct IETSTarget.Target)
 ```
 
 Retrieve a Target record for a computed targetId.

@@ -1,23 +1,98 @@
-# IETSToken
+# ETSToken
 
-This is the interface for the ETSToken.sol core contract that governs the creation & management
-of Ethereum Tag Service composable tags (CTAGs).
+This is the core ETSToken.sol contract that governs the creation & management of
+Ethereum Tag Service composable tags (CTAGs).
 
-CTAGs are ERC-721 non-fungible tokens that store a single tag string that must conform to a few simple
-validation rules and origin attribution data including a "Publisher" address and a "Creator" address.
+CTAGs are ERC-721 non-fungible tokens that store a single tag string and origin attribution data
+including a "Publisher" address and a "Creator" address. The tag string must conform to a few simple
+validation rules.
 
 CTAGs are identified in ETS by their Id (tagId) which is an unsigned integer computed from the lowercased
 tag "display" string. Given this, only one CTAG exists for a tag string regardless of its case. For
 example, #Punks, #punks and #PUNKS all resolve to the same CTAG.
 
 CTAG Ids are combined with Target Ids (see ETSTarget.sol) by ETS core (ETS.sol) to form "Tagging Records".
+See ETS.sol for more details on Tagging Records.
 
 ## Functions
+
+### constructor
+
+```solidity
+constructor() public
+```
+
+### initialize
+
+```solidity
+function initialize(contract IETSAccessControls _etsAccessControls, uint256 _tagMinStringLength, uint256 _tagMaxStringLength, uint256 _ownershipTermLength) public
+```
+
+### _authorizeUpgrade
+
+```solidity
+function _authorizeUpgrade(address) internal
+```
+
+### setETSCore
+
+```solidity
+function setETSCore(contract IETS _ets) public
+```
+
+Sets ETS core on the ETSToken contract so functions can be
+restricted to ETS platform only.
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| _ets | contract IETS | Address of ETS contract. |
+
+### setAccessControls
+
+```solidity
+function setAccessControls(contract IETSAccessControls _accessControls) public
+```
+
+Sets ETSAccessControls on the ETSToken contract function calls can be
+restricted to ETS platform only. Note: Caller of this function must be deployer
+or pre-set as admin of new contract.
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| _accessControls | contract IETSAccessControls | Address of ETSAccessControls contract. |
+
+### pause
+
+```solidity
+function pause() public
+```
+
+Pauses ETSToken contract.
+
+### unPause
+
+```solidity
+function unPause() public
+```
+
+Unpauses ETSToken contract.
+
+### burn
+
+```solidity
+function burn(uint256 tokenId) public
+```
+
+_Burns `tokenId`. See {ERC721-_burn}.
+
+Requirements:
+
+- The caller must own `tokenId` or be an approved operator._
 
 ### setTagMaxStringLength
 
 ```solidity
-function setTagMaxStringLength(uint256 _tagMaxStringLength) external
+function setTagMaxStringLength(uint256 _tagMaxStringLength) public
 ```
 
 admin function to set maximum character length of CTAG display string.
@@ -29,7 +104,7 @@ admin function to set maximum character length of CTAG display string.
 ### setTagMinStringLength
 
 ```solidity
-function setTagMinStringLength(uint256 _tagMinStringLength) external
+function setTagMinStringLength(uint256 _tagMinStringLength) public
 ```
 
 Admin function to set minimum  character length of CTAG display string.
@@ -41,7 +116,7 @@ Admin function to set minimum  character length of CTAG display string.
 ### setOwnershipTermLength
 
 ```solidity
-function setOwnershipTermLength(uint256 _ownershipTermLength) external
+function setOwnershipTermLength(uint256 _ownershipTermLength) public
 ```
 
 Admin function to set the ownership term length of a CTAG is set.
@@ -50,23 +125,10 @@ Admin function to set the ownership term length of a CTAG is set.
 | ---- | ---- | ----------- |
 | _ownershipTermLength | uint256 | Ownership term length in days. |
 
-### setAccessControls
-
-```solidity
-function setAccessControls(address _etsAccessControls) external
-```
-
-Sets ETSAccessControls on the ETSTarget contract so functions can be
-restricted to ETS platform only.
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _etsAccessControls | address | Address of ETSAccessControls contract. |
-
 ### preSetPremiumTags
 
 ```solidity
-function preSetPremiumTags(string[] _tags, bool _isPremium) external
+function preSetPremiumTags(string[] _tags, bool _enabled) public
 ```
 
 Admin function to flag/unflag tag string(s) as premium prior to minting.
@@ -74,12 +136,12 @@ Admin function to flag/unflag tag string(s) as premium prior to minting.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | _tags | string[] | Array of tag strings. |
-| _isPremium | bool | Boolean true for premium, false for not premium. |
+| _enabled | bool |  |
 
 ### setPremiumFlag
 
 ```solidity
-function setPremiumFlag(uint256[] _tokenIds, bool _isPremium) external
+function setPremiumFlag(uint256[] _tokenIds, bool _isPremium) public
 ```
 
 Admin function to flag/unflag CTAG(s) as premium.
@@ -92,7 +154,7 @@ Admin function to flag/unflag CTAG(s) as premium.
 ### setReservedFlag
 
 ```solidity
-function setReservedFlag(uint256[] _tokenIds, bool _reserved) external
+function setReservedFlag(uint256[] _tokenIds, bool _reserved) public
 ```
 
 Admin function to flag/unflag CTAG(s) as reserved.
@@ -104,10 +166,16 @@ Tags flagged as reserved cannot be auctioned.
 | _tokenIds | uint256[] | Array of CTAG Ids. |
 | _reserved | bool | Boolean true for reserved, false for not reserved. |
 
+### getOrCreateTag
+
+```solidity
+function getOrCreateTag(string _tag, address payable _publisher, address payable _creator) public payable returns (struct IETSToken.Tag tag)
+```
+
 ### getOrCreateTagId
 
 ```solidity
-function getOrCreateTagId(string _tag, address payable _creator) external payable returns (uint256 tokenId)
+function getOrCreateTagId(string _tag, address payable _publisher, address payable _creator) public payable returns (uint256 tokenId)
 ```
 
 Get CTAG token Id from tag string.
@@ -115,11 +183,12 @@ Get CTAG token Id from tag string.
 Combo function that accepts a tag string and returns it's CTAG token Id if it exists,
 or creates a new CTAG and returns corresponding Id.
 
-Only contracts/addresses with Publisher role can call this function.
+Only ETS Core can call this function.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | _tag | string | Tag string. |
+| _publisher | address payable | Address of Publisher contract calling ETS Core. |
 | _creator | address payable | Address credited with creating CTAG. |
 
 | Name | Type | Description |
@@ -129,28 +198,29 @@ Only contracts/addresses with Publisher role can call this function.
 ### createTag
 
 ```solidity
-function createTag(string _tag, address payable _creator) external payable returns (uint256 tokenId)
+function createTag(string _tag, address payable _publisher, address payable _creator) public payable returns (uint256 _tokenId)
 ```
 
 Create CTAG token from tag string.
 
 Reverts if tag exists or is invalid.
 
-Only contracts/addresses with Publisher role can call this function.
+Only ETS Core can call this function.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | _tag | string | Tag string. |
+| _publisher | address payable |  |
 | _creator | address payable | Address credited with creating CTAG. |
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| tokenId | uint256 | Id of CTAG token. |
+| _tokenId | uint256 |  |
 
 ### renewTag
 
 ```solidity
-function renewTag(uint256 _tokenId) external
+function renewTag(uint256 _tokenId) public
 ```
 
 Renews ownership term of a CTAG.
@@ -168,7 +238,7 @@ is extended from the current block timestamp plus the ownershipTermLength public
 ### recycleTag
 
 ```solidity
-function recycleTag(uint256 _tokenId) external
+function recycleTag(uint256 _tokenId) public
 ```
 
 Recycles a CTAG back to ETS.
@@ -180,10 +250,16 @@ to recycle the tag back to ETS. Once recycled, a tag may be auctioned again.
 | ---- | ---- | ----------- |
 | _tokenId | uint256 | Id of CTAG token. |
 
+### supportsInterface
+
+```solidity
+function supportsInterface(bytes4 interfaceId) public view virtual returns (bool)
+```
+
 ### computeTagId
 
 ```solidity
-function computeTagId(string _tag) external pure returns (uint256)
+function computeTagId(string _tag) public pure returns (uint256)
 ```
 
 Function to deterministically compute & return a CTAG token Id.
@@ -201,10 +277,10 @@ Note: Function does not verify if CTAG record exists.
 | ---- | ---- | ----------- |
 | [0] | uint256 | Id of potential CTAG token id. |
 
-### tagExists
+### tagExistsByString
 
 ```solidity
-function tagExists(string _tag) external view returns (bool)
+function tagExistsByString(string _tag) public view returns (bool)
 ```
 
 Check that a CTAG token exists for a given tag string.
@@ -217,10 +293,10 @@ Check that a CTAG token exists for a given tag string.
 | ---- | ---- | ----------- |
 | [0] | bool | true if CTAG token exists; false if not. |
 
-### tagExists
+### tagExistsById
 
 ```solidity
-function tagExists(uint256 _tokenId) external view returns (bool)
+function tagExistsById(uint256 _tokenId) public view returns (bool)
 ```
 
 Check that CTAG token exists for a given computed token Id.
@@ -233,10 +309,10 @@ Check that CTAG token exists for a given computed token Id.
 | ---- | ---- | ----------- |
 | [0] | bool | true if CTAG token exists; false if not. |
 
-### getTag
+### getTagByString
 
 ```solidity
-function getTag(string _tag) external view returns (struct IETSToken.Tag)
+function getTagByString(string _tag) public view returns (struct IETSToken.Tag)
 ```
 
 Retrieve a CTAG record for a given tag string.
@@ -251,10 +327,10 @@ Note: returns a struct with empty members when no CTAG exists.
 | ---- | ---- | ----------- |
 | [0] | struct IETSToken.Tag | CTAG record as Tag struct. |
 
-### getTag
+### getTagById
 
 ```solidity
-function getTag(uint256 _tokenId) external view returns (struct IETSToken.Tag)
+function getTagById(uint256 _tokenId) public view returns (struct IETSToken.Tag)
 ```
 
 Retrieve a CTAG record for a given token Id.
@@ -269,38 +345,22 @@ Note: returns a struct with empty members when no CTAG exists.
 | ---- | ---- | ----------- |
 | [0] | struct IETSToken.Tag | CTAG record as Tag struct. |
 
-### getPlatformAddress
+### getOwnershipTermLength
 
 ```solidity
-function getPlatformAddress() external view returns (address payable)
+function getOwnershipTermLength() public view returns (uint256)
 ```
 
-Retrieve wallet address for ETS Platform.
+Retrieve CTAG ownership term length global setting.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | address payable | wallet address for ETS Platform. |
-
-### getCreatorAddress
-
-```solidity
-function getCreatorAddress(uint256 _tokenId) external view returns (address)
-```
-
-Retrieve Creator address for a CTAG token.
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _tokenId | uint256 | CTAG token Id. |
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | address | _creator Creator address of the CTAG. |
+| [0] | uint256 | Term length in days. |
 
 ### getLastRenewed
 
 ```solidity
-function getLastRenewed(uint256 _tokenId) external view returns (uint256)
+function getLastRenewed(uint256 _tokenId) public view returns (uint256)
 ```
 
 Retrieve last renewal block timestamp for a CTAG.
@@ -313,130 +373,51 @@ Retrieve last renewal block timestamp for a CTAG.
 | ---- | ---- | ----------- |
 | [0] | uint256 | Block timestamp. |
 
-### getOwnershipTermLength
+### getPlatformAddress
 
 ```solidity
-function getOwnershipTermLength() external view returns (uint256)
+function getPlatformAddress() public view returns (address payable)
 ```
 
-Retrieve CTAG ownership term length global setting.
+Retrieve wallet address for ETS Platform.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | uint256 | Term length in days. |
+| [0] | address payable | wallet address for ETS Platform. |
 
-## Events
-
-### TagMaxStringLengthSet
+### getCreatorAddress
 
 ```solidity
-event TagMaxStringLengthSet(uint256 maxStringLength)
+function getCreatorAddress(uint256 _tokenId) public view returns (address)
 ```
 
-_emitted when the maximum character length of CTAG display string is set._
+Retrieve Creator address for a CTAG token.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| maxStringLength | uint256 | maximum character length of string. |
-
-### TagMinStringLengthSet
-
-```solidity
-event TagMinStringLengthSet(uint256 minStringLength)
-```
-
-_emitted when the minimum character length of CTAG display string is set._
+| _tokenId | uint256 | CTAG token Id. |
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| minStringLength | uint256 | minimum character length of string. |
+| [0] | address | _creator Creator address of the CTAG. |
 
-### OwnershipTermLengthSet
-
-```solidity
-event OwnershipTermLengthSet(uint256 termLength)
-```
-
-_emitted when the ownership term length of a CTAG is set._
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| termLength | uint256 | Ownership term length in days. |
-
-### AccessControlsSet
+### _beforeTokenTransfer
 
 ```solidity
-event AccessControlsSet(address etsAccessControls)
+function _beforeTokenTransfer(address from, address to, uint256 amount) internal
 ```
 
-_emitted when the ETS Access Controls is set._
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| etsAccessControls | address | contract address access controls is set to. |
-
-### PremiumTagPreSet
+### _afterTokenTransfer
 
 ```solidity
-event PremiumTagPreSet(string tag, bool isPremium)
+function _afterTokenTransfer(address from, address to, uint256 tokenId) internal virtual
 ```
 
-_emitted when a tag string is flagged/unflagged as premium prior to minting._
+_See {ERC721-_afterTokenTransfer}. Contract must not be paused._
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| tag | string | tag string being flagged. |
-| isPremium | bool | boolean true for premium/false not premium. |
-
-### PremiumFlagSet
+### _setLastRenewed
 
 ```solidity
-event PremiumFlagSet(uint256 tagId, bool isPremium)
+function _setLastRenewed(uint256 _tokenId, uint256 _timestamp) internal
 ```
-
-_emitted when a CTAG is flagged/unflagged as premium subsequent to minting._
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| tagId | uint256 | Id of CTAG token. |
-| isPremium | bool | boolean true for premium/false not premium. |
-
-### ReservedFlagSet
-
-```solidity
-event ReservedFlagSet(uint256 tagId, bool isReserved)
-```
-
-_emitted when a CTAG is flagged/unflagged as reserved subsequent to minting._
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| tagId | uint256 | Id of CTAG token. |
-| isReserved | bool | boolean true for reserved/false for not reserved. |
-
-### TagRenewed
-
-```solidity
-event TagRenewed(uint256 tokenId, address caller)
-```
-
-_emitted when CTAG token is renewed._
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| tokenId | uint256 | Id of CTAG token. |
-| caller | address | address of renewer. |
-
-### TagRecycled
-
-```solidity
-event TagRecycled(uint256 tokenId, address caller)
-```
-
-_emitted when CTAG token is recycled back to ETS._
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| tokenId | uint256 | Id of CTAG token. |
-| caller | address | address of recycler. |
 

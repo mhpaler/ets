@@ -6,10 +6,16 @@ ETSAccessControls contract contains a mix of public and administrator only funct
 
 ## Functions
 
+### constructor
+
+```solidity
+constructor() public
+```
+
 ### initialize
 
 ```solidity
-function initialize() public
+function initialize(address _platformAddress) public
 ```
 
 ### _authorizeUpgrade
@@ -44,45 +50,32 @@ revoke that role for other addresses. Can only be called by address with DEFAULT
 | _role | bytes32 | bytes32 representation of role being administered. |
 | _adminRole | bytes32 | bytes32 representation of administering role. |
 
-### addTargetTagger
+### addPublisher
 
 ```solidity
-function addTargetTagger(address _taggerAddress, string _name) public
+function addPublisher(address _publisher, string _name) public
 ```
 
-Adds a Target Tagger contract to ETS. Can only be called by address
+Adds a Publisher contract to ETS. Can only be called by address
 with DEFAULT_ADMIN_ROLE.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| _taggerAddress | address | Address of the Target Tagger contract. Must conform to IETSTargetTagger. |
-| _name | string | Human readable name of the Target Tagger. |
+| _publisher | address | Address of the Publisher contract. Must conform to IETSPublisher. |
+| _name | string | Human readable name of the Publisher. |
 
-### removeTargetTagger
+### toggleIsPublisherPaused
 
 ```solidity
-function removeTargetTagger(address _taggerAddress) public
+function toggleIsPublisherPaused(address _publisher) public
 ```
 
-Removes a Target Tagger contract from ETS. Can only be called by address
+Pauses/Unpauses a Publisher contract. Can only be called by address
 with DEFAULT_ADMIN_ROLE.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| _taggerAddress | address | Address of the Target Tagger contract. |
-
-### toggleIsTargetTaggerPaused
-
-```solidity
-function toggleIsTargetTaggerPaused(address _taggerAddress) public
-```
-
-Pauses/Unpauses a Target Tagger contract. Can only be called by address
-with DEFAULT_ADMIN_ROLE.
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _taggerAddress | address | Address of the Target Tagger contract. |
+| _publisher | address | Address of the Publisher contract. |
 
 ### isSmartContract
 
@@ -148,13 +141,13 @@ Checks whether given address has PUBLISHER_ADMIN role.
 | ---- | ---- | ----------- |
 | [0] | bool | boolean True if address has PUBLISHER_ADMIN role. |
 
-### isTargetTagger
+### isPublisherByName
 
 ```solidity
-function isTargetTagger(string _name) public view returns (bool)
+function isPublisherByName(string _name) public view returns (bool)
 ```
 
-Checks whether given Tagger Name is a registered Target Tagger.
+Checks whether given Publisher Name is a registered Publisher.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
@@ -162,15 +155,15 @@ Checks whether given Tagger Name is a registered Target Tagger.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | bool | boolean True if _name is a Target Tagger. |
+| [0] | bool | boolean True if _name is a Publisher. |
 
-### isTargetTagger
+### isPublisherByAddress
 
 ```solidity
-function isTargetTagger(address _addr) public view returns (bool)
+function isPublisherByAddress(address _addr) public view returns (bool)
 ```
 
-Checks whether given address is a registered Target Tagger.
+Checks whether given address is a registered Publisher.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
@@ -178,15 +171,15 @@ Checks whether given address is a registered Target Tagger.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | bool | boolean True if address is a Target Tagger. |
+| [0] | bool | boolean True if address is a registered Publisher. |
 
-### isTargetTaggerAndNotPaused
+### isPublisherAndNotPaused
 
 ```solidity
-function isTargetTaggerAndNotPaused(address _addr) public view returns (bool)
+function isPublisherAndNotPaused(address _addr) public view returns (bool)
 ```
 
-Checks whether given address is a registered Target Tagger and not paused.
+Checks whether given address is a registered Publisher and not paused.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
@@ -194,7 +187,39 @@ Checks whether given address is a registered Target Tagger and not paused.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | bool | boolean True if address is a Target Tagger and not paused. |
+| [0] | bool | boolean True if address is a Publisher and not paused. |
+
+### getPublisherAddressFromName
+
+```solidity
+function getPublisherAddressFromName(string _name) public view returns (address)
+```
+
+Get publisher address from it's name.
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| _name | string | Name of publisher. |
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | address | Address of publisher. |
+
+### getPublisherNameFromAddress
+
+```solidity
+function getPublisherNameFromAddress(address _address) public view returns (string)
+```
+
+Get publisher name from it's address.
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| _address | address | Adsdress of publisher. |
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | string | Name of publisher. |
 
 ### getPlatformAddress
 

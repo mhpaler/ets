@@ -4,10 +4,16 @@ ETSAuctionHouse contract governs the sale of Ethereum Tag Service composable tag
 
 ## Functions
 
+### constructor
+
+```solidity
+constructor() public
+```
+
 ### initialize
 
 ```solidity
-function initialize(contract IETSToken _etsToken, contract IETSAccessControls _etsAccessControls, address _wmatic, uint256 _timeBuffer, uint256 _reservePrice, uint8 _minBidIncrementPercentage, uint256 _duration, uint256 _publisherPercentage, uint256 _creatorPercentage, uint256 _platformPercentage) external
+function initialize(contract IETSToken _etsToken, contract IETSAccessControls _etsAccessControls, address _wmatic, uint256 _timeBuffer, uint256 _reservePrice, uint8 _minBidIncrementPercentage, uint256 _duration, uint256 _publisherPercentage, uint256 _platformPercentage) external
 ```
 
 ### _authorizeUpgrade
@@ -26,6 +32,18 @@ function pause() public
 
 ```solidity
 function unpause() public
+```
+
+### setDuration
+
+```solidity
+function setDuration(uint256 _duration) public
+```
+
+### setMinBidIncrementPercentage
+
+```solidity
+function setMinBidIncrementPercentage(uint8 _minBidIncrementPercentage) public
 ```
 
 ### setReservePrice
