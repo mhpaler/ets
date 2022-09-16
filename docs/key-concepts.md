@@ -2,7 +2,7 @@
 
 ETS is a novel framework that takes some understanding to get the most out of it. Before diving into the code, here's some of the key concepts.
 
-## Tag
+## Tag (CTAG)
 
 ERC-721 non-fungible token (CTAG) that stores a single tag string and origin attribution data including a Publisher address and a Creator address (see roles below).
 

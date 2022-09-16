@@ -12,17 +12,32 @@ In ETS, tags, content tagging & tagging data graphs are composable units & APIs 
 
 For Web3 project owners looking for tagging solutions, our aim is to solve some of your pain points, namely redundant code & infrastructure and limited cross-project reach and engagement.
 
-## Contributing
+## Getting Started
 
-ETS is an alpha/testnet service being "developed in the open" as open source software (OSS). As such, public participation is both welcome and probably necessary for the project to thrive.
+There are two ways to read and write to the ETS backend: via a JavaScript library such as [Ethers.js](https://docs.ethers.io/v5/), [Web3.js](https://web3js.readthedocs.io/en/v1.8.0/) or [Wagmi](https://wagmi.sh/), which allow developers to interact with smart contracts running on an EVM compatible blockchain. The other is making contract-to-contract calls where a third-party owned contract may read or write to ETS while performing it's own tasks.
 
-For developers, with questions & feedback please use our Github [discussion forum](https://github.com/ethereum-tag-service/ets/discussions).
+If you want to jump right in, head over to [Ethers.js quickstart](./docs/ethers-js-quickstart.md) or [Contract-to-contract quickstart](./docs/contract-to-contract-quickstart.md).
+
+If you want to learn a bit more before diving in [key concepts](./docs/key-concepts.md), the [system architecture](./docs/system-architecture.md/) and reviewing the [Contract APIs](./docs/contract-apis) are good places to start.
 
 ## Documentation
 
 - [Key concepts](./docs/key-concepts.md)
-- [Key concepts](./docs/key-concepts.md)
-- [Examples](./docs/examples.md)
+- [System architecture diagram](./docs/system-architecture.md)
+- [Backend API (contracts)](./docs/contract-apis.md)
+- [Front-end API (subgraph)](./docs/subgraph.md) (TODO)
+- [Ethers.js quickstart](./docs/ethers-js-quickstart.md) (TODO)
+- [Contract-to-contract quickstart](./docs/contract-to-contract-quickstart.md) (TODO)
+- [Local development quickstart](./docs/local-dev-quickstart.md) (TODO)
+- [Demos & examples](./docs/examples.md)
+
+## Contributing
+
+ETS is an alpha/testnet service being "developed in the open" as open source software (OSS). As such, public participation is both welcome and probably necessary for the project to thrive.
+
+For developers (or anyone for that matter), with questions & feedback please use our Github [discussion forum](https://github.com/ethereum-tag-service/ets/discussions).
+
+We also post occasional updates to [Twitter](https://twitter.com/etsxyz), Medium and [Substack](https://etsxyz.substack.com/) if you want to stay informed.
 
 ## Inspiration & Thanks
 
