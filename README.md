@@ -24,12 +24,12 @@ If you want to learn a bit more before diving in [key concepts](./docs/key-conce
 
 - [Key concepts](./docs/key-concepts.md)
 - [System architecture diagram](./docs/system-architecture.md)
-- [Backend API (contracts)](./docs/contract-apis.md)
+- [Backend API (contracts)](./docs/backend-api/index.md)
 - [Front-end API (subgraph)](./docs/subgraph.md) (TODO)
 - [Ethers.js quickstart](./docs/ethers-js-quickstart.md) (TODO)
 - [Contract-to-contract quickstart](./docs/contract-to-contract-quickstart.md) (TODO)
 - [Local development quickstart](./docs/local-dev-quickstart.md) (TODO)
-- [Demos & examples](./docs/examples.md)
+- [Demos & examples](./docs/examples.md) (TODO)
 
 ## Contributing
 
