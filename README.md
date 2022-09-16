@@ -14,15 +14,13 @@ For Web3 project owners looking for tagging solutions, our aim is to solve some 
 
 ## Getting Started
 
-There are two ways to read and write to the ETS backend: via a JavaScript library such as [Ethers.js](https://docs.ethers.io/v5/), [Web3.js](https://web3js.readthedocs.io/en/v1.8.0/) or [Wagmi](https://wagmi.sh/), which allow developers to interact with smart contracts running on an EVM compatible blockchain. The other is making contract-to-contract calls where a third-party owned contract may read or write to ETS while performing it's own tasks.
-
 If you want to jump right in, head over to [Ethers.js quickstart](./docs/ethers-js-quickstart.md) or [Contract-to-contract quickstart](./docs/contract-to-contract-quickstart.md).
 
-If you want to learn a bit more before diving in [key concepts](./docs/key-concepts.md), the [system architecture](./docs/system-architecture.md/) and reviewing the [Contract APIs](./docs/contract-apis) are good places to start.
+If you want to learn a bit more before diving in, [key concepts](./docs/key-concepts.md), the [system architecture diagram](./docs/system-architecture.md/) and the [Backend API](./docs/contract-apis) are good places to start.
 
 ## Documentation
 
-- [Key concepts](./docs/key-concepts.md)
+- [Key concepts](./docs/key-concepts.md) (in progress)
 - [System architecture diagram](./docs/system-architecture.md)
 - [Backend API (contracts)](./docs/backend-api/index.md)
 - [Front-end API (subgraph)](./docs/subgraph.md) (TODO)
