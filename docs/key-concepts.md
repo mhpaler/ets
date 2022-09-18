@@ -2,6 +2,17 @@
 
 ETS is a novel framework that takes some understanding to get the most out of it. Before diving into the code, here's some of the key concepts.
 
+- [Tag (CTAG)](#tag-ctag)
+- [Target](#target)
+- [Tagging Record](#tagging-record)
+- [Publisher](#publisher)
+- [Tagger](#tagger)
+- [Creator](#creator)
+- [Auctioneer](#auctioneer)
+- [Owner](#owner)
+
+---
+
 ## Tag (CTAG)
 
 ![CTAG](./assets/ctag.png)
@@ -14,8 +25,8 @@ CTAG Ids are the hashed, lowercased tag string cast as a uint256.
 
 ```solidity
 function computeTagId(string memory _tag) public pure returns (uint256) {
-      string memory _machineName = __lower(_tag);
-      return uint256(keccak256(bytes(_machineName)));
+    string memory _machineName = __lower(_tag);
+    return uint256(keccak256(bytes(_machineName)));
 }
 ```
 
