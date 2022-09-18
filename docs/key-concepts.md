@@ -22,6 +22,17 @@ One CTAG exists for a tag string regardless of its case. For example, #Punks, #p
 CTAG Ids are the hashed, lowercased tag string cast as a uint256.
 
 ```solidity
+/**
+ * @notice Function to deterministically compute & return a CTAG token Id.
+ *
+ * Every CTAG token and its associated data struct is mapped to by its token Id. This Id is computed
+ * from the "display" tag string lowercased, hashed and cast as an unsigned integer.
+ *
+ * Note: Function does not verify if CTAG record exists.
+ *
+ * @param _tag Tag string.
+ * @return Id of potential CTAG token id.
+ */
 function computeTagId(string memory _tag) public pure returns (uint256) {
     string memory _machineName = __lower(_tag);
     return uint256(keccak256(bytes(_machineName)));
@@ -81,6 +92,17 @@ Data structure, stored on-chain, that references/points to a URI. While a URI of
 Target Id is the URI string, hashed and cast as a uint256.
 
 ```solidity
+/**
+ * @notice Function to deterministically compute & return a targetId.
+ *
+ * Every Target in ETS is mapped to by it's targetId. This Id is computed from
+ * the target URI sting hashed and cast as a uint256.
+ *
+ * Note: Function does not verify if Target record exists.
+ *
+ * @param _targetURI Unique resource identifier Target record points to.
+ * @return targetId Id of the potential Target record.
+ */
 function computeTargetId(string memory _targetURI) public pure returns (uint256) {
     bytes32 targetId = keccak256(bytes(_targetURI));
     return uint256(targetId);
@@ -98,6 +120,19 @@ Semantically, a Tagging Record reflects **"who tagged what, from where and why"*
 Every Tagging record has a unique Id computed from the hashed composite of Target Id, Tagger and Publisher addresses cast as a uint256.
 
 ```solidity
+/**
+ * @notice Compute & return a taggingRecordId.
+ *
+ * Every TaggingRecord in ETS is mapped to by it's taggingRecordId. This Id is a composite key
+* composed of targetId, recordType, publisher contract address and tagger address hashed and cast as a uint256.
+ *
+ * @param _targetId Id of target being tagged (see ETSTarget.sol).
+ * @param _recordType Arbitrary identifier for type of tagging record.
+ * @param _publisher Address of tagging record Publisher contract.
+ * @param _tagger Address interacting with Publisher to tag content ("Tagger").
+ *
+ * @return taggingRecordId Unique identifier for a tagging record.
+ */
 function computeTaggingRecordIdFromCompositeKey(
     uint256 _targetId,
     string memory _recordType,
