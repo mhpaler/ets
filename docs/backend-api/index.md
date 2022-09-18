@@ -9,7 +9,7 @@
 - **[IETSTarget](./interfaces/IETSTarget.md)**  
   Contracts that governs creation of ETS [Targets](../key-concepts.md#target).
 
-- **[IETS Core](./interfaces/IETS.md)**  
+- **[ETS Core](./ETS.md)**  
   Central point for performing CRUD (Create, Read, Update, Delete) operations on [Tagging Records](../key-concepts.md#tagging-record) to the blockchain.
 
   It also contains some governance functions around tagging fees as well as means for market participants to access accrued funds.

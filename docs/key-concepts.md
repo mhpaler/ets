@@ -4,36 +4,133 @@ ETS is a novel framework that takes some understanding to get the most out of it
 
 ## Tag (CTAG)
 
+![CTAG](./assets/ctag.png)
+
 ERC-721 non-fungible token (CTAG) that stores a single tag string and origin attribution data including a Publisher address and a Creator address (see roles below).
 
-Only one CTAG exists for a tag string regardless of its case. For example, #Punks, #punks and #PUNKS all resolve to the same CTAG.
+One CTAG exists for a tag string regardless of its case. For example, #Punks, #punks and #PUNKS all resolve to the same CTAG.
 
-CTAG Id is the hashed, lowercased tag string cast as a uint256.
+CTAG Ids are the hashed, lowercased tag string cast as a uint256.
+
+```solidity
+function computeTagId(string memory _tag) public pure returns (uint256) {
+      string memory _machineName = __lower(_tag);
+      return uint256(keccak256(bytes(_machineName)));
+}
+```
+
+CTAGs are created automatically during content tagging, capturing attribution data in the process. They can also be minted individually.
+
+Once turned into a CTAG, any future use or reference to its tag string will map to its Id. There are no restrictions placed on CTAGs by ETS; any Publisher can "use" any CTAG from the universe of CTAGs.
+
+New CTAG tokens are transferred to ETS upon minting to be held for safekeeping. The current plan holds for releasing CTAGs to the public via an english style auction, though is no timeline or schedule for this on the roadmap.
 
 ## Target
 
-Data structure, stored on-chain, that references/points to a URI. While a URI of any structure can be input as a Target, our indexing system, as much as possible, will restrict our interpretation & classification of URIs to the more technical parameters defined by the IETF in RFC3986. For newer protocols, such as blockchains we will lean on newer emerging URI standards such as the Blink and BIP-122
+```text
+    chain-name
+    ┌───┴───┐
+blink:polygon:mumbai:0x60Ae865ee4C725cd04353b5AAb364553f56ceF82:0x8635-0x0b
+└─┬─┘        └───┬──┘└──────────────────────────┬──────────────────────────┘
+scheme      chain-network                chain-asset-id
+
+        userinfo       host      port
+        ┌──┴───┐ ┌──────┴──────┐ ┌┴┐
+https://john.doe@www.example.com:123/forum/questions/?tag=networking&order=newest#top
+└─┬─┘   └───────────┬──────────────┘└───────┬───────┘ └───────────┬─────────────┘ └┬┘
+scheme          authority                  path                 query           fragment
+
+
+ldap://[2001:db8::7]/c=GB?objectClass?one
+└┬─┘   └─────┬─────┘└─┬─┘ └──────┬──────┘
+scheme   authority   path      query
+
+mailto:John.Doe@example.com
+└─┬──┘ └────┬─────────────┘
+scheme     path
+
+news:comp.infosystems.www.servers.unix
+└┬─┘ └─────────────┬─────────────────┘
+scheme            path
+
+tel:+1-816-555-1212
+└┬┘ └──────┬──────┘
+scheme    path
+
+telnet://192.0.2.16:80/
+└─┬──┘   └─────┬─────┘│
+scheme     authority  path
+
+urn:oasis:names:specification:docbook:dtd:xml:4.1.2
+└┬┘ └──────────────────────┬──────────────────────┘
+scheme                    path
+
+```
+
+Data structure, stored on-chain, that references/points to a URI. While a URI of any structure can be input as a Target (eg: "https://google.com", "), our indexing system, as much as possible, will restrict our interpretation & classification of URIs to the more technical parameters defined by the IETF in [RFC3986](https://www.rfc-editor.org/rfc/rfc3986). For newer protocols, such as blockchains we will lean on newer emerging URI standards such as the [Blink](https://w3c-ccg.github.io/blockchain-links) and [BIP-122](https://github.com/bitcoin/bips/blob/master/bip-0122.mediawiki)
 
 Target Id is the URI string, hashed and cast as a uint256.
 
+```solidity
+function computeTargetId(string memory _targetURI) public pure returns (uint256) {
+    bytes32 targetId = keccak256(bytes(_targetURI));
+    return uint256(targetId);
+}
+```
+
 ## Tagging Record
 
-Data structure, stored on-chain, that stores Tags connected to a Target by a given Tagger + Publisher combination. Also included is a recordType flag that gives taggers a means to provide context to the tagging record.
+![Tagging Record](./assets/tagging-record.png)
 
-Put another way, a Tagging Record reflects “who tagged what, from where and why”.
+Data structure, stored on-chain, that stores one or more Tag Ids connected to a Target Id by a given Tagger + Publisher combination. Also included is a Record Type flag that gives Publisher (or potentially a Tagger) a means to provide context to the Tagging Record.
 
-Every Tagging record has a unique Id computed from the hashed composite of Target Id, Tagger and Publisher addresses cast as a uint256. Given this design, a Tagger that tags the same target URI with the same tags and recordType identifier via two different publishers would produce two tagging records in ETS.
+Semantically, a Tagging Record reflects **"who tagged what, from where and why"**.
 
-Tagging Records may only be recorded in ETS Core (ETS.sol) via a whitelisted implementation of IETSTargetTagger (see Target Tagger).
+Every Tagging record has a unique Id computed from the hashed composite of Target Id, Tagger and Publisher addresses cast as a uint256.
 
-ETS Core charges a per-tag micro-fee to record a Tagging Record.
+```solidity
+function computeTaggingRecordIdFromCompositeKey(
+    uint256 _targetId,
+    string memory _recordType,
+    address _publisher,
+    address _tagger
+) public pure returns (uint256 taggingRecordId) {
+    taggingRecordId = uint256(keccak256(abi.encodePacked(_targetId, _recordType, _publisher, _tagger)));
+}
+```
 
-## Publisher Contract
+Given this design, a Tagger who tags the same target URI with the same tags and recordType identifier via two different Publishers would produce two tagging records in ETS.
 
-A smart contract, deployed by ETS or any third-party (dApp, platform, project implementing ETS), that calls ETS core to record Tagging Records.
+Only Publishers (via a Publisher contract) may call ETS Core to record Tagging Records. These calls may be initiated by a user of the Publisher application or by the Publisher itself; either way, the wallet address that initiates the tagging record is referred to as the Tagger.
 
-Target Tagger contracts must be white-listed/authorized by ETS.
+Tagging records may be updated by to have Tag Ids added or removed. Tag Ids are the only element of a tagging record that may be changed and these updates may only be carried out by the original Tagger address via the original Publisher contract.
 
-Target Tagger contracts are the “from where” of a Tagging Record and are also referred to as a Publisher in the ETS attribution chain (see roles below).
+ETS Core has the option to charge a per-tag micro-fee to add tags to a Tagging Record. When a per-tag fee is charged, proceeds are broken up an distributed to the original tag Creator and original Publisher according to preset percentages governed by ETS. See [ETS.setTaggingFee](./backend-api/ETS.md#settaggingfee) & [ETS.setTaggingFee](./backend-api/ETS.md#setpercentages)
 
-Publishers receive a portion of the revenue from the CTAGs they help generate.
+## Publisher
+
+Third-party dApps, platforms or projects that implement ETS are referred to as “Publishers”.
+
+As mentioned in the previous section on Tagging Records, ETS Core restricts writing of tagging records to enabled Publisher Contracts. The purpose for this is to allow third-party dApps, platforms or projects that implement ETS to record provenance and attribution of their application.
+
+All Publishers must deploy a Publisher contract. The address of a Publisher contract becomes a Publisher ID. In this way, Publishers and Publisher contracts are synonymous in ETS.
+
+For those wanting to test ETS, Publisher contracts can be quickly and easily deployed using our Publisher Factory. Currently the Publisher Factory deploys ETSPublisherV1.sol, a simple, ETS designed implementation of the ETS Core Tagging API found in ETS.sol contract.
+
+For more advanced or custom tagging scenarios (eg. restricting Target Ids or Tag Ids or Tagger addresses), third-parties may develop and deploy their own Publisher contracts and submit them for white-listing by ETS.
+
+## Tagger
+
+Wallet address credited with initiating a Tagging Record via a Publisher Contract. The Tagger address and the Publisher address in a Tagging Record can be the same, in which case the Publisher is the Tagger.
+
+## Creator
+
+Wallet address credited with creating a new, original CTAG via a Publisher Contract. Can also be the Publisher. The Creator address and the Publisher address for a CTAG can be the same, in which case the Publisher is the Creator.
+
+## Auctioneer
+
+Address of the contract (or contract owner) that supports sale of a CTAG. ETS will be the first auctioneer via ETSAuctionHouse.sol
+
+## Owner
+
+Wallet address that purchases a CTAG at via ETSAuctionHouse or secondary market
