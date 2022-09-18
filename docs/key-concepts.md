@@ -1,7 +1,5 @@
 # Key concepts
 
-ETS is a novel framework that takes some understanding to get the most out of it. Before diving into the code, here's some of the key concepts.
-
 - [Tag (CTAG)](#tag-ctag)
 - [Target](#target)
 - [Tagging Record](#tagging-record)
