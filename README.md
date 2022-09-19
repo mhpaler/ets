@@ -6,7 +6,9 @@ For code releases we use [semantic versioning](https://semver.org/).
 
 ## What is ETS?
 
-Ethereum Tag Service (ETS) is an experimental EVM based content tagging service running in alpha/testnet phase on the Polygon Blockchain.
+Ethereum Tag Service (ETS) is an experimental EVM based content tagging service, aimed at Web3 developers, running in alpha/testnet phase on the Polygon Blockchain.
+
+In ETS, tags, content tagging & tagging data are fully composable units & services. This treatment preserves data integrity, provenance & attribution across the projects and users that consume the service. The result is (hopefully) a novel way to connect people, places and things across Web3.
 
 ## Getting Started
 
@@ -16,7 +18,6 @@ If you want to learn a bit more before diving in, [key concepts](./docs/key-conc
 
 ## Documentation
 
-- [Overview](./docs/overview.md)
 - [Key concepts](./docs/key-concepts.md)
 - [System architecture diagram](./docs/system-architecture.md)
 - [Backend API (contracts)](./docs/backend-api/index.md)
