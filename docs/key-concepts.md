@@ -47,6 +47,12 @@ New CTAG tokens are transferred to ETS upon minting to be held for safekeeping. 
 
 ## Target
 
+Data structure, stored on-chain, that references/points to a URI. While a URI of any structure can be input as a Target (eg: "https://google.com", "), our indexing system, as much as possible, will restrict our interpretation & classification of URIs to the more technical parameters defined by the IETF in [RFC3986](https://www.rfc-editor.org/rfc/rfc3986). For newer protocols, such as blockchains we will lean on newer emerging URI standards such as the [Blink](https://w3c-ccg.github.io/blockchain-links) and [BIP-122](https://github.com/bitcoin/bips/blob/master/bip-0122.mediawiki)
+
+### URI examples
+
+Source: [Wikipedia](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier), extended with [Blink URI scheme](https://w3c-ccg.github.io/blockchain-links/)
+
 ```text
     chain-name
     ┌───┴───┐
@@ -84,10 +90,7 @@ scheme     authority  path
 urn:oasis:names:specification:docbook:dtd:xml:4.1.2
 └┬┘ └──────────────────────┬──────────────────────┘
 scheme                    path
-
 ```
-
-Data structure, stored on-chain, that references/points to a URI. While a URI of any structure can be input as a Target (eg: "https://google.com", "), our indexing system, as much as possible, will restrict our interpretation & classification of URIs to the more technical parameters defined by the IETF in [RFC3986](https://www.rfc-editor.org/rfc/rfc3986). For newer protocols, such as blockchains we will lean on newer emerging URI standards such as the [Blink](https://w3c-ccg.github.io/blockchain-links) and [BIP-122](https://github.com/bitcoin/bips/blob/master/bip-0122.mediawiki)
 
 Target Id is the URI string, hashed and cast as a uint256.
 
@@ -117,7 +120,7 @@ Data structure, stored on-chain, that stores one or more Tag Ids connected to a 
 
 Semantically, a Tagging Record reflects **"who tagged what, from where and why"**.
 
-Every Tagging record has a unique Id computed from the hashed composite of Target Id, Tagger and Publisher addresses cast as a uint256.
+Every Tagging record has a unique Id computed from the hashed composite of Target Id, Record Type, Tagger and Publisher addresses cast as a uint256.
 
 ```solidity
 /**
@@ -143,13 +146,13 @@ function computeTaggingRecordIdFromCompositeKey(
 }
 ```
 
-Given this design, a Tagger who tags the same target URI with the same tags and recordType identifier via two different Publishers would produce two tagging records in ETS.
+Given this design, a Tagger who tags the same URI (Target Id) with the same tags (Tag Ids) and Record Type identifier via two different Publishers will produce two tagging records in ETS.
 
 Only Publishers (via a Publisher contract) may call ETS Core to record Tagging Records. These calls may be initiated by a user of the Publisher application or by the Publisher itself; either way, the wallet address that initiates the tagging record is referred to as the Tagger.
 
 Tagging records may be updated by to have Tag Ids added or removed. Tag Ids are the only element of a tagging record that may be changed and these updates may only be carried out by the original Tagger address via the original Publisher contract.
 
-ETS Core has the option to charge a per-tag micro-fee to add tags to a Tagging Record. When a per-tag fee is charged, proceeds are broken up an distributed to the original tag Creator and original Publisher according to preset percentages governed by ETS. See [ETS.setTaggingFee](./backend-api/ETS.md#settaggingfee) & [ETS.setTaggingFee](./backend-api/ETS.md#setpercentages)
+ETS Core has the option to charge a per-tag micro-fee to add tags to a Tagging Record. When a per-tag fee is charged, proceeds are broken up an distributed to the original CTAG Creator and original CTAG Publisher according to preset percentages governed by ETS. See [ETS.setTaggingFee](./backend-api/ETS.md#settaggingfee) & [ETS.setTaggingFee](./backend-api/ETS.md#setpercentages)
 
 ## Publisher
 

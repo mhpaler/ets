@@ -6,11 +6,7 @@ For code releases we use [semantic versioning](https://semver.org/).
 
 ## What is ETS?
 
-Ethereum Tag Service (ETS) is an experimental EVM based content tagging service running in alpha phase on Polygon Mumbai testnet.
-
-In ETS, tags, content tagging & tagging data graphs are composable units & APIs that read and write from a blockchain. This treatment preserves data integrity, provenance & attribution across the projects and users that consume the service. The result is (hopefully) a novel way to connect people, places and things across Web3.
-
-For Web3 project owners looking for tagging solutions, our aim is to solve some of your pain points, namely redundant code & infrastructure and limited cross-project reach and engagement.
+Ethereum Tag Service (ETS) is an experimental EVM based content tagging service running in alpha/testnet phase on the Polygon Blockchain.
 
 ## Getting Started
 
@@ -20,10 +16,11 @@ If you want to learn a bit more before diving in, [key concepts](./docs/key-conc
 
 ## Documentation
 
-- [Key concepts](./docs/key-concepts.md) (in progress)
+- [Overview](./docs/overview.md)
+- [Key concepts](./docs/key-concepts.md)
 - [System architecture diagram](./docs/system-architecture.md)
 - [Backend API (contracts)](./docs/backend-api/index.md)
-- [Front-end API (subgraph)](./docs/subgraph.md) (TODO)
+- [Front-end API (subgraph)](./docs/subgraph.md)
 - [Ethers.js quickstart](./docs/ethers-js-quickstart.md) (TODO)
 - [Contract-to-contract quickstart](./docs/contract-to-contract-quickstart.md) (TODO)
 - [Local development quickstart](./docs/local-dev-quickstart.md) (TODO)
@@ -31,7 +28,7 @@ If you want to learn a bit more before diving in, [key concepts](./docs/key-conc
 
 ## Contributing
 
-ETS is an alpha/testnet service being "developed in the open" as open source software (OSS). As such, public participation is both welcome and probably necessary for the project to thrive.
+ETS is an alpha/testnet service being "developed in the open" as open source software (OSS). As such, public participation is both welcome and necessary for the project to thrive.
 
 For developers (or anyone for that matter), with questions & feedback please use our Github [discussion forum](https://github.com/ethereum-tag-service/ets/discussions).
 
