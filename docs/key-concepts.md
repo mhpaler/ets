@@ -1,5 +1,7 @@
 # Key concepts
 
+In its simplest form, Ethereum Tag Service (ETS) is a composable web service (consumable by both front-end interfaces or via contract-to-contract interaction) that takes as input one or more tag strings and a target URI and combines those into a “tagging record” that is recorded, along with cryptographically ensured provenance and attribution, onto the blockchain.
+
 - [Tag (CTAG)](#tag-ctag)
 - [Target](#target)
 - [Tagging Record](#tagging-record)
@@ -39,9 +41,9 @@ function computeTagId(string memory _tag) public pure returns (uint256) {
 }
 ```
 
-CTAGs are created automatically during content tagging, capturing attribution data in the process. They can also be minted individually.
+CTAGs are created automatically during content tagging, capturing attribution data in the process. They can also be created independently of the tagging process.
 
-Once turned into a CTAG, any future use or reference to its tag string will map to its Id. There are no restrictions placed on CTAGs by ETS; any Publisher can "use" any CTAG from the universe of CTAGs.
+Once turned into a CTAG, any future use or reference to a tag string will map to its Id. There are no restrictions placed on the use of CTAGs; any Publisher can "use" any CTAG from the universe of CTAGs.
 
 New CTAG tokens are transferred to ETS upon minting to be held for safekeeping. The current plan holds for releasing CTAGs to the public via an english style auction, though is no timeline or schedule for this on the roadmap.
 
@@ -148,9 +150,9 @@ function computeTaggingRecordIdFromCompositeKey(
 
 Given this design, a Tagger who tags the same URI (Target Id) with the same tags (Tag Ids) and Record Type identifier via two different Publishers will produce two tagging records in ETS.
 
-Only Publishers (via a Publisher contract) may call ETS Core to record Tagging Records. These calls may be initiated by a user of the Publisher application or by the Publisher itself; either way, the wallet address that initiates the tagging record is referred to as the Tagger.
+Only Publishers (via a Publisher contract) may call ETS Core to record Tagging Records. These calls may be initiated by a user of the Publisher application or by the Publisher itself; either way, the wallet address that initiates the tagging record receives attribution as the "Tagger".
 
-Tagging records may be updated by to have Tag Ids added or removed. Tag Ids are the only element of a tagging record that may be changed and these updates may only be carried out by the original Tagger address via the original Publisher contract.
+Tagging records may be updated to have Tag Ids added or removed. Tag Ids are the only element of a tagging record that may be changed and these updates may only be carried out by the original Tagger address via the original Publisher contract.
 
 ETS Core has the option to charge a per-tag micro-fee to add tags to a Tagging Record. When a per-tag fee is charged, proceeds are broken up an distributed to the original CTAG Creator and original CTAG Publisher according to preset percentages governed by ETS. See [ETS.setTaggingFee](./backend-api/ETS.md#settaggingfee) & [ETS.setTaggingFee](./backend-api/ETS.md#setpercentages)
 
