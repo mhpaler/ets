@@ -52,6 +52,8 @@ started txn 0x10d14f87fbab80b7f372256f1a1164c4d5283335b48168cd90ea262a4cb1d0ec
 New publisher contract deployed at 0xb16170ed1a08EE57d18d41C204dCde3c6C9d2D1a by account2
 ```
 
+This command calls the ETSPublisherFactory and deploys an instance of ETSPublisherFactoryV1.sol.
+
 Note that the signer `"account2"` becomes the Publisher Owner and that Publisher names can not be duplicated. For example, if we issue the same command:
 
 ```zsh
@@ -173,17 +175,22 @@ Next, lets have a look at the new tagging record in the subgraph.
 
 ```graphql
 query TaggingRecord {
-  taggingRecords(where: { publisher_: { name: "Solana" } }) {
+  taggingRecord(
+    id: "108496552797381919177769037368004847463135908918745565862845053892120713010827"
+  ) {
     timestamp
+    publisher {
+      name
+      id
+    }
+    tagger {
+      id
+    }
     tags {
       display
+      id
     }
     recordType
-    target {
-      targetURI
-      targetType
-      targetTypeKeywords
-    }
   }
 }
 ```
@@ -192,39 +199,35 @@ query TaggingRecord {
 # output
 {
   "data": {
-    "taggingRecords": [
-      {
-        "id": "108496552797381919177769037368004847463135908918745565862845053892120713010827",
-        "timestamp": "1663648880",
-        "tags": [
-          {
-            "display": "#Uniswap"
-          },
-          {
-            "display": "#WETH"
-          },
-          {
-            "display": "#APE"
-          },
-          {
-            "display": "#APE/WETH"
-          }
-        ],
-        "recordType": "bookmark",
-        "target": {
-          "targetURI": "blink:ethereum:mainnet:0xC36442b4a4522E871399CD717aBDD847Ab11FE88:318669",
-          "targetType": "BLINK",
-          "targetTypeKeywords": [
-            "Blink",
-            "ethereum",
-            "mainnet",
-            "0xC36442b4a4522E871399CD717aBDD847Ab11FE88:318669",
-            "UNKNOWN",
-            "UNKNOWN"
-          ]
+    "taggingRecord": {
+      "timestamp": "1663648880",
+      "publisher": {
+        "name": "Solana",
+        "id": "0xb16170ed1a08ee57d18d41c204dcde3c6c9d2d1a"
+      },
+      "tagger": {
+        "id": "0xcf38e38da8c9921f39dc8e9327bc03ba514d4c37"
+      },
+      "tags": [
+        {
+          "display": "#Uniswap",
+          "id": "22248038049684754665082341598970103577989670486231010418394381647412531268185"
+        },
+        {
+          "display": "#WETH",
+          "id": "56283791915439077634496783185469677022897510224530373322043955908849197473119"
+        },
+        {
+          "display": "#APE",
+          "id": "72354181056179278390360485579570994578198162447135491607160593964404111112638"
+        },
+        {
+          "display": "#APE/WETH",
+          "id": "76000851623410826773405374892791972450817696162077777457315660861818733245881"
         }
-      }
-    ]
+      ],
+      "recordType": "bookmark"
+    }
   }
 }
 ```
