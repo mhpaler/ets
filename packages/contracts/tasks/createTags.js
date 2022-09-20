@@ -5,8 +5,8 @@ task("createTags", "Create CTAGs")
   .addParam("publisher", "Publisher name.")
   .addParam(
     "signer",
-    'Named wallet accounts. options are "Zero", "One", "Two", "Three", "Four", "Five". Defaults to "Zero"',
-    "Zero",
+    'Named wallet accounts. options are "account0", "account1", "account2", "account3", "account4", "account5". Defaults to "account0"',
+    "account0",
   )
   .setAction(async (taskArgs) => {
     const {getAccounts} = require("./utils/getAccounts");
@@ -61,7 +61,7 @@ task("createTags", "Create CTAGs")
       for (let i = 0; i < tagsToMint.length; i++) {
         const tagId = await etsToken.computeTagId(tags[i]);
         if (await etsToken.tagExistsById(tagId)) {
-          console.log(`${tagsToMint[i]} minted by ${taskArgs.signer} with id ${tagId}`);
+          console.log(`"${tagsToMint[i]}" minted by ${taskArgs.signer} with id ${tagId}`);
         }
       }
     }

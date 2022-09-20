@@ -20,29 +20,33 @@ import "./tasks/";
 
 dotenvConfig({path: resolve(__dirname, "../../.env")});
 
-// Ensure that we have all the environment variables we need.
-const mnemonic: string | undefined = process.env.MNEMONIC;
-
-if (!mnemonic) {
-  throw new Error("Please set your MNEMONIC in a .env file");
-}
+const mnemonic = {
+  local: `${process.env.MNEMONIC_LOCAL}`.replace(/_/g, " "),
+  mumbai: `${process.env.MNEMONIC_MUMBAI}`.replace(/_/g, " "),
+};
 
 const config: HardhatUserConfig = {
   networks: {
     hardhat: {
-      accounts: {mnemonic},
+      accounts: {
+        mnemonic: mnemonic.local,
+      },
       chainId: 31337,
     },
     localhost: {
       url: "http://localhost:8545",
-      accounts: {mnemonic},
+      accounts: {
+        mnemonic: mnemonic.local,
+      },
       chainId: 31337,
     },
     mumbai: {
       url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_MUMBAI}`,
       //url: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 80001,
-      accounts: {mnemonic},
+      accounts: {
+        mnemonic: mnemonic.mumbai,
+      },
       gas: 2100000,
       gasPrice: 8000000000,
     },
@@ -53,14 +57,8 @@ const config: HardhatUserConfig = {
   },
   // ETS administration accounts.
   namedAccounts: {
-    ETSAdmin: {
-      default: 0,
-      mumbai: "0x93A5f58566D436Cae0711ED4d2815B85A26924e6",
-    },
-    ETSPlatform: {
-      default: 1,
-      mumbai: "0x60F2760f0D99330A555c5fc350099b634971C6Eb",
-    },
+    ETSAdmin: {default: 0},
+    ETSPlatform: {default: 1},
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,

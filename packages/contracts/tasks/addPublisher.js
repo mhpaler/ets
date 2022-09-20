@@ -5,8 +5,8 @@ task(
   .addParam("name", 'Publisher Name eg. "Uniswap"')
   .addParam(
     "signer",
-    'Named wallet accounts. options are "Zero", "One", "Two", "Three", "Four", "Five". Defaults to "Zero"',
-    "Zero",
+    'Named wallet accounts. options are "account0", "account1", "account2", "account3", "account4", "account5". Defaults to "account0"',
+    "account0",
   )
   .setAction(async (taskArgs) => {
     const {getAccounts} = require("./utils/getAccounts");

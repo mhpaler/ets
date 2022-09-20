@@ -1,11 +1,11 @@
 task("accounts", "Prints the list of accounts", async () => {
   const accounts = await ethers.getSigners();
 
-  for (let i = 0; i < accounts.length; i++) {
+  for (let i = 0; i < 6; i++) {
     let balance = await accounts[i].getBalance();
     balance = ethers.utils.formatEther(balance);
     console.log(" ");
-    console.log(`Account ${i}: ${accounts[i].address} Balance: ${balance}`);
+    console.log(`account${i}: ${accounts[i].address} Balance: ${balance}`);
   }
 });
 

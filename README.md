@@ -22,7 +22,7 @@ If you want to learn a bit more before diving in, [key concepts](./docs/key-conc
 - [System architecture diagram](./docs/system-architecture.md)
 - [Backend API (contracts)](./docs/backend-api/index.md)
 - [Front-end API (subgraph)](./docs/subgraph.md)
-- [Ethers.js quickstart](./docs/ethers-js-quickstart.md) (TODO)
+- [Ethers.js quickstart](./docs/ethers-js-quickstart.md) (in progress)
 - [Contract-to-contract quickstart](./docs/contract-to-contract-quickstart.md) (TODO)
 - [Local development quickstart](./docs/local-dev-quickstart.md) (TODO)
 - [Demos & examples](./docs/examples.md) (TODO)
