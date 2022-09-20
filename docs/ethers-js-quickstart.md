@@ -6,7 +6,7 @@ If you are interested in contract-to-contract interaction, please see the [Contr
 
 ## Setup
 
-Our Hardhat Tasks can execute directly on the Polygon Mumbai testnet or on [ETS deployed to local hardhat network](./docs/local-dev-quickstart.md). This guide covers running on Polygon Mumbai, but all commands are the same when running locally, except the `--network` flag is set to `localhost`.
+Our Hardhat Tasks can execute directly on the Polygon Mumbai testnet or on [ETS deployed to local hardhat network](./docs/local-dev-quickstart.md). This guide covers running on Polygon Mumbai. When running locally, all commands are the same except the `--network` flag is set to `localhost`.
 
 For either method, you'll first need to clone the ETS repository and install ETS.
 
@@ -22,9 +22,15 @@ Next, make sure you have a [Metamask wallet](https://blog.thirdweb.com/guides/cr
 
 Finally, from the root of ETS, make a copy of `example.env`, save as `.env` and add your secret recovery phrase to `MNEMONIC_MUMBAI` and a free [Alchemy API](https://www.alchemy.com/) key for Polygon Mumbai to `ALCHEMY_MUMBAI`.
 
+Note: All commands are issued from within the contracts package.
+
+```zsh
+cd packages/contracts
+```
+
 ## Check accounts and balances
 
-Before interacting with ETS on Polygon Mumbai, you'll want to confirm that the accounts and test Matic amounts match that of your Metamask. For example:
+Before interacting with ETS on Polygon Mumbai, you'll want to confirm that the accounts and test Matic amounts match that of your Metamask wallet. For example:
 
 ```zsh
 $ hardhat accounts --network mumbai
