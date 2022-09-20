@@ -120,7 +120,7 @@ function computeTargetId(string memory _targetURI) public pure returns (uint256)
 
 Data structure, stored on-chain, that stores one or more Tag Ids connected to a Target Id by a given Tagger + Publisher combination. Also included is a Record Type flag that gives Publisher (or potentially a Tagger) a means to provide context to the Tagging Record.
 
-Semantically, a Tagging Record reflects **"who tagged what, from where and why"**.
+Semantically, a Tagging Record reflects **"who tagged what, with which tags, from where and why"**.
 
 Every Tagging record has a unique Id computed from the hashed composite of Target Id, Record Type, Tagger and Publisher addresses cast as a uint256.
 
