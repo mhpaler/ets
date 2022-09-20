@@ -90,8 +90,8 @@ Next, we'll create two CTAGs using the Publisher contract deployed in the previo
 
 ```zsh
 $ hardhat createTags --publisher "Solana" --signer "account3" --tags "#Phantom, #FamilySol" --network mumbai
-Minting CTAGs "#Phantom,#FamilySol"
 
+Minting CTAGs "#Phantom,#FamilySol"
 "#Phantom" minted by account3 with id 2534166372342226846419692081870028406351230466705393079417605661637489732040
 "#FamilySol" minted by account3 with id 53310349790028376771296848103922679878406746938593754136048816181764772325808
 ```
