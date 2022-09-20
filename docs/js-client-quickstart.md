@@ -1,4 +1,4 @@
-# Ethers.js quickstart
+# JavaScript client quickstart
 
 This guide walks through adding a [Publisher](./key-concepts.md#publisher) to ETS (required), creating a [CTAG](./key-concepts.md#tag-ctag), creating a [Tagging Record](./key-concepts.md#tagging-record) and modifying a Tagging Record. We'll be using set of custom [Hardhat Tasks](https://hardhat.org/) that use [Ethers.js](https://docs.ethers.io/v5/) to interact with the protocol.
 
