@@ -1,5 +1,5 @@
 {
-  "name": "@ets/contracts",
+  "name": "@ethereum-tag-service/contracts",
   "description": "Composable tags",
   "license": "MIT",
   "version": "1.0.0",
@@ -10,7 +10,7 @@
   ],
   "devDependencies": {
     "@ethersproject/abstract-signer": "^5.6.0",
-    "@ets/tsconfig": "workspace:*",
+    "@ethereum-tag-service/tsconfig": "workspace:*",
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers",
     "@nomiclabs/hardhat-etherscan": "^3.1.0",
     "@nomiclabs/hardhat-truffle5": "^2.0.6",

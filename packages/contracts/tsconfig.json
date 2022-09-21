@@ -1,4 +1,4 @@
 {
-  "extends": "@ets/tsconfig/hardhat.json",
+  "extends": "@ethereum-tag-service/tsconfig/hardhat.json",
   "files": ["./hardhat.config.ts"]
 }
