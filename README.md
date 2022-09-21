@@ -26,7 +26,7 @@ In ETS, tags, content tagging & tagging data are fully composable units & servic
 
 ## Getting Started
 
-If you want to jump right in, head over to [Ethers.js quickstart](./docs/ethers-js-quickstart.md) or [Contract-to-contract quickstart](./docs/contract-to-contract-quickstart.md).
+If you want to jump right in, head over to [JavaScript client quickstart](./docs/js-client-quickstart.md) or [Contract-to-contract quickstart](./docs/contract-to-contract-quickstart.md).
 
 If you want to learn a bit more before diving in, [key concepts](./docs/key-concepts.md), the [system architecture diagram](./docs/system-architecture.md/) and the [Backend API](./docs/contract-apis) are good places to start.
 
