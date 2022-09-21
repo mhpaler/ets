@@ -1,5 +1,19 @@
 # ETS
 
+```solidity
+
+__/\\\\\\\\\\\\\\\__/\\\\\\\\\\\\\\\_____/\\\\\\\\\\\___
+ _\/\\\///////////__\///////\\\/////____/\\\/////////\\\_
+  _\/\\\___________________\/\\\________\//\\\______\///__
+   _\/\\\\\\\\\\\___________\/\\\_________\////\\\_________
+    _\/\\\///////____________\/\\\____________\////\\\______
+     _\/\\\___________________\/\\\_______________\////\\\___
+      _\/\\\___________________\/\\\________/\\\______\//\\\__
+       _\/\\\\\\\\\\\\\\\_______\/\\\_______\///\\\\\\\\\\\/___
+        _\///////////////________\///__________\///////////_____
+
+```
+
 This monorepo contains the entire code base for Ethereum Tag Service including smart contracts, subgraph and various front-end applications. It uses [Turborepo](https://turborepo.org/) and [pnpm](https://pnpm.io/) as a package manager for the monorepo.
 
 For code releases we use [semantic versioning](https://semver.org/).
