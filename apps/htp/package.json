@@ -1,5 +1,5 @@
 {
-  "name": "@ets/htp",
+  "name": "@ethereum-tag-service/htp",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -14,9 +14,9 @@
     "react-dom": "17.0.2"
   },
   "devDependencies": {
-    "@ets/brand": "workspace:*",
-    "@ets/config": "workspace:*",
-    "@ets/tsconfig": "workspace:*",
+    "@ethereum-tag-service/brand": "workspace:*",
+    "@ethereum-tag-service/config": "workspace:*",
+    "@ethereum-tag-service/tsconfig": "workspace:*",
     "autoprefixer": "^10.4.7",
     "eslint": "8.17.0",
     "eslint-config-next": "12.1.6",

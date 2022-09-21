@@ -1,5 +1,5 @@
 {
-  "name": "@ets/tsconfig",
+  "name": "@ethereum-tag-service/tsconfig",
   "version": "0.0.0",
   "private": true,
   "main": "index.js",

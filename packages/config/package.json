@@ -1,5 +1,5 @@
 {
-  "name": "@ets/config",
+  "name": "@ethereum-tag-service/config",
   "version": "0.0.0",
   "main": "index.js",
   "license": "MIT",
