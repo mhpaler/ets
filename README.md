@@ -47,7 +47,7 @@ ETS is an alpha/testnet service being "developed in the open" as open source sof
 
 For developers (or anyone for that matter), with questions & feedback please use our Github [discussion forum](https://github.com/ethereum-tag-service/ets/discussions).
 
-We also post occasional updates to [Twitter](https://twitter.com/etsxyz), Medium and [Substack](https://etsxyz.substack.com/) if you want to stay informed.
+We also post occasional updates to [Twitter](https://twitter.com/etsxyz) and [Substack](https://etsxyz.substack.com/) if you want to stay informed.
 
 ## Inspiration & Thanks
 
