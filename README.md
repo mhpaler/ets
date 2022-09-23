@@ -14,7 +14,7 @@ In ETS, tags, content tagging & tagging data are fully composable units & servic
 
 ## Getting Started
 
-If you want to jump right in, head over to [JavaScript client quickstart](./docs/js-client-quickstart.md)(in progress) or [Contract-to-contract quickstart](./docs/contract-to-contract-quickstart.md)(TODO).
+If you want to jump right in, head over to [JavaScript client quickstart](./docs/js-client-quickstart.md)(in progress) or [Contract-to-contract quickstart](./docs/contract-to-contract-quickstart.md)(todo).
 
 To learn a bit more before diving in, [key concepts](./docs/key-concepts.md), the [system architecture diagram](./docs/system-architecture.md/).
 
@@ -25,15 +25,15 @@ To learn a bit more before diving in, [key concepts](./docs/key-concepts.md), th
 - [Backend API (contracts)](./docs/backend-api/index.md)
 - [Front-end API (subgraph)](./docs/subgraph.md)
 - [JavaScript client quickstart](./docs/js-client-quickstart.md) (in progress)
-- [Contract-to-contract quickstart](./docs/contract-to-contract-quickstart.md) (TODO)
-- [Local development quickstart](./docs/local-dev-quickstart.md) (TODO)
-- [Demos & examples](./docs/examples.md) (TODO)
+- [Contract-to-contract quickstart](./docs/contract-to-contract-quickstart.md) (todo)
+- [Local development quickstart](./docs/local-dev-quickstart.md) (todo)
+- [Demos & examples](./docs/examples.md) (todo)
 
 ## Contributing
 
 ETS is an alpha/testnet service being "developed in the open" as open source software (OSS). As such, public participation is both welcome and necessary for the project to thrive.
 
-For developers (or anyone for that matter), with questions & feedback please use our Github [discussion forum](https://github.com/ethereum-tag-service/ets/discussions).
+For developers (or anyone for that matter), with questions & feedback please use our Github [discussion forum](https://github.com/ethereum-tag-service/ets/discussions). For bug reports or issues, please [open an issue](https://github.com/ethereum-tag-service/ets/issues).
 
 We also post occasional updates to [Twitter](https://twitter.com/etsxyz) and [Substack](https://etsxyz.substack.com/) if you want to stay informed.
 
