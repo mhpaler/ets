@@ -1,13 +1,27 @@
 {
   "name": "@ethereum-tag-service/contracts",
-  "description": "Composable tags",
+  "description": "Composable content tagging service for Web3",
   "license": "MIT",
-  "version": "1.0.0",
+  "version": "0.1.0-alpha.1",
+  "files": [
+    "/contracts/**/*.sol"
+  ],
+  "author": "Ethereum Tag Service <team@ets.xyz>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ethereum-tag-service/ets.git",
+    "directory": "packages/contracts"
+  },
   "keywords": [
+    "ets",
     "composable",
     "nft",
     "tagging"
   ],
+  "bugs": {
+    "url": "https://github.com/ethereum-tag-service/ets/issues"
+  },
+  "homepage": "https://ets.xyz",
   "devDependencies": {
     "@ethersproject/abstract-signer": "^5.6.0",
     "@ethereum-tag-service/tsconfig": "workspace:*",

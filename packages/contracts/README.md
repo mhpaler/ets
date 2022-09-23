@@ -1,6 +1,4 @@
-# Contracts
-
-Contracts are located in `packages/contracts`.
+# Ethereum Tag Service Contracts
 
 We use [Hardhat](https://hardhat.org/) as our Solidity smart contract development environment. Before using Hardhat, make a copy of `.env.example` in the project root named `.env`. The default settings in there should be enough to get you going. Next, starting in the `contracts` directory, start up Hardhat:
 
