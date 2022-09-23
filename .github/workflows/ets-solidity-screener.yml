@@ -1,0 +1,73 @@
+name: ETS Solidity screener
+
+env:
+  MNEMONIC: test test test test test test test test test test test junk
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  # JOB to run change detection
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    # Set job outputs to values from filter step
+    outputs:
+      contracts: ${{ steps.filter.outputs.contracts }}
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      # For pull requests it's not necessary to checkout the code
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            contracts:
+              - 'packages/contracts/contracts/**'
+
+  screener:
+    name: Run Solhint & Tests
+    needs: changes
+    if: ${{ needs.changes.outputs.contracts == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - uses: pnpm/action-setup@v2.0.1
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 7
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        run: |
+          echo "::set-output name=pnpm_cache_dir::$(pnpm store path)"
+
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ steps.pnpm-cache.outputs.pnpm_cache_dir }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run Solhint
+        run: |
+          cd packages/contracts/
+          pnpm solhint
+
+      - name: Run Tests
+        run: pnpm hardhat:test

@@ -1,13 +1,22 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> stage
 /**
  * Generate subgraph.yaml file automatically.
  *
  * Usage: ./generate-yaml.js --deployment [network]
  * Where [network] is the destination the subgraph.
+<<<<<<< HEAD
  * See cont networks for supported networks.
 **/
 
 const configFile = "./../hardhat/config/config.json";
+=======
+ * See const networks for supported networks.
+ **/
+const configFile = "./../contracts/config/config.json";
+>>>>>>> stage
 const fs = require("fs-extra");
 const Handlebars = require("handlebars");
 
@@ -55,6 +64,7 @@ try {
 const chainId = networks[network].chainId;
 
 const contractsInfo = {
+<<<<<<< HEAD
   contracts: config.networks[chainId].contracts,
   network: networks[network].name,
 };
@@ -64,3 +74,13 @@ fs.writeFileSync("./subgraph.yaml", result);
 
 console.log(network + " configuration file written to /hashtag-subgraph/subgraph.yaml");
  
+=======
+  contracts: config[chainId].contracts,
+  network: networks[network].name,
+};
+const template = Handlebars.compile(fs.readFileSync("./templates/subgraph.yaml.mustache").toString());
+const result = template(contractsInfo);
+fs.writeFileSync("./subgraph.yaml", result);
+
+console.log(network + " configuration file written to /subgraph/subgraph.yaml");
+>>>>>>> stage

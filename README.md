@@ -1,165 +1,44 @@
-# Ethereum Tag Service
+<!-- markdownlint-disable MD041 -->
 
-Ethereum Tag Service is the community-owned incentivized cross-chain content tagging protocol for the decentralized web.
+![System architecture diagram](./docs/assets/logo-leaderboard.png)
 
-This repository uses Turborepo and [Yarn](https://classic.yarnpkg.com/lang/en/) as a package manager.
+This monorepo contains the entire code base for Ethereum Tag Service including smart contracts, subgraph and various front-end applications. It uses [Turborepo](https://turborepo.org/) and [pnpm](https://pnpm.io/) as a package manager for the monorepo.
 
-- Website: [ets.xyz](https://ets.xyz)
-- App: [app.ets.xyz](https://app.ets.xyz)
-- Docs: [ets.xyz/docs](https://ets.xyz/docs)
-- Twitter: [@etsproject](https://twitter.com/etsproject)
-- Discord: ETS (soon)
+For code releases we use [semantic versioning](https://semver.org/).
 
-## Quick Start
+## What is ETS?
 
-```bash
-git clone https://github.com/ethereum-tag-service/ets.git
-cd ets
+Ethereum Tag Service (ETS) is an experimental EVM based content tagging service, aimed at Web3 developers, running in alpha/testnet phase on the Polygon Blockchain.
 
-yarn install
-```
+In ETS, tags, content tagging & tagging data are fully composable units & services. This treatment preserves data integrity, provenance & attribution across the projects and users that consume the service. The result is (hopefully) a novel way to connect people, places and things across Web3.
 
-Get started with:
+## Getting Started
 
-- [Site](#site) (ets.xyz)
-- [App](#app) (app.ets.xyz)
-- [Docs](#docs) (ets.xyz/docs)
-- [UI](#ui)
-- [Subgraph](#subgraph)
-- [Contracts](#contracts)
-- [Tests](#tests)
-- [Deployments](#deployments)
+If you want to jump right in, head over to [JavaScript client quickstart](./docs/js-client-quickstart.md)(in progress) or [Contract-to-contract quickstart](./docs/contract-to-contract-quickstart.md)(todo).
 
-Other packages:
+To learn a bit more before diving in, [key concepts](./docs/key-concepts.md), the [system architecture diagram](./docs/system-architecture.md/).
 
-- `config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `tsconfig`: `tsconfig.json`s used throughout the monorepo
+## Documentation
 
-<a name="site"></a>
-### Site
+- [Key concepts](./docs/key-concepts.md)
+- [System architecture diagram](./docs/system-architecture.md)
+- [Backend API (contracts)](./docs/backend-api/index.md)
+- [Front-end API (subgraph)](./docs/subgraph.md)
+- [JavaScript client quickstart](./docs/js-client-quickstart.md) (in progress)
+- [Contract-to-contract quickstart](./docs/contract-to-contract-quickstart.md) (todo)
+- [Local development quickstart](./docs/local-dev-quickstart.md) (todo)
+- [Demos & examples](./docs/examples.md) (todo)
 
-```bash
-yarn site:dev
-```
+## Contributing
 
-This will start up the Next.js development server and your site will be available at: [http://localhost:3000/](http://localhost:3000/)
+ETS is an alpha/testnet service being "developed in the open" as open source software (OSS). As such, public participation is both welcome and necessary for the project to thrive.
 
-The App is built with Next.js and can be found in `apps/site`.
+For developers (or anyone for that matter), with questions & feedback please use our Github [discussion forum](https://github.com/ethereum-tag-service/ets/discussions). For bug reports or issues, please [open an issue](https://github.com/ethereum-tag-service/ets/issues).
 
-<a name="app"></a>
-### App
+We also post occasional updates to [Twitter](https://twitter.com/etsxyz) and [Substack](https://etsxyz.substack.com/) if you want to stay informed.
 
-```bash
-yarn app:dev
-```
+## Inspiration & Thanks
 
-This will start up the Next.js development server and your site will be available at: [http://localhost:3000/](http://localhost:3000/)
+Launched in 2019 as Hashtag Protocol, ETS has taken many turns to get to where it is today. This path would not have been possible without the input & inspiration from many people and projects. We'd like to thank the following in no particular order:
 
-The App is built with Next.js and can be found in `apps/app`.
-
-To interact with the local contract, be sure to switch your MetaMask Network to `Localhost 8545`.
-
-<a name="docs"></a>
-### Docs
-
-```bash
-yarn docs:dev
-```
-
-This will start up the Next.js development server and your site will be available at: [http://localhost:3000/](http://localhost:3000/)
-
-The App is built with Next.js and can be found in `apps/docs`.
-
-
-<a name="ui"></a>
-### UI
-
-The UI package (`/packages/ui`) is a stub React component library shared by the `site`, `app`, and `docs` applications.
-
-<a name="subgraph"></a>
-### Subgraph
-
-To develop using a local subgraph, you'll need to have [Docker](https://www.docker.com/products/docker-desktop) installed. Be sure you have already run `yarn hardhart` and `yarn hardhat:deploy` so your contracts are deployed to the local Hardhat network before running the following commands.
-
-First, open up a new terminal and spin up a local Docker graph node container. It will automatically clean up any old data:
-
-```bash
-yarn docker:start
-```
-
-In another terminal, create your local subgraph (only required to run once):
-
-```bash
-yarn graph:create-local
-```
-
-Deploy your local subgraph:
-
-```bash
-yarn graph:ship-local
-```
-
-Once you make changes to your subgraph in `packages/subgraph`, you can deploy your contracts and your subgraph in one go by running:
-
-```bash
-yarn graph:deploy-and-graph
-```
-
-If you want to remove the Docker container, run:
-
-```bash
-yarn docker:remove
-```
-
-<a name="contracts"></a>
-### Contracts
-
-Contract are located in `packages/hardhat/contracts`.
-
-```bash
-yarn hardhat
-```
-
-Running `yarn hardhat` spins up a Hardhat network instance that you can connect to using MetaMask. In a different terminal in the same directory, run:
-
-```bash
-yarn hardhat:deploy
-```
-
-This will deploy the contracts to the Hardhat network.
-
-Or, if you would like to deploy and then watch the [contracts](#contracts) for changes and auto-deploy them to the local Hardhat network, you can just run:
-
-```bash
-yarn hardhat:watch
-```
-
-Deployment and watching scripts are located in `packages/hardhat/scripts` and `packages/hardhat/deploy`.
-
-<a name="tests"></a>
-### Tests
-
-To run tests:
-
-```bash
-yarn hardhat:test
-```
-
-<a name="deployments"></a>
-### Deployments
-
-To deploy contracts to Polygon Mumbai, run:
-
-```bash
-yarn hardhat:deploy-mumbai
-```
-
-To deploy the subgraph:
-
-```bash
-yarn graph:ship-mumbai
-```
-
-## Thanks
-
-Thanks to Austin Griffith for [Scaffold-ETH](https://github.com/scaffold-eth/scaffold-eth).
+Andy Gray, James Morgan, Vincent de Almeida, Superfluid, David Post, Startup with Chainlink, Polygon, Hardhat, Xinshu Dong, Elvie Kamalova, Joe Guagliardo, nnnnicholas, Joshua Meteora, RSS3, Michael Palys, Mike Derezin, Sunny He, Mask, Shields, Nouns, Enzyme Finance, Chris Messina, Glen Poppe, MEEM, Stefan Adolf, Robert Douglass, NFTPort, Ben Murray, Open Zeppelin, Jad Esber

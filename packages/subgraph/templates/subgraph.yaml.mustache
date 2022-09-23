@@ -1,0 +1,203 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: ETSAccessControls
+    network: {{network}}
+    source:
+      address: "{{contracts.ETSAccessControls.address}}"
+      abi: ETSAccessControls
+      startBlock: {{contracts.ETSAccessControls.deploymentBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/ETSAccessControls.ts
+      entities:
+        - Administrator
+        - Platform
+        - Publisher
+        - PublisherAdmin      
+      abis:
+        - name: UUPSUpgradeable
+          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol/UUPSUpgradeable.json
+        - name: Initializable
+          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol/Initializable.json
+        - name: ETSAccessControls
+          file: ./../contracts/abi/contracts/ETSAccessControls.sol/ETSAccessControls.json
+        - name: ETSPublisherV1
+          file: ./../contracts/abi/contracts/publishers/ETSPublisherV1.sol/ETSPublisherV1.json
+      eventHandlers:
+        - event: Initialized(uint8)
+          handler: handleInitialized
+        - event: Upgraded(indexed address)
+          handler: handleUpgraded
+        - event: PlatformSet(address,address)
+          handler: handlePlatformSet
+        - event: PublisherAdded(address,bool)
+          handler: handlePublisherAdded
+        - event: PublisherPauseToggled(address)
+          handler: handlePublisherToggled
+        - event: RoleGranted(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleGranted
+        - event: RoleRevoked(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleRevoked
+  - kind: ethereum/contract
+    name: ETSToken
+    network: {{network}}
+    source:
+      address: "{{contracts.ETSToken.address}}"
+      abi: ETSToken
+      startBlock: {{contracts.ETSToken.deploymentBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/ETSToken.ts
+      entities:
+        - Transfer
+      abis:
+        - name: UUPSUpgradeable
+          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol/UUPSUpgradeable.json
+        - name: Initializable
+          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol/Initializable.json
+        - name: ETSToken
+          file: ./../contracts/abi/contracts/ETSToken.sol/ETSToken.json
+      eventHandlers:
+        - event: Initialized(uint8)
+          handler: handleInitialized
+        - event: Upgraded(indexed address)
+          handler: handleUpgraded
+        - event: TagMaxStringLengthSet(uint256)
+          handler: handleTagMaxStringLengthSet
+        - event: TagMinStringLengthSet(uint256)
+          handler: handleTagMinStringLengthSet
+        - event: OwnershipTermLengthSet(uint256)
+          handler: handleOwnershipTermLengthSet
+        - event: ETSCoreSet(address)
+          handler: handleETSCoreSet
+        - event: AccessControlsSet(address)
+          handler: handleAccessControlsSet
+        - event: PremiumTagPreSet(string,bool)
+          handler: handlePremiumTagPreSet
+        - event: PremiumFlagSet(uint256,bool)
+          handler: handlePremiumFlagSet
+        - event: ReservedFlagSet(uint256,bool)
+          handler: handleReservedFlagSet
+        - event: TagRenewed(indexed uint256,indexed address)
+          handler: handleTagRenewed
+        - event: TagRecycled(indexed uint256,indexed address)
+          handler: handleTagRecycled
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+  - kind: ethereum/contract
+    name: ETSTarget
+    network: {{network}}
+    source:
+      address: "{{contracts.ETSTarget.address}}"
+      abi: ETSTarget
+      startBlock: {{contracts.ETSTarget.deploymentBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/ETSTarget.ts
+      entities:
+        - TargetMiscellaneous
+      abis:
+        - name: UUPSUpgradeable
+          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol/UUPSUpgradeable.json
+        - name: Initializable
+          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol/Initializable.json
+        - name: ETSTarget
+          file: ./../contracts/abi/contracts/ETSTarget.sol/ETSTarget.json
+      eventHandlers:
+        - event: Initialized(uint8)
+          handler: handleInitialized
+        - event: Upgraded(indexed address)
+          handler: handleUpgraded
+        - event: AccessControlsSet(address)
+          handler: handleAccessControlsSet
+        - event: EnrichTargetSet(address)
+          handler: handleEnrichTargetSet
+        - event: TargetCreated(uint256)
+          handler: handleTargetCreated
+        - event: TargetUpdated(uint256)
+          handler: handleTargetUpdated
+  - kind: ethereum/contract
+    name: ETS
+    network: {{network}}
+    source:
+      address: "{{contracts.ETS.address}}"
+      abi: ETS
+      startBlock: {{contracts.ETS.deploymentBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/ETS.ts
+      entities:
+        - TaggingRecord
+      abis:
+        - name: UUPSUpgradeable
+          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol/UUPSUpgradeable.json
+        - name: Initializable
+          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol/Initializable.json
+        - name: ETSAccessControls
+          file: ./../contracts/abi/contracts/ETSAccessControls.sol/ETSAccessControls.json
+        - name: ETSToken
+          file: ./../contracts/abi/contracts/ETSToken.sol/ETSToken.json
+        - name: ETSTarget
+          file: ./../contracts/abi/contracts/ETSTarget.sol/ETSTarget.json
+        - name: ETS
+          file: ./../contracts/abi/contracts/ETS.sol/ETS.json
+      eventHandlers:
+        - event: Initialized(uint8)
+          handler: handleInitialized
+        - event: Upgraded(indexed address)
+          handler: handleUpgraded
+        - event: AccessControlsSet(address)
+          handler: handleAccessControlsSet
+        - event: TaggingFeeSet(uint256)
+          handler: handleTaggingFeeSet
+        - event: PercentagesSet(uint256,uint256)
+          handler: handlePercentagesSet
+        - event: TaggingRecordCreated(uint256)
+          handler: handleTaggingRecordCreated
+        - event: TaggingRecordUpdated(uint256,uint8)
+          handler: handleTaggingRecordUpdated
+        - event: FundsWithdrawn(indexed address,uint256)
+          handler: handleFundsWithdrawn
+
+templates:
+  - name: ETSPublisherV1
+    kind: ethereum/contract
+    network: {{network}}
+    source:
+      abi: ETSPublisherV1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/mappings/ETSPublisherV1.ts
+      entities:
+        - Publisher
+      abis:
+        - name: ETSPublisherV1
+          file: ./../contracts/abi/contracts/publishers/ETSPublisherV1.sol/ETSPublisherV1.json
+        - name: Ownable
+          file: ./../contracts/abi/@openzeppelin/contracts/access/Ownable.sol/Ownable.json
+        - name: Pausable
+          file: ./../contracts/abi/@openzeppelin/contracts/security/Pausable.sol/Pausable.json
+      eventHandlers:
+        - event: PublisherPauseToggledByOwner(address)
+          handler: handlePublisherPauseToggledByOwner
+        - event: PublisherOwnerChanged(address)
+          handler: handlePublisherOwnerChanged
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Paused(address)
+          handler: handlePausedByOwner
+        - event: Unpaused(address)
+          handler: handleUnpausedByOwner

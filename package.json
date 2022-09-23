@@ -1,5 +1,5 @@
 {
-  "name": "@ets/monorepo",
+  "name": "@ethereum-tag-service/monorepo",
   "version": "1.0.0",
   "author": "ETS",
   "private": true,
@@ -17,70 +17,37 @@
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "app:dev": "yarn workspace @ets/app dev",
-    "app:build": "yarn workspace @ets/app build",
-    "app:start": "yarn workspace @ets/app start",
-    "site:dev": "yarn workspace @ets/site dev",
-    "site:build": "yarn workspace @ets/site build",
-    "site:start": "yarn workspace @ets/site start",
-    "docs:dev": "yarn workspace @ets/docs dev",
-    "docs:build": "yarn workspace @ets/docs build",
-    "docs:start": "yarn workspace @ets/docs start",
-    "hardhat": "yarn workspace @ets/hardhat hardhat",
-    "hardhat:deploy": "yarn workspace @ets/hardhat deploy",
-    "hardhat:deploy-mumbai": "yarn workspace @ets/hardhat deploy-mumbai",
-    "hardhat:compile": "yarn workspace @ets/hardhat compile",
-    "hardhat:watch": "yarn workspace @ets/hardhat watch",
-    "hardhat:test": "yarn workspace @ets/hardhat hardhat-test",
-    "hardhat:clean": "cd packages/hardhat && npx hardhat clean",
-    "docker:start": "yarn workspace @ets/subgraph run-graph-node",
-    "docker:remove": "yarn workspace @ets/subgraph remove-graph-node",
-    "docker:clean": "yarn workspace @ets/subgraph clean-graph-node",
-    "graph:create-local": "yarn workspace @ets/subgraph create-local",
-    "graph:remove-local": "yarn workspace @ets/subgraph remove-local",
-    "graph:ship-local": "yarn workspace @ets/subgraph ship-local",
-    "graph:deploy-and-graph": "yarn deploy && yarn graph:ship-local",
-    "graph:ship-mumbai": "yarn workspace @ets/subgraph ship-mumbai"
-  },
-  "workspaces": {
-    "packages": [
-      "apps/*",
-      "packages/*"
-    ],
-    "nohoist": [
-      "**/@graphprotocol/graph-ts",
-      "**/@graphprotocol/graph-ts/**",
-      "**/@graphprotocol/graph-cli",
-      "**/@graphprotocol/graph-cli/**",
-      "**/hardhat",
-      "**/hardhat/**",
-      "**/hardhat-ts",
-      "**/hardhat-ts/**"
-    ]
+    "api:dev": "cd apps/api && pnpm run dev",
+    "api:build": "cd apps/api && pnpm run build",
+    "api:start": "cd apps/api && pnpm run start",
+    "app:dev": "cd apps/app && pnpm run dev",
+    "app:build": "cd apps/app && pnpm run build",
+    "app:start": "cd apps/app && pnpm run start",
+    "site:dev": "cd apps/site && pnpm run dev",
+    "site:build": "cd apps/site && pnpm run build",
+    "site:start": "cd apps/site && pnpm run start",
+    "hardhat": "cd packages/contracts && pnpm run hardhat",
+    "hardhat:deploy": "cd packages/contracts && pnpm run deploy",
+    "hardhat:deploy-mumbai": "cd packages/contracts && pnpm run deploy-mumbai",
+    "hardhat:compile": "cd packages/contracts && pnpm run compile",
+    "hardhat:watch": "cd packages/contracts && pnpm run watch",
+    "hardhat:solhint": "cd packages/contracts && pnpm solhint",
+    "hardhat:test": "cd packages/contracts && pnpm run hardhat-test",
+    "hardhat:clean": "cd packages/hardhat && pnpm hardhat clean",
+    "graph:node-start": "cd packages/subgraph && pnpm run run-graph-node",
+    "graph:node-stop": "cd packages/subgraph && pnpm run remove-graph-node",
+    "graph:node-clean": "cd packages/subgraph && pnpm run clean-graph-node",
+    "graph:prepare-local": "cd packages/subgraph && pnpm run prepare-local",
+    "graph:prepare-mumbai": "cd packages/subgraph && pnpm run prepare-mumbai",
+    "graph:create-local": "cd packages/subgraph && pnpm run create-local",
+    "graph:remove-local": "cd packages/subgraph && pnpm run remove-local",
+    "graph:ship-local": "cd packages/subgraph && pnpm run ship-local",
+    "graph:deploy-and-graph": "pnpm run hardhat:deploy && pnpm run graph:ship-local",
+    "graph:ship-mumbai": "cd packages/subgraph && pnpm run ship-mumbai"
   },
   "devDependencies": {
-    "prettier": "^2.5.1",
-    "turbo": "^1.0.19"
-  },
-  "turbo": {
-    "baseBranch": "origin/main",
-    "pipeline": {
-      "build": {
-        "dependsOn": [
-          "^build"
-        ],
-        "outputs": [
-          "dist/**",
-          ".next/**"
-        ]
-      },
-      "lint": {
-        "outputs": []
-      },
-      "dev": {
-        "cache": false
-      }
-    }
+    "prettier": "^2.6.2",
+    "turbo": "^1.2.6"
   },
   "engines": {
     "npm": ">=7.0.0",
