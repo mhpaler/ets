@@ -22,6 +22,21 @@
     "url": "https://github.com/ethereum-tag-service/ets/issues"
   },
   "homepage": "https://ets.xyz",
+  "scripts": {
+    "build": "pnpm build:contracts && pnpm build:package",
+    "prepublishOnly": "pnpm build",
+    "coverage": "hardhat coverage",
+    "build:contracts": "pnpm compile",
+    "build:package": "rm -rf ./dist && cp -R config dist && cp -R artifacts/contracts dist/artifacts && cp -R contracts dist",
+    "hardhat": "hardhat node --no-deploy",
+    "compile": "hardhat clean && hardhat compile",
+    "watch": "ts-node scripts/watch.ts",
+    "test": "hardhat test",
+    "deploy": "hardhat deploy --tags deployAll --network localhost",
+    "deploy-mumbai": "hardhat deploy --tags deployAll --network mumbai",
+    "prettier": "prettier --write 'contracts/**/*.sol'",
+    "solhint": "./node_modules/.bin/solhint contracts/*.sol contracts/**/*.sol"
+  },
   "devDependencies": {
     "@ethersproject/abstract-signer": "^5.6.0",
     "@ethereum-tag-service/tsconfig": "workspace:*",
@@ -61,15 +76,5 @@
   "dependencies": {
     "@openzeppelin/contracts": "^4.6.0",
     "@openzeppelin/contracts-upgradeable": "^4.6.0"
-  },
-  "scripts": {
-    "hardhat": "hardhat node --no-deploy",
-    "compile": "hardhat compile",
-    "watch": "ts-node scripts/watch.ts",
-    "hardhat-test": "hardhat test",
-    "deploy": "hardhat deploy --tags deployAll --network localhost",
-    "deploy-mumbai": "hardhat deploy --tags deployAll --network mumbai",
-    "prettier": "prettier --write 'contracts/**/*.sol'",
-    "solhint": "./node_modules/.bin/solhint contracts/*.sol contracts/**/*.sol"
   }
 }
