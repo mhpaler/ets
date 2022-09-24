@@ -461,7 +461,7 @@ describe("ETS Publisher Tests", function () {
     });
   });
 
-  describe.only("Tagging fees", async () => {
+  describe("Tagging fees", async () => {
     describe("for new tagging records", async () => {
       it("should fail when providing an invalid tagging action", async () => {
         const rawInput = {

@@ -136,7 +136,7 @@ describe("ETS Auction House Tests", function () {
         contracts.ETSAuctionHouse.connect(accounts.RandomOne).createBid(constants.Two, {
           value: initSettings.RESERVE_PRICE,
         }),
-      ).to.be.revertedWith("ERC721: owner query for nonexistent token");
+      ).to.be.revertedWith("ERC721: invalid token ID");
     });
 
     it("should revert when token not owned by platform", async function () {
