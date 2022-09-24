@@ -31,6 +31,7 @@ yarn-error.log*
 
 node_modules
 packages/**/data
+packages/*/dist
 packages/*/node_modules
 packages/.pnpm-debug.log
 
