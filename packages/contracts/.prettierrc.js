@@ -24,5 +24,11 @@ module.exports = {
         quoteProps: "preserve",
       },
     },
+    {
+      files: "*.md",
+      options: {
+        tabWidth: 4,
+      },
+    },
   ],
 };
