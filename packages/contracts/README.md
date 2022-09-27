@@ -22,10 +22,6 @@ pnpm install @ethereum-tag-service/contracts
 
 Import the `ETSPublisherV1` interface and instantiate it with a valid Publisher ID.
 
-You can use any Publisher address you like (for example the ETS Publisher address `0xe188a29bdd896fe0e6e1d025ed6a144530fb7535`), however, all publisher attribution will go to ETS.
-
-To attribute your application as the publisher, you'll need to [get your own Publisher ID](../../docs/get-publisher-id.md) using the ETS Publisher Factory.
-
 ```solidity
 pragma solidity ^0.8.0;
 
@@ -37,3 +33,8 @@ contract MyContract {
 }
 
 ```
+
+> NOTE:
+> You can use any Publisher ID you like (for example the ETS Publisher ID `0xe188a29bdd896fe0e6e1d025ed6a144530fb7535`), however, all publisher attribution will go to ETS.
+>
+> To attribute your application as the publisher, you'll need to [get your own Publisher ID](../../docs/get-publisher-id.md) using the ETS Publisher Factory.
