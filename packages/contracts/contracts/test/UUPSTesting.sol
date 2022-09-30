@@ -9,7 +9,6 @@ import { ETSToken } from "../ETSToken.sol";
 import { ETS } from "../ETS.sol";
 import { ETSPublisherFactory } from "../ETSPublisherFactory.sol";
 
-
 contract ETSAccessControlsUpgrade is ETSAccessControls {
     // Extend existing contract with new function.
     function upgradeTest() public pure returns (bool) {

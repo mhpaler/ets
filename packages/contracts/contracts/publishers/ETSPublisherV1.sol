@@ -144,10 +144,11 @@ contract ETSPublisherV1 is IETSPublisherV1, ERC165, Ownable, Pausable {
     }
 
     /// @inheritdoc IETSPublisherV1
-    function computeTaggingFee(
-        IETS.TaggingRecordRawInput calldata _rawInput,
-        IETS.TaggingAction _action
-    ) public view returns (uint256 fee, uint256 tagCount) {
+    function computeTaggingFee(IETS.TaggingRecordRawInput calldata _rawInput, IETS.TaggingAction _action)
+        public
+        view
+        returns (uint256 fee, uint256 tagCount)
+    {
         return ets.computeTaggingFeeFromRawInput(_rawInput, address(this), msg.sender, _action);
     }
 
