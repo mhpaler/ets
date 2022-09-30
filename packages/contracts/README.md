@@ -1,12 +1,14 @@
 # Ethereum Tag Service Contracts
 
-In ETS, tags, content tagging & tagging data are fully composable units & services. This treatment preserves data integrity, provenance & attribution across the projects and users that consume the service. The result is (hopefully) a novel way to connect people, places and things across Web3.
+Ethereum Tag Service (ETS) is an experimental EVM based content tagging service, aimed at Web3 developers, running in alpha/testnet phase on the Polygon Blockchain.
 
-Ethereum Tag Service contains a suite of contracts, that make it relatively easy for third parties to integrate
+In ETS, tags, content tagging & tagging data are fully composable units & services. Tagging can be performed via a JavaScript front-end client such as Ethers or Wagmi, or contract-to-contract interaction.
+
+The quickest way to get started with contract-to-contract interaction is by [getting a Publisher ID](../../docs/get-publisher-id.md) and implementing the [ETSPublisherV1](../contracts/contracts/publishers/interfaces/IETSPublisherV1.sol) interface with it inside your own contract.
 
 ## Quickstart
 
-To install with [**Hardhat**](https://github.com/nomiclabs/hardhat) or [**Truffle**](https://github.com/trufflesuite/truffle):
+To install with [**Hardhat**](https://github.com/nomiclabs/hardhat) or [**Truffle**](https://github.com/trufflesuite/truffle) using `npm`:
 
 ```sh
 npm install @ethereum-tag-service/contracts
