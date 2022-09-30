@@ -67,20 +67,20 @@
     "name": "mumbai",
     "contracts": {
       "ETSAccessControls": {
-        "address": "0x3c06bD3Fc9BACA7343750981D41f51B20CA72e48",
-        "implementation": "0x570b6A1b4C84245d50915E229C4a3DB31F85796E",
+        "address": "0x65d54e372fC337343F92018E88Ab90f4c7F3A40e",
+        "implementation": "0x7b09912F98E48a7C32F528BDcDC00580b4c24aEe",
         "deploymentBlock": 27475649,
         "upgradeBlock": null
       },
       "ETS": {
-        "address": "0x83EF49d3611886BCCe50cD43B572773F169C2b1a",
-        "implementation": "0x9cD5640b700133f28Fd8c0bC07F0C058A2f6Dfa0",
+        "address": "0x7EC55BFE1395e32785A67aAcc14B04e4A408F319",
+        "implementation": "0xe2C79Ecf889D52301dF8C605a666613D9f314b42",
         "deploymentBlock": 27476354,
         "upgradeBlock": null
       },
       "ETSToken": {
-        "address": "0xB454523539515b714722141031644acbD2798ef8",
-        "implementation": "0xBf1D29A677Fe7BC68b992909AA42140f625831E9",
+        "address": "0x03613CBE6Ec0135Cd42C5F36a8fC551198fecBff",
+        "implementation": "0x9eaC2157B98887B586557D90640130a988f6a7b9",
         "deploymentBlock": 27475952,
         "upgradeBlock": null
       },
@@ -90,26 +90,26 @@
         "upgradeBlock": null
       },
       "ETSAuctionHouse": {
-        "address": "0x0470C7DdB6eed7e578eE4c0Fd936308d71BA6a1e",
-        "implementation": "0x05057FfD466425Af700A792EAb0a5EDdcd17503D",
+        "address": "0xB45742561aaE6ea65EDC101540eE58504efa867a",
+        "implementation": "0xe21E8B3d5f55F28316B2667Aecbd838005F612aD",
         "deploymentBlock": 27475959,
         "upgradeBlock": null
       },
       "ETSTarget": {
-        "address": "0x80601DEE98762A00a74165607599368509deB7A3",
-        "implementation": "0x924cd3C086206578dEB79DD3AC6DF29C03Dc8cc5",
+        "address": "0x42C4e14903CbeA7aA2FE2DC94E4a67c912F0F8B4",
+        "implementation": "0xB89CA0BCE7E810D436d83114f8bf568d26EAba39",
         "deploymentBlock": 27476143,
         "upgradeBlock": null
       },
       "ETSEnrichTarget": {
-        "address": "0x77042e34bFC5bD9eDC2d7919944F19f476D6FAbb",
-        "implementation": "0xd29B9d405D707949663D39728FBe2C073B6B23c8",
+        "address": "0xA5ff69D6eFA2926adF64bB946ADc43d42c05f8FB",
+        "implementation": "0xaBd04D330B06429fBb771b2609126b0D9C853dA8",
         "deploymentBlock": 27476157,
         "upgradeBlock": null
       },
       "ETSPublisherFactory": {
-        "address": "0x7F5Acb2E4a21F6387C87a054cB59a019d8f5eb7E",
-        "implementation": "0x24c19cC2F1Dc1D2e951428942E5A0579289F2eBB",
+        "address": "0x7351E98b532d58821d5ab90A19254c247195d19c",
+        "implementation": "0x6981C20404b0DAb3Fa91070EA3b9E18eAe16D745",
         "deploymentBlock": 28072063,
         "upgradeBlock": null
       }

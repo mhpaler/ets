@@ -22,12 +22,12 @@ To learn a bit more before diving in, [key concepts](./docs/key-concepts.md), th
 
 - [Key concepts](./docs/key-concepts.md)
 - [System architecture diagram](./docs/system-architecture.md)
-- [Create your Publisher ID](./docs/get-publisher-id.md) (todo)
+- [Get a Publisher ID](./docs/get-publisher-id.md) (todo)
 - [JavaScript client quickstart](./docs/js-client-quickstart.md) (in progress)
-- [Contract-to-contract quickstart](./docs/contract-to-contract-quickstart.md) (todo)
+- [Local development quickstart](./docs/local-dev-quickstart.md) (todo)
+- [Contract-to-contract quickstart](./packages/contracts/README.md) (todo)
 - [Backend API (contracts)](./docs/backend-api/index.md)
 - [Front-end API (subgraph)](./docs/subgraph.md)
-- [Local development quickstart](./docs/local-dev-quickstart.md) (todo)
 - [Demos & examples](./docs/examples.md) (todo)
 
 ## Contributing

@@ -1,4 +1,4 @@
-# Get your Publisher ID
+# Get a Publisher ID
 
 If you don't know why you'd want get a Publisher ID or what happens when you create one or what you can do with it, [read this first](key-concepts.md#publisher).
 

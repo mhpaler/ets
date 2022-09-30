@@ -9,13 +9,13 @@ The official faucet and block explorer can be found here:
 
 | Contract                                                                          | Address                                                                                                                         |
 | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| [ETSAccessControls](../../packages/contracts/contracts/ETSAccessControls.sol)     | [0x3c06bD3Fc9BACA7343750981D41f51B20CA72e48](https://mumbai.polygonscan.com/address/0x3c06bD3Fc9BACA7343750981D41f51B20CA72e48) |
-| [ETSToken](../../packages/contracts/contracts/ETSToken.sol)                       | [0xB454523539515b714722141031644acbD2798ef8](https://mumbai.polygonscan.com/address/0xB454523539515b714722141031644acbD2798ef8) |
-| [ETSTarget](../../packages/contracts/contracts/ETSTarget.sol)                     | [0x80601DEE98762A00a74165607599368509deB7A3](https://mumbai.polygonscan.com/address/0x80601DEE98762A00a74165607599368509deB7A3) |
-| [ETS](../../packages/contracts/contracts/ETS.sol)                                 | [0x83EF49d3611886BCCe50cD43B572773F169C2b1a](https://mumbai.polygonscan.com/address/0x83EF49d3611886BCCe50cD43B572773F169C2b1a) |
-| [ETSPublisherFactory](../../packages/contracts/contracts/ETSPublisherFactory.sol) | [0x7F5Acb2E4a21F6387C87a054cB59a019d8f5eb7E](https://mumbai.polygonscan.com/address/0x7F5Acb2E4a21F6387C87a054cB59a019d8f5eb7E) |
+| [ETSAccessControls](../../packages/contracts/contracts/ETSAccessControls.sol)     | [0x65d54e372fC337343F92018E88Ab90f4c7F3A40e](https://mumbai.polygonscan.com/address/0x65d54e372fC337343F92018E88Ab90f4c7F3A40e) |
+| [ETSToken](../../packages/contracts/contracts/ETSToken.sol)                       | [0x03613CBE6Ec0135Cd42C5F36a8fC551198fecBff](https://mumbai.polygonscan.com/address/0x03613CBE6Ec0135Cd42C5F36a8fC551198fecBff) |
+| [ETSTarget](../../packages/contracts/contracts/ETSTarget.sol)                     | [0x42C4e14903CbeA7aA2FE2DC94E4a67c912F0F8B4](https://mumbai.polygonscan.com/address/0x42C4e14903CbeA7aA2FE2DC94E4a67c912F0F8B4) |
+| [ETS](../../packages/contracts/contracts/ETS.sol)                                 | [0x7EC55BFE1395e32785A67aAcc14B04e4A408F319](https://mumbai.polygonscan.com/address/0x7EC55BFE1395e32785A67aAcc14B04e4A408F319) |
+| [ETSPublisherFactory](../../packages/contracts/contracts/ETSPublisherFactory.sol) | [0x7351E98b532d58821d5ab90A19254c247195d19c](https://mumbai.polygonscan.com/address/0x7351E98b532d58821d5ab90A19254c247195d19c) |
 
-Note: The latest deployed contracts can also be found [here](../../packages/contracts/config/config.json).
+Note: The latest deployed contract addresses can also be found [here](../../packages/contracts/config/config.json).
 
 ## Contract API Documentation
 
