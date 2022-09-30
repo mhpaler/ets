@@ -92,4 +92,16 @@ describe("Upgrades tests", function () {
       assert((await contracts.ETS.upgradeTest()) === true);
     });
   });
+
+  describe("ETSPublisherFactory", function () {
+    it("is upgradeable", async function () {
+      // Upgrade the proxy.
+      contracts.ETSPublisherFactory = await upgrades.upgradeProxy(contracts.ETSPublisherFactory.address, factories.ETSPublisherFactoryUpgrade);
+
+      const deployTxn = contracts.ETSPublisherFactory.deployTransaction.hash;
+      await expectEvent.inTransaction(deployTxn, artifacts.ETSPublisherFactoryUpgrade, "Upgraded");
+      // Upgraded contract has new function upgradeTest()
+      assert((await contracts.ETSPublisherFactory.upgradeTest()) === true);
+    });
+  });
 });

@@ -10,12 +10,10 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
 
 /**
- * @title ETS
+ * @title ETS Publisher Factory
  * @author Ethereum Tag Service <team@ets.xyz>
  *
- * @notice This is the core ETS tagging contract that records TaggingRecords to the blockchain.
- * It also contains some governance functions around tagging fees as well as means for market
- * participants to access accrued funds.
+ * @notice Publisher factory contract that provides public function for creating new ETS Publishers.
  */
 contract ETSPublisherFactory is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
     // Public variables

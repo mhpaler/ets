@@ -20,12 +20,12 @@ describe("ETS Core tests", function () {
     // Add & unpause ETSPlatform as a Publisher. Using a wallet address as a publisher
     // is only for testing all ETS core public functions that don't necessarily need to be
     // included in a proper publisher (IETSPublisher) contract
-
     await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
       accounts.ETSPlatform.address,
       "ETSPlatform",
     );
 
+    // Add the ETSPublisherV1 contract that was deployed in the setup as a Publisher.
     await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
       contracts.ETSPublisher.address,
       "ETSPublisher",
