@@ -2,6 +2,7 @@ name: ETS Solidity screener
 
 env:
   MNEMONIC_LOCAL: test test test test test test test test test test test junk
+  ETHERNAL_DISABLED: true
 
 on:
   push:
