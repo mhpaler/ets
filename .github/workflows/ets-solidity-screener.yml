@@ -1,7 +1,8 @@
 name: ETS Solidity screener
 
 env:
-  MNEMONIC: test test test test test test test test test test test junk
+  MNEMONIC_LOCAL: test test test test test test test test test test test junk
+  ETHERNAL_DISABLED: true
 
 on:
   push:
@@ -70,4 +71,6 @@ jobs:
           pnpm solhint
 
       - name: Run Tests
-        run: pnpm hardhat:test
+        run: |
+          cd packages/contracts
+          pnpm run test

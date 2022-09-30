@@ -55,18 +55,6 @@
         "deploymentBlock": 13,
         "upgradeBlock": null
       },
-      "ETSTargetTagger": {
-        "address": "0x1429859428C0aBc9C2C47C8Ee9FBaf82cFA0F20f",
-        "implementation": "",
-        "deploymentBlock": 71,
-        "upgradeBlock": null
-      },
-      "ETSPublisher": {
-        "address": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
-        "implementation": "",
-        "deploymentBlock": 14,
-        "upgradeBlock": null
-      },
       "ETSPublisherFactory": {
         "address": "0x9A676e781A523b5d0C0e43731313A708CB607508",
         "implementation": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
@@ -117,18 +105,6 @@
         "address": "0x77042e34bFC5bD9eDC2d7919944F19f476D6FAbb",
         "implementation": "0xd29B9d405D707949663D39728FBe2C073B6B23c8",
         "deploymentBlock": 27476157,
-        "upgradeBlock": null
-      },
-      "ETSTargetTagger": {
-        "address": "0x8697e9c4a00190E6592e468b72CcB569C7d2a526",
-        "implementation": "",
-        "deploymentBlock": 27476364,
-        "upgradeBlock": null
-      },
-      "ETSPublisher": {
-        "address": "0x1ADA663E7E1C0a2C6B787BAa3cf22C26Ca00C3bE",
-        "implementation": "",
-        "deploymentBlock": 27966961,
         "upgradeBlock": null
       },
       "ETSPublisherFactory": {
