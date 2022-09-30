@@ -71,4 +71,6 @@ jobs:
           pnpm solhint
 
       - name: Run Tests
-        run: pnpm hardhat:test
+        run: |
+          cd packages/contracts
+          pnpm run hardhat-test
