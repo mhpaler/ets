@@ -47,26 +47,61 @@ _This function can only be called by the owner when the contract is paused._
 ### applyTags
 
 ```solidity
-function applyTags(struct IETS.TaggingRecordRawInput[] _rawParts) public payable
+function applyTags(struct IETS.TaggingRecordRawInput[] _rawInput) public payable
 ```
+
+Apply one or more tags to a targetURI using tagging record raw client input data.
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| _rawInput | struct IETS.TaggingRecordRawInput[] | Raw client input data formed as TaggingRecordRawInput struct. |
 
 ### replaceTags
 
 ```solidity
-function replaceTags(struct IETS.TaggingRecordRawInput[] _rawParts) public payable
+function replaceTags(struct IETS.TaggingRecordRawInput[] _rawInput) public payable
 ```
+
+Replace entire tag set in tagging record using raw data for record lookup.
+
+If supplied tag strings don't have CTAGs, new ones are minted.
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| _rawInput | struct IETS.TaggingRecordRawInput[] | Raw client input data formed as TaggingRecordRawInput struct. |
 
 ### removeTags
 
 ```solidity
-function removeTags(struct IETS.TaggingRecordRawInput[] _rawParts) public payable
+function removeTags(struct IETS.TaggingRecordRawInput[] _rawInput) public payable
 ```
+
+Remove one or more tags from a tagging record using raw data for record lookup.
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| _rawInput | struct IETS.TaggingRecordRawInput[] | Raw client input data formed as TaggingRecordRawInput struct. |
 
 ### getOrCreateTagIds
 
 ```solidity
 function getOrCreateTagIds(string[] _tags) public payable returns (uint256[] _tagIds)
 ```
+
+Get or create CTAG tokens from tag strings.
+
+Combo function that accepts a tag strings and returns corresponding CTAG token Id if it exists,
+or if it doesn't exist, creates a new CTAG and then returns corresponding Id.
+
+Only ETS Publisher contracts may call this function.
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| _tags | string[] | Array of tag strings. |
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| _tagIds | uint256[] | Array of Id of CTAG Ids. |
 
 ### supportsInterface
 
@@ -129,24 +164,36 @@ Returns address of an IETSPublisher contract creator.
 ### computeTaggingFee
 
 ```solidity
-function computeTaggingFee(uint256 _taggingRecordId, uint256[] _tagIds, enum IETS.TaggingAction _action) public view returns (uint256 fee, uint256 tagCount)
+function computeTaggingFee(struct IETS.TaggingRecordRawInput _rawInput, enum IETS.TaggingAction _action) public view returns (uint256 fee, uint256 tagCount)
 ```
+
+Compute tagging fee for raw input and desired action.
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| _rawInput | struct IETS.TaggingRecordRawInput | Raw client input data formed as TaggingRecordRawInput struct. |
+| _action | enum IETS.TaggingAction | Integer representing action to be performed according to enum TaggingAction. |
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| fee | uint256 | Calculated tagging fee in ETH/Matic |
+| tagCount | uint256 | Number of new tags being added to tagging record. |
 
 ### _applyTags
 
 ```solidity
-function _applyTags(struct IETS.TaggingRecordRawInput _rawParts, address payable _tagger, uint256 _taggingFee) internal
+function _applyTags(struct IETS.TaggingRecordRawInput _rawInput, address payable _tagger, uint256 _taggingFee) internal
 ```
 
 ### _replaceTags
 
 ```solidity
-function _replaceTags(struct IETS.TaggingRecordRawInput _rawParts, address payable _tagger, uint256 _taggingFee) internal
+function _replaceTags(struct IETS.TaggingRecordRawInput _rawInput, address payable _tagger, uint256 _taggingFee) internal
 ```
 
 ### _removeTags
 
 ```solidity
-function _removeTags(struct IETS.TaggingRecordRawInput _rawParts, address payable _tagger) internal
+function _removeTags(struct IETS.TaggingRecordRawInput _rawInput, address payable _tagger) internal
 ```
 

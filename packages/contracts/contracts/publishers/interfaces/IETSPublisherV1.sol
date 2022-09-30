@@ -11,7 +11,6 @@ import "../../interfaces/IETS.sol";
  * @notice Interface for the IETSPublisherV1 contract.
  */
 interface IETSPublisherV1 is IETSPublisher {
-
     /**
      * @notice Apply one or more tags to a targetURI using tagging record raw client input data.
      *
@@ -57,8 +56,8 @@ interface IETSPublisherV1 is IETSPublisher {
      * @return fee Calculated tagging fee in ETH/Matic
      * @return tagCount Number of new tags being added to tagging record.
      */
-    function computeTaggingFee(
-        IETS.TaggingRecordRawInput calldata _rawInput,
-        IETS.TaggingAction _action
-    ) external view returns (uint256 fee, uint256 tagCount);
+    function computeTaggingFee(IETS.TaggingRecordRawInput calldata _rawInput, IETS.TaggingAction _action)
+        external
+        view
+        returns (uint256 fee, uint256 tagCount);
 }

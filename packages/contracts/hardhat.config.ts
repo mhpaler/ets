@@ -64,7 +64,7 @@ const config: HardhatUserConfig = {
     apiKey: process.env.ETHERSCAN_API_KEY,
   },
   docgen: {
-    outputDir: "../../docs/backend-api",
+    outputDir: "docs",
     pages: "files",
     templates: "./templates",
     exclude: ["mocks", "test", "utils"],

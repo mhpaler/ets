@@ -49,7 +49,7 @@ account5: 0xdF0eB27bCc26E639137899d63B5221DABd2355f2 Balance: 0.0
 $ hardhat addPublisher --name "Solana" --network mumbai --signer "account2"
 
 started txn 0x10d14f87fbab80b7f372256f1a1164c4d5283335b48168cd90ea262a4cb1d0ec
-New publisher contract deployed at 0xb16170ed1a08EE57d18d41C204dCde3c6C9d2D1a by account2
+New publisher contract deployed at 0xd928bfb9e429713d78bddbbe509f2c1d528e0608 by account2
 ```
 
 This command calls the ETSPublisherFactory and deploys an instance of ETSPublisherFactoryV1.sol.
@@ -79,7 +79,7 @@ query Publishers {
   "data": {
     "publishers": [
       {
-        "id": "0xb16170ed1a08ee57d18d41c204dcde3c6c9d2d1a",
+        "id": "0xd928bfb9e429713d78bddbbe509f2c1d528e0608",
         "name": "Solana",
         "owner": "0x60f2760f0d99330a555c5fc350099b634971c6eb"
       }
@@ -88,7 +88,7 @@ query Publishers {
 }
 ```
 
-Learn more about [Publishers](./key-concepts.md#publisher). View the [addPublisher](../packages/contracts/tasks/addPublisher.js) Hardhat Task.
+View the [addPublisher](../packages/contracts/tasks/addPublisher.js) Hardhat Task or learn more about [Publishers](./key-concepts.md#publisher).
 
 ## Create CTAGs
 
@@ -128,7 +128,7 @@ query Tags {
         "display": "#Phantom",
         "publisher": {
           "name": "Solana",
-          "id": "0xb16170ed1a08ee57d18d41c204dcde3c6c9d2d1a"
+          "id": "0xd928bfb9e429713d78bddbbe509f2c1d528e0608"
         },
         "creator": {
           "id": "0xcf38e38da8c9921f39dc8e9327bc03ba514d4c37"
@@ -138,7 +138,7 @@ query Tags {
         "display": "#FamilySol",
         "publisher": {
           "name": "Solana",
-          "id": "0xb16170ed1a08ee57d18d41c204dcde3c6c9d2d1a"
+          "id": "0xd928bfb9e429713d78bddbbe509f2c1d528e0608"
         },
         "creator": {
           "id": "0xcf38e38da8c9921f39dc8e9327bc03ba514d4c37"
@@ -150,9 +150,11 @@ query Tags {
 
 ```
 
+Have a look at the [createTags](../packages/contracts/tasks/createTags.js) Hardhat Task.
+
 ## Tagging Records
 
-Next, we'll focus on the core utility of ETS, namely tagging content. In this section, we'll create a new [tagging record](./key-concepts.md#tagging-record), append tags to it, remove tags from it and finally, do a wholesale replacement (overwrite) of tags.
+Next, we'll focus on the core utility of ETS, namely tagging content. In this section, we'll create a new [Tagging Record](./key-concepts.md#tagging-record), append tags to it, remove tags from it and finally, do a wholesale replacement (overwrite) of tags.
 
 ### Create a Tagging Record
 
@@ -171,7 +173,7 @@ New tagging record created with 4 tag(s) and id: 1084965527973819191777690373680
 account3 charged for 4 tags
 ```
 
-Next, lets have a look at the new tagging record in the subgraph.
+Next, lets have a look at the new Tagging Record in the [subgraph](https://api.thegraph.com/subgraphs/name/ethereum-tag-service/ets-mumbai/graphql).
 
 ```graphql
 query TaggingRecord {
@@ -203,7 +205,7 @@ query TaggingRecord {
       "timestamp": "1663648880",
       "publisher": {
         "name": "Solana",
-        "id": "0xb16170ed1a08ee57d18d41c204dcde3c6c9d2d1a"
+        "id": "0xd928bfb9e429713d78bddbbe509f2c1d528e0608"
       },
       "tagger": {
         "id": "0xcf38e38da8c9921f39dc8e9327bc03ba514d4c37"
@@ -232,11 +234,11 @@ query TaggingRecord {
 }
 ```
 
-So what just happened? On a conceptual level, a good way to think about Tagging Records is that they reflect **"who tagged what, with which tags, from where and why"**.
+So what just happened? On a conceptual level, a good way to think about ETS Tagging Records is that they reflect **"who tagged what, with which tags, from where and why"**.
 
 In this case, `account3` tagged the `Uniswap V3 LP NFT with ID 318669` with `"#Uniswap", "APE", "#WETH", "#APE/WETH"` from the `"Solana"` Publisher contract to create a `"bookmark"`.
 
-There's a lot going on behind the scenes. To understand, a good place to start is the [applyTags Hardhat Task](../packages/contracts/tasks/applyTags.js) which is well documented.
+There's a lot going on behind the scenes. To get a handle on it, a good place to start is the [applyTags](../packages/contracts/tasks/applyTags.js) Hardhat Task which is well documented.
 
 A few things to note. If the tags applied ("#Uniswap", "#APE", "#WETH, "#APE/WETH") didn't exist in their tokenized form, new ones are minted just before the Tagging Record is recorded. For any new tags created, `account3` (the "Tagger") is recorded in the CTAG as the "Creator", and `Solana` is recorded as the Publisher.
 
@@ -266,7 +268,7 @@ query TaggingRecord {
         },
         "publisher": {
           "name": "Solana",
-          "id": "0xb16170ed1a08ee57d18d41c204dcde3c6c9d2d1a"
+          "id": "0xd928bfb9e429713d78bddbbe509f2c1d528e0608"
         }
       }
     ]
@@ -274,7 +276,7 @@ query TaggingRecord {
 }
 ```
 
-In addition, for the [target URI](./key-concepts.md#target), we could use the Etherscan link above. However, for the purposes of this demo, we'll use a Blink for the NFT URI.
+In addition, for the [Target](./key-concepts.md#target), we have used the Etherscan link above. However, for the purposes of this demo, we used a Blink for the NFT URI.
 
 If you are unfamiliar with [Blinks](https://w3c-ccg.github.io/blockchain-links/), they are a W3C RFC URI schema for blockchain based data. Blinks provide ETS a standardized way to know about the blockchain targets being tagged, especially during the indexing process.
 

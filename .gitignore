@@ -41,6 +41,7 @@ packages/contracts*/cache*
 packages/contracts*/artifacts/
 packages/contracts*/deployments/
 packages/contracts*/.openzeppelin/
+packages/contracts/docs
 
 # subgraph
 packages/subgraph/subgraph.yaml

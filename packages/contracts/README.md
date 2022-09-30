@@ -29,12 +29,12 @@ import {IETSPublisherV1} from "@ethereum-tag-service/contracts/publishers/interf
 
 contract MyContract {
     IETSPublisherV1 public etsPublisher =
-        IETSPublisherV1(0xe188a29bdd896fe0e6e1d025ed6a144530fb7535);
+        IETSPublisherV1(0xd2499cf4a47a959217efeacefb7edbd524661f59);
 }
 
 ```
 
 > NOTE:
-> You can use any Publisher ID you like (for example the ETS Publisher ID `0xe188a29bdd896fe0e6e1d025ed6a144530fb7535`), however, all publisher attribution will go to ETS.
+> You can use any Publisher ID you like (for example we used the ETS Publisher ID `0xd2499cf4a47a959217efeacefb7edbd524661f59`), however, all publisher attribution will go the ID you supply.
 >
-> To attribute your application as the publisher, you'll need to [get your own Publisher ID](../../docs/get-publisher-id.md) using the ETS Publisher Factory.
+> To attribute your application as the publisher, you'll need to [get a Publisher ID](../../docs/get-publisher-id.md) using the ETS Publisher Factory. It's free, so give it a try.

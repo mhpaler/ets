@@ -34,11 +34,7 @@ task(
       return;
     }
 
-    let tx = await etsPublisherFactory.addPublisherV1(taskArgs.name, {
-      //value: 0,
-      //gasPrice: ethers.utils.parseUnits("5", "gwei"), // do we need this?
-      //gasLimit: 2339248,
-    });
+    let tx = await etsPublisherFactory.addPublisherV1(taskArgs.name);
     console.log(`started txn ${tx.hash.toString()}`);
     await tx.wait();
 
