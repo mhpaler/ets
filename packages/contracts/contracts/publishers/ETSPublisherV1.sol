@@ -77,26 +77,30 @@ contract ETSPublisherV1 is IETSPublisherV1, ERC165, Ownable, Pausable {
 
     // ============ PUBLIC INTERFACE ============
 
-    function applyTags(IETS.TaggingRecordRawInput[] calldata _rawParts) public payable whenNotPaused {
+    /// @inheritdoc IETSPublisherV1
+    function applyTags(IETS.TaggingRecordRawInput[] calldata _rawInput) public payable whenNotPaused {
         uint256 taggingFee = ets.taggingFee();
-        for (uint256 i; i < _rawParts.length; ++i) {
-            _applyTags(_rawParts[i], payable(msg.sender), taggingFee);
+        for (uint256 i; i < _rawInput.length; ++i) {
+            _applyTags(_rawInput[i], payable(msg.sender), taggingFee);
         }
     }
 
-    function replaceTags(IETS.TaggingRecordRawInput[] calldata _rawParts) public payable whenNotPaused {
+    /// @inheritdoc IETSPublisherV1
+    function replaceTags(IETS.TaggingRecordRawInput[] calldata _rawInput) public payable whenNotPaused {
         uint256 taggingFee = ets.taggingFee();
-        for (uint256 i; i < _rawParts.length; ++i) {
-            _replaceTags(_rawParts[i], payable(msg.sender), taggingFee);
+        for (uint256 i; i < _rawInput.length; ++i) {
+            _replaceTags(_rawInput[i], payable(msg.sender), taggingFee);
         }
     }
 
-    function removeTags(IETS.TaggingRecordRawInput[] calldata _rawParts) public payable whenNotPaused {
-        for (uint256 i; i < _rawParts.length; ++i) {
-            _removeTags(_rawParts[i], payable(msg.sender));
+    /// @inheritdoc IETSPublisherV1
+    function removeTags(IETS.TaggingRecordRawInput[] calldata _rawInput) public payable whenNotPaused {
+        for (uint256 i; i < _rawInput.length; ++i) {
+            _removeTags(_rawInput[i], payable(msg.sender));
         }
     }
 
+    /// @inheritdoc IETSPublisherV1
     function getOrCreateTagIds(string[] calldata _tags)
         public
         payable
@@ -139,18 +143,19 @@ contract ETSPublisherV1 is IETSPublisherV1, ERC165, Ownable, Pausable {
         return creator;
     }
 
-    function computeTaggingFee(
-        uint256 _taggingRecordId,
-        uint256[] calldata _tagIds,
-        IETS.TaggingAction _action
-    ) public view returns (uint256 fee, uint256 tagCount) {
-        return ets.computeTaggingFee(_taggingRecordId, _tagIds, _action);
+    /// @inheritdoc IETSPublisherV1
+    function computeTaggingFee(IETS.TaggingRecordRawInput calldata _rawInput, IETS.TaggingAction _action)
+        public
+        view
+        returns (uint256 fee, uint256 tagCount)
+    {
+        return ets.computeTaggingFeeFromRawInput(_rawInput, address(this), msg.sender, _action);
     }
 
     // ============ INTERNAL FUNCTIONS ============
 
     function _applyTags(
-        IETS.TaggingRecordRawInput calldata _rawParts,
+        IETS.TaggingRecordRawInput calldata _rawInput,
         address payable _tagger,
         uint256 _taggingFee
     ) internal {
@@ -160,7 +165,7 @@ contract ETSPublisherV1 is IETSPublisherV1, ERC165, Ownable, Pausable {
             // Either way, we need to assess the tagging fees.
             uint256 actualTagCount = 0;
             (valueToSendForTagging, actualTagCount) = ets.computeTaggingFeeFromRawInput(
-                _rawParts,
+                _rawInput,
                 address(this),
                 _tagger,
                 IETS.TaggingAction.APPEND
@@ -169,11 +174,11 @@ contract ETSPublisherV1 is IETSPublisherV1, ERC165, Ownable, Pausable {
         }
 
         // Call the core applyTagsWithRawInput() function to record new or append to exsiting tagging record.
-        ets.applyTagsWithRawInput{ value: valueToSendForTagging }(_rawParts, _tagger);
+        ets.applyTagsWithRawInput{ value: valueToSendForTagging }(_rawInput, _tagger);
     }
 
     function _replaceTags(
-        IETS.TaggingRecordRawInput calldata _rawParts,
+        IETS.TaggingRecordRawInput calldata _rawInput,
         address payable _tagger,
         uint256 _taggingFee
     ) internal {
@@ -183,7 +188,7 @@ contract ETSPublisherV1 is IETSPublisherV1, ERC165, Ownable, Pausable {
             // Either way, we need to assess the tagging fees.
             uint256 actualTagCount = 0;
             (valueToSendForTagging, actualTagCount) = ets.computeTaggingFeeFromRawInput(
-                _rawParts,
+                _rawInput,
                 address(this),
                 _tagger,
                 IETS.TaggingAction.REPLACE
@@ -192,10 +197,10 @@ contract ETSPublisherV1 is IETSPublisherV1, ERC165, Ownable, Pausable {
         }
 
         // Finally, call the core replaceTags() function to update the tagging record.
-        ets.replaceTagsWithRawInput{ value: valueToSendForTagging }(_rawParts, _tagger);
+        ets.replaceTagsWithRawInput{ value: valueToSendForTagging }(_rawInput, _tagger);
     }
 
-    function _removeTags(IETS.TaggingRecordRawInput calldata _rawParts, address payable _tagger) internal {
-        ets.removeTagsWithRawInput(_rawParts, _tagger);
+    function _removeTags(IETS.TaggingRecordRawInput calldata _rawInput, address payable _tagger) internal {
+        ets.removeTagsWithRawInput(_rawInput, _tagger);
     }
 }

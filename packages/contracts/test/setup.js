@@ -52,6 +52,7 @@ async function getArtifacts() {
     ETSEnrichTargetUpgrade: artifacts.readArtifactSync("ETSEnrichTargetUpgrade"),
     ETSTargetUpgrade: artifacts.readArtifactSync("ETSTargetUpgrade"),
     ETSUpgrade: artifacts.readArtifactSync("ETSUpgrade"),
+    ETSPublisherFactoryUpgrade: artifacts.readArtifactSync("ETSPublisherFactoryUpgrade"),
   };
   return justTheFacts;
 }
@@ -76,6 +77,7 @@ async function getFactories() {
     ETSEnrichTargetUpgrade: await ethers.getContractFactory("ETSEnrichTargetUpgrade"),
     ETSTargetUpgrade: await ethers.getContractFactory("ETSTargetUpgrade"),
     ETSUpgrade: await ethers.getContractFactory("ETSUpgrade"),
+    ETSPublisherFactoryUpgrade: await ethers.getContractFactory("ETSPublisherFactoryUpgrade"),
   };
   return allFactories;
 }
@@ -178,23 +180,16 @@ async function setup() {
     },
   );
 
-  // Deploy a Publisher contract with accounts.Creator as the creator/deployer and accounts.RandomTwo as the owner
-  // This will simulate a third-party deploying their own Target Tagger.
-  const ETSPublisher = await factories.ETSPublisher.deploy(
+  // Manually deploy the ETSPublisherV1 contract. Ordinarily this would be deployed
+  // via ETSPublisherFactory. 
+  const ETSPublisher = await factories.ETSPublisherV1.deploy(
+    "ETSPublisher",
     ETS.address,
     ETSToken.address,
     ETSTarget.address,
     accounts.Creator.address,
     accounts.RandomTwo.address,
   );
-
-  // Add a test publisher via PublisherFactory. This makes tests really slow.
-  // So this process is only tested in ETSPublisherFactory.test.js. Otherwise,
-  // Manually add examples/ETSPublisher contract via ETSAccessControls.addPublisher() where needed.
-  // await ETSPublisherFactory.connect(accounts.RandomOne).addPublisherV1("ETS Test Publisher");
-  // publisherAddress = await ETSAccessControls.getPublisherAddressFromName("ETS Test Publisher");
-  // etsPublisherV1ABI = require("../abi/contracts/publishers/ETSPublisherV1.sol/ETSPublisherV1.json");
-  // ETSPublisher = new ethers.Contract(publisherAddress, etsPublisherV1ABI, accounts.RandomOne);
 
   const contracts = {
     WMATIC: WMATIC,

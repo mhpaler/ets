@@ -64,10 +64,8 @@ task(
 
     // Calculate tagging fees
     let taggingFee = 0;
-    let result = await ets.computeTaggingFeeFromRawInput(
+    let result = await etsPublisherV1.computeTaggingFee(
       tagParams,
-      publisherAddress, // original publisher
-      accounts[taskArgs.signer].address, // original signer
       0,
     );
 
