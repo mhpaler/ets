@@ -47,4 +47,4 @@ module.exports = async ({deployments}) => {
 };
 
 module.exports.tags = ["deployAll"];
-// module.exports.dependencies = ["ETSPublisherFactory"];
+module.exports.dependencies = ["ETSPublisherFactory"];

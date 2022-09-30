@@ -15,9 +15,9 @@ const provider = new ethers.providers.FallbackProvider([ethers.provider], 1);
 provider.getFeeData = async () => FEE_DATA;
 
 // Create the signer for the mnemonic, connected to the provider with hardcoded fee data
-const standardPath = "m/44'/60'/0'/0/0"; // Wallet 0 / ETSAdmin
-const mnemonic = process.env.MNEMONIC;
-const signer = ethers.Wallet.fromMnemonic(mnemonic, standardPath).connect(provider);
+//const standardPath = "m/44'/60'/0'/0/0"; // Wallet 0 / ETSAdmin
+//const mnemonic = process.env.MNEMONIC;
+//const signer = ethers.Wallet.fromMnemonic(mnemonic, standardPath).connect(provider);
 
 async function setup() {
   const namedAccounts = await ethers.getNamedSigners();
@@ -28,14 +28,14 @@ async function setup() {
   };
 
   const factories = {
-    WMATIC: await ethers.getContractFactory("WMATIC", signer),
-    ETSAccessControls: await ethers.getContractFactory("ETSAccessControls", signer),
-    ETSToken: await ethers.getContractFactory("ETSToken", signer),
-    ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse", signer),
-    ETSTarget: await ethers.getContractFactory("ETSTarget", signer),
-    ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget", signer),
-    ETS: await ethers.getContractFactory("ETS", signer),
-    ETSPublisherFactory: await ethers.getContractFactory("ETSPublisherFactory", signer),
+    WMATIC: await ethers.getContractFactory("WMATIC"),
+    ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
+    ETSToken: await ethers.getContractFactory("ETSToken"),
+    ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
+    ETSTarget: await ethers.getContractFactory("ETSTarget"),
+    ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
+    ETS: await ethers.getContractFactory("ETS"),
+    ETSPublisherFactory: await ethers.getContractFactory("ETSPublisherFactory"),
   };
 
   const initSettings = {
