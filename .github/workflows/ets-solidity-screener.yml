@@ -1,7 +1,7 @@
 name: ETS Solidity screener
 
 env:
-  MNEMONIC: test test test test test test test test test test test junk
+  MNEMONIC_LOCAL: test test test test test test test test test test test junk
 
 on:
   push:
