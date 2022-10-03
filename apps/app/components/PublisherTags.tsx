@@ -1,25 +1,24 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, Suspense } from "react";
 import type { NextPage } from "next";
-import Head from "next/head";
 import { useRouter } from "next/router";
+import Head from "next/head";
+import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
-import { usePublishers } from "../../hooks/usePublishers";
-import { TimeAgo } from "../../components/TimeAgo";
-import { Table } from "../../components/Table";
-import { Button } from "../../components/Button";
-import useNumberFormatter from "../../hooks/useNumberFormatter";
-import { toEth, toDp } from "../../utils";
-import PageTitle from "../../components/PageTitle";
+import { usePublisherTags } from "../hooks/usePublisherTags";
+import { TimeAgo } from "../components/TimeAgo";
+import { Table } from "../components/Table";
+import { Button } from "../components/Button";
 
 const pageSize = 20;
 
-const Publishers: NextPage = () => {
-  const [skip, setSkip] = useState(0);
+const PublisherTags: NextPage = () => {
   const { query } = useRouter();
-  const { tag } = query;
+  const { publisher } = query;
+  const [skip, setSkip] = useState(0);
   const { t } = useTranslation("common");
-  const { number } = useNumberFormatter();
-  const { publishers, nextPublishers, mutate } = usePublishers({
+
+  const variables = {
+    publisherId: publisher,
     pageSize,
     skip,
     config: {
@@ -30,7 +29,15 @@ const Publishers: NextPage = () => {
       refreshWhenHidden: false,
       refreshInterval: 0,
     },
-  });
+  };
+
+  const { publisherTags, nextPublisherTags, mutate } =
+    usePublisherTags(variables);
+
+  const chainName: { [key: number]: string } = {
+    1: "Ethereum",
+    80001: "Polygon Mumbai",
+  };
 
   const nextPage = () => {
     setSkip(skip + 20);
@@ -43,20 +50,24 @@ const Publishers: NextPage = () => {
   };
 
   const columns = useMemo(
-    () => [t("name"), t("added"), t("tagging-records"), t("ctags")],
+    () => [
+      t("ctag"),
+      t("tagging-records"),
+      t("created"),
+      t("creator"),
+      t("owner"),
+    ],
     [t]
   );
 
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>
-        <title>{t("publishers")} | Ethereum Tag Service</title>
+        <title>{t("ctags")} publisher by | Ethereum Tag Service</title>
       </Head>
 
-      <PageTitle title={t("publishers")} />
-
-      <Table loading={!publishers} rows={pageSize}>
-        <Table.Title>{t("publishers")}</Table.Title>
+      <Table loading={!publisherTags} rows={pageSize}>
+        <Table.Title>{t("ctags")}</Table.Title>
         <Table.Head>
           <Table.Tr>
             {columns &&
@@ -66,25 +77,25 @@ const Publishers: NextPage = () => {
           </Table.Tr>
         </Table.Head>
         <Table.Body>
-          {publishers &&
-            publishers.map((publisher: any) => (
-              <Table.Tr key={publisher.id}>
-                <Table.Cell
-                  value={publisher.name}
-                  url={`/publishers/${publisher.id}`}
-                />
+          {publisherTags &&
+            publisherTags.map((tag: any) => (
+              <Table.Tr key={tag.machineName}>
+                <Table.CellWithChildren>
+                  <Link href={`/tags/${tag.machineName}`}>
+                    <a className="text-pink-600 hover:text-pink-700">
+                      {tag.display}
+                    </a>
+                  </Link>
+                </Table.CellWithChildren>
+                <Table.Cell value={tag.tagAppliedInTaggingRecord} />
                 <Table.CellWithChildren>
                   <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                    <TimeAgo date={publisher.firstSeen * 1000} />
+                    <TimeAgo date={tag.timestamp * 1000} />
                   </div>
                 </Table.CellWithChildren>
-                <Table.Cell
-                  value={number(parseInt(publisher.taggingRecordsPublished))}
-                />
-                <Table.Cell
-                  value={number(parseInt(publisher.tagsPublished))}
-                  right
-                />
+
+                <Table.Cell value={tag.creator.id} copyAndPaste />
+                <Table.Cell value={tag.owner.id} copyAndPaste />
               </Table.Tr>
             ))}
         </Table.Body>
@@ -115,7 +126,7 @@ const Publishers: NextPage = () => {
           Prev
         </Button>
         <Button
-          disabled={nextPublishers && nextPublishers.length === 0}
+          disabled={nextPublisherTags && nextPublisherTags.length === 0}
           onClick={() => nextPage()}
         >
           Next
@@ -145,4 +156,4 @@ const Publishers: NextPage = () => {
   );
 };
 
-export default Publishers;
+export { PublisherTags };

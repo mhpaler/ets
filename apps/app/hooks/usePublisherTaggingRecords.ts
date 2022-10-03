@@ -1,12 +1,14 @@
 import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
 
-export function useTaggingRecords({
+export function usePublisherTaggingRecords({
+  publisherId,
   pageSize = 20,
   skip = 0,
   orderBy = "timestamp",
   config = {},
 }: {
+  publisherId?: string | string[];
   pageSize?: number;
   skip?: number;
   orderBy?: string;
@@ -14,12 +16,13 @@ export function useTaggingRecords({
 }) {
   const { data, mutate, error } = useSWR(
     [
-      `query taggingRecords($first: Int!, $skip: Int!, $orderBy: String!) {
-        taggingRecords: taggingRecords(
+      `query publisherTaggingRecords($publisherId: String!, $first: Int!, $skip: Int!, $orderBy: String!) {
+        publisherTaggingRecords: taggingRecords(
           first: $first
           skip: $skip
           orderBy: $orderBy
           orderDirection: desc
+          where: {publisher_: {id: $publisherId}}
         ) {
           id
           recordType
@@ -40,14 +43,18 @@ export function useTaggingRecords({
             targetURI
             targetType
           }
-        },
-        nextTaggingRecords: taggingRecords(first: $first, skip: ${
-          skip + pageSize
-        }, orderBy: $orderBy, orderDirection: desc) {
+        }
+        nextPublisherTaggingRecords: taggingRecords(
+          first: $first
+          skip: ${skip + pageSize}
+          orderBy: $orderBy
+          orderDirection: desc
+          where: {publisher_: {id: $publisherId}}) {
           id
         }
       }`,
       {
+        publisherId: publisherId,
         skip,
         first: pageSize,
         orderBy: orderBy,
@@ -57,9 +64,9 @@ export function useTaggingRecords({
   );
 
   return {
-    taggingRecords: data?.taggingRecords,
-    nextTaggingRecords: data?.nextTaggingRecords,
-    isLoading: !error && !data?.taggingRecords,
+    publisherTaggingRecords: data?.publisherTaggingRecords,
+    nextPublisherTaggingRecords: data?.nextPublisherTaggingRecords,
+    isLoading: !error && !data?.publisherTaggingRecords,
     mutate,
     isError: error?.statusText,
   };

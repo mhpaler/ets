@@ -15,18 +15,19 @@ export function usePublishers({
   const { data, mutate, error } = useSWR(
     [
       `query publishers($first: Int!, $skip: Int!, $orderBy: String!) {
-      publishers: publishers(first: $first, skip: $skip, orderBy: $orderBy, orderDirection: desc) {
-        id
-        name
-        taggingRecordsPublished
-        tagsPublished
-      },
-      nextPublishers: publishers(first: ${pageSize}, skip: ${
+        publishers: publishers(first: $first, skip: $skip, orderBy: $orderBy, orderDirection: desc) {
+          id
+          name
+          firstSeen
+          taggingRecordsPublished
+          tagsPublished
+        },
+        nextPublishers: publishers(first: ${pageSize}, skip: ${
         skip + pageSize
       }, orderBy: $orderBy, orderDirection: desc) {
-        id
-      }
-    }`,
+          id
+        }
+      }`,
       {
         skip,
         first: pageSize,

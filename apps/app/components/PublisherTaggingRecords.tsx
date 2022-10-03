@@ -1,25 +1,24 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, Suspense } from "react";
 import type { NextPage } from "next";
-import Head from "next/head";
 import { useRouter } from "next/router";
+import Head from "next/head";
+import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
-import { usePublishers } from "../../hooks/usePublishers";
-import { TimeAgo } from "../../components/TimeAgo";
-import { Table } from "../../components/Table";
-import { Button } from "../../components/Button";
-import useNumberFormatter from "../../hooks/useNumberFormatter";
-import { toEth, toDp } from "../../utils";
-import PageTitle from "../../components/PageTitle";
+import { usePublisherTaggingRecords } from "../hooks/usePublisherTaggingRecords";
+import { TimeAgo } from "../components/TimeAgo";
+import { Table } from "../components/Table";
+import { Button } from "../components/Button";
 
 const pageSize = 20;
 
-const Publishers: NextPage = () => {
-  const [skip, setSkip] = useState(0);
+const PublisherTaggingRecords: NextPage = () => {
   const { query } = useRouter();
-  const { tag } = query;
+  const { publisher } = query;
+  const [skip, setSkip] = useState(0);
   const { t } = useTranslation("common");
-  const { number } = useNumberFormatter();
-  const { publishers, nextPublishers, mutate } = usePublishers({
+
+  const variables = {
+    publisherId: publisher,
     pageSize,
     skip,
     config: {
@@ -30,7 +29,15 @@ const Publishers: NextPage = () => {
       refreshWhenHidden: false,
       refreshInterval: 0,
     },
-  });
+  };
+
+  const { publisherTaggingRecords, nextPublisherTaggingRecords, mutate } =
+    usePublisherTaggingRecords(variables);
+
+  const chainName: { [key: number]: string } = {
+    1: "Ethereum",
+    80001: "Polygon Mumbai",
+  };
 
   const nextPage = () => {
     setSkip(skip + 20);
@@ -43,20 +50,18 @@ const Publishers: NextPage = () => {
   };
 
   const columns = useMemo(
-    () => [t("name"), t("added"), t("tagging-records"), t("ctags")],
+    () => ["Target", t("ctags"), t("record-type"), t("date"), t("tagger")],
     [t]
   );
 
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>
-        <title>{t("publishers")} | Ethereum Tag Service</title>
+        <title>{t("recently-tagged")} | Ethereum Tag Service</title>
       </Head>
 
-      <PageTitle title={t("publishers")} />
-
-      <Table loading={!publishers} rows={pageSize}>
-        <Table.Title>{t("publishers")}</Table.Title>
+      <Table loading={!publisherTaggingRecords} rows={pageSize}>
+        <Table.Title>{t("tagging-records")}</Table.Title>
         <Table.Head>
           <Table.Tr>
             {columns &&
@@ -66,25 +71,30 @@ const Publishers: NextPage = () => {
           </Table.Tr>
         </Table.Head>
         <Table.Body>
-          {publishers &&
-            publishers.map((publisher: any) => (
-              <Table.Tr key={publisher.id}>
+          {publisherTaggingRecords &&
+            publisherTaggingRecords.map((taggingRecord: any) => (
+              <Table.Tr key={taggingRecord.id}>
+                <Table.Cell value={taggingRecord.target.targetURI} />
                 <Table.Cell
-                  value={publisher.name}
-                  url={`/publishers/${publisher.id}`}
+                  value={taggingRecord.tags.map((tag: any) => (
+                    <ul>
+                      <li>
+                        <Link href={`/tags/${tag.machineName}`}>
+                          <a className="text-pink-600 hover:text-pink-700">
+                            {tag.display}
+                          </a>
+                        </Link>
+                      </li>
+                    </ul>
+                  ))}
                 />
+                <Table.Cell value={taggingRecord.recordType} />
                 <Table.CellWithChildren>
                   <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                    <TimeAgo date={publisher.firstSeen * 1000} />
+                    <TimeAgo date={taggingRecord.timestamp * 1000} />
                   </div>
                 </Table.CellWithChildren>
-                <Table.Cell
-                  value={number(parseInt(publisher.taggingRecordsPublished))}
-                />
-                <Table.Cell
-                  value={number(parseInt(publisher.tagsPublished))}
-                  right
-                />
+                <Table.Cell value={taggingRecord.tagger.id} copyAndPaste />
               </Table.Tr>
             ))}
         </Table.Body>
@@ -115,7 +125,10 @@ const Publishers: NextPage = () => {
           Prev
         </Button>
         <Button
-          disabled={nextPublishers && nextPublishers.length === 0}
+          disabled={
+            nextPublisherTaggingRecords &&
+            nextPublisherTaggingRecords.length === 0
+          }
           onClick={() => nextPage()}
         >
           Next
@@ -145,4 +158,4 @@ const Publishers: NextPage = () => {
   );
 };
 
-export default Publishers;
+export { PublisherTaggingRecords };
