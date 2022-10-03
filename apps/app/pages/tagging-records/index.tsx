@@ -77,7 +77,7 @@ const RecentlyTagged: NextPage = () => {
                 <Table.Cell value={taggingRecord.target.targetURI} />
                 <Table.Cell
                   value={taggingRecord.tags.map((tag: any) => (
-                    <ul>
+                    <ul key={tag.id}>
                       <li>{tag.display}</li>
                     </ul>
                   ))}

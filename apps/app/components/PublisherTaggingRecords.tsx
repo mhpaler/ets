@@ -77,7 +77,7 @@ const PublisherTaggingRecords: NextPage = () => {
                 <Table.Cell value={taggingRecord.target.targetURI} />
                 <Table.Cell
                   value={taggingRecord.tags.map((tag: any) => (
-                    <ul>
+                    <ul key={tag.id}>
                       <li>
                         <Link href={`/tags/${tag.machineName}`}>
                           <a className="text-pink-600 hover:text-pink-700">
