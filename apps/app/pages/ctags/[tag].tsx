@@ -99,7 +99,7 @@ const Tag: NextPage = () => {
         shareUrl="https://ets.xyz"
       />
 
-      <div className="grid gap-6 mx-auto mt-8 lg:gap-12 md:space-y-0 md:grid sm:w-full md:grid-cols-2">
+      <div className="grid gap-6 mx-auto mt-8 lg:mb-12 mb-6 lg:gap-12 md:space-y-0 md:grid sm:w-full md:grid-cols-2">
         <div className="grid content-start w-full gap-6 mx-auto lg:gap-12">
           <div>
             <Panel title={t("overview")}>
@@ -221,59 +221,58 @@ const Tag: NextPage = () => {
             </Panel>
           </div>
         </div>
-
-        <div className="md:col-span-3">
-          <Table loading={!data} rows={pageSize}>
-            <Table.Title>
-              {t("latest-tagging-records")} with {data && data.tag[0].display}
-            </Table.Title>
-            <Table.Head>
-              <Table.Tr>
-                {columns &&
-                  columns.map((column) => (
-                    <Table.Th key={column}>{column}</Table.Th>
-                  ))}
-              </Table.Tr>
-            </Table.Head>
-            <Table.Body>
-              {data &&
-                data.taggingRecords.map((taggingRecord: any) => (
-                  <Table.Tr key={taggingRecord.id}>
-                    <Table.Cell value={taggingRecord.target.targetURI} />
-                    <Table.Cell
-                      value={taggingRecord.tags.map((tag: any) => (
-                        <ul key={tag.id}>
-                          <li>
-                            <Link href={`/tags/${tag.machineName}`}>
-                              <a className="text-pink-600 hover:text-pink-700">
-                                {tag.display}
-                              </a>
-                            </Link>
-                          </li>
-                        </ul>
-                      ))}
-                    />
-                    <Table.Cell value={taggingRecord.recordType} />
-                    <Table.CellWithChildren>
-                      <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                        <TimeAgo date={taggingRecord.timestamp * 1000} />
-                      </div>
-                    </Table.CellWithChildren>
-                    <Table.Cell value={taggingRecord.tagger.id} copyAndPaste />
-                    <Table.CellWithChildren>
-                      <Link
-                        href={`/publishers/${data && data.tag[0].publisher.id}`}
-                      >
-                        <a className="text-pink-600 hover:text-pink-700">
-                          {data && data.tag[0].publisher.name}
-                        </a>
-                      </Link>
-                    </Table.CellWithChildren>
-                  </Table.Tr>
+      </div>
+      <div>
+        <Table loading={!data} rows={pageSize}>
+          <Table.Title>
+            {t("latest-tagging-records")} with {data && data.tag[0].display}
+          </Table.Title>
+          <Table.Head>
+            <Table.Tr>
+              {columns &&
+                columns.map((column) => (
+                  <Table.Th key={column}>{column}</Table.Th>
                 ))}
-            </Table.Body>
-          </Table>
-        </div>
+            </Table.Tr>
+          </Table.Head>
+          <Table.Body>
+            {data &&
+              data.taggingRecords.map((taggingRecord: any) => (
+                <Table.Tr key={taggingRecord.id}>
+                  <Table.Cell value={taggingRecord.target.targetURI} />
+                  <Table.Cell
+                    value={taggingRecord.tags.map((tag: any) => (
+                      <ul key={tag.id}>
+                        <li>
+                          <Link href={`/ctags/${tag.machineName}`}>
+                            <a className="text-pink-600 hover:text-pink-700">
+                              {tag.display}
+                            </a>
+                          </Link>
+                        </li>
+                      </ul>
+                    ))}
+                  />
+                  <Table.Cell value={taggingRecord.recordType} />
+                  <Table.CellWithChildren>
+                    <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+                      <TimeAgo date={taggingRecord.timestamp * 1000} />
+                    </div>
+                  </Table.CellWithChildren>
+                  <Table.Cell value={taggingRecord.tagger.id} copyAndPaste />
+                  <Table.CellWithChildren>
+                    <Link
+                      href={`/publishers/${data && data.tag[0].publisher.id}`}
+                    >
+                      <a className="text-pink-600 hover:text-pink-700">
+                        {data && data.tag[0].publisher.name}
+                      </a>
+                    </Link>
+                  </Table.CellWithChildren>
+                </Table.Tr>
+              ))}
+          </Table.Body>
+        </Table>
       </div>
     </div>
   );

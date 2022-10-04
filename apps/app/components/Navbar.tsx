@@ -1,5 +1,7 @@
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
+import Breadcrumbs from "nextjs-breadcrumbs";
+import BreadCrumbItem from "../components/BreadcrumbItem";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export default function Navbar() {
@@ -61,15 +63,15 @@ export default function Navbar() {
           <div>
             <div className="flex items-center ml-4">
               <div className="hidden mr-6 space-x-6 lg:flex">
-                <Link href="/auctions">
-                  <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
-                    {t("auctions")}
-                  </a>
-                </Link>
-
                 <Link href="/publishers">
                   <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
                     {t("publishers")}
+                  </a>
+                </Link>
+                {/**
+                <Link href="/auctions">
+                  <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
+                    {t("auctions")}
                   </a>
                 </Link>
 
@@ -78,6 +80,7 @@ export default function Navbar() {
                     {t("playground")}
                   </a>
                 </Link>
+                 */}
               </div>
 
               <ConnectButton />
@@ -103,6 +106,21 @@ export default function Navbar() {
             </a>
           </Link>
         </div>
+
+        <Breadcrumbs
+          rootLabel="Home"
+          transformLabel={(title) => {
+            return <BreadCrumbItem title={title} />;
+          }}
+          inactiveItemClassName={
+            "text-sm font-medium text-gray-500 hover:text-pink-700 capitalize"
+          }
+          activeItemClassName={
+            "text-sm font-medium text-gray-400 pointer-events-none capitalize"
+          }
+          listClassName={"flex items-center space-x-4"}
+          useDefaultStyle={false}
+        />
       </nav>
     </header>
   );

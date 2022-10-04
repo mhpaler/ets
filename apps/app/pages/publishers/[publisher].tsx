@@ -65,8 +65,6 @@ const Publisher: NextPage = () => {
 
   const pageSize = 20;
 
-  console.log(data);
-
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>
@@ -92,7 +90,7 @@ const Publisher: NextPage = () => {
                 </div>
               </div>
 
-              <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4">
+              <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col">
                 <div className="text-slate-500">{t("id")}</div>
                 <div className="flex space-x-1">
                   <div className="grid flex-grow md:grid-flow-col">

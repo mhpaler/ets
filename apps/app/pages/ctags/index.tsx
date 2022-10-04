@@ -1,25 +1,21 @@
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { NextPage } from "next";
-import Head from "next/head";
 import { useRouter } from "next/router";
+import Head from "next/head";
+import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
-import { usePublishers } from "../../hooks/usePublishers";
+import { useCtags } from "../../hooks/useCtags";
 import PageTitle from "../../components/PageTitle";
-import { TimeAgo } from "../../components/TimeAgo";
-import { Table } from "../../components/Table";
 import { Button } from "../../components/Button";
-import useNumberFormatter from "../../hooks/useNumberFormatter";
-import { toEth, toDp } from "../../utils";
+import { Table } from "../../components/Table";
+import { TimeAgo } from "../../components/TimeAgo";
 
 const pageSize = 20;
 
-const Publishers: NextPage = () => {
+const Ctags: NextPage = () => {
   const [skip, setSkip] = useState(0);
-  const { query } = useRouter();
-  const { tag } = query;
   const { t } = useTranslation("common");
-  const { number } = useNumberFormatter();
-  const { publishers, nextPublishers, mutate } = usePublishers({
+  const { ctags, nextTags, mutate } = useCtags({
     pageSize,
     skip,
     config: {
@@ -43,20 +39,29 @@ const Publishers: NextPage = () => {
   };
 
   const columns = useMemo(
-    () => [t("name"), t("added"), t("tagging-records"), t("ctags")],
+    () => [
+      t("ctag"),
+      t("created"),
+      t("publisher"),
+      t("creator"),
+      t("owner"),
+      t("tagging-records"),
+    ],
     [t]
   );
+
+  console.log(ctags);
 
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>
-        <title>{t("publishers")} | Ethereum Tag Service</title>
+        <title>{t("ctags")} | Ethereum Tag Service</title>
       </Head>
 
-      <PageTitle title={t("publishers")} />
+      <PageTitle title={t("ctags")} />
 
-      <Table loading={!publishers} rows={pageSize}>
-        <Table.Title>{t("publishers")}</Table.Title>
+      <Table loading={!ctags} rows={pageSize}>
+        <Table.Title>{t("latest-ctags")}</Table.Title>
         <Table.Head>
           <Table.Tr>
             {columns &&
@@ -66,25 +71,25 @@ const Publishers: NextPage = () => {
           </Table.Tr>
         </Table.Head>
         <Table.Body>
-          {publishers &&
-            publishers.map((publisher: any) => (
-              <Table.Tr key={publisher.id}>
-                <Table.Cell
-                  value={publisher.name}
-                  url={`/publishers/${publisher.id}`}
-                />
+          {ctags &&
+            ctags.map((ctag: any) => (
+              <Table.Tr key={ctag.machineName}>
+                <Table.CellWithChildren>
+                  <Link href={`/tags/${ctag.machineName}`}>
+                    <a className="text-pink-600 hover:text-pink-700">
+                      {ctag.display}
+                    </a>
+                  </Link>
+                </Table.CellWithChildren>
                 <Table.CellWithChildren>
                   <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                    <TimeAgo date={publisher.firstSeen * 1000} />
+                    <TimeAgo date={ctag.timestamp * 1000} />
                   </div>
                 </Table.CellWithChildren>
-                <Table.Cell
-                  value={number(parseInt(publisher.taggingRecordsPublished))}
-                />
-                <Table.Cell
-                  value={number(parseInt(publisher.tagsPublished))}
-                  right
-                />
+                <Table.Cell value={ctag.publisher.name} copyAndPaste />
+                <Table.Cell value={ctag.creator.id} copyAndPaste />
+                <Table.Cell value={ctag.owner.id} copyAndPaste />
+                <Table.Cell value={ctag.tagAppliedInTaggingRecord} />
               </Table.Tr>
             ))}
         </Table.Body>
@@ -115,7 +120,7 @@ const Publishers: NextPage = () => {
           Prev
         </Button>
         <Button
-          disabled={nextPublishers && nextPublishers.length === 0}
+          disabled={nextTags && nextTags.length === 0}
           onClick={() => nextPage()}
         >
           Next
@@ -145,4 +150,4 @@ const Publishers: NextPage = () => {
   );
 };
 
-export default Publishers;
+export default Ctags;

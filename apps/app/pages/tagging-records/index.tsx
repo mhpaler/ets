@@ -1,10 +1,12 @@
 import { useState, useMemo, Suspense } from "react";
 import type { NextPage } from "next";
-import Head from "next/head";
 import { useRouter } from "next/router";
+import Head from "next/head";
+import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
-import { TimeAgo } from "../../components/TimeAgo";
 import { useTaggingRecords } from "../../hooks/useTaggingRecords";
+import PageTitle from "../../components/PageTitle";
+import { TimeAgo } from "../../components/TimeAgo";
 import { Table } from "../../components/Table";
 import { Button } from "../../components/Button";
 
@@ -48,8 +50,8 @@ const RecentlyTagged: NextPage = () => {
       t("ctags"),
       t("record-type"),
       t("date"),
-      t("tagger"),
       t("publisher"),
+      t("tagger"),
     ],
     [t]
   );
@@ -59,6 +61,8 @@ const RecentlyTagged: NextPage = () => {
       <Head>
         <title>{t("recently-tagged")} | Ethereum Tag Service</title>
       </Head>
+
+      <PageTitle title={t("tagging-records")} />
 
       <Table loading={!taggingRecords} rows={pageSize}>
         <Table.Title>{t("recently-tagged")}</Table.Title>
@@ -78,7 +82,13 @@ const RecentlyTagged: NextPage = () => {
                 <Table.Cell
                   value={taggingRecord.tags.map((tag: any) => (
                     <ul key={tag.id}>
-                      <li>{tag.display}</li>
+                      <li>
+                        <Link href={`/ctags/${tag.machineName}`}>
+                          <a className="text-pink-600 hover:text-pink-700">
+                            {tag.display}
+                          </a>
+                        </Link>
+                      </li>
                     </ul>
                   ))}
                 />
@@ -88,8 +98,18 @@ const RecentlyTagged: NextPage = () => {
                     <TimeAgo date={taggingRecord.timestamp * 1000} />
                   </div>
                 </Table.CellWithChildren>
+                <Table.CellWithChildren>
+                  <Link
+                    href={`/publishers/${
+                      taggingRecord && taggingRecord.publisher.id
+                    }`}
+                  >
+                    <a className="text-pink-600 hover:text-pink-700">
+                      {taggingRecord && taggingRecord.publisher.name}
+                    </a>
+                  </Link>
+                </Table.CellWithChildren>{" "}
                 <Table.Cell value={taggingRecord.tagger.id} copyAndPaste />
-                <Table.Cell value={taggingRecord.publisher.name} />
               </Table.Tr>
             ))}
         </Table.Body>
