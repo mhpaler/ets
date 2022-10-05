@@ -17,7 +17,7 @@ import { CopyAndPaste } from "../../components/CopyAndPaste";
 import { Panel } from "../../components/Panel";
 import PageTitle from "../../components/PageTitle";
 
-function classNames(...classes) {
+function classNames(...classes: any) {
   return classes.filter(Boolean).join(" ");
 }
 
