@@ -1,4 +1,4 @@
-const BreadCrumbItem = (props: any) => {
+const BreadcrumbItem = (props: any) => {
   let label = props.title.replace(/-/g, " ");
   return (
     <span className="flex">
@@ -16,4 +16,4 @@ const BreadCrumbItem = (props: any) => {
   );
 };
 
-export default BreadCrumbItem;
+export { BreadcrumbItem };

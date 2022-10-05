@@ -1,7 +1,7 @@
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
 import Breadcrumbs from "nextjs-breadcrumbs";
-import BreadCrumbItem from "../components/BreadcrumbItem";
+import { BreadcrumbItem } from "./BreadcrumbItem";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export default function Navbar() {
@@ -110,7 +110,7 @@ export default function Navbar() {
         <Breadcrumbs
           rootLabel="Home"
           transformLabel={(title) => {
-            return <BreadCrumbItem title={title} />;
+            return <BreadcrumbItem title={title} />;
           }}
           inactiveItemClassName={
             "text-sm font-medium text-gray-500 hover:text-pink-700 capitalize"
