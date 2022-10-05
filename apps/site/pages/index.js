@@ -42,7 +42,6 @@ export default function Home() {
         <div className="text-slate-600">
           <p className="mt-6 mb-6">Ethereum Tag Service (ETS) is an experimental EVM based content tagging service, aimed at Web3 developers, running in alpha/testnet phase on the Polygon Blockchain.</p>
           <p className="mt-6 mb-6">In ETS, tags, content tagging & tagging data are fully composable units & services. This treatment preserves data integrity, provenance & attribution across the projects and users that consume the service.</p>
-          <p className="mt-6 mb-6">The mission for ETS is connecting people, places and things across Web3.</p>
           <div className="md:justify-between pt-4">
             <div className="flex justify-center space-x-6 md:order-2">
               <a href="https://github.com/ethereum-tag-service/ets#readme" className="text-slate-600 hover:text-slate-500" target="_blank">
