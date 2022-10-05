@@ -75,7 +75,7 @@ const Ctags: NextPage = () => {
             ctags.map((ctag: any) => (
               <Table.Tr key={ctag.machineName}>
                 <Table.CellWithChildren>
-                  <Link href={`/tags/${ctag.machineName}`}>
+                  <Link href={`/ctags/${ctag.machineName}`}>
                     <a className="text-pink-600 hover:text-pink-700">
                       {ctag.display}
                     </a>
@@ -86,7 +86,13 @@ const Ctags: NextPage = () => {
                     <TimeAgo date={ctag.timestamp * 1000} />
                   </div>
                 </Table.CellWithChildren>
-                <Table.Cell value={ctag.publisher.name} copyAndPaste />
+                <Table.CellWithChildren>
+                  <Link href={`/publishers/${ctag.publisher.id}`}>
+                    <a className="text-pink-600 hover:text-pink-700">
+                      {ctag.publisher.name}
+                    </a>
+                  </Link>
+                </Table.CellWithChildren>
                 <Table.Cell value={ctag.creator.id} copyAndPaste />
                 <Table.Cell value={ctag.owner.id} copyAndPaste />
                 <Table.Cell value={ctag.tagAppliedInTaggingRecord} />
