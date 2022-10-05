@@ -7,6 +7,7 @@ import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
 import { timestampToString } from "../../utils";
 import { toDp, toEth } from "../../utils";
+import { Tab } from "@headlessui/react";
 import { PublisherTaggingRecords } from "../../components/PublisherTaggingRecords";
 import { PublisherTags } from "../../components/PublisherTags";
 import { Number } from "../../components/Number";
@@ -15,6 +16,10 @@ import { TimeAgo } from "../../components/TimeAgo";
 import { CopyAndPaste } from "../../components/CopyAndPaste";
 import { Panel } from "../../components/Panel";
 import PageTitle from "../../components/PageTitle";
+
+function classNames(...classes) {
+  return classes.filter(Boolean).join(" ");
+}
 
 const Publisher: NextPage = () => {
   const { query } = useRouter();
@@ -181,11 +186,63 @@ const Publisher: NextPage = () => {
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-1 lg:gap-12">
-        <PublisherTaggingRecords />
-      </div>
-      <div className="grid gap-6 md:grid-cols-1 lg:gap-12">
-        <PublisherTags />
+      <div className="colspan-2">
+        <Tab.Group>
+          <Tab.List className="flex space-x-1 rounded-md bg-blue-900/20 p-1">
+            <Tab
+              key="taggingRecords"
+              className={({ selected }) =>
+                classNames(
+                  "w-full rounded-md py-2.5 text-sm font-medium leading-5 text-slate-500",
+                  "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2",
+                  selected
+                    ? "bg-white shadow"
+                    : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
+                )
+              }
+            >
+              {t("latest-tagging-records")}
+            </Tab>
+            <Tab
+              key="tags"
+              className={({ selected }) =>
+                classNames(
+                  "w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-slate-500",
+                  "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2",
+                  selected
+                    ? "bg-white shadow"
+                    : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
+                )
+              }
+            >
+              {t("latest-ctags")}
+            </Tab>
+          </Tab.List>
+          <Tab.Panels className="mt-2">
+            <Tab.Panel
+              key="taggingRecords"
+              className={classNames(
+                "rounded-xl bg-white p-3",
+                "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
+              )}
+            >
+              <div className="grid gap-6 md:grid-cols-1 lg:gap-12">
+                <PublisherTaggingRecords />
+              </div>
+            </Tab.Panel>
+            <Tab.Panel
+              key="tags"
+              className={classNames(
+                "rounded-xl bg-white p-3",
+                "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
+              )}
+            >
+              <div className="grid gap-6 md:grid-cols-1 lg:gap-12">
+                <PublisherTags />
+              </div>
+            </Tab.Panel>
+          </Tab.Panels>
+        </Tab.Group>
       </div>
     </div>
   );

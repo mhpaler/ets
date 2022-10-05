@@ -1,32 +1,56 @@
 import { useRouter } from "next/router";
+import useTranslation from "next-translate/useTranslation";
+import useSWR from "swr";
 
 const BreadcrumbItem = (props: any) => {
-  const router = useRouter();
-
-  console.log("Route", router.asPath);
   let label;
+  const router = useRouter();
+  const { t } = useTranslation("common");
+
+  const dividerIcon = (
+    <svg
+      className="flex-shrink-0 h-5 w-5 text-gray-300 mr-2"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+        d="M10.75 8.75L14.25 12L10.75 15.25"
+      ></path>
+    </svg>
+  );
+
+  // Sets label only when we are not on home page.
+  // effectively removes breadcrumb on homepage.
+
   if (router.asPath != "/") {
+    // Replace dash with space.
     label = props.title.replace(/-/g, " ");
+
+    // Handle ctag breadcrumb
+    let path = router.asPath.substring(1).split("/");
+    if (path.length == 2 && path[0] == "ctags") {
+      if (label == path[1]) {
+        label = "#" + label;
+      }
+    }
+
+    if (label == "ctags") {
+      label = t("ctags");
+    }
   }
 
   return (
     <>
-      {label ? (
+      {!label ? null : (
         <span className="flex">
-          {label != "Home" ? (
-            <svg
-              className="flex-shrink-0 h-5 w-5 text-gray-300 mr-4"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              aria-hidden="true"
-            >
-              <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z" />
-            </svg>
-          ) : null}
+          {label == "Home" ? null : dividerIcon}
           {label}
         </span>
-      ) : null}
+      )}
     </>
   );
 };

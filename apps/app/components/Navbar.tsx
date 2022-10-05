@@ -62,7 +62,7 @@ export default function Navbar() {
           </div>
           <div>
             <div className="flex items-center ml-4">
-              <div className="hidden mr-6 space-x-6 lg:flex">
+              <div className="flex mr-6 space-x-6">
                 <Link href="/publishers">
                   <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
                     {t("publishers")}
@@ -87,16 +87,17 @@ export default function Navbar() {
             </div>
           </div>
         </div>
+        {/** 
         <div className="flex flex-wrap justify-center py-4 space-x-8 lg:hidden">
-          <Link href="/auctions">
-            <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
-              {t("auctions")}
-            </a>
-          </Link>
-
           <Link href="/publishers">
             <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
               {t("publishers")}
+            </a>
+          </Link>
+          
+          <Link href="/auctions">
+            <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
+              {t("auctions")}
             </a>
           </Link>
 
@@ -105,22 +106,25 @@ export default function Navbar() {
               {t("playground")}
             </a>
           </Link>
+          
         </div>
-
-        <Breadcrumbs
-          rootLabel="Home"
-          transformLabel={(title) => {
-            return <BreadcrumbItem title={title} />;
-          }}
-          inactiveItemClassName={
-            "text-sm font-medium text-gray-500 hover:text-pink-700 capitalize"
-          }
-          activeItemClassName={
-            "text-sm font-medium text-gray-400 pointer-events-none capitalize"
-          }
-          listClassName={"flex items-center space-x-4"}
-          useDefaultStyle={false}
-        />
+        */}
+        <div className="hidden md:block">
+          <Breadcrumbs
+            rootLabel="Home"
+            transformLabel={(title) => {
+              return <BreadcrumbItem title={title} />;
+            }}
+            inactiveItemClassName={
+              "text-sm font-medium text-gray-500 hover:text-pink-700 capitalize"
+            }
+            activeItemClassName={
+              "text-sm font-medium text-gray-400 pointer-events-none capitalize"
+            }
+            listClassName={"flex items-center space-x-2"}
+            useDefaultStyle={false}
+          />
+        </div>
       </nav>
     </header>
   );

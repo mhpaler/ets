@@ -50,8 +50,6 @@ const Ctags: NextPage = () => {
     [t]
   );
 
-  console.log(ctags);
-
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>
