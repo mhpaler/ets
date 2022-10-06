@@ -83,7 +83,7 @@ const PublisherTags: NextPage = () => {
             publisherTags.map((tag: any) => (
               <Table.Tr key={tag.machineName}>
                 <Table.CellWithChildren>
-                  <Link href={`/tags/${tag.machineName}`}>
+                  <Link href={`/ctags/${tag.machineName}`}>
                     <a className="text-pink-600 hover:text-pink-700">
                       {tag.display}
                     </a>
