@@ -61,13 +61,15 @@ const PublisherTags: NextPage = () => {
   );
 
   return (
-    <div className="max-w-6xl mx-auto mt-12">
+    <div className="max-w-6xl mx-auto">
       <Head>
         <title>{t("ctags")} publisher by | Ethereum Tag Service</title>
       </Head>
 
       <Table loading={!publisherTags} rows={pageSize}>
+        {/** 
         <Table.Title>{t("ctags")}</Table.Title>
+  */}
         <Table.Head>
           <Table.Tr>
             {columns &&

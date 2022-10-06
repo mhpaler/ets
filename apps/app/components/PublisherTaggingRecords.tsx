@@ -55,13 +55,15 @@ const PublisherTaggingRecords: NextPage = () => {
   );
 
   return (
-    <div className="max-w-6xl mx-auto mt-12">
+    <div className="max-w-6xl mx-auto">
       <Head>
         <title>{t("recently-tagged")} | Ethereum Tag Service</title>
       </Head>
 
       <Table loading={!publisherTaggingRecords} rows={pageSize}>
+        {/** 
         <Table.Title>{t("tagging-records")}</Table.Title>
+        */}
         <Table.Head>
           <Table.Tr>
             {columns &&

@@ -184,65 +184,54 @@ const Publisher: NextPage = () => {
             </Panel>
           </div>
         </div>
-      </div>
 
-      <div className="colspan-2">
-        <Tab.Group>
-          <Tab.List className="flex space-x-1 rounded-md bg-blue-900/20 p-1">
-            <Tab
-              key="taggingRecords"
-              className={({ selected }) =>
-                classNames(
-                  "w-full rounded-md py-2.5 text-sm font-medium leading-5 text-slate-500",
-                  "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2",
-                  selected
-                    ? "bg-white shadow"
-                    : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
-                )
-              }
-            >
-              {t("latest-tagging-records")}
-            </Tab>
-            <Tab
-              key="tags"
-              className={({ selected }) =>
-                classNames(
-                  "w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-slate-500",
-                  "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2",
-                  selected
-                    ? "bg-white shadow"
-                    : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
-                )
-              }
-            >
-              {t("latest-ctags")}
-            </Tab>
-          </Tab.List>
-          <Tab.Panels className="mt-2">
-            <Tab.Panel
-              key="taggingRecords"
-              className={classNames(
-                "rounded-xl bg-white p-3",
-                "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
-              )}
-            >
-              <div className="grid gap-6 md:grid-cols-1 lg:gap-12">
+        <div className="col-span-2">
+          <Tab.Group>
+            <Tab.List className="flex space-x-1 rounded-md  p-px">
+              <Tab
+                key="taggingRecords"
+                className={({ selected }) =>
+                  classNames(
+                    "rounded-md py-4 px-6 font-semibold leading-5 text-slate-700",
+                    selected
+                      ? "bg-slate-50/70 shadow"
+                      : "text-slate-300 hover:bg-white/[0.12] hover:text-slate-400"
+                  )
+                }
+              >
+                {t("latest-tagging-records")}
+              </Tab>
+              <Tab
+                key="tags"
+                className={({ selected }) =>
+                  classNames(
+                    "rounded-md py-4 px-6 font-semibold leading-5 text-slate-700",
+
+                    selected
+                      ? "bg-slate-50/70 shadow"
+                      : "text-slate-300 hover:bg-white/[0.12] hover:text-slate-400"
+                  )
+                }
+              >
+                {t("latest-ctags")}
+              </Tab>
+            </Tab.List>
+            <Tab.Panels>
+              <Tab.Panel
+                key="taggingRecords"
+                className={classNames("rounded-xl bg-white")}
+              >
                 <PublisherTaggingRecords />
-              </div>
-            </Tab.Panel>
-            <Tab.Panel
-              key="tags"
-              className={classNames(
-                "rounded-xl bg-white p-3",
-                "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
-              )}
-            >
-              <div className="grid gap-6 md:grid-cols-1 lg:gap-12">
+              </Tab.Panel>
+              <Tab.Panel
+                key="tags"
+                className={classNames("rounded-xl bg-white")}
+              >
                 <PublisherTags />
-              </div>
-            </Tab.Panel>
-          </Tab.Panels>
-        </Tab.Group>
+              </Tab.Panel>
+            </Tab.Panels>
+          </Tab.Group>
+        </div>
       </div>
     </div>
   );
