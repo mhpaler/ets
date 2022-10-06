@@ -4,7 +4,7 @@ If you don't know why you'd want get a Publisher ID or what happens when you cre
 
 ## Using Polygonscan
 
-1. Navigate to the [ETS Publisher Factory contract](https://mumbai.polygonscan.com/address/0x7F5Acb2E4a21F6387C87a054cB59a019d8f5eb7E#writeProxyContract).
+1. Navigate to the [ETS Publisher Factory contract](https://mumbai.polygonscan.com/address/0x7351E98b532d58821d5ab90A19254c247195d19c#writeProxyContract).
 2. Click the "Connect to Web3" link, the one with the red dot next to it.
 3. Once connected, expand the "addPublisherV1" tab.
 4. Enter `0` in the "payableAmount" field.
