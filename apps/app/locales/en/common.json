@@ -56,9 +56,11 @@
   "tags": "Tags",
   "tagging-records": "Tagging records",
   "tagging-record": "Tagging record",
+  "target": "Target",
   "token-id": "Token ID",
   "top-creators": "Top creators",
   "top-publishers": "Top publishers",
   "top-taggers": "Top taggers",
-  "view-all-bids": "View all bids"
+  "view-all-bids": "View all bids",
+  "view-all": "View all {{subject}}"
 }

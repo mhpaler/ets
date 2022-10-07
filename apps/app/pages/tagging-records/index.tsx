@@ -46,12 +46,12 @@ const RecentlyTagged: NextPage = () => {
 
   const columns = useMemo(
     () => [
-      "Target",
-      t("ctags"),
-      t("record-type"),
       t("date"),
       t("publisher"),
       t("tagger"),
+      t("record-type"),
+      t("target"),
+      t("ctags"),
     ],
     [t]
   );
@@ -78,21 +78,6 @@ const RecentlyTagged: NextPage = () => {
           {taggingRecords &&
             taggingRecords.map((taggingRecord: any) => (
               <Table.Tr key={taggingRecord.id}>
-                <Table.Cell value={taggingRecord.target.targetURI} />
-                <Table.Cell
-                  value={taggingRecord.tags.map((tag: any) => (
-                    <ul key={tag.id}>
-                      <li>
-                        <Link href={`/ctags/${tag.machineName}`}>
-                          <a className="text-pink-600 hover:text-pink-700">
-                            {tag.display}
-                          </a>
-                        </Link>
-                      </li>
-                    </ul>
-                  ))}
-                />
-                <Table.Cell value={taggingRecord.recordType} />
                 <Table.CellWithChildren>
                   <div className="overflow-hidden text-ellipsis whitespace-nowrap">
                     <TimeAgo date={taggingRecord.timestamp * 1000} />
@@ -108,8 +93,24 @@ const RecentlyTagged: NextPage = () => {
                       {taggingRecord && taggingRecord.publisher.name}
                     </a>
                   </Link>
-                </Table.CellWithChildren>{" "}
+                </Table.CellWithChildren>
                 <Table.Cell value={taggingRecord.tagger.id} copyAndPaste />
+                <Table.Cell value={taggingRecord.recordType} />
+
+                <Table.Cell value={taggingRecord.target.targetURI} />
+                <Table.Cell
+                  value={taggingRecord.tags.map((tag: any) => (
+                    <ul key={tag.id}>
+                      <li>
+                        <Link href={`/ctags/${tag.machineName}`}>
+                          <a className="text-pink-600 hover:text-pink-700">
+                            {tag.display}
+                          </a>
+                        </Link>
+                      </li>
+                    </ul>
+                  ))}
+                />
               </Table.Tr>
             ))}
         </Table.Body>

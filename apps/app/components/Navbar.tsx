@@ -11,9 +11,9 @@ export default function Navbar() {
     <header className="px-4">
       <div className="relative bg-pink-500 -mx-4">
         <div className="mx-auto max-w-7xl py-3 px-3 sm:px-6 lg:px-8">
-          <div className="pr-16 sm:px-16 sm:text-center">
+          <div className="pr-16 sm:px-16 text-center">
             <p className="font-medium text-white">
-              <span className="hidden md:inline">
+              <span className="md:inline">
                 ETS is alpha software running on Polygon Mumbai Testnet
                 &nbsp;•&nbsp;&nbsp;
                 <a

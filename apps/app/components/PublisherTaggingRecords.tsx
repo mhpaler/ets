@@ -50,7 +50,14 @@ const PublisherTaggingRecords: NextPage = () => {
   };
 
   const columns = useMemo(
-    () => ["Target", t("ctags"), t("record-type"), t("date"), t("tagger")],
+    () => [
+      t("date"),
+      t("publisher"),
+      t("tagger"),
+      t("record-type"),
+      t("target"),
+      t("ctags"),
+    ],
     [t]
   );
 
@@ -76,6 +83,27 @@ const PublisherTaggingRecords: NextPage = () => {
           {publisherTaggingRecords &&
             publisherTaggingRecords.map((taggingRecord: any) => (
               <Table.Tr key={taggingRecord.id}>
+                <Table.CellWithChildren>
+                  <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+                    <TimeAgo date={taggingRecord.timestamp * 1000} />
+                  </div>
+                </Table.CellWithChildren>
+
+                <Table.CellWithChildren>
+                  <Link
+                    href={`/publishers/${
+                      taggingRecord && taggingRecord.publisher.id
+                    }`}
+                  >
+                    <a className="text-pink-600 hover:text-pink-700">
+                      {taggingRecord && taggingRecord.publisher.name}
+                    </a>
+                  </Link>
+                </Table.CellWithChildren>
+
+                <Table.Cell value={taggingRecord.tagger.id} copyAndPaste />
+                <Table.Cell value={taggingRecord.recordType} />
+
                 <Table.Cell value={taggingRecord.target.targetURI} />
                 <Table.Cell
                   value={taggingRecord.tags.map((tag: any) => (
@@ -90,13 +118,6 @@ const PublisherTaggingRecords: NextPage = () => {
                     </ul>
                   ))}
                 />
-                <Table.Cell value={taggingRecord.recordType} />
-                <Table.CellWithChildren>
-                  <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                    <TimeAgo date={taggingRecord.timestamp * 1000} />
-                  </div>
-                </Table.CellWithChildren>
-                <Table.Cell value={taggingRecord.tagger.id} copyAndPaste />
               </Table.Tr>
             ))}
         </Table.Body>

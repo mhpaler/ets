@@ -81,7 +81,7 @@ const Publisher: NextPage = () => {
         shareUrl="https://ets.xyz"
       />
 
-      <div className="grid gap-6 mx-auto mt-8 lg:gap-12 md:space-y-0 md:grid sm:w-full md:grid-cols-2">
+      <div className="grid gap-6 mx-auto mt-8 lg:mb-12 mb-6 lg:gap-12 md:space-y-0 md:grid sm:w-full md:grid-cols-2">
         <div className="grid content-start w-full gap-6 mx-auto lg:gap-12">
           <div>
             <Panel title={t("overview")}>
@@ -184,17 +184,18 @@ const Publisher: NextPage = () => {
             </Panel>
           </div>
         </div>
-
-        <div className="col-span-2">
+      </div>
+      <div>
+        <div>
           <Tab.Group>
             <Tab.List className="flex space-x-1 rounded-md  p-px">
               <Tab
                 key="taggingRecords"
                 className={({ selected }) =>
                   classNames(
-                    "rounded-md py-4 px-6 font-semibold leading-5 text-slate-700",
+                    "rounded-md rounded-b-none py-3.5 px-6 font-semibold leading-5 text-slate-700",
                     selected
-                      ? "bg-slate-50/70 shadow"
+                      ? "border border-b-0 whitespace-nowrap text-slate-700 bg-slate-50/75 border-slate-200 backdrop-blur backdrop-filter"
                       : "text-slate-300 hover:bg-white/[0.12] hover:text-slate-400"
                   )
                 }
@@ -205,10 +206,10 @@ const Publisher: NextPage = () => {
                 key="tags"
                 className={({ selected }) =>
                   classNames(
-                    "rounded-md py-4 px-6 font-semibold leading-5 text-slate-700",
+                    "rounded-md rounded-b-none py-3.5 px-6 font-semibold leading-5 text-slate-700",
 
                     selected
-                      ? "bg-slate-50/70 shadow"
+                      ? "border border-b-0 whitespace-nowrap text-slate-700 bg-slate-50/75 border-slate-200 backdrop-blur backdrop-filter"
                       : "text-slate-300 hover:bg-white/[0.12] hover:text-slate-400"
                   )
                 }
