@@ -2,13 +2,11 @@ import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
 
 export function useTaggingRecords({
-  id,
   pageSize = 20,
   skip = 0,
   orderBy = "timestamp",
   config = {},
 }: {
-  id?: string;
   pageSize?: number;
   skip?: number;
   orderBy?: string;
@@ -16,9 +14,8 @@ export function useTaggingRecords({
 }) {
   const { data, mutate, error } = useSWR(
     [
-      `query taggingRecords($id: String, $first: Int!, $skip: Int!, $orderBy: String!) {
+      `query taggingRecords($first: Int!, $skip: Int!, $orderBy: String!) {
         taggingRecords: taggingRecords(
-          id: $id
           first: $first
           skip: $skip
           orderBy: $orderBy
@@ -51,7 +48,6 @@ export function useTaggingRecords({
         }
       }`,
       {
-        id,
         skip,
         first: pageSize,
         orderBy: orderBy,

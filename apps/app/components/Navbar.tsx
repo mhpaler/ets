@@ -128,7 +128,7 @@ export default function Navbar() {
             activeItemClassName={
               "text-sm font-medium text-gray-400 pointer-events-none capitalize"
             }
-            listClassName={"flex items-center space-x-2"}
+            listClassName={"flex items-center space-x-2 truncate"}
             useDefaultStyle={false}
           />
         </div>

@@ -69,11 +69,6 @@ const Tag: NextPage = () => {
     variables,
   ]);
 
-  const chainName: { [key: number]: string } = {
-    1: "Ethereum",
-    80001: "Polygon Mumbai",
-  };
-
   const columns = useMemo(
     () => [
       t("date"),

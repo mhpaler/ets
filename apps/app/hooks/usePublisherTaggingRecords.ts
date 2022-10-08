@@ -1,6 +1,10 @@
 import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
 
+interface WhereClause {
+  where: any;
+}
+
 export function usePublisherTaggingRecords({
   publisherId,
   pageSize = 20,

@@ -48,6 +48,14 @@ const RecentlyTagged = () => {
                 <Table.Tr key={taggingRecord.id}>
                   <Table.CellWithChildren>
                     <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+                      <Link
+                        href={`/tagging-records/${
+                          taggingRecord && taggingRecord.id
+                        }`}
+                      >
+                        <a className="text-pink-600 hover:text-pink-700">Go</a>
+                      </Link>
+                      &nbsp;&nbsp;
                       <TimeAgo date={taggingRecord.timestamp * 1000} />
                     </div>
                   </Table.CellWithChildren>
@@ -83,14 +91,13 @@ const RecentlyTagged = () => {
               ))}
           </Table.Body>
           <Table.Footer>
-            <a
-              href={`/tagging-records/`}
-              className="text-pink-600 hover:text-pink-700"
-            >
-              <div className="text-center">
-                {t("view-all", { subject: t("tagging-records") })}
-              </div>
-            </a>
+            <div className="text-center">
+              <Link href={`/tagging-records/`}>
+                <a className="text-pink-600 hover:text-pink-700">
+                  {t("view-all", { subject: t("tagging-records") })}
+                </a>
+              </Link>
+            </div>
           </Table.Footer>
         </Table>
       </div>
