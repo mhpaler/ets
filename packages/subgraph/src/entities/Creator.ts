@@ -1,7 +1,7 @@
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { Creator } from "../generated/schema";
 import { Transfer } from "../generated/ETSToken/ETSToken";
-import { ensurePlatform } from "../entities/Platform";
+import { ensurePlatform, updateCreatorCount } from "../entities/Platform";
 import { ensureTag } from "../entities/Tag";
 import { getTaggingFee } from "../utils/getTaggingFee";
 import { arrayDiff } from "../utils/arrayDiff";
@@ -19,6 +19,8 @@ export function ensureCreator(creatorAddress: Address, event: ethereum.Event): C
     creator.createdTagsRemovedFromTaggingRecords = ZERO;
     creator.createdTagsTaggingFeeRevenue = ZERO;
     creator.save();
+
+    updateCreatorCount(event);
   }
   return creator as Creator;
 }
