@@ -8,14 +8,28 @@ import { Table } from "../components/Table";
 
 const pageSize = 5;
 
+const go = (
+  <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
+    <path
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="1.5"
+      d="M13.75 6.75L19.25 12L13.75 17.25"
+    ></path>
+    <path
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="1.5"
+      d="M19 12H4.75"
+    ></path>
+  </svg>
+);
+
 const RecentlyTagged = () => {
   const { t } = useTranslation("common");
   const { taggingRecords } = useTaggingRecords({ pageSize: pageSize });
-
-  const chainName: { [key: number]: string } = {
-    1: "Ethereum",
-    80001: "Polygon Mumbai",
-  };
 
   const columns = useMemo(
     () => [
@@ -53,10 +67,10 @@ const RecentlyTagged = () => {
                           taggingRecord && taggingRecord.id
                         }`}
                       >
-                        <a className="text-pink-600 hover:text-pink-700">Go</a>
+                        <a className="text-pink-600 hover:text-pink-700">
+                          <TimeAgo date={taggingRecord.timestamp * 1000} />
+                        </a>
                       </Link>
-                      &nbsp;&nbsp;
-                      <TimeAgo date={taggingRecord.timestamp * 1000} />
                     </div>
                   </Table.CellWithChildren>
                   <Table.CellWithChildren>

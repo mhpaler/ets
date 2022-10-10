@@ -51,25 +51,6 @@ const Publisher: NextPage = () => {
     variables,
   ]);
 
-  const chainName: { [key: number]: string } = {
-    1: "Ethereum",
-    80001: "Polygon Mumbai",
-  };
-
-  const columns = useMemo(
-    () => [
-      "Target",
-      t("ctags"),
-      t("record-type"),
-      t("date"),
-      t("tagger"),
-      t("publisher"),
-    ],
-    [t]
-  );
-
-  const pageSize = 20;
-
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>

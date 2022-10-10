@@ -18,46 +18,21 @@ import PageTitle from "../../components/PageTitle";
 const TaggingRecord: NextPage = () => {
   const { query } = useRouter();
   const { taggingRecordId } = query;
-  const variables = { id: taggingRecordId };
   const { t } = useTranslation("common");
-
-  const { data } = useSWR([
-    `query taggingRecords($id: String, $first: Int!, $skip: Int!, $orderBy: String!) {
-      taggingRecords: taggingRecords(
-        first: $first
-        skip: $skip
-        orderBy: $orderBy
-        orderDirection: desc
-        where: {id: $id}
-      ) {
-        id
-        recordType
-        timestamp
-        publisher {
-          id
-          name
-        }
-        tags {
-          id
-          display
-          machineName
-        }
-        target {
-          targetURI
-          targetType
-        }
-        tagger {
-          id
-        }
-      }
-    }`,
-    {
-      id: taggingRecordId,
-      skip: 0,
-      first: 1,
-      orderBy: "timestamp",
+  const { taggingRecords } = useTaggingRecords({
+    pageSize: 1,
+    skip: 0,
+    filter: `id: "${taggingRecordId}"`,
+    orderBy: "timestamp",
+    config: {
+      revalidateOnFocus: false,
+      revalidateOnMount: true,
+      revalidateOnReconnect: false,
+      refreshWhenOffline: false,
+      refreshWhenHidden: false,
+      refreshInterval: 0,
     },
-  ]);
+  });
 
   return (
     <div className="max-w-6xl mx-auto mt-12">
@@ -70,73 +45,59 @@ const TaggingRecord: NextPage = () => {
         <div className="grid content-start w-full gap-6 mx-auto lg:gap-12">
           <div>
             <Panel title={t("overview")}>
-              <div className="grid grid-cols-1 gap-4 px-6 py-4 md:grid-flow-col">
-                <div className="text-slate-500">{t("created")}</div>
-                <div>
-                  <div className="text-slate-500">
-                    {data &&
-                      timestampToString(
-                        parseInt(data.taggingRecords[0].timestamp)
-                      )}
-                  </div>
+              <div className="grid grid-cols-3 px-6 py-4 md:grid-flow-col">
+                <div className="text-slate-500 ">{t("created")}</div>
+                <div className="text-slate-500 col-span-2 text-left">
+                  {taggingRecords &&
+                    timestampToString(parseInt(taggingRecords[0].timestamp))}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 px-6 py-4 md:grid-flow-col">
+              <div className="grid grid-cols-3 gap-4 px-6 py-4 md:grid-flow-col">
                 <div className="text-slate-500">{t("publisher")}</div>
-                <div>
-                  <div className="text-slate-500 text-left">
-                    {data && data.taggingRecords[0].publisher.name}
-                  </div>
+                <div className="text-slate-500 col-span-2 text-left">
+                  {taggingRecords && taggingRecords[0].publisher.name}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 px-6 py-4 md:grid-flow-col">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-6 py-4 md:grid-flow-col">
                 <div className="text-slate-500">{t("tagger")}</div>
-                <div className="text-slate-500">
-                  <div className="text-slate-500 truncate">
-                    {data && data.taggingRecords[0].tagger.id}
-                    <CopyAndPaste
-                      value={data && data.taggingRecords[0].tagger.id}
-                    />
-                  </div>
+                <div className="text-slate-500 col-span-2 text-left truncate">
+                  {taggingRecords && taggingRecords[0].tagger.id}
+                  <CopyAndPaste
+                    value={taggingRecords && taggingRecords[0].tagger.id}
+                  />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 px-6 py-4 md:grid-flow-col">
+              <div className="grid grid-cols-3 gap-4 px-6 py-4 md:grid-flow-col">
                 <div className="text-slate-500">{t("record-type")}</div>
-                <div>
-                  <div className="text-slate-500 text-left">
-                    {data && data.taggingRecords[0].recordType}
-                  </div>
+                <div className="text-slate-500 col-span-2 text-left ">
+                  {taggingRecords && taggingRecords[0].recordType}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 px-6 py-4 md:grid-flow-col">
+              <div className="grid grid-cols-3 gap-4 px-6 py-4 md:grid-flow-col">
                 <div className="text-slate-500">{t("target")}</div>
-                <div>
-                  <div className="text-slate-500 text-left truncate">
-                    {data && data.taggingRecords[0].target.targetURI}
-                  </div>
+                <div className="text-slate-500 col-span-2 text-left truncate">
+                  {taggingRecords && taggingRecords[0].target.targetURI}
                 </div>
               </div>
-              <div className="grid grid-cols-1 gap-4 px-6 py-4 md:grid-flow-col">
+              <div className="grid grid-cols-3 gap-4 px-6 py-4 md:grid-flow-col">
                 <div className="text-slate-500">{t("tags")}</div>
-                <div>
-                  <div className="text-slate-500 text-left">
-                    {data &&
-                      data.taggingRecords[0].tags.map((tag: any) => (
-                        <ul key={tag.id}>
-                          <li>
-                            <Link href={`/ctags/${tag.machineName}`}>
-                              <a className="text-pink-600 hover:text-pink-700">
-                                {tag.display}
-                              </a>
-                            </Link>
-                          </li>
-                        </ul>
-                      ))}
-                  </div>
+                <div className="text-slate-500 col-span-2 text-left">
+                  {taggingRecords &&
+                    taggingRecords[0].tags.map((tag: any) => (
+                      <ul key={tag.id}>
+                        <li>
+                          <Link href={`/ctags/${tag.machineName}`}>
+                            <a className="text-pink-600 hover:text-pink-700">
+                              {tag.display}
+                            </a>
+                          </Link>
+                        </li>
+                      </ul>
+                    ))}
                 </div>
               </div>
             </Panel>

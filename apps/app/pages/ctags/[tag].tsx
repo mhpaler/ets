@@ -235,9 +235,15 @@ const Tag: NextPage = () => {
               data.taggingRecords.map((taggingRecord: any) => (
                 <Table.Tr key={taggingRecord.id}>
                   <Table.CellWithChildren>
-                    <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                      <TimeAgo date={taggingRecord.timestamp * 1000} />
-                    </div>
+                    <Link
+                      href={`/tagging-records/${
+                        taggingRecord && taggingRecord.id
+                      }`}
+                    >
+                      <a className="text-pink-600 hover:text-pink-700">
+                        <TimeAgo date={taggingRecord.timestamp * 1000} />
+                      </a>
+                    </Link>
                   </Table.CellWithChildren>
                   <Table.CellWithChildren>
                     <Link

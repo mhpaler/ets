@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import Head from "next/head";
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
-import { usePublisherTaggingRecords } from "../hooks/usePublisherTaggingRecords";
+import { useTaggingRecords } from "../hooks/useTaggingRecords";
 import { TimeAgo } from "../components/TimeAgo";
 import { Table } from "../components/Table";
 import { Button } from "../components/Button";
@@ -17,10 +17,11 @@ const PublisherTaggingRecords: NextPage = () => {
   const [skip, setSkip] = useState(0);
   const { t } = useTranslation("common");
 
-  const variables = {
-    publisherId: publisher,
+  const { taggingRecords, nextTaggingRecords, mutate } = useTaggingRecords({
     pageSize,
     skip,
+    filter: `publisher_: { id: "${publisher}" }`,
+    orderBy: "timestamp",
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -29,15 +30,7 @@ const PublisherTaggingRecords: NextPage = () => {
       refreshWhenHidden: false,
       refreshInterval: 0,
     },
-  };
-
-  const { publisherTaggingRecords, nextPublisherTaggingRecords, mutate } =
-    usePublisherTaggingRecords(variables);
-
-  const chainName: { [key: number]: string } = {
-    1: "Ethereum",
-    80001: "Polygon Mumbai",
-  };
+  });
 
   const nextPage = () => {
     setSkip(skip + 20);
@@ -67,7 +60,7 @@ const PublisherTaggingRecords: NextPage = () => {
         <title>{t("recently-tagged")} | Ethereum Tag Service</title>
       </Head>
 
-      <Table loading={!publisherTaggingRecords} rows={pageSize}>
+      <Table loading={!taggingRecords} rows={pageSize}>
         {/** 
         <Table.Title>{t("tagging-records")}</Table.Title>
         */}
@@ -80,12 +73,20 @@ const PublisherTaggingRecords: NextPage = () => {
           </Table.Tr>
         </Table.Head>
         <Table.Body>
-          {publisherTaggingRecords &&
-            publisherTaggingRecords.map((taggingRecord: any) => (
+          {taggingRecords &&
+            taggingRecords.map((taggingRecord: any) => (
               <Table.Tr key={taggingRecord.id}>
                 <Table.CellWithChildren>
                   <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                    <TimeAgo date={taggingRecord.timestamp * 1000} />
+                    <Link
+                      href={`/tagging-records/${
+                        taggingRecord && taggingRecord.id
+                      }`}
+                    >
+                      <a className="text-pink-600 hover:text-pink-700">
+                        <TimeAgo date={taggingRecord.timestamp * 1000} />
+                      </a>
+                    </Link>
                   </div>
                 </Table.CellWithChildren>
 
@@ -148,10 +149,7 @@ const PublisherTaggingRecords: NextPage = () => {
           Prev
         </Button>
         <Button
-          disabled={
-            nextPublisherTaggingRecords &&
-            nextPublisherTaggingRecords.length === 0
-          }
+          disabled={nextTaggingRecords && nextTaggingRecords.length === 0}
           onClick={() => nextPage()}
         >
           Next

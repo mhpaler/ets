@@ -14,7 +14,6 @@ const pageSize = 20;
 
 const RecentlyTagged: NextPage = () => {
   const [skip, setSkip] = useState(0);
-  const { query } = useRouter();
   const { t } = useTranslation("common");
   const { taggingRecords, nextTaggingRecords, mutate } = useTaggingRecords({
     pageSize,
@@ -28,11 +27,6 @@ const RecentlyTagged: NextPage = () => {
       refreshInterval: 0,
     },
   });
-
-  const chainName: { [key: number]: string } = {
-    1: "Ethereum",
-    80001: "Polygon Mumbai",
-  };
 
   const nextPage = () => {
     setSkip(skip + 20);
@@ -80,7 +74,15 @@ const RecentlyTagged: NextPage = () => {
               <Table.Tr key={taggingRecord.id}>
                 <Table.CellWithChildren>
                   <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                    <TimeAgo date={taggingRecord.timestamp * 1000} />
+                    <Link
+                      href={`/tagging-records/${
+                        taggingRecord && taggingRecord.id
+                      }`}
+                    >
+                      <a className="text-pink-600 hover:text-pink-700">
+                        <TimeAgo date={taggingRecord.timestamp * 1000} />
+                      </a>
+                    </Link>
                   </div>
                 </Table.CellWithChildren>
                 <Table.CellWithChildren>
