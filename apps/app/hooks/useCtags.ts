@@ -5,21 +5,24 @@ export function useCtags({
   pageSize = 20,
   skip = 0,
   orderBy = "timestamp",
+  filter = {},
   config = {},
 }: {
   pageSize?: number;
   skip?: number;
   orderBy?: string;
+  filter?: any;
   config?: SWRConfiguration;
 }) {
   const { data, mutate, error } = useSWR(
     [
-      `query ctags($first: Int!, $skip: Int!, $orderBy: String!) {
+      `query ctags($filter: Tag_filter $first: Int!, $skip: Int!, $orderBy: String!) {
         ctags: tags(
           first: $first
           skip: $skip
           orderBy: $orderBy
           orderDirection: desc
+          where: $filter
         ) {
           display
           machineName
@@ -42,9 +45,12 @@ export function useCtags({
           protocolRevenue
           creatorRevenue
         }
-        nextTags: tags(first: $first, skip: ${
-          skip + pageSize
-        }, orderBy: $orderBy, orderDirection: desc) {
+        nextTags: tags(
+          first: $first
+          skip: ${skip + pageSize}
+          orderBy: $orderBy
+          orderDirection: desc
+          where: $filter) {
           id
         }
       }`,
@@ -52,6 +58,7 @@ export function useCtags({
         skip,
         first: pageSize,
         orderBy: orderBy,
+        filter: filter,
       },
     ],
     config

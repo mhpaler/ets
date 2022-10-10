@@ -5,7 +5,7 @@ export function useTaggingRecords({
   pageSize = 20,
   skip = 0,
   orderBy = "timestamp",
-  filter = "",
+  filter = {},
   config = {},
 }: {
   pageSize?: number;
@@ -14,16 +14,15 @@ export function useTaggingRecords({
   filter?: any;
   config?: SWRConfiguration;
 }) {
-  const where = filter != "" ? filter : "";
   const { data, mutate, error } = useSWR(
     [
-      `query taggingRecords($first: Int!, $skip: Int!, $orderBy: String!) {
+      `query taggingRecords($filter: TaggingRecord_filter $first: Int!, $skip: Int!, $orderBy: String!) {
         taggingRecords: taggingRecords(
           first: $first
           skip: $skip
           orderBy: $orderBy
           orderDirection: desc
-          where: {${where}}
+          where: $filter
 
         ) {
           id
@@ -51,7 +50,7 @@ export function useTaggingRecords({
           skip: ${skip + pageSize}
           orderBy: $orderBy
           orderDirection: desc
-          where: {${where}}) {
+          where: $filter) {
           id
         }
       }`,
@@ -59,6 +58,7 @@ export function useTaggingRecords({
         skip,
         first: pageSize,
         orderBy: orderBy,
+        filter: filter,
       },
     ],
     config

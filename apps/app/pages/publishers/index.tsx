@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
-import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
 import { usePublishers } from "../../hooks/usePublishers";
 import PageTitle from "../../components/PageTitle";
@@ -9,14 +8,11 @@ import { TimeAgo } from "../../components/TimeAgo";
 import { Table } from "../../components/Table";
 import { Button } from "../../components/Button";
 import useNumberFormatter from "../../hooks/useNumberFormatter";
-import { toEth, toDp } from "../../utils";
 
 const pageSize = 20;
 
 const Publishers: NextPage = () => {
   const [skip, setSkip] = useState(0);
-  const { query } = useRouter();
-  const { tag } = query;
   const { t } = useTranslation("common");
   const { number } = useNumberFormatter();
   const { publishers, nextPublishers, mutate } = usePublishers({

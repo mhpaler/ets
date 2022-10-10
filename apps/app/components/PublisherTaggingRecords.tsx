@@ -12,15 +12,15 @@ import { Button } from "../components/Button";
 const pageSize = 20;
 
 const PublisherTaggingRecords: NextPage = () => {
+  const { t } = useTranslation("common");
   const { query } = useRouter();
   const { publisher } = query;
   const [skip, setSkip] = useState(0);
-  const { t } = useTranslation("common");
 
   const { taggingRecords, nextTaggingRecords, mutate } = useTaggingRecords({
+    filter: { publisher_: { id: publisher } },
     pageSize,
     skip,
-    filter: `publisher_: { id: "${publisher}" }`,
     orderBy: "timestamp",
     config: {
       revalidateOnFocus: false,

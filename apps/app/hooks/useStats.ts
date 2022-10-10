@@ -8,6 +8,8 @@ export function useStats({ config = {} }: { config?: SWRConfiguration }) {
         stats: platform(id: "ETSPlatform") {
           taggingRecordsCount
           tagsCount
+          publisherCountActive
+          taggerCount
         }
       }`,
     ],

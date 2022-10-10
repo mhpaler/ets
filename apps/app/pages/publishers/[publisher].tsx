@@ -1,9 +1,7 @@
-import { useMemo, useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import useSWR from "swr";
-import Link from "next/link";
+import { usePublishers } from "../../hooks/usePublishers";
 import useTranslation from "next-translate/useTranslation";
 import { timestampToString } from "../../utils";
 import { toDp, toEth } from "../../utils";
@@ -11,8 +9,6 @@ import { Tab } from "@headlessui/react";
 import { PublisherTaggingRecords } from "../../components/PublisherTaggingRecords";
 import { PublisherTags } from "../../components/PublisherTags";
 import { Number } from "../../components/Number";
-import { Table } from "../../components/Table";
-import { TimeAgo } from "../../components/TimeAgo";
 import { CopyAndPaste } from "../../components/CopyAndPaste";
 import { Panel } from "../../components/Panel";
 import PageTitle from "../../components/PageTitle";
@@ -24,41 +20,30 @@ function classNames(...classes: any) {
 const Publisher: NextPage = () => {
   const { query } = useRouter();
   const { publisher } = query;
-  const variables = { id: publisher };
   const { t } = useTranslation("common");
 
-  const { data, error } = useSWR([
-    `query publisher($id: String!) {
-      publisher: publisher(first: 1, id: $id) {
-        id
-        name
-        firstSeen
-        creator
-        owner
-        pausedByOwner
-        pausedByProtocol
-        publishedTagsAddedToTaggingRecords
-        publishedTagsAuctionRevenue
-        publishedTagsRemovedFromTaggingRecords
-        publishedTagsTaggingFeeRevenue
-        taggingRecordTxns
-        taggingRecordsPublished
-        tagsApplied
-        tagsPublished
-        tagsRemoved
-      }
-    }`,
-    variables,
-  ]);
+  const { publishers } = usePublishers({
+    pageSize: 1,
+    skip: 0,
+    filter: { id: publisher },
+    config: {
+      revalidateOnFocus: false,
+      revalidateOnMount: true,
+      revalidateOnReconnect: false,
+      refreshWhenOffline: false,
+      refreshWhenHidden: false,
+      refreshInterval: 0,
+    },
+  });
 
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>
-        <title>{data && data.publisher.name} | Ethereum Tag Service</title>
+        <title>{publishers && publishers[0].name} | Ethereum Tag Service</title>
       </Head>
 
       <PageTitle
-        title={data && data.publisher.name}
+        title={publishers && publishers[0].name}
         shareUrl="https://ets.xyz"
       />
 
@@ -70,8 +55,8 @@ const Publisher: NextPage = () => {
                 <div className="text-slate-500">{t("created")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {data &&
-                      timestampToString(parseInt(data.publisher.firstSeen))}
+                    {publishers &&
+                      timestampToString(parseInt(publishers[0].firstSeen))}
                   </div>
                 </div>
               </div>
@@ -81,10 +66,10 @@ const Publisher: NextPage = () => {
                 <div className="flex space-x-1">
                   <div className="grid flex-grow md:grid-flow-col">
                     <div className="text-slate-500 truncate ">
-                      {data && data.publisher.id}
+                      {publishers && publishers[0].id}
                     </div>
                   </div>
-                  <CopyAndPaste value={data && data.publisher.id} />
+                  <CopyAndPaste value={publishers && publishers[0].id} />
                 </div>
               </div>
 
@@ -93,10 +78,10 @@ const Publisher: NextPage = () => {
                 <div className="flex space-x-1">
                   <div className="grid flex-grow md:grid-flow-col">
                     <div className="text-slate-500 truncate ">
-                      {data && data.publisher.creator}
+                      {publishers && publishers[0].creator}
                     </div>
                   </div>
-                  <CopyAndPaste value={data && data.publisher.creator} />
+                  <CopyAndPaste value={publishers && publishers[0].creator} />
                 </div>
               </div>
 
@@ -105,10 +90,10 @@ const Publisher: NextPage = () => {
                 <div className="flex col-span-3 space-x-1">
                   <div className="grid flex-grow grid-cols-1 md:grid-flow-col">
                     <div className="text-slate-500 truncate ">
-                      {data && data.publisher.owner}
+                      {publishers && publishers[0].owner}
                     </div>
                   </div>
-                  <CopyAndPaste value={data && data.publisher.owner} />
+                  <CopyAndPaste value={publishers && publishers[0].owner} />
                 </div>
               </div>
             </Panel>
@@ -121,8 +106,8 @@ const Publisher: NextPage = () => {
                 <div className="text-slate-500">{t("tagging-records")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {data && (
-                      <Number value={data.publisher.taggingRecordsPublished} />
+                    {publishers && (
+                      <Number value={publishers[0].taggingRecordsPublished} />
                     )}
                   </div>
                 </div>
@@ -131,7 +116,9 @@ const Publisher: NextPage = () => {
                 <div className="text-slate-500">{t("ctags-published")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {data && <Number value={data.publisher.tagsPublished} />}
+                    {publishers && (
+                      <Number value={publishers[0].tagsPublished} />
+                    )}
                   </div>
                 </div>
               </div>
@@ -142,7 +129,7 @@ const Publisher: NextPage = () => {
                 </div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {data && <Number value={data.publisher.tagsApplied} />}
+                    {publishers && <Number value={publishers[0].tagsApplied} />}
                   </div>
                 </div>
               </div>
@@ -151,11 +138,11 @@ const Publisher: NextPage = () => {
                 <div className="text-slate-500">{t("lifetime-revenue")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {data &&
+                    {publishers &&
                       toDp(
                         toEth(
-                          data.publisher.publishedTagsAuctionRevenue +
-                            data.publisher.publishedTagsTaggingFeeRevenue
+                          publishers[0].publishedTagsAuctionRevenue +
+                            publishers[0].publishedTagsTaggingFeeRevenue
                         )
                       )}
                     &nbsp;{t("matic")}
@@ -181,7 +168,7 @@ const Publisher: NextPage = () => {
                   )
                 }
               >
-                {t("latest-tagging-records")}
+                {t("tagging-records-published")}
               </Tab>
               <Tab
                 key="tags"
@@ -195,7 +182,7 @@ const Publisher: NextPage = () => {
                   )
                 }
               >
-                {t("latest-ctags")}
+                {t("ctags-published")}
               </Tab>
             </Tab.List>
             <Tab.Panels>

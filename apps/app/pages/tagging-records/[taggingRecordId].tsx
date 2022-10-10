@@ -22,7 +22,7 @@ const TaggingRecord: NextPage = () => {
   const { taggingRecords } = useTaggingRecords({
     pageSize: 1,
     skip: 0,
-    filter: `id: "${taggingRecordId}"`,
+    filter: { id: taggingRecordId },
     orderBy: "timestamp",
     config: {
       revalidateOnFocus: false,
@@ -46,6 +46,13 @@ const TaggingRecord: NextPage = () => {
           <div>
             <Panel title={t("overview")}>
               <div className="grid grid-cols-3 px-6 py-4 md:grid-flow-col">
+                <div className="text-slate-500 ">{t("id")}</div>
+                <div className="text-slate-500 col-span-2 text-left truncate">
+                  {taggingRecords && taggingRecords[0].id}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 px-6 py-4 md:grid-flow-col">
                 <div className="text-slate-500 ">{t("created")}</div>
                 <div className="text-slate-500 col-span-2 text-left">
                   {taggingRecords &&
@@ -56,7 +63,15 @@ const TaggingRecord: NextPage = () => {
               <div className="grid grid-cols-3 gap-4 px-6 py-4 md:grid-flow-col">
                 <div className="text-slate-500">{t("publisher")}</div>
                 <div className="text-slate-500 col-span-2 text-left">
-                  {taggingRecords && taggingRecords[0].publisher.name}
+                  <Link
+                    href={`/publishers/${
+                      taggingRecords && taggingRecords[0].publisher.id
+                    }`}
+                  >
+                    <a className="text-pink-600 hover:text-pink-700">
+                      {taggingRecords && taggingRecords[0].publisher.name}
+                    </a>
+                  </Link>
                 </div>
               </div>
 

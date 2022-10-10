@@ -1,10 +1,10 @@
-import { useState, useMemo, Suspense } from "react";
+import { useState, useMemo } from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
-import { usePublisherTags } from "../hooks/usePublisherTags";
+import { useCtags } from "../hooks/useCtags";
 import { TimeAgo } from "../components/TimeAgo";
 import { Table } from "../components/Table";
 import { Button } from "../components/Button";
@@ -17,10 +17,10 @@ const PublisherTags: NextPage = () => {
   const [skip, setSkip] = useState(0);
   const { t } = useTranslation("common");
 
-  const variables = {
-    publisherId: publisher,
+  const { ctags, nextTags, mutate } = useCtags({
     pageSize,
     skip,
+    filter: { publisher_: { id: publisher } },
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -29,15 +29,7 @@ const PublisherTags: NextPage = () => {
       refreshWhenHidden: false,
       refreshInterval: 0,
     },
-  };
-
-  const { publisherTags, nextPublisherTags, mutate } =
-    usePublisherTags(variables);
-
-  const chainName: { [key: number]: string } = {
-    1: "Ethereum",
-    80001: "Polygon Mumbai",
-  };
+  });
 
   const nextPage = () => {
     setSkip(skip + 20);
@@ -66,7 +58,7 @@ const PublisherTags: NextPage = () => {
         <title>{t("ctags")} publisher by | Ethereum Tag Service</title>
       </Head>
 
-      <Table loading={!publisherTags} rows={pageSize}>
+      <Table loading={!ctags} rows={pageSize}>
         {/** 
         <Table.Title>{t("ctags")}</Table.Title>
   */}
@@ -79,8 +71,8 @@ const PublisherTags: NextPage = () => {
           </Table.Tr>
         </Table.Head>
         <Table.Body>
-          {publisherTags &&
-            publisherTags.map((tag: any) => (
+          {ctags &&
+            ctags.map((tag: any) => (
               <Table.Tr key={tag.machineName}>
                 <Table.CellWithChildren>
                   <Link href={`/ctags/${tag.machineName}`}>
@@ -128,7 +120,7 @@ const PublisherTags: NextPage = () => {
           Prev
         </Button>
         <Button
-          disabled={nextPublisherTags && nextPublisherTags.length === 0}
+          disabled={nextTags && nextTags.length === 0}
           onClick={() => nextPage()}
         >
           Next
