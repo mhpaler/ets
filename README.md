@@ -16,6 +16,8 @@ In ETS, tags, content tagging & tagging data are fully composable units & servic
 
 If you want to jump right in, head over to [JavaScript client quickstart](./docs/js-client-quickstart.md) or [Contract-to-contract quickstart](./docs/contract-to-contract-quickstart.md).
 
+You can also browse the [ETS Explorer](https://app.ets.xyz), which visualizes tagging data from the Polygon Mumbai testnet. 
+
 To learn a bit more before diving in, see [key concepts](./docs/key-concepts.md) and the [system architecture diagram](./docs/system-architecture.md/).
 
 ## Documentation
