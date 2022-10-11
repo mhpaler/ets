@@ -4,20 +4,24 @@ import { useRouter } from "next/router";
 import Head from "next/head";
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
-import { useTaggingRecords } from "../../hooks/useTaggingRecords";
-import PageTitle from "../../components/PageTitle";
-import { TimeAgo } from "../../components/TimeAgo";
-import { Table } from "../../components/Table";
-import { Button } from "../../components/Button";
+import { useTaggingRecords } from "../hooks/useTaggingRecords";
+import { TimeAgo } from "../components/TimeAgo";
+import { Table } from "../components/Table";
+import { Button } from "../components/Button";
 
 const pageSize = 20;
 
-const RecentlyTagged: NextPage = () => {
-  const [skip, setSkip] = useState(0);
+const PublisherTaggingRecords: NextPage = () => {
   const { t } = useTranslation("common");
+  const { query } = useRouter();
+  const { publisher } = query;
+  const [skip, setSkip] = useState(0);
+
   const { taggingRecords, nextTaggingRecords, mutate } = useTaggingRecords({
+    filter: { publisher_: { id: publisher } },
     pageSize,
     skip,
+    orderBy: "timestamp",
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -51,15 +55,15 @@ const RecentlyTagged: NextPage = () => {
   );
 
   return (
-    <div className="max-w-6xl mx-auto mt-12">
+    <div className="max-w-6xl mx-auto">
       <Head>
         <title>{t("recently-tagged")} | Ethereum Tag Service</title>
       </Head>
 
-      <PageTitle title={t("tagging-records")} />
-
       <Table loading={!taggingRecords} rows={pageSize}>
-        <Table.Title>{t("recently-tagged")}</Table.Title>
+        {/** 
+        <Table.Title>{t("tagging-records")}</Table.Title>
+        */}
         <Table.Head>
           <Table.Tr>
             {columns &&
@@ -86,6 +90,7 @@ const RecentlyTagged: NextPage = () => {
                     </Link>
                   </div>
                 </Table.CellWithChildren>
+
                 <Table.CellWithChildren>
                   <Link
                     href={`/publishers/${
@@ -97,6 +102,7 @@ const RecentlyTagged: NextPage = () => {
                     </a>
                   </Link>
                 </Table.CellWithChildren>
+
                 <Table.Cell value={taggingRecord.tagger.id} copyAndPaste />
                 <Table.Cell value={taggingRecord.recordType} />
 
@@ -174,4 +180,4 @@ const RecentlyTagged: NextPage = () => {
   );
 };
 
-export default RecentlyTagged;
+export { PublisherTaggingRecords };

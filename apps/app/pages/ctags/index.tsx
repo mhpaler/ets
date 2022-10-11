@@ -1,23 +1,21 @@
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { NextPage } from "next";
-import Head from "next/head";
 import { useRouter } from "next/router";
+import Head from "next/head";
+import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
-import { useTaggers } from "../../hooks/useTaggers";
-import { Table } from "../../components/Table";
-import { Button } from "../../components/Button";
-import useNumberFormatter from "../../hooks/useNumberFormatter";
+import { useCtags } from "../../hooks/useCtags";
 import PageTitle from "../../components/PageTitle";
+import { Button } from "../../components/Button";
+import { Table } from "../../components/Table";
+import { TimeAgo } from "../../components/TimeAgo";
 
 const pageSize = 20;
 
-const Creators: NextPage = () => {
+const Ctags: NextPage = () => {
   const [skip, setSkip] = useState(0);
-  const { query } = useRouter();
-  const { tag } = query;
   const { t } = useTranslation("common");
-  const { number } = useNumberFormatter();
-  const { taggers, nextTaggers, mutate } = useTaggers({
+  const { ctags, nextTags, mutate } = useCtags({
     pageSize,
     skip,
     config: {
@@ -40,18 +38,28 @@ const Creators: NextPage = () => {
     mutate();
   };
 
-  const columns = useMemo(() => [t("tagger"), t("tagging-records")], [t]);
+  const columns = useMemo(
+    () => [
+      t("ctag"),
+      t("created"),
+      t("publisher"),
+      t("creator"),
+      t("owner"),
+      t("tagging-records"),
+    ],
+    [t]
+  );
 
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>
-        <title>{t("taggers")} | Ethereum Tag Service</title>
+        <title>{t("ctags")} | Ethereum Tag Service</title>
       </Head>
 
-      <PageTitle title={t("taggers")} />
+      <PageTitle title={t("ctags")} />
 
-      <Table loading={!taggers} rows={pageSize}>
-        <Table.Title>{t("taggers")}</Table.Title>
+      <Table loading={!ctags} rows={pageSize}>
+        <Table.Title>{t("latest-ctags")}</Table.Title>
         <Table.Head>
           <Table.Tr>
             {columns &&
@@ -61,18 +69,31 @@ const Creators: NextPage = () => {
           </Table.Tr>
         </Table.Head>
         <Table.Body>
-          {taggers &&
-            taggers.map((tagger: any) => (
-              <Table.Tr key={tagger.id}>
-                <Table.Cell
-                  value={tagger.id}
-                  url={`/taggers/${tagger.id}`}
-                  copyAndPaste
-                />
-                <Table.Cell
-                  value={number(parseInt(tagger.taggingRecordsCreated))}
-                  right
-                />
+          {ctags &&
+            ctags.map((ctag: any) => (
+              <Table.Tr key={ctag.machineName}>
+                <Table.CellWithChildren>
+                  <Link href={`/ctags/${ctag.machineName}`}>
+                    <a className="text-pink-600 hover:text-pink-700">
+                      {ctag.display}
+                    </a>
+                  </Link>
+                </Table.CellWithChildren>
+                <Table.CellWithChildren>
+                  <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+                    <TimeAgo date={ctag.timestamp * 1000} />
+                  </div>
+                </Table.CellWithChildren>
+                <Table.CellWithChildren>
+                  <Link href={`/publishers/${ctag.publisher.id}`}>
+                    <a className="text-pink-600 hover:text-pink-700">
+                      {ctag.publisher.name}
+                    </a>
+                  </Link>
+                </Table.CellWithChildren>
+                <Table.Cell value={ctag.creator.id} copyAndPaste />
+                <Table.Cell value={ctag.owner.id} copyAndPaste />
+                <Table.Cell value={ctag.tagAppliedInTaggingRecord} />
               </Table.Tr>
             ))}
         </Table.Body>
@@ -103,7 +124,7 @@ const Creators: NextPage = () => {
           Prev
         </Button>
         <Button
-          disabled={nextTaggers && nextTaggers.length === 0}
+          disabled={nextTags && nextTags.length === 0}
           onClick={() => nextPage()}
         >
           Next
@@ -133,4 +154,4 @@ const Creators: NextPage = () => {
   );
 };
 
-export default Creators;
+export default Ctags;

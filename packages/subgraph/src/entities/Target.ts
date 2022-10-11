@@ -1,6 +1,7 @@
 import { BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { Target } from "../generated/schema";
 import { ETSTarget } from "../generated/ETSTarget/ETSTarget";
+import { updateTargetCount } from "../entities/Platform";
 import { getTargetType } from "../utils/getTargetType";
 import { getTargetTypeKeywords } from "../utils/getTargetTypeKeywords";
 import { logCritical } from "../utils/logCritical";
@@ -24,6 +25,8 @@ export function ensureTarget(targetId: BigInt, event: ethereum.Event): Target {
     target.targetType = getTargetType(target.targetURI);
     target.targetTypeKeywords = getTargetTypeKeywords(target.targetURI);
     target.save();
+
+    updateTargetCount(event);
   }
   return target as Target;
 }

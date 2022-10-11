@@ -14,39 +14,6 @@ enum BlinkChainAssetType {
   UNKNOWN
 }
 
-#interface TargetTypeInterface {
-#  id: ID!
-#  typeName: TargetType!
-#}
-#
-#type TargetTypeMisc implements TargetTypeInterface @entity {
-#  id: ID!
-#  typeName: TargetType!
-#}
-#
-#type TargetTypeBlink implements TargetTypeInterface @entity {
-#  "Id of target"
-#  id: ID!
-#
-#  "String identifier for TargetType."
-#  typeName: TargetType!
-#
-#  "The value of the chainName property MUST refer to a specific Blockchain or DLT type. Possible examples include bitcoin, ethereum, or hyperledger-indy."
-#  chainName: String!
-#
-#  "The value of the chainNetwork property MUST refer to a specific operational network of the preceding chainName. Possible examples include mainnet, testnet, or ropsten."
-#  chainNetwork: String!
-#
-#  "The value of the chainAssetId property MUST refer to a specific asset from the preceding chainNetwork from the preceding chainName. chainAssetId SHALL be well defined by a specific Blink chain specification in order to reference available assets. Assets MAY include blocks, transactions, smart contracts, or other available assets depending on the DLT. The necessary information needed to look up a given asset MAY include multiple asset ID's, as seperated by a :. A possible example includes abc123:321cba if looking up transaction 321cba on block abc123."
-#  chainAssetId: String!
-#
-#  "Type of chain asset, taken from BlinkChainAssetType enum"
-#  chainAssetType: BlinkChainAssetType!
-#
-#  "Arbitrary additional identifier for extending chainAssetType. For example Lens Publication"
-#  chainAssetSubtype: String!
-#}
-
 type Target @entity {
   "Id of Target"
   id: ID!
@@ -160,6 +127,9 @@ type Platform @entity {
   address: String!
   firstSeen: BigInt!
 
+  "Total count of targets on ETS."
+  targetCount: BigInt!
+
   "Total count of CTAGs created on ETS."
   tagsCount: BigInt!
 
@@ -171,6 +141,21 @@ type Platform @entity {
 
   "Total revenue generated from tagging fees."
   taggingFeesRevenue: BigInt!
+
+  "Total count of currently active (no paused) Publishers."
+  publisherCountActive: BigInt!
+
+  "Total count of ETS Publishers (paused & unpaused)."
+  publisherCountLifetime: BigInt!
+
+  "Total count of unique tagger addresses."
+  taggerCount: BigInt!
+
+  "Total count of unique owner addresses."
+  ownerCount: BigInt!
+
+  "Total count of creator addresses."
+  creatorCount: BigInt!
 }
 
 type PublisherAdmin @entity {

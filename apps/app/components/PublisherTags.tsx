@@ -1,25 +1,26 @@
 import { useState, useMemo } from "react";
 import type { NextPage } from "next";
-import Head from "next/head";
 import { useRouter } from "next/router";
+import Head from "next/head";
+import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
-import { useTaggers } from "../../hooks/useTaggers";
-import { Table } from "../../components/Table";
-import { Button } from "../../components/Button";
-import useNumberFormatter from "../../hooks/useNumberFormatter";
-import PageTitle from "../../components/PageTitle";
+import { useCtags } from "../hooks/useCtags";
+import { TimeAgo } from "../components/TimeAgo";
+import { Table } from "../components/Table";
+import { Button } from "../components/Button";
 
 const pageSize = 20;
 
-const Creators: NextPage = () => {
-  const [skip, setSkip] = useState(0);
+const PublisherTags: NextPage = () => {
   const { query } = useRouter();
-  const { tag } = query;
+  const { publisher } = query;
+  const [skip, setSkip] = useState(0);
   const { t } = useTranslation("common");
-  const { number } = useNumberFormatter();
-  const { taggers, nextTaggers, mutate } = useTaggers({
+
+  const { ctags, nextTags, mutate } = useCtags({
     pageSize,
     skip,
+    filter: { publisher_: { id: publisher } },
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -40,18 +41,27 @@ const Creators: NextPage = () => {
     mutate();
   };
 
-  const columns = useMemo(() => [t("tagger"), t("tagging-records")], [t]);
+  const columns = useMemo(
+    () => [
+      t("ctag"),
+      t("tagging-records"),
+      t("created"),
+      t("creator"),
+      t("owner"),
+    ],
+    [t]
+  );
 
   return (
-    <div className="max-w-6xl mx-auto mt-12">
+    <div className="max-w-6xl mx-auto">
       <Head>
-        <title>{t("taggers")} | Ethereum Tag Service</title>
+        <title>{t("ctags")} publisher by | Ethereum Tag Service</title>
       </Head>
 
-      <PageTitle title={t("taggers")} />
-
-      <Table loading={!taggers} rows={pageSize}>
-        <Table.Title>{t("taggers")}</Table.Title>
+      <Table loading={!ctags} rows={pageSize}>
+        {/** 
+        <Table.Title>{t("ctags")}</Table.Title>
+  */}
         <Table.Head>
           <Table.Tr>
             {columns &&
@@ -61,18 +71,25 @@ const Creators: NextPage = () => {
           </Table.Tr>
         </Table.Head>
         <Table.Body>
-          {taggers &&
-            taggers.map((tagger: any) => (
-              <Table.Tr key={tagger.id}>
-                <Table.Cell
-                  value={tagger.id}
-                  url={`/taggers/${tagger.id}`}
-                  copyAndPaste
-                />
-                <Table.Cell
-                  value={number(parseInt(tagger.taggingRecordsCreated))}
-                  right
-                />
+          {ctags &&
+            ctags.map((tag: any) => (
+              <Table.Tr key={tag.machineName}>
+                <Table.CellWithChildren>
+                  <Link href={`/ctags/${tag.machineName}`}>
+                    <a className="text-pink-600 hover:text-pink-700">
+                      {tag.display}
+                    </a>
+                  </Link>
+                </Table.CellWithChildren>
+                <Table.Cell value={tag.tagAppliedInTaggingRecord} />
+                <Table.CellWithChildren>
+                  <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+                    <TimeAgo date={tag.timestamp * 1000} />
+                  </div>
+                </Table.CellWithChildren>
+
+                <Table.Cell value={tag.creator.id} copyAndPaste />
+                <Table.Cell value={tag.owner.id} copyAndPaste />
               </Table.Tr>
             ))}
         </Table.Body>
@@ -103,7 +120,7 @@ const Creators: NextPage = () => {
           Prev
         </Button>
         <Button
-          disabled={nextTaggers && nextTaggers.length === 0}
+          disabled={nextTags && nextTags.length === 0}
           onClick={() => nextPage()}
         >
           Next
@@ -133,4 +150,4 @@ const Creators: NextPage = () => {
   );
 };
 
-export default Creators;
+export { PublisherTags };

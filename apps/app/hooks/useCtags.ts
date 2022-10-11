@@ -1,7 +1,7 @@
 import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
 
-export function useTaggingRecords({
+export function useCtags({
   pageSize = 20,
   skip = 0,
   orderBy = "timestamp",
@@ -16,36 +16,36 @@ export function useTaggingRecords({
 }) {
   const { data, mutate, error } = useSWR(
     [
-      `query taggingRecords($filter: TaggingRecord_filter $first: Int!, $skip: Int!, $orderBy: String!) {
-        taggingRecords: taggingRecords(
+      `query ctags($filter: Tag_filter $first: Int!, $skip: Int!, $orderBy: String!) {
+        ctags: tags(
           first: $first
           skip: $skip
           orderBy: $orderBy
           orderDirection: desc
           where: $filter
-
         ) {
-          id
-          recordType
+          display
+          machineName
           timestamp
+          premium
+          reserved
+          tagAppliedInTaggingRecord
           publisher {
             id
             name
           }
-          tagger {
+          creator {
             id
           }
-          tags {
+          owner {
             id
-            display
-            machineName
           }
-          target {
-            targetURI
-            targetType
-          }
-        },
-        nextTaggingRecords: taggingRecords(
+          publisherRevenue
+          ownerRevenue
+          protocolRevenue
+          creatorRevenue
+        }
+        nextTags: tags(
           first: $first
           skip: ${skip + pageSize}
           orderBy: $orderBy
@@ -65,9 +65,9 @@ export function useTaggingRecords({
   );
 
   return {
-    taggingRecords: data?.taggingRecords,
-    nextTaggingRecords: data?.nextTaggingRecords,
-    isLoading: !error && !data?.taggingRecords,
+    ctags: data?.ctags,
+    nextTags: data?.nextTags,
+    isLoading: !error && !data?.ctags,
     mutate,
     isError: error?.statusText,
   };

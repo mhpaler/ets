@@ -1,5 +1,7 @@
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
+import Breadcrumbs from "nextjs-breadcrumbs";
+import { BreadcrumbItem } from "./BreadcrumbItem";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export default function Navbar() {
@@ -9,11 +11,18 @@ export default function Navbar() {
     <header className="px-4">
       <div className="relative bg-pink-500 -mx-4">
         <div className="mx-auto max-w-7xl py-3 px-3 sm:px-6 lg:px-8">
-          <div className="pr-16 sm:px-16 sm:text-center">
+          <div className="pr-16 sm:px-16 text-center">
             <p className="font-medium text-white">
-              <span className="hidden md:inline">
-                ETS is alpha software running on Polygon Mumbai Testnet. Use at
-                your own risk.
+              <span className="md:inline">
+                ETS is alpha software running on Polygon Mumbai Testnet
+                &nbsp;•&nbsp;&nbsp;
+                <a
+                  className="underline"
+                  href="https://github.com/ethereum-tag-service/ets#readme"
+                  target={"blank"}
+                >
+                  Learn more
+                </a>
               </span>
             </p>
           </div>
@@ -60,16 +69,16 @@ export default function Navbar() {
           </div>
           <div>
             <div className="flex items-center ml-4">
-              <div className="hidden mr-6 space-x-6 lg:flex">
-                <Link href="/auctions">
-                  <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
-                    {t("auctions")}
-                  </a>
-                </Link>
-
+              <div className="flex mr-6 space-x-6">
                 <Link href="/publishers">
                   <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
                     {t("publishers")}
+                  </a>
+                </Link>
+                {/**
+                <Link href="/auctions">
+                  <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
+                    {t("auctions")}
                   </a>
                 </Link>
 
@@ -78,22 +87,24 @@ export default function Navbar() {
                     {t("playground")}
                   </a>
                 </Link>
+                 */}
               </div>
 
               <ConnectButton />
             </div>
           </div>
         </div>
+        {/** 
         <div className="flex flex-wrap justify-center py-4 space-x-8 lg:hidden">
-          <Link href="/auctions">
-            <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
-              {t("auctions")}
-            </a>
-          </Link>
-
           <Link href="/publishers">
             <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
               {t("publishers")}
+            </a>
+          </Link>
+          
+          <Link href="/auctions">
+            <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
+              {t("auctions")}
             </a>
           </Link>
 
@@ -102,6 +113,24 @@ export default function Navbar() {
               {t("playground")}
             </a>
           </Link>
+          
+        </div>
+        */}
+        <div className="hidden md:block">
+          <Breadcrumbs
+            rootLabel="Home"
+            transformLabel={(title) => {
+              return <BreadcrumbItem title={title} />;
+            }}
+            inactiveItemClassName={
+              "text-sm font-medium text-gray-500 hover:text-pink-700 capitalize"
+            }
+            activeItemClassName={
+              "text-sm font-medium text-gray-400 pointer-events-none capitalize"
+            }
+            listClassName={"flex items-center space-x-2 truncate"}
+            useDefaultStyle={false}
+          />
         </div>
       </nav>
     </header>
