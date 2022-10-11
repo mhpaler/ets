@@ -80,7 +80,8 @@ const RecentlyTagged: NextPage = () => {
                       }`}
                     >
                       <a className="text-pink-600 hover:text-pink-700">
-                        <TimeAgo date={taggingRecord.timestamp * 1000} />
+                        <TimeAgo date={taggingRecord.timestamp * 1000} />{" "}
+                        &#x2192;
                       </a>
                     </Link>
                   </div>
