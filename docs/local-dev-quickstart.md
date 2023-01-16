@@ -5,31 +5,25 @@
 We use [Hardhat](https://hardhat.org/) as our Solidity smart contract development environment. Before using Hardhat, make a copy of `.env.example` in the project root named `.env`. The default settings in there should be enough to get you going. Next, starting in the `contracts` directory, start up Hardhat:
 
 ```bash
-pnpm hardhat
+pnpm run hardhat
 ```
 
 Running `pnpm hardhat` spins up a Hardhat network instance that you can connect to using MetaMask. In a different terminal in the same directory, run:
 
 ```bash
-pnpm deploy
+pnpm run deploy
 ```
 
 This will deploy the contracts to the Hardhat network.
-
-Or, if you would like to deploy and then watch the contracts for changes and auto-deploy them to the local Hardhat network, you can just run:
-
-```bash
-pnpm watch
-```
 
 Deployment and watching scripts are located in `packages/contracts/scripts` and `packages/contracts/deploy`.
 
 ## Tests
 
-To run tests:
+To run tests, still within the `/packages/contracts` directory:
 
 ```bash
-pnpm hardhat-test
+pnpm run test
 ```
 
 ## Deployment
@@ -40,10 +34,10 @@ Configure hardhat.config.js to meet your needs, then from within the contracts r
 
 ```bash
 # for localhost
-pnpm deploy
+pnpm run deploy
 
 # for mumbai
-pnpm deploy-mumbai
+pnpm run deploy-mumbai
 
 # Or calling hardhat directly
 hardhat deploy --tags deployAll --network localhost
