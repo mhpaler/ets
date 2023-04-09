@@ -51,7 +51,7 @@ const Tag: NextPage = () => {
   const columns = useMemo(
     () => [
       t("date"),
-      t("publisher"),
+      t("relayer"),
       t("tagger"),
       t("record-type"),
       t("target"),
@@ -96,15 +96,13 @@ const Tag: NextPage = () => {
               </div>
 
               <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4">
-                <div className="text-slate-500">{t("publisher")}</div>
+                <div className="text-slate-500">{t("relayer")}</div>
                 <div className="flex col-span-3 space-x-1">
                   <div className="grid flex-grow grid-cols-1 md:grid-flow-col">
                     <div className="overflow-hidden text-right text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
-                      <Link
-                        href={`/publishers/${ctags && ctags[0].publisher.id}`}
-                      >
+                      <Link href={`/relayers/${ctags && ctags[0].relayer.id}`}>
                         <a className="text-pink-600 hover:text-pink-700">
-                          {ctags && ctags[0].publisher.name}
+                          {ctags && ctags[0].relayer.name}
                         </a>
                       </Link>
                     </div>
@@ -170,11 +168,10 @@ const Tag: NextPage = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col">
-                <div className="text-slate-500">{t("publisher")}</div>
+                <div className="text-slate-500">{t("relayer")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {ctags && toDp(toEth(ctags[0].publisherRevenue))}{" "}
-                    {t("matic")}
+                    {ctags && toDp(toEth(ctags[0].relayerRevenue))} {t("matic")}
                   </div>
                 </div>
               </div>
@@ -224,12 +221,12 @@ const Tag: NextPage = () => {
                   </Table.CellWithChildren>
                   <Table.CellWithChildren>
                     <Link
-                      href={`/publishers/${
-                        taggingRecord && taggingRecord.publisher.id
+                      href={`/relayers/${
+                        taggingRecord && taggingRecord.relayer.id
                       }`}
                     >
                       <a className="text-pink-600 hover:text-pink-700">
-                        {taggingRecord && taggingRecord.publisher.name}
+                        {taggingRecord && taggingRecord.relayer.name}
                       </a>
                     </Link>
                   </Table.CellWithChildren>

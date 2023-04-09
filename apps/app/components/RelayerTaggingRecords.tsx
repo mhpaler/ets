@@ -1,26 +1,27 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, Suspense } from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
-import { useCtags } from "../hooks/useCtags";
-import { TimeAgo } from "../components/TimeAgo";
-import { Table } from "../components/Table";
-import { Button } from "../components/Button";
+import { useTaggingRecords } from "../hooks/useTaggingRecords";
+import { TimeAgo } from "./TimeAgo";
+import { Table } from "./Table";
+import { Button } from "./Button";
 
 const pageSize = 20;
 
-const PublisherTags: NextPage = () => {
-  const { query } = useRouter();
-  const { publisher } = query;
-  const [skip, setSkip] = useState(0);
+const RelayerTaggingRecords: NextPage = () => {
   const { t } = useTranslation("common");
+  const { query } = useRouter();
+  const { relayer } = query;
+  const [skip, setSkip] = useState(0);
 
-  const { ctags, nextTags, mutate } = useCtags({
+  const { taggingRecords, nextTaggingRecords, mutate } = useTaggingRecords({
+    filter: { relayer_: { id: relayer } },
     pageSize,
     skip,
-    filter: { publisher_: { id: publisher } },
+    orderBy: "timestamp",
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -43,11 +44,12 @@ const PublisherTags: NextPage = () => {
 
   const columns = useMemo(
     () => [
-      t("ctag"),
-      t("tagging-records"),
-      t("created"),
-      t("creator"),
-      t("owner"),
+      t("date"),
+      t("relayer"),
+      t("tagger"),
+      t("record-type"),
+      t("target"),
+      t("ctags"),
     ],
     [t]
   );
@@ -55,13 +57,13 @@ const PublisherTags: NextPage = () => {
   return (
     <div className="max-w-6xl mx-auto">
       <Head>
-        <title>{t("ctags")} publisher by | Ethereum Tag Service</title>
+        <title>{t("recently-tagged")} | Ethereum Tag Service</title>
       </Head>
 
-      <Table loading={!ctags} rows={pageSize}>
+      <Table loading={!taggingRecords} rows={pageSize}>
         {/** 
-        <Table.Title>{t("ctags")}</Table.Title>
-  */}
+        <Table.Title>{t("tagging-records")}</Table.Title>
+        */}
         <Table.Head>
           <Table.Tr>
             {columns &&
@@ -71,25 +73,53 @@ const PublisherTags: NextPage = () => {
           </Table.Tr>
         </Table.Head>
         <Table.Body>
-          {ctags &&
-            ctags.map((tag: any) => (
-              <Table.Tr key={tag.machineName}>
-                <Table.CellWithChildren>
-                  <Link href={`/ctags/${tag.machineName}`}>
-                    <a className="text-pink-600 hover:text-pink-700">
-                      {tag.display}
-                    </a>
-                  </Link>
-                </Table.CellWithChildren>
-                <Table.Cell value={tag.tagAppliedInTaggingRecord} />
+          {taggingRecords &&
+            taggingRecords.map((taggingRecord: any) => (
+              <Table.Tr key={taggingRecord.id}>
                 <Table.CellWithChildren>
                   <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                    <TimeAgo date={tag.timestamp * 1000} />
+                    <Link
+                      href={`/tagging-records/${
+                        taggingRecord && taggingRecord.id
+                      }`}
+                    >
+                      <a className="text-pink-600 hover:text-pink-700">
+                        <TimeAgo date={taggingRecord.timestamp * 1000} />{" "}
+                        &#x2192;
+                      </a>
+                    </Link>
                   </div>
                 </Table.CellWithChildren>
 
-                <Table.Cell value={tag.creator.id} copyAndPaste />
-                <Table.Cell value={tag.owner.id} copyAndPaste />
+                <Table.CellWithChildren>
+                  <Link
+                    href={`/relayers/${
+                      taggingRecord && taggingRecord.relayer.id
+                    }`}
+                  >
+                    <a className="text-pink-600 hover:text-pink-700">
+                      {taggingRecord && taggingRecord.relayer.name}
+                    </a>
+                  </Link>
+                </Table.CellWithChildren>
+
+                <Table.Cell value={taggingRecord.tagger.id} copyAndPaste />
+                <Table.Cell value={taggingRecord.recordType} />
+
+                <Table.Cell value={taggingRecord.target.targetURI} />
+                <Table.Cell
+                  value={taggingRecord.tags.map((tag: any) => (
+                    <ul key={tag.id}>
+                      <li>
+                        <Link href={`/ctags/${tag.machineName}`}>
+                          <a className="text-pink-600 hover:text-pink-700">
+                            {tag.display}
+                          </a>
+                        </Link>
+                      </li>
+                    </ul>
+                  ))}
+                />
               </Table.Tr>
             ))}
         </Table.Body>
@@ -120,7 +150,7 @@ const PublisherTags: NextPage = () => {
           Prev
         </Button>
         <Button
-          disabled={nextTags && nextTags.length === 0}
+          disabled={nextTaggingRecords && nextTaggingRecords.length === 0}
           onClick={() => nextPage()}
         >
           Next
@@ -150,4 +180,4 @@ const PublisherTags: NextPage = () => {
   );
 };
 
-export { PublisherTags };
+export { RelayerTaggingRecords };

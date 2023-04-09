@@ -19,14 +19,14 @@ const Stats = () => {
     <div>
       <dl className="grid w-full grid-cols-2 gap-6 mx-auto lg:grid-cols-4 lg:gap-12">
         <div className="rounded-md shadow-lg shadow-slate-400/20 ring-1 ring-slate-200">
-          <a href="/publishers">
+          <a href="/relayers">
             <div className="relative h-32 px-6 pt-3 overflow-hidden rounded-md">
               <dt className="text-sm font-medium truncate text-slate-500">
-                {t("publishers")}
+                {t("relayers")}
               </dt>
               <dd className="mt-1 text-3xl font-semibold text-slate-700">
-                {stats && stats.publisherCountActive
-                  ? stats.publisherCountActive
+                {stats && stats.relayerCountActive
+                  ? stats.relayerCountActive
                   : null}
               </dd>
               <svg

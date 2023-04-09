@@ -432,7 +432,7 @@
         },
         {
           "internalType": "address payable",
-          "name": "_publisher",
+          "name": "_relayer",
           "type": "address"
         }
       ],
@@ -581,7 +581,7 @@
           "components": [
             {
               "internalType": "address",
-              "name": "publisher",
+              "name": "relayer",
               "type": "address"
             },
             {
@@ -627,7 +627,7 @@
           "components": [
             {
               "internalType": "address",
-              "name": "publisher",
+              "name": "relayer",
               "type": "address"
             },
             {
@@ -1154,7 +1154,7 @@
       "outputs": [
         {
           "internalType": "address",
-          "name": "publisher",
+          "name": "relayer",
           "type": "address"
         },
         {

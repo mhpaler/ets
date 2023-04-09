@@ -1,13 +1,13 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { usePublishers } from "../../hooks/usePublishers";
+import { useRelayers } from "../../hooks/useRelayers";
 import useTranslation from "next-translate/useTranslation";
 import { timestampToString } from "../../utils";
 import { toDp, toEth } from "../../utils";
 import { Tab } from "@headlessui/react";
-import { PublisherTaggingRecords } from "../../components/PublisherTaggingRecords";
-import { PublisherTags } from "../../components/PublisherTags";
+import { RelayerTaggingRecords } from "../../components/RelayerTaggingRecords";
+import { RelayerTags } from "../../components/RelayerTags";
 import { Number } from "../../components/Number";
 import { CopyAndPaste } from "../../components/CopyAndPaste";
 import { Panel } from "../../components/Panel";
@@ -17,15 +17,15 @@ function classNames(...classes: any) {
   return classes.filter(Boolean).join(" ");
 }
 
-const Publisher: NextPage = () => {
+const Relayer: NextPage = () => {
   const { query } = useRouter();
-  const { publisher } = query;
+  const { relayer } = query;
   const { t } = useTranslation("common");
 
-  const { publishers } = usePublishers({
+  const { relayers } = useRelayers({
     pageSize: 1,
     skip: 0,
-    filter: { id: publisher },
+    filter: { id: relayer },
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -39,11 +39,11 @@ const Publisher: NextPage = () => {
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>
-        <title>{publishers && publishers[0].name} | Ethereum Tag Service</title>
+        <title>{relayers && relayers[0].name} | Ethereum Tag Service</title>
       </Head>
 
       <PageTitle
-        title={publishers && publishers[0].name}
+        title={relayers && relayers[0].name}
         shareUrl="https://ets.xyz"
       />
 
@@ -55,8 +55,8 @@ const Publisher: NextPage = () => {
                 <div className="text-slate-500">{t("created")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {publishers &&
-                      timestampToString(parseInt(publishers[0].firstSeen))}
+                    {relayers &&
+                      timestampToString(parseInt(relayers[0].firstSeen))}
                   </div>
                 </div>
               </div>
@@ -66,10 +66,10 @@ const Publisher: NextPage = () => {
                 <div className="flex space-x-1">
                   <div className="grid flex-grow md:grid-flow-col">
                     <div className="text-slate-500 truncate ">
-                      {publishers && publishers[0].id}
+                      {relayers && relayers[0].id}
                     </div>
                   </div>
-                  <CopyAndPaste value={publishers && publishers[0].id} />
+                  <CopyAndPaste value={relayers && relayers[0].id} />
                 </div>
               </div>
 
@@ -78,10 +78,10 @@ const Publisher: NextPage = () => {
                 <div className="flex space-x-1">
                   <div className="grid flex-grow md:grid-flow-col">
                     <div className="text-slate-500 truncate ">
-                      {publishers && publishers[0].creator}
+                      {relayers && relayers[0].creator}
                     </div>
                   </div>
-                  <CopyAndPaste value={publishers && publishers[0].creator} />
+                  <CopyAndPaste value={relayers && relayers[0].creator} />
                 </div>
               </div>
 
@@ -90,10 +90,10 @@ const Publisher: NextPage = () => {
                 <div className="flex col-span-3 space-x-1">
                   <div className="grid flex-grow grid-cols-1 md:grid-flow-col">
                     <div className="text-slate-500 truncate ">
-                      {publishers && publishers[0].owner}
+                      {relayers && relayers[0].owner}
                     </div>
                   </div>
-                  <CopyAndPaste value={publishers && publishers[0].owner} />
+                  <CopyAndPaste value={relayers && relayers[0].owner} />
                 </div>
               </div>
             </Panel>
@@ -106,8 +106,8 @@ const Publisher: NextPage = () => {
                 <div className="text-slate-500">{t("tagging-records")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {publishers && (
-                      <Number value={publishers[0].taggingRecordsPublished} />
+                    {relayers && (
+                      <Number value={relayers[0].taggingRecordsPublished} />
                     )}
                   </div>
                 </div>
@@ -116,9 +116,7 @@ const Publisher: NextPage = () => {
                 <div className="text-slate-500">{t("ctags-published")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {publishers && (
-                      <Number value={publishers[0].tagsPublished} />
-                    )}
+                    {relayers && <Number value={relayers[0].tagsPublished} />}
                   </div>
                 </div>
               </div>
@@ -129,7 +127,7 @@ const Publisher: NextPage = () => {
                 </div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {publishers && <Number value={publishers[0].tagsApplied} />}
+                    {relayers && <Number value={relayers[0].tagsApplied} />}
                   </div>
                 </div>
               </div>
@@ -138,11 +136,11 @@ const Publisher: NextPage = () => {
                 <div className="text-slate-500">{t("lifetime-revenue")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {publishers &&
+                    {relayers &&
                       toDp(
                         toEth(
-                          publishers[0].publishedTagsAuctionRevenue +
-                            publishers[0].publishedTagsTaggingFeeRevenue
+                          relayers[0].publishedTagsAuctionRevenue +
+                            relayers[0].publishedTagsTaggingFeeRevenue
                         )
                       )}
                     &nbsp;{t("matic")}
@@ -190,13 +188,13 @@ const Publisher: NextPage = () => {
                 key="taggingRecords"
                 className={classNames("rounded-xl bg-white")}
               >
-                <PublisherTaggingRecords />
+                <RelayerTaggingRecords />
               </Tab.Panel>
               <Tab.Panel
                 key="tags"
                 className={classNames("rounded-xl bg-white")}
               >
-                <PublisherTags />
+                <RelayerTags />
               </Tab.Panel>
             </Tab.Panels>
           </Tab.Group>
@@ -206,4 +204,4 @@ const Publisher: NextPage = () => {
   );
 };
 
-export default Publisher;
+export default Relayer;
