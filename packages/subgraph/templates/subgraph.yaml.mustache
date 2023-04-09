@@ -17,8 +17,8 @@ dataSources:
       entities:
         - Administrator
         - Platform
-        - Publisher
-        - PublisherAdmin      
+        - Relayer
+        - RelayerAdmin      
       abis:
         - name: UUPSUpgradeable
           file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol/UUPSUpgradeable.json
@@ -26,8 +26,8 @@ dataSources:
           file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol/Initializable.json
         - name: ETSAccessControls
           file: ./../contracts/abi/contracts/ETSAccessControls.sol/ETSAccessControls.json
-        - name: ETSPublisherV1
-          file: ./../contracts/abi/contracts/publishers/ETSPublisherV1.sol/ETSPublisherV1.json
+        - name: ETSRelayerV1
+          file: ./../contracts/abi/contracts/relayers/ETSRelayerV1.sol/ETSRelayerV1.json
       eventHandlers:
         - event: Initialized(uint8)
           handler: handleInitialized
@@ -35,10 +35,10 @@ dataSources:
           handler: handleUpgraded
         - event: PlatformSet(address,address)
           handler: handlePlatformSet
-        - event: PublisherAdded(address,bool)
-          handler: handlePublisherAdded
-        - event: PublisherPauseToggled(address)
-          handler: handlePublisherToggled
+        - event: RelayerAdded(address,bool)
+          handler: handleRelayerAdded
+        - event: RelayerPauseToggled(address)
+          handler: handleRelayerToggled
         - event: RoleGranted(indexed bytes32,indexed address,indexed address)
           handler: handleRoleGranted
         - event: RoleRevoked(indexed bytes32,indexed address,indexed address)
@@ -171,30 +171,30 @@ dataSources:
           handler: handleFundsWithdrawn
 
 templates:
-  - name: ETSPublisherV1
+  - name: ETSRelayerV1
     kind: ethereum/contract
     network: {{network}}
     source:
-      abi: ETSPublisherV1
+      abi: ETSRelayerV1
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
       language: wasm/assemblyscript
-      file: ./src/mappings/ETSPublisherV1.ts
+      file: ./src/mappings/ETSRelayerV1.ts
       entities:
-        - Publisher
+        - Relayer
       abis:
-        - name: ETSPublisherV1
-          file: ./../contracts/abi/contracts/publishers/ETSPublisherV1.sol/ETSPublisherV1.json
+        - name: ETSRelayerV1
+          file: ./../contracts/abi/contracts/relayers/ETSRelayerV1.sol/ETSRelayerV1.json
         - name: Ownable
           file: ./../contracts/abi/@openzeppelin/contracts/access/Ownable.sol/Ownable.json
         - name: Pausable
           file: ./../contracts/abi/@openzeppelin/contracts/security/Pausable.sol/Pausable.json
       eventHandlers:
-        - event: PublisherPauseToggledByOwner(address)
-          handler: handlePublisherPauseToggledByOwner
-        - event: PublisherOwnerChanged(address)
-          handler: handlePublisherOwnerChanged
+        - event: RelayerPauseToggledByOwner(address)
+          handler: handleRelayerPauseToggledByOwner
+        - event: RelayerOwnerChanged(address)
+          handler: handleRelayerOwnerChanged
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleOwnershipTransferred
         - event: Paused(address)

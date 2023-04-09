@@ -6,7 +6,7 @@ import { getTaggingFee } from "../utils/getTaggingFee";
 import { logCritical } from "../utils/logCritical";
 import { toLowerCase } from "../utils/helpers";
 import { arrayDiff } from "../utils/arrayDiff";
-import { ZERO, ONE, CREATE, APPEND, REMOVE, PLATFORM, PUBLISHER, OWNER } from "../utils/constants";
+import { ZERO, ONE, CREATE, APPEND, REMOVE, PLATFORM, RELAYER, OWNER } from "../utils/constants";
 
 export function ensureTag(id: BigInt, event: ethereum.Event): Tag {
   let tag = Tag.load(id.toString());
@@ -26,13 +26,13 @@ export function ensureTag(id: BigInt, event: ethereum.Event): Tag {
     tag.display = getTagCall.value.display;
     tag.owner = platform.address;
     tag.creator = getTagCall.value.creator.toHexString();
-    tag.publisher = getTagCall.value.publisher.toHexString();
+    tag.relayer = getTagCall.value.relayer.toHexString();
     tag.timestamp = event.block.timestamp;
     tag.premium = getTagCall.value.premium;
     tag.reserved = getTagCall.value.reserved;
     tag.tagAppliedInTaggingRecord = ZERO;
     tag.tagRemovedFromTaggingRecord = ZERO;
-    tag.publisherRevenue = ZERO;
+    tag.relayerRevenue = ZERO;
     tag.protocolRevenue = ZERO;
     tag.creatorRevenue = ZERO;
     tag.ownerRevenue = ZERO;
@@ -51,7 +51,7 @@ export function updateCTAGTaggingRecordStats(
   if (newTagIds && previousTagIds) {
     let platform = ensurePlatform(null);
     let platformFee = getTaggingFee(PLATFORM);
-    let publisherFee = getTaggingFee(PUBLISHER);
+    let relayerFee = getTaggingFee(RELAYER);
     let ownerFee = getTaggingFee(OWNER);
 
     if (action == CREATE) {
@@ -59,7 +59,7 @@ export function updateCTAGTaggingRecordStats(
         let tag = ensureTag(BigInt.fromString(newTagIds[i]), event);
         tag.tagAppliedInTaggingRecord = tag.tagAppliedInTaggingRecord.plus(ONE);
         tag.protocolRevenue = tag.protocolRevenue.plus(platformFee);
-        tag.publisherRevenue = tag.publisherRevenue.plus(publisherFee);
+        tag.relayerRevenue = tag.relayerRevenue.plus(relayerFee);
         if (tag.owner != platform.address) {
           tag.ownerRevenue = tag.ownerRevenue.plus(ownerFee);
         } else {
@@ -75,7 +75,7 @@ export function updateCTAGTaggingRecordStats(
         let tag = ensureTag(BigInt.fromString(appendedTagIds[i]), event);
         tag.tagAppliedInTaggingRecord = tag.tagAppliedInTaggingRecord.plus(ONE);
         tag.protocolRevenue = tag.protocolRevenue.plus(platformFee);
-        tag.publisherRevenue = tag.publisherRevenue.plus(publisherFee);
+        tag.relayerRevenue = tag.relayerRevenue.plus(relayerFee);
         if (tag.owner != platform.address) {
           tag.ownerRevenue = tag.ownerRevenue.plus(ownerFee);
         } else {

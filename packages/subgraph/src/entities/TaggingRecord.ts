@@ -1,7 +1,7 @@
 import { BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { TaggingRecord } from "../generated/schema";
 import { ETS } from "../generated/ETS/ETS";
-import { ensurePublisher } from "../entities/Publisher";
+import { ensureRelayer } from "../entities/Relayer";
 import { ensureTagger } from "../entities/Tagger";
 import { ensureTag } from "../entities/Tag";
 import { ensureTarget } from "../entities/Target";
@@ -32,7 +32,7 @@ export function ensureTaggingRecord(taggingRecordId: BigInt, event: ethereum.Eve
     taggingRecord.target = ensureTarget(taggingRecordCall.value.getTargetId(), event).id;
     taggingRecord.recordType = taggingRecordCall.value.getRecordType();
     taggingRecord.tagger = ensureTagger(taggingRecordCall.value.getTagger(), event).id;
-    taggingRecord.publisher = ensurePublisher(taggingRecordCall.value.getPublisher(), event).id;
+    taggingRecord.relayer = ensureRelayer(taggingRecordCall.value.getRelayer(), event).id;
     taggingRecord.timestamp = event.block.timestamp;
     taggingRecord.save();
   }
