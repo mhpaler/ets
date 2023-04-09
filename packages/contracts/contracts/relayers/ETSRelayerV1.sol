@@ -4,18 +4,18 @@ pragma solidity ^0.8.10;
 import "../interfaces/IETS.sol";
 import "../interfaces/IETSToken.sol";
 import "../interfaces/IETSTarget.sol";
-import "../relayers/interfaces/IETSRelayer.sol";
+import "./interfaces/IETSRelayerV1.sol";
 import { UintArrayUtils } from "../libraries/UintArrayUtils.sol";
 import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { Pausable } from "@openzeppelin/contracts/security/Pausable.sol";
 
 /**
- * @title ETSRelayer
+ * @title ETSRelayerV1
  * @author Ethereum Tag Service <team@ets.xyz>
  * @notice Sample implementation of IETSRelayer
  */
-contract ETSRelayer is IETSRelayer, ERC165, Ownable, Pausable {
+contract ETSRelayerV1 is IETSRelayerV1, ERC165, Ownable, Pausable {
     using UintArrayUtils for uint256[];
 
     /// @dev Address and interface for ETS Core.
@@ -28,9 +28,7 @@ contract ETSRelayer is IETSRelayer, ERC165, Ownable, Pausable {
     IETSTarget public etsTarget;
 
     // Public constants
-
-    /// @notice machine name for this Relayer.
-    string public constant name = "ETSRelayer";
+    string public constant NAME = "ETS Relayer V1";
     bytes4 public constant IID_IETSRelayer = type(IETSRelayer).interfaceId;
 
     // Public variables
@@ -38,13 +36,18 @@ contract ETSRelayer is IETSRelayer, ERC165, Ownable, Pausable {
     /// @notice Address that built this smart contract.
     address payable public creator;
 
+    /// @dev Public name for Relayer instance.
+    string public relayerName;
+
     constructor(
+        string memory _relayerName,
         IETS _ets,
         IETSToken _etsToken,
         IETSTarget _etsTarget,
         address payable _creator,
         address payable _owner
     ) {
+        relayerName = _relayerName;
         ets = _ets;
         etsToken = _etsToken;
         etsTarget = _etsTarget;
@@ -74,26 +77,30 @@ contract ETSRelayer is IETSRelayer, ERC165, Ownable, Pausable {
 
     // ============ PUBLIC INTERFACE ============
 
-    function applyTags(IETS.TaggingRecordRawInput[] calldata _rawParts) public payable whenNotPaused {
+    /// @inheritdoc IETSRelayerV1
+    function applyTags(IETS.TaggingRecordRawInput[] calldata _rawInput) public payable whenNotPaused {
         uint256 taggingFee = ets.taggingFee();
-        for (uint256 i; i < _rawParts.length; ++i) {
-            _applyTags(_rawParts[i], payable(msg.sender), taggingFee);
+        for (uint256 i; i < _rawInput.length; ++i) {
+            _applyTags(_rawInput[i], payable(msg.sender), taggingFee);
         }
     }
 
-    function replaceTags(IETS.TaggingRecordRawInput[] calldata _rawParts) public payable whenNotPaused {
+    /// @inheritdoc IETSRelayerV1
+    function replaceTags(IETS.TaggingRecordRawInput[] calldata _rawInput) public payable whenNotPaused {
         uint256 taggingFee = ets.taggingFee();
-        for (uint256 i; i < _rawParts.length; ++i) {
-            _replaceTags(_rawParts[i], payable(msg.sender), taggingFee);
+        for (uint256 i; i < _rawInput.length; ++i) {
+            _replaceTags(_rawInput[i], payable(msg.sender), taggingFee);
         }
     }
 
-    function removeTags(IETS.TaggingRecordRawInput[] calldata _rawParts) public payable whenNotPaused {
-        for (uint256 i; i < _rawParts.length; ++i) {
-            _removeTags(_rawParts[i], payable(msg.sender));
+    /// @inheritdoc IETSRelayerV1
+    function removeTags(IETS.TaggingRecordRawInput[] calldata _rawInput) public payable whenNotPaused {
+        for (uint256 i; i < _rawInput.length; ++i) {
+            _removeTags(_rawInput[i], payable(msg.sender));
         }
     }
 
+    /// @inheritdoc IETSRelayerV1
     function getOrCreateTagIds(
         string[] calldata _tags
     ) public payable whenNotPaused returns (uint256[] memory _tagIds) {
@@ -124,8 +131,8 @@ contract ETSRelayer is IETSRelayer, ERC165, Ownable, Pausable {
     }
 
     /// @inheritdoc IETSRelayer
-    function getRelayerName() public pure returns (string memory) {
-        return name;
+    function getRelayerName() public view returns (string memory) {
+        return relayerName;
     }
 
     /// @inheritdoc IETSRelayer
@@ -133,18 +140,18 @@ contract ETSRelayer is IETSRelayer, ERC165, Ownable, Pausable {
         return creator;
     }
 
+    /// @inheritdoc IETSRelayerV1
     function computeTaggingFee(
-        uint256 _taggingRecordId,
-        uint256[] calldata _tagIds,
+        IETS.TaggingRecordRawInput calldata _rawInput,
         IETS.TaggingAction _action
     ) public view returns (uint256 fee, uint256 tagCount) {
-        return ets.computeTaggingFee(_taggingRecordId, _tagIds, _action);
+        return ets.computeTaggingFeeFromRawInput(_rawInput, address(this), msg.sender, _action);
     }
 
     // ============ INTERNAL FUNCTIONS ============
 
     function _applyTags(
-        IETS.TaggingRecordRawInput calldata _rawParts,
+        IETS.TaggingRecordRawInput calldata _rawInput,
         address payable _tagger,
         uint256 _taggingFee
     ) internal {
@@ -154,7 +161,7 @@ contract ETSRelayer is IETSRelayer, ERC165, Ownable, Pausable {
             // Either way, we need to assess the tagging fees.
             uint256 actualTagCount = 0;
             (valueToSendForTagging, actualTagCount) = ets.computeTaggingFeeFromRawInput(
-                _rawParts,
+                _rawInput,
                 address(this),
                 _tagger,
                 IETS.TaggingAction.APPEND
@@ -163,11 +170,11 @@ contract ETSRelayer is IETSRelayer, ERC165, Ownable, Pausable {
         }
 
         // Call the core applyTagsWithRawInput() function to record new or append to exsiting tagging record.
-        ets.applyTagsWithRawInput{ value: valueToSendForTagging }(_rawParts, _tagger);
+        ets.applyTagsWithRawInput{ value: valueToSendForTagging }(_rawInput, _tagger);
     }
 
     function _replaceTags(
-        IETS.TaggingRecordRawInput calldata _rawParts,
+        IETS.TaggingRecordRawInput calldata _rawInput,
         address payable _tagger,
         uint256 _taggingFee
     ) internal {
@@ -177,7 +184,7 @@ contract ETSRelayer is IETSRelayer, ERC165, Ownable, Pausable {
             // Either way, we need to assess the tagging fees.
             uint256 actualTagCount = 0;
             (valueToSendForTagging, actualTagCount) = ets.computeTaggingFeeFromRawInput(
-                _rawParts,
+                _rawInput,
                 address(this),
                 _tagger,
                 IETS.TaggingAction.REPLACE
@@ -186,10 +193,10 @@ contract ETSRelayer is IETSRelayer, ERC165, Ownable, Pausable {
         }
 
         // Finally, call the core replaceTags() function to update the tagging record.
-        ets.replaceTagsWithRawInput{ value: valueToSendForTagging }(_rawParts, _tagger);
+        ets.replaceTagsWithRawInput{ value: valueToSendForTagging }(_rawInput, _tagger);
     }
 
-    function _removeTags(IETS.TaggingRecordRawInput calldata _rawParts, address payable _tagger) internal {
-        ets.removeTagsWithRawInput(_rawParts, _tagger);
+    function _removeTags(IETS.TaggingRecordRawInput calldata _rawInput, address payable _tagger) internal {
+        ets.removeTagsWithRawInput(_rawInput, _tagger);
     }
 }

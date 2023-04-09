@@ -1,7 +1,7 @@
-const {setup} = require("./setup.js");
-const {ethers} = require("hardhat");
-const {expect, assert} = require("chai");
-const {constants} = ethers;
+const { setup } = require("./setup.js");
+const { ethers } = require("hardhat");
+const { expect, assert } = require("chai");
+const { constants } = ethers;
 
 //let accounts, factories, contracts.ETSAccessControls, ETSLifeCycleControls, contracts.ETSToken;
 let targetURI;
@@ -25,7 +25,7 @@ describe("============= ETS TEST SUITE SETTINGS =============", function () {
     console.log("ETSTarget:", contracts.ETSTarget.address);
     console.log("ETSEnrichTarget:", contracts.ETSEnrichTarget.address);
     console.log("ETS:", contracts.ETS.address);
-    console.log("ETSPublisher:", contracts.ETSPublisher.address);
+    console.log("ETSRelayer:", contracts.ETSRelayer.address);
     console.log("======================== INIT SETTINGS ============================");
     console.log(initSettings);
   });

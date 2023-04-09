@@ -18,7 +18,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
  * Ethereum Tag Service composable tags (CTAGs).
  *
  * CTAGs are ERC-721 non-fungible tokens that store a single tag string and origin attribution data
- * including a "Publisher" address and a "Creator" address. The tag string must conform to a few simple
+ * including a "Relayer" address and a "Creator" address. The tag string must conform to a few simple
  * validation rules.
  *
  * CTAGs are identified in ETS by their Id (tagId) which is an unsigned integer computed from the lowercased
@@ -70,8 +70,8 @@ contract ETSToken is
         _;
     }
 
-    modifier onlyPublisher() {
-        require(etsAccessControls.isPublisher(_msgSender()), "Caller is not publisher");
+    modifier onlyRelayer() {
+        require(etsAccessControls.isRelayer(_msgSender()), "Caller is not relayer");
         _;
     }
 
@@ -206,12 +206,12 @@ contract ETSToken is
 
     function getOrCreateTag(
         string calldata _tag,
-        address payable _publisher,
+        address payable _relayer,
         address payable _creator
     ) public payable returns (Tag memory tag) {
         uint256 tokenId = computeTagId(_tag);
         if (!tagExistsById(tokenId)) {
-            tokenId = createTag(_tag, _publisher, _creator);
+            tokenId = createTag(_tag, _relayer, _creator);
         }
         return tokenIdToTag[tokenId];
     }
@@ -219,12 +219,12 @@ contract ETSToken is
     /// @inheritdoc IETSToken
     function getOrCreateTagId(
         string calldata _tag,
-        address payable _publisher,
+        address payable _relayer,
         address payable _creator
     ) public payable returns (uint256 tokenId) {
         uint256 _tokenId = computeTagId(_tag);
         if (!tagExistsById(_tokenId)) {
-            _tokenId = createTag(_tag, _publisher, _creator);
+            _tokenId = createTag(_tag, _relayer, _creator);
         }
         return _tokenId;
     }
@@ -232,7 +232,7 @@ contract ETSToken is
     /// @inheritdoc IETSToken
     function createTag(
         string calldata _tag,
-        address payable _publisher,
+        address payable _relayer,
         address payable _creator
     ) public payable nonReentrant onlyETSCore returns (uint256 _tokenId) {
         // Perform basic tag string validation.
@@ -244,7 +244,7 @@ contract ETSToken is
         // Store CTAG data in state.
         tokenIdToTag[tagId] = Tag({
             display: _tag,
-            publisher: _publisher,
+            relayer: _relayer,
             creator: _creator,
             premium: isTagPremium[__lower(_tag)],
             reserved: isTagPremium[__lower(_tag)]

@@ -1,14 +1,14 @@
-const {setup} = require("./setup.js");
-const {ethers} = require("hardhat");
-const {expect, assert} = require("chai");
-const {constants} = ethers;
+const { setup } = require("./setup.js");
+const { ethers } = require("hardhat");
+const { expect, assert } = require("chai");
+const { constants } = ethers;
 
 // Auction settings
 // initSettings.TIME_BUFFER = 10 * 60; // 10 minutes
 // initSettings.RESERVE_PRICE = 200; // 200 WEI
 // initSettings.MIN_INCREMENT_BID_PERCENTAGE = 5;
 // DURATION = 30 * 60; // 30 minutes
-// PUBLISHER_PERCENTAGE = 20;
+// RELAYER_PERCENTAGE = 20;
 // CREATOR_PERCENTAGE = 40;
 // PLATFORM_PERCENTAGE = 40;
 
@@ -17,17 +17,17 @@ describe("ETS Auction House Tests", function () {
   beforeEach("Setup test", async function () {
     [accounts, contracts, initSettings] = await setup();
 
-    // Add & unpause ETSPlatform as a Publisher.
-    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
+    // Add & unpause ETSPlatform as a Relayer.
+    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addRelayer(
       accounts.ETSPlatform.address,
       "ETSPlatform",
     );
 
-    //await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsPublisherPaused(
+    //await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsRelayerPaused(
     //  accounts.ETSPlatform.address,
     //);
 
-    // Mint a tag by random user. ETS is Publisher, retained by platform.
+    // Mint a tag by random user. ETS is Relayer, retained by platform.
     etsOwnedTag = "#Love";
     await contracts.ETS.connect(accounts.ETSPlatform).createTag(etsOwnedTag, accounts.RandomTwo.address);
     etsOwnedTagId = await contracts.ETSToken.computeTagId(etsOwnedTag);
@@ -64,7 +64,7 @@ describe("ETS Auction House Tests", function () {
         initSettings.RESERVE_PRICE,
         initSettings.MIN_INCREMENT_BID_PERCENTAGE,
         initSettings.DURATION,
-        initSettings.PUBLISHER_PERCENTAGE,
+        initSettings.RELAYER_PERCENTAGE,
         initSettings.PLATFORM_PERCENTAGE,
       );
       await expect(tx).to.be.revertedWith("Initializable: contract is already initialized");
@@ -197,7 +197,7 @@ describe("ETS Auction House Tests", function () {
       const low_bid_increment =
         Number(auction.amount) + Number(auction.amount) * ((initSettings.MIN_INCREMENT_BID_PERCENTAGE - 3) / 100);
       await expect(
-        contracts.ETSAuctionHouse.connect(accounts.RandomTwo).createBid(etsOwnedTagId, {value: low_bid_increment}),
+        contracts.ETSAuctionHouse.connect(accounts.RandomTwo).createBid(etsOwnedTagId, { value: low_bid_increment }),
       ).to.be.revertedWith("Must send more than last bid by minBidIncrementPercentage amount");
     });
 
@@ -321,12 +321,12 @@ describe("ETS Auction House Tests", function () {
       const auction = await contracts.ETSAuctionHouse.getAuction(etsOwnedTagId);
       const winner = auction.bidder;
       const totalProceeds = auction.amount;
-      const publisherProceeds = (totalProceeds * (await contracts.ETSAuctionHouse.publisherPercentage())) / 100;
+      const relayerProceeds = (totalProceeds * (await contracts.ETSAuctionHouse.relayerPercentage())) / 100;
       const creatorProceeds = (totalProceeds * (await contracts.ETSAuctionHouse.creatorPercentage())) / 100;
 
       await expect(contracts.ETSAuctionHouse.connect(accounts.RandomOne).settleAuction(etsOwnedTagId))
         .to.emit(contracts.ETSAuctionHouse, "AuctionSettled")
-        .withArgs(etsOwnedTagId, winner, totalProceeds, publisherProceeds, creatorProceeds);
+        .withArgs(etsOwnedTagId, winner, totalProceeds, relayerProceeds, creatorProceeds);
     });
 
     it("should delete the auction", async function () {

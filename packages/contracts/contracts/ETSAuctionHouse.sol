@@ -54,8 +54,8 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
     /// @dev Percentage of auction proceeds allocated to CTAG Creator
     uint256 public creatorPercentage;
 
-    /// @dev Percentage of auction proceeds allocated to CTAG Publisher.
-    uint256 public publisherPercentage;
+    /// @dev Percentage of auction proceeds allocated to CTAG Relayer.
+    uint256 public relayerPercentage;
 
     /// @dev Percentage of auction proceeds allocated to ETS.
     uint256 public platformPercentage;
@@ -106,7 +106,7 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         uint256 _reservePrice,
         uint8 _minBidIncrementPercentage,
         uint256 _duration,
-        uint256 _publisherPercentage,
+        uint256 _relayerPercentage,
         uint256 _platformPercentage
     ) external initializer {
         __Pausable_init();
@@ -119,7 +119,7 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         setDuration(_duration);
         setReservePrice(_reservePrice);
         setTimeBuffer(_timeBuffer);
-        setProceedPercentages(_platformPercentage, _publisherPercentage);
+        setProceedPercentages(_platformPercentage, _relayerPercentage);
     }
 
     function _authorizeUpgrade(address) internal override onlyAdmin {}
@@ -154,13 +154,13 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         emit AuctionTimeBufferSet(_timeBuffer);
     }
 
-    function setProceedPercentages(uint256 _platformPercentage, uint256 _publisherPercentage) public onlyAdmin {
-        require(_platformPercentage + _publisherPercentage <= 100, "Input must not exceed 100%");
+    function setProceedPercentages(uint256 _platformPercentage, uint256 _relayerPercentage) public onlyAdmin {
+        require(_platformPercentage + _relayerPercentage <= 100, "Input must not exceed 100%");
         platformPercentage = _platformPercentage;
-        publisherPercentage = _publisherPercentage;
-        creatorPercentage = modulo - platformPercentage - publisherPercentage;
+        relayerPercentage = _relayerPercentage;
+        creatorPercentage = modulo - platformPercentage - relayerPercentage;
 
-        emit AuctionProceedPercentagesSet(platformPercentage, publisherPercentage, creatorPercentage);
+        emit AuctionProceedPercentagesSet(platformPercentage, relayerPercentage, creatorPercentage);
     }
 
     // ============ PUBLIC INTERFACE ============
@@ -214,12 +214,12 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
 
         // Distribute proceeds to actors.
         IETSToken.Tag memory ctag = etsToken.getTagById(_tokenId);
-        uint256 publisherProceeds = (auction.amount * publisherPercentage) / modulo;
+        uint256 relayerProceeds = (auction.amount * relayerPercentage) / modulo;
         uint256 creatorProceeds = (auction.amount * creatorPercentage) / modulo;
-        _safeTransferETHWithFallback(ctag.publisher, publisherProceeds);
+        _safeTransferETHWithFallback(ctag.relayer, relayerProceeds);
         _safeTransferETHWithFallback(ctag.creator, creatorProceeds);
 
-        emit AuctionSettled(_tokenId, auction.bidder, auction.amount, publisherProceeds, creatorProceeds);
+        emit AuctionSettled(_tokenId, auction.bidder, auction.amount, relayerProceeds, creatorProceeds);
         delete auctions[_tokenId];
     }
 

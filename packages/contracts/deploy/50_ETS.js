@@ -1,11 +1,11 @@
-const {ethers, upgrades} = require("hardhat");
-const {utils} = require("ethers");
-const {setup} = require("./setup.js");
-const {verify} = require("./utils/verify.js");
-const {saveNetworkConfig, readNetworkConfig} = require("./utils/config.js");
+const { ethers, upgrades } = require("hardhat");
+const { utils } = require("ethers");
+const { setup } = require("./setup.js");
+const { verify } = require("./utils/verify.js");
+const { saveNetworkConfig, readNetworkConfig } = require("./utils/config.js");
 
-module.exports = async ({getChainId, deployments}) => {
-  const {save, log} = deployments;
+module.exports = async ({ getChainId, deployments }) => {
+  const { save, log } = deployments;
   [accounts, factories, initSettings] = await setup();
   const networkConfig = readNetworkConfig();
   const chainId = await getChainId();
@@ -33,9 +33,9 @@ module.exports = async ({getChainId, deployments}) => {
       etsTargetAddress,
       utils.parseEther(initSettings.TAGGING_FEE),
       initSettings.TAGGING_FEE_PLATFORM_PERCENTAGE,
-      initSettings.TAGGING_FEE_PUBLISHER_PERCENTAGE,
+      initSettings.TAGGING_FEE_RELAYER_PERCENTAGE,
     ],
-    {kind: "uups", pollingInterval: 3000, timeout: 0},
+    { kind: "uups", pollingInterval: 3000, timeout: 0 },
   );
   await deployment.deployed();
   const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);

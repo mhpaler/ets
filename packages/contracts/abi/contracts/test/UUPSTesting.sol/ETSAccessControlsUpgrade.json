@@ -69,7 +69,7 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "publisher",
+        "name": "relayer",
         "type": "address"
       },
       {
@@ -79,7 +79,7 @@
         "type": "bool"
       }
     ],
-    "name": "PublisherAdded",
+    "name": "RelayerAdded",
     "type": "event"
   },
   {
@@ -88,11 +88,11 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "publisher",
+        "name": "relayer",
         "type": "address"
       }
     ],
-    "name": "PublisherPauseToggled",
+    "name": "RelayerPauseToggled",
     "type": "event"
   },
   {
@@ -211,7 +211,7 @@
   },
   {
     "inputs": [],
-    "name": "PUBLISHER_ROLE",
+    "name": "RELAYER_ROLE",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -224,7 +224,7 @@
   },
   {
     "inputs": [],
-    "name": "PUBLISHER_ROLE_ADMIN",
+    "name": "RELAYER_ROLE_ADMIN",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -252,7 +252,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_publisher",
+        "name": "_relayer",
         "type": "address"
       },
       {
@@ -261,7 +261,7 @@
         "type": "string"
       }
     ],
-    "name": "addPublisher",
+    "name": "addRelayer",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -287,7 +287,7 @@
         "type": "string"
       }
     ],
-    "name": "getPublisherAddressFromName",
+    "name": "getRelayerAddressFromName",
     "outputs": [
       {
         "internalType": "address",
@@ -306,7 +306,7 @@
         "type": "address"
       }
     ],
-    "name": "getPublisherNameFromAddress",
+    "name": "getRelayerNameFromAddress",
     "outputs": [
       {
         "internalType": "string",
@@ -418,7 +418,7 @@
         "type": "address"
       }
     ],
-    "name": "isPublisher",
+    "name": "isRelayer",
     "outputs": [
       {
         "internalType": "bool",
@@ -437,7 +437,7 @@
         "type": "address"
       }
     ],
-    "name": "isPublisherAdmin",
+    "name": "isRelayerAdmin",
     "outputs": [
       {
         "internalType": "bool",
@@ -456,7 +456,7 @@
         "type": "address"
       }
     ],
-    "name": "isPublisherAndNotPaused",
+    "name": "isRelayerAndNotPaused",
     "outputs": [
       {
         "internalType": "bool",
@@ -475,7 +475,7 @@
         "type": "address"
       }
     ],
-    "name": "isPublisherByAddress",
+    "name": "isRelayerByAddress",
     "outputs": [
       {
         "internalType": "bool",
@@ -494,7 +494,7 @@
         "type": "string"
       }
     ],
-    "name": "isPublisherByName",
+    "name": "isRelayerByName",
     "outputs": [
       {
         "internalType": "bool",
@@ -513,7 +513,7 @@
         "type": "address"
       }
     ],
-    "name": "isPublisherPaused",
+    "name": "isRelayerPaused",
     "outputs": [
       {
         "internalType": "bool",
@@ -564,7 +564,7 @@
         "type": "address"
       }
     ],
-    "name": "publisherContractToName",
+    "name": "relayerContractToName",
     "outputs": [
       {
         "internalType": "string",
@@ -583,7 +583,7 @@
         "type": "string"
       }
     ],
-    "name": "publisherNameToContract",
+    "name": "relayerNameToContract",
     "outputs": [
       {
         "internalType": "address",
@@ -684,11 +684,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_publisher",
+        "name": "_relayer",
         "type": "address"
       }
     ],
-    "name": "toggleIsPublisherPaused",
+    "name": "toggleIsRelayerPaused",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

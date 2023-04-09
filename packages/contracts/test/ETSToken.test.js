@@ -1,7 +1,7 @@
-const {setup, getFactories} = require("./setup.js");
-const {ethers, upgrades} = require("hardhat");
-const {expect, assert} = require("chai");
-const {constants} = ethers;
+const { setup, getFactories } = require("./setup.js");
+const { ethers, upgrades } = require("hardhat");
+const { expect, assert } = require("chai");
+const { constants } = ethers;
 
 //let accounts, factories, contracts.ETSAccessControls, ETSLifeCycleControls, contracts.ETSToken;
 
@@ -10,10 +10,10 @@ describe("ETSToken Core Tests", function () {
   beforeEach("Setup test", async function () {
     [accounts, contracts, initSettings] = await setup();
 
-    // Add & unpause ETSPlatform as a Publisher. Using a wallet address as a publisher
+    // Add & unpause ETSPlatform as a Relayer. Using a wallet address as a relayer
     // is only for testing all ETS core public functions that don't necessarily need to be
-    // included in a proper publisher (IETSPublisher) contract
-    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
+    // included in a proper relayer (IETSRelayer) contract
+    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addRelayer(
       accounts.ETSPlatform.address,
       "ETSPlatform",
     );
@@ -120,7 +120,7 @@ describe("ETSToken Core Tests", function () {
       const ETSAccessControlsNew = await upgrades.deployProxy(
         factories.ETSAccessControls,
         [accounts.ETSPlatform.address],
-        {kind: "uups"},
+        { kind: "uups" },
       );
 
       // Random is not set as admin in access controls.
@@ -134,7 +134,7 @@ describe("ETSToken Core Tests", function () {
       const ETSAccessControlsNew = await upgrades.deployProxy(
         factories.ETSAccessControls,
         [accounts.ETSPlatform.address],
-        {kind: "uups"},
+        { kind: "uups" },
       );
 
       await expect(contracts.ETSToken.connect(accounts.ETSPlatform).setAccessControls(ETSAccessControlsNew.address))
@@ -201,13 +201,13 @@ describe("ETSToken Core Tests", function () {
 
     // End tag string validation
     describe("(provenance & attribution)", async function () {
-      it("should revert if caller is not a publisher", async function () {
+      it("should revert if caller is not a relayer", async function () {
         await expect(
           contracts.ETS.connect(accounts.RandomTwo).createTag("#Awesome123", accounts.RandomOne.address),
-        ).to.be.revertedWith("Caller not Publisher");
+        ).to.be.revertedWith("Caller not Relayer");
       });
 
-      it("should succeed if Platform is both creator & publisher", async function () {
+      it("should succeed if Platform is both creator & relayer", async function () {
         await contracts.ETS.connect(accounts.ETSPlatform).createTag(tag, accounts.ETSPlatform.address);
         assert((await contracts.ETSToken.tagExistsByString(tag)) == true);
       });

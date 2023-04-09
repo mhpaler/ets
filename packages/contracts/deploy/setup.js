@@ -1,4 +1,4 @@
-const {ethers} = require("hardhat");
+const { ethers } = require("hardhat");
 
 // The following is taken from https://github.com/OpenZeppelin/openzeppelin-upgrades/issues/85#issuecomment-1028435049
 // to prevent time-outs when deploying to Polygon Mumbai.
@@ -34,7 +34,7 @@ async function setup() {
     ETSTarget: await ethers.getContractFactory("ETSTarget"),
     ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
     ETS: await ethers.getContractFactory("ETS"),
-    ETSPublisherFactory: await ethers.getContractFactory("ETSPublisherFactory"),
+    ETSRelayerFactory: await ethers.getContractFactory("ETSRelayerFactory"),
   };
 
   const initSettings = {
@@ -47,13 +47,13 @@ async function setup() {
     RESERVE_PRICE: 200, // 200 WEI
     MIN_INCREMENT_BID_PERCENTAGE: 5,
     DURATION: 30 * 60, // 30 minutes
-    PUBLISHER_PERCENTAGE: 20,
+    RELAYER_PERCENTAGE: 20,
     CREATOR_PERCENTAGE: 40,
     PLATFORM_PERCENTAGE: 40,
     // ETS core (Tagging records)
     TAGGING_FEE: "0.1", // .1 MATIC
     TAGGING_FEE_PLATFORM_PERCENTAGE: 20,
-    TAGGING_FEE_PUBLISHER_PERCENTAGE: 30,
+    TAGGING_FEE_RELAYER_PERCENTAGE: 30,
   };
 
   // ============ SETUP TEST ACCOUNTS ============

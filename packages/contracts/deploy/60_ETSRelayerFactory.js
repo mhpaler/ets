@@ -1,9 +1,9 @@
-const {setup} = require("./setup.js");
-const {verify} = require("./utils/verify.js");
-const {saveNetworkConfig, readNetworkConfig} = require("./utils/config.js");
+const { setup } = require("./setup.js");
+const { verify } = require("./utils/verify.js");
+const { saveNetworkConfig, readNetworkConfig } = require("./utils/config.js");
 
-module.exports = async ({getChainId, deployments}) => {
-  const {save, log} = deployments;
+module.exports = async ({ getChainId, deployments }) => {
+  const { save, log } = deployments;
   [accounts, factories, initSettings] = await setup();
   const networkConfig = readNetworkConfig();
   const chainId = await getChainId();
@@ -27,7 +27,7 @@ module.exports = async ({getChainId, deployments}) => {
 
   // Deploy ETS
   const deployment = await upgrades.deployProxy(
-    factories.ETSPublisherFactory,
+    factories.ETSRelayerFactory,
     [etsAccessControlsAddress, etsAddress, etsTokenAddress, etsTargetAddress],
     {
       kind: "uups",
@@ -40,22 +40,22 @@ module.exports = async ({getChainId, deployments}) => {
 
   if (process.env.ETHERNAL_DISABLED === "false") {
     // Verify & Update network configuration file.
-    await verify("ETSPublisherFactory", deployment, implementation, []);
+    await verify("ETSRelayerFactory", deployment, implementation, []);
   }
 
-  await saveNetworkConfig("ETSPublisherFactory", deployment, implementation, false);
+  await saveNetworkConfig("ETSRelayerFactory", deployment, implementation, false);
 
   // Add to deployments.
-  let artifact = await deployments.getExtendedArtifact("ETSPublisherFactory");
+  let artifact = await deployments.getExtendedArtifact("ETSRelayerFactory");
   let proxyDeployments = {
     address: deployment.address,
     ...artifact,
   };
-  await save("ETSPublisherFactory", proxyDeployments);
+  await save("ETSRelayerFactory", proxyDeployments);
 
   log("====================================================");
-  log("ETSPublisherFactory deployed to -> " + deployment.address);
+  log("ETSRelayerFactory deployed to -> " + deployment.address);
   log("====================================================");
 };
-module.exports.tags = ["ETSPublisherFactory"];
+module.exports.tags = ["ETSRelayerFactory"];
 module.exports.dependencies = ["ETS"];

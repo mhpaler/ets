@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "./publishers/ETSPublisherV1.sol";
+import "./relayers/ETSRelayerV1.sol";
 import "./interfaces/IETSAccessControls.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -10,12 +10,12 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
 
 /**
- * @title ETS Publisher Factory
+ * @title ETS Relayer Factory
  * @author Ethereum Tag Service <team@ets.xyz>
  *
- * @notice Publisher factory contract that provides public function for creating new ETS Publishers.
+ * @notice Relayer factory contract that provides public function for creating new ETS Relayers.
  */
-contract ETSPublisherFactory is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
+contract ETSRelayerFactory is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
     // Public variables
 
     /// @dev ETS access controls contract.
@@ -32,7 +32,7 @@ contract ETSPublisherFactory is Initializable, ContextUpgradeable, ReentrancyGua
 
     /// Public constants
 
-    string public constant NAME = "ETS Publisher Factory";
+    string public constant NAME = "ETS Relayer Factory";
 
     /// Modifiers
 
@@ -68,11 +68,12 @@ contract ETSPublisherFactory is Initializable, ContextUpgradeable, ReentrancyGua
 
     // ============ PUBLIC INTERFACE ============
 
-    function addPublisherV1(string calldata _publisherName) public payable {
-        // require(!isPublisherByAddress(_publisher), "Publisher exists");
-        require(!etsAccessControls.isPublisherByName(_publisherName), "Publisher name exists");
-        ETSPublisherV1 publisher = new ETSPublisherV1(
-            _publisherName,
+    function addRelayerV1(string calldata _relayerName) public payable {
+        // require(!isRelayerByAddress(_relayer), "Relayer exists");
+        // TODO: If [relayername].ens exists, _msgSender() to be owner.
+        require(!etsAccessControls.isRelayerByName(_relayerName), "Relayer name exists");
+        ETSRelayerV1 relayer = new ETSRelayerV1(
+            _relayerName,
             ets,
             etsToken,
             etsTarget,
@@ -80,6 +81,6 @@ contract ETSPublisherFactory is Initializable, ContextUpgradeable, ReentrancyGua
             payable(_msgSender())
         );
 
-        etsAccessControls.addPublisher(address(publisher), _publisherName);
+        etsAccessControls.addRelayer(address(relayer), _relayerName);
     }
 }

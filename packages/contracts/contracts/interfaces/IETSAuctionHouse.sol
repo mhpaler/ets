@@ -32,7 +32,7 @@ interface IETSAuctionHouse {
         uint256 indexed tokenId,
         address winner,
         uint256 totalProceeds,
-        uint256 publisherProceeds,
+        uint256 relayerProceeds,
         uint256 creatorProceeds
     );
 
@@ -46,7 +46,7 @@ interface IETSAuctionHouse {
 
     event AuctionProceedPercentagesSet(
         uint256 platformPercentage,
-        uint256 publisherPercentage,
+        uint256 relayerPercentage,
         uint256 creatorPercentage
     );
 
@@ -58,7 +58,7 @@ interface IETSAuctionHouse {
 
     function setTimeBuffer(uint256 timeBuffer) external;
 
-    function setProceedPercentages(uint256 _platformPercentage, uint256 _publisherPercentage) external;
+    function setProceedPercentages(uint256 _platformPercentage, uint256 _relayerPercentage) external;
 
     function createBid(uint256 auctionId) external payable;
 

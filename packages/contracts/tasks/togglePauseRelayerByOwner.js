@@ -1,7 +1,6 @@
 const { ethers } = require("ethers");
 
-task("createTags", "Create CTAGs")
-  .addParam("tags", 'Hashtags separated by commas. eg. --tags "#USDC, #Solana"')
+task("togglePauseRelayerByOwner", "Pauses/Unpauses a Relayer contract by owner")
   .addParam("relayer", "Relayer name.")
   .addParam(
     "signer",
@@ -15,13 +14,11 @@ task("createTags", "Create CTAGs")
     const config = require("../config/config.json");
 
     // ABIs
-    const ETSTokenABI = require("../abi/contracts/ETSToken.sol/ETSToken.json");
     const ETSAccessControlsABI = require("../abi/contracts/ETSAccessControls.sol/ETSAccessControls.json");
     const ETSRelayerV1ABI = require("../abi/contracts/relayers/ETSRelayerV1.sol/ETSRelayerV1.json");
 
     // Contract Addresses
     const ETSAccessControlsAddress = config[chainId].contracts.ETSAccessControls.address;
-    const ETSTokenAddress = config[chainId].contracts.ETSToken.address;
 
     // Contract instances
     const etsAccessControls = new ethers.Contract(
@@ -29,7 +26,6 @@ task("createTags", "Create CTAGs")
       ETSAccessControlsABI,
       accounts[taskArgs.signer],
     );
-    const etsToken = new ethers.Contract(ETSTokenAddress, ETSTokenABI, accounts[taskArgs.signer]);
 
     // Check that caller is using a valid relayer.
     let etsRelayerV1;
@@ -41,28 +37,22 @@ task("createTags", "Create CTAGs")
       etsRelayerV1 = new ethers.Contract(relayerAddress, ETSRelayerV1ABI, accounts[taskArgs.signer]);
     }
 
-    const tags = taskArgs.tags.replace(/\s+/g, "").split(","); // remove spaces & split on comma
-    let tagsToMint = [];
-
-    for (let i = 0; i < tags.length; i++) {
-      const tagId = await etsToken.computeTagId(tags[i]);
-      if (await etsToken.tagExistsById(tagId)) {
-        console.log(`${tags[i]} already exists`);
-      } else {
-        tagsToMint.push(tags[i]);
-      }
+    if (accounts[taskArgs.signer].address !== (await etsRelayerV1.getOwner())) {
+      console.log(`${taskArgs.signer} is not the owner of "${taskArgs.relayer}" relayer contract`);
+      return;
     }
 
-    if (tagsToMint.length > 0) {
-      console.log(`Minting CTAGs "${tagsToMint.toString()}"`);
-      const tx = await etsRelayerV1.getOrCreateTagIds(tagsToMint);
+    if (await etsRelayerV1.paused()) {
+      const tx = await etsRelayerV1.unpause();
       await tx.wait();
+    } else {
+      const tx = await etsRelayerV1.pause();
+      await tx.wait();
+    }
 
-      for (let i = 0; i < tagsToMint.length; i++) {
-        const tagId = await etsToken.computeTagId(tags[i]);
-        if (await etsToken.tagExistsById(tagId)) {
-          console.log(`"${tagsToMint[i]}" minted by ${taskArgs.signer} with id ${tagId}`);
-        }
-      }
+    if ((await etsRelayerV1.isPausedByOwner()) === true) {
+      console.log(`${taskArgs.relayer} paused`);
+    } else {
+      console.log(`${taskArgs.relayer} unpaused`);
     }
   });
