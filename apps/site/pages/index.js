@@ -29,12 +29,12 @@ export default function Home() {
         </div>
         <h1 className="sr-only">Ethereum Tag Service</h1>
 
-        <p className="font-medium">ETS is a community-owned protocol for writing immutable tagging records to an EVM blockchain.</p>
+        <p className="font-medium">ETS is a permissionless protocol for writing immutable tagging records to an EVM blockchain.</p>
 
 
         <p>In simpler terms, an ETS tagging record is a record of "who tagged what, with what, where, when & why."</p>
 
-        <p>Technically, a tagging record is similar to a DNS record, but unlike DNS, ETS allows a name or "tag" to be used across multiple records. This is possible because tags are Non-Fungible Tokens (NFTs), which means that each tag has a unique identification number.</p>
+        <p>Technically, a tagging record is similar to a DNS record, but unlike DNS, ETS allows a name or "tag" to be used across multiple records. This is possible in in part because tags are Non-Fungible Tokens (NFTs), which means that each tag has a unique identification number.</p>
 
         <p>When a user writes a new tagging record that includes existing tags, the system will reference their unique token IDs. If a new tag is used, the system will create a new token for that tag.</p>
 
