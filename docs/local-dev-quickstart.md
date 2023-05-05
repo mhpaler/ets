@@ -11,17 +11,22 @@ Run all commands should be run from the project root.
 Open a tab in your terminal and start the local Hardhat blockchain
 
 ```bash
-pnpm hardhat
+pnpm run hardhat
 ```
 
 Open another tab and compile and deploy the contracts
 
 ```bash
+<<<<<<< HEAD
 pnpm hardhat:deploy
+=======
+pnpm run deploy
+>>>>>>> main
 ```
 
 note addresses for all locally deployed contracts are saved to `config/config.json`
 
+<<<<<<< HEAD
 ## Subgraph
 
 Make sure Docker is up and running, then open another terminal tab and run the following (still from the project root) to start your local graph node:
@@ -34,6 +39,16 @@ Next, open another terminal tab and run the following to generate your local sub
 
 ```bash
 pnpm graph:prepare-local
+=======
+Deployment and watching scripts are located in `packages/contracts/scripts` and `packages/contracts/deploy`.
+
+## Tests
+
+To run tests, still within the `/packages/contracts` directory:
+
+```bash
+pnpm run test
+>>>>>>> main
 ```
 
 Next, create your local subgraph (only required to run once):
@@ -70,10 +85,10 @@ Configure hardhat.config.js to meet your needs, then from within the contracts r
 
 ```bash
 # for localhost
-pnpm deploy
+pnpm run deploy
 
 # for mumbai
-pnpm deploy-mumbai
+pnpm run deploy-mumbai
 
 # Or calling hardhat directly
 hardhat deploy --tags deployAll --network localhost
