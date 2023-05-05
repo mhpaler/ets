@@ -17,16 +17,11 @@ pnpm run hardhat
 Open another tab and compile and deploy the contracts
 
 ```bash
-<<<<<<< HEAD
 pnpm hardhat:deploy
-=======
-pnpm run deploy
->>>>>>> main
 ```
 
 note addresses for all locally deployed contracts are saved to `config/config.json`
 
-<<<<<<< HEAD
 ## Subgraph
 
 Make sure Docker is up and running, then open another terminal tab and run the following (still from the project root) to start your local graph node:
@@ -39,16 +34,6 @@ Next, open another terminal tab and run the following to generate your local sub
 
 ```bash
 pnpm graph:prepare-local
-=======
-Deployment and watching scripts are located in `packages/contracts/scripts` and `packages/contracts/deploy`.
-
-## Tests
-
-To run tests, still within the `/packages/contracts` directory:
-
-```bash
-pnpm run test
->>>>>>> main
 ```
 
 Next, create your local subgraph (only required to run once):
