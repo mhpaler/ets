@@ -70,13 +70,19 @@ Configure hardhat.config.js to meet your needs, then from within the contracts r
 
 ```bash
 # for localhost
-pnpm run deploy
+pnpm hardhat:deploy
 
 # for mumbai
-pnpm run deploy-mumbai
+pnpm hardhat:deploy-mumbai
 
 # Or calling hardhat directly
 hardhat deploy --tags deployAll --network localhost
+```
+
+If you are deploying to an EVM chain that has contract verification (eg. Mainnet, Polygon) and would like the contracts to be verified set the following environment variable:
+
+```
+VERIFY_ON_DEPLOY=true
 ```
 
 ### Deployment details

@@ -40,7 +40,7 @@ module.exports = async ({ getChainId, deployments }) => {
   await deployment.deployed();
   const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
 
-  if (process.env.ETHERNAL_DISABLED === "false") {
+  if (process.env.ETHERNAL_DISABLED === "false" || process.env.VERIFY_ON_DEPLOY) {
     // Verify & Update network configuration file.
     await verify("ETS", deployment, implementation, []);
   }
