@@ -32,7 +32,7 @@ function setTimeBuffer(uint256 timeBuffer) external
 ### setProceedPercentages
 
 ```solidity
-function setProceedPercentages(uint256 _platformPercentage, uint256 _publisherPercentage) external
+function setProceedPercentages(uint256 _platformPercentage, uint256 _relayerPercentage) external
 ```
 
 ### createBid
@@ -76,7 +76,7 @@ event AuctionExtended(uint256 tokenId, uint256 endTime)
 ### AuctionSettled
 
 ```solidity
-event AuctionSettled(uint256 tokenId, address winner, uint256 totalProceeds, uint256 publisherProceeds, uint256 creatorProceeds)
+event AuctionSettled(uint256 tokenId, address winner, uint256 totalProceeds, uint256 relayerProceeds, uint256 creatorProceeds)
 ```
 
 ### AuctionDurationSet
@@ -106,6 +106,5 @@ event AuctionTimeBufferSet(uint256 timeBuffer)
 ### AuctionProceedPercentagesSet
 
 ```solidity
-event AuctionProceedPercentagesSet(uint256 platformPercentage, uint256 publisherPercentage, uint256 creatorPercentage)
+event AuctionProceedPercentagesSet(uint256 platformPercentage, uint256 relayerPercentage, uint256 creatorPercentage)
 ```
-

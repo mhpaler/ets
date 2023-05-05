@@ -2,7 +2,7 @@
 
 - [Key concepts](../docs/key-concepts.md)
 - [System architecture diagram](../docs/system-architecture.md)
-- [Create your Publisher ID](../docs/get-publisher-id.md) (todo)
+- [Create your Relayer ID](../docs/get-relayer-id.md) (todo)
 - [JavaScript client quickstart](../docs/js-client-quickstart.md) (in progress)
 - [Local development quickstart](../docs/local-dev-quickstart.md) (todo)
 - [Contract-to-contract quickstart](../docs/contract-to-contract-quickstart.md) (todo)
