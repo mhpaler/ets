@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "./IETSRelayer.sol";
-import "../../interfaces/IETS.sol";
+import { IETSRelayer } from "./IETSRelayer.sol";
+import { IETS } from "../../interfaces/IETS.sol";
 
 /**
  * @title IETSRelayerV1

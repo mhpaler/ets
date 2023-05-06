@@ -35,7 +35,7 @@ describe("CTAG ownership lifecycle tests", function () {
 
     it("Only admin should be able to set ownership term", async function () {
       await expect(contracts.ETSToken.connect(accounts.RandomTwo).setOwnershipTermLength(10)).to.be.revertedWith(
-        "Caller must have administrator access",
+        "Access denied",
       );
     });
   });
@@ -209,7 +209,7 @@ describe("CTAG ownership lifecycle tests", function () {
         tokenId,
       );
       await expect(contracts.ETSToken.connect(accounts.RandomTwo).recycleTag(tokenId)).to.be.revertedWith(
-        "ETS: CTAG owned by platform",
+        "Tag owned by platform",
       );
     });
 
@@ -223,7 +223,7 @@ describe("CTAG ownership lifecycle tests", function () {
       // Attempt to recycle by accounts.RandomTwo address, should fail.
       // Notice non-owner is connected.
       await expect(contracts.ETSToken.connect(accounts.RandomOne).recycleTag(tokenId)).to.be.revertedWith(
-        "ETS: CTAG not eligible for recycling",
+        "recycling not available",
       );
     });
 

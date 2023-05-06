@@ -396,7 +396,7 @@ describe("ETS Core tests", function () {
             value: ethers.BigNumber.from(taggingFee).mul("1"),
           },
         ),
-      ).to.be.revertedWith("Insufficient tagging fee supplied");
+      ).to.be.revertedWith("wrong fee supplied");
     });
 
     it("should emit TaggingRecordCreated when new Tagging Record is created", async () => {
@@ -482,7 +482,7 @@ describe("ETS Core tests", function () {
           contracts.ETS.connect(accounts.ETSPlatform).applyTagsWithRawInput(rawInput, accounts.RandomOne.address, {
             value: ethers.BigNumber.from(taggingFee).mul("1"),
           }),
-        ).to.be.revertedWith("Insufficient tagging fee supplied");
+        ).to.be.revertedWith("wrong fee supplied");
       });
 
       it("should emit TaggingRecordUpdated", async () => {
@@ -559,7 +559,7 @@ describe("ETS Core tests", function () {
               value: ethers.BigNumber.from(taggingFee).mul("1"),
             },
           ),
-        ).to.be.revertedWith("Insufficient tagging fee supplied");
+        ).to.be.revertedWith("wrong fee supplied");
       });
 
       it("should emit TaggingRecordUpdated", async () => {
@@ -622,7 +622,7 @@ describe("ETS Core tests", function () {
           contracts.ETS.connect(accounts.ETSPlatform).appendTags(taggingRecordId, tagsToAppend, {
             value: ethers.BigNumber.from(taggingFee).mul("1"),
           }),
-        ).to.be.revertedWith("Insufficient tagging fee supplied");
+        ).to.be.revertedWith("wrong fee supplied");
       });
 
       it("can be done with taggingRecordId", async () => {
@@ -667,7 +667,7 @@ describe("ETS Core tests", function () {
           contracts.ETS.connect(accounts.RandomTwo).appendTags(taggingRecordId, tagsToAppend, {
             value: ethers.BigNumber.from(taggingFee).mul("2"),
           }),
-        ).to.be.revertedWith("Caller not authorized or record not found");
+        ).to.be.revertedWith("Not authorized");
       });
     });
   });
@@ -702,7 +702,7 @@ describe("ETS Core tests", function () {
         };
         await expect(
           contracts.ETS.connect(accounts.ETSPlatform).removeTagsWithRawInput(rawInput, accounts.RandomOne.address),
-        ).to.be.revertedWith("Caller not authorized or record not found");
+        ).to.be.revertedWith("Not authorized");
       });
 
       it("should revert if no tags supplied", async () => {
@@ -830,7 +830,7 @@ describe("ETS Core tests", function () {
             "discovery",
             accounts.RandomOne.address,
           ),
-        ).to.be.revertedWith("Caller not authorized or record not found");
+        ).to.be.revertedWith("Not authorized");
       });
 
       it("should revert if no tags supplied", async () => {
@@ -983,7 +983,7 @@ describe("ETS Core tests", function () {
             taggingRecordId,
             [userTag1], // Remove userTag1
           ),
-        ).to.be.revertedWith("Caller not authorized or record not found");
+        ).to.be.revertedWith("Not authorized");
       });
     });
   });
@@ -1026,7 +1026,7 @@ describe("ETS Core tests", function () {
               value: ethers.BigNumber.from(taggingFee).mul("1"),
             },
           ),
-        ).to.be.revertedWith("Insufficient tagging fee supplied");
+        ).to.be.revertedWith("wrong fee supplied");
       });
 
       it("should revert when no tags are supplied", async () => {
@@ -1116,7 +1116,7 @@ describe("ETS Core tests", function () {
               value: ethers.BigNumber.from(taggingFee).mul("1"),
             },
           ),
-        ).to.be.revertedWith("Insufficient tagging fee supplied");
+        ).to.be.revertedWith("wrong fee supplied");
       });
 
       it("should emit TaggingRecordUpdated", async () => {
@@ -1176,7 +1176,7 @@ describe("ETS Core tests", function () {
           contracts.ETS.connect(accounts.ETSPlatform).replaceTags(taggingRecordId, replacementTags, {
             value: ethers.BigNumber.from(taggingFee).mul("1"),
           }),
-        ).to.be.revertedWith("Insufficient tagging fee supplied");
+        ).to.be.revertedWith("wrong fee supplied");
       });
 
       it("should emit TaggingRecordUpdated", async () => {
@@ -1220,7 +1220,7 @@ describe("ETS Core tests", function () {
           contracts.ETS.connect(accounts.RandomTwo).replaceTags(taggingRecordId, replacementTags, {
             value: ethers.BigNumber.from(taggingFee).mul("2"),
           }),
-        ).to.be.revertedWith("Caller not authorized or record not found");
+        ).to.be.revertedWith("Not authorized");
       });
     });
   });

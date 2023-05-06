@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.10;
 
-import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import { IERC721Receiver } from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
 contract ERC721ReceiverMock is IERC721Receiver {
     enum Error {
@@ -31,6 +31,7 @@ contract ERC721ReceiverMock is IERC721Receiver {
         if (_error == Error.RevertWithMessage) {
             revert("ERC721ReceiverMock: reverting");
         } else if (_error == Error.RevertWithoutMessage) {
+            // solhint-disable-next-line
             revert();
         } else if (_error == Error.Panic) {
             uint256 a = uint256(0) / uint256(0);

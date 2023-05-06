@@ -198,7 +198,7 @@ describe("ETS Auction House Tests", function () {
         Number(auction.amount) + Number(auction.amount) * ((initSettings.MIN_INCREMENT_BID_PERCENTAGE - 3) / 100);
       await expect(
         contracts.ETSAuctionHouse.connect(accounts.RandomTwo).createBid(etsOwnedTagId, { value: low_bid_increment }),
-      ).to.be.revertedWith("Must send more than last bid by minBidIncrementPercentage amount");
+      ).to.be.revertedWith("Bid too low");
     });
 
     it("should emit an `AuctionBid` event on a successful second bid", async function () {

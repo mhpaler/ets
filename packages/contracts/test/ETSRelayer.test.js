@@ -124,14 +124,14 @@ describe("ETS Relayer Tests", function () {
         contracts.ETSRelayer.address,
       );
       await expect(contracts.ETSRelayer.connect(accounts.RandomOne).removeTags(taggingRecords)).to.be.revertedWith(
-        "Caller not authorized or record not found",
+        "Not authorized",
       );
     });
 
     it("should revert if tagging record doesn't exist", async () => {
       // Create a tagging record.
       await expect(contracts.ETSRelayer.connect(accounts.RandomOne).removeTags(taggingRecords)).to.be.revertedWith(
-        "Caller not authorized or record not found",
+        "Not authorized",
       );
     });
 
@@ -219,7 +219,7 @@ describe("ETS Relayer Tests", function () {
         contracts.ETSRelayer.connect(accounts.RandomOne).replaceTags(taggingRecords, {
           value: ethers.BigNumber.from(taggingFee).mul("2"),
         }),
-      ).to.be.revertedWith("Caller not authorized or record not found");
+      ).to.be.revertedWith("Not authorized");
     });
 
     it('should emit "TaggingRecordUpdated" and change tag count', async () => {
@@ -356,7 +356,7 @@ describe("ETS Relayer Tests", function () {
         contracts.ETSRelayer.connect(accounts.RandomOne).replaceTags(taggingRecords, {
           value: ethers.BigNumber.from(taggingFee).mul("2"),
         }),
-      ).to.be.revertedWith("Caller not authorized or record not found");
+      ).to.be.revertedWith("Not authorized");
     });
 
     it('should emit "TaggingRecordUpdated" and change tag count', async () => {

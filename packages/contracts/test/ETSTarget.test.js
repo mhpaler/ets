@@ -1,7 +1,7 @@
-const {setup, getFactories} = require("./setup.js");
-const {ethers, upgrades} = require("hardhat");
-const {expect} = require("chai");
-const {constants} = ethers;
+const { setup, getFactories } = require("./setup.js");
+const { ethers, upgrades } = require("hardhat");
+const { expect } = require("chai");
+const { constants } = ethers;
 
 //let accounts, factories, contracts.ETSAccessControls, ETSLifeCycleControls, contracts.ETSToken;
 let targetURI;
@@ -42,13 +42,13 @@ describe("ETS Target tests", function () {
       const ETSAccessControlsNew = await upgrades.deployProxy(
         factories.ETSAccessControls,
         [accounts.ETSPlatform.address],
-        {kind: "uups"},
+        { kind: "uups" },
       );
 
       // Random is not set as admin in access controls.
       await expect(
         contracts.ETSTarget.connect(accounts.RandomOne).setAccessControls(ETSAccessControlsNew.address),
-      ).to.be.revertedWith("Caller must have administrator access");
+      ).to.be.revertedWith("Access denied");
     });
 
     it("should emit AccessControlsSet", async function () {
@@ -56,7 +56,7 @@ describe("ETS Target tests", function () {
       const ETSAccessControlsNew = await upgrades.deployProxy(
         factories.ETSAccessControls,
         [accounts.ETSPlatform.address],
-        {kind: "uups"},
+        { kind: "uups" },
       );
 
       await expect(contracts.ETSTarget.connect(accounts.ETSPlatform).setAccessControls(ETSAccessControlsNew.address))
@@ -116,7 +116,7 @@ describe("ETS Target tests", function () {
           404,
           "https://bafybeiaomvioo67qmjk3zhuv4oqyp5ylzppvhqzqypqdslei6elsi2nr3m.ipfs.infura-ipfs.io/",
         ),
-      ).to.be.revertedWith("Only ETSEnrichTarget may update target");
+      ).to.be.revertedWith("Access denied");
     });
 
     it("should succeed via ETSEnrichTarget", async () => {
@@ -129,7 +129,7 @@ describe("ETS Target tests", function () {
           "https://bafybeiaomvioo67qmjk3zhuv4oqyp5ylzppvhqzqypqdslei6elsi2nr3m.ipfs.infura-ipfs.io/",
           404,
         ),
-      ).to.not.be.revertedWith("Only ETSEnrichTarget may update target");
+      ).to.not.be.revertedWith("Access denied");
     });
   });
 });

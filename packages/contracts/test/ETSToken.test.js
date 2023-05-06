@@ -44,7 +44,7 @@ describe("ETSToken Core Tests", function () {
 
     it("should be able to set max tag length", async function () {
       await expect(contracts.ETSToken.connect(accounts.Buyer).setTagMaxStringLength(55)).to.be.revertedWith(
-        "Caller must have administrator access",
+        "Access denied",
       );
 
       const currentMaxLength = await contracts.ETSToken.tagMaxStringLength();
@@ -57,7 +57,7 @@ describe("ETSToken Core Tests", function () {
     it("Can create & edit premium tag pre-mint list", async function () {
       await expect(
         contracts.ETSToken.connect(accounts.RandomTwo).preSetPremiumTags(premiumTags, true),
-      ).to.be.revertedWith("Caller must have administrator access");
+      ).to.be.revertedWith("Access denied");
 
       for (let i = 0; i < premiumTags.length; i++) {
         expect(await contracts.ETSToken.isTagPremium(premiumTags[i])).to.be.false;
@@ -162,7 +162,7 @@ describe("ETSToken Core Tests", function () {
         const shortTag = "#" + RandomTwoTag.substring(0, tagMinStringLength - 2);
         await expect(
           contracts.ETS.connect(accounts.ETSPlatform).createTag(shortTag, accounts.RandomTwo.address),
-        ).to.be.revertedWith(`Invalid format: tag does not meet min/max length requirements`);
+        ).to.be.revertedWith(`Invalid tag format`);
       });
 
       it("should revert if tag string exceeds max length requirements", async function () {
@@ -170,14 +170,14 @@ describe("ETSToken Core Tests", function () {
         const longTag = "#" + RandomTwoTag.substring(0, tagMaxStringLength);
         await expect(
           contracts.ETS.connect(accounts.ETSPlatform).createTag(longTag, accounts.RandomTwo.address),
-        ).to.be.revertedWith(`Invalid format: tag does not meet min/max length requirements`);
+        ).to.be.revertedWith(`Invalid tag format`);
       });
 
       it("should revert if tag string has spaces", async function () {
         const invalidTag = "#x art";
         await expect(
           contracts.ETS.connect(accounts.ETSPlatform).createTag(invalidTag, accounts.RandomTwo.address),
-        ).to.be.revertedWith("Space found: tag may not contain spaces");
+        ).to.be.revertedWith("Spaces in tag");
       });
 
       it("should revert if tag string does not start with #", async function () {
@@ -191,7 +191,7 @@ describe("ETSToken Core Tests", function () {
         const invalidTag = "#Hash#";
         await expect(
           contracts.ETS.connect(accounts.ETSPlatform).createTag(invalidTag, accounts.RandomTwo.address),
-        ).to.be.revertedWith("Tag may not contain prefix");
+        ).to.be.revertedWith("Tag contains prefix");
       });
 
       it("should allow a mix of upper and lowercase characters in tag string", async function () {

@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "./interfaces/IETS.sol";
-import "./interfaces/IETSToken.sol";
-import "./interfaces/IETSAccessControls.sol";
-import "./utils/StringHelpers.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721PausableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import { IETS } from "./interfaces/IETS.sol";
+import { IETSToken } from "./interfaces/IETSToken.sol";
+import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
+import { StringHelpers } from "./utils/StringHelpers.sol";
+import { ERC721PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721PausableUpgradeable.sol";
+import { ERC721BurnableUpgradeable, ERC721Upgradeable, IERC165Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
+import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 /**
  * @title ETSToken
@@ -36,9 +36,6 @@ contract ETSToken is
     UUPSUpgradeable,
     StringHelpers
 {
-    using AddressUpgradeable for address;
-    using StringsUpgradeable for uint256;
-
     IETS public ets;
     IETSAccessControls public etsAccessControls;
 
@@ -66,7 +63,7 @@ contract ETSToken is
     }
 
     modifier onlyAdmin() {
-        require(etsAccessControls.isAdmin(_msgSender()), "Caller must have administrator access");
+        require(etsAccessControls.isAdmin(_msgSender()), "Access denied");
         _;
     }
 
@@ -103,6 +100,7 @@ contract ETSToken is
         setOwnershipTermLength(_ownershipTermLength);
     }
 
+    // solhint-disable-next-line
     function _authorizeUpgrade(address) internal override onlyAdmin {}
 
     // ============ OWNER INTERFACE ============
@@ -267,22 +265,18 @@ contract ETSToken is
     /// @inheritdoc IETSToken
     function recycleTag(uint256 _tokenId) public {
         require(_exists(_tokenId), "ETS: CTAG not found");
-        require(ownerOf(_tokenId) != getPlatformAddress(), "ETS: CTAG owned by platform");
+        require(ownerOf(_tokenId) != getPlatformAddress(), "Tag owned by platform");
 
         uint256 lastRenewed = getLastRenewed(_tokenId);
-        require(lastRenewed + getOwnershipTermLength() < block.timestamp, "ETS: CTAG not eligible for recycling");
+        require(lastRenewed + getOwnershipTermLength() < block.timestamp, "recycling not available");
 
         _transfer(ownerOf(_tokenId), getPlatformAddress(), _tokenId);
         emit TagRecycled(_tokenId, _msgSender());
     }
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override(ERC721Upgradeable, IERC165Upgradeable)
-        returns (bool)
-    {
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override(ERC721Upgradeable, IERC165Upgradeable) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
@@ -342,7 +336,7 @@ contract ETSToken is
         uint256 amount
     ) internal override(ERC721PausableUpgradeable, ERC721Upgradeable) whenNotPaused {
         super._beforeTokenTransfer(from, to, amount);
-        require(!paused(), "ERC721Pausable: token transfer while paused");
+        require(!paused(), "Contract paused");
     }
 
     /// @dev See {ERC721-_afterTokenTransfer}. Contract must not be paused.
@@ -379,7 +373,7 @@ contract ETSToken is
         bytes memory tagStringBytes = bytes(_tag);
         require(
             tagStringBytes.length >= tagMinStringLength && tagStringBytes.length <= tagMaxStringLength,
-            "Invalid format: tag does not meet min/max length requirements"
+            "Invalid tag format"
         );
 
         require(tagStringBytes[0] == 0x23, "Tag must start with #");
@@ -387,8 +381,8 @@ contract ETSToken is
         // start from first char after #
         for (uint256 i = 1; i < tagStringBytes.length; i++) {
             bytes1 char = tagStringBytes[i];
-            require(char != 0x20, "Space found: tag may not contain spaces");
-            require(char != 0x23, "Tag may not contain prefix");
+            require(char != 0x20, "Spaces in tag");
+            require(char != 0x23, "Tag contains prefix");
         }
 
         return tagId;

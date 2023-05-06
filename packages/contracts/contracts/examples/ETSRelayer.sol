@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "../interfaces/IETS.sol";
-import "../interfaces/IETSToken.sol";
-import "../interfaces/IETSTarget.sol";
-import "../relayers/interfaces/IETSRelayer.sol";
+import { IETS } from "../interfaces/IETS.sol";
+import { IETSToken } from "../interfaces/IETSToken.sol";
+import { IETSTarget } from "../interfaces/IETSTarget.sol";
+import { IETSRelayer } from "../relayers/interfaces/IETSRelayer.sol";
 import { UintArrayUtils } from "../libraries/UintArrayUtils.sol";
 import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
@@ -30,8 +30,8 @@ contract ETSRelayer is IETSRelayer, ERC165, Ownable, Pausable {
     // Public constants
 
     /// @notice machine name for this Relayer.
-    string public constant name = "ETSRelayer";
-    bytes4 public constant IID_IETSRelayer = type(IETSRelayer).interfaceId;
+    string public constant NAME = "ETSRelayer";
+    bytes4 public constant IID_IETSRELAYER = type(IETSRelayer).interfaceId;
 
     // Public variables
 
@@ -110,7 +110,7 @@ contract ETSRelayer is IETSRelayer, ERC165, Ownable, Pausable {
 
     /// @inheritdoc ERC165
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IETSRelayer) returns (bool) {
-        return interfaceId == IID_IETSRelayer || super.supportsInterface(interfaceId);
+        return interfaceId == IID_IETSRELAYER || super.supportsInterface(interfaceId);
     }
 
     /// @inheritdoc IETSRelayer
@@ -125,7 +125,7 @@ contract ETSRelayer is IETSRelayer, ERC165, Ownable, Pausable {
 
     /// @inheritdoc IETSRelayer
     function getRelayerName() public pure returns (string memory) {
-        return name;
+        return NAME;
     }
 
     /// @inheritdoc IETSRelayer
@@ -159,7 +159,7 @@ contract ETSRelayer is IETSRelayer, ERC165, Ownable, Pausable {
                 _tagger,
                 IETS.TaggingAction.APPEND
             );
-            require(address(this).balance >= valueToSendForTagging, "Not enough funds to complete tagging");
+            require(address(this).balance >= valueToSendForTagging, "Insufficient funds");
         }
 
         // Call the core applyTagsWithRawInput() function to record new or append to exsiting tagging record.
@@ -182,7 +182,7 @@ contract ETSRelayer is IETSRelayer, ERC165, Ownable, Pausable {
                 _tagger,
                 IETS.TaggingAction.REPLACE
             );
-            require(address(this).balance >= valueToSendForTagging, "Not enough funds to complete tagging");
+            require(address(this).balance >= valueToSendForTagging, "Insufficient funds");
         }
 
         // Finally, call the core replaceTags() function to update the tagging record.

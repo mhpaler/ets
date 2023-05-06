@@ -2,11 +2,6 @@
   {
     "inputs": [
       {
-        "internalType": "string",
-        "name": "_relayerName",
-        "type": "string"
-      },
-      {
         "internalType": "contract IETS",
         "name": "_ets",
         "type": "address"
@@ -153,7 +148,7 @@
           }
         ],
         "internalType": "struct IETS.TaggingRecordRawInput[]",
-        "name": "_rawInput",
+        "name": "_rawParts",
         "type": "tuple[]"
       }
     ],
@@ -178,26 +173,14 @@
   {
     "inputs": [
       {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "targetURI",
-            "type": "string"
-          },
-          {
-            "internalType": "string[]",
-            "name": "tagStrings",
-            "type": "string[]"
-          },
-          {
-            "internalType": "string",
-            "name": "recordType",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct IETS.TaggingRecordRawInput",
-        "name": "_rawInput",
-        "type": "tuple"
+        "internalType": "uint256",
+        "name": "_taggingRecordId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_tagIds",
+        "type": "uint256[]"
       },
       {
         "internalType": "enum IETS.TaggingAction",
@@ -328,7 +311,7 @@
         "type": "string"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -378,19 +361,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "relayerName",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "components": [
@@ -411,7 +381,7 @@
           }
         ],
         "internalType": "struct IETS.TaggingRecordRawInput[]",
-        "name": "_rawInput",
+        "name": "_rawParts",
         "type": "tuple[]"
       }
     ],
@@ -448,7 +418,7 @@
           }
         ],
         "internalType": "struct IETS.TaggingRecordRawInput[]",
-        "name": "_rawInput",
+        "name": "_rawParts",
         "type": "tuple[]"
       }
     ],

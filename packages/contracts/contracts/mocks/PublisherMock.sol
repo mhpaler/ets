@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "../interfaces/IETS.sol";
-import "../interfaces/IETSToken.sol";
-import "../interfaces/IETSTarget.sol";
-import "../relayers/interfaces/IETSRelayer.sol";
+import { IETS } from "../interfaces/IETS.sol";
+import { IETSToken } from "../interfaces/IETSToken.sol";
+import { IETSTarget } from "../interfaces/IETSTarget.sol";
+import { IETSRelayer } from "../relayers/interfaces/IETSRelayer.sol";
 import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { Pausable } from "@openzeppelin/contracts/security/Pausable.sol";
@@ -22,8 +22,8 @@ contract RelayerMock is ERC165, IETSRelayer, Ownable, Pausable {
     // Public constants
 
     /// @notice machine name for this target tagger.
-    string public constant name = "RelayerMock";
-    bytes4 public constant IID_IETSRelayer = type(IETSRelayer).interfaceId;
+    string public constant NAME = "RelayerMock";
+    bytes4 public constant IID_IETSRELAYER = type(IETSRelayer).interfaceId;
 
     // Public variables
 
@@ -67,13 +67,13 @@ contract RelayerMock is ERC165, IETSRelayer, Ownable, Pausable {
     // ============ PUBLIC VIEW FUNCTIONS ============
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IETSRelayer) returns (bool) {
-        return interfaceId == IID_IETSRelayer || super.supportsInterface(interfaceId);
+        return interfaceId == IID_IETSRELAYER || super.supportsInterface(interfaceId);
     }
 
     function isPausedByOwner() public view returns (bool) {}
 
     function getRelayerName() public pure returns (string memory) {
-        return name;
+        return NAME;
     }
 
     function getCreator() public view returns (address payable) {}
