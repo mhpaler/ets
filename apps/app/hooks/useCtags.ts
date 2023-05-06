@@ -30,7 +30,7 @@ export function useCtags({
           premium
           reserved
           tagAppliedInTaggingRecord
-          publisher {
+          relayer {
             id
             name
           }
@@ -40,7 +40,7 @@ export function useCtags({
           owner {
             id
           }
-          publisherRevenue
+          relayerRevenue
           ownerRevenue
           protocolRevenue
           creatorRevenue

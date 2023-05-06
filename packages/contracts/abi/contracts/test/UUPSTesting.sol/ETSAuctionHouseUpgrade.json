@@ -119,7 +119,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "publisherPercentage",
+        "name": "relayerPercentage",
         "type": "uint256"
       },
       {
@@ -169,7 +169,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "publisherProceeds",
+        "name": "relayerProceeds",
         "type": "uint256"
       },
       {
@@ -263,6 +263,19 @@
   {
     "stateMutability": "payable",
     "type": "fallback"
+  },
+  {
+    "inputs": [],
+    "name": "MODULO",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],
@@ -485,7 +498,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "_publisherPercentage",
+        "name": "_relayerPercentage",
         "type": "uint256"
       },
       {
@@ -507,19 +520,6 @@
         "internalType": "uint8",
         "name": "",
         "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "modulo",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -573,7 +573,7 @@
   },
   {
     "inputs": [],
-    "name": "publisherPercentage",
+    "name": "relayerPercentage",
     "outputs": [
       {
         "internalType": "uint256",
@@ -632,7 +632,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "_publisherPercentage",
+        "name": "_relayerPercentage",
         "type": "uint256"
       }
     ],

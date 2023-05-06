@@ -61,15 +61,15 @@ const TaggingRecord: NextPage = () => {
               </div>
 
               <div className="grid grid-cols-3 gap-4 px-6 py-4 md:grid-flow-col">
-                <div className="text-slate-500">{t("publisher")}</div>
+                <div className="text-slate-500">{t("relayer")}</div>
                 <div className="text-slate-500 col-span-2 text-left">
                   <Link
-                    href={`/publishers/${
-                      taggingRecords && taggingRecords[0].publisher.id
+                    href={`/relayers/${
+                      taggingRecords && taggingRecords[0].relayer.id
                     }`}
                   >
                     <a className="text-pink-600 hover:text-pink-700">
-                      {taggingRecords && taggingRecords[0].publisher.name}
+                      {taggingRecords && taggingRecords[0].relayer.name}
                     </a>
                   </Link>
                 </div>

@@ -4,7 +4,7 @@
   "matic-earned": "MATIC earned",
   "newest-tags": "Newest tags",
   "popular-tags": "Popular tags",
-  "publisher": "Publisher",
+  "relayer": "Relayer",
   "recently-tagged": "Recently tagged",
   "tagged-count": "{{count, number}} tagged",
   "tag-count": {
@@ -13,6 +13,6 @@
     "other": "{{count, number}} tags"
   },
   "top-creators": "Top creators",
-  "top-publishers": "Top publishers",
+  "top-relayers": "Top relayers",
   "top-taggers": "Top taggers"
 }

@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "./interfaces/IETSTarget.sol";
-import "./interfaces/IETSEnrichTarget.sol";
-import "./interfaces/IETSAccessControls.sol";
-import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import { IETSTarget } from "./interfaces/IETSTarget.sol";
+import { IETSEnrichTarget } from "./interfaces/IETSEnrichTarget.sol";
+import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
+import { ContextUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 /**
  * @title ETSEnrichTarget
@@ -44,7 +44,7 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
     // Modifiers
 
     modifier onlyAdmin() {
-        require(etsAccessControls.isAdmin(_msgSender()), "Caller must have administrator access");
+        require(etsAccessControls.isAdmin(_msgSender()), "Access denied");
         _;
     }
 
@@ -61,6 +61,7 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
         etsTarget = _etsTarget;
     }
 
+    // solhint-disable-next-line
     function _authorizeUpgrade(address) internal override onlyAdmin {}
 
     // ============ PUBLIC INTERFACE ============
@@ -75,11 +76,7 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
     // ============ OWNER INTERFACE ============
 
     /// @inheritdoc IETSEnrichTarget
-    function fulfillEnrichTarget(
-        uint256 _targetId,
-        string calldata _ipfsHash,
-        uint256 _httpStatus
-    ) public {
+    function fulfillEnrichTarget(uint256 _targetId, string calldata _ipfsHash, uint256 _httpStatus) public {
         require(etsAccessControls.getPlatformAddress() == msg.sender, "only platform may enrich target");
         IETSTarget.Target memory target = etsTarget.getTargetById(_targetId);
         etsTarget.updateTarget(_targetId, target.targetURI, block.timestamp, _httpStatus, _ipfsHash);

@@ -1,16 +1,16 @@
-const {setup} = require("./setup.js");
-const {ethers} = require("hardhat");
-const {expect, assert} = require("chai");
-const {constants} = ethers;
+const { setup } = require("./setup.js");
+const { ethers } = require("hardhat");
+const { expect, assert } = require("chai");
+const { constants } = ethers;
 
 describe("CTAG ownership lifecycle tests", function () {
   // we create a setup function that can be called by every test and setup variable for easy to read tests
   beforeEach("Setup test", async function () {
     [accounts, contracts, initSettings] = await setup();
 
-    // Add & unpause ETSPublisher as a Publisher.
-    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(
-      contracts.ETSPublisher.address,
+    // Add & unpause ETSRelayer as a Relayer.
+    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addRelayer(
+      contracts.ETSRelayer.address,
       "ETSPlatform",
     );
   });
@@ -35,7 +35,7 @@ describe("CTAG ownership lifecycle tests", function () {
 
     it("Only admin should be able to set ownership term", async function () {
       await expect(contracts.ETSToken.connect(accounts.RandomTwo).setOwnershipTermLength(10)).to.be.revertedWith(
-        "Caller must have administrator access",
+        "Access denied",
       );
     });
   });
@@ -47,7 +47,7 @@ describe("CTAG ownership lifecycle tests", function () {
       const tag = "#BlockRocket";
 
       // RandomTwo account creates a tag.
-      await contracts.ETSPublisher.connect(accounts.RandomTwo).getOrCreateTagIds([tag]);
+      await contracts.ETSRelayer.connect(accounts.RandomTwo).getOrCreateTagIds([tag]);
       tokenId = await contracts.ETSToken.computeTagId(tag);
     });
 
@@ -184,7 +184,7 @@ describe("CTAG ownership lifecycle tests", function () {
       const tag = "#BlockRocket";
 
       // RandomTwo account creates a tag.
-      await contracts.ETSPublisher.connect(accounts.RandomTwo).getOrCreateTagIds([tag]);
+      await contracts.ETSRelayer.connect(accounts.RandomTwo).getOrCreateTagIds([tag]);
       tokenId = await contracts.ETSToken.computeTagId(tag);
 
       // Transfer to RandomTwo (simulates sale).
@@ -209,7 +209,7 @@ describe("CTAG ownership lifecycle tests", function () {
         tokenId,
       );
       await expect(contracts.ETSToken.connect(accounts.RandomTwo).recycleTag(tokenId)).to.be.revertedWith(
-        "ETS: CTAG owned by platform",
+        "Tag owned by platform",
       );
     });
 
@@ -223,7 +223,7 @@ describe("CTAG ownership lifecycle tests", function () {
       // Attempt to recycle by accounts.RandomTwo address, should fail.
       // Notice non-owner is connected.
       await expect(contracts.ETSToken.connect(accounts.RandomOne).recycleTag(tokenId)).to.be.revertedWith(
-        "ETS: CTAG not eligible for recycling",
+        "recycling not available",
       );
     });
 

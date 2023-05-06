@@ -45,9 +45,5 @@ interface IETSEnrichTarget {
      * @param _ipfsHash IPFS hash with metadata related to the Target.
      * @param _httpStatus HTTP response code from off-chain ETS Enrich Target API.
      */
-    function fulfillEnrichTarget(
-        uint256 _targetId,
-        string calldata _ipfsHash,
-        uint256 _httpStatus
-    ) external;
+    function fulfillEnrichTarget(uint256 _targetId, string calldata _ipfsHash, uint256 _httpStatus) external;
 }

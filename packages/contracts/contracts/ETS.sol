@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "./interfaces/IETS.sol";
-import "./interfaces/IETSToken.sol";
-import "./interfaces/IETSTarget.sol";
-import "./interfaces/IETSAccessControls.sol";
+import { IETS } from "./interfaces/IETS.sol";
+import { IETSToken } from "./interfaces/IETSToken.sol";
+import { IETSTarget } from "./interfaces/IETSTarget.sol";
+import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
 import { UintArrayUtils } from "./libraries/UintArrayUtils.sol";
-import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import { ContextUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 /**
  * @title ETS
@@ -39,8 +39,8 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @dev Percentage of tagging fee allocated to ETS.
     uint256 public platformPercentage;
 
-    /// @dev Percentage of tagging fee allocated to Publisher.
-    uint256 public publisherPercentage;
+    /// @dev Percentage of tagging fee allocated to Relayer.
+    uint256 public relayerPercentage;
 
     /// @dev Map for holding amount accrued to participant address wallets.
     mapping(address => uint256) public accrued;
@@ -54,7 +54,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// Public constants
 
     string public constant NAME = "ETS Core";
-    uint256 public constant modulo = 100;
+    uint256 public constant MODULO = 100;
 
     /// Modifiers
 
@@ -64,18 +64,18 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         _;
     }
 
-    modifier onlyPublisher() {
-        require(etsAccessControls.isPublisherAndNotPaused(_msgSender()), "Caller not Publisher");
+    modifier onlyRelayer() {
+        require(etsAccessControls.isRelayerAndNotPaused(_msgSender()), "Caller not Relayer");
         _;
     }
 
-    /// @dev Require that caller is original publisher or tagger.
-    modifier onlyOriginalPublisherOrTagger(uint256 _taggingRecordId) {
+    /// @dev Require that caller is original relayer or tagger.
+    modifier onlyOriginalRelayerOrTagger(uint256 _taggingRecordId) {
         require(
-            (taggingRecords[_taggingRecordId].publisher == _msgSender() &&
-                etsAccessControls.isPublisherAndNotPaused(_msgSender())) ||
+            (taggingRecords[_taggingRecordId].relayer == _msgSender() &&
+                etsAccessControls.isRelayerAndNotPaused(_msgSender())) ||
                 taggingRecords[_taggingRecordId].tagger == _msgSender(),
-            "Caller not authorized or record not found"
+            "Not authorized"
         );
         _;
     }
@@ -93,16 +93,17 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         IETSTarget _etsTarget,
         uint256 _taggingFee,
         uint256 _platformPercentage,
-        uint256 _publisherPercentage
+        uint256 _relayerPercentage
     ) public initializer {
         etsAccessControls = _etsAccessControls;
         etsToken = _etsToken;
         etsTarget = _etsTarget;
         setTaggingFee(_taggingFee);
-        setPercentages(_platformPercentage, _publisherPercentage);
+        setPercentages(_platformPercentage, _relayerPercentage);
     }
 
     // Ensure that only address with admin role can upgrade.
+    // solhint-disable-next-line
     function _authorizeUpgrade(address) internal override onlyAdmin {}
 
     // ============ OWNER INTERFACE ============
@@ -130,13 +131,13 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     /// @notice Admin functionality for updating the percentages.
     /// @param _platformPercentage percentage for platform.
-    /// @param _publisherPercentage percentage for publisher.
-    function setPercentages(uint256 _platformPercentage, uint256 _publisherPercentage) public onlyAdmin {
-        require(_platformPercentage + _publisherPercentage <= 100, "percentages must not be over 100");
+    /// @param _relayerPercentage percentage for relayer.
+    function setPercentages(uint256 _platformPercentage, uint256 _relayerPercentage) public onlyAdmin {
+        require(_platformPercentage + _relayerPercentage <= 100, "percentages must not be over 100");
         platformPercentage = _platformPercentage;
-        publisherPercentage = _publisherPercentage;
+        relayerPercentage = _relayerPercentage;
 
-        emit PercentagesSet(platformPercentage, publisherPercentage);
+        emit PercentagesSet(platformPercentage, relayerPercentage);
     }
 
     // ============ PUBLIC INTERFACE ============
@@ -147,7 +148,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         uint256 _targetId,
         string calldata _recordType,
         address _tagger
-    ) public payable nonReentrant onlyPublisher {
+    ) public payable nonReentrant onlyRelayer {
         uint256 tagCount = _tagIds.length;
         require(tagCount > 0, "No tags supplied");
         for (uint256 i; i < tagCount; ++i) {
@@ -160,23 +161,18 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     }
 
     /// @inheritdoc IETS
-    function getOrCreateTagId(string calldata _tag, address payable _creator)
-        public
-        payable
-        onlyPublisher
-        returns (uint256 tokenId)
-    {
+    function getOrCreateTagId(
+        string calldata _tag,
+        address payable _creator
+    ) public payable onlyRelayer returns (uint256 tokenId) {
         return etsToken.getOrCreateTagId(_tag, payable(_msgSender()), _creator);
     }
 
     /// @inheritdoc IETS
-    function createTag(string calldata _tag, address payable _creator)
-        public
-        payable
-        nonReentrant
-        onlyPublisher
-        returns (uint256 _tokenId)
-    {
+    function createTag(
+        string calldata _tag,
+        address payable _creator
+    ) public payable nonReentrant onlyRelayer returns (uint256 _tokenId) {
         return etsToken.createTag(_tag, payable(_msgSender()), _creator);
     }
 
@@ -198,7 +194,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         } else {
             // Derive targetId from targetURI. Will revert if targetURI is empty.
             uint256 targetId = etsTarget.getOrCreateTargetId(_rawInput.targetURI);
-            // Require new tagging records be inserted by publisher.
+            // Require new tagging records be inserted by relayer.
             createTaggingRecord(tagIds, targetId, _rawInput.recordType, _tagger);
         }
     }
@@ -265,12 +261,10 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     }
 
     /// @inheritdoc IETS
-    function appendTags(uint256 _taggingRecordId, uint256[] memory _tagIds)
-        public
-        payable
-        nonReentrant
-        onlyOriginalPublisherOrTagger(_taggingRecordId)
-    {
+    function appendTags(
+        uint256 _taggingRecordId,
+        uint256[] memory _tagIds
+    ) public payable nonReentrant onlyOriginalRelayerOrTagger(_taggingRecordId) {
         require(_tagIds.length > 0, "No tags supplied");
 
         // Filter out new tags from the supplied tags.
@@ -283,12 +277,10 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     }
 
     /// @inheritdoc IETS
-    function replaceTags(uint256 _taggingRecordId, uint256[] memory _tagIds)
-        public
-        payable
-        nonReentrant
-        onlyOriginalPublisherOrTagger(_taggingRecordId)
-    {
+    function replaceTags(
+        uint256 _taggingRecordId,
+        uint256[] memory _tagIds
+    ) public payable nonReentrant onlyOriginalRelayerOrTagger(_taggingRecordId) {
         require(_tagIds.length > 0, "No tags supplied");
 
         // Find all the tags NOT SHARED by the tagging record and the replacement set.
@@ -309,11 +301,10 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     }
 
     /// @inheritdoc IETS
-    function removeTags(uint256 _taggingRecordId, uint256[] memory _tagIds)
-        public
-        nonReentrant
-        onlyOriginalPublisherOrTagger(_taggingRecordId)
-    {
+    function removeTags(
+        uint256 _taggingRecordId,
+        uint256[] memory _tagIds
+    ) public nonReentrant onlyOriginalRelayerOrTagger(_taggingRecordId) {
         require(_tagIds.length > 0, "No tags supplied");
 
         // Find tags shared by supplied tags and tagging record tags.
@@ -343,14 +334,14 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @inheritdoc IETS
     function computeTaggingRecordIdFromRawInput(
         TaggingRecordRawInput memory _rawInput,
-        address _publisher,
+        address _relayer,
         address _tagger
     ) public view returns (uint256 taggingRecordId) {
         return
             computeTaggingRecordIdFromCompositeKey(
                 etsTarget.computeTargetId(_rawInput.targetURI),
                 _rawInput.recordType,
-                _publisher,
+                _relayer,
                 _tagger
             );
     }
@@ -359,16 +350,16 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     function computeTaggingRecordIdFromCompositeKey(
         uint256 _targetId,
         string memory _recordType,
-        address _publisher,
+        address _relayer,
         address _tagger
     ) public pure returns (uint256 taggingRecordId) {
-        taggingRecordId = uint256(keccak256(abi.encodePacked(_targetId, _recordType, _publisher, _tagger)));
+        taggingRecordId = uint256(keccak256(abi.encodePacked(_targetId, _recordType, _relayer, _tagger)));
     }
 
     /// @inheritdoc IETS
     function computeTaggingFeeFromRawInput(
         TaggingRecordRawInput calldata _rawInput,
-        address _publisher,
+        address _relayer,
         address _tagger,
         TaggingAction _action
     ) public view returns (uint256 fee, uint256 tagCount) {
@@ -377,7 +368,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         for (uint256 i; i < rawTagCount; ++i) {
             tagIds[i] = etsToken.computeTagId(_rawInput.tagStrings[i]);
         }
-        return computeTaggingFee(computeTaggingRecordIdFromRawInput(_rawInput, _publisher, _tagger), tagIds, _action);
+        return computeTaggingFee(computeTaggingRecordIdFromRawInput(_rawInput, _relayer, _tagger), tagIds, _action);
     }
 
     /// @inheritdoc IETS
@@ -385,13 +376,13 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         uint256[] memory _tagIds,
         uint256 _targetId,
         string calldata _recordType,
-        address _publisher,
+        address _relayer,
         address _tagger,
         TaggingAction _action
     ) public view returns (uint256 fee, uint256 tagCount) {
         return
             computeTaggingFee(
-                computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _publisher, _tagger),
+                computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _relayer, _tagger),
                 _tagIds,
                 _action
             );
@@ -439,25 +430,19 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @inheritdoc IETS
     function getTaggingRecordFromRawInput(
         TaggingRecordRawInput memory _rawInput,
-        address _publisher,
+        address _relayer,
         address _tagger
     )
         public
         view
-        returns (
-            uint256[] memory tagIds,
-            uint256 targetId,
-            string memory recordType,
-            address publisher,
-            address tagger
-        )
+        returns (uint256[] memory tagIds, uint256 targetId, string memory recordType, address relayer, address tagger)
     {
         return
             this.getTaggingRecordFromId(
                 computeTaggingRecordIdFromCompositeKey(
                     etsTarget.computeTargetId(_rawInput.targetURI),
                     _rawInput.recordType,
-                    _publisher,
+                    _relayer,
                     _tagger
                 )
             );
@@ -467,43 +452,33 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     function getTaggingRecordFromCompositeKey(
         uint256 _targetId,
         string memory _recordType,
-        address _publisher,
+        address _relayer,
         address _tagger
     )
         public
         view
-        returns (
-            uint256[] memory tagIds,
-            uint256 targetId,
-            string memory recordType,
-            address publisher,
-            address tagger
-        )
+        returns (uint256[] memory tagIds, uint256 targetId, string memory recordType, address relayer, address tagger)
     {
         return
             this.getTaggingRecordFromId(
-                computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _publisher, _tagger)
+                computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _relayer, _tagger)
             );
     }
 
     /// @inheritdoc IETS
-    function getTaggingRecordFromId(uint256 _id)
+    function getTaggingRecordFromId(
+        uint256 _id
+    )
         public
         view
-        returns (
-            uint256[] memory tagIds,
-            uint256 targetId,
-            string memory recordType,
-            address publisher,
-            address tagger
-        )
+        returns (uint256[] memory tagIds, uint256 targetId, string memory recordType, address relayer, address tagger)
     {
         TaggingRecord storage taggingRecord = taggingRecords[_id];
         return (
             taggingRecord.tagIds,
             taggingRecord.targetId,
             taggingRecord.recordType,
-            taggingRecord.publisher,
+            taggingRecord.relayer,
             taggingRecord.tagger
         );
     }
@@ -511,7 +486,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @inheritdoc IETS
     function taggingRecordExistsByRawInput(
         TaggingRecordRawInput memory _rawInput,
-        address _publisher,
+        address _relayer,
         address _tagger
     ) public view returns (bool) {
         return
@@ -519,7 +494,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
                 computeTaggingRecordIdFromCompositeKey(
                     etsTarget.computeTargetId(_rawInput.targetURI),
                     _rawInput.recordType,
-                    _publisher,
+                    _relayer,
                     _tagger
                 )
             );
@@ -529,10 +504,10 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     function taggingRecordExistsByCompositeKey(
         uint256 _targetId,
         string memory _recordType,
-        address _publisher,
+        address _relayer,
         address _tagger
     ) public view returns (bool) {
-        return taggingRecordExists(computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _publisher, _tagger));
+        return taggingRecordExists(computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _relayer, _tagger));
     }
 
     /// @inheritdoc IETS
@@ -552,15 +527,15 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         uint256[] memory _tagIds,
         uint256 _targetId,
         string calldata _recordType,
-        address _publisher,
+        address _relayer,
         address _tagger
     ) private {
-        uint256 taggingRecordId = computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _publisher, _tagger);
+        uint256 taggingRecordId = computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _relayer, _tagger);
         taggingRecords[taggingRecordId] = TaggingRecord({
             tagIds: _tagIds,
             targetId: _targetId,
             recordType: _recordType,
-            publisher: _publisher,
+            relayer: _relayer,
             tagger: _tagger
         });
 
@@ -585,10 +560,10 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
      * @param _taggingRecordId tagging record being updated.
      * @param _tagIds tagId to remove from tagging record.
      */
-    function _removeTags(uint256 _taggingRecordId, uint256[] memory _tagIds)
-        private
-        onlyOriginalPublisherOrTagger(_taggingRecordId)
-    {
+    function _removeTags(
+        uint256 _taggingRecordId,
+        uint256[] memory _tagIds
+    ) private onlyOriginalRelayerOrTagger(_taggingRecordId) {
         taggingRecords[_taggingRecordId].tagIds = UintArrayUtils.difference(
             taggingRecords[_taggingRecordId].tagIds,
             _tagIds
@@ -605,7 +580,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     }
 
     function _processTaggingFees(uint256[] memory _tagIds) private {
-        require((msg.value == _computeTaggingFee(_tagIds.length)), "Insufficient tagging fee supplied");
+        require((msg.value == _computeTaggingFee(_tagIds.length)), "wrong fee supplied");
         address platform = etsAccessControls.getPlatformAddress();
         for (uint256 i; i < _tagIds.length; ++i) {
             _processAccrued(_tagIds[i], platform);
@@ -618,12 +593,12 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address owner = etsToken.ownerOf(_tagId);
         IETSToken.Tag memory tag = etsToken.getTagById(_tagId);
 
-        uint256 platformAllocation = (msg.value * platformPercentage) / modulo;
-        uint256 publisherAllocation = (msg.value * publisherPercentage) / modulo;
-        uint256 remainingAllocation = msg.value - (platformAllocation + publisherAllocation);
+        uint256 platformAllocation = (msg.value * platformPercentage) / MODULO;
+        uint256 relayerAllocation = (msg.value * relayerPercentage) / MODULO;
+        uint256 remainingAllocation = msg.value - (platformAllocation + relayerAllocation);
 
         accrued[_platform] = accrued[_platform] + platformAllocation;
-        accrued[tag.publisher] = accrued[tag.publisher] + publisherAllocation;
+        accrued[tag.relayer] = accrued[tag.relayer] + relayerAllocation;
 
         // pre-auction.
         if (owner == _platform) {

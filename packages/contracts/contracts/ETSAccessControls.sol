@@ -2,11 +2,11 @@
 pragma solidity ^0.8.10;
 
 import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
-import { IETSPublisher } from "./publishers/interfaces/IETSPublisher.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
+import { IETSRelayer } from "./relayers/interfaces/IETSRelayer.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import { ERC165CheckerUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
 
 /**
  * @title IETSAccessControls
@@ -19,28 +19,28 @@ import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpg
 contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAccessControls, UUPSUpgradeable {
     /// Public constants
     string public constant NAME = "ETS access controls";
-    bytes32 public constant PUBLISHER_ROLE = keccak256("PUBLISHER");
-    bytes32 public constant PUBLISHER_ROLE_ADMIN = keccak256("PUBLISHER_ADMIN");
+    bytes32 public constant RELAYER_ROLE = keccak256("RELAYER");
+    bytes32 public constant RELAYER_ROLE_ADMIN = keccak256("RELAYER_ADMIN");
     bytes32 public constant SMART_CONTRACT_ROLE = keccak256("SMART_CONTRACT");
 
     /// @dev ETS Platform account. Core Dev Team multisig in production.
     /// There will only be one "Platform" so no need to make it a role.
     address payable internal platform;
 
-    /// @notice Mapping to contain whether Publisher is paused by the protocol.
-    mapping(address => bool) public isPublisherPaused;
+    /// @notice Mapping to contain whether Relayer is paused by the protocol.
+    mapping(address => bool) public isRelayerPaused;
 
-    /// @notice Publisher name to contract address.
-    mapping(string => address) public publisherNameToContract;
+    /// @notice Relayer name to contract address.
+    mapping(string => address) public relayerNameToContract;
 
-    /// @notice Publisher contract address to human readable name.
-    mapping(address => string) public publisherContractToName;
+    /// @notice Relayer contract address to human readable name.
+    mapping(address => string) public relayerContractToName;
 
     modifier onlyValidName(string calldata _name) {
-        require(!isPublisherByName(_name), "Publisher name exists");
+        require(!isRelayerByName(_name), "Relayer name exists");
         bytes memory nameBytes = bytes(_name);
-        require(nameBytes.length >= 2, "Publisher name too short");
-        require(nameBytes.length <= 32, "Publisher name too long");
+        require(nameBytes.length >= 2, "Relayer name too short");
+        require(nameBytes.length <= 32, "Relayer name too long");
         _;
     }
 
@@ -55,13 +55,14 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
         __AccessControl_init();
         // setupRole is should only be called within initialize().
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
-        _setRoleAdmin(PUBLISHER_ROLE, PUBLISHER_ROLE_ADMIN);
+        _setRoleAdmin(RELAYER_ROLE, RELAYER_ROLE_ADMIN);
         grantRole(DEFAULT_ADMIN_ROLE, _platformAddress);
-        grantRole(PUBLISHER_ROLE_ADMIN, _platformAddress);
+        grantRole(RELAYER_ROLE_ADMIN, _platformAddress);
         setPlatform(payable(_platformAddress));
     }
 
     // Ensure that only addresses with admin role can upgrade.
+    // solhint-disable-next-line
     function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
     // ============ OWNER INTERFACE ============
@@ -79,31 +80,30 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     }
 
     /// @inheritdoc IETSAccessControls
-    function addPublisher(address _publisher, string calldata _name)
-        public
-        onlyRole(PUBLISHER_ROLE_ADMIN)
-        onlyValidName(_name)
-    {
+    function addRelayer(
+        address _relayer,
+        string calldata _name
+    ) public onlyRole(RELAYER_ROLE_ADMIN) onlyValidName(_name) {
         require(
-            isPublisherAdmin(_publisher) ||
-                ERC165CheckerUpgradeable.supportsInterface(_publisher, type(IETSPublisher).interfaceId),
+            isRelayerAdmin(_relayer) ||
+                ERC165CheckerUpgradeable.supportsInterface(_relayer, type(IETSRelayer).interfaceId),
             "Address not required interface"
         );
 
-        require(!isPublisherByAddress(_publisher), "Publisher exists");
+        require(!isRelayerByAddress(_relayer), "Relayer exists");
 
-        publisherNameToContract[_name] = _publisher;
-        publisherContractToName[_publisher] = _name;
-        isPublisherPaused[_publisher] = false;
+        relayerNameToContract[_name] = _relayer;
+        relayerContractToName[_relayer] = _name;
+        isRelayerPaused[_relayer] = false;
         // Note: grantRole emits RoleGranted event.
-        grantRole(PUBLISHER_ROLE, _publisher);
-        emit PublisherAdded(_publisher, isPublisherAdmin(_publisher));
+        grantRole(RELAYER_ROLE, _relayer);
+        emit RelayerAdded(_relayer, isRelayerAdmin(_relayer));
     }
 
     /// @inheritdoc IETSAccessControls
-    function toggleIsPublisherPaused(address _publisher) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        isPublisherPaused[_publisher] = !isPublisherPaused[_publisher];
-        emit PublisherPauseToggled(_publisher);
+    function toggleIsRelayerPaused(address _relayer) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        isRelayerPaused[_relayer] = !isRelayerPaused[_relayer];
+        emit RelayerPauseToggled(_relayer);
     }
 
     // ============ PUBLIC VIEW FUNCTIONS ============
@@ -119,38 +119,38 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     }
 
     /// @inheritdoc IETSAccessControls
-    function isPublisher(address _addr) public view returns (bool) {
-        return isPublisherAndNotPaused(_addr);
+    function isRelayer(address _addr) public view returns (bool) {
+        return isRelayerAndNotPaused(_addr);
     }
 
     /// @inheritdoc IETSAccessControls
-    function isPublisherAdmin(address _addr) public view returns (bool) {
-        return hasRole(PUBLISHER_ROLE_ADMIN, _addr);
+    function isRelayerAdmin(address _addr) public view returns (bool) {
+        return hasRole(RELAYER_ROLE_ADMIN, _addr);
     }
 
     /// @inheritdoc IETSAccessControls
-    function isPublisherByName(string memory _name) public view returns (bool) {
-        return publisherNameToContract[_name] != address(0);
+    function isRelayerByName(string memory _name) public view returns (bool) {
+        return relayerNameToContract[_name] != address(0);
     }
 
     /// @inheritdoc IETSAccessControls
-    function isPublisherByAddress(address _addr) public view returns (bool) {
-        return keccak256(abi.encodePacked(publisherContractToName[_addr])) != keccak256(abi.encodePacked(""));
+    function isRelayerByAddress(address _addr) public view returns (bool) {
+        return keccak256(abi.encodePacked(relayerContractToName[_addr])) != keccak256(abi.encodePacked(""));
     }
 
     /// @inheritdoc IETSAccessControls
-    function isPublisherAndNotPaused(address _addr) public view returns (bool) {
-        return isPublisherByAddress(_addr) && !isPublisherPaused[_addr];
+    function isRelayerAndNotPaused(address _addr) public view returns (bool) {
+        return isRelayerByAddress(_addr) && !isRelayerPaused[_addr];
     }
 
     /// @inheritdoc IETSAccessControls
-    function getPublisherAddressFromName(string memory _name) public view returns (address) {
-        return publisherNameToContract[_name];
+    function getRelayerAddressFromName(string memory _name) public view returns (address) {
+        return relayerNameToContract[_name];
     }
 
     /// @inheritdoc IETSAccessControls
-    function getPublisherNameFromAddress(address _address) public view returns (string memory) {
-        return publisherContractToName[_address];
+    function getRelayerNameFromAddress(address _address) public view returns (string memory) {
+        return relayerContractToName[_address];
     }
 
     /// @inheritdoc IETSAccessControls

@@ -1,7 +1,7 @@
-const {ethers} = require("hardhat");
-const {setup} = require("./setup.js");
+const { ethers } = require("hardhat");
+const { setup } = require("./setup.js");
 
-module.exports = async ({deployments}) => {
+module.exports = async ({ deployments }) => {
   [accounts, factories, initSettings] = await setup();
 
   const etsAccessControls = await deployments.get("ETSAccessControls");
@@ -16,8 +16,8 @@ module.exports = async ({deployments}) => {
   const ETSEnrichTarget = await ethers.getContractAt("ETSEnrichTarget", etsEnrichTarget.address);
   const ets = await deployments.get("ETS");
   const ETS = await ethers.getContractAt("ETS", ets.address);
-  const etsPublisherFactory = await deployments.get("ETSPublisherFactory");
-  const ETSPublisherFactory = await ethers.getContractAt("ETSPublisherFactory", etsPublisherFactory.address);
+  const etsRelayerFactory = await deployments.get("ETSRelayerFactory");
+  const ETSRelayerFactory = await ethers.getContractAt("ETSRelayerFactory", etsRelayerFactory.address);
 
   console.log("============ CONFIGURE ROLES & APPROVALS ============");
 
@@ -26,9 +26,9 @@ module.exports = async ({deployments}) => {
   });
   console.log(`SMART_CONTRACT_ROLE granted to ETSPlatform.address (${accounts.ETSAdmin.address})`);
 
-  // Grant PUBLISHER_ADMIN role to ETSPublisherFactory so it can deploy publisher contracts.
-  await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), ETSPublisherFactory.address);
-  console.log(`PUBLISHER_ADMIN granted to ETSPublisherFactory.address (${ETSPublisherFactory.address})`);
+  // Grant RELAYER_ADMIN role to ETSRelayerFactory so it can deploy relayer contracts.
+  await ETSAccessControls.grantRole(ethers.utils.id("RELAYER_ADMIN"), ETSRelayerFactory.address);
+  console.log(`RELAYER_ADMIN granted to ETSRelayerFactory.address (${ETSRelayerFactory.address})`);
 
   await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(ETSEnrichTarget.address);
   console.log(`ETSEnrichTarget contract set on ETSTarget`);
@@ -41,10 +41,10 @@ module.exports = async ({deployments}) => {
   await ETSToken.connect(accounts.ETSPlatform).setETSCore(ETS.address);
   console.log("ETS set on ETSToken.");
 
-  // Add & Unpause ETSPlatform as a Publisher. for testing purposes.
-  await ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(accounts.ETSPlatform.address, "ETSPlatform");
-  console.log("Authorize ETSPlatform wallet as a Publisher");
+  // Add & Unpause ETSPlatform as a Relayer. for testing purposes.
+  await ETSAccessControls.connect(accounts.ETSPlatform).addRelayer(accounts.ETSPlatform.address, "ETSPlatform");
+  console.log("Authorize ETSPlatform wallet as a Relayer");
 };
 
 module.exports.tags = ["deployAll"];
-module.exports.dependencies = ["ETSPublisherFactory"];
+module.exports.dependencies = ["ETSRelayerFactory"];

@@ -14,7 +14,7 @@ const RecentlyTagged = () => {
   const columns = useMemo(
     () => [
       t("date"),
-      t("publisher"),
+      t("relayer"),
       t("tagger"),
       t("record-type"),
       t("target"),
@@ -56,12 +56,12 @@ const RecentlyTagged = () => {
                   </Table.CellWithChildren>
                   <Table.CellWithChildren>
                     <Link
-                      href={`/publishers/${
-                        taggingRecord && taggingRecord.publisher.id
+                      href={`/relayers/${
+                        taggingRecord && taggingRecord.relayer.id
                       }`}
                     >
                       <a className="text-pink-600 hover:text-pink-700">
-                        {taggingRecord && taggingRecord.publisher.name}
+                        {taggingRecord && taggingRecord.relayer.name}
                       </a>
                     </Link>
                   </Table.CellWithChildren>

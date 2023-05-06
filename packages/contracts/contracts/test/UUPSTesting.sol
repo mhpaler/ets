@@ -7,7 +7,7 @@ import { ETSEnrichTarget } from "../ETSEnrichTarget.sol";
 import { ETSTarget } from "../ETSTarget.sol";
 import { ETSToken } from "../ETSToken.sol";
 import { ETS } from "../ETS.sol";
-import { ETSPublisherFactory } from "../ETSPublisherFactory.sol";
+import { ETSRelayerFactory } from "../ETSRelayerFactory.sol";
 
 contract ETSAccessControlsUpgrade is ETSAccessControls {
     // Extend existing contract with new function.
@@ -51,7 +51,7 @@ contract ETSUpgrade is ETS {
     }
 }
 
-contract ETSPublisherFactoryUpgrade is ETSPublisherFactory {
+contract ETSRelayerFactoryUpgrade is ETSRelayerFactory {
     // Extend existing contract with new function.
     function upgradeTest() public pure returns (bool) {
         return true;

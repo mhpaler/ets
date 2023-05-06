@@ -1,7 +1,7 @@
 import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
 
-export function usePublishers({
+export function useRelayers({
   pageSize = 20,
   skip = 0,
   orderBy = "firstSeen",
@@ -16,8 +16,8 @@ export function usePublishers({
 }) {
   const { data, mutate, error } = useSWR(
     [
-      `query publishers($first: Int!, $skip: Int!, $orderBy: String! $filter: Publisher_filter) {
-        publishers: publishers(
+      `query relayers($first: Int!, $skip: Int!, $orderBy: String! $filter: Relayer_filter) {
+        relayers: relayers(
           first: $first
           skip: $skip
           orderBy: $orderBy
@@ -41,7 +41,7 @@ export function usePublishers({
           tagsPublished
           tagsRemoved
         },
-        nextPublishers: publishers(
+        nextRelayers: relayers(
           first: ${pageSize}
           skip: ${skip + pageSize}
           orderBy: $orderBy
@@ -62,9 +62,9 @@ export function usePublishers({
   );
 
   return {
-    publishers: data?.publishers,
-    nextPublishers: data?.nextPublishers,
-    isLoading: !error && !data?.publishers,
+    relayers: data?.relayers,
+    nextRelayers: data?.nextRelayers,
+    isLoading: !error && !data?.relayers,
     mutate,
     isError: error?.statusText,
   };

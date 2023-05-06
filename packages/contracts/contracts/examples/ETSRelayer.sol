@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "../interfaces/IETS.sol";
-import "../interfaces/IETSToken.sol";
-import "../interfaces/IETSTarget.sol";
-import "../publishers/interfaces/IETSPublisher.sol";
+import { IETS } from "../interfaces/IETS.sol";
+import { IETSToken } from "../interfaces/IETSToken.sol";
+import { IETSTarget } from "../interfaces/IETSTarget.sol";
+import { IETSRelayer } from "../relayers/interfaces/IETSRelayer.sol";
 import { UintArrayUtils } from "../libraries/UintArrayUtils.sol";
 import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { Pausable } from "@openzeppelin/contracts/security/Pausable.sol";
 
 /**
- * @title ETSPublisher
+ * @title ETSRelayer
  * @author Ethereum Tag Service <team@ets.xyz>
- * @notice Sample implementation of IETSPublisher
+ * @notice Sample implementation of IETSRelayer
  */
-contract ETSPublisher is IETSPublisher, ERC165, Ownable, Pausable {
+contract ETSRelayer is IETSRelayer, ERC165, Ownable, Pausable {
     using UintArrayUtils for uint256[];
 
     /// @dev Address and interface for ETS Core.
@@ -29,9 +29,9 @@ contract ETSPublisher is IETSPublisher, ERC165, Ownable, Pausable {
 
     // Public constants
 
-    /// @notice machine name for this Publisher.
-    string public constant name = "ETSPublisher";
-    bytes4 public constant IID_IETSPublisher = type(IETSPublisher).interfaceId;
+    /// @notice machine name for this Relayer.
+    string public constant NAME = "ETSRelayer";
+    bytes4 public constant IID_IETSRELAYER = type(IETSRelayer).interfaceId;
 
     // Public variables
 
@@ -54,22 +54,22 @@ contract ETSPublisher is IETSPublisher, ERC165, Ownable, Pausable {
 
     // ============ OWNER INTERFACE ============
 
-    /// @inheritdoc IETSPublisher
+    /// @inheritdoc IETSRelayer
     function pause() public onlyOwner {
         _pause();
-        emit PublisherPauseToggledByOwner(address(this));
+        emit RelayerPauseToggledByOwner(address(this));
     }
 
-    /// @inheritdoc IETSPublisher
+    /// @inheritdoc IETSRelayer
     function unpause() public onlyOwner {
         _unpause();
-        emit PublisherPauseToggledByOwner(address(this));
+        emit RelayerPauseToggledByOwner(address(this));
     }
 
-    /// @inheritdoc IETSPublisher
+    /// @inheritdoc IETSRelayer
     function changeOwner(address _newOwner) public whenPaused {
         transferOwnership(_newOwner);
-        emit PublisherOwnerChanged(address(this));
+        emit RelayerOwnerChanged(address(this));
     }
 
     // ============ PUBLIC INTERFACE ============
@@ -94,16 +94,13 @@ contract ETSPublisher is IETSPublisher, ERC165, Ownable, Pausable {
         }
     }
 
-    function getOrCreateTagIds(string[] calldata _tags)
-        public
-        payable
-        whenNotPaused
-        returns (uint256[] memory _tagIds)
-    {
+    function getOrCreateTagIds(
+        string[] calldata _tags
+    ) public payable whenNotPaused returns (uint256[] memory _tagIds) {
         // First let's derive tagIds for the tagStrings.
         uint256[] memory tagIds = new uint256[](_tags.length);
         for (uint256 i; i < _tags.length; ++i) {
-            // for new CTAGs msg.sender is logged as "creator" and this contract is "publisher"
+            // for new CTAGs msg.sender is logged as "creator" and this contract is "relayer"
             tagIds[i] = ets.getOrCreateTagId(_tags[i], payable(msg.sender));
         }
         return tagIds;
@@ -112,26 +109,26 @@ contract ETSPublisher is IETSPublisher, ERC165, Ownable, Pausable {
     // ============ PUBLIC VIEW FUNCTIONS ============
 
     /// @inheritdoc ERC165
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IETSPublisher) returns (bool) {
-        return interfaceId == IID_IETSPublisher || super.supportsInterface(interfaceId);
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IETSRelayer) returns (bool) {
+        return interfaceId == IID_IETSRELAYER || super.supportsInterface(interfaceId);
     }
 
-    /// @inheritdoc IETSPublisher
+    /// @inheritdoc IETSRelayer
     function isPausedByOwner() public view virtual returns (bool) {
         return paused();
     }
 
-    /// @inheritdoc IETSPublisher
+    /// @inheritdoc IETSRelayer
     function getOwner() public view virtual returns (address payable) {
         return payable(owner());
     }
 
-    /// @inheritdoc IETSPublisher
-    function getPublisherName() public pure returns (string memory) {
-        return name;
+    /// @inheritdoc IETSRelayer
+    function getRelayerName() public pure returns (string memory) {
+        return NAME;
     }
 
-    /// @inheritdoc IETSPublisher
+    /// @inheritdoc IETSRelayer
     function getCreator() public view returns (address payable) {
         return creator;
     }
@@ -162,7 +159,7 @@ contract ETSPublisher is IETSPublisher, ERC165, Ownable, Pausable {
                 _tagger,
                 IETS.TaggingAction.APPEND
             );
-            require(address(this).balance >= valueToSendForTagging, "Not enough funds to complete tagging");
+            require(address(this).balance >= valueToSendForTagging, "Insufficient funds");
         }
 
         // Call the core applyTagsWithRawInput() function to record new or append to exsiting tagging record.
@@ -185,7 +182,7 @@ contract ETSPublisher is IETSPublisher, ERC165, Ownable, Pausable {
                 _tagger,
                 IETS.TaggingAction.REPLACE
             );
-            require(address(this).balance >= valueToSendForTagging, "Not enough funds to complete tagging");
+            require(address(this).balance >= valueToSendForTagging, "Insufficient funds");
         }
 
         // Finally, call the core replaceTags() function to update the tagging record.

@@ -1,4 +1,4 @@
-# ETSPublisherFactory
+# ETSRelayerFactory
 
 This is the core ETS tagging contract that records TaggingRecords to the blockchain.
 It also contains some governance functions around tagging fees as well as means for market
@@ -18,15 +18,14 @@ constructor() public
 function initialize(contract IETSAccessControls _etsAccessControls, contract IETS _ets, contract IETSToken _etsToken, contract IETSTarget _etsTarget) public
 ```
 
-### _authorizeUpgrade
+### \_authorizeUpgrade
 
 ```solidity
 function _authorizeUpgrade(address) internal
 ```
 
-### addPublisherV1
+### addRelayerV1
 
 ```solidity
-function addPublisherV1(string _publisherName) public payable
+function addRelayerV1(string _relayerName) public payable
 ```
-

@@ -1,30 +1,66 @@
 # Local development quickstart
 
-[work in progress]
+This guide will get you up and running with a full ETS stack running locally, including contracts, subgraph, and the ETS Explorer for visualizing ETS data.
 
-We use [Hardhat](https://hardhat.org/) as our Solidity smart contract development environment. Before using Hardhat, make a copy of `.env.example` in the project root named `.env`. The default settings in there should be enough to get you going. Next, starting in the `contracts` directory, start up Hardhat:
+Make a copy of `.env.example` in the project root named `.env`. The default settings in there should be enough to get you going.
+
+Run all commands should be run from the project root.
+
+## Contracts
+
+Open a tab in your terminal and start the local Hardhat blockchain
 
 ```bash
 pnpm run hardhat
 ```
 
-Running `pnpm hardhat` spins up a Hardhat network instance that you can connect to using MetaMask. In a different terminal in the same directory, run:
+Open another tab and compile and deploy the contracts
 
 ```bash
-pnpm run deploy
+pnpm hardhat:deploy
 ```
 
-This will deploy the contracts to the Hardhat network.
+note addresses for all locally deployed contracts are saved to `config/config.json`
 
-Deployment and watching scripts are located in `packages/contracts/scripts` and `packages/contracts/deploy`.
+## Subgraph
 
-## Tests
-
-To run tests, still within the `/packages/contracts` directory:
+Make sure Docker is up and running, then open another terminal tab and run the following (still from the project root) to start your local graph node:
 
 ```bash
-pnpm run test
+pnpm graph:node-start
 ```
+
+Next, open another terminal tab and run the following to generate your local subgraph.yaml (uses a script to parse hardhat config into a template):
+
+```bash
+pnpm graph:prepare-local
+```
+
+Next, create your local subgraph (only required to run once):
+
+```bash
+pnpm graph:create-local
+```
+
+Deploy your local subgraph:
+
+```bash
+pnpm graph:ship-local
+```
+
+If everything is successful, the deployment url of your local subgraph will be printed out, which you can copy and paste into a browser to use the local subgraph explorer. Your query end-point will also be printed out.
+
+## ETS Explorer
+
+To easily visualize data written locally, you might find the ETS Explorer useful. This is the same explorer running at [app.ets.xyz](https://app.ets.xyz).
+
+Open another tab in your terminal, still in the project root and run:
+
+```bash
+pnpm app:dev
+```
+
+At this point you are ready to begin interacting with ETS. We recommend heading to the [JavaScript client quickstart](./js-client-quickstart.md)
 
 ## Deployment
 
@@ -34,13 +70,19 @@ Configure hardhat.config.js to meet your needs, then from within the contracts r
 
 ```bash
 # for localhost
-pnpm run deploy
+pnpm hardhat:deploy
 
 # for mumbai
-pnpm run deploy-mumbai
+pnpm hardhat:deploy-mumbai
 
 # Or calling hardhat directly
 hardhat deploy --tags deployAll --network localhost
+```
+
+If you are deploying to an EVM chain that has contract verification (eg. Mainnet, Polygon) and would like the contracts to be verified set the following environment variable:
+
+```
+VERIFY_ON_DEPLOY=true
 ```
 
 ### Deployment details

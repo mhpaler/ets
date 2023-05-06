@@ -42,7 +42,7 @@ const Ctags: NextPage = () => {
     () => [
       t("ctag"),
       t("created"),
-      t("publisher"),
+      t("relayer"),
       t("creator"),
       t("owner"),
       t("tagging-records"),
@@ -85,9 +85,9 @@ const Ctags: NextPage = () => {
                   </div>
                 </Table.CellWithChildren>
                 <Table.CellWithChildren>
-                  <Link href={`/publishers/${ctag.publisher.id}`}>
+                  <Link href={`/relayers/${ctag.relayer.id}`}>
                     <a className="text-pink-600 hover:text-pink-700">
-                      {ctag.publisher.name}
+                      {ctag.relayer.name}
                     </a>
                   </Link>
                 </Table.CellWithChildren>

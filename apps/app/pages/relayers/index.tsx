@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import useTranslation from "next-translate/useTranslation";
-import { usePublishers } from "../../hooks/usePublishers";
+import { useRelayers } from "../../hooks/useRelayers";
 import PageTitle from "../../components/PageTitle";
 import { TimeAgo } from "../../components/TimeAgo";
 import { Table } from "../../components/Table";
@@ -11,11 +11,11 @@ import useNumberFormatter from "../../hooks/useNumberFormatter";
 
 const pageSize = 20;
 
-const Publishers: NextPage = () => {
+const Relayers: NextPage = () => {
   const [skip, setSkip] = useState(0);
   const { t } = useTranslation("common");
   const { number } = useNumberFormatter();
-  const { publishers, nextPublishers, mutate } = usePublishers({
+  const { relayers, nextRelayers, mutate } = useRelayers({
     pageSize,
     skip,
     config: {
@@ -46,13 +46,13 @@ const Publishers: NextPage = () => {
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>
-        <title>{t("publishers")} | Ethereum Tag Service</title>
+        <title>{t("relayers")} | Ethereum Tag Service</title>
       </Head>
 
-      <PageTitle title={t("publishers")} />
+      <PageTitle title={t("relayers")} />
 
-      <Table loading={!publishers} rows={pageSize}>
-        <Table.Title>{t("publishers")}</Table.Title>
+      <Table loading={!relayers} rows={pageSize}>
+        <Table.Title>{t("relayers")}</Table.Title>
         <Table.Head>
           <Table.Tr>
             {columns &&
@@ -62,23 +62,23 @@ const Publishers: NextPage = () => {
           </Table.Tr>
         </Table.Head>
         <Table.Body>
-          {publishers &&
-            publishers.map((publisher: any) => (
-              <Table.Tr key={publisher.id}>
+          {relayers &&
+            relayers.map((relayer: any) => (
+              <Table.Tr key={relayer.id}>
                 <Table.Cell
-                  value={publisher.name}
-                  url={`/publishers/${publisher.id}`}
+                  value={relayer.name}
+                  url={`/relayers/${relayer.id}`}
                 />
                 <Table.CellWithChildren>
                   <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                    <TimeAgo date={publisher.firstSeen * 1000} />
+                    <TimeAgo date={relayer.firstSeen * 1000} />
                   </div>
                 </Table.CellWithChildren>
                 <Table.Cell
-                  value={number(parseInt(publisher.taggingRecordsPublished))}
+                  value={number(parseInt(relayer.taggingRecordsPublished))}
                 />
                 <Table.Cell
-                  value={number(parseInt(publisher.tagsPublished))}
+                  value={number(parseInt(relayer.tagsPublished))}
                   right
                 />
               </Table.Tr>
@@ -111,7 +111,7 @@ const Publishers: NextPage = () => {
           Prev
         </Button>
         <Button
-          disabled={nextPublishers && nextPublishers.length === 0}
+          disabled={nextRelayers && nextRelayers.length === 0}
           onClick={() => nextPage()}
         >
           Next
@@ -141,4 +141,4 @@ const Publishers: NextPage = () => {
   );
 };
 
-export default Publishers;
+export default Relayers;

@@ -32,7 +32,7 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
     /// Public constants
 
     string public constant NAME = "ETS Auction House";
-    uint256 public constant modulo = 100;
+    uint256 public constant MODULO = 100;
 
     /// Public variables
 
@@ -54,8 +54,8 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
     /// @dev Percentage of auction proceeds allocated to CTAG Creator
     uint256 public creatorPercentage;
 
-    /// @dev Percentage of auction proceeds allocated to CTAG Publisher.
-    uint256 public publisherPercentage;
+    /// @dev Percentage of auction proceeds allocated to CTAG Relayer.
+    uint256 public relayerPercentage;
 
     /// @dev Percentage of auction proceeds allocated to ETS.
     uint256 public platformPercentage;
@@ -106,7 +106,7 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         uint256 _reservePrice,
         uint8 _minBidIncrementPercentage,
         uint256 _duration,
-        uint256 _publisherPercentage,
+        uint256 _relayerPercentage,
         uint256 _platformPercentage
     ) external initializer {
         __Pausable_init();
@@ -119,9 +119,10 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         setDuration(_duration);
         setReservePrice(_reservePrice);
         setTimeBuffer(_timeBuffer);
-        setProceedPercentages(_platformPercentage, _publisherPercentage);
+        setProceedPercentages(_platformPercentage, _relayerPercentage);
     }
 
+    // solhint-disable-next-line
     function _authorizeUpgrade(address) internal override onlyAdmin {}
 
     // ============ OWNER/ADMIN INTERFACE ============
@@ -154,18 +155,20 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         emit AuctionTimeBufferSet(_timeBuffer);
     }
 
-    function setProceedPercentages(uint256 _platformPercentage, uint256 _publisherPercentage) public onlyAdmin {
-        require(_platformPercentage + _publisherPercentage <= 100, "Input must not exceed 100%");
+    function setProceedPercentages(uint256 _platformPercentage, uint256 _relayerPercentage) public onlyAdmin {
+        require(_platformPercentage + _relayerPercentage <= 100, "Input must not exceed 100%");
         platformPercentage = _platformPercentage;
-        publisherPercentage = _publisherPercentage;
-        creatorPercentage = modulo - platformPercentage - publisherPercentage;
+        relayerPercentage = _relayerPercentage;
+        creatorPercentage = MODULO - platformPercentage - relayerPercentage;
 
-        emit AuctionProceedPercentagesSet(platformPercentage, publisherPercentage, creatorPercentage);
+        emit AuctionProceedPercentagesSet(platformPercentage, relayerPercentage, creatorPercentage);
     }
 
     // ============ PUBLIC INTERFACE ============
 
-    function createBid(uint256 _tokenId)
+    function createBid(
+        uint256 _tokenId
+    )
         public
         payable
         nonReentrant
@@ -179,10 +182,7 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
 
         require(block.timestamp < auction.endTime, "Auction ended");
         require(msg.value >= reservePrice, "Must send at least reservePrice");
-        require(
-            msg.value >= auction.amount + ((auction.amount * minBidIncrementPercentage) / 100),
-            "Must send more than last bid by minBidIncrementPercentage amount"
-        );
+        require(msg.value >= auction.amount + ((auction.amount * minBidIncrementPercentage) / 100), "Bid too low");
 
         address payable lastBidder = auction.bidder;
 
@@ -214,12 +214,12 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
 
         // Distribute proceeds to actors.
         IETSToken.Tag memory ctag = etsToken.getTagById(_tokenId);
-        uint256 publisherProceeds = (auction.amount * publisherPercentage) / modulo;
-        uint256 creatorProceeds = (auction.amount * creatorPercentage) / modulo;
-        _safeTransferETHWithFallback(ctag.publisher, publisherProceeds);
+        uint256 relayerProceeds = (auction.amount * relayerPercentage) / MODULO;
+        uint256 creatorProceeds = (auction.amount * creatorPercentage) / MODULO;
+        _safeTransferETHWithFallback(ctag.relayer, relayerProceeds);
         _safeTransferETHWithFallback(ctag.creator, creatorProceeds);
 
-        emit AuctionSettled(_tokenId, auction.bidder, auction.amount, publisherProceeds, creatorProceeds);
+        emit AuctionSettled(_tokenId, auction.bidder, auction.amount, relayerProceeds, creatorProceeds);
         delete auctions[_tokenId];
     }
 
@@ -272,7 +272,9 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         return auctions[_tokenId];
     }
 
+    /* solhint-disable */
     receive() external payable {}
 
     fallback() external payable {}
+    /* solhint-enable */
 }

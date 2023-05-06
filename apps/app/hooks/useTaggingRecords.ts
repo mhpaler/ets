@@ -28,7 +28,7 @@ export function useTaggingRecords({
           id
           recordType
           timestamp
-          publisher {
+          relayer {
             id
             name
           }

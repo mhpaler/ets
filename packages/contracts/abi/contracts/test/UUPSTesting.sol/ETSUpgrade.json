@@ -88,7 +88,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "publisherPercentage",
+        "name": "relayerPercentage",
         "type": "uint256"
       }
     ],
@@ -152,6 +152,19 @@
     ],
     "name": "Upgraded",
     "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "MODULO",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],
@@ -319,7 +332,7 @@
       },
       {
         "internalType": "address",
-        "name": "_publisher",
+        "name": "_relayer",
         "type": "address"
       },
       {
@@ -375,7 +388,7 @@
       },
       {
         "internalType": "address",
-        "name": "_publisher",
+        "name": "_relayer",
         "type": "address"
       },
       {
@@ -419,7 +432,7 @@
       },
       {
         "internalType": "address",
-        "name": "_publisher",
+        "name": "_relayer",
         "type": "address"
       },
       {
@@ -465,7 +478,7 @@
       },
       {
         "internalType": "address",
-        "name": "_publisher",
+        "name": "_relayer",
         "type": "address"
       },
       {
@@ -627,7 +640,7 @@
       },
       {
         "internalType": "address",
-        "name": "_publisher",
+        "name": "_relayer",
         "type": "address"
       },
       {
@@ -655,7 +668,7 @@
       },
       {
         "internalType": "address",
-        "name": "publisher",
+        "name": "relayer",
         "type": "address"
       },
       {
@@ -694,7 +707,7 @@
       },
       {
         "internalType": "address",
-        "name": "publisher",
+        "name": "relayer",
         "type": "address"
       },
       {
@@ -732,7 +745,7 @@
       },
       {
         "internalType": "address",
-        "name": "_publisher",
+        "name": "_relayer",
         "type": "address"
       },
       {
@@ -760,7 +773,7 @@
       },
       {
         "internalType": "address",
-        "name": "publisher",
+        "name": "relayer",
         "type": "address"
       },
       {
@@ -801,26 +814,13 @@
       },
       {
         "internalType": "uint256",
-        "name": "_publisherPercentage",
+        "name": "_relayerPercentage",
         "type": "uint256"
       }
     ],
     "name": "initialize",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "modulo",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -870,7 +870,7 @@
   },
   {
     "inputs": [],
-    "name": "publisherPercentage",
+    "name": "relayerPercentage",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1065,7 +1065,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "_publisherPercentage",
+        "name": "_relayerPercentage",
         "type": "uint256"
       }
     ],
@@ -1133,7 +1133,7 @@
       },
       {
         "internalType": "address",
-        "name": "_publisher",
+        "name": "_relayer",
         "type": "address"
       },
       {
@@ -1179,7 +1179,7 @@
       },
       {
         "internalType": "address",
-        "name": "_publisher",
+        "name": "_relayer",
         "type": "address"
       },
       {
@@ -1221,7 +1221,7 @@
       },
       {
         "internalType": "address",
-        "name": "publisher",
+        "name": "relayer",
         "type": "address"
       },
       {

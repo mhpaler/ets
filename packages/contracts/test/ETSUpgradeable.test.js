@@ -1,7 +1,7 @@
-const {setup, getFactories, getArtifacts} = require("./setup.js");
-const {expectEvent} = require("@openzeppelin/test-helpers");
-const {upgrades} = require("hardhat");
-const {assert} = require("chai");
+const { setup, getFactories, getArtifacts } = require("./setup.js");
+const { expectEvent } = require("@openzeppelin/test-helpers");
+const { upgrades } = require("hardhat");
+const { assert } = require("chai");
 
 let artifacts, factories;
 
@@ -93,15 +93,15 @@ describe("Upgrades tests", function () {
     });
   });
 
-  describe("ETSPublisherFactory", function () {
+  describe("ETSRelayerFactory", function () {
     it("is upgradeable", async function () {
       // Upgrade the proxy.
-      contracts.ETSPublisherFactory = await upgrades.upgradeProxy(contracts.ETSPublisherFactory.address, factories.ETSPublisherFactoryUpgrade);
+      contracts.ETSRelayerFactory = await upgrades.upgradeProxy(contracts.ETSRelayerFactory.address, factories.ETSRelayerFactoryUpgrade);
 
-      const deployTxn = contracts.ETSPublisherFactory.deployTransaction.hash;
-      await expectEvent.inTransaction(deployTxn, artifacts.ETSPublisherFactoryUpgrade, "Upgraded");
+      const deployTxn = contracts.ETSRelayerFactory.deployTransaction.hash;
+      await expectEvent.inTransaction(deployTxn, artifacts.ETSRelayerFactoryUpgrade, "Upgraded");
       // Upgraded contract has new function upgradeTest()
-      assert((await contracts.ETSPublisherFactory.upgradeTest()) === true);
+      assert((await contracts.ETSRelayerFactory.upgradeTest()) === true);
     });
   });
 });

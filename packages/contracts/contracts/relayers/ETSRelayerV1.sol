@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "../interfaces/IETS.sol";
-import "../interfaces/IETSToken.sol";
-import "../interfaces/IETSTarget.sol";
-import "./interfaces/IETSPublisherV1.sol";
+import { IETS } from "../interfaces/IETS.sol";
+import { IETSToken } from "../interfaces/IETSToken.sol";
+import { IETSTarget } from "../interfaces/IETSTarget.sol";
+import { IETSRelayerV1, IETSRelayer } from "./interfaces/IETSRelayerV1.sol";
 import { UintArrayUtils } from "../libraries/UintArrayUtils.sol";
 import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { Pausable } from "@openzeppelin/contracts/security/Pausable.sol";
 
 /**
- * @title ETSPublisherV1
+ * @title ETSRelayerV1
  * @author Ethereum Tag Service <team@ets.xyz>
- * @notice Sample implementation of IETSPublisher
+ * @notice Sample implementation of IETSRelayer
  */
-contract ETSPublisherV1 is IETSPublisherV1, ERC165, Ownable, Pausable {
+contract ETSRelayerV1 is IETSRelayerV1, ERC165, Ownable, Pausable {
     using UintArrayUtils for uint256[];
 
     /// @dev Address and interface for ETS Core.
@@ -28,26 +28,26 @@ contract ETSPublisherV1 is IETSPublisherV1, ERC165, Ownable, Pausable {
     IETSTarget public etsTarget;
 
     // Public constants
-    string public constant NAME = "ETS Publisher V1";
-    bytes4 public constant IID_IETSPublisher = type(IETSPublisher).interfaceId;
+    string public constant NAME = "ETS Relayer V1";
+    bytes4 public constant IID_IETSRELAYER = type(IETSRelayer).interfaceId;
 
     // Public variables
 
     /// @notice Address that built this smart contract.
     address payable public creator;
 
-    /// @dev Public name for Publisher instance.
-    string public publisherName;
+    /// @dev Public name for Relayer instance.
+    string public relayerName;
 
     constructor(
-        string memory _publisherName,
+        string memory _relayerName,
         IETS _ets,
         IETSToken _etsToken,
         IETSTarget _etsTarget,
         address payable _creator,
         address payable _owner
     ) {
-        publisherName = _publisherName;
+        relayerName = _relayerName;
         ets = _ets;
         etsToken = _etsToken;
         etsTarget = _etsTarget;
@@ -57,27 +57,27 @@ contract ETSPublisherV1 is IETSPublisherV1, ERC165, Ownable, Pausable {
 
     // ============ OWNER INTERFACE ============
 
-    /// @inheritdoc IETSPublisher
+    /// @inheritdoc IETSRelayer
     function pause() public onlyOwner {
         _pause();
-        emit PublisherPauseToggledByOwner(address(this));
+        emit RelayerPauseToggledByOwner(address(this));
     }
 
-    /// @inheritdoc IETSPublisher
+    /// @inheritdoc IETSRelayer
     function unpause() public onlyOwner {
         _unpause();
-        emit PublisherPauseToggledByOwner(address(this));
+        emit RelayerPauseToggledByOwner(address(this));
     }
 
-    /// @inheritdoc IETSPublisher
+    /// @inheritdoc IETSRelayer
     function changeOwner(address _newOwner) public whenPaused {
         transferOwnership(_newOwner);
-        emit PublisherOwnerChanged(address(this));
+        emit RelayerOwnerChanged(address(this));
     }
 
     // ============ PUBLIC INTERFACE ============
 
-    /// @inheritdoc IETSPublisherV1
+    /// @inheritdoc IETSRelayerV1
     function applyTags(IETS.TaggingRecordRawInput[] calldata _rawInput) public payable whenNotPaused {
         uint256 taggingFee = ets.taggingFee();
         for (uint256 i; i < _rawInput.length; ++i) {
@@ -85,7 +85,7 @@ contract ETSPublisherV1 is IETSPublisherV1, ERC165, Ownable, Pausable {
         }
     }
 
-    /// @inheritdoc IETSPublisherV1
+    /// @inheritdoc IETSRelayerV1
     function replaceTags(IETS.TaggingRecordRawInput[] calldata _rawInput) public payable whenNotPaused {
         uint256 taggingFee = ets.taggingFee();
         for (uint256 i; i < _rawInput.length; ++i) {
@@ -93,24 +93,21 @@ contract ETSPublisherV1 is IETSPublisherV1, ERC165, Ownable, Pausable {
         }
     }
 
-    /// @inheritdoc IETSPublisherV1
+    /// @inheritdoc IETSRelayerV1
     function removeTags(IETS.TaggingRecordRawInput[] calldata _rawInput) public payable whenNotPaused {
         for (uint256 i; i < _rawInput.length; ++i) {
             _removeTags(_rawInput[i], payable(msg.sender));
         }
     }
 
-    /// @inheritdoc IETSPublisherV1
-    function getOrCreateTagIds(string[] calldata _tags)
-        public
-        payable
-        whenNotPaused
-        returns (uint256[] memory _tagIds)
-    {
+    /// @inheritdoc IETSRelayerV1
+    function getOrCreateTagIds(
+        string[] calldata _tags
+    ) public payable whenNotPaused returns (uint256[] memory _tagIds) {
         // First let's derive tagIds for the tagStrings.
         uint256[] memory tagIds = new uint256[](_tags.length);
         for (uint256 i; i < _tags.length; ++i) {
-            // for new CTAGs msg.sender is logged as "creator" and this contract is "publisher"
+            // for new CTAGs msg.sender is logged as "creator" and this contract is "relayer"
             tagIds[i] = ets.getOrCreateTagId(_tags[i], payable(msg.sender));
         }
         return tagIds;
@@ -119,36 +116,35 @@ contract ETSPublisherV1 is IETSPublisherV1, ERC165, Ownable, Pausable {
     // ============ PUBLIC VIEW FUNCTIONS ============
 
     /// @inheritdoc ERC165
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IETSPublisher) returns (bool) {
-        return interfaceId == IID_IETSPublisher || super.supportsInterface(interfaceId);
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IETSRelayer) returns (bool) {
+        return interfaceId == IID_IETSRELAYER || super.supportsInterface(interfaceId);
     }
 
-    /// @inheritdoc IETSPublisher
+    /// @inheritdoc IETSRelayer
     function isPausedByOwner() public view virtual returns (bool) {
         return paused();
     }
 
-    /// @inheritdoc IETSPublisher
+    /// @inheritdoc IETSRelayer
     function getOwner() public view virtual returns (address payable) {
         return payable(owner());
     }
 
-    /// @inheritdoc IETSPublisher
-    function getPublisherName() public view returns (string memory) {
-        return publisherName;
+    /// @inheritdoc IETSRelayer
+    function getRelayerName() public view returns (string memory) {
+        return relayerName;
     }
 
-    /// @inheritdoc IETSPublisher
+    /// @inheritdoc IETSRelayer
     function getCreator() public view returns (address payable) {
         return creator;
     }
 
-    /// @inheritdoc IETSPublisherV1
-    function computeTaggingFee(IETS.TaggingRecordRawInput calldata _rawInput, IETS.TaggingAction _action)
-        public
-        view
-        returns (uint256 fee, uint256 tagCount)
-    {
+    /// @inheritdoc IETSRelayerV1
+    function computeTaggingFee(
+        IETS.TaggingRecordRawInput calldata _rawInput,
+        IETS.TaggingAction _action
+    ) public view returns (uint256 fee, uint256 tagCount) {
         return ets.computeTaggingFeeFromRawInput(_rawInput, address(this), msg.sender, _action);
     }
 
@@ -170,7 +166,7 @@ contract ETSPublisherV1 is IETSPublisherV1, ERC165, Ownable, Pausable {
                 _tagger,
                 IETS.TaggingAction.APPEND
             );
-            require(address(this).balance >= valueToSendForTagging, "Not enough funds to complete tagging");
+            require(address(this).balance >= valueToSendForTagging, "Insufficient funds");
         }
 
         // Call the core applyTagsWithRawInput() function to record new or append to exsiting tagging record.
@@ -193,7 +189,7 @@ contract ETSPublisherV1 is IETSPublisherV1, ERC165, Ownable, Pausable {
                 _tagger,
                 IETS.TaggingAction.REPLACE
             );
-            require(address(this).balance >= valueToSendForTagging, "Not enough funds to complete tagging");
+            require(address(this).balance >= valueToSendForTagging, "Insufficient funds");
         }
 
         // Finally, call the core replaceTags() function to update the tagging record.

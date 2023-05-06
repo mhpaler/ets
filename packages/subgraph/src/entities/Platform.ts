@@ -17,8 +17,8 @@ export function ensurePlatform(event: ethereum.Event | null): Platform {
     platform.taggingRecordsCount = ZERO;
     platform.taggingFeesRevenue = ZERO;
     platform.auctionRevenue = ZERO;
-    platform.publisherCountActive = ZERO;
-    platform.publisherCountLifetime = ZERO;
+    platform.relayerCountActive = ZERO;
+    platform.relayerCountLifetime = ZERO;
     platform.taggerCount = ZERO;
     platform.creatorCount = ZERO;
     platform.ownerCount = ZERO;
@@ -57,21 +57,21 @@ export function updatePlatformTaggingRecordStats(tagIds: string[] | null, event:
   platform.save();
 }
 
-export function updatePublisherCount(action: BigInt, event: ethereum.Event): void {
+export function updateRelayerCount(action: BigInt, event: ethereum.Event): void {
   let platform = ensurePlatform(event);
   // Action ZERO is used to decrement count.
   if (platform) {
     if (action == ADDED) {
-      platform.publisherCountLifetime = platform.publisherCountLifetime.plus(ONE);
-      platform.publisherCountActive = platform.publisherCountActive.plus(ONE);
+      platform.relayerCountLifetime = platform.relayerCountLifetime.plus(ONE);
+      platform.relayerCountActive = platform.relayerCountActive.plus(ONE);
     }
 
     if (action == PAUSED) {
-      platform.publisherCountActive = platform.publisherCountActive.minus(ONE);
+      platform.relayerCountActive = platform.relayerCountActive.minus(ONE);
     }
 
     if (action == UNPAUSED) {
-      platform.publisherCountActive = platform.publisherCountActive.plus(ONE);
+      platform.relayerCountActive = platform.relayerCountActive.plus(ONE);
     }
     platform.save();
   }

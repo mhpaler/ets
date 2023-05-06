@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "./interfaces/IETSTarget.sol";
-import "./interfaces/IETSEnrichTarget.sol";
-import "./interfaces/IETSAccessControls.sol";
-import "./utils/StringHelpers.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import { IETSTarget } from "./interfaces/IETSTarget.sol";
+import { IETSEnrichTarget } from "./interfaces/IETSEnrichTarget.sol";
+import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
+import { StringHelpers } from "./utils/StringHelpers.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 /**
  * @title IETSTarget
@@ -33,8 +33,6 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
  * resource. The effect of that is that different Target IDs in ETS can similarly point to the same resource.
  */
 contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
-    using AddressUpgradeable for address;
-
     IETSAccessControls public etsAccessControls;
 
     IETSEnrichTarget public etsEnrichTarget;
@@ -49,7 +47,7 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
     // Modifiers
 
     modifier onlyAdmin() {
-        require(etsAccessControls.isAdmin(msg.sender), "Caller must have administrator access");
+        require(etsAccessControls.isAdmin(msg.sender), "Access denied");
         _;
     }
 
@@ -64,6 +62,7 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
         etsAccessControls = IETSAccessControls(_etsAccessControls);
     }
 
+    // solhint-disable-next-line
     function _authorizeUpgrade(address) internal override onlyAdmin {}
 
     // ============ OWNER INTERFACE ============
@@ -84,7 +83,7 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
 
     /// @inheritdoc IETSTarget
     function setEnrichTarget(address _etsEnrichTarget) public onlyAdmin {
-        require(address(_etsEnrichTarget) != address(0), "ETSEnrichTarget address cannot be zero");
+        require(address(_etsEnrichTarget) != address(0), "Bad address");
         etsEnrichTarget = IETSEnrichTarget(_etsEnrichTarget);
         emit EnrichTargetSet(_etsEnrichTarget);
     }
@@ -126,7 +125,7 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
         uint256 _httpStatus,
         string calldata _ipfsHash
     ) external returns (bool success) {
-        require(msg.sender == address(etsEnrichTarget), "Only ETSEnrichTarget may update target");
+        require(msg.sender == address(etsEnrichTarget), "Access denied");
         targets[_targetId].targetURI = _targetURI;
         targets[_targetId].enriched = _enriched;
         targets[_targetId].httpStatus = _httpStatus;

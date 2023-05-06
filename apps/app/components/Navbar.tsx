@@ -70,9 +70,9 @@ export default function Navbar() {
           <div>
             <div className="flex items-center ml-4">
               <div className="flex mr-6 space-x-6">
-                <Link href="/publishers">
+                <Link href="/relayers">
                   <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
-                    {t("publishers")}
+                    {t("relayers")}
                   </a>
                 </Link>
                 {/**
@@ -96,9 +96,9 @@ export default function Navbar() {
         </div>
         {/** 
         <div className="flex flex-wrap justify-center py-4 space-x-8 lg:hidden">
-          <Link href="/publishers">
+          <Link href="/relayers">
             <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
-              {t("publishers")}
+              {t("relayers")}
             </a>
           </Link>
           

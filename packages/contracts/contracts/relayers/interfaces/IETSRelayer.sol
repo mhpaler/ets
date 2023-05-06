@@ -3,39 +3,39 @@
 pragma solidity ^0.8.10;
 
 /**
- * @title IETSPublisher
+ * @title IETSRelayer
  * @author Ethereum Tag Service <team@ets.xyz>
  *
- * @notice Minimum interface required for ETS Publisher smart contracts. Contracts implementing this
+ * @notice Minimum interface required for ETS Relayer smart contracts. Contracts implementing this
  * interface will need to import OpenZeppelin ERC165, Ownable and Pausable contracts.
- * See https://github.com/ethereum-tag-service/ets/blob/stage/packages/contracts/contracts/examples/ETSPublisher.sol
+ * See https://github.com/ethereum-tag-service/ets/blob/stage/packages/contracts/contracts/examples/ETSRelayer.sol
  * for a sample implementation.
  */
-interface IETSPublisher {
+interface IETSRelayer {
     /**
-     * @dev Emitted when an IETSPublisher contract is paused/unpaused.
+     * @dev Emitted when an IETSRelayer contract is paused/unpaused.
      *
-     * @param publisherAddress Address of publisher contract.
+     * @param relayerAddress Address of relayer contract.
      */
-    event PublisherPauseToggledByOwner(address publisherAddress);
+    event RelayerPauseToggledByOwner(address relayerAddress);
 
     /**
-     * @dev Emitted when an IETSPublisher contract has changed owners.
+     * @dev Emitted when an IETSRelayer contract has changed owners.
      *
-     * @param publisherAddress Address of publisher contract.
+     * @param relayerAddress Address of relayer contract.
      */
-    event PublisherOwnerChanged(address publisherAddress);
+    event RelayerOwnerChanged(address relayerAddress);
 
     // ============ OWNER INTERFACE ============
 
     /**
-     * @notice Pause this publisher contract.
+     * @notice Pause this relayer contract.
      * @dev This function can only be called by the owner when the contract is unpaused.
      */
     function pause() external;
 
     /**
-     * @notice Unpause this publisher contract.
+     * @notice Unpause this relayer contract.
      * @dev This function can only be called by the owner when the contract is paused.
      */
     function unpause() external;
@@ -52,10 +52,10 @@ interface IETSPublisher {
     // ============ PUBLIC VIEW FUNCTIONS ============
 
     /**
-     * @notice Broadcast support for IETSPublisher interface to external contracts.
+     * @notice Broadcast support for IETSRelayer interface to external contracts.
      *
-     * @dev ETSCore will only add publisher contracts that implement IETSPublisher interface.
-     * Your implementation should broadcast that it implements IETSPublisher interface.
+     * @dev ETSCore will only add relayer contracts that implement IETSRelayer interface.
+     * Your implementation should broadcast that it implements IETSRelayer interface.
      *
      * @return boolean: true if this contract implements the interface defined by
      * `interfaceId`
@@ -71,23 +71,23 @@ interface IETSPublisher {
     function isPausedByOwner() external view returns (bool);
 
     /**
-     * @notice Returns address of an IETSPublisher contract owner.
+     * @notice Returns address of an IETSRelayer contract owner.
      *
      * @return address of contract owner.
      */
     function getOwner() external view returns (address payable);
 
     /**
-     * @notice Returns human readable name for this IETSPublisher contract.
+     * @notice Returns human readable name for this IETSRelayer contract.
      *
-     * @return name of the Publisher contract as a string.
+     * @return name of the Relayer contract as a string.
      */
-    function getPublisherName() external view returns (string memory);
+    function getRelayerName() external view returns (string memory);
 
     /**
-     * @notice Returns address of an IETSPublisher contract creator.
+     * @notice Returns address of an IETSRelayer contract creator.
      *
-     * @return address of the creator of the Publisher contract.
+     * @return address of the creator of the Relayer contract.
      */
     function getCreator() external view returns (address payable);
 }

@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "./IETSPublisher.sol";
-import "../../interfaces/IETS.sol";
+import { IETSRelayer } from "./IETSRelayer.sol";
+import { IETS } from "../../interfaces/IETS.sol";
 
 /**
- * @title IETSPublisherV1
+ * @title IETSRelayerV1
  * @author Ethereum Tag Service <team@ets.xyz>
  *
- * @notice Interface for the IETSPublisherV1 contract.
+ * @notice Interface for the IETSRelayerV1 contract.
  */
-interface IETSPublisherV1 is IETSPublisher {
+interface IETSRelayerV1 is IETSRelayer {
     /**
      * @notice Apply one or more tags to a targetURI using tagging record raw client input data.
      *
@@ -56,8 +56,8 @@ interface IETSPublisherV1 is IETSPublisher {
      * @return fee Calculated tagging fee in ETH/Matic
      * @return tagCount Number of new tags being added to tagging record.
      */
-    function computeTaggingFee(IETS.TaggingRecordRawInput calldata _rawInput, IETS.TaggingAction _action)
-        external
-        view
-        returns (uint256 fee, uint256 tagCount);
+    function computeTaggingFee(
+        IETS.TaggingRecordRawInput calldata _rawInput,
+        IETS.TaggingAction _action
+    ) external view returns (uint256 fee, uint256 tagCount);
 }

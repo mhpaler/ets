@@ -1,5 +1,5 @@
-const {ethers, upgrades, artifacts} = require("hardhat");
-const {utils} = require("ethers");
+const { ethers, upgrades, artifacts } = require("hardhat");
+const { utils } = require("ethers");
 const initSettings = {
   // Token
   TAG_MIN_STRING_LENGTH: 2,
@@ -10,13 +10,13 @@ const initSettings = {
   RESERVE_PRICE: 200, // 200 WEI
   MIN_INCREMENT_BID_PERCENTAGE: 5,
   DURATION: 30 * 60, // 30 minutes
-  PUBLISHER_PERCENTAGE: 20,
+  RELAYER_PERCENTAGE: 20,
   CREATOR_PERCENTAGE: 40,
   PLATFORM_PERCENTAGE: 40,
   // ETS core (Tagging records)
   TAGGING_FEE: "0.1", // .1 MATIC
   TAGGING_FEE_PLATFORM_PERCENTAGE: 20,
-  TAGGING_FEE_PUBLISHER_PERCENTAGE: 30,
+  TAGGING_FEE_RELAYER_PERCENTAGE: 30,
 };
 
 async function getAccounts() {
@@ -41,9 +41,9 @@ async function getArtifacts() {
     ETSEnrichTarget: artifacts.readArtifactSync("ETSEnrichTarget"),
     ETSAuctionHouse: artifacts.readArtifactSync("ETSAuctionHouse"),
     ETS: artifacts.readArtifactSync("ETS"),
-    ETSPublisherV1: artifacts.readArtifactSync("ETSPublisherV1"),
-    ETSPublisherFactory: artifacts.readArtifactSync("ETSPublisherFactory"),
-    ETSPublisher: artifacts.readArtifactSync("ETSPublisher"),
+    ETSRelayerV1: artifacts.readArtifactSync("ETSRelayerV1"),
+    ETSRelayerFactory: artifacts.readArtifactSync("ETSRelayerFactory"),
+    ETSRelayer: artifacts.readArtifactSync("ETSRelayer"),
 
     /// .sol test contracts.
     ETSAccessControlsUpgrade: artifacts.readArtifactSync("ETSAccessControlsUpgrade"),
@@ -52,7 +52,7 @@ async function getArtifacts() {
     ETSEnrichTargetUpgrade: artifacts.readArtifactSync("ETSEnrichTargetUpgrade"),
     ETSTargetUpgrade: artifacts.readArtifactSync("ETSTargetUpgrade"),
     ETSUpgrade: artifacts.readArtifactSync("ETSUpgrade"),
-    ETSPublisherFactoryUpgrade: artifacts.readArtifactSync("ETSPublisherFactoryUpgrade"),
+    ETSRelayerFactoryUpgrade: artifacts.readArtifactSync("ETSRelayerFactoryUpgrade"),
   };
   return justTheFacts;
 }
@@ -65,9 +65,9 @@ async function getFactories() {
     ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
     ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
     ETS: await ethers.getContractFactory("ETS"),
-    ETSPublisherV1: await ethers.getContractFactory("ETSPublisherV1"),
-    ETSPublisherFactory: await ethers.getContractFactory("ETSPublisherFactory"),
-    ETSPublisher: await ethers.getContractFactory("ETSPublisher"),
+    ETSRelayerV1: await ethers.getContractFactory("ETSRelayerV1"),
+    ETSRelayerFactory: await ethers.getContractFactory("ETSRelayerFactory"),
+    ETSRelayer: await ethers.getContractFactory("ETSRelayer"),
 
     /// .sol test contracts.
     WMATIC: await ethers.getContractFactory("WMATIC"),
@@ -77,7 +77,7 @@ async function getFactories() {
     ETSEnrichTargetUpgrade: await ethers.getContractFactory("ETSEnrichTargetUpgrade"),
     ETSTargetUpgrade: await ethers.getContractFactory("ETSTargetUpgrade"),
     ETSUpgrade: await ethers.getContractFactory("ETSUpgrade"),
-    ETSPublisherFactoryUpgrade: await ethers.getContractFactory("ETSPublisherFactoryUpgrade"),
+    ETSRelayerFactoryUpgrade: await ethers.getContractFactory("ETSRelayerFactoryUpgrade"),
   };
   return allFactories;
 }
@@ -95,9 +95,9 @@ async function setup() {
     ETSTarget: await ethers.getContractFactory("ETSTarget"),
     ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
     ETS: await ethers.getContractFactory("ETS"),
-    ETSPublisherV1: await ethers.getContractFactory("ETSPublisherV1"),
-    ETSPublisherFactory: await ethers.getContractFactory("ETSPublisherFactory"),
-    ETSPublisher: await ethers.getContractFactory("ETSPublisher"),
+    ETSRelayerV1: await ethers.getContractFactory("ETSRelayerV1"),
+    ETSRelayerFactory: await ethers.getContractFactory("ETSRelayerFactory"),
+    ETSRelayer: await ethers.getContractFactory("ETSRelayer"),
   };
 
   // ============ SETUP TEST ACCOUNTS ============
@@ -128,7 +128,7 @@ async function setup() {
       initSettings.TAG_MAX_STRING_LENGTH,
       initSettings.OWNERSHIP_TERM_LENGTH,
     ],
-    {kind: "uups"},
+    { kind: "uups" },
   );
 
   const ETSAuctionHouse = await upgrades.deployProxy(
@@ -141,13 +141,13 @@ async function setup() {
       initSettings.RESERVE_PRICE,
       initSettings.MIN_INCREMENT_BID_PERCENTAGE,
       initSettings.DURATION,
-      initSettings.PUBLISHER_PERCENTAGE,
+      initSettings.RELAYER_PERCENTAGE,
       initSettings.PLATFORM_PERCENTAGE,
     ],
-    {kind: "uups"},
+    { kind: "uups" },
   );
 
-  const ETSTarget = await upgrades.deployProxy(factories.ETSTarget, [ETSAccessControls.address], {kind: "uups"});
+  const ETSTarget = await upgrades.deployProxy(factories.ETSTarget, [ETSAccessControls.address], { kind: "uups" });
 
   const ETSEnrichTarget = await upgrades.deployProxy(
     factories.ETSEnrichTarget,
@@ -165,25 +165,25 @@ async function setup() {
       ETSTarget.address,
       utils.parseEther(initSettings.TAGGING_FEE),
       initSettings.TAGGING_FEE_PLATFORM_PERCENTAGE,
-      initSettings.TAGGING_FEE_PUBLISHER_PERCENTAGE,
+      initSettings.TAGGING_FEE_RELAYER_PERCENTAGE,
     ],
     {
       kind: "uups",
     },
   );
 
-  const ETSPublisherFactory = await upgrades.deployProxy(
-    factories.ETSPublisherFactory,
+  const ETSRelayerFactory = await upgrades.deployProxy(
+    factories.ETSRelayerFactory,
     [ETSAccessControls.address, ETS.address, ETSToken.address, ETSTarget.address],
     {
       kind: "uups",
     },
   );
 
-  // Manually deploy the ETSPublisherV1 contract. Ordinarily this would be deployed
-  // via ETSPublisherFactory. 
-  const ETSPublisher = await factories.ETSPublisherV1.deploy(
-    "ETSPublisher",
+  // Manually deploy the ETSRelayerV1 contract. Ordinarily this would be deployed
+  // via ETSRelayerFactory. 
+  const ETSRelayer = await factories.ETSRelayerV1.deploy(
+    "ETSRelayer",
     ETS.address,
     ETSToken.address,
     ETSTarget.address,
@@ -199,14 +199,14 @@ async function setup() {
     ETSTarget: ETSTarget,
     ETSEnrichTarget: ETSEnrichTarget,
     ETS: ETS,
-    ETSPublisherFactory: ETSPublisherFactory,
-    ETSPublisher: ETSPublisher,
+    ETSRelayerFactory: ETSRelayerFactory,
+    ETSRelayer: ETSRelayer,
   };
 
   // ============ GRANT ROLES & APPROVALS ============
 
-  // Grant PUBLISHER_ADMIN role to ETSPublisherFactory so it can deploy publisher contracts.
-  await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), ETSPublisherFactory.address);
+  // Grant RELAYER_ADMIN role to ETSRelayerFactory so it can deploy relayer contracts.
+  await ETSAccessControls.grantRole(ethers.utils.id("RELAYER_ADMIN"), ETSRelayerFactory.address);
 
   await ETSAccessControls.grantRole(await ETSAccessControls.SMART_CONTRACT_ROLE(), accounts.ETSAdmin.address, {
     from: accounts.ETSAdmin.address,

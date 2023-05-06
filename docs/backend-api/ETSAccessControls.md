@@ -50,32 +50,32 @@ revoke that role for other addresses. Can only be called by address with DEFAULT
 | \_role      | bytes32 | bytes32 representation of role being administered. |
 | \_adminRole | bytes32 | bytes32 representation of administering role.      |
 
-### addPublisher
+### addRelayer
 
 ```solidity
-function addPublisher(address _publisher, string _name) public
+function addRelayer(address _relayer, string _name) public
 ```
 
-Adds a Publisher contract to ETS. Can only be called by address
+Adds a Relayer contract to ETS. Can only be called by address
 with DEFAULT_ADMIN_ROLE.
 
-| Name        | Type    | Description                                                       |
-| ----------- | ------- | ----------------------------------------------------------------- |
-| \_publisher | address | Address of the Publisher contract. Must conform to IETSPublisher. |
-| \_name      | string  | Human readable name of the Publisher.                             |
+| Name      | Type    | Description                                                   |
+| --------- | ------- | ------------------------------------------------------------- |
+| \_relayer | address | Address of the Relayer contract. Must conform to IETSRelayer. |
+| \_name    | string  | Human readable name of the Relayer.                           |
 
-### toggleIsPublisherPaused
+### toggleIsRelayerPaused
 
 ```solidity
-function toggleIsPublisherPaused(address _publisher) public
+function toggleIsRelayerPaused(address _relayer) public
 ```
 
-Pauses/Unpauses a Publisher contract. Can only be called by address
+Pauses/Unpauses a Relayer contract. Can only be called by address
 with DEFAULT_ADMIN_ROLE.
 
-| Name        | Type    | Description                        |
-| ----------- | ------- | ---------------------------------- |
-| \_publisher | address | Address of the Publisher contract. |
+| Name      | Type    | Description                      |
+| --------- | ------- | -------------------------------- |
+| \_relayer | address | Address of the Relayer contract. |
 
 ### isSmartContract
 
@@ -109,10 +109,10 @@ Checks whether given address has DEFAULT_ADMIN_ROLE role.
 | ---- | ---- | ---------------------------------------------------- |
 | [0]  | bool | boolean True if address has DEFAULT_ADMIN_ROLE role. |
 
-### isPublisher
+### isRelayer
 
 ```solidity
-function isPublisher(address _addr) public view returns (bool)
+function isRelayer(address _addr) public view returns (bool)
 ```
 
 Checks whether given address has PUBLISHER role.
@@ -125,10 +125,10 @@ Checks whether given address has PUBLISHER role.
 | ---- | ---- | ------------------------------------------- |
 | [0]  | bool | boolean True if address has PUBLISHER role. |
 
-### isPublisherAdmin
+### isRelayerAdmin
 
 ```solidity
-function isPublisherAdmin(address _addr) public view returns (bool)
+function isRelayerAdmin(address _addr) public view returns (bool)
 ```
 
 Checks whether given address has PUBLISHER_ADMIN role.
@@ -141,85 +141,85 @@ Checks whether given address has PUBLISHER_ADMIN role.
 | ---- | ---- | ------------------------------------------------- |
 | [0]  | bool | boolean True if address has PUBLISHER_ADMIN role. |
 
-### isPublisherByName
+### isRelayerByName
 
 ```solidity
-function isPublisherByName(string _name) public view returns (bool)
+function isRelayerByName(string _name) public view returns (bool)
 ```
 
-Checks whether given Publisher Name is a registered Publisher.
+Checks whether given Relayer Name is a registered Relayer.
 
 | Name   | Type   | Description         |
 | ------ | ------ | ------------------- |
 | \_name | string | Name being checked. |
 
-| Name | Type | Description                            |
-| ---- | ---- | -------------------------------------- |
-| [0]  | bool | boolean True if \_name is a Publisher. |
+| Name | Type | Description                          |
+| ---- | ---- | ------------------------------------ |
+| [0]  | bool | boolean True if \_name is a Relayer. |
 
-### isPublisherByAddress
+### isRelayerByAddress
 
 ```solidity
-function isPublisherByAddress(address _addr) public view returns (bool)
+function isRelayerByAddress(address _addr) public view returns (bool)
 ```
 
-Checks whether given address is a registered Publisher.
+Checks whether given address is a registered Relayer.
 
 | Name   | Type    | Description            |
 | ------ | ------- | ---------------------- |
 | \_addr | address | Address being checked. |
 
-| Name | Type | Description                                        |
-| ---- | ---- | -------------------------------------------------- |
-| [0]  | bool | boolean True if address is a registered Publisher. |
+| Name | Type | Description                                      |
+| ---- | ---- | ------------------------------------------------ |
+| [0]  | bool | boolean True if address is a registered Relayer. |
 
-### isPublisherAndNotPaused
+### isRelayerAndNotPaused
 
 ```solidity
-function isPublisherAndNotPaused(address _addr) public view returns (bool)
+function isRelayerAndNotPaused(address _addr) public view returns (bool)
 ```
 
-Checks whether given address is a registered Publisher and not paused.
+Checks whether given address is a registered Relayer and not paused.
 
 | Name   | Type    | Description            |
 | ------ | ------- | ---------------------- |
 | \_addr | address | Address being checked. |
 
-| Name | Type | Description                                            |
-| ---- | ---- | ------------------------------------------------------ |
-| [0]  | bool | boolean True if address is a Publisher and not paused. |
+| Name | Type | Description                                          |
+| ---- | ---- | ---------------------------------------------------- |
+| [0]  | bool | boolean True if address is a Relayer and not paused. |
 
-### getPublisherAddressFromName
-
-```solidity
-function getPublisherAddressFromName(string _name) public view returns (address)
-```
-
-Get publisher address from it's name.
-
-| Name   | Type   | Description        |
-| ------ | ------ | ------------------ |
-| \_name | string | Name of publisher. |
-
-| Name | Type    | Description           |
-| ---- | ------- | --------------------- |
-| [0]  | address | Address of publisher. |
-
-### getPublisherNameFromAddress
+### getRelayerAddressFromName
 
 ```solidity
-function getPublisherNameFromAddress(address _address) public view returns (string)
+function getRelayerAddressFromName(string _name) public view returns (address)
 ```
 
-Get publisher name from it's address.
+Get relayer address from it's name.
 
-| Name      | Type    | Description            |
-| --------- | ------- | ---------------------- |
-| \_address | address | Adsdress of publisher. |
+| Name   | Type   | Description      |
+| ------ | ------ | ---------------- |
+| \_name | string | Name of relayer. |
 
-| Name | Type   | Description        |
-| ---- | ------ | ------------------ |
-| [0]  | string | Name of publisher. |
+| Name | Type    | Description         |
+| ---- | ------- | ------------------- |
+| [0]  | address | Address of relayer. |
+
+### getRelayerNameFromAddress
+
+```solidity
+function getRelayerNameFromAddress(address _address) public view returns (string)
+```
+
+Get relayer name from it's address.
+
+| Name      | Type    | Description          |
+| --------- | ------- | -------------------- |
+| \_address | address | Adsdress of relayer. |
+
+| Name | Type   | Description      |
+| ---- | ------ | ---------------- |
+| [0]  | string | Name of relayer. |
 
 ### getPlatformAddress
 

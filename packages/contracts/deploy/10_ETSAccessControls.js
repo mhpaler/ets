@@ -1,10 +1,10 @@
-const {upgrades} = require("hardhat");
-const {setup} = require("./setup.js");
-const {verify} = require("./utils/verify.js");
-const {saveNetworkConfig} = require("./utils/config.js");
+const { upgrades } = require("hardhat");
+const { setup } = require("./setup.js");
+const { verify } = require("./utils/verify.js");
+const { saveNetworkConfig } = require("./utils/config.js");
 
-module.exports = async ({deployments}) => {
-  const {save, log} = deployments;
+module.exports = async ({ deployments }) => {
+  const { save, log } = deployments;
   [accounts, factories, initSettings] = await setup();
 
   // Deploy ETS Access Controls.
@@ -16,7 +16,7 @@ module.exports = async ({deployments}) => {
   await deployment.deployed();
   const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
 
-  if (process.env.ETHERNAL_DISABLED === "false") {
+  if (process.env.ETHERNAL_DISABLED === "false" || process.env.VERIFY_ON_DEPLOY) {
     // Verify & Update network configuration file.
     await verify("ETSAccessControls", deployment, implementation, []);
   }
