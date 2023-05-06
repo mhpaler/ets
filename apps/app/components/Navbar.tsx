@@ -89,19 +89,20 @@ export default function Navbar() {
                 </Link>
                  */}
               </div>
-
+              {/**
               <ConnectButton />
+               */}
             </div>
           </div>
         </div>
-        {/** 
+        {/**
         <div className="flex flex-wrap justify-center py-4 space-x-8 lg:hidden">
           <Link href="/relayers">
             <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
               {t("relayers")}
             </a>
           </Link>
-          
+
           <Link href="/auctions">
             <a className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
               {t("auctions")}
@@ -113,7 +114,7 @@ export default function Navbar() {
               {t("playground")}
             </a>
           </Link>
-          
+
         </div>
         */}
         <div className="hidden md:block">
