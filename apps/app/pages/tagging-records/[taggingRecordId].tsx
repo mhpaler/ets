@@ -105,7 +105,7 @@ const TaggingRecord: NextPage = () => {
                     taggingRecords[0].tags.map((tag: any) => (
                       <ul key={tag.id}>
                         <li>
-                          <Link href={`/ctags/${tag.machineName}`}>
+                          <Link href={`/tags/${tag.machineName}`}>
                             <a className="text-pink-600 hover:text-pink-700">
                               {tag.display}
                             </a>

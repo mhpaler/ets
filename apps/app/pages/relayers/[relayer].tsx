@@ -113,7 +113,7 @@ const Relayer: NextPage = () => {
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col">
-                <div className="text-slate-500">{t("ctags-published")}</div>
+                <div className="text-slate-500">{t("tags-published")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
                     {relayers && <Number value={relayers[0].tagsPublished} />}
@@ -180,7 +180,7 @@ const Relayer: NextPage = () => {
                   )
                 }
               >
-                {t("ctags-published")}
+                {t("tags-published")}
               </Tab>
             </Tab.List>
             <Tab.Panels>

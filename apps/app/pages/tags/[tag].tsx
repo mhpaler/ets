@@ -20,7 +20,7 @@ const Tag: NextPage = () => {
   const { tag } = query;
   const { t } = useTranslation("common");
 
-  const { ctags } = useCtags({
+  const { tags } = useCtags({
     pageSize: 1,
     skip: 0,
     filter: { machineName: tag },
@@ -55,7 +55,7 @@ const Tag: NextPage = () => {
       t("tagger"),
       t("record-type"),
       t("target"),
-      t("ctags"),
+      t("tags"),
     ],
     [t]
   );
@@ -65,10 +65,10 @@ const Tag: NextPage = () => {
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>
-        <title>{ctags && ctags[0].display} | Ethereum Tag Service</title>
+        <title>{tags && tags[0].display} | Ethereum Tag Service</title>
       </Head>
 
-      <PageTitle title={ctags && ctags[0].display} shareUrl="https://ets.xyz" />
+      <PageTitle title={tags && tags[0].display} shareUrl="https://ets.xyz" />
 
       <div className="grid gap-6 mx-auto mt-8 lg:mb-12 mb-6 lg:gap-12 md:space-y-0 md:grid sm:w-full md:grid-cols-2">
         <div className="grid content-start w-full gap-6 mx-auto lg:gap-12">
@@ -78,7 +78,7 @@ const Tag: NextPage = () => {
                 <div className="text-slate-500">{t("created")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {ctags && timestampToString(parseInt(ctags[0].timestamp))}
+                    {tags && timestampToString(parseInt(tags[0].timestamp))}
                   </div>
                 </div>
               </div>
@@ -87,10 +87,8 @@ const Tag: NextPage = () => {
                 <div className="text-slate-500">{t("expires")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {ctags &&
-                      timestampToString(
-                        parseInt(ctags[0].timestamp) + 63113904
-                      )}
+                    {tags &&
+                      timestampToString(parseInt(tags[0].timestamp) + 63113904)}
                   </div>
                 </div>
               </div>
@@ -100,9 +98,9 @@ const Tag: NextPage = () => {
                 <div className="flex col-span-3 space-x-1">
                   <div className="grid flex-grow grid-cols-1 md:grid-flow-col">
                     <div className="overflow-hidden text-right text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
-                      <Link href={`/relayers/${ctags && ctags[0].relayer.id}`}>
+                      <Link href={`/relayers/${tags && tags[0].relayer.id}`}>
                         <a className="text-pink-600 hover:text-pink-700">
-                          {ctags && ctags[0].relayer.name}
+                          {tags && tags[0].relayer.name}
                         </a>
                       </Link>
                     </div>
@@ -115,10 +113,10 @@ const Tag: NextPage = () => {
                 <div className="flex space-x-1">
                   <div className="grid flex-grow md:grid-flow-col">
                     <div className="text-slate-500 truncate ">
-                      {ctags && ctags[0].creator.id}
+                      {tags && tags[0].creator.id}
                     </div>
                   </div>
-                  <CopyAndPaste value={ctags && ctags[0].creator.id} />
+                  <CopyAndPaste value={tags && tags[0].creator.id} />
                 </div>
               </div>
 
@@ -127,10 +125,10 @@ const Tag: NextPage = () => {
                 <div className="flex col-span-3 space-x-1">
                   <div className="grid flex-grow grid-cols-1 md:grid-flow-col">
                     <div className="text-slate-500 truncate ">
-                      {ctags && ctags[0].owner.id}
+                      {tags && tags[0].owner.id}
                     </div>
                   </div>
-                  <CopyAndPaste value={ctags && ctags[0].owner.id} />
+                  <CopyAndPaste value={tags && tags[0].owner.id} />
                 </div>
               </div>
             </Panel>
@@ -143,8 +141,8 @@ const Tag: NextPage = () => {
                 <div className="text-slate-500">{t("tagging-records")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {ctags && (
-                      <Number value={ctags[0].tagAppliedInTaggingRecord} />
+                    {tags && (
+                      <Number value={tags[0].tagAppliedInTaggingRecord} />
                     )}
                   </div>
                 </div>
@@ -153,7 +151,7 @@ const Tag: NextPage = () => {
                 <div className="text-slate-500">{t("creator")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {ctags && toDp(toEth(ctags[0].creatorRevenue))} {t("matic")}
+                    {tags && toDp(toEth(tags[0].creatorRevenue))} {t("matic")}
                   </div>
                 </div>
               </div>
@@ -162,7 +160,7 @@ const Tag: NextPage = () => {
                 <div className="text-slate-500">{t("owner")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {ctags && toDp(toEth(ctags[0].ownerRevenue))} {t("matic")}
+                    {tags && toDp(toEth(tags[0].ownerRevenue))} {t("matic")}
                   </div>
                 </div>
               </div>
@@ -171,7 +169,7 @@ const Tag: NextPage = () => {
                 <div className="text-slate-500">{t("relayer")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {ctags && toDp(toEth(ctags[0].relayerRevenue))} {t("matic")}
+                    {tags && toDp(toEth(tags[0].relayerRevenue))} {t("matic")}
                   </div>
                 </div>
               </div>
@@ -180,8 +178,7 @@ const Tag: NextPage = () => {
                 <div className="text-slate-500">{t("protocol")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {ctags && toDp(toEth(ctags[0].protocolRevenue))}{" "}
-                    {t("matic")}
+                    {tags && toDp(toEth(tags[0].protocolRevenue))} {t("matic")}
                   </div>
                 </div>
               </div>
@@ -193,7 +190,7 @@ const Tag: NextPage = () => {
         <Table loading={!taggingRecords} rows={pageSize}>
           <Table.Title>
             {t("latest-tagging-records")} with&nbsp;
-            {ctags && ctags[0].display}
+            {tags && tags[0].display}
           </Table.Title>
           <Table.Head>
             <Table.Tr>
@@ -237,7 +234,7 @@ const Tag: NextPage = () => {
                     value={taggingRecord.tags.map((tag: any) => (
                       <ul key={tag.id}>
                         <li>
-                          <Link href={`/ctags/${tag.machineName}`}>
+                          <Link href={`/tags/${tag.machineName}`}>
                             <a className="text-pink-600 hover:text-pink-700">
                               {tag.display}
                             </a>
