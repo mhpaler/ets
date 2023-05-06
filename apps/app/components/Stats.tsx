@@ -190,10 +190,10 @@ const Stats = () => {
           </a>
         </div>
         <div className="rounded-md shadow-lg shadow-slate-400/20 ring-1 ring-slate-200">
-          <a href="/ctags">
+          <a href="/tags">
             <div className="relative h-32 px-6 pt-3 overflow-hidden rounded-md">
               <dt className="text-sm font-medium truncate text-slate-500">
-                {t("ctags")}
+                {t("tags")}
               </dt>
               <dd className="mt-1 text-3xl font-semibold text-slate-700">
                 {stats && stats.tagsCount ? stats.tagsCount : null}

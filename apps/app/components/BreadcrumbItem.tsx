@@ -30,16 +30,16 @@ const BreadcrumbItem = (props: any) => {
     // Replace dash with space.
     label = props.title.replace(/-/g, " ");
 
-    // Handle ctag breadcrumb
+    // Handle tag breadcrumb
     let path = router.asPath.substring(1).split("/");
-    if (path.length == 2 && path[0] == "ctags") {
+    if (path.length == 2 && path[0] == "tags") {
       if (label == path[1]) {
         label = "#" + label;
       }
     }
 
-    if (label == "ctags") {
-      label = t("ctags");
+    if (label == "tags") {
+      label = t("tags");
     }
   }
 

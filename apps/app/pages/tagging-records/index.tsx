@@ -45,7 +45,7 @@ const RecentlyTagged: NextPage = () => {
       t("tagger"),
       t("record-type"),
       t("target"),
-      t("ctags"),
+      t("tags"),
     ],
     [t]
   );
@@ -105,7 +105,7 @@ const RecentlyTagged: NextPage = () => {
                   value={taggingRecord.tags.map((tag: any) => (
                     <ul key={tag.id}>
                       <li>
-                        <Link href={`/ctags/${tag.machineName}`}>
+                        <Link href={`/tags/${tag.machineName}`}>
                           <a className="text-pink-600 hover:text-pink-700">
                             {tag.display}
                           </a>

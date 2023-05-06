@@ -49,7 +49,7 @@ const RelayerTaggingRecords: NextPage = () => {
       t("tagger"),
       t("record-type"),
       t("target"),
-      t("ctags"),
+      t("tags"),
     ],
     [t]
   );
@@ -61,7 +61,7 @@ const RelayerTaggingRecords: NextPage = () => {
       </Head>
 
       <Table loading={!taggingRecords} rows={pageSize}>
-        {/** 
+        {/**
         <Table.Title>{t("tagging-records")}</Table.Title>
         */}
         <Table.Head>
@@ -111,7 +111,7 @@ const RelayerTaggingRecords: NextPage = () => {
                   value={taggingRecord.tags.map((tag: any) => (
                     <ul key={tag.id}>
                       <li>
-                        <Link href={`/ctags/${tag.machineName}`}>
+                        <Link href={`/tags/${tag.machineName}`}>
                           <a className="text-pink-600 hover:text-pink-700">
                             {tag.display}
                           </a>

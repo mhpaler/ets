@@ -17,7 +17,7 @@ const RelayerTags: NextPage = () => {
   const [skip, setSkip] = useState(0);
   const { t } = useTranslation("common");
 
-  const { ctags, nextTags, mutate } = useCtags({
+  const { tags, nextTags, mutate } = useCtags({
     pageSize,
     skip,
     filter: { relayer_: { id: relayer } },
@@ -43,7 +43,7 @@ const RelayerTags: NextPage = () => {
 
   const columns = useMemo(
     () => [
-      t("ctag"),
+      t("tag"),
       t("tagging-records"),
       t("created"),
       t("creator"),
@@ -55,12 +55,12 @@ const RelayerTags: NextPage = () => {
   return (
     <div className="max-w-6xl mx-auto">
       <Head>
-        <title>{t("ctags")} relayer by | Ethereum Tag Service</title>
+        <title>{t("tags")} relayer by | Ethereum Tag Service</title>
       </Head>
 
-      <Table loading={!ctags} rows={pageSize}>
-        {/** 
-        <Table.Title>{t("ctags")}</Table.Title>
+      <Table loading={!tags} rows={pageSize}>
+        {/**
+        <Table.Title>{t("tags")}</Table.Title>
   */}
         <Table.Head>
           <Table.Tr>
@@ -71,11 +71,11 @@ const RelayerTags: NextPage = () => {
           </Table.Tr>
         </Table.Head>
         <Table.Body>
-          {ctags &&
-            ctags.map((tag: any) => (
+          {tags &&
+            tags.map((tag: any) => (
               <Table.Tr key={tag.machineName}>
                 <Table.CellWithChildren>
-                  <Link href={`/ctags/${tag.machineName}`}>
+                  <Link href={`/tags/${tag.machineName}`}>
                     <a className="text-pink-600 hover:text-pink-700">
                       {tag.display}
                     </a>

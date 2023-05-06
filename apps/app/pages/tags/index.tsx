@@ -15,7 +15,7 @@ const pageSize = 20;
 const Ctags: NextPage = () => {
   const [skip, setSkip] = useState(0);
   const { t } = useTranslation("common");
-  const { ctags, nextTags, mutate } = useCtags({
+  const { tags, nextTags, mutate } = useCtags({
     pageSize,
     skip,
     config: {
@@ -40,7 +40,7 @@ const Ctags: NextPage = () => {
 
   const columns = useMemo(
     () => [
-      t("ctag"),
+      t("tag"),
       t("created"),
       t("relayer"),
       t("creator"),
@@ -53,13 +53,13 @@ const Ctags: NextPage = () => {
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>
-        <title>{t("ctags")} | Ethereum Tag Service</title>
+        <title>{t("tags")} | Ethereum Tag Service</title>
       </Head>
 
-      <PageTitle title={t("ctags")} />
+      <PageTitle title={t("tags")} />
 
-      <Table loading={!ctags} rows={pageSize}>
-        <Table.Title>{t("latest-ctags")}</Table.Title>
+      <Table loading={!tags} rows={pageSize}>
+        <Table.Title>{t("latest-tags")}</Table.Title>
         <Table.Head>
           <Table.Tr>
             {columns &&
@@ -69,31 +69,31 @@ const Ctags: NextPage = () => {
           </Table.Tr>
         </Table.Head>
         <Table.Body>
-          {ctags &&
-            ctags.map((ctag: any) => (
-              <Table.Tr key={ctag.machineName}>
+          {tags &&
+            tags.map((tag: any) => (
+              <Table.Tr key={tag.machineName}>
                 <Table.CellWithChildren>
-                  <Link href={`/ctags/${ctag.machineName}`}>
+                  <Link href={`/tags/${tag.machineName}`}>
                     <a className="text-pink-600 hover:text-pink-700">
-                      {ctag.display}
+                      {tag.display}
                     </a>
                   </Link>
                 </Table.CellWithChildren>
                 <Table.CellWithChildren>
                   <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                    <TimeAgo date={ctag.timestamp * 1000} />
+                    <TimeAgo date={tag.timestamp * 1000} />
                   </div>
                 </Table.CellWithChildren>
                 <Table.CellWithChildren>
-                  <Link href={`/relayers/${ctag.relayer.id}`}>
+                  <Link href={`/relayers/${tag.relayer.id}`}>
                     <a className="text-pink-600 hover:text-pink-700">
-                      {ctag.relayer.name}
+                      {tag.relayer.name}
                     </a>
                   </Link>
                 </Table.CellWithChildren>
-                <Table.Cell value={ctag.creator.id} copyAndPaste />
-                <Table.Cell value={ctag.owner.id} copyAndPaste />
-                <Table.Cell value={ctag.tagAppliedInTaggingRecord} />
+                <Table.Cell value={tag.creator.id} copyAndPaste />
+                <Table.Cell value={tag.owner.id} copyAndPaste />
+                <Table.Cell value={tag.tagAppliedInTaggingRecord} />
               </Table.Tr>
             ))}
         </Table.Body>

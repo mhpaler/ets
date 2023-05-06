@@ -39,7 +39,7 @@ const Relayers: NextPage = () => {
   };
 
   const columns = useMemo(
-    () => [t("name"), t("added"), t("tagging-records"), t("ctags")],
+    () => [t("name"), t("added"), t("tagging-records"), t("tags")],
     [t]
   );
 

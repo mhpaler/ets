@@ -16,8 +16,8 @@ export function useCtags({
 }) {
   const { data, mutate, error } = useSWR(
     [
-      `query ctags($filter: Tag_filter $first: Int!, $skip: Int!, $orderBy: String!) {
-        ctags: tags(
+      `query tags($filter: Tag_filter $first: Int!, $skip: Int!, $orderBy: String!) {
+        tags: tags(
           first: $first
           skip: $skip
           orderBy: $orderBy
@@ -65,9 +65,9 @@ export function useCtags({
   );
 
   return {
-    ctags: data?.ctags,
+    tags: data?.tags,
     nextTags: data?.nextTags,
-    isLoading: !error && !data?.ctags,
+    isLoading: !error && !data?.tags,
     mutate,
     isError: error?.statusText,
   };
