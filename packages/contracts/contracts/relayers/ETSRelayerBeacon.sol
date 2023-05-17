@@ -4,8 +4,6 @@ pragma solidity ^0.8.10;
 import { UpgradeableBeacon } from "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
-import "hardhat/console.sol";
-
 contract ETSRelayerBeacon is Ownable {
     UpgradeableBeacon immutable relayerBeacon;
 

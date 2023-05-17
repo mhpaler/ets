@@ -13,8 +13,6 @@ import { ETSRelayerV1 } from "./relayers/ETSRelayerV1.sol";
 import { Context } from "@openzeppelin/contracts/utils/Context.sol";
 import { BeaconProxy } from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 
-import "hardhat/console.sol";
-
 contract ETSRelayerFactory is Context {
     mapping(uint256 => address) private vaults;
 
