@@ -4,7 +4,7 @@ pragma solidity ^0.8.10;
 import { IETS } from "../interfaces/IETS.sol";
 import { IETSToken } from "../interfaces/IETSToken.sol";
 import { IETSTarget } from "../interfaces/IETSTarget.sol";
-import { IETSRelayer } from "./interfaces/IETSRelayer.sol";
+import { IETSRelayer } from "../relayers/interfaces/IETSRelayer.sol";
 import { UintArrayUtils } from "../libraries/UintArrayUtils.sol";
 
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -13,9 +13,14 @@ import { ERC165Upgradeable } from "@openzeppelin/contracts-upgradeable/utils/int
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
-import "hardhat/console.sol";
-
-contract ETSRelayerV1 is
+/**
+ * @title ETSRelayerV2test.sol
+ * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ * @notice Test only contract for testing upgrading the implementation contract for the ETSRelayer proxy beacon.
+ * In the test suite, ETSRelayerV1.sol is replaced with this contract using the update() function in ETSRelayerBeacon.
+ */
+contract ETSRelayerV2test is
     IETSRelayer,
     Initializable,
     ERC165Upgradeable,
@@ -36,7 +41,7 @@ contract ETSRelayerV1 is
 
     // Public constants
     string public constant NAME = "ETS Relayer";
-    string public constant VERSION = "0.1-Beta";
+    string public constant VERSION = "0.2-Beta";
     bytes4 public constant IID_IETSRELAYER = type(IETSRelayer).interfaceId;
 
     // Public variables
@@ -134,7 +139,7 @@ contract ETSRelayerV1 is
     // ============ PUBLIC VIEW FUNCTIONS ============
 
     function version() external view virtual returns (string memory) {
-        return VERSION;
+        return "0.2-Beta";
     }
 
     /// @inheritdoc ERC165Upgradeable
@@ -222,5 +227,9 @@ contract ETSRelayerV1 is
 
     function _removeTags(IETS.TaggingRecordRawInput calldata _rawInput, address payable _tagger) internal {
         ets.removeTagsWithRawInput(_rawInput, _tagger);
+    }
+
+    function newFunction() public view virtual returns (bool) {
+        return true;
     }
 }

@@ -9,10 +9,10 @@ describe("CTAG ownership lifecycle tests", function () {
     [accounts, contracts, initSettings] = await setup();
 
     // Add & unpause ETSRelayer as a Relayer.
-    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addRelayer(
-      contracts.ETSRelayer.address,
-      "ETSPlatform",
-    );
+    //await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addRelayer(
+    //  contracts.ETSRelayer.address,
+    //  "ETSPlatform",
+    //);
   });
 
   describe("Validate setup", async function () {

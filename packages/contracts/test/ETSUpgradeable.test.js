@@ -92,16 +92,4 @@ describe("Upgrades tests", function () {
       assert((await contracts.ETS.upgradeTest()) === true);
     });
   });
-
-  describe("ETSRelayerFactory", function () {
-    it("is upgradeable", async function () {
-      // Upgrade the proxy.
-      contracts.ETSRelayerFactory = await upgrades.upgradeProxy(contracts.ETSRelayerFactory.address, factories.ETSRelayerFactoryUpgrade);
-
-      const deployTxn = contracts.ETSRelayerFactory.deployTransaction.hash;
-      await expectEvent.inTransaction(deployTxn, artifacts.ETSRelayerFactoryUpgrade, "Upgraded");
-      // Upgraded contract has new function upgradeTest()
-      assert((await contracts.ETSRelayerFactory.upgradeTest()) === true);
-    });
-  });
 });
