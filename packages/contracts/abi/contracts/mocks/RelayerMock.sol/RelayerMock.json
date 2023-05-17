@@ -1,21 +1,34 @@
 [
   {
-    "inputs": [],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "uint8",
-        "name": "version",
-        "type": "uint8"
+        "internalType": "contract IETS",
+        "name": "_ets",
+        "type": "address"
+      },
+      {
+        "internalType": "contract IETSToken",
+        "name": "_etsToken",
+        "type": "address"
+      },
+      {
+        "internalType": "contract IETSTarget",
+        "name": "_etsTarget",
+        "type": "address"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_creator",
+        "type": "address"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_owner",
+        "type": "address"
       }
     ],
-    "name": "Initialized",
-    "type": "event"
+    "stateMutability": "nonpayable",
+    "type": "constructor"
   },
   {
     "anonymous": false,
@@ -115,19 +128,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "VERSION",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "components": [
@@ -148,7 +148,7 @@
           }
         ],
         "internalType": "struct IETS.TaggingRecordRawInput[]",
-        "name": "_rawInput",
+        "name": "_rawParts",
         "type": "tuple[]"
       }
     ],
@@ -323,45 +323,7 @@
         "type": "string"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_relayerName",
-        "type": "string"
-      },
-      {
-        "internalType": "contract IETS",
-        "name": "_ets",
-        "type": "address"
-      },
-      {
-        "internalType": "contract IETSToken",
-        "name": "_etsToken",
-        "type": "address"
-      },
-      {
-        "internalType": "contract IETSTarget",
-        "name": "_etsTarget",
-        "type": "address"
-      },
-      {
-        "internalType": "address payable",
-        "name": "_creator",
-        "type": "address"
-      },
-      {
-        "internalType": "address payable",
-        "name": "_owner",
-        "type": "address"
-      }
-    ],
-    "name": "initialize",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -411,19 +373,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "relayerName",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "components": [
@@ -444,7 +393,7 @@
           }
         ],
         "internalType": "struct IETS.TaggingRecordRawInput[]",
-        "name": "_rawInput",
+        "name": "_rawParts",
         "type": "tuple[]"
       }
     ],
@@ -481,7 +430,7 @@
           }
         ],
         "internalType": "struct IETS.TaggingRecordRawInput[]",
-        "name": "_rawInput",
+        "name": "_rawParts",
         "type": "tuple[]"
       }
     ],
@@ -527,19 +476,6 @@
     "name": "unpause",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "version",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   }
 ]

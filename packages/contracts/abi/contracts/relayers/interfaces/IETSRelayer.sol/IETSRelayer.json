@@ -28,6 +28,36 @@
   {
     "inputs": [
       {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "targetURI",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "tagStrings",
+            "type": "string[]"
+          },
+          {
+            "internalType": "string",
+            "name": "recordType",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IETS.TaggingRecordRawInput[]",
+        "name": "_rawInput",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "applyTags",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "newOwner",
         "type": "address"
@@ -36,6 +66,52 @@
     "name": "changeOwner",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "targetURI",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "tagStrings",
+            "type": "string[]"
+          },
+          {
+            "internalType": "string",
+            "name": "recordType",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IETS.TaggingRecordRawInput",
+        "name": "_rawInput",
+        "type": "tuple"
+      },
+      {
+        "internalType": "enum IETS.TaggingAction",
+        "name": "_action",
+        "type": "uint8"
+      }
+    ],
+    "name": "computeTaggingFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tagCount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -49,6 +125,25 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string[]",
+        "name": "_tags",
+        "type": "string[]"
+      }
+    ],
+    "name": "getOrCreateTagIds",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "_tagIds",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -95,6 +190,66 @@
     "name": "pause",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "targetURI",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "tagStrings",
+            "type": "string[]"
+          },
+          {
+            "internalType": "string",
+            "name": "recordType",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IETS.TaggingRecordRawInput[]",
+        "name": "_rawInput",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "removeTags",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "targetURI",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "tagStrings",
+            "type": "string[]"
+          },
+          {
+            "internalType": "string",
+            "name": "recordType",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IETS.TaggingRecordRawInput[]",
+        "name": "_rawInput",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "replaceTags",
+    "outputs": [],
+    "stateMutability": "payable",
     "type": "function"
   },
   {

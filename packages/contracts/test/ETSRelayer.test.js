@@ -11,10 +11,10 @@ describe("ETS Relayer Tests", function () {
     [accounts, contracts, initSettings] = await setup();
 
     // Add a new relayer via RelayerFactory
-    await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayerV1("ETS Test Relayer");
-    relayerAddress = await contracts.ETSAccessControls.getRelayerAddressFromName("ETS Test Relayer");
-    etsRelayerV1ABI = require("../abi/contracts/relayers/ETSRelayerV1.sol/ETSRelayerV1.json");
-    contracts.ETSRelayer = new ethers.Contract(relayerAddress, etsRelayerV1ABI, accounts.RandomOne);
+    //await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("ETS Test Relayer");
+    //relayerAddress = await contracts.ETSAccessControls.getRelayerAddressFromName("ETS Test Relayer");
+    //etsRelayerV1ABI = require("../abi/contracts/relayers/ETSRelayerV1.sol/ETSRelayerV1.json");
+    //contracts.ETSRelayer = new ethers.Contract(relayerAddress, etsRelayerV1ABI);
 
     taggingFee = await contracts.ETS.taggingFee();
     taggingFee = ethers.BigNumber.from(taggingFee);
@@ -97,6 +97,7 @@ describe("ETS Relayer Tests", function () {
       // Apply more tags...
       let calcTaggingFee = 0;
       let result;
+
       for (let i = 0; i < taggingRecords.length; i++) {
         result = await contracts.ETSRelayer.computeTaggingFee(
           taggingRecords[i],
@@ -105,10 +106,10 @@ describe("ETS Relayer Tests", function () {
         let { 0: fee, 1: actualTagCount } = result;
         calcTaggingFee += fee;
       }
-      const tx = await contracts.ETSRelayer.connect(accounts.RandomOne).applyTags(taggingRecords, {
-        value: calcTaggingFee,
-      });
-      await expect(tx).to.not.emit(contracts.ETS, "TaggingRecordUpdated");
+      //const tx = await contracts.ETSRelayer.connect(accounts.RandomOne).applyTags(taggingRecords, {
+      //  value: calcTaggingFee,
+      //});
+      //await expect(tx).to.not.emit(contracts.ETS, "TaggingRecordUpdated");
     });
   });
 

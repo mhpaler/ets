@@ -4,22 +4,19 @@ pragma solidity ^0.8.10;
 import { IETS } from "./interfaces/IETS.sol";
 import { IETSTarget } from "./interfaces/IETSTarget.sol";
 import { IETSToken } from "./interfaces/IETSToken.sol";
+import { ETSRelayerBeacon } from "./relayers/ETSRelayerBeacon.sol";
 import { ETSRelayerV1 } from "./relayers/ETSRelayerV1.sol";
 import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
-import { ContextUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
-import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import { ERC165CheckerUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
+import { ETSRelayerBeacon } from "./relayers/ETSRelayerBeacon.sol";
+import { ETSRelayerV1 } from "./relayers/ETSRelayerV1.sol";
 
-/**
- * @title ETS Relayer Factory
- * @author Ethereum Tag Service <team@ets.xyz>
- *
- * @notice Relayer factory contract that provides public function for creating new ETS Relayers.
- */
-contract ETSRelayerFactory is Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
-    // Public variables
+import { Context } from "@openzeppelin/contracts/utils/Context.sol";
+import { BeaconProxy } from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
+
+contract ETSRelayerFactory is Context {
+    mapping(uint256 => address) private vaults;
+
+    ETSRelayerBeacon immutable etsRelayerBeacon;
 
     /// @dev ETS access controls contract.
     IETSAccessControls public etsAccessControls;
@@ -35,56 +32,48 @@ contract ETSRelayerFactory is Initializable, ContextUpgradeable, ReentrancyGuard
 
     /// Public constants
 
-    string public constant NAME = "ETS Relayer Factory";
+    string public constant NAME = "ETS Relayer Factory V1";
 
-    /// Modifiers
-
-    /// @dev When applied to a method, only allows execution when the sender has the admin role.
-    modifier onlyAdmin() {
-        require(etsAccessControls.isAdmin(_msgSender()), "Caller not Administrator");
-        _;
-    }
-
-    // ============ UUPS INTERFACE ============
-
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() {
-        _disableInitializers();
-    }
-
-    function initialize(
+    constructor(
+        address _etsRelayerLogic,
         IETSAccessControls _etsAccessControls,
         IETS _ets,
         IETSToken _etsToken,
         IETSTarget _etsTarget
-    ) public initializer {
+    ) {
+        etsRelayerBeacon = new ETSRelayerBeacon(_etsRelayerLogic);
         etsAccessControls = _etsAccessControls;
         ets = _ets;
         etsToken = _etsToken;
         etsTarget = _etsTarget;
     }
 
-    // Ensure that only address with admin role can upgrade.
-    // solhint-disable-next-line
-    function _authorizeUpgrade(address) internal override onlyAdmin {}
-
-    // ============ OWNER INTERFACE ============
-
-    // ============ PUBLIC INTERFACE ============
-
-    function addRelayerV1(string calldata _relayerName) public payable {
-        // require(!isRelayerByAddress(_relayer), "Relayer exists");
+    function addRelayer(string calldata _relayerName) external returns (address) {
         // TODO: If [relayername].ens exists, _msgSender() to be owner.
         require(!etsAccessControls.isRelayerByName(_relayerName), "Relayer name exists");
-        ETSRelayerV1 relayer = new ETSRelayerV1(
-            _relayerName,
-            ets,
-            etsToken,
-            etsTarget,
-            payable(_msgSender()),
-            payable(_msgSender())
+
+        BeaconProxy relayerProxy = new BeaconProxy(
+            address(etsRelayerBeacon),
+            abi.encodeWithSelector(
+                ETSRelayerV1(address(0)).initialize.selector,
+                _relayerName,
+                ets,
+                etsToken,
+                etsTarget,
+                payable(_msgSender()),
+                payable(_msgSender())
+            )
         );
 
-        etsAccessControls.addRelayer(address(relayer), _relayerName);
+        etsAccessControls.addRelayer(address(relayerProxy), _relayerName);
+        return address(relayerProxy);
+    }
+
+    function getImplementation() public view returns (address) {
+        return etsRelayerBeacon.implementation();
+    }
+
+    function getBeacon() public view returns (address) {
+        return address(etsRelayerBeacon);
     }
 }

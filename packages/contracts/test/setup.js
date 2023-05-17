@@ -34,7 +34,7 @@ async function getAccounts() {
 }
 
 async function getArtifacts() {
-  const justTheFacts = {
+  const allArtifacts = {
     ETSAccessControls: artifacts.readArtifactSync("ETSAccessControls"),
     ETSToken: artifacts.readArtifactSync("ETSToken"),
     ETSTarget: artifacts.readArtifactSync("ETSTarget"),
@@ -43,7 +43,6 @@ async function getArtifacts() {
     ETS: artifacts.readArtifactSync("ETS"),
     ETSRelayerV1: artifacts.readArtifactSync("ETSRelayerV1"),
     ETSRelayerFactory: artifacts.readArtifactSync("ETSRelayerFactory"),
-    ETSRelayer: artifacts.readArtifactSync("ETSRelayer"),
 
     /// .sol test contracts.
     ETSAccessControlsUpgrade: artifacts.readArtifactSync("ETSAccessControlsUpgrade"),
@@ -52,9 +51,8 @@ async function getArtifacts() {
     ETSEnrichTargetUpgrade: artifacts.readArtifactSync("ETSEnrichTargetUpgrade"),
     ETSTargetUpgrade: artifacts.readArtifactSync("ETSTargetUpgrade"),
     ETSUpgrade: artifacts.readArtifactSync("ETSUpgrade"),
-    ETSRelayerFactoryUpgrade: artifacts.readArtifactSync("ETSRelayerFactoryUpgrade"),
   };
-  return justTheFacts;
+  return allArtifacts;
 }
 
 async function getFactories() {
@@ -67,7 +65,6 @@ async function getFactories() {
     ETS: await ethers.getContractFactory("ETS"),
     ETSRelayerV1: await ethers.getContractFactory("ETSRelayerV1"),
     ETSRelayerFactory: await ethers.getContractFactory("ETSRelayerFactory"),
-    ETSRelayer: await ethers.getContractFactory("ETSRelayer"),
 
     /// .sol test contracts.
     WMATIC: await ethers.getContractFactory("WMATIC"),
@@ -77,7 +74,7 @@ async function getFactories() {
     ETSEnrichTargetUpgrade: await ethers.getContractFactory("ETSEnrichTargetUpgrade"),
     ETSTargetUpgrade: await ethers.getContractFactory("ETSTargetUpgrade"),
     ETSUpgrade: await ethers.getContractFactory("ETSUpgrade"),
-    ETSRelayerFactoryUpgrade: await ethers.getContractFactory("ETSRelayerFactoryUpgrade"),
+    ETSRelayerV2test: await ethers.getContractFactory("ETSRelayerV2test"),
   };
   return allFactories;
 }
@@ -87,31 +84,8 @@ function getInitSettings() {
 }
 
 async function setup() {
-  const factories = {
-    WMATIC: await ethers.getContractFactory("WMATIC"),
-    ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
-    ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
-    ETSToken: await ethers.getContractFactory("ETSToken"),
-    ETSTarget: await ethers.getContractFactory("ETSTarget"),
-    ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
-    ETS: await ethers.getContractFactory("ETS"),
-    ETSRelayerV1: await ethers.getContractFactory("ETSRelayerV1"),
-    ETSRelayerFactory: await ethers.getContractFactory("ETSRelayerFactory"),
-    ETSRelayer: await ethers.getContractFactory("ETSRelayer"),
-  };
-
-  // ============ SETUP TEST ACCOUNTS ============
-
-  const namedAccounts = await ethers.getNamedSigners();
-  const unnamedAccounts = await ethers.getUnnamedSigners();
-  const accounts = {
-    ETSAdmin: namedAccounts["ETSAdmin"],
-    ETSPlatform: namedAccounts["ETSPlatform"],
-    Buyer: unnamedAccounts[0],
-    RandomOne: unnamedAccounts[1],
-    RandomTwo: unnamedAccounts[2],
-    Creator: unnamedAccounts[3],
-  };
+  const factories = await getFactories();
+  const accounts = await getAccounts();
 
   // ============ DEPLOY CONTRACTS ============
 
@@ -172,24 +146,20 @@ async function setup() {
     },
   );
 
-  const ETSRelayerFactory = await upgrades.deployProxy(
-    factories.ETSRelayerFactory,
-    [ETSAccessControls.address, ETS.address, ETSToken.address, ETSTarget.address],
-    {
-      kind: "uups",
-    },
-  );
+  // Deploy the relayer logic contract.
+  // We deploy with proxy with no arguments because factory will supply them.
+  const ETSRelayerImplementation = await factories.ETSRelayerV1.deploy();
+  await ETSRelayerImplementation.deployed();
 
-  // Manually deploy the ETSRelayerV1 contract. Ordinarily this would be deployed
-  // via ETSRelayerFactory. 
-  const ETSRelayer = await factories.ETSRelayerV1.deploy(
-    "ETSRelayer",
+  // Deploy relayer factory, which will deploy the above implementation as upgradable proxies.
+  const ETSRelayerFactory = await factories.ETSRelayerFactory.deploy(
+    ETSRelayerImplementation.address,
+    ETSAccessControls.address,
     ETS.address,
     ETSToken.address,
     ETSTarget.address,
-    accounts.Creator.address,
-    accounts.RandomTwo.address,
   );
+  await ETSRelayerFactory.deployed();
 
   const contracts = {
     WMATIC: WMATIC,
@@ -200,7 +170,7 @@ async function setup() {
     ETSEnrichTarget: ETSEnrichTarget,
     ETS: ETS,
     ETSRelayerFactory: ETSRelayerFactory,
-    ETSRelayer: ETSRelayer,
+    ETSRelayerImplementation: ETSRelayerImplementation,
   };
 
   // ============ GRANT ROLES & APPROVALS ============
@@ -219,6 +189,12 @@ async function setup() {
 
   // Set ETS Core on ETSToken.
   await ETSToken.connect(accounts.ETSPlatform).setETSCore(ETS.address);
+
+  // Add a relayer proxy for use in tests.
+  await ETSRelayerFactory.connect(accounts.ETSPlatform).addRelayer("ETSRelayer");
+  relayerAddress = await ETSAccessControls.getRelayerAddressFromName("ETSRelayer");
+  etsRelayerV1ABI = require("../abi/contracts/relayers/ETSRelayerV1.sol/ETSRelayerV1.json");
+  contracts.ETSRelayer = new ethers.Contract(relayerAddress, etsRelayerV1ABI, accounts.RandomOne);
 
   return [accounts, contracts, initSettings];
 }

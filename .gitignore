@@ -40,7 +40,7 @@ packages/contracts*/*.txt
 packages/contracts*/cache*
 packages/contracts*/artifacts/
 packages/contracts*/deployments/
-packages/contracts*/.openzeppelin/
+#packages/contracts*/.openzeppelin/
 packages/contracts/docs
 
 # subgraph

@@ -28,52 +28,52 @@ describe("ETSRelayerFactory Tests", function () {
         contracts.ETSRelayerFactory.address,
       );
 
-      await expect(contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayerV1("Uniswap")).to.be.reverted;
+      await expect(contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap")).to.be.reverted;
 
       await contracts.ETSAccessControls.connect(accounts.ETSPlatform).grantRole(
         ethers.utils.id("RELAYER_ADMIN"),
         contracts.ETSRelayerFactory.address,
       );
 
-      const tx = await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayerV1("Uniswap");
+      const tx = await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap");
       await expect(tx).to.emit(contracts.ETSAccessControls, "RelayerAdded");
     });
 
     it("Revert if name is too short", async () => {
-      await expect(contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayerV1("X")).to.be.revertedWith(
+      await expect(contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("X")).to.be.revertedWith(
         "Relayer name too short",
       );
     });
 
     it("Revert if name is too long", async () => {
       await expect(
-        contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayerV1(
+        contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer(
           "this is a relayer name that is well well well well over the limit in length",
         ),
       ).to.be.revertedWith("Relayer name too long");
     });
 
     it("Revert if name already exists", async () => {
-      await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayerV1("Uniswap");
+      await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap");
 
       await expect(
-        contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayerV1("Uniswap"),
+        contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap"),
       ).to.be.revertedWith("Relayer name exists");
     });
 
     it("will emit RelayerAdded", async () => {
-      const tx = await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayerV1("Uniswap");
+      const tx = await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap");
       await expect(tx).to.emit(contracts.ETSAccessControls, "RelayerAdded");
     });
 
     it("are not paused when added", async () => {
-      const tx = await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayerV1("Uniswap");
+      const tx = await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap");
       const relayerAddress = contracts.ETSAccessControls.getRelayerAddressFromName("Uniswap");
       expect(await contracts.ETSAccessControls.isRelayerAndNotPaused(relayerAddress)).to.be.equal(true);
     });
 
     it("can be paused/unpaused by Administrator", async () => {
-      await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayerV1("Uniswap");
+      await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap");
 
       // Try pausing by non-administrator account.
       const relayerAddress = await contracts.ETSAccessControls.getRelayerAddressFromName("Uniswap");
@@ -93,7 +93,7 @@ describe("ETSRelayerFactory Tests", function () {
 
   describe("Active relayer contracts", async () => {
     beforeEach("Setup test", async () => {
-      await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayerV1("Uniswap");
+      await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap");
       relayerAddress = await contracts.ETSAccessControls.getRelayerAddressFromName("Uniswap");
       etsRelayerV1ABI = require("../abi/contracts/relayers/ETSRelayerV1.sol/ETSRelayerV1.json");
       // Connect with owner account
