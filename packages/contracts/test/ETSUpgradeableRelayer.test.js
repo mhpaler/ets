@@ -4,9 +4,17 @@ let artifacts, factories;
 
 describe("Upgrades tests", function () {
   beforeEach("Setup test", async function () {
-    artifacts = await getArtifacts();
     factories = await getFactories();
     [accounts, contracts, initSettings] = await setup();
+
+    // Transfer one of RandomOne's tokens to RandomTwo so RandomTwo can add a relayer.
+    const tag2 = "#HATE";
+    tokenId2 = await contracts.ETSToken.computeTagId(tag2);
+    await contracts.ETSToken.connect(accounts.RandomOne).transferFrom(
+      accounts.RandomOne.address,
+      accounts.RandomTwo.address,
+      tokenId2,
+    );
 
     await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Relayer 1");
     await contracts.ETSRelayerFactory.connect(accounts.RandomTwo).addRelayer("Relayer 2");
@@ -29,7 +37,7 @@ describe("Upgrades tests", function () {
       expect(await relayer1v1.version()).to.be.equal("0.1-Beta");
       expect(await relayer2v1.version()).to.be.equal("0.1-Beta");
 
-      // Connect to the beacon contract
+      // Connect to the beacon contract by platform
       etsRelayerBeacon = new ethers.Contract(beaconAddress, etsRelayerBeaconABI, accounts.ETSAdmin);
 
       // Deploy v2 relayer, and update beacon with address.
