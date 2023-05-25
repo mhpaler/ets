@@ -18,7 +18,7 @@ interface IETSRelayer {
      *
      * @param relayerAddress Address of relayer contract.
      */
-    event RelayerPauseToggledByOwner(address relayerAddress);
+    event RelayerLockToggledByOwner(address relayerAddress);
 
     /**
      * @dev Emitted when an IETSRelayer contract has changed owners.
@@ -69,7 +69,7 @@ interface IETSRelayer {
      * @dev Pause functionality should be provided by OpenZeppelin Pausable utility.
      * @return boolean: true for paused; false for not paused.
      */
-    function isPausedByOwner() external view returns (bool);
+    function isPaused() external view returns (bool);
 
     /**
      * @notice Returns address of an IETSRelayer contract owner.

@@ -8,6 +8,8 @@ import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils
 import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import { ERC165CheckerUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
 
+import "hardhat/console.sol";
+
 /**
  * @title IETSAccessControls
  * @author Ethereum Tag Service <team@ets.xyz>
@@ -19,22 +21,26 @@ import { ERC165CheckerUpgradeable } from "@openzeppelin/contracts-upgradeable/ut
 contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAccessControls, UUPSUpgradeable {
     /// Public constants
     string public constant NAME = "ETS access controls";
-    bytes32 public constant RELAYER_ROLE = keccak256("RELAYER");
-    bytes32 public constant RELAYER_ROLE_ADMIN = keccak256("RELAYER_ADMIN");
-    bytes32 public constant SMART_CONTRACT_ROLE = keccak256("SMART_CONTRACT");
+    bytes32 public constant RELAYER_ROLE = keccak256("RELAYER_ROLE");
+    bytes32 public constant RELAYER_FACTORY_ROLE = keccak256("RELAYER_FACTORY_ROLE");
+    bytes32 public constant RELAYER_ADMIN_ROLE = keccak256("RELAYER_ADMIN_ROLE");
+    bytes32 public constant SMART_CONTRACT_ROLE = keccak256("SMART_CONTRACT_ROLE");
 
     /// @dev ETS Platform account. Core Dev Team multisig in production.
     /// There will only be one "Platform" so no need to make it a role.
     address payable internal platform;
 
     /// @notice Mapping to contain whether Relayer is paused by the protocol.
-    mapping(address => bool) public isRelayerPaused;
+    mapping(address => bool) public relayerLocked;
 
     /// @notice Relayer name to contract address.
     mapping(string => address) public relayerNameToContract;
 
     /// @notice Relayer contract address to human readable name.
     mapping(address => string) public relayerContractToName;
+
+    /// @notice Relayer owner address to relayer address.
+    mapping(address => address) public relayerOwnerToAddress;
 
     modifier onlyValidName(string calldata _name) {
         require(!isRelayerByName(_name), "Relayer name exists");
@@ -53,11 +59,8 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
 
     function initialize(address _platformAddress) public initializer {
         __AccessControl_init();
-        // setupRole is should only be called within initialize().
-        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
-        _setRoleAdmin(RELAYER_ROLE, RELAYER_ROLE_ADMIN);
-        grantRole(DEFAULT_ADMIN_ROLE, _platformAddress);
-        grantRole(RELAYER_ROLE_ADMIN, _platformAddress);
+        _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        _grantRole(DEFAULT_ADMIN_ROLE, _platformAddress);
         setPlatform(payable(_platformAddress));
     }
 
@@ -80,30 +83,44 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     }
 
     /// @inheritdoc IETSAccessControls
-    function addRelayer(
+    function registerRelayer(
         address _relayer,
-        string calldata _name
-    ) public onlyRole(RELAYER_ROLE_ADMIN) onlyValidName(_name) {
-        require(
-            isRelayerAdmin(_relayer) ||
-                ERC165CheckerUpgradeable.supportsInterface(_relayer, type(IETSRelayer).interfaceId),
-            "Address not required interface"
-        );
-
-        require(!isRelayerByAddress(_relayer), "Relayer exists");
-
+        string calldata _name,
+        address _owner
+    ) public onlyRole(RELAYER_FACTORY_ROLE) {
         relayerNameToContract[_name] = _relayer;
         relayerContractToName[_relayer] = _name;
-        isRelayerPaused[_relayer] = false;
+        relayerOwnerToAddress[_owner] = _relayer;
+        relayerLocked[_relayer] = false;
         // Note: grantRole emits RoleGranted event.
         grantRole(RELAYER_ROLE, _relayer);
-        emit RelayerAdded(_relayer, isRelayerAdmin(_relayer));
+        emit RelayerAdded(_relayer);
     }
 
     /// @inheritdoc IETSAccessControls
-    function toggleIsRelayerPaused(address _relayer) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        isRelayerPaused[_relayer] = !isRelayerPaused[_relayer];
-        emit RelayerPauseToggled(_relayer);
+    function pauseRelayerByOwnerAddress(address _relayerOwner) public onlyRole(RELAYER_ADMIN_ROLE) {
+        if (isRelayerByOwner(_relayerOwner)) {
+            IETSRelayer relayer = IETSRelayer(getRelayerAddressFromOwner(_relayerOwner));
+            if (!relayer.isPaused()) {
+                relayer.pause();
+            }
+        }
+    }
+
+    /// @inheritdoc IETSAccessControls
+    function changeRelayerOwner(address _currentOwner, address _newOwner) public onlyRole(RELAYER_ROLE) {
+        require(isRelayerByAddress(_msgSender()), "Caller is not relayer");
+        require(IETSRelayer(_msgSender()).getOwner() == _currentOwner, "Not relayer owner");
+        require(!isRelayerByOwner(_newOwner), "New owner already owns a relayer");
+        relayerOwnerToAddress[_currentOwner] = address(0);
+        // _msgSender() is the relayer itself.
+        relayerOwnerToAddress[_newOwner] = _msgSender();
+    }
+
+    /// @inheritdoc IETSAccessControls
+    function toggleRelayerLock(address _relayer) public onlyRole(RELAYER_ADMIN_ROLE) {
+        relayerLocked[_relayer] = !relayerLocked[_relayer];
+        emit RelayerLockToggled(_relayer);
     }
 
     // ============ PUBLIC VIEW FUNCTIONS ============
@@ -119,13 +136,33 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     }
 
     /// @inheritdoc IETSAccessControls
+    function isRelayerFactory(address _addr) public view returns (bool) {
+        return hasRole(RELAYER_ADMIN_ROLE, _addr) || hasRole(RELAYER_FACTORY_ROLE, _addr);
+    }
+
+    /// @inheritdoc IETSAccessControls
     function isRelayer(address _addr) public view returns (bool) {
-        return isRelayerAndNotPaused(_addr);
+        return hasRole(RELAYER_ADMIN_ROLE, _addr) || isRelayerAndNotPaused(_addr);
+    }
+
+    /// @inheritdoc IETSAccessControls
+    function isRelayerLocked(address _addr) public view returns (bool) {
+        return relayerLocked[_addr];
+    }
+
+    /// @inheritdoc IETSAccessControls
+    function isRelayerAndNotPaused(address _addr) public view returns (bool) {
+        return isRelayerByAddress(_addr) && !isRelayerLocked(_addr) && !IETSRelayer(_addr).isPaused();
+    }
+
+    /// @inheritdoc IETSAccessControls
+    function isRelayerByOwner(address _addr) public view returns (bool) {
+        return relayerOwnerToAddress[_addr] != address(0);
     }
 
     /// @inheritdoc IETSAccessControls
     function isRelayerAdmin(address _addr) public view returns (bool) {
-        return hasRole(RELAYER_ROLE_ADMIN, _addr);
+        return hasRole(RELAYER_ADMIN_ROLE, _addr);
     }
 
     /// @inheritdoc IETSAccessControls
@@ -139,11 +176,6 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     }
 
     /// @inheritdoc IETSAccessControls
-    function isRelayerAndNotPaused(address _addr) public view returns (bool) {
-        return isRelayerByAddress(_addr) && !isRelayerPaused[_addr];
-    }
-
-    /// @inheritdoc IETSAccessControls
     function getRelayerAddressFromName(string memory _name) public view returns (address) {
         return relayerNameToContract[_name];
     }
@@ -151,6 +183,11 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     /// @inheritdoc IETSAccessControls
     function getRelayerNameFromAddress(address _address) public view returns (string memory) {
         return relayerContractToName[_address];
+    }
+
+    /// @inheritdoc IETSAccessControls
+    function getRelayerAddressFromOwner(address _address) public view returns (address) {
+        return relayerOwnerToAddress[_address];
     }
 
     /// @inheritdoc IETSAccessControls

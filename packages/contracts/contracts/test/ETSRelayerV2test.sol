@@ -83,13 +83,13 @@ contract ETSRelayerV2test is
     /// @inheritdoc IETSRelayer
     function pause() public onlyOwner {
         _pause();
-        emit RelayerPauseToggledByOwner(address(this));
+        emit RelayerLockToggledByOwner(address(this));
     }
 
     /// @inheritdoc IETSRelayer
     function unpause() public onlyOwner {
         _unpause();
-        emit RelayerPauseToggledByOwner(address(this));
+        emit RelayerLockToggledByOwner(address(this));
     }
 
     /// @inheritdoc IETSRelayer
@@ -150,7 +150,7 @@ contract ETSRelayerV2test is
     }
 
     /// @inheritdoc IETSRelayer
-    function isPausedByOwner() public view virtual returns (bool) {
+    function isPaused() public view virtual returns (bool) {
         return paused();
     }
 

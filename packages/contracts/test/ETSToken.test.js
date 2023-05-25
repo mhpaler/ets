@@ -9,14 +9,6 @@ describe("ETSToken Core Tests", function () {
   // we create a setup function that can be called by every test and setup variable for easy to read tests
   beforeEach("Setup test", async function () {
     [accounts, contracts, initSettings] = await setup();
-
-    // Add & unpause ETSPlatform as a Relayer. Using a wallet address as a relayer
-    // is only for testing all ETS core public functions that don't necessarily need to be
-    // included in a proper relayer (IETSRelayer) contract
-    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addRelayer(
-      accounts.ETSPlatform.address,
-      "ETSPlatform",
-    );
   });
 
   describe("Valid setup", async function () {

@@ -9,7 +9,7 @@
         "type": "address"
       }
     ],
-    "name": "RelayerOwnerChanged",
+    "name": "RelayerLockToggledByOwner",
     "type": "event"
   },
   {
@@ -22,7 +22,7 @@
         "type": "address"
       }
     ],
-    "name": "RelayerPauseToggledByOwner",
+    "name": "RelayerOwnerChanged",
     "type": "event"
   },
   {
@@ -174,7 +174,7 @@
   },
   {
     "inputs": [],
-    "name": "isPausedByOwner",
+    "name": "isPaused",
     "outputs": [
       {
         "internalType": "bool",

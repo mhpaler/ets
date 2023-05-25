@@ -59,7 +59,7 @@
         "type": "address"
       }
     ],
-    "name": "RelayerOwnerChanged",
+    "name": "RelayerLockToggledByOwner",
     "type": "event"
   },
   {
@@ -72,7 +72,7 @@
         "type": "address"
       }
     ],
-    "name": "RelayerPauseToggledByOwner",
+    "name": "RelayerOwnerChanged",
     "type": "event"
   },
   {
@@ -244,6 +244,19 @@
   },
   {
     "inputs": [],
+    "name": "etsAccessControls",
+    "outputs": [
+      {
+        "internalType": "contract IETSAccessControls",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "etsTarget",
     "outputs": [
       {
@@ -349,6 +362,11 @@
         "type": "address"
       },
       {
+        "internalType": "contract IETSAccessControls",
+        "name": "_etsAccessControls",
+        "type": "address"
+      },
+      {
         "internalType": "address payable",
         "name": "_creator",
         "type": "address"
@@ -366,7 +384,7 @@
   },
   {
     "inputs": [],
-    "name": "isPausedByOwner",
+    "name": "isPaused",
     "outputs": [
       {
         "internalType": "bool",

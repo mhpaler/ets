@@ -10,6 +10,8 @@ import { ERC721BurnableUpgradeable, ERC721Upgradeable, IERC165Upgradeable } from
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
+import "hardhat/console.sol";
+
 /**
  * @title ETSToken
  * @author Ethereum Tag Service <team@ets.xyz>
@@ -354,6 +356,11 @@ contract ETSToken is
             } else {
                 _setLastRenewed(tokenId, block.timestamp);
             }
+        }
+
+        // If from address is not black hole or platform, and balance is going zero pause their relayer.
+        if (from != address(0) && from != getPlatformAddress() && balanceOf(from) == 0) {
+            etsAccessControls.pauseRelayerByOwnerAddress(from);
         }
     }
 

@@ -5,6 +5,7 @@ import { IETS } from "../interfaces/IETS.sol";
 import { IETSToken } from "../interfaces/IETSToken.sol";
 import { IETSTarget } from "../interfaces/IETSTarget.sol";
 import { IETSRelayer } from "./interfaces/IETSRelayer.sol";
+import { IETSAccessControls } from "../interfaces/IETSAccessControls.sol";
 import { UintArrayUtils } from "../libraries/UintArrayUtils.sol";
 
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -32,6 +33,9 @@ contract ETSRelayerV1 is
     /// @dev Address and interface for ETS Target.
     IETSTarget public etsTarget;
 
+    /// @dev Address and interface for ETS Access Controls.
+    IETSAccessControls public etsAccessControls;
+
     // Public constants
     string public constant NAME = "ETS Relayer";
     string public constant VERSION = "0.1-Beta";
@@ -46,6 +50,13 @@ contract ETSRelayerV1 is
     string public relayerName;
 
     /// Modifiers
+    modifier onlyRelayerAdmin() {
+        require(
+            _msgSender() == owner() || etsAccessControls.hasRole(keccak256("RELAYER_ADMIN_ROLE"), _msgSender()),
+            "Caller not relayer admin"
+        );
+        _;
+    }
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -57,6 +68,7 @@ contract ETSRelayerV1 is
         IETS _ets,
         IETSToken _etsToken,
         IETSTarget _etsTarget,
+        IETSAccessControls _etsAccessControls,
         address payable _creator,
         address payable _owner
     ) public initializer {
@@ -67,6 +79,7 @@ contract ETSRelayerV1 is
         ets = _ets;
         etsToken = _etsToken;
         etsTarget = _etsTarget;
+        etsAccessControls = _etsAccessControls;
         creator = _creator;
         transferOwnership(_owner);
     }
@@ -74,19 +87,23 @@ contract ETSRelayerV1 is
     // ============ OWNER INTERFACE ============
 
     /// @inheritdoc IETSRelayer
-    function pause() public onlyOwner {
+    function pause() public onlyRelayerAdmin {
         _pause();
-        emit RelayerPauseToggledByOwner(address(this));
+        emit RelayerLockToggledByOwner(address(this));
     }
 
     /// @inheritdoc IETSRelayer
-    function unpause() public onlyOwner {
+    function unpause() public onlyRelayerAdmin {
+        // Check that relayer is not paused by platform.
+        require(!etsAccessControls.isRelayerLocked(address(this)), "Unpausing not permitted");
+        require(etsToken.balanceOf(owner()) > 0, "Owner must hold CTAG");
         _unpause();
-        emit RelayerPauseToggledByOwner(address(this));
+        emit RelayerLockToggledByOwner(address(this));
     }
 
     /// @inheritdoc IETSRelayer
-    function changeOwner(address _newOwner) public whenPaused {
+    function changeOwner(address _newOwner) public whenPaused onlyOwner {
+        etsAccessControls.changeRelayerOwner(owner(), _newOwner);
         transferOwnership(_newOwner);
         emit RelayerOwnerChanged(address(this));
     }
@@ -143,7 +160,7 @@ contract ETSRelayerV1 is
     }
 
     /// @inheritdoc IETSRelayer
-    function isPausedByOwner() public view virtual returns (bool) {
+    function isPaused() public view virtual returns (bool) {
         return paused();
     }
 

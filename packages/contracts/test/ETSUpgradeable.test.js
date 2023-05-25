@@ -10,6 +10,7 @@ describe("Upgrades tests", function () {
     artifacts = await getArtifacts();
     factories = await getFactories();
     [accounts, contracts, initSettings] = await setup();
+
   });
 
   describe("ETSAccessControl", async function () {

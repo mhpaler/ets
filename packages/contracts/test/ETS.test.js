@@ -20,10 +20,10 @@ describe("ETS Core tests", function () {
     // Add & unpause ETSPlatform EOA as a Relayer. Using a wallet address as a relayer
     // is only for testing all ETS core public functions that don't necessarily need to be
     // included in a proper relayer (IETSRelayer) contract
-    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addRelayer(
-      accounts.ETSPlatform.address,
-      "ETSPlatform",
-    );
+    // await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addRelayer(
+    //   accounts.ETSPlatform.address,
+    //   "ETSPlatform",
+    // );
 
     // Mint some tags via ETSRelayer. Creator is Creator. Retained by platform.
     await contracts.ETSRelayer.connect(accounts.Creator).getOrCreateTagIds([tagstring1]);
@@ -66,13 +66,13 @@ describe("ETS Core tests", function () {
       expect(await contracts.ETS.etsTarget()).to.be.equal(contracts.ETSTarget.address);
     });
     it("should have an active relayer contract (ETSRelayer)", async () => {
-
       expect(await contracts.ETSAccessControls.isRelayerAndNotPaused(contracts.ETSRelayer.address)).to.be.equal(
         true,
       );
     });
+
     it("should have a testing relayer (ETSPlatform)", async () => {
-      expect(await contracts.ETSAccessControls.isRelayerAndNotPaused(accounts.ETSPlatform.address)).to.be.equal(true);
+      expect(await contracts.ETSAccessControls.isRelayer(accounts.ETSPlatform.address)).to.be.equal(true);
     });
   });
 
@@ -1227,7 +1227,7 @@ describe("ETS Core tests", function () {
       );
 
       // Pause ETSRelayer
-      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsRelayerPaused(
+      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleRelayerLock(
         contracts.ETSRelayer.address,
       );
 

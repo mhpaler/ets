@@ -27,16 +27,15 @@ interface IETSAccessControls is IAccessControlUpgradeable {
      * testing of ETS Core API fuinctions, ETS permits addition of ETS owned wallet addresses as Relayers.
      *
      * @param relayer Relayer contract address.
-     * @param isAdmin Relayer address is ETS administrator (used for testing).
      */
-    event RelayerAdded(address relayer, bool isAdmin);
+    event RelayerAdded(address relayer);
 
     /**
      * @dev emitted when a Relayer contract is paused or unpaused.
      *
      * @param relayer Address that had pause toggled.
      */
-    event RelayerPauseToggled(address relayer);
+    event RelayerLockToggled(address relayer);
 
     /**
      * @notice Sets the Platform wallet address. Can only be called by address with DEFAULT_ADMIN_ROLE.
@@ -51,8 +50,25 @@ interface IETSAccessControls is IAccessControlUpgradeable {
      *
      * @param _relayer Address of the Relayer contract. Must conform to IETSRelayer.
      * @param _name Human readable name of the Relayer.
+     * @param _owner Address of relayer owner.
      */
-    function addRelayer(address _relayer, string calldata _name) external;
+    function registerRelayer(address _relayer, string calldata _name, address _owner) external;
+
+    /**
+     * @notice Pause relayer given the relayer owner address. Callable by Platform only.
+     *
+     * @param _relayerOwner Address of the Relayer owner.
+     */
+    function pauseRelayerByOwnerAddress(address _relayerOwner) external;
+
+    /**
+     * @notice Change the relayer owner as stored in ETSAccessControls. Callable from Relayer only.
+     * Called via changeOwner() on a relayer.
+     *
+     * @param _currentOwner Address of the current relayer owner.
+     * @param _newOwner Address of the new relayer owner.
+     */
+    function changeRelayerOwner(address _currentOwner, address _newOwner) external;
 
     /**
      * @notice Pauses/Unpauses a Relayer contract. Can only be called by address
@@ -60,7 +76,7 @@ interface IETSAccessControls is IAccessControlUpgradeable {
      *
      * @param _relayer Address of the Relayer contract.
      */
-    function toggleIsRelayerPaused(address _relayer) external;
+    function toggleRelayerLock(address _relayer) external;
 
     /**
      * @notice Sets the role admin for a given role. An address with role admin can grant or
@@ -88,12 +104,44 @@ interface IETSAccessControls is IAccessControlUpgradeable {
     function isAdmin(address _addr) external view returns (bool);
 
     /**
-     * @notice Checks whether given address has RELAYER role.
+     * @notice Checks whether given address can act as relayer factory.
      *
      * @param _addr Address being checked.
-     * @return boolean True if address has RELAYER role.
+     * @return boolean True if address can act as relayer factory.
+     */
+    function isRelayerFactory(address _addr) external view returns (bool);
+
+    /**
+     * @notice Checks whether given address is a relayer.
+     *
+     * @param _addr Address being checked.
+     * @return boolean True if address can be a relayer.
      */
     function isRelayer(address _addr) external view returns (bool);
+
+    /**
+     * @notice Checks whether given address is a registered Relayer and not paused.
+     *
+     * @param _addr Address being checked.
+     * @return boolean True if address is a Relayer and not paused.
+     */
+    function isRelayerAndNotPaused(address _addr) external view returns (bool);
+
+    /**
+     * @notice Checks relayer is paused by ETS Platform.
+     *
+     * @param _addr Address being checked.
+     * @return boolean True if relayer address is paused by platform.
+     */
+    function isRelayerLocked(address _addr) external view returns (bool);
+
+    /**
+     * @notice Checks whether given address owns a relayer.
+     *
+     * @param _addr Address being checked.
+     * @return boolean True if address owns a relayer.
+     */
+    function isRelayerByOwner(address _addr) external view returns (bool);
 
     /**
      * @notice Checks whether given address has RELAYER_ADMIN role.
@@ -120,14 +168,6 @@ interface IETSAccessControls is IAccessControlUpgradeable {
     function isRelayerByAddress(address _addr) external view returns (bool);
 
     /**
-     * @notice Checks whether given address is a registered Relayer and not paused.
-     *
-     * @param _addr Address being checked.
-     * @return boolean True if address is a Relayer and not paused.
-     */
-    function isRelayerAndNotPaused(address _addr) external view returns (bool);
-
-    /**
      * @notice Get relayer address from it's name.
      *
      * @param _name Name of relayer.
@@ -142,6 +182,14 @@ interface IETSAccessControls is IAccessControlUpgradeable {
      * @return Name of relayer.
      */
     function getRelayerNameFromAddress(address _address) external view returns (string calldata);
+
+    /**
+     * @notice Get relayer address from its owner address.
+     *
+     * @param _address address of relayer owner.
+     * @return Address of relayer.
+     */
+    function getRelayerAddressFromOwner(address _address) external view returns (address);
 
     /**
      * @notice Returns wallet address for ETS Platform.

@@ -52,7 +52,7 @@ describe("ETS Relayer Tests", function () {
         true,
       );
       // Pause ETSRelayer
-      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsRelayerPaused(
+      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleRelayerLock(
         contracts.ETSRelayer.address,
       );
 
@@ -121,7 +121,7 @@ describe("ETS Relayer Tests", function () {
       });
 
       // Pause ETSRelayer
-      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsRelayerPaused(
+      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleRelayerLock(
         contracts.ETSRelayer.address,
       );
       await expect(contracts.ETSRelayer.connect(accounts.RandomOne).removeTags(taggingRecords)).to.be.revertedWith(
@@ -196,7 +196,7 @@ describe("ETS Relayer Tests", function () {
       });
 
       // Pause ETSRelayer
-      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsRelayerPaused(
+      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleRelayerLock(
         contracts.ETSRelayer.address,
       );
 
@@ -333,7 +333,7 @@ describe("ETS Relayer Tests", function () {
       });
 
       // Pause ETSRelayer
-      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsRelayerPaused(
+      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleRelayerLock(
         contracts.ETSRelayer.address,
       );
 
