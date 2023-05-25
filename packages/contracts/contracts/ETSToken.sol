@@ -10,8 +10,6 @@ import { ERC721BurnableUpgradeable, ERC721Upgradeable, IERC165Upgradeable } from
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title ETSToken
  * @author Ethereum Tag Service <team@ets.xyz>
