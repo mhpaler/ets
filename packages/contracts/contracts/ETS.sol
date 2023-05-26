@@ -65,15 +65,14 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     }
 
     modifier onlyRelayer() {
-        require(etsAccessControls.isRelayerAndNotPaused(_msgSender()), "Caller not Relayer");
+        require(etsAccessControls.isRelayer(_msgSender()), "Caller not Relayer");
         _;
     }
 
     /// @dev Require that caller is original relayer or tagger.
     modifier onlyOriginalRelayerOrTagger(uint256 _taggingRecordId) {
         require(
-            (taggingRecords[_taggingRecordId].relayer == _msgSender() &&
-                etsAccessControls.isRelayerAndNotPaused(_msgSender())) ||
+            (taggingRecords[_taggingRecordId].relayer == _msgSender() && etsAccessControls.isRelayer(_msgSender())) ||
                 taggingRecords[_taggingRecordId].tagger == _msgSender(),
             "Not authorized"
         );

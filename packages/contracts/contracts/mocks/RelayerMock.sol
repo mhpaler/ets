@@ -77,7 +77,7 @@ contract RelayerMock is ERC165, IETSRelayer, Ownable, Pausable {
         return interfaceId == IID_IETSRELAYER || super.supportsInterface(interfaceId);
     }
 
-    function isPausedByOwner() public view returns (bool) {}
+    function isPaused() public view returns (bool) {}
 
     function getRelayerName() public pure returns (string memory) {
         return NAME;

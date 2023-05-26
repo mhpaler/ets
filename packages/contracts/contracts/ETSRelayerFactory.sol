@@ -4,9 +4,9 @@ pragma solidity ^0.8.10;
 import { IETS } from "./interfaces/IETS.sol";
 import { IETSTarget } from "./interfaces/IETSTarget.sol";
 import { IETSToken } from "./interfaces/IETSToken.sol";
+import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
 import { ETSRelayerBeacon } from "./relayers/ETSRelayerBeacon.sol";
 import { ETSRelayerV1 } from "./relayers/ETSRelayerV1.sol";
-import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
 import { ETSRelayerBeacon } from "./relayers/ETSRelayerBeacon.sol";
 import { ETSRelayerV1 } from "./relayers/ETSRelayerV1.sol";
 
@@ -30,6 +30,16 @@ contract ETSRelayerFactory is Context {
     /// @dev Address and interface for ETS Target.
     IETSTarget public etsTarget;
 
+    // Modifiers
+
+    modifier onlyValidName(string calldata _name) {
+        require(!etsAccessControls.isRelayerByName(_name), "Relayer name exists");
+        bytes memory nameBytes = bytes(_name);
+        require(nameBytes.length >= 2, "Relayer name too short");
+        require(nameBytes.length <= 32, "Relayer name too long");
+        _;
+    }
+
     /// Public constants
 
     string public constant NAME = "ETS Relayer Factory V1";
@@ -48,10 +58,12 @@ contract ETSRelayerFactory is Context {
         etsTarget = _etsTarget;
     }
 
-    function addRelayer(string calldata _relayerName) external returns (address) {
-        // TODO: If [relayername].ens exists, _msgSender() to be owner.
-        require(!etsAccessControls.isRelayerByName(_relayerName), "Relayer name exists");
-
+    function addRelayer(string calldata _relayerName) external onlyValidName(_relayerName) returns (address relayer) {
+        require(
+            etsToken.balanceOf(_msgSender()) > 0 || etsAccessControls.isRelayerAdmin(_msgSender()),
+            "Must own CTAG"
+        );
+        require(!etsAccessControls.isRelayerByOwner(_msgSender()), "Sender owns existing relayer");
         BeaconProxy relayerProxy = new BeaconProxy(
             address(etsRelayerBeacon),
             abi.encodeWithSelector(
@@ -60,12 +72,13 @@ contract ETSRelayerFactory is Context {
                 ets,
                 etsToken,
                 etsTarget,
+                etsAccessControls,
                 payable(_msgSender()),
                 payable(_msgSender())
             )
         );
 
-        etsAccessControls.addRelayer(address(relayerProxy), _relayerName);
+        etsAccessControls.registerRelayer(address(relayerProxy), _relayerName, _msgSender());
         return address(relayerProxy);
     }
 

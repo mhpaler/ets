@@ -175,12 +175,18 @@ async function setup() {
 
   // ============ GRANT ROLES & APPROVALS ============
 
-  // Grant RELAYER_ADMIN role to ETSRelayerFactory so it can deploy relayer contracts.
-  await ETSAccessControls.grantRole(ethers.utils.id("RELAYER_ADMIN"), ETSRelayerFactory.address);
+  // Allows relayer admin role to grant relayer factory role.
+  await ETSAccessControls.setRoleAdmin(await ETSAccessControls.RELAYER_FACTORY_ROLE(), await ETSAccessControls.RELAYER_ADMIN_ROLE());
 
-  await ETSAccessControls.grantRole(await ETSAccessControls.SMART_CONTRACT_ROLE(), accounts.ETSAdmin.address, {
-    from: accounts.ETSAdmin.address,
-  });
+  // Allows relayer factory role to grant relayer role.
+  await ETSAccessControls.setRoleAdmin(await ETSAccessControls.RELAYER_ROLE(), await ETSAccessControls.RELAYER_FACTORY_ROLE());
+
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), accounts.ETSAdmin.address);
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), accounts.ETSPlatform.address);
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), ETSAccessControls.address);
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), ETSToken.address);
+
+  await ETSAccessControls.grantRole(await ETSAccessControls.SMART_CONTRACT_ROLE(), accounts.ETSAdmin.address);
 
   await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(ETSEnrichTarget.address);
 
@@ -190,12 +196,14 @@ async function setup() {
   // Set ETS Core on ETSToken.
   await ETSToken.connect(accounts.ETSPlatform).setETSCore(ETS.address);
 
-  // Add a relayer proxy for use in tests.
+  // Grant RELAYER_FACTORY_ROLE to ETSRelayerFactory so it can deploy relayer contracts.
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_FACTORY_ROLE(), ETSRelayerFactory.address);
+
+  // Add a relayer proxy for use in tests. Note: ETSPlatform not required to own CTAG to add relayer.
   await ETSRelayerFactory.connect(accounts.ETSPlatform).addRelayer("ETSRelayer");
   relayerAddress = await ETSAccessControls.getRelayerAddressFromName("ETSRelayer");
   etsRelayerV1ABI = require("../abi/contracts/relayers/ETSRelayerV1.sol/ETSRelayerV1.json");
   contracts.ETSRelayer = new ethers.Contract(relayerAddress, etsRelayerV1ABI, accounts.RandomOne);
-
   return [accounts, contracts, initSettings];
 }
 

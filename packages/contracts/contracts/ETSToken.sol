@@ -355,6 +355,11 @@ contract ETSToken is
                 _setLastRenewed(tokenId, block.timestamp);
             }
         }
+
+        // If from address is not black hole or platform, and balance is going zero pause their relayer.
+        if (from != address(0) && from != getPlatformAddress() && balanceOf(from) == 0) {
+            etsAccessControls.pauseRelayerByOwnerAddress(from);
+        }
     }
 
     /**

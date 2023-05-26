@@ -71,12 +71,6 @@
         "internalType": "address",
         "name": "relayer",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "isAdmin",
-        "type": "bool"
       }
     ],
     "name": "RelayerAdded",
@@ -92,7 +86,7 @@
         "type": "address"
       }
     ],
-    "name": "RelayerPauseToggled",
+    "name": "RelayerLockToggled",
     "type": "event"
   },
   {
@@ -211,7 +205,7 @@
   },
   {
     "inputs": [],
-    "name": "RELAYER_ROLE",
+    "name": "RELAYER_ADMIN_ROLE",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -224,7 +218,20 @@
   },
   {
     "inputs": [],
-    "name": "RELAYER_ROLE_ADMIN",
+    "name": "RELAYER_FACTORY_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "RELAYER_ROLE",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -252,16 +259,16 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_relayer",
+        "name": "_currentOwner",
         "type": "address"
       },
       {
-        "internalType": "string",
-        "name": "_name",
-        "type": "string"
+        "internalType": "address",
+        "name": "_newOwner",
+        "type": "address"
       }
     ],
-    "name": "addRelayer",
+    "name": "changeRelayerOwner",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -288,6 +295,25 @@
       }
     ],
     "name": "getRelayerAddressFromName",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_address",
+        "type": "address"
+      }
+    ],
+    "name": "getRelayerAddressFromOwner",
     "outputs": [
       {
         "internalType": "address",
@@ -509,11 +535,49 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "_addr",
         "type": "address"
       }
     ],
-    "name": "isRelayerPaused",
+    "name": "isRelayerByOwner",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_addr",
+        "type": "address"
+      }
+    ],
+    "name": "isRelayerFactory",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_addr",
+        "type": "address"
+      }
+    ],
+    "name": "isRelayerLocked",
     "outputs": [
       {
         "internalType": "bool",
@@ -544,6 +608,19 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_relayerOwner",
+        "type": "address"
+      }
+    ],
+    "name": "pauseRelayerByOwnerAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "proxiableUUID",
     "outputs": [
@@ -554,6 +631,29 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_relayer",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
+      }
+    ],
+    "name": "registerRelayer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -578,12 +678,50 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "relayerLocked",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "string",
         "name": "",
         "type": "string"
       }
     ],
     "name": "relayerNameToContract",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "relayerOwnerToAddress",
     "outputs": [
       {
         "internalType": "address",
@@ -688,7 +826,7 @@
         "type": "address"
       }
     ],
-    "name": "toggleIsRelayerPaused",
+    "name": "toggleRelayerLock",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

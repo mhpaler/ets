@@ -17,16 +17,6 @@ describe("ETS Auction House Tests", function () {
   beforeEach("Setup test", async function () {
     [accounts, contracts, initSettings] = await setup();
 
-    // Add & unpause ETSPlatform as a Relayer.
-    await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addRelayer(
-      accounts.ETSPlatform.address,
-      "ETSPlatform",
-    );
-
-    //await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleIsRelayerPaused(
-    //  accounts.ETSPlatform.address,
-    //);
-
     // Mint a tag by random user. ETS is Relayer, retained by platform.
     etsOwnedTag = "#Love";
     await contracts.ETS.connect(accounts.ETSPlatform).createTag(etsOwnedTag, accounts.RandomTwo.address);
