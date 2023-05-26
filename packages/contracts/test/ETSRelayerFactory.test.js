@@ -5,6 +5,25 @@ const { expect } = require("chai");
 describe("ETSRelayerFactory Tests", function () {
   beforeEach("Setup test", async function () {
     [accounts, contracts, initSettings] = await setup();
+
+    // Create two tags and transfer them to RandomOne so that user can add a relayer in tests.
+    const tag = "#LOVE";
+    await contracts.ETSRelayer.connect(accounts.RandomTwo).getOrCreateTagIds([tag]);
+    tokenId = await contracts.ETSToken.computeTagId(tag);
+    await contracts.ETSToken.connect(accounts.ETSPlatform).transferFrom(
+      accounts.ETSPlatform.address,
+      accounts.RandomOne.address,
+      tokenId,
+    );
+
+    const tag2 = "#HATE";
+    await contracts.ETSRelayer.connect(accounts.RandomTwo).getOrCreateTagIds([tag2]);
+    tokenId2 = await contracts.ETSToken.computeTagId(tag2);
+    await contracts.ETSToken.connect(accounts.ETSPlatform).transferFrom(
+      accounts.ETSPlatform.address,
+      accounts.RandomOne.address,
+      tokenId2,
+    );
   });
 
   describe("Valid setup/initialization", async function () {
