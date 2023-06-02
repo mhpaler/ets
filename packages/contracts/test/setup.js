@@ -6,6 +6,7 @@ const initSettings = {
   TAG_MAX_STRING_LENGTH: 32,
   OWNERSHIP_TERM_LENGTH: 730,
   // Auction
+  MAX_AUCTIONS: 1,
   TIME_BUFFER: 600, // 600 secs / 10 minutes
   RESERVE_PRICE: 200, // 200 WEI
   MIN_INCREMENT_BID_PERCENTAGE: 5,
@@ -111,6 +112,7 @@ async function setup() {
       ETSToken.address,
       ETSAccessControls.address,
       WMATIC.address,
+      initSettings.MAX_AUCTIONS,
       initSettings.TIME_BUFFER,
       initSettings.RESERVE_PRICE,
       initSettings.MIN_INCREMENT_BID_PERCENTAGE,
@@ -186,6 +188,8 @@ async function setup() {
   await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), ETSAccessControls.address);
   await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), ETSToken.address);
 
+  // Set auction oracle to platform just for testing.
+  await ETSAccessControls.grantRole(await ETSAccessControls.AUCTION_ORACLE_ROLE(), accounts.ETSPlatform.address);
   await ETSAccessControls.grantRole(await ETSAccessControls.SMART_CONTRACT_ROLE(), accounts.ETSAdmin.address);
 
   await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(ETSEnrichTarget.address);

@@ -187,6 +187,10 @@ contract ETSRelayerV1 is
         return ets.computeTaggingFeeFromRawInput(_rawInput, address(this), msg.sender, _action);
     }
 
+    function getBalance() public view returns (uint) {
+        return address(this).balance;
+    }
+
     // ============ INTERNAL FUNCTIONS ============
 
     function _applyTags(
@@ -238,4 +242,10 @@ contract ETSRelayerV1 is
     function _removeTags(IETS.TaggingRecordRawInput calldata _rawInput, address payable _tagger) internal {
         ets.removeTagsWithRawInput(_rawInput, _tagger);
     }
+
+    /* solhint-disable */
+    receive() external payable {}
+
+    fallback() external payable {}
+    /* solhint-enable */
 }

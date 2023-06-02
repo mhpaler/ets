@@ -104,6 +104,14 @@ interface IETSAccessControls is IAccessControlUpgradeable {
     function isAdmin(address _addr) external view returns (bool);
 
     /**
+     * @notice Checks whether given address has AUCTION_ORACLE_ROLE role.
+     *
+     * @param _addr Address being checked.
+     * @return boolean True if address has AUCTION_ORACLE_ROLE role.
+     */
+    function isAuctionOracle(address _addr) external view returns (bool);
+
+    /**
      * @notice Checks whether given address can act as relayer factory.
      *
      * @param _addr Address being checked.

@@ -17,11 +17,17 @@ describe("ETS Auction House Tests", function () {
   beforeEach("Setup test", async function () {
     [accounts, contracts, initSettings] = await setup();
 
+    await contracts.ETSAuctionHouse.connect(accounts.ETSAdmin).unpause();
     // Mint a tag by random user. ETS is Relayer, retained by platform.
-    etsOwnedTag = "#Love";
+    etsOwnedTag = "#LOVE";
     await contracts.ETS.connect(accounts.ETSPlatform).createTag(etsOwnedTag, accounts.RandomTwo.address);
     etsOwnedTagId = await contracts.ETSToken.computeTagId(etsOwnedTag);
     etsOwnedTagId = etsOwnedTagId.toString();
+
+    etsOwnedTag2 = "#HATE";
+    await contracts.ETS.connect(accounts.ETSPlatform).createTag(etsOwnedTag2, accounts.RandomTwo.address);
+    etsOwnedTagId2 = await contracts.ETSToken.computeTagId(etsOwnedTag2);
+    etsOwnedTagId2 = etsOwnedTagId2.toString();
 
     // Mint a tag and transfer away from platform.
     userOwnedTag = "#Incredible";
@@ -43,6 +49,12 @@ describe("ETS Auction House Tests", function () {
       expect(await contracts.ETSToken.tagExistsById(etsOwnedTagId)).to.be.equal(true);
       const owner = await contracts.ETSToken.ownerOf(userOwnedTagId);
       assert(owner === accounts.RandomTwo.address);
+      const maxAuctions = await contracts.ETSAuctionHouse.maxAuctions();
+      const activeAuctions = await contracts.ETSAuctionHouse.getActiveCount();
+      const totalAuctions = await contracts.ETSAuctionHouse.getTotalCount();
+      assert(maxAuctions.toNumber() == 1);
+      assert(activeAuctions.toNumber() == 0);
+      assert(totalAuctions.toNumber() == 0);
     });
 
     it("should revert if a second initialization is attempted", async () => {
@@ -50,6 +62,7 @@ describe("ETS Auction House Tests", function () {
         contracts.ETSToken.address,
         contracts.ETSAccessControls.address,
         contracts.WMATIC.address,
+        initSettings.MAX_AUCTIONS,
         initSettings.TIME_BUFFER,
         initSettings.RESERVE_PRICE,
         initSettings.MIN_INCREMENT_BID_PERCENTAGE,
@@ -63,6 +76,7 @@ describe("ETS Auction House Tests", function () {
 
   describe("Only administrators", async function () {
     it("can pause & unpause the auction", async function () {
+
       await expect(contracts.ETSAuctionHouse.connect(accounts.RandomOne).pause()).to.be.revertedWith(
         "Caller must be administrator",
       );
@@ -78,6 +92,16 @@ describe("ETS Auction House Tests", function () {
       await expect(contracts.ETSAuctionHouse.connect(accounts.ETSAdmin).unpause())
         .to.emit(contracts.ETSAuctionHouse, "Unpaused")
         .withArgs(accounts.ETSAdmin.address);
+    });
+
+    it("can set max auctions", async function () {
+      await expect(contracts.ETSAuctionHouse.connect(accounts.RandomOne).setMaxAuctions(1000)).to.be.revertedWith(
+        "Caller must be administrator",
+      );
+
+      await expect(contracts.ETSAuctionHouse.connect(accounts.ETSAdmin).setMaxAuctions(1000))
+        .to.emit(contracts.ETSAuctionHouse, "AuctionsMaxSet")
+        .withArgs(1000);
     });
 
     it("can set the reserve price", async function () {
@@ -111,88 +135,138 @@ describe("ETS Auction House Tests", function () {
     });
   });
 
-  describe("Bidding to create a new auction", async function () {
-    it("should revert when auction is paused", async function () {
+  describe("Creating auctions", async function () {
+    it("should revert when auction house is paused", async function () {
       await contracts.ETSAuctionHouse.connect(accounts.ETSAdmin).pause();
       await expect(
-        contracts.ETSAuctionHouse.connect(accounts.RandomOne).createBid(userOwnedTagId, {
-          value: initSettings.RESERVE_PRICE,
-        }),
+        contracts.ETSAuctionHouse.connect(accounts.RandomOne).createNextAuction(),
       ).to.be.revertedWith("Pausable: paused");
     });
 
-    it("should revert when token doesn't exist", async function () {
+    it("should revert when no slots are available", async function () {
+      await contracts.ETSAuctionHouse.connect(accounts.ETSPlatform).setMaxAuctions(0);
       await expect(
-        contracts.ETSAuctionHouse.connect(accounts.RandomOne).createBid(constants.Two, {
-          value: initSettings.RESERVE_PRICE,
-        }),
-      ).to.be.revertedWith("ERC721: invalid token ID");
+        contracts.ETSAuctionHouse.connect(accounts.RandomOne).createNextAuction(),
+      ).to.be.revertedWith("No open auction slots");
     });
 
-    it("should revert when token not owned by platform", async function () {
+    it("should emit \"RequestCreateAuction\"", async function () {
       await expect(
-        contracts.ETSAuctionHouse.connect(accounts.RandomOne).createBid(userOwnedTagId, {
-          value: initSettings.RESERVE_PRICE,
-        }),
+        contracts.ETSAuctionHouse.connect(accounts.RandomOne).createNextAuction(),
+      )
+        .to.emit(contracts.ETSAuctionHouse, "RequestCreateAuction");
+    });
+
+    it("should revert when fulfillRequestCreateAuction is not called by AuctionOracle", async function () {
+      await expect(
+        contracts.ETSAuctionHouse.connect(accounts.RandomOne).fulfillRequestCreateAuction(etsOwnedTagId),
+      ).to.be.revertedWith("Caller not auction oracle");
+    });
+
+    it("should emit \"AuctionCreated\"", async function () {
+      await expect(
+        contracts.ETSAuctionHouse.connect(accounts.ETSPlatform).fulfillRequestCreateAuction(etsOwnedTagId),
+      )
+        .to.emit(contracts.ETSAuctionHouse, "AuctionCreated").withArgs(etsOwnedTagId);
+    });
+
+    it("should increment the activeActions and auctionId counter", async function () {
+
+      let activeAuctions = await contracts.ETSAuctionHouse.getActiveCount();
+      let totalAuctions = await contracts.ETSAuctionHouse.getTotalCount();
+      assert(activeAuctions.toNumber() == 0);
+      assert(totalAuctions.toNumber() == 0);
+
+      await contracts.ETSAuctionHouse.connect(accounts.ETSPlatform).fulfillRequestCreateAuction(etsOwnedTagId);
+
+      activeAuctions = await contracts.ETSAuctionHouse.getActiveCount();
+      totalAuctions = await contracts.ETSAuctionHouse.getTotalCount();
+      assert(activeAuctions.toNumber() == 1);
+      assert(totalAuctions.toNumber() == 1);
+    });
+
+    it("should revert when max auctions is met", async function () {
+
+      let maxAuctions = await contracts.ETSAuctionHouse.maxAuctions();
+      assert(maxAuctions.toNumber() == 1);
+
+      await contracts.ETSAuctionHouse.connect(accounts.ETSPlatform).fulfillRequestCreateAuction(etsOwnedTagId);
+      await expect(
+        contracts.ETSAuctionHouse.connect(accounts.ETSPlatform).fulfillRequestCreateAuction(etsOwnedTagId2),
+      ).to.be.revertedWith("No open auction slots");
+
+    });
+
+    it("should revert when if token auction exists", async function () {
+      await contracts.ETSAuctionHouse.connect(accounts.ETSAdmin).setMaxAuctions(2);
+      await contracts.ETSAuctionHouse.connect(accounts.ETSPlatform).fulfillRequestCreateAuction(etsOwnedTagId);
+      await expect(
+        contracts.ETSAuctionHouse.connect(accounts.ETSPlatform).fulfillRequestCreateAuction(etsOwnedTagId),
+      ).to.be.revertedWith("Auction exists");
+    });
+
+    it("should revert if platform doesn't own token", async function () {
+      await expect(
+        contracts.ETSAuctionHouse.connect(accounts.ETSPlatform).fulfillRequestCreateAuction(userOwnedTagId),
       ).to.be.revertedWith("CTAG not owned by ETS");
     });
 
-    it("should revert if a user creates a bid with an amount below the reserve price", async () => {
+    it("should revert if token doesn't exist", async function () {
+      const badTokenId = await contracts.ETSToken.computeTagId("#badTokenId");
       await expect(
-        contracts.ETSAuctionHouse.connect(accounts.RandomOne).createBid(etsOwnedTagId, {
-          value: initSettings.RESERVE_PRICE - 1,
-        }),
-      ).to.be.revertedWith("Must send at least reservePrice");
+        contracts.ETSAuctionHouse.connect(accounts.ETSPlatform).fulfillRequestCreateAuction(badTokenId),
+      ).to.be.revertedWith("ERC721: invalid token ID");
     });
 
-    it("should create new auction if token exists and active auction not found", async function () {
-      await expect(
-        contracts.ETSAuctionHouse.connect(accounts.RandomOne).createBid(etsOwnedTagId, {
-          value: initSettings.RESERVE_PRICE,
-        }),
-      )
-        .to.emit(contracts.ETSAuctionHouse, "AuctionCreated")
-        .withArgs(etsOwnedTagId);
-
-      const auction = await contracts.ETSAuctionHouse.getAuction(etsOwnedTagId);
-
-      let blockNum = await ethers.provider.getBlockNumber();
-      let block = await ethers.provider.getBlock(blockNum);
-      assert(auction.startTime == block.timestamp);
-
-      let duration = await contracts.ETSAuctionHouse.duration();
-      assert(auction.endTime == Number(block.timestamp) + Number(duration));
-    });
-
-    it("should emit an `AuctionBid` event on a successful starting bid", async () => {
-      await expect(
-        contracts.ETSAuctionHouse.connect(accounts.RandomTwo).createBid(etsOwnedTagId, {
-          value: initSettings.RESERVE_PRICE,
-        }),
-      )
-        .to.emit(contracts.ETSAuctionHouse, "AuctionBid")
-        .withArgs(etsOwnedTagId, accounts.RandomTwo.address, initSettings.RESERVE_PRICE, false);
-    });
   });
 
   describe("Bidding on active auction", async function () {
     beforeEach(async function () {
-      // Create an auction with an opening bid by RandomOne.
-      await contracts.ETSAuctionHouse.connect(accounts.RandomOne).createBid(etsOwnedTagId, {
-        value: initSettings.RESERVE_PRICE,
-      });
+      // Create an auction.
+      await contracts.ETSAuctionHouse.connect(accounts.ETSPlatform).fulfillRequestCreateAuction(etsOwnedTagId);
     });
+
+    it("should revert if auction house is paused", async function () {
+      await contracts.ETSAuctionHouse.connect(accounts.ETSAdmin).pause();
+      const bid = (initSettings.RESERVE_PRICE + 10);
+      // First bid.
+      await expect(
+        contracts.ETSAuctionHouse.connect(accounts.RandomTwo).createBid(etsOwnedTagId, { value: bid }),
+      ).to.be.revertedWith("Pausable: paused");
+    });
+
+    it("should revert with \"Auction not found\" if bid is on non-existent auction", async function () {
+      // First bid.
+      await expect(
+        contracts.ETSAuctionHouse.connect(accounts.RandomTwo).createBid(etsOwnedTagId2, { value: initSettings.RESERVE_PRICE }),
+      ).to.be.revertedWith("Auction not found");
+    });
+
+    it("should revert if bid doesn't meet reserve price", async function () {
+      await contracts.ETSAuctionHouse.getAuction(etsOwnedTagId);
+      const less_than_reserve = (initSettings.RESERVE_PRICE - 3);
+      // First bid.
+      await expect(
+        contracts.ETSAuctionHouse.connect(accounts.RandomTwo).createBid(etsOwnedTagId, { value: less_than_reserve }),
+      ).to.be.revertedWith("Must send at least reservePrice");
+    });
+
     it("should revert if bid doesn't meet min bid increment", async function () {
-      const auction = await contracts.ETSAuctionHouse.getAuction(etsOwnedTagId);
+      let auction = await contracts.ETSAuctionHouse.getAuction(etsOwnedTagId);
+      const first_bid = initSettings.RESERVE_PRICE + 50;
+      // First bid + 50.
+      await contracts.ETSAuctionHouse.connect(accounts.RandomTwo).createBid(etsOwnedTagId, { value: first_bid });
+      auction = await contracts.ETSAuctionHouse.getAuction(etsOwnedTagId);
       const low_bid_increment =
         Number(auction.amount) + Number(auction.amount) * ((initSettings.MIN_INCREMENT_BID_PERCENTAGE - 3) / 100);
+
       await expect(
         contracts.ETSAuctionHouse.connect(accounts.RandomTwo).createBid(etsOwnedTagId, { value: low_bid_increment }),
       ).to.be.revertedWith("Bid too low");
     });
 
-    it("should emit an `AuctionBid` event on a successful second bid", async function () {
-      // RandomTwo successfully increments the bid.
+    it("should emit an `AuctionBid` event on successful bids", async function () {
+      // First bid.
       await expect(
         contracts.ETSAuctionHouse.connect(accounts.RandomTwo).createBid(etsOwnedTagId, {
           value: initSettings.RESERVE_PRICE * 2,
@@ -200,16 +274,37 @@ describe("ETS Auction House Tests", function () {
       )
         .to.emit(contracts.ETSAuctionHouse, "AuctionBid")
         .withArgs(etsOwnedTagId, accounts.RandomTwo.address, initSettings.RESERVE_PRICE * 2, false);
+
+      // Second bid
+      let auction = await contracts.ETSAuctionHouse.getAuction(etsOwnedTagId);
+      const second_bid =
+        Number(auction.amount) + Number(auction.amount) * ((initSettings.MIN_INCREMENT_BID_PERCENTAGE + 10) / 100);
+      await expect(
+        contracts.ETSAuctionHouse.connect(accounts.RandomOne).createBid(etsOwnedTagId, {
+          value: second_bid,
+        }),
+      )
+        .to.emit(contracts.ETSAuctionHouse, "AuctionBid")
+        .withArgs(etsOwnedTagId, accounts.RandomOne.address, second_bid, false);
     });
 
     it("should return funds to previous bidder on good bid", async function () {
+
+      // RandomOne Bids
+      const randomOneBid = initSettings.RESERVE_PRICE * 2;
+      await contracts.ETSAuctionHouse.connect(accounts.RandomOne).createBid(etsOwnedTagId, {
+        value: randomOneBid,
+      })
       const RandomOnePostBidBalance = await accounts.RandomOne.getBalance();
+
       // RandomTwo successfully increments the bid.
       await contracts.ETSAuctionHouse.connect(accounts.RandomTwo).createBid(etsOwnedTagId, {
-        value: initSettings.RESERVE_PRICE * 2,
+        value: initSettings.RESERVE_PRICE * 4,
       });
+
+      // RandomOne is successfully refunded their original bid.
       const RandomOnePostRefundBalance = await accounts.RandomOne.getBalance();
-      expect(RandomOnePostRefundBalance).to.equal(RandomOnePostBidBalance.add(initSettings.RESERVE_PRICE));
+      expect(RandomOnePostRefundBalance).to.equal(RandomOnePostBidBalance.add(randomOneBid));
     });
 
     it("should cap the maximum bid griefing cost at 30K gas + the cost to wrap and transfer WMATIC", async () => {
@@ -232,15 +327,24 @@ describe("ETS Auction House Tests", function () {
     });
 
     it("should emit an `AuctionExtended` event if the auction end time is within the time buffer", async () => {
+
+      // RandomOne Bids
+      const randomOneBid = initSettings.RESERVE_PRICE * 2;
+      await contracts.ETSAuctionHouse.connect(accounts.RandomOne).createBid(etsOwnedTagId, {
+        value: randomOneBid,
+      });
+
       const auction = await contracts.ETSAuctionHouse.getAuction(etsOwnedTagId);
       // Advance blockchain to current end time less 5 minutes.
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         auction.endTime.sub(initSettings.TIME_BUFFER / 2).toNumber(),
       ]);
 
+      const bid_increment =
+        Number(auction.amount) + Number(auction.amount) * ((initSettings.MIN_INCREMENT_BID_PERCENTAGE + 10) / 100);
       await expect(
         contracts.ETSAuctionHouse.connect(accounts.RandomTwo).createBid(etsOwnedTagId, {
-          value: initSettings.RESERVE_PRICE * 2,
+          value: bid_increment,
         }),
       )
         .to.emit(contracts.ETSAuctionHouse, "AuctionExtended")
@@ -250,7 +354,8 @@ describe("ETS Auction House Tests", function () {
 
   describe("Bidding on ended, but not settled auction", async function () {
     beforeEach(async function () {
-      // Create an auction with an opening bid.
+      // Create an auction.
+      await contracts.ETSAuctionHouse.connect(accounts.ETSPlatform).fulfillRequestCreateAuction(etsOwnedTagId);
       await contracts.ETSAuctionHouse.connect(accounts.RandomOne).createBid(etsOwnedTagId, {
         value: initSettings.RESERVE_PRICE,
       });
@@ -260,73 +365,221 @@ describe("ETS Auction House Tests", function () {
       await ethers.provider.send("evm_setNextBlockTimestamp", [auction.endTime.add(60).toNumber()]);
     });
 
-    it("should revert", async function () {
+    it("should revert with \"Auction ended\"", async function () {
       await expect(
         contracts.ETSAuctionHouse.connect(accounts.RandomOne).createBid(etsOwnedTagId, {
-          value: initSettings.RESERVE_PRICE,
+          value: initSettings.RESERVE_PRICE * 3,
         }),
       ).to.be.revertedWith("Auction ended");
     });
   });
 
-  describe("Settling an active auction", async function () {
-    it("should revert", async function () {
+  describe("Settling an auction via settleCurrentAndCreateNewAuction()", async function () {
+    beforeEach(async function () {
+      await contracts.ETSAuctionHouse.connect(accounts.ETSPlatform).fulfillRequestCreateAuction(etsOwnedTagId);
+    });
+
+    it("should revert with \"Pausable: paused\" if auction house is paused", async function () {
+      await contracts.ETSAuctionHouse.connect(accounts.ETSAdmin).pause();
+      await expect(
+        contracts.ETSAuctionHouse.connect(accounts.RandomOne).settleCurrentAndCreateNewAuction(etsOwnedTagId),
+      ).to.be.revertedWith("Pausable: paused");
+    });
+
+    it("should revert with \"Auction does not exist\" if auction doesn't exist", async function () {
+      await expect(
+        contracts.ETSAuctionHouse.connect(accounts.RandomOne).settleCurrentAndCreateNewAuction(etsOwnedTagId2),
+      ).to.be.revertedWith("Auction does not exist");
+    });
+
+    it("should revert with \"Auction has not begun\" if auction exists but has hasn't started", async function () {
+      await expect(
+        contracts.ETSAuctionHouse.connect(accounts.RandomOne).settleCurrentAndCreateNewAuction(etsOwnedTagId),
+      ).to.be.revertedWith("Auction has not begun");
+    });
+
+    it("should revert with \"Auction hasn't completed\" if auction hasn't ended", async function () {
       await contracts.ETSAuctionHouse.connect(accounts.RandomOne).createBid(etsOwnedTagId, {
         value: initSettings.RESERVE_PRICE,
       });
       await expect(
-        contracts.ETSAuctionHouse.connect(accounts.RandomOne).settleAuction(etsOwnedTagId),
-      ).to.be.revertedWith("Auction hasn't completed");
+        contracts.ETSAuctionHouse.connect(accounts.RandomOne).settleCurrentAndCreateNewAuction(etsOwnedTagId),
+      ).to.be.revertedWith("Auction has not ended");
     });
-  });
 
-  describe("Settling an ended auction", async function () {
-    beforeEach(async function () {
-      // Create new auction with an opening bid.
+    it("should emit \"AuctionSettled\" when successfully settled", async function () {
       await contracts.ETSAuctionHouse.connect(accounts.RandomOne).createBid(etsOwnedTagId, {
         value: initSettings.RESERVE_PRICE,
       });
       const auction = await contracts.ETSAuctionHouse.getAuction(etsOwnedTagId);
       await ethers.provider.send("evm_setNextBlockTimestamp", [auction.endTime.add(60).toNumber()]);
+
+      await expect(contracts.ETSAuctionHouse.connect(accounts.RandomOne).settleCurrentAndCreateNewAuction(etsOwnedTagId)).to.emit(
+        contracts.ETSAuctionHouse,
+        "AuctionSettled",
+      );
     });
 
-    it("should revert for non-existent auction", async function () {
+    it("can be settled by anyone", async function () {
+      // RandomOne is high bidder
+      await contracts.ETSAuctionHouse.connect(accounts.RandomOne).createBid(etsOwnedTagId, {
+        value: initSettings.RESERVE_PRICE,
+      });
+      const auction = await contracts.ETSAuctionHouse.getAuction(etsOwnedTagId);
+      await ethers.provider.send("evm_setNextBlockTimestamp", [auction.endTime.add(60).toNumber()]);
+
+      // settled by RandomTwo
+      await expect(contracts.ETSAuctionHouse.connect(accounts.RandomTwo).settleCurrentAndCreateNewAuction(etsOwnedTagId)).to.emit(
+        contracts.ETSAuctionHouse,
+        "AuctionSettled",
+      );
+    });
+
+    it("initiates request to create next auction (emits \"RequestCreateAuction\")", async function () {
+      await contracts.ETSAuctionHouse.connect(accounts.RandomOne).createBid(etsOwnedTagId, {
+        value: initSettings.RESERVE_PRICE,
+      });
+      const auction = await contracts.ETSAuctionHouse.getAuction(etsOwnedTagId);
+      await ethers.provider.send("evm_setNextBlockTimestamp", [auction.endTime.add(60).toNumber()]);
+
+      // settled by RandomTwo
+      await expect(contracts.ETSAuctionHouse.connect(accounts.RandomTwo).settleCurrentAndCreateNewAuction(etsOwnedTagId)).to.emit(
+        contracts.ETSAuctionHouse,
+        "RequestCreateAuction",
+      );
+    });
+
+    it("should revert with \"Auction already settled\" when already settled", async function () {
+
+      // RandomOne is high bidder
+      await contracts.ETSAuctionHouse.connect(accounts.RandomOne).createBid(etsOwnedTagId, {
+        value: initSettings.RESERVE_PRICE,
+      });
+      const auction = await contracts.ETSAuctionHouse.getAuction(etsOwnedTagId);
+      await ethers.provider.send("evm_setNextBlockTimestamp", [auction.endTime.add(60).toNumber()]);
+
+      await contracts.ETSAuctionHouse.connect(accounts.RandomTwo).settleCurrentAndCreateNewAuction(etsOwnedTagId);
       await expect(
-        contracts.ETSAuctionHouse.connect(accounts.RandomOne).settleAuction(constants.Two),
-      ).to.be.revertedWith("Auction doesn't exist");
+        contracts.ETSAuctionHouse.connect(accounts.RandomOne).settleCurrentAndCreateNewAuction(etsOwnedTagId),
+      ).to.be.revertedWith("Auction already settled");
     });
 
     it("should send CTAG token to winning bidder", async function () {
-      const auction = await contracts.ETSAuctionHouse.getAuction(etsOwnedTagId);
-      const bidder = auction.bidder;
 
-      await expect(contracts.ETSAuctionHouse.connect(accounts.RandomOne).settleAuction(etsOwnedTagId)).to.emit(
-        contracts.ETSAuctionHouse,
-        "AuctionSettled",
-      );
-      assert((await contracts.ETSToken.ownerOf(etsOwnedTagId)) == bidder);
+      await contracts.ETSAuctionHouse.connect(accounts.RandomOne).createBid(etsOwnedTagId, {
+        value: initSettings.RESERVE_PRICE,
+      });
+      const auction = await contracts.ETSAuctionHouse.getAuction(etsOwnedTagId);
+      await ethers.provider.send("evm_setNextBlockTimestamp", [auction.endTime.add(60).toNumber()]);
+      await contracts.ETSAuctionHouse.connect(accounts.RandomTwo).settleCurrentAndCreateNewAuction(etsOwnedTagId);
+
+      assert((await contracts.ETSToken.ownerOf(etsOwnedTagId)) == auction.bidder);
     });
 
-    it("should send auction proceeds to actors", async function () {
-      const auction = await contracts.ETSAuctionHouse.getAuction(etsOwnedTagId);
+  });
+
+  describe("Auction Proceeds", async function () {
+    beforeEach(async function () {
+
+      // RandomTwo sets up as a relayer (they own a tag already from overall test setup):
+      await contracts.ETSRelayerFactory.connect(accounts.RandomTwo).addRelayer("RandomTwo Relayer");
+      relayerAddress = await contracts.ETSAccessControls.getRelayerAddressFromName("RandomTwo Relayer");
+      etsRelayerV1ABI = require("../abi/contracts/relayers/ETSRelayerV1.sol/ETSRelayerV1.json");
+      randomTwoRelayer = new ethers.Contract(relayerAddress, etsRelayerV1ABI, accounts.RandomTwo);
+
+      relayerPreAuctionAccrued = await contracts.ETSAuctionHouse.accrued(relayerAddress);
+      creatorPreAuctionAccrued = await contracts.ETSAuctionHouse.accrued(accounts.Creator.address);
+      platformPreAuctionAccrued = await contracts.ETSAuctionHouse.accrued(accounts.ETSPlatform.address);
+
+      // "Creator" creates a CTAG using RandomTwo Owned Relayer.
+      tagString = "#AUCTIONPROCEEDS";
+      tagId = await contracts.ETSToken.computeTagId(tagString);
+      await randomTwoRelayer.connect(accounts.Creator).getOrCreateTagIds([tagString]);
+
+      // Create new auction for tagId
+      await contracts.ETSAuctionHouse.connect(accounts.ETSPlatform).fulfillRequestCreateAuction(tagId);
+
+      // RandomOne bids & wins the auction
+      await contracts.ETSAuctionHouse.connect(accounts.RandomOne).createBid(tagId, {
+        value: initSettings.RESERVE_PRICE * 5,
+      });
+
+      auction = await contracts.ETSAuctionHouse.getAuction(tagId);
+      await ethers.provider.send("evm_setNextBlockTimestamp", [auction.endTime.add(60).toNumber()]);
+      await contracts.ETSAuctionHouse.connect(accounts.RandomTwo).settleCurrentAndCreateNewAuction(tagId);
+    });
+
+    it("should be held in the auction house", async function () {
+      const totalProceeds = auction.amount;
+      const auctionHouseBalance = await contracts.ETSAuctionHouse.getBalance();
+      expect(auctionHouseBalance).to.equal(totalProceeds);
+    });
+
+    it("should accrue correctly to actors", async function () {
+
       const winner = auction.bidder;
       const totalProceeds = auction.amount;
+
+      expect(winner).to.equal(accounts.RandomOne.address);
+      expect(totalProceeds).to.equal(initSettings.RESERVE_PRICE * 5);
+
       const relayerProceeds = (totalProceeds * (await contracts.ETSAuctionHouse.relayerPercentage())) / 100;
       const creatorProceeds = (totalProceeds * (await contracts.ETSAuctionHouse.creatorPercentage())) / 100;
 
-      await expect(contracts.ETSAuctionHouse.connect(accounts.RandomOne).settleAuction(etsOwnedTagId))
-        .to.emit(contracts.ETSAuctionHouse, "AuctionSettled")
-        .withArgs(etsOwnedTagId, winner, totalProceeds, relayerProceeds, creatorProceeds);
+      relayerPostAuctionAccrued = await contracts.ETSAuctionHouse.accrued(relayerAddress);
+      creatorPostAuctionAccrued = await contracts.ETSAuctionHouse.accrued(accounts.Creator.address);
+      platformPostAuctionAccrued = await contracts.ETSAuctionHouse.accrued(accounts.ETSPlatform.address);
+
+      expect(relayerPostAuctionAccrued).to.equal(relayerPreAuctionAccrued + relayerProceeds);
+      expect(creatorPostAuctionAccrued).to.equal(creatorPreAuctionAccrued + creatorProceeds);
+      expect(platformPostAuctionAccrued).to.equal(platformPreAuctionAccrued + (totalProceeds - (relayerProceeds + creatorProceeds)));
+
     });
 
-    it("should delete the auction", async function () {
-      await expect(contracts.ETSAuctionHouse.connect(accounts.RandomOne).settleAuction(etsOwnedTagId)).to.emit(
-        contracts.ETSAuctionHouse,
-        "AuctionSettled",
-      );
 
-      const auction = await contracts.ETSAuctionHouse.getAuction(etsOwnedTagId);
-      assert(auction.startTime == 0);
+    it("can be drawn down to creator", async function () {
+
+      creatorAccrued = await contracts.ETSAuctionHouse.accrued(accounts.Creator.address);
+      expect(await contracts.ETSAuctionHouse.totalDue(accounts.Creator.address)).to.equal(creatorAccrued);
+
+      await expect(
+        contracts.ETSAuctionHouse.connect(accounts.Creator).drawDown(accounts.Creator.address),
+      )
+        .to.emit(contracts.ETSAuctionHouse, "AuctionProceedsWithdrawn").withArgs(accounts.Creator.address, creatorAccrued);
+
+      expect(await contracts.ETSAuctionHouse.totalDue(accounts.Creator.address)).to.equal(0);
+      expect(await contracts.ETSAuctionHouse.paid(accounts.Creator.address)).to.equal(creatorAccrued);
+
+    });
+
+    it("can be drawn down to relayer", async function () {
+
+      relayerAccrued = await contracts.ETSAuctionHouse.accrued(relayerAddress);
+      expect(await contracts.ETSAuctionHouse.totalDue(relayerAddress)).to.equal(relayerAccrued);
+
+      await expect(
+        contracts.ETSAuctionHouse.connect(accounts.Creator).drawDown(relayerAddress),
+      )
+        .to.emit(contracts.ETSAuctionHouse, "AuctionProceedsWithdrawn").withArgs(relayerAddress, relayerAccrued);
+
+      expect(await contracts.ETSAuctionHouse.totalDue(relayerAddress)).to.equal(0);
+      expect(await contracts.ETSAuctionHouse.paid(relayerAddress)).to.equal(relayerAccrued);
+
+    });
+
+    it("can be drawn down to platform", async function () {
+
+      platformAccrued = await contracts.ETSAuctionHouse.accrued(accounts.ETSPlatform.address);
+      expect(await contracts.ETSAuctionHouse.totalDue(accounts.ETSPlatform.address)).to.equal(platformAccrued);
+
+      await expect(
+        contracts.ETSAuctionHouse.connect(accounts.Creator).drawDown(accounts.ETSPlatform.address),
+      )
+        .to.emit(contracts.ETSAuctionHouse, "AuctionProceedsWithdrawn").withArgs(accounts.ETSPlatform.address, platformAccrued);
+
+      expect(await contracts.ETSAuctionHouse.totalDue(accounts.ETSPlatform.address)).to.equal(0);
+      expect(await contracts.ETSAuctionHouse.paid(accounts.ETSPlatform.address)).to.equal(platformAccrued);
+
     });
   });
 });

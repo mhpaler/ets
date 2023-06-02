@@ -67,7 +67,7 @@ contract ETSRelayerFactory is Context {
         BeaconProxy relayerProxy = new BeaconProxy(
             address(etsRelayerBeacon),
             abi.encodeWithSelector(
-                ETSRelayerV1(address(0)).initialize.selector,
+                ETSRelayerV1(payable(address(0))).initialize.selector,
                 _relayerName,
                 ets,
                 etsToken,

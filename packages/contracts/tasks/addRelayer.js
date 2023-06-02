@@ -34,7 +34,7 @@ task(
       return;
     }
 
-    let tx = await etsRelayerFactory.addRelayerV1(taskArgs.name);
+    let tx = await etsRelayerFactory.addRelayer(taskArgs.name);
     console.log(`started txn ${tx.hash.toString()}`);
     await tx.wait();
 

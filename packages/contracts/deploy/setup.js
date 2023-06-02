@@ -26,23 +26,13 @@ async function setup() {
     ETSPlatform: namedAccounts["ETSPlatform"],
   };
 
-  const factories = {
-    WMATIC: await ethers.getContractFactory("WMATIC"),
-    ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
-    ETSToken: await ethers.getContractFactory("ETSToken"),
-    ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
-    ETSTarget: await ethers.getContractFactory("ETSTarget"),
-    ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
-    ETS: await ethers.getContractFactory("ETS"),
-    ETSRelayerFactory: await ethers.getContractFactory("ETSRelayerFactory"),
-  };
-
   const initSettings = {
     // Token
     TAG_MIN_STRING_LENGTH: 2,
     TAG_MAX_STRING_LENGTH: 32,
     OWNERSHIP_TERM_LENGTH: 730,
     // Auction
+    MAX_AUCTIONS: 1,
     TIME_BUFFER: 600, // 600 secs / 10 minutes
     RESERVE_PRICE: 200, // 200 WEI
     MIN_INCREMENT_BID_PERCENTAGE: 5,
@@ -54,6 +44,18 @@ async function setup() {
     TAGGING_FEE: "0.1", // .1 MATIC
     TAGGING_FEE_PLATFORM_PERCENTAGE: 20,
     TAGGING_FEE_RELAYER_PERCENTAGE: 30,
+  };
+
+  const factories = {
+    WMATIC: await ethers.getContractFactory("WMATIC"),
+    ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
+    ETSToken: await ethers.getContractFactory("ETSToken"),
+    ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
+    ETSTarget: await ethers.getContractFactory("ETSTarget"),
+    ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
+    ETS: await ethers.getContractFactory("ETS"),
+    ETSRelayerV1: await ethers.getContractFactory("ETSRelayerV1"),
+    ETSRelayerFactory: await ethers.getContractFactory("ETSRelayerFactory"),
   };
 
   // ============ SETUP TEST ACCOUNTS ============
