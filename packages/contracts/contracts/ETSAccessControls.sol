@@ -1,4 +1,21 @@
 // SPDX-License-Identifier: MIT
+
+/**
+ * @title IETSAccessControls
+ * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ *  ███████╗████████╗███████╗
+ *  ██╔════╝╚══██╔══╝██╔════╝
+ *  █████╗     ██║   ███████╗
+ *  ██╔══╝     ██║   ╚════██║
+ *  ███████╗   ██║   ███████║
+ *  ╚══════╝   ╚═╝   ╚══════╝
+ *
+ * @notice This is the interface for the ETSAccessControls contract which allows ETS Core Dev
+ * Team to administer roles and control access to various parts of the ETS Platform.
+ * ETSAccessControls contract contains a mix of public and administrator only functions.
+ */
+
 pragma solidity ^0.8.10;
 
 import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
@@ -8,20 +25,13 @@ import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils
 import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import { ERC165CheckerUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
 
-/**
- * @title IETSAccessControls
- * @author Ethereum Tag Service <team@ets.xyz>
- *
- * @notice This is the interface for the ETSAccessControls contract which allows ETS Core Dev
- * Team to administer roles and control access to various parts of the ETS Platform.
- * ETSAccessControls contract contains a mix of public and administrator only functions.
- */
 contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAccessControls, UUPSUpgradeable {
     /// Public constants
     string public constant NAME = "ETS access controls";
     bytes32 public constant RELAYER_ROLE = keccak256("RELAYER_ROLE");
     bytes32 public constant RELAYER_FACTORY_ROLE = keccak256("RELAYER_FACTORY_ROLE");
     bytes32 public constant RELAYER_ADMIN_ROLE = keccak256("RELAYER_ADMIN_ROLE");
+    bytes32 public constant AUCTION_ORACLE_ROLE = keccak256("AUCTION_ORACLE_ROLE");
     bytes32 public constant SMART_CONTRACT_ROLE = keccak256("SMART_CONTRACT_ROLE");
 
     /// @dev ETS Platform account. Core Dev Team multisig in production.
@@ -58,7 +68,6 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     function initialize(address _platformAddress) public initializer {
         __AccessControl_init();
         _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
-        _grantRole(DEFAULT_ADMIN_ROLE, _platformAddress);
         setPlatform(payable(_platformAddress));
     }
 
@@ -72,6 +81,7 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     function setPlatform(address payable _platform) public onlyRole(DEFAULT_ADMIN_ROLE) {
         address prevAddress = platform;
         platform = _platform;
+        grantRole(DEFAULT_ADMIN_ROLE, _platform);
         emit PlatformSet(_platform, prevAddress);
     }
 
@@ -131,6 +141,11 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     /// @inheritdoc IETSAccessControls
     function isAdmin(address _addr) public view returns (bool) {
         return hasRole(DEFAULT_ADMIN_ROLE, _addr);
+    }
+
+    /// @inheritdoc IETSAccessControls
+    function isAuctionOracle(address _addr) public view returns (bool) {
+        return hasRole(AUCTION_ORACLE_ROLE, _addr);
     }
 
     /// @inheritdoc IETSAccessControls

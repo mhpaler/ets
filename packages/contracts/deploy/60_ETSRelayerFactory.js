@@ -25,36 +25,49 @@ module.exports = async ({ getChainId, deployments }) => {
     etsAddress = networkConfig[chainId].contracts["ETS"].address;
   }
 
-  // Deploy ETS
-  const deployment = await upgrades.deployProxy(
-    factories.ETSRelayerFactory,
-    [etsAccessControlsAddress, etsAddress, etsTokenAddress, etsTargetAddress],
-    {
-      kind: "uups",
-      pollingInterval: 3000,
-      timeout: 0,
-    },
+  // Deploy the relayer logic contract.
+  // We deploy with proxy with no arguments because factory will supply them.
+  const relayerV1 = await factories.ETSRelayerV1.deploy();
+  await relayerV1.deployed();
+  relayerV1Address = relayerV1.address;
+
+  // Deploy relayer factory, which will deploy the above implementation as upgradable proxies.
+  const relayerFactory = await factories.ETSRelayerFactory.deploy(
+    relayerV1Address,
+    etsAccessControlsAddress,
+    etsAddress,
+    etsTokenAddress,
+    etsTargetAddress,
   );
-  await deployment.deployed();
-  const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
+  await relayerFactory.deployed();
 
   if (process.env.ETHERNAL_DISABLED === "false" || process.env.VERIFY_ON_DEPLOY) {
     // Verify & Update network configuration file.
-    await verify("ETSRelayerFactory", deployment, implementation, []);
+    await verify("ETSRelayerV1", relayerV1, relayerV1Address, []);
+    await verify("ETSRelayerFactory", relayerFactory, relayerFactory.address, []);
   }
 
-  await saveNetworkConfig("ETSRelayerFactory", deployment, implementation, false);
+  await saveNetworkConfig("ETSRelayerV1", relayerV1, null, false);
+  await saveNetworkConfig("ETSRelayerFactory", relayerFactory, null, false);
 
   // Add to deployments.
   let artifact = await deployments.getExtendedArtifact("ETSRelayerFactory");
   let proxyDeployments = {
-    address: deployment.address,
+    address: relayerFactory.address,
     ...artifact,
   };
   await save("ETSRelayerFactory", proxyDeployments);
 
+  artifact = await deployments.getExtendedArtifact("ETSRelayerV1");
+  proxyDeployments = {
+    address: relayerV1.address,
+    ...artifact,
+  };
+  await save("ETSRelayerV1", proxyDeployments);
+
   log("====================================================");
-  log("ETSRelayerFactory deployed to -> " + deployment.address);
+  log("ETSRelayerV1 deployed to -> " + relayerV1.address);
+  log("ETSRelayerFactory deployed to -> " + relayerFactory.address);
   log("====================================================");
 };
 module.exports.tags = ["ETSRelayerFactory"];

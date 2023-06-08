@@ -1,4 +1,20 @@
 // SPDX-License-Identifier: MIT
+
+/**
+ * @title ETS Relayer Upgradeable Beacon
+ * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ *  ███████╗████████╗███████╗
+ *  ██╔════╝╚══██╔══╝██╔════╝
+ *  █████╗     ██║   ███████╗
+ *  ██╔══╝     ██║   ╚════██║
+ *  ███████╗   ██║   ███████║
+ *  ╚══════╝   ╚═╝   ╚══════╝
+ *
+ * @notice Upgradeable beacon proxy contract for upgrading the ETS Relayer proxies
+ * deployed by ETSRelayerFactory.sol
+ */
+
 pragma solidity ^0.8.10;
 
 import { UpgradeableBeacon } from "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";

@@ -1,4 +1,21 @@
 // SPDX-License-Identifier: MIT
+
+/**
+ * @title ETS
+ * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ *  ███████╗████████╗███████╗
+ *  ██╔════╝╚══██╔══╝██╔════╝
+ *  █████╗     ██║   ███████╗
+ *  ██╔══╝     ██║   ╚════██║
+ *  ███████╗   ██║   ███████║
+ *  ╚══════╝   ╚═╝   ╚══════╝
+ *
+ * @notice This is the core ETS tagging contract that records TaggingRecords to the blockchain.
+ * It also contains some governance functions around tagging fees as well as means for market
+ * participants to access accrued funds.
+ */
+
 pragma solidity ^0.8.10;
 
 import { IETS } from "./interfaces/IETS.sol";
@@ -11,14 +28,6 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
-/**
- * @title ETS
- * @author Ethereum Tag Service <team@ets.xyz>
- *
- * @notice This is the core ETS tagging contract that records TaggingRecords to the blockchain.
- * It also contains some governance functions around tagging fees as well as means for market
- * participants to access accrued funds.
- */
 contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
     using UintArrayUtils for uint256[];
 

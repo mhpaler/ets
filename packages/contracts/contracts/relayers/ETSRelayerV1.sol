@@ -1,4 +1,19 @@
 // SPDX-License-Identifier: MIT
+
+/**
+ * @title ETS Relayer Version 1
+ * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ *  ███████╗████████╗███████╗
+ *  ██╔════╝╚══██╔══╝██╔════╝
+ *  █████╗     ██║   ███████╗
+ *  ██╔══╝     ██║   ╚════██║
+ *  ███████╗   ██║   ███████║
+ *  ╚══════╝   ╚═╝   ╚══════╝
+ *
+ * @notice Version 1 of upgradeable beacon proxy contract pointed to by ETSRelayerBeacon.sol
+ */
+
 pragma solidity ^0.8.10;
 
 import { IETS } from "../interfaces/IETS.sol";
@@ -187,6 +202,10 @@ contract ETSRelayerV1 is
         return ets.computeTaggingFeeFromRawInput(_rawInput, address(this), msg.sender, _action);
     }
 
+    function getBalance() public view returns (uint) {
+        return address(this).balance;
+    }
+
     // ============ INTERNAL FUNCTIONS ============
 
     function _applyTags(
@@ -238,4 +257,10 @@ contract ETSRelayerV1 is
     function _removeTags(IETS.TaggingRecordRawInput calldata _rawInput, address payable _tagger) internal {
         ets.removeTagsWithRawInput(_rawInput, _tagger);
     }
+
+    /* solhint-disable */
+    receive() external payable {}
+
+    fallback() external payable {}
+    /* solhint-enable */
 }

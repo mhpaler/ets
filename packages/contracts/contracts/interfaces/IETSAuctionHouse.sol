@@ -1,15 +1,26 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity ^0.8.6;
 
 /**
  * @title IETSAuctionHouse
  * @author Ethereum Tag Service <team@ets.xyz>
  *
- * @notice This is the standard interface for the ETSAuctionHouse.sol contract. It includes both public
- * and administration functions.
+ *  ███████╗████████╗███████╗
+ *  ██╔════╝╚══██╔══╝██╔════╝
+ *  █████╗     ██║   ███████╗
+ *  ██╔══╝     ██║   ╚════██║
+ *  ███████╗   ██║   ███████║`
+ *  ╚══════╝   ╚═╝   ╚══════╝
+ *
+ * @notice This is the standard interface for the ETSAuctionHouse.sol contract.
+ * Includes both public and administration functions.
  */
+
+pragma solidity ^0.8.6;
+
 interface IETSAuctionHouse {
     struct Auction {
+        // Incremented auction number
+        uint256 auctionId;
         // The current highest bid amount
         uint256 amount;
         // The time that the auction started
@@ -20,7 +31,13 @@ interface IETSAuctionHouse {
         uint256 reservePrice;
         // The address of the current highest bid
         address payable bidder;
+        // Address of the auctioneer. Defaults to ETS.
+        address payable auctioneer;
+        // Whether or not the auction has been settled
+        bool settled;
     }
+
+    event RequestCreateAuction();
 
     event AuctionBid(uint256 indexed tokenId, address sender, uint256 value, bool extended);
 
@@ -28,13 +45,9 @@ interface IETSAuctionHouse {
 
     event AuctionExtended(uint256 indexed tokenId, uint256 endTime);
 
-    event AuctionSettled(
-        uint256 indexed tokenId,
-        address winner,
-        uint256 totalProceeds,
-        uint256 relayerProceeds,
-        uint256 creatorProceeds
-    );
+    event AuctionSettled(uint256 indexed tokenId);
+
+    event AuctionsMaxSet(uint256 maxAuctions);
 
     event AuctionDurationSet(uint256 duration);
 
@@ -50,6 +63,8 @@ interface IETSAuctionHouse {
         uint256 creatorPercentage
     );
 
+    event AuctionProceedsWithdrawn(address indexed who, uint256 amount);
+
     function pause() external;
 
     function unpause() external;
@@ -62,7 +77,29 @@ interface IETSAuctionHouse {
 
     function createBid(uint256 auctionId) external payable;
 
-    function getAuction(uint256 _tokenId) external returns (Auction memory auction);
+    function settleCurrentAndCreateNewAuction(uint256 _tokenId) external;
 
     function settleAuction(uint256 _tokenId) external;
+
+    function createNextAuction() external;
+
+    function fulfillRequestCreateAuction(uint256 _tokenId) external;
+
+    function auctionExists(uint256 _tokenId) external returns (bool);
+
+    function auctionEnded(uint256 _tokenId) external returns (bool);
+
+    function auctionSettled(uint256 _tokenId) external returns (bool);
+
+    function getActiveCount() external returns (uint256);
+
+    function getTotalCount() external returns (uint256);
+
+    function getAuction(uint256 _tokenId) external returns (Auction memory auction);
+
+    function getBalance() external returns (uint);
+
+    function totalDue(address _account) external returns (uint256 _due);
+
+    function drawDown(address payable _account) external;
 }

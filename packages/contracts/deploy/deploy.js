@@ -21,29 +21,34 @@ module.exports = async ({ deployments }) => {
 
   console.log("============ CONFIGURE ROLES & APPROVALS ============");
 
-  await ETSAccessControls.grantRole(await ETSAccessControls.SMART_CONTRACT_ROLE(), accounts.ETSAdmin.address, {
-    from: accounts.ETSAdmin.address,
-  });
-  console.log(`SMART_CONTRACT_ROLE granted to ETSPlatform.address (${accounts.ETSAdmin.address})`);
+  // Allows relayer admin role to grant relayer factory role.
+  await ETSAccessControls.setRoleAdmin(await ETSAccessControls.RELAYER_FACTORY_ROLE(), await ETSAccessControls.RELAYER_ADMIN_ROLE());
 
-  // Grant RELAYER_ADMIN role to ETSRelayerFactory so it can deploy relayer contracts.
-  await ETSAccessControls.grantRole(ethers.utils.id("RELAYER_ADMIN"), ETSRelayerFactory.address);
-  console.log(`RELAYER_ADMIN granted to ETSRelayerFactory.address (${ETSRelayerFactory.address})`);
+  // Allows relayer factory role to grant relayer role.
+  await ETSAccessControls.setRoleAdmin(await ETSAccessControls.RELAYER_ROLE(), await ETSAccessControls.RELAYER_FACTORY_ROLE());
+
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), accounts.ETSAdmin.address);
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), accounts.ETSPlatform.address);
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), ETSAccessControls.address);
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), ETSToken.address);
+
+  // Set auction oracle to platform just for testing.
+  await ETSAccessControls.grantRole(await ETSAccessControls.AUCTION_ORACLE_ROLE(), accounts.ETSPlatform.address);
+  await ETSAccessControls.grantRole(await ETSAccessControls.SMART_CONTRACT_ROLE(), accounts.ETSAdmin.address);
 
   await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(ETSEnrichTarget.address);
-  console.log(`ETSEnrichTarget contract set on ETSTarget`);
 
   // Approve auction house contract to move tokens owned by platform.
   await ETSToken.connect(accounts.ETSPlatform).setApprovalForAll(ETSAuctionHouse.address, true);
-  console.log("ETSAuctionHouse granted ApprovalForAll on ETSToken");
 
   // Set ETS Core on ETSToken.
   await ETSToken.connect(accounts.ETSPlatform).setETSCore(ETS.address);
-  console.log("ETS set on ETSToken.");
 
-  // Add & Unpause ETSPlatform as a Relayer. for testing purposes.
-  await ETSAccessControls.connect(accounts.ETSPlatform).addRelayer(accounts.ETSPlatform.address, "ETSPlatform");
-  console.log("Authorize ETSPlatform wallet as a Relayer");
+  // Grant RELAYER_FACTORY_ROLE to ETSRelayerFactory so it can deploy relayer contracts.
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_FACTORY_ROLE(), ETSRelayerFactory.address);
+
+  // Add a relayer proxy for use in tests. Note: ETSPlatform not required to own CTAG to add relayer.
+  await ETSRelayerFactory.connect(accounts.ETSPlatform).addRelayer("ETSRelayer");
 };
 
 module.exports.tags = ["deployAll"];

@@ -37,6 +37,7 @@ module.exports = async ({ getChainId, deployments }) => {
       etsTokenAddress,
       etsAccessControlsAddress,
       wmaticAddress,
+      initSettings.MAX_AUCTIONS,
       initSettings.TIME_BUFFER,
       initSettings.RESERVE_PRICE,
       initSettings.MIN_INCREMENT_BID_PERCENTAGE,

@@ -1,16 +1,25 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.10;
-
-import { IAccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/IAccessControlUpgradeable.sol";
 
 /**
  * @title IETSAccessControls
  * @author Ethereum Tag Service <team@ets.xyz>
  *
+ *  ███████╗████████╗███████╗
+ *  ██╔════╝╚══██╔══╝██╔════╝
+ *  █████╗     ██║   ███████╗
+ *  ██╔══╝     ██║   ╚════██║
+ *  ███████╗   ██║   ███████║`
+ *  ╚══════╝   ╚═╝   ╚══════╝
+ *
  * @notice This is the interface for the ETSAccessControls contract which allows ETS Core Dev
  * Team to administer roles and control access to various parts of the ETS Platform.
  * ETSAccessControls contract contains a mix of public and administrator only functions.
  */
+
+pragma solidity ^0.8.10;
+
+import { IAccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/IAccessControlUpgradeable.sol";
+
 interface IETSAccessControls is IAccessControlUpgradeable {
     /**
      * @dev emitted when the ETS Platform address is set.
@@ -102,6 +111,14 @@ interface IETSAccessControls is IAccessControlUpgradeable {
      * @return boolean True if address has DEFAULT_ADMIN_ROLE role.
      */
     function isAdmin(address _addr) external view returns (bool);
+
+    /**
+     * @notice Checks whether given address has AUCTION_ORACLE_ROLE role.
+     *
+     * @param _addr Address being checked.
+     * @return boolean True if address has AUCTION_ORACLE_ROLE role.
+     */
+    function isAuctionOracle(address _addr) external view returns (bool);
 
     /**
      * @notice Checks whether given address can act as relayer factory.
