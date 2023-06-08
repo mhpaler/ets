@@ -1,17 +1,23 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.10;
-
-import { IETS } from "../../interfaces/IETS.sol";
 
 /**
  * @title IETSRelayer
  * @author Ethereum Tag Service <team@ets.xyz>
  *
- * @notice Minimum interface required for ETS Relayer smart contracts. Contracts implementing this
- * interface will need to import OpenZeppelin ERC165, Ownable and Pausable contracts.
- * See https://github.com/ethereum-tag-service/ets/blob/stage/packages/contracts/contracts/examples/ETSRelayer.sol
- * for a sample implementation.
+ *  ███████╗████████╗███████╗
+ *  ██╔════╝╚══██╔══╝██╔════╝
+ *  █████╗     ██║   ███████╗
+ *  ██╔══╝     ██║   ╚════██║
+ *  ███████╗   ██║   ███████║`
+ *  ╚══════╝   ╚═╝   ╚══════╝
+ *
+ * @notice Minimum interface required for ETS Relayer proxy.
  */
+
+pragma solidity ^0.8.10;
+
+import { IETS } from "../../interfaces/IETS.sol";
+
 interface IETSRelayer {
     /**
      * @dev Emitted when an IETSRelayer contract is paused/unpaused.

@@ -1,16 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.10;
-
-import { IETSTarget } from "./interfaces/IETSTarget.sol";
-import { IETSEnrichTarget } from "./interfaces/IETSEnrichTarget.sol";
-import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
-import { ContextUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
-import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 /**
  * @title ETSEnrichTarget
  * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ *  ███████╗████████╗███████╗
+ *  ██╔════╝╚══██╔══╝██╔════╝
+ *  █████╗     ██║   ███████╗
+ *  ██╔══╝     ██║   ╚════██║
+ *  ███████╗   ██║   ███████║
+ *  ╚══════╝   ╚═╝   ╚══════╝
  *
  * @notice Contract that handles the enrichment of Target metadata using off-chain APIs.
  *
@@ -30,6 +29,16 @@ import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils
  *
  * Future implementation should utilize ChainLink in place of OpenZeppelin for better decentralization.
  */
+
+pragma solidity ^0.8.10;
+
+import { IETSTarget } from "./interfaces/IETSTarget.sol";
+import { IETSEnrichTarget } from "./interfaces/IETSEnrichTarget.sol";
+import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
+import { ContextUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+
 contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable, UUPSUpgradeable {
     /// @dev ETS access controls smart contract.
     IETSAccessControls public etsAccessControls;

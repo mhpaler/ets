@@ -1,9 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.10;
 
 /**
  * @title IETSEnrichTarget
  * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ *  ███████╗████████╗███████╗
+ *  ██╔════╝╚══██╔══╝██╔════╝
+ *  █████╗     ██║   ███████╗
+ *  ██╔══╝     ██║   ╚════██║
+ *  ███████╗   ██║   ███████║`
+ *  ╚══════╝   ╚═╝   ╚══════╝
  *
  * @notice This is the interface for the ETSEnrichTarget.sol contract that handles the enrichment of
  * Target metadata using off-chain APIs.
@@ -23,6 +29,9 @@ pragma solidity ^0.8.10;
  *
  * Future implementation should utilize ChainLink in place of OpenZeppelin for better decentralization.
  */
+
+pragma solidity ^0.8.10;
+
 interface IETSEnrichTarget {
     /**
      * @dev emitted when Target enrichment is requested via requestEnrichTarget().

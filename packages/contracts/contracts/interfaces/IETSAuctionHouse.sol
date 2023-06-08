@@ -1,13 +1,22 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity ^0.8.6;
 
 /**
  * @title IETSAuctionHouse
  * @author Ethereum Tag Service <team@ets.xyz>
  *
+ *  ███████╗████████╗███████╗
+ *  ██╔════╝╚══██╔══╝██╔════╝
+ *  █████╗     ██║   ███████╗
+ *  ██╔══╝     ██║   ╚════██║
+ *  ███████╗   ██║   ███████║`
+ *  ╚══════╝   ╚═╝   ╚══════╝
+ *
  * @notice This is the standard interface for the ETSAuctionHouse.sol contract.
  * Includes both public and administration functions.
  */
+
+pragma solidity ^0.8.6;
+
 interface IETSAuctionHouse {
     struct Auction {
         // Incremented auction number

@@ -1,16 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.10;
-
-import { IETSTarget } from "./interfaces/IETSTarget.sol";
-import { IETSEnrichTarget } from "./interfaces/IETSEnrichTarget.sol";
-import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
-import { StringHelpers } from "./utils/StringHelpers.sol";
-import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 /**
  * @title IETSTarget
  * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ *  ███████╗████████╗███████╗
+ *  ██╔════╝╚══██╔══╝██╔════╝
+ *  █████╗     ██║   ███████╗
+ *  ██╔══╝     ██║   ╚════██║
+ *  ███████╗   ██║   ███████║
+ *  ╚══════╝   ╚═╝   ╚══════╝
  *
  * @notice This is core ETSTarget.sol contract for creating Target records in ETS. It includes both public
  * and administration functions.
@@ -32,6 +31,16 @@ import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils
  * One the thing to keep in mind with URIs & ETS Targets is that differently shaped URIs can sometimes point to the same
  * resource. The effect of that is that different Target IDs in ETS can similarly point to the same resource.
  */
+
+pragma solidity ^0.8.10;
+
+import { IETSTarget } from "./interfaces/IETSTarget.sol";
+import { IETSEnrichTarget } from "./interfaces/IETSEnrichTarget.sol";
+import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
+import { StringHelpers } from "./utils/StringHelpers.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+
 contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
     IETSAccessControls public etsAccessControls;
 

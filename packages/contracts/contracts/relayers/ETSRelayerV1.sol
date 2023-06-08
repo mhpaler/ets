@@ -1,4 +1,19 @@
 // SPDX-License-Identifier: MIT
+
+/**
+ * @title ETS Relayer Version 1
+ * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ *  ███████╗████████╗███████╗
+ *  ██╔════╝╚══██╔══╝██╔════╝
+ *  █████╗     ██║   ███████╗
+ *  ██╔══╝     ██║   ╚════██║
+ *  ███████╗   ██║   ███████║
+ *  ╚══════╝   ╚═╝   ╚══════╝
+ *
+ * @notice Version 1 of upgradeable beacon proxy contract pointed to by ETSRelayerBeacon.sol
+ */
+
 pragma solidity ^0.8.10;
 
 import { IETS } from "../interfaces/IETS.sol";

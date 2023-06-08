@@ -1,21 +1,26 @@
 // SPDX-License-Identifier: GPL-3.0
 
-// ETSAuctionHouse.sol is a modified version of Nouns NounsAuctionHouse.sol:
-// https://github.com/nounsDAO/nouns-monorepo/blob/master/packages/nouns-contracts/contracts/NounsAuctionHouse.sol
-// which itself is a modified version of Zora AuctionHouse.sol
-//
-//    ███████╗████████╗███████╗
-//    ██╔════╝╚══██╔══╝██╔════╝
-//    █████╗     ██║   ███████╗
-//    ██╔══╝     ██║   ╚════██║
-//    ███████╗   ██║   ███████║
-//    ╚══════╝   ╚═╝   ╚══════╝
-//
-// The primary modifications are enabling more than one concurrent auction via a protocol controlled
-// setting and requiring a bid to start the auction timer.
-//
-// AuctionHouse.sol source code Copyright Zora licensed under the GPL-3.0 license.
-// With modifications by Ethereum Tag Service.
+/**
+ * @title ETS DAO Auction House
+ * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ *  ███████╗████████╗███████╗
+ *  ██╔════╝╚══██╔══╝██╔════╝
+ *  █████╗     ██║   ███████╗
+ *  ██╔══╝     ██║   ╚════██║
+ *  ███████╗   ██║   ███████║`
+ *  ╚══════╝   ╚═╝   ╚══════╝
+ *
+ * @notice ETSAuctionHouse.sol is a modified version of Nouns NounsAuctionHouse.sol:
+ * https://github.com/nounsDAO/nouns-monorepo/blob/master/packages/nouns-contracts/contracts/NounsAuctionHouse.sol
+ * which itself is a modified version of Zora AuctionHouse.sol
+ *
+ * AuctionHouse.sol source code Copyright Zora licensed under the GPL-3.0 license.
+ * With modifications by Ethereum Tag Service.
+ *
+ * ETS modification include enabling more than one concurrent auction via a protocol controlled
+ * setting and requiring a bid to start the auction timer.
+ */
 
 pragma solidity ^0.8.10;
 

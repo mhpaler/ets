@@ -1,18 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.10;
-
-import { IETS } from "./interfaces/IETS.sol";
-import { IETSToken } from "./interfaces/IETSToken.sol";
-import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
-import { StringHelpers } from "./utils/StringHelpers.sol";
-import { ERC721PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721PausableUpgradeable.sol";
-import { ERC721BurnableUpgradeable, ERC721Upgradeable, IERC165Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
-import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 /**
  * @title ETSToken
  * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ *  ███████╗████████╗███████╗
+ *  ██╔════╝╚══██╔══╝██╔════╝
+ *  █████╗     ██║   ███████╗
+ *  ██╔══╝     ██║   ╚════██║
+ *  ███████╗   ██║   ███████║
+ *  ╚══════╝   ╚═╝   ╚══════╝
  *
  * @notice This is the core ETSToken.sol contract that governs the creation & management of
  * Ethereum Tag Service composable tags (CTAGs).
@@ -28,6 +25,18 @@ import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils
  * CTAG Ids are combined with Target Ids (see ETSTarget.sol) by ETS core (ETS.sol) to form "Tagging Records".
  * See ETS.sol for more details on Tagging Records.
  */
+
+pragma solidity ^0.8.10;
+
+import { IETS } from "./interfaces/IETS.sol";
+import { IETSToken } from "./interfaces/IETSToken.sol";
+import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
+import { StringHelpers } from "./utils/StringHelpers.sol";
+import { ERC721PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721PausableUpgradeable.sol";
+import { ERC721BurnableUpgradeable, ERC721Upgradeable, IERC165Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
+import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+
 contract ETSToken is
     ERC721PausableUpgradeable,
     ERC721BurnableUpgradeable,

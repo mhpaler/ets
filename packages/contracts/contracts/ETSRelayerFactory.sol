@@ -1,12 +1,26 @@
 // SPDX-License-Identifier: MIT
+
+/**
+ * @title ETS Relayer Factory
+ * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ *  ███████╗████████╗███████╗
+ *  ██╔════╝╚══██╔══╝██╔════╝
+ *  █████╗     ██║   ███████╗
+ *  ██╔══╝     ██║   ╚════██║
+ *  ███████╗   ██║   ███████║
+ *  ╚══════╝   ╚═╝   ╚══════╝
+ *
+ * @notice Factory contract for deploying upgradeable beacon proxy contract instances.
+ * @dev see ETSRelayerBeacon.sol & ETSRelayerV1.sol
+ */
+
 pragma solidity ^0.8.10;
 
 import { IETS } from "./interfaces/IETS.sol";
 import { IETSTarget } from "./interfaces/IETSTarget.sol";
 import { IETSToken } from "./interfaces/IETSToken.sol";
 import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
-import { ETSRelayerBeacon } from "./relayers/ETSRelayerBeacon.sol";
-import { ETSRelayerV1 } from "./relayers/ETSRelayerV1.sol";
 import { ETSRelayerBeacon } from "./relayers/ETSRelayerBeacon.sol";
 import { ETSRelayerV1 } from "./relayers/ETSRelayerV1.sol";
 
