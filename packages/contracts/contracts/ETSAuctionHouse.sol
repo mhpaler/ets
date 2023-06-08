@@ -35,8 +35,6 @@ import { IETSAuctionHouse } from "./interfaces/IETSAuctionHouse.sol";
 import { IETSToken } from "./interfaces/IETSToken.sol";
 import { IWMATIC } from "./interfaces/IWMATIC.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title ETSAuctionHouse
  * @author Ethereum Tag Service <team@ets.xyz>
