@@ -1,26 +1,29 @@
 import { useState, useMemo } from "react";
 import type { NextPage } from "next";
-import { useRouter } from "next/router";
-import Head from "next/head";
-import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
 import { useCtags } from "../hooks/useCtags";
 import { TimeAgo } from "./TimeAgo";
 import { Table } from "./Table";
 import { Button } from "./Button";
+import Link from "next/link";
 
 const pageSize = 20;
+type Props = {
+  filter: any;
+};
 
-const RelayerTags: NextPage = () => {
-  const { query } = useRouter();
-  const { relayer } = query;
+const Tags: NextPage<Props> = ({ filter }) => {
   const [skip, setSkip] = useState(0);
   const { t } = useTranslation("common");
+
+  //filter = {
+  //  owner_: { id: "0x70997970c51812dc3a010c7d01b50e0d17dc79c8" },
+  //};
 
   const { tags, nextTags, mutate } = useCtags({
     pageSize,
     skip,
-    filter: { relayer_: { id: relayer } },
+    filter: filter,
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -44,8 +47,9 @@ const RelayerTags: NextPage = () => {
   const columns = useMemo(
     () => [
       t("tag"),
-      t("tagging-records"),
+      //t("tagging-records"),
       t("created"),
+      t("relayer"),
       t("creator"),
       t("owner"),
     ],
@@ -54,14 +58,7 @@ const RelayerTags: NextPage = () => {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <Head>
-        <title>{t("tags")} relayer by | Ethereum Tag Service</title>
-      </Head>
-
       <Table loading={!tags} rows={pageSize}>
-        {/**
-        <Table.Title>{t("tags")}</Table.Title>
-  */}
         <Table.Head>
           <Table.Tr>
             {columns &&
@@ -76,26 +73,41 @@ const RelayerTags: NextPage = () => {
               <Table.Tr key={tag.machineName}>
                 <Table.CellWithChildren>
                   <Link href={`/tags/${tag.machineName}`}>
-                    <a className="text-pink-600 hover:text-pink-700">
+                    <a className="text-sm inline-block py-1 px-2 rounded text-pink-600 hover:text-pink-700 bg-pink-100 hover:bg-pink-200 last:mr-0 mr-1">
                       {tag.display}
                     </a>
                   </Link>
                 </Table.CellWithChildren>
-                <Table.Cell value={tag.tagAppliedInTaggingRecord} />
+
                 <Table.CellWithChildren>
                   <div className="overflow-hidden text-ellipsis whitespace-nowrap">
                     <TimeAgo date={tag.timestamp * 1000} />
                   </div>
                 </Table.CellWithChildren>
+                <Table.Cell
+                  value={tag.relayer.name}
+                  url={"/relayers/" + tag.relayer.id}
+                  truncate
+                />
+                <Table.Cell
+                  value={tag.creator.id}
+                  url={"/creators/" + tag.creator.id}
+                  copyAndPaste
+                  truncate
+                />
 
-                <Table.Cell value={tag.creator.id} copyAndPaste />
-                <Table.Cell value={tag.owner.id} copyAndPaste />
+                <Table.Cell
+                  value={tag.owner.id}
+                  url={"/owners/" + tag.owner.id}
+                  copyAndPaste
+                  truncate
+                />
               </Table.Tr>
             ))}
         </Table.Body>
       </Table>
 
-      <div className="flex justify-between mt-8">
+      <div className="flex justify-between mt-4">
         <Button disabled={skip === 0} onClick={() => prevPage()}>
           <svg
             className="relative inline-flex w-6 h-6 mr-2 -ml-1"
@@ -150,4 +162,4 @@ const RelayerTags: NextPage = () => {
   );
 };
 
-export { RelayerTags };
+export { Tags };

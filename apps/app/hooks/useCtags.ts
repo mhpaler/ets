@@ -24,6 +24,7 @@ export function useCtags({
           orderDirection: desc
           where: $filter
         ) {
+          id
           display
           machineName
           timestamp

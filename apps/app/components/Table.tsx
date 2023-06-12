@@ -10,6 +10,7 @@ import React, {
 import { getChildrenByType, removeChildrenByType } from "react-nanny";
 import Link from "next/link";
 import { CopyAndPaste } from "../components/CopyAndPaste";
+import { Truncate } from "../components/Truncate";
 import { classNames } from "../utils/classNames";
 
 interface TableContext {
@@ -172,7 +173,7 @@ const Body = ({ children }: { children: ReactNode }) => {
 const Th = ({ children }: { children: ReactNode }) => {
   const {} = useTableContext("Table.Th");
   return (
-    <th className="px-3 py-3.5 first:pl-6 last:pr-6 top-0 z-10 text-sm font-semibold text-left border-y whitespace-nowrap text-slate-700 bg-slate-50/75 border-slate-200 backdrop-blur backdrop-filter">
+    <th className="px-3 py-3.5 first:pl-6 last:pr-6 top-0 z-10 text-sm font-semibold text-left border-b whitespace-nowrap text-slate-700 bg-slate-50/75 border-slate-200 backdrop-blur backdrop-filter">
       {children}
     </th>
   );
@@ -201,13 +202,16 @@ const Cell = ({
   url,
   copyAndPaste,
   right,
+  truncate,
 }: {
   value: string;
   url?: string;
   copyAndPaste?: boolean;
   right?: boolean;
+  truncate?: boolean;
 }) => {
   const {} = useTableContext("Table.Cell");
+  value = truncate ? Truncate(value) : value;
   return (
     <Td>
       <div className="flex space-x-1">

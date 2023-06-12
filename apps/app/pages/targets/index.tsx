@@ -4,24 +4,20 @@ import { useRouter } from "next/router";
 import Head from "next/head";
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
-import { useTaggingRecords } from "../hooks/useTaggingRecords";
-import { TimeAgo } from "./TimeAgo";
-import { Table } from "./Table";
-import { Button } from "./Button";
+import { useTargets } from "../../hooks/useTargets";
+import PageTitle from "../../components/PageTitle";
+import { TimeAgo } from "../../components/TimeAgo";
+import { Table } from "../../components/Table";
+import { Button } from "../../components/Button";
 
 const pageSize = 20;
 
-const RelayerTaggingRecords: NextPage = () => {
-  const { t } = useTranslation("common");
-  const { query } = useRouter();
-  const { relayer } = query;
+const Targets: NextPage = () => {
   const [skip, setSkip] = useState(0);
-
-  const { taggingRecords, nextTaggingRecords, mutate } = useTaggingRecords({
-    filter: { relayer_: { id: relayer } },
+  const { t } = useTranslation("common");
+  const { targets, nextTargets, mutate } = useTargets({
     pageSize,
     skip,
-    orderBy: "timestamp",
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -42,28 +38,18 @@ const RelayerTaggingRecords: NextPage = () => {
     mutate();
   };
 
-  const columns = useMemo(
-    () => [
-      t("date"),
-      t("relayer"),
-      t("tagger"),
-      t("record-type"),
-      t("target"),
-      t("tags"),
-    ],
-    [t]
-  );
+  const columns = useMemo(() => [t("created"), t("id"), t("URI")], [t]);
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto mt-12">
       <Head>
-        <title>{t("recently-tagged")} | Ethereum Tag Service</title>
+        <title>{t("targets")} | Ethereum Tag Service</title>
       </Head>
 
-      <Table loading={!taggingRecords} rows={pageSize}>
-        {/**
-        <Table.Title>{t("tagging-records")}</Table.Title>
-        */}
+      <PageTitle title={t("targets")} />
+
+      <Table loading={!targets} rows={pageSize}>
+        <Table.Title>{t("targets")}</Table.Title>
         <Table.Head>
           <Table.Tr>
             {columns &&
@@ -73,53 +59,26 @@ const RelayerTaggingRecords: NextPage = () => {
           </Table.Tr>
         </Table.Head>
         <Table.Body>
-          {taggingRecords &&
-            taggingRecords.map((taggingRecord: any) => (
-              <Table.Tr key={taggingRecord.id}>
+          {targets &&
+            targets.map((target: any) => (
+              <Table.Tr key={target.id}>
                 <Table.CellWithChildren>
                   <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                    <Link
-                      href={`/tagging-records/${
-                        taggingRecord && taggingRecord.id
-                      }`}
-                    >
+                    <Link href={`/targets/${target && target.id}`}>
                       <a className="text-pink-600 hover:text-pink-700">
-                        <TimeAgo date={taggingRecord.timestamp * 1000} />{" "}
-                        &#x2192;
+                        <TimeAgo date={target.created * 1000} /> &#x2192;
                       </a>
                     </Link>
                   </div>
                 </Table.CellWithChildren>
-
                 <Table.CellWithChildren>
-                  <Link
-                    href={`/relayers/${
-                      taggingRecord && taggingRecord.relayer.id
-                    }`}
-                  >
+                  <Link href={`/targets/${target && target.id}`}>
                     <a className="text-pink-600 hover:text-pink-700">
-                      {taggingRecord && taggingRecord.relayer.name}
+                      {target && target.id}
                     </a>
                   </Link>
                 </Table.CellWithChildren>
-
-                <Table.Cell value={taggingRecord.tagger.id} copyAndPaste />
-                <Table.Cell value={taggingRecord.recordType} />
-
-                <Table.Cell value={taggingRecord.target.targetURI} />
-                <Table.Cell
-                  value={taggingRecord.tags.map((tag: any) => (
-                    <ul key={tag.id}>
-                      <li>
-                        <Link href={`/tags/${tag.machineName}`}>
-                          <a className="text-pink-600 hover:text-pink-700">
-                            {tag.display}
-                          </a>
-                        </Link>
-                      </li>
-                    </ul>
-                  ))}
-                />
+                <Table.Cell value={target.targetURI} copyAndPaste />
               </Table.Tr>
             ))}
         </Table.Body>
@@ -150,7 +109,7 @@ const RelayerTaggingRecords: NextPage = () => {
           Prev
         </Button>
         <Button
-          disabled={nextTaggingRecords && nextTaggingRecords.length === 0}
+          disabled={nextTargets && nextTargets.length === 0}
           onClick={() => nextPage()}
         >
           Next
@@ -180,4 +139,4 @@ const RelayerTaggingRecords: NextPage = () => {
   );
 };
 
-export { RelayerTaggingRecords };
+export default Targets;

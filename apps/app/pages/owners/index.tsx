@@ -2,20 +2,21 @@ import { useState, useMemo } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import useTranslation from "next-translate/useTranslation";
-import { useRelayers } from "../../hooks/useRelayers";
-import PageTitle from "../../components/PageTitle";
-import { TimeAgo } from "../../components/TimeAgo";
+import { useOwners } from "../../hooks/useOwners";
 import { Table } from "../../components/Table";
 import { Button } from "../../components/Button";
+import { TimeAgo } from "../../components/TimeAgo";
+import { Truncate } from "../../components/Truncate";
 import useNumberFormatter from "../../hooks/useNumberFormatter";
+import PageTitle from "../../components/PageTitle";
 
 const pageSize = 20;
 
-const Relayers: NextPage = () => {
+const Owners: NextPage = () => {
   const [skip, setSkip] = useState(0);
   const { t } = useTranslation("common");
   const { number } = useNumberFormatter();
-  const { relayers, nextRelayers, mutate } = useRelayers({
+  const { owners, nextOwners, mutate } = useOwners({
     pageSize,
     skip,
     config: {
@@ -40,11 +41,9 @@ const Relayers: NextPage = () => {
 
   const columns = useMemo(
     () => [
-      t("name"),
-      t("created"),
-      t("tagging-records"),
-      t("tags"),
-      t("status"),
+      t("owner"),
+      t("first-seen"),
+      t("tags-owned", { timeframe: t("current") }),
     ],
     [t]
   );
@@ -52,13 +51,13 @@ const Relayers: NextPage = () => {
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>
-        <title>{t("relayers")} | Ethereum Tag Service</title>
+        <title>{t("owners")} | Ethereum Tag Service</title>
       </Head>
 
-      <PageTitle title={t("relayers")} />
+      <PageTitle title={t("owners")} />
 
-      <Table loading={!relayers} rows={pageSize}>
-        <Table.Title>{t("relayers")}</Table.Title>
+      <Table loading={!owners} rows={pageSize}>
+        <Table.Title>{t("owners")}</Table.Title>
         <Table.Head>
           <Table.Tr>
             {columns &&
@@ -68,34 +67,20 @@ const Relayers: NextPage = () => {
           </Table.Tr>
         </Table.Head>
         <Table.Body>
-          {relayers &&
-            relayers.map((relayer: any) => (
-              <Table.Tr key={relayer.id}>
+          {owners &&
+            owners.map((owner: any) => (
+              <Table.Tr key={owner.id}>
                 <Table.Cell
-                  value={relayer.name}
-                  url={`/relayers/${relayer.id}`}
+                  value={Truncate(owner.id)}
+                  url={`/owners/${owner.id}`}
+                  copyAndPaste
                 />
                 <Table.CellWithChildren>
-                  <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                    <TimeAgo date={relayer.firstSeen * 1000} />
+                  <div className="whitespace-nowrap">
+                    <TimeAgo date={owner.firstSeen * 1000} />
                   </div>
                 </Table.CellWithChildren>
-
-                <Table.Cell
-                  value={number(parseInt(relayer.taggingRecordsPublished))}
-                />
-                <Table.Cell
-                  value={number(parseInt(relayer.tagsPublished))}
-                  right
-                />
-                <Table.Cell
-                  value={
-                    (relayers && relayers[0].pausedByOwner) ||
-                    (relayers && relayers[0].lockedByProtocol)
-                      ? t("disabled")
-                      : t("enabled")
-                  }
-                />
+                <Table.Cell value={number(parseInt(owner.tagsOwned))} right />
               </Table.Tr>
             ))}
         </Table.Body>
@@ -126,7 +111,7 @@ const Relayers: NextPage = () => {
           Prev
         </Button>
         <Button
-          disabled={nextRelayers && nextRelayers.length === 0}
+          disabled={nextOwners && nextOwners.length === 0}
           onClick={() => nextPage()}
         >
           Next
@@ -156,4 +141,4 @@ const Relayers: NextPage = () => {
   );
 };
 
-export default Relayers;
+export default Owners;

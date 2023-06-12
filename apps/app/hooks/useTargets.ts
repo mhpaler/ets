@@ -1,10 +1,10 @@
 import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
 
-export function useTaggingRecords({
+export function useTargets({
   pageSize = 20,
   skip = 0,
-  orderBy = "timestamp",
+  orderBy = "created",
   filter = {},
   config = {},
 }: {
@@ -16,8 +16,8 @@ export function useTaggingRecords({
 }) {
   const { data, mutate, error } = useSWR(
     [
-      `query taggingRecords($filter: TaggingRecord_filter $first: Int!, $skip: Int!, $orderBy: String!) {
-        taggingRecords: taggingRecords(
+      `query targets($filter: Target_filter $first: Int!, $skip: Int!, $orderBy: String!) {
+        targets: targets(
           first: $first
           skip: $skip
           orderBy: $orderBy
@@ -26,27 +26,10 @@ export function useTaggingRecords({
 
         ) {
           id
-          recordType
-          timestamp
-          relayer {
-            id
-            name
-          }
-          tagger {
-            id
-          }
-          tags {
-            id
-            display
-            machineName
-          }
-          target {
-            id
-            targetURI
-            targetType
-          }
+          created
+          targetURI
         },
-        nextTaggingRecords: taggingRecords(
+        nextTargets: targets(
           first: $first
           skip: ${skip + pageSize}
           orderBy: $orderBy
@@ -66,9 +49,9 @@ export function useTaggingRecords({
   );
 
   return {
-    taggingRecords: data?.taggingRecords,
-    nextTaggingRecords: data?.nextTaggingRecords,
-    isLoading: !error && !data?.taggingRecords,
+    targets: data?.targets,
+    nextTargets: data?.nextTargets,
+    isLoading: !error && !data?.targets,
     mutate,
     isError: error?.statusText,
   };
