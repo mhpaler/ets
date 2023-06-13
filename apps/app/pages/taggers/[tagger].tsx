@@ -1,11 +1,10 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useOwners } from "../../hooks/useOwners";
+import { useTaggers } from "../../hooks/useTaggers";
 import useTranslation from "next-translate/useTranslation";
 import { timestampToString } from "../../utils";
-import { toDp, toEth } from "../../utils";
-import { Tags } from "../../components/Tags";
+import { TaggingRecords } from "../../components/TaggingRecords";
 import { Number } from "../../components/Number";
 import { CopyAndPaste } from "../../components/CopyAndPaste";
 import { Truncate } from "../../components/Truncate";
@@ -16,17 +15,17 @@ function classNames(...classes: any) {
   return classes.filter(Boolean).join(" ");
 }
 
-const Owner: NextPage = () => {
+const Tagger: NextPage = () => {
   const { query } = useRouter();
-  const { owner } = query;
+  const { tagger } = query;
   const { t } = useTranslation("common");
   const filter = {
-    owner_: { id: owner },
+    tagger_: { id: tagger },
   };
-  const { owners } = useOwners({
+  const { taggers } = useTaggers({
     pageSize: 1,
     skip: 0,
-    filter: { id: owner },
+    filter: { id: tagger },
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -40,13 +39,13 @@ const Owner: NextPage = () => {
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>
-        <title>Tag Owner {owners && owners[0].id} | Ethereum Tag Service</title>
+        <title>Tagger {taggers && taggers[0].id} | Ethereum Tag Service</title>
       </Head>
 
       <PageTitle
         title={
-          owners && owners[0].id
-            ? t("owner") + ": " + Truncate(owners[0].id)
+          taggers && taggers[0].id
+            ? t("tagger") + ": " + Truncate(taggers[0].id)
             : ""
         }
         shareUrl="https://ets.xyz"
@@ -59,9 +58,9 @@ const Owner: NextPage = () => {
                 <div className="text-slate-500">{t("id")}</div>
                 <div className="flex space-x-1 justify-end">
                   <div className="text-slate-500">
-                    {owners && Truncate(owners[0].id)}
+                    {taggers && Truncate(taggers[0].id)}
                   </div>
-                  <CopyAndPaste value={owners && owners[0].id} />
+                  <CopyAndPaste value={taggers && taggers[0].id} />
                 </div>
               </div>
 
@@ -69,7 +68,8 @@ const Owner: NextPage = () => {
                 <div className="text-slate-500">{t("first-seen")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {owners && timestampToString(parseInt(owners[0].firstSeen))}
+                    {taggers &&
+                      timestampToString(parseInt(taggers[0].firstSeen))}
                   </div>
                 </div>
               </div>
@@ -81,52 +81,21 @@ const Owner: NextPage = () => {
             <Panel title={t("stats")}>
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col">
                 <div className="text-slate-500">
-                  {t("tags-owned", { timeframe: t("current") })}
+                  {t("tagging-records-created")}
                 </div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {owners && <Number value={owners[0].tagsOwned} />}
-                  </div>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col">
-                <div className="text-slate-500">
-                  {t("tags-owned", { timeframe: t("lifetime") })}
-                </div>
-                <div className="text-right">
-                  <div className="text-slate-500">
-                    {owners && <Number value={owners[0].tagsOwnedLifeTime} />}
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col">
-                <div className="text-slate-500">
-                  {t("owned-tags-in-tagging-records")}
-                </div>
-                <div className="text-right">
-                  <div className="text-slate-500">
-                    {owners && (
-                      <Number
-                        value={owners[0].ownedTagsAddedToTaggingRecords}
-                      />
+                    {taggers && (
+                      <Number value={taggers[0].taggingRecordsCreated} />
                     )}
                   </div>
                 </div>
               </div>
-
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col">
-                <div className="text-slate-500">{t("tagging-revenue")}</div>
+                <div className="text-slate-500">{t("total-tags-applied")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {owners &&
-                      toDp(
-                        toEth(
-                          owners[0].ownedTagsTaggingFeeRevenue +
-                            owners[0].ownedTagsTaggingFeeRevenue
-                        )
-                      )}
-                    &nbsp;{t("matic")}
+                    {taggers && <Number value={taggers[0].tagsApplied} />}
                   </div>
                 </div>
               </div>
@@ -135,13 +104,10 @@ const Owner: NextPage = () => {
         </div>
       </div>
       <div>
-        <Tags
-          filter={filter}
-          title={t("owner-tags") + " " + (owners && Truncate(owners[0].id))}
-        />
+        <TaggingRecords filter={filter} title={t("tagging-records")} />
       </div>
     </div>
   );
 };
 
-export default Owner;
+export default Tagger;

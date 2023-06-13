@@ -51,7 +51,6 @@ const Creators: NextPage = () => {
       <PageTitle title={t("taggers")} />
 
       <Table loading={!taggers} rows={pageSize}>
-        <Table.Title>{t("taggers")}</Table.Title>
         <Table.Head>
           <Table.Tr>
             {columns &&

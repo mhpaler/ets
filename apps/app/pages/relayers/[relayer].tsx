@@ -174,20 +174,20 @@ const Relayer: NextPage = () => {
       </div>
       <div>
         <div className="pb-8">
-          <h2 className="mb-4 space-y-4 text-2xl font-bold text-slate-700 dark:text-white">
-            {t("relayer-tagging-records", {
+          <TaggingRecords
+            filter={filter}
+            title={t("relayer-tagging-records", {
               relayer: relayers && relayers[0].name,
             })}
-          </h2>
-          <TaggingRecords filter={filter} />
+          />
         </div>
         <div className="pb-8">
-          <h2 className="mb-4 space-y-4 text-2xl font-bold text-slate-700 dark:text-white">
-            {t("relayer-tags", {
+          <Tags
+            filter={filter}
+            title={t("relayer-tags", {
               relayer: relayers && relayers[0].name,
             })}
-          </h2>
-          <Tags filter={filter} />
+          />
         </div>
       </div>
     </div>

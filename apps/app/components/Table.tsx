@@ -80,7 +80,7 @@ const Table = ({ children, className, loading, rows }: Table) => {
   children = removeChildrenByType(children, [Title]);
 
   const tableClasses = classNames(
-    "grid min-w-full border-separate text-slate-500",
+    "grid items-center min-w-full border-separate text-slate-500",
     columnCount === 2 && "grid-cols-2",
     columnCount === 3 && "grid-cols-3",
     columnCount === 4 && "grid-cols-4",
@@ -136,7 +136,7 @@ const Head = ({ children }: { children: ReactElement }) => {
 const Footer = ({ children }: { children: ReactNode }) => {
   const {} = useTableContext("Table.Footer");
   return (
-    <tfoot className="px-6 py-3 border-y text-left col-span-full text-slate-700">
+    <tfoot className="grid px-3 py-3 border-y text-left col-span-full text-slate-700">
       {children}
     </tfoot>
   );
@@ -181,7 +181,7 @@ const Th = ({ children }: { children: ReactNode }) => {
 
 const Td = ({ children }: { children: ReactNode }) => {
   const {} = useTableContext("Table.Td");
-  return <td className="py-3.5 px-3 first:pl-6 last:pr-6">{children}</td>;
+  return <td className="py-3.5 px-3 first:pl-6 last:pr-6 ">{children}</td>;
 };
 
 const Tr = ({ children }: { children: ReactNode }) => {

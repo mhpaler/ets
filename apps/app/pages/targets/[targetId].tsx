@@ -1,18 +1,13 @@
-import { useMemo, useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import useSWR from "swr";
-import Link from "next/link";
+import { TaggingRecords } from "../../components/TaggingRecords";
 import useTranslation from "next-translate/useTranslation";
 import { useTargets } from "../../hooks/useTargets";
 import { timestampToString } from "../../utils";
-import { toDp, toEth } from "../../utils";
-import { Number } from "../../components/Number";
-import { Table } from "../../components/Table";
-import { TimeAgo } from "../../components/TimeAgo";
 import { CopyAndPaste } from "../../components/CopyAndPaste";
 import { Panel } from "../../components/Panel";
+import { URI } from "../../components/URI";
 import PageTitle from "../../components/PageTitle";
 
 const Target: NextPage = () => {
@@ -61,8 +56,12 @@ const Target: NextPage = () => {
 
               <div className="grid grid-cols-3 gap-4 px-6 py-4 md:grid-flow-col">
                 <div className="text-slate-500">{t("URI")}</div>
-                <div className="text-slate-500 col-span-2 text-left truncate">
-                  {targets && targets[0].targetURI}
+                <div className="flex space-x-1 col-span-2 justify-start">
+                  <div className="text-slate-500 truncate">
+                    {targets && targets[0].targetURI}
+                  </div>
+                  <CopyAndPaste value={targets && targets[0].targetURI} />
+                  <URI value={targets && targets[0].targetURI} />
                 </div>
               </div>
             </Panel>

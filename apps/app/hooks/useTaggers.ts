@@ -5,16 +5,23 @@ export function useTaggers({
   pageSize = 20,
   skip = 0,
   orderBy = "taggingRecordsCreated",
+  filter = {},
   config = {},
 }: {
   pageSize?: number;
   skip?: number;
   orderBy?: string;
+  filter?: any;
   config?: SWRConfiguration;
 }) {
   const { data, mutate, error } = useSWR(
     [
-      `query taggers($first: Int!, $skip: Int!, $orderBy: String!) {
+      `query taggers(
+        $first: Int!
+        $skip: Int!
+        $orderBy: String!
+        $filter: Tagger_filter
+      ) {
         taggers: taggers(
           first: $first
           skip: $skip
@@ -26,9 +33,13 @@ export function useTaggers({
           taggingRecordsCreated
           tagsApplied
         }
-        nextTaggers: taggers(first: ${pageSize}, skip: ${
-        skip + pageSize
-      }, orderBy: $orderBy, orderDirection: desc) {
+        nextTaggers: taggers(
+          first: ${pageSize}
+          skip: ${skip + pageSize}
+          orderBy: $orderBy
+          orderDirection: desc
+          where: $filter
+        ) {
           id
         }
     }`,
@@ -36,6 +47,7 @@ export function useTaggers({
         skip,
         first: pageSize,
         orderBy: orderBy,
+        filter: filter,
       },
     ],
     config

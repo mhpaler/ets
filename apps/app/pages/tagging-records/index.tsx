@@ -4,9 +4,6 @@ import useTranslation from "next-translate/useTranslation";
 import { TaggingRecords } from "../../components/TaggingRecords";
 import PageTitle from "../../components/PageTitle";
 
-const pageSize = 20;
-const filter = {};
-
 const RecentlyTagged: NextPage = () => {
   const { t } = useTranslation("common");
   return (
@@ -15,7 +12,7 @@ const RecentlyTagged: NextPage = () => {
         <title>{t("recently-tagged")} | Ethereum Tag Service</title>
       </Head>
       <PageTitle title={t("tagging-records")} />
-      <TaggingRecords filter={filter} pageSize={pageSize} />
+      <TaggingRecords />
     </div>
   );
 };

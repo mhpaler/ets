@@ -1,8 +1,6 @@
-import { useMemo, useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import useSWR from "swr";
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
 import { useTaggingRecords } from "../../hooks/useTaggingRecords";
@@ -12,6 +10,7 @@ import { CopyAndPaste } from "../../components/CopyAndPaste";
 import { URI } from "../../components/URI";
 import { Panel } from "../../components/Panel";
 import PageTitle from "../../components/PageTitle";
+import { Tag } from "../../components/Tag";
 
 const TaggingRecord: NextPage = () => {
   const { query } = useRouter();
@@ -115,15 +114,14 @@ const TaggingRecord: NextPage = () => {
               <div className="grid grid-cols-3 gap-4 px-6 py-4 md:grid-flow-col">
                 <div className="text-slate-500">{t("target-id")}</div>
                 <div className="flex space-x-1 col-span-2 justify-start">
-                  <div className="text-slate-500">
+                  <div className="text-slate-500 truncate">
                     <Link
                       href={`/targets/${
                         taggingRecords && taggingRecords[0].target.id
                       }`}
                     >
                       <a className="text-pink-600 hover:text-pink-700">
-                        {taggingRecords &&
-                          Truncate(taggingRecords[0].target.id)}
+                        {taggingRecords && taggingRecords[0].target.id}
                       </a>
                     </Link>
                   </div>
@@ -152,11 +150,7 @@ const TaggingRecord: NextPage = () => {
                   {taggingRecords &&
                     taggingRecords[0].tags.map((tag: any, i: number) => (
                       <span key={i} className="mr-2">
-                        <Link href={`/tags/${tag.machineName}`}>
-                          <a className="text-xs font-semibold inline-block py-1 px-2 rounded text-pink-600 bg-pink-200 last:mr-0 mr-1">
-                            {tag.display}
-                          </a>
-                        </Link>
+                        <Tag tag={tag} />
                       </span>
                     ))}
                 </div>

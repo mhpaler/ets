@@ -1,6 +1,6 @@
 // Captures 0x + 4 characters, then the last 4 characters.
 const ethRegex = /^(0x[a-zA-Z0-9]{4})[a-zA-Z0-9]+([a-zA-Z0-9]{4})$/;
-const otherRegex = /^([a-zA-Z0-9]{4})[a-zA-Z0-9]+([a-zA-Z0-9]{4})$/;
+const otherRegex = /^([a-zA-Z0-9]{6})[a-zA-Z0-9]+([a-zA-Z0-9]{10})$/;
 
 const Truncate = (address: string) => {
   let match;

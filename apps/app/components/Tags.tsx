@@ -2,27 +2,28 @@ import { useState, useMemo } from "react";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import { useCtags } from "../hooks/useCtags";
+import { settings } from "../constants/settings";
 import { TimeAgo } from "./TimeAgo";
 import { Table } from "./Table";
 import { Button } from "./Button";
-import Link from "next/link";
+import { Tag } from "./Tag";
 
 const pageSize = 20;
 type Props = {
-  filter: any;
+  filter?: any;
+  pageSize?: number;
+  orderBy?: string;
+  title?: string;
 };
 
-const Tags: NextPage<Props> = ({ filter }) => {
+const Tags: NextPage<Props> = ({ filter, pageSize, orderBy, title }) => {
   const [skip, setSkip] = useState(0);
   const { t } = useTranslation("common");
-
-  //filter = {
-  //  owner_: { id: "0x70997970c51812dc3a010c7d01b50e0d17dc79c8" },
-  //};
 
   const { tags, nextTags, mutate } = useCtags({
     pageSize,
     skip,
+    orderBy,
     filter: filter,
     config: {
       revalidateOnFocus: false,
@@ -34,31 +35,34 @@ const Tags: NextPage<Props> = ({ filter }) => {
     },
   });
 
+  const pageSizeSet =
+    pageSize === undefined ? settings["DEFAULT_PAGESIZE"] : pageSize;
+
   const nextPage = () => {
-    setSkip(skip + 20);
+    setSkip(skip + pageSizeSet);
     mutate();
   };
 
   const prevPage = () => {
-    setSkip(skip - 20);
+    setSkip(skip - pageSizeSet);
     mutate();
   };
 
+  const showPrevNext = () => {
+    return (nextTags && nextTags.length > 0) || (skip && skip !== 0)
+      ? true
+      : false;
+  };
+
   const columns = useMemo(
-    () => [
-      t("tag"),
-      //t("tagging-records"),
-      t("created"),
-      t("relayer"),
-      t("creator"),
-      t("owner"),
-    ],
+    () => [t("tag"), t("created"), t("relayer"), t("creator"), t("owner")],
     [t]
   );
 
   return (
     <div className="max-w-6xl mx-auto">
-      <Table loading={!tags} rows={pageSize}>
+      <Table loading={!tags} rows={pageSizeSet}>
+        {title ? <Table.Title>{title}</Table.Title> : ""}
         <Table.Head>
           <Table.Tr>
             {columns &&
@@ -72,11 +76,7 @@ const Tags: NextPage<Props> = ({ filter }) => {
             tags.map((tag: any) => (
               <Table.Tr key={tag.machineName}>
                 <Table.CellWithChildren>
-                  <Link href={`/tags/${tag.machineName}`}>
-                    <a className="text-sm inline-block py-1 px-2 rounded text-pink-600 hover:text-pink-700 bg-pink-100 hover:bg-pink-200 last:mr-0 mr-1">
-                      {tag.display}
-                    </a>
-                  </Link>
+                  <Tag tag={tag} />
                 </Table.CellWithChildren>
 
                 <Table.CellWithChildren>
@@ -105,59 +105,62 @@ const Tags: NextPage<Props> = ({ filter }) => {
               </Table.Tr>
             ))}
         </Table.Body>
+        {showPrevNext() && (
+          <Table.Footer>
+            <div className="flex justify-between">
+              <Button disabled={skip === 0} onClick={() => prevPage()}>
+                <svg
+                  className="relative inline-flex w-6 h-6 mr-2 -ml-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M10.25 6.75L4.75 12L10.25 17.25"
+                  ></path>
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19.25 12H5"
+                  ></path>
+                </svg>
+                Prev
+              </Button>
+              <Button
+                disabled={nextTags && nextTags.length === 0}
+                onClick={() => nextPage()}
+              >
+                Next
+                <svg
+                  className="relative inline-flex w-6 h-6 ml-2 -mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M13.75 6.75L19.25 12L13.75 17.25"
+                  ></path>
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 12H4.75"
+                  ></path>
+                </svg>
+              </Button>
+            </div>
+          </Table.Footer>
+        )}
       </Table>
-
-      <div className="flex justify-between mt-4">
-        <Button disabled={skip === 0} onClick={() => prevPage()}>
-          <svg
-            className="relative inline-flex w-6 h-6 mr-2 -ml-1"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M10.25 6.75L4.75 12L10.25 17.25"
-            ></path>
-            <path
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M19.25 12H5"
-            ></path>
-          </svg>
-          Prev
-        </Button>
-        <Button
-          disabled={nextTags && nextTags.length === 0}
-          onClick={() => nextPage()}
-        >
-          Next
-          <svg
-            className="relative inline-flex w-6 h-6 ml-2 -mr-1"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M13.75 6.75L19.25 12L13.75 17.25"
-            ></path>
-            <path
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M19 12H4.75"
-            ></path>
-          </svg>
-        </Button>
-      </div>
     </div>
   );
 };

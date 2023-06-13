@@ -1,11 +1,9 @@
-import { useMemo, useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
 import { useCtags } from "../../hooks/useCtags";
-import { useTaggingRecords } from "../../hooks/useTaggingRecords";
 import { timestampToString } from "../../utils";
 import { toDp, toEth } from "../../utils";
 import { TaggingRecords } from "../../components/TaggingRecords";
@@ -42,7 +40,10 @@ const Tag: NextPage = () => {
         <title>{tags && tags[0].display} | Ethereum Tag Service</title>
       </Head>
 
-      <PageTitle title={tags && tags[0].display} shareUrl="https://ets.xyz" />
+      <PageTitle
+        title={t("tag") + ": " + (tags && tags[0].display)}
+        shareUrl="https://ets.xyz"
+      />
 
       <div className="grid gap-6 mx-auto mt-8 lg:mb-12 mb-6 lg:gap-12 md:space-y-0 md:grid sm:w-full md:grid-cols-2">
         <div className="grid content-start w-full gap-6 mx-auto lg:gap-12">
@@ -177,12 +178,12 @@ const Tag: NextPage = () => {
         </div>
       </div>
       <div className="pb-8">
-        <h2 className="mb-4 space-y-4 text-2xl font-bold text-slate-700 dark:text-white">
-          {t("tag-tagging-records", {
+        <TaggingRecords
+          filter={taggingRecordsFilter}
+          title={t("tag-tagging-records", {
             tag: tags && tags[0].display,
           })}
-        </h2>
-        <TaggingRecords filter={taggingRecordsFilter} />
+        />
       </div>
     </div>
   );

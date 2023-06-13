@@ -9,6 +9,9 @@ import PageTitle from "../../components/PageTitle";
 import { TimeAgo } from "../../components/TimeAgo";
 import { Table } from "../../components/Table";
 import { Button } from "../../components/Button";
+import { Truncate } from "../../components/Truncate";
+import { CopyAndPaste } from "../../components/CopyAndPaste";
+import { URI } from "../../components/URI";
 
 const pageSize = 20;
 
@@ -38,7 +41,7 @@ const Targets: NextPage = () => {
     mutate();
   };
 
-  const columns = useMemo(() => [t("created"), t("id"), t("URI")], [t]);
+  const columns = useMemo(() => [t("id"), t("created"), t("URI")], [t]);
 
   return (
     <div className="max-w-6xl mx-auto mt-12">
@@ -49,7 +52,6 @@ const Targets: NextPage = () => {
       <PageTitle title={t("targets")} />
 
       <Table loading={!targets} rows={pageSize}>
-        <Table.Title>{t("targets")}</Table.Title>
         <Table.Head>
           <Table.Tr>
             {columns &&
@@ -63,22 +65,26 @@ const Targets: NextPage = () => {
             targets.map((target: any) => (
               <Table.Tr key={target.id}>
                 <Table.CellWithChildren>
-                  <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                    <Link href={`/targets/${target && target.id}`}>
-                      <a className="text-pink-600 hover:text-pink-700">
-                        <TimeAgo date={target.created * 1000} /> &#x2192;
-                      </a>
-                    </Link>
-                  </div>
-                </Table.CellWithChildren>
-                <Table.CellWithChildren>
                   <Link href={`/targets/${target && target.id}`}>
                     <a className="text-pink-600 hover:text-pink-700">
-                      {target && target.id}
+                      {target && Truncate(target.id)}
                     </a>
                   </Link>
                 </Table.CellWithChildren>
-                <Table.Cell value={target.targetURI} copyAndPaste />
+                <Table.CellWithChildren>
+                  <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+                    <TimeAgo date={target.created * 1000} />
+                  </div>
+                </Table.CellWithChildren>
+                <Table.CellWithChildren>
+                  <div className="flex space-x-1 col-span-2 justify-start">
+                    <div className="text-slate-500 truncate">
+                      {target && target.targetURI}
+                    </div>
+                    <CopyAndPaste value={target && targets.targetURI} />
+                    <URI value={target && targets.targetURI} />
+                  </div>
+                </Table.CellWithChildren>
               </Table.Tr>
             ))}
         </Table.Body>
