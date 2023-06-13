@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useOwners } from "../../hooks/useOwners";
+import { useCreators } from "../../hooks/useCreators";
 import useTranslation from "next-translate/useTranslation";
 import { timestampToString } from "../../utils";
 import { toDp, toEth } from "../../utils";
@@ -16,17 +16,17 @@ function classNames(...classes: any) {
   return classes.filter(Boolean).join(" ");
 }
 
-const Owner: NextPage = () => {
+const Creator: NextPage = () => {
   const { query } = useRouter();
-  const { owner } = query;
+  const { creator } = query;
   const { t } = useTranslation("common");
   const filter = {
-    owner_: { id: owner },
+    creator_: { id: creator },
   };
-  const { owners } = useOwners({
+  const { creators } = useCreators({
     pageSize: 1,
     skip: 0,
-    filter: { id: owner },
+    filter: { id: creator },
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -40,13 +40,15 @@ const Owner: NextPage = () => {
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>
-        <title>Tag Owner {owners && owners[0].id} | Ethereum Tag Service</title>
+        <title>
+          Creator {creators && creators[0].id} | Ethereum Tag Service
+        </title>
       </Head>
 
       <PageTitle
         title={
-          owners && owners[0].id
-            ? t("owner") + ": " + Truncate(owners[0].id)
+          creators && creators[0].id
+            ? t("creator") + ": " + Truncate(creators[0].id)
             : ""
         }
         shareUrl="https://ets.xyz"
@@ -59,9 +61,9 @@ const Owner: NextPage = () => {
                 <div className="text-slate-500">{t("id")}</div>
                 <div className="flex space-x-1 justify-end">
                   <div className="text-slate-500">
-                    {owners && Truncate(owners[0].id)}
+                    {creators && Truncate(creators[0].id)}
                   </div>
-                  <CopyAndPaste value={owners && owners[0].id} />
+                  <CopyAndPaste value={creators && creators[0].id} />
                 </div>
               </div>
 
@@ -69,7 +71,8 @@ const Owner: NextPage = () => {
                 <div className="text-slate-500">{t("first-seen")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {owners && timestampToString(parseInt(owners[0].firstSeen))}
+                    {creators &&
+                      timestampToString(parseInt(creators[0].firstSeen))}
                   </div>
                 </div>
               </div>
@@ -80,35 +83,23 @@ const Owner: NextPage = () => {
           <div>
             <Panel title={t("stats")}>
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col">
-                <div className="text-slate-500">
-                  {t("tags-owned", { timeframe: t("current") })}
-                </div>
+                <div className="text-slate-500">{t("tags-created")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {owners && <Number value={owners[0].tagsOwned} />}
-                  </div>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col">
-                <div className="text-slate-500">
-                  {t("tags-owned", { timeframe: t("lifetime") })}
-                </div>
-                <div className="text-right">
-                  <div className="text-slate-500">
-                    {owners && <Number value={owners[0].tagsOwnedLifeTime} />}
+                    {creators && <Number value={creators[0].tagsCreated} />}
                   </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col">
                 <div className="text-slate-500">
-                  {t("owned-tags-in-tagging-records")}
+                  {t("created-tags-in-tagging-record")}
                 </div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {owners && (
+                    {creators && (
                       <Number
-                        value={owners[0].ownedTagsAddedToTaggingRecords}
+                        value={creators[0].createdTagsAddedToTaggingRecords}
                       />
                     )}
                   </div>
@@ -116,11 +107,26 @@ const Owner: NextPage = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col">
-                <div className="text-slate-500">{t("tagging-revenue")}</div>
+                <div className="text-slate-500">
+                  {t("created-tags-auction-revenue")}
+                </div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {owners &&
-                      toDp(toEth(owners[0].ownedTagsTaggingFeeRevenue))}
+                    {creators &&
+                      toDp(toEth(creators[0].createdTagsAuctionRevenue))}
+                    &nbsp;{t("matic")}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col">
+                <div className="text-slate-500">
+                  {t("created-tags-tagging-revenue")}
+                </div>
+                <div className="text-right">
+                  <div className="text-slate-500">
+                    {creators &&
+                      toDp(toEth(creators[0].createdTagsTaggingFeeRevenue))}
                     &nbsp;{t("matic")}
                   </div>
                 </div>
@@ -132,11 +138,13 @@ const Owner: NextPage = () => {
       <div>
         <Tags
           filter={filter}
-          title={t("owner-tags") + " " + (owners && Truncate(owners[0].id))}
+          title={t("tags-created-by", {
+            creator: creators && Truncate(creators[0].id),
+          })}
         />
       </div>
     </div>
   );
 };
 
-export default Owner;
+export default Creator;

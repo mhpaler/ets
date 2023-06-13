@@ -27,11 +27,14 @@ export function useTaggers({
           skip: $skip
           orderBy: $orderBy
           orderDirection: desc
+          where: $filter
         ) {
           id
           firstSeen
           taggingRecordsCreated
           tagsApplied
+          tagsRemoved
+          feesPaid
         }
         nextTaggers: taggers(
           first: ${pageSize}

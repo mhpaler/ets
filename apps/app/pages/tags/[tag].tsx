@@ -113,7 +113,7 @@ const Tag: NextPage = () => {
                 <div className="flex-grow text-slate-500">{t("owner")}</div>
                 <div className="flex space-x-1 justify-end">
                   <div className="text-slate-500">
-                    <Link href={`/creators/${tags && tags[0].owner.id}`}>
+                    <Link href={`/owners/${tags && tags[0].owner.id}`}>
                       <a className="text-pink-600 hover:text-pink-700">
                         {tags && Truncate(tags[0].owner.id)}
                       </a>

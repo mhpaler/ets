@@ -10,6 +10,9 @@
   "copy": "Copy",
   "created": "Created",
   "creator": "Creator",
+  "created-tags-in-tagging-record": "Created tags in tagging records",
+  "created-tags-auction-revenue": "Created tags auction revenue",
+  "created-tags-tagging-revenue": "Created tags tagging revenue",
   "creators": "Creators",
   "current": "current",
   "disabled": "Disabled",
@@ -66,6 +69,8 @@
     "one": "{{count, number}} tag",
     "other": "{{count, number}} tags"
   },
+  "tags-created": "Tags created",
+  "tags-created-by": "Tags created by {{ creator }}",
   "tag-tagging-records": "Tagging records that include {{tag}}",
   "tagging-records": "Tagging records",
   "tagging-record": "Tagging record",
