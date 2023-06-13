@@ -1,19 +1,16 @@
-import { useMemo, useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import useSWR from "swr";
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
 import { useTaggingRecords } from "../../hooks/useTaggingRecords";
 import { timestampToString } from "../../utils";
-import { toDp, toEth } from "../../utils";
-import { Number } from "../../components/Number";
-import { Table } from "../../components/Table";
-import { TimeAgo } from "../../components/TimeAgo";
+import { Truncate } from "../../components/Truncate";
 import { CopyAndPaste } from "../../components/CopyAndPaste";
+import { URI } from "../../components/URI";
 import { Panel } from "../../components/Panel";
 import PageTitle from "../../components/PageTitle";
+import { Tag } from "../../components/Tag";
 
 const TaggingRecord: NextPage = () => {
   const { query } = useRouter();
@@ -37,10 +34,22 @@ const TaggingRecord: NextPage = () => {
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>
-        <title>Tagging Record | Ethereum Tag Service</title>
+        <title>
+          {t("tagging-record") +
+            ": " +
+            (taggingRecords && Truncate(taggingRecords[0].id))}{" "}
+          | Ethereum Tag Service
+        </title>
       </Head>
 
-      <PageTitle title="Tagging Record" shareUrl="https://ets.xyz" />
+      <PageTitle
+        title={
+          t("tagging-record") +
+          ": " +
+          (taggingRecords && Truncate(taggingRecords[0].id))
+        }
+        shareUrl="https://ets.xyz"
+      />
       <div className="grid gap-6 mx-auto mt-8 lg:mb-12 mb-6 lg:gap-12 md:space-y-0 md:grid sm:w-full md:grid-cols-1">
         <div className="grid content-start w-full gap-6 mx-auto lg:gap-12">
           <div>
@@ -75,10 +84,21 @@ const TaggingRecord: NextPage = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-6 py-4 md:grid-flow-col">
+              <div className="grid grid-cols-3 gap-4 px-6 py-4 md:grid-flow-col">
                 <div className="text-slate-500">{t("tagger")}</div>
-                <div className="text-slate-500 col-span-2 text-left truncate">
-                  {taggingRecords && taggingRecords[0].tagger.id}
+                <div className="flex space-x-1 col-span-2 justify-start">
+                  <div className="text-slate-500">
+                    <Link
+                      href={`/taggers/${
+                        taggingRecords && taggingRecords[0].tagger.id
+                      }`}
+                    >
+                      <a className="text-pink-600 hover:text-pink-700">
+                        {taggingRecords &&
+                          Truncate(taggingRecords[0].tagger.id)}
+                      </a>
+                    </Link>
+                  </div>
                   <CopyAndPaste
                     value={taggingRecords && taggingRecords[0].tagger.id}
                   />
@@ -91,27 +111,47 @@ const TaggingRecord: NextPage = () => {
                   {taggingRecords && taggingRecords[0].recordType}
                 </div>
               </div>
-
               <div className="grid grid-cols-3 gap-4 px-6 py-4 md:grid-flow-col">
-                <div className="text-slate-500">{t("target")}</div>
-                <div className="text-slate-500 col-span-2 text-left truncate">
-                  {taggingRecords && taggingRecords[0].target.targetURI}
+                <div className="text-slate-500">{t("target-id")}</div>
+                <div className="flex space-x-1 col-span-2 justify-start">
+                  <div className="text-slate-500 truncate">
+                    <Link
+                      href={`/targets/${
+                        taggingRecords && taggingRecords[0].target.id
+                      }`}
+                    >
+                      <a className="text-pink-600 hover:text-pink-700">
+                        {taggingRecords && taggingRecords[0].target.id}
+                      </a>
+                    </Link>
+                  </div>
+                  <CopyAndPaste
+                    value={taggingRecords && taggingRecords[0].target.id}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4 px-6 py-4 md:grid-flow-col">
+                <div className="text-slate-500">{t("target-uri")}</div>
+                <div className="flex space-x-1 col-span-2 justify-start">
+                  <div className="text-slate-500 truncate">
+                    {taggingRecords && taggingRecords[0].target.targetURI}
+                  </div>
+                  <CopyAndPaste
+                    value={taggingRecords && taggingRecords[0].target.targetURI}
+                  />
+                  <URI
+                    value={taggingRecords && taggingRecords[0].target.targetURI}
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-4 px-6 py-4 md:grid-flow-col">
                 <div className="text-slate-500">{t("tags")}</div>
                 <div className="text-slate-500 col-span-2 text-left">
                   {taggingRecords &&
-                    taggingRecords[0].tags.map((tag: any) => (
-                      <ul key={tag.id}>
-                        <li>
-                          <Link href={`/tags/${tag.machineName}`}>
-                            <a className="text-pink-600 hover:text-pink-700">
-                              {tag.display}
-                            </a>
-                          </Link>
-                        </li>
-                      </ul>
+                    taggingRecords[0].tags.map((tag: any, i: number) => (
+                      <span key={i} className="mr-2">
+                        <Tag tag={tag} />
+                      </span>
                     ))}
                 </div>
               </div>

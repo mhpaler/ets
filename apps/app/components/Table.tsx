@@ -10,6 +10,7 @@ import React, {
 import { getChildrenByType, removeChildrenByType } from "react-nanny";
 import Link from "next/link";
 import { CopyAndPaste } from "../components/CopyAndPaste";
+import { Truncate } from "../components/Truncate";
 import { classNames } from "../utils/classNames";
 
 interface TableContext {
@@ -79,7 +80,7 @@ const Table = ({ children, className, loading, rows }: Table) => {
   children = removeChildrenByType(children, [Title]);
 
   const tableClasses = classNames(
-    "grid min-w-full border-separate text-slate-500",
+    "grid items-center min-w-full border-separate text-slate-500",
     columnCount === 2 && "grid-cols-2",
     columnCount === 3 && "grid-cols-3",
     columnCount === 4 && "grid-cols-4",
@@ -135,7 +136,7 @@ const Head = ({ children }: { children: ReactElement }) => {
 const Footer = ({ children }: { children: ReactNode }) => {
   const {} = useTableContext("Table.Footer");
   return (
-    <tfoot className="px-6 py-3 border-y text-left col-span-full text-slate-700">
+    <tfoot className="grid px-3 py-3 border-y text-left col-span-full text-slate-700">
       {children}
     </tfoot>
   );
@@ -172,7 +173,7 @@ const Body = ({ children }: { children: ReactNode }) => {
 const Th = ({ children }: { children: ReactNode }) => {
   const {} = useTableContext("Table.Th");
   return (
-    <th className="px-3 py-3.5 first:pl-6 last:pr-6 top-0 z-10 text-sm font-semibold text-left border-y whitespace-nowrap text-slate-700 bg-slate-50/75 border-slate-200 backdrop-blur backdrop-filter">
+    <th className="px-3 py-3.5 first:pl-6 last:pr-6 top-0 z-10 text-sm font-semibold text-left border-b whitespace-nowrap text-slate-700 bg-slate-50/75 border-slate-200 backdrop-blur backdrop-filter">
       {children}
     </th>
   );
@@ -180,7 +181,7 @@ const Th = ({ children }: { children: ReactNode }) => {
 
 const Td = ({ children }: { children: ReactNode }) => {
   const {} = useTableContext("Table.Td");
-  return <td className="py-3.5 px-3 first:pl-6 last:pr-6">{children}</td>;
+  return <td className="py-3.5 px-3 first:pl-6 last:pr-6 ">{children}</td>;
 };
 
 const Tr = ({ children }: { children: ReactNode }) => {
@@ -201,13 +202,16 @@ const Cell = ({
   url,
   copyAndPaste,
   right,
+  truncate,
 }: {
   value: string;
   url?: string;
   copyAndPaste?: boolean;
   right?: boolean;
+  truncate?: boolean;
 }) => {
   const {} = useTableContext("Table.Cell");
+  value = truncate ? Truncate(value) : value;
   return (
     <Td>
       <div className="flex space-x-1">

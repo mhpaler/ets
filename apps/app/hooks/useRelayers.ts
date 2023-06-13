@@ -30,7 +30,7 @@ export function useRelayers({
           creator
           owner
           pausedByOwner
-          pausedByProtocol
+          lockedByProtocol
           publishedTagsAddedToTaggingRecords
           publishedTagsAuctionRevenue
           publishedTagsRemovedFromTaggingRecords

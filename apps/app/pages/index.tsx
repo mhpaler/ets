@@ -1,5 +1,6 @@
 import type { NextPage } from "next";
-import { RecentlyTagged } from "../components/RecentlyTagged";
+import { TaggingRecords } from "../components/TaggingRecords";
+import useTranslation from "next-translate/useTranslation";
 import { Stats } from "../components/Stats";
 // import Image from 'next/image';
 
@@ -10,11 +11,12 @@ import { Stats } from "../components/Stats";
 // import { Button } from "@ethereum-tag-service/ui"; // example of how to pull in UI
 
 const Home: NextPage = () => {
+  const { t } = useTranslation("common");
   return (
     <div className="grid max-w-6xl gap-6 mx-auto mt-12 lg:gap-12 md:space-y-0 sm:w-full">
       <Stats />
-      <div className="grid gap-6 md:grid-cols-1 lg:gap-12">
-        <RecentlyTagged />
+      <div className="gap-6 md:grid-cols-1 lg:gap-12">
+        <TaggingRecords title={t("latest-tagging-records")} />
       </div>
     </div>
   );

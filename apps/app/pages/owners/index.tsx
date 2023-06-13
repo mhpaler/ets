@@ -1,26 +1,23 @@
 import { useState, useMemo } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
-import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
 import { settings } from "../../constants/settings";
-import { timestampToString } from "../../utils";
-import { toDp, toEth } from "../../utils";
-import useNumberFormatter from "../../hooks/useNumberFormatter";
-import { useCreators } from "../../hooks/useCreators";
+import { useOwners } from "../../hooks/useOwners";
 import { Table } from "../../components/Table";
 import { Button } from "../../components/Button";
+import { TimeAgo } from "../../components/TimeAgo";
 import { Truncate } from "../../components/Truncate";
+import useNumberFormatter from "../../hooks/useNumberFormatter";
 import PageTitle from "../../components/PageTitle";
 
 const pageSize = 20;
 
-const Creators: NextPage = () => {
+const Owners: NextPage = () => {
   const [skip, setSkip] = useState(0);
-  const { query } = useRouter();
   const { t } = useTranslation("common");
   const { number } = useNumberFormatter();
-  const { creators, nextCreators, mutate } = useCreators({
+  const { owners, nextOwners, mutate } = useOwners({
     pageSize,
     skip,
     config: {
@@ -47,25 +44,30 @@ const Creators: NextPage = () => {
   };
 
   const showPrevNext = () => {
-    return (nextCreators && nextCreators.length > 0) || (skip && skip !== 0)
+    return (nextOwners && nextOwners.length > 0) || (skip && skip !== 0)
       ? true
       : false;
   };
 
   const columns = useMemo(
-    () => [t("creator"), t("first-seen"), t("tags-created"), t("revenue")],
+    () => [
+      t("owner"),
+      t("first-seen"),
+      t("tags-owned", { timeframe: t("current") }),
+    ],
     [t]
   );
 
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>
-        <title>{t("creators")} | Ethereum Tag Service</title>
+        <title>{t("owners")} | Ethereum Tag Service</title>
       </Head>
 
-      <PageTitle title={t("creators")} />
+      <PageTitle title={t("owners")} />
 
-      <Table loading={!creators} rows={pageSize}>
+      <Table loading={!owners} rows={pageSize}>
+        <Table.Title>{t("owners")}</Table.Title>
         <Table.Head>
           <Table.Tr>
             {columns &&
@@ -75,33 +77,20 @@ const Creators: NextPage = () => {
           </Table.Tr>
         </Table.Head>
         <Table.Body>
-          {creators &&
-            creators.map((creator: any) => (
-              <Table.Tr key={creator.id}>
+          {owners &&
+            owners.map((owner: any) => (
+              <Table.Tr key={owner.id}>
                 <Table.Cell
-                  value={Truncate(creator.id)}
-                  url={`/creators/${creator.id}`}
+                  value={Truncate(owner.id)}
+                  url={`/owners/${owner.id}`}
                   copyAndPaste
                 />
-                <Table.Cell
-                  value={
-                    creators &&
-                    timestampToString(parseInt(creators[0].firstSeen))
-                  }
-                  right
-                />
-                <Table.Cell
-                  value={number(parseInt(creator.tagsCreated))}
-                  right
-                />
-                <Table.Cell
-                  value={`${toDp(
-                    toEth(
-                      creator.createdTagsAuctionRevenue +
-                        creator.createdTagsTaggingFeeRevenue
-                    )
-                  )} MATIC`}
-                />
+                <Table.CellWithChildren>
+                  <div className="whitespace-nowrap">
+                    <TimeAgo date={owner.firstSeen * 1000} />
+                  </div>
+                </Table.CellWithChildren>
+                <Table.Cell value={number(parseInt(owner.tagsOwned))} right />
               </Table.Tr>
             ))}
         </Table.Body>
@@ -133,7 +122,7 @@ const Creators: NextPage = () => {
                   {t("prev")}
                 </Button>
                 <Button
-                  disabled={nextCreators && nextCreators.length === 0}
+                  disabled={nextOwners && nextOwners.length === 0}
                   onClick={() => nextPage()}
                 >
                   {t("next")}
@@ -167,4 +156,4 @@ const Creators: NextPage = () => {
   );
 };
 
-export default Creators;
+export default Owners;

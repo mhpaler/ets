@@ -1,15 +1,16 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import Link from "next/link";
 import { useRelayers } from "../../hooks/useRelayers";
 import useTranslation from "next-translate/useTranslation";
 import { timestampToString } from "../../utils";
 import { toDp, toEth } from "../../utils";
-import { Tab } from "@headlessui/react";
-import { RelayerTaggingRecords } from "../../components/RelayerTaggingRecords";
-import { RelayerTags } from "../../components/RelayerTags";
+import { TaggingRecords } from "../../components/TaggingRecords";
+import { Tags } from "../../components/Tags";
 import { Number } from "../../components/Number";
 import { CopyAndPaste } from "../../components/CopyAndPaste";
+import { Truncate } from "../../components/Truncate";
 import { Panel } from "../../components/Panel";
 import PageTitle from "../../components/PageTitle";
 
@@ -21,6 +22,10 @@ const Relayer: NextPage = () => {
   const { query } = useRouter();
   const { relayer } = query;
   const { t } = useTranslation("common");
+
+  const filter = {
+    relayer_: { id: relayer },
+  };
 
   const { relayers } = useRelayers({
     pageSize: 1,
@@ -43,14 +48,26 @@ const Relayer: NextPage = () => {
       </Head>
 
       <PageTitle
-        title={relayers && relayers[0].name}
-        shareUrl="https://ets.xyz"
+        title={t("relayer") + ": " + (relayers && relayers[0].name)}
+        shareUrl={
+          "https://app.ets.xyz/relayers/" + (relayers && relayers[0].id)
+        }
       />
 
       <div className="grid gap-6 mx-auto mt-8 lg:mb-12 mb-6 lg:gap-12 md:space-y-0 md:grid sm:w-full md:grid-cols-2">
         <div className="grid content-start w-full gap-6 mx-auto lg:gap-12">
           <div>
             <Panel title={t("overview")}>
+              <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col">
+                <div className="text-slate-500">{t("id")}</div>
+                <div className="flex space-x-1 justify-end">
+                  <div className="text-slate-500">
+                    {relayers && Truncate(relayers[0].id)}
+                  </div>
+                  <CopyAndPaste value={relayers && relayers[0].id} />
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col">
                 <div className="text-slate-500">{t("created")}</div>
                 <div className="text-right">
@@ -61,25 +78,15 @@ const Relayer: NextPage = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col">
-                <div className="text-slate-500">{t("id")}</div>
-                <div className="flex space-x-1">
-                  <div className="grid flex-grow md:grid-flow-col">
-                    <div className="text-slate-500 truncate ">
-                      {relayers && relayers[0].id}
-                    </div>
-                  </div>
-                  <CopyAndPaste value={relayers && relayers[0].id} />
-                </div>
-              </div>
-
               <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4">
                 <div className="text-slate-500">{t("creator")}</div>
-                <div className="flex space-x-1">
-                  <div className="grid flex-grow md:grid-flow-col">
-                    <div className="text-slate-500 truncate ">
-                      {relayers && relayers[0].creator}
-                    </div>
+                <div className="flex space-x-1 justify-end">
+                  <div className="text-slate-500">
+                    <Link href={`/creators/${relayers && relayers[0].creator}`}>
+                      <a className="text-pink-600 hover:text-pink-700">
+                        {relayers && Truncate(relayers[0].creator)}
+                      </a>
+                    </Link>
                   </div>
                   <CopyAndPaste value={relayers && relayers[0].creator} />
                 </div>
@@ -87,13 +94,27 @@ const Relayer: NextPage = () => {
 
               <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4">
                 <div className="flex-grow text-slate-500">{t("owner")}</div>
-                <div className="flex col-span-3 space-x-1">
-                  <div className="grid flex-grow grid-cols-1 md:grid-flow-col">
-                    <div className="text-slate-500 truncate ">
-                      {relayers && relayers[0].owner}
-                    </div>
+                <div className="flex space-x-1 justify-end">
+                  <div className="text-slate-500">
+                    <Link href={`/owners/${relayers && relayers[0].owner}`}>
+                      <a className="text-pink-600 hover:text-pink-700">
+                        {relayers && Truncate(relayers[0].owner)}
+                      </a>
+                    </Link>
                   </div>
                   <CopyAndPaste value={relayers && relayers[0].owner} />
+                </div>
+              </div>
+
+              <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4">
+                <div className="flex-grow text-slate-500">{t("status")}</div>
+                <div className="flex space-x-1 justify-end">
+                  <div className="text-slate-500">
+                    {(relayers && relayers[0].pausedByOwner) ||
+                    (relayers && relayers[0].lockedByProtocol)
+                      ? t("disabled")
+                      : t("enabled")}
+                  </div>
                 </div>
               </div>
             </Panel>
@@ -152,52 +173,21 @@ const Relayer: NextPage = () => {
         </div>
       </div>
       <div>
-        <div>
-          <Tab.Group>
-            <Tab.List className="flex space-x-1 rounded-md  p-px">
-              <Tab
-                key="taggingRecords"
-                className={({ selected }) =>
-                  classNames(
-                    "rounded-md rounded-b-none py-3.5 px-6 font-semibold leading-5 text-slate-700",
-                    selected
-                      ? "border border-b-0 whitespace-nowrap text-slate-700 bg-slate-50/75 border-slate-200 backdrop-blur backdrop-filter"
-                      : "text-slate-300 hover:bg-white/[0.12] hover:text-slate-400"
-                  )
-                }
-              >
-                {t("tagging-records-published")}
-              </Tab>
-              <Tab
-                key="tags"
-                className={({ selected }) =>
-                  classNames(
-                    "rounded-md rounded-b-none py-3.5 px-6 font-semibold leading-5 text-slate-700",
-
-                    selected
-                      ? "border border-b-0 whitespace-nowrap text-slate-700 bg-slate-50/75 border-slate-200 backdrop-blur backdrop-filter"
-                      : "text-slate-300 hover:bg-white/[0.12] hover:text-slate-400"
-                  )
-                }
-              >
-                {t("tags-published")}
-              </Tab>
-            </Tab.List>
-            <Tab.Panels>
-              <Tab.Panel
-                key="taggingRecords"
-                className={classNames("rounded-xl bg-white")}
-              >
-                <RelayerTaggingRecords />
-              </Tab.Panel>
-              <Tab.Panel
-                key="tags"
-                className={classNames("rounded-xl bg-white")}
-              >
-                <RelayerTags />
-              </Tab.Panel>
-            </Tab.Panels>
-          </Tab.Group>
+        <div className="pb-8">
+          <TaggingRecords
+            filter={filter}
+            title={t("relayer-tagging-records", {
+              relayer: relayers && relayers[0].name,
+            })}
+          />
+        </div>
+        <div className="pb-8">
+          <Tags
+            filter={filter}
+            title={t("relayer-tags", {
+              relayer: relayers && relayers[0].name,
+            })}
+          />
         </div>
       </div>
     </div>

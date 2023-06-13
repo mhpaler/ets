@@ -41,6 +41,7 @@ export function useTaggingRecords({
             machineName
           }
           target {
+            id
             targetURI
             targetType
           }

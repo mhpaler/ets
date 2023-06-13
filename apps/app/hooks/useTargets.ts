@@ -1,10 +1,10 @@
 import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
 
-export function useTaggers({
+export function useTargets({
   pageSize = 20,
   skip = 0,
-  orderBy = "taggingRecordsCreated",
+  orderBy = "created",
   filter = {},
   config = {},
 }: {
@@ -16,36 +16,28 @@ export function useTaggers({
 }) {
   const { data, mutate, error } = useSWR(
     [
-      `query taggers(
-        $first: Int!
-        $skip: Int!
-        $orderBy: String!
-        $filter: Tagger_filter
-      ) {
-        taggers: taggers(
+      `query targets($filter: Target_filter $first: Int!, $skip: Int!, $orderBy: String!) {
+        targets: targets(
           first: $first
           skip: $skip
           orderBy: $orderBy
           orderDirection: desc
           where: $filter
+
         ) {
           id
-          firstSeen
-          taggingRecordsCreated
-          tagsApplied
-          tagsRemoved
-          feesPaid
-        }
-        nextTaggers: taggers(
-          first: ${pageSize}
+          created
+          targetURI
+        },
+        nextTargets: targets(
+          first: $first
           skip: ${skip + pageSize}
           orderBy: $orderBy
           orderDirection: desc
-          where: $filter
-        ) {
+          where: $filter) {
           id
         }
-    }`,
+      }`,
       {
         skip,
         first: pageSize,
@@ -57,9 +49,9 @@ export function useTaggers({
   );
 
   return {
-    taggers: data?.taggers,
-    nextTaggers: data?.nextTaggers,
-    isLoading: !error && !data?.taggers,
+    targets: data?.targets,
+    nextTargets: data?.nextTargets,
+    isLoading: !error && !data?.targets,
     mutate,
     isError: error?.statusText,
   };

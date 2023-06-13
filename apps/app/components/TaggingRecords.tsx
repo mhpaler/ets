@@ -1,27 +1,36 @@
 import { useState, useMemo } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
-import { useRouter } from "next/router";
+import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
-import { settings } from "../../constants/settings";
-import { timestampToString } from "../../utils";
-import { toDp, toEth } from "../../utils";
-import useNumberFormatter from "../../hooks/useNumberFormatter";
-import { useCreators } from "../../hooks/useCreators";
-import { Table } from "../../components/Table";
-import { Button } from "../../components/Button";
-import { Truncate } from "../../components/Truncate";
-import PageTitle from "../../components/PageTitle";
+import { settings } from "../constants/settings";
+import { useTaggingRecords } from "../hooks/useTaggingRecords";
+import { TimeAgo } from "./TimeAgo";
+import { Table } from "./Table";
+import { Button } from "./Button";
+import { Tag } from "./Tag";
 
-const pageSize = 20;
+type Props = {
+  filter?: any;
+  pageSize?: number;
+  orderBy?: string;
+  title?: string;
+};
 
-const Creators: NextPage = () => {
-  const [skip, setSkip] = useState(0);
-  const { query } = useRouter();
+// { relayer_: { id: relayer } },
+
+const TaggingRecords: NextPage<Props> = ({
+  filter,
+  pageSize,
+  orderBy,
+  title,
+}) => {
   const { t } = useTranslation("common");
-  const { number } = useNumberFormatter();
-  const { creators, nextCreators, mutate } = useCreators({
-    pageSize,
+  const [skip, setSkip] = useState(0);
+  const { taggingRecords, nextTaggingRecords, mutate } = useTaggingRecords({
+    filter: filter,
+    pageSize: pageSize,
+    orderBy: orderBy,
     skip,
     config: {
       revalidateOnFocus: false,
@@ -47,25 +56,32 @@ const Creators: NextPage = () => {
   };
 
   const showPrevNext = () => {
-    return (nextCreators && nextCreators.length > 0) || (skip && skip !== 0)
+    return (nextTaggingRecords && nextTaggingRecords.length > 0) ||
+      (skip && skip !== 0)
       ? true
       : false;
   };
 
   const columns = useMemo(
-    () => [t("creator"), t("first-seen"), t("tags-created"), t("revenue")],
+    () => [
+      t("id"),
+      t("created"),
+      t("relayer"),
+      t("record-type"),
+      t("target"),
+      t("tags"),
+    ],
     [t]
   );
 
   return (
-    <div className="max-w-6xl mx-auto mt-12">
+    <div className="max-w-6xl mx-auto">
       <Head>
-        <title>{t("creators")} | Ethereum Tag Service</title>
+        <title>{t("recently-tagged")} | Ethereum Tag Service</title>
       </Head>
 
-      <PageTitle title={t("creators")} />
-
-      <Table loading={!creators} rows={pageSize}>
+      <Table loading={!taggingRecords} rows={pageSizeSet}>
+        {title && <Table.Title>{title}</Table.Title>}
         <Table.Head>
           <Table.Tr>
             {columns &&
@@ -75,33 +91,47 @@ const Creators: NextPage = () => {
           </Table.Tr>
         </Table.Head>
         <Table.Body>
-          {creators &&
-            creators.map((creator: any) => (
-              <Table.Tr key={creator.id}>
+          {taggingRecords &&
+            taggingRecords.map((taggingRecord: any) => (
+              <Table.Tr key={taggingRecord.id}>
                 <Table.Cell
-                  value={Truncate(creator.id)}
-                  url={`/creators/${creator.id}`}
+                  url={"/tagging-records/" + taggingRecord.id}
+                  value={taggingRecord.id}
+                  truncate
                   copyAndPaste
                 />
+                <Table.CellWithChildren>
+                  <TimeAgo date={taggingRecord.timestamp * 1000} />
+                </Table.CellWithChildren>
+
+                <Table.CellWithChildren>
+                  <Link
+                    href={`/relayers/${
+                      taggingRecord && taggingRecord.relayer.id
+                    }`}
+                  >
+                    <a className="text-pink-600 hover:text-pink-700">
+                      {taggingRecord && taggingRecord.relayer.name}
+                    </a>
+                  </Link>
+                </Table.CellWithChildren>
+
+                <Table.Cell value={taggingRecord.recordType} />
+
                 <Table.Cell
-                  value={
-                    creators &&
-                    timestampToString(parseInt(creators[0].firstSeen))
-                  }
-                  right
+                  url={"/targets/" + taggingRecord.target.id}
+                  value={taggingRecord.target.id}
+                  truncate
+                  copyAndPaste
                 />
-                <Table.Cell
-                  value={number(parseInt(creator.tagsCreated))}
-                  right
-                />
-                <Table.Cell
-                  value={`${toDp(
-                    toEth(
-                      creator.createdTagsAuctionRevenue +
-                        creator.createdTagsTaggingFeeRevenue
-                    )
-                  )} MATIC`}
-                />
+                <Table.CellWithChildren>
+                  {taggingRecord &&
+                    taggingRecord.tags.map((tag: any, i: number) => (
+                      <span key={i} className="mr-2 pb-2 inline-block">
+                        <Tag tag={tag} />
+                      </span>
+                    ))}
+                </Table.CellWithChildren>
               </Table.Tr>
             ))}
         </Table.Body>
@@ -133,7 +163,9 @@ const Creators: NextPage = () => {
                   {t("prev")}
                 </Button>
                 <Button
-                  disabled={nextCreators && nextCreators.length === 0}
+                  disabled={
+                    nextTaggingRecords && nextTaggingRecords.length === 0
+                  }
                   onClick={() => nextPage()}
                 >
                   {t("next")}
@@ -167,4 +199,4 @@ const Creators: NextPage = () => {
   );
 };
 
-export default Creators;
+export { TaggingRecords };
