@@ -11,7 +11,10 @@ const TopTaggers = () => {
     <div className="w-full mx-auto">
       <div className="rounded-md shadow-lg shadow-slate-400/20 ring-1 ring-slate-200">
         <div className="border-b border-slate-200">
-          <Link href="/taggers" className="flex justify-between rounded-t-md">
+          <Link
+            href="/taggers"
+            className="flex justify-between rounded-t-md"
+            legacyBehavior>
 
             <div>
               <h2 className="px-6 py-3 font-semibold text-left text-slate-700">{t('top-taggers')}</h2>
@@ -34,7 +37,8 @@ const TopTaggers = () => {
                 <div className="flex-grow overflow-hidden text-right text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
                   <Link
                     href={`/taggers/${tagger.id}`}
-                    className="text-pink-600 hover:text-pink-700">
+                    className="text-pink-600 hover:text-pink-700"
+                    legacyBehavior>
                     {tagger.id}
                   </Link>
                 </div>

@@ -15,7 +15,7 @@ const Panel = ({
       <div className="rounded-md shadow-lg shadow-slate-400/20 ring-1 ring-slate-200">
         {title && <div className="border-b border-slate-200">
           {href ? (
-            (<Link href={href} className="flex justify-between rounded-t-md">
+            (<Link href={href} className="flex justify-between rounded-t-md" legacyBehavior>
 
               <div>
                 <h2 className="px-6 py-3 font-semibold text-left text-slate-700">{title}</h2>

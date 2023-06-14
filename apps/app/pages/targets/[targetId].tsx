@@ -9,6 +9,7 @@ import { CopyAndPaste } from "../../components/CopyAndPaste";
 import { Panel } from "../../components/Panel";
 import { URI } from "../../components/URI";
 import PageTitle from "../../components/PageTitle";
+import { Truncate } from "../../components/Truncate";
 
 const Target: NextPage = () => {
   const { query } = useRouter();
@@ -29,13 +30,19 @@ const Target: NextPage = () => {
     },
   });
 
+  const pageTitle = `${t("target")}: ${targets && Truncate(targets[0].id)}`;
+  const browserTitle = `${pageTitle} | ETS`;
+
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>
-        <title>Target | Ethereum Tag Service</title>
+        <title>{browserTitle}</title>
       </Head>
 
-      <PageTitle title={t("target")} shareUrl="https://ets.xyz" />
+      <PageTitle
+        title={pageTitle}
+        shareUrl={"https://app.ets.xyz/targets/" + (targets && targets[0].id)}
+      />
       <div className="grid gap-6 mx-auto mt-8 lg:mb-12 mb-6 lg:gap-12 md:space-y-0 md:grid sm:w-full md:grid-cols-1">
         <div className="grid content-start w-full gap-6 mx-auto lg:gap-12">
           <div>

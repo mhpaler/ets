@@ -6,14 +6,16 @@ import PageTitle from "../../components/PageTitle";
 
 const Ctags: NextPage = () => {
   const { t } = useTranslation("common");
+  const pageTitle = `${t("tags")}`;
+  const browserTitle = `${pageTitle} | ETS`;
 
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>
-        <title>{t("tags")} | Ethereum Tag Service</title>
+        <title>{browserTitle}</title>
       </Head>
 
-      <PageTitle title={t("tags")} />
+      <PageTitle title={pageTitle} />
       <Tags title={t("newest-tags")} />
     </div>
   );

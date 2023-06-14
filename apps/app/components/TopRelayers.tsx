@@ -12,7 +12,10 @@ const TopRelayers = () => {
     <div className="w-full mx-auto">
       <div className="rounded-md shadow-lg shadow-slate-400/20 ring-1 ring-slate-200">
         <div className="border-b border-slate-200">
-          <Link href="/relayers" className="flex justify-between rounded-t-md">
+          <Link
+            href="/relayers"
+            className="flex justify-between rounded-t-md"
+            legacyBehavior>
 
             <div>
               <h2 className="px-6 py-3 font-semibold text-left text-slate-700">
@@ -58,7 +61,8 @@ const TopRelayers = () => {
                     <div className="flex-grow overflow-hidden text-right text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
                       <Link
                         href={`/relayers/${relayer.id}`}
-                        className="text-pink-600 hover:text-pink-700">
+                        className="text-pink-600 hover:text-pink-700"
+                        legacyBehavior>
 
                         {relayer.id}
 

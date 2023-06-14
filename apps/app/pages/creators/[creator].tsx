@@ -37,22 +37,16 @@ const Creator: NextPage = () => {
     },
   });
 
+  const pageTitle = `${t("creator")}: ${creators && Truncate(creators[0].id)}`;
+  const browserTitle = `${pageTitle} | ETS`;
+
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>
-        <title>
-          Creator {creators && creators[0].id} | Ethereum Tag Service
-        </title>
+        <title>{browserTitle}</title>
       </Head>
 
-      <PageTitle
-        title={
-          creators && creators[0].id
-            ? t("creator") + ": " + Truncate(creators[0].id)
-            : ""
-        }
-        shareUrl="https://ets.xyz"
-      />
+      <PageTitle title={pageTitle} shareUrl="https://ets.xyz" />
       <div className="grid gap-6 mx-auto mt-8 lg:mb-12 mb-6 lg:gap-12 md:space-y-0 md:grid sm:w-full md:grid-cols-2">
         <div className="grid content-start w-full gap-6 mx-auto lg:gap-12">
           <div>

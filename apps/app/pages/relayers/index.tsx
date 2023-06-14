@@ -59,13 +59,16 @@ const Relayers: NextPage = () => {
     [t]
   );
 
+  const pageTitle = `${t("relayers")}`;
+  const browserTitle = `${pageTitle} | ETS`;
+
   return (
     <div className="max-w-6xl mx-auto mt-12">
       <Head>
-        <title>{t("relayers")} | Ethereum Tag Service</title>
+        <title>{browserTitle}</title>
       </Head>
 
-      <PageTitle title={t("relayers")} />
+      <PageTitle title={pageTitle} />
 
       <Table loading={!relayers} rows={pageSize}>
         <Table.Title>{t("relayers")}</Table.Title>

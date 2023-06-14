@@ -226,7 +226,10 @@ const FeaturedAuction = () => {
             <div className="mr-1 text-slate-500">{t("creator")}</div>
             <div className="flex">
               <div className="flex-grow overflow-hidden text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
-                <Link href={`/creators/}`} className="text-pink-600 hover:text-pink-700">
+                <Link
+                  href={`/creators/}`}
+                  className="text-pink-600 hover:text-pink-700"
+                  legacyBehavior>
 
                   {currentBid}
 
@@ -240,7 +243,10 @@ const FeaturedAuction = () => {
             <div className="mr-1 text-slate-500">{t("relayer")}</div>
             <div className="flex">
               <div className="flex-grow overflow-hidden text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
-                <Link href={`/relayers/}`} className="text-pink-600 hover:text-pink-700">
+                <Link
+                  href={`/relayers/}`}
+                  className="text-pink-600 hover:text-pink-700"
+                  legacyBehavior>
 
                   {relayer}
 

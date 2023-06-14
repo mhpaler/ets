@@ -76,10 +76,6 @@ const TaggingRecords: NextPage<Props> = ({
 
   return (
     <div className="max-w-6xl mx-auto">
-      <Head>
-        <title>{t("recently-tagged")} | Ethereum Tag Service</title>
-      </Head>
-
       <Table loading={!taggingRecords} rows={pageSizeSet}>
         {title && <Table.Title>{title}</Table.Title>}
         <Table.Head>
@@ -109,10 +105,9 @@ const TaggingRecords: NextPage<Props> = ({
                     href={`/relayers/${
                       taggingRecord && taggingRecord.relayer.id
                     }`}
-                    className="text-pink-600 hover:text-pink-700">
-
+                    className="text-pink-600 hover:text-pink-700"
+                  >
                     {taggingRecord && taggingRecord.relayer.name}
-
                   </Link>
                 </Table.CellWithChildren>
 
