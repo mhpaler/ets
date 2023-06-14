@@ -5,7 +5,7 @@ import useSWR from "swr";
 const BreadcrumbItem = (props: any) => {
   let label;
   const router = useRouter();
-  const { t } = useTranslation("common");
+  const { t, lang } = useTranslation("common");
 
   const dividerIcon = (
     <svg

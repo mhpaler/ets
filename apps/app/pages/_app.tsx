@@ -1,52 +1,75 @@
 import "../styles/globals.css";
+import "@rainbow-me/rainbowkit/styles.css";
 import type { AppProps } from "next/app";
 import { SWRConfig } from "swr";
 import { fetcher } from "../utils/fetchers";
 import Layout from "../layouts/default";
 import nProgress from "nprogress";
 import { Router } from "next/router";
-import "@rainbow-me/rainbowkit/styles.css";
 import {
-  getDefaultWallets,
   RainbowKitProvider,
-  lightTheme,
+  getDefaultWallets,
+  connectorsForWallets,
 } from "@rainbow-me/rainbowkit";
-import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
-import { alchemyProvider } from "wagmi/providers/alchemy";
+import {
+  argentWallet,
+  trustWallet,
+  ledgerWallet,
+} from "@rainbow-me/rainbowkit/wallets";
+import { configureChains, createConfig, WagmiConfig } from "wagmi";
+import { mainnet, polygon, optimism, arbitrum, goerli } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 
-const { chains, provider } = configureChains(
-  [chain.polygonMumbai, chain.hardhat, chain.localhost],
-  [alchemyProvider({ alchemyId: process.env.ALCHEMY_ID }), publicProvider()]
+const { chains, publicClient, webSocketPublicClient } = configureChains(
+  [
+    mainnet,
+    polygon,
+    optimism,
+    arbitrum,
+    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true" ? [goerli] : []),
+  ],
+  [publicProvider()]
 );
 
-const { connectors } = getDefaultWallets({
-  appName: "Ethereum Tag Service",
+const projectId = "YOUR_PROJECT_ID";
+
+const { wallets } = getDefaultWallets({
+  appName: "RainbowKit demo",
+  projectId,
   chains,
 });
 
-const wagmiClient = createClient({
+const demoAppInfo = {
+  appName: "Rainbowkit Demo",
+};
+
+const connectors = connectorsForWallets([
+  ...wallets,
+  {
+    groupName: "Other",
+    wallets: [
+      argentWallet({ projectId, chains }),
+      trustWallet({ projectId, chains }),
+      ledgerWallet({ projectId, chains }),
+    ],
+  },
+]);
+
+const wagmiConfig = createConfig({
   autoConnect: true,
   connectors,
-  provider,
+  publicClient,
+  webSocketPublicClient,
 });
 
 Router.events.on("routeChangeStart", nProgress.start);
 Router.events.on("routeChangeError", nProgress.done);
 Router.events.on("routeChangeComplete", nProgress.done);
 
-export default function MyApp({ Component, pageProps }: AppProps) {
+function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <WagmiConfig client={wagmiClient}>
-      <RainbowKitProvider
-        chains={chains}
-        theme={lightTheme({
-          accentColor: "#ec4899",
-          accentColorForeground: "white",
-          borderRadius: "medium",
-          overlayBlur: "small",
-        })}
-      >
+    <WagmiConfig config={wagmiConfig}>
+      <RainbowKitProvider appInfo={demoAppInfo} chains={chains}>
         <SWRConfig
           value={{
             refreshInterval: 3000,
@@ -61,3 +84,5 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     </WagmiConfig>
   );
 }
+
+export default MyApp;

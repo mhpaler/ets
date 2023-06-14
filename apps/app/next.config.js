@@ -1,10 +1,10 @@
-const nextTranslate = require('next-translate');
+const nextTranslate = require('next-translate-plugin');
 const withTM = require("next-transpile-modules")(["@ethereum-tag-service/ui"]);
 
 /**
  * @type {import('next').NextConfig}
  **/
- const nextConfig = {
+const nextConfig = {
   reactStrictMode: true,
 };
 
