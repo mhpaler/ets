@@ -109,10 +109,10 @@ const TaggingRecords: NextPage<Props> = ({
                     href={`/relayers/${
                       taggingRecord && taggingRecord.relayer.id
                     }`}
-                  >
-                    <a className="text-pink-600 hover:text-pink-700">
-                      {taggingRecord && taggingRecord.relayer.name}
-                    </a>
+                    className="text-pink-600 hover:text-pink-700">
+
+                    {taggingRecord && taggingRecord.relayer.name}
+
                   </Link>
                 </Table.CellWithChildren>
 

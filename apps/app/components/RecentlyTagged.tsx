@@ -46,11 +46,9 @@ const RecentlyTagged = () => {
                         href={`/tagging-records/${
                           taggingRecord && taggingRecord.id
                         }`}
-                      >
-                        <a className="text-pink-600 hover:text-pink-700">
-                          <TimeAgo date={taggingRecord.timestamp * 1000} />{" "}
-                          &#x2192;
-                        </a>
+                        className="text-pink-600 hover:text-pink-700">
+
+                        <TimeAgo date={taggingRecord.timestamp * 1000} />{" "}→
                       </Link>
                     </div>
                   </Table.CellWithChildren>
@@ -59,10 +57,10 @@ const RecentlyTagged = () => {
                       href={`/relayers/${
                         taggingRecord && taggingRecord.relayer.id
                       }`}
-                    >
-                      <a className="text-pink-600 hover:text-pink-700">
-                        {taggingRecord && taggingRecord.relayer.name}
-                      </a>
+                      className="text-pink-600 hover:text-pink-700">
+
+                      {taggingRecord && taggingRecord.relayer.name}
+
                     </Link>
                   </Table.CellWithChildren>
                   <Table.Cell value={taggingRecord.tagger.id} copyAndPaste />
@@ -73,10 +71,12 @@ const RecentlyTagged = () => {
                     value={taggingRecord.tags.map((tag: any) => (
                       <ul key={tag.id}>
                         <li>
-                          <Link href={`/tags/${tag.machineName}`}>
-                            <a className="text-pink-600 hover:text-pink-700">
-                              {tag.display}
-                            </a>
+                          <Link
+                            href={`/tags/${tag.machineName}`}
+                            className="text-pink-600 hover:text-pink-700">
+
+                            {tag.display}
+
                           </Link>
                         </li>
                       </ul>
@@ -87,10 +87,10 @@ const RecentlyTagged = () => {
           </Table.Body>
           <Table.Footer>
             <div className="text-center">
-              <Link href={`/tagging-records/`}>
-                <a className="text-pink-600 hover:text-pink-700">
-                  {t("view-all", { subject: t("tagging-records") })}
-                </a>
+              <Link href={`/tagging-records/`} className="text-pink-600 hover:text-pink-700">
+
+                {t("view-all", { subject: t("tagging-records") })}
+
               </Link>
             </div>
           </Table.Footer>

@@ -12,18 +12,18 @@ const TopCreators = () => {
     <div className="w-full mx-auto">
       <div className="rounded-md shadow-lg shadow-slate-400/20 ring-1 ring-slate-200">
         <div className="border-b border-slate-200">
-          <Link href="/creators">
-            <a className="flex justify-between rounded-t-md">
-              <div>
-                <h2 className="px-6 py-3 font-semibold text-left text-slate-700">{t('top-creators')}</h2>
-              </div>
-              <div className="flex items-center pr-2">
-                <svg className="inline-flex w-6 h-6 text-pink-600 hover:text-pink-700" fill="none" viewBox="0 0 24 24">
-                  <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.25 15.25V6.75H8.75"></path>
-                  <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17 7L6.75 17.25"></path>
-                </svg>
-              </div>
-            </a>
+          <Link href="/creators" className="flex justify-between rounded-t-md">
+
+            <div>
+              <h2 className="px-6 py-3 font-semibold text-left text-slate-700">{t('top-creators')}</h2>
+            </div>
+            <div className="flex items-center pr-2">
+              <svg className="inline-flex w-6 h-6 text-pink-600 hover:text-pink-700" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.25 15.25V6.75H8.75"></path>
+                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17 7L6.75 17.25"></path>
+              </svg>
+            </div>
+
           </Link>
         </div>
 
@@ -34,8 +34,10 @@ const TopCreators = () => {
               <div>
                 <div className="flex space-x-2">
                     <div className="flex-grow overflow-hidden text-right text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
-                      <Link href={`/creators/${creator.id}`}>
-                        <a className="text-pink-600 hover:text-pink-700">{creator.id}</a>
+                      <Link
+                        href={`/creators/${creator.id}`}
+                        className="text-pink-600 hover:text-pink-700">
+                        {creator.id}
                       </Link>
                     </div>
                   <CopyAndPaste value={creator.id} />

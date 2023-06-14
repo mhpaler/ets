@@ -11,11 +11,13 @@ interface Button {
 const Button = ({ href, disabled, children, onClick }: Button) => {
   if (href)
     return (
-      <Link href={href}>
-        <a className="relative text-sm font-semibold z-0 inline-flex items-center justify-center px-3 py-2 text-pink-500 transition-colors bg-white border rounded-lg shadow-lg border-slate-300 hover:bg-slate-50 hover:text-pink-600 focus:z-10 focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500 shadow-slate-300/50">
-          {children}
-        </a>
-      </Link>
+      (<Link
+        href={href}
+        className="relative text-sm font-semibold z-0 inline-flex items-center justify-center px-3 py-2 text-pink-500 transition-colors bg-white border rounded-lg shadow-lg border-slate-300 hover:bg-slate-50 hover:text-pink-600 focus:z-10 focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500 shadow-slate-300/50">
+
+        {children}
+
+      </Link>)
     );
 
   return (

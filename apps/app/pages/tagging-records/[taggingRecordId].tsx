@@ -76,10 +76,10 @@ const TaggingRecord: NextPage = () => {
                     href={`/relayers/${
                       taggingRecords && taggingRecords[0].relayer.id
                     }`}
-                  >
-                    <a className="text-pink-600 hover:text-pink-700">
-                      {taggingRecords && taggingRecords[0].relayer.name}
-                    </a>
+                    className="text-pink-600 hover:text-pink-700">
+
+                    {taggingRecords && taggingRecords[0].relayer.name}
+
                   </Link>
                 </div>
               </div>
@@ -92,11 +92,11 @@ const TaggingRecord: NextPage = () => {
                       href={`/taggers/${
                         taggingRecords && taggingRecords[0].tagger.id
                       }`}
-                    >
-                      <a className="text-pink-600 hover:text-pink-700">
-                        {taggingRecords &&
-                          Truncate(taggingRecords[0].tagger.id)}
-                      </a>
+                      className="text-pink-600 hover:text-pink-700">
+
+                      {taggingRecords &&
+                        Truncate(taggingRecords[0].tagger.id)}
+
                     </Link>
                   </div>
                   <CopyAndPaste
@@ -119,10 +119,10 @@ const TaggingRecord: NextPage = () => {
                       href={`/targets/${
                         taggingRecords && taggingRecords[0].target.id
                       }`}
-                    >
-                      <a className="text-pink-600 hover:text-pink-700">
-                        {taggingRecords && taggingRecords[0].target.id}
-                      </a>
+                      className="text-pink-600 hover:text-pink-700">
+
+                      {taggingRecords && taggingRecords[0].target.id}
+
                     </Link>
                   </div>
                   <CopyAndPaste

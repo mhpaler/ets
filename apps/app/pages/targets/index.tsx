@@ -74,10 +74,12 @@ const Targets: NextPage = () => {
             targets.map((target: any) => (
               <Table.Tr key={target.id}>
                 <Table.CellWithChildren>
-                  <Link href={`/targets/${target && target.id}`}>
-                    <a className="text-pink-600 hover:text-pink-700">
-                      {target && Truncate(target.id)}
-                    </a>
+                  <Link
+                    href={`/targets/${target && target.id}`}
+                    className="text-pink-600 hover:text-pink-700">
+
+                    {target && Truncate(target.id)}
+
                   </Link>
                 </Table.CellWithChildren>
                 <Table.CellWithChildren>
