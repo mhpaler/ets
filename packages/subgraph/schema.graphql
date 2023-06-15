@@ -170,8 +170,8 @@ type Relayer @entity {
   "Name of Relayer."
   name: String!
 
-  "Relayer contract is paused."
-  pausedByProtocol: Boolean!
+  "Relayer contract is locked by Protocol."
+  lockedByProtocol: Boolean!
 
   "Relayer contract paused by owner"
   pausedByOwner: Boolean

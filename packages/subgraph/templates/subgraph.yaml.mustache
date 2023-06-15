@@ -18,7 +18,7 @@ dataSources:
         - Administrator
         - Platform
         - Relayer
-        - RelayerAdmin      
+        - RelayerAdmin
       abis:
         - name: UUPSUpgradeable
           file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol/UUPSUpgradeable.json
@@ -35,9 +35,9 @@ dataSources:
           handler: handleUpgraded
         - event: PlatformSet(address,address)
           handler: handlePlatformSet
-        - event: RelayerAdded(address,bool)
+        - event: RelayerAdded(address)
           handler: handleRelayerAdded
-        - event: RelayerPauseToggled(address)
+        - event: RelayerLockToggled(address)
           handler: handleRelayerToggled
         - event: RoleGranted(indexed bytes32,indexed address,indexed address)
           handler: handleRoleGranted

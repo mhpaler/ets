@@ -7,7 +7,7 @@ import {
   RoleRevoked,
   PlatformSet,
   RelayerAdded,
-  RelayerPauseToggled,
+  RelayerLockToggled,
   Initialized,
   Upgraded,
 } from "../generated/ETSAccessControls/ETSAccessControls";
@@ -48,13 +48,13 @@ export function handleRelayerAdded(event: RelayerAdded): void {
   updateRelayerCount(ADDED, event);
 }
 
-export function handleRelayerToggled(event: RelayerPauseToggled): void {
+export function handleRelayerToggled(event: RelayerLockToggled): void {
   let relayer = ensureRelayer(event.params.relayer, event);
   if (relayer) {
-    relayer.pausedByProtocol = !relayer.pausedByProtocol;
+    relayer.lockedByProtocol = !relayer.lockedByProtocol;
     relayer.save();
 
-    const action = relayer.pausedByProtocol == true ? PAUSED : UNPAUSED;
+    const action = relayer.lockedByProtocol == true ? PAUSED : UNPAUSED;
     updateRelayerCount(action, event);
   }
 }

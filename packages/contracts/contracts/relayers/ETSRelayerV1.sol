@@ -104,7 +104,7 @@ contract ETSRelayerV1 is
     /// @inheritdoc IETSRelayer
     function pause() public onlyRelayerAdmin {
         _pause();
-        emit RelayerLockToggledByOwner(address(this));
+        emit RelayerPauseToggledByOwner(address(this));
     }
 
     /// @inheritdoc IETSRelayer
@@ -113,7 +113,7 @@ contract ETSRelayerV1 is
         require(!etsAccessControls.isRelayerLocked(address(this)), "Unpausing not permitted");
         require(etsToken.balanceOf(owner()) > 0, "Owner must hold CTAG");
         _unpause();
-        emit RelayerLockToggledByOwner(address(this));
+        emit RelayerPauseToggledByOwner(address(this));
     }
 
     /// @inheritdoc IETSRelayer

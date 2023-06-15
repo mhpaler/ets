@@ -83,13 +83,13 @@ contract ETSRelayerV2test is
     /// @inheritdoc IETSRelayer
     function pause() public onlyOwner {
         _pause();
-        emit RelayerLockToggledByOwner(address(this));
+        emit RelayerPauseToggledByOwner(address(this));
     }
 
     /// @inheritdoc IETSRelayer
     function unpause() public onlyOwner {
         _unpause();
-        emit RelayerLockToggledByOwner(address(this));
+        emit RelayerPauseToggledByOwner(address(this));
     }
 
     /// @inheritdoc IETSRelayer

@@ -59,7 +59,7 @@
         "type": "address"
       }
     ],
-    "name": "RelayerLockToggledByOwner",
+    "name": "RelayerOwnerChanged",
     "type": "event"
   },
   {
@@ -72,7 +72,7 @@
         "type": "address"
       }
     ],
-    "name": "RelayerOwnerChanged",
+    "name": "RelayerPauseToggledByOwner",
     "type": "event"
   },
   {
