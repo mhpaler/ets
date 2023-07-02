@@ -1,4 +1,4 @@
-const { ethers } = require("hardhat");
+import {ethers} from "hardhat";
 
 // The following is taken from https://github.com/OpenZeppelin/openzeppelin-upgrades/issues/85#issuecomment-1028435049
 // to prevent time-outs when deploying to Polygon Mumbai.
@@ -21,6 +21,12 @@ const { ethers } = require("hardhat");
 
 async function setup() {
   const namedAccounts = await ethers.getNamedSigners();
+
+  console.log(namedAccounts);
+
+  const blah = await ethers.getNamedSigner("ETSAdmin");
+  console.log(blah);
+
   const accounts = {
     ETSAdmin: namedAccounts["ETSAdmin"],
     ETSPlatform: namedAccounts["ETSPlatform"],
@@ -47,15 +53,15 @@ async function setup() {
   };
 
   const factories = {
-    WMATIC: await ethers.getContractFactory("WMATIC"),
-    ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
-    ETSToken: await ethers.getContractFactory("ETSToken"),
-    ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
-    ETSTarget: await ethers.getContractFactory("ETSTarget"),
-    ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
-    ETS: await ethers.getContractFactory("ETS"),
-    ETSRelayerV1: await ethers.getContractFactory("ETSRelayerV1"),
-    ETSRelayerFactory: await ethers.getContractFactory("ETSRelayerFactory"),
+    //    WMATIC: await ethers.getContractFactory("WMATIC", accounts.ETSAdmin),
+    //    ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
+    //    ETSToken: await ethers.getContractFactory("ETSToken"),
+    //    ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
+    //    ETSTarget: await ethers.getContractFactory("ETSTarget"),
+    //    ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
+    //    ETS: await ethers.getContractFactory("ETS"),
+    //    ETSRelayerV1: await ethers.getContractFactory("ETSRelayerV1"),
+    //    ETSRelayerFactory: await ethers.getContractFactory("ETSRelayerFactory"),
   };
 
   // ============ SETUP TEST ACCOUNTS ============

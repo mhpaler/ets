@@ -118,6 +118,7 @@ contract ETSRelayerV1 is
 
     /// @inheritdoc IETSRelayer
     function changeOwner(address _newOwner) public whenPaused onlyOwner {
+        // TODO: check that new owner doesn't already have relayer?
         etsAccessControls.changeRelayerOwner(owner(), _newOwner);
         transferOwnership(_newOwner);
         emit RelayerOwnerChanged(address(this));

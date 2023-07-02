@@ -1,5 +1,5 @@
 const { upgrades } = require("hardhat");
-const { setup } = require("./setup.js");
+const { setup } = require("./setup.ts");
 const { verify } = require("./utils/verify.js");
 const { saveNetworkConfig, readNetworkConfig } = require("./utils/config.js");
 
@@ -52,4 +52,4 @@ module.exports = async ({ getChainId, deployments }) => {
   log("====================================================");
 };
 module.exports.tags = ["ETSToken"];
-module.exports.dependencies = ["ETSAccessControls"];
+//module.exports.dependencies = ["ETSAccessControls"];

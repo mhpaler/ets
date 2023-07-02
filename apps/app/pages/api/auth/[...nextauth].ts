@@ -1,7 +1,7 @@
 // Code in this file is based on https://docs.login.xyz/integrations/nextauth.js
 // with added process.env.VERCEL_URL detection to support preview deployments
 // and with auth option logic extracted into a 'getAuthOptions' function so it
-// can be used to get the session server-side with 'unstable_getServerSession'
+// can be used to get the session server-side with 'getServerSession'
 import { IncomingMessage } from "http";
 import { NextApiRequest, NextApiResponse } from "next";
 import NextAuth, { NextAuthOptions } from "next-auth";
@@ -10,48 +10,6 @@ import { getCsrfToken } from "next-auth/react";
 import { SiweMessage } from "siwe";
 
 export function getAuthOptions(req: IncomingMessage): NextAuthOptions {
-  const providers = [
-    CredentialsProvider({
-      name: "Ethereum",
-      credentials: {
-        message: {
-          label: "Message",
-          type: "text",
-          placeholder: "0x0",
-        },
-        signature: {
-          label: "Signature",
-          type: "text",
-          placeholder: "0x0",
-        },
-      },
-      async authorize(credentials) {
-        try {
-          const siwe = new SiweMessage(
-            JSON.parse(credentials?.message || "{}")
-          );
-
-          const nextAuthUrl = new URL(process.env.NEXTAUTH_URL || "");
-
-          const result = await siwe.verify({
-            signature: credentials?.signature || "",
-            domain: nextAuthUrl.host,
-            nonce: await getCsrfToken({ req }),
-          });
-
-          if (result.success) {
-            return {
-              id: siwe.address,
-            };
-          }
-          return null;
-        } catch (e) {
-          return null;
-        }
-      },
-    }),
-  ];
-  /*
   const providers = [
     CredentialsProvider({
       async authorize(credentials) {
@@ -78,7 +36,7 @@ export function getAuthOptions(req: IncomingMessage): NextAuthOptions {
             return null;
           }
 
-          await siwe.validate(credentials?.signature || "");
+          await siwe.verify({ signature: credentials?.signature || "" });
           return {
             id: siwe.address,
           };
@@ -101,11 +59,10 @@ export function getAuthOptions(req: IncomingMessage): NextAuthOptions {
       name: "Ethereum",
     }),
   ];
-  */
 
   return {
     callbacks: {
-      async session({ session, token }: { session: any; token: any }) {
+      async session({ session, token }) {
         session.address = token.sub;
         session.user = {
           name: token.sub,

@@ -17,20 +17,23 @@ import {
   getDefaultWallets,
   connectorsForWallets,
 } from "@rainbow-me/rainbowkit";
-import {
-  argentWallet,
-  trustWallet,
-  ledgerWallet,
-} from "@rainbow-me/rainbowkit/wallets";
+import { metaMaskWallet, rainbowWallet } from "@rainbow-me/rainbowkit/wallets";
+
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { hardhat, polygonMumbai } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [polygonMumbai, hardhat],
   [
-    alchemyProvider({ apiKey: process.env.ALCHEMY_MUMBAI || "" }),
+    polygonMumbai,
+    ...(process.env.NEXT_PUBLIC_ENABLE_HARDHAT_TESTNET &&
+    process.env.NEXT_PUBLIC_ENABLE_HARDHAT_TESTNET === "true"
+      ? [hardhat]
+      : []),
+  ],
+  [
+    alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_KEY || "" }),
     publicProvider(),
   ]
 );
@@ -47,14 +50,25 @@ const demoAppInfo = {
   appName: "ETS",
 };
 
+//const connectors = connectorsForWallets([
+//  ...wallets,
+//  {
+//    groupName: "Other",
+//    wallets: [
+//      argentWallet({ projectId, chains }),
+//      trustWallet({ projectId, chains }),
+//      ledgerWallet({ projectId, chains }),
+//    ],
+//  },
+//]);
+
 const connectors = connectorsForWallets([
-  ...wallets,
   {
-    groupName: "Other",
+    groupName: "Recommended",
     wallets: [
-      argentWallet({ projectId, chains }),
-      trustWallet({ projectId, chains }),
-      ledgerWallet({ projectId, chains }),
+      metaMaskWallet({ projectId, chains }),
+      //rainbowWallet({ projectId, chains }),
+      //walletConnectWallet({ projectId, chains }),
     ],
   },
 ]);

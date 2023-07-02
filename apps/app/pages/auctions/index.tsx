@@ -47,9 +47,9 @@ const Auctions: NextPage = () => {
   );
 
   return (
-    <div className="max-w-6xl mx-auto mt-12">
+    <div className="max-w-7xl mx-auto mt-12">
       <Head>
-        <title>{t("auctions")} | Ethereum Tag Service</title>
+        <title>{t("auctions")}</title>
       </Head>
 
       <PageTitle title={t("auctions")} />

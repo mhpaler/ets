@@ -28,7 +28,7 @@ export default function Navbar() {
           </div>
         </div>
       </div>
-      <nav className="max-w-6xl mx-auto" aria-label="Top">
+      <nav className="max-w-7xl mx-auto" aria-label="Top">
         <div className="flex items-center justify-between w-full py-5 border-b border-slate-100 lg:border-none">
           <div className="flex items-center">
             <Link href="/">

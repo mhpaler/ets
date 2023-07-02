@@ -75,7 +75,7 @@ const TaggingRecords: NextPage<Props> = ({
   );
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-7xl mx-auto">
       <Table loading={!taggingRecords} rows={pageSizeSet}>
         {title && <Table.Title>{title}</Table.Title>}
         <Table.Head>

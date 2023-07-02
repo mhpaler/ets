@@ -34,7 +34,7 @@ const Target: NextPage = () => {
   const browserTitle = `${pageTitle} | ETS`;
 
   return (
-    <div className="max-w-6xl mx-auto mt-12">
+    <div className="max-w-7xl mx-auto mt-12">
       <Head>
         <title>{browserTitle}</title>
       </Head>

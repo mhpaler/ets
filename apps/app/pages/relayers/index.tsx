@@ -3,12 +3,16 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import useTranslation from "next-translate/useTranslation";
 import { settings } from "../../constants/settings";
+import useNumberFormatter from "../../hooks/useNumberFormatter";
 import { useRelayers } from "../../hooks/useRelayers";
 import PageTitle from "../../components/PageTitle";
 import { TimeAgo } from "../../components/TimeAgo";
 import { Table } from "../../components/Table";
 import { Button } from "../../components/Button";
-import useNumberFormatter from "../../hooks/useNumberFormatter";
+import { Modal } from "../../components/Modal";
+import Form from "../../components/modals/addRelayer/Form";
+import { AddRelayerProvider } from "../../context/AddRelayerContext";
+//import { CreateRelayerModal } from "../../transaction-flow/input/createRelayerModal";
 
 const pageSize = 20;
 
@@ -25,7 +29,7 @@ const Relayers: NextPage = () => {
       revalidateOnReconnect: false,
       refreshWhenOffline: false,
       refreshWhenHidden: false,
-      refreshInterval: 0,
+      refreshInterval: 1000,
     },
   });
 
@@ -63,13 +67,18 @@ const Relayers: NextPage = () => {
   const browserTitle = `${pageTitle} | ETS`;
 
   return (
-    <div className="max-w-6xl mx-auto mt-12">
+    <div className="max-w-7xl mx-auto mt-12">
       <Head>
         <title>{browserTitle}</title>
       </Head>
-
-      <PageTitle title={pageTitle} />
-
+      <div className="flex justify-between">
+        <PageTitle title={pageTitle} />
+        <AddRelayerProvider>
+          <Modal buttonText={t("create-relayer")}>
+            <Form />
+          </Modal>
+        </AddRelayerProvider>
+      </div>
       <Table loading={!relayers} rows={pageSize}>
         <Table.Title>{t("relayers")}</Table.Title>
         <Table.Head>
