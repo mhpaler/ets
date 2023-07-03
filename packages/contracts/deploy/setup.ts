@@ -1,5 +1,4 @@
 import {ethers} from "hardhat";
-
 // The following is taken from https://github.com/OpenZeppelin/openzeppelin-upgrades/issues/85#issuecomment-1028435049
 // to prevent time-outs when deploying to Polygon Mumbai.
 // See also https://gist.github.com/pedrouid/7cd16c967308a354f2767f1764ee43cf for signer/provider
@@ -19,13 +18,8 @@ import {ethers} from "hardhat";
 //const mnemonic = process.env.MNEMONIC;
 //const signer = ethers.Wallet.fromMnemonic(mnemonic, standardPath).connect(provider);
 
-async function setup() {
+async function setup(): Promise<[any, any, any]> {
   const namedAccounts = await ethers.getNamedSigners();
-
-  console.log(namedAccounts);
-
-  const blah = await ethers.getNamedSigner("ETSAdmin");
-  console.log(blah);
 
   const accounts = {
     ETSAdmin: namedAccounts["ETSAdmin"],
@@ -53,15 +47,15 @@ async function setup() {
   };
 
   const factories = {
-    //    WMATIC: await ethers.getContractFactory("WMATIC", accounts.ETSAdmin),
-    //    ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
-    //    ETSToken: await ethers.getContractFactory("ETSToken"),
-    //    ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
-    //    ETSTarget: await ethers.getContractFactory("ETSTarget"),
-    //    ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
-    //    ETS: await ethers.getContractFactory("ETS"),
-    //    ETSRelayerV1: await ethers.getContractFactory("ETSRelayerV1"),
-    //    ETSRelayerFactory: await ethers.getContractFactory("ETSRelayerFactory"),
+    WMATIC: await ethers.getContractFactory("WMATIC"),
+    ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
+    ETSToken: await ethers.getContractFactory("ETSToken"),
+    ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
+    ETSTarget: await ethers.getContractFactory("ETSTarget"),
+    ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
+    ETS: await ethers.getContractFactory("ETS"),
+    ETSRelayerV1: await ethers.getContractFactory("ETSRelayerV1"),
+    ETSRelayerFactory: await ethers.getContractFactory("ETSRelayerFactory"),
   };
 
   // ============ SETUP TEST ACCOUNTS ============
@@ -69,6 +63,4 @@ async function setup() {
   return [accounts, factories, initSettings];
 }
 
-module.exports = {
-  setup,
-};
+export {setup};

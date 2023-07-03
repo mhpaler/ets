@@ -1,5 +1,5 @@
 //import "hardhat-ethernal";
-// import '@typechain/hardhat';
+import "@typechain/hardhat";
 import {HardhatUserConfig} from "hardhat/types";
 import "hardhat-deploy";
 import "solidity-docgen";

@@ -10,33 +10,33 @@ module.exports = async ({ deployments }) => {
   console.log(accounts);
 
   // Deploy ETS Access Controls.
-  //  const deployment = await upgrades.deployProxy(factories.ETSAccessControls, [accounts.ETSPlatform.address], {
-  //    kind: "uups",
-  //    pollingInterval: 3000,
-  //    timeout: 0,
-  //  });
-  //  await deployment.deployed();
-  //  const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
-  //
-  //  if (process.env.ETHERNAL_DISABLED === "false" || process.env.VERIFY_ON_DEPLOY) {
-  //    // Verify & Update network configuration file.
-  //    await verify("ETSAccessControls", deployment, implementation, []);
-  //  }
-  //
-  //  await saveNetworkConfig("ETSAccessControls", deployment, implementation, false);
-  //
-  //  // Add to hardhat-deploy deployments.
-  //  let artifact = await deployments.getExtendedArtifact("ETSAccessControls");
-  //  let proxyDeployments = {
-  //    address: deployment.address,
-  //    ...artifact,
-  //  };
-  //  await save("ETSAccessControls", proxyDeployments);
-  //
-  //  log("====================================================");
-  //  log("ETSAccessControls proxy deployed to -> " + deployment.address);
-  //  log("ETSAccessControls implementation deployed to -> " + implementation);
-  //  log("====================================================");
+  const deployment = await upgrades.deployProxy(factories.ETSAccessControls, [accounts.ETSPlatform.address], {
+    kind: "uups",
+    pollingInterval: 3000,
+    timeout: 0,
+  });
+  await deployment.deployed();
+  const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
+
+  if (process.env.ETHERNAL_DISABLED === "false" || process.env.VERIFY_ON_DEPLOY) {
+    // Verify & Update network configuration file.
+    await verify("ETSAccessControls", deployment, implementation, []);
+  }
+
+  await saveNetworkConfig("ETSAccessControls", deployment, implementation, false);
+
+  // Add to hardhat-deploy deployments.
+  let artifact = await deployments.getExtendedArtifact("ETSAccessControls");
+  let proxyDeployments = {
+    address: deployment.address,
+    ...artifact,
+  };
+  await save("ETSAccessControls", proxyDeployments);
+
+  log("====================================================");
+  log("ETSAccessControls proxy deployed to -> " + deployment.address);
+  log("ETSAccessControls implementation deployed to -> " + implementation);
+  log("====================================================");
 };
 
 module.exports.tags = ["ETSAccessControls"];

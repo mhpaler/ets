@@ -327,8 +327,8 @@ importers:
         specifier: ^5.6.0
         version: 5.7.0
       '@nomiclabs/hardhat-ethers':
-        specifier: npm:hardhat-deploy-ethers@^0.4.1
-        version: /hardhat-deploy-ethers@0.4.1(@nomicfoundation/hardhat-ethers@3.0.3)(hardhat-deploy@0.11.34)(hardhat@2.16.1)
+        specifier: npm:hardhat-deploy-ethers@^0.3.0-beta.10
+        version: /hardhat-deploy-ethers@0.3.0-beta.13(ethers@5.4.0)(hardhat@2.16.1)
       '@nomiclabs/hardhat-etherscan':
         specifier: ^3.1.0
         version: 3.1.7(hardhat@2.16.1)
@@ -337,13 +337,13 @@ importers:
         version: 2.0.7(@nomiclabs/hardhat-web3@2.0.0)(hardhat@2.16.1)(web3-core-helpers@1.10.0)(web3-core-promievent@1.10.0)(web3-eth-abi@1.10.0)(web3-utils@1.10.0)(web3@1.2.9)
       '@nomiclabs/hardhat-waffle':
         specifier: ^2.0.1
-        version: 2.0.6(@types/sinon-chai@3.2.9)(ethereum-waffle@4.0.10)(ethers@5.4.0)(hardhat-deploy-ethers@0.4.1)(hardhat@2.16.1)
+        version: 2.0.6(@types/sinon-chai@3.2.9)(ethereum-waffle@4.0.10)(ethers@5.4.0)(hardhat-deploy-ethers@0.3.0-beta.13)(hardhat@2.16.1)
       '@nomiclabs/hardhat-web3':
         specifier: ^2.0.0
         version: 2.0.0(hardhat@2.16.1)(web3@1.2.9)
       '@openzeppelin/hardhat-upgrades':
         specifier: ^1.26.0
-        version: 1.28.0(@nomiclabs/hardhat-etherscan@3.1.7)(ethers@5.4.0)(hardhat-deploy-ethers@0.4.1)(hardhat@2.16.1)
+        version: 1.28.0(@nomiclabs/hardhat-etherscan@3.1.7)(ethers@5.4.0)(hardhat-deploy-ethers@0.3.0-beta.13)(hardhat@2.16.1)
       '@openzeppelin/test-helpers':
         specifier: ^0.5.15
         version: 0.5.16(bn.js@4.12.0)
@@ -388,7 +388,7 @@ importers:
         version: 0.11.34
       hardhat-ethernal:
         specifier: 3.1.0
-        version: 3.1.0(@firebase/app-types@0.9.0)(hardhat-deploy-ethers@0.4.1)(hardhat@2.16.1)
+        version: 3.1.0(@firebase/app-types@0.9.0)(hardhat-deploy-ethers@0.3.0-beta.13)(hardhat@2.16.1)
       lodash.merge:
         specifier: ^4.6.2
         version: 4.6.2
@@ -3360,20 +3360,6 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@nomicfoundation/hardhat-ethers@3.0.3(ethers@5.4.0)(hardhat@2.16.1):
-    resolution: {integrity: sha512-asTxUs6vg586UqL9Bi5sMvB7IrYebbgm3FkpxacbGsnb8Vr+8BB2k07nB0HNEPG3GLhTTFzalsbl0raGiPTUYg==}
-    peerDependencies:
-      ethers: ^6.1.0
-      hardhat: ^2.0.0
-    dependencies:
-      debug: 4.3.4(supports-color@8.1.1)
-      ethers: 5.4.0
-      hardhat: 2.16.1(ts-node@10.9.1)(typescript@5.1.3)
-      lodash.isequal: 4.5.0
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
   /@nomicfoundation/solidity-analyzer-darwin-arm64@0.1.1:
     resolution: {integrity: sha512-KcTodaQw8ivDZyF+D76FokN/HdpgGpfjc/gFCImdLUyqB6eSWVaZPazMbeAjmfhx3R0zm/NYVzxwAokFKgrc0w==}
     engines: {node: '>= 10'}
@@ -3526,7 +3512,7 @@ packages:
       - web3-utils
     dev: true
 
-  /@nomiclabs/hardhat-waffle@2.0.6(@types/sinon-chai@3.2.9)(ethereum-waffle@4.0.10)(ethers@5.4.0)(hardhat-deploy-ethers@0.4.1)(hardhat@2.16.1):
+  /@nomiclabs/hardhat-waffle@2.0.6(@types/sinon-chai@3.2.9)(ethereum-waffle@4.0.10)(ethers@5.4.0)(hardhat-deploy-ethers@0.3.0-beta.13)(hardhat@2.16.1):
     resolution: {integrity: sha512-+Wz0hwmJGSI17B+BhU/qFRZ1l6/xMW82QGXE/Gi+WTmwgJrQefuBs1lIf7hzQ1hLk6hpkvb/zwcNkpVKRYTQYg==}
     peerDependencies:
       '@nomiclabs/hardhat-ethers': ^2.0.0
@@ -3535,7 +3521,7 @@ packages:
       ethers: ^5.0.0
       hardhat: ^2.0.0
     dependencies:
-      '@nomiclabs/hardhat-ethers': /hardhat-deploy-ethers@0.4.1(@nomicfoundation/hardhat-ethers@3.0.3)(hardhat-deploy@0.11.34)(hardhat@2.16.1)
+      '@nomiclabs/hardhat-ethers': /hardhat-deploy-ethers@0.3.0-beta.13(ethers@5.4.0)(hardhat@2.16.1)
       '@types/sinon-chai': 3.2.9
       ethereum-waffle: 4.0.10(@ensdomains/ens@0.4.5)(@ensdomains/resolver@0.2.4)(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2)(ethers@5.4.0)(typescript@5.1.3)
       ethers: 5.4.0
@@ -3656,7 +3642,7 @@ packages:
       - encoding
     dev: true
 
-  /@openzeppelin/hardhat-upgrades@1.28.0(@nomiclabs/hardhat-etherscan@3.1.7)(ethers@5.4.0)(hardhat-deploy-ethers@0.4.1)(hardhat@2.16.1):
+  /@openzeppelin/hardhat-upgrades@1.28.0(@nomiclabs/hardhat-etherscan@3.1.7)(ethers@5.4.0)(hardhat-deploy-ethers@0.3.0-beta.13)(hardhat@2.16.1):
     resolution: {integrity: sha512-7sb/Jf+X+uIufOBnmHR0FJVWuxEs2lpxjJnLNN6eCJCP8nD0v+Ot5lTOW2Qb/GFnh+fLvJtEkhkowz4ZQ57+zQ==}
     hasBin: true
     peerDependencies:
@@ -3669,7 +3655,7 @@ packages:
       '@nomiclabs/harhdat-etherscan':
         optional: true
     dependencies:
-      '@nomiclabs/hardhat-ethers': /hardhat-deploy-ethers@0.4.1(@nomicfoundation/hardhat-ethers@3.0.3)(hardhat-deploy@0.11.34)(hardhat@2.16.1)
+      '@nomiclabs/hardhat-ethers': /hardhat-deploy-ethers@0.3.0-beta.13(ethers@5.4.0)(hardhat@2.16.1)
       '@nomiclabs/hardhat-etherscan': 3.1.7(hardhat@2.16.1)
       '@openzeppelin/defender-base-client': 1.46.0(debug@4.3.4)
       '@openzeppelin/platform-deploy-client': 0.8.0(debug@4.3.4)
@@ -10469,16 +10455,14 @@ packages:
       hardhat: 2.16.1(ts-node@10.9.1)(typescript@5.1.3)
     dev: true
 
-  /hardhat-deploy-ethers@0.4.1(@nomicfoundation/hardhat-ethers@3.0.3)(hardhat-deploy@0.11.34)(hardhat@2.16.1):
-    resolution: {integrity: sha512-RM6JUcD0dOCjemxnKLtK7XQQI7NWn+LxF5qicGYax0PtWayEUXAewOb4WIHZ/yearhj+s2t6dL0MnHyLTENwJg==}
+  /hardhat-deploy-ethers@0.3.0-beta.13(ethers@5.4.0)(hardhat@2.16.1):
+    resolution: {integrity: sha512-PdWVcKB9coqWV1L7JTpfXRCI91Cgwsm7KLmBcwZ8f0COSm1xtABHZTyz3fvF6p42cTnz1VM0QnfDvMFlIRkSNw==}
     peerDependencies:
-      '@nomicfoundation/hardhat-ethers': ^3.0.2
-      hardhat: ^2.16.0
-      hardhat-deploy: ^0.11.34
+      ethers: ^5.0.0
+      hardhat: ^2.0.0
     dependencies:
-      '@nomicfoundation/hardhat-ethers': 3.0.3(ethers@5.4.0)(hardhat@2.16.1)
+      ethers: 5.4.0
       hardhat: 2.16.1(ts-node@10.9.1)(typescript@5.1.3)
-      hardhat-deploy: 0.11.34
     dev: true
 
   /hardhat-deploy@0.11.34:
@@ -10514,14 +10498,14 @@ packages:
       - utf-8-validate
     dev: true
 
-  /hardhat-ethernal@3.1.0(@firebase/app-types@0.9.0)(hardhat-deploy-ethers@0.4.1)(hardhat@2.16.1):
+  /hardhat-ethernal@3.1.0(@firebase/app-types@0.9.0)(hardhat-deploy-ethers@0.3.0-beta.13)(hardhat@2.16.1):
     resolution: {integrity: sha512-oQUzlAQxQPx1o6s0N9p8TJ+9h9GYKFcwkaCv0yK/yfeqHhRun7O/VykEa+SxukvlzIo2h/Gw3anp0TTfWDLlhA==}
     peerDependencies:
       '@nomiclabs/hardhat-ethers': npm:hardhat-deploy-ethers@^0.3.0-beta.10
       hardhat: ^2.9.1
     dependencies:
       '@firebase/firestore-types': 2.2.0(@firebase/app-types@0.9.0)
-      '@nomiclabs/hardhat-ethers': /hardhat-deploy-ethers@0.4.1(@nomicfoundation/hardhat-ethers@3.0.3)(hardhat-deploy@0.11.34)(hardhat@2.16.1)
+      '@nomiclabs/hardhat-ethers': /hardhat-deploy-ethers@0.3.0-beta.13(ethers@5.4.0)(hardhat@2.16.1)
       axios: 0.27.2
       firebase: 9.9.4
       hardhat: 2.16.1(ts-node@10.9.1)(typescript@5.1.3)
@@ -11941,6 +11925,7 @@ packages:
 
   /lodash.isequal@4.5.0:
     resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
+    dev: false
 
   /lodash.isplainobject@4.0.6:
     resolution: {integrity: sha512-oSXzaWypCMHkPC3NvBEaPHf0KsA5mvPrOPgQWDsbg8n7orZ290M0BmC/jgRZ4vcJ6DTAhjrsSYgdsW/F+MFOBA==}
