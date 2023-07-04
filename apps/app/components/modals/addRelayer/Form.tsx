@@ -8,11 +8,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAddRelayerContext } from "../../../hooks/useAddRelayerContext";
 import { useRelayers } from "../../../hooks/useRelayers";
 import { useDebounce } from "../../../hooks/useDebounce";
+import { useChainName } from "@app/hooks/useChainName";
 
 import { Dialog } from "@headlessui/react";
 import { Warning } from "./Warning";
 import { Confirm } from "./Confirm";
 import { Button } from "../../Button";
+import { Outlink } from "@app/components/Outlink";
+
+import { makeEtherscanLink } from "@app/utils";
 
 interface Props {
   closeModal?: Function;
@@ -30,6 +34,7 @@ type AddRelayerSchemaType = z.infer<typeof AddRelayerSchema>;
 
 const Form = (props: Props) => {
   const { t } = useTranslation("common");
+  const chainName = useChainName();
   const context = useAddRelayerContext();
   if (!context) {
     // Handle the case when context is undefined
@@ -45,6 +50,7 @@ const Form = (props: Props) => {
     isAddRelayerPrepareLoading,
     addRelayer,
     addRelayerError,
+    addRelayerData,
     isAddRelayerLoading,
     isAddRelayerSuccess,
     txLoading,
@@ -105,6 +111,7 @@ const Form = (props: Props) => {
   const handleClose = () => {
     if (props.closeModal) {
       props.closeModal();
+      // TODO: Add short delay here.
       initialize();
     }
   };
@@ -187,7 +194,11 @@ const Form = (props: Props) => {
           </div>
         </div>
       )}
-      {step == 4 && <Confirm />}
+
+      {
+        // Confirm block
+        step >= 4 && <Confirm />
+      }
 
       {
         // Error block
@@ -204,24 +215,36 @@ const Form = (props: Props) => {
         )
       }
 
+      {isAddRelayerSuccess && (
+        <Outlink href={makeEtherscanLink(addRelayerData?.hash!, chainName)}>
+          {t("transaction.viewEtherscan")}
+        </Outlink>
+      )}
+
       {
         // Buttons Block
         <div className="grid grid-flow-col justify-stretch gap-2 mt-4">
           {(step == 1 || step == 2 || step == 3) && (
-            <Button type="button" onClick={handleClose}>
+            <Button
+              type="button"
+              onClick={handleClose}
+              className="btn-secondary"
+            >
               Cancel
             </Button>
           )}
           {step == 3 && (
-            <Button type="button" onClick={handleNext} disabled={!isValid}>
+            <Button
+              type="button"
+              onClick={handleNext}
+              disabled={!isValid}
+              className="btn-primary btn-outline"
+            >
               Save
             </Button>
           )}
 
-          {step == 4 && (
-            // isAddRelayerLoading,
-            // isAddRelayerSuccess,
-            // txSuccess,
+          {step >= 4 && (
             <>
               <Button
                 type="button"
@@ -238,23 +261,25 @@ const Form = (props: Props) => {
                 onClick={() => {
                   isAddRelayerSuccess ? handleClose() : addRelayer?.();
                 }}
-                className="flex align-middle items-center gap-2"
+                className="flex align-middle items-center gap-2 btn-primary btn-outline"
               >
                 {!isAddRelayerLoading &&
                   !isAddRelayerSuccess &&
                   t("open-wallet")}
-                {(isAddRelayerPrepareLoading || isAddRelayerLoading) && (
+                {(isAddRelayerPrepareLoading ||
+                  isAddRelayerLoading ||
+                  txLoading) && (
                   <>
-                    <span className="loading loading-spinner mr-2 bg-white"></span>
+                    <span className="loading loading-spinner mr-2 bg-primary"></span>
                     <span className="text-gray-500">
-                      {t("waiting-for-wallet")}
+                      {txLoading
+                        ? t("transaction.processing")
+                        : t("waiting-for-wallet")}
                     </span>
                   </>
                 )}
-                {isAddRelayerSuccess && t("close")}
+                {txSuccess && t("close")}
               </Button>
-              {txLoading && "Transaction loading"}
-              {txSuccess && "Transaction complete"}
             </>
           )}
         </div>

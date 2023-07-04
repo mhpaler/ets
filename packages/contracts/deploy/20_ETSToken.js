@@ -52,4 +52,4 @@ module.exports = async ({ getChainId, deployments }) => {
   log("====================================================");
 };
 module.exports.tags = ["ETSToken"];
-//module.exports.dependencies = ["ETSAccessControls"];
+module.exports.dependencies = ["ETSAccessControls"];

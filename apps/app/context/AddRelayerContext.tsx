@@ -70,6 +70,8 @@ export const AddRelayerProvider = ({
     2: "Create Relayer",
     3: "Create Relayer",
     4: "Confirm Details",
+    5: "Transaction Sent",
+    6: "Transaction Complete",
   };
 
   const [data, setData] = useState({
@@ -91,6 +93,7 @@ export const AddRelayerProvider = ({
     args: [address],
     enabled: address ? true : false,
     onSuccess(data: bigint) {
+      console.log("balanceOf: ", data);
       if (data > BigInt(0)) {
         console.log("useContractRead user has tags");
         setHasTags(true);
@@ -128,11 +131,7 @@ export const AddRelayerProvider = ({
   } = useContractWrite({
     ...addRelayerConfig,
     onSuccess(data) {
-      console.log("useContractWrite Success", data);
-    },
-    onError(err) {
-      console.log("useContractWrite Error.message", err.message);
-      console.log("useContractWrite Error.name", err.name);
+      setStep(5);
     },
   });
 
@@ -142,9 +141,8 @@ export const AddRelayerProvider = ({
     error: txError,
   } = useWaitForTransaction({
     hash: addRelayerData?.hash,
-    confirmations: 2,
-    onError(err) {
-      console.log("useWaitForTransaction Error.message", err.message);
+    onSuccess(data) {
+      setStep(6);
     },
   });
 

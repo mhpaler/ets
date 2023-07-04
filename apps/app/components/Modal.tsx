@@ -27,7 +27,9 @@ const Modal = ({ buttonText, children }: Props) => {
   return (
     <>
       <div>
-        <Button onClick={openModal}>{buttonText}</Button>
+        <Button onClick={openModal} className="btn-primary btn-outline">
+          {buttonText}
+        </Button>
       </div>
 
       <Transition appear show={isOpen} as={Fragment}>

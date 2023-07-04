@@ -25,3 +25,21 @@
     color: white;
   }
 }
+
+.hover\:scale-102:hover {
+  transform: scale(1.02);
+}
+
+/* Sitewide button customizations to DaisyUI*/
+.btn {
+  @apply text-base transform transition duration-200 hover:scale-102;
+}
+
+/* Override the rainbow connect button! */
+.connect-btn button {
+  @apply font-semibold text-base btn btn-secondary border-none !important;
+}
+
+.connect-btn button div {
+  @apply font-semibold border-none border-primary text-base pr-0 pl-0 !important;
+}

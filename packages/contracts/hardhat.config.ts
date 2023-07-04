@@ -31,6 +31,9 @@ const config: HardhatUserConfig = {
       mining: {
         auto: false,
         interval: 5000,
+        mempool: {
+          order: "fifo",
+        },
       },
       accounts: {
         mnemonic: mnemonic.local,

@@ -10,8 +10,6 @@ const Confirm = () => {
 
   const { data } = context;
 
-  console.log(data.name);
-
   const content = (
     <>
       <div className="overflow-x-auto">

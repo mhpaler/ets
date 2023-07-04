@@ -1,13 +1,15 @@
-import "../styles/globals.css";
-import "@rainbow-me/rainbowkit/styles.css";
-import type { AppProps } from "next/app";
-import { SessionProvider } from "next-auth/react";
-import type { Session } from "next-auth";
-import { SWRConfig } from "swr";
-import { fetcher } from "../utils/fetchers";
-import Layout from "../layouts/default";
-import nProgress from "nprogress";
 import { Router } from "next/router";
+import type { AppProps } from "next/app";
+import type { Session } from "next-auth";
+import { SessionProvider } from "next-auth/react";
+
+import { SWRConfig } from "swr";
+import { fetcher } from "@app/utils/fetchers";
+
+import "@app/styles/globals.css";
+import Layout from "@app/layouts/default";
+import nProgress from "nprogress";
+
 import {
   RainbowKitSiweNextAuthProvider,
   GetSiweMessageOptions,
@@ -16,8 +18,12 @@ import {
   RainbowKitProvider,
   getDefaultWallets,
   connectorsForWallets,
+  lightTheme,
+  Theme,
 } from "@rainbow-me/rainbowkit";
-import { metaMaskWallet, rainbowWallet } from "@rainbow-me/rainbowkit/wallets";
+import "@rainbow-me/rainbowkit/styles.css";
+import merge from "lodash.merge";
+import { metaMaskWallet } from "@rainbow-me/rainbowkit/wallets";
 
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { hardhat, polygonMumbai } from "wagmi/chains";
@@ -50,26 +56,10 @@ const demoAppInfo = {
   appName: "ETS",
 };
 
-//const connectors = connectorsForWallets([
-//  ...wallets,
-//  {
-//    groupName: "Other",
-//    wallets: [
-//      argentWallet({ projectId, chains }),
-//      trustWallet({ projectId, chains }),
-//      ledgerWallet({ projectId, chains }),
-//    ],
-//  },
-//]);
-
 const connectors = connectorsForWallets([
   {
     groupName: "Recommended",
-    wallets: [
-      metaMaskWallet({ projectId, chains }),
-      //rainbowWallet({ projectId, chains }),
-      //walletConnectWallet({ projectId, chains }),
-    ],
+    wallets: [metaMaskWallet({ projectId, chains })],
   },
 ]);
 
@@ -81,8 +71,38 @@ const wagmiConfig = createConfig({
 });
 
 const getSiweMessageOptions: GetSiweMessageOptions = () => ({
-  statement: "Sign in to my RainbowKit app",
+  statement: "Sign in to Ethereum Tag Service",
 });
+
+const etsTheme = merge(
+  lightTheme({
+    accentColorForeground: "white",
+    borderRadius: "medium",
+    fontStack: "system",
+  }),
+  {
+    colors: {
+      accentColor: "#db2979",
+      //accentColorForeground: "#db2979",
+      //actionButtonBorder: "#db2979",
+      //actionButtonBorderMobile: "#db2979",
+      actionButtonSecondaryBackground: "#db2979",
+      closeButton: "#db2979",
+      //closeButtonBackground: "#db2979",
+      connectButtonBackground: "btn",
+      //connectButtonBackgroundError: "...",
+      //connectButtonInnerBackground: "#FFFFFF",
+      //connectButtonText: "#FFFFFF",
+      //connectButtonTextError: "#db2979",
+    },
+    fonts: {
+      body: "Inter var, system-ui, sans-serif",
+    },
+    shadows: {
+      connectButton: "none",
+    },
+  } as Theme
+);
 
 Router.events.on("routeChangeStart", nProgress.start);
 Router.events.on("routeChangeError", nProgress.done);
@@ -95,7 +115,12 @@ function MyApp({ Component, pageProps }: AppProps<{ session: Session }>) {
         <RainbowKitSiweNextAuthProvider
           getSiweMessageOptions={getSiweMessageOptions}
         >
-          <RainbowKitProvider appInfo={demoAppInfo} chains={chains}>
+          <RainbowKitProvider
+            appInfo={demoAppInfo}
+            chains={chains}
+            modalSize="compact"
+            theme={etsTheme}
+          >
             <SWRConfig value={{ refreshInterval: 3000, fetcher: fetcher }}>
               <Layout>
                 <Component {...pageProps} />

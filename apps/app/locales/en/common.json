@@ -8,7 +8,7 @@
   "connect-wallet": "Connect Wallet",
   "contract": "Contract",
   "copy": "Copy",
-  "create-relayer": "Create relayer",
+  "create-relayer": "Create Relayer",
   "created": "Created",
   "creator": "Creator",
   "created-tags-in-tagging-record": "Created tags in tagging records",
@@ -85,6 +85,9 @@
   "target-id": "Target Id",
   "target-uri": "Target URI",
   "targets": "Targets",
+  "transaction": {
+    "viewEtherscan": "View transaction"
+  },
   "token-id": "Token Id",
   "top-creators": "Top creators",
   "top-relayers": "Top relayers",

@@ -3,9 +3,9 @@
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"],
   "compilerOptions": {
-    "typeRoots": [
-      "../node_modules/@types",
-      "../@types"
-    ]
+    "typeRoots": ["../node_modules/@types", "../@types"],
+    "paths": {
+      "@app/*": ["./*"]
+    }
   }
 }

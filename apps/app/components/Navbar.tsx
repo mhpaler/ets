@@ -77,7 +77,13 @@ export default function Navbar() {
                   {t("playground")}
                 </Link>
               </div>
-              <ConnectButton />
+              <span className="connect-btn">
+                <ConnectButton
+                  label="Connect"
+                  chainStatus="icon"
+                  showBalance={false}
+                />
+              </span>
             </div>
           </div>
         </div>
