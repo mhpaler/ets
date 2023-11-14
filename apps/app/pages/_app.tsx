@@ -83,13 +83,13 @@ const etsTheme = merge(
   {
     colors: {
       accentColor: "#db2979",
+      actionButtonSecondaryBackground: "#db2979",
+      closeButton: "#db2979",
+      connectButtonBackground: "btn",
       //accentColorForeground: "#db2979",
       //actionButtonBorder: "#db2979",
       //actionButtonBorderMobile: "#db2979",
-      actionButtonSecondaryBackground: "#db2979",
-      closeButton: "#db2979",
       //closeButtonBackground: "#db2979",
-      connectButtonBackground: "btn",
       //connectButtonBackgroundError: "...",
       //connectButtonInnerBackground: "#FFFFFF",
       //connectButtonText: "#FFFFFF",

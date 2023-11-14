@@ -34,7 +34,7 @@ async function setup(): Promise<[any, any, any]> {
     // Auction
     MAX_AUCTIONS: 1,
     TIME_BUFFER: 600, // 600 secs / 10 minutes
-    RESERVE_PRICE: 200, // 200 WEI
+    RESERVE_PRICE: "1", // 1 MATIC
     MIN_INCREMENT_BID_PERCENTAGE: 5,
     DURATION: 30 * 60, // 30 minutes
     RELAYER_PERCENTAGE: 20,

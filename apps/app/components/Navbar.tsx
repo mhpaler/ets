@@ -3,9 +3,11 @@ import useTranslation from "next-translate/useTranslation";
 import Breadcrumbs from "nextjs-breadcrumbs2";
 import { BreadcrumbItem } from "./BreadcrumbItem";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useAccount } from "wagmi";
 
 export default function Navbar() {
   const { t } = useTranslation("common");
+  const { address, isConnected } = useAccount();
 
   return (
     <header className="px-4">
@@ -77,11 +79,16 @@ export default function Navbar() {
                   {t("playground")}
                 </Link>
               </div>
-              <span className="connect-btn">
+              <span
+                className={`${
+                  address && isConnected ? "connected" : ""
+                } connect-btn`}
+              >
                 <ConnectButton
                   label="Connect"
-                  chainStatus="icon"
+                  chainStatus="name"
                   showBalance={false}
+                  accountStatus="address"
                 />
               </span>
             </div>

@@ -43,3 +43,53 @@ If you want to remove the Docker container, run:
 ```bash
 pnpm graph:node-stop
 ```
+
+Settings
+
+```graphql
+query Settings($filter: GlobalSettings_filter) {
+  globalSettings: globalSettings(id: "globalSettings", first: 1) {
+    id
+    maxAuctions
+    minIncrementBidPercentage
+    duration
+    reservePrice
+    timeBuffer
+    relayerPercentage
+    creatorPercentage
+    platformPercentage
+  }
+}
+```
+
+## Auctions
+
+````graphql
+query auctions(
+        $first: Int!
+        $skip: Int!
+      ) {
+      auctions: auctions(
+        first: $first
+        skip: $skip
+      ) {
+        id
+        startTime
+        endTime
+
+        bids {
+          id
+        }
+        settled
+        amount
+        bidder {
+          id
+        }
+        tag {
+          machineName
+          id
+        }
+      },
+    }
+    ```
+````

@@ -8,7 +8,7 @@ const initSettings = {
   // Auction
   MAX_AUCTIONS: 1,
   TIME_BUFFER: 600, // 600 secs / 10 minutes
-  RESERVE_PRICE: 200, // 200 WEI
+  RESERVE_PRICE: "1", // 1 MATIC
   MIN_INCREMENT_BID_PERCENTAGE: 5,
   DURATION: 30 * 60, // 30 minutes
   RELAYER_PERCENTAGE: 20,
@@ -114,7 +114,7 @@ async function setup() {
       WMATIC.address,
       initSettings.MAX_AUCTIONS,
       initSettings.TIME_BUFFER,
-      initSettings.RESERVE_PRICE,
+      utils.parseEther(initSettings.RESERVE_PRICE),
       initSettings.MIN_INCREMENT_BID_PERCENTAGE,
       initSettings.DURATION,
       initSettings.RELAYER_PERCENTAGE,

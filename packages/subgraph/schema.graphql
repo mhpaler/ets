@@ -303,6 +303,61 @@ type Owner @entity {
   tags: [Tag!]! @derivedFrom(field: "owner")
 }
 
+type Auction @entity {
+  "The CTAG's ERC721 token id"
+  id: ID!
+
+  "Incremental auction number"
+  auctionNumber: BigInt!
+
+  "The CTAG being auctioned"
+  tag: Tag!
+
+  "The current highest bid amount"
+  amount: BigInt!
+
+  "The time that the auction started"
+  startTime: BigInt!
+
+  "The time that the auction is scheduled to end"
+  endTime: BigInt!
+
+  "The account with the current highest bid"
+  bidder: Owner
+
+  "Whether or not the auction has been settled"
+  settled: Boolean!
+
+  "The auction bids"
+  bids: [Bid!]! @derivedFrom(field: "auction")
+}
+
+type Bid @entity {
+  "Bid transaction hash"
+  id: ID!
+
+  "The CTAG being bid on"
+  tag: Tag!
+
+  "Bid amount"
+  amount: BigInt!
+
+  "Bidder account"
+  bidder: Owner
+
+  "Block number of the bid"
+  blockNumber: BigInt!
+
+  "Index of transaction within block"
+  txIndex: BigInt!
+
+  "The auction being bid in"
+  auction: Auction!
+
+  "The timestamp of the block the bid is in"
+  blockTimestamp: BigInt!
+}
+
 type Release @entity {
   id: ID!
   #Contract Versions
@@ -321,6 +376,10 @@ type Release @entity {
   etsTarget: String!
   etsTargetVersion: BigInt!
   etsTargetVersionDate: BigInt!
+
+  etsAuctionHouse: String!
+  etsAuctionHouseVersion: BigInt!
+  etsAuctionHouseVersionDate: BigInt!
 }
 
 type GlobalSettings @entity {
@@ -337,10 +396,11 @@ type GlobalSettings @entity {
   taggingFeeRelayerPercentage: BigInt!
 
   # Auction
-  timeBuffer: BigInt!
-  reservePrice: BigInt!
+  maxAuctions: BigInt!
   minIncrementBidPercentage: BigInt!
   duration: BigInt!
+  reservePrice: BigInt!
+  timeBuffer: BigInt!
   relayerPercentage: BigInt!
   creatorPercentage: BigInt!
   platformPercentage: BigInt!

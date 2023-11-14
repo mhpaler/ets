@@ -37,7 +37,11 @@
 
 /* Override the rainbow connect button! */
 .connect-btn button {
-  @apply font-semibold text-base btn btn-secondary border-none !important;
+  @apply font-semibold text-base btn btn-primary border-none !important;
+}
+
+.connect-btn.connected button {
+  @apply btn-secondary !important;
 }
 
 .connect-btn button div {
