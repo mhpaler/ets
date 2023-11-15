@@ -17,6 +17,7 @@ import {
 import { ensureRelease } from "../entities/Release";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
 import { ensureTag } from "../entities/Tag";
+import { updateTagOwner } from "../entities/Tag";
 import { updateOwnerTagStats } from "../entities/Owner";
 import { updateRelayerTagStats } from "../entities/Relayer";
 import { updateCreatorTagStats } from "../entities/Creator";
@@ -66,6 +67,7 @@ export function handleTagRecycled(event: TagRecycled): void {}
 
 export function handleTransfer(event: Transfer): void {
   let tagEntity = ensureTag(event.params.tokenId, event);
+  updateTagOwner(event.params.tokenId, event.params.to, event);
   updatePlatformTagStats(event);
   updateRelayerTagStats(Address.fromString(tagEntity.relayer), event);
   updateCreatorTagStats(Address.fromString(tagEntity.creator), event);

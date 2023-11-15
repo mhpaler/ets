@@ -1,4 +1,16 @@
 {
-  "extends": "@ethereum-tag-service/tsconfig/hardhat.json",
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "commonjs",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "strict": true,
+    "rootDirs": ["./src", "./scripts", "./test"],
+    "esModuleInterop": true
+  },
+  "exclude": ["dist", "node_modules"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.js"],
   "files": ["./hardhat.config.ts"]
 }

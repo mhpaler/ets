@@ -58,13 +58,16 @@ const Owners: NextPage = () => {
     [t]
   );
 
+  const pageTitle = `Tag ${t("owners")}`;
+  const browserTitle = `${pageTitle} | ETS`;
+
   return (
-    <div className="max-w-6xl mx-auto mt-12">
+    <div className="max-w-7xl mx-auto mt-12">
       <Head>
-        <title>{t("owners")} | Ethereum Tag Service</title>
+        <title>{browserTitle}</title>
       </Head>
 
-      <PageTitle title={t("owners")} />
+      <PageTitle title={pageTitle} />
 
       <Table loading={!owners} rows={pageSize}>
         <Table.Title>{t("owners")}</Table.Title>

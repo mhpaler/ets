@@ -31,24 +31,23 @@ const TaggingRecord: NextPage = () => {
     },
   });
 
-  return (
-    <div className="max-w-6xl mx-auto mt-12">
-      <Head>
-        <title>
-          {t("tagging-record") +
-            ": " +
-            (taggingRecords && Truncate(taggingRecords[0].id))}{" "}
-          | Ethereum Tag Service
-        </title>
-      </Head>
+  const pageTitle = `${t("tagging-record")}: ${
+    taggingRecords && Truncate(taggingRecords[0].id)
+  }`;
 
+  const browserTitle = `${pageTitle} | ETS`;
+
+  return (
+    <div className="max-w-7xl mx-auto mt-12">
+      <Head>
+        <title>{browserTitle}</title>
+      </Head>
       <PageTitle
-        title={
-          t("tagging-record") +
-          ": " +
-          (taggingRecords && Truncate(taggingRecords[0].id))
+        title={pageTitle}
+        shareUrl={
+          "https://app.ets.xyz/tagging-records/" +
+          (taggingRecords && taggingRecords[0].id)
         }
-        shareUrl="https://ets.xyz"
       />
       <div className="grid gap-6 mx-auto mt-8 lg:mb-12 mb-6 lg:gap-12 md:space-y-0 md:grid sm:w-full md:grid-cols-1">
         <div className="grid content-start w-full gap-6 mx-auto lg:gap-12">
@@ -76,10 +75,9 @@ const TaggingRecord: NextPage = () => {
                     href={`/relayers/${
                       taggingRecords && taggingRecords[0].relayer.id
                     }`}
+                    className="text-pink-600 hover:text-pink-700"
                   >
-                    <a className="text-pink-600 hover:text-pink-700">
-                      {taggingRecords && taggingRecords[0].relayer.name}
-                    </a>
+                    {taggingRecords && taggingRecords[0].relayer.name}
                   </Link>
                 </div>
               </div>
@@ -92,11 +90,9 @@ const TaggingRecord: NextPage = () => {
                       href={`/taggers/${
                         taggingRecords && taggingRecords[0].tagger.id
                       }`}
+                      className="text-pink-600 hover:text-pink-700"
                     >
-                      <a className="text-pink-600 hover:text-pink-700">
-                        {taggingRecords &&
-                          Truncate(taggingRecords[0].tagger.id)}
-                      </a>
+                      {taggingRecords && Truncate(taggingRecords[0].tagger.id)}
                     </Link>
                   </div>
                   <CopyAndPaste
@@ -119,10 +115,9 @@ const TaggingRecord: NextPage = () => {
                       href={`/targets/${
                         taggingRecords && taggingRecords[0].target.id
                       }`}
+                      className="text-pink-600 hover:text-pink-700"
                     >
-                      <a className="text-pink-600 hover:text-pink-700">
-                        {taggingRecords && taggingRecords[0].target.id}
-                      </a>
+                      {taggingRecords && taggingRecords[0].target.id}
                     </Link>
                   </div>
                   <CopyAndPaste

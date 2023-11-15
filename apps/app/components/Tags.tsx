@@ -60,7 +60,7 @@ const Tags: NextPage<Props> = ({ filter, pageSize, orderBy, title }) => {
   );
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-7xl mx-auto">
       <Table loading={!tags} rows={pageSizeSet}>
         {title ? <Table.Title>{title}</Table.Title> : ""}
         <Table.Head>

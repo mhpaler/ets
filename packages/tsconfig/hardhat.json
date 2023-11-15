@@ -8,7 +8,10 @@
     "strict": true,
     "esModuleInterop": true,
     "outDir": "dist",
-    "resolveJsonModule": true
-  },
-  "include": ["./scripts", "./test", "./tasks"]
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "rootDirs": ["src", "scripts", "test"]
+  }
 }

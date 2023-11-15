@@ -33,17 +33,15 @@ const Tag: NextPage = () => {
   });
 
   const taggingRecordsFilter = { tags_: { machineName: tag } };
-
+  const pageTitle = `${t("tag")}: ${tags && tags[0].display}`;
+  const browserTitle = `${pageTitle} | ETS`;
   return (
-    <div className="max-w-6xl mx-auto mt-12">
+    <div className="max-w-7xl mx-auto mt-12">
       <Head>
-        <title>{tags && tags[0].display} | Ethereum Tag Service</title>
+        <title>{browserTitle}</title>
       </Head>
 
-      <PageTitle
-        title={t("tag") + ": " + (tags && tags[0].display)}
-        shareUrl="https://ets.xyz"
-      />
+      <PageTitle title={pageTitle} shareUrl="https://ets.xyz" />
 
       <div className="grid gap-6 mx-auto mt-8 lg:mb-12 mb-6 lg:gap-12 md:space-y-0 md:grid sm:w-full md:grid-cols-2">
         <div className="grid content-start w-full gap-6 mx-auto lg:gap-12">
@@ -85,10 +83,11 @@ const Tag: NextPage = () => {
                 <div className="flex col-span-3 space-x-1">
                   <div className="grid flex-grow grid-cols-1 md:grid-flow-col">
                     <div className="overflow-hidden text-right text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
-                      <Link href={`/relayers/${tags && tags[0].relayer.id}`}>
-                        <a className="text-pink-600 hover:text-pink-700">
-                          {tags && tags[0].relayer.name}
-                        </a>
+                      <Link
+                        href={`/relayers/${tags && tags[0].relayer.id}`}
+                        className="text-pink-600 hover:text-pink-700"
+                      >
+                        {tags && tags[0].relayer.name}
                       </Link>
                     </div>
                   </div>
@@ -99,10 +98,11 @@ const Tag: NextPage = () => {
                 <div className="text-slate-500">{t("creator")}</div>
                 <div className="flex space-x-1 justify-end">
                   <div className="text-slate-500">
-                    <Link href={`/creators/${tags && tags[0].creator.id}`}>
-                      <a className="text-pink-600 hover:text-pink-700">
-                        {tags && Truncate(tags[0].creator.id)}
-                      </a>
+                    <Link
+                      href={`/creators/${tags && tags[0].creator.id}`}
+                      className="text-pink-600 hover:text-pink-700"
+                    >
+                      {tags && Truncate(tags[0].creator.id)}
                     </Link>
                   </div>
                   <CopyAndPaste value={tags && tags[0].creator.id} />
@@ -113,10 +113,11 @@ const Tag: NextPage = () => {
                 <div className="flex-grow text-slate-500">{t("owner")}</div>
                 <div className="flex space-x-1 justify-end">
                   <div className="text-slate-500">
-                    <Link href={`/owners/${tags && tags[0].owner.id}`}>
-                      <a className="text-pink-600 hover:text-pink-700">
-                        {tags && Truncate(tags[0].owner.id)}
-                      </a>
+                    <Link
+                      href={`/owners/${tags && tags[0].owner.id}`}
+                      className="text-pink-600 hover:text-pink-700"
+                    >
+                      {tags && Truncate(tags[0].owner.id)}
                     </Link>
                   </div>
                   <CopyAndPaste value={tags && tags[0].owner.id} />

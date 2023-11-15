@@ -23,9 +23,9 @@ export function ensureRelayer(relayerAddress: Address, event: ethereum.Event): R
     if (isRelayerAdminCall.reverted) {
       logCritical("isRelayerAdminCall reverted for {}", [relayerAddress.toString()]);
     }
-    let isRelayerPaused = contract.try_isRelayerPaused(relayerAddress);
-    if (isRelayerPaused.reverted) {
-      logCritical("isRelayerPaused reverted for {}", [relayerAddress.toString()]);
+    let isRelayerLocked = contract.try_isRelayerLocked(relayerAddress);
+    if (isRelayerLocked.reverted) {
+      logCritical("isRelayerLocked reverted for {}", [relayerAddress.toString()]);
     }
 
     let owner: string = relayerAddress.toHex();
@@ -48,7 +48,7 @@ export function ensureRelayer(relayerAddress: Address, event: ethereum.Event): R
       } else {
         creator = getCreatorCall.value.toHex();
       }
-      let isPausedByOwnerCall = relayerContract.try_isPausedByOwner();
+      let isPausedByOwnerCall = relayerContract.try_isPaused();
       if (isPausedByOwnerCall.reverted) {
         logCritical("isPausedByOwnerCall reverted for {}", [relayerAddress.toString()]);
       } else {
@@ -59,7 +59,7 @@ export function ensureRelayer(relayerAddress: Address, event: ethereum.Event): R
     relayer = new Relayer(relayerAddress.toHex());
     relayer.name = contractToNameCall.value;
     relayer.admin = isRelayerAdminCall.value;
-    relayer.pausedByProtocol = isRelayerPaused.value;
+    relayer.lockedByProtocol = isRelayerLocked.value;
     relayer.owner = owner;
     relayer.creator = creator;
     relayer.pausedByOwner = isPausedByOwner;

@@ -18,7 +18,7 @@ dataSources:
         - Administrator
         - Platform
         - Relayer
-        - RelayerAdmin      
+        - RelayerAdmin
       abis:
         - name: UUPSUpgradeable
           file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol/UUPSUpgradeable.json
@@ -35,9 +35,9 @@ dataSources:
           handler: handleUpgraded
         - event: PlatformSet(address,address)
           handler: handlePlatformSet
-        - event: RelayerAdded(address,bool)
+        - event: RelayerAdded(address)
           handler: handleRelayerAdded
-        - event: RelayerPauseToggled(address)
+        - event: RelayerLockToggled(address)
           handler: handleRelayerToggled
         - event: RoleGranted(indexed bytes32,indexed address,indexed address)
           handler: handleRoleGranted
@@ -169,6 +169,56 @@ dataSources:
           handler: handleTaggingRecordUpdated
         - event: FundsWithdrawn(indexed address,uint256)
           handler: handleFundsWithdrawn
+  - kind: ethereum/contract
+    name: ETSAuctionHouse
+    network: {{network}}
+    source:
+      address: "{{contracts.ETSAuctionHouse.address}}"
+      abi: ETSAuctionHouse
+      startBlock: {{contracts.ETSAuctionHouse.deploymentBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/ETSAuctionHouse.ts
+      entities:
+        - Bid
+        - Auction
+        - Owner
+      abis:
+        - name: UUPSUpgradeable
+          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol/UUPSUpgradeable.json
+        - name: ETSAccessControls
+          file: ./../contracts/abi/contracts/ETSAccessControls.sol/ETSAccessControls.json
+        - name: ETSToken
+          file: ./../contracts/abi/contracts/ETSToken.sol/ETSToken.json
+        - name: ETSAuctionHouse
+          file: ./../contracts/abi/contracts/ETSAuctionHouse.sol/ETSAuctionHouse.json
+      eventHandlers:
+        - event: AuctionsMaxSet(uint256)
+          handler: handleAuctionsMaxSet
+        - event: AuctionDurationSet(uint256)
+          handler: handleAuctionDurationSet
+        - event: AuctionMinBidIncrementPercentageSet(uint8)
+          handler: handleAuctionMinBidIncrementPercentageSet
+        - event: AuctionReservePriceSet(uint256)
+          handler: handleAuctionReservePriceSet
+        - event: AuctionTimeBufferSet(uint256)
+          handler: handleAuctionTimeBufferSet
+        - event: AuctionProceedPercentagesSet(uint256,uint256,uint256)
+          handler: handleAuctionProceedPercentagesSet
+        - event: RequestCreateAuction()
+          handler: handleRequestCreateAuction
+        - event: AuctionCreated(indexed uint256)
+          handler: handleAuctionCreated
+        - event: AuctionBid(indexed uint256,address,uint256,bool)
+          handler: handleAuctionBid
+        - event: AuctionExtended(indexed uint256,uint256)
+          handler: handleAuctionExtended
+        - event: AuctionSettled(indexed uint256)
+          handler: handleAuctionSettled
+        - event: AuctionProceedsWithdrawn(indexed address,uint256)
+          handler: handleAuctionProceedsWithdrawn
 
 templates:
   - name: ETSRelayerV1

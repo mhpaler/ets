@@ -6,12 +6,14 @@ import PageTitle from "../../components/PageTitle";
 
 const RecentlyTagged: NextPage = () => {
   const { t } = useTranslation("common");
+  const pageTitle = `${t("tagging-records")}`;
+  const browserTitle = `${pageTitle} | ETS`;
   return (
-    <div className="max-w-6xl mx-auto mt-12">
+    <div className="max-w-7xl mx-auto mt-12">
       <Head>
-        <title>{t("recently-tagged")} | Ethereum Tag Service</title>
+        <title>{browserTitle}</title>
       </Head>
-      <PageTitle title={t("tagging-records")} />
+      <PageTitle title={pageTitle} />
       <TaggingRecords />
     </div>
   );

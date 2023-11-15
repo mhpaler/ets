@@ -30,7 +30,7 @@ task("togglePauseRelayerByOwner", "Pauses/Unpauses a Relayer contract by owner")
     // Check that caller is using a valid relayer.
     let etsRelayerV1;
     const relayerAddress = await etsAccessControls.getRelayerAddressFromName(taskArgs.relayer);
-    if ((await etsAccessControls.isRelayer(relayerAddress)) === false) {
+    if ((await etsAccessControls.isRelayerByAddress(relayerAddress)) === false) {
       console.log(`"${taskArgs.relayer}" is not a relayer`);
       return;
     } else {
@@ -50,7 +50,7 @@ task("togglePauseRelayerByOwner", "Pauses/Unpauses a Relayer contract by owner")
       await tx.wait();
     }
 
-    if ((await etsRelayerV1.isPausedByOwner()) === true) {
+    if ((await etsRelayerV1.isPaused()) === true) {
       console.log(`${taskArgs.relayer} paused`);
     } else {
       console.log(`${taskArgs.relayer} unpaused`);

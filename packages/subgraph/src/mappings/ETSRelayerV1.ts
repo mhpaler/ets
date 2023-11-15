@@ -14,7 +14,7 @@ export function handleRelayerPauseToggledByOwner(event: RelayerPauseToggledByOwn
 
   if (relayer && event) {
     let contract = ETSRelayerV1.bind(event.params.relayerAddress);
-    let isPausedByOwnerCall = contract.try_isPausedByOwner();
+    let isPausedByOwnerCall = contract.try_isPaused();
     if (isPausedByOwnerCall.reverted) {
       logCritical("isPausedByOwner reverted for {}", [event.params.relayerAddress.toString()]);
     }

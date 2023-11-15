@@ -191,8 +191,8 @@ const Tr = ({ children }: { children: ReactNode }) => {
 
 const CellLink = ({ value, url }: { value: string; url: string }) => {
   return (
-    <Link href={url}>
-      <a className="text-pink-600 hover:text-pink-700">{value}</a>
+    <Link href={url} className="text-pink-600 hover:text-pink-700" legacyBehavior>
+      {value}
     </Link>
   );
 };

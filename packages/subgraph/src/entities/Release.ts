@@ -22,6 +22,10 @@ export function ensureRelease(): Release {
     release.etsTargetVersion = ZERO;
     release.etsTargetVersionDate = ZERO;
 
+    release.etsAuctionHouse = ZERO.toString();
+    release.etsAuctionHouseVersion = ZERO;
+    release.etsAuctionHouseVersionDate = ZERO;
+
     release.save();
   }
 

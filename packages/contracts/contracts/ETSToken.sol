@@ -342,9 +342,10 @@ contract ETSToken is
     function _beforeTokenTransfer(
         address from,
         address to,
-        uint256 amount
+        uint256 firstTokenId,
+        uint256 batchSize
     ) internal override(ERC721PausableUpgradeable, ERC721Upgradeable) whenNotPaused {
-        super._beforeTokenTransfer(from, to, amount);
+        super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
         require(!paused(), "Contract paused");
     }
 
@@ -352,9 +353,10 @@ contract ETSToken is
     function _afterTokenTransfer(
         address from,
         address to,
-        uint256 tokenId
+        uint256 tokenId,
+        uint256 batchSize
     ) internal virtual override(ERC721Upgradeable) {
-        super._afterTokenTransfer(from, to, tokenId);
+        super._afterTokenTransfer(from, to, tokenId, batchSize);
 
         if (to != address(0)) {
             // Reset token ownership term.

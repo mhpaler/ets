@@ -42,6 +42,12 @@ export function ensureTag(id: BigInt, event: ethereum.Event): Tag {
   return tag as Tag;
 }
 
+export function updateTagOwner(tagId: BigInt, newOwner: Address, event: ethereum.Event): void {
+  let tag = ensureTag(tagId, event);
+  tag.owner = newOwner.toHexString();
+  tag.save();
+}
+
 export function updateCTAGTaggingRecordStats(
   newTagIds: string[] | null,
   previousTagIds: string[] | null,

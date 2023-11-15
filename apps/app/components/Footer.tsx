@@ -1,7 +1,7 @@
 const Footer = () => {
   return (
     <footer className="px-4">
-      <div className="max-w-6xl py-12 mx-auto md:flex md:items-center md:justify-between">
+      <div className="max-w-7xl py-12 mx-auto md:flex md:items-center md:justify-between">
         <div className="flex justify-center space-x-6 md:order-2">
           <a
             href="https://github.com/ethereum-tag-service/ets"

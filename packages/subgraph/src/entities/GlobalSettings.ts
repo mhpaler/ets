@@ -17,10 +17,11 @@ export function ensureGlobalSettings(): GlobalSettings {
     settings.taggingFeeRelayerPercentage = ZERO;
 
     // Auction
-    settings.timeBuffer = ZERO;
-    settings.reservePrice = ZERO;
+    settings.maxAuctions = ZERO;
     settings.minIncrementBidPercentage = ZERO;
     settings.duration = ZERO;
+    settings.reservePrice = ZERO;
+    settings.timeBuffer = ZERO;
     settings.relayerPercentage = ZERO;
     settings.creatorPercentage = ZERO;
     settings.platformPercentage = ZERO;
