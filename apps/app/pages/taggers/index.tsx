@@ -51,14 +51,16 @@ const Creators: NextPage = () => {
   };
 
   const columns = useMemo(() => [t("tagger"), t("tagging-records")], [t]);
+  const pageTitle = `${t("taggers")}`;
+  const browserTitle = `${pageTitle} | ETS`;
 
   return (
-    <div className="max-w-6xl mx-auto mt-12">
+    <div className="max-w-7xl mx-auto mt-12">
       <Head>
-        <title>{t("taggers")} | Ethereum Tag Service</title>
+        <title>{browserTitle}</title>
       </Head>
 
-      <PageTitle title={t("taggers")} />
+      <PageTitle title={pageTitle} />
 
       <Table loading={!taggers} rows={pageSize}>
         <Table.Head>

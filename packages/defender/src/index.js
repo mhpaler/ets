@@ -33,7 +33,7 @@ export async function main(signer, targetId) {
   const relayer = await signer.getAddress();
 
   // Check that relayer is whitelisted as a publisher on ETS.
-  if (!await etsAccessControls.isPublisher(relayer)) {
+  if (!(await etsAccessControls.isPublisher(relayer))) {
     throw `Relayer ${relayer} is not a whitelisted publisher.`;
   }
 

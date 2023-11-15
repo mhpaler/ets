@@ -20,11 +20,11 @@ import { IETS } from "../../interfaces/IETS.sol";
 
 interface IETSRelayer {
     /**
-     * @dev Emitted when an IETSRelayer contract is paused/unpaused.
+     * @dev Emitted when an IETSRelayer contract is paused/unpaused by owner.
      *
      * @param relayerAddress Address of relayer contract.
      */
-    event RelayerLockToggledByOwner(address relayerAddress);
+    event RelayerPauseToggledByOwner(address relayerAddress);
 
     /**
      * @dev Emitted when an IETSRelayer contract has changed owners.

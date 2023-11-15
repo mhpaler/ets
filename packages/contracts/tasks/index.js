@@ -5,4 +5,6 @@ exports.replaceTags = require("./replaceTags");
 exports.removeTags = require("./removeTags");
 exports.addRelayer = require("./addRelayer");
 exports.auctionhouse = require("./auctionHouse");
+exports.transferRelayer = require("./transferRelayer");
+exports.miningSettings = require("./miningSettings");
 exports.togglePauseRelayerByOwner = require("./togglePauseRelayerByOwner");

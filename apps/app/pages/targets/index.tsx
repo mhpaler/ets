@@ -51,14 +51,16 @@ const Targets: NextPage = () => {
   };
 
   const columns = useMemo(() => [t("id"), t("created"), t("URI")], [t]);
+  const pageTitle = `${t("targets")}`;
+  const browserTitle = `${pageTitle} | ETS`;
 
   return (
-    <div className="max-w-6xl mx-auto mt-12">
+    <div className="max-w-7xl mx-auto mt-12">
       <Head>
-        <title>{t("targets")} | Ethereum Tag Service</title>
+        <title>{browserTitle}</title>
       </Head>
 
-      <PageTitle title={t("targets")} />
+      <PageTitle title={pageTitle} />
 
       <Table loading={!targets} rows={pageSize}>
         <Table.Head>
@@ -74,10 +76,11 @@ const Targets: NextPage = () => {
             targets.map((target: any) => (
               <Table.Tr key={target.id}>
                 <Table.CellWithChildren>
-                  <Link href={`/targets/${target && target.id}`}>
-                    <a className="text-pink-600 hover:text-pink-700">
-                      {target && Truncate(target.id)}
-                    </a>
+                  <Link
+                    href={`/targets/${target && target.id}`}
+                    className="text-pink-600 hover:text-pink-700"
+                  >
+                    {target && Truncate(target.id)}
                   </Link>
                 </Table.CellWithChildren>
                 <Table.CellWithChildren>

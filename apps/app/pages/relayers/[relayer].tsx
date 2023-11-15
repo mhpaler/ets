@@ -41,14 +41,17 @@ const Relayer: NextPage = () => {
     },
   });
 
+  const pageTitle = `${t("relayer")}: ${relayers && relayers[0].name}`;
+  const browserTitle = `${pageTitle} | ETS`;
+
   return (
-    <div className="max-w-6xl mx-auto mt-12">
+    <div className="max-w-7xl mx-auto mt-12">
       <Head>
-        <title>{relayers && relayers[0].name} | Ethereum Tag Service</title>
+        <title>{browserTitle}</title>
       </Head>
 
       <PageTitle
-        title={t("relayer") + ": " + (relayers && relayers[0].name)}
+        title={pageTitle}
         shareUrl={
           "https://app.ets.xyz/relayers/" + (relayers && relayers[0].id)
         }
@@ -82,10 +85,11 @@ const Relayer: NextPage = () => {
                 <div className="text-slate-500">{t("creator")}</div>
                 <div className="flex space-x-1 justify-end">
                   <div className="text-slate-500">
-                    <Link href={`/creators/${relayers && relayers[0].creator}`}>
-                      <a className="text-pink-600 hover:text-pink-700">
-                        {relayers && Truncate(relayers[0].creator)}
-                      </a>
+                    <Link
+                      href={`/creators/${relayers && relayers[0].creator}`}
+                      className="text-pink-600 hover:text-pink-700"
+                    >
+                      {relayers && Truncate(relayers[0].creator)}
                     </Link>
                   </div>
                   <CopyAndPaste value={relayers && relayers[0].creator} />
@@ -96,10 +100,11 @@ const Relayer: NextPage = () => {
                 <div className="flex-grow text-slate-500">{t("owner")}</div>
                 <div className="flex space-x-1 justify-end">
                   <div className="text-slate-500">
-                    <Link href={`/owners/${relayers && relayers[0].owner}`}>
-                      <a className="text-pink-600 hover:text-pink-700">
-                        {relayers && Truncate(relayers[0].owner)}
-                      </a>
+                    <Link
+                      href={`/owners/${relayers && relayers[0].owner}`}
+                      className="text-pink-600 hover:text-pink-700"
+                    >
+                      {relayers && Truncate(relayers[0].owner)}
                     </Link>
                   </div>
                   <CopyAndPaste value={relayers && relayers[0].owner} />

@@ -24,16 +24,19 @@
 
 pragma solidity ^0.8.10;
 
+import { IETSToken } from "./interfaces/IETSToken.sol";
+import { IETSAuctionHouse } from "./interfaces/IETSAuctionHouse.sol";
+import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
+
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+
+import { IWMATIC } from "./interfaces/IWMATIC.sol";
 import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import { SafeERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { CountersUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
-import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
-import { IETSAuctionHouse } from "./interfaces/IETSAuctionHouse.sol";
-import { IETSToken } from "./interfaces/IETSToken.sol";
-import { IWMATIC } from "./interfaces/IWMATIC.sol";
 
 /**
  * @title ETSAuctionHouse
@@ -41,7 +44,13 @@ import { IWMATIC } from "./interfaces/IWMATIC.sol";
  *
  * @notice ETSAuctionHouse contract governs the sale of Ethereum Tag Service composable tags (CTAGs).
  */
-contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
+contract ETSAuctionHouse is
+    IETSAuctionHouse,
+    Initializable,
+    PausableUpgradeable,
+    ReentrancyGuardUpgradeable,
+    UUPSUpgradeable
+{
     using CountersUpgradeable for CountersUpgradeable.Counter;
 
     IETSToken public etsToken;

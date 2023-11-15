@@ -1,6 +1,7 @@
+//import "hardhat-ethernal";
+import "@typechain/hardhat";
+import {HardhatUserConfig} from "hardhat/types";
 import "hardhat-deploy";
-import "hardhat-ethernal";
-// import '@typechain/hardhat';
 import "solidity-docgen";
 import "solidity-coverage";
 import "hardhat-abi-exporter";
@@ -13,10 +14,9 @@ import "@openzeppelin/hardhat-upgrades";
 
 import {resolve} from "path";
 import {config as dotenvConfig} from "dotenv";
-import {HttpNetworkAccountsUserConfig} from "hardhat/types";
-import {HardhatUserConfig} from "hardhat/types";
+//import {HttpNetworkAccountsUserConfig} from "hardhat/types";
 
-import "./tasks/";
+import "./tasks";
 
 dotenvConfig({path: resolve(__dirname, "../../.env")});
 
@@ -28,6 +28,13 @@ const mnemonic = {
 const config: HardhatUserConfig = {
   networks: {
     hardhat: {
+      mining: {
+        auto: false,
+        interval: 5000,
+        mempool: {
+          order: "fifo",
+        },
+      },
       accounts: {
         mnemonic: mnemonic.local,
       },
@@ -115,14 +122,14 @@ const config: HardhatUserConfig = {
       },
     ],
   },
-  ethernal: {
-    disableSync: false,
-    disableTrace: true,
-    workspace: process.env.ETHERNAL_WORKSPACE ? process.env.ETHERNAL_WORKSPACE : undefined,
-    uploadAst: false,
-    disabled: process.env.ETHERNAL_DISABLED == "true" ? true : false,
-    resetOnStart: process.env.ETHERNAL_WORKSPACE ? process.env.ETHERNAL_WORKSPACE : undefined,
-  },
+  //  ethernal: {
+  //    disableSync: false,
+  //    disableTrace: true,
+  //    workspace: process.env.ETHERNAL_WORKSPACE ? process.env.ETHERNAL_WORKSPACE : undefined,
+  //    uploadAst: false,
+  //    disabled: process.env.ETHERNAL_DISABLED == "true" ? true : false,
+  //    resetOnStart: process.env.ETHERNAL_WORKSPACE ? process.env.ETHERNAL_WORKSPACE : undefined,
+  //  },
 };
 
 export default config;
