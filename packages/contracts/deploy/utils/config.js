@@ -1,5 +1,5 @@
-const {network} = require("hardhat");
-const {provider} = network;
+const { network, upgrades } = require("hardhat");
+const { provider } = network;
 const fs = require("fs");
 const merge = require("lodash.merge");
 const configPath = "./config/config.json";
@@ -29,23 +29,23 @@ async function saveNetworkConfig(name, deployment, implementation, upgrade) {
   // receipt signature looks different than vanilla hardhat deploy receipts.
   // (OZ uses "deployedTransaction" for the deployment receipt key vs. "receipt"
   // for hardhat-deploy)
+  const deploymentTxn = await deployment.deploymentTransaction();
+  const deploymentReceipt = await deploymentTxn.wait(1);
+
+  //  console.log(deploymentTxn);
+  //  console.log("=====================================");
+  //  console.log(deploymentReceipt);
+
   const receipt = deployment.receipt
     ? deployment.receipt
-    : await provider.send("eth_getTransactionReceipt", [deployment.deployTransaction.hash]);
+    : deploymentReceipt;
 
   // Load up deployment block from config if it exists.
-  let deploymentBlock = null;
-  if (
-    config[network.config.chainId] &&
-    config[network.config.chainId].contracts &&
-    config[network.config.chainId].contracts[name]
-  ) {
-    deploymentBlock = config[network.config.chainId].contracts[name].deploymentBlock;
-  }
+  let deploymentBlock = config?.[network.config.chainId]?.contracts?.[name]?.deploymentBlock;
 
-  // If deployment block has been set, use that; otherwise this is a new
-  // contract deployment, so set the initial deployment block from the receipt.
-  deploymentBlock = deploymentBlock ? deploymentBlock : parseInt(receipt.blockNumber);
+  // If deployment block has not been set, use the initial deployment block from the receipt.
+  deploymentBlock ??= parseInt(receipt.blockNumber);
+
   const upgradeBlock = upgrade ? parseInt(receipt.blockNumber) : null;
 
   const newConfig = merge(config, {
@@ -53,7 +53,7 @@ async function saveNetworkConfig(name, deployment, implementation, upgrade) {
       contracts: {
         [name]: {
           ...emptyConfig,
-          address: deployment.address,
+          address: receipt.contractAddress,
           implementation: implementation,
           deploymentBlock: deploymentBlock,
           upgradeBlock: upgradeBlock,

@@ -28,27 +28,29 @@ module.exports = async ({ getChainId, deployments }) => {
     ],
     { kind: "uups", pollingInterval: 3000, timeout: 0 },
   );
-  await deployment.deployed();
-  const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
 
-  if (process.env.ETHERNAL_DISABLED === "false" || process.env.VERIFY_ON_DEPLOY) {
+  await deployment.waitForDeployment();
+  const deploymentAddress = await deployment.getAddress();
+  const implementationAddress = await upgrades.erc1967.getImplementationAddress(deploymentAddress);
+
+  if (process.env.VERIFY_ON_DEPLOY == "true") {
     // Verify & Update network configuration file.
-    await verify("ETSToken", deployment, implementation, []);
+    await verify("ETSToken", deployment, implementationAddress, []);
   }
 
-  await saveNetworkConfig("ETSToken", deployment, implementation, false);
+  await saveNetworkConfig("ETSToken", deployment, implementationAddress, false);
 
   // Add to deployments.
   let artifact = await deployments.getExtendedArtifact("ETSToken");
   let proxyDeployments = {
-    address: deployment.address,
+    address: deploymentAddress,
     ...artifact,
   };
   await save("ETSToken", proxyDeployments);
 
   log("====================================================");
-  log("ETSToken proxy deployed to -> " + deployment.address);
-  log("ETSToken implementation deployed to -> " + implementation);
+  log("ETSToken proxy deployed to -> " + deploymentAddress);
+  log("ETSToken implementation deployed to -> " + implementationAddress);
   log("====================================================");
 };
 module.exports.tags = ["ETSToken"];

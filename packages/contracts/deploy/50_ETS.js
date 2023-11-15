@@ -37,27 +37,29 @@ module.exports = async ({ getChainId, deployments }) => {
     ],
     { kind: "uups", pollingInterval: 3000, timeout: 0 },
   );
-  await deployment.deployed();
-  const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
 
-  if (process.env.ETHERNAL_DISABLED === "false" || process.env.VERIFY_ON_DEPLOY) {
+  await deployment.waitForDeployment();
+  const deploymentAddress = await deployment.getAddress();
+  const implementationAddress = await upgrades.erc1967.getImplementationAddress(deploymentAddress);
+
+  if (process.env.VERIFY_ON_DEPLOY == "true") {
     // Verify & Update network configuration file.
-    await verify("ETS", deployment, implementation, []);
+    await verify("ETS", deployment, implementationAddress, []);
   }
 
-  await saveNetworkConfig("ETS", deployment, implementation, false);
+  await saveNetworkConfig("ETS", deployment, implementationAddress, false);
 
   // Add to deployments.
   let artifact = await deployments.getExtendedArtifact("ETS");
   let proxyDeployments = {
-    address: deployment.address,
+    address: deploymentAddress,
     ...artifact,
   };
   await save("ETS", proxyDeployments);
 
   log("====================================================");
-  log("ETS proxy deployed to -> " + deployment.address);
-  log("ETS implementation deployed to -> " + implementation);
+  log("ETS proxy deployed to -> " + deploymentAddress);
+  log("ETS implementation deployed to -> " + implementationAddress);
   log("====================================================");
 };
 module.exports.tags = ["ETS"];

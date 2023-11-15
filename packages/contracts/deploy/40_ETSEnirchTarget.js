@@ -27,27 +27,29 @@ module.exports = async ({ getChainId, deployments }) => {
     [etsAccessControlsAddress, etsTargetAddress],
     { kind: "uups", pollingInterval: 3000, timeout: 0 },
   );
-  await deployment.deployed();
-  const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
+  await deployment.waitForDeployment();
 
-  if (process.env.ETHERNAL_DISABLED === "false" || process.env.VERIFY_ON_DEPLOY) {
+  const deploymentAddress = await deployment.getAddress();
+  const implementationAddress = await upgrades.erc1967.getImplementationAddress(deploymentAddress);
+
+  if (process.env.VERIFY_ON_DEPLOY == "true") {
     // Verify & Update network configuration file.
-    await verify("ETSEnrichTarget", deployment, implementation, []);
+    await verify("ETSEnrichTarget", deployment, implementationAddress, []);
   }
 
-  await saveNetworkConfig("ETSEnrichTarget", deployment, implementation, false);
+  await saveNetworkConfig("ETSEnrichTarget", deployment, implementationAddress, false);
 
   // Add to deployments.
   let artifact = await deployments.getExtendedArtifact("ETSEnrichTarget");
   let proxyDeployments = {
-    address: deployment.address,
+    address: deploymentAddress,
     ...artifact,
   };
   await save("ETSEnrichTarget", proxyDeployments);
 
   log("====================================================");
-  log("ETSEnrichTarget proxy deployed to -> " + deployment.address);
-  log("ETSEnrichTarget implementation deployed to -> " + implementation);
+  log("ETSEnrichTarget proxy deployed to -> " + deploymentAddress);
+  log("ETSEnrichTarget implementation deployed to -> " + implementationAddress);
   log("====================================================");
 };
 module.exports.tags = ["ETSEnrichTarget"];

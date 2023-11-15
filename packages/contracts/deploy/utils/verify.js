@@ -1,4 +1,4 @@
-const {network, ethernal, run} = require("hardhat");
+const { network, ethernal, run } = require("hardhat");
 const networkName = network.name;
 const chainId = network.config.chainId;
 
@@ -16,7 +16,7 @@ const chainId = network.config.chainId;
 async function verify(name, deployment, implementation, args) {
   // If we are on hardhat local chain and ethernal is enabled.
   if (chainId == 31337) {
-    if (ethernal) {
+    if (ethernal && process.env.ETHERNAL_DISABLED === "false") {
       console.log(`Verifying ${name} on Ethernal`);
       try {
         await ethernal.push({
@@ -25,7 +25,7 @@ async function verify(name, deployment, implementation, args) {
           address: deployment.address,
         });
       } catch (err) {
-        console.log("Verification failed", {name, chainId: chainId, address: deployment.address, args, err});
+        console.log("Verification failed", { name, chainId: chainId, address: deployment.address, args, err });
       }
     } else {
       console.log("Ethernal verification disabled. See repo README.md for enabling Ethernal.");
@@ -53,4 +53,4 @@ async function verify(name, deployment, implementation, args) {
   }
 }
 
-module.exports = {verify};
+module.exports = { verify };
