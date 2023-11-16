@@ -28,8 +28,8 @@ module.exports = async ({ getChainId, deployments }) => {
   // Deploy the relayer logic contract.
   // We deploy with proxy with no arguments because factory will supply them.
   const relayerV1 = await factories.ETSRelayerV1.deploy();
-  await relayerV1.deployed();
-  relayerV1Address = relayerV1.address;
+  await relayerV1.waitForDeployment();
+  relayerV1Address = await relayerV1.getAddress();
 
   // Deploy relayer factory, which will deploy the above implementation as upgradable proxies.
   const relayerFactory = await factories.ETSRelayerFactory.deploy(
@@ -39,12 +39,13 @@ module.exports = async ({ getChainId, deployments }) => {
     etsTokenAddress,
     etsTargetAddress,
   );
-  await relayerFactory.deployed();
+  await relayerFactory.waitForDeployment();
+  const relayerFactoryAddress = await relayerFactory.getAddress();
 
-  if (process.env.ETHERNAL_DISABLED === "false" || process.env.VERIFY_ON_DEPLOY) {
+  if (process.env.VERIFY_ON_DEPLOY == "true") {
     // Verify & Update network configuration file.
     await verify("ETSRelayerV1", relayerV1, relayerV1Address, []);
-    await verify("ETSRelayerFactory", relayerFactory, relayerFactory.address, []);
+    await verify("ETSRelayerFactory", relayerFactory, relayerFactoryAddress, []);
   }
 
   await saveNetworkConfig("ETSRelayerV1", relayerV1, null, false);
@@ -53,21 +54,21 @@ module.exports = async ({ getChainId, deployments }) => {
   // Add to deployments.
   let artifact = await deployments.getExtendedArtifact("ETSRelayerFactory");
   let proxyDeployments = {
-    address: relayerFactory.address,
+    address: relayerFactoryAddress,
     ...artifact,
   };
   await save("ETSRelayerFactory", proxyDeployments);
 
   artifact = await deployments.getExtendedArtifact("ETSRelayerV1");
   proxyDeployments = {
-    address: relayerV1.address,
+    address: relayerV1Address,
     ...artifact,
   };
   await save("ETSRelayerV1", proxyDeployments);
 
   log("====================================================");
-  log("ETSRelayerV1 deployed to -> " + relayerV1.address);
-  log("ETSRelayerFactory deployed to -> " + relayerFactory.address);
+  log("ETSRelayerV1 deployed to -> " + relayerV1Address);
+  log("ETSRelayerFactory deployed to -> " + relayerFactoryAddress);
   log("====================================================");
 };
 module.exports.tags = ["ETSRelayerFactory"];

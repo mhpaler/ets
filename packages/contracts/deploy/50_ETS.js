@@ -1,5 +1,4 @@
 const { ethers, upgrades } = require("hardhat");
-const { utils } = require("ethers");
 const { setup } = require("./setup.ts");
 const { verify } = require("./utils/verify.js");
 const { saveNetworkConfig, readNetworkConfig } = require("./utils/config.js");
@@ -31,7 +30,7 @@ module.exports = async ({ getChainId, deployments }) => {
       etsAccessControlsAddress,
       etsTokenAddress,
       etsTargetAddress,
-      utils.parseEther(initSettings.TAGGING_FEE),
+      ethers.parseUnits(initSettings.TAGGING_FEE, "ether"),
       initSettings.TAGGING_FEE_PLATFORM_PERCENTAGE,
       initSettings.TAGGING_FEE_RELAYER_PERCENTAGE,
     ],

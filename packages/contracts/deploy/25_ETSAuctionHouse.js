@@ -1,5 +1,4 @@
 const { ethers, upgrades } = require("hardhat");
-const { utils } = require("ethers");
 const { setup } = require("./setup.ts");
 const { verify } = require("./utils/verify.js");
 const { saveNetworkConfig, readNetworkConfig } = require("./utils/config.js");
@@ -44,7 +43,7 @@ module.exports = async ({ getChainId, deployments }) => {
       wmaticAddress,
       initSettings.MAX_AUCTIONS,
       initSettings.TIME_BUFFER,
-      utils.parseEther(initSettings.RESERVE_PRICE), //initSettings.RESERVE_PRICE,
+      ethers.parseUnits(initSettings.RESERVE_PRICE, "ether"),
       initSettings.MIN_INCREMENT_BID_PERCENTAGE,
       initSettings.DURATION,
       initSettings.RELAYER_PERCENTAGE,

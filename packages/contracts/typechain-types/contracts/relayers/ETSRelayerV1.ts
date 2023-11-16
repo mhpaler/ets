@@ -3,80 +3,43 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BigNumberish,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PayableOverrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
-} from "ethers";
-import type {
   FunctionFragment,
   Result,
+  Interface,
   EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+  AddressLike,
+  ContractRunner,
+  ContractMethod,
+  Listener,
+} from "ethers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
+  TypedLogDescription,
   TypedListener,
-  OnEvent,
-  PromiseOrValue,
+  TypedContractMethod,
 } from "../../common";
 
 export declare namespace IETS {
   export type TaggingRecordRawInputStruct = {
-    targetURI: PromiseOrValue<string>;
-    tagStrings: PromiseOrValue<string>[];
-    recordType: PromiseOrValue<string>;
-  };
-
-  export type TaggingRecordRawInputStructOutput = [string, string[], string] & {
     targetURI: string;
     tagStrings: string[];
     recordType: string;
   };
+
+  export type TaggingRecordRawInputStructOutput = [
+    targetURI: string,
+    tagStrings: string[],
+    recordType: string
+  ] & { targetURI: string; tagStrings: string[]; recordType: string };
 }
 
-export interface ETSRelayerV1Interface extends utils.Interface {
-  functions: {
-    "IID_IETSRELAYER()": FunctionFragment;
-    "NAME()": FunctionFragment;
-    "VERSION()": FunctionFragment;
-    "applyTags((string,string[],string)[])": FunctionFragment;
-    "changeOwner(address)": FunctionFragment;
-    "computeTaggingFee((string,string[],string),uint8)": FunctionFragment;
-    "creator()": FunctionFragment;
-    "ets()": FunctionFragment;
-    "etsAccessControls()": FunctionFragment;
-    "etsTarget()": FunctionFragment;
-    "etsToken()": FunctionFragment;
-    "getBalance()": FunctionFragment;
-    "getCreator()": FunctionFragment;
-    "getOrCreateTagIds(string[])": FunctionFragment;
-    "getOwner()": FunctionFragment;
-    "getRelayerName()": FunctionFragment;
-    "initialize(string,address,address,address,address,address,address)": FunctionFragment;
-    "isPaused()": FunctionFragment;
-    "owner()": FunctionFragment;
-    "pause()": FunctionFragment;
-    "paused()": FunctionFragment;
-    "relayerName()": FunctionFragment;
-    "removeTags((string,string[],string)[])": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
-    "replaceTags((string,string[],string)[])": FunctionFragment;
-    "supportsInterface(bytes4)": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
-    "unpause()": FunctionFragment;
-    "version()": FunctionFragment;
-  };
-
+export interface ETSRelayerV1Interface extends Interface {
   getFunction(
-    nameOrSignatureOrTopic:
+    nameOrSignature:
       | "IID_IETSRELAYER"
       | "NAME"
       | "VERSION"
@@ -108,6 +71,16 @@ export interface ETSRelayerV1Interface extends utils.Interface {
       | "version"
   ): FunctionFragment;
 
+  getEvent(
+    nameOrSignatureOrTopic:
+      | "Initialized"
+      | "OwnershipTransferred"
+      | "Paused"
+      | "RelayerOwnerChanged"
+      | "RelayerPauseToggledByOwner"
+      | "Unpaused"
+  ): EventFragment;
+
   encodeFunctionData(
     functionFragment: "IID_IETSRELAYER",
     values?: undefined
@@ -120,11 +93,11 @@ export interface ETSRelayerV1Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "changeOwner",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "computeTaggingFee",
-    values: [IETS.TaggingRecordRawInputStruct, PromiseOrValue<BigNumberish>]
+    values: [IETS.TaggingRecordRawInputStruct, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "creator", values?: undefined): string;
   encodeFunctionData(functionFragment: "ets", values?: undefined): string;
@@ -144,7 +117,7 @@ export interface ETSRelayerV1Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getOrCreateTagIds",
-    values: [PromiseOrValue<string>[]]
+    values: [string[]]
   ): string;
   encodeFunctionData(functionFragment: "getOwner", values?: undefined): string;
   encodeFunctionData(
@@ -154,13 +127,13 @@ export interface ETSRelayerV1Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "initialize",
     values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
+      string,
+      AddressLike,
+      AddressLike,
+      AddressLike,
+      AddressLike,
+      AddressLike,
+      AddressLike
     ]
   ): string;
   encodeFunctionData(functionFragment: "isPaused", values?: undefined): string;
@@ -185,11 +158,11 @@ export interface ETSRelayerV1Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "supportsInterface",
-    values: [PromiseOrValue<BytesLike>]
+    values: [BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
   encodeFunctionData(functionFragment: "version", values?: undefined): string;
@@ -256,630 +229,454 @@ export interface ETSRelayerV1Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
-
-  events: {
-    "Initialized(uint8)": EventFragment;
-    "OwnershipTransferred(address,address)": EventFragment;
-    "Paused(address)": EventFragment;
-    "RelayerOwnerChanged(address)": EventFragment;
-    "RelayerPauseToggledByOwner(address)": EventFragment;
-    "Unpaused(address)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RelayerOwnerChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RelayerPauseToggledByOwner"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
 }
 
-export interface InitializedEventObject {
-  version: number;
+export namespace InitializedEvent {
+  export type InputTuple = [version: BigNumberish];
+  export type OutputTuple = [version: bigint];
+  export interface OutputObject {
+    version: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
 
-export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
-
-export interface OwnershipTransferredEventObject {
-  previousOwner: string;
-  newOwner: string;
+export namespace OwnershipTransferredEvent {
+  export type InputTuple = [previousOwner: AddressLike, newOwner: AddressLike];
+  export type OutputTuple = [previousOwner: string, newOwner: string];
+  export interface OutputObject {
+    previousOwner: string;
+    newOwner: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type OwnershipTransferredEvent = TypedEvent<
-  [string, string],
-  OwnershipTransferredEventObject
->;
 
-export type OwnershipTransferredEventFilter =
-  TypedEventFilter<OwnershipTransferredEvent>;
-
-export interface PausedEventObject {
-  account: string;
+export namespace PausedEvent {
+  export type InputTuple = [account: AddressLike];
+  export type OutputTuple = [account: string];
+  export interface OutputObject {
+    account: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type PausedEvent = TypedEvent<[string], PausedEventObject>;
 
-export type PausedEventFilter = TypedEventFilter<PausedEvent>;
-
-export interface RelayerOwnerChangedEventObject {
-  relayerAddress: string;
+export namespace RelayerOwnerChangedEvent {
+  export type InputTuple = [relayerAddress: AddressLike];
+  export type OutputTuple = [relayerAddress: string];
+  export interface OutputObject {
+    relayerAddress: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type RelayerOwnerChangedEvent = TypedEvent<
-  [string],
-  RelayerOwnerChangedEventObject
->;
 
-export type RelayerOwnerChangedEventFilter =
-  TypedEventFilter<RelayerOwnerChangedEvent>;
-
-export interface RelayerPauseToggledByOwnerEventObject {
-  relayerAddress: string;
+export namespace RelayerPauseToggledByOwnerEvent {
+  export type InputTuple = [relayerAddress: AddressLike];
+  export type OutputTuple = [relayerAddress: string];
+  export interface OutputObject {
+    relayerAddress: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type RelayerPauseToggledByOwnerEvent = TypedEvent<
-  [string],
-  RelayerPauseToggledByOwnerEventObject
->;
 
-export type RelayerPauseToggledByOwnerEventFilter =
-  TypedEventFilter<RelayerPauseToggledByOwnerEvent>;
-
-export interface UnpausedEventObject {
-  account: string;
+export namespace UnpausedEvent {
+  export type InputTuple = [account: AddressLike];
+  export type OutputTuple = [account: string];
+  export interface OutputObject {
+    account: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type UnpausedEvent = TypedEvent<[string], UnpausedEventObject>;
-
-export type UnpausedEventFilter = TypedEventFilter<UnpausedEvent>;
 
 export interface ETSRelayerV1 extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): ETSRelayerV1;
+  waitForDeployment(): Promise<this>;
 
   interface: ETSRelayerV1Interface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
-
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
-
-  functions: {
-    IID_IETSRELAYER(overrides?: CallOverrides): Promise<[string]>;
-
-    NAME(overrides?: CallOverrides): Promise<[string]>;
-
-    VERSION(overrides?: CallOverrides): Promise<[string]>;
-
-    applyTags(
-      _rawInput: IETS.TaggingRecordRawInputStruct[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    changeOwner(
-      _newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    computeTaggingFee(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _action: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { fee: BigNumber; tagCount: BigNumber }
-    >;
-
-    creator(overrides?: CallOverrides): Promise<[string]>;
-
-    ets(overrides?: CallOverrides): Promise<[string]>;
-
-    etsAccessControls(overrides?: CallOverrides): Promise<[string]>;
-
-    etsTarget(overrides?: CallOverrides): Promise<[string]>;
-
-    etsToken(overrides?: CallOverrides): Promise<[string]>;
-
-    getBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    getCreator(overrides?: CallOverrides): Promise<[string]>;
-
-    getOrCreateTagIds(
-      _tags: PromiseOrValue<string>[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    getOwner(overrides?: CallOverrides): Promise<[string]>;
-
-    getRelayerName(overrides?: CallOverrides): Promise<[string]>;
-
-    initialize(
-      _relayerName: PromiseOrValue<string>,
-      _ets: PromiseOrValue<string>,
-      _etsToken: PromiseOrValue<string>,
-      _etsTarget: PromiseOrValue<string>,
-      _etsAccessControls: PromiseOrValue<string>,
-      _creator: PromiseOrValue<string>,
-      _owner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    isPaused(overrides?: CallOverrides): Promise<[boolean]>;
-
-    owner(overrides?: CallOverrides): Promise<[string]>;
-
-    pause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    paused(overrides?: CallOverrides): Promise<[boolean]>;
-
-    relayerName(overrides?: CallOverrides): Promise<[string]>;
-
-    removeTags(
-      _rawInput: IETS.TaggingRecordRawInputStruct[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    replaceTags(
-      _rawInput: IETS.TaggingRecordRawInputStruct[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    supportsInterface(
-      interfaceId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    transferOwnership(
-      newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    unpause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    version(overrides?: CallOverrides): Promise<[string]>;
-  };
-
-  IID_IETSRELAYER(overrides?: CallOverrides): Promise<string>;
-
-  NAME(overrides?: CallOverrides): Promise<string>;
-
-  VERSION(overrides?: CallOverrides): Promise<string>;
-
-  applyTags(
-    _rawInput: IETS.TaggingRecordRawInputStruct[],
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  changeOwner(
-    _newOwner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  computeTaggingFee(
-    _rawInput: IETS.TaggingRecordRawInputStruct,
-    _action: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber] & { fee: BigNumber; tagCount: BigNumber }>;
-
-  creator(overrides?: CallOverrides): Promise<string>;
-
-  ets(overrides?: CallOverrides): Promise<string>;
-
-  etsAccessControls(overrides?: CallOverrides): Promise<string>;
-
-  etsTarget(overrides?: CallOverrides): Promise<string>;
-
-  etsToken(overrides?: CallOverrides): Promise<string>;
-
-  getBalance(overrides?: CallOverrides): Promise<BigNumber>;
-
-  getCreator(overrides?: CallOverrides): Promise<string>;
-
-  getOrCreateTagIds(
-    _tags: PromiseOrValue<string>[],
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  getOwner(overrides?: CallOverrides): Promise<string>;
-
-  getRelayerName(overrides?: CallOverrides): Promise<string>;
-
-  initialize(
-    _relayerName: PromiseOrValue<string>,
-    _ets: PromiseOrValue<string>,
-    _etsToken: PromiseOrValue<string>,
-    _etsTarget: PromiseOrValue<string>,
-    _etsAccessControls: PromiseOrValue<string>,
-    _creator: PromiseOrValue<string>,
-    _owner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  isPaused(overrides?: CallOverrides): Promise<boolean>;
-
-  owner(overrides?: CallOverrides): Promise<string>;
-
-  pause(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  paused(overrides?: CallOverrides): Promise<boolean>;
-
-  relayerName(overrides?: CallOverrides): Promise<string>;
-
-  removeTags(
-    _rawInput: IETS.TaggingRecordRawInputStruct[],
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  renounceOwnership(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  replaceTags(
-    _rawInput: IETS.TaggingRecordRawInputStruct[],
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  supportsInterface(
-    interfaceId: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  transferOwnership(
-    newOwner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  unpause(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  version(overrides?: CallOverrides): Promise<string>;
-
-  callStatic: {
-    IID_IETSRELAYER(overrides?: CallOverrides): Promise<string>;
-
-    NAME(overrides?: CallOverrides): Promise<string>;
-
-    VERSION(overrides?: CallOverrides): Promise<string>;
-
-    applyTags(
-      _rawInput: IETS.TaggingRecordRawInputStruct[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    changeOwner(
-      _newOwner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    computeTaggingFee(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _action: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { fee: BigNumber; tagCount: BigNumber }
-    >;
-
-    creator(overrides?: CallOverrides): Promise<string>;
-
-    ets(overrides?: CallOverrides): Promise<string>;
-
-    etsAccessControls(overrides?: CallOverrides): Promise<string>;
-
-    etsTarget(overrides?: CallOverrides): Promise<string>;
-
-    etsToken(overrides?: CallOverrides): Promise<string>;
-
-    getBalance(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getCreator(overrides?: CallOverrides): Promise<string>;
-
-    getOrCreateTagIds(
-      _tags: PromiseOrValue<string>[],
-      overrides?: CallOverrides
-    ): Promise<BigNumber[]>;
-
-    getOwner(overrides?: CallOverrides): Promise<string>;
-
-    getRelayerName(overrides?: CallOverrides): Promise<string>;
-
-    initialize(
-      _relayerName: PromiseOrValue<string>,
-      _ets: PromiseOrValue<string>,
-      _etsToken: PromiseOrValue<string>,
-      _etsTarget: PromiseOrValue<string>,
-      _etsAccessControls: PromiseOrValue<string>,
-      _creator: PromiseOrValue<string>,
-      _owner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    isPaused(overrides?: CallOverrides): Promise<boolean>;
-
-    owner(overrides?: CallOverrides): Promise<string>;
-
-    pause(overrides?: CallOverrides): Promise<void>;
-
-    paused(overrides?: CallOverrides): Promise<boolean>;
-
-    relayerName(overrides?: CallOverrides): Promise<string>;
-
-    removeTags(
-      _rawInput: IETS.TaggingRecordRawInputStruct[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
-    replaceTags(
-      _rawInput: IETS.TaggingRecordRawInputStruct[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    supportsInterface(
-      interfaceId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    transferOwnership(
-      newOwner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    unpause(overrides?: CallOverrides): Promise<void>;
-
-    version(overrides?: CallOverrides): Promise<string>;
-  };
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
+
+  IID_IETSRELAYER: TypedContractMethod<[], [string], "view">;
+
+  NAME: TypedContractMethod<[], [string], "view">;
+
+  VERSION: TypedContractMethod<[], [string], "view">;
+
+  applyTags: TypedContractMethod<
+    [_rawInput: IETS.TaggingRecordRawInputStruct[]],
+    [void],
+    "payable"
+  >;
+
+  changeOwner: TypedContractMethod<
+    [_newOwner: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  computeTaggingFee: TypedContractMethod<
+    [_rawInput: IETS.TaggingRecordRawInputStruct, _action: BigNumberish],
+    [[bigint, bigint] & { fee: bigint; tagCount: bigint }],
+    "view"
+  >;
+
+  creator: TypedContractMethod<[], [string], "view">;
+
+  ets: TypedContractMethod<[], [string], "view">;
+
+  etsAccessControls: TypedContractMethod<[], [string], "view">;
+
+  etsTarget: TypedContractMethod<[], [string], "view">;
+
+  etsToken: TypedContractMethod<[], [string], "view">;
+
+  getBalance: TypedContractMethod<[], [bigint], "view">;
+
+  getCreator: TypedContractMethod<[], [string], "view">;
+
+  getOrCreateTagIds: TypedContractMethod<
+    [_tags: string[]],
+    [bigint[]],
+    "payable"
+  >;
+
+  getOwner: TypedContractMethod<[], [string], "view">;
+
+  getRelayerName: TypedContractMethod<[], [string], "view">;
+
+  initialize: TypedContractMethod<
+    [
+      _relayerName: string,
+      _ets: AddressLike,
+      _etsToken: AddressLike,
+      _etsTarget: AddressLike,
+      _etsAccessControls: AddressLike,
+      _creator: AddressLike,
+      _owner: AddressLike
+    ],
+    [void],
+    "nonpayable"
+  >;
+
+  isPaused: TypedContractMethod<[], [boolean], "view">;
+
+  owner: TypedContractMethod<[], [string], "view">;
+
+  pause: TypedContractMethod<[], [void], "nonpayable">;
+
+  paused: TypedContractMethod<[], [boolean], "view">;
+
+  relayerName: TypedContractMethod<[], [string], "view">;
+
+  removeTags: TypedContractMethod<
+    [_rawInput: IETS.TaggingRecordRawInputStruct[]],
+    [void],
+    "payable"
+  >;
+
+  renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
+
+  replaceTags: TypedContractMethod<
+    [_rawInput: IETS.TaggingRecordRawInputStruct[]],
+    [void],
+    "payable"
+  >;
+
+  supportsInterface: TypedContractMethod<
+    [interfaceId: BytesLike],
+    [boolean],
+    "view"
+  >;
+
+  transferOwnership: TypedContractMethod<
+    [newOwner: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  unpause: TypedContractMethod<[], [void], "nonpayable">;
+
+  version: TypedContractMethod<[], [string], "view">;
+
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
+
+  getFunction(
+    nameOrSignature: "IID_IETSRELAYER"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "NAME"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "VERSION"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "applyTags"
+  ): TypedContractMethod<
+    [_rawInput: IETS.TaggingRecordRawInputStruct[]],
+    [void],
+    "payable"
+  >;
+  getFunction(
+    nameOrSignature: "changeOwner"
+  ): TypedContractMethod<[_newOwner: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "computeTaggingFee"
+  ): TypedContractMethod<
+    [_rawInput: IETS.TaggingRecordRawInputStruct, _action: BigNumberish],
+    [[bigint, bigint] & { fee: bigint; tagCount: bigint }],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "creator"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "ets"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "etsAccessControls"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "etsTarget"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "etsToken"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "getBalance"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getCreator"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "getOrCreateTagIds"
+  ): TypedContractMethod<[_tags: string[]], [bigint[]], "payable">;
+  getFunction(
+    nameOrSignature: "getOwner"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "getRelayerName"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "initialize"
+  ): TypedContractMethod<
+    [
+      _relayerName: string,
+      _ets: AddressLike,
+      _etsToken: AddressLike,
+      _etsTarget: AddressLike,
+      _etsAccessControls: AddressLike,
+      _creator: AddressLike,
+      _owner: AddressLike
+    ],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "isPaused"
+  ): TypedContractMethod<[], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "owner"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "pause"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "paused"
+  ): TypedContractMethod<[], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "relayerName"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "removeTags"
+  ): TypedContractMethod<
+    [_rawInput: IETS.TaggingRecordRawInputStruct[]],
+    [void],
+    "payable"
+  >;
+  getFunction(
+    nameOrSignature: "renounceOwnership"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "replaceTags"
+  ): TypedContractMethod<
+    [_rawInput: IETS.TaggingRecordRawInputStruct[]],
+    [void],
+    "payable"
+  >;
+  getFunction(
+    nameOrSignature: "supportsInterface"
+  ): TypedContractMethod<[interfaceId: BytesLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "transferOwnership"
+  ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "unpause"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "version"
+  ): TypedContractMethod<[], [string], "view">;
+
+  getEvent(
+    key: "Initialized"
+  ): TypedContractEvent<
+    InitializedEvent.InputTuple,
+    InitializedEvent.OutputTuple,
+    InitializedEvent.OutputObject
+  >;
+  getEvent(
+    key: "OwnershipTransferred"
+  ): TypedContractEvent<
+    OwnershipTransferredEvent.InputTuple,
+    OwnershipTransferredEvent.OutputTuple,
+    OwnershipTransferredEvent.OutputObject
+  >;
+  getEvent(
+    key: "Paused"
+  ): TypedContractEvent<
+    PausedEvent.InputTuple,
+    PausedEvent.OutputTuple,
+    PausedEvent.OutputObject
+  >;
+  getEvent(
+    key: "RelayerOwnerChanged"
+  ): TypedContractEvent<
+    RelayerOwnerChangedEvent.InputTuple,
+    RelayerOwnerChangedEvent.OutputTuple,
+    RelayerOwnerChangedEvent.OutputObject
+  >;
+  getEvent(
+    key: "RelayerPauseToggledByOwner"
+  ): TypedContractEvent<
+    RelayerPauseToggledByOwnerEvent.InputTuple,
+    RelayerPauseToggledByOwnerEvent.OutputTuple,
+    RelayerPauseToggledByOwnerEvent.OutputObject
+  >;
+  getEvent(
+    key: "Unpaused"
+  ): TypedContractEvent<
+    UnpausedEvent.InputTuple,
+    UnpausedEvent.OutputTuple,
+    UnpausedEvent.OutputObject
+  >;
 
   filters: {
-    "Initialized(uint8)"(version?: null): InitializedEventFilter;
-    Initialized(version?: null): InitializedEventFilter;
+    "Initialized(uint8)": TypedContractEvent<
+      InitializedEvent.InputTuple,
+      InitializedEvent.OutputTuple,
+      InitializedEvent.OutputObject
+    >;
+    Initialized: TypedContractEvent<
+      InitializedEvent.InputTuple,
+      InitializedEvent.OutputTuple,
+      InitializedEvent.OutputObject
+    >;
 
-    "OwnershipTransferred(address,address)"(
-      previousOwner?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null
-    ): OwnershipTransferredEventFilter;
-    OwnershipTransferred(
-      previousOwner?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null
-    ): OwnershipTransferredEventFilter;
+    "OwnershipTransferred(address,address)": TypedContractEvent<
+      OwnershipTransferredEvent.InputTuple,
+      OwnershipTransferredEvent.OutputTuple,
+      OwnershipTransferredEvent.OutputObject
+    >;
+    OwnershipTransferred: TypedContractEvent<
+      OwnershipTransferredEvent.InputTuple,
+      OwnershipTransferredEvent.OutputTuple,
+      OwnershipTransferredEvent.OutputObject
+    >;
 
-    "Paused(address)"(account?: null): PausedEventFilter;
-    Paused(account?: null): PausedEventFilter;
+    "Paused(address)": TypedContractEvent<
+      PausedEvent.InputTuple,
+      PausedEvent.OutputTuple,
+      PausedEvent.OutputObject
+    >;
+    Paused: TypedContractEvent<
+      PausedEvent.InputTuple,
+      PausedEvent.OutputTuple,
+      PausedEvent.OutputObject
+    >;
 
-    "RelayerOwnerChanged(address)"(
-      relayerAddress?: null
-    ): RelayerOwnerChangedEventFilter;
-    RelayerOwnerChanged(relayerAddress?: null): RelayerOwnerChangedEventFilter;
+    "RelayerOwnerChanged(address)": TypedContractEvent<
+      RelayerOwnerChangedEvent.InputTuple,
+      RelayerOwnerChangedEvent.OutputTuple,
+      RelayerOwnerChangedEvent.OutputObject
+    >;
+    RelayerOwnerChanged: TypedContractEvent<
+      RelayerOwnerChangedEvent.InputTuple,
+      RelayerOwnerChangedEvent.OutputTuple,
+      RelayerOwnerChangedEvent.OutputObject
+    >;
 
-    "RelayerPauseToggledByOwner(address)"(
-      relayerAddress?: null
-    ): RelayerPauseToggledByOwnerEventFilter;
-    RelayerPauseToggledByOwner(
-      relayerAddress?: null
-    ): RelayerPauseToggledByOwnerEventFilter;
+    "RelayerPauseToggledByOwner(address)": TypedContractEvent<
+      RelayerPauseToggledByOwnerEvent.InputTuple,
+      RelayerPauseToggledByOwnerEvent.OutputTuple,
+      RelayerPauseToggledByOwnerEvent.OutputObject
+    >;
+    RelayerPauseToggledByOwner: TypedContractEvent<
+      RelayerPauseToggledByOwnerEvent.InputTuple,
+      RelayerPauseToggledByOwnerEvent.OutputTuple,
+      RelayerPauseToggledByOwnerEvent.OutputObject
+    >;
 
-    "Unpaused(address)"(account?: null): UnpausedEventFilter;
-    Unpaused(account?: null): UnpausedEventFilter;
-  };
-
-  estimateGas: {
-    IID_IETSRELAYER(overrides?: CallOverrides): Promise<BigNumber>;
-
-    NAME(overrides?: CallOverrides): Promise<BigNumber>;
-
-    VERSION(overrides?: CallOverrides): Promise<BigNumber>;
-
-    applyTags(
-      _rawInput: IETS.TaggingRecordRawInputStruct[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    changeOwner(
-      _newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    computeTaggingFee(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _action: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    creator(overrides?: CallOverrides): Promise<BigNumber>;
-
-    ets(overrides?: CallOverrides): Promise<BigNumber>;
-
-    etsAccessControls(overrides?: CallOverrides): Promise<BigNumber>;
-
-    etsTarget(overrides?: CallOverrides): Promise<BigNumber>;
-
-    etsToken(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getBalance(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getCreator(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getOrCreateTagIds(
-      _tags: PromiseOrValue<string>[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    getOwner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getRelayerName(overrides?: CallOverrides): Promise<BigNumber>;
-
-    initialize(
-      _relayerName: PromiseOrValue<string>,
-      _ets: PromiseOrValue<string>,
-      _etsToken: PromiseOrValue<string>,
-      _etsTarget: PromiseOrValue<string>,
-      _etsAccessControls: PromiseOrValue<string>,
-      _creator: PromiseOrValue<string>,
-      _owner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    isPaused(overrides?: CallOverrides): Promise<BigNumber>;
-
-    owner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    pause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    paused(overrides?: CallOverrides): Promise<BigNumber>;
-
-    relayerName(overrides?: CallOverrides): Promise<BigNumber>;
-
-    removeTags(
-      _rawInput: IETS.TaggingRecordRawInputStruct[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    replaceTags(
-      _rawInput: IETS.TaggingRecordRawInputStruct[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    supportsInterface(
-      interfaceId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    transferOwnership(
-      newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    unpause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    version(overrides?: CallOverrides): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    IID_IETSRELAYER(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    NAME(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    VERSION(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    applyTags(
-      _rawInput: IETS.TaggingRecordRawInputStruct[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    changeOwner(
-      _newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    computeTaggingFee(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _action: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    creator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    ets(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    etsAccessControls(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    etsTarget(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    etsToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getBalance(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getCreator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getOrCreateTagIds(
-      _tags: PromiseOrValue<string>[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getRelayerName(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    initialize(
-      _relayerName: PromiseOrValue<string>,
-      _ets: PromiseOrValue<string>,
-      _etsToken: PromiseOrValue<string>,
-      _etsTarget: PromiseOrValue<string>,
-      _etsAccessControls: PromiseOrValue<string>,
-      _creator: PromiseOrValue<string>,
-      _owner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    isPaused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    pause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    paused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    relayerName(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    removeTags(
-      _rawInput: IETS.TaggingRecordRawInputStruct[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    replaceTags(
-      _rawInput: IETS.TaggingRecordRawInputStruct[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    supportsInterface(
-      interfaceId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    transferOwnership(
-      newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    unpause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    version(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    "Unpaused(address)": TypedContractEvent<
+      UnpausedEvent.InputTuple,
+      UnpausedEvent.OutputTuple,
+      UnpausedEvent.OutputObject
+    >;
+    Unpaused: TypedContractEvent<
+      UnpausedEvent.InputTuple,
+      UnpausedEvent.OutputTuple,
+      UnpausedEvent.OutputObject
+    >;
   };
 }

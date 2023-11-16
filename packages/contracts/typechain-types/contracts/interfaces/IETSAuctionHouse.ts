@@ -3,89 +3,62 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BigNumberish,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PayableOverrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
-} from "ethers";
-import type {
   FunctionFragment,
   Result,
+  Interface,
   EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+  AddressLike,
+  ContractRunner,
+  ContractMethod,
+  Listener,
+} from "ethers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
+  TypedLogDescription,
   TypedListener,
-  OnEvent,
-  PromiseOrValue,
+  TypedContractMethod,
 } from "../../common";
 
 export declare namespace IETSAuctionHouse {
   export type AuctionStruct = {
-    auctionId: PromiseOrValue<BigNumberish>;
-    amount: PromiseOrValue<BigNumberish>;
-    startTime: PromiseOrValue<BigNumberish>;
-    endTime: PromiseOrValue<BigNumberish>;
-    reservePrice: PromiseOrValue<BigNumberish>;
-    bidder: PromiseOrValue<string>;
-    auctioneer: PromiseOrValue<string>;
-    settled: PromiseOrValue<boolean>;
+    auctionId: BigNumberish;
+    amount: BigNumberish;
+    startTime: BigNumberish;
+    endTime: BigNumberish;
+    reservePrice: BigNumberish;
+    bidder: AddressLike;
+    auctioneer: AddressLike;
+    settled: boolean;
   };
 
   export type AuctionStructOutput = [
-    BigNumber,
-    BigNumber,
-    BigNumber,
-    BigNumber,
-    BigNumber,
-    string,
-    string,
-    boolean
+    auctionId: bigint,
+    amount: bigint,
+    startTime: bigint,
+    endTime: bigint,
+    reservePrice: bigint,
+    bidder: string,
+    auctioneer: string,
+    settled: boolean
   ] & {
-    auctionId: BigNumber;
-    amount: BigNumber;
-    startTime: BigNumber;
-    endTime: BigNumber;
-    reservePrice: BigNumber;
+    auctionId: bigint;
+    amount: bigint;
+    startTime: bigint;
+    endTime: bigint;
+    reservePrice: bigint;
     bidder: string;
     auctioneer: string;
     settled: boolean;
   };
 }
 
-export interface IETSAuctionHouseInterface extends utils.Interface {
-  functions: {
-    "auctionEnded(uint256)": FunctionFragment;
-    "auctionExists(uint256)": FunctionFragment;
-    "auctionSettled(uint256)": FunctionFragment;
-    "createBid(uint256)": FunctionFragment;
-    "createNextAuction()": FunctionFragment;
-    "drawDown(address)": FunctionFragment;
-    "fulfillRequestCreateAuction(uint256)": FunctionFragment;
-    "getActiveCount()": FunctionFragment;
-    "getAuction(uint256)": FunctionFragment;
-    "getBalance()": FunctionFragment;
-    "getTotalCount()": FunctionFragment;
-    "pause()": FunctionFragment;
-    "setProceedPercentages(uint256,uint256)": FunctionFragment;
-    "setReservePrice(uint256)": FunctionFragment;
-    "setTimeBuffer(uint256)": FunctionFragment;
-    "settleAuction(uint256)": FunctionFragment;
-    "settleCurrentAndCreateNewAuction(uint256)": FunctionFragment;
-    "totalDue(address)": FunctionFragment;
-    "unpause()": FunctionFragment;
-  };
-
+export interface IETSAuctionHouseInterface extends Interface {
   getFunction(
-    nameOrSignatureOrTopic:
+    nameOrSignature:
       | "auctionEnded"
       | "auctionExists"
       | "auctionSettled"
@@ -107,21 +80,37 @@ export interface IETSAuctionHouseInterface extends utils.Interface {
       | "unpause"
   ): FunctionFragment;
 
+  getEvent(
+    nameOrSignatureOrTopic:
+      | "AuctionBid"
+      | "AuctionCreated"
+      | "AuctionDurationSet"
+      | "AuctionExtended"
+      | "AuctionMinBidIncrementPercentageSet"
+      | "AuctionProceedPercentagesSet"
+      | "AuctionProceedsWithdrawn"
+      | "AuctionReservePriceSet"
+      | "AuctionSettled"
+      | "AuctionTimeBufferSet"
+      | "AuctionsMaxSet"
+      | "RequestCreateAuction"
+  ): EventFragment;
+
   encodeFunctionData(
     functionFragment: "auctionEnded",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "auctionExists",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "auctionSettled",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "createBid",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "createNextAuction",
@@ -129,11 +118,11 @@ export interface IETSAuctionHouseInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "drawDown",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "fulfillRequestCreateAuction",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getActiveCount",
@@ -141,7 +130,7 @@ export interface IETSAuctionHouseInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getAuction",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getBalance",
@@ -154,27 +143,27 @@ export interface IETSAuctionHouseInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "pause", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "setProceedPercentages",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+    values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setReservePrice",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setTimeBuffer",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "settleAuction",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "settleCurrentAndCreateNewAuction",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "totalDue",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
 
@@ -233,729 +222,586 @@ export interface IETSAuctionHouseInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "totalDue", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
-
-  events: {
-    "AuctionBid(uint256,address,uint256,bool)": EventFragment;
-    "AuctionCreated(uint256)": EventFragment;
-    "AuctionDurationSet(uint256)": EventFragment;
-    "AuctionExtended(uint256,uint256)": EventFragment;
-    "AuctionMinBidIncrementPercentageSet(uint8)": EventFragment;
-    "AuctionProceedPercentagesSet(uint256,uint256,uint256)": EventFragment;
-    "AuctionProceedsWithdrawn(address,uint256)": EventFragment;
-    "AuctionReservePriceSet(uint256)": EventFragment;
-    "AuctionSettled(uint256)": EventFragment;
-    "AuctionTimeBufferSet(uint256)": EventFragment;
-    "AuctionsMaxSet(uint256)": EventFragment;
-    "RequestCreateAuction()": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "AuctionBid"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AuctionCreated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AuctionDurationSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AuctionExtended"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AuctionMinBidIncrementPercentageSet"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AuctionProceedPercentagesSet"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AuctionProceedsWithdrawn"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AuctionReservePriceSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AuctionSettled"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AuctionTimeBufferSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AuctionsMaxSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RequestCreateAuction"): EventFragment;
 }
 
-export interface AuctionBidEventObject {
-  tokenId: BigNumber;
-  sender: string;
-  value: BigNumber;
-  extended: boolean;
+export namespace AuctionBidEvent {
+  export type InputTuple = [
+    tokenId: BigNumberish,
+    sender: AddressLike,
+    value: BigNumberish,
+    extended: boolean
+  ];
+  export type OutputTuple = [
+    tokenId: bigint,
+    sender: string,
+    value: bigint,
+    extended: boolean
+  ];
+  export interface OutputObject {
+    tokenId: bigint;
+    sender: string;
+    value: bigint;
+    extended: boolean;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AuctionBidEvent = TypedEvent<
-  [BigNumber, string, BigNumber, boolean],
-  AuctionBidEventObject
->;
 
-export type AuctionBidEventFilter = TypedEventFilter<AuctionBidEvent>;
-
-export interface AuctionCreatedEventObject {
-  tokenId: BigNumber;
+export namespace AuctionCreatedEvent {
+  export type InputTuple = [tokenId: BigNumberish];
+  export type OutputTuple = [tokenId: bigint];
+  export interface OutputObject {
+    tokenId: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AuctionCreatedEvent = TypedEvent<
-  [BigNumber],
-  AuctionCreatedEventObject
->;
 
-export type AuctionCreatedEventFilter = TypedEventFilter<AuctionCreatedEvent>;
-
-export interface AuctionDurationSetEventObject {
-  duration: BigNumber;
+export namespace AuctionDurationSetEvent {
+  export type InputTuple = [duration: BigNumberish];
+  export type OutputTuple = [duration: bigint];
+  export interface OutputObject {
+    duration: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AuctionDurationSetEvent = TypedEvent<
-  [BigNumber],
-  AuctionDurationSetEventObject
->;
 
-export type AuctionDurationSetEventFilter =
-  TypedEventFilter<AuctionDurationSetEvent>;
-
-export interface AuctionExtendedEventObject {
-  tokenId: BigNumber;
-  endTime: BigNumber;
+export namespace AuctionExtendedEvent {
+  export type InputTuple = [tokenId: BigNumberish, endTime: BigNumberish];
+  export type OutputTuple = [tokenId: bigint, endTime: bigint];
+  export interface OutputObject {
+    tokenId: bigint;
+    endTime: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AuctionExtendedEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  AuctionExtendedEventObject
->;
 
-export type AuctionExtendedEventFilter = TypedEventFilter<AuctionExtendedEvent>;
-
-export interface AuctionMinBidIncrementPercentageSetEventObject {
-  minBidIncrementPercentagePrice: number;
+export namespace AuctionMinBidIncrementPercentageSetEvent {
+  export type InputTuple = [minBidIncrementPercentagePrice: BigNumberish];
+  export type OutputTuple = [minBidIncrementPercentagePrice: bigint];
+  export interface OutputObject {
+    minBidIncrementPercentagePrice: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AuctionMinBidIncrementPercentageSetEvent = TypedEvent<
-  [number],
-  AuctionMinBidIncrementPercentageSetEventObject
->;
 
-export type AuctionMinBidIncrementPercentageSetEventFilter =
-  TypedEventFilter<AuctionMinBidIncrementPercentageSetEvent>;
-
-export interface AuctionProceedPercentagesSetEventObject {
-  platformPercentage: BigNumber;
-  relayerPercentage: BigNumber;
-  creatorPercentage: BigNumber;
+export namespace AuctionProceedPercentagesSetEvent {
+  export type InputTuple = [
+    platformPercentage: BigNumberish,
+    relayerPercentage: BigNumberish,
+    creatorPercentage: BigNumberish
+  ];
+  export type OutputTuple = [
+    platformPercentage: bigint,
+    relayerPercentage: bigint,
+    creatorPercentage: bigint
+  ];
+  export interface OutputObject {
+    platformPercentage: bigint;
+    relayerPercentage: bigint;
+    creatorPercentage: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AuctionProceedPercentagesSetEvent = TypedEvent<
-  [BigNumber, BigNumber, BigNumber],
-  AuctionProceedPercentagesSetEventObject
->;
 
-export type AuctionProceedPercentagesSetEventFilter =
-  TypedEventFilter<AuctionProceedPercentagesSetEvent>;
-
-export interface AuctionProceedsWithdrawnEventObject {
-  who: string;
-  amount: BigNumber;
+export namespace AuctionProceedsWithdrawnEvent {
+  export type InputTuple = [who: AddressLike, amount: BigNumberish];
+  export type OutputTuple = [who: string, amount: bigint];
+  export interface OutputObject {
+    who: string;
+    amount: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AuctionProceedsWithdrawnEvent = TypedEvent<
-  [string, BigNumber],
-  AuctionProceedsWithdrawnEventObject
->;
 
-export type AuctionProceedsWithdrawnEventFilter =
-  TypedEventFilter<AuctionProceedsWithdrawnEvent>;
-
-export interface AuctionReservePriceSetEventObject {
-  reservePrice: BigNumber;
+export namespace AuctionReservePriceSetEvent {
+  export type InputTuple = [reservePrice: BigNumberish];
+  export type OutputTuple = [reservePrice: bigint];
+  export interface OutputObject {
+    reservePrice: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AuctionReservePriceSetEvent = TypedEvent<
-  [BigNumber],
-  AuctionReservePriceSetEventObject
->;
 
-export type AuctionReservePriceSetEventFilter =
-  TypedEventFilter<AuctionReservePriceSetEvent>;
-
-export interface AuctionSettledEventObject {
-  tokenId: BigNumber;
+export namespace AuctionSettledEvent {
+  export type InputTuple = [tokenId: BigNumberish];
+  export type OutputTuple = [tokenId: bigint];
+  export interface OutputObject {
+    tokenId: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AuctionSettledEvent = TypedEvent<
-  [BigNumber],
-  AuctionSettledEventObject
->;
 
-export type AuctionSettledEventFilter = TypedEventFilter<AuctionSettledEvent>;
-
-export interface AuctionTimeBufferSetEventObject {
-  timeBuffer: BigNumber;
+export namespace AuctionTimeBufferSetEvent {
+  export type InputTuple = [timeBuffer: BigNumberish];
+  export type OutputTuple = [timeBuffer: bigint];
+  export interface OutputObject {
+    timeBuffer: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AuctionTimeBufferSetEvent = TypedEvent<
-  [BigNumber],
-  AuctionTimeBufferSetEventObject
->;
 
-export type AuctionTimeBufferSetEventFilter =
-  TypedEventFilter<AuctionTimeBufferSetEvent>;
-
-export interface AuctionsMaxSetEventObject {
-  maxAuctions: BigNumber;
+export namespace AuctionsMaxSetEvent {
+  export type InputTuple = [maxAuctions: BigNumberish];
+  export type OutputTuple = [maxAuctions: bigint];
+  export interface OutputObject {
+    maxAuctions: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AuctionsMaxSetEvent = TypedEvent<
-  [BigNumber],
-  AuctionsMaxSetEventObject
->;
 
-export type AuctionsMaxSetEventFilter = TypedEventFilter<AuctionsMaxSetEvent>;
-
-export interface RequestCreateAuctionEventObject {}
-export type RequestCreateAuctionEvent = TypedEvent<
-  [],
-  RequestCreateAuctionEventObject
->;
-
-export type RequestCreateAuctionEventFilter =
-  TypedEventFilter<RequestCreateAuctionEvent>;
+export namespace RequestCreateAuctionEvent {
+  export type InputTuple = [];
+  export type OutputTuple = [];
+  export interface OutputObject {}
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
 
 export interface IETSAuctionHouse extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): IETSAuctionHouse;
+  waitForDeployment(): Promise<this>;
 
   interface: IETSAuctionHouseInterface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-  functions: {
-    auctionEnded(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-    auctionExists(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
 
-    auctionSettled(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  auctionEnded: TypedContractMethod<
+    [_tokenId: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
 
-    createBid(
-      auctionId: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  auctionExists: TypedContractMethod<
+    [_tokenId: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
 
-    createNextAuction(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  auctionSettled: TypedContractMethod<
+    [_tokenId: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
 
-    drawDown(
-      _account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  createBid: TypedContractMethod<[auctionId: BigNumberish], [void], "payable">;
 
-    fulfillRequestCreateAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  createNextAuction: TypedContractMethod<[], [void], "nonpayable">;
 
-    getActiveCount(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  drawDown: TypedContractMethod<[_account: AddressLike], [void], "nonpayable">;
 
-    getAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  fulfillRequestCreateAuction: TypedContractMethod<
+    [_tokenId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
-    getBalance(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  getActiveCount: TypedContractMethod<[], [bigint], "nonpayable">;
 
-    getTotalCount(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  getAuction: TypedContractMethod<
+    [_tokenId: BigNumberish],
+    [IETSAuctionHouse.AuctionStructOutput],
+    "nonpayable"
+  >;
 
-    pause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  getBalance: TypedContractMethod<[], [bigint], "nonpayable">;
 
-    setProceedPercentages(
-      _platformPercentage: PromiseOrValue<BigNumberish>,
-      _relayerPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  getTotalCount: TypedContractMethod<[], [bigint], "nonpayable">;
 
-    setReservePrice(
-      _reservePrice: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  pause: TypedContractMethod<[], [void], "nonpayable">;
 
-    setTimeBuffer(
-      timeBuffer: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  setProceedPercentages: TypedContractMethod<
+    [_platformPercentage: BigNumberish, _relayerPercentage: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
-    settleAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  setReservePrice: TypedContractMethod<
+    [_reservePrice: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
-    settleCurrentAndCreateNewAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  setTimeBuffer: TypedContractMethod<
+    [timeBuffer: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
-    totalDue(
-      _account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  settleAuction: TypedContractMethod<
+    [_tokenId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
-    unpause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-  };
+  settleCurrentAndCreateNewAuction: TypedContractMethod<
+    [_tokenId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
-  auctionEnded(
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  totalDue: TypedContractMethod<
+    [_account: AddressLike],
+    [bigint],
+    "nonpayable"
+  >;
 
-  auctionExists(
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  unpause: TypedContractMethod<[], [void], "nonpayable">;
 
-  auctionSettled(
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
 
-  createBid(
-    auctionId: PromiseOrValue<BigNumberish>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  getFunction(
+    nameOrSignature: "auctionEnded"
+  ): TypedContractMethod<[_tokenId: BigNumberish], [boolean], "nonpayable">;
+  getFunction(
+    nameOrSignature: "auctionExists"
+  ): TypedContractMethod<[_tokenId: BigNumberish], [boolean], "nonpayable">;
+  getFunction(
+    nameOrSignature: "auctionSettled"
+  ): TypedContractMethod<[_tokenId: BigNumberish], [boolean], "nonpayable">;
+  getFunction(
+    nameOrSignature: "createBid"
+  ): TypedContractMethod<[auctionId: BigNumberish], [void], "payable">;
+  getFunction(
+    nameOrSignature: "createNextAuction"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "drawDown"
+  ): TypedContractMethod<[_account: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "fulfillRequestCreateAuction"
+  ): TypedContractMethod<[_tokenId: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "getActiveCount"
+  ): TypedContractMethod<[], [bigint], "nonpayable">;
+  getFunction(
+    nameOrSignature: "getAuction"
+  ): TypedContractMethod<
+    [_tokenId: BigNumberish],
+    [IETSAuctionHouse.AuctionStructOutput],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "getBalance"
+  ): TypedContractMethod<[], [bigint], "nonpayable">;
+  getFunction(
+    nameOrSignature: "getTotalCount"
+  ): TypedContractMethod<[], [bigint], "nonpayable">;
+  getFunction(
+    nameOrSignature: "pause"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setProceedPercentages"
+  ): TypedContractMethod<
+    [_platformPercentage: BigNumberish, _relayerPercentage: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "setReservePrice"
+  ): TypedContractMethod<[_reservePrice: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setTimeBuffer"
+  ): TypedContractMethod<[timeBuffer: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "settleAuction"
+  ): TypedContractMethod<[_tokenId: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "settleCurrentAndCreateNewAuction"
+  ): TypedContractMethod<[_tokenId: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "totalDue"
+  ): TypedContractMethod<[_account: AddressLike], [bigint], "nonpayable">;
+  getFunction(
+    nameOrSignature: "unpause"
+  ): TypedContractMethod<[], [void], "nonpayable">;
 
-  createNextAuction(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  drawDown(
-    _account: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  fulfillRequestCreateAuction(
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  getActiveCount(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  getAuction(
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  getBalance(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  getTotalCount(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  pause(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setProceedPercentages(
-    _platformPercentage: PromiseOrValue<BigNumberish>,
-    _relayerPercentage: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setReservePrice(
-    _reservePrice: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setTimeBuffer(
-    timeBuffer: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  settleAuction(
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  settleCurrentAndCreateNewAuction(
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  totalDue(
-    _account: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  unpause(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  callStatic: {
-    auctionEnded(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    auctionExists(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    auctionSettled(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    createBid(
-      auctionId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    createNextAuction(overrides?: CallOverrides): Promise<void>;
-
-    drawDown(
-      _account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    fulfillRequestCreateAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    getActiveCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<IETSAuctionHouse.AuctionStructOutput>;
-
-    getBalance(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getTotalCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-    pause(overrides?: CallOverrides): Promise<void>;
-
-    setProceedPercentages(
-      _platformPercentage: PromiseOrValue<BigNumberish>,
-      _relayerPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setReservePrice(
-      _reservePrice: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setTimeBuffer(
-      timeBuffer: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    settleAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    settleCurrentAndCreateNewAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    totalDue(
-      _account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    unpause(overrides?: CallOverrides): Promise<void>;
-  };
+  getEvent(
+    key: "AuctionBid"
+  ): TypedContractEvent<
+    AuctionBidEvent.InputTuple,
+    AuctionBidEvent.OutputTuple,
+    AuctionBidEvent.OutputObject
+  >;
+  getEvent(
+    key: "AuctionCreated"
+  ): TypedContractEvent<
+    AuctionCreatedEvent.InputTuple,
+    AuctionCreatedEvent.OutputTuple,
+    AuctionCreatedEvent.OutputObject
+  >;
+  getEvent(
+    key: "AuctionDurationSet"
+  ): TypedContractEvent<
+    AuctionDurationSetEvent.InputTuple,
+    AuctionDurationSetEvent.OutputTuple,
+    AuctionDurationSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "AuctionExtended"
+  ): TypedContractEvent<
+    AuctionExtendedEvent.InputTuple,
+    AuctionExtendedEvent.OutputTuple,
+    AuctionExtendedEvent.OutputObject
+  >;
+  getEvent(
+    key: "AuctionMinBidIncrementPercentageSet"
+  ): TypedContractEvent<
+    AuctionMinBidIncrementPercentageSetEvent.InputTuple,
+    AuctionMinBidIncrementPercentageSetEvent.OutputTuple,
+    AuctionMinBidIncrementPercentageSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "AuctionProceedPercentagesSet"
+  ): TypedContractEvent<
+    AuctionProceedPercentagesSetEvent.InputTuple,
+    AuctionProceedPercentagesSetEvent.OutputTuple,
+    AuctionProceedPercentagesSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "AuctionProceedsWithdrawn"
+  ): TypedContractEvent<
+    AuctionProceedsWithdrawnEvent.InputTuple,
+    AuctionProceedsWithdrawnEvent.OutputTuple,
+    AuctionProceedsWithdrawnEvent.OutputObject
+  >;
+  getEvent(
+    key: "AuctionReservePriceSet"
+  ): TypedContractEvent<
+    AuctionReservePriceSetEvent.InputTuple,
+    AuctionReservePriceSetEvent.OutputTuple,
+    AuctionReservePriceSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "AuctionSettled"
+  ): TypedContractEvent<
+    AuctionSettledEvent.InputTuple,
+    AuctionSettledEvent.OutputTuple,
+    AuctionSettledEvent.OutputObject
+  >;
+  getEvent(
+    key: "AuctionTimeBufferSet"
+  ): TypedContractEvent<
+    AuctionTimeBufferSetEvent.InputTuple,
+    AuctionTimeBufferSetEvent.OutputTuple,
+    AuctionTimeBufferSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "AuctionsMaxSet"
+  ): TypedContractEvent<
+    AuctionsMaxSetEvent.InputTuple,
+    AuctionsMaxSetEvent.OutputTuple,
+    AuctionsMaxSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "RequestCreateAuction"
+  ): TypedContractEvent<
+    RequestCreateAuctionEvent.InputTuple,
+    RequestCreateAuctionEvent.OutputTuple,
+    RequestCreateAuctionEvent.OutputObject
+  >;
 
   filters: {
-    "AuctionBid(uint256,address,uint256,bool)"(
-      tokenId?: PromiseOrValue<BigNumberish> | null,
-      sender?: null,
-      value?: null,
-      extended?: null
-    ): AuctionBidEventFilter;
-    AuctionBid(
-      tokenId?: PromiseOrValue<BigNumberish> | null,
-      sender?: null,
-      value?: null,
-      extended?: null
-    ): AuctionBidEventFilter;
+    "AuctionBid(uint256,address,uint256,bool)": TypedContractEvent<
+      AuctionBidEvent.InputTuple,
+      AuctionBidEvent.OutputTuple,
+      AuctionBidEvent.OutputObject
+    >;
+    AuctionBid: TypedContractEvent<
+      AuctionBidEvent.InputTuple,
+      AuctionBidEvent.OutputTuple,
+      AuctionBidEvent.OutputObject
+    >;
 
-    "AuctionCreated(uint256)"(
-      tokenId?: PromiseOrValue<BigNumberish> | null
-    ): AuctionCreatedEventFilter;
-    AuctionCreated(
-      tokenId?: PromiseOrValue<BigNumberish> | null
-    ): AuctionCreatedEventFilter;
+    "AuctionCreated(uint256)": TypedContractEvent<
+      AuctionCreatedEvent.InputTuple,
+      AuctionCreatedEvent.OutputTuple,
+      AuctionCreatedEvent.OutputObject
+    >;
+    AuctionCreated: TypedContractEvent<
+      AuctionCreatedEvent.InputTuple,
+      AuctionCreatedEvent.OutputTuple,
+      AuctionCreatedEvent.OutputObject
+    >;
 
-    "AuctionDurationSet(uint256)"(
-      duration?: null
-    ): AuctionDurationSetEventFilter;
-    AuctionDurationSet(duration?: null): AuctionDurationSetEventFilter;
+    "AuctionDurationSet(uint256)": TypedContractEvent<
+      AuctionDurationSetEvent.InputTuple,
+      AuctionDurationSetEvent.OutputTuple,
+      AuctionDurationSetEvent.OutputObject
+    >;
+    AuctionDurationSet: TypedContractEvent<
+      AuctionDurationSetEvent.InputTuple,
+      AuctionDurationSetEvent.OutputTuple,
+      AuctionDurationSetEvent.OutputObject
+    >;
 
-    "AuctionExtended(uint256,uint256)"(
-      tokenId?: PromiseOrValue<BigNumberish> | null,
-      endTime?: null
-    ): AuctionExtendedEventFilter;
-    AuctionExtended(
-      tokenId?: PromiseOrValue<BigNumberish> | null,
-      endTime?: null
-    ): AuctionExtendedEventFilter;
+    "AuctionExtended(uint256,uint256)": TypedContractEvent<
+      AuctionExtendedEvent.InputTuple,
+      AuctionExtendedEvent.OutputTuple,
+      AuctionExtendedEvent.OutputObject
+    >;
+    AuctionExtended: TypedContractEvent<
+      AuctionExtendedEvent.InputTuple,
+      AuctionExtendedEvent.OutputTuple,
+      AuctionExtendedEvent.OutputObject
+    >;
 
-    "AuctionMinBidIncrementPercentageSet(uint8)"(
-      minBidIncrementPercentagePrice?: null
-    ): AuctionMinBidIncrementPercentageSetEventFilter;
-    AuctionMinBidIncrementPercentageSet(
-      minBidIncrementPercentagePrice?: null
-    ): AuctionMinBidIncrementPercentageSetEventFilter;
+    "AuctionMinBidIncrementPercentageSet(uint8)": TypedContractEvent<
+      AuctionMinBidIncrementPercentageSetEvent.InputTuple,
+      AuctionMinBidIncrementPercentageSetEvent.OutputTuple,
+      AuctionMinBidIncrementPercentageSetEvent.OutputObject
+    >;
+    AuctionMinBidIncrementPercentageSet: TypedContractEvent<
+      AuctionMinBidIncrementPercentageSetEvent.InputTuple,
+      AuctionMinBidIncrementPercentageSetEvent.OutputTuple,
+      AuctionMinBidIncrementPercentageSetEvent.OutputObject
+    >;
 
-    "AuctionProceedPercentagesSet(uint256,uint256,uint256)"(
-      platformPercentage?: null,
-      relayerPercentage?: null,
-      creatorPercentage?: null
-    ): AuctionProceedPercentagesSetEventFilter;
-    AuctionProceedPercentagesSet(
-      platformPercentage?: null,
-      relayerPercentage?: null,
-      creatorPercentage?: null
-    ): AuctionProceedPercentagesSetEventFilter;
+    "AuctionProceedPercentagesSet(uint256,uint256,uint256)": TypedContractEvent<
+      AuctionProceedPercentagesSetEvent.InputTuple,
+      AuctionProceedPercentagesSetEvent.OutputTuple,
+      AuctionProceedPercentagesSetEvent.OutputObject
+    >;
+    AuctionProceedPercentagesSet: TypedContractEvent<
+      AuctionProceedPercentagesSetEvent.InputTuple,
+      AuctionProceedPercentagesSetEvent.OutputTuple,
+      AuctionProceedPercentagesSetEvent.OutputObject
+    >;
 
-    "AuctionProceedsWithdrawn(address,uint256)"(
-      who?: PromiseOrValue<string> | null,
-      amount?: null
-    ): AuctionProceedsWithdrawnEventFilter;
-    AuctionProceedsWithdrawn(
-      who?: PromiseOrValue<string> | null,
-      amount?: null
-    ): AuctionProceedsWithdrawnEventFilter;
+    "AuctionProceedsWithdrawn(address,uint256)": TypedContractEvent<
+      AuctionProceedsWithdrawnEvent.InputTuple,
+      AuctionProceedsWithdrawnEvent.OutputTuple,
+      AuctionProceedsWithdrawnEvent.OutputObject
+    >;
+    AuctionProceedsWithdrawn: TypedContractEvent<
+      AuctionProceedsWithdrawnEvent.InputTuple,
+      AuctionProceedsWithdrawnEvent.OutputTuple,
+      AuctionProceedsWithdrawnEvent.OutputObject
+    >;
 
-    "AuctionReservePriceSet(uint256)"(
-      reservePrice?: null
-    ): AuctionReservePriceSetEventFilter;
-    AuctionReservePriceSet(
-      reservePrice?: null
-    ): AuctionReservePriceSetEventFilter;
+    "AuctionReservePriceSet(uint256)": TypedContractEvent<
+      AuctionReservePriceSetEvent.InputTuple,
+      AuctionReservePriceSetEvent.OutputTuple,
+      AuctionReservePriceSetEvent.OutputObject
+    >;
+    AuctionReservePriceSet: TypedContractEvent<
+      AuctionReservePriceSetEvent.InputTuple,
+      AuctionReservePriceSetEvent.OutputTuple,
+      AuctionReservePriceSetEvent.OutputObject
+    >;
 
-    "AuctionSettled(uint256)"(
-      tokenId?: PromiseOrValue<BigNumberish> | null
-    ): AuctionSettledEventFilter;
-    AuctionSettled(
-      tokenId?: PromiseOrValue<BigNumberish> | null
-    ): AuctionSettledEventFilter;
+    "AuctionSettled(uint256)": TypedContractEvent<
+      AuctionSettledEvent.InputTuple,
+      AuctionSettledEvent.OutputTuple,
+      AuctionSettledEvent.OutputObject
+    >;
+    AuctionSettled: TypedContractEvent<
+      AuctionSettledEvent.InputTuple,
+      AuctionSettledEvent.OutputTuple,
+      AuctionSettledEvent.OutputObject
+    >;
 
-    "AuctionTimeBufferSet(uint256)"(
-      timeBuffer?: null
-    ): AuctionTimeBufferSetEventFilter;
-    AuctionTimeBufferSet(timeBuffer?: null): AuctionTimeBufferSetEventFilter;
+    "AuctionTimeBufferSet(uint256)": TypedContractEvent<
+      AuctionTimeBufferSetEvent.InputTuple,
+      AuctionTimeBufferSetEvent.OutputTuple,
+      AuctionTimeBufferSetEvent.OutputObject
+    >;
+    AuctionTimeBufferSet: TypedContractEvent<
+      AuctionTimeBufferSetEvent.InputTuple,
+      AuctionTimeBufferSetEvent.OutputTuple,
+      AuctionTimeBufferSetEvent.OutputObject
+    >;
 
-    "AuctionsMaxSet(uint256)"(maxAuctions?: null): AuctionsMaxSetEventFilter;
-    AuctionsMaxSet(maxAuctions?: null): AuctionsMaxSetEventFilter;
+    "AuctionsMaxSet(uint256)": TypedContractEvent<
+      AuctionsMaxSetEvent.InputTuple,
+      AuctionsMaxSetEvent.OutputTuple,
+      AuctionsMaxSetEvent.OutputObject
+    >;
+    AuctionsMaxSet: TypedContractEvent<
+      AuctionsMaxSetEvent.InputTuple,
+      AuctionsMaxSetEvent.OutputTuple,
+      AuctionsMaxSetEvent.OutputObject
+    >;
 
-    "RequestCreateAuction()"(): RequestCreateAuctionEventFilter;
-    RequestCreateAuction(): RequestCreateAuctionEventFilter;
-  };
-
-  estimateGas: {
-    auctionEnded(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    auctionExists(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    auctionSettled(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    createBid(
-      auctionId: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    createNextAuction(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    drawDown(
-      _account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    fulfillRequestCreateAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    getActiveCount(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    getAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    getBalance(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    getTotalCount(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    pause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setProceedPercentages(
-      _platformPercentage: PromiseOrValue<BigNumberish>,
-      _relayerPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setReservePrice(
-      _reservePrice: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setTimeBuffer(
-      timeBuffer: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    settleAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    settleCurrentAndCreateNewAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    totalDue(
-      _account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    unpause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    auctionEnded(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    auctionExists(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    auctionSettled(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    createBid(
-      auctionId: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    createNextAuction(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    drawDown(
-      _account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    fulfillRequestCreateAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getActiveCount(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getBalance(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getTotalCount(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    pause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setProceedPercentages(
-      _platformPercentage: PromiseOrValue<BigNumberish>,
-      _relayerPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setReservePrice(
-      _reservePrice: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setTimeBuffer(
-      timeBuffer: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    settleAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    settleCurrentAndCreateNewAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    totalDue(
-      _account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    unpause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    "RequestCreateAuction()": TypedContractEvent<
+      RequestCreateAuctionEvent.InputTuple,
+      RequestCreateAuctionEvent.OutputTuple,
+      RequestCreateAuctionEvent.OutputObject
+    >;
+    RequestCreateAuction: TypedContractEvent<
+      RequestCreateAuctionEvent.InputTuple,
+      RequestCreateAuctionEvent.OutputTuple,
+      RequestCreateAuctionEvent.OutputObject
+    >;
   };
 }

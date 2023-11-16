@@ -3,69 +3,53 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BigNumberish,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
-} from "ethers";
-import type {
   FunctionFragment,
   Result,
+  Interface,
   EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+  AddressLike,
+  ContractRunner,
+  ContractMethod,
+  Listener,
+} from "ethers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
+  TypedLogDescription,
   TypedListener,
-  OnEvent,
-  PromiseOrValue,
+  TypedContractMethod,
 } from "../../common";
 
 export declare namespace IETSTarget {
   export type TargetStruct = {
-    targetURI: PromiseOrValue<string>;
-    createdBy: PromiseOrValue<string>;
-    enriched: PromiseOrValue<BigNumberish>;
-    httpStatus: PromiseOrValue<BigNumberish>;
-    ipfsHash: PromiseOrValue<string>;
+    targetURI: string;
+    createdBy: AddressLike;
+    enriched: BigNumberish;
+    httpStatus: BigNumberish;
+    ipfsHash: string;
   };
 
   export type TargetStructOutput = [
-    string,
-    string,
-    BigNumber,
-    BigNumber,
-    string
+    targetURI: string,
+    createdBy: string,
+    enriched: bigint,
+    httpStatus: bigint,
+    ipfsHash: string
   ] & {
     targetURI: string;
     createdBy: string;
-    enriched: BigNumber;
-    httpStatus: BigNumber;
+    enriched: bigint;
+    httpStatus: bigint;
     ipfsHash: string;
   };
 }
 
-export interface IETSTargetInterface extends utils.Interface {
-  functions: {
-    "computeTargetId(string)": FunctionFragment;
-    "createTarget(string)": FunctionFragment;
-    "getOrCreateTargetId(string)": FunctionFragment;
-    "getTargetById(uint256)": FunctionFragment;
-    "getTargetByURI(string)": FunctionFragment;
-    "setEnrichTarget(address)": FunctionFragment;
-    "targetExistsById(uint256)": FunctionFragment;
-    "targetExistsByURI(string)": FunctionFragment;
-    "updateTarget(uint256,string,uint256,uint256,string)": FunctionFragment;
-  };
-
+export interface IETSTargetInterface extends Interface {
   getFunction(
-    nameOrSignatureOrTopic:
+    nameOrSignature:
       | "computeTargetId"
       | "createTarget"
       | "getOrCreateTargetId"
@@ -77,47 +61,49 @@ export interface IETSTargetInterface extends utils.Interface {
       | "updateTarget"
   ): FunctionFragment;
 
+  getEvent(
+    nameOrSignatureOrTopic:
+      | "AccessControlsSet"
+      | "EnrichTargetSet"
+      | "TargetCreated"
+      | "TargetUpdated"
+  ): EventFragment;
+
   encodeFunctionData(
     functionFragment: "computeTargetId",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "createTarget",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "getOrCreateTargetId",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "getTargetById",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getTargetByURI",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "setEnrichTarget",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "targetExistsById",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "targetExistsByURI",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "updateTarget",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>
-    ]
+    values: [BigNumberish, string, BigNumberish, BigNumberish, string]
   ): string;
 
   decodeFunctionResult(
@@ -156,355 +142,277 @@ export interface IETSTargetInterface extends utils.Interface {
     functionFragment: "updateTarget",
     data: BytesLike
   ): Result;
-
-  events: {
-    "AccessControlsSet(address)": EventFragment;
-    "EnrichTargetSet(address)": EventFragment;
-    "TargetCreated(uint256)": EventFragment;
-    "TargetUpdated(uint256)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "AccessControlsSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "EnrichTargetSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TargetCreated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TargetUpdated"): EventFragment;
 }
 
-export interface AccessControlsSetEventObject {
-  etsAccessControls: string;
+export namespace AccessControlsSetEvent {
+  export type InputTuple = [etsAccessControls: AddressLike];
+  export type OutputTuple = [etsAccessControls: string];
+  export interface OutputObject {
+    etsAccessControls: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AccessControlsSetEvent = TypedEvent<
-  [string],
-  AccessControlsSetEventObject
->;
 
-export type AccessControlsSetEventFilter =
-  TypedEventFilter<AccessControlsSetEvent>;
-
-export interface EnrichTargetSetEventObject {
-  etsEnrichTarget: string;
+export namespace EnrichTargetSetEvent {
+  export type InputTuple = [etsEnrichTarget: AddressLike];
+  export type OutputTuple = [etsEnrichTarget: string];
+  export interface OutputObject {
+    etsEnrichTarget: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type EnrichTargetSetEvent = TypedEvent<
-  [string],
-  EnrichTargetSetEventObject
->;
 
-export type EnrichTargetSetEventFilter = TypedEventFilter<EnrichTargetSetEvent>;
-
-export interface TargetCreatedEventObject {
-  targetId: BigNumber;
+export namespace TargetCreatedEvent {
+  export type InputTuple = [targetId: BigNumberish];
+  export type OutputTuple = [targetId: bigint];
+  export interface OutputObject {
+    targetId: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type TargetCreatedEvent = TypedEvent<
-  [BigNumber],
-  TargetCreatedEventObject
->;
 
-export type TargetCreatedEventFilter = TypedEventFilter<TargetCreatedEvent>;
-
-export interface TargetUpdatedEventObject {
-  targetId: BigNumber;
+export namespace TargetUpdatedEvent {
+  export type InputTuple = [targetId: BigNumberish];
+  export type OutputTuple = [targetId: bigint];
+  export interface OutputObject {
+    targetId: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type TargetUpdatedEvent = TypedEvent<
-  [BigNumber],
-  TargetUpdatedEventObject
->;
-
-export type TargetUpdatedEventFilter = TypedEventFilter<TargetUpdatedEvent>;
 
 export interface IETSTarget extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): IETSTarget;
+  waitForDeployment(): Promise<this>;
 
   interface: IETSTargetInterface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-  functions: {
-    computeTargetId(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { targetId: BigNumber }>;
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-    createTarget(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
 
-    getOrCreateTargetId(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  computeTargetId: TypedContractMethod<[_targetURI: string], [bigint], "view">;
 
-    getTargetById(
-      _targetId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[IETSTarget.TargetStructOutput]>;
+  createTarget: TypedContractMethod<
+    [_targetURI: string],
+    [bigint],
+    "nonpayable"
+  >;
 
-    getTargetByURI(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[IETSTarget.TargetStructOutput]>;
+  getOrCreateTargetId: TypedContractMethod<
+    [_targetURI: string],
+    [bigint],
+    "nonpayable"
+  >;
 
-    setEnrichTarget(
-      _etsEnrichTarget: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  getTargetById: TypedContractMethod<
+    [_targetId: BigNumberish],
+    [IETSTarget.TargetStructOutput],
+    "view"
+  >;
 
-    targetExistsById(
-      _targetId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+  getTargetByURI: TypedContractMethod<
+    [_targetURI: string],
+    [IETSTarget.TargetStructOutput],
+    "view"
+  >;
 
-    targetExistsByURI(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+  setEnrichTarget: TypedContractMethod<
+    [_etsEnrichTarget: AddressLike],
+    [void],
+    "nonpayable"
+  >;
 
-    updateTarget(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _targetURI: PromiseOrValue<string>,
-      _enriched: PromiseOrValue<BigNumberish>,
-      _httpStatus: PromiseOrValue<BigNumberish>,
-      _ipfsHash: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-  };
+  targetExistsById: TypedContractMethod<
+    [_targetId: BigNumberish],
+    [boolean],
+    "view"
+  >;
 
-  computeTargetId(
-    _targetURI: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  targetExistsByURI: TypedContractMethod<
+    [_targetURI: string],
+    [boolean],
+    "view"
+  >;
 
-  createTarget(
-    _targetURI: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  updateTarget: TypedContractMethod<
+    [
+      _targetId: BigNumberish,
+      _targetURI: string,
+      _enriched: BigNumberish,
+      _httpStatus: BigNumberish,
+      _ipfsHash: string
+    ],
+    [boolean],
+    "nonpayable"
+  >;
 
-  getOrCreateTargetId(
-    _targetURI: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
 
-  getTargetById(
-    _targetId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<IETSTarget.TargetStructOutput>;
+  getFunction(
+    nameOrSignature: "computeTargetId"
+  ): TypedContractMethod<[_targetURI: string], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "createTarget"
+  ): TypedContractMethod<[_targetURI: string], [bigint], "nonpayable">;
+  getFunction(
+    nameOrSignature: "getOrCreateTargetId"
+  ): TypedContractMethod<[_targetURI: string], [bigint], "nonpayable">;
+  getFunction(
+    nameOrSignature: "getTargetById"
+  ): TypedContractMethod<
+    [_targetId: BigNumberish],
+    [IETSTarget.TargetStructOutput],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getTargetByURI"
+  ): TypedContractMethod<
+    [_targetURI: string],
+    [IETSTarget.TargetStructOutput],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "setEnrichTarget"
+  ): TypedContractMethod<[_etsEnrichTarget: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "targetExistsById"
+  ): TypedContractMethod<[_targetId: BigNumberish], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "targetExistsByURI"
+  ): TypedContractMethod<[_targetURI: string], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "updateTarget"
+  ): TypedContractMethod<
+    [
+      _targetId: BigNumberish,
+      _targetURI: string,
+      _enriched: BigNumberish,
+      _httpStatus: BigNumberish,
+      _ipfsHash: string
+    ],
+    [boolean],
+    "nonpayable"
+  >;
 
-  getTargetByURI(
-    _targetURI: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<IETSTarget.TargetStructOutput>;
-
-  setEnrichTarget(
-    _etsEnrichTarget: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  targetExistsById(
-    _targetId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  targetExistsByURI(
-    _targetURI: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  updateTarget(
-    _targetId: PromiseOrValue<BigNumberish>,
-    _targetURI: PromiseOrValue<string>,
-    _enriched: PromiseOrValue<BigNumberish>,
-    _httpStatus: PromiseOrValue<BigNumberish>,
-    _ipfsHash: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  callStatic: {
-    computeTargetId(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    createTarget(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getOrCreateTargetId(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getTargetById(
-      _targetId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<IETSTarget.TargetStructOutput>;
-
-    getTargetByURI(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<IETSTarget.TargetStructOutput>;
-
-    setEnrichTarget(
-      _etsEnrichTarget: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    targetExistsById(
-      _targetId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    targetExistsByURI(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    updateTarget(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _targetURI: PromiseOrValue<string>,
-      _enriched: PromiseOrValue<BigNumberish>,
-      _httpStatus: PromiseOrValue<BigNumberish>,
-      _ipfsHash: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-  };
+  getEvent(
+    key: "AccessControlsSet"
+  ): TypedContractEvent<
+    AccessControlsSetEvent.InputTuple,
+    AccessControlsSetEvent.OutputTuple,
+    AccessControlsSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "EnrichTargetSet"
+  ): TypedContractEvent<
+    EnrichTargetSetEvent.InputTuple,
+    EnrichTargetSetEvent.OutputTuple,
+    EnrichTargetSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "TargetCreated"
+  ): TypedContractEvent<
+    TargetCreatedEvent.InputTuple,
+    TargetCreatedEvent.OutputTuple,
+    TargetCreatedEvent.OutputObject
+  >;
+  getEvent(
+    key: "TargetUpdated"
+  ): TypedContractEvent<
+    TargetUpdatedEvent.InputTuple,
+    TargetUpdatedEvent.OutputTuple,
+    TargetUpdatedEvent.OutputObject
+  >;
 
   filters: {
-    "AccessControlsSet(address)"(
-      etsAccessControls?: null
-    ): AccessControlsSetEventFilter;
-    AccessControlsSet(etsAccessControls?: null): AccessControlsSetEventFilter;
+    "AccessControlsSet(address)": TypedContractEvent<
+      AccessControlsSetEvent.InputTuple,
+      AccessControlsSetEvent.OutputTuple,
+      AccessControlsSetEvent.OutputObject
+    >;
+    AccessControlsSet: TypedContractEvent<
+      AccessControlsSetEvent.InputTuple,
+      AccessControlsSetEvent.OutputTuple,
+      AccessControlsSetEvent.OutputObject
+    >;
 
-    "EnrichTargetSet(address)"(
-      etsEnrichTarget?: null
-    ): EnrichTargetSetEventFilter;
-    EnrichTargetSet(etsEnrichTarget?: null): EnrichTargetSetEventFilter;
+    "EnrichTargetSet(address)": TypedContractEvent<
+      EnrichTargetSetEvent.InputTuple,
+      EnrichTargetSetEvent.OutputTuple,
+      EnrichTargetSetEvent.OutputObject
+    >;
+    EnrichTargetSet: TypedContractEvent<
+      EnrichTargetSetEvent.InputTuple,
+      EnrichTargetSetEvent.OutputTuple,
+      EnrichTargetSetEvent.OutputObject
+    >;
 
-    "TargetCreated(uint256)"(targetId?: null): TargetCreatedEventFilter;
-    TargetCreated(targetId?: null): TargetCreatedEventFilter;
+    "TargetCreated(uint256)": TypedContractEvent<
+      TargetCreatedEvent.InputTuple,
+      TargetCreatedEvent.OutputTuple,
+      TargetCreatedEvent.OutputObject
+    >;
+    TargetCreated: TypedContractEvent<
+      TargetCreatedEvent.InputTuple,
+      TargetCreatedEvent.OutputTuple,
+      TargetCreatedEvent.OutputObject
+    >;
 
-    "TargetUpdated(uint256)"(targetId?: null): TargetUpdatedEventFilter;
-    TargetUpdated(targetId?: null): TargetUpdatedEventFilter;
-  };
-
-  estimateGas: {
-    computeTargetId(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    createTarget(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    getOrCreateTargetId(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    getTargetById(
-      _targetId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getTargetByURI(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    setEnrichTarget(
-      _etsEnrichTarget: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    targetExistsById(
-      _targetId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    targetExistsByURI(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    updateTarget(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _targetURI: PromiseOrValue<string>,
-      _enriched: PromiseOrValue<BigNumberish>,
-      _httpStatus: PromiseOrValue<BigNumberish>,
-      _ipfsHash: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    computeTargetId(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    createTarget(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getOrCreateTargetId(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getTargetById(
-      _targetId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getTargetByURI(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    setEnrichTarget(
-      _etsEnrichTarget: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    targetExistsById(
-      _targetId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    targetExistsByURI(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    updateTarget(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _targetURI: PromiseOrValue<string>,
-      _enriched: PromiseOrValue<BigNumberish>,
-      _httpStatus: PromiseOrValue<BigNumberish>,
-      _ipfsHash: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    "TargetUpdated(uint256)": TypedContractEvent<
+      TargetUpdatedEvent.InputTuple,
+      TargetUpdatedEvent.OutputTuple,
+      TargetUpdatedEvent.OutputObject
+    >;
+    TargetUpdated: TypedContractEvent<
+      TargetUpdatedEvent.InputTuple,
+      TargetUpdatedEvent.OutputTuple,
+      TargetUpdatedEvent.OutputObject
+    >;
   };
 }

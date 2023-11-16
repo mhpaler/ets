@@ -21,6 +21,9 @@ module.exports = async ({ deployments }) => {
 
   console.log("============ CONFIGURE ROLES & APPROVALS ============");
 
+  // TODO: Check if network is Hardhat & automine is false before setting to true.
+  // setting to true enabled all these settings to be mined in one txn.
+  await network.provider.send("evm_setAutomine", [true]);
   // Allows relayer admin role to grant relayer factory role.
   await ETSAccessControls.setRoleAdmin(await ETSAccessControls.RELAYER_FACTORY_ROLE(), await ETSAccessControls.RELAYER_ADMIN_ROLE());
 
@@ -29,26 +32,29 @@ module.exports = async ({ deployments }) => {
 
   await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), accounts.ETSAdmin.address);
   await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), accounts.ETSPlatform.address);
-  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), ETSAccessControls.address);
-  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), ETSToken.address);
+
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), etsAccessControls.address);
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), etsToken.address);
 
   // Set auction oracle to platform just for testing.
   await ETSAccessControls.grantRole(await ETSAccessControls.AUCTION_ORACLE_ROLE(), accounts.ETSPlatform.address);
   await ETSAccessControls.grantRole(await ETSAccessControls.SMART_CONTRACT_ROLE(), accounts.ETSAdmin.address);
 
-  await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(ETSEnrichTarget.address);
+  await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(etsEnrichTarget.address);
 
   // Approve auction house contract to move tokens owned by platform.
-  await ETSToken.connect(accounts.ETSPlatform).setApprovalForAll(ETSAuctionHouse.address, true);
+  await ETSToken.connect(accounts.ETSPlatform).setApprovalForAll(etsAuctionHouse.address, true);
 
   // Set ETS Core on ETSToken.
-  await ETSToken.connect(accounts.ETSPlatform).setETSCore(ETS.address);
+  await ETSToken.connect(accounts.ETSPlatform).setETSCore(ets.address);
 
   // Grant RELAYER_FACTORY_ROLE to ETSRelayerFactory so it can deploy relayer contracts.
-  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_FACTORY_ROLE(), ETSRelayerFactory.address);
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_FACTORY_ROLE(), etsRelayerFactory.address);
 
   // Add a relayer proxy for use in tests. Note: ETSPlatform not required to own CTAG to add relayer.
   await ETSRelayerFactory.connect(accounts.ETSPlatform).addRelayer("ETSRelayer");
+
+  await network.provider.send("evm_setAutomine", [false]);
 };
 
 module.exports.tags = ["deployAll"];

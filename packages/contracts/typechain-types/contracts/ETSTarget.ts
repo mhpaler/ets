@@ -3,79 +3,53 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BigNumberish,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PayableOverrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
-} from "ethers";
-import type {
   FunctionFragment,
   Result,
+  Interface,
   EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+  AddressLike,
+  ContractRunner,
+  ContractMethod,
+  Listener,
+} from "ethers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
+  TypedLogDescription,
   TypedListener,
-  OnEvent,
-  PromiseOrValue,
+  TypedContractMethod,
 } from "../common";
 
 export declare namespace IETSTarget {
   export type TargetStruct = {
-    targetURI: PromiseOrValue<string>;
-    createdBy: PromiseOrValue<string>;
-    enriched: PromiseOrValue<BigNumberish>;
-    httpStatus: PromiseOrValue<BigNumberish>;
-    ipfsHash: PromiseOrValue<string>;
+    targetURI: string;
+    createdBy: AddressLike;
+    enriched: BigNumberish;
+    httpStatus: BigNumberish;
+    ipfsHash: string;
   };
 
   export type TargetStructOutput = [
-    string,
-    string,
-    BigNumber,
-    BigNumber,
-    string
+    targetURI: string,
+    createdBy: string,
+    enriched: bigint,
+    httpStatus: bigint,
+    ipfsHash: string
   ] & {
     targetURI: string;
     createdBy: string;
-    enriched: BigNumber;
-    httpStatus: BigNumber;
+    enriched: bigint;
+    httpStatus: bigint;
     ipfsHash: string;
   };
 }
 
-export interface ETSTargetInterface extends utils.Interface {
-  functions: {
-    "NAME()": FunctionFragment;
-    "computeTargetId(string)": FunctionFragment;
-    "createTarget(string)": FunctionFragment;
-    "etsAccessControls()": FunctionFragment;
-    "etsEnrichTarget()": FunctionFragment;
-    "getOrCreateTargetId(string)": FunctionFragment;
-    "getTargetById(uint256)": FunctionFragment;
-    "getTargetByURI(string)": FunctionFragment;
-    "initialize(address)": FunctionFragment;
-    "proxiableUUID()": FunctionFragment;
-    "setAccessControls(address)": FunctionFragment;
-    "setEnrichTarget(address)": FunctionFragment;
-    "targetExistsById(uint256)": FunctionFragment;
-    "targetExistsByURI(string)": FunctionFragment;
-    "targets(uint256)": FunctionFragment;
-    "updateTarget(uint256,string,uint256,uint256,string)": FunctionFragment;
-    "upgradeTo(address)": FunctionFragment;
-    "upgradeToAndCall(address,bytes)": FunctionFragment;
-  };
-
+export interface ETSTargetInterface extends Interface {
   getFunction(
-    nameOrSignatureOrTopic:
+    nameOrSignature:
       | "NAME"
       | "computeTargetId"
       | "createTarget"
@@ -96,14 +70,26 @@ export interface ETSTargetInterface extends utils.Interface {
       | "upgradeToAndCall"
   ): FunctionFragment;
 
+  getEvent(
+    nameOrSignatureOrTopic:
+      | "AccessControlsSet"
+      | "AdminChanged"
+      | "BeaconUpgraded"
+      | "EnrichTargetSet"
+      | "Initialized"
+      | "TargetCreated"
+      | "TargetUpdated"
+      | "Upgraded"
+  ): EventFragment;
+
   encodeFunctionData(functionFragment: "NAME", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "computeTargetId",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "createTarget",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "etsAccessControls",
@@ -115,19 +101,19 @@ export interface ETSTargetInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getOrCreateTargetId",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "getTargetById",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getTargetByURI",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "initialize",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "proxiableUUID",
@@ -135,41 +121,35 @@ export interface ETSTargetInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setAccessControls",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "setEnrichTarget",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "targetExistsById",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "targetExistsByURI",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "targets",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "updateTarget",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>
-    ]
+    values: [BigNumberish, string, BigNumberish, BigNumberish, string]
   ): string;
   encodeFunctionData(
     functionFragment: "upgradeTo",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "upgradeToAndCall",
-    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
+    values: [AddressLike, BytesLike]
   ): string;
 
   decodeFunctionResult(functionFragment: "NAME", data: BytesLike): Result;
@@ -232,618 +212,495 @@ export interface ETSTargetInterface extends utils.Interface {
     functionFragment: "upgradeToAndCall",
     data: BytesLike
   ): Result;
-
-  events: {
-    "AccessControlsSet(address)": EventFragment;
-    "AdminChanged(address,address)": EventFragment;
-    "BeaconUpgraded(address)": EventFragment;
-    "EnrichTargetSet(address)": EventFragment;
-    "Initialized(uint8)": EventFragment;
-    "TargetCreated(uint256)": EventFragment;
-    "TargetUpdated(uint256)": EventFragment;
-    "Upgraded(address)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "AccessControlsSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AdminChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "BeaconUpgraded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "EnrichTargetSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TargetCreated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TargetUpdated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Upgraded"): EventFragment;
 }
 
-export interface AccessControlsSetEventObject {
-  etsAccessControls: string;
+export namespace AccessControlsSetEvent {
+  export type InputTuple = [etsAccessControls: AddressLike];
+  export type OutputTuple = [etsAccessControls: string];
+  export interface OutputObject {
+    etsAccessControls: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AccessControlsSetEvent = TypedEvent<
-  [string],
-  AccessControlsSetEventObject
->;
 
-export type AccessControlsSetEventFilter =
-  TypedEventFilter<AccessControlsSetEvent>;
-
-export interface AdminChangedEventObject {
-  previousAdmin: string;
-  newAdmin: string;
+export namespace AdminChangedEvent {
+  export type InputTuple = [previousAdmin: AddressLike, newAdmin: AddressLike];
+  export type OutputTuple = [previousAdmin: string, newAdmin: string];
+  export interface OutputObject {
+    previousAdmin: string;
+    newAdmin: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AdminChangedEvent = TypedEvent<
-  [string, string],
-  AdminChangedEventObject
->;
 
-export type AdminChangedEventFilter = TypedEventFilter<AdminChangedEvent>;
-
-export interface BeaconUpgradedEventObject {
-  beacon: string;
+export namespace BeaconUpgradedEvent {
+  export type InputTuple = [beacon: AddressLike];
+  export type OutputTuple = [beacon: string];
+  export interface OutputObject {
+    beacon: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type BeaconUpgradedEvent = TypedEvent<
-  [string],
-  BeaconUpgradedEventObject
->;
 
-export type BeaconUpgradedEventFilter = TypedEventFilter<BeaconUpgradedEvent>;
-
-export interface EnrichTargetSetEventObject {
-  etsEnrichTarget: string;
+export namespace EnrichTargetSetEvent {
+  export type InputTuple = [etsEnrichTarget: AddressLike];
+  export type OutputTuple = [etsEnrichTarget: string];
+  export interface OutputObject {
+    etsEnrichTarget: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type EnrichTargetSetEvent = TypedEvent<
-  [string],
-  EnrichTargetSetEventObject
->;
 
-export type EnrichTargetSetEventFilter = TypedEventFilter<EnrichTargetSetEvent>;
-
-export interface InitializedEventObject {
-  version: number;
+export namespace InitializedEvent {
+  export type InputTuple = [version: BigNumberish];
+  export type OutputTuple = [version: bigint];
+  export interface OutputObject {
+    version: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
 
-export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
-
-export interface TargetCreatedEventObject {
-  targetId: BigNumber;
+export namespace TargetCreatedEvent {
+  export type InputTuple = [targetId: BigNumberish];
+  export type OutputTuple = [targetId: bigint];
+  export interface OutputObject {
+    targetId: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type TargetCreatedEvent = TypedEvent<
-  [BigNumber],
-  TargetCreatedEventObject
->;
 
-export type TargetCreatedEventFilter = TypedEventFilter<TargetCreatedEvent>;
-
-export interface TargetUpdatedEventObject {
-  targetId: BigNumber;
+export namespace TargetUpdatedEvent {
+  export type InputTuple = [targetId: BigNumberish];
+  export type OutputTuple = [targetId: bigint];
+  export interface OutputObject {
+    targetId: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type TargetUpdatedEvent = TypedEvent<
-  [BigNumber],
-  TargetUpdatedEventObject
->;
 
-export type TargetUpdatedEventFilter = TypedEventFilter<TargetUpdatedEvent>;
-
-export interface UpgradedEventObject {
-  implementation: string;
+export namespace UpgradedEvent {
+  export type InputTuple = [implementation: AddressLike];
+  export type OutputTuple = [implementation: string];
+  export interface OutputObject {
+    implementation: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type UpgradedEvent = TypedEvent<[string], UpgradedEventObject>;
-
-export type UpgradedEventFilter = TypedEventFilter<UpgradedEvent>;
 
 export interface ETSTarget extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): ETSTarget;
+  waitForDeployment(): Promise<this>;
 
   interface: ETSTargetInterface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-  functions: {
-    NAME(overrides?: CallOverrides): Promise<[string]>;
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-    computeTargetId(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
 
-    createTarget(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  NAME: TypedContractMethod<[], [string], "view">;
 
-    etsAccessControls(overrides?: CallOverrides): Promise<[string]>;
+  computeTargetId: TypedContractMethod<[_targetURI: string], [bigint], "view">;
 
-    etsEnrichTarget(overrides?: CallOverrides): Promise<[string]>;
-
-    getOrCreateTargetId(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    getTargetById(
-      _targetId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[IETSTarget.TargetStructOutput]>;
-
-    getTargetByURI(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[IETSTarget.TargetStructOutput]>;
-
-    initialize(
-      _etsAccessControls: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    proxiableUUID(overrides?: CallOverrides): Promise<[string]>;
-
-    setAccessControls(
-      _accessControls: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setEnrichTarget(
-      _etsEnrichTarget: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    targetExistsById(
-      _targetId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    targetExistsByURI(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    targets(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [string, string, BigNumber, BigNumber, string] & {
-        targetURI: string;
-        createdBy: string;
-        enriched: BigNumber;
-        httpStatus: BigNumber;
-        ipfsHash: string;
-      }
-    >;
-
-    updateTarget(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _targetURI: PromiseOrValue<string>,
-      _enriched: PromiseOrValue<BigNumberish>,
-      _httpStatus: PromiseOrValue<BigNumberish>,
-      _ipfsHash: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    upgradeTo(
-      newImplementation: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    upgradeToAndCall(
-      newImplementation: PromiseOrValue<string>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-  };
-
-  NAME(overrides?: CallOverrides): Promise<string>;
-
-  computeTargetId(
-    _targetURI: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  createTarget(
-    _targetURI: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  etsAccessControls(overrides?: CallOverrides): Promise<string>;
-
-  etsEnrichTarget(overrides?: CallOverrides): Promise<string>;
-
-  getOrCreateTargetId(
-    _targetURI: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  getTargetById(
-    _targetId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<IETSTarget.TargetStructOutput>;
-
-  getTargetByURI(
-    _targetURI: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<IETSTarget.TargetStructOutput>;
-
-  initialize(
-    _etsAccessControls: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  proxiableUUID(overrides?: CallOverrides): Promise<string>;
-
-  setAccessControls(
-    _accessControls: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setEnrichTarget(
-    _etsEnrichTarget: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  targetExistsById(
-    _targetId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  targetExistsByURI(
-    _targetURI: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  targets(
-    arg0: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<
-    [string, string, BigNumber, BigNumber, string] & {
-      targetURI: string;
-      createdBy: string;
-      enriched: BigNumber;
-      httpStatus: BigNumber;
-      ipfsHash: string;
-    }
+  createTarget: TypedContractMethod<
+    [_targetURI: string],
+    [bigint],
+    "nonpayable"
   >;
 
-  updateTarget(
-    _targetId: PromiseOrValue<BigNumberish>,
-    _targetURI: PromiseOrValue<string>,
-    _enriched: PromiseOrValue<BigNumberish>,
-    _httpStatus: PromiseOrValue<BigNumberish>,
-    _ipfsHash: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  etsAccessControls: TypedContractMethod<[], [string], "view">;
 
-  upgradeTo(
-    newImplementation: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  etsEnrichTarget: TypedContractMethod<[], [string], "view">;
 
-  upgradeToAndCall(
-    newImplementation: PromiseOrValue<string>,
-    data: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  getOrCreateTargetId: TypedContractMethod<
+    [_targetURI: string],
+    [bigint],
+    "nonpayable"
+  >;
 
-  callStatic: {
-    NAME(overrides?: CallOverrides): Promise<string>;
+  getTargetById: TypedContractMethod<
+    [_targetId: BigNumberish],
+    [IETSTarget.TargetStructOutput],
+    "view"
+  >;
 
-    computeTargetId(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+  getTargetByURI: TypedContractMethod<
+    [_targetURI: string],
+    [IETSTarget.TargetStructOutput],
+    "view"
+  >;
 
-    createTarget(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+  initialize: TypedContractMethod<
+    [_etsAccessControls: AddressLike],
+    [void],
+    "nonpayable"
+  >;
 
-    etsAccessControls(overrides?: CallOverrides): Promise<string>;
+  proxiableUUID: TypedContractMethod<[], [string], "view">;
 
-    etsEnrichTarget(overrides?: CallOverrides): Promise<string>;
+  setAccessControls: TypedContractMethod<
+    [_accessControls: AddressLike],
+    [void],
+    "nonpayable"
+  >;
 
-    getOrCreateTargetId(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+  setEnrichTarget: TypedContractMethod<
+    [_etsEnrichTarget: AddressLike],
+    [void],
+    "nonpayable"
+  >;
 
-    getTargetById(
-      _targetId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<IETSTarget.TargetStructOutput>;
+  targetExistsById: TypedContractMethod<
+    [_targetId: BigNumberish],
+    [boolean],
+    "view"
+  >;
 
-    getTargetByURI(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<IETSTarget.TargetStructOutput>;
+  targetExistsByURI: TypedContractMethod<
+    [_targetURI: string],
+    [boolean],
+    "view"
+  >;
 
-    initialize(
-      _etsAccessControls: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    proxiableUUID(overrides?: CallOverrides): Promise<string>;
-
-    setAccessControls(
-      _accessControls: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setEnrichTarget(
-      _etsEnrichTarget: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    targetExistsById(
-      _targetId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    targetExistsByURI(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    targets(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [string, string, BigNumber, BigNumber, string] & {
+  targets: TypedContractMethod<
+    [arg0: BigNumberish],
+    [
+      [string, string, bigint, bigint, string] & {
         targetURI: string;
         createdBy: string;
-        enriched: BigNumber;
-        httpStatus: BigNumber;
+        enriched: bigint;
+        httpStatus: bigint;
         ipfsHash: string;
       }
-    >;
+    ],
+    "view"
+  >;
 
-    updateTarget(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _targetURI: PromiseOrValue<string>,
-      _enriched: PromiseOrValue<BigNumberish>,
-      _httpStatus: PromiseOrValue<BigNumberish>,
-      _ipfsHash: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+  updateTarget: TypedContractMethod<
+    [
+      _targetId: BigNumberish,
+      _targetURI: string,
+      _enriched: BigNumberish,
+      _httpStatus: BigNumberish,
+      _ipfsHash: string
+    ],
+    [boolean],
+    "nonpayable"
+  >;
 
-    upgradeTo(
-      newImplementation: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  upgradeTo: TypedContractMethod<
+    [newImplementation: AddressLike],
+    [void],
+    "nonpayable"
+  >;
 
-    upgradeToAndCall(
-      newImplementation: PromiseOrValue<string>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-  };
+  upgradeToAndCall: TypedContractMethod<
+    [newImplementation: AddressLike, data: BytesLike],
+    [void],
+    "payable"
+  >;
+
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
+
+  getFunction(
+    nameOrSignature: "NAME"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "computeTargetId"
+  ): TypedContractMethod<[_targetURI: string], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "createTarget"
+  ): TypedContractMethod<[_targetURI: string], [bigint], "nonpayable">;
+  getFunction(
+    nameOrSignature: "etsAccessControls"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "etsEnrichTarget"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "getOrCreateTargetId"
+  ): TypedContractMethod<[_targetURI: string], [bigint], "nonpayable">;
+  getFunction(
+    nameOrSignature: "getTargetById"
+  ): TypedContractMethod<
+    [_targetId: BigNumberish],
+    [IETSTarget.TargetStructOutput],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getTargetByURI"
+  ): TypedContractMethod<
+    [_targetURI: string],
+    [IETSTarget.TargetStructOutput],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "initialize"
+  ): TypedContractMethod<
+    [_etsAccessControls: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "proxiableUUID"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "setAccessControls"
+  ): TypedContractMethod<[_accessControls: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setEnrichTarget"
+  ): TypedContractMethod<[_etsEnrichTarget: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "targetExistsById"
+  ): TypedContractMethod<[_targetId: BigNumberish], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "targetExistsByURI"
+  ): TypedContractMethod<[_targetURI: string], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "targets"
+  ): TypedContractMethod<
+    [arg0: BigNumberish],
+    [
+      [string, string, bigint, bigint, string] & {
+        targetURI: string;
+        createdBy: string;
+        enriched: bigint;
+        httpStatus: bigint;
+        ipfsHash: string;
+      }
+    ],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "updateTarget"
+  ): TypedContractMethod<
+    [
+      _targetId: BigNumberish,
+      _targetURI: string,
+      _enriched: BigNumberish,
+      _httpStatus: BigNumberish,
+      _ipfsHash: string
+    ],
+    [boolean],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "upgradeTo"
+  ): TypedContractMethod<
+    [newImplementation: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "upgradeToAndCall"
+  ): TypedContractMethod<
+    [newImplementation: AddressLike, data: BytesLike],
+    [void],
+    "payable"
+  >;
+
+  getEvent(
+    key: "AccessControlsSet"
+  ): TypedContractEvent<
+    AccessControlsSetEvent.InputTuple,
+    AccessControlsSetEvent.OutputTuple,
+    AccessControlsSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "AdminChanged"
+  ): TypedContractEvent<
+    AdminChangedEvent.InputTuple,
+    AdminChangedEvent.OutputTuple,
+    AdminChangedEvent.OutputObject
+  >;
+  getEvent(
+    key: "BeaconUpgraded"
+  ): TypedContractEvent<
+    BeaconUpgradedEvent.InputTuple,
+    BeaconUpgradedEvent.OutputTuple,
+    BeaconUpgradedEvent.OutputObject
+  >;
+  getEvent(
+    key: "EnrichTargetSet"
+  ): TypedContractEvent<
+    EnrichTargetSetEvent.InputTuple,
+    EnrichTargetSetEvent.OutputTuple,
+    EnrichTargetSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "Initialized"
+  ): TypedContractEvent<
+    InitializedEvent.InputTuple,
+    InitializedEvent.OutputTuple,
+    InitializedEvent.OutputObject
+  >;
+  getEvent(
+    key: "TargetCreated"
+  ): TypedContractEvent<
+    TargetCreatedEvent.InputTuple,
+    TargetCreatedEvent.OutputTuple,
+    TargetCreatedEvent.OutputObject
+  >;
+  getEvent(
+    key: "TargetUpdated"
+  ): TypedContractEvent<
+    TargetUpdatedEvent.InputTuple,
+    TargetUpdatedEvent.OutputTuple,
+    TargetUpdatedEvent.OutputObject
+  >;
+  getEvent(
+    key: "Upgraded"
+  ): TypedContractEvent<
+    UpgradedEvent.InputTuple,
+    UpgradedEvent.OutputTuple,
+    UpgradedEvent.OutputObject
+  >;
 
   filters: {
-    "AccessControlsSet(address)"(
-      etsAccessControls?: null
-    ): AccessControlsSetEventFilter;
-    AccessControlsSet(etsAccessControls?: null): AccessControlsSetEventFilter;
+    "AccessControlsSet(address)": TypedContractEvent<
+      AccessControlsSetEvent.InputTuple,
+      AccessControlsSetEvent.OutputTuple,
+      AccessControlsSetEvent.OutputObject
+    >;
+    AccessControlsSet: TypedContractEvent<
+      AccessControlsSetEvent.InputTuple,
+      AccessControlsSetEvent.OutputTuple,
+      AccessControlsSetEvent.OutputObject
+    >;
 
-    "AdminChanged(address,address)"(
-      previousAdmin?: null,
-      newAdmin?: null
-    ): AdminChangedEventFilter;
-    AdminChanged(
-      previousAdmin?: null,
-      newAdmin?: null
-    ): AdminChangedEventFilter;
+    "AdminChanged(address,address)": TypedContractEvent<
+      AdminChangedEvent.InputTuple,
+      AdminChangedEvent.OutputTuple,
+      AdminChangedEvent.OutputObject
+    >;
+    AdminChanged: TypedContractEvent<
+      AdminChangedEvent.InputTuple,
+      AdminChangedEvent.OutputTuple,
+      AdminChangedEvent.OutputObject
+    >;
 
-    "BeaconUpgraded(address)"(
-      beacon?: PromiseOrValue<string> | null
-    ): BeaconUpgradedEventFilter;
-    BeaconUpgraded(
-      beacon?: PromiseOrValue<string> | null
-    ): BeaconUpgradedEventFilter;
+    "BeaconUpgraded(address)": TypedContractEvent<
+      BeaconUpgradedEvent.InputTuple,
+      BeaconUpgradedEvent.OutputTuple,
+      BeaconUpgradedEvent.OutputObject
+    >;
+    BeaconUpgraded: TypedContractEvent<
+      BeaconUpgradedEvent.InputTuple,
+      BeaconUpgradedEvent.OutputTuple,
+      BeaconUpgradedEvent.OutputObject
+    >;
 
-    "EnrichTargetSet(address)"(
-      etsEnrichTarget?: null
-    ): EnrichTargetSetEventFilter;
-    EnrichTargetSet(etsEnrichTarget?: null): EnrichTargetSetEventFilter;
+    "EnrichTargetSet(address)": TypedContractEvent<
+      EnrichTargetSetEvent.InputTuple,
+      EnrichTargetSetEvent.OutputTuple,
+      EnrichTargetSetEvent.OutputObject
+    >;
+    EnrichTargetSet: TypedContractEvent<
+      EnrichTargetSetEvent.InputTuple,
+      EnrichTargetSetEvent.OutputTuple,
+      EnrichTargetSetEvent.OutputObject
+    >;
 
-    "Initialized(uint8)"(version?: null): InitializedEventFilter;
-    Initialized(version?: null): InitializedEventFilter;
+    "Initialized(uint8)": TypedContractEvent<
+      InitializedEvent.InputTuple,
+      InitializedEvent.OutputTuple,
+      InitializedEvent.OutputObject
+    >;
+    Initialized: TypedContractEvent<
+      InitializedEvent.InputTuple,
+      InitializedEvent.OutputTuple,
+      InitializedEvent.OutputObject
+    >;
 
-    "TargetCreated(uint256)"(targetId?: null): TargetCreatedEventFilter;
-    TargetCreated(targetId?: null): TargetCreatedEventFilter;
+    "TargetCreated(uint256)": TypedContractEvent<
+      TargetCreatedEvent.InputTuple,
+      TargetCreatedEvent.OutputTuple,
+      TargetCreatedEvent.OutputObject
+    >;
+    TargetCreated: TypedContractEvent<
+      TargetCreatedEvent.InputTuple,
+      TargetCreatedEvent.OutputTuple,
+      TargetCreatedEvent.OutputObject
+    >;
 
-    "TargetUpdated(uint256)"(targetId?: null): TargetUpdatedEventFilter;
-    TargetUpdated(targetId?: null): TargetUpdatedEventFilter;
+    "TargetUpdated(uint256)": TypedContractEvent<
+      TargetUpdatedEvent.InputTuple,
+      TargetUpdatedEvent.OutputTuple,
+      TargetUpdatedEvent.OutputObject
+    >;
+    TargetUpdated: TypedContractEvent<
+      TargetUpdatedEvent.InputTuple,
+      TargetUpdatedEvent.OutputTuple,
+      TargetUpdatedEvent.OutputObject
+    >;
 
-    "Upgraded(address)"(
-      implementation?: PromiseOrValue<string> | null
-    ): UpgradedEventFilter;
-    Upgraded(
-      implementation?: PromiseOrValue<string> | null
-    ): UpgradedEventFilter;
-  };
-
-  estimateGas: {
-    NAME(overrides?: CallOverrides): Promise<BigNumber>;
-
-    computeTargetId(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    createTarget(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    etsAccessControls(overrides?: CallOverrides): Promise<BigNumber>;
-
-    etsEnrichTarget(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getOrCreateTargetId(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    getTargetById(
-      _targetId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getTargetByURI(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    initialize(
-      _etsAccessControls: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    proxiableUUID(overrides?: CallOverrides): Promise<BigNumber>;
-
-    setAccessControls(
-      _accessControls: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setEnrichTarget(
-      _etsEnrichTarget: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    targetExistsById(
-      _targetId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    targetExistsByURI(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    targets(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    updateTarget(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _targetURI: PromiseOrValue<string>,
-      _enriched: PromiseOrValue<BigNumberish>,
-      _httpStatus: PromiseOrValue<BigNumberish>,
-      _ipfsHash: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    upgradeTo(
-      newImplementation: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    upgradeToAndCall(
-      newImplementation: PromiseOrValue<string>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    NAME(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    computeTargetId(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    createTarget(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    etsAccessControls(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    etsEnrichTarget(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getOrCreateTargetId(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getTargetById(
-      _targetId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getTargetByURI(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    initialize(
-      _etsAccessControls: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    proxiableUUID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    setAccessControls(
-      _accessControls: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setEnrichTarget(
-      _etsEnrichTarget: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    targetExistsById(
-      _targetId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    targetExistsByURI(
-      _targetURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    targets(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    updateTarget(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _targetURI: PromiseOrValue<string>,
-      _enriched: PromiseOrValue<BigNumberish>,
-      _httpStatus: PromiseOrValue<BigNumberish>,
-      _ipfsHash: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    upgradeTo(
-      newImplementation: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    upgradeToAndCall(
-      newImplementation: PromiseOrValue<string>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    "Upgraded(address)": TypedContractEvent<
+      UpgradedEvent.InputTuple,
+      UpgradedEvent.OutputTuple,
+      UpgradedEvent.OutputObject
+    >;
+    Upgraded: TypedContractEvent<
+      UpgradedEvent.InputTuple,
+      UpgradedEvent.OutputTuple,
+      UpgradedEvent.OutputObject
+    >;
   };
 }
