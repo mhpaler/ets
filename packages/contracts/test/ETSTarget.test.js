@@ -1,7 +1,6 @@
 const { setup, getFactories } = require("./setup.js");
 const { ethers, upgrades } = require("hardhat");
 const { expect } = require("chai");
-const { constants } = ethers;
 
 //let accounts, factories, contracts.ETSAccessControls, ETSLifeCycleControls, contracts.ETSToken;
 let targetURI;
@@ -15,26 +14,24 @@ describe("ETS Target tests", function () {
 
   describe("Valid setup", async function () {
     it("should have Access controls set to ETSAccessControls contract", async function () {
-      const enrich = await contracts.ETSTarget.etsEnrichTarget();
-      expect(await contracts.ETSTarget.etsAccessControls()).to.be.equal(contracts.ETSAccessControls.address);
+      //const enrich = await contracts.ETSTarget.etsEnrichTarget();
+      expect(await contracts.ETSTarget.etsAccessControls()).to.be.equal(await contracts.ETSAccessControls.getAddress());
     });
   });
 
   describe("Setting access controls", async () => {
     it("should revert if set to zero address", async function () {
       await expect(
-        contracts.ETSTarget.connect(accounts.ETSPlatform).setAccessControls(constants.AddressZero),
+        contracts.ETSTarget.connect(accounts.ETSPlatform).setAccessControls(ethers.ZeroAddress),
       ).to.be.revertedWith("Address cannot be zero");
     });
 
     it("should revert if caller is not administrator", async function () {
-      await expect(contracts.ETSTarget.connect(accounts.RandomTwo).setAccessControls(accounts.RandomOne.address)).to.be
-        .reverted;
+      await expect(contracts.ETSTarget.connect(accounts.RandomTwo).setAccessControls(accounts.RandomOne.address)).to.be.reverted;
     });
 
     it("should revert if a access controls is set to a non-access control contract", async function () {
-      await expect(contracts.ETSTarget.connect(accounts.ETSPlatform).setAccessControls(accounts.RandomTwo.address)).to
-        .be.reverted;
+      await expect(contracts.ETSTarget.connect(accounts.ETSPlatform).setAccessControls(accounts.RandomTwo.address)).to.be.reverted;
     });
 
     it("should revert if caller is not set as admin in contract being set.", async function () {
@@ -47,7 +44,7 @@ describe("ETS Target tests", function () {
 
       // Random is not set as admin in access controls.
       await expect(
-        contracts.ETSTarget.connect(accounts.RandomOne).setAccessControls(ETSAccessControlsNew.address),
+        contracts.ETSTarget.connect(accounts.RandomOne).setAccessControls(await ETSAccessControlsNew.getAddress()),
       ).to.be.revertedWith("Access denied");
     });
 
@@ -59,10 +56,10 @@ describe("ETS Target tests", function () {
         { kind: "uups" },
       );
 
-      await expect(contracts.ETSTarget.connect(accounts.ETSPlatform).setAccessControls(ETSAccessControlsNew.address))
+      await expect(contracts.ETSTarget.connect(accounts.ETSPlatform).setAccessControls(await ETSAccessControlsNew.getAddress()))
         .to.emit(contracts.ETSTarget, "AccessControlsSet")
-        .withArgs(ETSAccessControlsNew.address);
-      expect(await contracts.ETSTarget.etsAccessControls()).to.be.equal(ETSAccessControlsNew.address);
+        .withArgs(await ETSAccessControlsNew.getAddress());
+      expect(await contracts.ETSTarget.etsAccessControls()).to.be.equal(await ETSAccessControlsNew.getAddress());
     });
   });
 
@@ -81,7 +78,7 @@ describe("ETS Target tests", function () {
       await contracts.ETSTarget.getOrCreateTargetId(targetURI);
 
       tx = await contracts.ETSTarget.getOrCreateTargetId(targetURI);
-      await expect(tx).to.not.emit(contracts.ETSTarget, "TargetCreated").withArgs(targetId);
+      await expect(tx).not.to.emit(contracts.ETSTarget, "TargetCreated");
     });
   });
 

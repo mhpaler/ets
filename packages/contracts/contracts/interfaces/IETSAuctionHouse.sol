@@ -41,7 +41,7 @@ interface IETSAuctionHouse {
 
     event AuctionBid(uint256 indexed tokenId, address sender, uint256 value, bool extended);
 
-    event AuctionCreated(uint256 indexed tokenId);
+    event AuctionCreated(uint256 indexed tokenId, uint256 auctionNumber);
 
     event AuctionExtended(uint256 indexed tokenId, uint256 endTime);
 

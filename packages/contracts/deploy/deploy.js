@@ -1,5 +1,5 @@
 const { ethers } = require("hardhat");
-const { setup } = require("./setup.ts");
+const { setup } = require("./setup.js");
 
 module.exports = async ({ deployments }) => {
   [accounts, factories, initSettings] = await setup();

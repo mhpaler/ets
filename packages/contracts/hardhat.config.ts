@@ -11,6 +11,7 @@ import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-truffle5";
 import "@nomiclabs/hardhat-etherscan";
 import "@openzeppelin/hardhat-upgrades";
+import "@nomicfoundation/hardhat-chai-matchers";
 
 import {resolve} from "path";
 import {config as dotenvConfig} from "dotenv";

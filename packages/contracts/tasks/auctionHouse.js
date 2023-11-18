@@ -63,13 +63,12 @@ subtask("auctionhouse:settings", "List auction settings")
     activeAuctions = await contracts.etsAuctionHouse.getActiveCount();
     totalAuctions = await contracts.etsAuctionHouse.getTotalCount();
     reserve = await contracts.etsAuctionHouse.reservePrice();
-    console.log(reserve);
 
     console.log('Paused:', paused);
-    console.log('Max Auctions:', maxAuctions.toNumber());
-    console.log('Active Auctions:', activeAuctions.toNumber());
-    console.log('All Time Total Auctions:', totalAuctions.toNumber());
-    console.log('Reserve price:', hre.ethers.utils.formatEther(reserve) + " ETH/MATIC");
+    console.log('Max Auctions:', ethers.toNumber(maxAuctions));
+    console.log('Active Auctions:', ethers.toNumber(activeAuctions));
+    console.log('All Time Total Auctions:', ethers.toNumber(totalAuctions));
+    console.log('Reserve price:', ethers.formatEther(reserve) + " ETH/MATIC");
   });
 
 subtask("auctionhouse:auctionstatus", "Shows status of a given tag auction")
@@ -87,21 +86,21 @@ subtask("auctionhouse:auctionstatus", "Shows status of a given tag auction")
     try {
       const auction = await contracts.etsAuctionHouse.getAuction(tagId);
       let latestBlock = (await hre.ethers.provider.getBlock()).timestamp;
-      let ended = (auction.startTime.toNumber() > 0 && latestBlock > auction.endTime.toNumber()) ? "Yes" : "No";
+      let ended = (ethers.toNumber(auction.startTime) > 0 && latestBlock > ethers.toNumber(auction.endTime)) ? "Yes" : "No";
 
       console.log("=================================================");
-      console.log("Auction Info");
-      console.log("CTAG: ", taskArgs.tag);
-      console.log("auction id: ", auction.auctionId.toNumber());
-      console.log("reservePrice: ", ethers.utils.formatEther(auction.reservePrice) + " ETH/MATIC");
-      console.log('current high bid:', ethers.utils.formatEther(auction.amount) + " ETH/MATIC");
-      console.log("startTime: ", auction.startTime.toNumber());
-      console.log("endTime: ", auction.endTime.toNumber());
-      console.log("current time: ", latestBlock);
-      console.log("bidder: ", auction.bidder);
-      console.log("auctioneer: ", auction.auctioneer);
-      console.log("ended: ", ended);
-      console.log("settled: ", auction.settled);
+      console.log("    Auction Details for", taskArgs.tag);
+      console.log("-------------------------------------------------")
+      console.log("      auction id: ", ethers.toNumber(auction.auctionId));
+      console.log("    reservePrice: ", ethers.formatEther(auction.reservePrice) + " ETH/MATIC");
+      console.log("current high bid: ", ethers.formatEther(auction.amount) + " ETH/MATIC");
+      console.log("       startTime: ", ethers.toNumber(auction.startTime));
+      console.log("         endTime: ", ethers.toNumber(auction.endTime));
+      console.log("    current time: ", latestBlock);
+      console.log("          bidder: ", auction.bidder);
+      console.log("      auctioneer: ", auction.auctioneer);
+      console.log("           ended: ", ended);
+      console.log("         settled: ", auction.settled);
       console.log("=================================================");
 
     } catch (error) {
@@ -130,7 +129,7 @@ subtask("auctionhouse:setreserve", "Sets reserve price for all actions (eg. min 
   .setAction(async (taskArgs) => {
 
     [accounts, contracts, maxAuctions] = await setup();
-    const reserveInWEI = hre.ethers.utils.parseUnits(taskArgs.reserve, "ether");
+    const reserveInWEI = ethers.parseUnits(taskArgs.reserve, "ether");
     await contracts.etsAuctionHouse.connect(accounts.account0).setReservePrice(reserveInWEI);
     console.log("Reserve set to: ", reserveInWEI + " WEI (" + taskArgs.reserve + " ETH/MATIC)");
   });
@@ -150,7 +149,7 @@ subtask("auctionhouse:createauction", "Creates an auction given an existing CTAG
 
     let auctionCount = await contracts.etsAuctionHouse.getActiveCount();
 
-    if (auctionCount.toNumber() >= maxAuctions) {
+    if (ethers.toNumber(auctionCount) >= maxAuctions) {
       console.log("No auction slots");
       return;
     }
@@ -184,7 +183,7 @@ subtask("auctionhouse:createbid", "Creates a bid on a CTAG auction")
     await hre.run("auctionhouse:auctionstatus", { tag: taskArgs.tag });
     // printAuctionInfo(tagId);
 
-    const bidInWEI = hre.ethers.utils.parseUnits(taskArgs.bid, "ether");
+    const bidInWEI = ethers.parseUnits(taskArgs.bid, "ether");
     const txn = await contracts.etsAuctionHouse.connect(accounts[taskArgs.signer]).createBid(tagId, { value: bidInWEI });
     await txn.wait();
 
@@ -215,9 +214,10 @@ subtask("auctionhouse:settleauction", "Settles a CTAG auction for a given tag")
     }
 
     const latestBlock = (await hre.ethers.provider.getBlock()).timestamp;
+    const auctionEndTime = ethers.toNumber(auction.endTime);
 
-    if (auction.endTime.add(60).toNumber() > latestBlock) {
-      await ethers.provider.send("evm_setNextBlockTimestamp", [auction.endTime.add(60).toNumber()]);
+    if (auctionEndTime + 60 > latestBlock) {
+      await ethers.provider.send("evm_setNextBlockTimestamp", [auctionEndTime + 60]);
     }
 
     const txn = await contracts.etsAuctionHouse.settleCurrentAndCreateNewAuction(tagId);
@@ -281,39 +281,9 @@ var setup = async () => {
 
 
   let maxAuctions = await contracts.etsAuctionHouse.maxAuctions();
-  maxAuctions = maxAuctions.toNumber();
+  maxAuctions = ethers.toNumber(maxAuctions);
 
   return [accounts, contracts, maxAuctions];
 }
 
-var printAuctionInfo = async (tagId) => {
-  const { ethers, hre } = require("hardhat");
-
-  try {
-    const auction = await contracts.etsAuctionHouse.getAuction(tagId);
-    const tag = await contracts.etsToken.getTagById(tagId);
-
-    let latestBlock = (await hre.ethers.provider.getBlock()).timestamp;
-    let ended = (auction.startTime.toNumber() > 0 && latestBlock > auction.endTime.toNumber()) ? "Yes" : "No";
-
-    console.log("=================================================");
-    console.log("Auction Info");
-    console.log("CTAG: ", tag.display);
-    console.log("auction id: ", auction.auctionId.toNumber());
-    console.log('amount:', ethers.utils.formatEther(auction.amount) + " ETH/MATIC");
-    console.log("startTime: ", auction.startTime.toNumber());
-    console.log("endTime: ", auction.endTime.toNumber());
-    console.log("reservePrice: ", ethers.utils.formatEther(auction.reservePrice) + " ETH/MATIC");
-    console.log("bidder: ", auction.bidder);
-    console.log("auctioneer: ", auction.auctioneer);
-    console.log("ended: ", ended);
-    console.log("settled: ", auction.settled);
-    console.log("=================================================");
-
-  } catch (error) {
-    console.error("Error fetching auction or tag information:", error);
-  }
-
-}
-exports.printAuctionInfo = printAuctionInfo;
 exports.setup = setup;

@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0
 
 /**
- * @title ETS DAO Auction House
+ * @title ETS Auction House
  * @author Ethereum Tag Service <team@ets.xyz>
  *
  *  ███████╗████████╗███████╗
  *  ██╔════╝╚══██╔══╝██╔════╝
  *  █████╗     ██║   ███████╗
  *  ██╔══╝     ██║   ╚════██║
- *  ███████╗   ██║   ███████║`
+ *  ███████╗   ██║   ███████║
  *  ╚══════╝   ╚═╝   ╚══════╝
  *
  * @notice ETSAuctionHouse.sol is a modified version of Nouns NounsAuctionHouse.sol:
@@ -22,8 +22,9 @@
  * setting and requiring a bid to start the auction timer.
  */
 
-pragma solidity ^0.8.10;
+pragma solidity ^0.8.6;
 
+import { IWMATIC } from "./interfaces/IWMATIC.sol";
 import { IETSToken } from "./interfaces/IETSToken.sol";
 import { IETSAuctionHouse } from "./interfaces/IETSAuctionHouse.sol";
 import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
@@ -33,10 +34,11 @@ import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils
 import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
-import { IWMATIC } from "./interfaces/IWMATIC.sol";
 import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import { SafeERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { CountersUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
+
+import "hardhat/console.sol";
 
 /**
  * @title ETSAuctionHouse
@@ -45,10 +47,10 @@ import { CountersUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/C
  * @notice ETSAuctionHouse contract governs the sale of Ethereum Tag Service composable tags (CTAGs).
  */
 contract ETSAuctionHouse is
-    IETSAuctionHouse,
     Initializable,
     PausableUpgradeable,
     ReentrancyGuardUpgradeable,
+    IETSAuctionHouse,
     UUPSUpgradeable
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
@@ -70,8 +72,14 @@ contract ETSAuctionHouse is
     // Unique auction id
     CountersUpgradeable.Counter auctionId;
 
-    /// @dev Mapping of active auctions
-    mapping(uint256 => IETSAuctionHouse.Auction) public auctions;
+    /// @dev Mapping of CTAG ID to array of auctions for that CTAG.
+    mapping(uint256 => IETSAuctionHouse.Auction[]) public auctions;
+
+    /// @dev Mapping from auctionId to the corresponding tagId
+    mapping(uint256 => uint256) public auctionIdToTokenId;
+
+    // Mapping from auctionId to the corresponding auction for each token
+    mapping(uint256 => mapping(uint256 => Auction)) public auctionIdToAuction;
 
     /// @dev The address of the WMATIC contract
     address public wmatic;
@@ -132,7 +140,7 @@ contract ETSAuctionHouse is
     }
 
     modifier isAuction(uint256 tokenId) {
-        require(_isAuction(tokenId), "Auction doesn't exist");
+        require(_auctionExists(tokenId), "Auction doesn't exist");
         _;
     }
 
@@ -252,19 +260,61 @@ contract ETSAuctionHouse is
         // Note: First check returns "ERC721: invalid token ID" for non-existent token.
         require(etsToken.ownerOf(_tokenId) == etsAccessControls.getPlatformAddress(), "CTAG not owned by ETS");
         require(activeAuctions.current() < maxAuctions, "No open auction slots");
-        require(!_isAuction(_tokenId), "Auction exists");
+        require(!_auctionExists(_tokenId), "Auction exists");
         _createAuction(_tokenId);
     }
 
+    //    function createBid(uint256 _tokenId) public payable nonReentrant whenNotPaused {
+    //        // Retrieve active auction or create new one if _tokenId exists and is platform owned.
+    //        Auction memory auction = _getAuction(_tokenId);
+    //
+    //        require(auction.auctionId > 0, "Auction not found");
+    //        if (auction.startTime > 0) {
+    //            require(block.timestamp < auction.endTime, "Auction ended");
+    //        }
+    //        require(msg.value >= reservePrice, "Must send at least reservePrice");
+    //        require(msg.value >= auction.amount + ((auction.amount * minBidIncrementPercentage) / 100), "Bid too low");
+    //
+    //        address payable lastBidder = auction.bidder;
+    //
+    //        // Refund the last bidder, if applicable
+    //        if (lastBidder != address(0)) {
+    //            _safeTransferETHWithFallback(lastBidder, auction.amount);
+    //        }
+    //
+    //        if (auction.startTime == 0) {
+    //            // Start the auction
+    //            uint256 startTime = block.timestamp;
+    //            uint256 endTime = startTime + duration;
+    //            auctions[_tokenId].startTime = startTime;
+    //            auctions[_tokenId].endTime = endTime;
+    //        }
+    //
+    //        auctions[_tokenId].amount = msg.value;
+    //        auctions[_tokenId].bidder = payable(msg.sender);
+    //
+    //        // Extend the auction if the bid was received within `timeBuffer` of the auction end time
+    //        bool extended = false;
+    //        if (auction.startTime > 0) {
+    //            extended = auction.endTime - block.timestamp < timeBuffer;
+    //            if (extended) {
+    //                auctions[_tokenId].endTime = auction.endTime = block.timestamp + timeBuffer;
+    //                emit AuctionExtended(_tokenId, auction.endTime);
+    //            }
+    //        }
+    //
+    //        emit AuctionBid(_tokenId, msg.sender, msg.value, extended);
+    //    }
+
     function createBid(uint256 _tokenId) public payable nonReentrant whenNotPaused {
-        // Retrieve active auction or create new one if _tokenId exists and is platform owned.
+        Auction[] storage tagAuctions = auctions[_tokenId];
         Auction memory auction = _getAuction(_tokenId);
 
-        require(auction.auctionId > 0, "Auction not found");
+        //require(auction.auctionId > 0, "Auction not found");
         if (auction.startTime > 0) {
             require(block.timestamp < auction.endTime, "Auction ended");
         }
-        require(msg.value >= reservePrice, "Must send at least reservePrice");
+        require(msg.value >= auction.reservePrice, "Must send at least reservePrice");
         require(msg.value >= auction.amount + ((auction.amount * minBidIncrementPercentage) / 100), "Bid too low");
 
         address payable lastBidder = auction.bidder;
@@ -278,25 +328,42 @@ contract ETSAuctionHouse is
             // Start the auction
             uint256 startTime = block.timestamp;
             uint256 endTime = startTime + duration;
-            auctions[_tokenId].startTime = startTime;
-            auctions[_tokenId].endTime = endTime;
+            tagAuctions.push(
+                Auction({
+                    auctionId: auction.auctionId,
+                    amount: 0,
+                    startTime: startTime,
+                    endTime: endTime,
+                    reservePrice: auction.reservePrice,
+                    bidder: payable(address(0)),
+                    auctioneer: auction.auctioneer,
+                    settled: false
+                })
+            );
         }
 
-        auctions[_tokenId].amount = msg.value;
-        auctions[_tokenId].bidder = payable(msg.sender);
+        tagAuctions[tagAuctions.length - 1].amount = msg.value;
+        tagAuctions[tagAuctions.length - 1].bidder = payable(msg.sender);
 
         // Extend the auction if the bid was received within `timeBuffer` of the auction end time
         bool extended = false;
         if (auction.startTime > 0) {
             extended = auction.endTime - block.timestamp < timeBuffer;
             if (extended) {
-                auctions[_tokenId].endTime = auction.endTime = block.timestamp + timeBuffer;
-                emit AuctionExtended(_tokenId, auction.endTime);
+                tagAuctions[tagAuctions.length - 1].endTime = block.timestamp + timeBuffer;
+                emit AuctionExtended(_tokenId, tagAuctions[tagAuctions.length - 1].endTime);
             }
         }
 
         emit AuctionBid(_tokenId, msg.sender, msg.value, extended);
     }
+
+    // Helper function to get the active auction from the array
+    //function _getActiveAuction(Auction[] storage auctions) internal view returns (Auction storage) {
+    //    require(auctions.length > 0, "No active auctions");
+    //    Auction storage lastAuction = auctions[auctions.length - 1];
+    //    return lastAuction.settled ? auctions[auctions.length - 1] : lastAuction;
+    //}
 
     /**
      * @notice Function for withdrawing funds from an accrual account. Can be called by the account owner
@@ -326,29 +393,37 @@ contract ETSAuctionHouse is
     function _createAuction(uint256 _tokenId) internal {
         auctionId.increment();
         activeAuctions.increment();
-        // Create new auction but don't start it.
-        auctions[_tokenId] = Auction({
-            auctionId: auctionId.current(),
-            amount: 0,
-            startTime: 0,
-            endTime: 0,
-            reservePrice: reservePrice,
-            bidder: payable(address(0)),
-            auctioneer: etsAccessControls.getPlatformAddress(),
-            settled: false
-        });
 
-        emit AuctionCreated(_tokenId);
+        Auction[] storage tokenAuctions = auctions[_tokenId];
+        tokenAuctions.push(
+            Auction({
+                auctionId: auctionId.current(),
+                amount: 0,
+                startTime: 0,
+                endTime: 0,
+                reservePrice: reservePrice,
+                bidder: payable(address(0)),
+                auctioneer: etsAccessControls.getPlatformAddress(),
+                settled: false
+            })
+        );
+
+        // Update the global mappings
+        auctionIdToAuction[_tokenId][auctionId.current()] = tokenAuctions[tokenAuctions.length - 1];
+        auctionIdToTokenId[auctionId.current()] = _tokenId;
+
+        emit AuctionCreated(_tokenId, tokenAuctions.length);
     }
 
     function _settleAuction(uint256 _tokenId) internal {
         Auction memory auction = _getAuction(_tokenId);
-        require(_isAuction(_tokenId), "Auction does not exist");
+        //require(_auctionExists(_tokenId), "Auction does not exist");
         require(!(auction.settled), "Auction already settled");
         require(auction.startTime != 0, "Auction has not begun");
         require(block.timestamp >= auction.endTime, "Auction has not ended");
 
-        auctions[_tokenId].settled = true;
+        Auction[] storage tagAuctions = auctions[_tokenId];
+        tagAuctions[tagAuctions.length - 1].settled = true;
         activeAuctions.decrement();
         etsToken.transferFrom(etsAccessControls.getPlatformAddress(), auction.bidder, _tokenId);
         _processAuctionRevenue(_tokenId, auction.amount);
@@ -370,8 +445,24 @@ contract ETSAuctionHouse is
         accrued[platform] = accrued[platform] + platformProceeds;
     }
 
-    function _getAuction(uint256 _tokenId) private view returns (Auction memory auction) {
-        return auctions[_tokenId];
+    //    function _getAuction(uint256 _tokenId) private view returns (Auction memory auction) {
+    //        return auctions[_tokenId];
+    //    }
+    /**
+     * @dev Retrieves the last auction associated with a given token ID.
+     * @param _tokenId The token ID for which to retrieve the last auction.
+     * @return Auction object. Returns an empty object if no auction exists
+     *         so must perform additional checks downstream.
+     */
+    function _getAuction(uint256 _tokenId) internal view returns (Auction memory) {
+        // Retrieve the array of auctions for the specified token ID
+        Auction[] storage tokenAuctions = auctions[_tokenId];
+
+        // Ensure that there is at least one auction for the token
+        require(tokenAuctions.length > 0, "Auction not found");
+
+        // Return a storage reference to the last auction in the array
+        return tokenAuctions[tokenAuctions.length - 1];
     }
 
     function _safeTransferETHWithFallback(address to, uint256 amount) internal {
@@ -386,26 +477,36 @@ contract ETSAuctionHouse is
         return success;
     }
 
-    function _isAuction(uint256 _tokenId) internal view returns (bool) {
-        return (auctions[_tokenId].auctionId != 0);
+    // Return true if tag has had an auction released in any state.
+    function _auctionExists(uint256 _tokenId) internal view returns (bool) {
+        Auction[] storage tokenAuctions = auctions[_tokenId];
+        return (tokenAuctions.length > 0);
+        //return (auctions[_tokenId].auctionId != 0);
     }
 
     // ============ PUBLIC VIEW FUNCTIONS ============
 
     function auctionExists(uint256 _tokenId) public view returns (bool) {
-        return _isAuction(_tokenId);
+        return _auctionExists(_tokenId);
     }
 
     function auctionEnded(uint256 _tokenId) public view returns (bool) {
-        return (auctions[_tokenId].endTime > block.timestamp);
+        Auction memory auction = _getAuction(_tokenId);
+        return (auction.endTime < block.timestamp);
     }
 
     function auctionSettled(uint256 _tokenId) public view returns (bool) {
-        return (_isAuction(_tokenId) && auctions[_tokenId].settled);
+        Auction memory auction = _getAuction(_tokenId);
+        return auction.settled;
     }
 
     function getAuction(uint256 _tokenId) public view returns (Auction memory) {
-        return auctions[_tokenId];
+        return _getAuction(_tokenId);
+    }
+
+    function getAuctionById(uint256 _auctionId) public view returns (Auction memory) {
+        uint256 tokenId = auctionIdToTokenId[_auctionId];
+        return auctionIdToAuction[tokenId][_auctionId];
     }
 
     function getActiveCount() public view returns (uint256) {

@@ -1,24 +1,6 @@
-import {ethers} from "hardhat";
-// The following is taken from https://github.com/OpenZeppelin/openzeppelin-upgrades/issues/85#issuecomment-1028435049
-// to prevent time-outs when deploying to Polygon Mumbai.
-// See also https://gist.github.com/pedrouid/7cd16c967308a354f2767f1764ee43cf for signer/provider
-//
-//const FEE_DATA = {
-//  gasPrice: ethers.utils.parseUnits("100", "gwei"),
-//  maxFeePerGas: ethers.utils.parseUnits("100", "gwei"),
-//  maxPriorityFeePerGas: ethers.utils.parseUnits("5", "gwei"),
-//};
-//
-// Wrap the provider so we can override fee data.
-//const provider = new ethers.providers.FallbackProvider([ethers.provider], 1);
-//provider.getFeeData = async () => FEE_DATA;
+const { ethers } = require("hardhat");
 
-// Create the signer for the mnemonic, connected to the provider with hardcoded fee data
-//const standardPath = "m/44'/60'/0'/0/0"; // Wallet 0 / ETSAdmin
-//const mnemonic = process.env.MNEMONIC;
-//const signer = ethers.Wallet.fromMnemonic(mnemonic, standardPath).connect(provider);
-
-async function setup(): Promise<[any, any, any]> {
+async function setup() {
   const namedAccounts = await ethers.getNamedSigners();
 
   const accounts = {
@@ -63,4 +45,6 @@ async function setup(): Promise<[any, any, any]> {
   return [accounts, factories, initSettings];
 }
 
-export {setup};
+module.exports = {
+  setup,
+};

@@ -1,7 +1,6 @@
 const { setup, getFactories } = require("./setup.js");
 const { ethers, upgrades } = require("hardhat");
 const { expect, assert } = require("chai");
-const { constants } = ethers;
 
 //let accounts, factories, contracts.ETSAccessControls, ETSLifeCycleControls, contracts.ETSToken;
 
@@ -21,7 +20,7 @@ describe("ETSToken Core Tests", function () {
     });
 
     it("should have Access controls set to ETSAccessControls contract", async function () {
-      expect(await contracts.ETSToken.etsAccessControls()).to.be.equal(contracts.ETSAccessControls.address);
+      expect(await contracts.ETSToken.etsAccessControls()).to.be.equal(await contracts.ETSAccessControls.getAddress());
     });
 
     it("should have name and symbol", async function () {
@@ -93,7 +92,7 @@ describe("ETSToken Core Tests", function () {
   describe("Setting access controls", async () => {
     it("should revert if set to zero address", async function () {
       await expect(
-        contracts.ETS.connect(accounts.ETSPlatform).setAccessControls(constants.AddressZero),
+        contracts.ETS.connect(accounts.ETSPlatform).setAccessControls(ethers.ZeroAddress),
       ).to.be.revertedWith("Address cannot be zero");
     });
 
@@ -117,7 +116,7 @@ describe("ETSToken Core Tests", function () {
 
       // Random is not set as admin in access controls.
       await expect(
-        contracts.ETS.connect(accounts.RandomOne).setAccessControls(ETSAccessControlsNew.address),
+        contracts.ETS.connect(accounts.RandomOne).setAccessControls(await ETSAccessControlsNew.getAddress()),
       ).to.be.revertedWith("Caller not Administrator");
     });
 
@@ -129,10 +128,10 @@ describe("ETSToken Core Tests", function () {
         { kind: "uups" },
       );
 
-      await expect(contracts.ETSToken.connect(accounts.ETSPlatform).setAccessControls(ETSAccessControlsNew.address))
+      await expect(contracts.ETSToken.connect(accounts.ETSPlatform).setAccessControls(await ETSAccessControlsNew.getAddress()))
         .to.emit(contracts.ETSToken, "AccessControlsSet")
-        .withArgs(ETSAccessControlsNew.address);
-      expect(await contracts.ETSToken.etsAccessControls()).to.be.equal(ETSAccessControlsNew.address);
+        .withArgs(await ETSAccessControlsNew.getAddress());
+      expect(await contracts.ETSToken.etsAccessControls()).to.be.equal(await ETSAccessControlsNew.getAddress());
     });
   });
 
@@ -151,7 +150,7 @@ describe("ETSToken Core Tests", function () {
 
       it("should revert if tag string does not meet min length requirements", async function () {
         const tagMinStringLength = await contracts.ETSToken.tagMinStringLength();
-        const shortTag = "#" + RandomTwoTag.substring(0, tagMinStringLength - 2);
+        const shortTag = "#" + RandomTwoTag.substring(0, Number(tagMinStringLength) - 2);
         await expect(
           contracts.ETS.connect(accounts.ETSPlatform).createTag(shortTag, accounts.RandomTwo.address),
         ).to.be.revertedWith(`Invalid tag format`);
@@ -159,7 +158,7 @@ describe("ETSToken Core Tests", function () {
 
       it("should revert if tag string exceeds max length requirements", async function () {
         const tagMaxStringLength = await contracts.ETSToken.tagMaxStringLength();
-        const longTag = "#" + RandomTwoTag.substring(0, tagMaxStringLength);
+        const longTag = "#" + RandomTwoTag.substring(0, Number(tagMaxStringLength));
         await expect(
           contracts.ETS.connect(accounts.ETSPlatform).createTag(longTag, accounts.RandomTwo.address),
         ).to.be.revertedWith(`Invalid tag format`);
