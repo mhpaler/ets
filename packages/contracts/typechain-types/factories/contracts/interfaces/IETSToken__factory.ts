@@ -824,6 +824,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint256",
+        name: "_tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "tagOwnershipTermExpired",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "from",
         type: "address",

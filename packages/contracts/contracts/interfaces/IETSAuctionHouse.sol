@@ -21,6 +21,8 @@ interface IETSAuctionHouse {
     struct Auction {
         // Incremented auction number
         uint256 auctionId;
+        // Id of token being auctioned.
+        uint256 tokenId;
         // The current highest bid amount
         uint256 amount;
         // The time that the auction started
@@ -39,13 +41,13 @@ interface IETSAuctionHouse {
 
     event RequestCreateAuction();
 
-    event AuctionBid(uint256 indexed tokenId, address sender, uint256 value, bool extended);
+    event AuctionBid(uint256 indexed auctionId, address sender, uint256 value, bool extended);
 
-    event AuctionCreated(uint256 indexed tokenId, uint256 auctionNumber);
+    event AuctionCreated(uint256 indexed auctionId, uint256 indexed tokenId, uint256 tokenAuctionNumber);
 
-    event AuctionExtended(uint256 indexed tokenId, uint256 endTime);
+    event AuctionExtended(uint256 indexed auctionId, uint256 endTime);
 
-    event AuctionSettled(uint256 indexed tokenId);
+    event AuctionSettled(uint256 indexed auctionId);
 
     event AuctionsMaxSet(uint256 maxAuctions);
 

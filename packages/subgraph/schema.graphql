@@ -304,10 +304,10 @@ type Owner @entity {
 }
 
 type Auction @entity {
-  "The CTAG's ERC721 token id"
+  "Global ETS Auction Number"
   id: ID!
 
-  "Incremental auction number"
+  "Incremental auction number for this CTAG. starts at 1 and increments each time tag is re-auctioned"
   auctionNumber: BigInt!
 
   "The CTAG being auctioned"
@@ -336,6 +336,9 @@ type Bid @entity {
   "Bid transaction hash"
   id: ID!
 
+  "The auction being bid in"
+  auction: Auction!
+
   "The CTAG being bid on"
   tag: Tag!
 
@@ -350,9 +353,6 @@ type Bid @entity {
 
   "Index of transaction within block"
   txIndex: BigInt!
-
-  "The auction being bid in"
-  auction: Auction!
 
   "The timestamp of the block the bid is in"
   blockTimestamp: BigInt!

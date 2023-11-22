@@ -275,9 +275,7 @@ contract ETSToken is
     function recycleTag(uint256 _tokenId) public {
         require(_exists(_tokenId), "ETS: CTAG not found");
         require(ownerOf(_tokenId) != getPlatformAddress(), "Tag owned by platform");
-
-        uint256 lastRenewed = getLastRenewed(_tokenId);
-        require(lastRenewed + getOwnershipTermLength() < block.timestamp, "recycling not available");
+        require(tagOwnershipTermExpired(_tokenId), "recycling not available");
 
         _transfer(ownerOf(_tokenId), getPlatformAddress(), _tokenId);
         emit TagRecycled(_tokenId, _msgSender());
@@ -305,6 +303,11 @@ contract ETSToken is
     /// @inheritdoc IETSToken
     function tagExistsById(uint256 _tokenId) public view returns (bool) {
         return _exists(_tokenId);
+    }
+
+    /// @inheritdoc IETSToken
+    function tagOwnershipTermExpired(uint256 _tokenId) public view returns (bool) {
+        return (getLastRenewed(_tokenId) + getOwnershipTermLength() < block.timestamp);
     }
 
     /// @inheritdoc IETSToken

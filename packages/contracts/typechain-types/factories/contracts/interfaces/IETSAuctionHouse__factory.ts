@@ -15,7 +15,7 @@ const _abi = [
       {
         indexed: true,
         internalType: "uint256",
-        name: "tokenId",
+        name: "auctionId",
         type: "uint256",
       },
       {
@@ -46,13 +46,19 @@ const _abi = [
       {
         indexed: true,
         internalType: "uint256",
+        name: "auctionId",
+        type: "uint256",
+      },
+      {
+        indexed: true,
+        internalType: "uint256",
         name: "tokenId",
         type: "uint256",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "auctionNumber",
+        name: "tokenAuctionNumber",
         type: "uint256",
       },
     ],
@@ -78,7 +84,7 @@ const _abi = [
       {
         indexed: true,
         internalType: "uint256",
-        name: "tokenId",
+        name: "auctionId",
         type: "uint256",
       },
       {
@@ -167,7 +173,7 @@ const _abi = [
       {
         indexed: true,
         internalType: "uint256",
-        name: "tokenId",
+        name: "auctionId",
         type: "uint256",
       },
     ],
@@ -337,6 +343,11 @@ const _abi = [
           {
             internalType: "uint256",
             name: "auctionId",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "tokenId",
             type: "uint256",
           },
           {

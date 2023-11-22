@@ -26,6 +26,7 @@ import type {
 export declare namespace IETSAuctionHouse {
   export type AuctionStruct = {
     auctionId: BigNumberish;
+    tokenId: BigNumberish;
     amount: BigNumberish;
     startTime: BigNumberish;
     endTime: BigNumberish;
@@ -37,6 +38,7 @@ export declare namespace IETSAuctionHouse {
 
   export type AuctionStructOutput = [
     auctionId: bigint,
+    tokenId: bigint,
     amount: bigint,
     startTime: bigint,
     endTime: bigint,
@@ -46,6 +48,7 @@ export declare namespace IETSAuctionHouse {
     settled: boolean
   ] & {
     auctionId: bigint;
+    tokenId: bigint;
     amount: bigint;
     startTime: bigint;
     endTime: bigint;
@@ -226,19 +229,19 @@ export interface IETSAuctionHouseInterface extends Interface {
 
 export namespace AuctionBidEvent {
   export type InputTuple = [
-    tokenId: BigNumberish,
+    auctionId: BigNumberish,
     sender: AddressLike,
     value: BigNumberish,
     extended: boolean
   ];
   export type OutputTuple = [
-    tokenId: bigint,
+    auctionId: bigint,
     sender: string,
     value: bigint,
     extended: boolean
   ];
   export interface OutputObject {
-    tokenId: bigint;
+    auctionId: bigint;
     sender: string;
     value: bigint;
     extended: boolean;
@@ -250,11 +253,20 @@ export namespace AuctionBidEvent {
 }
 
 export namespace AuctionCreatedEvent {
-  export type InputTuple = [tokenId: BigNumberish, auctionNumber: BigNumberish];
-  export type OutputTuple = [tokenId: bigint, auctionNumber: bigint];
+  export type InputTuple = [
+    auctionId: BigNumberish,
+    tokenId: BigNumberish,
+    tokenAuctionNumber: BigNumberish
+  ];
+  export type OutputTuple = [
+    auctionId: bigint,
+    tokenId: bigint,
+    tokenAuctionNumber: bigint
+  ];
   export interface OutputObject {
+    auctionId: bigint;
     tokenId: bigint;
-    auctionNumber: bigint;
+    tokenAuctionNumber: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -275,10 +287,10 @@ export namespace AuctionDurationSetEvent {
 }
 
 export namespace AuctionExtendedEvent {
-  export type InputTuple = [tokenId: BigNumberish, endTime: BigNumberish];
-  export type OutputTuple = [tokenId: bigint, endTime: bigint];
+  export type InputTuple = [auctionId: BigNumberish, endTime: BigNumberish];
+  export type OutputTuple = [auctionId: bigint, endTime: bigint];
   export interface OutputObject {
-    tokenId: bigint;
+    auctionId: bigint;
     endTime: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
@@ -347,10 +359,10 @@ export namespace AuctionReservePriceSetEvent {
 }
 
 export namespace AuctionSettledEvent {
-  export type InputTuple = [tokenId: BigNumberish];
-  export type OutputTuple = [tokenId: bigint];
+  export type InputTuple = [auctionId: BigNumberish];
+  export type OutputTuple = [auctionId: bigint];
   export interface OutputObject {
-    tokenId: bigint;
+    auctionId: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -684,7 +696,7 @@ export interface IETSAuctionHouse extends BaseContract {
       AuctionBidEvent.OutputObject
     >;
 
-    "AuctionCreated(uint256,uint256)": TypedContractEvent<
+    "AuctionCreated(uint256,uint256,uint256)": TypedContractEvent<
       AuctionCreatedEvent.InputTuple,
       AuctionCreatedEvent.OutputTuple,
       AuctionCreatedEvent.OutputObject

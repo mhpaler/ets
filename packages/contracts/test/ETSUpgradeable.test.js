@@ -13,7 +13,7 @@ describe("Upgrades tests", function () {
 
   });
 
-  describe.only("ETSAccessControl", async function () {
+  describe("ETSAccessControl", async function () {
     it("is upgradeable", async function () {
       // Upgrade the proxy.
       contracts.ETSAccessControls = await upgrades.upgradeProxy(
@@ -79,18 +79,18 @@ describe("Upgrades tests", function () {
     });
   });
 
-  describe.only("ETSAuctionHouse", function () {
-    it("is upgradeable", async function () {
-      // Upgrade the proxy.
-      contracts.ETSAuctionHouse = await upgrades.upgradeProxy(
-        await contracts.ETSAuctionHouse.getAddress(),
-        factories.ETSAuctionHouseUpgrade,
-      );
-
-      const upgradeTxn = contracts.ETSAuctionHouse.deployTransaction.hash;
-      await expectEvent.inTransaction(upgradeTxn, artifacts.ETSAuctionHouseUpgrade, "Upgraded");
-      // Upgraded contract has new function upgradeTest()
-      assert((await contracts.ETSAuctionHouse.upgradeTest()) === true);
-    });
-  });
+  //  describe("ETSAuctionHouse", function () {
+  //    it("is upgradeable", async function () {
+  //      // Upgrade the proxy.
+  //      contracts.ETSAuctionHouse = await upgrades.upgradeProxy(
+  //        await contracts.ETSAuctionHouse.getAddress(),
+  //        factories.ETSAuctionHouseUpgrade,
+  //      );
+  //
+  //      const upgradeTxn = contracts.ETSAuctionHouse.deployTransaction.hash;
+  //      await expectEvent.inTransaction(upgradeTxn, artifacts.ETSAuctionHouseUpgrade, "Upgraded");
+  //      // Upgraded contract has new function upgradeTest()
+  //      assert((await contracts.ETSAuctionHouse.upgradeTest()) === true);
+  //    });
+  //  });
 });

@@ -78,6 +78,7 @@ export interface IETSTokenInterface extends Interface {
       | "supportsInterface"
       | "tagExistsById"
       | "tagExistsByString"
+      | "tagOwnershipTermExpired"
       | "transferFrom"
   ): FunctionFragment;
 
@@ -211,6 +212,10 @@ export interface IETSTokenInterface extends Interface {
     values: [string]
   ): string;
   encodeFunctionData(
+    functionFragment: "tagOwnershipTermExpired",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "transferFrom",
     values: [AddressLike, AddressLike, BigNumberish]
   ): string;
@@ -304,6 +309,10 @@ export interface IETSTokenInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "tagExistsByString",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "tagOwnershipTermExpired",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -679,6 +688,12 @@ export interface IETSToken extends BaseContract {
 
   tagExistsByString: TypedContractMethod<[_tag: string], [boolean], "view">;
 
+  tagOwnershipTermExpired: TypedContractMethod<
+    [_tokenId: BigNumberish],
+    [boolean],
+    "view"
+  >;
+
   transferFrom: TypedContractMethod<
     [from: AddressLike, to: AddressLike, tokenId: BigNumberish],
     [void],
@@ -834,6 +849,9 @@ export interface IETSToken extends BaseContract {
   getFunction(
     nameOrSignature: "tagExistsByString"
   ): TypedContractMethod<[_tag: string], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "tagOwnershipTermExpired"
+  ): TypedContractMethod<[_tokenId: BigNumberish], [boolean], "view">;
   getFunction(
     nameOrSignature: "transferFrom"
   ): TypedContractMethod<

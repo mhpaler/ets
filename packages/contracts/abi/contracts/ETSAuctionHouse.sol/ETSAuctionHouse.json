@@ -29,7 +29,7 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "auctionId",
         "type": "uint256"
       },
       {
@@ -60,13 +60,19 @@
       {
         "indexed": true,
         "internalType": "uint256",
+        "name": "auctionId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "auctionNumber",
+        "name": "tokenAuctionNumber",
         "type": "uint256"
       }
     ],
@@ -92,7 +98,7 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "auctionId",
         "type": "uint256"
       },
       {
@@ -181,7 +187,7 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "auctionId",
         "type": "uint256"
       }
     ],
@@ -338,7 +344,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_tokenId",
+        "name": "_auctionId",
         "type": "uint256"
       }
     ],
@@ -357,7 +363,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_tokenId",
+        "name": "_auctionId",
         "type": "uint256"
       }
     ],
@@ -376,55 +382,15 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
+        "name": "_tokenId",
         "type": "uint256"
       }
     ],
-    "name": "auctionIdToAuction",
+    "name": "auctionExistsForTokenId",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "auctionId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "startTime",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "endTime",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "reservePrice",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address payable",
-        "name": "bidder",
-        "type": "address"
-      },
-      {
-        "internalType": "address payable",
-        "name": "auctioneer",
-        "type": "address"
-      },
-      {
         "internalType": "bool",
-        "name": "settled",
+        "name": "",
         "type": "bool"
       }
     ],
@@ -435,26 +401,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "auctionIdToTokenId",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_tokenId",
+        "name": "_auctionId",
         "type": "uint256"
       }
     ],
@@ -475,11 +422,6 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "name": "auctions",
@@ -487,6 +429,11 @@
       {
         "internalType": "uint256",
         "name": "auctionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
         "type": "uint256"
       },
       {
@@ -532,7 +479,31 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_tokenId",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "auctionsByTokenId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_auctionId",
         "type": "uint256"
       }
     ],
@@ -643,7 +614,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_tokenId",
+        "name": "_auctionId",
         "type": "uint256"
       }
     ],
@@ -654,6 +625,11 @@
           {
             "internalType": "uint256",
             "name": "auctionId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
             "type": "uint256"
           },
           {
@@ -704,17 +680,22 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_auctionId",
+        "name": "_tokenId",
         "type": "uint256"
       }
     ],
-    "name": "getAuctionById",
+    "name": "getAuctionForTokenId",
     "outputs": [
       {
         "components": [
           {
             "internalType": "uint256",
             "name": "auctionId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
             "type": "uint256"
           },
           {
@@ -1049,7 +1030,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_tokenId",
+        "name": "_auctionId",
         "type": "uint256"
       }
     ],
@@ -1062,7 +1043,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_tokenId",
+        "name": "_auctionId",
         "type": "uint256"
       }
     ],

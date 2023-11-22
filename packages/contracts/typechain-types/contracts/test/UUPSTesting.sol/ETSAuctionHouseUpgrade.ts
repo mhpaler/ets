@@ -26,6 +26,7 @@ import type {
 export declare namespace IETSAuctionHouse {
   export type AuctionStruct = {
     auctionId: BigNumberish;
+    tokenId: BigNumberish;
     amount: BigNumberish;
     startTime: BigNumberish;
     endTime: BigNumberish;
@@ -37,6 +38,7 @@ export declare namespace IETSAuctionHouse {
 
   export type AuctionStructOutput = [
     auctionId: bigint,
+    tokenId: bigint,
     amount: bigint,
     startTime: bigint,
     endTime: bigint,
@@ -46,6 +48,7 @@ export declare namespace IETSAuctionHouse {
     settled: boolean
   ] & {
     auctionId: bigint;
+    tokenId: bigint;
     amount: bigint;
     startTime: bigint;
     endTime: bigint;
@@ -64,10 +67,10 @@ export interface ETSAuctionHouseUpgradeInterface extends Interface {
       | "accrued"
       | "auctionEnded"
       | "auctionExists"
-      | "auctionIdToAuction"
-      | "auctionIdToTokenId"
+      | "auctionExistsForTokenId"
       | "auctionSettled"
       | "auctions"
+      | "auctionsByTokenId"
       | "createBid"
       | "createNextAuction"
       | "creatorPercentage"
@@ -78,7 +81,7 @@ export interface ETSAuctionHouseUpgradeInterface extends Interface {
       | "fulfillRequestCreateAuction"
       | "getActiveCount"
       | "getAuction"
-      | "getAuctionById"
+      | "getAuctionForTokenId"
       | "getBalance"
       | "getTotalCount"
       | "initialize"
@@ -145,11 +148,7 @@ export interface ETSAuctionHouseUpgradeInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "auctionIdToAuction",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "auctionIdToTokenId",
+    functionFragment: "auctionExistsForTokenId",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -158,6 +157,10 @@ export interface ETSAuctionHouseUpgradeInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "auctions",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "auctionsByTokenId",
     values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
@@ -195,7 +198,7 @@ export interface ETSAuctionHouseUpgradeInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "getAuctionById",
+    functionFragment: "getAuctionForTokenId",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -315,11 +318,7 @@ export interface ETSAuctionHouseUpgradeInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "auctionIdToAuction",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "auctionIdToTokenId",
+    functionFragment: "auctionExistsForTokenId",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -327,6 +326,10 @@ export interface ETSAuctionHouseUpgradeInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "auctions", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "auctionsByTokenId",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "createBid", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "createNextAuction",
@@ -353,7 +356,7 @@ export interface ETSAuctionHouseUpgradeInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "getAuction", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "getAuctionById",
+    functionFragment: "getAuctionForTokenId",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getBalance", data: BytesLike): Result;
@@ -451,19 +454,19 @@ export namespace AdminChangedEvent {
 
 export namespace AuctionBidEvent {
   export type InputTuple = [
-    tokenId: BigNumberish,
+    auctionId: BigNumberish,
     sender: AddressLike,
     value: BigNumberish,
     extended: boolean
   ];
   export type OutputTuple = [
-    tokenId: bigint,
+    auctionId: bigint,
     sender: string,
     value: bigint,
     extended: boolean
   ];
   export interface OutputObject {
-    tokenId: bigint;
+    auctionId: bigint;
     sender: string;
     value: bigint;
     extended: boolean;
@@ -475,11 +478,20 @@ export namespace AuctionBidEvent {
 }
 
 export namespace AuctionCreatedEvent {
-  export type InputTuple = [tokenId: BigNumberish, auctionNumber: BigNumberish];
-  export type OutputTuple = [tokenId: bigint, auctionNumber: bigint];
+  export type InputTuple = [
+    auctionId: BigNumberish,
+    tokenId: BigNumberish,
+    tokenAuctionNumber: BigNumberish
+  ];
+  export type OutputTuple = [
+    auctionId: bigint,
+    tokenId: bigint,
+    tokenAuctionNumber: bigint
+  ];
   export interface OutputObject {
+    auctionId: bigint;
     tokenId: bigint;
-    auctionNumber: bigint;
+    tokenAuctionNumber: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -500,10 +512,10 @@ export namespace AuctionDurationSetEvent {
 }
 
 export namespace AuctionExtendedEvent {
-  export type InputTuple = [tokenId: BigNumberish, endTime: BigNumberish];
-  export type OutputTuple = [tokenId: bigint, endTime: bigint];
+  export type InputTuple = [auctionId: BigNumberish, endTime: BigNumberish];
+  export type OutputTuple = [auctionId: bigint, endTime: bigint];
   export interface OutputObject {
-    tokenId: bigint;
+    auctionId: bigint;
     endTime: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
@@ -572,10 +584,10 @@ export namespace AuctionReservePriceSetEvent {
 }
 
 export namespace AuctionSettledEvent {
-  export type InputTuple = [tokenId: BigNumberish];
-  export type OutputTuple = [tokenId: bigint];
+  export type InputTuple = [auctionId: BigNumberish];
+  export type OutputTuple = [auctionId: bigint];
   export interface OutputObject {
-    tokenId: bigint;
+    auctionId: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -727,51 +739,45 @@ export interface ETSAuctionHouseUpgrade extends BaseContract {
   accrued: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
   auctionEnded: TypedContractMethod<
-    [_tokenId: BigNumberish],
+    [_auctionId: BigNumberish],
     [boolean],
     "view"
   >;
 
   auctionExists: TypedContractMethod<
+    [_auctionId: BigNumberish],
+    [boolean],
+    "view"
+  >;
+
+  auctionExistsForTokenId: TypedContractMethod<
     [_tokenId: BigNumberish],
     [boolean],
     "view"
   >;
 
-  auctionIdToAuction: TypedContractMethod<
-    [arg0: BigNumberish, arg1: BigNumberish],
-    [
-      [bigint, bigint, bigint, bigint, bigint, string, string, boolean] & {
-        auctionId: bigint;
-        amount: bigint;
-        startTime: bigint;
-        endTime: bigint;
-        reservePrice: bigint;
-        bidder: string;
-        auctioneer: string;
-        settled: boolean;
-      }
-    ],
-    "view"
-  >;
-
-  auctionIdToTokenId: TypedContractMethod<
-    [arg0: BigNumberish],
-    [bigint],
-    "view"
-  >;
-
   auctionSettled: TypedContractMethod<
-    [_tokenId: BigNumberish],
+    [_auctionId: BigNumberish],
     [boolean],
     "view"
   >;
 
   auctions: TypedContractMethod<
-    [arg0: BigNumberish, arg1: BigNumberish],
+    [arg0: BigNumberish],
     [
-      [bigint, bigint, bigint, bigint, bigint, string, string, boolean] & {
+      [
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        string,
+        string,
+        boolean
+      ] & {
         auctionId: bigint;
+        tokenId: bigint;
         amount: bigint;
         startTime: bigint;
         endTime: bigint;
@@ -784,7 +790,13 @@ export interface ETSAuctionHouseUpgrade extends BaseContract {
     "view"
   >;
 
-  createBid: TypedContractMethod<[_tokenId: BigNumberish], [void], "payable">;
+  auctionsByTokenId: TypedContractMethod<
+    [arg0: BigNumberish, arg1: BigNumberish],
+    [bigint],
+    "view"
+  >;
+
+  createBid: TypedContractMethod<[_auctionId: BigNumberish], [void], "payable">;
 
   createNextAuction: TypedContractMethod<[], [void], "nonpayable">;
 
@@ -807,13 +819,13 @@ export interface ETSAuctionHouseUpgrade extends BaseContract {
   getActiveCount: TypedContractMethod<[], [bigint], "view">;
 
   getAuction: TypedContractMethod<
-    [_tokenId: BigNumberish],
+    [_auctionId: BigNumberish],
     [IETSAuctionHouse.AuctionStructOutput],
     "view"
   >;
 
-  getAuctionById: TypedContractMethod<
-    [_auctionId: BigNumberish],
+  getAuctionForTokenId: TypedContractMethod<
+    [_tokenId: BigNumberish],
     [IETSAuctionHouse.AuctionStructOutput],
     "view"
   >;
@@ -894,13 +906,13 @@ export interface ETSAuctionHouseUpgrade extends BaseContract {
   >;
 
   settleAuction: TypedContractMethod<
-    [_tokenId: BigNumberish],
+    [_auctionId: BigNumberish],
     [void],
     "nonpayable"
   >;
 
   settleCurrentAndCreateNewAuction: TypedContractMethod<
-    [_tokenId: BigNumberish],
+    [_auctionId: BigNumberish],
     [void],
     "nonpayable"
   >;
@@ -942,17 +954,34 @@ export interface ETSAuctionHouseUpgrade extends BaseContract {
   ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
   getFunction(
     nameOrSignature: "auctionEnded"
-  ): TypedContractMethod<[_tokenId: BigNumberish], [boolean], "view">;
+  ): TypedContractMethod<[_auctionId: BigNumberish], [boolean], "view">;
   getFunction(
     nameOrSignature: "auctionExists"
+  ): TypedContractMethod<[_auctionId: BigNumberish], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "auctionExistsForTokenId"
   ): TypedContractMethod<[_tokenId: BigNumberish], [boolean], "view">;
   getFunction(
-    nameOrSignature: "auctionIdToAuction"
+    nameOrSignature: "auctionSettled"
+  ): TypedContractMethod<[_auctionId: BigNumberish], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "auctions"
   ): TypedContractMethod<
-    [arg0: BigNumberish, arg1: BigNumberish],
+    [arg0: BigNumberish],
     [
-      [bigint, bigint, bigint, bigint, bigint, string, string, boolean] & {
+      [
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        string,
+        string,
+        boolean
+      ] & {
         auctionId: bigint;
+        tokenId: bigint;
         amount: bigint;
         startTime: bigint;
         endTime: bigint;
@@ -965,32 +994,15 @@ export interface ETSAuctionHouseUpgrade extends BaseContract {
     "view"
   >;
   getFunction(
-    nameOrSignature: "auctionIdToTokenId"
-  ): TypedContractMethod<[arg0: BigNumberish], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "auctionSettled"
-  ): TypedContractMethod<[_tokenId: BigNumberish], [boolean], "view">;
-  getFunction(
-    nameOrSignature: "auctions"
+    nameOrSignature: "auctionsByTokenId"
   ): TypedContractMethod<
     [arg0: BigNumberish, arg1: BigNumberish],
-    [
-      [bigint, bigint, bigint, bigint, bigint, string, string, boolean] & {
-        auctionId: bigint;
-        amount: bigint;
-        startTime: bigint;
-        endTime: bigint;
-        reservePrice: bigint;
-        bidder: string;
-        auctioneer: string;
-        settled: boolean;
-      }
-    ],
+    [bigint],
     "view"
   >;
   getFunction(
     nameOrSignature: "createBid"
-  ): TypedContractMethod<[_tokenId: BigNumberish], [void], "payable">;
+  ): TypedContractMethod<[_auctionId: BigNumberish], [void], "payable">;
   getFunction(
     nameOrSignature: "createNextAuction"
   ): TypedContractMethod<[], [void], "nonpayable">;
@@ -1018,14 +1030,14 @@ export interface ETSAuctionHouseUpgrade extends BaseContract {
   getFunction(
     nameOrSignature: "getAuction"
   ): TypedContractMethod<
-    [_tokenId: BigNumberish],
+    [_auctionId: BigNumberish],
     [IETSAuctionHouse.AuctionStructOutput],
     "view"
   >;
   getFunction(
-    nameOrSignature: "getAuctionById"
+    nameOrSignature: "getAuctionForTokenId"
   ): TypedContractMethod<
-    [_auctionId: BigNumberish],
+    [_tokenId: BigNumberish],
     [IETSAuctionHouse.AuctionStructOutput],
     "view"
   >;
@@ -1108,10 +1120,10 @@ export interface ETSAuctionHouseUpgrade extends BaseContract {
   ): TypedContractMethod<[_timeBuffer: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "settleAuction"
-  ): TypedContractMethod<[_tokenId: BigNumberish], [void], "nonpayable">;
+  ): TypedContractMethod<[_auctionId: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "settleCurrentAndCreateNewAuction"
-  ): TypedContractMethod<[_tokenId: BigNumberish], [void], "nonpayable">;
+  ): TypedContractMethod<[_auctionId: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "timeBuffer"
   ): TypedContractMethod<[], [bigint], "view">;
@@ -1292,7 +1304,7 @@ export interface ETSAuctionHouseUpgrade extends BaseContract {
       AuctionBidEvent.OutputObject
     >;
 
-    "AuctionCreated(uint256,uint256)": TypedContractEvent<
+    "AuctionCreated(uint256,uint256,uint256)": TypedContractEvent<
       AuctionCreatedEvent.InputTuple,
       AuctionCreatedEvent.OutputTuple,
       AuctionCreatedEvent.OutputObject

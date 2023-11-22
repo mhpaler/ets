@@ -95,6 +95,7 @@ export interface ETSTokenInterface extends Interface {
       | "tagExistsByString"
       | "tagMaxStringLength"
       | "tagMinStringLength"
+      | "tagOwnershipTermExpired"
       | "tokenIdToLastRenewed"
       | "tokenIdToTag"
       | "tokenURI"
@@ -287,6 +288,10 @@ export interface ETSTokenInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "tagOwnershipTermExpired",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "tokenIdToLastRenewed",
     values: [BigNumberish]
   ): string;
@@ -442,6 +447,10 @@ export interface ETSTokenInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "tagMinStringLength",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "tagOwnershipTermExpired",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -956,6 +965,12 @@ export interface ETSToken extends BaseContract {
 
   tagMinStringLength: TypedContractMethod<[], [bigint], "view">;
 
+  tagOwnershipTermExpired: TypedContractMethod<
+    [_tokenId: BigNumberish],
+    [boolean],
+    "view"
+  >;
+
   tokenIdToLastRenewed: TypedContractMethod<
     [arg0: BigNumberish],
     [bigint],
@@ -1211,6 +1226,9 @@ export interface ETSToken extends BaseContract {
   getFunction(
     nameOrSignature: "tagMinStringLength"
   ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "tagOwnershipTermExpired"
+  ): TypedContractMethod<[_tokenId: BigNumberish], [boolean], "view">;
   getFunction(
     nameOrSignature: "tokenIdToLastRenewed"
   ): TypedContractMethod<[arg0: BigNumberish], [bigint], "view">;
