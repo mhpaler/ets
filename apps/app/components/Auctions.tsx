@@ -1,23 +1,32 @@
 import { useState, useMemo } from "react";
 import type { NextPage } from "next";
-import Head from "next/head";
+import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
-import { settings } from "../../constants/settings";
-import useNumberFormatter from "../../hooks/useNumberFormatter";
-import { useAuctions } from "../../hooks/useAuctions";
-import PageTitle from "../../components/PageTitle";
-import { TimeAgo } from "../../components/TimeAgo";
-import { Table } from "../../components/Table";
-import { Button } from "../../components/Button";
+import { settings } from "../constants/settings";
+import { useAuctions } from "../hooks/useAuctions";
+import { toEth } from "../utils";
+import { Truncate } from "../components/Truncate";
+import { TimeAgo } from "./TimeAgo";
+import { Table } from "./Table";
+import { Button } from "./Button";
+import { Tag } from "./Tag";
 
-const pageSize = 20;
+type Props = {
+  filter?: any;
+  pageSize?: number;
+  orderBy?: string;
+  title?: string;
+};
 
-const Auctions: NextPage = () => {
-  const [skip, setSkip] = useState(0);
+// { relayer_: { id: relayer } },
+
+const Auctions: NextPage<Props> = ({ filter, pageSize, orderBy, title }) => {
   const { t } = useTranslation("common");
-  const { number } = useNumberFormatter();
-  const { relayers, nextRelayers, mutate } = useAuctions({
-    pageSize,
+  const [skip, setSkip] = useState(0);
+  const { auctions, nextAuctions, mutate } = useAuctions({
+    filter: filter,
+    pageSize: pageSize,
+    orderBy: orderBy,
     skip,
     config: {
       revalidateOnFocus: false,
@@ -25,7 +34,7 @@ const Auctions: NextPage = () => {
       revalidateOnReconnect: false,
       refreshWhenOffline: false,
       refreshWhenHidden: false,
-      refreshInterval: 1000,
+      refreshInterval: 0,
     },
   });
 
@@ -43,40 +52,20 @@ const Auctions: NextPage = () => {
   };
 
   const showPrevNext = () => {
-    return (nextRelayers && nextRelayers.length > 0) || (skip && skip !== 0)
+    return (nextAuctions && nextAuctions.length > 0) || (skip && skip !== 0)
       ? true
       : false;
   };
 
   const columns = useMemo(
-    () => [
-      t("name"),
-      t("created"),
-      t("tagging-records"),
-      t("tags"),
-      t("status"),
-    ],
+    () => [t("id"), t("tag"), t("bid"), t("bidder"), t("ends")],
     [t]
   );
 
-  const pageTitle = `${t("relayers")}`;
-  const browserTitle = `${pageTitle} | ETS`;
-
   return (
-    <div className="max-w-7xl mx-auto mt-12">
-      <Head>
-        <title>{browserTitle}</title>
-      </Head>
-      <div className="flex justify-between">
-        <PageTitle title={pageTitle} />
-        <AddRelayerProvider>
-          <Modal buttonText={t("create-relayer")}>
-            <Form />
-          </Modal>
-        </AddRelayerProvider>
-      </div>
-      <Table loading={!relayers} rows={pageSize}>
-        <Table.Title>{t("relayers")}</Table.Title>
+    <div className="max-w-7xl mx-auto">
+      <Table loading={!auctions} rows={pageSizeSet}>
+        {title && <Table.Title>{title}</Table.Title>}
         <Table.Head>
           <Table.Tr>
             {columns &&
@@ -86,34 +75,27 @@ const Auctions: NextPage = () => {
           </Table.Tr>
         </Table.Head>
         <Table.Body>
-          {relayers &&
-            relayers.map((relayer: any) => (
-              <Table.Tr key={relayer.id}>
-                <Table.Cell
-                  value={relayer.name}
-                  url={`/relayers/${relayer.id}`}
-                />
+          {auctions &&
+            auctions.map((auction: any) => (
+              <Table.Tr key={auction.id}>
                 <Table.CellWithChildren>
-                  <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                    <TimeAgo date={relayer.firstSeen * 1000} />
-                  </div>
+                  <Link
+                    href={`/auctions/${auction.id}`}
+                    className="text-pink-600 hover:text-pink-700"
+                  >
+                    {auction.id}
+                  </Link>
                 </Table.CellWithChildren>
-
-                <Table.Cell
-                  value={number(parseInt(relayer.taggingRecordsPublished))}
-                />
-                <Table.Cell
-                  value={number(parseInt(relayer.tagsPublished))}
-                  right
-                />
-                <Table.Cell
-                  value={
-                    (relayers && relayers[0].pausedByOwner) ||
-                    (relayers && relayers[0].lockedByProtocol)
-                      ? t("disabled")
-                      : t("enabled")
-                  }
-                />
+                <Table.CellWithChildren>
+                  <span className="mr-2 pb-2 inline-block">
+                    <Tag tag={auction.tag} />
+                  </span>
+                </Table.CellWithChildren>
+                <Table.Cell value={toEth(auction.amount, 4).toString()} />
+                <Table.Cell value={Truncate(auction.bidder.id)} />
+                <Table.CellWithChildren>
+                  <TimeAgo date={auction.endTime * 1000} />
+                </Table.CellWithChildren>
               </Table.Tr>
             ))}
         </Table.Body>
@@ -145,7 +127,7 @@ const Auctions: NextPage = () => {
                   {t("prev")}
                 </Button>
                 <Button
-                  disabled={nextRelayers && nextRelayers.length === 0}
+                  disabled={nextAuctions && nextAuctions.length === 0}
                   onClick={() => nextPage()}
                 >
                   {t("next")}
@@ -179,4 +161,4 @@ const Auctions: NextPage = () => {
   );
 };
 
-export default Relayers;
+export { Auctions };

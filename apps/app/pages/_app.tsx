@@ -25,19 +25,15 @@ import "@rainbow-me/rainbowkit/styles.css";
 import merge from "lodash.merge";
 import { metaMaskWallet } from "@rainbow-me/rainbowkit/wallets";
 
-import { configureChains, createConfig, WagmiConfig } from "wagmi";
-import { hardhat, polygonMumbai } from "wagmi/chains";
+import { createConfig, configureChains, WagmiConfig } from "wagmi";
+import { localhost, polygonMumbai } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
+import { AuctionHouseProvider } from "../context/AuctionHouseContext";
 
+//Configure the chain and the RPC provider. Note that we've added localhost here
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [
-    polygonMumbai,
-    ...(process.env.NEXT_PUBLIC_ENABLE_HARDHAT_TESTNET &&
-    process.env.NEXT_PUBLIC_ENABLE_HARDHAT_TESTNET === "true"
-      ? [hardhat]
-      : []),
-  ],
+  [polygonMumbai, localhost],
   [
     alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_KEY || "" }),
     publicProvider(),
@@ -122,9 +118,11 @@ function MyApp({ Component, pageProps }: AppProps<{ session: Session }>) {
             theme={etsTheme}
           >
             <SWRConfig value={{ refreshInterval: 3000, fetcher: fetcher }}>
-              <Layout>
-                <Component {...pageProps} />
-              </Layout>
+              <AuctionHouseProvider>
+                <Layout>
+                  <Component {...pageProps} />
+                </Layout>
+              </AuctionHouseProvider>
             </SWRConfig>
           </RainbowKitProvider>
         </RainbowKitSiweNextAuthProvider>

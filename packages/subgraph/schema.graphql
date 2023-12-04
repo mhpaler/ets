@@ -308,7 +308,7 @@ type Auction @entity {
   id: ID!
 
   "Incremental auction number for this CTAG. starts at 1 and increments each time tag is re-auctioned"
-  auctionNumber: BigInt!
+  tokenAuctionNumber: BigInt!
 
   "The CTAG being auctioned"
   tag: Tag!

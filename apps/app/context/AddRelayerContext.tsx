@@ -15,20 +15,10 @@ import {
 } from "wagmi";
 import { WriteContractResult } from "@wagmi/core";
 
-//import { useDebounce } from "../../../hooks/useDebounce";
-import config from "../abi/config.json";
-import ETSTokenABI from "../abi/contracts/ETSToken.sol/ETSToken.json";
-import ETSRelayerFactoryABI from "../abi/contracts/ETSRelayerFactory.sol/ETSRelayerFactory.json";
-
-const etsTokenContractConfig = {
-  address: config[31337].contracts.ETSToken.address as `0x${string}`,
-  abi: ETSTokenABI,
-} as const;
-
-const etsRelayerFactoryContractConfig = {
-  address: config[31337].contracts.ETSRelayerFactory.address as `0x${string}`,
-  abi: ETSRelayerFactoryABI,
-} as const;
+import {
+  etsTokenContractConfig,
+  etsRelayerFactoryContractConfig,
+} from "../contract.config";
 
 type Data = {
   name: string;
@@ -37,8 +27,6 @@ type Data = {
 
 export type FormContextValue = {
   initialize: () => void;
-  address: `0x${string}` | undefined;
-  isConnected: boolean;
   hasTags: boolean;
   isAddRelayerPrepareLoading: boolean;
   addRelayer: (() => void) | undefined;
@@ -56,7 +44,7 @@ export type FormContextValue = {
   setData: Dispatch<SetStateAction<Data>>;
 };
 
-const AddRelayerContext = createContext<FormContextValue | undefined>(
+export const AddRelayerContext = createContext<FormContextValue | undefined>(
   undefined
 );
 
@@ -163,8 +151,6 @@ export const AddRelayerProvider = ({
 
   const contextValue: FormContextValue = {
     initialize,
-    address,
-    isConnected,
     hasTags,
     isAddRelayerPrepareLoading,
     addRelayer,
@@ -188,5 +174,3 @@ export const AddRelayerProvider = ({
     </AddRelayerContext.Provider>
   );
 };
-
-export { AddRelayerContext };

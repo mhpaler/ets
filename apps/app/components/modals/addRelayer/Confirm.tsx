@@ -1,7 +1,7 @@
-import { useAddRelayerContext } from "../../../hooks/useAddRelayerContext";
+import { useAddRelayer } from "../../../hooks/useAddRelayer";
 
 const Confirm = () => {
-  const context = useAddRelayerContext();
+  const context = useAddRelayer();
 
   if (!context) {
     // Handle the case when context is undefined

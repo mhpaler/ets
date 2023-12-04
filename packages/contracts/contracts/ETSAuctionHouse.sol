@@ -270,6 +270,8 @@ contract ETSAuctionHouse is
         require(_auctionExists(_auctionId), "Auction not found");
         Auction memory auction = _getAuction(_auctionId);
         if (auction.startTime > 0) {
+            console.log(block.timestamp);
+            console.log(auction.endTime);
             require(block.timestamp < auction.endTime, "Auction ended");
         }
         require(msg.value >= reservePrice, "Must send at least reservePrice");
@@ -279,6 +281,8 @@ contract ETSAuctionHouse is
 
         // Refund the last bidder, if applicable
         if (lastBidder != address(0)) {
+            console.log("lastBidder", lastBidder);
+            console.log("auction.amount", auction.amount);
             _safeTransferETHWithFallback(lastBidder, auction.amount);
         }
 
@@ -305,57 +309,6 @@ contract ETSAuctionHouse is
 
         emit AuctionBid(_auctionId, msg.sender, msg.value, extended);
     }
-
-    //    function createBid(uint256 _auctionId) public payable nonReentrant whenNotPaused {
-    //        Auction memory auction = _getAuction(_auctionId);
-    //
-    //        //require(auction.auctionId > 0, "Auction not found");
-    //        if (auction.startTime > 0) {
-    //            require(block.timestamp < auction.endTime, "Auction ended");
-    //        }
-    //        require(msg.value >= auction.reservePrice, "Must send at least reservePrice");
-    //        require(msg.value >= auction.amount + ((auction.amount * minBidIncrementPercentage) / 100), "Bid too low");
-    //
-    //        address payable lastBidder = auction.bidder;
-    //
-    //        // Refund the last bidder, if applicable
-    //        if (lastBidder != address(0)) {
-    //            _safeTransferETHWithFallback(lastBidder, auction.amount);
-    //        }
-    //
-    //        if (auction.startTime == 0) {
-    //            // Start the auction
-    //            uint256 startTime = block.timestamp;
-    //            uint256 endTime = startTime + duration;
-    //            tagAuctions.push(
-    //                Auction({
-    //                    auctionId: auction.auctionId,
-    //                    amount: 0,
-    //                    startTime: startTime,
-    //                    endTime: endTime,
-    //                    reservePrice: auction.reservePrice,
-    //                    bidder: payable(address(0)),
-    //                    auctioneer: auction.auctioneer,
-    //                    settled: false
-    //                })
-    //            );
-    //        }
-    //
-    //        tagAuctions[tagAuctions.length - 1].amount = msg.value;
-    //        tagAuctions[tagAuctions.length - 1].bidder = payable(msg.sender);
-    //
-    //        // Extend the auction if the bid was received within `timeBuffer` of the auction end time
-    //        bool extended = false;
-    //        if (auction.startTime > 0) {
-    //            extended = auction.endTime - block.timestamp < timeBuffer;
-    //            if (extended) {
-    //                tagAuctions[tagAuctions.length - 1].endTime = block.timestamp + timeBuffer;
-    //                emit AuctionExtended(_tokenId, tagAuctions[tagAuctions.length - 1].endTime);
-    //            }
-    //        }
-    //
-    //        emit AuctionBid(_tokenId, msg.sender, msg.value, extended);
-    //    }
 
     /**
      * @notice Function for withdrawing funds from an accrual account. Can be called by the account owner
@@ -406,32 +359,6 @@ contract ETSAuctionHouse is
         emit AuctionCreated(currentAuctionId, _tokenId, tokenAuctionIds.length);
         //emit AuctionCreated(_tokenId);
     }
-
-    //    function _createAuction(uint256 _tokenId) internal {
-    //        auctionId.increment();
-    //        activeAuctions.increment();
-    //        uint256 currentAuctionId = auctionId.current();
-    //
-    //        Auction[] storage tokenAuctions = auctions[currentAuctionId];
-    //        tokenAuctions.push(
-    //            Auction({
-    //                auctionId: currentAuctionId,
-    //                amount: 0,
-    //                startTime: 0,
-    //                endTime: 0,
-    //                reservePrice: reservePrice,
-    //                bidder: payable(address(0)),
-    //                auctioneer: etsAccessControls.getPlatformAddress(),
-    //                settled: false
-    //            })
-    //        );
-    //
-    //        // Update the global mappings
-    //        auctionIdToAuction[_tokenId][currentAuctionId] = tokenAuctions[tokenAuctions.length - 1];
-    //        auctionIdToTokenId[currentAuctionId] = _tokenId;
-    //
-    //        emit AuctionCreated(currentAuctionId, _tokenId, tokenAuctions.length);
-    //    }
 
     function _settleAuction(uint256 _auctionId) internal {
         require(_auctionExists(_auctionId), "Auction not found");
@@ -516,6 +443,10 @@ contract ETSAuctionHouse is
         uint256[] memory tokenAuctionIds = auctionsByTokenId[_tokenId];
         // Return last auction for token.
         return auctions[tokenAuctionIds[tokenAuctionIds.length - 1]];
+    }
+
+    function getAuctionCountForTokenId(uint256 _tokenId) public view returns (uint256) {
+        return auctionsByTokenId[_tokenId].length;
     }
 
     function getActiveCount() public view returns (uint256) {

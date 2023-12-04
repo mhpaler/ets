@@ -163,11 +163,10 @@ const Relayer: NextPage = () => {
                 <div className="text-right">
                   <div className="text-slate-500">
                     {relayers &&
-                      toDp(
-                        toEth(
-                          relayers[0].publishedTagsAuctionRevenue +
-                            relayers[0].publishedTagsTaggingFeeRevenue
-                        )
+                      toEth(
+                        relayers[0].publishedTagsAuctionRevenue +
+                          relayers[0].publishedTagsTaggingFeeRevenue,
+                        4
                       )}
                     &nbsp;{t("matic")}
                   </div>

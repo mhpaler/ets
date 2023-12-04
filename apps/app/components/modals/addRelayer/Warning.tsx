@@ -1,9 +1,9 @@
-import { useAddRelayerContext } from "../../../hooks/useAddRelayerContext";
+import { useAddRelayer } from "../../../hooks/useAddRelayer";
 import useTranslation from "next-translate/useTranslation";
 
 const Warning = () => {
   const { t } = useTranslation("common");
-  const context = useAddRelayerContext();
+  const context = useAddRelayer();
 
   if (!context) {
     // Handle the case when context is undefined

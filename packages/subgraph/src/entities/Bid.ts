@@ -11,7 +11,7 @@ export function ensureBid(auctionId: BigInt, event: AuctionBid): void {
   let auction = updateAuction(auctionId, event);
 
   if (auction == null) {
-    logCritical("[handleAuctionBid] Auction not found for Noun #{}. Hash: {}", [
+    logCritical("[handleAuctionBid] Auction not found for auction #{}. Hash: {}", [
       auctionId.toString(),
       event.transaction.hash.toHex(),
     ]);

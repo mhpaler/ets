@@ -16,12 +16,18 @@ export function ensureAuction(auctionId: BigInt, event: ethereum.Event): Auction
     let auctionCall = contract.try_getAuction(auctionId);
 
     if (auctionCall.reverted) {
-      logCritical("getTaggingRecordFromId reverted for {}", [auctionId.toString()]);
+      logCritical("getAuction reverted for {}", [auctionId.toString()]);
     }
 
     auction = new Auction(auctionId.toString());
-    auction.auctionNumber = auctionCall.value.auctionId;
-    auction.tag = ensureTag(auctionId, event).id; // id of auction is same as id of tag being auctioned
+    auction.tag = ensureTag(auctionCall.value.tokenId, event).id;
+
+    let tokenAuctionNumberCall = contract.try_getAuctionCountForTokenId(auctionCall.value.tokenId);
+    if (tokenAuctionNumberCall.reverted) {
+      logCritical("getAuctionCountForTokenId reverted for {}", [auctionCall.value.tokenId.toString()]);
+    }
+
+    auction.tokenAuctionNumber = tokenAuctionNumberCall.value;
     auction.bidder = ensureOwner(auctionCall.value.bidder, event).id; //auctionCall.value.bidder.toHexString();
     auction.amount = ZERO;
     auction.startTime = auctionCall.value.startTime;

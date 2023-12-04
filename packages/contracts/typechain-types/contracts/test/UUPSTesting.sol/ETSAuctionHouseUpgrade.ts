@@ -81,6 +81,7 @@ export interface ETSAuctionHouseUpgradeInterface extends Interface {
       | "fulfillRequestCreateAuction"
       | "getActiveCount"
       | "getAuction"
+      | "getAuctionCountForTokenId"
       | "getAuctionForTokenId"
       | "getBalance"
       | "getTotalCount"
@@ -195,6 +196,10 @@ export interface ETSAuctionHouseUpgradeInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getAuction",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAuctionCountForTokenId",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -355,6 +360,10 @@ export interface ETSAuctionHouseUpgradeInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getAuction", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getAuctionCountForTokenId",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "getAuctionForTokenId",
     data: BytesLike
@@ -824,6 +833,12 @@ export interface ETSAuctionHouseUpgrade extends BaseContract {
     "view"
   >;
 
+  getAuctionCountForTokenId: TypedContractMethod<
+    [_tokenId: BigNumberish],
+    [bigint],
+    "view"
+  >;
+
   getAuctionForTokenId: TypedContractMethod<
     [_tokenId: BigNumberish],
     [IETSAuctionHouse.AuctionStructOutput],
@@ -1034,6 +1049,9 @@ export interface ETSAuctionHouseUpgrade extends BaseContract {
     [IETSAuctionHouse.AuctionStructOutput],
     "view"
   >;
+  getFunction(
+    nameOrSignature: "getAuctionCountForTokenId"
+  ): TypedContractMethod<[_tokenId: BigNumberish], [bigint], "view">;
   getFunction(
     nameOrSignature: "getAuctionForTokenId"
   ): TypedContractMethod<

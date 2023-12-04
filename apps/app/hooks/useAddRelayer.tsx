@@ -1,8 +1,8 @@
 import { useContext } from "react";
 import { AddRelayerContext } from "../context/AddRelayerContext";
 
-const useAddRelayerContext = () => {
+const useAddRelayer = () => {
   return useContext(AddRelayerContext);
 };
 
-export { useAddRelayerContext };
+export { useAddRelayer };

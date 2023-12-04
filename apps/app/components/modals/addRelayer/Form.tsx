@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { useAddRelayerContext } from "../../../hooks/useAddRelayerContext";
+import { useAddRelayer } from "../../../hooks/useAddRelayer";
 import { useRelayers } from "../../../hooks/useRelayers";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { useChainName } from "@app/hooks/useChainName";
@@ -35,7 +35,7 @@ type AddRelayerSchemaType = z.infer<typeof AddRelayerSchema>;
 const Form = (props: Props) => {
   const { t } = useTranslation("common");
   const chainName = useChainName();
-  const context = useAddRelayerContext();
+  const context = useAddRelayer();
   if (!context) {
     // Handle the case when context is undefined
     return null;

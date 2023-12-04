@@ -4,32 +4,22 @@ import Breadcrumbs from "nextjs-breadcrumbs2";
 import { BreadcrumbItem } from "./BreadcrumbItem";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
+import { useEffect, useState } from "react";
 
 export default function Navbar() {
   const { t } = useTranslation("common");
   const { address, isConnected } = useAccount();
 
+  const [clientClassName, setClientClassName] = useState("");
+  useEffect(() => {
+    // Apply dynamic class on the client side
+    setClientClassName(
+      `${address && isConnected ? "connected" : ""} connect-btn`
+    );
+  }, [address, isConnected]);
+
   return (
     <header className="px-4">
-      <div className="relative bg-pink-500 -mx-4">
-        <div className="mx-auto max-w-7xl py-3 px-3 sm:px-6 lg:px-8">
-          <div className="pr-16 sm:px-16 text-center">
-            <p className="font-medium text-white">
-              <span className="md:inline">
-                ETS is alpha software running on Polygon Mumbai Testnet
-                &nbsp;•&nbsp;&nbsp;
-                <a
-                  className="underline"
-                  href="https://github.com/ethereum-tag-service/ets#readme"
-                  target={"blank"}
-                >
-                  Learn more
-                </a>
-              </span>
-            </p>
-          </div>
-        </div>
-      </div>
       <nav className="max-w-7xl mx-auto" aria-label="Top">
         <div className="flex items-center justify-between w-full py-5 border-b border-slate-100 lg:border-none">
           <div className="flex items-center">
@@ -66,10 +56,10 @@ export default function Navbar() {
                   {t("relayers")}
                 </Link>
                 <Link
-                  href="/auctions"
+                  href="/auction"
                   className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700"
                 >
-                  {t("auctions")}
+                  {t("auction")}
                 </Link>
 
                 <Link
@@ -79,11 +69,7 @@ export default function Navbar() {
                   {t("playground")}
                 </Link>
               </div>
-              <span
-                className={`${
-                  address && isConnected ? "connected" : ""
-                } connect-btn`}
-              >
+              <span className={clientClassName}>
                 <ConnectButton
                   label="Connect"
                   chainStatus="name"
