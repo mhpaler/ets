@@ -3,41 +3,42 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BigNumberish,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PayableOverrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
-} from "ethers";
-import type {
   FunctionFragment,
   Result,
+  Interface,
   EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+  AddressLike,
+  ContractRunner,
+  ContractMethod,
+  Listener,
+} from "ethers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
+  TypedLogDescription,
   TypedListener,
-  OnEvent,
-  PromiseOrValue,
+  TypedContractMethod,
 } from "../../common";
 
 export declare namespace IETSToken {
   export type TagStruct = {
-    relayer: PromiseOrValue<string>;
-    creator: PromiseOrValue<string>;
-    display: PromiseOrValue<string>;
-    premium: PromiseOrValue<boolean>;
-    reserved: PromiseOrValue<boolean>;
+    relayer: AddressLike;
+    creator: AddressLike;
+    display: string;
+    premium: boolean;
+    reserved: boolean;
   };
 
-  export type TagStructOutput = [string, string, string, boolean, boolean] & {
+  export type TagStructOutput = [
+    relayer: string,
+    creator: string,
+    display: string,
+    premium: boolean,
+    reserved: boolean
+  ] & {
     relayer: string;
     creator: string;
     display: string;
@@ -46,41 +47,9 @@ export declare namespace IETSToken {
   };
 }
 
-export interface IETSTokenInterface extends utils.Interface {
-  functions: {
-    "approve(address,uint256)": FunctionFragment;
-    "balanceOf(address)": FunctionFragment;
-    "computeTagId(string)": FunctionFragment;
-    "createTag(string,address,address)": FunctionFragment;
-    "getApproved(uint256)": FunctionFragment;
-    "getCreatorAddress(uint256)": FunctionFragment;
-    "getLastRenewed(uint256)": FunctionFragment;
-    "getOrCreateTagId(string,address,address)": FunctionFragment;
-    "getOwnershipTermLength()": FunctionFragment;
-    "getPlatformAddress()": FunctionFragment;
-    "getTagById(uint256)": FunctionFragment;
-    "getTagByString(string)": FunctionFragment;
-    "isApprovedForAll(address,address)": FunctionFragment;
-    "ownerOf(uint256)": FunctionFragment;
-    "preSetPremiumTags(string[],bool)": FunctionFragment;
-    "recycleTag(uint256)": FunctionFragment;
-    "renewTag(uint256)": FunctionFragment;
-    "safeTransferFrom(address,address,uint256)": FunctionFragment;
-    "safeTransferFrom(address,address,uint256,bytes)": FunctionFragment;
-    "setApprovalForAll(address,bool)": FunctionFragment;
-    "setOwnershipTermLength(uint256)": FunctionFragment;
-    "setPremiumFlag(uint256[],bool)": FunctionFragment;
-    "setReservedFlag(uint256[],bool)": FunctionFragment;
-    "setTagMaxStringLength(uint256)": FunctionFragment;
-    "setTagMinStringLength(uint256)": FunctionFragment;
-    "supportsInterface(bytes4)": FunctionFragment;
-    "tagExistsById(uint256)": FunctionFragment;
-    "tagExistsByString(string)": FunctionFragment;
-    "transferFrom(address,address,uint256)": FunctionFragment;
-  };
-
+export interface IETSTokenInterface extends Interface {
   getFunction(
-    nameOrSignatureOrTopic:
+    nameOrSignature:
       | "approve"
       | "balanceOf"
       | "computeTagId"
@@ -112,45 +81,54 @@ export interface IETSTokenInterface extends utils.Interface {
       | "transferFrom"
   ): FunctionFragment;
 
+  getEvent(
+    nameOrSignatureOrTopic:
+      | "AccessControlsSet"
+      | "Approval"
+      | "ApprovalForAll"
+      | "ETSCoreSet"
+      | "OwnershipTermLengthSet"
+      | "PremiumFlagSet"
+      | "PremiumTagPreSet"
+      | "ReservedFlagSet"
+      | "TagMaxStringLengthSet"
+      | "TagMinStringLengthSet"
+      | "TagRecycled"
+      | "TagRenewed"
+      | "Transfer"
+  ): EventFragment;
+
   encodeFunctionData(
     functionFragment: "approve",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "balanceOf",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "computeTagId",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "createTag",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
+    values: [string, AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getApproved",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getCreatorAddress",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getLastRenewed",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getOrCreateTagId",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
+    values: [string, AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getOwnershipTermLength",
@@ -162,92 +140,79 @@ export interface IETSTokenInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getTagById",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getTagByString",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "isApprovedForAll",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+    values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "ownerOf",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "preSetPremiumTags",
-    values: [PromiseOrValue<string>[], PromiseOrValue<boolean>]
+    values: [string[], boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "recycleTag",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "renewTag",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "safeTransferFrom(address,address,uint256)",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [AddressLike, AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "safeTransferFrom(address,address,uint256,bytes)",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>
-    ]
+    values: [AddressLike, AddressLike, BigNumberish, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "setApprovalForAll",
-    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
+    values: [AddressLike, boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "setOwnershipTermLength",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setPremiumFlag",
-    values: [PromiseOrValue<BigNumberish>[], PromiseOrValue<boolean>]
+    values: [BigNumberish[], boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "setReservedFlag",
-    values: [PromiseOrValue<BigNumberish>[], PromiseOrValue<boolean>]
+    values: [BigNumberish[], boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "setTagMaxStringLength",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setTagMinStringLength",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "supportsInterface",
-    values: [PromiseOrValue<BytesLike>]
+    values: [BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "tagExistsById",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "tagExistsByString",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "transferFrom",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [AddressLike, AddressLike, BigNumberish]
   ): string;
 
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
@@ -345,1099 +310,772 @@ export interface IETSTokenInterface extends utils.Interface {
     functionFragment: "transferFrom",
     data: BytesLike
   ): Result;
-
-  events: {
-    "AccessControlsSet(address)": EventFragment;
-    "Approval(address,address,uint256)": EventFragment;
-    "ApprovalForAll(address,address,bool)": EventFragment;
-    "ETSCoreSet(address)": EventFragment;
-    "OwnershipTermLengthSet(uint256)": EventFragment;
-    "PremiumFlagSet(uint256,bool)": EventFragment;
-    "PremiumTagPreSet(string,bool)": EventFragment;
-    "ReservedFlagSet(uint256,bool)": EventFragment;
-    "TagMaxStringLengthSet(uint256)": EventFragment;
-    "TagMinStringLengthSet(uint256)": EventFragment;
-    "TagRecycled(uint256,address)": EventFragment;
-    "TagRenewed(uint256,address)": EventFragment;
-    "Transfer(address,address,uint256)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "AccessControlsSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ETSCoreSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTermLengthSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "PremiumFlagSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "PremiumTagPreSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ReservedFlagSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TagMaxStringLengthSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TagMinStringLengthSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TagRecycled"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TagRenewed"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
 
-export interface AccessControlsSetEventObject {
-  etsAccessControls: string;
+export namespace AccessControlsSetEvent {
+  export type InputTuple = [etsAccessControls: AddressLike];
+  export type OutputTuple = [etsAccessControls: string];
+  export interface OutputObject {
+    etsAccessControls: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AccessControlsSetEvent = TypedEvent<
-  [string],
-  AccessControlsSetEventObject
->;
 
-export type AccessControlsSetEventFilter =
-  TypedEventFilter<AccessControlsSetEvent>;
-
-export interface ApprovalEventObject {
-  owner: string;
-  approved: string;
-  tokenId: BigNumber;
+export namespace ApprovalEvent {
+  export type InputTuple = [
+    owner: AddressLike,
+    approved: AddressLike,
+    tokenId: BigNumberish
+  ];
+  export type OutputTuple = [owner: string, approved: string, tokenId: bigint];
+  export interface OutputObject {
+    owner: string;
+    approved: string;
+    tokenId: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type ApprovalEvent = TypedEvent<
-  [string, string, BigNumber],
-  ApprovalEventObject
->;
 
-export type ApprovalEventFilter = TypedEventFilter<ApprovalEvent>;
-
-export interface ApprovalForAllEventObject {
-  owner: string;
-  operator: string;
-  approved: boolean;
+export namespace ApprovalForAllEvent {
+  export type InputTuple = [
+    owner: AddressLike,
+    operator: AddressLike,
+    approved: boolean
+  ];
+  export type OutputTuple = [
+    owner: string,
+    operator: string,
+    approved: boolean
+  ];
+  export interface OutputObject {
+    owner: string;
+    operator: string;
+    approved: boolean;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type ApprovalForAllEvent = TypedEvent<
-  [string, string, boolean],
-  ApprovalForAllEventObject
->;
 
-export type ApprovalForAllEventFilter = TypedEventFilter<ApprovalForAllEvent>;
-
-export interface ETSCoreSetEventObject {
-  ets: string;
+export namespace ETSCoreSetEvent {
+  export type InputTuple = [ets: AddressLike];
+  export type OutputTuple = [ets: string];
+  export interface OutputObject {
+    ets: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type ETSCoreSetEvent = TypedEvent<[string], ETSCoreSetEventObject>;
 
-export type ETSCoreSetEventFilter = TypedEventFilter<ETSCoreSetEvent>;
-
-export interface OwnershipTermLengthSetEventObject {
-  termLength: BigNumber;
+export namespace OwnershipTermLengthSetEvent {
+  export type InputTuple = [termLength: BigNumberish];
+  export type OutputTuple = [termLength: bigint];
+  export interface OutputObject {
+    termLength: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type OwnershipTermLengthSetEvent = TypedEvent<
-  [BigNumber],
-  OwnershipTermLengthSetEventObject
->;
 
-export type OwnershipTermLengthSetEventFilter =
-  TypedEventFilter<OwnershipTermLengthSetEvent>;
-
-export interface PremiumFlagSetEventObject {
-  tagId: BigNumber;
-  isPremium: boolean;
+export namespace PremiumFlagSetEvent {
+  export type InputTuple = [tagId: BigNumberish, isPremium: boolean];
+  export type OutputTuple = [tagId: bigint, isPremium: boolean];
+  export interface OutputObject {
+    tagId: bigint;
+    isPremium: boolean;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type PremiumFlagSetEvent = TypedEvent<
-  [BigNumber, boolean],
-  PremiumFlagSetEventObject
->;
 
-export type PremiumFlagSetEventFilter = TypedEventFilter<PremiumFlagSetEvent>;
-
-export interface PremiumTagPreSetEventObject {
-  tag: string;
-  isPremium: boolean;
+export namespace PremiumTagPreSetEvent {
+  export type InputTuple = [tag: string, isPremium: boolean];
+  export type OutputTuple = [tag: string, isPremium: boolean];
+  export interface OutputObject {
+    tag: string;
+    isPremium: boolean;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type PremiumTagPreSetEvent = TypedEvent<
-  [string, boolean],
-  PremiumTagPreSetEventObject
->;
 
-export type PremiumTagPreSetEventFilter =
-  TypedEventFilter<PremiumTagPreSetEvent>;
-
-export interface ReservedFlagSetEventObject {
-  tagId: BigNumber;
-  isReserved: boolean;
+export namespace ReservedFlagSetEvent {
+  export type InputTuple = [tagId: BigNumberish, isReserved: boolean];
+  export type OutputTuple = [tagId: bigint, isReserved: boolean];
+  export interface OutputObject {
+    tagId: bigint;
+    isReserved: boolean;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type ReservedFlagSetEvent = TypedEvent<
-  [BigNumber, boolean],
-  ReservedFlagSetEventObject
->;
 
-export type ReservedFlagSetEventFilter = TypedEventFilter<ReservedFlagSetEvent>;
-
-export interface TagMaxStringLengthSetEventObject {
-  maxStringLength: BigNumber;
+export namespace TagMaxStringLengthSetEvent {
+  export type InputTuple = [maxStringLength: BigNumberish];
+  export type OutputTuple = [maxStringLength: bigint];
+  export interface OutputObject {
+    maxStringLength: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type TagMaxStringLengthSetEvent = TypedEvent<
-  [BigNumber],
-  TagMaxStringLengthSetEventObject
->;
 
-export type TagMaxStringLengthSetEventFilter =
-  TypedEventFilter<TagMaxStringLengthSetEvent>;
-
-export interface TagMinStringLengthSetEventObject {
-  minStringLength: BigNumber;
+export namespace TagMinStringLengthSetEvent {
+  export type InputTuple = [minStringLength: BigNumberish];
+  export type OutputTuple = [minStringLength: bigint];
+  export interface OutputObject {
+    minStringLength: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type TagMinStringLengthSetEvent = TypedEvent<
-  [BigNumber],
-  TagMinStringLengthSetEventObject
->;
 
-export type TagMinStringLengthSetEventFilter =
-  TypedEventFilter<TagMinStringLengthSetEvent>;
-
-export interface TagRecycledEventObject {
-  tokenId: BigNumber;
-  caller: string;
+export namespace TagRecycledEvent {
+  export type InputTuple = [tokenId: BigNumberish, caller: AddressLike];
+  export type OutputTuple = [tokenId: bigint, caller: string];
+  export interface OutputObject {
+    tokenId: bigint;
+    caller: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type TagRecycledEvent = TypedEvent<
-  [BigNumber, string],
-  TagRecycledEventObject
->;
 
-export type TagRecycledEventFilter = TypedEventFilter<TagRecycledEvent>;
-
-export interface TagRenewedEventObject {
-  tokenId: BigNumber;
-  caller: string;
+export namespace TagRenewedEvent {
+  export type InputTuple = [tokenId: BigNumberish, caller: AddressLike];
+  export type OutputTuple = [tokenId: bigint, caller: string];
+  export interface OutputObject {
+    tokenId: bigint;
+    caller: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type TagRenewedEvent = TypedEvent<
-  [BigNumber, string],
-  TagRenewedEventObject
->;
 
-export type TagRenewedEventFilter = TypedEventFilter<TagRenewedEvent>;
-
-export interface TransferEventObject {
-  from: string;
-  to: string;
-  tokenId: BigNumber;
+export namespace TransferEvent {
+  export type InputTuple = [
+    from: AddressLike,
+    to: AddressLike,
+    tokenId: BigNumberish
+  ];
+  export type OutputTuple = [from: string, to: string, tokenId: bigint];
+  export interface OutputObject {
+    from: string;
+    to: string;
+    tokenId: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type TransferEvent = TypedEvent<
-  [string, string, BigNumber],
-  TransferEventObject
->;
-
-export type TransferEventFilter = TypedEventFilter<TransferEvent>;
 
 export interface IETSToken extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): IETSToken;
+  waitForDeployment(): Promise<this>;
 
   interface: IETSTokenInterface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
-
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
-
-  functions: {
-    approve(
-      to: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    balanceOf(
-      owner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { balance: BigNumber }>;
-
-    computeTagId(
-      _tag: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    createTag(
-      _tag: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _creator: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    getApproved(
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[string] & { operator: string }>;
-
-    getCreatorAddress(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    getLastRenewed(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    getOrCreateTagId(
-      _tag: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _creator: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    getOwnershipTermLength(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    getPlatformAddress(overrides?: CallOverrides): Promise<[string]>;
-
-    getTagById(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[IETSToken.TagStructOutput]>;
-
-    getTagByString(
-      _tag: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[IETSToken.TagStructOutput]>;
-
-    isApprovedForAll(
-      owner: PromiseOrValue<string>,
-      operator: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    ownerOf(
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[string] & { owner: string }>;
-
-    preSetPremiumTags(
-      _tags: PromiseOrValue<string>[],
-      _isPremium: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    recycleTag(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    renewTag(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "safeTransferFrom(address,address,uint256)"(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "safeTransferFrom(address,address,uint256,bytes)"(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setApprovalForAll(
-      operator: PromiseOrValue<string>,
-      approved: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setOwnershipTermLength(
-      _ownershipTermLength: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setPremiumFlag(
-      _tokenIds: PromiseOrValue<BigNumberish>[],
-      _isPremium: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setReservedFlag(
-      _tokenIds: PromiseOrValue<BigNumberish>[],
-      _reserved: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setTagMaxStringLength(
-      _tagMaxStringLength: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setTagMinStringLength(
-      _tagMinStringLength: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    supportsInterface(
-      interfaceId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    tagExistsById(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    tagExistsByString(
-      _tag: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    transferFrom(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-  };
-
-  approve(
-    to: PromiseOrValue<string>,
-    tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  balanceOf(
-    owner: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  computeTagId(
-    _tag: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  createTag(
-    _tag: PromiseOrValue<string>,
-    _relayer: PromiseOrValue<string>,
-    _creator: PromiseOrValue<string>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  getApproved(
-    tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  getCreatorAddress(
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  getLastRenewed(
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  getOrCreateTagId(
-    _tag: PromiseOrValue<string>,
-    _relayer: PromiseOrValue<string>,
-    _creator: PromiseOrValue<string>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  getOwnershipTermLength(overrides?: CallOverrides): Promise<BigNumber>;
-
-  getPlatformAddress(overrides?: CallOverrides): Promise<string>;
-
-  getTagById(
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<IETSToken.TagStructOutput>;
-
-  getTagByString(
-    _tag: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<IETSToken.TagStructOutput>;
-
-  isApprovedForAll(
-    owner: PromiseOrValue<string>,
-    operator: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  ownerOf(
-    tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  preSetPremiumTags(
-    _tags: PromiseOrValue<string>[],
-    _isPremium: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  recycleTag(
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  renewTag(
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "safeTransferFrom(address,address,uint256)"(
-    from: PromiseOrValue<string>,
-    to: PromiseOrValue<string>,
-    tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "safeTransferFrom(address,address,uint256,bytes)"(
-    from: PromiseOrValue<string>,
-    to: PromiseOrValue<string>,
-    tokenId: PromiseOrValue<BigNumberish>,
-    data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setApprovalForAll(
-    operator: PromiseOrValue<string>,
-    approved: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setOwnershipTermLength(
-    _ownershipTermLength: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setPremiumFlag(
-    _tokenIds: PromiseOrValue<BigNumberish>[],
-    _isPremium: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setReservedFlag(
-    _tokenIds: PromiseOrValue<BigNumberish>[],
-    _reserved: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setTagMaxStringLength(
-    _tagMaxStringLength: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setTagMinStringLength(
-    _tagMinStringLength: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  supportsInterface(
-    interfaceId: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  tagExistsById(
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  tagExistsByString(
-    _tag: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  transferFrom(
-    from: PromiseOrValue<string>,
-    to: PromiseOrValue<string>,
-    tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  callStatic: {
-    approve(
-      to: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    balanceOf(
-      owner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    computeTagId(
-      _tag: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    createTag(
-      _tag: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _creator: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getApproved(
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    getCreatorAddress(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    getLastRenewed(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getOrCreateTagId(
-      _tag: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _creator: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getOwnershipTermLength(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getPlatformAddress(overrides?: CallOverrides): Promise<string>;
-
-    getTagById(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<IETSToken.TagStructOutput>;
-
-    getTagByString(
-      _tag: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<IETSToken.TagStructOutput>;
-
-    isApprovedForAll(
-      owner: PromiseOrValue<string>,
-      operator: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    ownerOf(
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    preSetPremiumTags(
-      _tags: PromiseOrValue<string>[],
-      _isPremium: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    recycleTag(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    renewTag(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "safeTransferFrom(address,address,uint256)"(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "safeTransferFrom(address,address,uint256,bytes)"(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setApprovalForAll(
-      operator: PromiseOrValue<string>,
-      approved: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setOwnershipTermLength(
-      _ownershipTermLength: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setPremiumFlag(
-      _tokenIds: PromiseOrValue<BigNumberish>[],
-      _isPremium: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setReservedFlag(
-      _tokenIds: PromiseOrValue<BigNumberish>[],
-      _reserved: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setTagMaxStringLength(
-      _tagMaxStringLength: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setTagMinStringLength(
-      _tagMinStringLength: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    supportsInterface(
-      interfaceId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    tagExistsById(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    tagExistsByString(
-      _tag: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    transferFrom(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-  };
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
+
+  approve: TypedContractMethod<
+    [to: AddressLike, tokenId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  balanceOf: TypedContractMethod<[owner: AddressLike], [bigint], "view">;
+
+  computeTagId: TypedContractMethod<[_tag: string], [bigint], "view">;
+
+  createTag: TypedContractMethod<
+    [_tag: string, _relayer: AddressLike, _creator: AddressLike],
+    [bigint],
+    "payable"
+  >;
+
+  getApproved: TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
+
+  getCreatorAddress: TypedContractMethod<
+    [_tokenId: BigNumberish],
+    [string],
+    "view"
+  >;
+
+  getLastRenewed: TypedContractMethod<
+    [_tokenId: BigNumberish],
+    [bigint],
+    "view"
+  >;
+
+  getOrCreateTagId: TypedContractMethod<
+    [_tag: string, _relayer: AddressLike, _creator: AddressLike],
+    [bigint],
+    "payable"
+  >;
+
+  getOwnershipTermLength: TypedContractMethod<[], [bigint], "view">;
+
+  getPlatformAddress: TypedContractMethod<[], [string], "view">;
+
+  getTagById: TypedContractMethod<
+    [_tokenId: BigNumberish],
+    [IETSToken.TagStructOutput],
+    "view"
+  >;
+
+  getTagByString: TypedContractMethod<
+    [_tag: string],
+    [IETSToken.TagStructOutput],
+    "view"
+  >;
+
+  isApprovedForAll: TypedContractMethod<
+    [owner: AddressLike, operator: AddressLike],
+    [boolean],
+    "view"
+  >;
+
+  ownerOf: TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
+
+  preSetPremiumTags: TypedContractMethod<
+    [_tags: string[], _isPremium: boolean],
+    [void],
+    "nonpayable"
+  >;
+
+  recycleTag: TypedContractMethod<
+    [_tokenId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  renewTag: TypedContractMethod<[_tokenId: BigNumberish], [void], "nonpayable">;
+
+  "safeTransferFrom(address,address,uint256)": TypedContractMethod<
+    [from: AddressLike, to: AddressLike, tokenId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  "safeTransferFrom(address,address,uint256,bytes)": TypedContractMethod<
+    [
+      from: AddressLike,
+      to: AddressLike,
+      tokenId: BigNumberish,
+      data: BytesLike
+    ],
+    [void],
+    "nonpayable"
+  >;
+
+  setApprovalForAll: TypedContractMethod<
+    [operator: AddressLike, approved: boolean],
+    [void],
+    "nonpayable"
+  >;
+
+  setOwnershipTermLength: TypedContractMethod<
+    [_ownershipTermLength: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  setPremiumFlag: TypedContractMethod<
+    [_tokenIds: BigNumberish[], _isPremium: boolean],
+    [void],
+    "nonpayable"
+  >;
+
+  setReservedFlag: TypedContractMethod<
+    [_tokenIds: BigNumberish[], _reserved: boolean],
+    [void],
+    "nonpayable"
+  >;
+
+  setTagMaxStringLength: TypedContractMethod<
+    [_tagMaxStringLength: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  setTagMinStringLength: TypedContractMethod<
+    [_tagMinStringLength: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  supportsInterface: TypedContractMethod<
+    [interfaceId: BytesLike],
+    [boolean],
+    "view"
+  >;
+
+  tagExistsById: TypedContractMethod<
+    [_tokenId: BigNumberish],
+    [boolean],
+    "view"
+  >;
+
+  tagExistsByString: TypedContractMethod<[_tag: string], [boolean], "view">;
+
+  transferFrom: TypedContractMethod<
+    [from: AddressLike, to: AddressLike, tokenId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
+
+  getFunction(
+    nameOrSignature: "approve"
+  ): TypedContractMethod<
+    [to: AddressLike, tokenId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "balanceOf"
+  ): TypedContractMethod<[owner: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "computeTagId"
+  ): TypedContractMethod<[_tag: string], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "createTag"
+  ): TypedContractMethod<
+    [_tag: string, _relayer: AddressLike, _creator: AddressLike],
+    [bigint],
+    "payable"
+  >;
+  getFunction(
+    nameOrSignature: "getApproved"
+  ): TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
+  getFunction(
+    nameOrSignature: "getCreatorAddress"
+  ): TypedContractMethod<[_tokenId: BigNumberish], [string], "view">;
+  getFunction(
+    nameOrSignature: "getLastRenewed"
+  ): TypedContractMethod<[_tokenId: BigNumberish], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getOrCreateTagId"
+  ): TypedContractMethod<
+    [_tag: string, _relayer: AddressLike, _creator: AddressLike],
+    [bigint],
+    "payable"
+  >;
+  getFunction(
+    nameOrSignature: "getOwnershipTermLength"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getPlatformAddress"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "getTagById"
+  ): TypedContractMethod<
+    [_tokenId: BigNumberish],
+    [IETSToken.TagStructOutput],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getTagByString"
+  ): TypedContractMethod<[_tag: string], [IETSToken.TagStructOutput], "view">;
+  getFunction(
+    nameOrSignature: "isApprovedForAll"
+  ): TypedContractMethod<
+    [owner: AddressLike, operator: AddressLike],
+    [boolean],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "ownerOf"
+  ): TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
+  getFunction(
+    nameOrSignature: "preSetPremiumTags"
+  ): TypedContractMethod<
+    [_tags: string[], _isPremium: boolean],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "recycleTag"
+  ): TypedContractMethod<[_tokenId: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "renewTag"
+  ): TypedContractMethod<[_tokenId: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "safeTransferFrom(address,address,uint256)"
+  ): TypedContractMethod<
+    [from: AddressLike, to: AddressLike, tokenId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "safeTransferFrom(address,address,uint256,bytes)"
+  ): TypedContractMethod<
+    [
+      from: AddressLike,
+      to: AddressLike,
+      tokenId: BigNumberish,
+      data: BytesLike
+    ],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "setApprovalForAll"
+  ): TypedContractMethod<
+    [operator: AddressLike, approved: boolean],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "setOwnershipTermLength"
+  ): TypedContractMethod<
+    [_ownershipTermLength: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "setPremiumFlag"
+  ): TypedContractMethod<
+    [_tokenIds: BigNumberish[], _isPremium: boolean],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "setReservedFlag"
+  ): TypedContractMethod<
+    [_tokenIds: BigNumberish[], _reserved: boolean],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "setTagMaxStringLength"
+  ): TypedContractMethod<
+    [_tagMaxStringLength: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "setTagMinStringLength"
+  ): TypedContractMethod<
+    [_tagMinStringLength: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "supportsInterface"
+  ): TypedContractMethod<[interfaceId: BytesLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "tagExistsById"
+  ): TypedContractMethod<[_tokenId: BigNumberish], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "tagExistsByString"
+  ): TypedContractMethod<[_tag: string], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "transferFrom"
+  ): TypedContractMethod<
+    [from: AddressLike, to: AddressLike, tokenId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  getEvent(
+    key: "AccessControlsSet"
+  ): TypedContractEvent<
+    AccessControlsSetEvent.InputTuple,
+    AccessControlsSetEvent.OutputTuple,
+    AccessControlsSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "Approval"
+  ): TypedContractEvent<
+    ApprovalEvent.InputTuple,
+    ApprovalEvent.OutputTuple,
+    ApprovalEvent.OutputObject
+  >;
+  getEvent(
+    key: "ApprovalForAll"
+  ): TypedContractEvent<
+    ApprovalForAllEvent.InputTuple,
+    ApprovalForAllEvent.OutputTuple,
+    ApprovalForAllEvent.OutputObject
+  >;
+  getEvent(
+    key: "ETSCoreSet"
+  ): TypedContractEvent<
+    ETSCoreSetEvent.InputTuple,
+    ETSCoreSetEvent.OutputTuple,
+    ETSCoreSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "OwnershipTermLengthSet"
+  ): TypedContractEvent<
+    OwnershipTermLengthSetEvent.InputTuple,
+    OwnershipTermLengthSetEvent.OutputTuple,
+    OwnershipTermLengthSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "PremiumFlagSet"
+  ): TypedContractEvent<
+    PremiumFlagSetEvent.InputTuple,
+    PremiumFlagSetEvent.OutputTuple,
+    PremiumFlagSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "PremiumTagPreSet"
+  ): TypedContractEvent<
+    PremiumTagPreSetEvent.InputTuple,
+    PremiumTagPreSetEvent.OutputTuple,
+    PremiumTagPreSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "ReservedFlagSet"
+  ): TypedContractEvent<
+    ReservedFlagSetEvent.InputTuple,
+    ReservedFlagSetEvent.OutputTuple,
+    ReservedFlagSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "TagMaxStringLengthSet"
+  ): TypedContractEvent<
+    TagMaxStringLengthSetEvent.InputTuple,
+    TagMaxStringLengthSetEvent.OutputTuple,
+    TagMaxStringLengthSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "TagMinStringLengthSet"
+  ): TypedContractEvent<
+    TagMinStringLengthSetEvent.InputTuple,
+    TagMinStringLengthSetEvent.OutputTuple,
+    TagMinStringLengthSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "TagRecycled"
+  ): TypedContractEvent<
+    TagRecycledEvent.InputTuple,
+    TagRecycledEvent.OutputTuple,
+    TagRecycledEvent.OutputObject
+  >;
+  getEvent(
+    key: "TagRenewed"
+  ): TypedContractEvent<
+    TagRenewedEvent.InputTuple,
+    TagRenewedEvent.OutputTuple,
+    TagRenewedEvent.OutputObject
+  >;
+  getEvent(
+    key: "Transfer"
+  ): TypedContractEvent<
+    TransferEvent.InputTuple,
+    TransferEvent.OutputTuple,
+    TransferEvent.OutputObject
+  >;
 
   filters: {
-    "AccessControlsSet(address)"(
-      etsAccessControls?: null
-    ): AccessControlsSetEventFilter;
-    AccessControlsSet(etsAccessControls?: null): AccessControlsSetEventFilter;
-
-    "Approval(address,address,uint256)"(
-      owner?: PromiseOrValue<string> | null,
-      approved?: PromiseOrValue<string> | null,
-      tokenId?: PromiseOrValue<BigNumberish> | null
-    ): ApprovalEventFilter;
-    Approval(
-      owner?: PromiseOrValue<string> | null,
-      approved?: PromiseOrValue<string> | null,
-      tokenId?: PromiseOrValue<BigNumberish> | null
-    ): ApprovalEventFilter;
-
-    "ApprovalForAll(address,address,bool)"(
-      owner?: PromiseOrValue<string> | null,
-      operator?: PromiseOrValue<string> | null,
-      approved?: null
-    ): ApprovalForAllEventFilter;
-    ApprovalForAll(
-      owner?: PromiseOrValue<string> | null,
-      operator?: PromiseOrValue<string> | null,
-      approved?: null
-    ): ApprovalForAllEventFilter;
-
-    "ETSCoreSet(address)"(ets?: null): ETSCoreSetEventFilter;
-    ETSCoreSet(ets?: null): ETSCoreSetEventFilter;
-
-    "OwnershipTermLengthSet(uint256)"(
-      termLength?: null
-    ): OwnershipTermLengthSetEventFilter;
-    OwnershipTermLengthSet(
-      termLength?: null
-    ): OwnershipTermLengthSetEventFilter;
-
-    "PremiumFlagSet(uint256,bool)"(
-      tagId?: null,
-      isPremium?: null
-    ): PremiumFlagSetEventFilter;
-    PremiumFlagSet(tagId?: null, isPremium?: null): PremiumFlagSetEventFilter;
-
-    "PremiumTagPreSet(string,bool)"(
-      tag?: null,
-      isPremium?: null
-    ): PremiumTagPreSetEventFilter;
-    PremiumTagPreSet(tag?: null, isPremium?: null): PremiumTagPreSetEventFilter;
-
-    "ReservedFlagSet(uint256,bool)"(
-      tagId?: null,
-      isReserved?: null
-    ): ReservedFlagSetEventFilter;
-    ReservedFlagSet(
-      tagId?: null,
-      isReserved?: null
-    ): ReservedFlagSetEventFilter;
-
-    "TagMaxStringLengthSet(uint256)"(
-      maxStringLength?: null
-    ): TagMaxStringLengthSetEventFilter;
-    TagMaxStringLengthSet(
-      maxStringLength?: null
-    ): TagMaxStringLengthSetEventFilter;
-
-    "TagMinStringLengthSet(uint256)"(
-      minStringLength?: null
-    ): TagMinStringLengthSetEventFilter;
-    TagMinStringLengthSet(
-      minStringLength?: null
-    ): TagMinStringLengthSetEventFilter;
-
-    "TagRecycled(uint256,address)"(
-      tokenId?: PromiseOrValue<BigNumberish> | null,
-      caller?: PromiseOrValue<string> | null
-    ): TagRecycledEventFilter;
-    TagRecycled(
-      tokenId?: PromiseOrValue<BigNumberish> | null,
-      caller?: PromiseOrValue<string> | null
-    ): TagRecycledEventFilter;
-
-    "TagRenewed(uint256,address)"(
-      tokenId?: PromiseOrValue<BigNumberish> | null,
-      caller?: PromiseOrValue<string> | null
-    ): TagRenewedEventFilter;
-    TagRenewed(
-      tokenId?: PromiseOrValue<BigNumberish> | null,
-      caller?: PromiseOrValue<string> | null
-    ): TagRenewedEventFilter;
-
-    "Transfer(address,address,uint256)"(
-      from?: PromiseOrValue<string> | null,
-      to?: PromiseOrValue<string> | null,
-      tokenId?: PromiseOrValue<BigNumberish> | null
-    ): TransferEventFilter;
-    Transfer(
-      from?: PromiseOrValue<string> | null,
-      to?: PromiseOrValue<string> | null,
-      tokenId?: PromiseOrValue<BigNumberish> | null
-    ): TransferEventFilter;
-  };
-
-  estimateGas: {
-    approve(
-      to: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    balanceOf(
-      owner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    computeTagId(
-      _tag: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    createTag(
-      _tag: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _creator: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    getApproved(
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getCreatorAddress(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getLastRenewed(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getOrCreateTagId(
-      _tag: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _creator: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    getOwnershipTermLength(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getPlatformAddress(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getTagById(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getTagByString(
-      _tag: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isApprovedForAll(
-      owner: PromiseOrValue<string>,
-      operator: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    ownerOf(
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    preSetPremiumTags(
-      _tags: PromiseOrValue<string>[],
-      _isPremium: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    recycleTag(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    renewTag(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "safeTransferFrom(address,address,uint256)"(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "safeTransferFrom(address,address,uint256,bytes)"(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setApprovalForAll(
-      operator: PromiseOrValue<string>,
-      approved: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setOwnershipTermLength(
-      _ownershipTermLength: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setPremiumFlag(
-      _tokenIds: PromiseOrValue<BigNumberish>[],
-      _isPremium: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setReservedFlag(
-      _tokenIds: PromiseOrValue<BigNumberish>[],
-      _reserved: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setTagMaxStringLength(
-      _tagMaxStringLength: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setTagMinStringLength(
-      _tagMinStringLength: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    supportsInterface(
-      interfaceId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    tagExistsById(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    tagExistsByString(
-      _tag: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    transferFrom(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    approve(
-      to: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    balanceOf(
-      owner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    computeTagId(
-      _tag: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    createTag(
-      _tag: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _creator: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getApproved(
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getCreatorAddress(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getLastRenewed(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getOrCreateTagId(
-      _tag: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _creator: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getOwnershipTermLength(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getPlatformAddress(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getTagById(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getTagByString(
-      _tag: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isApprovedForAll(
-      owner: PromiseOrValue<string>,
-      operator: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    ownerOf(
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    preSetPremiumTags(
-      _tags: PromiseOrValue<string>[],
-      _isPremium: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    recycleTag(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    renewTag(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "safeTransferFrom(address,address,uint256)"(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "safeTransferFrom(address,address,uint256,bytes)"(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setApprovalForAll(
-      operator: PromiseOrValue<string>,
-      approved: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setOwnershipTermLength(
-      _ownershipTermLength: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setPremiumFlag(
-      _tokenIds: PromiseOrValue<BigNumberish>[],
-      _isPremium: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setReservedFlag(
-      _tokenIds: PromiseOrValue<BigNumberish>[],
-      _reserved: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setTagMaxStringLength(
-      _tagMaxStringLength: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setTagMinStringLength(
-      _tagMinStringLength: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    supportsInterface(
-      interfaceId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    tagExistsById(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    tagExistsByString(
-      _tag: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    transferFrom(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    "AccessControlsSet(address)": TypedContractEvent<
+      AccessControlsSetEvent.InputTuple,
+      AccessControlsSetEvent.OutputTuple,
+      AccessControlsSetEvent.OutputObject
+    >;
+    AccessControlsSet: TypedContractEvent<
+      AccessControlsSetEvent.InputTuple,
+      AccessControlsSetEvent.OutputTuple,
+      AccessControlsSetEvent.OutputObject
+    >;
+
+    "Approval(address,address,uint256)": TypedContractEvent<
+      ApprovalEvent.InputTuple,
+      ApprovalEvent.OutputTuple,
+      ApprovalEvent.OutputObject
+    >;
+    Approval: TypedContractEvent<
+      ApprovalEvent.InputTuple,
+      ApprovalEvent.OutputTuple,
+      ApprovalEvent.OutputObject
+    >;
+
+    "ApprovalForAll(address,address,bool)": TypedContractEvent<
+      ApprovalForAllEvent.InputTuple,
+      ApprovalForAllEvent.OutputTuple,
+      ApprovalForAllEvent.OutputObject
+    >;
+    ApprovalForAll: TypedContractEvent<
+      ApprovalForAllEvent.InputTuple,
+      ApprovalForAllEvent.OutputTuple,
+      ApprovalForAllEvent.OutputObject
+    >;
+
+    "ETSCoreSet(address)": TypedContractEvent<
+      ETSCoreSetEvent.InputTuple,
+      ETSCoreSetEvent.OutputTuple,
+      ETSCoreSetEvent.OutputObject
+    >;
+    ETSCoreSet: TypedContractEvent<
+      ETSCoreSetEvent.InputTuple,
+      ETSCoreSetEvent.OutputTuple,
+      ETSCoreSetEvent.OutputObject
+    >;
+
+    "OwnershipTermLengthSet(uint256)": TypedContractEvent<
+      OwnershipTermLengthSetEvent.InputTuple,
+      OwnershipTermLengthSetEvent.OutputTuple,
+      OwnershipTermLengthSetEvent.OutputObject
+    >;
+    OwnershipTermLengthSet: TypedContractEvent<
+      OwnershipTermLengthSetEvent.InputTuple,
+      OwnershipTermLengthSetEvent.OutputTuple,
+      OwnershipTermLengthSetEvent.OutputObject
+    >;
+
+    "PremiumFlagSet(uint256,bool)": TypedContractEvent<
+      PremiumFlagSetEvent.InputTuple,
+      PremiumFlagSetEvent.OutputTuple,
+      PremiumFlagSetEvent.OutputObject
+    >;
+    PremiumFlagSet: TypedContractEvent<
+      PremiumFlagSetEvent.InputTuple,
+      PremiumFlagSetEvent.OutputTuple,
+      PremiumFlagSetEvent.OutputObject
+    >;
+
+    "PremiumTagPreSet(string,bool)": TypedContractEvent<
+      PremiumTagPreSetEvent.InputTuple,
+      PremiumTagPreSetEvent.OutputTuple,
+      PremiumTagPreSetEvent.OutputObject
+    >;
+    PremiumTagPreSet: TypedContractEvent<
+      PremiumTagPreSetEvent.InputTuple,
+      PremiumTagPreSetEvent.OutputTuple,
+      PremiumTagPreSetEvent.OutputObject
+    >;
+
+    "ReservedFlagSet(uint256,bool)": TypedContractEvent<
+      ReservedFlagSetEvent.InputTuple,
+      ReservedFlagSetEvent.OutputTuple,
+      ReservedFlagSetEvent.OutputObject
+    >;
+    ReservedFlagSet: TypedContractEvent<
+      ReservedFlagSetEvent.InputTuple,
+      ReservedFlagSetEvent.OutputTuple,
+      ReservedFlagSetEvent.OutputObject
+    >;
+
+    "TagMaxStringLengthSet(uint256)": TypedContractEvent<
+      TagMaxStringLengthSetEvent.InputTuple,
+      TagMaxStringLengthSetEvent.OutputTuple,
+      TagMaxStringLengthSetEvent.OutputObject
+    >;
+    TagMaxStringLengthSet: TypedContractEvent<
+      TagMaxStringLengthSetEvent.InputTuple,
+      TagMaxStringLengthSetEvent.OutputTuple,
+      TagMaxStringLengthSetEvent.OutputObject
+    >;
+
+    "TagMinStringLengthSet(uint256)": TypedContractEvent<
+      TagMinStringLengthSetEvent.InputTuple,
+      TagMinStringLengthSetEvent.OutputTuple,
+      TagMinStringLengthSetEvent.OutputObject
+    >;
+    TagMinStringLengthSet: TypedContractEvent<
+      TagMinStringLengthSetEvent.InputTuple,
+      TagMinStringLengthSetEvent.OutputTuple,
+      TagMinStringLengthSetEvent.OutputObject
+    >;
+
+    "TagRecycled(uint256,address)": TypedContractEvent<
+      TagRecycledEvent.InputTuple,
+      TagRecycledEvent.OutputTuple,
+      TagRecycledEvent.OutputObject
+    >;
+    TagRecycled: TypedContractEvent<
+      TagRecycledEvent.InputTuple,
+      TagRecycledEvent.OutputTuple,
+      TagRecycledEvent.OutputObject
+    >;
+
+    "TagRenewed(uint256,address)": TypedContractEvent<
+      TagRenewedEvent.InputTuple,
+      TagRenewedEvent.OutputTuple,
+      TagRenewedEvent.OutputObject
+    >;
+    TagRenewed: TypedContractEvent<
+      TagRenewedEvent.InputTuple,
+      TagRenewedEvent.OutputTuple,
+      TagRenewedEvent.OutputObject
+    >;
+
+    "Transfer(address,address,uint256)": TypedContractEvent<
+      TransferEvent.InputTuple,
+      TransferEvent.OutputTuple,
+      TransferEvent.OutputObject
+    >;
+    Transfer: TypedContractEvent<
+      TransferEvent.InputTuple,
+      TransferEvent.OutputTuple,
+      TransferEvent.OutputObject
+    >;
   };
 }

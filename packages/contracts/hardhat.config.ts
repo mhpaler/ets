@@ -29,7 +29,7 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       mining: {
-        auto: false,
+        auto: true,
         interval: 5000,
         mempool: {
           order: "fifo",

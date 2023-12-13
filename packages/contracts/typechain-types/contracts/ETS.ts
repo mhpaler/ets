@@ -3,94 +3,43 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BigNumberish,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PayableOverrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
-} from "ethers";
-import type {
   FunctionFragment,
   Result,
+  Interface,
   EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+  AddressLike,
+  ContractRunner,
+  ContractMethod,
+  Listener,
+} from "ethers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
+  TypedLogDescription,
   TypedListener,
-  OnEvent,
-  PromiseOrValue,
+  TypedContractMethod,
 } from "../common";
 
 export declare namespace IETS {
   export type TaggingRecordRawInputStruct = {
-    targetURI: PromiseOrValue<string>;
-    tagStrings: PromiseOrValue<string>[];
-    recordType: PromiseOrValue<string>;
-  };
-
-  export type TaggingRecordRawInputStructOutput = [string, string[], string] & {
     targetURI: string;
     tagStrings: string[];
     recordType: string;
   };
+
+  export type TaggingRecordRawInputStructOutput = [
+    targetURI: string,
+    tagStrings: string[],
+    recordType: string
+  ] & { targetURI: string; tagStrings: string[]; recordType: string };
 }
 
-export interface ETSInterface extends utils.Interface {
-  functions: {
-    "MODULO()": FunctionFragment;
-    "NAME()": FunctionFragment;
-    "accrued(address)": FunctionFragment;
-    "appendTags(uint256,uint256[])": FunctionFragment;
-    "applyTagsWithCompositeKey(uint256[],uint256,string,address)": FunctionFragment;
-    "applyTagsWithRawInput((string,string[],string),address)": FunctionFragment;
-    "computeTaggingFee(uint256,uint256[],uint8)": FunctionFragment;
-    "computeTaggingFeeFromCompositeKey(uint256[],uint256,string,address,address,uint8)": FunctionFragment;
-    "computeTaggingFeeFromRawInput((string,string[],string),address,address,uint8)": FunctionFragment;
-    "computeTaggingRecordIdFromCompositeKey(uint256,string,address,address)": FunctionFragment;
-    "computeTaggingRecordIdFromRawInput((string,string[],string),address,address)": FunctionFragment;
-    "createTag(string,address)": FunctionFragment;
-    "createTaggingRecord(uint256[],uint256,string,address)": FunctionFragment;
-    "drawDown(address)": FunctionFragment;
-    "etsAccessControls()": FunctionFragment;
-    "etsTarget()": FunctionFragment;
-    "etsToken()": FunctionFragment;
-    "getOrCreateTagId(string,address)": FunctionFragment;
-    "getTaggingRecordFromCompositeKey(uint256,string,address,address)": FunctionFragment;
-    "getTaggingRecordFromId(uint256)": FunctionFragment;
-    "getTaggingRecordFromRawInput((string,string[],string),address,address)": FunctionFragment;
-    "initialize(address,address,address,uint256,uint256,uint256)": FunctionFragment;
-    "paid(address)": FunctionFragment;
-    "platformPercentage()": FunctionFragment;
-    "proxiableUUID()": FunctionFragment;
-    "relayerPercentage()": FunctionFragment;
-    "removeTags(uint256,uint256[])": FunctionFragment;
-    "removeTagsWithCompositeKey(uint256[],uint256,string,address)": FunctionFragment;
-    "removeTagsWithRawInput((string,string[],string),address)": FunctionFragment;
-    "replaceTags(uint256,uint256[])": FunctionFragment;
-    "replaceTagsWithCompositeKey(uint256[],uint256,string,address)": FunctionFragment;
-    "replaceTagsWithRawInput((string,string[],string),address)": FunctionFragment;
-    "setAccessControls(address)": FunctionFragment;
-    "setPercentages(uint256,uint256)": FunctionFragment;
-    "setTaggingFee(uint256)": FunctionFragment;
-    "taggingFee()": FunctionFragment;
-    "taggingRecordExists(uint256)": FunctionFragment;
-    "taggingRecordExistsByCompositeKey(uint256,string,address,address)": FunctionFragment;
-    "taggingRecordExistsByRawInput((string,string[],string),address,address)": FunctionFragment;
-    "taggingRecords(uint256)": FunctionFragment;
-    "totalDue(address)": FunctionFragment;
-    "upgradeTo(address)": FunctionFragment;
-    "upgradeToAndCall(address,bytes)": FunctionFragment;
-  };
-
+export interface ETSInterface extends Interface {
   getFunction(
-    nameOrSignatureOrTopic:
+    nameOrSignature:
       | "MODULO"
       | "NAME"
       | "accrued"
@@ -136,90 +85,81 @@ export interface ETSInterface extends utils.Interface {
       | "upgradeToAndCall"
   ): FunctionFragment;
 
+  getEvent(
+    nameOrSignatureOrTopic:
+      | "AccessControlsSet"
+      | "AdminChanged"
+      | "BeaconUpgraded"
+      | "FundsWithdrawn"
+      | "Initialized"
+      | "PercentagesSet"
+      | "TaggingFeeSet"
+      | "TaggingRecordCreated"
+      | "TaggingRecordUpdated"
+      | "Upgraded"
+  ): EventFragment;
+
   encodeFunctionData(functionFragment: "MODULO", values?: undefined): string;
   encodeFunctionData(functionFragment: "NAME", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "accrued",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "appendTags",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>[]]
+    values: [BigNumberish, BigNumberish[]]
   ): string;
   encodeFunctionData(
     functionFragment: "applyTagsWithCompositeKey",
-    values: [
-      PromiseOrValue<BigNumberish>[],
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
+    values: [BigNumberish[], BigNumberish, string, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "applyTagsWithRawInput",
-    values: [IETS.TaggingRecordRawInputStruct, PromiseOrValue<string>]
+    values: [IETS.TaggingRecordRawInputStruct, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "computeTaggingFee",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>[],
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [BigNumberish, BigNumberish[], BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "computeTaggingFeeFromCompositeKey",
     values: [
-      PromiseOrValue<BigNumberish>[],
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
+      BigNumberish[],
+      BigNumberish,
+      string,
+      AddressLike,
+      AddressLike,
+      BigNumberish
     ]
   ): string;
   encodeFunctionData(
     functionFragment: "computeTaggingFeeFromRawInput",
     values: [
       IETS.TaggingRecordRawInputStruct,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
+      AddressLike,
+      AddressLike,
+      BigNumberish
     ]
   ): string;
   encodeFunctionData(
     functionFragment: "computeTaggingRecordIdFromCompositeKey",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
+    values: [BigNumberish, string, AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "computeTaggingRecordIdFromRawInput",
-    values: [
-      IETS.TaggingRecordRawInputStruct,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
+    values: [IETS.TaggingRecordRawInputStruct, AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "createTag",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+    values: [string, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "createTaggingRecord",
-    values: [
-      PromiseOrValue<BigNumberish>[],
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
+    values: [BigNumberish[], BigNumberish, string, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "drawDown",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "etsAccessControls",
@@ -229,44 +169,32 @@ export interface ETSInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "etsToken", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "getOrCreateTagId",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+    values: [string, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getTaggingRecordFromCompositeKey",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
+    values: [BigNumberish, string, AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getTaggingRecordFromId",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getTaggingRecordFromRawInput",
-    values: [
-      IETS.TaggingRecordRawInputStruct,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
+    values: [IETS.TaggingRecordRawInputStruct, AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "initialize",
     values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
+      AddressLike,
+      AddressLike,
+      AddressLike,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish
     ]
   ): string;
-  encodeFunctionData(
-    functionFragment: "paid",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "paid", values: [AddressLike]): string;
   encodeFunctionData(
     functionFragment: "platformPercentage",
     values?: undefined
@@ -281,49 +209,39 @@ export interface ETSInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "removeTags",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>[]]
+    values: [BigNumberish, BigNumberish[]]
   ): string;
   encodeFunctionData(
     functionFragment: "removeTagsWithCompositeKey",
-    values: [
-      PromiseOrValue<BigNumberish>[],
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
+    values: [BigNumberish[], BigNumberish, string, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "removeTagsWithRawInput",
-    values: [IETS.TaggingRecordRawInputStruct, PromiseOrValue<string>]
+    values: [IETS.TaggingRecordRawInputStruct, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "replaceTags",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>[]]
+    values: [BigNumberish, BigNumberish[]]
   ): string;
   encodeFunctionData(
     functionFragment: "replaceTagsWithCompositeKey",
-    values: [
-      PromiseOrValue<BigNumberish>[],
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
+    values: [BigNumberish[], BigNumberish, string, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "replaceTagsWithRawInput",
-    values: [IETS.TaggingRecordRawInputStruct, PromiseOrValue<string>]
+    values: [IETS.TaggingRecordRawInputStruct, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "setAccessControls",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "setPercentages",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+    values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setTaggingFee",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "taggingFee",
@@ -331,40 +249,31 @@ export interface ETSInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "taggingRecordExists",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "taggingRecordExistsByCompositeKey",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
+    values: [BigNumberish, string, AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "taggingRecordExistsByRawInput",
-    values: [
-      IETS.TaggingRecordRawInputStruct,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
+    values: [IETS.TaggingRecordRawInputStruct, AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "taggingRecords",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "totalDue",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "upgradeTo",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "upgradeToAndCall",
-    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
+    values: [AddressLike, BytesLike]
   ): string;
 
   decodeFunctionResult(functionFragment: "MODULO", data: BytesLike): Result;
@@ -497,1541 +406,1014 @@ export interface ETSInterface extends utils.Interface {
     functionFragment: "upgradeToAndCall",
     data: BytesLike
   ): Result;
-
-  events: {
-    "AccessControlsSet(address)": EventFragment;
-    "AdminChanged(address,address)": EventFragment;
-    "BeaconUpgraded(address)": EventFragment;
-    "FundsWithdrawn(address,uint256)": EventFragment;
-    "Initialized(uint8)": EventFragment;
-    "PercentagesSet(uint256,uint256)": EventFragment;
-    "TaggingFeeSet(uint256)": EventFragment;
-    "TaggingRecordCreated(uint256)": EventFragment;
-    "TaggingRecordUpdated(uint256,uint8)": EventFragment;
-    "Upgraded(address)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "AccessControlsSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AdminChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "BeaconUpgraded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "FundsWithdrawn"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "PercentagesSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TaggingFeeSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TaggingRecordCreated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TaggingRecordUpdated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Upgraded"): EventFragment;
 }
 
-export interface AccessControlsSetEventObject {
-  newAccessControls: string;
+export namespace AccessControlsSetEvent {
+  export type InputTuple = [newAccessControls: AddressLike];
+  export type OutputTuple = [newAccessControls: string];
+  export interface OutputObject {
+    newAccessControls: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AccessControlsSetEvent = TypedEvent<
-  [string],
-  AccessControlsSetEventObject
->;
 
-export type AccessControlsSetEventFilter =
-  TypedEventFilter<AccessControlsSetEvent>;
-
-export interface AdminChangedEventObject {
-  previousAdmin: string;
-  newAdmin: string;
+export namespace AdminChangedEvent {
+  export type InputTuple = [previousAdmin: AddressLike, newAdmin: AddressLike];
+  export type OutputTuple = [previousAdmin: string, newAdmin: string];
+  export interface OutputObject {
+    previousAdmin: string;
+    newAdmin: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AdminChangedEvent = TypedEvent<
-  [string, string],
-  AdminChangedEventObject
->;
 
-export type AdminChangedEventFilter = TypedEventFilter<AdminChangedEvent>;
-
-export interface BeaconUpgradedEventObject {
-  beacon: string;
+export namespace BeaconUpgradedEvent {
+  export type InputTuple = [beacon: AddressLike];
+  export type OutputTuple = [beacon: string];
+  export interface OutputObject {
+    beacon: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type BeaconUpgradedEvent = TypedEvent<
-  [string],
-  BeaconUpgradedEventObject
->;
 
-export type BeaconUpgradedEventFilter = TypedEventFilter<BeaconUpgradedEvent>;
-
-export interface FundsWithdrawnEventObject {
-  who: string;
-  amount: BigNumber;
+export namespace FundsWithdrawnEvent {
+  export type InputTuple = [who: AddressLike, amount: BigNumberish];
+  export type OutputTuple = [who: string, amount: bigint];
+  export interface OutputObject {
+    who: string;
+    amount: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type FundsWithdrawnEvent = TypedEvent<
-  [string, BigNumber],
-  FundsWithdrawnEventObject
->;
 
-export type FundsWithdrawnEventFilter = TypedEventFilter<FundsWithdrawnEvent>;
-
-export interface InitializedEventObject {
-  version: number;
+export namespace InitializedEvent {
+  export type InputTuple = [version: BigNumberish];
+  export type OutputTuple = [version: bigint];
+  export interface OutputObject {
+    version: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
 
-export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
-
-export interface PercentagesSetEventObject {
-  platformPercentage: BigNumber;
-  relayerPercentage: BigNumber;
+export namespace PercentagesSetEvent {
+  export type InputTuple = [
+    platformPercentage: BigNumberish,
+    relayerPercentage: BigNumberish
+  ];
+  export type OutputTuple = [
+    platformPercentage: bigint,
+    relayerPercentage: bigint
+  ];
+  export interface OutputObject {
+    platformPercentage: bigint;
+    relayerPercentage: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type PercentagesSetEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  PercentagesSetEventObject
->;
 
-export type PercentagesSetEventFilter = TypedEventFilter<PercentagesSetEvent>;
-
-export interface TaggingFeeSetEventObject {
-  newTaggingFee: BigNumber;
+export namespace TaggingFeeSetEvent {
+  export type InputTuple = [newTaggingFee: BigNumberish];
+  export type OutputTuple = [newTaggingFee: bigint];
+  export interface OutputObject {
+    newTaggingFee: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type TaggingFeeSetEvent = TypedEvent<
-  [BigNumber],
-  TaggingFeeSetEventObject
->;
 
-export type TaggingFeeSetEventFilter = TypedEventFilter<TaggingFeeSetEvent>;
-
-export interface TaggingRecordCreatedEventObject {
-  taggingRecordId: BigNumber;
+export namespace TaggingRecordCreatedEvent {
+  export type InputTuple = [taggingRecordId: BigNumberish];
+  export type OutputTuple = [taggingRecordId: bigint];
+  export interface OutputObject {
+    taggingRecordId: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type TaggingRecordCreatedEvent = TypedEvent<
-  [BigNumber],
-  TaggingRecordCreatedEventObject
->;
 
-export type TaggingRecordCreatedEventFilter =
-  TypedEventFilter<TaggingRecordCreatedEvent>;
-
-export interface TaggingRecordUpdatedEventObject {
-  taggingRecordId: BigNumber;
-  action: number;
+export namespace TaggingRecordUpdatedEvent {
+  export type InputTuple = [
+    taggingRecordId: BigNumberish,
+    action: BigNumberish
+  ];
+  export type OutputTuple = [taggingRecordId: bigint, action: bigint];
+  export interface OutputObject {
+    taggingRecordId: bigint;
+    action: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type TaggingRecordUpdatedEvent = TypedEvent<
-  [BigNumber, number],
-  TaggingRecordUpdatedEventObject
->;
 
-export type TaggingRecordUpdatedEventFilter =
-  TypedEventFilter<TaggingRecordUpdatedEvent>;
-
-export interface UpgradedEventObject {
-  implementation: string;
+export namespace UpgradedEvent {
+  export type InputTuple = [implementation: AddressLike];
+  export type OutputTuple = [implementation: string];
+  export interface OutputObject {
+    implementation: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type UpgradedEvent = TypedEvent<[string], UpgradedEventObject>;
-
-export type UpgradedEventFilter = TypedEventFilter<UpgradedEvent>;
 
 export interface ETS extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): ETS;
+  waitForDeployment(): Promise<this>;
 
   interface: ETSInterface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-  functions: {
-    MODULO(overrides?: CallOverrides): Promise<[BigNumber]>;
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-    NAME(overrides?: CallOverrides): Promise<[string]>;
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
 
-    accrued(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+  MODULO: TypedContractMethod<[], [bigint], "view">;
 
-    appendTags(
-      _taggingRecordId: PromiseOrValue<BigNumberish>,
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  NAME: TypedContractMethod<[], [string], "view">;
 
-    applyTagsWithCompositeKey(
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  accrued: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
-    applyTagsWithRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _tagger: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    computeTaggingFee(
-      _taggingRecordId: PromiseOrValue<BigNumberish>,
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _action: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { fee: BigNumber; tagCount: BigNumber }
-    >;
-
-    computeTaggingFeeFromCompositeKey(
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      _action: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { fee: BigNumber; tagCount: BigNumber }
-    >;
-
-    computeTaggingFeeFromRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      _action: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { fee: BigNumber; tagCount: BigNumber }
-    >;
-
-    computeTaggingRecordIdFromCompositeKey(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { taggingRecordId: BigNumber }>;
-
-    computeTaggingRecordIdFromRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { taggingRecordId: BigNumber }>;
-
-    createTag(
-      _tag: PromiseOrValue<string>,
-      _creator: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    createTaggingRecord(
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    drawDown(
-      _account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    etsAccessControls(overrides?: CallOverrides): Promise<[string]>;
-
-    etsTarget(overrides?: CallOverrides): Promise<[string]>;
-
-    etsToken(overrides?: CallOverrides): Promise<[string]>;
-
-    getOrCreateTagId(
-      _tag: PromiseOrValue<string>,
-      _creator: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    getTaggingRecordFromCompositeKey(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber[], BigNumber, string, string, string] & {
-        tagIds: BigNumber[];
-        targetId: BigNumber;
-        recordType: string;
-        relayer: string;
-        tagger: string;
-      }
-    >;
-
-    getTaggingRecordFromId(
-      _id: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber[], BigNumber, string, string, string] & {
-        tagIds: BigNumber[];
-        targetId: BigNumber;
-        recordType: string;
-        relayer: string;
-        tagger: string;
-      }
-    >;
-
-    getTaggingRecordFromRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber[], BigNumber, string, string, string] & {
-        tagIds: BigNumber[];
-        targetId: BigNumber;
-        recordType: string;
-        relayer: string;
-        tagger: string;
-      }
-    >;
-
-    initialize(
-      _etsAccessControls: PromiseOrValue<string>,
-      _etsToken: PromiseOrValue<string>,
-      _etsTarget: PromiseOrValue<string>,
-      _taggingFee: PromiseOrValue<BigNumberish>,
-      _platformPercentage: PromiseOrValue<BigNumberish>,
-      _relayerPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    paid(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    platformPercentage(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    proxiableUUID(overrides?: CallOverrides): Promise<[string]>;
-
-    relayerPercentage(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    removeTags(
-      _taggingRecordId: PromiseOrValue<BigNumberish>,
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    removeTagsWithCompositeKey(
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    removeTagsWithRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _tagger: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    replaceTags(
-      _taggingRecordId: PromiseOrValue<BigNumberish>,
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    replaceTagsWithCompositeKey(
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    replaceTagsWithRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _tagger: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setAccessControls(
-      _accessControls: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setPercentages(
-      _platformPercentage: PromiseOrValue<BigNumberish>,
-      _relayerPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setTaggingFee(
-      _fee: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    taggingFee(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    taggingRecordExists(
-      _taggingRecordId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    taggingRecordExistsByCompositeKey(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    taggingRecordExistsByRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    taggingRecords(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, string, string, string] & {
-        targetId: BigNumber;
-        recordType: string;
-        relayer: string;
-        tagger: string;
-      }
-    >;
-
-    totalDue(
-      _account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { _due: BigNumber }>;
-
-    upgradeTo(
-      newImplementation: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    upgradeToAndCall(
-      newImplementation: PromiseOrValue<string>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-  };
-
-  MODULO(overrides?: CallOverrides): Promise<BigNumber>;
-
-  NAME(overrides?: CallOverrides): Promise<string>;
-
-  accrued(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  appendTags(
-    _taggingRecordId: PromiseOrValue<BigNumberish>,
-    _tagIds: PromiseOrValue<BigNumberish>[],
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  applyTagsWithCompositeKey(
-    _tagIds: PromiseOrValue<BigNumberish>[],
-    _targetId: PromiseOrValue<BigNumberish>,
-    _recordType: PromiseOrValue<string>,
-    _tagger: PromiseOrValue<string>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  applyTagsWithRawInput(
-    _rawInput: IETS.TaggingRecordRawInputStruct,
-    _tagger: PromiseOrValue<string>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  computeTaggingFee(
-    _taggingRecordId: PromiseOrValue<BigNumberish>,
-    _tagIds: PromiseOrValue<BigNumberish>[],
-    _action: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber] & { fee: BigNumber; tagCount: BigNumber }>;
-
-  computeTaggingFeeFromCompositeKey(
-    _tagIds: PromiseOrValue<BigNumberish>[],
-    _targetId: PromiseOrValue<BigNumberish>,
-    _recordType: PromiseOrValue<string>,
-    _relayer: PromiseOrValue<string>,
-    _tagger: PromiseOrValue<string>,
-    _action: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber] & { fee: BigNumber; tagCount: BigNumber }>;
-
-  computeTaggingFeeFromRawInput(
-    _rawInput: IETS.TaggingRecordRawInputStruct,
-    _relayer: PromiseOrValue<string>,
-    _tagger: PromiseOrValue<string>,
-    _action: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber] & { fee: BigNumber; tagCount: BigNumber }>;
-
-  computeTaggingRecordIdFromCompositeKey(
-    _targetId: PromiseOrValue<BigNumberish>,
-    _recordType: PromiseOrValue<string>,
-    _relayer: PromiseOrValue<string>,
-    _tagger: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  computeTaggingRecordIdFromRawInput(
-    _rawInput: IETS.TaggingRecordRawInputStruct,
-    _relayer: PromiseOrValue<string>,
-    _tagger: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  createTag(
-    _tag: PromiseOrValue<string>,
-    _creator: PromiseOrValue<string>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  createTaggingRecord(
-    _tagIds: PromiseOrValue<BigNumberish>[],
-    _targetId: PromiseOrValue<BigNumberish>,
-    _recordType: PromiseOrValue<string>,
-    _tagger: PromiseOrValue<string>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  drawDown(
-    _account: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  etsAccessControls(overrides?: CallOverrides): Promise<string>;
-
-  etsTarget(overrides?: CallOverrides): Promise<string>;
-
-  etsToken(overrides?: CallOverrides): Promise<string>;
-
-  getOrCreateTagId(
-    _tag: PromiseOrValue<string>,
-    _creator: PromiseOrValue<string>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  getTaggingRecordFromCompositeKey(
-    _targetId: PromiseOrValue<BigNumberish>,
-    _recordType: PromiseOrValue<string>,
-    _relayer: PromiseOrValue<string>,
-    _tagger: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber[], BigNumber, string, string, string] & {
-      tagIds: BigNumber[];
-      targetId: BigNumber;
-      recordType: string;
-      relayer: string;
-      tagger: string;
-    }
+  appendTags: TypedContractMethod<
+    [_taggingRecordId: BigNumberish, _tagIds: BigNumberish[]],
+    [void],
+    "payable"
   >;
 
-  getTaggingRecordFromId(
-    _id: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber[], BigNumber, string, string, string] & {
-      tagIds: BigNumber[];
-      targetId: BigNumber;
-      recordType: string;
-      relayer: string;
-      tagger: string;
-    }
+  applyTagsWithCompositeKey: TypedContractMethod<
+    [
+      _tagIds: BigNumberish[],
+      _targetId: BigNumberish,
+      _recordType: string,
+      _tagger: AddressLike
+    ],
+    [void],
+    "payable"
   >;
 
-  getTaggingRecordFromRawInput(
-    _rawInput: IETS.TaggingRecordRawInputStruct,
-    _relayer: PromiseOrValue<string>,
-    _tagger: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber[], BigNumber, string, string, string] & {
-      tagIds: BigNumber[];
-      targetId: BigNumber;
-      recordType: string;
-      relayer: string;
-      tagger: string;
-    }
+  applyTagsWithRawInput: TypedContractMethod<
+    [_rawInput: IETS.TaggingRecordRawInputStruct, _tagger: AddressLike],
+    [void],
+    "payable"
   >;
 
-  initialize(
-    _etsAccessControls: PromiseOrValue<string>,
-    _etsToken: PromiseOrValue<string>,
-    _etsTarget: PromiseOrValue<string>,
-    _taggingFee: PromiseOrValue<BigNumberish>,
-    _platformPercentage: PromiseOrValue<BigNumberish>,
-    _relayerPercentage: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  paid(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  platformPercentage(overrides?: CallOverrides): Promise<BigNumber>;
-
-  proxiableUUID(overrides?: CallOverrides): Promise<string>;
-
-  relayerPercentage(overrides?: CallOverrides): Promise<BigNumber>;
-
-  removeTags(
-    _taggingRecordId: PromiseOrValue<BigNumberish>,
-    _tagIds: PromiseOrValue<BigNumberish>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  removeTagsWithCompositeKey(
-    _tagIds: PromiseOrValue<BigNumberish>[],
-    _targetId: PromiseOrValue<BigNumberish>,
-    _recordType: PromiseOrValue<string>,
-    _tagger: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  removeTagsWithRawInput(
-    _rawInput: IETS.TaggingRecordRawInputStruct,
-    _tagger: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  replaceTags(
-    _taggingRecordId: PromiseOrValue<BigNumberish>,
-    _tagIds: PromiseOrValue<BigNumberish>[],
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  replaceTagsWithCompositeKey(
-    _tagIds: PromiseOrValue<BigNumberish>[],
-    _targetId: PromiseOrValue<BigNumberish>,
-    _recordType: PromiseOrValue<string>,
-    _tagger: PromiseOrValue<string>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  replaceTagsWithRawInput(
-    _rawInput: IETS.TaggingRecordRawInputStruct,
-    _tagger: PromiseOrValue<string>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setAccessControls(
-    _accessControls: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setPercentages(
-    _platformPercentage: PromiseOrValue<BigNumberish>,
-    _relayerPercentage: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setTaggingFee(
-    _fee: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  taggingFee(overrides?: CallOverrides): Promise<BigNumber>;
-
-  taggingRecordExists(
-    _taggingRecordId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  taggingRecordExistsByCompositeKey(
-    _targetId: PromiseOrValue<BigNumberish>,
-    _recordType: PromiseOrValue<string>,
-    _relayer: PromiseOrValue<string>,
-    _tagger: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  taggingRecordExistsByRawInput(
-    _rawInput: IETS.TaggingRecordRawInputStruct,
-    _relayer: PromiseOrValue<string>,
-    _tagger: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  taggingRecords(
-    arg0: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, string, string, string] & {
-      targetId: BigNumber;
-      recordType: string;
-      relayer: string;
-      tagger: string;
-    }
+  computeTaggingFee: TypedContractMethod<
+    [
+      _taggingRecordId: BigNumberish,
+      _tagIds: BigNumberish[],
+      _action: BigNumberish
+    ],
+    [[bigint, bigint] & { fee: bigint; tagCount: bigint }],
+    "view"
   >;
 
-  totalDue(
-    _account: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  computeTaggingFeeFromCompositeKey: TypedContractMethod<
+    [
+      _tagIds: BigNumberish[],
+      _targetId: BigNumberish,
+      _recordType: string,
+      _relayer: AddressLike,
+      _tagger: AddressLike,
+      _action: BigNumberish
+    ],
+    [[bigint, bigint] & { fee: bigint; tagCount: bigint }],
+    "view"
+  >;
 
-  upgradeTo(
-    newImplementation: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  upgradeToAndCall(
-    newImplementation: PromiseOrValue<string>,
-    data: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  callStatic: {
-    MODULO(overrides?: CallOverrides): Promise<BigNumber>;
-
-    NAME(overrides?: CallOverrides): Promise<string>;
-
-    accrued(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    appendTags(
-      _taggingRecordId: PromiseOrValue<BigNumberish>,
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    applyTagsWithCompositeKey(
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    applyTagsWithRawInput(
+  computeTaggingFeeFromRawInput: TypedContractMethod<
+    [
       _rawInput: IETS.TaggingRecordRawInputStruct,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      _relayer: AddressLike,
+      _tagger: AddressLike,
+      _action: BigNumberish
+    ],
+    [[bigint, bigint] & { fee: bigint; tagCount: bigint }],
+    "view"
+  >;
 
-    computeTaggingFee(
-      _taggingRecordId: PromiseOrValue<BigNumberish>,
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _action: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { fee: BigNumber; tagCount: BigNumber }
-    >;
+  computeTaggingRecordIdFromCompositeKey: TypedContractMethod<
+    [
+      _targetId: BigNumberish,
+      _recordType: string,
+      _relayer: AddressLike,
+      _tagger: AddressLike
+    ],
+    [bigint],
+    "view"
+  >;
 
-    computeTaggingFeeFromCompositeKey(
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      _action: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { fee: BigNumber; tagCount: BigNumber }
-    >;
-
-    computeTaggingFeeFromRawInput(
+  computeTaggingRecordIdFromRawInput: TypedContractMethod<
+    [
       _rawInput: IETS.TaggingRecordRawInputStruct,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      _action: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { fee: BigNumber; tagCount: BigNumber }
-    >;
+      _relayer: AddressLike,
+      _tagger: AddressLike
+    ],
+    [bigint],
+    "view"
+  >;
 
-    computeTaggingRecordIdFromCompositeKey(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+  createTag: TypedContractMethod<
+    [_tag: string, _creator: AddressLike],
+    [bigint],
+    "payable"
+  >;
 
-    computeTaggingRecordIdFromRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+  createTaggingRecord: TypedContractMethod<
+    [
+      _tagIds: BigNumberish[],
+      _targetId: BigNumberish,
+      _recordType: string,
+      _tagger: AddressLike
+    ],
+    [void],
+    "payable"
+  >;
 
-    createTag(
-      _tag: PromiseOrValue<string>,
-      _creator: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+  drawDown: TypedContractMethod<[_account: AddressLike], [void], "nonpayable">;
 
-    createTaggingRecord(
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  etsAccessControls: TypedContractMethod<[], [string], "view">;
 
-    drawDown(
-      _account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  etsTarget: TypedContractMethod<[], [string], "view">;
 
-    etsAccessControls(overrides?: CallOverrides): Promise<string>;
+  etsToken: TypedContractMethod<[], [string], "view">;
 
-    etsTarget(overrides?: CallOverrides): Promise<string>;
+  getOrCreateTagId: TypedContractMethod<
+    [_tag: string, _creator: AddressLike],
+    [bigint],
+    "payable"
+  >;
 
-    etsToken(overrides?: CallOverrides): Promise<string>;
-
-    getOrCreateTagId(
-      _tag: PromiseOrValue<string>,
-      _creator: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getTaggingRecordFromCompositeKey(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber[], BigNumber, string, string, string] & {
-        tagIds: BigNumber[];
-        targetId: BigNumber;
+  getTaggingRecordFromCompositeKey: TypedContractMethod<
+    [
+      _targetId: BigNumberish,
+      _recordType: string,
+      _relayer: AddressLike,
+      _tagger: AddressLike
+    ],
+    [
+      [bigint[], bigint, string, string, string] & {
+        tagIds: bigint[];
+        targetId: bigint;
         recordType: string;
         relayer: string;
         tagger: string;
       }
-    >;
+    ],
+    "view"
+  >;
 
-    getTaggingRecordFromId(
-      _id: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber[], BigNumber, string, string, string] & {
-        tagIds: BigNumber[];
-        targetId: BigNumber;
+  getTaggingRecordFromId: TypedContractMethod<
+    [_id: BigNumberish],
+    [
+      [bigint[], bigint, string, string, string] & {
+        tagIds: bigint[];
+        targetId: bigint;
         recordType: string;
         relayer: string;
         tagger: string;
       }
-    >;
+    ],
+    "view"
+  >;
 
-    getTaggingRecordFromRawInput(
+  getTaggingRecordFromRawInput: TypedContractMethod<
+    [
       _rawInput: IETS.TaggingRecordRawInputStruct,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber[], BigNumber, string, string, string] & {
-        tagIds: BigNumber[];
-        targetId: BigNumber;
+      _relayer: AddressLike,
+      _tagger: AddressLike
+    ],
+    [
+      [bigint[], bigint, string, string, string] & {
+        tagIds: bigint[];
+        targetId: bigint;
         recordType: string;
         relayer: string;
         tagger: string;
       }
-    >;
+    ],
+    "view"
+  >;
 
-    initialize(
-      _etsAccessControls: PromiseOrValue<string>,
-      _etsToken: PromiseOrValue<string>,
-      _etsTarget: PromiseOrValue<string>,
-      _taggingFee: PromiseOrValue<BigNumberish>,
-      _platformPercentage: PromiseOrValue<BigNumberish>,
-      _relayerPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  initialize: TypedContractMethod<
+    [
+      _etsAccessControls: AddressLike,
+      _etsToken: AddressLike,
+      _etsTarget: AddressLike,
+      _taggingFee: BigNumberish,
+      _platformPercentage: BigNumberish,
+      _relayerPercentage: BigNumberish
+    ],
+    [void],
+    "nonpayable"
+  >;
 
-    paid(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+  paid: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
-    platformPercentage(overrides?: CallOverrides): Promise<BigNumber>;
+  platformPercentage: TypedContractMethod<[], [bigint], "view">;
 
-    proxiableUUID(overrides?: CallOverrides): Promise<string>;
+  proxiableUUID: TypedContractMethod<[], [string], "view">;
 
-    relayerPercentage(overrides?: CallOverrides): Promise<BigNumber>;
+  relayerPercentage: TypedContractMethod<[], [bigint], "view">;
 
-    removeTags(
-      _taggingRecordId: PromiseOrValue<BigNumberish>,
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      overrides?: CallOverrides
-    ): Promise<void>;
+  removeTags: TypedContractMethod<
+    [_taggingRecordId: BigNumberish, _tagIds: BigNumberish[]],
+    [void],
+    "nonpayable"
+  >;
 
-    removeTagsWithCompositeKey(
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  removeTagsWithCompositeKey: TypedContractMethod<
+    [
+      _tagIds: BigNumberish[],
+      _targetId: BigNumberish,
+      _recordType: string,
+      _tagger: AddressLike
+    ],
+    [void],
+    "nonpayable"
+  >;
 
-    removeTagsWithRawInput(
+  removeTagsWithRawInput: TypedContractMethod<
+    [_rawInput: IETS.TaggingRecordRawInputStruct, _tagger: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  replaceTags: TypedContractMethod<
+    [_taggingRecordId: BigNumberish, _tagIds: BigNumberish[]],
+    [void],
+    "payable"
+  >;
+
+  replaceTagsWithCompositeKey: TypedContractMethod<
+    [
+      _tagIds: BigNumberish[],
+      _targetId: BigNumberish,
+      _recordType: string,
+      _tagger: AddressLike
+    ],
+    [void],
+    "payable"
+  >;
+
+  replaceTagsWithRawInput: TypedContractMethod<
+    [_rawInput: IETS.TaggingRecordRawInputStruct, _tagger: AddressLike],
+    [void],
+    "payable"
+  >;
+
+  setAccessControls: TypedContractMethod<
+    [_accessControls: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  setPercentages: TypedContractMethod<
+    [_platformPercentage: BigNumberish, _relayerPercentage: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  setTaggingFee: TypedContractMethod<
+    [_fee: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  taggingFee: TypedContractMethod<[], [bigint], "view">;
+
+  taggingRecordExists: TypedContractMethod<
+    [_taggingRecordId: BigNumberish],
+    [boolean],
+    "view"
+  >;
+
+  taggingRecordExistsByCompositeKey: TypedContractMethod<
+    [
+      _targetId: BigNumberish,
+      _recordType: string,
+      _relayer: AddressLike,
+      _tagger: AddressLike
+    ],
+    [boolean],
+    "view"
+  >;
+
+  taggingRecordExistsByRawInput: TypedContractMethod<
+    [
       _rawInput: IETS.TaggingRecordRawInputStruct,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      _relayer: AddressLike,
+      _tagger: AddressLike
+    ],
+    [boolean],
+    "view"
+  >;
 
-    replaceTags(
-      _taggingRecordId: PromiseOrValue<BigNumberish>,
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    replaceTagsWithCompositeKey(
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    replaceTagsWithRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setAccessControls(
-      _accessControls: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setPercentages(
-      _platformPercentage: PromiseOrValue<BigNumberish>,
-      _relayerPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setTaggingFee(
-      _fee: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    taggingFee(overrides?: CallOverrides): Promise<BigNumber>;
-
-    taggingRecordExists(
-      _taggingRecordId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    taggingRecordExistsByCompositeKey(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    taggingRecordExistsByRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    taggingRecords(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, string, string, string] & {
-        targetId: BigNumber;
+  taggingRecords: TypedContractMethod<
+    [arg0: BigNumberish],
+    [
+      [bigint, string, string, string] & {
+        targetId: bigint;
         recordType: string;
         relayer: string;
         tagger: string;
       }
-    >;
+    ],
+    "view"
+  >;
 
-    totalDue(
-      _account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+  totalDue: TypedContractMethod<[_account: AddressLike], [bigint], "view">;
 
-    upgradeTo(
-      newImplementation: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  upgradeTo: TypedContractMethod<
+    [newImplementation: AddressLike],
+    [void],
+    "nonpayable"
+  >;
 
-    upgradeToAndCall(
-      newImplementation: PromiseOrValue<string>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-  };
+  upgradeToAndCall: TypedContractMethod<
+    [newImplementation: AddressLike, data: BytesLike],
+    [void],
+    "payable"
+  >;
+
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
+
+  getFunction(
+    nameOrSignature: "MODULO"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "NAME"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "accrued"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "appendTags"
+  ): TypedContractMethod<
+    [_taggingRecordId: BigNumberish, _tagIds: BigNumberish[]],
+    [void],
+    "payable"
+  >;
+  getFunction(
+    nameOrSignature: "applyTagsWithCompositeKey"
+  ): TypedContractMethod<
+    [
+      _tagIds: BigNumberish[],
+      _targetId: BigNumberish,
+      _recordType: string,
+      _tagger: AddressLike
+    ],
+    [void],
+    "payable"
+  >;
+  getFunction(
+    nameOrSignature: "applyTagsWithRawInput"
+  ): TypedContractMethod<
+    [_rawInput: IETS.TaggingRecordRawInputStruct, _tagger: AddressLike],
+    [void],
+    "payable"
+  >;
+  getFunction(
+    nameOrSignature: "computeTaggingFee"
+  ): TypedContractMethod<
+    [
+      _taggingRecordId: BigNumberish,
+      _tagIds: BigNumberish[],
+      _action: BigNumberish
+    ],
+    [[bigint, bigint] & { fee: bigint; tagCount: bigint }],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "computeTaggingFeeFromCompositeKey"
+  ): TypedContractMethod<
+    [
+      _tagIds: BigNumberish[],
+      _targetId: BigNumberish,
+      _recordType: string,
+      _relayer: AddressLike,
+      _tagger: AddressLike,
+      _action: BigNumberish
+    ],
+    [[bigint, bigint] & { fee: bigint; tagCount: bigint }],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "computeTaggingFeeFromRawInput"
+  ): TypedContractMethod<
+    [
+      _rawInput: IETS.TaggingRecordRawInputStruct,
+      _relayer: AddressLike,
+      _tagger: AddressLike,
+      _action: BigNumberish
+    ],
+    [[bigint, bigint] & { fee: bigint; tagCount: bigint }],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "computeTaggingRecordIdFromCompositeKey"
+  ): TypedContractMethod<
+    [
+      _targetId: BigNumberish,
+      _recordType: string,
+      _relayer: AddressLike,
+      _tagger: AddressLike
+    ],
+    [bigint],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "computeTaggingRecordIdFromRawInput"
+  ): TypedContractMethod<
+    [
+      _rawInput: IETS.TaggingRecordRawInputStruct,
+      _relayer: AddressLike,
+      _tagger: AddressLike
+    ],
+    [bigint],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "createTag"
+  ): TypedContractMethod<
+    [_tag: string, _creator: AddressLike],
+    [bigint],
+    "payable"
+  >;
+  getFunction(
+    nameOrSignature: "createTaggingRecord"
+  ): TypedContractMethod<
+    [
+      _tagIds: BigNumberish[],
+      _targetId: BigNumberish,
+      _recordType: string,
+      _tagger: AddressLike
+    ],
+    [void],
+    "payable"
+  >;
+  getFunction(
+    nameOrSignature: "drawDown"
+  ): TypedContractMethod<[_account: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "etsAccessControls"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "etsTarget"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "etsToken"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "getOrCreateTagId"
+  ): TypedContractMethod<
+    [_tag: string, _creator: AddressLike],
+    [bigint],
+    "payable"
+  >;
+  getFunction(
+    nameOrSignature: "getTaggingRecordFromCompositeKey"
+  ): TypedContractMethod<
+    [
+      _targetId: BigNumberish,
+      _recordType: string,
+      _relayer: AddressLike,
+      _tagger: AddressLike
+    ],
+    [
+      [bigint[], bigint, string, string, string] & {
+        tagIds: bigint[];
+        targetId: bigint;
+        recordType: string;
+        relayer: string;
+        tagger: string;
+      }
+    ],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getTaggingRecordFromId"
+  ): TypedContractMethod<
+    [_id: BigNumberish],
+    [
+      [bigint[], bigint, string, string, string] & {
+        tagIds: bigint[];
+        targetId: bigint;
+        recordType: string;
+        relayer: string;
+        tagger: string;
+      }
+    ],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getTaggingRecordFromRawInput"
+  ): TypedContractMethod<
+    [
+      _rawInput: IETS.TaggingRecordRawInputStruct,
+      _relayer: AddressLike,
+      _tagger: AddressLike
+    ],
+    [
+      [bigint[], bigint, string, string, string] & {
+        tagIds: bigint[];
+        targetId: bigint;
+        recordType: string;
+        relayer: string;
+        tagger: string;
+      }
+    ],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "initialize"
+  ): TypedContractMethod<
+    [
+      _etsAccessControls: AddressLike,
+      _etsToken: AddressLike,
+      _etsTarget: AddressLike,
+      _taggingFee: BigNumberish,
+      _platformPercentage: BigNumberish,
+      _relayerPercentage: BigNumberish
+    ],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "paid"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "platformPercentage"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "proxiableUUID"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "relayerPercentage"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "removeTags"
+  ): TypedContractMethod<
+    [_taggingRecordId: BigNumberish, _tagIds: BigNumberish[]],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "removeTagsWithCompositeKey"
+  ): TypedContractMethod<
+    [
+      _tagIds: BigNumberish[],
+      _targetId: BigNumberish,
+      _recordType: string,
+      _tagger: AddressLike
+    ],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "removeTagsWithRawInput"
+  ): TypedContractMethod<
+    [_rawInput: IETS.TaggingRecordRawInputStruct, _tagger: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "replaceTags"
+  ): TypedContractMethod<
+    [_taggingRecordId: BigNumberish, _tagIds: BigNumberish[]],
+    [void],
+    "payable"
+  >;
+  getFunction(
+    nameOrSignature: "replaceTagsWithCompositeKey"
+  ): TypedContractMethod<
+    [
+      _tagIds: BigNumberish[],
+      _targetId: BigNumberish,
+      _recordType: string,
+      _tagger: AddressLike
+    ],
+    [void],
+    "payable"
+  >;
+  getFunction(
+    nameOrSignature: "replaceTagsWithRawInput"
+  ): TypedContractMethod<
+    [_rawInput: IETS.TaggingRecordRawInputStruct, _tagger: AddressLike],
+    [void],
+    "payable"
+  >;
+  getFunction(
+    nameOrSignature: "setAccessControls"
+  ): TypedContractMethod<[_accessControls: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setPercentages"
+  ): TypedContractMethod<
+    [_platformPercentage: BigNumberish, _relayerPercentage: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "setTaggingFee"
+  ): TypedContractMethod<[_fee: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "taggingFee"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "taggingRecordExists"
+  ): TypedContractMethod<[_taggingRecordId: BigNumberish], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "taggingRecordExistsByCompositeKey"
+  ): TypedContractMethod<
+    [
+      _targetId: BigNumberish,
+      _recordType: string,
+      _relayer: AddressLike,
+      _tagger: AddressLike
+    ],
+    [boolean],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "taggingRecordExistsByRawInput"
+  ): TypedContractMethod<
+    [
+      _rawInput: IETS.TaggingRecordRawInputStruct,
+      _relayer: AddressLike,
+      _tagger: AddressLike
+    ],
+    [boolean],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "taggingRecords"
+  ): TypedContractMethod<
+    [arg0: BigNumberish],
+    [
+      [bigint, string, string, string] & {
+        targetId: bigint;
+        recordType: string;
+        relayer: string;
+        tagger: string;
+      }
+    ],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "totalDue"
+  ): TypedContractMethod<[_account: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "upgradeTo"
+  ): TypedContractMethod<
+    [newImplementation: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "upgradeToAndCall"
+  ): TypedContractMethod<
+    [newImplementation: AddressLike, data: BytesLike],
+    [void],
+    "payable"
+  >;
+
+  getEvent(
+    key: "AccessControlsSet"
+  ): TypedContractEvent<
+    AccessControlsSetEvent.InputTuple,
+    AccessControlsSetEvent.OutputTuple,
+    AccessControlsSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "AdminChanged"
+  ): TypedContractEvent<
+    AdminChangedEvent.InputTuple,
+    AdminChangedEvent.OutputTuple,
+    AdminChangedEvent.OutputObject
+  >;
+  getEvent(
+    key: "BeaconUpgraded"
+  ): TypedContractEvent<
+    BeaconUpgradedEvent.InputTuple,
+    BeaconUpgradedEvent.OutputTuple,
+    BeaconUpgradedEvent.OutputObject
+  >;
+  getEvent(
+    key: "FundsWithdrawn"
+  ): TypedContractEvent<
+    FundsWithdrawnEvent.InputTuple,
+    FundsWithdrawnEvent.OutputTuple,
+    FundsWithdrawnEvent.OutputObject
+  >;
+  getEvent(
+    key: "Initialized"
+  ): TypedContractEvent<
+    InitializedEvent.InputTuple,
+    InitializedEvent.OutputTuple,
+    InitializedEvent.OutputObject
+  >;
+  getEvent(
+    key: "PercentagesSet"
+  ): TypedContractEvent<
+    PercentagesSetEvent.InputTuple,
+    PercentagesSetEvent.OutputTuple,
+    PercentagesSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "TaggingFeeSet"
+  ): TypedContractEvent<
+    TaggingFeeSetEvent.InputTuple,
+    TaggingFeeSetEvent.OutputTuple,
+    TaggingFeeSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "TaggingRecordCreated"
+  ): TypedContractEvent<
+    TaggingRecordCreatedEvent.InputTuple,
+    TaggingRecordCreatedEvent.OutputTuple,
+    TaggingRecordCreatedEvent.OutputObject
+  >;
+  getEvent(
+    key: "TaggingRecordUpdated"
+  ): TypedContractEvent<
+    TaggingRecordUpdatedEvent.InputTuple,
+    TaggingRecordUpdatedEvent.OutputTuple,
+    TaggingRecordUpdatedEvent.OutputObject
+  >;
+  getEvent(
+    key: "Upgraded"
+  ): TypedContractEvent<
+    UpgradedEvent.InputTuple,
+    UpgradedEvent.OutputTuple,
+    UpgradedEvent.OutputObject
+  >;
 
   filters: {
-    "AccessControlsSet(address)"(
-      newAccessControls?: null
-    ): AccessControlsSetEventFilter;
-    AccessControlsSet(newAccessControls?: null): AccessControlsSetEventFilter;
-
-    "AdminChanged(address,address)"(
-      previousAdmin?: null,
-      newAdmin?: null
-    ): AdminChangedEventFilter;
-    AdminChanged(
-      previousAdmin?: null,
-      newAdmin?: null
-    ): AdminChangedEventFilter;
-
-    "BeaconUpgraded(address)"(
-      beacon?: PromiseOrValue<string> | null
-    ): BeaconUpgradedEventFilter;
-    BeaconUpgraded(
-      beacon?: PromiseOrValue<string> | null
-    ): BeaconUpgradedEventFilter;
-
-    "FundsWithdrawn(address,uint256)"(
-      who?: PromiseOrValue<string> | null,
-      amount?: null
-    ): FundsWithdrawnEventFilter;
-    FundsWithdrawn(
-      who?: PromiseOrValue<string> | null,
-      amount?: null
-    ): FundsWithdrawnEventFilter;
-
-    "Initialized(uint8)"(version?: null): InitializedEventFilter;
-    Initialized(version?: null): InitializedEventFilter;
-
-    "PercentagesSet(uint256,uint256)"(
-      platformPercentage?: null,
-      relayerPercentage?: null
-    ): PercentagesSetEventFilter;
-    PercentagesSet(
-      platformPercentage?: null,
-      relayerPercentage?: null
-    ): PercentagesSetEventFilter;
-
-    "TaggingFeeSet(uint256)"(newTaggingFee?: null): TaggingFeeSetEventFilter;
-    TaggingFeeSet(newTaggingFee?: null): TaggingFeeSetEventFilter;
-
-    "TaggingRecordCreated(uint256)"(
-      taggingRecordId?: null
-    ): TaggingRecordCreatedEventFilter;
-    TaggingRecordCreated(
-      taggingRecordId?: null
-    ): TaggingRecordCreatedEventFilter;
-
-    "TaggingRecordUpdated(uint256,uint8)"(
-      taggingRecordId?: null,
-      action?: null
-    ): TaggingRecordUpdatedEventFilter;
-    TaggingRecordUpdated(
-      taggingRecordId?: null,
-      action?: null
-    ): TaggingRecordUpdatedEventFilter;
-
-    "Upgraded(address)"(
-      implementation?: PromiseOrValue<string> | null
-    ): UpgradedEventFilter;
-    Upgraded(
-      implementation?: PromiseOrValue<string> | null
-    ): UpgradedEventFilter;
-  };
-
-  estimateGas: {
-    MODULO(overrides?: CallOverrides): Promise<BigNumber>;
-
-    NAME(overrides?: CallOverrides): Promise<BigNumber>;
-
-    accrued(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    appendTags(
-      _taggingRecordId: PromiseOrValue<BigNumberish>,
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    applyTagsWithCompositeKey(
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    applyTagsWithRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _tagger: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    computeTaggingFee(
-      _taggingRecordId: PromiseOrValue<BigNumberish>,
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _action: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    computeTaggingFeeFromCompositeKey(
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      _action: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    computeTaggingFeeFromRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      _action: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    computeTaggingRecordIdFromCompositeKey(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    computeTaggingRecordIdFromRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    createTag(
-      _tag: PromiseOrValue<string>,
-      _creator: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    createTaggingRecord(
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    drawDown(
-      _account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    etsAccessControls(overrides?: CallOverrides): Promise<BigNumber>;
-
-    etsTarget(overrides?: CallOverrides): Promise<BigNumber>;
-
-    etsToken(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getOrCreateTagId(
-      _tag: PromiseOrValue<string>,
-      _creator: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    getTaggingRecordFromCompositeKey(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getTaggingRecordFromId(
-      _id: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getTaggingRecordFromRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    initialize(
-      _etsAccessControls: PromiseOrValue<string>,
-      _etsToken: PromiseOrValue<string>,
-      _etsTarget: PromiseOrValue<string>,
-      _taggingFee: PromiseOrValue<BigNumberish>,
-      _platformPercentage: PromiseOrValue<BigNumberish>,
-      _relayerPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    paid(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    platformPercentage(overrides?: CallOverrides): Promise<BigNumber>;
-
-    proxiableUUID(overrides?: CallOverrides): Promise<BigNumber>;
-
-    relayerPercentage(overrides?: CallOverrides): Promise<BigNumber>;
-
-    removeTags(
-      _taggingRecordId: PromiseOrValue<BigNumberish>,
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    removeTagsWithCompositeKey(
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    removeTagsWithRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _tagger: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    replaceTags(
-      _taggingRecordId: PromiseOrValue<BigNumberish>,
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    replaceTagsWithCompositeKey(
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    replaceTagsWithRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _tagger: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setAccessControls(
-      _accessControls: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setPercentages(
-      _platformPercentage: PromiseOrValue<BigNumberish>,
-      _relayerPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setTaggingFee(
-      _fee: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    taggingFee(overrides?: CallOverrides): Promise<BigNumber>;
-
-    taggingRecordExists(
-      _taggingRecordId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    taggingRecordExistsByCompositeKey(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    taggingRecordExistsByRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    taggingRecords(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    totalDue(
-      _account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    upgradeTo(
-      newImplementation: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    upgradeToAndCall(
-      newImplementation: PromiseOrValue<string>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    MODULO(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    NAME(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    accrued(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    appendTags(
-      _taggingRecordId: PromiseOrValue<BigNumberish>,
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    applyTagsWithCompositeKey(
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    applyTagsWithRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _tagger: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    computeTaggingFee(
-      _taggingRecordId: PromiseOrValue<BigNumberish>,
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _action: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    computeTaggingFeeFromCompositeKey(
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      _action: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    computeTaggingFeeFromRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      _action: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    computeTaggingRecordIdFromCompositeKey(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    computeTaggingRecordIdFromRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    createTag(
-      _tag: PromiseOrValue<string>,
-      _creator: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    createTaggingRecord(
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    drawDown(
-      _account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    etsAccessControls(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    etsTarget(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    etsToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getOrCreateTagId(
-      _tag: PromiseOrValue<string>,
-      _creator: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getTaggingRecordFromCompositeKey(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getTaggingRecordFromId(
-      _id: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getTaggingRecordFromRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    initialize(
-      _etsAccessControls: PromiseOrValue<string>,
-      _etsToken: PromiseOrValue<string>,
-      _etsTarget: PromiseOrValue<string>,
-      _taggingFee: PromiseOrValue<BigNumberish>,
-      _platformPercentage: PromiseOrValue<BigNumberish>,
-      _relayerPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    paid(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    platformPercentage(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    proxiableUUID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    relayerPercentage(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    removeTags(
-      _taggingRecordId: PromiseOrValue<BigNumberish>,
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    removeTagsWithCompositeKey(
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    removeTagsWithRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _tagger: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    replaceTags(
-      _taggingRecordId: PromiseOrValue<BigNumberish>,
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    replaceTagsWithCompositeKey(
-      _tagIds: PromiseOrValue<BigNumberish>[],
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    replaceTagsWithRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _tagger: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setAccessControls(
-      _accessControls: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setPercentages(
-      _platformPercentage: PromiseOrValue<BigNumberish>,
-      _relayerPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setTaggingFee(
-      _fee: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    taggingFee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    taggingRecordExists(
-      _taggingRecordId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    taggingRecordExistsByCompositeKey(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _recordType: PromiseOrValue<string>,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    taggingRecordExistsByRawInput(
-      _rawInput: IETS.TaggingRecordRawInputStruct,
-      _relayer: PromiseOrValue<string>,
-      _tagger: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    taggingRecords(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    totalDue(
-      _account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    upgradeTo(
-      newImplementation: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    upgradeToAndCall(
-      newImplementation: PromiseOrValue<string>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    "AccessControlsSet(address)": TypedContractEvent<
+      AccessControlsSetEvent.InputTuple,
+      AccessControlsSetEvent.OutputTuple,
+      AccessControlsSetEvent.OutputObject
+    >;
+    AccessControlsSet: TypedContractEvent<
+      AccessControlsSetEvent.InputTuple,
+      AccessControlsSetEvent.OutputTuple,
+      AccessControlsSetEvent.OutputObject
+    >;
+
+    "AdminChanged(address,address)": TypedContractEvent<
+      AdminChangedEvent.InputTuple,
+      AdminChangedEvent.OutputTuple,
+      AdminChangedEvent.OutputObject
+    >;
+    AdminChanged: TypedContractEvent<
+      AdminChangedEvent.InputTuple,
+      AdminChangedEvent.OutputTuple,
+      AdminChangedEvent.OutputObject
+    >;
+
+    "BeaconUpgraded(address)": TypedContractEvent<
+      BeaconUpgradedEvent.InputTuple,
+      BeaconUpgradedEvent.OutputTuple,
+      BeaconUpgradedEvent.OutputObject
+    >;
+    BeaconUpgraded: TypedContractEvent<
+      BeaconUpgradedEvent.InputTuple,
+      BeaconUpgradedEvent.OutputTuple,
+      BeaconUpgradedEvent.OutputObject
+    >;
+
+    "FundsWithdrawn(address,uint256)": TypedContractEvent<
+      FundsWithdrawnEvent.InputTuple,
+      FundsWithdrawnEvent.OutputTuple,
+      FundsWithdrawnEvent.OutputObject
+    >;
+    FundsWithdrawn: TypedContractEvent<
+      FundsWithdrawnEvent.InputTuple,
+      FundsWithdrawnEvent.OutputTuple,
+      FundsWithdrawnEvent.OutputObject
+    >;
+
+    "Initialized(uint8)": TypedContractEvent<
+      InitializedEvent.InputTuple,
+      InitializedEvent.OutputTuple,
+      InitializedEvent.OutputObject
+    >;
+    Initialized: TypedContractEvent<
+      InitializedEvent.InputTuple,
+      InitializedEvent.OutputTuple,
+      InitializedEvent.OutputObject
+    >;
+
+    "PercentagesSet(uint256,uint256)": TypedContractEvent<
+      PercentagesSetEvent.InputTuple,
+      PercentagesSetEvent.OutputTuple,
+      PercentagesSetEvent.OutputObject
+    >;
+    PercentagesSet: TypedContractEvent<
+      PercentagesSetEvent.InputTuple,
+      PercentagesSetEvent.OutputTuple,
+      PercentagesSetEvent.OutputObject
+    >;
+
+    "TaggingFeeSet(uint256)": TypedContractEvent<
+      TaggingFeeSetEvent.InputTuple,
+      TaggingFeeSetEvent.OutputTuple,
+      TaggingFeeSetEvent.OutputObject
+    >;
+    TaggingFeeSet: TypedContractEvent<
+      TaggingFeeSetEvent.InputTuple,
+      TaggingFeeSetEvent.OutputTuple,
+      TaggingFeeSetEvent.OutputObject
+    >;
+
+    "TaggingRecordCreated(uint256)": TypedContractEvent<
+      TaggingRecordCreatedEvent.InputTuple,
+      TaggingRecordCreatedEvent.OutputTuple,
+      TaggingRecordCreatedEvent.OutputObject
+    >;
+    TaggingRecordCreated: TypedContractEvent<
+      TaggingRecordCreatedEvent.InputTuple,
+      TaggingRecordCreatedEvent.OutputTuple,
+      TaggingRecordCreatedEvent.OutputObject
+    >;
+
+    "TaggingRecordUpdated(uint256,uint8)": TypedContractEvent<
+      TaggingRecordUpdatedEvent.InputTuple,
+      TaggingRecordUpdatedEvent.OutputTuple,
+      TaggingRecordUpdatedEvent.OutputObject
+    >;
+    TaggingRecordUpdated: TypedContractEvent<
+      TaggingRecordUpdatedEvent.InputTuple,
+      TaggingRecordUpdatedEvent.OutputTuple,
+      TaggingRecordUpdatedEvent.OutputObject
+    >;
+
+    "Upgraded(address)": TypedContractEvent<
+      UpgradedEvent.InputTuple,
+      UpgradedEvent.OutputTuple,
+      UpgradedEvent.OutputObject
+    >;
+    Upgraded: TypedContractEvent<
+      UpgradedEvent.InputTuple,
+      UpgradedEvent.OutputTuple,
+      UpgradedEvent.OutputObject
+    >;
   };
 }
