@@ -45,6 +45,4 @@ async function setup() {
   return [accounts, factories, initSettings];
 }
 
-module.exports = {
-  setup,
-};
+module.exports = { setup };

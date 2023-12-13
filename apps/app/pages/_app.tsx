@@ -29,7 +29,6 @@ import { createConfig, configureChains, WagmiConfig } from "wagmi";
 import { localhost, polygonMumbai } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
-import { AuctionHouseProvider } from "../context/AuctionHouseContext";
 
 //Configure the chain and the RPC provider. Note that we've added localhost here
 const { chains, publicClient, webSocketPublicClient } = configureChains(
@@ -118,11 +117,9 @@ function MyApp({ Component, pageProps }: AppProps<{ session: Session }>) {
             theme={etsTheme}
           >
             <SWRConfig value={{ refreshInterval: 3000, fetcher: fetcher }}>
-              <AuctionHouseProvider>
-                <Layout>
-                  <Component {...pageProps} />
-                </Layout>
-              </AuctionHouseProvider>
+              <Layout>
+                <Component {...pageProps} />
+              </Layout>
             </SWRConfig>
           </RainbowKitProvider>
         </RainbowKitSiweNextAuthProvider>

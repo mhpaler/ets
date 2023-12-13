@@ -1,78 +1,11 @@
 // services/auctionHouseServices.ts
 import { readContract } from "wagmi/actions";
 import { Auction } from "@app/context/AuctionHouseContext";
-
-import { etsAuctionHouseContractConfig as auctionConfig } from "../contract.config";
-
-import ETSAuctionABI from "../abi/contracts/ETSAuctionHouse.sol/ETSAuctionHouse.json";
-
-const abi = [
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "getAuction",
-    outputs: [
-      {
-        components: [
-          {
-            internalType: "uint256",
-            name: "auctionId",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "startTime",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "endTime",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "reservePrice",
-            type: "uint256",
-          },
-          {
-            internalType: "address payable",
-            name: "bidder",
-            type: "address",
-          },
-          {
-            internalType: "address payable",
-            name: "auctioneer",
-            type: "address",
-          },
-          {
-            internalType: "bool",
-            name: "settled",
-            type: "bool",
-          },
-        ],
-        internalType: "struct IETSAuctionHouse.Auction",
-        name: "",
-        type: "tuple",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-] as const;
+import { etsAuctionHouseConfig } from "../src/contracts";
 
 export const fetchMaxAuctions = async (): Promise<number> => {
   const data = await readContract({
-    ...auctionConfig,
+    ...etsAuctionHouseConfig,
     functionName: "maxAuctions",
   });
   return Number(data);
@@ -80,7 +13,7 @@ export const fetchMaxAuctions = async (): Promise<number> => {
 
 export const fetchCurrentAuctionId = async (): Promise<number> => {
   const data = await readContract({
-    ...auctionConfig,
+    ...etsAuctionHouseConfig,
     functionName: "getTotalCount",
   });
   return Number(data);
@@ -88,16 +21,19 @@ export const fetchCurrentAuctionId = async (): Promise<number> => {
 
 export const fetchAuction = async (auctionId: number): Promise<Auction> => {
   const data = await readContract({
-    address: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
-    abi: abi,
+    ...etsAuctionHouseConfig,
     functionName: "getAuction",
-    args: [BigInt(1)],
+    args: [BigInt(auctionId)],
   });
 
   console.log("fetchAuction", data);
 
   const dummyAuction: Auction = {
     auctionId: 1,
+    tokenId:
+      BigInt(
+        69278005498511452274587717384892228969906926286618996293140899278898321299239
+      ),
     amount: BigInt(1000000000), // Adjust the BigInt value as needed
     startTime: Date.now() / 1000, // Current timestamp in seconds
     endTime: Date.now() / 1000 + 3600, // One hour from now

@@ -32,7 +32,7 @@
     "compile": "hardhat clean && hardhat compile",
     "watch": "ts-node scripts/watch.ts",
     "test": "hardhat test",
-    "deploy": "hardhat deploy --tags deployAll --network localhost",
+    "deploy": "hardhat deploy --tags deployAll --network localhost --export export/hardhat.json && hardhat deploy --tags localSetup --network localhost",
     "deploy-mumbai": "hardhat deploy --tags deployAll --network mumbai",
     "prettier": "prettier --write 'contracts/**/*.sol'",
     "solhint": "./node_modules/.bin/solhint contracts/*.sol contracts/**/*.sol"

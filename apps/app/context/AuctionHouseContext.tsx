@@ -19,150 +19,110 @@ import {
 export type Auction = {
   // Define your auction data structure here
   auctionId: number;
+  tokenId: bigint;
   amount: bigint;
   startTime: number;
   endTime: number;
   reservePrice: bigint;
-  bidder: string;
+  bidder: `0x${string}`;
   settled: boolean;
   extended: boolean;
 };
 
 export type AuctionHouse = {
+  requestedAuctionId: number | null;
   auctionPaused: boolean;
   maxAuctions: number | null;
   currentAuctionId: number | null;
-  currentAuction: Auction | null;
+  onDisplayAuction: Auction | null;
   onDisplayAuctionId: number | null;
   setOnDisplayAuctionId: Dispatch<SetStateAction<number | null>>;
   //placeBid: (bidAmount: number) => Promise<void>;
 };
-//interface AuctionHouse extends AuctionHouse {
-//  placeBid: (bidAmount: number) => Promise<void>;
-//}
 
 export const AuctionHouseContext = createContext<AuctionHouse | undefined>(
   undefined
 );
 
-export const AuctionHouseProvider = ({
+type AuctionHouseProviderProps = {
+  children: React.ReactNode;
+  requestedAuctionId: number | null;
+};
+
+export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
   children,
+  requestedAuctionId,
 }: {
   children: React.ReactNode;
+  requestedAuctionId: number | null;
 }) => {
   //const { startTransaction, endTransaction } = useTransaction();
   const [auctionPaused, setAuctionPaused] = useState(true);
   const [currentAuctionId, setCurrentAuctionId] = useState<number>(0);
-  const [currentAuction, setCurrentAuction] = useState<Auction | null>(null); // Specify the type explicitly
+  //const [currentAuction, setCurrentAuction] = useState<Auction | null>(null); // Specify the type explicitly
   const [maxAuctions, setMaxAuctions] = useState<number | null>(null); // Specify the type explicitly
   const [onDisplayAuctionId, setOnDisplayAuctionId] = useState<number | null>(
     null
   );
-
-  const abi = [
-    {
-      inputs: [
-        {
-          internalType: "uint256",
-          name: "_tokenId",
-          type: "uint256",
-        },
-      ],
-      name: "getAuction",
-      outputs: [
-        {
-          components: [
-            {
-              internalType: "uint256",
-              name: "auctionId",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "amount",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "startTime",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "endTime",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "reservePrice",
-              type: "uint256",
-            },
-            {
-              internalType: "address payable",
-              name: "bidder",
-              type: "address",
-            },
-            {
-              internalType: "address payable",
-              name: "auctioneer",
-              type: "address",
-            },
-            {
-              internalType: "bool",
-              name: "settled",
-              type: "bool",
-            },
-          ],
-          internalType: "struct IETSAuctionHouse.Auction",
-          name: "",
-          type: "tuple",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-  ] as const;
-  // Get current user balance of CTAGs
-  //  const {} = useContractRead({
-  //    address: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
-  //    abi: abi,
-  //    functionName: "getAuction",
-  //    args: [BigInt(1)],
-  //    onSuccess(data) {
-  //      console.log("balanceOf: ", data);
-  //    },
-  //  });
+  const [onDisplayAuction, setOnDisplayAuction] = useState<Auction | null>(
+    null
+  );
 
   const placeBid = async (bidAmount: number): Promise<void> => {};
 
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
       try {
+        // Initialize some auctionhouse data
         const maxAuctionsData = await fetchMaxAuctions();
         setMaxAuctions(maxAuctionsData);
 
-        const currentAuctionIdData = await fetchCurrentAuctionId();
-        console.log("before", currentAuctionId);
-        setCurrentAuctionId(currentAuctionIdData);
-        console.log("after", currentAuctionId);
+        // Fetch current active auctionId from blockchain.
+        const currentAuctionId = await fetchCurrentAuctionId();
+        setCurrentAuctionId(currentAuctionId);
 
-        //const currentAuction = await fetchAuction(currentAuctionId);
-        //console.log("currentAuction", currentAuction);
-        //setCurrentAuction(currentAuction);
+        let displayAuction: Auction;
+        if (
+          requestedAuctionId === null ||
+          requestedAuctionId >= currentAuctionId
+        ) {
+          // Fetch auction from the blockchain.
+          // TODO: figure out if we should and can pull from cache.
+          displayAuction = await fetchAuction(currentAuctionId);
+        } else {
+          // Pull from subgraph.until then, let's return this fake one.
+          displayAuction = {
+            auctionId: 1,
+            tokenId:
+              BigInt(
+                69278005498511452274587717384892228969906926286618996293140899278898321299239
+              ),
+            amount: BigInt(1000000000), // Adjust the BigInt value as needed
+            startTime: Date.now() / 1000, // Current timestamp in seconds
+            endTime: Date.now() / 1000 + 3600, // One hour from now
+            reservePrice: BigInt(500000000), // Adjust the BigInt value as needed
+            bidder: "0x1234567890123456789012345678901234567890", // Ethereum address
+            settled: false,
+            extended: true,
+          };
+        }
+        console.log(displayAuction);
+        setOnDisplayAuction(displayAuction);
       } catch (error) {
         console.error("Failed to fetch data:", error);
       }
     };
 
     fetchData();
-  }, [currentAuctionId]);
+  }, [requestedAuctionId, currentAuctionId]);
 
   const contextValue: AuctionHouse = {
+    requestedAuctionId,
     auctionPaused,
     maxAuctions,
     currentAuctionId,
     onDisplayAuctionId,
-    currentAuction,
+    onDisplayAuction,
     setOnDisplayAuctionId,
   };
 

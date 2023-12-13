@@ -2,7 +2,7 @@ var randomWords = require('random-words');
 
 task("auctionhouse", "Create and interact with an auction")
   .addOptionalParam("settings", 'List of current settings', true, types.boolean)
-  .addOptionalParam("action", "Options include: createauction, createbid, settleauction, togglepause, increasemax, setreserve", "", types.string)
+  .addOptionalParam("action", "Options include: showactive, createauction, createbid, settleauction, togglepause, increasemax, setreserve", "", types.string)
   .addOptionalParam("tag", "specify tag to be acted on", "", types.string)
   .addOptionalParam("id", "auction id", "", types.integer)
   .addOptionalParam("bid", "bid amount in ETH/MATIC. eg. \"0.1\"", "", types.string)
@@ -18,12 +18,16 @@ task("auctionhouse", "Create and interact with an auction")
       await hre.run("auctionhouse:settings");
     }
 
-    if (taskArgs.action == "status") {
-      await hre.run("auctionhouse:auctionstatus", { tag: taskArgs.tag });
+    if (taskArgs.action == "showcurrent") {
+      await hre.run("auctionhouse:showcurrent");
     }
 
-    if (taskArgs.action == "status2") {
-      await hre.run("auctionhouse:auctionstatus2", { id: taskArgs.id });
+    if (taskArgs.action == "status-tag") {
+      await hre.run("auctionhouse:auctionstatus-tag", { tag: taskArgs.tag });
+    }
+
+    if (taskArgs.action == "status-id") {
+      await hre.run("auctionhouse:auctionstatus-id", { id: taskArgs.id });
     }
 
     if (taskArgs.action == "togglepause") {
@@ -36,6 +40,10 @@ task("auctionhouse", "Create and interact with an auction")
 
     if (taskArgs.action == "increasemax") {
       await hre.run("auctionhouse:increasemax");
+    }
+
+    if (taskArgs.action == "nextauction") {
+      await hre.run("auctionhouse:nextauction");
     }
 
     if (taskArgs.action == "auction") {
@@ -76,7 +84,7 @@ subtask("auctionhouse:settings", "List auction settings")
     console.log('Reserve price:', ethers.formatEther(reserve) + " ETH/MATIC");
   });
 
-subtask("auctionhouse:auctionstatus", "Shows status of a given tag auction")
+subtask("auctionhouse:auctionstatus-tag", "Shows status of a given tag auction")
   .addParam("tag", "tag being auctioned")
   .setAction(async (taskArgs) => {
 
@@ -115,7 +123,7 @@ subtask("auctionhouse:auctionstatus", "Shows status of a given tag auction")
 
   });
 
-subtask("auctionhouse:auctionstatus2", "Shows status of a given tag auction")
+subtask("auctionhouse:auctionstatus-id", "Shows status of a given tag auction id")
   .addParam("id", "auction id")
   .setAction(async (taskArgs) => {
 
@@ -132,10 +140,56 @@ subtask("auctionhouse:auctionstatus2", "Shows status of a given tag auction")
       const auction = await contracts.etsAuctionHouse.getAuction(auctionId);
       let latestBlock = (await hre.ethers.provider.getBlock()).timestamp;
       let ended = (ethers.toNumber(auction.startTime) > 0 && latestBlock > ethers.toNumber(auction.endTime)) ? "Yes" : "No";
+      const tag = await contracts.etsToken.getTagById(auction.tokenId);
 
-      console.log(auction);
       console.log("=================================================");
-      console.log("    Auction Details for", taskArgs.tag);
+      console.log("    Auction Details for", tag.display);
+      console.log("-------------------------------------------------")
+      console.log("      auction id: ", ethers.toNumber(auction.auctionId));
+      //console.log(" token auction #: ", ethers.toNumber(await contracts.etsAuctionHouse.getAuctionCountForTokenId(tagId)));
+      console.log("    reservePrice: ", ethers.formatEther(auction.reservePrice) + " ETH/MATIC");
+      console.log("current high bid: ", ethers.formatEther(auction.amount) + " ETH/MATIC");
+      console.log("       startTime: ", ethers.toNumber(auction.startTime));
+      console.log("         endTime: ", ethers.toNumber(auction.endTime));
+      console.log("    current time: ", latestBlock);
+      console.log("          bidder: ", auction.bidder);
+      console.log("      auctioneer: ", auction.auctioneer);
+      console.log("           ended: ", ended);
+      console.log("         settled: ", auction.settled);
+      console.log("=================================================");
+
+    } catch (error) {
+      console.error("Error fetching auction or tag information:", error);
+    }
+
+  });
+
+// Note this task only works if there is one active action at a time.
+subtask("auctionhouse:showcurrent", "Shows status of a current active auction")
+  .setAction(async () => {
+
+    [accounts, contracts, maxAuctions] = await setup();
+
+    if (await contracts.etsAuctionHouse.getActiveCount() > 1) {
+      console.log("Command not possible when more than one active auction");
+      return;
+    }
+
+    const auctionId = await contracts.etsAuctionHouse.getTotalCount();
+
+    if (!(await contracts.etsAuctionHouse.auctionExists(auctionId))) {
+      console.log("Auction not found for ", auctionId);
+      return;
+    }
+
+    try {
+      const auction = await contracts.etsAuctionHouse.getAuction(auctionId);
+      let latestBlock = (await hre.ethers.provider.getBlock()).timestamp;
+      let ended = (ethers.toNumber(auction.startTime) > 0 && latestBlock > ethers.toNumber(auction.endTime)) ? "Yes" : "No";
+      const tag = await contracts.etsToken.getTagById(auction.tokenId);
+
+      console.log("=================================================");
+      console.log("    Auction Details for", tag.display);
       console.log("-------------------------------------------------")
       console.log("      auction id: ", ethers.toNumber(auction.auctionId));
       //console.log(" token auction #: ", ethers.toNumber(await contracts.etsAuctionHouse.getAuctionCountForTokenId(tagId)));
@@ -189,6 +243,24 @@ subtask("auctionhouse:increasemax", "Increases max auctions by one.")
 
   });
 
+subtask("auctionhouse:nextauction", "Creates next auction using ETS Oracle")
+
+  .setAction(async () => {
+    [accounts, contracts, maxAuctions] = await setup();
+
+    let auctionCount = await contracts.etsAuctionHouse.getActiveCount();
+    console.log("auctionCount", auctionCount);
+    if (ethers.toNumber(auctionCount) >= maxAuctions) {
+      console.log("No auction slots");
+      return;
+    }
+
+    const txn = await contracts.etsAuctionHouse.createNextAuction();
+    await txn.wait();
+    await hre.run("auctionhouse:showcurrent");
+
+  });
+
 subtask("auctionhouse:createauction", "Creates an auction given an existing CTAG string")
   .addParam("tag", "tag to be auctioned")
   .setAction(async (taskArgs) => {
@@ -205,7 +277,7 @@ subtask("auctionhouse:createauction", "Creates an auction given an existing CTAG
     const txn = await contracts.etsAuctionHouse.connect(accounts.account1).fulfillRequestCreateAuction(tagId);
     await txn.wait();
 
-    await hre.run("auctionhouse:auctionstatus", { tag: taskArgs.tag });
+    await hre.run("auctionhouse:auctionstatus-tag", { tag: taskArgs.tag });
 
     // printAuctionInfo(tagId);
 
@@ -229,7 +301,7 @@ subtask("auctionhouse:createbid", "Creates a bid on a CTAG auction")
     const auction = await contracts.etsAuctionHouse.getAuctionForTokenId(tagId);
 
     console.log("BEFORE BID");
-    await hre.run("auctionhouse:auctionstatus", { tag: taskArgs.tag });
+    await hre.run("auctionhouse:auctionstatus-tag", { tag: taskArgs.tag });
     // printAuctionInfo(tagId);
 
     const bidInWEI = ethers.parseUnits(taskArgs.bid, "ether");
@@ -237,7 +309,7 @@ subtask("auctionhouse:createbid", "Creates a bid on a CTAG auction")
     await txn.wait();
 
     console.log("AFTER BID");
-    await hre.run("auctionhouse:auctionstatus", { tag: taskArgs.tag });
+    await hre.run("auctionhouse:auctionstatus-tag", { tag: taskArgs.tag });
     // printAuctionInfo(tagId);
 
 
@@ -276,18 +348,18 @@ subtask("auctionhouse:settleauction", "Settles a CTAG auction for a given tag")
     console.log("Auction settled for ", taskArgs.tag);
     auction = await contracts.etsAuctionHouse.getAuction(auction.auctionId);
 
-    await hre.run("auctionhouse:auctionstatus", { tag: taskArgs.tag });
+    await hre.run("auctionhouse:auctionstatus-tag", { tag: taskArgs.tag });
     //printAuctionInfo(auction);
     //settleCurrentAndCreateNewAuction
 
-    console.log("Simulating creating next auction...")
-    // Create a new auction:
-    let nextTag = randomWords(1);
-    nextTag = "#" + nextTag[0];
-    let tagsToMint = [nextTag];
-    const tx = await contracts.etsRelayer.connect(accounts.account3).getOrCreateTagIds(tagsToMint);
-    await tx.wait();
-    await hre.run("auctionhouse:createauction", { tag: nextTag });
+    //  console.log("Simulating creating next auction...")
+    //  // Create a new auction:
+    //  let nextTag = randomWords(1);
+    //  nextTag = "#" + nextTag[0];
+    //  let tagsToMint = [nextTag];
+    //  const tx = await contracts.etsRelayer.connect(accounts.account3).getOrCreateTagIds(tagsToMint);
+    //  await tx.wait();
+    //  await hre.run("auctionhouse:createauction", { tag: nextTag });
 
   });
 

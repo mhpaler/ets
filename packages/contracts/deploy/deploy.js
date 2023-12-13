@@ -1,5 +1,7 @@
-const { ethers } = require("hardhat");
+const { ethers, network } = require("hardhat");
 const { setup } = require("./setup.js");
+const runLocalSetup = require("./localSetup.js");
+
 
 module.exports = async ({ deployments }) => {
   [accounts, factories, initSettings] = await setup();
@@ -21,9 +23,16 @@ module.exports = async ({ deployments }) => {
 
   console.log("============ CONFIGURE ROLES & APPROVALS ============");
 
-  // TODO: Check if network is Hardhat & automine is false before setting to true.
-  // setting to true enabled all these settings to be mined in one txn.
-  await network.provider.send("evm_setAutomine", [true]);
+  const automine = await network.provider.send("hardhat_getAutomine");
+
+  if (network.config["chainId"] == 31337) {
+    // if automine is off, enable it to apply these settings faster.
+    if (automine == false) {
+      await network.provider.send("evm_setAutomine", [true]);
+      console.log("automine set to", await network.provider.send("hardhat_getAutomine"));
+    }
+  }
+
   // Allows relayer admin role to grant relayer factory role.
   await ETSAccessControls.setRoleAdmin(await ETSAccessControls.RELAYER_FACTORY_ROLE(), await ETSAccessControls.RELAYER_ADMIN_ROLE());
 
@@ -54,10 +63,19 @@ module.exports = async ({ deployments }) => {
   // Add a relayer proxy for use in tests. Note: ETSPlatform not required to own CTAG to add relayer.
   await ETSRelayerFactory.connect(accounts.ETSPlatform).addRelayer("ETSRelayer");
 
-  await network.provider.send("evm_setAutomine", [false]);
+
+  // This turns automine off, so hardhat blockchain mines sequentially.
+  if (network.config["chainId"] == 31337) {
+
+    //await runLocalSetup();
+
+    // Disable automine if it was originally disabled.
+    if (automine == false && await network.provider.send("hardhat_getAutomine")) {
+      await network.provider.send("evm_setAutomine", [false]);
+      console.log("automine set to", await network.provider.send("hardhat_getAutomine"));
+    }
+  }
 };
 
 module.exports.tags = ["deployAll"];
-//module.exports.dependencies = ["ETSAccessControls"];
-
 module.exports.dependencies = ["ETSRelayerFactory"];

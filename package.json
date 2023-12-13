@@ -20,7 +20,7 @@
     "api:dev": "cd apps/api && pnpm run dev",
     "api:build": "cd apps/api && pnpm run build",
     "api:start": "cd apps/api && pnpm run start",
-    "app:dev": "cd apps/app && pnpm run dev",
+    "app:dev": "cd apps/app && wagmi generate && pnpm run dev",
     "app:build": "cd apps/app && pnpm run build",
     "app:start": "cd apps/app && pnpm run start",
     "site:dev": "cd apps/site && pnpm run dev",
