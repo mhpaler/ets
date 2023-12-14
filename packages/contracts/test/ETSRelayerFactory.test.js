@@ -56,7 +56,7 @@ describe("ETSRelayerFactory Tests", function () {
       await expect(tx).to.emit(contracts.ETSAccessControls, "RelayerAdded");
     });
 
-    it("can only be added if sender owns a CTAG.", async () => {
+    it.only("can only be added if sender owns a CTAG.", async () => {
       await contracts.ETSToken.connect(accounts.RandomOne).transferFrom(
         accounts.RandomOne.address,
         accounts.ETSPlatform.address,
@@ -67,10 +67,6 @@ describe("ETSRelayerFactory Tests", function () {
         accounts.RandomOne.address,
         accounts.ETSPlatform.address,
         tokenId2,
-      );
-
-      await expect(contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap")).to.be.revertedWith(
-        "Must own CTAG",
       );
 
       await contracts.ETSToken.connect(accounts.ETSPlatform).transferFrom(

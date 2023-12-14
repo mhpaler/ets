@@ -8,7 +8,7 @@ const initSettings = {
   // Auction
   MAX_AUCTIONS: 1,
   TIME_BUFFER: 600, // 600 secs / 10 minutes
-  RESERVE_PRICE: "1", // 1 MATIC
+  RESERVE_PRICE: "2", // 1 MATIC
   MIN_INCREMENT_BID_PERCENTAGE: 5,
   DURATION: 30 * 60, // 30 minutes
   RELAYER_PERCENTAGE: 20,
