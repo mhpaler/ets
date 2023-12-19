@@ -10,33 +10,21 @@ import "@app/styles/globals.css";
 import Layout from "@app/layouts/default";
 import nProgress from "nprogress";
 
-import {
-  RainbowKitSiweNextAuthProvider,
-  GetSiweMessageOptions,
-} from "@rainbow-me/rainbowkit-siwe-next-auth";
-import {
-  RainbowKitProvider,
-  getDefaultWallets,
-  connectorsForWallets,
-  lightTheme,
-  Theme,
-} from "@rainbow-me/rainbowkit";
+import { RainbowKitSiweNextAuthProvider, GetSiweMessageOptions } from "@rainbow-me/rainbowkit-siwe-next-auth";
+import { RainbowKitProvider, getDefaultWallets, connectorsForWallets, lightTheme, Theme } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
 import merge from "lodash.merge";
 import { metaMaskWallet } from "@rainbow-me/rainbowkit/wallets";
 
 import { createConfig, configureChains, WagmiConfig } from "wagmi";
-import { localhost, polygonMumbai } from "wagmi/chains";
+import { hardhat, polygonMumbai } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 
 //Configure the chain and the RPC provider. Note that we've added localhost here
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [polygonMumbai, localhost],
-  [
-    alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_KEY || "" }),
-    publicProvider(),
-  ]
+  [polygonMumbai, hardhat],
+  [alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_KEY || "" }), publicProvider()]
 );
 
 const projectId = "1";
@@ -107,15 +95,8 @@ function MyApp({ Component, pageProps }: AppProps<{ session: Session }>) {
   return (
     <WagmiConfig config={wagmiConfig}>
       <SessionProvider refetchInterval={0} session={pageProps.session}>
-        <RainbowKitSiweNextAuthProvider
-          getSiweMessageOptions={getSiweMessageOptions}
-        >
-          <RainbowKitProvider
-            appInfo={demoAppInfo}
-            chains={chains}
-            modalSize="compact"
-            theme={etsTheme}
-          >
+        <RainbowKitSiweNextAuthProvider getSiweMessageOptions={getSiweMessageOptions}>
+          <RainbowKitProvider appInfo={demoAppInfo} chains={chains} modalSize="compact" theme={etsTheme}>
             <SWRConfig value={{ refreshInterval: 3000, fetcher: fetcher }}>
               <Layout>
                 <Component {...pageProps} />

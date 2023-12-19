@@ -26,7 +26,7 @@
     "site:dev": "cd apps/site && pnpm run dev",
     "site:build": "cd apps/site && pnpm run build",
     "site:start": "cd apps/site && pnpm run start",
-    "hardhat": "cd packages/contracts && pnpm run hardhat",
+    "hardhat:start": "cd packages/contracts && pnpm run hardhat",
     "hardhat:build": "cd packages/contracts && pnpm run build",
     "hardhat:deploy": "cd packages/contracts && pnpm run deploy",
     "hardhat:deploy-mumbai": "cd packages/contracts && pnpm run deploy-mumbai",

@@ -10,6 +10,7 @@ export default defineConfig({
     actions({
       readContract: true,
       prepareWriteContract: true,
+      writeContract: true,
       watchContractEvent: true,
     }),
     //hardhat({

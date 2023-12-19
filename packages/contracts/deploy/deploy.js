@@ -22,14 +22,17 @@ module.exports = async ({ deployments }) => {
   const ETSRelayerFactory = await ethers.getContractAt("ETSRelayerFactory", etsRelayerFactory.address);
 
   console.log("============ CONFIGURE ROLES & APPROVALS ============");
+  console.log("See /packages/contracts/deploy/deploy.js for settings.");
 
-  const automine = await network.provider.send("hardhat_getAutomine");
-
+  let hardhat_automine;// = await network.provider.send("hardhat_getAutomine");
   if (network.config["chainId"] == 31337) {
+
+    hardhat_automine = await network.provider.send("hardhat_getAutomine");
+
     // if automine is off, enable it to apply these settings faster.
-    if (automine == false) {
+    if (hardhat_automine == false) {
       await network.provider.send("evm_setAutomine", [true]);
-      console.log("automine set to", await network.provider.send("hardhat_getAutomine"));
+      console.log("Hardhat automine set to", await network.provider.send("hardhat_getAutomine"));
     }
   }
 
@@ -68,11 +71,10 @@ module.exports = async ({ deployments }) => {
   if (network.config["chainId"] == 31337) {
 
     //await runLocalSetup();
-
     // Disable automine if it was originally disabled.
-    if (automine == false && await network.provider.send("hardhat_getAutomine")) {
+    if (hardhat_automine === false && await network.provider.send("hardhat_getAutomine")) {
       await network.provider.send("evm_setAutomine", [false]);
-      console.log("automine set to", await network.provider.send("hardhat_getAutomine"));
+      console.log("Hardhat automine set to", await network.provider.send("hardhat_getAutomine"));
     }
   }
 };

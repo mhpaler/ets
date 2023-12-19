@@ -77,6 +77,7 @@ contract ETSRelayerFactory is Context {
             etsToken.balanceOf(_msgSender()) > 0 || etsAccessControls.isRelayerAdmin(_msgSender()),
             "Must own CTAG"
         );
+        // TODO: Uncomment to restrict to single relayer
         //require(!etsAccessControls.isRelayerByOwner(_msgSender()), "Sender owns existing relayer");
         BeaconProxy relayerProxy = new BeaconProxy(
             address(etsRelayerBeacon),

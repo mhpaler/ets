@@ -8,8 +8,6 @@ import React, {
   SetStateAction,
 } from "react";
 
-import { useAccount, useContractRead } from "wagmi";
-
 import {
   fetchMaxAuctions,
   fetchCurrentAuctionId,
