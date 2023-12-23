@@ -16,6 +16,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 };
 
 const Home: NextPage = () => {
+  console.log("next pageXX",process.env.GRAPH_API_ENDPOINT);
   const { t } = useTranslation("common");
   return (
     <div className="grid max-w-7xl gap-6 mx-auto mt-12 lg:gap-12 md:space-y-0 sm:w-full">

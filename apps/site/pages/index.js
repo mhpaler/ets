@@ -46,17 +46,17 @@ export default function Home() {
 
         <div className="flex justify-center space-x-4 pt-5 pb-20">
           <a href="https://app.ets.xyz" target="_blank">
-            <button class="bg-transparent text-sm hover:bg-pink-500 text-pink-700 hover:text-white py-2 px-4 border border-pink-500 hover:border-transparent rounded">
+            <button className="bg-transparent text-sm hover:bg-pink-500 text-pink-700 hover:text-white py-2 px-4 border border-pink-500 hover:border-transparent rounded">
               Explorer
             </button>
           </a>
           <a href="https://github.com/ethereum-tag-service/ets#readme" target="_blank">
-            <button class="bg-transparent text-sm hover:bg-pink-500 text-pink-700 hover:text-white py-2 px-4 border border-pink-500 hover:border-transparent rounded">
+            <button className="bg-transparent text-sm hover:bg-pink-500 text-pink-700 hover:text-white py-2 px-4 border border-pink-500 hover:border-transparent rounded">
               Github
             </button>
           </a>
           <a href="https://discord.gg/dDWenbVEEQ" target='_blank'>
-            <button class="bg-transparent text-sm hover:bg-pink-500 text-pink-700 hover:text-white py-2 px-4 border border-pink-500 hover:border-transparent rounded">
+            <button className="bg-transparent text-sm hover:bg-pink-500 text-pink-700 hover:text-white py-2 px-4 border border-pink-500 hover:border-transparent rounded">
               Discord
             </button>
           </a>

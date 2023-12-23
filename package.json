@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev --parallel",
+    "dev": "rm -rf apps/*/.next && dotenv -- turbo run dev --filter=!@ethereum-tag-service/api",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "api:dev": "cd apps/api && pnpm run dev",
@@ -47,8 +47,12 @@
     "graph:ship-mumbai": "cd packages/subgraph && pnpm run ship-mumbai"
   },
   "devDependencies": {
-    "prettier": "^2.6.2",
-    "turbo": "^1.2.6"
+    "@types/node": "^20.10.5",
+    "dotenv": "^16.3.1",
+    "dotenv-cli": "^7.3.0",
+    "prettier": "^3.1.1",
+    "turbo": "^1.11.2",
+    "typescript": "^5.3.3"
   },
   "pnpm": {
     "overrides": {
