@@ -1,3 +1,4 @@
+// Hardhat script that inserts some test data into the local
 const { network } = require("hardhat");
 const runLocalSetup = require("./localSetup.js");
 

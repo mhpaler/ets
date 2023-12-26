@@ -32,7 +32,7 @@
     "compile": "hardhat clean && hardhat compile",
     "watch": "ts-node scripts/watch.ts",
     "test": "hardhat test",
-    "deploy": "hardhat deploy --tags deployAll --network localhost --export export/hardhat.json && hardhat deploy --tags localSetup --network localhost",
+    "deploy": "hardhat deploy --tags deployAll --network localhost --export export/hardhat.json",
     "deploy-mumbai": "hardhat deploy --tags deployAll --network mumbai",
     "prettier": "prettier --write 'contracts/**/*.sol'",
     "solhint": "./node_modules/.bin/solhint contracts/*.sol contracts/**/*.sol"
@@ -54,6 +54,7 @@
     "@types/chai": "^4.2.18",
     "@types/mocha": "^10.0.1",
     "@types/node": "^20.1.4",
+    "axios": "^1.6.2",
     "chai": "^4.3.4",
     "dotenv": "^16.0.0",
     "ethereum-waffle": "^4.0.10",
