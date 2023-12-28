@@ -1,8 +1,8 @@
-const { network, upgrades } = require("hardhat");
-const { provider } = network;
+const { network } = require("hardhat");
 const fs = require("fs");
+const path = require('path');
 const merge = require("lodash.merge");
-const configPath = "./config/config.json";
+//const configPath = "./config/config.json";
 const emptyConfig = {
   address: "0x0000000000000000000000000000000000000000",
   implementation: "0x0000000000000000000000000000000000000000",
@@ -11,18 +11,30 @@ const emptyConfig = {
 };
 
 /**
+ * Get the configuration file path for the current network.
+ *
+ * @return {string} Path to the network-specific configuration file.
+ */
+function getConfigPath() {
+  return `./deployments/${network.name}/upgradesConfig.json`;
+}
+
+/**
  * Save deployment information into network configuration file.
+ * Important for saving deployment block information for other services
+ *
  * @param {string} name Contract name.
  * @param {object} deployment Deployment artifact. Points to proxy if UUPS.
  * @param {string} implementation Implementation address if deployment is a proxy.
  * @param {boolean} upgrade Set true to indicate deployment was an upgrade.
  */
 async function saveNetworkConfig(name, deployment, implementation, upgrade) {
+
   let config = readNetworkConfig();
 
   if (network.config.chainId == 31337) {
     // If on localhost, flush any previous config.
-    config[network.config.chainId].contracts = {};
+    config.contracts = {};
   }
 
   // We use OpenZeppelin Upgrades plugin for deployment. Their deployment
@@ -41,7 +53,7 @@ async function saveNetworkConfig(name, deployment, implementation, upgrade) {
     : deploymentReceipt;
 
   // Load up deployment block from config if it exists.
-  let deploymentBlock = config?.[network.config.chainId]?.contracts?.[name]?.deploymentBlock;
+  let deploymentBlock = config?.contracts?.[name]?.deploymentBlock;
 
   // If deployment block has not been set, use the initial deployment block from the receipt.
   deploymentBlock ??= parseInt(receipt.blockNumber);
@@ -49,15 +61,13 @@ async function saveNetworkConfig(name, deployment, implementation, upgrade) {
   const upgradeBlock = upgrade ? parseInt(receipt.blockNumber) : null;
 
   const newConfig = merge(config, {
-    [network.config.chainId]: {
-      contracts: {
-        [name]: {
-          ...emptyConfig,
-          address: receipt.contractAddress,
-          implementation: implementation,
-          deploymentBlock: deploymentBlock,
-          upgradeBlock: upgradeBlock,
-        },
+    contracts: {
+      [name]: {
+        ...emptyConfig,
+        address: receipt.contractAddress,
+        implementation: implementation,
+        deploymentBlock: deploymentBlock,
+        upgradeBlock: upgradeBlock,
       },
     },
   });
@@ -65,14 +75,23 @@ async function saveNetworkConfig(name, deployment, implementation, upgrade) {
 }
 
 function readNetworkConfig() {
+  const configPath = getConfigPath();
   const file = fs.existsSync(configPath) ? fs.readFileSync(configPath) : "{}";
   return JSON.parse(file.length ? file : "{}");
 }
 
 function mergeNetworkConfig(config) {
+  const configPath = getConfigPath();
+  const directory = path.dirname(configPath);
+
+  // Ensure the directory exists, create it if it doesn't
+  if (!fs.existsSync(directory)) {
+    fs.mkdirSync(directory, { recursive: true });
+  }
+
   const _config = merge(readNetworkConfig(), config);
   fs.writeFileSync(configPath, `${JSON.stringify(_config, null, 2)}\n`);
-  console.log("Network config at ./config/config.json updated.");
+  console.log(`${configPath} updated.`);
 }
 
 module.exports = {

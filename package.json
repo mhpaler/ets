@@ -13,8 +13,8 @@
     "yarn"
   ],
   "scripts": {
-    "build": "turbo run build",
     "dev": "rm -rf apps/*/.next && dotenv -- turbo run dev --filter=!@ethereum-tag-service/api",
+    "build": "turbo run build --filter=!@ethereum-tag-service/api",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "api:dev": "cd apps/api && pnpm run dev",
@@ -38,13 +38,9 @@
     "graph:node-start": "cd packages/subgraph && pnpm run run-graph-node",
     "graph:node-stop": "cd packages/subgraph && pnpm run remove-graph-node",
     "graph:node-clean": "cd packages/subgraph && pnpm run clean-graph-node",
-    "graph:prepare-local": "cd packages/subgraph && pnpm run prepare-local",
-    "graph:prepare-mumbai": "cd packages/subgraph && pnpm run prepare-mumbai",
-    "graph:create-local": "cd packages/subgraph && pnpm run create-local",
-    "graph:remove-local": "cd packages/subgraph && pnpm run remove-local",
-    "graph:ship-local": "cd packages/subgraph && pnpm run ship-local",
-    "graph:deploy-and-graph": "pnpm run hardhat:deploy && pnpm run graph:ship-local",
-    "graph:ship-mumbai": "cd packages/subgraph && pnpm run ship-mumbai"
+    "graph:deploy-local": "cd packages/subgraph && pnpm graph-deploy-local",
+    "graph:deploy-mumbai": "cd packages/subgraph && pnpm graph-deploy-mumbai",
+    "graph:deploy-mumbai-stage": "cd packages/subgraph && pnpm graph-deploy-mumbai-stage"
   },
   "devDependencies": {
     "@types/node": "^20.10.5",

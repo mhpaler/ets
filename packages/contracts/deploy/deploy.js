@@ -1,7 +1,5 @@
 const { ethers, network } = require("hardhat");
 const { setup } = require("./setup.js");
-const runLocalSetup = require("./localSetup.js");
-
 
 module.exports = async ({ deployments }) => {
   [accounts, factories, initSettings] = await setup();
@@ -70,7 +68,6 @@ module.exports = async ({ deployments }) => {
   // This turns automine off, so hardhat blockchain mines sequentially.
   if (network.config["chainId"] == 31337) {
 
-    //await runLocalSetup();
     // Disable automine if it was originally disabled.
     if (hardhat_automine === false && await network.provider.send("hardhat_getAutomine")) {
       await network.provider.send("evm_setAutomine", [false]);

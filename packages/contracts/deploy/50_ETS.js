@@ -1,27 +1,15 @@
 const { ethers, upgrades } = require("hardhat");
 const { setup } = require("./setup.js");
 const { verify } = require("./utils/verify.js");
-const { saveNetworkConfig, readNetworkConfig } = require("./utils/config.js");
+const { saveNetworkConfig } = require("./utils/config.js");
 
-module.exports = async ({ getChainId, deployments }) => {
+module.exports = async ({ deployments }) => {
   const { save, log } = deployments;
   [accounts, factories, initSettings] = await setup();
-  const networkConfig = readNetworkConfig();
-  const chainId = await getChainId();
-  let etsAccessControlsAddress, etsTokenAddress, etsTargetAddress;
 
-  if (chainId == 31337) {
-    const etsAccessControls = await deployments.get("ETSAccessControls");
-    const etsToken = await deployments.get("ETSToken");
-    const etsTarget = await deployments.get("ETSTarget");
-    etsAccessControlsAddress = etsAccessControls.address;
-    etsTokenAddress = etsToken.address;
-    etsTargetAddress = etsTarget.address;
-  } else {
-    etsAccessControlsAddress = networkConfig[chainId].contracts["ETSAccessControls"].address;
-    etsTokenAddress = networkConfig[chainId].contracts["ETSToken"].address;
-    etsTargetAddress = networkConfig[chainId].contracts["ETSTarget"].address;
-  }
+  const etsAccessControlsAddress = (await deployments.get("ETSAccessControls")).address;
+  const etsTokenAddress = (await deployments.get("ETSToken")).address;
+  const etsTargetAddress = (await deployments.get("ETSTarget")).address;
 
   // Deploy ETS
   const deployment = await upgrades.deployProxy(

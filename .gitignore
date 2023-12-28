@@ -39,7 +39,7 @@ packages/.pnpm-debug.log
 packages/contracts*/*.txt
 packages/contracts*/cache*
 packages/contracts*/artifacts/
-packages/contracts*/deployments/
+packages/contracts*/deployments/localhost/
 #packages/contracts*/.openzeppelin/
 packages/contracts/docs
 

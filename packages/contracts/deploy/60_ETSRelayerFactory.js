@@ -1,29 +1,15 @@
 const { setup } = require("./setup.js");
 const { verify } = require("./utils/verify.js");
-const { saveNetworkConfig, readNetworkConfig } = require("./utils/config.js");
+const { saveNetworkConfig } = require("./utils/config.js");
 
-module.exports = async ({ getChainId, deployments }) => {
+module.exports = async ({ deployments }) => {
   const { save, log } = deployments;
   [accounts, factories, initSettings] = await setup();
-  const networkConfig = readNetworkConfig();
-  const chainId = await getChainId();
-  let etsAccessControlsAddress, etsAddress, etsTokenAddress, etsTargetAddress;
 
-  if (chainId == 31337) {
-    const etsAccessControls = await deployments.get("ETSAccessControls");
-    const etsToken = await deployments.get("ETSToken");
-    const etsTarget = await deployments.get("ETSTarget");
-    const ets = await deployments.get("ETS");
-    etsAccessControlsAddress = etsAccessControls.address;
-    etsTokenAddress = etsToken.address;
-    etsTargetAddress = etsTarget.address;
-    etsAddress = ets.address;
-  } else {
-    etsAccessControlsAddress = networkConfig[chainId].contracts["ETSAccessControls"].address;
-    etsTokenAddress = networkConfig[chainId].contracts["ETSToken"].address;
-    etsTargetAddress = networkConfig[chainId].contracts["ETSTarget"].address;
-    etsAddress = networkConfig[chainId].contracts["ETS"].address;
-  }
+  const etsAccessControlsAddress = (await deployments.get("ETSAccessControls")).address;
+  const etsTokenAddress = (await deployments.get("ETSToken")).address;
+  const etsTargetAddress = (await deployments.get("ETSTarget")).address;
+  const etsAddress = (await deployments.get("ETS")).address;
 
   // Deploy the relayer logic contract.
   // We deploy with proxy with no arguments because factory will supply them.
@@ -45,7 +31,7 @@ module.exports = async ({ getChainId, deployments }) => {
   if (process.env.VERIFY_ON_DEPLOY == "true") {
     // Verify & Update network configuration file.
     await verify("ETSRelayerV1", relayerV1, relayerV1Address, []);
-    await verify("ETSRelayerFactory", relayerFactory, relayerFactoryAddress, []);
+    await verify("ETSRelayerFactory", relayerFactory, relayerFactoryAddress, [relayerV1Address, etsAccessControlsAddress, etsAddress, etsTokenAddress, etsTargetAddress]);
   }
 
   await saveNetworkConfig("ETSRelayerV1", relayerV1, null, false);

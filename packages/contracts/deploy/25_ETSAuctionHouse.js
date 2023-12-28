@@ -1,34 +1,18 @@
 const { ethers, upgrades } = require("hardhat");
 const { setup } = require("./setup.js");
 const { verify } = require("./utils/verify.js");
-const { saveNetworkConfig, readNetworkConfig } = require("./utils/config.js");
+const { saveNetworkConfig } = require("./utils/config.js");
 
 module.exports = async ({ getChainId, deployments }) => {
   const { save, log } = deployments;
   [accounts, factories, initSettings] = await setup();
-  const networkConfig = readNetworkConfig();
-  const chainId = await getChainId();
-  let etsAccessControlsAddress;
-  let etsTokenAddress;
-  let wmaticAddress;
 
-  if (chainId == 31337) {
-    // Hardhat
-    const wmatic = await factories.WMATIC.deploy();
-    await wmatic.waitForDeployment();
-    await saveNetworkConfig("WMATIC", wmatic, null, false);
-    wmaticAddress = await wmatic.getAddress();;
-
-    let etsAccessControls = await deployments.get("ETSAccessControls");
-    let etsToken = await deployments.get("ETSToken");
-    etsAccessControlsAddress = etsAccessControls.address;
-    etsTokenAddress = etsToken.address;
-  } else {
-    // Change to WMATIC
-    wmaticAddress = networkConfig[chainId].contracts["WMATIC"].address;
-    etsAccessControlsAddress = networkConfig[chainId].contracts["ETSAccessControls"].address;
-    etsTokenAddress = networkConfig[chainId].contracts["ETSToken"].address;
-  }
+  const wmatic = await factories.WMATIC.deploy();
+  await wmatic.waitForDeployment();
+  await saveNetworkConfig("WMATIC", wmatic, null, false);
+  const wmaticAddress = await wmatic.getAddress();;
+  const etsAccessControlsAddress = (await deployments.get("ETSAccessControls")).address;
+  const etsTokenAddress = (await deployments.get("ETSToken")).address;
 
   log("====================================================");
   log("WMATIC deployed to -> " + wmaticAddress);
