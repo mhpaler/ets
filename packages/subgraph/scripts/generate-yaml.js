@@ -3,9 +3,9 @@ const Handlebars = require("handlebars");
 
 const networks = {
   localhost: {
-    name: "mainnet",
-    configPath: "./../contracts/deployments/localhost/config.json",
-    upgradesConfigPath: "./../contracts/deployments/localhost/upgradesConfig.json",
+    name: "mainnet", // localhost subgraph uses name of "mainnet"
+    configPath: "./../contracts/export/chainConfig/localhost.json",
+    upgradesConfigPath: "./../contracts/export/upgradeConfig/localhost.json",
     abis: {
       ETS: "./../contracts/deployments/localhost/ETS.json",
       ETSAccessControls: "./../contracts/deployments/localhost/ETSAccessControls.json",
@@ -18,9 +18,9 @@ const networks = {
     },
   },
   mumbai: {
-    name: "mumbai",
-    configPath: "./../contracts/deployments/mumbai/config.json",
-    upgradesConfigPath: "./../contracts/deployments/mumbai/upgradesConfig.json",
+    name: "mumbai", // subgraph chain
+    configPath: "./../contracts/export/chainConfig/mumbai.json",
+    upgradesConfigPath: "./../contracts/export/upgradeConfig/mumbai.json",
     abis: {
       ETS: "./../contracts/deployments/mumbai/ETS.json",
       ETSAccessControls: "./../contracts/deployments/mumbai/ETSAccessControls.json",
@@ -33,9 +33,9 @@ const networks = {
     }
   },
   mumbai_stage: {
-    name: "mumbai",
-    configPath: "./../contracts/deployments/mumbai_stage/config.json",
-    upgradesConfigPath: "./../contracts/deployments/mumbai_stage/upgradesConfig.json",
+    name: "mumbai", // subgraph chain
+    configPath: "./../contracts/export/chainConfig/mumbai_stage.json",
+    upgradesConfigPath: "./../contracts/export/upgradeConfig/mumbai_stage.json",
     abis: {
       ETS: "./../contracts/deployments/mumbai_stage/ETS.json",
       ETSAccessControls: "./../contracts/deployments/mumbai_stage/ETSAccessControls.json",

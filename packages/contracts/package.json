@@ -26,16 +26,17 @@
     "build": "pnpm build:contracts && pnpm build:package",
     "prepublishOnly": "pnpm build",
     "coverage": "hardhat coverage",
+    "prettier": "prettier --write 'contracts/**/*.sol'",
+    "solhint": "./node_modules/.bin/solhint contracts/*.sol contracts/**/*.sol",
     "build:contracts": "pnpm compile",
     "build:package": "rm -rf ./dist && cp -R config dist && cp -R artifacts/contracts dist/artifacts && cp -R contracts dist",
-    "hardhat": "hardhat node --no-deploy",
-    "compile": "hardhat clean && hardhat compile",
     "watch": "ts-node scripts/watch.ts",
     "test": "hardhat test",
-    "deploy": "hardhat deploy --tags deployAll --network localhost --export deployments/localhost/config.json",
-    "deploy-mumbai": "hardhat deploy --tags deployAll --network mumbai --export deployments/mumbai/config.json",
-    "prettier": "prettier --write 'contracts/**/*.sol'",
-    "solhint": "./node_modules/.bin/solhint contracts/*.sol contracts/**/*.sol"
+    "hardhat": "hardhat node --no-deploy",
+    "compile": "hardhat clean && hardhat compile",
+    "deploy": "hardhat deploy --tags deployAll --network localhost --export export/chainConfig/localhost.json",
+    "deploy-mumbai": "hardhat deploy --tags deployAll --network mumbai --export export/chainConfig/mumbai.json",
+    "deploy-mumbai-stage": "hardhat deploy --tags deployAll --network mumbai_stage --export export/chainConfig/mumbai_stage.json"
   },
   "devDependencies": {
     "@enzoferey/ethers-error-parser": "^0.2.3",

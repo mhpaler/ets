@@ -7,6 +7,7 @@
     "run-graph-node": "cd graph-node && pnpm clean-graph-node && docker-compose up",
     "prepare-local": "node scripts/generate-yaml.js --deployment localhost",
     "prepare-mumbai": "node scripts/generate-yaml.js --deployment mumbai",
+    "prepare-mumbai-stage": "node scripts/generate-yaml.js --deployment mumbai_stage",
     "codegen": "graph codegen --output-dir src/generated",
     "graph-deploy-local": "node scripts/deploy.js --deployment localhost",
     "graph-deploy-mumbai": "node scripts/deploy.js --deployment mumbai",

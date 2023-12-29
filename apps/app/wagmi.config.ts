@@ -1,25 +1,15 @@
 import { defineConfig } from "@wagmi/cli";
-import { actions, hardhat } from "@wagmi/cli/plugins";
 import hardhatDeploy from "@sunodo/wagmi-plugin-hardhat-deploy";
+const networks = process.env.NETWORKS ? process.env.NETWORKS.split(",") : [];
+
+console.log("networks", networks);
 
 export default defineConfig({
   out: "src/contracts.ts",
-  contracts: [],
   plugins: [
-    hardhatDeploy({ directory: "../../packages/contracts/export" }),
-    actions({
-      readContract: true,
-      prepareWriteContract: true,
-      writeContract: true,
-      watchContractEvent: true,
+    hardhatDeploy({
+      directory: "../../packages/contracts/export/chainConfig/",
+      include_networks: networks,
     }),
-    //hardhat({
-    //  commands: {
-    //    clean: "hardhat clean",
-    //    build: "hardhat compile",
-    //    rebuild: "hardhat compile",
-    //  },
-    //  project: "./../../packages/contracts",
-    //}),
   ],
 });

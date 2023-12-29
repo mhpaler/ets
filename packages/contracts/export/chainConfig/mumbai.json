@@ -3413,7 +3413,6 @@
         }
       ]
     },
-    "upgradesConfig": {},
     "ETSTarget": {
       "address": "0x211A22B9078641e982F09067fD7BAb85ab3Bb2aF",
       "abi": [
