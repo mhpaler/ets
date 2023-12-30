@@ -389,6 +389,9 @@ importers:
       '@typechain/ethers-v5':
         specifier: ^11.1.2
         version: 11.1.2(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2)(ethers@6.8.1)(typechain@8.1.0)(typescript@5.3.2)
+      '@typechain/ethers-v6':
+        specifier: ^0.5.1
+        version: 0.5.1(ethers@6.8.1)(typechain@8.1.0)(typescript@5.3.2)
       '@typechain/hardhat':
         specifier: ^9.1.0
         version: 9.1.0(@typechain/ethers-v6@0.5.1)(ethers@6.8.1)(hardhat@2.19.0)(typechain@8.1.0)
