@@ -11,18 +11,17 @@ task("transferRelayer", "Transfers relayer to a new owner")
   .setAction(async (taskArgs) => {
     const { getAccounts } = require("./utils/getAccounts");
     const accounts = await getAccounts();
-    const chainId = hre.network.config.chainId;
-    const config = require("../config/config.json");
 
-    // ABIs
-    const ETSAccessControlsABI = require("../abi/contracts/ETSAccessControls.sol/ETSAccessControls.json");
-    const ETSRelayerV1ABI = require("../abi/contracts/relayers/ETSRelayerV1.sol/ETSRelayerV1.json");
+    // Load network configuration
+    const networkConfig = require(`../export/chainConfig/${hre.network.name}.json`);
 
-    // Contract Addresses
-    const ETSAccessControlsAddress = config[chainId].contracts.ETSAccessControls.address;
+    // ABIs and Contract addresses from network configuration
+    const ETSAccessControlsABI = networkConfig.contracts.ETSAccessControls.abi;
+    const ETSAccessControlsAddress = networkConfig.contracts.ETSAccessControls.address;
+    const ETSRelayerV1ABI = networkConfig.contracts.ETSRelayerV1.abi;
 
     // Contract instances
-    const etsAccessControls = new ethers.Contract(
+    const etsAccessControls = new hre.ethers.Contract(
       ETSAccessControlsAddress,
       ETSAccessControlsABI,
       accounts[taskArgs.signer],

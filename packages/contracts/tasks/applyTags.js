@@ -13,18 +13,17 @@ task(
   )
   .setAction(async (taskArgs) => {
     const { getAccounts } = require("./utils/getAccounts");
-    const chainId = hre.network.config.chainId;
+
+    // Load network configuration
+    const networkConfig = require(`../export/chainConfig/${hre.network.name}.json`);
     const accounts = await getAccounts();
-    const config = require("../config/config.json");
 
-    // ABIs
-    const etsAccessControlsABI = require("../abi/contracts/ETSAccessControls.sol/ETSAccessControls.json");
-    const etsRelayerV1ABI = require("../abi/contracts/relayers/ETSRelayerV1.sol/ETSRelayerV1.json");
-    const etsABI = require("../abi/contracts/ETS.sol/ETS.json");
-
-    // Contract addresses
-    const etsAccessControlsAddress = config[chainId].contracts.ETSAccessControls.address;
-    const etsAddress = config[chainId].contracts.ETS.address;
+    // ABIs and Contract addresses from network configuration
+    const etsAccessControlsABI = networkConfig.contracts.ETSAccessControls.abi;
+    const etsAccessControlsAddress = networkConfig.contracts.ETSAccessControls.address;
+    const etsABI = networkConfig.contracts.ETS.abi;
+    const etsAddress = networkConfig.contracts.ETS.address;
+    const etsRelayerV1ABI = networkConfig.contracts.ETSRelayerV1.abi;
 
     // Contract instances
     const etsAccessControls = new ethers.Contract(

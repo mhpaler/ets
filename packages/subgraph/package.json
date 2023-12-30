@@ -4,7 +4,7 @@
   "scripts": {
     "clean-graph-node": "rm -rf graph-node/data/",
     "remove-graph-node": "cd graph-node && docker-compose down && pnpm clean-graph-node",
-    "run-graph-node": "cd graph-node && pnpm clean-graph-node && docker-compose up",
+    "start-graph-node": "cd scripts && ./start-graph-node.sh",
     "prepare-local": "node scripts/generate-yaml.js --deployment localhost",
     "prepare-mumbai": "node scripts/generate-yaml.js --deployment mumbai",
     "prepare-mumbai-stage": "node scripts/generate-yaml.js --deployment mumbai_stage",

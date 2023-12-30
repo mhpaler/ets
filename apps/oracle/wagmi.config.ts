@@ -1,25 +1,31 @@
 import { defineConfig } from "@wagmi/cli";
-// import { actions, hardhat } from "@wagmi/cli/plugins";
 import hardhatDeploy from "@sunodo/wagmi-plugin-hardhat-deploy";
+
+let networks;
+
+switch (process.env.NODE_ENV) {
+  case "development":
+    networks = ["localhost"];
+    break;
+  case "stage":
+    networks = ["mumbai_stage"];
+    break;
+  case "production":
+    networks = ["mumbai"];
+    break;
+  default:
+    networks = ["localhost"]; // Default case if NODE_ENV is not set or recognized
+    break;
+}
+
+console.log("Network enabled for Oracle", networks);
 
 export default defineConfig({
   out: "src/contracts.ts",
-  contracts: [],
   plugins: [
-    hardhatDeploy({ directory: "../../packages/contracts/deployments/export" }),
-    //    actions({
-    //      readContract: true,
-    //      prepareWriteContract: true,
-    //      writeContract: true,
-    //      watchContractEvent: true,
-    //    }),
-    //    hardhat({
-    //      commands: {
-    //        clean: "hardhat clean",
-    //        build: "hardhat compile",
-    //        rebuild: "hardhat compile",
-    //      },
-    //      project: "./../../packages/contracts",
-    //    }),
+    hardhatDeploy({
+      directory: "../../packages/contracts/export/chainConfig/",
+      include_networks: networks,
+    }),
   ],
 });

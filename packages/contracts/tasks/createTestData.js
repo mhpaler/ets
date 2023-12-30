@@ -147,10 +147,13 @@ subtask("testdata:createAuctions", "Creates, bids on and settles auctions. Assum
           // Cast 1 to 10 bids on from a randomly chose account.
           // Generate random number of bids between 1 and 10
           const numberOfBids = Math.floor(Math.random() * 10) + 1;
+          console.log(`Notice: ${numberOfBids} bids are about to commence.`);
 
           for (let bidCount = 0; bidCount < numberOfBids; bidCount++) {
             const bidIncrement = lastBid * BigInt(auctionSettings.bidIncrement) / BigInt(100); // Assuming bidIncrement is 5%
             const nextBid = lastBid + bidIncrement;
+
+            console.log(`Executing bid ${bidCount + 1} of ${numberOfBids}`);
 
             // Select a random signer
             const randomIndex = Math.floor(Math.random() * namedAccounts.length);

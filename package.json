@@ -13,7 +13,7 @@
     "yarn"
   ],
   "scripts": {
-    "dev": "rm -rf apps/*/.next && dotenv -- turbo run dev --filter=!@ethereum-tag-service/api --filter=!@ethereum-tag-service/oracle",
+    "dev": "rm -rf apps/*/.next && dotenv -- turbo run dev --filter=!@ethereum-tag-service/api",
     "build": "turbo run build --filter=!@ethereum-tag-service/api",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
@@ -35,7 +35,7 @@
     "hardhat:solhint": "cd packages/contracts && pnpm solhint",
     "hardhat:test": "cd packages/contracts && pnpm run hardhat",
     "hardhat:clean": "cd packages/hardhat && pnpm hardhat clean",
-    "graph:node-start": "cd packages/subgraph && pnpm run run-graph-node",
+    "graph:node-start": "cd packages/subgraph && pnpm run start-graph-node",
     "graph:node-stop": "cd packages/subgraph && pnpm run remove-graph-node",
     "graph:node-clean": "cd packages/subgraph && pnpm run clean-graph-node",
     "graph:deploy-local": "cd packages/subgraph && pnpm graph-deploy-local",

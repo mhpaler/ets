@@ -265,8 +265,8 @@ importers:
         version: 1.19.11(typescript@5.3.3)(zod@3.21.4)
     devDependencies:
       '@sunodo/wagmi-plugin-hardhat-deploy':
-        specifier: ^0.2.0
-        version: 0.2.0(@wagmi/core@1.4.7)(typescript@5.3.3)
+        specifier: github:ethereum-tag-service/wagmi-plugin-hardhat-deploy#ets-temp
+        version: github.com/ethereum-tag-service/wagmi-plugin-hardhat-deploy/f02bbcb578f1f70b38aff6f10752af6a70bc76f7(@wagmi/core@1.4.7)(typescript@5.3.3)
       '@types/node':
         specifier: ^20.10.4
         version: 20.10.5
@@ -6068,24 +6068,6 @@ packages:
       '@stablelib/keyagreement': 1.0.1
       '@stablelib/random': 1.0.2
       '@stablelib/wipe': 1.0.1
-
-  /@sunodo/wagmi-plugin-hardhat-deploy@0.2.0(@wagmi/core@1.4.7)(typescript@5.3.3):
-    resolution: {integrity: sha512-rWdumiLNVZ0U+t7B7nDpll7MPsoD9MOJmBsdmjJxyPxSjbarv7dAbwPv+pzP4wLSZ3rep1829D5j/9If5CtSJg==}
-    peerDependencies:
-      '@wagmi/core': '>=1.0.0'
-      typescript: '>=5.0.4'
-      wagmi: '>=1.0.0'
-    peerDependenciesMeta:
-      '@wagmi/core':
-        optional: true
-      typescript:
-        optional: true
-      wagmi:
-        optional: true
-    dependencies:
-      '@wagmi/core': 1.4.7(react@18.2.0)(typescript@5.3.3)(viem@1.19.11)
-      typescript: 5.3.3
-    dev: true
 
   /@svgr/babel-plugin-add-jsx-attribute@8.0.0(@babel/core@7.23.6):
     resolution: {integrity: sha512-b9MIk7yhdS1pMCZM8VeNfUlSKVRhsHZNMl5O9SfaX0l0t5wjdgu4IDzGB8bpnGBBOjGST3rRFVsaaEtI4W6f7g==}
@@ -21285,3 +21267,24 @@ packages:
       typescript: 5.3.2
       wagmi: 1.4.7(@types/react@18.2.12)(react-dom@18.2.0)(react@18.2.0)(typescript@5.3.2)(viem@1.19.11)(zod@3.21.4)
     dev: false
+
+  github.com/ethereum-tag-service/wagmi-plugin-hardhat-deploy/f02bbcb578f1f70b38aff6f10752af6a70bc76f7(@wagmi/core@1.4.7)(typescript@5.3.3):
+    resolution: {tarball: https://codeload.github.com/ethereum-tag-service/wagmi-plugin-hardhat-deploy/tar.gz/f02bbcb578f1f70b38aff6f10752af6a70bc76f7}
+    id: github.com/ethereum-tag-service/wagmi-plugin-hardhat-deploy/f02bbcb578f1f70b38aff6f10752af6a70bc76f7
+    name: '@sunodo/wagmi-plugin-hardhat-deploy'
+    version: 0.2.0
+    peerDependencies:
+      '@wagmi/core': '>=1.0.0'
+      typescript: '>=5.0.4'
+      wagmi: '>=1.0.0'
+    peerDependenciesMeta:
+      '@wagmi/core':
+        optional: true
+      typescript:
+        optional: true
+      wagmi:
+        optional: true
+    dependencies:
+      '@wagmi/core': 1.4.7(react@18.2.0)(typescript@5.3.3)(viem@1.19.11)
+      typescript: 5.3.3
+    dev: true

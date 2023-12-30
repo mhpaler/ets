@@ -72,7 +72,7 @@ task("auctionhouse", "Create and interact with an auction")
 subtask("auctionhouse:settings", "List auction settings")
   .addOptionalParam("output", "The format for outputting auction details", "standard", types.string)
   .setAction(async (taskArgs) => {
-    [accounts, contracts, maxAuctions] = await setup();
+    ({ accounts, contracts } = await setup());
 
     paused = await contracts.etsAuctionHouse.paused();
     maxAuctions = await contracts.etsAuctionHouse.maxAuctions();
@@ -103,9 +103,9 @@ subtask("auctionhouse:auctionstatus", "Shows status of a given tag auction id")
   .addParam("id", "Auction ID", null, types.string)
   .addParam("tag", "Tag to get auction status for", null, types.string)
   .addParam("output", "The format for outputting auction details", "standard", types.string)
-  .setAction(async (taskArgs, hre) => {
+  .setAction(async (taskArgs) => {
 
-    [accounts, contracts, maxAuctions] = await setup();
+    ({ accounts, contracts } = await setup());
 
     let auctionId;
     if (taskArgs.id) {
@@ -141,7 +141,7 @@ subtask("auctionhouse:showcurrent", "Shows status of a current active auction")
   .addOptionalParam("output", "The format for outputting auction details", "standard", types.string)
   .setAction(async (taskArgs) => {
 
-    [accounts, contracts, maxAuctions] = await setup();
+    ({ accounts, contracts } = await setup());
 
     if (await contracts.etsAuctionHouse.getActiveCount() > 1) {
       console.log("Command not possible when more than one active auction");
@@ -173,7 +173,7 @@ subtask("auctionhouse:showcurrent", "Shows status of a current active auction")
 
 subtask("auctionhouse:togglepause", "Pause/Unpause the auctionhouse.")
   .setAction(async () => {
-    [accounts, contracts, maxAuctions] = await setup();
+    ({ accounts, contracts } = await setup());
 
     if (await contracts.etsAuctionHouse.paused()) {
       await contracts.etsAuctionHouse.connect(accounts.account0).unpause()
@@ -190,7 +190,7 @@ subtask("auctionhouse:setreserve", "Sets reserve price for all actions (eg. min 
   .addParam("reserve", "Reserve price")
   .setAction(async (taskArgs) => {
 
-    [accounts, contracts, maxAuctions] = await setup();
+    ({ accounts, contracts } = await setup());
     const reserveInWEI = ethers.parseUnits(taskArgs.reserve, "ether");
     await contracts.etsAuctionHouse.connect(accounts.account0).setReservePrice(reserveInWEI);
     console.log("Reserve set to: ", reserveInWEI + " WEI (" + taskArgs.reserve + " ETH/MATIC)");
@@ -198,7 +198,8 @@ subtask("auctionhouse:setreserve", "Sets reserve price for all actions (eg. min 
 
 subtask("auctionhouse:increasemax", "Increases max auctions by one.")
   .setAction(async () => {
-    [accounts, contracts, maxAuctions] = await setup();
+    ({ accounts, contracts } = await setup());
+    const maxAuctions = await contracts.etsAuctionHouse.maxAuctions();
     await contracts.etsAuctionHouse.connect(accounts.account0).setMaxAuctions(maxAuctions + 1);
     console.log("max auctions increased to", maxAuctions + 1);
 
@@ -207,8 +208,8 @@ subtask("auctionhouse:increasemax", "Increases max auctions by one.")
 subtask("auctionhouse:nextauction", "Creates next auction using ETS Oracle")
 
   .setAction(async () => {
-    [accounts, contracts, maxAuctions] = await setup();
-
+    ({ accounts, contracts } = await setup());
+    const maxAuctions = await contracts.etsAuctionHouse.maxAuctions();
     let auctionCount = await contracts.etsAuctionHouse.getActiveCount();
     console.log("auctionCount", auctionCount);
     if (ethers.toNumber(auctionCount) >= maxAuctions) {
@@ -220,7 +221,7 @@ subtask("auctionhouse:nextauction", "Creates next auction using ETS Oracle")
     await txn.wait();
 
     // Waiting with visual indicator
-    await waitForProcessing();
+    await waitForProcessing(8);
     await hre.run("auctionhouse:showcurrent");
 
   });
@@ -228,8 +229,8 @@ subtask("auctionhouse:nextauction", "Creates next auction using ETS Oracle")
 subtask("auctionhouse:createauction", "Creates an auction given an existing CTAG string")
   .addParam("tag", "tag to be auctioned")
   .setAction(async (taskArgs) => {
-    [accounts, contracts, maxAuctions] = await setup();
-
+    ({ accounts, contracts } = await setup());
+    const maxAuctions = await contracts.etsAuctionHouse.maxAuctions();
     let auctionCount = await contracts.etsAuctionHouse.getActiveCount();
 
     if (ethers.toNumber(auctionCount) >= maxAuctions) {
@@ -255,7 +256,7 @@ subtask("auctionhouse:createbid", "Creates a bid on a CTAG auction")
   .setAction(async (taskArgs, hre) => {
 
     const { ethers } = hre;
-    const [accounts, contracts, maxAuctions] = await setup();
+    ({ accounts, contracts } = await setup());
 
     let auctionId;
     if (taskArgs.tag) {
@@ -298,7 +299,7 @@ subtask("auctionhouse:settleauction", "Settles a CTAG auction for a given tag, t
   .addOptionalParam("id", "Auction ID to bid on", null, types.string)
   .addParam("signer", "signer", "account2") // ETS Platform
   .setAction(async (taskArgs) => {
-    [accounts, contracts, maxAuctions] = await setup();
+    ({ accounts, contracts } = await setup());
 
     let auction;
     if (taskArgs.tag) {
@@ -390,48 +391,44 @@ async function displayAuctionDetails(auction, tag, output = 'standard') {
   }
 }
 
-var setup = async () => {
+const setup = async () => {
   const { getAccounts } = require("./utils/getAccounts");
-  const config = require("../config/config.json");
 
-  const chainId = hre.network.config.chainId;
+  // Load network configuration
+  const networkConfig = require(`../export/chainConfig/${hre.network.name}.json`);
   const accounts = await getAccounts();
 
-  const ETSAccessControlsABI = require("../abi/contracts/ETSAccessControls.sol/ETSAccessControls.json");
-  const ETSAuctionHouseABI = require("../abi/contracts/ETSAuctionHouse.sol/ETSAuctionHouse.json");
-  const ETSTokenABI = require("../abi/contracts/ETSToken.sol/ETSToken.json");
-  const ETSRelayerV1ABI = require("../abi/contracts/relayers/ETSRelayerV1.sol/ETSRelayerV1.json");
+  // ABIs and Contract addresses from network configuration
+  const ETSAccessControlsABI = networkConfig.contracts.ETSAccessControls.abi;
+  const ETSAccessControlsAddress = networkConfig.contracts.ETSAccessControls.address;
+  const ETSAuctionHouseABI = networkConfig.contracts.ETSAuctionHouse.abi;
+  const ETSAuctionHouseAddress = networkConfig.contracts.ETSAuctionHouse.address;
+  const ETSTokenABI = networkConfig.contracts.ETSToken.abi;
+  const ETSTokenAddress = networkConfig.contracts.ETSToken.address;
+  const ETSRelayerV1ABI = networkConfig.contracts.ETSRelayerV1.abi;
 
-  const ETSAccessControlsAddress = config[chainId].contracts.ETSAccessControls.address;
-  const ETSAuctionHouseAddress = config[chainId].contracts.ETSAuctionHouse.address;
-  const ETSTokenAddress = config[chainId].contracts.ETSToken.address;
-
-  const etsAccessControls = new ethers.Contract(
+  const etsAccessControls = new hre.ethers.Contract(
     ETSAccessControlsAddress,
     ETSAccessControlsABI,
     accounts.account0,
   );
-
-  const etsAuctionHouse = new ethers.Contract(
+  const etsAuctionHouse = new hre.ethers.Contract(
     ETSAuctionHouseAddress,
     ETSAuctionHouseABI,
     accounts.account0,
   );
-  const etsToken = new ethers.Contract(ETSTokenAddress, ETSTokenABI, accounts.account0);
+  const etsToken = new hre.ethers.Contract(ETSTokenAddress, ETSTokenABI, accounts.account0);
   const relayerAddress = await etsAccessControls.getRelayerAddressFromName("ETSRelayer");
-  const etsRelayer = new ethers.Contract(relayerAddress, ETSRelayerV1ABI, accounts.account0);
+  const etsRelayer = new hre.ethers.Contract(relayerAddress, ETSRelayerV1ABI, accounts.account0);
 
-  const contracts = {
-    etsToken: etsToken,
-    etsRelayer: etsRelayer,
-    etsAuctionHouse: etsAuctionHouse,
+  return {
+    accounts,
+    contracts: {
+      etsToken,
+      etsRelayer,
+      etsAuctionHouse
+    }
   };
-
-
-  let maxAuctions = await contracts.etsAuctionHouse.maxAuctions();
-  maxAuctions = ethers.toNumber(maxAuctions);
-
-  return [accounts, contracts, maxAuctions];
 }
 
 exports.setup = setup;
