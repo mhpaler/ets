@@ -38,8 +38,6 @@ import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC
 import { SafeERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { CountersUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title ETSAuctionHouse
  * @author Ethereum Tag Service <team@ets.xyz>
@@ -270,8 +268,6 @@ contract ETSAuctionHouse is
         require(_auctionExists(_auctionId), "Auction not found");
         Auction memory auction = _getAuction(_auctionId);
         if (auction.startTime > 0) {
-            console.log(block.timestamp);
-            console.log(auction.endTime);
             require(block.timestamp < auction.endTime, "Auction ended");
         }
         require(msg.value >= reservePrice, "Must send at least reservePrice");
@@ -281,8 +277,6 @@ contract ETSAuctionHouse is
 
         // Refund the last bidder, if applicable
         if (lastBidder != address(0)) {
-            console.log("lastBidder", lastBidder);
-            console.log("auction.amount", auction.amount);
             _safeTransferETHWithFallback(lastBidder, auction.amount);
         }
 
