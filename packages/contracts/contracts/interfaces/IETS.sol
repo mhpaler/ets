@@ -1,13 +1,21 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.10;
-
 /**
  * @title IETS
  * @author Ethereum Tag Service <team@ets.xyz>
  *
+ *  ███████╗████████╗███████╗
+ *  ██╔════╝╚══██╔══╝██╔════╝
+ *  █████╗     ██║   ███████╗
+ *  ██╔══╝     ██║   ╚════██║
+ *  ███████╗   ██║   ███████║`
+ *  ╚══════╝   ╚═╝   ╚══════╝
+ *
  * @notice This is the interface for the ETS.sol core contract that records ETS TaggingRecords to the blockchain.
  */
+
+pragma solidity ^0.8.10;
+
 interface IETS {
     /**
      * @notice Data structure for raw client input data.
@@ -28,22 +36,22 @@ interface IETS {
      * The TaggingRecord is the fundamental data structure of ETS and reflects "who tagged what, where and why".
      *
      * Every Tagging record has a unique Id computed from the hashed composite of targetId, recordType, tagger and
-     * publisher addresses cast as a uint256. see computeTaggingRecordId()
+     * relayer addresses cast as a uint256. see computeTaggingRecordId()
      *
-     * Given this design, a tagger who tags the same URI with the same tags and recordType via two different publishers
+     * Given this design, a tagger who tags the same URI with the same tags and recordType via two different relayers
      * would produce two TaggingRecords in ETS.
      *
      * @param tagIds Ids of CTAG token(s).
      * @param targetId Id of target being tagged.
      * @param recordType Arbitrary identifier for type of tagging record.
-     * @param publisher Address of Publisher contract that wrote tagging record.
-     * @param tagger Address of wallet that initiated tagging record via publisher.
+     * @param relayer Address of Relayer contract that wrote tagging record.
+     * @param tagger Address of wallet that initiated tagging record via relayer.
      */
     struct TaggingRecord {
         uint256[] tagIds;
         uint256 targetId;
         string recordType;
-        address publisher;
+        address relayer;
         address tagger;
     }
 
@@ -78,9 +86,9 @@ interface IETS {
      * @dev emitted when participant distribution percentages are set.
      *
      * @param platformPercentage percentage of tagging fee allocated to ETS.
-     * @param publisherPercentage percentage of tagging fee allocated to publisher of record for CTAG being used in tagging record.
+     * @param relayerPercentage percentage of tagging fee allocated to relayer of record for CTAG being used in tagging record.
      */
-    event PercentagesSet(uint256 platformPercentage, uint256 publisherPercentage);
+    event PercentagesSet(uint256 platformPercentage, uint256 relayerPercentage);
 
     /**
      * @dev emitted when a new tagging record is recorded within ETS.
@@ -112,13 +120,13 @@ interface IETS {
      *
      * Requirements:
      *
-     *   - Caller must be publisher contract.
+     *   - Caller must be relayer contract.
      *   - CTAG(s) and TargetId must exist.
      *
      * @param _tagIds Array of CTAG token Ids.
      * @param _targetId targetId of the URI being tagged. See ETSTarget.sol
      * @param _recordType Arbitrary identifier for type of tagging record.
-     * @param _tagger Address calling Publisher contract to create tagging record.
+     * @param _tagger Address calling Relayer contract to create tagging record.
      */
     function createTaggingRecord(
         uint256[] memory _tagIds,
@@ -133,23 +141,23 @@ interface IETS {
      * Combo function that accepts a tag string and returns corresponding CTAG token Id if it exists,
      * or if it doesn't exist, creates a new CTAG and then returns corresponding Id.
      *
-     * Only ETS Publisher contracts may call this function.
+     * Only ETS Relayer contracts may call this function.
      *
      * @param _tag Tag string.
      * @param _creator Address credited with creating CTAG.
      * @return tokenId Id of CTAG token.
      */
-    function getOrCreateTagId(string calldata _tag, address payable _creator)
-        external
-        payable
-        returns (uint256 tokenId);
+    function getOrCreateTagId(
+        string calldata _tag,
+        address payable _creator
+    ) external payable returns (uint256 tokenId);
 
     /**
      * @notice Create CTAG token from tag string.
      *
      * Reverts if tag exists or is invalid.
      *
-     * Only ETS Publisher contracts may call this function.
+     * Only ETS Relayer contracts may call this function.
      *
      * @param _tag Tag string.
      * @param _creator Address credited with creating CTAG.
@@ -163,10 +171,10 @@ interface IETS {
      * Like it's sister function applyTagsWithCompositeKey, records new ETS Tagging Record or appends tags to an
      * existing record if found to already exist. This function differs in that it creates new ETS target records
      * and CTAG tokens for novel targetURIs and hastag strings respectively. This function can only be called by
-     * Publisher contracts.
+     * Relayer contracts.
      *
      * @param _rawInput Raw client input data formed as TaggingRecordRawInput struct.
-     * @param _tagger Address that calls Publisher to tag a targetURI.
+     * @param _tagger Address that calls Relayer to tag a targetURI.
      */
     function applyTagsWithRawInput(TaggingRecordRawInput calldata _rawInput, address payable _tagger) external payable;
 
@@ -174,12 +182,12 @@ interface IETS {
      * @notice Apply one or more tags to a targetId using using tagging record composite key.
      *
      * Records new ETS Tagging Record to the blockchain or appends tags if Tagging Record already exists. CTAGs and
-     * targetId are created if they don't exist. Caller must be Publisher contract.
+     * targetId are created if they don't exist. Caller must be Relayer contract.
      *
      * @param _tagIds Array of CTAG token Ids.
      * @param _targetId targetId of the URI being tagged. See ETSTarget.sol
      * @param _recordType Arbitrary identifier for type of tagging record.
-     * @param _tagger Address of that calls Publisher to create tagging record.
+     * @param _tagger Address of that calls Relayer to create tagging record.
      */
     function applyTagsWithCompositeKey(
         uint256[] calldata _tagIds,
@@ -194,11 +202,12 @@ interface IETS {
      * If supplied tag strings don't have CTAGs, new ones are minted.
      *
      * @param _rawInput Raw client input data formed as TaggingRecordRawInput struct.
-     * @param _tagger Address that calls Publisher to tag a targetURI.
+     * @param _tagger Address that calls Relayer to tag a targetURI.
      */
-    function replaceTagsWithRawInput(TaggingRecordRawInput calldata _rawInput, address payable _tagger)
-        external
-        payable;
+    function replaceTagsWithRawInput(
+        TaggingRecordRawInput calldata _rawInput,
+        address payable _tagger
+    ) external payable;
 
     /**
      * @notice Replace entire tag set in tagging record using composite key for record lookup.
@@ -209,7 +218,7 @@ interface IETS {
      * @param _tagIds Array of CTAG token Ids.
      * @param _targetId targetId of the URI being tagged. See ETSTarget.sol
      * @param _recordType Arbitrary identifier for type of tagging record.
-     * @param _tagger Address of that calls Publisher to create tagging record.
+     * @param _tagger Address of that calls Relayer to create tagging record.
      */
     function replaceTagsWithCompositeKey(
         uint256[] calldata _tagIds,
@@ -222,7 +231,7 @@ interface IETS {
      * @notice Remove one or more tags from a tagging record using raw data for record lookup.
      *
      * @param _rawInput Raw client input data formed as TaggingRecordRawInput struct.
-     * @param _tagger Address that calls Publisher to tag a targetURI.
+     * @param _tagger Address that calls Relayer to tag a targetURI.
      */
     function removeTagsWithRawInput(TaggingRecordRawInput calldata _rawInput, address _tagger) external;
 
@@ -232,7 +241,7 @@ interface IETS {
      * @param _tagIds Array of CTAG token Ids.
      * @param _targetId targetId of the URI being tagged. See ETSTarget.sol
      * @param _recordType Arbitrary identifier for type of tagging record.
-     * @param _tagger Address of that calls Publisher to create tagging record.
+     * @param _tagger Address of that calls Relayer to create tagging record.
      */
     function removeTagsWithCompositeKey(
         uint256[] calldata _tagIds,
@@ -282,14 +291,14 @@ interface IETS {
      * @notice Compute a taggingRecordId from raw input.
      *
      * @param _rawInput Raw client input data formed as TaggingRecordRawInput struct.
-     * @param _publisher Address of tagging record Publisher contract.
-     * @param _tagger Address interacting with Publisher to tag content ("Tagger").
+     * @param _relayer Address of tagging record Relayer contract.
+     * @param _tagger Address interacting with Relayer to tag content ("Tagger").
      *
      * @return taggingRecordId Unique identifier for a tagging record.
      */
     function computeTaggingRecordIdFromRawInput(
         TaggingRecordRawInput calldata _rawInput,
-        address _publisher,
+        address _relayer,
         address _tagger
     ) external view returns (uint256 taggingRecordId);
 
@@ -297,19 +306,19 @@ interface IETS {
      * @notice Compute & return a taggingRecordId.
      *
      * Every TaggingRecord in ETS is mapped to by it's taggingRecordId. This Id is a composite key
-     * composed of targetId, recordType, publisher contract address and tagger address hashed and cast as a uint256.
+     * composed of targetId, recordType, relayer contract address and tagger address hashed and cast as a uint256.
      *
      * @param _targetId Id of target being tagged (see ETSTarget.sol).
      * @param _recordType Arbitrary identifier for type of tagging record.
-     * @param _publisher Address of tagging record Publisher contract.
-     * @param _tagger Address interacting with Publisher to tag content ("Tagger").
+     * @param _relayer Address of tagging record Relayer contract.
+     * @param _tagger Address interacting with Relayer to tag content ("Tagger").
      *
      * @return taggingRecordId Unique identifier for a tagging record.
      */
     function computeTaggingRecordIdFromCompositeKey(
         uint256 _targetId,
         string memory _recordType,
-        address _publisher,
+        address _relayer,
         address _tagger
     ) external pure returns (uint256 taggingRecordId);
 
@@ -317,8 +326,8 @@ interface IETS {
      * @notice Compute tagging fee for raw input and desired action.
      *
      * @param _rawInput Raw client input data formed as TaggingRecordRawInput struct.
-     * @param _publisher Address of tagging record Publisher contract.
-     * @param _tagger Address interacting with Publisher to tag content ("Tagger").
+     * @param _relayer Address of tagging record Relayer contract.
+     * @param _tagger Address interacting with Relayer to tag content ("Tagger").
      * @param _action Integer representing action to be performed according to enum TaggingAction.
      *
      * @return fee Calculated tagging fee in ETH/Matic
@@ -326,7 +335,7 @@ interface IETS {
      */
     function computeTaggingFeeFromRawInput(
         TaggingRecordRawInput memory _rawInput,
-        address _publisher,
+        address _relayer,
         address _tagger,
         TaggingAction _action
     ) external view returns (uint256 fee, uint256 tagCount);
@@ -335,8 +344,8 @@ interface IETS {
      * @notice Compute tagging fee for CTAGs, tagging record composite key and desired action.
      *
      * @param _tagIds Array of CTAG token Ids.
-     * @param _publisher Address of tagging record Publisher contract.
-     * @param _tagger Address interacting with Publisher to tag content ("Tagger").
+     * @param _relayer Address of tagging record Relayer contract.
+     * @param _tagger Address interacting with Relayer to tag content ("Tagger").
      * @param _action Integer representing action to be performed according to enum TaggingAction.
      *
      * @return fee Calculated tagging fee in ETH/Matic
@@ -346,7 +355,7 @@ interface IETS {
         uint256[] memory _tagIds,
         uint256 _targetId,
         string calldata _recordType,
-        address _publisher,
+        address _relayer,
         address _tagger,
         TaggingAction _action
     ) external view returns (uint256 fee, uint256 tagCount);
@@ -377,59 +386,47 @@ interface IETS {
      * @notice Retrieve a tagging record from it's raw input.
      *
      * @param _rawInput Raw client input data formed as TaggingRecordRawInput struct.
-     * @param _publisher Address of tagging record Publisher contract.
-     * @param _tagger Address interacting with Publisher to tag content ("Tagger").
+     * @param _relayer Address of tagging record Relayer contract.
+     * @param _tagger Address interacting with Relayer to tag content ("Tagger").
      *
      * @return tagIds CTAG token ids.
      * @return targetId TargetId that was tagged.
      * @return recordType Type of tagging record.
-     * @return publisher Address of tagging record Publisher contract.
-     * @return tagger Address interacting with Publisher to tag content ("Tagger").
+     * @return relayer Address of tagging record Relayer contract.
+     * @return tagger Address interacting with Relayer to tag content ("Tagger").
      */
     function getTaggingRecordFromRawInput(
         TaggingRecordRawInput memory _rawInput,
-        address _publisher,
+        address _relayer,
         address _tagger
     )
         external
         view
-        returns (
-            uint256[] memory tagIds,
-            uint256 targetId,
-            string memory recordType,
-            address publisher,
-            address tagger
-        );
+        returns (uint256[] memory tagIds, uint256 targetId, string memory recordType, address relayer, address tagger);
 
     /**
      * @notice Retrieve a tagging record from composite key parts.
      *
      * @param _targetId Id of target being tagged.
      * @param _recordType Arbitrary identifier for type of tagging record.
-     * @param _publisher Address of Publisher contract that wrote tagging record.
-     * @param _tagger Address of wallet that initiated tagging record via publisher.
+     * @param _relayer Address of Relayer contract that wrote tagging record.
+     * @param _tagger Address of wallet that initiated tagging record via relayer.
      *
      * @return tagIds CTAG token ids.
      * @return targetId TargetId that was tagged.
      * @return recordType Type of tagging record.
-     * @return publisher Address of tagging record Publisher contract.
-     * @return tagger Address interacting with Publisher to tag content ("Tagger").
+     * @return relayer Address of tagging record Relayer contract.
+     * @return tagger Address interacting with Relayer to tag content ("Tagger").
      */
     function getTaggingRecordFromCompositeKey(
         uint256 _targetId,
         string memory _recordType,
-        address _publisher,
+        address _relayer,
         address _tagger
     )
         external
         view
-        returns (
-            uint256[] memory tagIds,
-            uint256 targetId,
-            string memory recordType,
-            address publisher,
-            address tagger
-        );
+        returns (uint256[] memory tagIds, uint256 targetId, string memory recordType, address relayer, address tagger);
 
     /**
      * @notice Retrieve a tagging record from Id.
@@ -439,32 +436,28 @@ interface IETS {
      * @return tagIds CTAG token ids.
      * @return targetId TargetId that was tagged.
      * @return recordType Type of tagging record.
-     * @return publisher Address of tagging record Publisher contract.
-     * @return tagger Address interacting with Publisher to tag content ("Tagger").
+     * @return relayer Address of tagging record Relayer contract.
+     * @return tagger Address interacting with Relayer to tag content ("Tagger").
      */
-    function getTaggingRecordFromId(uint256 _id)
+    function getTaggingRecordFromId(
+        uint256 _id
+    )
         external
         view
-        returns (
-            uint256[] memory tagIds,
-            uint256 targetId,
-            string memory recordType,
-            address publisher,
-            address tagger
-        );
+        returns (uint256[] memory tagIds, uint256 targetId, string memory recordType, address relayer, address tagger);
 
     /**
      * @notice Check that a tagging record exists for given raw input.
      *
      * @param _rawInput Raw client input data formed as TaggingRecordRawInput struct.
-     * @param _publisher Address of tagging record Publisher contract.
-     * @param _tagger Address interacting with Publisher to tag content ("Tagger").
+     * @param _relayer Address of tagging record Relayer contract.
+     * @param _tagger Address interacting with Relayer to tag content ("Tagger").
      *
      * @return boolean; true for exists, false for not.
      */
     function taggingRecordExistsByRawInput(
         TaggingRecordRawInput memory _rawInput,
-        address _publisher,
+        address _relayer,
         address _tagger
     ) external view returns (bool);
 
@@ -473,15 +466,15 @@ interface IETS {
      *
      * @param _targetId Id of target being tagged.
      * @param _recordType Arbitrary identifier for type of tagging record.
-     * @param _publisher Address of Publisher contract that wrote tagging record.
-     * @param _tagger Address of wallet that initiated tagging record via publisher.
+     * @param _relayer Address of Relayer contract that wrote tagging record.
+     * @param _tagger Address of wallet that initiated tagging record via relayer.
      *
      * @return boolean; true for exists, false for not.
      */
     function taggingRecordExistsByCompositeKey(
         uint256 _targetId,
         string memory _recordType,
-        address _publisher,
+        address _relayer,
         address _tagger
     ) external view returns (bool);
 

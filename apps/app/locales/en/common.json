@@ -1,5 +1,6 @@
 {
   "active": "Active",
+  "added": "Added",
   "address": "Address",
   "auction": "Auction",
   "auctions": "Auctions",
@@ -7,32 +8,63 @@
   "connect-wallet": "Connect Wallet",
   "contract": "Contract",
   "copy": "Copy",
+  "create-relayer": "Create Relayer",
   "created": "Created",
   "creator": "Creator",
+  "created-tags-in-tagging-record": "Created tags in tagging records",
+  "created-tags-auction-revenue": "Created tags auction revenue",
+  "created-tags-tagging-revenue": "Created tags tagging revenue",
   "creators": "Creators",
+  "current": "current",
+  "disabled": "Disabled",
+  "enabled": "Enabled",
+  "tag": "Tag",
+  "tags": "Tags",
+  "tags-published": "Tags published",
   "date": "Date",
   "tagged-content": "Tagged content",
   "ets": "ETS",
   "etstag-id": "ETSTAG ID",
   "expires": "Expires",
+  "first-seen": "First seen",
+  "id": "Id",
+  "latest-tags": "Latest Tags",
+  "latest-tagging-records": "Latest Tagging Records",
+  "lifetime": "lifetime",
+  "lifetime-revenue": "Lifetime revenue",
+  "lifetime-tags-applied": "Lifetime tags applied",
   "matic-earned": "MATIC earned",
   "matic": "MATIC",
+  "my-dashboard": "Dashboard",
+  "name": "Name",
   "newest-tags": "Newest tags",
+  "next": "Next",
   "num": "{{count, number}}",
   "overview": "Overview",
+  "owned-tags-in-tagging-records": "Owned tags in tagging records",
   "owner": "Owner",
+  "owners": "Owners",
+  "owner-tags": "Tags owned by",
   "pending-bid": "Pending bid",
   "permalink": "Permalink",
   "playground": "Playground",
   "popular-tags": "Popular tags",
+  "prev": "Prev",
   "protocol": "Protocol",
-  "publisher": "Publisher",
-  "publishers": "Publishers",
+  "relayer": "Relayer",
+  "relayer-add-connect-wallet": "Connect wallet to create relayer",
+  "relayer-add-tags-required": "Must own tag to create relayer",
+  "relayers": "Relayers",
+  "relayer-tags": "Tags published by {{ relayer }}",
+  "relayer-tagging-records": "Tagging records published by {{ relayer }}",
   "recently-minted": "Recently minted",
   "recently-purchased": "Recently purchased",
   "recently-tagged": "Recently tagged",
+  "record-type": "Record type",
   "revenue": "Revenue",
   "share": "Share",
+  "stats": "Statistics",
+  "status": "Status",
   "tagged-count": "{{count, number}} tagged",
   "tagger": "Tagger",
   "taggers": "Taggers",
@@ -41,10 +73,65 @@
     "one": "{{count, number}} tag",
     "other": "{{count, number}} tags"
   },
-  "tags": "Tags",
-  "token-id": "Token ID",
+  "tags-created": "Tags created",
+  "tags-created-by": "Tags created by {{ creator }}",
+  "tag-tagging-records": "Tagging records that include {{tag}}",
+  "tagging-records": "Tagging records",
+  "tagging-record": "Tagging record",
+  "tagging-records-published": "Tagging records published",
+  "tagging-revenue": "Tagging revenue",
+  "tags-owned": "Tags owned {{ timeframe }}",
+  "target": "Target",
+  "target-id": "Target Id",
+  "target-uri": "Target URI",
+  "targets": "Targets",
+  "token-id": "Token Id",
   "top-creators": "Top creators",
-  "top-publishers": "Top publishers",
+  "top-relayers": "Top relayers",
   "top-taggers": "Top taggers",
-  "view-all-bids": "View all bids"
+  "view-all-bids": "View all bids",
+  "view-all": "View all {{subject}}",
+
+  "TXN": {
+    "ACTION": "Action",
+    "TYPE": {
+      "CREATE_RELAYER": "Create Relayer"
+    },
+    "STATUS": {
+      "WAIT_FOR_SIGNATURE": "Waiting for Signature",
+      "SENT": "Sent",
+      "PROCESSING": "Processing",
+      "COMPLETED": "Completed",
+      "ERROR": "Transaction Failed"
+    },
+    "VIEW_ETHERSCAN": "View on Etherscan",
+    "CONFIRM_DETAILS": "Confirm Details",
+    "OPEN_WALLET": "Open Wallet",
+    "DOUBLE_CHECK": "Double check these details before confirming in your wallet."
+  },
+
+  "FORM": {
+    "BUTTON": {
+      "CANCEL": "Cancel",
+      "SUBMIT": "Submit",
+      "NEXT": "Next",
+      "CLOSE": "Close",
+      "DONE": "Done",
+      "CONFIRM_DETAILS": "Confirm Details",
+      "OPEN_WALLET": "Open Wallet",
+      "CREATE_RELAYER": "Create Relayer"
+    },
+    "ADD_RELAYER": {
+      "TITLE": {
+        "CREATE_RELAYER": "Create New Relayer"
+      },
+      "FIELD_LABEL": {
+        "NAME": "Name"
+      },
+      "ERROR": {
+        "MIN_THREE_CHARACTERS": "The string must contain at least three characters",
+        "NAME_EXISTS": "Relayer name already exists"
+      }
+    }
+  }
 }

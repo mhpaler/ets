@@ -4,24 +4,23 @@
   "scripts": {
     "clean-graph-node": "rm -rf graph-node/data/",
     "remove-graph-node": "cd graph-node && docker-compose down && pnpm clean-graph-node",
-    "run-graph-node": "cd graph-node && pnpm clean-graph-node && docker-compose up",
+    "start-graph-node": "cd scripts && ./start-graph-node.sh",
     "prepare-local": "node scripts/generate-yaml.js --deployment localhost",
     "prepare-mumbai": "node scripts/generate-yaml.js --deployment mumbai",
+    "prepare-mumbai-stage": "node scripts/generate-yaml.js --deployment mumbai_stage",
     "codegen": "graph codegen --output-dir src/generated",
-    "graph-build": "graph build",
-    "create-local": "graph create --node http://localhost:8020/ ets/ets-local",
-    "remove-local": "graph remove --node http://localhost:8020/ ets/ets-local",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 ets/ets-local --version-label dev",
-    "deploy-mumbai": "graph deploy --product hosted-service ethereum-tag-service/ets-mumbai",
-    "ship-local": "pnpm prepare-local && pnpm codegen && pnpm remove-local && pnpm create-local && pnpm deploy-local",
-    "ship-mumbai": "pnpm prepare-mumbai && pnpm codegen && pnpm deploy-mumbai"
+    "graph-deploy-local": "node scripts/deploy.js --deployment localhost",
+    "graph-deploy-mumbai": "node scripts/deploy.js --deployment mumbai",
+    "graph-deploy-mumbai-stage": "node scripts/deploy.js --deployment mumbai_stage"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "^0.33.0",
-    "@graphprotocol/graph-ts": "^0.27.0"
+    "@graphprotocol/graph-cli": "^0.61.0",
+    "@graphprotocol/graph-ts": "^0.31.0"
   },
   "devDependencies": {
-    "fs-extra": "^10.1.0",
-    "handlebars": "^4.7.7"
+    "axios": "^1.6.3",
+    "fs-extra": "^11.1.1",
+    "handlebars": "^4.7.7",
+    "minimist": "^1.2.8"
   }
 }

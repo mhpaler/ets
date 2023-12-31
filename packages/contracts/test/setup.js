@@ -1,22 +1,22 @@
-const {ethers, upgrades, artifacts} = require("hardhat");
-const {utils} = require("ethers");
+const { ethers, upgrades, artifacts } = require("hardhat");
 const initSettings = {
   // Token
   TAG_MIN_STRING_LENGTH: 2,
   TAG_MAX_STRING_LENGTH: 32,
   OWNERSHIP_TERM_LENGTH: 730,
   // Auction
+  MAX_AUCTIONS: 1,
   TIME_BUFFER: 600, // 600 secs / 10 minutes
-  RESERVE_PRICE: 200, // 200 WEI
+  RESERVE_PRICE: "1", // 1 MATIC
   MIN_INCREMENT_BID_PERCENTAGE: 5,
   DURATION: 30 * 60, // 30 minutes
-  PUBLISHER_PERCENTAGE: 20,
+  RELAYER_PERCENTAGE: 20,
   CREATOR_PERCENTAGE: 40,
   PLATFORM_PERCENTAGE: 40,
   // ETS core (Tagging records)
   TAGGING_FEE: "0.1", // .1 MATIC
   TAGGING_FEE_PLATFORM_PERCENTAGE: 20,
-  TAGGING_FEE_PUBLISHER_PERCENTAGE: 30,
+  TAGGING_FEE_RELAYER_PERCENTAGE: 30,
 };
 
 async function getAccounts() {
@@ -34,16 +34,15 @@ async function getAccounts() {
 }
 
 async function getArtifacts() {
-  const justTheFacts = {
+  const allArtifacts = {
     ETSAccessControls: artifacts.readArtifactSync("ETSAccessControls"),
     ETSToken: artifacts.readArtifactSync("ETSToken"),
     ETSTarget: artifacts.readArtifactSync("ETSTarget"),
     ETSEnrichTarget: artifacts.readArtifactSync("ETSEnrichTarget"),
     ETSAuctionHouse: artifacts.readArtifactSync("ETSAuctionHouse"),
     ETS: artifacts.readArtifactSync("ETS"),
-    ETSPublisherV1: artifacts.readArtifactSync("ETSPublisherV1"),
-    ETSPublisherFactory: artifacts.readArtifactSync("ETSPublisherFactory"),
-    ETSPublisher: artifacts.readArtifactSync("ETSPublisher"),
+    ETSRelayerV1: artifacts.readArtifactSync("ETSRelayerV1"),
+    ETSRelayerFactory: artifacts.readArtifactSync("ETSRelayerFactory"),
 
     /// .sol test contracts.
     ETSAccessControlsUpgrade: artifacts.readArtifactSync("ETSAccessControlsUpgrade"),
@@ -53,7 +52,7 @@ async function getArtifacts() {
     ETSTargetUpgrade: artifacts.readArtifactSync("ETSTargetUpgrade"),
     ETSUpgrade: artifacts.readArtifactSync("ETSUpgrade"),
   };
-  return justTheFacts;
+  return allArtifacts;
 }
 
 async function getFactories() {
@@ -64,9 +63,8 @@ async function getFactories() {
     ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
     ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
     ETS: await ethers.getContractFactory("ETS"),
-    ETSPublisherV1: await ethers.getContractFactory("ETSPublisherV1"),
-    ETSPublisherFactory: await ethers.getContractFactory("ETSPublisherFactory"),
-    ETSPublisher: await ethers.getContractFactory("ETSPublisher"),
+    ETSRelayerV1: await ethers.getContractFactory("ETSRelayerV1"),
+    ETSRelayerFactory: await ethers.getContractFactory("ETSRelayerFactory"),
 
     /// .sol test contracts.
     WMATIC: await ethers.getContractFactory("WMATIC"),
@@ -76,6 +74,7 @@ async function getFactories() {
     ETSEnrichTargetUpgrade: await ethers.getContractFactory("ETSEnrichTargetUpgrade"),
     ETSTargetUpgrade: await ethers.getContractFactory("ETSTargetUpgrade"),
     ETSUpgrade: await ethers.getContractFactory("ETSUpgrade"),
+    ETSRelayerV2test: await ethers.getContractFactory("ETSRelayerV2test"),
   };
   return allFactories;
 }
@@ -85,116 +84,103 @@ function getInitSettings() {
 }
 
 async function setup() {
-  const factories = {
-    WMATIC: await ethers.getContractFactory("WMATIC"),
-    ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
-    ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
-    ETSToken: await ethers.getContractFactory("ETSToken"),
-    ETSTarget: await ethers.getContractFactory("ETSTarget"),
-    ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
-    ETS: await ethers.getContractFactory("ETS"),
-    ETSPublisherV1: await ethers.getContractFactory("ETSPublisherV1"),
-    ETSPublisherFactory: await ethers.getContractFactory("ETSPublisherFactory"),
-    ETSPublisher: await ethers.getContractFactory("ETSPublisher"),
-  };
 
-  // ============ SETUP TEST ACCOUNTS ============
+  const factories = await getFactories();
+  const accounts = await getAccounts();
 
-  const namedAccounts = await ethers.getNamedSigners();
-  const unnamedAccounts = await ethers.getUnnamedSigners();
-  const accounts = {
-    ETSAdmin: namedAccounts["ETSAdmin"],
-    ETSPlatform: namedAccounts["ETSPlatform"],
-    Buyer: unnamedAccounts[0],
-    RandomOne: unnamedAccounts[1],
-    RandomTwo: unnamedAccounts[2],
-    Creator: unnamedAccounts[3],
-  };
+  await network.provider.send("evm_setAutomine", [true]);
 
   // ============ DEPLOY CONTRACTS ============
 
   const WMATIC = await factories.WMATIC.deploy();
+  await WMATIC.waitForDeployment();
+  const WMATICAddress = await WMATIC.getAddress();
+
   const ETSAccessControls = await upgrades.deployProxy(factories.ETSAccessControls, [accounts.ETSPlatform.address], {
     kind: "uups",
   });
+  await ETSAccessControls.waitForDeployment();
+  const ETSAccessControlsAddress = await ETSAccessControls.getAddress();
 
   const ETSToken = await upgrades.deployProxy(
     factories.ETSToken,
     [
-      ETSAccessControls.address,
+      ETSAccessControlsAddress,
       initSettings.TAG_MIN_STRING_LENGTH,
       initSettings.TAG_MAX_STRING_LENGTH,
       initSettings.OWNERSHIP_TERM_LENGTH,
     ],
-    {kind: "uups"},
+    { kind: "uups" },
   );
+  await ETSToken.waitForDeployment();
+  const ETSTokenAddress = await ETSToken.getAddress();
 
   const ETSAuctionHouse = await upgrades.deployProxy(
     factories.ETSAuctionHouse,
     [
-      ETSToken.address,
-      ETSAccessControls.address,
-      WMATIC.address,
+      ETSTokenAddress,
+      ETSAccessControlsAddress,
+      WMATICAddress,
+      initSettings.MAX_AUCTIONS,
       initSettings.TIME_BUFFER,
-      initSettings.RESERVE_PRICE,
+      ethers.parseUnits(initSettings.RESERVE_PRICE, "ether"),
       initSettings.MIN_INCREMENT_BID_PERCENTAGE,
       initSettings.DURATION,
-      initSettings.PUBLISHER_PERCENTAGE,
+      initSettings.RELAYER_PERCENTAGE,
       initSettings.PLATFORM_PERCENTAGE,
     ],
-    {kind: "uups"},
+    { kind: "uups" },
   );
+  await ETSAuctionHouse.waitForDeployment();
+  const ETSAuctionHouseAddress = await ETSAuctionHouse.getAddress();
 
-  const ETSTarget = await upgrades.deployProxy(factories.ETSTarget, [ETSAccessControls.address], {kind: "uups"});
+  const ETSTarget = await upgrades.deployProxy(factories.ETSTarget, [ETSAccessControlsAddress], { kind: "uups" });
+  await ETSTarget.waitForDeployment();
+  const ETSTargetAddress = await ETSTarget.getAddress();
 
   const ETSEnrichTarget = await upgrades.deployProxy(
     factories.ETSEnrichTarget,
-    [ETSAccessControls.address, ETSTarget.address],
+    [ETSAccessControlsAddress, ETSTargetAddress],
     {
       kind: "uups",
     },
   );
+  await ETSEnrichTarget.waitForDeployment();
+  const ETSEnrichTargetAddress = await ETSEnrichTarget.getAddress();
 
   const ETS = await upgrades.deployProxy(
     factories.ETS,
     [
-      ETSAccessControls.address,
-      ETSToken.address,
-      ETSTarget.address,
-      utils.parseEther(initSettings.TAGGING_FEE),
+      ETSAccessControlsAddress,
+      ETSTokenAddress,
+      ETSTargetAddress,
+      ethers.parseUnits(initSettings.TAGGING_FEE, "ether"),
       initSettings.TAGGING_FEE_PLATFORM_PERCENTAGE,
-      initSettings.TAGGING_FEE_PUBLISHER_PERCENTAGE,
+      initSettings.TAGGING_FEE_RELAYER_PERCENTAGE,
     ],
     {
       kind: "uups",
     },
   );
+  await ETS.waitForDeployment();
+  const ETSAddress = await ETS.getAddress();
 
-  const ETSPublisherFactory = await upgrades.deployProxy(
-    factories.ETSPublisherFactory,
-    [ETSAccessControls.address, ETS.address, ETSToken.address, ETSTarget.address],
-    {
-      kind: "uups",
-    },
+  // Deploy the relayer logic contract.
+  // We deploy with proxy with no arguments because factory will supply them.
+  const ETSRelayerImplementation = await factories.ETSRelayerV1.deploy();
+  await ETSRelayerImplementation.waitForDeployment();
+  const ETSRelayerImplementationAddress = await ETSRelayerImplementation.getAddress();
+
+  // Deploy relayer factory, which will deploy the above implementation as upgradable proxies.
+  const ETSRelayerFactory = await factories.ETSRelayerFactory.deploy(
+    ETSRelayerImplementationAddress,
+    ETSAccessControlsAddress,
+    ETSAddress,
+    ETSTokenAddress,
+    ETSTargetAddress,
   );
-
-  // Deploy a Publisher contract with accounts.Creator as the creator/deployer and accounts.RandomTwo as the owner
-  // This will simulate a third-party deploying their own Target Tagger.
-  const ETSPublisher = await factories.ETSPublisher.deploy(
-    ETS.address,
-    ETSToken.address,
-    ETSTarget.address,
-    accounts.Creator.address,
-    accounts.RandomTwo.address,
-  );
-
-  // Add a test publisher via PublisherFactory. This makes tests really slow.
-  // So this process is only tested in ETSPublisherFactory.test.js. Otherwise,
-  // Manually add examples/ETSPublisher contract via ETSAccessControls.addPublisher() where needed.
-  // await ETSPublisherFactory.connect(accounts.RandomOne).addPublisherV1("ETS Test Publisher");
-  // publisherAddress = await ETSAccessControls.getPublisherAddressFromName("ETS Test Publisher");
-  // etsPublisherV1ABI = require("../abi/contracts/publishers/ETSPublisherV1.sol/ETSPublisherV1.json");
-  // ETSPublisher = new ethers.Contract(publisherAddress, etsPublisherV1ABI, accounts.RandomOne);
+  await ETSRelayerFactory.waitForDeployment();
+  const ETSRelayerFactoryAddress = await ETSRelayerFactory.getAddress();
 
   const contracts = {
     WMATIC: WMATIC,
@@ -204,27 +190,43 @@ async function setup() {
     ETSTarget: ETSTarget,
     ETSEnrichTarget: ETSEnrichTarget,
     ETS: ETS,
-    ETSPublisherFactory: ETSPublisherFactory,
-    ETSPublisher: ETSPublisher,
+    ETSRelayerFactory: ETSRelayerFactory,
+    ETSRelayerImplementation: ETSRelayerImplementation,
   };
 
   // ============ GRANT ROLES & APPROVALS ============
 
-  // Grant PUBLISHER_ADMIN role to ETSPublisherFactory so it can deploy publisher contracts.
-  await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), ETSPublisherFactory.address);
+  // Allows relayer admin role to grant relayer factory role.
+  await ETSAccessControls.setRoleAdmin(await ETSAccessControls.RELAYER_FACTORY_ROLE(), await ETSAccessControls.RELAYER_ADMIN_ROLE());
 
-  await ETSAccessControls.grantRole(await ETSAccessControls.SMART_CONTRACT_ROLE(), accounts.ETSAdmin.address, {
-    from: accounts.ETSAdmin.address,
-  });
+  // Allows relayer factory role to grant relayer role.
+  await ETSAccessControls.setRoleAdmin(await ETSAccessControls.RELAYER_ROLE(), await ETSAccessControls.RELAYER_FACTORY_ROLE());
 
-  await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(ETSEnrichTarget.address);
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), accounts.ETSAdmin.address);
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), accounts.ETSPlatform.address);
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), ETSAccessControlsAddress);
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), ETSTokenAddress);
+
+  // Set auction oracle to platform just for testing.
+  await ETSAccessControls.grantRole(await ETSAccessControls.AUCTION_ORACLE_ROLE(), accounts.ETSPlatform.address);
+  await ETSAccessControls.grantRole(await ETSAccessControls.SMART_CONTRACT_ROLE(), accounts.ETSAdmin.address);
+
+  await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(ETSEnrichTargetAddress);
 
   // Approve auction house contract to move tokens owned by platform.
-  await ETSToken.connect(accounts.ETSPlatform).setApprovalForAll(ETSAuctionHouse.address, true);
+  await ETSToken.connect(accounts.ETSPlatform).setApprovalForAll(ETSAuctionHouseAddress, true);
 
   // Set ETS Core on ETSToken.
-  await ETSToken.connect(accounts.ETSPlatform).setETSCore(ETS.address);
+  await ETSToken.connect(accounts.ETSPlatform).setETSCore(ETSAddress);
 
+  // Grant RELAYER_FACTORY_ROLE to ETSRelayerFactory so it can deploy relayer contracts.
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_FACTORY_ROLE(), ETSRelayerFactoryAddress);
+
+  // Add a relayer proxy for use in tests. Note: ETSPlatform not required to own CTAG to add relayer.
+  await ETSRelayerFactory.connect(accounts.ETSPlatform).addRelayer("ETSRelayer");
+  relayerAddress = await ETSAccessControls.getRelayerAddressFromName("ETSRelayer");
+  etsRelayerV1ABI = require("../abi/contracts/relayers/ETSRelayerV1.sol/ETSRelayerV1.json");
+  contracts.ETSRelayer = new ethers.Contract(relayerAddress, etsRelayerV1ABI, accounts.RandomOne);
   return [accounts, contracts, initSettings];
 }
 

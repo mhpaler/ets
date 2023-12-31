@@ -1,9 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.10;
 
 /**
  * @title IETSTarget
  * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ *  ███████╗████████╗███████╗
+ *  ██╔════╝╚══██╔══╝██╔════╝
+ *  █████╗     ██║   ███████╗
+ *  ██╔══╝     ██║   ╚════██║
+ *  ███████╗   ██║   ███████║`
+ *  ╚══════╝   ╚═╝   ╚══════╝
  *
  * @notice This is the standard interface for the core ETSTarget.sol contract. It includes both public
  * and administration functions.
@@ -25,6 +31,9 @@ pragma solidity ^0.8.10;
  * One the thing to keep in mind with URIs & ETS Targets is that differently shaped URIs can sometimes point to the same
  * resource. The effect of that is that different Target IDs in ETS can similarly point to the same resource.
  */
+
+pragma solidity ^0.8.10;
+
 interface IETSTarget {
     /**
      * @notice Data structure for an ETS Target.

@@ -1,6 +1,7 @@
+//import "hardhat-ethernal";
+import "@typechain/hardhat";
+import {HardhatUserConfig} from "hardhat/types";
 import "hardhat-deploy";
-import "hardhat-ethernal";
-// import '@typechain/hardhat';
 import "solidity-docgen";
 import "solidity-coverage";
 import "hardhat-abi-exporter";
@@ -10,13 +11,13 @@ import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-truffle5";
 import "@nomiclabs/hardhat-etherscan";
 import "@openzeppelin/hardhat-upgrades";
+import "@nomicfoundation/hardhat-chai-matchers";
 
 import {resolve} from "path";
 import {config as dotenvConfig} from "dotenv";
-import {HttpNetworkAccountsUserConfig} from "hardhat/types";
-import {HardhatUserConfig} from "hardhat/types";
+//import {HttpNetworkAccountsUserConfig} from "hardhat/types";
 
-import "./tasks/";
+import "./tasks";
 
 dotenvConfig({path: resolve(__dirname, "../../.env")});
 
@@ -28,6 +29,13 @@ const mnemonic = {
 const config: HardhatUserConfig = {
   networks: {
     hardhat: {
+      mining: {
+        auto: false,
+        interval: 2000,
+        mempool: {
+          order: "fifo",
+        },
+      },
       accounts: {
         mnemonic: mnemonic.local,
       },
@@ -41,6 +49,16 @@ const config: HardhatUserConfig = {
       chainId: 31337,
     },
     mumbai: {
+      url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_MUMBAI}`,
+      //url: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      chainId: 80001,
+      accounts: {
+        mnemonic: mnemonic.mumbai,
+      },
+      gas: 2100000,
+      gasPrice: 8000000000,
+    },
+    mumbai_stage: {
       url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_MUMBAI}`,
       //url: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 80001,
@@ -64,7 +82,7 @@ const config: HardhatUserConfig = {
     apiKey: process.env.ETHERSCAN_API_KEY,
   },
   docgen: {
-    outputDir: "../../docs/backend-api",
+    outputDir: "docs",
     pages: "files",
     templates: "./templates",
     exclude: ["mocks", "test", "utils"],
@@ -115,14 +133,14 @@ const config: HardhatUserConfig = {
       },
     ],
   },
-  ethernal: {
-    disableSync: false,
-    disableTrace: true,
-    workspace: process.env.ETHERNAL_WORKSPACE ? process.env.ETHERNAL_WORKSPACE : undefined,
-    uploadAst: false,
-    disabled: process.env.ETHERNAL_DISABLED == "true" ? true : false,
-    resetOnStart: process.env.ETHERNAL_WORKSPACE ? process.env.ETHERNAL_WORKSPACE : undefined,
-  },
+  //  ethernal: {
+  //    disableSync: false,
+  //    disableTrace: true,
+  //    workspace: process.env.ETHERNAL_WORKSPACE ? process.env.ETHERNAL_WORKSPACE : undefined,
+  //    uploadAst: false,
+  //    disabled: process.env.ETHERNAL_DISABLED == "true" ? true : false,
+  //    resetOnStart: process.env.ETHERNAL_WORKSPACE ? process.env.ETHERNAL_WORKSPACE : undefined,
+  //  },
 };
 
 export default config;

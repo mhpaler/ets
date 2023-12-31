@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: ETSAccessControls
-    network: {{network}}
+    network: {{name}}
     source:
-      address: "{{contracts.ETSAccessControls.address}}"
+      address: "{{config.contracts.ETSAccessControls.address}}"
       abi: ETSAccessControls
-      startBlock: {{contracts.ETSAccessControls.deploymentBlock}}
+      startBlock: {{upgradesConfig.contracts.ETSAccessControls.deploymentBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -17,17 +17,17 @@ dataSources:
       entities:
         - Administrator
         - Platform
-        - Publisher
-        - PublisherAdmin      
+        - Relayer
+        - RelayerAdmin
       abis:
         - name: UUPSUpgradeable
-          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol/UUPSUpgradeable.json
+          file: {{openzeppelin.UUPSUpgradeable}}
         - name: Initializable
-          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol/Initializable.json
+          file: {{openzeppelin.Initializable}}
         - name: ETSAccessControls
-          file: ./../contracts/abi/contracts/ETSAccessControls.sol/ETSAccessControls.json
-        - name: ETSPublisherV1
-          file: ./../contracts/abi/contracts/publishers/ETSPublisherV1.sol/ETSPublisherV1.json
+          file: {{abis.ETSAccessControls}}
+        - name: ETSRelayerV1
+          file: {{abis.ETSRelayerV1}}
       eventHandlers:
         - event: Initialized(uint8)
           handler: handleInitialized
@@ -35,21 +35,21 @@ dataSources:
           handler: handleUpgraded
         - event: PlatformSet(address,address)
           handler: handlePlatformSet
-        - event: PublisherAdded(address,bool)
-          handler: handlePublisherAdded
-        - event: PublisherPauseToggled(address)
-          handler: handlePublisherToggled
+        - event: RelayerAdded(address)
+          handler: handleRelayerAdded
+        - event: RelayerLockToggled(address)
+          handler: handleRelayerToggled
         - event: RoleGranted(indexed bytes32,indexed address,indexed address)
           handler: handleRoleGranted
         - event: RoleRevoked(indexed bytes32,indexed address,indexed address)
           handler: handleRoleRevoked
   - kind: ethereum/contract
     name: ETSToken
-    network: {{network}}
+    network: {{name}}
     source:
-      address: "{{contracts.ETSToken.address}}"
+      address: "{{config.contracts.ETSToken.address}}"
       abi: ETSToken
-      startBlock: {{contracts.ETSToken.deploymentBlock}}
+      startBlock: {{upgradesConfig.contracts.ETSToken.deploymentBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -59,11 +59,11 @@ dataSources:
         - Transfer
       abis:
         - name: UUPSUpgradeable
-          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol/UUPSUpgradeable.json
+          file: {{openzeppelin.UUPSUpgradeable}}
         - name: Initializable
-          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol/Initializable.json
+          file: {{openzeppelin.Initializable}}
         - name: ETSToken
-          file: ./../contracts/abi/contracts/ETSToken.sol/ETSToken.json
+          file: {{abis.ETSToken}}
       eventHandlers:
         - event: Initialized(uint8)
           handler: handleInitialized
@@ -93,11 +93,11 @@ dataSources:
           handler: handleTransfer
   - kind: ethereum/contract
     name: ETSTarget
-    network: {{network}}
+    network: {{name}}
     source:
-      address: "{{contracts.ETSTarget.address}}"
+      address: "{{config.contracts.ETSTarget.address}}"
       abi: ETSTarget
-      startBlock: {{contracts.ETSTarget.deploymentBlock}}
+      startBlock: {{upgradesConfig.contracts.ETSTarget.deploymentBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -107,11 +107,11 @@ dataSources:
         - TargetMiscellaneous
       abis:
         - name: UUPSUpgradeable
-          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol/UUPSUpgradeable.json
+          file: {{openzeppelin.UUPSUpgradeable}}
         - name: Initializable
-          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol/Initializable.json
+          file: {{openzeppelin.Initializable}}
         - name: ETSTarget
-          file: ./../contracts/abi/contracts/ETSTarget.sol/ETSTarget.json
+          file: {{abis.ETSTarget}}
       eventHandlers:
         - event: Initialized(uint8)
           handler: handleInitialized
@@ -127,11 +127,11 @@ dataSources:
           handler: handleTargetUpdated
   - kind: ethereum/contract
     name: ETS
-    network: {{network}}
+    network: {{name}}
     source:
-      address: "{{contracts.ETS.address}}"
+      address: "{{config.contracts.ETS.address}}"
       abi: ETS
-      startBlock: {{contracts.ETS.deploymentBlock}}
+      startBlock: {{upgradesConfig.contracts.ETS.deploymentBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -141,17 +141,17 @@ dataSources:
         - TaggingRecord
       abis:
         - name: UUPSUpgradeable
-          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol/UUPSUpgradeable.json
+          file: {{openzeppelin.UUPSUpgradeable}}
         - name: Initializable
-          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol/Initializable.json
+          file: {{openzeppelin.Initializable}}
         - name: ETSAccessControls
-          file: ./../contracts/abi/contracts/ETSAccessControls.sol/ETSAccessControls.json
+          file: {{abis.ETSAccessControls}}
         - name: ETSToken
-          file: ./../contracts/abi/contracts/ETSToken.sol/ETSToken.json
+          file: {{abis.ETSToken}}
         - name: ETSTarget
-          file: ./../contracts/abi/contracts/ETSTarget.sol/ETSTarget.json
+          file: {{abis.ETSTarget}}
         - name: ETS
-          file: ./../contracts/abi/contracts/ETS.sol/ETS.json
+          file: {{abis.ETS}}
       eventHandlers:
         - event: Initialized(uint8)
           handler: handleInitialized
@@ -169,32 +169,82 @@ dataSources:
           handler: handleTaggingRecordUpdated
         - event: FundsWithdrawn(indexed address,uint256)
           handler: handleFundsWithdrawn
+  - kind: ethereum/contract
+    name: ETSAuctionHouse
+    network: {{name}}
+    source:
+      address: "{{config.contracts.ETSAuctionHouse.address}}"
+      abi: ETSAuctionHouse
+      startBlock: {{upgradesConfig.contracts.ETSAuctionHouse.deploymentBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/ETSAuctionHouse.ts
+      entities:
+        - Bid
+        - Auction
+        - Owner
+      abis:
+        - name: UUPSUpgradeable
+          file: {{openzeppelin.UUPSUpgradeable}}
+        - name: ETSAccessControls
+          file: {{abis.ETSAccessControls}}
+        - name: ETSToken
+          file: {{abis.ETSToken}}
+        - name: ETSAuctionHouse
+          file: {{abis.ETSAuctionHouse}}
+      eventHandlers:
+        - event: AuctionsMaxSet(uint256)
+          handler: handleAuctionsMaxSet
+        - event: AuctionDurationSet(uint256)
+          handler: handleAuctionDurationSet
+        - event: AuctionMinBidIncrementPercentageSet(uint8)
+          handler: handleAuctionMinBidIncrementPercentageSet
+        - event: AuctionReservePriceSet(uint256)
+          handler: handleAuctionReservePriceSet
+        - event: AuctionTimeBufferSet(uint256)
+          handler: handleAuctionTimeBufferSet
+        - event: AuctionProceedPercentagesSet(uint256,uint256,uint256)
+          handler: handleAuctionProceedPercentagesSet
+        - event: RequestCreateAuction()
+          handler: handleRequestCreateAuction
+        - event: AuctionCreated(indexed uint256,indexed uint256,uint256)
+          handler: handleAuctionCreated
+        - event: AuctionBid(indexed uint256,address,uint256,bool)
+          handler: handleAuctionBid
+        - event: AuctionExtended(indexed uint256,uint256)
+          handler: handleAuctionExtended
+        - event: AuctionSettled(indexed uint256)
+          handler: handleAuctionSettled
+        - event: AuctionProceedsWithdrawn(indexed address,uint256)
+          handler: handleAuctionProceedsWithdrawn
 
 templates:
-  - name: ETSPublisherV1
+  - name: ETSRelayerV1
     kind: ethereum/contract
-    network: {{network}}
+    network: {{name}}
     source:
-      abi: ETSPublisherV1
+      abi: ETSRelayerV1
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
       language: wasm/assemblyscript
-      file: ./src/mappings/ETSPublisherV1.ts
+      file: ./src/mappings/ETSRelayerV1.ts
       entities:
-        - Publisher
+        - Relayer
       abis:
-        - name: ETSPublisherV1
-          file: ./../contracts/abi/contracts/publishers/ETSPublisherV1.sol/ETSPublisherV1.json
+        - name: ETSRelayerV1
+          file: {{abis.ETSRelayerV1}}
         - name: Ownable
-          file: ./../contracts/abi/@openzeppelin/contracts/access/Ownable.sol/Ownable.json
+          file: {{openzeppelin.Ownable}}
         - name: Pausable
-          file: ./../contracts/abi/@openzeppelin/contracts/security/Pausable.sol/Pausable.json
+          file: {{openzeppelin.Pausable}}
       eventHandlers:
-        - event: PublisherPauseToggledByOwner(address)
-          handler: handlePublisherPauseToggledByOwner
-        - event: PublisherOwnerChanged(address)
-          handler: handlePublisherOwnerChanged
+        - event: RelayerPauseToggledByOwner(address)
+          handler: handleRelayerPauseToggledByOwner
+        - event: RelayerOwnerChanged(address)
+          handler: handleRelayerOwnerChanged
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleOwnershipTransferred
         - event: Paused(address)

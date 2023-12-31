@@ -31,6 +31,7 @@ yarn-error.log*
 
 node_modules
 packages/**/data
+packages/*/dist
 packages/*/node_modules
 packages/.pnpm-debug.log
 
@@ -38,8 +39,11 @@ packages/.pnpm-debug.log
 packages/contracts*/*.txt
 packages/contracts*/cache*
 packages/contracts*/artifacts/
-packages/contracts*/deployments/
-packages/contracts*/.openzeppelin/
+packages/contracts*/deployments/localhost/
+packages/contracts*/export/chainConfig/localhost.json
+packages/contracts*/export/upgradeConfig/localhost.json
+#packages/contracts*/.openzeppelin/
+packages/contracts/docs
 
 # subgraph
 packages/subgraph/subgraph.yaml
@@ -67,3 +71,6 @@ apps/app/artifacts/@openzeppelin/*
 apps/app/artifacts/build-info/*
 apps/app/artifacts/hardhat/*
 apps/app/artifacts/**/*.dbg.json
+
+apps/oracle/.env
+apps/oracle/.env

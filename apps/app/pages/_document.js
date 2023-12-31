@@ -1,5 +1,5 @@
 import Document, { Html, Head, Main, NextScript } from 'next/document';
-import { classNames } from '../utils/classNames';
+import { classNames } from '@app/utils/classNames';
 
 export default class MyDocument extends Document {
   render() {

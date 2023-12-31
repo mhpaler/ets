@@ -14,39 +14,6 @@ enum BlinkChainAssetType {
   UNKNOWN
 }
 
-#interface TargetTypeInterface {
-#  id: ID!
-#  typeName: TargetType!
-#}
-#
-#type TargetTypeMisc implements TargetTypeInterface @entity {
-#  id: ID!
-#  typeName: TargetType!
-#}
-#
-#type TargetTypeBlink implements TargetTypeInterface @entity {
-#  "Id of target"
-#  id: ID!
-#
-#  "String identifier for TargetType."
-#  typeName: TargetType!
-#
-#  "The value of the chainName property MUST refer to a specific Blockchain or DLT type. Possible examples include bitcoin, ethereum, or hyperledger-indy."
-#  chainName: String!
-#
-#  "The value of the chainNetwork property MUST refer to a specific operational network of the preceding chainName. Possible examples include mainnet, testnet, or ropsten."
-#  chainNetwork: String!
-#
-#  "The value of the chainAssetId property MUST refer to a specific asset from the preceding chainNetwork from the preceding chainName. chainAssetId SHALL be well defined by a specific Blink chain specification in order to reference available assets. Assets MAY include blocks, transactions, smart contracts, or other available assets depending on the DLT. The necessary information needed to look up a given asset MAY include multiple asset ID's, as seperated by a :. A possible example includes abc123:321cba if looking up transaction 321cba on block abc123."
-#  chainAssetId: String!
-#
-#  "Type of chain asset, taken from BlinkChainAssetType enum"
-#  chainAssetType: BlinkChainAssetType!
-#
-#  "Arbitrary additional identifier for extending chainAssetType. For example Lens Publication"
-#  chainAssetSubtype: String!
-#}
-
 type Target @entity {
   "Id of Target"
   id: ID!
@@ -93,8 +60,8 @@ type Tag @entity {
   "Wallet credited with creating CTAG."
   creator: Creator!
 
-  "Contract address of Publisher that facilitated CTAG creation."
-  publisher: Publisher!
+  "Contract address of Relayer that facilitated CTAG creation."
+  relayer: Relayer!
 
   "Creation date."
   timestamp: BigInt!
@@ -114,8 +81,8 @@ type Tag @entity {
   "Total owner revenue from tagging fees for CTAG. Aggregates across all owners."
   ownerRevenue: BigInt!
 
-  "Total original Publisher publisher revenue from tagging fees for CTAG."
-  publisherRevenue: BigInt!
+  "Total original Relayer relayer revenue from tagging fees for CTAG."
+  relayerRevenue: BigInt!
 
   "Total protocol revenue from tagging fees for CTAG."
   protocolRevenue: BigInt!
@@ -143,8 +110,8 @@ type TaggingRecord @entity {
   "Tagger (wallet address that triggered tagging record) entity relationship."
   tagger: Tagger!
 
-  "Publisher (address of contract that facilitated tagging record creation) entity relationship."
-  publisher: Publisher!
+  "Relayer (address of contract that facilitated tagging record creation) entity relationship."
+  relayer: Relayer!
 
   "Tagging record creation date."
   timestamp: BigInt!
@@ -160,6 +127,9 @@ type Platform @entity {
   address: String!
   firstSeen: BigInt!
 
+  "Total count of targets on ETS."
+  targetCount: BigInt!
+
   "Total count of CTAGs created on ETS."
   tagsCount: BigInt!
 
@@ -171,42 +141,57 @@ type Platform @entity {
 
   "Total revenue generated from tagging fees."
   taggingFeesRevenue: BigInt!
+
+  "Total count of currently active (no paused) Relayers."
+  relayerCountActive: BigInt!
+
+  "Total count of ETS Relayers (paused & unpaused)."
+  relayerCountLifetime: BigInt!
+
+  "Total count of unique tagger addresses."
+  taggerCount: BigInt!
+
+  "Total count of unique owner addresses."
+  ownerCount: BigInt!
+
+  "Total count of creator addresses."
+  creatorCount: BigInt!
 }
 
-type PublisherAdmin @entity {
+type RelayerAdmin @entity {
   id: ID!
   firstSeen: BigInt!
 }
 
-type Publisher @entity {
-  "Address of Publisher contract."
+type Relayer @entity {
+  "Address of Relayer contract."
   id: ID!
 
-  "Name of Publisher."
+  "Name of Relayer."
   name: String!
 
-  "Publisher contract is paused."
-  pausedByProtocol: Boolean!
+  "Relayer contract is locked by Protocol."
+  lockedByProtocol: Boolean!
 
-  "Publisher contract paused by owner"
+  "Relayer contract paused by owner"
   pausedByOwner: Boolean
 
-  "Owner of publisher contract"
+  "Owner of relayer contract"
   owner: String!
 
-  "Initial creator of publisher contract"
+  "Initial creator of relayer contract"
   creator: String!
 
-  "Publisher is a protocol address for testing purposes."
+  "Relayer is a protocol address for testing purposes."
   admin: Boolean!
 
-  "Publisher creation date."
+  "Relayer creation date."
   firstSeen: BigInt!
 
-  "Total number of CTAGs published by Publisher."
+  "Total number of CTAGs published by Relayer."
   tagsPublished: BigInt!
 
-  "Total number of Tagging Records published by Publisher."
+  "Total number of Tagging Records published by Relayer."
   taggingRecordsPublished: BigInt!
 
   "Total lifetime Tagging Record interactions."
@@ -218,23 +203,23 @@ type Publisher @entity {
   "Total lifetime count of tags removed from tagging records."
   tagsRemoved: BigInt!
 
-  "Total revenue generated from CTAG auctions for tags published by Publisher."
+  "Total revenue generated from CTAG auctions for tags published by Relayer."
   publishedTagsAuctionRevenue: BigInt!
 
-  "Total number of tags published by Publisher added to Tagging Records"
+  "Total number of tags published by Relayer added to Tagging Records"
   publishedTagsAddedToTaggingRecords: BigInt!
 
-  "Total number of tags published by Publisher removed from Tagging Records"
+  "Total number of tags published by Relayer removed from Tagging Records"
   publishedTagsRemovedFromTaggingRecords: BigInt!
 
-  "Total revenue generated from tagging fees from tags published by Publisher."
+  "Total revenue generated from tagging fees from tags published by Relayer."
   publishedTagsTaggingFeeRevenue: BigInt!
 
-  "Tagging records published by this Publisher."
-  taggingRecords: [TaggingRecord!]! @derivedFrom(field: "publisher")
+  "Tagging records published by this Relayer."
+  taggingRecords: [TaggingRecord!]! @derivedFrom(field: "relayer")
 
-  "CTAGs published by this Publisher."
-  tags: [Tag!]! @derivedFrom(field: "publisher")
+  "CTAGs published by this Relayer."
+  tags: [Tag!]! @derivedFrom(field: "relayer")
 }
 
 type Tagger @entity {
@@ -318,6 +303,61 @@ type Owner @entity {
   tags: [Tag!]! @derivedFrom(field: "owner")
 }
 
+type Auction @entity {
+  "Global ETS Auction Number"
+  id: ID!
+
+  "Incremental auction number for this CTAG. starts at 1 and increments each time tag is re-auctioned"
+  tokenAuctionNumber: BigInt!
+
+  "The CTAG being auctioned"
+  tag: Tag!
+
+  "The current highest bid amount"
+  amount: BigInt!
+
+  "The time that the auction started"
+  startTime: BigInt!
+
+  "The time that the auction is scheduled to end"
+  endTime: BigInt!
+
+  "The account with the current highest bid"
+  bidder: Owner
+
+  "Whether or not the auction has been settled"
+  settled: Boolean!
+
+  "The auction bids"
+  bids: [Bid!]! @derivedFrom(field: "auction")
+}
+
+type Bid @entity {
+  "Bid transaction hash"
+  id: ID!
+
+  "The auction being bid in"
+  auction: Auction!
+
+  "The CTAG being bid on"
+  tag: Tag!
+
+  "Bid amount"
+  amount: BigInt!
+
+  "Bidder account"
+  bidder: Owner
+
+  "Block number of the bid"
+  blockNumber: BigInt!
+
+  "Index of transaction within block"
+  txIndex: BigInt!
+
+  "The timestamp of the block the bid is in"
+  blockTimestamp: BigInt!
+}
+
 type Release @entity {
   id: ID!
   #Contract Versions
@@ -336,6 +376,10 @@ type Release @entity {
   etsTarget: String!
   etsTargetVersion: BigInt!
   etsTargetVersionDate: BigInt!
+
+  etsAuctionHouse: String!
+  etsAuctionHouseVersion: BigInt!
+  etsAuctionHouseVersionDate: BigInt!
 }
 
 type GlobalSettings @entity {
@@ -349,14 +393,15 @@ type GlobalSettings @entity {
   # Tagging
   taggingFee: BigInt!
   taggingFeePlatformPercentage: BigInt!
-  taggingFeePublisherPercentage: BigInt!
+  taggingFeeRelayerPercentage: BigInt!
 
   # Auction
-  timeBuffer: BigInt!
-  reservePrice: BigInt!
+  maxAuctions: BigInt!
   minIncrementBidPercentage: BigInt!
   duration: BigInt!
-  publisherPercentage: BigInt!
+  reservePrice: BigInt!
+  timeBuffer: BigInt!
+  relayerPercentage: BigInt!
   creatorPercentage: BigInt!
   platformPercentage: BigInt!
 }

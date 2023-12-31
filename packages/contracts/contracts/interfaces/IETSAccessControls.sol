@@ -1,16 +1,25 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.10;
-
-import "@openzeppelin/contracts-upgradeable/access/IAccessControlUpgradeable.sol";
 
 /**
  * @title IETSAccessControls
  * @author Ethereum Tag Service <team@ets.xyz>
  *
+ *  ███████╗████████╗███████╗
+ *  ██╔════╝╚══██╔══╝██╔════╝
+ *  █████╗     ██║   ███████╗
+ *  ██╔══╝     ██║   ╚════██║
+ *  ███████╗   ██║   ███████║`
+ *  ╚══════╝   ╚═╝   ╚══════╝
+ *
  * @notice This is the interface for the ETSAccessControls contract which allows ETS Core Dev
  * Team to administer roles and control access to various parts of the ETS Platform.
  * ETSAccessControls contract contains a mix of public and administrator only functions.
  */
+
+pragma solidity ^0.8.10;
+
+import { IAccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/IAccessControlUpgradeable.sol";
+
 interface IETSAccessControls is IAccessControlUpgradeable {
     /**
      * @dev emitted when the ETS Platform address is set.
@@ -21,22 +30,21 @@ interface IETSAccessControls is IAccessControlUpgradeable {
     event PlatformSet(address newAddress, address prevAddress);
 
     /**
-     * @dev emitted when a Publisher contract is added & enabled in ETS.
+     * @dev emitted when a Relayer contract is added & enabled in ETS.
      *
-     * Publisher contracts are not required implement all ETS Core API functions. Therefore, to ease
-     * testing of ETS Core API fuinctions, ETS permits addition of ETS owned wallet addresses as Publishers.
+     * Relayer contracts are not required implement all ETS Core API functions. Therefore, to ease
+     * testing of ETS Core API fuinctions, ETS permits addition of ETS owned wallet addresses as Relayers.
      *
-     * @param publisher Publisher contract address.
-     * @param isAdmin Publisher address is ETS administrator (used for testing).
+     * @param relayer Relayer contract address.
      */
-    event PublisherAdded(address publisher, bool isAdmin);
+    event RelayerAdded(address relayer);
 
     /**
-     * @dev emitted when a Publisher contract is paused or unpaused.
+     * @dev emitted when a Relayer contract is paused or unpaused.
      *
-     * @param publisher Address that had pause toggled.
+     * @param relayer Address that had pause toggled.
      */
-    event PublisherPauseToggled(address publisher);
+    event RelayerLockToggled(address relayer);
 
     /**
      * @notice Sets the Platform wallet address. Can only be called by address with DEFAULT_ADMIN_ROLE.
@@ -46,21 +54,38 @@ interface IETSAccessControls is IAccessControlUpgradeable {
     function setPlatform(address payable _platform) external;
 
     /**
-     * @notice Adds a Publisher contract to ETS. Can only be called by address
+     * @notice Adds a Relayer contract to ETS. Can only be called by address
      * with DEFAULT_ADMIN_ROLE.
      *
-     * @param _publisher Address of the Publisher contract. Must conform to IETSPublisher.
-     * @param _name Human readable name of the Publisher.
+     * @param _relayer Address of the Relayer contract. Must conform to IETSRelayer.
+     * @param _name Human readable name of the Relayer.
+     * @param _owner Address of relayer owner.
      */
-    function addPublisher(address _publisher, string calldata _name) external;
+    function registerRelayer(address _relayer, string calldata _name, address _owner) external;
 
     /**
-     * @notice Pauses/Unpauses a Publisher contract. Can only be called by address
+     * @notice Pause relayer given the relayer owner address. Callable by Platform only.
+     *
+     * @param _relayerOwner Address of the Relayer owner.
+     */
+    function pauseRelayerByOwnerAddress(address _relayerOwner) external;
+
+    /**
+     * @notice Change the relayer owner as stored in ETSAccessControls. Callable from Relayer only.
+     * Called via changeOwner() on a relayer.
+     *
+     * @param _currentOwner Address of the current relayer owner.
+     * @param _newOwner Address of the new relayer owner.
+     */
+    function changeRelayerOwner(address _currentOwner, address _newOwner) external;
+
+    /**
+     * @notice Pauses/Unpauses a Relayer contract. Can only be called by address
      * with DEFAULT_ADMIN_ROLE.
      *
-     * @param _publisher Address of the Publisher contract.
+     * @param _relayer Address of the Relayer contract.
      */
-    function toggleIsPublisherPaused(address _publisher) external;
+    function toggleRelayerLock(address _relayer) external;
 
     /**
      * @notice Sets the role admin for a given role. An address with role admin can grant or
@@ -88,60 +113,100 @@ interface IETSAccessControls is IAccessControlUpgradeable {
     function isAdmin(address _addr) external view returns (bool);
 
     /**
-     * @notice Checks whether given address has PUBLISHER role.
+     * @notice Checks whether given address has AUCTION_ORACLE_ROLE role.
      *
      * @param _addr Address being checked.
-     * @return boolean True if address has PUBLISHER role.
+     * @return boolean True if address has AUCTION_ORACLE_ROLE role.
      */
-    function isPublisher(address _addr) external view returns (bool);
+    function isAuctionOracle(address _addr) external view returns (bool);
 
     /**
-     * @notice Checks whether given address has PUBLISHER_ADMIN role.
+     * @notice Checks whether given address can act as relayer factory.
      *
      * @param _addr Address being checked.
-     * @return boolean True if address has PUBLISHER_ADMIN role.
+     * @return boolean True if address can act as relayer factory.
      */
-    function isPublisherAdmin(address _addr) external view returns (bool);
+    function isRelayerFactory(address _addr) external view returns (bool);
 
     /**
-     * @notice Checks whether given Publisher Name is a registered Publisher.
+     * @notice Checks whether given address is a relayer.
+     *
+     * @param _addr Address being checked.
+     * @return boolean True if address can be a relayer.
+     */
+    function isRelayer(address _addr) external view returns (bool);
+
+    /**
+     * @notice Checks whether given address is a registered Relayer and not paused.
+     *
+     * @param _addr Address being checked.
+     * @return boolean True if address is a Relayer and not paused.
+     */
+    function isRelayerAndNotPaused(address _addr) external view returns (bool);
+
+    /**
+     * @notice Checks relayer is paused by ETS Platform.
+     *
+     * @param _addr Address being checked.
+     * @return boolean True if relayer address is paused by platform.
+     */
+    function isRelayerLocked(address _addr) external view returns (bool);
+
+    /**
+     * @notice Checks whether given address owns a relayer.
+     *
+     * @param _addr Address being checked.
+     * @return boolean True if address owns a relayer.
+     */
+    function isRelayerByOwner(address _addr) external view returns (bool);
+
+    /**
+     * @notice Checks whether given address has RELAYER_ADMIN role.
+     *
+     * @param _addr Address being checked.
+     * @return boolean True if address has RELAYER_ADMIN role.
+     */
+    function isRelayerAdmin(address _addr) external view returns (bool);
+
+    /**
+     * @notice Checks whether given Relayer Name is a registered Relayer.
      *
      * @param _name Name being checked.
-     * @return boolean True if _name is a Publisher.
+     * @return boolean True if _name is a Relayer.
      */
-    function isPublisherByName(string calldata _name) external view returns (bool);
+    function isRelayerByName(string calldata _name) external view returns (bool);
 
     /**
-     * @notice Checks whether given address is a registered Publisher.
+     * @notice Checks whether given address is a registered Relayer.
      *
      * @param _addr Address being checked.
-     * @return boolean True if address is a registered Publisher.
+     * @return boolean True if address is a registered Relayer.
      */
-    function isPublisherByAddress(address _addr) external view returns (bool);
+    function isRelayerByAddress(address _addr) external view returns (bool);
 
     /**
-     * @notice Checks whether given address is a registered Publisher and not paused.
+     * @notice Get relayer address from it's name.
      *
-     * @param _addr Address being checked.
-     * @return boolean True if address is a Publisher and not paused.
+     * @param _name Name of relayer.
+     * @return Address of relayer.
      */
-    function isPublisherAndNotPaused(address _addr) external view returns (bool);
+    function getRelayerAddressFromName(string calldata _name) external view returns (address);
 
     /**
-     * @notice Get publisher address from it's name.
+     * @notice Get relayer name from it's address.
      *
-     * @param _name Name of publisher.
-     * @return Address of publisher.
+     * @param _address Adsdress of relayer.
+     * @return Name of relayer.
      */
-    function getPublisherAddressFromName(string calldata _name) external view returns (address);
+    function getRelayerNameFromAddress(address _address) external view returns (string calldata);
 
     /**
-     * @notice Get publisher name from it's address.
+     * @notice Get relayer address from its owner address.
      *
-     * @param _address Adsdress of publisher.
-     * @return Name of publisher.
+     * @param _address address of relayer owner.
+     * @return Address of relayer.
      */
-    function getPublisherNameFromAddress(address _address) external view returns (string calldata);
+    function getRelayerAddressFromOwner(address _address) external view returns (address);
 
     /**
      * @notice Returns wallet address for ETS Platform.

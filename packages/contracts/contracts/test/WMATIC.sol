@@ -2,7 +2,7 @@
 
 // FOR TEST PURPOSES ONLY. NOT PRODUCTION SAFE
 // Source: https://github.com/gnosis/canonical-weth/blob/0dd1ea3e295eef916d0c6223ec63141137d22d67/contracts/WETH9.sol
-pragma solidity ^0.8.6;
+pragma solidity ^0.8.10;
 
 contract WMATIC {
     string public name = "Wrapped Matic";
@@ -51,11 +51,7 @@ contract WMATIC {
         return transferFrom(msg.sender, dst, wad);
     }
 
-    function transferFrom(
-        address src,
-        address dst,
-        uint256 wad
-    ) public returns (bool) {
+    function transferFrom(address src, address dst, uint256 wad) public returns (bool) {
         require(balanceOf[src] >= wad);
 
         if (src != msg.sender && allowance[src][msg.sender] != type(uint256).max) {

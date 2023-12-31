@@ -1,5 +1,6 @@
 import { Tagger } from "../generated/schema";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
+import { updateTaggerCount } from "../entities/Platform";
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { ZERO, ONE, CREATE, APPEND, REMOVE } from "../utils/constants";
 import { arrayDiff } from "../utils/arrayDiff";
@@ -16,6 +17,8 @@ export function ensureTagger(taggerAddress: Address, event: ethereum.Event): Tag
     tagger.feesPaid = ZERO;
     tagger.tags = [];
     tagger.save();
+
+    updateTaggerCount(event);
   }
 
   return tagger as Tagger;

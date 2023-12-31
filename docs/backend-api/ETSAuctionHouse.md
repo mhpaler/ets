@@ -13,10 +13,10 @@ constructor() public
 ### initialize
 
 ```solidity
-function initialize(contract IETSToken _etsToken, contract IETSAccessControls _etsAccessControls, address _wmatic, uint256 _timeBuffer, uint256 _reservePrice, uint8 _minBidIncrementPercentage, uint256 _duration, uint256 _publisherPercentage, uint256 _platformPercentage) external
+function initialize(contract IETSToken _etsToken, contract IETSAccessControls _etsAccessControls, address _wmatic, uint256 _timeBuffer, uint256 _reservePrice, uint8 _minBidIncrementPercentage, uint256 _duration, uint256 _relayerPercentage, uint256 _platformPercentage) external
 ```
 
-### _authorizeUpgrade
+### \_authorizeUpgrade
 
 ```solidity
 function _authorizeUpgrade(address) internal
@@ -61,7 +61,7 @@ function setTimeBuffer(uint256 _timeBuffer) public
 ### setProceedPercentages
 
 ```solidity
-function setProceedPercentages(uint256 _platformPercentage, uint256 _publisherPercentage) public
+function setProceedPercentages(uint256 _platformPercentage, uint256 _relayerPercentage) public
 ```
 
 ### createBid
@@ -76,19 +76,19 @@ function createBid(uint256 _tokenId) public payable
 function settleAuction(uint256 _tokenId) public
 ```
 
-### _safeTransferETHWithFallback
+### \_safeTransferETHWithFallback
 
 ```solidity
 function _safeTransferETHWithFallback(address to, uint256 amount) internal
 ```
 
-### _safeTransferETH
+### \_safeTransferETH
 
 ```solidity
 function _safeTransferETH(address to, uint256 value) internal returns (bool)
 ```
 
-### _exists
+### \_exists
 
 ```solidity
 function _exists(uint256 _tokenId) internal view returns (bool)
@@ -117,4 +117,3 @@ receive() external payable
 ```solidity
 fallback() external payable
 ```
-

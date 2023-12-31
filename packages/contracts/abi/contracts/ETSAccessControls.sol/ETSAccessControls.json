@@ -74,17 +74,11 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "publisher",
+        "name": "relayer",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "isAdmin",
-        "type": "bool"
       }
     ],
-    "name": "PublisherAdded",
+    "name": "RelayerAdded",
     "type": "event"
   },
   {
@@ -93,11 +87,11 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "publisher",
+        "name": "relayer",
         "type": "address"
       }
     ],
-    "name": "PublisherPauseToggled",
+    "name": "RelayerLockToggled",
     "type": "event"
   },
   {
@@ -190,6 +184,19 @@
   },
   {
     "inputs": [],
+    "name": "AUCTION_ORACLE_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "DEFAULT_ADMIN_ROLE",
     "outputs": [
       {
@@ -216,7 +223,7 @@
   },
   {
     "inputs": [],
-    "name": "PUBLISHER_ROLE",
+    "name": "RELAYER_ADMIN_ROLE",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -229,7 +236,20 @@
   },
   {
     "inputs": [],
-    "name": "PUBLISHER_ROLE_ADMIN",
+    "name": "RELAYER_FACTORY_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "RELAYER_ROLE",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -257,16 +277,16 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_publisher",
+        "name": "_currentOwner",
         "type": "address"
       },
       {
-        "internalType": "string",
-        "name": "_name",
-        "type": "string"
+        "internalType": "address",
+        "name": "_newOwner",
+        "type": "address"
       }
     ],
-    "name": "addPublisher",
+    "name": "changeRelayerOwner",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -292,7 +312,7 @@
         "type": "string"
       }
     ],
-    "name": "getPublisherAddressFromName",
+    "name": "getRelayerAddressFromName",
     "outputs": [
       {
         "internalType": "address",
@@ -311,7 +331,26 @@
         "type": "address"
       }
     ],
-    "name": "getPublisherNameFromAddress",
+    "name": "getRelayerAddressFromOwner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_address",
+        "type": "address"
+      }
+    ],
+    "name": "getRelayerNameFromAddress",
     "outputs": [
       {
         "internalType": "string",
@@ -423,7 +462,7 @@
         "type": "address"
       }
     ],
-    "name": "isPublisher",
+    "name": "isAuctionOracle",
     "outputs": [
       {
         "internalType": "bool",
@@ -442,7 +481,7 @@
         "type": "address"
       }
     ],
-    "name": "isPublisherAdmin",
+    "name": "isRelayer",
     "outputs": [
       {
         "internalType": "bool",
@@ -461,7 +500,7 @@
         "type": "address"
       }
     ],
-    "name": "isPublisherAndNotPaused",
+    "name": "isRelayerAdmin",
     "outputs": [
       {
         "internalType": "bool",
@@ -480,7 +519,26 @@
         "type": "address"
       }
     ],
-    "name": "isPublisherByAddress",
+    "name": "isRelayerAndNotPaused",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_addr",
+        "type": "address"
+      }
+    ],
+    "name": "isRelayerByAddress",
     "outputs": [
       {
         "internalType": "bool",
@@ -499,7 +557,7 @@
         "type": "string"
       }
     ],
-    "name": "isPublisherByName",
+    "name": "isRelayerByName",
     "outputs": [
       {
         "internalType": "bool",
@@ -514,11 +572,49 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "_addr",
         "type": "address"
       }
     ],
-    "name": "isPublisherPaused",
+    "name": "isRelayerByOwner",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_addr",
+        "type": "address"
+      }
+    ],
+    "name": "isRelayerFactory",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_addr",
+        "type": "address"
+      }
+    ],
+    "name": "isRelayerLocked",
     "outputs": [
       {
         "internalType": "bool",
@@ -549,6 +645,19 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_relayerOwner",
+        "type": "address"
+      }
+    ],
+    "name": "pauseRelayerByOwnerAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "proxiableUUID",
     "outputs": [
@@ -565,11 +674,34 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "_relayer",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
+      }
+    ],
+    "name": "registerRelayer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "",
         "type": "address"
       }
     ],
-    "name": "publisherContractToName",
+    "name": "relayerContractToName",
     "outputs": [
       {
         "internalType": "string",
@@ -583,12 +715,50 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "relayerLocked",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "string",
         "name": "",
         "type": "string"
       }
     ],
-    "name": "publisherNameToContract",
+    "name": "relayerNameToContract",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "relayerOwnerToAddress",
     "outputs": [
       {
         "internalType": "address",
@@ -689,11 +859,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_publisher",
+        "name": "_relayer",
         "type": "address"
       }
     ],
-    "name": "toggleIsPublisherPaused",
+    "name": "toggleRelayerLock",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

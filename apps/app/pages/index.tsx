@@ -1,33 +1,31 @@
-import type { NextPage } from 'next';
-import { RecentlyTagged } from '../components/RecentlyTagged';
-import { NewestTags } from '../components/NewestTags';
-import { TopCreators } from '../components/TopCreators';
-import { TopPublishers } from '../components/TopPublishers';
-import { TopTaggers } from '../components/TopTaggers';
-import { PopularTags } from '../components/PopularTags';
-import { Stats } from '../components/Stats';
-// import Image from 'next/image';
+import type { NextPage } from "next";
+import type { GetServerSideProps } from "next";
+import { getServerSession } from "next-auth";
+import { getAuthOptions } from "./api/auth/[...nextauth]";
 
-// import Greeter from '../src/artifacts/contracts/Greeter.sol/Greeter.json';
-// use it like this:
-// const contract = new ethers.Contract(process.env.NEXT_PUBLIC_GREETER_ADDRESS, Greeter.abi, provider)
+import { TaggingRecords } from "../components/TaggingRecords";
+import useTranslation from "next-translate/useTranslation";
+import { Stats } from "../components/Stats";
 
-// import { Button } from "@ethereum-tag-service/ui"; // example of how to pull in UI
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+  return {
+    props: {
+      session: await getServerSession(req, res, getAuthOptions(req)),
+    },
+  };
+};
 
 const Home: NextPage = () => {
+  console.log("next pageXX",process.env.GRAPH_API_ENDPOINT);
+  const { t } = useTranslation("common");
   return (
-    <div className="grid max-w-6xl gap-6 mx-auto mt-12 lg:gap-12 md:space-y-0 sm:w-full">
+    <div className="grid max-w-7xl gap-6 mx-auto mt-12 lg:gap-12 md:space-y-0 sm:w-full">
       <Stats />
-      <div className="grid gap-6 md:grid-cols-2 lg:gap-12">
-        <RecentlyTagged />
-        <NewestTags />
-        <TopCreators />
-        <TopPublishers />
-        <TopTaggers />
-        <PopularTags />
+      <div className="gap-6 md:grid-cols-1 lg:gap-12">
+        <TaggingRecords title={t("latest-tagging-records")} />
       </div>
     </div>
   );
-}
+};
 
 export default Home;

@@ -1,33 +1,27 @@
 {
   "name": "@ethereum-tag-service/site",
+  "version": "0.1.0",
   "private": true,
-  "version": "1.0.0",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
-    "@ethereum-tag-service/ui": "workspace:*",
-    "next": "12.0.7",
-    "nextra": "2.0.0-alpha.44",
-    "nextra-theme-docs": "2.0.0-alpha.44",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
-    "swagger-ui-react": "^4.6.2",
-    "typewriter-effect": "^2.18.2"
+    "@ethereum-tag-service/brand": "workspace:^1.0.0",
+    "next": "12.3.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   },
   "devDependencies": {
-    "@ethereum-tag-service/config": "workspace:*",
-    "@ethereum-tag-service/tsconfig": "workspace:*",
     "@types/node": "17.0.0",
     "@types/react": "17.0.37",
-    "autoprefixer": "^10.4.2",
+    "autoprefixer": "^10.4.12",
     "eslint": "8.4.1",
     "next-transpile-modules": "^9.0.0",
-    "postcss": "^8.4.6",
-    "tailwindcss": "^3.0.23",
+    "postcss": "^8.4.16",
+    "tailwindcss": "^3.1.8",
     "typescript": "4.5.4"
   }
 }

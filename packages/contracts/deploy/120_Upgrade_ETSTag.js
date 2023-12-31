@@ -1,27 +1,18 @@
-const {ethers, upgrades} = require("hardhat");
-const {verify} = require("./utils/verify.js");
-const {saveNetworkConfig, readNetworkConfig} = require("./utils/config.js");
+const { ethers, upgrades } = require("hardhat");
+const { verify } = require("./utils/verify.js");
+const { saveNetworkConfig } = require("./utils/config.js");
 
-module.exports = async ({getChainId, deployments}) => {
-  const {log, save} = deployments;
-  const chainId = await getChainId();
-  const networkConfig = readNetworkConfig();
+module.exports = async ({ deployments }) => {
+  const { log, save } = deployments;
   const ETSTag = await ethers.getContractFactory("ETSTag");
-  let etsTagAddress;
-
-  if (chainId == 31337) {
-    let etsTag = await deployments.get("ETSTag");
-    etsTagAddress = etsTag.address;
-  } else {
-    etsTagAddress = networkConfig[chainId].contracts["ETSTag"].address;
-  }
+  const etsTagAddress = (await deployments.get("ETSTag")).address;
 
   const upgrade = await upgrades.upgradeProxy(etsTagAddress, ETSTag);
   await upgrade.deployTransaction.wait();
   const implementation = await upgrades.erc1967.getImplementationAddress(upgrade.address);
 
   // Verify & Update network configuration file.
-  if (process.env.ETHERNAL_DISABLED === "false") {
+  if (process.env.ETHERNAL_DISABLED === "false" || process.env.VERIFY_ON_DEPLOY) {
     await verify("ETSTag", upgrade, implementation, []);
   }
   await saveNetworkConfig("ETSTag", upgrade, implementation, true);

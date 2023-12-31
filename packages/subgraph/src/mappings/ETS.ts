@@ -12,7 +12,7 @@ import {
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
 import { ensureRelease } from "../entities/Release";
 import { updatePlatformTaggingRecordStats } from "../entities/Platform";
-import { updatePublisherTaggingRecordStats } from "../entities/Publisher";
+import { updateRelayerTaggingRecordStats } from "../entities/Relayer";
 import { updateTaggerTaggingRecordStats } from "../entities/Tagger";
 import { updateCreatorTaggingRecordStats } from "../entities/Creator";
 import { updateOwnerTaggingRecordStats } from "../entities/Owner";
@@ -41,7 +41,7 @@ export function handleTaggingFeeSet(event: TaggingFeeSet): void {
 export function handlePercentagesSet(event: PercentagesSet): void {
   let settings = ensureGlobalSettings();
   settings.taggingFeePlatformPercentage = event.params.platformPercentage;
-  settings.taggingFeePublisherPercentage = event.params.publisherPercentage;
+  settings.taggingFeeRelayerPercentage = event.params.relayerPercentage;
   settings.save();
 }
 
@@ -51,7 +51,7 @@ export function handleTaggingRecordCreated(event: TaggingRecordCreated): void {
 
   updatePlatformTaggingRecordStats(newRecord.tags, event);
 
-  updatePublisherTaggingRecordStats(Address.fromString(newRecord.publisher), newRecord.tags, [], CREATE, event);
+  updateRelayerTaggingRecordStats(Address.fromString(newRecord.relayer), newRecord.tags, [], CREATE, event);
 
   updateTaggerTaggingRecordStats(Address.fromString(newRecord.tagger), newRecord.tags, [], CREATE, event);
 
@@ -71,8 +71,8 @@ export function handleTaggingRecordUpdated(event: TaggingRecordUpdated): void {
   // This is mapped to APPEND or REMOVE constants. See. utils/constants.ts
   let action = BigInt.fromI32(event.params.action);
 
-  updatePublisherTaggingRecordStats(
-    Address.fromString(newRecord.publisher),
+  updateRelayerTaggingRecordStats(
+    Address.fromString(newRecord.relayer),
     newRecord.tags,
     prevRecord.tags,
     action,

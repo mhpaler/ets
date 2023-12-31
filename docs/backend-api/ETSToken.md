@@ -4,7 +4,7 @@ This is the core ETSToken.sol contract that governs the creation & management of
 Ethereum Tag Service composable tags (CTAGs).
 
 CTAGs are ERC-721 non-fungible tokens that store a single tag string and origin attribution data
-including a "Publisher" address and a "Creator" address. The tag string must conform to a few simple
+including a "Relayer" address and a "Creator" address. The tag string must conform to a few simple
 validation rules.
 
 CTAGs are identified in ETS by their Id (tagId) which is an unsigned integer computed from the lowercased
@@ -28,7 +28,7 @@ constructor() public
 function initialize(contract IETSAccessControls _etsAccessControls, uint256 _tagMinStringLength, uint256 _tagMaxStringLength, uint256 _ownershipTermLength) public
 ```
 
-### _authorizeUpgrade
+### \_authorizeUpgrade
 
 ```solidity
 function _authorizeUpgrade(address) internal
@@ -43,9 +43,9 @@ function setETSCore(contract IETS _ets) public
 Sets ETS core on the ETSToken contract so functions can be
 restricted to ETS platform only.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _ets | contract IETS | Address of ETS contract. |
+| Name  | Type          | Description              |
+| ----- | ------------- | ------------------------ |
+| \_ets | contract IETS | Address of ETS contract. |
 
 ### setAccessControls
 
@@ -57,9 +57,9 @@ Sets ETSAccessControls on the ETSToken contract function calls can be
 restricted to ETS platform only. Note: Caller of this function must be deployer
 or pre-set as admin of new contract.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _accessControls | contract IETSAccessControls | Address of ETSAccessControls contract. |
+| Name             | Type                        | Description                            |
+| ---------------- | --------------------------- | -------------------------------------- |
+| \_accessControls | contract IETSAccessControls | Address of ETSAccessControls contract. |
 
 ### pause
 
@@ -83,11 +83,11 @@ Unpauses ETSToken contract.
 function burn(uint256 tokenId) public
 ```
 
-_Burns `tokenId`. See {ERC721-_burn}.
+\_Burns `tokenId`. See {ERC721-\_burn}.
 
 Requirements:
 
-- The caller must own `tokenId` or be an approved operator._
+- The caller must own `tokenId` or be an approved operator.\_
 
 ### setTagMaxStringLength
 
@@ -97,9 +97,9 @@ function setTagMaxStringLength(uint256 _tagMaxStringLength) public
 
 admin function to set maximum character length of CTAG display string.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _tagMaxStringLength | uint256 | maximum character length of string. |
+| Name                 | Type    | Description                         |
+| -------------------- | ------- | ----------------------------------- |
+| \_tagMaxStringLength | uint256 | maximum character length of string. |
 
 ### setTagMinStringLength
 
@@ -107,11 +107,11 @@ admin function to set maximum character length of CTAG display string.
 function setTagMinStringLength(uint256 _tagMinStringLength) public
 ```
 
-Admin function to set minimum  character length of CTAG display string.
+Admin function to set minimum character length of CTAG display string.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _tagMinStringLength | uint256 | minimum character length of string. |
+| Name                 | Type    | Description                         |
+| -------------------- | ------- | ----------------------------------- |
+| \_tagMinStringLength | uint256 | minimum character length of string. |
 
 ### setOwnershipTermLength
 
@@ -121,9 +121,9 @@ function setOwnershipTermLength(uint256 _ownershipTermLength) public
 
 Admin function to set the ownership term length of a CTAG is set.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _ownershipTermLength | uint256 | Ownership term length in days. |
+| Name                  | Type    | Description                    |
+| --------------------- | ------- | ------------------------------ |
+| \_ownershipTermLength | uint256 | Ownership term length in days. |
 
 ### preSetPremiumTags
 
@@ -133,10 +133,10 @@ function preSetPremiumTags(string[] _tags, bool _enabled) public
 
 Admin function to flag/unflag tag string(s) as premium prior to minting.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _tags | string[] | Array of tag strings. |
-| _enabled | bool |  |
+| Name      | Type     | Description           |
+| --------- | -------- | --------------------- |
+| \_tags    | string[] | Array of tag strings. |
+| \_enabled | bool     |                       |
 
 ### setPremiumFlag
 
@@ -146,10 +146,10 @@ function setPremiumFlag(uint256[] _tokenIds, bool _isPremium) public
 
 Admin function to flag/unflag CTAG(s) as premium.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _tokenIds | uint256[] | Array of CTAG Ids. |
-| _isPremium | bool | Boolean true for premium, false for not premium. |
+| Name        | Type      | Description                                      |
+| ----------- | --------- | ------------------------------------------------ |
+| \_tokenIds  | uint256[] | Array of CTAG Ids.                               |
+| \_isPremium | bool      | Boolean true for premium, false for not premium. |
 
 ### setReservedFlag
 
@@ -161,21 +161,21 @@ Admin function to flag/unflag CTAG(s) as reserved.
 
 Tags flagged as reserved cannot be auctioned.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _tokenIds | uint256[] | Array of CTAG Ids. |
-| _reserved | bool | Boolean true for reserved, false for not reserved. |
+| Name       | Type      | Description                                        |
+| ---------- | --------- | -------------------------------------------------- |
+| \_tokenIds | uint256[] | Array of CTAG Ids.                                 |
+| \_reserved | bool      | Boolean true for reserved, false for not reserved. |
 
 ### getOrCreateTag
 
 ```solidity
-function getOrCreateTag(string _tag, address payable _publisher, address payable _creator) public payable returns (struct IETSToken.Tag tag)
+function getOrCreateTag(string _tag, address payable _relayer, address payable _creator) public payable returns (struct IETSToken.Tag tag)
 ```
 
 ### getOrCreateTagId
 
 ```solidity
-function getOrCreateTagId(string _tag, address payable _publisher, address payable _creator) public payable returns (uint256 tokenId)
+function getOrCreateTagId(string _tag, address payable _relayer, address payable _creator) public payable returns (uint256 tokenId)
 ```
 
 Get CTAG token Id from tag string.
@@ -185,20 +185,20 @@ or creates a new CTAG and returns corresponding Id.
 
 Only ETS Core can call this function.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _tag | string | Tag string. |
-| _publisher | address payable | Address of Publisher contract calling ETS Core. |
-| _creator | address payable | Address credited with creating CTAG. |
+| Name      | Type            | Description                                   |
+| --------- | --------------- | --------------------------------------------- |
+| \_tag     | string          | Tag string.                                   |
+| \_relayer | address payable | Address of Relayer contract calling ETS Core. |
+| \_creator | address payable | Address credited with creating CTAG.          |
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name    | Type    | Description       |
+| ------- | ------- | ----------------- |
 | tokenId | uint256 | Id of CTAG token. |
 
 ### createTag
 
 ```solidity
-function createTag(string _tag, address payable _publisher, address payable _creator) public payable returns (uint256 _tokenId)
+function createTag(string _tag, address payable _relayer, address payable _creator) public payable returns (uint256 _tokenId)
 ```
 
 Create CTAG token from tag string.
@@ -207,15 +207,15 @@ Reverts if tag exists or is invalid.
 
 Only ETS Core can call this function.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _tag | string | Tag string. |
-| _publisher | address payable |  |
-| _creator | address payable | Address credited with creating CTAG. |
+| Name      | Type            | Description                          |
+| --------- | --------------- | ------------------------------------ |
+| \_tag     | string          | Tag string.                          |
+| \_relayer | address payable |                                      |
+| \_creator | address payable | Address credited with creating CTAG. |
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _tokenId | uint256 |  |
+| Name      | Type    | Description |
+| --------- | ------- | ----------- |
+| \_tokenId | uint256 |             |
 
 ### renewTag
 
@@ -231,9 +231,9 @@ due to lost private keys.
 Any wallet address may renew the term of a CTAG for an owner. When renewed, the term
 is extended from the current block timestamp plus the ownershipTermLength public variable.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _tokenId | uint256 | Id of CTAG token. |
+| Name      | Type    | Description       |
+| --------- | ------- | ----------------- |
+| \_tokenId | uint256 | Id of CTAG token. |
 
 ### recycleTag
 
@@ -246,9 +246,9 @@ Recycles a CTAG back to ETS.
 When ownership term of a CTAG has expired, any wallet or contract may call this function
 to recycle the tag back to ETS. Once recycled, a tag may be auctioned again.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _tokenId | uint256 | Id of CTAG token. |
+| Name      | Type    | Description       |
+| --------- | ------- | ----------------- |
+| \_tokenId | uint256 | Id of CTAG token. |
 
 ### supportsInterface
 
@@ -269,13 +269,13 @@ from the "display" tag string lowercased, hashed and cast as an unsigned integer
 
 Note: Function does not verify if CTAG record exists.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _tag | string | Tag string. |
+| Name  | Type   | Description |
+| ----- | ------ | ----------- |
+| \_tag | string | Tag string. |
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256 | Id of potential CTAG token id. |
+| Name | Type    | Description                    |
+| ---- | ------- | ------------------------------ |
+| [0]  | uint256 | Id of potential CTAG token id. |
 
 ### tagExistsByString
 
@@ -285,13 +285,13 @@ function tagExistsByString(string _tag) public view returns (bool)
 
 Check that a CTAG token exists for a given tag string.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _tag | string | Tag string. |
+| Name  | Type   | Description |
+| ----- | ------ | ----------- |
+| \_tag | string | Tag string. |
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bool | true if CTAG token exists; false if not. |
+| Name | Type | Description                              |
+| ---- | ---- | ---------------------------------------- |
+| [0]  | bool | true if CTAG token exists; false if not. |
 
 ### tagExistsById
 
@@ -301,13 +301,13 @@ function tagExistsById(uint256 _tokenId) public view returns (bool)
 
 Check that CTAG token exists for a given computed token Id.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _tokenId | uint256 | Token Id uint computed from tag string via computeTargetId(). |
+| Name      | Type    | Description                                                   |
+| --------- | ------- | ------------------------------------------------------------- |
+| \_tokenId | uint256 | Token Id uint computed from tag string via computeTargetId(). |
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bool | true if CTAG token exists; false if not. |
+| Name | Type | Description                              |
+| ---- | ---- | ---------------------------------------- |
+| [0]  | bool | true if CTAG token exists; false if not. |
 
 ### getTagByString
 
@@ -319,13 +319,13 @@ Retrieve a CTAG record for a given tag string.
 
 Note: returns a struct with empty members when no CTAG exists.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _tag | string | Tag string. |
+| Name  | Type   | Description |
+| ----- | ------ | ----------- |
+| \_tag | string | Tag string. |
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct IETSToken.Tag | CTAG record as Tag struct. |
+| Name | Type                 | Description                |
+| ---- | -------------------- | -------------------------- |
+| [0]  | struct IETSToken.Tag | CTAG record as Tag struct. |
 
 ### getTagById
 
@@ -337,13 +337,13 @@ Retrieve a CTAG record for a given token Id.
 
 Note: returns a struct with empty members when no CTAG exists.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _tokenId | uint256 | CTAG token Id. |
+| Name      | Type    | Description    |
+| --------- | ------- | -------------- |
+| \_tokenId | uint256 | CTAG token Id. |
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct IETSToken.Tag | CTAG record as Tag struct. |
+| Name | Type                 | Description                |
+| ---- | -------------------- | -------------------------- |
+| [0]  | struct IETSToken.Tag | CTAG record as Tag struct. |
 
 ### getOwnershipTermLength
 
@@ -353,9 +353,9 @@ function getOwnershipTermLength() public view returns (uint256)
 
 Retrieve CTAG ownership term length global setting.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256 | Term length in days. |
+| Name | Type    | Description          |
+| ---- | ------- | -------------------- |
+| [0]  | uint256 | Term length in days. |
 
 ### getLastRenewed
 
@@ -365,13 +365,13 @@ function getLastRenewed(uint256 _tokenId) public view returns (uint256)
 
 Retrieve last renewal block timestamp for a CTAG.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _tokenId | uint256 | CTAG token Id. |
+| Name      | Type    | Description    |
+| --------- | ------- | -------------- |
+| \_tokenId | uint256 | CTAG token Id. |
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256 | Block timestamp. |
+| Name | Type    | Description      |
+| ---- | ------- | ---------------- |
+| [0]  | uint256 | Block timestamp. |
 
 ### getPlatformAddress
 
@@ -381,9 +381,9 @@ function getPlatformAddress() public view returns (address payable)
 
 Retrieve wallet address for ETS Platform.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | address payable | wallet address for ETS Platform. |
+| Name | Type            | Description                      |
+| ---- | --------------- | -------------------------------- |
+| [0]  | address payable | wallet address for ETS Platform. |
 
 ### getCreatorAddress
 
@@ -393,31 +393,30 @@ function getCreatorAddress(uint256 _tokenId) public view returns (address)
 
 Retrieve Creator address for a CTAG token.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _tokenId | uint256 | CTAG token Id. |
+| Name      | Type    | Description    |
+| --------- | ------- | -------------- |
+| \_tokenId | uint256 | CTAG token Id. |
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | address | _creator Creator address of the CTAG. |
+| Name | Type    | Description                            |
+| ---- | ------- | -------------------------------------- |
+| [0]  | address | \_creator Creator address of the CTAG. |
 
-### _beforeTokenTransfer
+### \_beforeTokenTransfer
 
 ```solidity
 function _beforeTokenTransfer(address from, address to, uint256 amount) internal
 ```
 
-### _afterTokenTransfer
+### \_afterTokenTransfer
 
 ```solidity
 function _afterTokenTransfer(address from, address to, uint256 tokenId) internal virtual
 ```
 
-_See {ERC721-_afterTokenTransfer}. Contract must not be paused._
+_See {ERC721-\_afterTokenTransfer}. Contract must not be paused._
 
-### _setLastRenewed
+### \_setLastRenewed
 
 ```solidity
 function _setLastRenewed(uint256 _tokenId, uint256 _timestamp) internal
 ```
-

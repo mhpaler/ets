@@ -1,28 +1,18 @@
-const {ethers, upgrades} = require("hardhat");
-const {verify} = require("./utils/verify.js");
-const {saveNetworkConfig, readNetworkConfig} = require("./utils/config.js");
+const { ethers, upgrades } = require("hardhat");
+const { verify } = require("./utils/verify.js");
+const { saveNetworkConfig } = require("./utils/config.js");
 
-module.exports = async ({getChainId, getNamedAccounts, deployments}) => {
-  const {log, save} = deployments;
-  const networkConfig = readNetworkConfig();
-  const chainId = await getChainId();
-  const {ETSAdmin} = await getNamedAccounts();
+module.exports = async ({ deployments }) => {
+  const { log, save } = deployments;
   const ETSAccessControls = await ethers.getContractFactory("ETSAccessControls");
-  let etsAccessControlsAddress;
-
-  if (chainId == 31337) {
-    let etsAccessControls = await deployments.get("ETSAccessControls");
-    etsAccessControlsAddress = etsAccessControls.address;
-  } else {
-    etsAccessControlsAddress = networkConfig[chainId].contracts["ETSAccessControls"].address;
-  }
+  const etsAccessControlsAddress = (await deployments.get("ETSAccessControls")).address;
 
   const upgrade = await upgrades.upgradeProxy(etsAccessControlsAddress, ETSAccessControls);
   await upgrade.deployTransaction.wait();
   implementation = await upgrades.erc1967.getImplementationAddress(upgrade.address);
 
   // Verify & Update network configuration file.
-  if (process.env.ETHERNAL_DISABLED === "false") {
+  if (process.env.ETHERNAL_DISABLED === "false" || process.env.VERIFY_ON_DEPLOY) {
     await verify("ETSAccessControls", upgrade, implementation, []);
   }
   await saveNetworkConfig("ETSAccessControls", upgrade, implementation, true);

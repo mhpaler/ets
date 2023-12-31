@@ -1,23 +1,42 @@
 // SPDX-License-Identifier: GPL-3.0
 
-// ETSAuctionHouse.sol is a modified version of Nouns NounsAuctionHouse.sol:
-// https://github.com/nounsDAO/nouns-monorepo/blob/master/packages/nouns-contracts/contracts/NounsAuctionHouse.sol
-// which itself is a modified version of Zora AuctionHouse.sol
-//
-// AuctionHouse.sol source code Copyright Zora licensed under the GPL-3.0 license.
-// With modifications by Ethereum Tag Service.
+/**
+ * @title ETS Auction House
+ * @author Ethereum Tag Service <team@ets.xyz>
+ *
+ *  ███████╗████████╗███████╗
+ *  ██╔════╝╚══██╔══╝██╔════╝
+ *  █████╗     ██║   ███████╗
+ *  ██╔══╝     ██║   ╚════██║
+ *  ███████╗   ██║   ███████║
+ *  ╚══════╝   ╚═╝   ╚══════╝
+ *
+ * @notice ETSAuctionHouse.sol is a modified version of Nouns NounsAuctionHouse.sol:
+ * https://github.com/nounsDAO/nouns-monorepo/blob/master/packages/nouns-contracts/contracts/NounsAuctionHouse.sol
+ * which itself is a modified version of Zora AuctionHouse.sol
+ *
+ * AuctionHouse.sol source code Copyright Zora licensed under the GPL-3.0 license.
+ * With modifications by Ethereum Tag Service.
+ *
+ * ETS modification include enabling more than one concurrent auction via a protocol controlled
+ * setting and requiring a bid to start the auction timer.
+ */
 
-pragma solidity ^0.8.10;
+pragma solidity ^0.8.6;
 
+import { IWMATIC } from "./interfaces/IWMATIC.sol";
+import { IETSToken } from "./interfaces/IETSToken.sol";
+import { IETSAuctionHouse } from "./interfaces/IETSAuctionHouse.sol";
+import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
+
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+
 import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import { SafeERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
-import { IETSAuctionHouse } from "./interfaces/IETSAuctionHouse.sol";
-import { IETSToken } from "./interfaces/IETSToken.sol";
-import { IWMATIC } from "./interfaces/IWMATIC.sol";
+import { CountersUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 
 /**
  * @title ETSAuctionHouse
@@ -25,16 +44,43 @@ import { IWMATIC } from "./interfaces/IWMATIC.sol";
  *
  * @notice ETSAuctionHouse contract governs the sale of Ethereum Tag Service composable tags (CTAGs).
  */
-contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
+contract ETSAuctionHouse is
+    Initializable,
+    PausableUpgradeable,
+    ReentrancyGuardUpgradeable,
+    IETSAuctionHouse,
+    UUPSUpgradeable
+{
+    using CountersUpgradeable for CountersUpgradeable.Counter;
+
     IETSToken public etsToken;
     IETSAccessControls public etsAccessControls;
 
     /// Public constants
 
     string public constant NAME = "ETS Auction House";
-    uint256 public constant modulo = 100;
+    uint256 public constant MODULO = 100;
 
     /// Public variables
+    uint256 public maxAuctions;
+
+    // Open for bidding
+    CountersUpgradeable.Counter activeAuctions;
+
+    // Unique auction id
+    CountersUpgradeable.Counter auctionId;
+
+    /// @dev Mapping of auction ID to auction.
+    mapping(uint256 => IETSAuctionHouse.Auction) public auctions;
+
+    /// @dev Mapping of tokenId to array of auction ids.
+    mapping(uint256 => uint256[]) public auctionsByTokenId;
+
+    /// @dev Mapping from auctionId to the corresponding tagId
+    //mapping(uint256 => uint256) public auctionIdToTokenId;
+
+    // Mapping from auctionId to the corresponding auction for each token
+    //mapping(uint256 => mapping(uint256 => Auction)) public auctionIdToAuction;
 
     /// @dev The address of the WMATIC contract
     address public wmatic;
@@ -54,14 +100,17 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
     /// @dev Percentage of auction proceeds allocated to CTAG Creator
     uint256 public creatorPercentage;
 
-    /// @dev Percentage of auction proceeds allocated to CTAG Publisher.
-    uint256 public publisherPercentage;
+    /// @dev Percentage of auction proceeds allocated to CTAG Relayer.
+    uint256 public relayerPercentage;
 
     /// @dev Percentage of auction proceeds allocated to ETS.
     uint256 public platformPercentage;
 
-    /// @dev Mapping of active auctions
-    mapping(uint256 => IETSAuctionHouse.Auction) public auctions;
+    /// @dev Map for holding amount accrued to participant address wallets.
+    mapping(address => uint256) public accrued;
+
+    /// @dev Map for holding lifetime amount drawn down from accrued by participants.
+    mapping(address => uint256) public paid;
 
     /// Modifiers
 
@@ -76,18 +125,18 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         _;
     }
 
-    // modifier notReserved(uint256 tokenId) {
-    //     require(!etsToken.reserved, "CTAG reserved");
-    //     _;
-    // }
-
-    modifier auctionExists(uint256 tokenId) {
-        require(_exists(tokenId), "Auction doesn't exist");
+    modifier onlyAuctionOracle() {
+        require(etsAccessControls.isAuctionOracle(_msgSender()), "Caller not auction oracle");
         _;
     }
 
     modifier onlyAdmin() {
         require(etsAccessControls.isAdmin(_msgSender()), "Caller must be administrator");
+        _;
+    }
+
+    modifier onlyPlatform() {
+        require(etsAccessControls.getPlatformAddress() == _msgSender(), "Only platform may release CTAG");
         _;
     }
 
@@ -102,26 +151,35 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         IETSToken _etsToken,
         IETSAccessControls _etsAccessControls,
         address _wmatic,
+        uint256 _maxAuctions,
         uint256 _timeBuffer,
         uint256 _reservePrice,
         uint8 _minBidIncrementPercentage,
         uint256 _duration,
-        uint256 _publisherPercentage,
+        uint256 _relayerPercentage,
         uint256 _platformPercentage
     ) external initializer {
         __Pausable_init();
         __ReentrancyGuard_init();
 
+        _pause();
+
         etsToken = _etsToken;
         etsAccessControls = _etsAccessControls;
         wmatic = _wmatic;
+
+        activeAuctions.reset();
+        auctionId.reset();
+
+        setMaxAuctions(_maxAuctions);
         setMinBidIncrementPercentage(_minBidIncrementPercentage);
         setDuration(_duration);
         setReservePrice(_reservePrice);
         setTimeBuffer(_timeBuffer);
-        setProceedPercentages(_platformPercentage, _publisherPercentage);
+        setProceedPercentages(_platformPercentage, _relayerPercentage);
     }
 
+    // solhint-disable-next-line
     function _authorizeUpgrade(address) internal override onlyAdmin {}
 
     // ============ OWNER/ADMIN INTERFACE ============
@@ -132,6 +190,11 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
 
     function unpause() public onlyAdmin {
         _unpause();
+    }
+
+    function setMaxAuctions(uint256 _maxAuctions) public onlyAdmin {
+        maxAuctions = _maxAuctions;
+        emit AuctionsMaxSet(_maxAuctions);
     }
 
     function setDuration(uint256 _duration) public onlyAdmin {
@@ -154,35 +217,61 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         emit AuctionTimeBufferSet(_timeBuffer);
     }
 
-    function setProceedPercentages(uint256 _platformPercentage, uint256 _publisherPercentage) public onlyAdmin {
-        require(_platformPercentage + _publisherPercentage <= 100, "Input must not exceed 100%");
+    function setProceedPercentages(uint256 _platformPercentage, uint256 _relayerPercentage) public onlyAdmin {
+        require(_platformPercentage + _relayerPercentage <= 100, "Input must not exceed 100%");
         platformPercentage = _platformPercentage;
-        publisherPercentage = _publisherPercentage;
-        creatorPercentage = modulo - platformPercentage - publisherPercentage;
+        relayerPercentage = _relayerPercentage;
+        creatorPercentage = MODULO - platformPercentage - relayerPercentage;
 
-        emit AuctionProceedPercentagesSet(platformPercentage, publisherPercentage, creatorPercentage);
+        emit AuctionProceedPercentagesSet(platformPercentage, relayerPercentage, creatorPercentage);
     }
 
     // ============ PUBLIC INTERFACE ============
 
-    function createBid(uint256 _tokenId)
-        public
-        payable
-        nonReentrant
-        whenNotPaused
-        platformOwned(_tokenId)
-    // TODO: Reserved/Premum tags. see issue https://github.com/ethereum-tag-service/ets/issues/129
-    // notReserved(_tokenId)
-    {
-        // Retrieve active auction or create new one if _tokenId exists and is platform owned.
-        Auction memory auction = _getAuction(_tokenId);
+    /**
+     * @notice Settle auction, and release next auction.
+     */
+    function settleCurrentAndCreateNewAuction(uint256 _auctionId) public nonReentrant whenNotPaused {
+        _settleAuction(_auctionId);
+        _requestCreateAuction();
+    }
 
-        require(block.timestamp < auction.endTime, "Auction ended");
+    /**
+     * @notice Settle the auction.
+     * @dev This function can only be called when the contract is paused.
+     */
+    function settleAuction(uint256 _auctionId) public whenPaused nonReentrant {
+        _settleAuction(_auctionId);
+    }
+
+    // Public function to release another auction using the auction Oracle.
+    function createNextAuction() public whenNotPaused {
+        require(activeAuctions.current() < maxAuctions, "No open auction slots");
+        _requestCreateAuction();
+    }
+
+    // Capture reponse from next auction oracle.
+    function fulfillRequestCreateAuction(uint256 _tokenId) public onlyAuctionOracle {
+        // Let's double check the oracle's work.
+        // Note: First check returns "ERC721: invalid token ID" for non-existent token.
+        require(etsToken.ownerOf(_tokenId) == etsAccessControls.getPlatformAddress(), "CTAG not owned by ETS");
+        require(activeAuctions.current() < maxAuctions, "No open auction slots");
+        // Get the most recent auction for this token.
+        if (auctionExistsForTokenId(_tokenId)) {
+            Auction memory auction = getAuctionForTokenId(_tokenId);
+            require(auction.settled, "Auction exists");
+        }
+        _createAuction(_tokenId);
+    }
+
+    function createBid(uint256 _auctionId) public payable nonReentrant whenNotPaused {
+        require(_auctionExists(_auctionId), "Auction not found");
+        Auction memory auction = _getAuction(_auctionId);
+        if (auction.startTime > 0) {
+            require(block.timestamp < auction.endTime, "Auction ended");
+        }
         require(msg.value >= reservePrice, "Must send at least reservePrice");
-        require(
-            msg.value >= auction.amount + ((auction.amount * minBidIncrementPercentage) / 100),
-            "Must send more than last bid by minBidIncrementPercentage amount"
-        );
+        require(msg.value >= auction.amount + ((auction.amount * minBidIncrementPercentage) / 100), "Bid too low");
 
         address payable lastBidder = auction.bidder;
 
@@ -191,59 +280,117 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
             _safeTransferETHWithFallback(lastBidder, auction.amount);
         }
 
-        auctions[_tokenId].amount = msg.value;
-        auctions[_tokenId].bidder = payable(msg.sender);
-
-        // Extend the auction if the bid was received within `timeBuffer` of the auction end time
-        bool extended = auction.endTime - block.timestamp < timeBuffer;
-        if (extended) {
-            auctions[_tokenId].endTime = auction.endTime = block.timestamp + timeBuffer;
-            emit AuctionExtended(_tokenId, auction.endTime);
+        if (auction.startTime == 0) {
+            // Start the auction
+            uint256 startTime = block.timestamp;
+            uint256 endTime = startTime + duration;
+            auctions[_auctionId].startTime = startTime;
+            auctions[_auctionId].endTime = endTime;
         }
 
-        emit AuctionBid(_tokenId, msg.sender, msg.value, extended);
+        auctions[_auctionId].amount = msg.value;
+        auctions[_auctionId].bidder = payable(msg.sender);
+
+        // Extend the auction if the bid was received within `timeBuffer` of the auction end time
+        bool extended = false;
+        if (auction.startTime > 0) {
+            extended = auction.endTime - block.timestamp < timeBuffer;
+            if (extended) {
+                auctions[_auctionId].endTime = auction.endTime = block.timestamp + timeBuffer;
+                emit AuctionExtended(_auctionId, auction.endTime);
+            }
+        }
+
+        emit AuctionBid(_auctionId, msg.sender, msg.value, extended);
     }
 
-    function settleAuction(uint256 _tokenId) public nonReentrant auctionExists(_tokenId) {
-        Auction memory auction = _getAuction(_tokenId);
+    /**
+     * @notice Function for withdrawing funds from an accrual account. Can be called by the account owner
+     * or on behalf of the account. Does nothing when there is nothing due to the account.
+     *
+     * @param _account Address of account being drawn down and which will receive the funds.
+     */
+    function drawDown(address payable _account) external nonReentrant {
+        uint256 balanceDue = totalDue(_account);
+        if (balanceDue > 0 && balanceDue <= address(this).balance) {
+            paid[_account] = paid[_account] + balanceDue;
 
-        require(block.timestamp >= auction.endTime, "Auction hasn't completed");
+            bool success = _safeTransferETH(_account, balanceDue);
+            require(success, "Transfer failed");
 
-        // Transfer CTAG Token to winner.
-        etsToken.transferFrom(etsAccessControls.getPlatformAddress(), auction.bidder, _tokenId);
-
-        // Distribute proceeds to actors.
-        IETSToken.Tag memory ctag = etsToken.getTagById(_tokenId);
-        uint256 publisherProceeds = (auction.amount * publisherPercentage) / modulo;
-        uint256 creatorProceeds = (auction.amount * creatorPercentage) / modulo;
-        _safeTransferETHWithFallback(ctag.publisher, publisherProceeds);
-        _safeTransferETHWithFallback(ctag.creator, creatorProceeds);
-
-        emit AuctionSettled(_tokenId, auction.bidder, auction.amount, publisherProceeds, creatorProceeds);
-        delete auctions[_tokenId];
+            emit AuctionProceedsWithdrawn(_account, balanceDue);
+        }
     }
 
     // ============ INTERNAL FUNCTIONS ============
 
-    function _getAuction(uint256 _tokenId) private returns (Auction memory auction) {
-        if (auctions[_tokenId].startTime > 0) {
-            return auctions[_tokenId];
-        }
-        return _createAuction(_tokenId);
+    function _requestCreateAuction() private {
+        // Trigger of chain oracle to pick and release next auction.
+        emit RequestCreateAuction();
     }
 
-    function _createAuction(uint256 _tokenId) private returns (Auction memory auction) {
-        // TODO: Have duration & reserve price configurable by standard vs. premium.
-        auctions[_tokenId] = Auction({
+    function _createAuction(uint256 _tokenId) internal {
+        auctionId.increment();
+        activeAuctions.increment();
+        uint256 currentAuctionId = auctionId.current();
+        // Create new auction but don't start it.
+        auctions[currentAuctionId] = Auction({
+            auctionId: currentAuctionId,
+            tokenId: _tokenId,
             amount: 0,
-            startTime: block.timestamp,
-            endTime: block.timestamp + duration,
+            startTime: 0,
+            endTime: 0,
             reservePrice: reservePrice,
-            bidder: payable(address(0))
+            bidder: payable(address(0)),
+            auctioneer: etsAccessControls.getPlatformAddress(),
+            settled: false
         });
 
-        emit AuctionCreated(_tokenId);
-        return auctions[_tokenId];
+        // Add the auction Id to list of auctions for this token.
+        uint256[] storage tokenAuctionIds = auctionsByTokenId[_tokenId];
+        tokenAuctionIds.push(currentAuctionId);
+
+        emit AuctionCreated(currentAuctionId, _tokenId, tokenAuctionIds.length);
+        //emit AuctionCreated(_tokenId);
+    }
+
+    function _settleAuction(uint256 _auctionId) internal {
+        require(_auctionExists(_auctionId), "Auction not found");
+        Auction memory auction = getAuction(_auctionId);
+        require(!(auction.settled), "Auction already settled");
+        require(auction.startTime != 0, "Auction has not begun");
+        require(block.timestamp >= auction.endTime, "Auction has not ended");
+
+        auctions[_auctionId].settled = true;
+        activeAuctions.decrement();
+        etsToken.transferFrom(etsAccessControls.getPlatformAddress(), auction.bidder, auction.tokenId);
+        _processAuctionRevenue(auction.tokenId, auction.amount);
+        emit AuctionSettled(_auctionId);
+    }
+
+    // @dev Internal function to divide up auction revenue and accrue it to ETS participants.
+    function _processAuctionRevenue(uint256 _tokenId, uint256 _amount) private {
+        // Distribute proceeds to actors.
+        IETSToken.Tag memory ctag = etsToken.getTagById(_tokenId);
+        address platform = etsAccessControls.getPlatformAddress();
+
+        uint256 relayerProceeds = (_amount * relayerPercentage) / MODULO;
+        uint256 creatorProceeds = (_amount * creatorPercentage) / MODULO;
+        uint256 platformProceeds = _amount - (relayerProceeds + creatorProceeds);
+
+        accrued[ctag.relayer] = accrued[ctag.relayer] + relayerProceeds;
+        accrued[ctag.creator] = accrued[ctag.creator] + creatorProceeds;
+        accrued[platform] = accrued[platform] + platformProceeds;
+    }
+
+    /**
+     * @dev Retrieves an auction given an auction ID.
+     * @param _auctionId The ID of auction.
+     * @return Auction object. Returns an empty object if no auction exists
+     *         so must perform additional checks downstream.
+     */
+    function _getAuction(uint256 _auctionId) internal view returns (Auction memory) {
+        return auctions[_auctionId];
     }
 
     function _safeTransferETHWithFallback(address to, uint256 amount) internal {
@@ -258,21 +405,63 @@ contract ETSAuctionHouse is IETSAuctionHouse, PausableUpgradeable, ReentrancyGua
         return success;
     }
 
-    function _exists(uint256 _tokenId) internal view returns (bool) {
-        return (auctions[_tokenId].startTime != 0);
+    // Return true if tag has had an auction released in any state.
+    function _auctionExists(uint256 _auctionId) internal view returns (bool) {
+        return (auctions[_auctionId].auctionId != 0 && auctions[_auctionId].auctionId == _auctionId);
     }
 
     // ============ PUBLIC VIEW FUNCTIONS ============
 
-    function auctionActive(uint256 _tokenId) public view returns (bool) {
-        return _exists(_tokenId);
+    function auctionExists(uint256 _auctionId) public view returns (bool) {
+        return _auctionExists(_auctionId);
     }
 
-    function getAuction(uint256 _tokenId) public view returns (Auction memory) {
-        return auctions[_tokenId];
+    function auctionExistsForTokenId(uint256 _tokenId) public view returns (bool) {
+        return (auctionsByTokenId[_tokenId].length > 0);
     }
 
+    function auctionEnded(uint256 _auctionId) public view returns (bool) {
+        return (auctions[_auctionId].endTime < block.timestamp);
+    }
+
+    function auctionSettled(uint256 _auctionId) public view returns (bool) {
+        return (_auctionExists(_auctionId) && auctions[_auctionId].settled);
+    }
+
+    function getAuction(uint256 _auctionId) public view returns (Auction memory) {
+        return _getAuction(_auctionId);
+    }
+
+    function getAuctionForTokenId(uint256 _tokenId) public view returns (Auction memory) {
+        require(auctionExistsForTokenId(_tokenId), "No auctions for tokenId");
+        uint256[] memory tokenAuctionIds = auctionsByTokenId[_tokenId];
+        // Return last auction for token.
+        return auctions[tokenAuctionIds[tokenAuctionIds.length - 1]];
+    }
+
+    function getAuctionCountForTokenId(uint256 _tokenId) public view returns (uint256) {
+        return auctionsByTokenId[_tokenId].length;
+    }
+
+    function getActiveCount() public view returns (uint256) {
+        return activeAuctions.current();
+    }
+
+    function getTotalCount() public view returns (uint256) {
+        return auctionId.current();
+    }
+
+    function getBalance() public view returns (uint) {
+        return address(this).balance;
+    }
+
+    function totalDue(address _account) public view returns (uint256 _due) {
+        return accrued[_account] - paid[_account];
+    }
+
+    /* solhint-disable */
     receive() external payable {}
 
     fallback() external payable {}
+    /* solhint-enable */
 }

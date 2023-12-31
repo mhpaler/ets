@@ -1,7 +1,7 @@
-const {ethers} = require("hardhat");
-const {setup} = require("./setup.js");
+const { ethers, network } = require("hardhat");
+const { setup } = require("./setup.js");
 
-module.exports = async ({deployments}) => {
+module.exports = async ({ deployments }) => {
   [accounts, factories, initSettings] = await setup();
 
   const etsAccessControls = await deployments.get("ETSAccessControls");
@@ -16,35 +16,65 @@ module.exports = async ({deployments}) => {
   const ETSEnrichTarget = await ethers.getContractAt("ETSEnrichTarget", etsEnrichTarget.address);
   const ets = await deployments.get("ETS");
   const ETS = await ethers.getContractAt("ETS", ets.address);
-  const etsPublisherFactory = await deployments.get("ETSPublisherFactory");
-  const ETSPublisherFactory = await ethers.getContractAt("ETSPublisherFactory", etsPublisherFactory.address);
+  const etsRelayerFactory = await deployments.get("ETSRelayerFactory");
+  const ETSRelayerFactory = await ethers.getContractAt("ETSRelayerFactory", etsRelayerFactory.address);
 
   console.log("============ CONFIGURE ROLES & APPROVALS ============");
+  console.log("See /packages/contracts/deploy/deploy.js for settings.");
 
-  await ETSAccessControls.grantRole(await ETSAccessControls.SMART_CONTRACT_ROLE(), accounts.ETSAdmin.address, {
-    from: accounts.ETSAdmin.address,
-  });
-  console.log(`SMART_CONTRACT_ROLE granted to ETSPlatform.address (${accounts.ETSAdmin.address})`);
+  let hardhat_automine;// = await network.provider.send("hardhat_getAutomine");
+  if (network.config["chainId"] == 31337) {
 
-  // Grant PUBLISHER_ADMIN role to ETSPublisherFactory so it can deploy publisher contracts.
-  await ETSAccessControls.grantRole(ethers.utils.id("PUBLISHER_ADMIN"), ETSPublisherFactory.address);
-  console.log(`PUBLISHER_ADMIN granted to ETSPublisherFactory.address (${ETSPublisherFactory.address})`);
+    hardhat_automine = await network.provider.send("hardhat_getAutomine");
 
-  await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(ETSEnrichTarget.address);
-  console.log(`ETSEnrichTarget contract set on ETSTarget`);
+    // if automine is off, enable it to apply these settings faster.
+    if (hardhat_automine == false) {
+      await network.provider.send("evm_setAutomine", [true]);
+      console.log("Hardhat automine set to", await network.provider.send("hardhat_getAutomine"));
+    }
+  }
+
+  // Allows relayer admin role to grant relayer factory role.
+  await ETSAccessControls.setRoleAdmin(await ETSAccessControls.RELAYER_FACTORY_ROLE(), await ETSAccessControls.RELAYER_ADMIN_ROLE());
+
+  // Allows relayer factory role to grant relayer role.
+  await ETSAccessControls.setRoleAdmin(await ETSAccessControls.RELAYER_ROLE(), await ETSAccessControls.RELAYER_FACTORY_ROLE());
+
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), accounts.ETSAdmin.address);
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), accounts.ETSPlatform.address);
+
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), etsAccessControls.address);
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), etsToken.address);
+
+  // Set auction oracle to platform just for testing.
+  await ETSAccessControls.grantRole(await ETSAccessControls.AUCTION_ORACLE_ROLE(), accounts.ETSPlatform.address);
+  await ETSAccessControls.grantRole(await ETSAccessControls.SMART_CONTRACT_ROLE(), accounts.ETSAdmin.address);
+
+  await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(etsEnrichTarget.address);
 
   // Approve auction house contract to move tokens owned by platform.
-  await ETSToken.connect(accounts.ETSPlatform).setApprovalForAll(ETSAuctionHouse.address, true);
-  console.log("ETSAuctionHouse granted ApprovalForAll on ETSToken");
+  await ETSToken.connect(accounts.ETSPlatform).setApprovalForAll(etsAuctionHouse.address, true);
 
   // Set ETS Core on ETSToken.
-  await ETSToken.connect(accounts.ETSPlatform).setETSCore(ETS.address);
-  console.log("ETS set on ETSToken.");
+  await ETSToken.connect(accounts.ETSPlatform).setETSCore(ets.address);
 
-  // Add & Unpause ETSPlatform as a Publisher. for testing purposes.
-  await ETSAccessControls.connect(accounts.ETSPlatform).addPublisher(accounts.ETSPlatform.address, "ETSPlatform");
-  console.log("Authorize ETSPlatform wallet as a Publisher");
+  // Grant RELAYER_FACTORY_ROLE to ETSRelayerFactory so it can deploy relayer contracts.
+  await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_FACTORY_ROLE(), etsRelayerFactory.address);
+
+  // Add a relayer proxy for use in tests. Note: ETSPlatform not required to own CTAG to add relayer.
+  await ETSRelayerFactory.connect(accounts.ETSPlatform).addRelayer("ETSRelayer");
+
+
+  // This turns automine off, so hardhat blockchain mines sequentially.
+  if (network.config["chainId"] == 31337) {
+
+    // Disable automine if it was originally disabled.
+    if (hardhat_automine === false && await network.provider.send("hardhat_getAutomine")) {
+      await network.provider.send("evm_setAutomine", [false]);
+      console.log("Hardhat automine set to", await network.provider.send("hardhat_getAutomine"));
+    }
+  }
 };
 
 module.exports.tags = ["deployAll"];
-// module.exports.dependencies = ["ETSPublisherFactory"];
+module.exports.dependencies = ["ETSRelayerFactory"];

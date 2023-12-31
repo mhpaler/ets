@@ -1,6 +1,6 @@
 # JavaScript client quickstart
 
-This guide walks through adding a [Publisher](./key-concepts.md#publisher) to ETS (required), creating a [CTAG](./key-concepts.md#tag-ctag), creating & modifying a [Tagging Record](./key-concepts.md#tagging-record) with set of custom [Hardhat Tasks](https://hardhat.org/) that use [Ethers.js](https://docs.ethers.io/v5/) to interact with the protocol.
+This guide walks through adding a [Relayer](./key-concepts.md#relayer) to ETS (required), creating a [CTAG](./key-concepts.md#tag-ctag), creating & modifying a [Tagging Record](./key-concepts.md#tagging-record) with set of custom [Hardhat Tasks](https://hardhat.org/) that use [Ethers.js](https://docs.ethers.io/v5/) to interact with the protocol.
 
 If you are interested in contract-to-contract interaction, please see the [Contract-to-contract quickstart](./docs/contract-to-contract-quickstart.md).
 
@@ -43,29 +43,29 @@ account4: 0xE2d53594A3C7Fdf1CA86D8e957C275b72e34DA06 Balance: 0.0
 account5: 0xdF0eB27bCc26E639137899d63B5221DABd2355f2 Balance: 0.0
 ```
 
-## Create a Publisher
+## Create a Relayer
 
 ```zsh
-$ hardhat addPublisher --name "Solana" --network mumbai --signer "account2"
+$ hardhat addRelayer --name "Solana" --network mumbai --signer "account2"
 
 started txn 0x10d14f87fbab80b7f372256f1a1164c4d5283335b48168cd90ea262a4cb1d0ec
-New publisher contract deployed at 0xb16170ed1a08EE57d18d41C204dCde3c6C9d2D1a by account2
+New relayer contract deployed at 0xd928bfb9e429713d78bddbbe509f2c1d528e0608 by account2
 ```
 
-This command calls the ETSPublisherFactory and deploys an instance of ETSPublisherFactoryV1.sol.
+This command calls the ETSRelayerFactory and deploys an instance of ETSRelayerFactoryV1.sol.
 
-Note that the signer `"account2"` becomes the Publisher Owner and that Publisher names can not be duplicated. For example, if we issue the same command:
+Note that the signer `"account2"` becomes the Relayer Owner and that Relayer names can not be duplicated. For example, if we issue the same command:
 
 ```zsh
-$ hardhat addPublisher --name "Solana" --network mumbai --signer "account2"
-Publisher name exists
+$ hardhat addRelayer --name "Solana" --network mumbai --signer "account2"
+Relayer name exists
 ```
 
-You can check that the Publisher was created with the correct credentials by running the following command in [our subgraph](https://api.thegraph.com/subgraphs/name/ethereum-tag-service/ets-mumbai/graphql).
+You can check that the Relayer was created with the correct credentials by running the following command in [our subgraph](https://api.thegraph.com/subgraphs/name/ethereum-tag-service/ets-mumbai/graphql).
 
 ```graphql
-query Publishers {
-  publishers(first: 1, orderBy: firstSeen, orderDirection: desc) {
+query Relayers {
+  relayers(first: 1, orderBy: firstSeen, orderDirection: desc) {
     id
     name
     owner
@@ -77,9 +77,9 @@ query Publishers {
 # output
 {
   "data": {
-    "publishers": [
+    "relayers": [
       {
-        "id": "0xb16170ed1a08ee57d18d41c204dcde3c6c9d2d1a",
+        "id": "0xd928bfb9e429713d78bddbbe509f2c1d528e0608",
         "name": "Solana",
         "owner": "0x60f2760f0d99330a555c5fc350099b634971c6eb"
       }
@@ -88,14 +88,14 @@ query Publishers {
 }
 ```
 
-Learn more about [Publishers](./key-concepts.md#publisher). View the [addPublisher](../packages/contracts/tasks/addPublisher.js) Hardhat Task.
+View the [addRelayer](../packages/contracts/tasks/addRelayer.js) Hardhat Task or learn more about [Relayers](./key-concepts.md#relayer).
 
 ## Create CTAGs
 
-Next, we'll create two CTAGs using the Publisher contract deployed in the previous step, and sign the transaction with a different account (`account3`).
+Next, we'll create two CTAGs using the Relayer contract deployed in the previous step, and sign the transaction with a different account (`account3`).
 
 ```zsh
-$ hardhat createTags --publisher "Solana" --signer "account3" --tags "#Phantom, #FamilySol" --network mumbai
+$ hardhat createTags --relayer "Solana" --signer "account3" --tags "#Phantom, #FamilySol" --network mumbai
 
 Minting CTAGs "#Phantom,#FamilySol"
 "#Phantom" minted by account3 with id 2534166372342226846419692081870028406351230466705393079417605661637489732040
@@ -108,7 +108,7 @@ There are a number of ways to get at the data. Here's one:
 query Tags {
   tags(where: { display_in: ["#Phantom", "#FamilySol"] }) {
     display
-    publisher {
+    relayer {
       name
       id
     }
@@ -126,9 +126,9 @@ query Tags {
     "tags": [
       {
         "display": "#Phantom",
-        "publisher": {
+        "relayer": {
           "name": "Solana",
-          "id": "0xb16170ed1a08ee57d18d41c204dcde3c6c9d2d1a"
+          "id": "0xd928bfb9e429713d78bddbbe509f2c1d528e0608"
         },
         "creator": {
           "id": "0xcf38e38da8c9921f39dc8e9327bc03ba514d4c37"
@@ -136,9 +136,9 @@ query Tags {
       },
       {
         "display": "#FamilySol",
-        "publisher": {
+        "relayer": {
           "name": "Solana",
-          "id": "0xb16170ed1a08ee57d18d41c204dcde3c6c9d2d1a"
+          "id": "0xd928bfb9e429713d78bddbbe509f2c1d528e0608"
         },
         "creator": {
           "id": "0xcf38e38da8c9921f39dc8e9327bc03ba514d4c37"
@@ -150,16 +150,18 @@ query Tags {
 
 ```
 
+Have a look at the [createTags](../packages/contracts/tasks/createTags.js) Hardhat Task.
+
 ## Tagging Records
 
-Next, we'll focus on the core utility of ETS, namely tagging content. In this section, we'll create a new [tagging record](./key-concepts.md#tagging-record), append tags to it, remove tags from it and finally, do a wholesale replacement (overwrite) of tags.
+Next, we'll focus on the core utility of ETS, namely tagging content. In this section, we'll create a new [Tagging Record](./key-concepts.md#tagging-record), append tags to it, remove tags from it and finally, do a wholesale replacement (overwrite) of tags.
 
 ### Create a Tagging Record
 
 Let's go ahead and tag some content, in this case an [NFT](https://etherscan.io/nft/0xC36442b4a4522E871399CD717aBDD847Ab11FE88/318669), and explain what's going on after...
 
 ```zsh
-$ hardhat applyTags --publisher "Solana" \
+$ hardhat applyTags --relayer "Solana" \
 --signer "account3" \
 --tags "#Uniswap, #APE, #WETH, #APE/WETH" \
 --uri "blink:ethereum:mainnet:0xC36442b4a4522E871399CD717aBDD847Ab11FE88:318669" \
@@ -171,7 +173,7 @@ New tagging record created with 4 tag(s) and id: 1084965527973819191777690373680
 account3 charged for 4 tags
 ```
 
-Next, lets have a look at the new tagging record in the subgraph.
+Next, lets have a look at the new Tagging Record in the [subgraph](https://api.thegraph.com/subgraphs/name/ethereum-tag-service/ets-mumbai/graphql).
 
 ```graphql
 query TaggingRecord {
@@ -179,7 +181,7 @@ query TaggingRecord {
     id: "108496552797381919177769037368004847463135908918745565862845053892120713010827"
   ) {
     timestamp
-    publisher {
+    relayer {
       name
       id
     }
@@ -201,9 +203,9 @@ query TaggingRecord {
   "data": {
     "taggingRecord": {
       "timestamp": "1663648880",
-      "publisher": {
+      "relayer": {
         "name": "Solana",
-        "id": "0xb16170ed1a08ee57d18d41c204dcde3c6c9d2d1a"
+        "id": "0xd928bfb9e429713d78bddbbe509f2c1d528e0608"
       },
       "tagger": {
         "id": "0xcf38e38da8c9921f39dc8e9327bc03ba514d4c37"
@@ -232,13 +234,13 @@ query TaggingRecord {
 }
 ```
 
-So what just happened? On a conceptual level, a good way to think about Tagging Records is that they reflect **"who tagged what, with which tags, from where and why"**.
+So what just happened? On a conceptual level, a good way to think about ETS Tagging Records is that they reflect **"who tagged what, with which tags, from where and why"**.
 
-In this case, `account3` tagged the `Uniswap V3 LP NFT with ID 318669` with `"#Uniswap", "APE", "#WETH", "#APE/WETH"` from the `"Solana"` Publisher contract to create a `"bookmark"`.
+In this case, `account3` tagged the `Uniswap V3 LP NFT with ID 318669` with `"#Uniswap", "APE", "#WETH", "#APE/WETH"` from the `"Solana"` Relayer contract to create a `"bookmark"`.
 
-There's a lot going on behind the scenes. To understand, a good place to start is the [applyTags Hardhat Task](../packages/contracts/tasks/applyTags.js) which is well documented.
+There's a lot going on behind the scenes. To get a handle on it, a good place to start is the [applyTags](../packages/contracts/tasks/applyTags.js) Hardhat Task which is well documented.
 
-A few things to note. If the tags applied ("#Uniswap", "#APE", "#WETH, "#APE/WETH") didn't exist in their tokenized form, new ones are minted just before the Tagging Record is recorded. For any new tags created, `account3` (the "Tagger") is recorded in the CTAG as the "Creator", and `Solana` is recorded as the Publisher.
+A few things to note. If the tags applied ("#Uniswap", "#APE", "#WETH, "#APE/WETH") didn't exist in their tokenized form, new ones are minted just before the Tagging Record is recorded. For any new tags created, `account3` (the "Tagger") is recorded in the CTAG as the "Creator", and `Solana` is recorded as the Relayer.
 
 This can be verified in the subgraph:
 
@@ -248,7 +250,7 @@ query TaggingRecord {
     creator {
       id
     }
-    publisher {
+    relayer {
       name
       id
     }
@@ -264,9 +266,9 @@ query TaggingRecord {
         "creator": {
           "id": "0xcf38e38da8c9921f39dc8e9327bc03ba514d4c37"
         },
-        "publisher": {
+        "relayer": {
           "name": "Solana",
-          "id": "0xb16170ed1a08ee57d18d41c204dcde3c6c9d2d1a"
+          "id": "0xd928bfb9e429713d78bddbbe509f2c1d528e0608"
         }
       }
     ]
@@ -274,7 +276,7 @@ query TaggingRecord {
 }
 ```
 
-In addition, for the [target URI](./key-concepts.md#target), we could use the Etherscan link above. However, for the purposes of this demo, we'll use a Blink for the NFT URI.
+In addition, for the [Target](./key-concepts.md#target), we have used the Etherscan link above. However, for the purposes of this demo, we used a Blink for the NFT URI.
 
 If you are unfamiliar with [Blinks](https://w3c-ccg.github.io/blockchain-links/), they are a W3C RFC URI schema for blockchain based data. Blinks provide ETS a standardized way to know about the blockchain targets being tagged, especially during the indexing process.
 
@@ -283,7 +285,7 @@ If you are unfamiliar with [Blinks](https://w3c-ccg.github.io/blockchain-links/)
 Next, let's go ahead and add some tags to the tagging record we just created.
 
 ```zsh
-$ hardhat applyTags --publisher "Solana" \
+$ hardhat applyTags --relayer "Solana" \
 --signer "account3" \
 --tags "#Uniswap, #NFT, #Ethereum, #ERC-20, #Solana" \
 --uri "blink:ethereum:mainnet:0xC36442b4a4522E871399CD717aBDD847Ab11FE88:318669" \
@@ -297,7 +299,7 @@ account3 charged for 4 tags
 
 Again there's a lot going on here, and to get a handle on things it would be best to have a look at the [applyTags Hardhat Task](../packages/contracts/tasks/applyTags.js) which is well documented.
 
-A few things to point out. First off, note that the only thing that changed between the two calls is the `--tags` argument. Had any of the other arguments changed, a new tagging record would have been created. This is because a tagging record id is a [composite key](./backend-api/ETS.md#computetaggingrecordidfromrawinput) made up of targetId+recordType+publisher+tagger.
+A few things to point out. First off, note that the only thing that changed between the two calls is the `--tags` argument. Had any of the other arguments changed, a new tagging record would have been created. This is because a tagging record id is a [composite key](./backend-api/ETS.md#computetaggingrecordidfromrawinput) made up of targetId+recordType+relayer+tagger.
 
 The other thing to note is even though five tags were passed in, "#Uniswap" already existed in the tagging record, and ETS respects that, therefore only four tag(s) were appended to the record.
 
@@ -306,7 +308,7 @@ The other thing to note is even though five tags were passed in, "#Uniswap" alre
 "#ERC-20" and "#Solana" are a bit out of place so let's remove them:
 
 ```zsh
-$ hardhat removeTags --publisher "Solana" \
+$ hardhat removeTags --relayer "Solana" \
 --signer "account3" \
 --tags "#ERC-20, #Solana" \
 --uri "blink:ethereum:mainnet:0xC36442b4a4522E871399CD717aBDD847Ab11FE88:318669" \
@@ -325,7 +327,7 @@ Have a look at the [removeTags Hardhat Task](../packages/contracts/tasks/removeT
 Again, note that had any of the arguments other than --tags changed, you'd likely get a "Tagging record not found". This makes Tagging Records tamper proof.
 
 ```zsh
-$ hardhat removeTags --publisher "Solana" \
+$ hardhat removeTags --relayer "Solana" \
 --signer "account2" \ # <-- Different signer
 --tags "#ERC-20, #Solana" \
 --uri "blink:ethereum:mainnet:0xC36442b4a4522E871399CD717aBDD847Ab11FE88:318669" \
@@ -340,7 +342,7 @@ Tagging record not found
 ETS allows for wholesale tag replacement in a tagging record.
 
 ```zsh
-$ hardhat replaceTags --publisher "Solana" \
+$ hardhat replaceTags --relayer "Solana" \
 --signer "account3" \
 --tags "#NFTsRock, #Like, #Tracking" \
 --uri "blink:ethereum:mainnet:0xC36442b4a4522E871399CD717aBDD847Ab11FE88:318669" \

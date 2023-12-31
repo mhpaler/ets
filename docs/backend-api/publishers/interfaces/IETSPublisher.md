@@ -1,8 +1,8 @@
-# IETSPublisher
+# IETSRelayer
 
-Minimum interface required for ETS Publisher smart contracts. Contracts implementing this
+Minimum interface required for ETS Relayer smart contracts. Contracts implementing this
 interface will need to import OpenZeppelin ERC165, Ownable and Pausable contracts.
-See https://github.com/ethereum-tag-service/ets/blob/stage/packages/contracts/contracts/examples/ETSPublisher.sol
+See https://github.com/ethereum-tag-service/ets/blob/stage/packages/contracts/contracts/examples/ETSRelayer.sol
 for a sample implementation.
 
 ## Functions
@@ -13,7 +13,7 @@ for a sample implementation.
 function pause() external
 ```
 
-Pause this publisher contract.
+Pause this relayer contract.
 
 _This function can only be called by the owner when the contract is unpaused._
 
@@ -23,7 +23,7 @@ _This function can only be called by the owner when the contract is unpaused._
 function unpause() external
 ```
 
-Unpause this publisher contract.
+Unpause this relayer contract.
 
 _This function can only be called by the owner when the contract is paused._
 
@@ -37,8 +37,8 @@ Transfer this contract to a new owner.
 
 _This function can only be called by the owner when the contract is paused._
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name     | Type    | Description                        |
+| -------- | ------- | ---------------------------------- |
 | newOwner | address | Address of the new contract owner. |
 
 ### supportsInterface
@@ -47,14 +47,14 @@ _This function can only be called by the owner when the contract is paused._
 function supportsInterface(bytes4 interfaceId) external view returns (bool)
 ```
 
-Broadcast support for IETSPublisher interface to external contracts.
+Broadcast support for IETSRelayer interface to external contracts.
 
-_ETSCore will only add publisher contracts that implement IETSPublisher interface.
-Your implementation should broadcast that it implements IETSPublisher interface._
+_ETSCore will only add relayer contracts that implement IETSRelayer interface.
+Your implementation should broadcast that it implements IETSRelayer interface._
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bool | boolean: true if this contract implements the interface defined by `interfaceId` |
+| Name | Type | Description                                                                      |
+| ---- | ---- | -------------------------------------------------------------------------------- |
+| [0]  | bool | boolean: true if this contract implements the interface defined by `interfaceId` |
 
 ### isPausedByOwner
 
@@ -66,9 +66,9 @@ Check whether this contract has been pasued by the owner.
 
 _Pause functionality should be provided by OpenZeppelin Pausable utility._
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bool | boolean: true for paused; false for not paused. |
+| Name | Type | Description                                     |
+| ---- | ---- | ----------------------------------------------- |
+| [0]  | bool | boolean: true for paused; false for not paused. |
 
 ### getOwner
 
@@ -76,23 +76,23 @@ _Pause functionality should be provided by OpenZeppelin Pausable utility._
 function getOwner() external view returns (address payable)
 ```
 
-Returns address of an IETSPublisher contract owner.
+Returns address of an IETSRelayer contract owner.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | address payable | address of contract owner. |
+| Name | Type            | Description                |
+| ---- | --------------- | -------------------------- |
+| [0]  | address payable | address of contract owner. |
 
-### getPublisherName
+### getRelayerName
 
 ```solidity
-function getPublisherName() external view returns (string)
+function getRelayerName() external view returns (string)
 ```
 
-Returns human readable name for this IETSPublisher contract.
+Returns human readable name for this IETSRelayer contract.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | string | name of the Publisher contract as a string. |
+| Name | Type   | Description                               |
+| ---- | ------ | ----------------------------------------- |
+| [0]  | string | name of the Relayer contract as a string. |
 
 ### getCreator
 
@@ -100,35 +100,34 @@ Returns human readable name for this IETSPublisher contract.
 function getCreator() external view returns (address payable)
 ```
 
-Returns address of an IETSPublisher contract creator.
+Returns address of an IETSRelayer contract creator.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | address payable | address of the creator of the Publisher contract. |
+| Name | Type            | Description                                     |
+| ---- | --------------- | ----------------------------------------------- |
+| [0]  | address payable | address of the creator of the Relayer contract. |
 
 ## Events
 
-### PublisherPauseToggledByOwner
+### RelayerPauseToggledByOwner
 
 ```solidity
-event PublisherPauseToggledByOwner(address publisherAddress)
+event RelayerPauseToggledByOwner(address relayerAddress)
 ```
 
-_Emitted when an IETSPublisher contract is paused/unpaused._
+_Emitted when an IETSRelayer contract is paused/unpaused._
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| publisherAddress | address | Address of publisher contract. |
+| Name           | Type    | Description                  |
+| -------------- | ------- | ---------------------------- |
+| relayerAddress | address | Address of relayer contract. |
 
-### PublisherOwnerChanged
+### RelayerOwnerChanged
 
 ```solidity
-event PublisherOwnerChanged(address publisherAddress)
+event RelayerOwnerChanged(address relayerAddress)
 ```
 
-_Emitted when an IETSPublisher contract has changed owners._
+_Emitted when an IETSRelayer contract has changed owners._
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| publisherAddress | address | Address of publisher contract. |
-
+| Name           | Type    | Description                  |
+| -------------- | ------- | ---------------------------- |
+| relayerAddress | address | Address of relayer contract. |

@@ -14,14 +14,15 @@ export function ensureGlobalSettings(): GlobalSettings {
     // Tagging
     settings.taggingFee = ZERO;
     settings.taggingFeePlatformPercentage = ZERO;
-    settings.taggingFeePublisherPercentage = ZERO;
+    settings.taggingFeeRelayerPercentage = ZERO;
 
     // Auction
-    settings.timeBuffer = ZERO;
-    settings.reservePrice = ZERO;
+    settings.maxAuctions = ZERO;
     settings.minIncrementBidPercentage = ZERO;
     settings.duration = ZERO;
-    settings.publisherPercentage = ZERO;
+    settings.reservePrice = ZERO;
+    settings.timeBuffer = ZERO;
+    settings.relayerPercentage = ZERO;
     settings.creatorPercentage = ZERO;
     settings.platformPercentage = ZERO;
 

@@ -1,17 +1,14 @@
-import Link from 'next/link';
-import useTranslation from 'next-translate/useTranslation';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { Share } from './Share';
+import Link from "next/link";
+import useTranslation from "next-translate/useTranslation";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { Share } from "./Share";
 
 interface PageTitle {
   title: string;
   shareUrl?: string;
 }
 
-export default function PageTitle({
-  title,
-  shareUrl,
-}: PageTitle) {
+export default function PageTitle({ title, shareUrl }: PageTitle) {
   return (
     <header className="mb-8 space-y-4 md:flex">
       <div className="flex items-center md:flex-grow">
@@ -19,5 +16,5 @@ export default function PageTitle({
       </div>
       {shareUrl && <Share url={shareUrl} />}
     </header>
-  )
+  );
 }

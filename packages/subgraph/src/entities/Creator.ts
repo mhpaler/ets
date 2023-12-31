@@ -1,11 +1,15 @@
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { Creator } from "../generated/schema";
 import { Transfer } from "../generated/ETSToken/ETSToken";
-import { ensurePlatform } from "../entities/Platform";
+import { ensureGlobalSettings } from "../entities/GlobalSettings";
+import { ensurePlatform, updateCreatorCount } from "../entities/Platform";
 import { ensureTag } from "../entities/Tag";
+import { ensureAuction } from "./Auction";
 import { getTaggingFee } from "../utils/getTaggingFee";
 import { arrayDiff } from "../utils/arrayDiff";
-import { ZERO_ADDRESS, ZERO, ONE, CREATE, APPEND, REMOVE, OWNER } from "../utils/constants";
+import { ZERO_ADDRESS, ZERO, ONE, CREATE, APPEND, REMOVE, OWNER, MODULO, PLATFORM, RELAYER } from "../utils/constants";
+
+import { AuctionSettled } from "../generated/ETSAuctionHouse/ETSAuctionHouse";
 
 export function ensureCreator(creatorAddress: Address, event: ethereum.Event): Creator {
   let creator = Creator.load(creatorAddress.toHex());
@@ -19,6 +23,8 @@ export function ensureCreator(creatorAddress: Address, event: ethereum.Event): C
     creator.createdTagsRemovedFromTaggingRecords = ZERO;
     creator.createdTagsTaggingFeeRevenue = ZERO;
     creator.save();
+
+    updateCreatorCount(event);
   }
   return creator as Creator;
 }
@@ -27,6 +33,19 @@ export function updateCreatorTagStats(creatorAddress: Address, event: Transfer):
   let creator = ensureCreator(creatorAddress, event);
   if (creator && event.params.from.toHexString() == ZERO_ADDRESS) {
     creator.tagsCreated = creator.tagsCreated.plus(ONE);
+    creator.save();
+  }
+}
+
+export function updateCreatorAuctionStats(auctionId: BigInt, event: AuctionSettled): void {
+  let auction = ensureAuction(auctionId, event);
+  let tag = ensureTag(BigInt.fromString(auction.tag), event);
+  let creator = ensureCreator(Address.fromString(tag.creator), event);
+  if (creator && event) {
+    // pull percentages from settings.
+    let settings = ensureGlobalSettings();
+    let creatorAuctionRevenue = auction.amount.times(settings.creatorPercentage).div(MODULO);
+    creator.createdTagsAuctionRevenue = creator.createdTagsAuctionRevenue.plus(creatorAuctionRevenue);
     creator.save();
   }
 }

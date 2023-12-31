@@ -3,7 +3,7 @@
 // Hello
 pragma solidity ^0.8.10;
 
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
+import { ERC721Burnable, ERC721 } from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 
 contract ERC721BurnableMock is ERC721Burnable {
     // solhint-disable no-empty-blocks
@@ -21,11 +21,7 @@ contract ERC721BurnableMock is ERC721Burnable {
         _safeMint(to, tokenId);
     }
 
-    function safeMint(
-        address to,
-        uint256 tokenId,
-        bytes memory _data
-    ) public {
+    function safeMint(address to, uint256 tokenId, bytes memory _data) public {
         _safeMint(to, tokenId, _data);
     }
 }

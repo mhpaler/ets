@@ -1,7 +1,7 @@
 import { Address, BigInt, ethereum, log } from "@graphprotocol/graph-ts";
 import { Owner, Platform } from "../generated/schema";
 import { Transfer } from "../generated/ETSToken/ETSToken";
-import { ensurePlatform } from "../entities/Platform";
+import { ensurePlatform, updateOwnerCount } from "../entities/Platform";
 import { ensureTag } from "../entities/Tag";
 import { getTaggingFee } from "../utils/getTaggingFee";
 import { arrayDiff } from "../utils/arrayDiff";
@@ -19,6 +19,10 @@ export function ensureOwner(ownerAddress: Address, event: ethereum.Event): Owner
     owner.ownedTagsRemovedFromTaggingRecords = ZERO;
     owner.ownedTagsTaggingFeeRevenue = ZERO;
     owner.save();
+
+    if (ownerAddress.toHex() != ZERO_ADDRESS) {
+      updateOwnerCount(event);
+    }
   }
 
   return owner as Owner;

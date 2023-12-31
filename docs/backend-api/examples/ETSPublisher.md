@@ -1,6 +1,6 @@
-# ETSPublisher
+# ETSRelayer
 
-Sample implementation of IETSPublisher
+Sample implementation of IETSRelayer
 
 ## Functions
 
@@ -16,7 +16,7 @@ constructor(contract IETS _ets, contract IETSToken _etsToken, contract IETSTarge
 function pause() public
 ```
 
-Pause this publisher contract.
+Pause this relayer contract.
 
 _This function can only be called by the owner when the contract is unpaused._
 
@@ -26,7 +26,7 @@ _This function can only be called by the owner when the contract is unpaused._
 function unpause() public
 ```
 
-Unpause this publisher contract.
+Unpause this relayer contract.
 
 _This function can only be called by the owner when the contract is paused._
 
@@ -40,9 +40,9 @@ Transfer this contract to a new owner.
 
 _This function can only be called by the owner when the contract is paused._
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _newOwner | address |  |
+| Name       | Type    | Description |
+| ---------- | ------- | ----------- |
+| \_newOwner | address |             |
 
 ### applyTags
 
@@ -86,9 +86,9 @@ Check whether this contract has been pasued by the owner.
 
 _Pause functionality should be provided by OpenZeppelin Pausable utility._
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bool | boolean: true for paused; false for not paused. |
+| Name | Type | Description                                     |
+| ---- | ---- | ----------------------------------------------- |
+| [0]  | bool | boolean: true for paused; false for not paused. |
 
 ### getOwner
 
@@ -96,23 +96,23 @@ _Pause functionality should be provided by OpenZeppelin Pausable utility._
 function getOwner() public view virtual returns (address payable)
 ```
 
-Returns address of an IETSPublisher contract owner.
+Returns address of an IETSRelayer contract owner.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | address payable | address of contract owner. |
+| Name | Type            | Description                |
+| ---- | --------------- | -------------------------- |
+| [0]  | address payable | address of contract owner. |
 
-### getPublisherName
+### getRelayerName
 
 ```solidity
-function getPublisherName() public pure returns (string)
+function getRelayerName() public pure returns (string)
 ```
 
-Returns human readable name for this IETSPublisher contract.
+Returns human readable name for this IETSRelayer contract.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | string | name of the Publisher contract as a string. |
+| Name | Type   | Description                               |
+| ---- | ------ | ----------------------------------------- |
+| [0]  | string | name of the Relayer contract as a string. |
 
 ### getCreator
 
@@ -120,11 +120,11 @@ Returns human readable name for this IETSPublisher contract.
 function getCreator() public view returns (address payable)
 ```
 
-Returns address of an IETSPublisher contract creator.
+Returns address of an IETSRelayer contract creator.
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | address payable | address of the creator of the Publisher contract. |
+| Name | Type            | Description                                     |
+| ---- | --------------- | ----------------------------------------------- |
+| [0]  | address payable | address of the creator of the Relayer contract. |
 
 ### computeTaggingFee
 
@@ -132,21 +132,20 @@ Returns address of an IETSPublisher contract creator.
 function computeTaggingFee(uint256 _taggingRecordId, uint256[] _tagIds, enum IETS.TaggingAction _action) public view returns (uint256 fee, uint256 tagCount)
 ```
 
-### _applyTags
+### \_applyTags
 
 ```solidity
 function _applyTags(struct IETS.TaggingRecordRawInput _rawParts, address payable _tagger, uint256 _taggingFee) internal
 ```
 
-### _replaceTags
+### \_replaceTags
 
 ```solidity
 function _replaceTags(struct IETS.TaggingRecordRawInput _rawParts, address payable _tagger, uint256 _taggingFee) internal
 ```
 
-### _removeTags
+### \_removeTags
 
 ```solidity
 function _removeTags(struct IETS.TaggingRecordRawInput _rawParts, address payable _tagger) internal
 ```
-
