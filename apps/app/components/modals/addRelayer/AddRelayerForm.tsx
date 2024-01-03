@@ -52,9 +52,9 @@ const AddRelayerForm = ({ closeModal }: Props) => {
   const context = useAddRelayer();
 
   // Handle the case when context is undefined.
-  if (!context) {
-    return null;
-  }
+  //if (!context) {
+  //  return null;
+  //}
 
   const { formData, setFormData, goToNextStep } = context;
   const [isFormDisabled, setIsFormDisabled] = useState(true);
@@ -108,7 +108,7 @@ const AddRelayerForm = ({ closeModal }: Props) => {
       }
     };
     validateName();
-  }, [nameValue, relayers, setError, clearErrors]);
+  }, [nameValue, relayers, setError, clearErrors, t]);
 
   // Effect to control form submit button's enabled/disabled state.
   useEffect(() => {

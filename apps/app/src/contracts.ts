@@ -2,10 +2,6 @@
 // ETS
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0xC9F144a070ECa6E4A94f579E5993314088A0E369)
- */
 export const etsABI = [
   { stateMutability: 'nonpayable', type: 'constructor', inputs: [] },
   {
@@ -700,29 +696,14 @@ export const etsABI = [
   },
 ] as const
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0xC9F144a070ECa6E4A94f579E5993314088A0E369)
- */
-export const etsAddress = {
-  31337: '0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0',
-  80001: '0xC9F144a070ECa6E4A94f579E5993314088A0E369',
-} as const
+export const etsAddress = '0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0' as const
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0xC9F144a070ECa6E4A94f579E5993314088A0E369)
- */
 export const etsConfig = { address: etsAddress, abi: etsABI } as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ETSAccessControls
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0x5e35De5baA8b2Eb364bbac24CfdFC4F4414C9147)
- */
 export const etsAccessControlsABI = [
   { stateMutability: 'nonpayable', type: 'constructor', inputs: [] },
   {
@@ -1212,19 +1193,9 @@ export const etsAccessControlsABI = [
   },
 ] as const
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0x5e35De5baA8b2Eb364bbac24CfdFC4F4414C9147)
- */
-export const etsAccessControlsAddress = {
-  31337: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
-  80001: '0x5e35De5baA8b2Eb364bbac24CfdFC4F4414C9147',
-} as const
+export const etsAccessControlsAddress =
+  '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512' as const
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0x5e35De5baA8b2Eb364bbac24CfdFC4F4414C9147)
- */
 export const etsAccessControlsConfig = {
   address: etsAccessControlsAddress,
   abi: etsAccessControlsABI,
@@ -1234,10 +1205,6 @@ export const etsAccessControlsConfig = {
 // ETSAuctionHouse
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0xe2bf0e6274325B968880950ba230C7dB67768c5b)
- */
 export const etsAuctionHouseABI = [
   { stateMutability: 'nonpayable', type: 'constructor', inputs: [] },
   {
@@ -1946,19 +1913,9 @@ export const etsAuctionHouseABI = [
   { stateMutability: 'payable', type: 'receive' },
 ] as const
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0xe2bf0e6274325B968880950ba230C7dB67768c5b)
- */
-export const etsAuctionHouseAddress = {
-  31337: '0x0165878A594ca255338adfa4d48449f69242Eb8F',
-  80001: '0xe2bf0e6274325B968880950ba230C7dB67768c5b',
-} as const
+export const etsAuctionHouseAddress =
+  '0x0165878A594ca255338adfa4d48449f69242Eb8F' as const
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0xe2bf0e6274325B968880950ba230C7dB67768c5b)
- */
 export const etsAuctionHouseConfig = {
   address: etsAuctionHouseAddress,
   abi: etsAuctionHouseABI,
@@ -1968,10 +1925,6 @@ export const etsAuctionHouseConfig = {
 // ETSEnrichTarget
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0x0D64167E63a52fCaC19e4B094B2C66Bc72134B6E)
- */
 export const etsEnrichTargetABI = [
   { stateMutability: 'nonpayable', type: 'constructor', inputs: [] },
   {
@@ -2133,19 +2086,9 @@ export const etsEnrichTargetABI = [
   },
 ] as const
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0x0D64167E63a52fCaC19e4B094B2C66Bc72134B6E)
- */
-export const etsEnrichTargetAddress = {
-  31337: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788',
-  80001: '0x0D64167E63a52fCaC19e4B094B2C66Bc72134B6E',
-} as const
+export const etsEnrichTargetAddress =
+  '0x610178dA211FEF7D417bC0e6FeD39F05609AD788' as const
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0x0D64167E63a52fCaC19e4B094B2C66Bc72134B6E)
- */
 export const etsEnrichTargetConfig = {
   address: etsEnrichTargetAddress,
   abi: etsEnrichTargetABI,
@@ -2155,10 +2098,6 @@ export const etsEnrichTargetConfig = {
 // ETSRelayerFactory
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0x11F42441768aC9121aaE759163e2919B03FB500d)
- */
 export const etsRelayerFactoryABI = [
   {
     stateMutability: 'nonpayable',
@@ -2251,19 +2190,9 @@ export const etsRelayerFactoryABI = [
   },
 ] as const
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0x11F42441768aC9121aaE759163e2919B03FB500d)
- */
-export const etsRelayerFactoryAddress = {
-  31337: '0x9A676e781A523b5d0C0e43731313A708CB607508',
-  80001: '0x11F42441768aC9121aaE759163e2919B03FB500d',
-} as const
+export const etsRelayerFactoryAddress =
+  '0x9A676e781A523b5d0C0e43731313A708CB607508' as const
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0x11F42441768aC9121aaE759163e2919B03FB500d)
- */
 export const etsRelayerFactoryConfig = {
   address: etsRelayerFactoryAddress,
   abi: etsRelayerFactoryABI,
@@ -2273,10 +2202,6 @@ export const etsRelayerFactoryConfig = {
 // ETSRelayerV1
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0x1E947E1A2dcf539867d1e75112F59748ccD7B01A)
- */
 export const etsRelayerV1ABI = [
   { stateMutability: 'nonpayable', type: 'constructor', inputs: [] },
   {
@@ -2649,19 +2574,9 @@ export const etsRelayerV1ABI = [
   { stateMutability: 'payable', type: 'receive' },
 ] as const
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0x1E947E1A2dcf539867d1e75112F59748ccD7B01A)
- */
-export const etsRelayerV1Address = {
-  31337: '0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82',
-  80001: '0x1E947E1A2dcf539867d1e75112F59748ccD7B01A',
-} as const
+export const etsRelayerV1Address =
+  '0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82' as const
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0x1E947E1A2dcf539867d1e75112F59748ccD7B01A)
- */
 export const etsRelayerV1Config = {
   address: etsRelayerV1Address,
   abi: etsRelayerV1ABI,
@@ -2671,10 +2586,6 @@ export const etsRelayerV1Config = {
 // ETSTarget
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0x211A22B9078641e982F09067fD7BAb85ab3Bb2aF)
- */
 export const etsTargetABI = [
   { stateMutability: 'nonpayable', type: 'constructor', inputs: [] },
   {
@@ -2971,19 +2882,9 @@ export const etsTargetABI = [
   },
 ] as const
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0x211A22B9078641e982F09067fD7BAb85ab3Bb2aF)
- */
-export const etsTargetAddress = {
-  31337: '0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6',
-  80001: '0x211A22B9078641e982F09067fD7BAb85ab3Bb2aF',
-} as const
+export const etsTargetAddress =
+  '0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6' as const
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0x211A22B9078641e982F09067fD7BAb85ab3Bb2aF)
- */
 export const etsTargetConfig = {
   address: etsTargetAddress,
   abi: etsTargetABI,
@@ -2993,10 +2894,6 @@ export const etsTargetConfig = {
 // ETSToken
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0xcC3B625Cf0d56D5B3758Fe9b98605EE2DC7389A7)
- */
 export const etsTokenABI = [
   { stateMutability: 'nonpayable', type: 'constructor', inputs: [] },
   {
@@ -3779,19 +3676,9 @@ export const etsTokenABI = [
   },
 ] as const
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0xcC3B625Cf0d56D5B3758Fe9b98605EE2DC7389A7)
- */
-export const etsTokenAddress = {
-  31337: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9',
-  80001: '0xcC3B625Cf0d56D5B3758Fe9b98605EE2DC7389A7',
-} as const
+export const etsTokenAddress =
+  '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9' as const
 
-/**
- * -
- * - [__View Contract on Polygon Mumbai Polygon Scan__](https://mumbai.polygonscan.com/address/0xcC3B625Cf0d56D5B3758Fe9b98605EE2DC7389A7)
- */
 export const etsTokenConfig = {
   address: etsTokenAddress,
   abi: etsTokenABI,

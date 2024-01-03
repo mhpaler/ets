@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@ethereum-tag-service/config": "workspace:*",
     "@wagmi/core": "^1.4.7",
     "abitype": "^0.10.3",
     "axios": "^1.6.2",
