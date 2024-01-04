@@ -39,7 +39,27 @@ export type FormContextValue = {
   setTransactionStatus: (status: TransactionStatus) => void;
 };
 
-export const AddRelayerContext = createContext<FormContextValue | undefined>(undefined);
+// Define a default context value
+const defaultContextValue: FormContextValue = {
+  address: undefined,
+  isConnected: false,
+  hasTags: false,
+  AddRelayerSteps,
+  currentStep: AddRelayerSteps.CheckUser,
+  goToNextStep: () => {},
+  goToStep: () => {},
+  formData: { name: "" },
+  setFormData: () => {},
+  transactionStatus: {
+    loading: false,
+    success: false,
+    error: null,
+    stage: null,
+  },
+  setTransactionStatus: () => {},
+};
+
+export const AddRelayerContext = createContext<FormContextValue>(defaultContextValue);
 
 export const AddRelayerProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentStep, setCurrentStep] = useState(AddRelayerSteps.CheckUser);

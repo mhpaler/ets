@@ -3,6 +3,9 @@
  */
 
 // Import necessary modules.
+// TODO: Get graph-endpoints going as a ets package.
+// import graphEndpoints from "@ethereum-tag-service/config/graph-endpoints";
+import graphEndpoints from "./graphEndpoints.ts";
 import axios, { AxiosResponse } from "axios";
 
 // Define the TagService class.\
@@ -24,8 +27,11 @@ export class TagService {
    * @throws An error if there's an issue with the blockchain or GraphQL queries.
    */
   public async findNextCTAG(platformAddress: string, lastAuctionTokenId: string): Promise<string> {
-    const GRAPH_API_ENDPOINT = process.env.DEV_GRAPH_ENDPOINT || "http://localhost:8000/subgraphs/name/ets/ets-local";
+    // Get the environment from the REACT_APP_ENV variable
+    const environment: string = process.env.REACT_APP_ENV || "development";
 
+    // Use the environment to select the appropriate endpoint
+    const GRAPH_API_ENDPOINT: string = graphEndpoints[environment];
     try {
       // Use the provided platformAddress and lastAuctionTokenId
       console.log("ETS Platform Address: ", platformAddress);

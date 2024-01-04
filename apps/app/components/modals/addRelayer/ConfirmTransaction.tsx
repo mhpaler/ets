@@ -49,9 +49,9 @@ const ConfirmTransaction = ({ closeModal }: Props) => {
   const { t } = useTranslation("common");
   const context = useAddRelayer();
 
-  if (!context) {
-    return null;
-  }
+  //  if (!context) {
+  //    return null;
+  //  }
 
   const { AddRelayerSteps, goToStep, formData } = context;
 

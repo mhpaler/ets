@@ -29,7 +29,7 @@
     "prettier": "prettier --write 'contracts/**/*.sol'",
     "solhint": "./node_modules/.bin/solhint contracts/*.sol contracts/**/*.sol",
     "build:contracts": "pnpm compile",
-    "build:package": "rm -rf ./dist && cp -R config dist && cp -R artifacts/contracts dist/artifacts && cp -R contracts dist",
+    "build:package": "rm -rf ./dist && cp -R export dist && cp -R artifacts/contracts dist/artifacts && cp -R contracts dist",
     "watch": "ts-node scripts/watch.ts",
     "test": "hardhat test",
     "hardhat": "hardhat node --no-deploy",

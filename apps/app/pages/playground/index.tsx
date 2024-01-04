@@ -7,13 +7,9 @@ import { Button } from "../../components/Button";
 import PageTitle from "../../components/PageTitle";
 import { Listbox, Transition } from "@headlessui/react";
 import { useContractWrite } from "wagmi";
-import ETSTokenABI from "../../abi/ETSToken.json";
+import { etsTokenConfig } from "../../src/contracts.js";
 
-const people = [
-  { name: "zachwilliams.eth" },
-  { name: "swaylocks.eth" },
-  { name: "nadim.eth" },
-];
+const people = [{ name: "zachwilliams.eth" }, { name: "swaylocks.eth" }, { name: "nadim.eth" }];
 
 function classNames(...classes: any) {
   return classes.filter(Boolean).join(" ");
@@ -25,18 +21,6 @@ const Playground: NextPage = () => {
   const { t } = useTranslation("common");
 
   const [selected, setSelected] = useState(people[0]);
-
-  const { data, error, isSuccess, isError, isLoading, write } =
-    useContractWrite(
-      {
-        addressOrName: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-        contractInterface: ETSTokenABI.abi,
-      },
-      "createTag(string,address)",
-      {
-        args: ["#hello", "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"],
-      }
-    );
 
   return (
     <div className="max-w-7xl mx-auto mt-12">
@@ -53,12 +37,7 @@ const Playground: NextPage = () => {
               <Listbox.Button className="relative w-full py-3 pl-4 pr-10 text-left bg-white border rounded-lg appearance-none cursor-default border-slate-300 text-slate-700 focus:outline-none focus-visible:border-pink-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-pink-500">
                 <span className="block truncate">{selected.name}</span>
                 <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                  <svg
-                    className="w-6 h-6 text-slate-400"
-                    aria-hidden="true"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="w-6 h-6 text-slate-400" aria-hidden="true" fill="none" viewBox="0 0 24 24">
                     <path
                       stroke="currentColor"
                       strokeLinecap="round"
@@ -81,22 +60,14 @@ const Playground: NextPage = () => {
                       key={personIdx}
                       className={({ active }) =>
                         `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                          active
-                            ? "bg-pink-100 text-pink-600"
-                            : "text-slate-700"
+                          active ? "bg-pink-100 text-pink-600" : "text-slate-700"
                         }`
                       }
                       value={person}
                     >
                       {({ selected }) => (
                         <>
-                          <span
-                            className={`block truncate ${
-                              selected
-                                ? "font-medium text-pink-600"
-                                : "font-normal"
-                            }`}
-                          >
+                          <span className={`block truncate ${selected ? "font-medium text-pink-600" : "font-normal"}`}>
                             {person.name}
                           </span>
                           {selected ? (
@@ -128,7 +99,6 @@ const Playground: NextPage = () => {
           </Listbox>
           <div className="lg:ml-3 lg:flex-shrink-0">
             <button
-              onClick={() => write()}
               type="submit"
               className="flex items-center justify-center w-full px-8 py-3 text-base font-bold text-white transition-colors bg-pink-500 border border-transparent rounded-lg shadow-lg shadow-pink-500/30 hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-300"
             >

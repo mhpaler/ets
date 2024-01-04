@@ -3,7 +3,7 @@ import hardhatDeploy from "@sunodo/wagmi-plugin-hardhat-deploy";
 
 let networks;
 
-switch (process.env.NODE_ENV) {
+switch (process.env.REACT_NODE_ENV) {
   case "development":
     networks = ["localhost"];
     break;
