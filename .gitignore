@@ -71,6 +71,7 @@ apps/app/artifacts/@openzeppelin/*
 apps/app/artifacts/build-info/*
 apps/app/artifacts/hardhat/*
 apps/app/artifacts/**/*.dbg.json
+apps/app/src/contracts.ts
 
 apps/oracle/.env
 apps/oracle/.env
