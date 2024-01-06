@@ -61,9 +61,7 @@ export default function Navbar() {
                   {t("playground")}
                 </Link>
               </div>
-              <span className={clientClassName}>
-                <ConnectButton label="Connect" chainStatus="name" showBalance={false} accountStatus="address" />
-              </span>
+              <ConnectButton label="Connect" showBalance={false} accountStatus="address" />
             </div>
           </div>
         </div>
