@@ -13,11 +13,6 @@ export const fetchHasTags = async (address: `0x${string}` | undefined): Promise<
     functionName: "balanceOf",
     args: [address],
   });
-  if (data > BigInt(0)) {
-    console.log("fetchHasTags", true);
-    return true;
-  } else {
-    console.log("fetchHasTags", false);
-    return false;
-  }
+
+  return data > BigInt(0);
 };
