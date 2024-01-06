@@ -9,6 +9,9 @@ export const fetcher = async <T = any,>(query: string, variables: Variables): Pr
   // Current ETS_ENVIRONMENTS are development/stage/production
   const environment: string = process.env.NEXT_PUBLIC_ETS_ENVIRONMENT || "development";
 
+  console.log("process.env.NEXT_PUBLIC_ETS_ENVIRONMENT: ", process.env.NEXT_PUBLIC_ETS_ENVIRONMENT);
+  console.log("FETCHERS ENVIRONMENT: ", environment);
+
   // Use the environment to select the appropriate endpoint
   const GRAPH_API_ENDPOINT: string = graphEndpoints[environment];
 
