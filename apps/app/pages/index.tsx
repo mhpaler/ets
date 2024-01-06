@@ -3,9 +3,10 @@ import type { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth";
 import { getAuthOptions } from "./api/auth/[...nextauth]";
 
-import { TaggingRecords } from "../components/TaggingRecords";
 import useTranslation from "next-translate/useTranslation";
-import { Stats } from "../components/Stats";
+
+import { TaggingRecords } from "@app/components/TaggingRecords";
+import { Stats } from "@app/components/Stats";
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   return {
@@ -16,7 +17,6 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 };
 
 const Home: NextPage = () => {
-  console.log("next pageXX",process.env.GRAPH_API_ENDPOINT);
   const { t } = useTranslation("common");
   return (
     <div className="grid max-w-7xl gap-6 mx-auto mt-12 lg:gap-12 md:space-y-0 sm:w-full">
