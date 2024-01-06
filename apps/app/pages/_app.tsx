@@ -24,7 +24,7 @@ import { publicProvider } from "wagmi/providers/public";
 //Configure the chain and the RPC provider. Note that we've added localhost here
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [polygonMumbai, hardhat],
-  [alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_KEY || "" }), publicProvider()]
+  [alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_KEY || "" }), publicProvider()],
 );
 
 const projectId = "1";
@@ -84,7 +84,7 @@ const etsTheme = merge(
     shadows: {
       connectButton: "none",
     },
-  } as Theme
+  } as Theme,
 );
 
 Router.events.on("routeChangeStart", nProgress.start);

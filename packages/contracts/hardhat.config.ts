@@ -50,7 +50,6 @@ const config: HardhatUserConfig = {
     },
     mumbai: {
       url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_MUMBAI}`,
-      //url: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 80001,
       accounts: {
         mnemonic: mnemonic.mumbai,
@@ -60,7 +59,6 @@ const config: HardhatUserConfig = {
     },
     mumbai_stage: {
       url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_MUMBAI}`,
-      //url: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 80001,
       accounts: {
         mnemonic: mnemonic.mumbai,

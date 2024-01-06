@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "wagmi generate && next dev -p 3000",
     "build": "wagmi generate && next build",
-    "start": "next start",
+    "start": "dotenv -e ../../.env -- next start",
     "lint": "next lint"
   },
   "dependencies": {
