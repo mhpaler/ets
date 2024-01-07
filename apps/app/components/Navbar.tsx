@@ -3,19 +3,9 @@ import useTranslation from "next-translate/useTranslation";
 import Breadcrumbs from "nextjs-breadcrumbs2";
 import { BreadcrumbItem } from "./BreadcrumbItem";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useAccount } from "wagmi";
-import { useEffect, useState } from "react";
 
 export default function Navbar() {
   const { t } = useTranslation("common");
-  const { address, isConnected } = useAccount();
-
-  const [clientClassName, setClientClassName] = useState("");
-  useEffect(() => {
-    // Apply dynamic class on the client side
-    setClientClassName(`${address && isConnected ? "connected" : ""} connect-btn`);
-  }, [address, isConnected]);
-
   return (
     <header className="px-4">
       <nav className="max-w-7xl mx-auto" aria-label="Top">
@@ -47,6 +37,7 @@ export default function Navbar() {
                 >
                   {t("relayers")}
                 </Link>
+                {/*
                 <Link
                   href="/auction"
                   className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700"
@@ -59,9 +50,12 @@ export default function Navbar() {
                   className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700"
                 >
                   {t("playground")}
-                </Link>
+              </Link>
+              */}
               </div>
-              <ConnectButton label="Connect" showBalance={false} accountStatus="address" />
+              <span className="connect-btn">
+                <ConnectButton label="Connect" showBalance={false} accountStatus="address" />
+              </span>
             </div>
           </div>
         </div>
@@ -69,7 +63,7 @@ export default function Navbar() {
           <Link href="/relayers" className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
             {t("relayers")}
           </Link>
-
+          {/*
           <Link href="/auctions" className="text-base font-medium text-pink-600 whitespace-nowrap hover:text-pink-700">
             {t("auctions")}
           </Link>
@@ -80,6 +74,7 @@ export default function Navbar() {
           >
             {t("playground")}
           </Link>
+        */}
         </div>
         <div className="hidden md:block">
           <Breadcrumbs

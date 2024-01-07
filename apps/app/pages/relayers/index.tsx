@@ -61,11 +61,11 @@ const Relayers: NextPage = () => {
       </Head>
       <div className="flex justify-between">
         <PageTitle title={pageTitle} />
-        <AddRelayerProvider>
+        {/*         <AddRelayerProvider>
           <Modal buttonText={t("create-relayer")}>
             <FormWrapper />
           </Modal>
-        </AddRelayerProvider>
+        </AddRelayerProvider> */}
       </div>
       <Table loading={!relayers} rows={pageSize}>
         <Table.Title>{t("relayers")}</Table.Title>

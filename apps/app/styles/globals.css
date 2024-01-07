@@ -32,12 +32,12 @@
 
 /* Sitewide button customizations to DaisyUI*/
 .btn {
-  @apply text-base transform transition duration-200 hover:scale-102;
+  @apply transform transition duration-200 hover:scale-102;
 }
 
 /* Override the rainbow connect button! */
 .connect-btn button {
-  @apply font-semibold text-base btn btn-primary border-none !important;
+  @apply font-semibold !important;
 }
 
 .connect-btn.connected button {
@@ -45,5 +45,5 @@
 }
 
 .connect-btn button div {
-  @apply font-semibold border-none border-primary text-base pr-0 pl-0 !important;
+  @apply font-semibold text-sm border !important;
 }
