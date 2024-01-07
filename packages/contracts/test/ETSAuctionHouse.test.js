@@ -433,7 +433,7 @@ describe("ETS Auction House Tests", function () {
   describe("Bidding on ended, but not settled auction", async function () {
     beforeEach(async function () {
       // Create an auction.
-      const bid = ethers.utils.parseEther(initSettings.RESERVE_PRICE);
+      const bid = ethers.parseEther(initSettings.RESERVE_PRICE);
 
       await contracts.ETSAuctionHouse.connect(accounts.ETSPlatform).fulfillRequestCreateAuction(etsOwnedTagId);
       await contracts.ETSAuctionHouse.connect(accounts.RandomOne).createBid(1, {
