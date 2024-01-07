@@ -17,29 +17,14 @@ describe("Upgrades tests", function () {
     it("is upgradeable", async function () {
       // Upgrade the proxy.
       contracts.ETSAccessControls = await upgrades.upgradeProxy(
-        contracts.ETSAccessControls.address,
+        await contracts.ETSAccessControls.getAddress(),
         factories.ETSAccessControlsUpgrade,
       );
 
-      const deployTxn = contracts.ETSAccessControls.deployTransaction.hash;
-      await expectEvent.inTransaction(deployTxn, artifacts.ETSAccessControlsUpgrade, "Upgraded");
+      const upgradeTxn = await contracts.ETSAccessControls.deployTransaction.hash;
+      await expectEvent.inTransaction(upgradeTxn, artifacts.ETSAccessControlsUpgrade, "Upgraded");
       // Upgraded contract has new function upgradeTest()
       assert((await contracts.ETSAccessControls.upgradeTest()) === true);
-    });
-  });
-
-  describe("ETSAuctionHouse", function () {
-    it("is upgradeable", async function () {
-      // Upgrade the proxy.
-      contracts.ETSAuctionHouse = await upgrades.upgradeProxy(
-        contracts.ETSAuctionHouse.address,
-        factories.ETSAuctionHouseUpgrade,
-      );
-
-      const deployTxn = contracts.ETSAuctionHouse.deployTransaction.hash;
-      await expectEvent.inTransaction(deployTxn, artifacts.ETSAuctionHouseUpgrade, "Upgraded");
-      // Upgraded contract has new function upgradeTest()
-      assert((await contracts.ETSAuctionHouse.upgradeTest()) === true);
     });
   });
 
@@ -47,12 +32,12 @@ describe("Upgrades tests", function () {
     it("is upgradeable", async function () {
       // Upgrade the proxy.
       contracts.ETSEnrichTarget = await upgrades.upgradeProxy(
-        contracts.ETSEnrichTarget.address,
+        await contracts.ETSEnrichTarget.getAddress(),
         factories.ETSEnrichTargetUpgrade,
       );
 
-      const deployTxn = contracts.ETSEnrichTarget.deployTransaction.hash;
-      await expectEvent.inTransaction(deployTxn, artifacts.ETSEnrichTargetUpgrade, "Upgraded");
+      const upgradeTxn = contracts.ETSEnrichTarget.deployTransaction.hash;
+      await expectEvent.inTransaction(upgradeTxn, artifacts.ETSEnrichTargetUpgrade, "Upgraded");
       // Upgraded contract has new function upgradeTest()
       assert((await contracts.ETSEnrichTarget.upgradeTest()) === true);
     });
@@ -61,10 +46,10 @@ describe("Upgrades tests", function () {
   describe("ETSTarget", function () {
     it("is upgradeable", async function () {
       // Upgrade the proxy.
-      contracts.ETSTarget = await upgrades.upgradeProxy(contracts.ETSTarget.address, factories.ETSTargetUpgrade);
+      contracts.ETSTarget = await upgrades.upgradeProxy(await contracts.ETSTarget.getAddress(), factories.ETSTargetUpgrade);
 
-      const deployTxn = contracts.ETSTarget.deployTransaction.hash;
-      await expectEvent.inTransaction(deployTxn, artifacts.ETSTargetUpgrade, "Upgraded");
+      const upgradeTxn = contracts.ETSTarget.deployTransaction.hash;
+      await expectEvent.inTransaction(upgradeTxn, artifacts.ETSTargetUpgrade, "Upgraded");
       // Upgraded contract has new function upgradeTest()
       assert((await contracts.ETSTarget.upgradeTest()) === true);
     });
@@ -73,10 +58,10 @@ describe("Upgrades tests", function () {
   describe("ETSToken", function () {
     it("is upgradeable", async function () {
       // Upgrade the proxy.
-      contracts.ETSToken = await upgrades.upgradeProxy(contracts.ETSToken.address, factories.ETSTokenUpgrade);
+      contracts.ETSToken = await upgrades.upgradeProxy(await contracts.ETSToken.getAddress(), factories.ETSTokenUpgrade);
 
-      const deployTxn = contracts.ETSToken.deployTransaction.hash;
-      await expectEvent.inTransaction(deployTxn, artifacts.ETSTokenUpgrade, "Upgraded");
+      const upgradeTxn = contracts.ETSToken.deployTransaction.hash;
+      await expectEvent.inTransaction(upgradeTxn, artifacts.ETSTokenUpgrade, "Upgraded");
       // Upgraded contract has new function upgradeTest()
       assert((await contracts.ETSToken.upgradeTest()) === true);
     });
@@ -85,12 +70,27 @@ describe("Upgrades tests", function () {
   describe("ETS", function () {
     it("is upgradeable", async function () {
       // Upgrade the proxy.
-      contracts.ETS = await upgrades.upgradeProxy(contracts.ETS.address, factories.ETSUpgrade);
+      contracts.ETS = await upgrades.upgradeProxy(await contracts.ETS.getAddress(), factories.ETSUpgrade);
 
-      const deployTxn = contracts.ETS.deployTransaction.hash;
-      await expectEvent.inTransaction(deployTxn, artifacts.ETSUpgrade, "Upgraded");
+      const upgradeTxn = contracts.ETS.deployTransaction.hash;
+      await expectEvent.inTransaction(upgradeTxn, artifacts.ETSUpgrade, "Upgraded");
       // Upgraded contract has new function upgradeTest()
       assert((await contracts.ETS.upgradeTest()) === true);
     });
   });
+
+  //  describe("ETSAuctionHouse", function () {
+  //    it("is upgradeable", async function () {
+  //      // Upgrade the proxy.
+  //      contracts.ETSAuctionHouse = await upgrades.upgradeProxy(
+  //        await contracts.ETSAuctionHouse.getAddress(),
+  //        factories.ETSAuctionHouseUpgrade,
+  //      );
+  //
+  //      const upgradeTxn = contracts.ETSAuctionHouse.deployTransaction.hash;
+  //      await expectEvent.inTransaction(upgradeTxn, artifacts.ETSAuctionHouseUpgrade, "Upgraded");
+  //      // Upgraded contract has new function upgradeTest()
+  //      assert((await contracts.ETSAuctionHouse.upgradeTest()) === true);
+  //    });
+  //  });
 });

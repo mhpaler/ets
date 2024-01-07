@@ -10,14 +10,7 @@ interface Button {
   type?: "button" | "reset" | "submit" | undefined;
 }
 
-const Button = ({
-  href,
-  disabled,
-  className,
-  children,
-  onClick,
-  type,
-}: Button) => {
+const Button = ({ href, disabled = false, className, children, onClick, type }: Button) => {
   if (href)
     return (
       <Link href={href} className={`btn ${className}`}>
@@ -26,12 +19,7 @@ const Button = ({
     );
 
   return (
-    <button
-      onClick={onClick}
-      type={type}
-      disabled={disabled}
-      className={`btn ${className}`}
-    >
+    <button onClick={onClick} type={type} disabled={disabled} className={`btn ${className}`}>
       {children}
     </button>
   );

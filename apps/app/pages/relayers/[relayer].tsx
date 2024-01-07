@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRelayers } from "../../hooks/useRelayers";
 import useTranslation from "next-translate/useTranslation";
 import { timestampToString } from "../../utils";
-import { toDp, toEth } from "../../utils";
+import { toEth } from "../../utils";
 import { TaggingRecords } from "../../components/TaggingRecords";
 import { Tags } from "../../components/Tags";
 import { Number } from "../../components/Number";
@@ -50,12 +50,7 @@ const Relayer: NextPage = () => {
         <title>{browserTitle}</title>
       </Head>
 
-      <PageTitle
-        title={pageTitle}
-        shareUrl={
-          "https://app.ets.xyz/relayers/" + (relayers && relayers[0].id)
-        }
-      />
+      <PageTitle title={pageTitle} shareUrl={"https://app.ets.xyz/relayers/" + (relayers && relayers[0].id)} />
 
       <div className="grid gap-6 mx-auto mt-8 lg:mb-12 mb-6 lg:gap-12 md:space-y-0 md:grid sm:w-full md:grid-cols-2">
         <div className="grid content-start w-full gap-6 mx-auto lg:gap-12">
@@ -64,9 +59,7 @@ const Relayer: NextPage = () => {
               <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col">
                 <div className="text-slate-500">{t("id")}</div>
                 <div className="flex space-x-1 justify-end">
-                  <div className="text-slate-500">
-                    {relayers && Truncate(relayers[0].id)}
-                  </div>
+                  <div className="text-slate-500">{relayers && Truncate(relayers[0].id)}</div>
                   <CopyAndPaste value={relayers && relayers[0].id} />
                 </div>
               </div>
@@ -74,10 +67,7 @@ const Relayer: NextPage = () => {
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col">
                 <div className="text-slate-500">{t("created")}</div>
                 <div className="text-right">
-                  <div className="text-slate-500">
-                    {relayers &&
-                      timestampToString(parseInt(relayers[0].firstSeen))}
-                  </div>
+                  <div className="text-slate-500">{relayers && timestampToString(parseInt(relayers[0].firstSeen))}</div>
                 </div>
               </div>
 
@@ -115,8 +105,7 @@ const Relayer: NextPage = () => {
                 <div className="flex-grow text-slate-500">{t("status")}</div>
                 <div className="flex space-x-1 justify-end">
                   <div className="text-slate-500">
-                    {(relayers && relayers[0].pausedByOwner) ||
-                    (relayers && relayers[0].lockedByProtocol)
+                    {(relayers && relayers[0].pausedByOwner) || (relayers && relayers[0].lockedByProtocol)
                       ? t("disabled")
                       : t("enabled")}
                   </div>
@@ -132,29 +121,21 @@ const Relayer: NextPage = () => {
                 <div className="text-slate-500">{t("tagging-records")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {relayers && (
-                      <Number value={relayers[0].taggingRecordsPublished} />
-                    )}
+                    {relayers && <Number value={relayers[0].taggingRecordsPublished} />}
                   </div>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col">
                 <div className="text-slate-500">{t("tags-published")}</div>
                 <div className="text-right">
-                  <div className="text-slate-500">
-                    {relayers && <Number value={relayers[0].tagsPublished} />}
-                  </div>
+                  <div className="text-slate-500">{relayers && <Number value={relayers[0].tagsPublished} />}</div>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col">
-                <div className="text-slate-500">
-                  {t("lifetime-tags-applied")}
-                </div>
+                <div className="text-slate-500">{t("lifetime-tags-applied")}</div>
                 <div className="text-right">
-                  <div className="text-slate-500">
-                    {relayers && <Number value={relayers[0].tagsApplied} />}
-                  </div>
+                  <div className="text-slate-500">{relayers && <Number value={relayers[0].tagsApplied} />}</div>
                 </div>
               </div>
 
@@ -163,12 +144,7 @@ const Relayer: NextPage = () => {
                 <div className="text-right">
                   <div className="text-slate-500">
                     {relayers &&
-                      toDp(
-                        toEth(
-                          relayers[0].publishedTagsAuctionRevenue +
-                            relayers[0].publishedTagsTaggingFeeRevenue
-                        )
-                      )}
+                      toEth(relayers[0].publishedTagsAuctionRevenue + relayers[0].publishedTagsTaggingFeeRevenue, 4)}
                     &nbsp;{t("matic")}
                   </div>
                 </div>

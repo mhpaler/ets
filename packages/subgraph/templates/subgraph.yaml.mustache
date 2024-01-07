@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: ETSAccessControls
-    network: {{network}}
+    network: {{name}}
     source:
-      address: "{{contracts.ETSAccessControls.address}}"
+      address: "{{config.contracts.ETSAccessControls.address}}"
       abi: ETSAccessControls
-      startBlock: {{contracts.ETSAccessControls.deploymentBlock}}
+      startBlock: {{upgradesConfig.contracts.ETSAccessControls.deploymentBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -21,13 +21,13 @@ dataSources:
         - RelayerAdmin
       abis:
         - name: UUPSUpgradeable
-          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol/UUPSUpgradeable.json
+          file: {{openzeppelin.UUPSUpgradeable}}
         - name: Initializable
-          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol/Initializable.json
+          file: {{openzeppelin.Initializable}}
         - name: ETSAccessControls
-          file: ./../contracts/abi/contracts/ETSAccessControls.sol/ETSAccessControls.json
+          file: {{abis.ETSAccessControls}}
         - name: ETSRelayerV1
-          file: ./../contracts/abi/contracts/relayers/ETSRelayerV1.sol/ETSRelayerV1.json
+          file: {{abis.ETSRelayerV1}}
       eventHandlers:
         - event: Initialized(uint8)
           handler: handleInitialized
@@ -45,11 +45,11 @@ dataSources:
           handler: handleRoleRevoked
   - kind: ethereum/contract
     name: ETSToken
-    network: {{network}}
+    network: {{name}}
     source:
-      address: "{{contracts.ETSToken.address}}"
+      address: "{{config.contracts.ETSToken.address}}"
       abi: ETSToken
-      startBlock: {{contracts.ETSToken.deploymentBlock}}
+      startBlock: {{upgradesConfig.contracts.ETSToken.deploymentBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -59,11 +59,11 @@ dataSources:
         - Transfer
       abis:
         - name: UUPSUpgradeable
-          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol/UUPSUpgradeable.json
+          file: {{openzeppelin.UUPSUpgradeable}}
         - name: Initializable
-          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol/Initializable.json
+          file: {{openzeppelin.Initializable}}
         - name: ETSToken
-          file: ./../contracts/abi/contracts/ETSToken.sol/ETSToken.json
+          file: {{abis.ETSToken}}
       eventHandlers:
         - event: Initialized(uint8)
           handler: handleInitialized
@@ -93,11 +93,11 @@ dataSources:
           handler: handleTransfer
   - kind: ethereum/contract
     name: ETSTarget
-    network: {{network}}
+    network: {{name}}
     source:
-      address: "{{contracts.ETSTarget.address}}"
+      address: "{{config.contracts.ETSTarget.address}}"
       abi: ETSTarget
-      startBlock: {{contracts.ETSTarget.deploymentBlock}}
+      startBlock: {{upgradesConfig.contracts.ETSTarget.deploymentBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -107,11 +107,11 @@ dataSources:
         - TargetMiscellaneous
       abis:
         - name: UUPSUpgradeable
-          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol/UUPSUpgradeable.json
+          file: {{openzeppelin.UUPSUpgradeable}}
         - name: Initializable
-          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol/Initializable.json
+          file: {{openzeppelin.Initializable}}
         - name: ETSTarget
-          file: ./../contracts/abi/contracts/ETSTarget.sol/ETSTarget.json
+          file: {{abis.ETSTarget}}
       eventHandlers:
         - event: Initialized(uint8)
           handler: handleInitialized
@@ -127,11 +127,11 @@ dataSources:
           handler: handleTargetUpdated
   - kind: ethereum/contract
     name: ETS
-    network: {{network}}
+    network: {{name}}
     source:
-      address: "{{contracts.ETS.address}}"
+      address: "{{config.contracts.ETS.address}}"
       abi: ETS
-      startBlock: {{contracts.ETS.deploymentBlock}}
+      startBlock: {{upgradesConfig.contracts.ETS.deploymentBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -141,17 +141,17 @@ dataSources:
         - TaggingRecord
       abis:
         - name: UUPSUpgradeable
-          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol/UUPSUpgradeable.json
+          file: {{openzeppelin.UUPSUpgradeable}}
         - name: Initializable
-          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol/Initializable.json
+          file: {{openzeppelin.Initializable}}
         - name: ETSAccessControls
-          file: ./../contracts/abi/contracts/ETSAccessControls.sol/ETSAccessControls.json
+          file: {{abis.ETSAccessControls}}
         - name: ETSToken
-          file: ./../contracts/abi/contracts/ETSToken.sol/ETSToken.json
+          file: {{abis.ETSToken}}
         - name: ETSTarget
-          file: ./../contracts/abi/contracts/ETSTarget.sol/ETSTarget.json
+          file: {{abis.ETSTarget}}
         - name: ETS
-          file: ./../contracts/abi/contracts/ETS.sol/ETS.json
+          file: {{abis.ETS}}
       eventHandlers:
         - event: Initialized(uint8)
           handler: handleInitialized
@@ -171,11 +171,11 @@ dataSources:
           handler: handleFundsWithdrawn
   - kind: ethereum/contract
     name: ETSAuctionHouse
-    network: {{network}}
+    network: {{name}}
     source:
-      address: "{{contracts.ETSAuctionHouse.address}}"
+      address: "{{config.contracts.ETSAuctionHouse.address}}"
       abi: ETSAuctionHouse
-      startBlock: {{contracts.ETSAuctionHouse.deploymentBlock}}
+      startBlock: {{upgradesConfig.contracts.ETSAuctionHouse.deploymentBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -187,13 +187,13 @@ dataSources:
         - Owner
       abis:
         - name: UUPSUpgradeable
-          file: ./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol/UUPSUpgradeable.json
+          file: {{openzeppelin.UUPSUpgradeable}}
         - name: ETSAccessControls
-          file: ./../contracts/abi/contracts/ETSAccessControls.sol/ETSAccessControls.json
+          file: {{abis.ETSAccessControls}}
         - name: ETSToken
-          file: ./../contracts/abi/contracts/ETSToken.sol/ETSToken.json
+          file: {{abis.ETSToken}}
         - name: ETSAuctionHouse
-          file: ./../contracts/abi/contracts/ETSAuctionHouse.sol/ETSAuctionHouse.json
+          file: {{abis.ETSAuctionHouse}}
       eventHandlers:
         - event: AuctionsMaxSet(uint256)
           handler: handleAuctionsMaxSet
@@ -209,7 +209,7 @@ dataSources:
           handler: handleAuctionProceedPercentagesSet
         - event: RequestCreateAuction()
           handler: handleRequestCreateAuction
-        - event: AuctionCreated(indexed uint256)
+        - event: AuctionCreated(indexed uint256,indexed uint256,uint256)
           handler: handleAuctionCreated
         - event: AuctionBid(indexed uint256,address,uint256,bool)
           handler: handleAuctionBid
@@ -223,7 +223,7 @@ dataSources:
 templates:
   - name: ETSRelayerV1
     kind: ethereum/contract
-    network: {{network}}
+    network: {{name}}
     source:
       abi: ETSRelayerV1
     mapping:
@@ -235,11 +235,11 @@ templates:
         - Relayer
       abis:
         - name: ETSRelayerV1
-          file: ./../contracts/abi/contracts/relayers/ETSRelayerV1.sol/ETSRelayerV1.json
+          file: {{abis.ETSRelayerV1}}
         - name: Ownable
-          file: ./../contracts/abi/@openzeppelin/contracts/access/Ownable.sol/Ownable.json
+          file: {{openzeppelin.Ownable}}
         - name: Pausable
-          file: ./../contracts/abi/@openzeppelin/contracts/security/Pausable.sol/Pausable.json
+          file: {{openzeppelin.Pausable}}
       eventHandlers:
         - event: RelayerPauseToggledByOwner(address)
           handler: handleRelayerPauseToggledByOwner

@@ -10,25 +10,29 @@ task(
   )
   .setAction(async (taskArgs) => {
     const { getAccounts } = require("./utils/getAccounts");
-    const config = require("../config/config.json");
-    const ETSAccessControlsABI = require("../abi/contracts/ETSAccessControls.sol/ETSAccessControls.json");
-    const ETSRelayerFactoryABI = require("../abi/contracts/ETSRelayerFactory.sol/ETSRelayerFactory.json");
-    const chainId = hre.network.config.chainId;
+
+    // Load network configuration
+    const networkConfig = require(`../export/chainConfig/${hre.network.name}.json`);
     const accounts = await getAccounts();
 
-    const ETSAccessControlsAddress = config[chainId].contracts.ETSAccessControls.address;
+    // ABIs and Contract addresses from network configuration
+    const ETSAccessControlsABI = networkConfig.contracts.ETSAccessControls.abi;
+    const ETSAccessControlsAddress = networkConfig.contracts.ETSAccessControls.address;
+    const ETSRelayerFactoryABI = networkConfig.contracts.ETSRelayerFactory.abi;
+    const ETSRelayerFactoryAddress = networkConfig.contracts.ETSRelayerFactory.address;
+
     const etsAccessControls = new ethers.Contract(
       ETSAccessControlsAddress,
       ETSAccessControlsABI,
       accounts[taskArgs.signer],
     );
 
-    const ETSRelayerFactoryAddress = config[chainId].contracts.ETSRelayerFactory.address;
     const etsRelayerFactory = new ethers.Contract(
       ETSRelayerFactoryAddress,
       ETSRelayerFactoryABI,
       accounts[taskArgs.signer],
     );
+
     if ((await etsAccessControls.isRelayerByName(taskArgs.name)) === true) {
       console.log("Relayer name exists");
       return;

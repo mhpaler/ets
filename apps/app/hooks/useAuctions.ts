@@ -1,10 +1,10 @@
 import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
 
-export function useRelayers({
+export function useAuctions({
   pageSize = 20,
   skip = 0,
-  orderBy = "firstSeen",
+  orderBy = "endTime",
   filter = {},
   config = {},
 }: {
@@ -16,38 +16,34 @@ export function useRelayers({
 }) {
   const { data, mutate, error } = useSWR(
     [
-      `query relayers($first: Int!, $skip: Int!, $orderBy: String! $filter: Relayer_filter) {
-        relayers: relayers(
+      `query auctions($filter: Auction_filter $first: Int!, $skip: Int!, $orderBy: String!) {
+        auctions: auctions(
           first: $first
           skip: $skip
           orderBy: $orderBy
           orderDirection: desc
           where: $filter
+
         ) {
           id
-          name
-          firstSeen
-          creator
-          owner
-          pausedByOwner
-          lockedByProtocol
-          publishedTagsAddedToTaggingRecords
-          publishedTagsAuctionRevenue
-          publishedTagsRemovedFromTaggingRecords
-          publishedTagsTaggingFeeRevenue
-          taggingRecordTxns
-          taggingRecordsPublished
-          tagsApplied
-          tagsPublished
-          tagsRemoved
+    			startTime
+    			endTime
+    			bidder {
+    			  id
+    			}
+          amount
+    			tag {
+            id
+            display
+            machineName
+          }
         },
-        nextRelayers: relayers(
-          first: ${pageSize}
+        nextAuctions: auctions(
+          first: $first
           skip: ${skip + pageSize}
           orderBy: $orderBy
           orderDirection: desc
-          where: $filter
-        ) {
+          where: $filter) {
           id
         }
       }`,
@@ -62,9 +58,9 @@ export function useRelayers({
   );
 
   return {
-    relayers: data?.relayers,
-    nextRelayers: data?.nextRelayers,
-    isLoading: !error && !data?.relayers,
+    auctions: data?.auctions,
+    nextAuctions: data?.nextAuctions,
+    isLoading: !error && !data?.auctions,
     mutate,
     isError: error?.statusText,
   };

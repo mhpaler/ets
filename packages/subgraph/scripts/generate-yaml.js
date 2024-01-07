@@ -1,30 +1,60 @@
-/**
- * Generate subgraph.yaml file automatically.
- *
- * Usage: ./generate-yaml.js --deployment [network]
- * Where [network] is the destination the subgraph.
- * See const networks for supported networks.
- **/
-const configFile = "./../contracts/config/config.json";
 const fs = require("fs-extra");
 const Handlebars = require("handlebars");
 
-// Custom map of network name to chainId. The graph doesn't have standard
-// network names, so we have to build this up here.
 const networks = {
-  mainnet: {
-    chainId: 1,
-    name: "mainnet",
+  localhost: {
+    name: "mainnet", // localhost subgraph uses name of "mainnet"
+    configPath: "./../contracts/export/chainConfig/localhost.json",
+    upgradesConfigPath: "./../contracts/export/upgradeConfig/localhost.json",
+    abis: {
+      ETS: "./../contracts/deployments/localhost/ETS.json",
+      ETSAccessControls: "./../contracts/deployments/localhost/ETSAccessControls.json",
+      ETSAuctionHouse: "./../contracts/deployments/localhost/ETSAuctionHouse.json",
+      ETSEnrichTarget: "./../contracts/deployments/localhost/ETSEnrichTarget.json",
+      ETSRelayerFactory: "./../contracts/deployments/localhost/ETSRelayerFactory.json",
+      ETSRelayerV1: "./../contracts/deployments/localhost/ETSRelayerV1.json",
+      ETSTarget: "./../contracts/deployments/localhost/ETSTarget.json",
+      ETSToken: "./../contracts/deployments/localhost/ETSToken.json",
+    },
   },
   mumbai: {
-    chainId: 80001,
-    name: "mumbai",
+    name: "mumbai", // subgraph chain
+    configPath: "./../contracts/export/chainConfig/mumbai.json",
+    upgradesConfigPath: "./../contracts/export/upgradeConfig/mumbai.json",
+    abis: {
+      ETS: "./../contracts/deployments/mumbai/ETS.json",
+      ETSAccessControls: "./../contracts/deployments/mumbai/ETSAccessControls.json",
+      ETSAuctionHouse: "./../contracts/deployments/mumbai/ETSAuctionHouse.json",
+      ETSEnrichTarget: "./../contracts/deployments/mumbai/ETSEnrichTarget.json",
+      ETSRelayerFactory: "./../contracts/deployments/mumbai/ETSRelayerFactory.json",
+      ETSRelayerV1: "./../contracts/deployments/mumbai/ETSRelayerV1.json",
+      ETSTarget: "./../contracts/deployments/mumbai/ETSTarget.json",
+      ETSToken: "./../contracts/deployments/mumbai/ETSToken.json",
+    }
   },
-  localhost: {
-    chainId: 31337,
-    name: "mainnet", // Subgraph localhost uses "mainnet"
+  mumbai_stage: {
+    name: "mumbai", // subgraph chain
+    configPath: "./../contracts/export/chainConfig/mumbai_stage.json",
+    upgradesConfigPath: "./../contracts/export/upgradeConfig/mumbai_stage.json",
+    abis: {
+      ETS: "./../contracts/deployments/mumbai_stage/ETS.json",
+      ETSAccessControls: "./../contracts/deployments/mumbai_stage/ETSAccessControls.json",
+      ETSAuctionHouse: "./../contracts/deployments/mumbai_stage/ETSAuctionHouse.json",
+      ETSEnrichTarget: "./../contracts/deployments/mumbai_stage/ETSEnrichTarget.json",
+      ETSRelayerFactory: "./../contracts/deployments/mumbai_stage/ETSRelayerFactory.json",
+      ETSRelayerV1: "./../contracts/deployments/mumbai_stage/ETSRelayerV1.json",
+      ETSTarget: "./../contracts/deployments/mumbai_stage/ETSTarget.json",
+      ETSToken: "./../contracts/deployments/mumbai_stage/ETSToken.json",
+    }
   },
 };
+
+const openzeppelinAbis = {
+  Ownable: "./../contracts/abi/@openzeppelin/contracts/access/Ownable.sol/Ownable.json",
+  Pausable: "./../contracts/abi/@openzeppelin/contracts/security/Pausable.sol/Pausable.json",
+  UUPSUpgradeable: "./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol/UUPSUpgradeable.json",
+  Initializable: "./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol/Initializable.json",
+}
 
 const args = process.argv.slice(2);
 const network = args[1];
@@ -39,25 +69,18 @@ if (!networks[network]) {
   return;
 }
 
-let config;
+// Load network-specific files
 try {
-  config = JSON.parse(fs.readFileSync(configFile).toString());
+  networks[network].config = JSON.parse(fs.readFileSync(networks[network].configPath).toString());
+  networks[network].upgradesConfig = JSON.parse(fs.readFileSync(networks[network].upgradesConfigPath).toString());
 } catch (err) {
-  if (err.code === "ENOENT") {
-    console.log("Config not found!");
-  } else {
-    throw err;
-  }
+  console.error(`Error loading files for network ${network}:`, err.message);
+  return;
 }
 
-const chainId = networks[network].chainId;
-
-const contractsInfo = {
-  contracts: config[chainId].contracts,
-  network: networks[network].name,
-};
 const template = Handlebars.compile(fs.readFileSync("./templates/subgraph.yaml.mustache").toString());
-const result = template(contractsInfo);
-fs.writeFileSync("./subgraph.yaml", result);
+const result = template({ ...networks[network], openzeppelin: openzeppelinAbis });
 
+fs.writeFileSync("./subgraph.yaml", result);
 console.log(network + " configuration file written to /subgraph/subgraph.yaml");
+

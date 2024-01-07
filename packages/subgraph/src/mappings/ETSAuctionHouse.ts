@@ -82,22 +82,22 @@ export function handleAuctionProceedPercentagesSet(event: AuctionProceedPercenta
 export function handleRequestCreateAuction(event: RequestCreateAuction): void {}
 
 export function handleAuctionCreated(event: AuctionCreated): void {
-  let auctionId = event.params.tokenId;
+  let auctionId = event.params.auctionId;
   ensureAuction(auctionId, event);
 }
 
 export function handleAuctionBid(event: AuctionBid): void {
-  let auctionId = event.params.tokenId;
+  let auctionId = event.params.auctionId;
   ensureBid(auctionId, event);
 }
 
 export function handleAuctionExtended(event: AuctionExtended): void {
-  let auctionId = event.params.tokenId;
+  let auctionId = event.params.auctionId;
   updateAuction(auctionId, event);
 }
 
 export function handleAuctionSettled(event: AuctionSettled): void {
-  let auctionId = event.params.tokenId;
+  let auctionId = event.params.auctionId;
   updateAuction(auctionId, event);
 
   updateCreatorAuctionStats(auctionId, event);

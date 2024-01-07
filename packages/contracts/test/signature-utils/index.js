@@ -1,7 +1,7 @@
-const {ethers, utils} = require('ethers')
-const {keccak256, defaultAbiCoder, toUtf8Bytes, solidityPack} = utils
+const { ethers } = require('ethers')
+const { keccak256, defaultAbiCoder, toUtf8Bytes, solidityPack } = ethers;
 
-const {ecsign} = require('ethereumjs-util')
+const { ecsign } = require('ethereumjs-util')
 
 const _TAG_TYPEHASH = keccak256(
   toUtf8Bytes('Tag(bytes32 tagParamsHash)')
@@ -78,12 +78,12 @@ function signTagRequest(contractAddress, contractName, contractVersion, taggingR
     taggingRecords
   )
 
-  const {v, r, s} = ecsign(
+  const { v, r, s } = ecsign(
     Buffer.from(messageStructHash.slice(2), 'hex'), // msg will come with '0x' so strip it off
     Buffer.from(signerPrivateKey.slice(2), 'hex')  // Private key is expected to start with '0x'
   )
 
-  return {v, r, s}
+  return { v, r, s }
 }
 
 module.exports = {
