@@ -427,11 +427,14 @@ describe("ETS Auction House Tests", function () {
         .to.emit(contracts.ETSAuctionHouse, "AuctionExtended")
         .withArgs(1, auction.endTime + (BigInt(initSettings.TIME_BUFFER) / BigInt(2)));
     });
+
   });
 
   describe("Bidding on ended, but not settled auction", async function () {
     beforeEach(async function () {
       // Create an auction.
+      const bid = ethers.parseEther(initSettings.RESERVE_PRICE);
+
       await contracts.ETSAuctionHouse.connect(accounts.ETSPlatform).fulfillRequestCreateAuction(etsOwnedTagId);
       await contracts.ETSAuctionHouse.connect(accounts.RandomOne).createBid(1, {
         value: ethers.parseUnits(initSettings.RESERVE_PRICE, "ether"),

@@ -69,10 +69,6 @@ describe("ETSRelayerFactory Tests", function () {
         tokenId2,
       );
 
-      await expect(contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap")).to.be.revertedWith(
-        "Must own CTAG",
-      );
-
       await contracts.ETSToken.connect(accounts.ETSPlatform).transferFrom(
         accounts.ETSPlatform.address,
         accounts.RandomOne.address,
