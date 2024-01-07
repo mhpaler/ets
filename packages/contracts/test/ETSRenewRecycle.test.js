@@ -7,12 +7,6 @@ describe("CTAG ownership lifecycle tests", function () {
   // we create a setup function that can be called by every test and setup variable for easy to read tests
   beforeEach("Setup test", async function () {
     [accounts, contracts, initSettings] = await setup();
-
-    // Add & unpause ETSRelayer as a Relayer.
-    //await contracts.ETSAccessControls.connect(accounts.ETSPlatform).addRelayer(
-    //  contracts.ETSRelayer.address,
-    //  "ETSPlatform",
-    //);
   });
 
   describe("Validate setup", async function () {
@@ -95,7 +89,7 @@ describe("CTAG ownership lifecycle tests", function () {
     });
 
     it("will fail if token does not exist", async function () {
-      await expect(contracts.ETSToken.connect(accounts.RandomTwo).renewTag(constants.Two)).to.be.revertedWith(
+      await expect(contracts.ETSToken.connect(accounts.RandomTwo).renewTag(Number(2))).to.be.revertedWith(
         "ETS: CTAG not found",
       );
     });
@@ -112,7 +106,7 @@ describe("CTAG ownership lifecycle tests", function () {
 
       // Advance current time by 30 days less than ownershipTermLength (2 years).
       const thirtyDays = 30 * 24 * 60 * 60;
-      let advanceTime = lastRenewed.add((await contracts.ETSToken.ownershipTermLength()) - thirtyDays);
+      let advanceTime = lastRenewed + ((await contracts.ETSToken.ownershipTermLength()) - BigInt(thirtyDays));
 
       const advanceTimeNumber = Number(advanceTime.toString());
 
@@ -150,7 +144,7 @@ describe("CTAG ownership lifecycle tests", function () {
 
       // Advance current time by 30 days more than ownershipTermLength (2 years).
       const thirtyDays = 30 * 24 * 60 * 60;
-      let advanceTime = lastRenewed.add((await contracts.ETSToken.ownershipTermLength()) + thirtyDays);
+      let advanceTime = lastRenewed + ((await contracts.ETSToken.ownershipTermLength()) + BigInt(thirtyDays));
 
       const advanceTimeNumber = Number(advanceTime.toString());
 
@@ -196,7 +190,7 @@ describe("CTAG ownership lifecycle tests", function () {
     });
 
     it("will fail if token does not exist", async function () {
-      await expect(contracts.ETSToken.connect(accounts.RandomTwo).recycleTag(constants.Two)).to.be.revertedWith(
+      await expect(contracts.ETSToken.connect(accounts.RandomTwo).recycleTag(Number(2))).to.be.revertedWith(
         "ETS: CTAG not found",
       );
     });
@@ -214,12 +208,6 @@ describe("CTAG ownership lifecycle tests", function () {
     });
 
     it("will fail if token not not eligible yet", async function () {
-      // Advance current blocktime by 30 days less than ownershipTermLength (2 years).
-      const thirtyDays = 30 * 24 * 60 * 60;
-      let advanceTime = (await contracts.ETSToken.ownershipTermLength()) - thirtyDays;
-      await ethers.provider.send("evm_increaseTime", [advanceTime]);
-      await ethers.provider.send("evm_mine");
-
       // Attempt to recycle by accounts.RandomTwo address, should fail.
       // Notice non-owner is connected.
       await expect(contracts.ETSToken.connect(accounts.RandomOne).recycleTag(tokenId)).to.be.revertedWith(
@@ -232,7 +220,7 @@ describe("CTAG ownership lifecycle tests", function () {
 
       // Advance current time by 30 days more than ownershipTermLength (2 years).
       const thirtyDays = 30 * 24 * 60 * 60;
-      let advanceTime = lastRenewed.add((await contracts.ETSToken.ownershipTermLength()) + thirtyDays);
+      let advanceTime = lastRenewed + ((await contracts.ETSToken.ownershipTermLength()) + BigInt(thirtyDays));
       advanceTime = Number(advanceTime.toString());
       await ethers.provider.send("evm_increaseTime", [advanceTime]);
       await ethers.provider.send("evm_mine");
@@ -259,7 +247,7 @@ describe("CTAG ownership lifecycle tests", function () {
       // Advance current time by 30 days more than ownershipTermLength (2 years).
       lastRenewed = await contracts.ETSToken.getLastRenewed(tokenId);
       const thirtyDays = 30 * 24 * 60 * 60;
-      let advanceTime = lastRenewed.add((await contracts.ETSToken.ownershipTermLength()) + thirtyDays);
+      let advanceTime = lastRenewed + ((await contracts.ETSToken.ownershipTermLength()) + BigInt(thirtyDays));
       advanceTime = Number(advanceTime.toString());
       await ethers.provider.send("evm_increaseTime", [advanceTime]);
       await ethers.provider.send("evm_mine");

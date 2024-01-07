@@ -3,39 +3,25 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
+  FunctionFragment,
+  Result,
+  Interface,
+  ContractRunner,
+  ContractMethod,
+  Listener,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
   TypedListener,
-  OnEvent,
-  PromiseOrValue,
+  TypedContractMethod,
 } from "../common";
 
-export interface ETSRelayerFactoryInterface extends utils.Interface {
-  functions: {
-    "NAME()": FunctionFragment;
-    "addRelayer(string)": FunctionFragment;
-    "ets()": FunctionFragment;
-    "etsAccessControls()": FunctionFragment;
-    "etsTarget()": FunctionFragment;
-    "etsToken()": FunctionFragment;
-    "getBeacon()": FunctionFragment;
-    "getImplementation()": FunctionFragment;
-  };
-
+export interface ETSRelayerFactoryInterface extends Interface {
   getFunction(
-    nameOrSignatureOrTopic:
+    nameOrSignature:
       | "NAME"
       | "addRelayer"
       | "ets"
@@ -47,10 +33,7 @@ export interface ETSRelayerFactoryInterface extends utils.Interface {
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "NAME", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "addRelayer",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "addRelayer", values: [string]): string;
   encodeFunctionData(functionFragment: "ets", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "etsAccessControls",
@@ -78,138 +61,99 @@ export interface ETSRelayerFactoryInterface extends utils.Interface {
     functionFragment: "getImplementation",
     data: BytesLike
   ): Result;
-
-  events: {};
 }
 
 export interface ETSRelayerFactory extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): ETSRelayerFactory;
+  waitForDeployment(): Promise<this>;
 
   interface: ETSRelayerFactoryInterface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-  functions: {
-    NAME(overrides?: CallOverrides): Promise<[string]>;
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-    addRelayer(
-      _relayerName: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
 
-    ets(overrides?: CallOverrides): Promise<[string]>;
+  NAME: TypedContractMethod<[], [string], "view">;
 
-    etsAccessControls(overrides?: CallOverrides): Promise<[string]>;
+  addRelayer: TypedContractMethod<
+    [_relayerName: string],
+    [string],
+    "nonpayable"
+  >;
 
-    etsTarget(overrides?: CallOverrides): Promise<[string]>;
+  ets: TypedContractMethod<[], [string], "view">;
 
-    etsToken(overrides?: CallOverrides): Promise<[string]>;
+  etsAccessControls: TypedContractMethod<[], [string], "view">;
 
-    getBeacon(overrides?: CallOverrides): Promise<[string]>;
+  etsTarget: TypedContractMethod<[], [string], "view">;
 
-    getImplementation(overrides?: CallOverrides): Promise<[string]>;
-  };
+  etsToken: TypedContractMethod<[], [string], "view">;
 
-  NAME(overrides?: CallOverrides): Promise<string>;
+  getBeacon: TypedContractMethod<[], [string], "view">;
 
-  addRelayer(
-    _relayerName: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  getImplementation: TypedContractMethod<[], [string], "view">;
 
-  ets(overrides?: CallOverrides): Promise<string>;
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
 
-  etsAccessControls(overrides?: CallOverrides): Promise<string>;
-
-  etsTarget(overrides?: CallOverrides): Promise<string>;
-
-  etsToken(overrides?: CallOverrides): Promise<string>;
-
-  getBeacon(overrides?: CallOverrides): Promise<string>;
-
-  getImplementation(overrides?: CallOverrides): Promise<string>;
-
-  callStatic: {
-    NAME(overrides?: CallOverrides): Promise<string>;
-
-    addRelayer(
-      _relayerName: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    ets(overrides?: CallOverrides): Promise<string>;
-
-    etsAccessControls(overrides?: CallOverrides): Promise<string>;
-
-    etsTarget(overrides?: CallOverrides): Promise<string>;
-
-    etsToken(overrides?: CallOverrides): Promise<string>;
-
-    getBeacon(overrides?: CallOverrides): Promise<string>;
-
-    getImplementation(overrides?: CallOverrides): Promise<string>;
-  };
+  getFunction(
+    nameOrSignature: "NAME"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "addRelayer"
+  ): TypedContractMethod<[_relayerName: string], [string], "nonpayable">;
+  getFunction(
+    nameOrSignature: "ets"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "etsAccessControls"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "etsTarget"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "etsToken"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "getBeacon"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "getImplementation"
+  ): TypedContractMethod<[], [string], "view">;
 
   filters: {};
-
-  estimateGas: {
-    NAME(overrides?: CallOverrides): Promise<BigNumber>;
-
-    addRelayer(
-      _relayerName: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    ets(overrides?: CallOverrides): Promise<BigNumber>;
-
-    etsAccessControls(overrides?: CallOverrides): Promise<BigNumber>;
-
-    etsTarget(overrides?: CallOverrides): Promise<BigNumber>;
-
-    etsToken(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getBeacon(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getImplementation(overrides?: CallOverrides): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    NAME(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    addRelayer(
-      _relayerName: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    ets(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    etsAccessControls(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    etsTarget(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    etsToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getBeacon(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getImplementation(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-  };
 }

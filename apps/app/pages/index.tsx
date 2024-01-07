@@ -1,19 +1,20 @@
 import type { NextPage } from "next";
 import type { GetServerSideProps } from "next";
-import { getServerSession } from "next-auth";
-import { getAuthOptions } from "./api/auth/[...nextauth]";
+// import { getServerSession } from "next-auth";
+// import { getAuthOptions } from "./api/auth/[...nextauth]";
 
-import { TaggingRecords } from "../components/TaggingRecords";
 import useTranslation from "next-translate/useTranslation";
-import { Stats } from "../components/Stats";
 
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  return {
-    props: {
-      session: await getServerSession(req, res, getAuthOptions(req)),
-    },
-  };
-};
+import { TaggingRecords } from "@app/components/TaggingRecords";
+import { Stats } from "@app/components/Stats";
+
+// export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+//   return {
+//     props: {
+//       session: await getServerSession(req, res, getAuthOptions(req)),
+//     },
+//   };
+// };
 
 const Home: NextPage = () => {
   const { t } = useTranslation("common");

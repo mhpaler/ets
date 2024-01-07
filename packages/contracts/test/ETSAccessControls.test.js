@@ -10,9 +10,9 @@ describe("ETSAccessControls Tests", function () {
     // so let's deploy a mock for testing access controls.
     //RelayerMock = await ethers.getContractFactory("RelayerMock", accounts.RandomOne);
     //relayerMock = await RelayerMock.deploy(
-    //  contracts.ETS.address,
+    //  await contracts.ETS.getAddress(),
     //  contracts.ETSToken.address,
-    //  contracts.ETSTarget.address,
+    //  await contracts.ETSTarget.getAddress(),
     //  accounts.RandomOne.address, // creator
     //  accounts.RandomTwo.address, // transfer to (new owner)
     //);
@@ -21,14 +21,14 @@ describe("ETSAccessControls Tests", function () {
   describe("Valid setup/initialization", async function () {
 
     it("sets RELAYER_ADMIN_ROLE as the role that can grant RELAYER_FACTORY_ROLE.", async () => {
-      expect(await contracts.ETSAccessControls.getRoleAdmin(ethers.utils.id("RELAYER_FACTORY_ROLE"))).to.be.equal(
-        await ethers.utils.id("RELAYER_ADMIN_ROLE"),
+      expect(await contracts.ETSAccessControls.getRoleAdmin(ethers.id("RELAYER_FACTORY_ROLE"))).to.be.equal(
+        await ethers.id("RELAYER_ADMIN_ROLE"),
       );
     });
 
     it("sets RELAYER_FACTORY_ROLE as the role that can grant RELAYER_ROLE.", async () => {
-      expect(await contracts.ETSAccessControls.getRoleAdmin(ethers.utils.id("RELAYER_ROLE"))).to.be.equal(
-        await ethers.utils.id("RELAYER_FACTORY_ROLE"),
+      expect(await contracts.ETSAccessControls.getRoleAdmin(ethers.id("RELAYER_ROLE"))).to.be.equal(
+        await ethers.id("RELAYER_FACTORY_ROLE"),
       );
     });
 

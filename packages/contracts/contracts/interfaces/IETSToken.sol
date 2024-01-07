@@ -269,6 +269,14 @@ interface IETSToken is IERC721Upgradeable {
     function tagExistsById(uint256 _tokenId) external view returns (bool);
 
     /**
+     * @notice Check if CTAG token ownership term has expired.
+     *
+     * @param _tokenId Token Id uint computed from tag string via computeTargetId().
+     * @return true if CTAG ownership term has expired; false if not.
+     */
+    function tagOwnershipTermExpired(uint256 _tokenId) external view returns (bool);
+
+    /**
      * @notice Retrieve a CTAG record for a given tag string.
      *
      * Note: returns a struct with empty members when no CTAG exists.

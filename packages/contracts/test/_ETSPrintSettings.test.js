@@ -23,12 +23,12 @@ describe("============= ETS TEST SUITE SETTINGS =============", function () {
     console.log("ETSAccessControls:", contracts.ETSAccessControls.address);
     console.log("ETSToken:", contracts.ETSToken.address);
     console.log("ETSAuctionHouse:", contracts.ETSAuctionHouse.address);
-    console.log("ETSTarget:", contracts.ETSTarget.address);
+    console.log("ETSTarget:", await contracts.ETSTarget.getAddress());
     console.log("ETSEnrichTarget:", contracts.ETSEnrichTarget.address);
-    console.log("ETS:", contracts.ETS.address);
+    console.log("ETS:", await contracts.ETS.getAddress());
     console.log("ETSRelayerFactory:", contracts.ETSRelayerFactory.address);
     console.log("ETSRelayerImplementation:", contracts.ETSRelayerImplementation.address);
-    console.log("ETSRelayer:", contracts.ETSRelayer.address);
+    console.log("ETSRelayer:", await contracts.ETSRelayer.getAddress());
     console.log("======================== INIT SETTINGS ============================");
     console.log(initSettings);
   });

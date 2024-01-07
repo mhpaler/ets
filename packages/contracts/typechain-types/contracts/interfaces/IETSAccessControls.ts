@@ -3,61 +3,28 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
-} from "ethers";
-import type {
   FunctionFragment,
   Result,
+  Interface,
   EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+  AddressLike,
+  ContractRunner,
+  ContractMethod,
+  Listener,
+} from "ethers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
+  TypedLogDescription,
   TypedListener,
-  OnEvent,
-  PromiseOrValue,
+  TypedContractMethod,
 } from "../../common";
 
-export interface IETSAccessControlsInterface extends utils.Interface {
-  functions: {
-    "changeRelayerOwner(address,address)": FunctionFragment;
-    "getPlatformAddress()": FunctionFragment;
-    "getRelayerAddressFromName(string)": FunctionFragment;
-    "getRelayerAddressFromOwner(address)": FunctionFragment;
-    "getRelayerNameFromAddress(address)": FunctionFragment;
-    "getRoleAdmin(bytes32)": FunctionFragment;
-    "grantRole(bytes32,address)": FunctionFragment;
-    "hasRole(bytes32,address)": FunctionFragment;
-    "isAdmin(address)": FunctionFragment;
-    "isAuctionOracle(address)": FunctionFragment;
-    "isRelayer(address)": FunctionFragment;
-    "isRelayerAdmin(address)": FunctionFragment;
-    "isRelayerAndNotPaused(address)": FunctionFragment;
-    "isRelayerByAddress(address)": FunctionFragment;
-    "isRelayerByName(string)": FunctionFragment;
-    "isRelayerByOwner(address)": FunctionFragment;
-    "isRelayerFactory(address)": FunctionFragment;
-    "isRelayerLocked(address)": FunctionFragment;
-    "isSmartContract(address)": FunctionFragment;
-    "pauseRelayerByOwnerAddress(address)": FunctionFragment;
-    "registerRelayer(address,string,address)": FunctionFragment;
-    "renounceRole(bytes32,address)": FunctionFragment;
-    "revokeRole(bytes32,address)": FunctionFragment;
-    "setPlatform(address)": FunctionFragment;
-    "setRoleAdmin(bytes32,bytes32)": FunctionFragment;
-    "toggleRelayerLock(address)": FunctionFragment;
-  };
-
+export interface IETSAccessControlsInterface extends Interface {
   getFunction(
-    nameOrSignatureOrTopic:
+    nameOrSignature:
       | "changeRelayerOwner"
       | "getPlatformAddress"
       | "getRelayerAddressFromName"
@@ -86,9 +53,19 @@ export interface IETSAccessControlsInterface extends utils.Interface {
       | "toggleRelayerLock"
   ): FunctionFragment;
 
+  getEvent(
+    nameOrSignatureOrTopic:
+      | "PlatformSet"
+      | "RelayerAdded"
+      | "RelayerLockToggled"
+      | "RoleAdminChanged"
+      | "RoleGranted"
+      | "RoleRevoked"
+  ): EventFragment;
+
   encodeFunctionData(
     functionFragment: "changeRelayerOwner",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+    values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getPlatformAddress",
@@ -96,103 +73,99 @@ export interface IETSAccessControlsInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getRelayerAddressFromName",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "getRelayerAddressFromOwner",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getRelayerNameFromAddress",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getRoleAdmin",
-    values: [PromiseOrValue<BytesLike>]
+    values: [BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "grantRole",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
+    values: [BytesLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "hasRole",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
+    values: [BytesLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "isAdmin",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "isAuctionOracle",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "isRelayer",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "isRelayerAdmin",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "isRelayerAndNotPaused",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "isRelayerByAddress",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "isRelayerByName",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "isRelayerByOwner",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "isRelayerFactory",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "isRelayerLocked",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "isSmartContract",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "pauseRelayerByOwnerAddress",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "registerRelayer",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
+    values: [AddressLike, string, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "renounceRole",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
+    values: [BytesLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "revokeRole",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
+    values: [BytesLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "setPlatform",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "setRoleAdmin",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
+    values: [BytesLike, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "toggleRelayerLock",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
 
   decodeFunctionResult(
@@ -284,847 +257,485 @@ export interface IETSAccessControlsInterface extends utils.Interface {
     functionFragment: "toggleRelayerLock",
     data: BytesLike
   ): Result;
-
-  events: {
-    "PlatformSet(address,address)": EventFragment;
-    "RelayerAdded(address)": EventFragment;
-    "RelayerLockToggled(address)": EventFragment;
-    "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
-    "RoleGranted(bytes32,address,address)": EventFragment;
-    "RoleRevoked(bytes32,address,address)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "PlatformSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RelayerAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RelayerLockToggled"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
 }
 
-export interface PlatformSetEventObject {
-  newAddress: string;
-  prevAddress: string;
+export namespace PlatformSetEvent {
+  export type InputTuple = [newAddress: AddressLike, prevAddress: AddressLike];
+  export type OutputTuple = [newAddress: string, prevAddress: string];
+  export interface OutputObject {
+    newAddress: string;
+    prevAddress: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type PlatformSetEvent = TypedEvent<
-  [string, string],
-  PlatformSetEventObject
->;
 
-export type PlatformSetEventFilter = TypedEventFilter<PlatformSetEvent>;
-
-export interface RelayerAddedEventObject {
-  relayer: string;
+export namespace RelayerAddedEvent {
+  export type InputTuple = [relayer: AddressLike];
+  export type OutputTuple = [relayer: string];
+  export interface OutputObject {
+    relayer: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type RelayerAddedEvent = TypedEvent<[string], RelayerAddedEventObject>;
 
-export type RelayerAddedEventFilter = TypedEventFilter<RelayerAddedEvent>;
-
-export interface RelayerLockToggledEventObject {
-  relayer: string;
+export namespace RelayerLockToggledEvent {
+  export type InputTuple = [relayer: AddressLike];
+  export type OutputTuple = [relayer: string];
+  export interface OutputObject {
+    relayer: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type RelayerLockToggledEvent = TypedEvent<
-  [string],
-  RelayerLockToggledEventObject
->;
 
-export type RelayerLockToggledEventFilter =
-  TypedEventFilter<RelayerLockToggledEvent>;
-
-export interface RoleAdminChangedEventObject {
-  role: string;
-  previousAdminRole: string;
-  newAdminRole: string;
+export namespace RoleAdminChangedEvent {
+  export type InputTuple = [
+    role: BytesLike,
+    previousAdminRole: BytesLike,
+    newAdminRole: BytesLike
+  ];
+  export type OutputTuple = [
+    role: string,
+    previousAdminRole: string,
+    newAdminRole: string
+  ];
+  export interface OutputObject {
+    role: string;
+    previousAdminRole: string;
+    newAdminRole: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type RoleAdminChangedEvent = TypedEvent<
-  [string, string, string],
-  RoleAdminChangedEventObject
->;
 
-export type RoleAdminChangedEventFilter =
-  TypedEventFilter<RoleAdminChangedEvent>;
-
-export interface RoleGrantedEventObject {
-  role: string;
-  account: string;
-  sender: string;
+export namespace RoleGrantedEvent {
+  export type InputTuple = [
+    role: BytesLike,
+    account: AddressLike,
+    sender: AddressLike
+  ];
+  export type OutputTuple = [role: string, account: string, sender: string];
+  export interface OutputObject {
+    role: string;
+    account: string;
+    sender: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type RoleGrantedEvent = TypedEvent<
-  [string, string, string],
-  RoleGrantedEventObject
->;
 
-export type RoleGrantedEventFilter = TypedEventFilter<RoleGrantedEvent>;
-
-export interface RoleRevokedEventObject {
-  role: string;
-  account: string;
-  sender: string;
+export namespace RoleRevokedEvent {
+  export type InputTuple = [
+    role: BytesLike,
+    account: AddressLike,
+    sender: AddressLike
+  ];
+  export type OutputTuple = [role: string, account: string, sender: string];
+  export interface OutputObject {
+    role: string;
+    account: string;
+    sender: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type RoleRevokedEvent = TypedEvent<
-  [string, string, string],
-  RoleRevokedEventObject
->;
-
-export type RoleRevokedEventFilter = TypedEventFilter<RoleRevokedEvent>;
 
 export interface IETSAccessControls extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): IETSAccessControls;
+  waitForDeployment(): Promise<this>;
 
   interface: IETSAccessControlsInterface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
-
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
-
-  functions: {
-    changeRelayerOwner(
-      _currentOwner: PromiseOrValue<string>,
-      _newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    getPlatformAddress(overrides?: CallOverrides): Promise<[string]>;
-
-    getRelayerAddressFromName(
-      _name: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    getRelayerAddressFromOwner(
-      _address: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    getRelayerNameFromAddress(
-      _address: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    getRoleAdmin(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    grantRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    hasRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isAdmin(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isAuctionOracle(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isRelayer(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isRelayerAdmin(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isRelayerAndNotPaused(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isRelayerByAddress(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isRelayerByName(
-      _name: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isRelayerByOwner(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isRelayerFactory(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isRelayerLocked(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isSmartContract(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    pauseRelayerByOwnerAddress(
-      _relayerOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    registerRelayer(
-      _relayer: PromiseOrValue<string>,
-      _name: PromiseOrValue<string>,
-      _owner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    renounceRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    revokeRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setPlatform(
-      _platform: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setRoleAdmin(
-      _role: PromiseOrValue<BytesLike>,
-      _adminRole: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    toggleRelayerLock(
-      _relayer: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-  };
-
-  changeRelayerOwner(
-    _currentOwner: PromiseOrValue<string>,
-    _newOwner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  getPlatformAddress(overrides?: CallOverrides): Promise<string>;
-
-  getRelayerAddressFromName(
-    _name: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  getRelayerAddressFromOwner(
-    _address: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  getRelayerNameFromAddress(
-    _address: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  getRoleAdmin(
-    role: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  grantRole(
-    role: PromiseOrValue<BytesLike>,
-    account: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  hasRole(
-    role: PromiseOrValue<BytesLike>,
-    account: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isAdmin(
-    _addr: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isAuctionOracle(
-    _addr: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isRelayer(
-    _addr: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isRelayerAdmin(
-    _addr: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isRelayerAndNotPaused(
-    _addr: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isRelayerByAddress(
-    _addr: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isRelayerByName(
-    _name: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isRelayerByOwner(
-    _addr: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isRelayerFactory(
-    _addr: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isRelayerLocked(
-    _addr: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isSmartContract(
-    _addr: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  pauseRelayerByOwnerAddress(
-    _relayerOwner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  registerRelayer(
-    _relayer: PromiseOrValue<string>,
-    _name: PromiseOrValue<string>,
-    _owner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  renounceRole(
-    role: PromiseOrValue<BytesLike>,
-    account: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  revokeRole(
-    role: PromiseOrValue<BytesLike>,
-    account: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setPlatform(
-    _platform: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setRoleAdmin(
-    _role: PromiseOrValue<BytesLike>,
-    _adminRole: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  toggleRelayerLock(
-    _relayer: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  callStatic: {
-    changeRelayerOwner(
-      _currentOwner: PromiseOrValue<string>,
-      _newOwner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    getPlatformAddress(overrides?: CallOverrides): Promise<string>;
-
-    getRelayerAddressFromName(
-      _name: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    getRelayerAddressFromOwner(
-      _address: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    getRelayerNameFromAddress(
-      _address: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    getRoleAdmin(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    grantRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    hasRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isAdmin(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isAuctionOracle(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isRelayer(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isRelayerAdmin(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isRelayerAndNotPaused(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isRelayerByAddress(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isRelayerByName(
-      _name: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isRelayerByOwner(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isRelayerFactory(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isRelayerLocked(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isSmartContract(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    pauseRelayerByOwnerAddress(
-      _relayerOwner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    registerRelayer(
-      _relayer: PromiseOrValue<string>,
-      _name: PromiseOrValue<string>,
-      _owner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    renounceRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    revokeRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setPlatform(
-      _platform: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setRoleAdmin(
-      _role: PromiseOrValue<BytesLike>,
-      _adminRole: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    toggleRelayerLock(
-      _relayer: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-  };
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
+
+  changeRelayerOwner: TypedContractMethod<
+    [_currentOwner: AddressLike, _newOwner: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  getPlatformAddress: TypedContractMethod<[], [string], "view">;
+
+  getRelayerAddressFromName: TypedContractMethod<
+    [_name: string],
+    [string],
+    "view"
+  >;
+
+  getRelayerAddressFromOwner: TypedContractMethod<
+    [_address: AddressLike],
+    [string],
+    "view"
+  >;
+
+  getRelayerNameFromAddress: TypedContractMethod<
+    [_address: AddressLike],
+    [string],
+    "view"
+  >;
+
+  getRoleAdmin: TypedContractMethod<[role: BytesLike], [string], "view">;
+
+  grantRole: TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  hasRole: TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [boolean],
+    "view"
+  >;
+
+  isAdmin: TypedContractMethod<[_addr: AddressLike], [boolean], "view">;
+
+  isAuctionOracle: TypedContractMethod<[_addr: AddressLike], [boolean], "view">;
+
+  isRelayer: TypedContractMethod<[_addr: AddressLike], [boolean], "view">;
+
+  isRelayerAdmin: TypedContractMethod<[_addr: AddressLike], [boolean], "view">;
+
+  isRelayerAndNotPaused: TypedContractMethod<
+    [_addr: AddressLike],
+    [boolean],
+    "view"
+  >;
+
+  isRelayerByAddress: TypedContractMethod<
+    [_addr: AddressLike],
+    [boolean],
+    "view"
+  >;
+
+  isRelayerByName: TypedContractMethod<[_name: string], [boolean], "view">;
+
+  isRelayerByOwner: TypedContractMethod<
+    [_addr: AddressLike],
+    [boolean],
+    "view"
+  >;
+
+  isRelayerFactory: TypedContractMethod<
+    [_addr: AddressLike],
+    [boolean],
+    "view"
+  >;
+
+  isRelayerLocked: TypedContractMethod<[_addr: AddressLike], [boolean], "view">;
+
+  isSmartContract: TypedContractMethod<[_addr: AddressLike], [boolean], "view">;
+
+  pauseRelayerByOwnerAddress: TypedContractMethod<
+    [_relayerOwner: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  registerRelayer: TypedContractMethod<
+    [_relayer: AddressLike, _name: string, _owner: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  renounceRole: TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  revokeRole: TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  setPlatform: TypedContractMethod<
+    [_platform: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  setRoleAdmin: TypedContractMethod<
+    [_role: BytesLike, _adminRole: BytesLike],
+    [void],
+    "nonpayable"
+  >;
+
+  toggleRelayerLock: TypedContractMethod<
+    [_relayer: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
+
+  getFunction(
+    nameOrSignature: "changeRelayerOwner"
+  ): TypedContractMethod<
+    [_currentOwner: AddressLike, _newOwner: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "getPlatformAddress"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "getRelayerAddressFromName"
+  ): TypedContractMethod<[_name: string], [string], "view">;
+  getFunction(
+    nameOrSignature: "getRelayerAddressFromOwner"
+  ): TypedContractMethod<[_address: AddressLike], [string], "view">;
+  getFunction(
+    nameOrSignature: "getRelayerNameFromAddress"
+  ): TypedContractMethod<[_address: AddressLike], [string], "view">;
+  getFunction(
+    nameOrSignature: "getRoleAdmin"
+  ): TypedContractMethod<[role: BytesLike], [string], "view">;
+  getFunction(
+    nameOrSignature: "grantRole"
+  ): TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "hasRole"
+  ): TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [boolean],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "isAdmin"
+  ): TypedContractMethod<[_addr: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "isAuctionOracle"
+  ): TypedContractMethod<[_addr: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "isRelayer"
+  ): TypedContractMethod<[_addr: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "isRelayerAdmin"
+  ): TypedContractMethod<[_addr: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "isRelayerAndNotPaused"
+  ): TypedContractMethod<[_addr: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "isRelayerByAddress"
+  ): TypedContractMethod<[_addr: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "isRelayerByName"
+  ): TypedContractMethod<[_name: string], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "isRelayerByOwner"
+  ): TypedContractMethod<[_addr: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "isRelayerFactory"
+  ): TypedContractMethod<[_addr: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "isRelayerLocked"
+  ): TypedContractMethod<[_addr: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "isSmartContract"
+  ): TypedContractMethod<[_addr: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "pauseRelayerByOwnerAddress"
+  ): TypedContractMethod<[_relayerOwner: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "registerRelayer"
+  ): TypedContractMethod<
+    [_relayer: AddressLike, _name: string, _owner: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "renounceRole"
+  ): TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "revokeRole"
+  ): TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "setPlatform"
+  ): TypedContractMethod<[_platform: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setRoleAdmin"
+  ): TypedContractMethod<
+    [_role: BytesLike, _adminRole: BytesLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "toggleRelayerLock"
+  ): TypedContractMethod<[_relayer: AddressLike], [void], "nonpayable">;
+
+  getEvent(
+    key: "PlatformSet"
+  ): TypedContractEvent<
+    PlatformSetEvent.InputTuple,
+    PlatformSetEvent.OutputTuple,
+    PlatformSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "RelayerAdded"
+  ): TypedContractEvent<
+    RelayerAddedEvent.InputTuple,
+    RelayerAddedEvent.OutputTuple,
+    RelayerAddedEvent.OutputObject
+  >;
+  getEvent(
+    key: "RelayerLockToggled"
+  ): TypedContractEvent<
+    RelayerLockToggledEvent.InputTuple,
+    RelayerLockToggledEvent.OutputTuple,
+    RelayerLockToggledEvent.OutputObject
+  >;
+  getEvent(
+    key: "RoleAdminChanged"
+  ): TypedContractEvent<
+    RoleAdminChangedEvent.InputTuple,
+    RoleAdminChangedEvent.OutputTuple,
+    RoleAdminChangedEvent.OutputObject
+  >;
+  getEvent(
+    key: "RoleGranted"
+  ): TypedContractEvent<
+    RoleGrantedEvent.InputTuple,
+    RoleGrantedEvent.OutputTuple,
+    RoleGrantedEvent.OutputObject
+  >;
+  getEvent(
+    key: "RoleRevoked"
+  ): TypedContractEvent<
+    RoleRevokedEvent.InputTuple,
+    RoleRevokedEvent.OutputTuple,
+    RoleRevokedEvent.OutputObject
+  >;
 
   filters: {
-    "PlatformSet(address,address)"(
-      newAddress?: null,
-      prevAddress?: null
-    ): PlatformSetEventFilter;
-    PlatformSet(newAddress?: null, prevAddress?: null): PlatformSetEventFilter;
+    "PlatformSet(address,address)": TypedContractEvent<
+      PlatformSetEvent.InputTuple,
+      PlatformSetEvent.OutputTuple,
+      PlatformSetEvent.OutputObject
+    >;
+    PlatformSet: TypedContractEvent<
+      PlatformSetEvent.InputTuple,
+      PlatformSetEvent.OutputTuple,
+      PlatformSetEvent.OutputObject
+    >;
 
-    "RelayerAdded(address)"(relayer?: null): RelayerAddedEventFilter;
-    RelayerAdded(relayer?: null): RelayerAddedEventFilter;
+    "RelayerAdded(address)": TypedContractEvent<
+      RelayerAddedEvent.InputTuple,
+      RelayerAddedEvent.OutputTuple,
+      RelayerAddedEvent.OutputObject
+    >;
+    RelayerAdded: TypedContractEvent<
+      RelayerAddedEvent.InputTuple,
+      RelayerAddedEvent.OutputTuple,
+      RelayerAddedEvent.OutputObject
+    >;
 
-    "RelayerLockToggled(address)"(
-      relayer?: null
-    ): RelayerLockToggledEventFilter;
-    RelayerLockToggled(relayer?: null): RelayerLockToggledEventFilter;
+    "RelayerLockToggled(address)": TypedContractEvent<
+      RelayerLockToggledEvent.InputTuple,
+      RelayerLockToggledEvent.OutputTuple,
+      RelayerLockToggledEvent.OutputObject
+    >;
+    RelayerLockToggled: TypedContractEvent<
+      RelayerLockToggledEvent.InputTuple,
+      RelayerLockToggledEvent.OutputTuple,
+      RelayerLockToggledEvent.OutputObject
+    >;
 
-    "RoleAdminChanged(bytes32,bytes32,bytes32)"(
-      role?: PromiseOrValue<BytesLike> | null,
-      previousAdminRole?: PromiseOrValue<BytesLike> | null,
-      newAdminRole?: PromiseOrValue<BytesLike> | null
-    ): RoleAdminChangedEventFilter;
-    RoleAdminChanged(
-      role?: PromiseOrValue<BytesLike> | null,
-      previousAdminRole?: PromiseOrValue<BytesLike> | null,
-      newAdminRole?: PromiseOrValue<BytesLike> | null
-    ): RoleAdminChangedEventFilter;
+    "RoleAdminChanged(bytes32,bytes32,bytes32)": TypedContractEvent<
+      RoleAdminChangedEvent.InputTuple,
+      RoleAdminChangedEvent.OutputTuple,
+      RoleAdminChangedEvent.OutputObject
+    >;
+    RoleAdminChanged: TypedContractEvent<
+      RoleAdminChangedEvent.InputTuple,
+      RoleAdminChangedEvent.OutputTuple,
+      RoleAdminChangedEvent.OutputObject
+    >;
 
-    "RoleGranted(bytes32,address,address)"(
-      role?: PromiseOrValue<BytesLike> | null,
-      account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RoleGrantedEventFilter;
-    RoleGranted(
-      role?: PromiseOrValue<BytesLike> | null,
-      account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RoleGrantedEventFilter;
+    "RoleGranted(bytes32,address,address)": TypedContractEvent<
+      RoleGrantedEvent.InputTuple,
+      RoleGrantedEvent.OutputTuple,
+      RoleGrantedEvent.OutputObject
+    >;
+    RoleGranted: TypedContractEvent<
+      RoleGrantedEvent.InputTuple,
+      RoleGrantedEvent.OutputTuple,
+      RoleGrantedEvent.OutputObject
+    >;
 
-    "RoleRevoked(bytes32,address,address)"(
-      role?: PromiseOrValue<BytesLike> | null,
-      account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RoleRevokedEventFilter;
-    RoleRevoked(
-      role?: PromiseOrValue<BytesLike> | null,
-      account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RoleRevokedEventFilter;
-  };
-
-  estimateGas: {
-    changeRelayerOwner(
-      _currentOwner: PromiseOrValue<string>,
-      _newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    getPlatformAddress(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getRelayerAddressFromName(
-      _name: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getRelayerAddressFromOwner(
-      _address: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getRelayerNameFromAddress(
-      _address: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getRoleAdmin(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    grantRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    hasRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isAdmin(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isAuctionOracle(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isRelayer(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isRelayerAdmin(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isRelayerAndNotPaused(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isRelayerByAddress(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isRelayerByName(
-      _name: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isRelayerByOwner(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isRelayerFactory(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isRelayerLocked(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isSmartContract(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    pauseRelayerByOwnerAddress(
-      _relayerOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    registerRelayer(
-      _relayer: PromiseOrValue<string>,
-      _name: PromiseOrValue<string>,
-      _owner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    renounceRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    revokeRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setPlatform(
-      _platform: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setRoleAdmin(
-      _role: PromiseOrValue<BytesLike>,
-      _adminRole: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    toggleRelayerLock(
-      _relayer: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    changeRelayerOwner(
-      _currentOwner: PromiseOrValue<string>,
-      _newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getPlatformAddress(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getRelayerAddressFromName(
-      _name: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getRelayerAddressFromOwner(
-      _address: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getRelayerNameFromAddress(
-      _address: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getRoleAdmin(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    grantRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    hasRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isAdmin(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isAuctionOracle(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isRelayer(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isRelayerAdmin(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isRelayerAndNotPaused(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isRelayerByAddress(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isRelayerByName(
-      _name: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isRelayerByOwner(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isRelayerFactory(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isRelayerLocked(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isSmartContract(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    pauseRelayerByOwnerAddress(
-      _relayerOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    registerRelayer(
-      _relayer: PromiseOrValue<string>,
-      _name: PromiseOrValue<string>,
-      _owner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    renounceRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    revokeRole(
-      role: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setPlatform(
-      _platform: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setRoleAdmin(
-      _role: PromiseOrValue<BytesLike>,
-      _adminRole: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    toggleRelayerLock(
-      _relayer: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    "RoleRevoked(bytes32,address,address)": TypedContractEvent<
+      RoleRevokedEvent.InputTuple,
+      RoleRevokedEvent.OutputTuple,
+      RoleRevokedEvent.OutputObject
+    >;
+    RoleRevoked: TypedContractEvent<
+      RoleRevokedEvent.InputTuple,
+      RoleRevokedEvent.OutputTuple,
+      RoleRevokedEvent.OutputObject
+    >;
   };
 }

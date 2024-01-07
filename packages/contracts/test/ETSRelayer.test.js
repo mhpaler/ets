@@ -1,7 +1,6 @@
 const { setup } = require("./setup.js");
 const { ethers } = require("hardhat");
 const { expect } = require("chai");
-const { constants } = require("ethers");
 
 let targetURI, targetId, taggingRecordId;
 
@@ -17,7 +16,6 @@ describe("ETS Relayer Tests", function () {
     //contracts.ETSRelayer = new ethers.Contract(relayerAddress, etsRelayerV1ABI);
 
     taggingFee = await contracts.ETS.taggingFee();
-    taggingFee = ethers.BigNumber.from(taggingFee);
     targetURI = "https://google.com";
     tagParams = {
       targetURI: targetURI,
@@ -30,7 +28,7 @@ describe("ETS Relayer Tests", function () {
     taggingRecordId = await contracts.ETS.computeTaggingRecordIdFromCompositeKey(
       targetId,
       "bookmark",
-      contracts.ETSRelayer.address,
+      await contracts.ETSRelayer.getAddress(),
       accounts.RandomOne.address,
     );
   });
@@ -42,30 +40,30 @@ describe("ETS Relayer Tests", function () {
       const tx = await contracts.ETSRelayer.connect(accounts.Creator).getOrCreateTagIds([tagstring1]);
       await expect(tx)
         .to.emit(contracts.ETSToken, "Transfer")
-        .withArgs(constants.AddressZero, accounts.ETSPlatform.address, etsTagId);
+        .withArgs(ethers.ZeroAddress, accounts.ETSPlatform.address, etsTagId);
     });
   });
 
   describe("Applying tags", async () => {
     it("should revert when Relayer contract is paused", async () => {
-      expect(await contracts.ETSAccessControls.isRelayerAndNotPaused(contracts.ETSRelayer.address)).to.be.equal(
+      expect(await contracts.ETSAccessControls.isRelayerAndNotPaused(await contracts.ETSRelayer.getAddress())).to.be.equal(
         true,
       );
       // Pause ETSRelayer
       await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleRelayerLock(
-        contracts.ETSRelayer.address,
+        await contracts.ETSRelayer.getAddress(),
       );
 
       await expect(
         contracts.ETSRelayer.connect(accounts.RandomOne).applyTags(taggingRecords, {
-          value: ethers.BigNumber.from(taggingFee).mul("2"),
+          value: taggingFee * BigInt(2),
         }),
       ).to.be.revertedWith("Caller not Relayer");
     });
 
     it('should emit "TaggingRecordCreated" with new taggingRecordId when NEW tagging record is created', async () => {
       const tx = await contracts.ETSRelayer.connect(accounts.RandomOne).applyTags(taggingRecords, {
-        value: ethers.BigNumber.from(taggingFee).mul("2"),
+        value: taggingFee * BigInt(2),
       });
       await expect(tx).to.emit(contracts.ETS, "TaggingRecordCreated").withArgs(taggingRecordId);
     });
@@ -73,7 +71,7 @@ describe("ETS Relayer Tests", function () {
     it('should emit "TaggingRecordUpdated" when applying tags to existing record.', async () => {
       // Create the record.
       await contracts.ETSRelayer.connect(accounts.RandomOne).applyTags(taggingRecords, {
-        value: ethers.BigNumber.from(taggingFee).mul("2"),
+        value: taggingFee * BigInt(2),
       });
 
       appendRecord = {
@@ -83,7 +81,7 @@ describe("ETS Relayer Tests", function () {
         enrich: false,
       };
       const tx = await contracts.ETSRelayer.connect(accounts.RandomOne).applyTags([appendRecord], {
-        value: ethers.BigNumber.from(taggingFee).mul("1"),
+        value: taggingFee * BigInt(1),
       });
       await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 0);
     });
@@ -91,11 +89,11 @@ describe("ETS Relayer Tests", function () {
     it('should not emit "TaggingRecordUpdated" when same tags are applied to existing record.', async () => {
       // Create the record.
       await contracts.ETSRelayer.connect(accounts.RandomOne).applyTags(taggingRecords, {
-        value: ethers.BigNumber.from(taggingFee).mul("2"),
+        value: taggingFee * BigInt(2),
       });
 
       // Apply more tags...
-      let calcTaggingFee = 0;
+      let calcTaggingFee = BigInt(0);
       let result;
 
       for (let i = 0; i < taggingRecords.length; i++) {
@@ -117,12 +115,12 @@ describe("ETS Relayer Tests", function () {
     it("should revert when Relayer contract is paused", async () => {
       // Create the record.
       await contracts.ETSRelayer.connect(accounts.RandomOne).applyTags(taggingRecords, {
-        value: ethers.BigNumber.from(taggingFee).mul("2"),
+        value: taggingFee * BigInt(2),
       });
 
       // Pause ETSRelayer
       await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleRelayerLock(
-        contracts.ETSRelayer.address,
+        await contracts.ETSRelayer.getAddress(),
       );
       await expect(contracts.ETSRelayer.connect(accounts.RandomOne).removeTags(taggingRecords)).to.be.revertedWith(
         "Not authorized",
@@ -139,11 +137,11 @@ describe("ETS Relayer Tests", function () {
     it('should emit "TaggingRecordUpdated" and reduce tag count', async () => {
       // Create the record.
       await contracts.ETSRelayer.connect(accounts.RandomOne).applyTags(taggingRecords, {
-        value: ethers.BigNumber.from(taggingFee).mul("2"),
+        value: taggingFee * BigInt(2),
       });
 
       let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-      expect(taggingRecord.tagIds.length).to.be.equal(2);
+      expect(taggingRecord.tagIds.length == 2);
 
       removeTags = {
         targetURI: targetURI,
@@ -155,13 +153,13 @@ describe("ETS Relayer Tests", function () {
       await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 2);
 
       taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-      expect(taggingRecord.tagIds.length).to.be.equal(1);
+      expect(taggingRecord.tagIds.length == 1);
     });
 
     it("can work with multiple tags at once", async () => {
       // Create the record.
       await contracts.ETSRelayer.connect(accounts.RandomOne).applyTags(taggingRecords, {
-        value: ethers.BigNumber.from(taggingFee).mul("2"),
+        value: taggingFee * BigInt(2),
       });
       await contracts.ETSRelayer.connect(accounts.RandomOne).removeTags([tagParams]);
       taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
@@ -171,7 +169,7 @@ describe("ETS Relayer Tests", function () {
     it('should not emit "TaggingRecordUpdated" or reduce tag count if tags do not exist in tagging record', async () => {
       // Create the record.
       await contracts.ETSRelayer.connect(accounts.RandomOne).applyTags(taggingRecords, {
-        value: ethers.BigNumber.from(taggingFee).mul("2"),
+        value: taggingFee * BigInt(2),
       });
 
       removeTags = {
@@ -192,12 +190,12 @@ describe("ETS Relayer Tests", function () {
     it("should revert when Relayer contract is paused", async () => {
       // Create the record.
       await contracts.ETSRelayer.connect(accounts.RandomOne).applyTags(taggingRecords, {
-        value: ethers.BigNumber.from(taggingFee).mul("2"),
+        value: taggingFee * BigInt(2),
       });
 
       // Pause ETSRelayer
       await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleRelayerLock(
-        contracts.ETSRelayer.address,
+        await contracts.ETSRelayer.getAddress(),
       );
 
       replaceTags = {
@@ -209,7 +207,7 @@ describe("ETS Relayer Tests", function () {
 
       await expect(
         contracts.ETSRelayer.connect(accounts.RandomOne).replaceTags([replaceTags], {
-          value: ethers.BigNumber.from(taggingFee).mul("2"),
+          value: taggingFee * BigInt(2),
         }),
       ).to.be.revertedWith("Caller not Relayer");
     });
@@ -218,7 +216,7 @@ describe("ETS Relayer Tests", function () {
       // Create a tagging record.
       await expect(
         contracts.ETSRelayer.connect(accounts.RandomOne).replaceTags(taggingRecords, {
-          value: ethers.BigNumber.from(taggingFee).mul("2"),
+          value: taggingFee * BigInt(2),
         }),
       ).to.be.revertedWith("Not authorized");
     });
@@ -226,7 +224,7 @@ describe("ETS Relayer Tests", function () {
     it('should emit "TaggingRecordUpdated" and change tag count', async () => {
       // Create the record.
       await contracts.ETSRelayer.connect(accounts.RandomOne).applyTags(taggingRecords, {
-        value: ethers.BigNumber.from(taggingFee).mul("2"),
+        value: taggingFee * BigInt(2),
       });
       // Removing two and adding three in one step.
       replaceTags = {
@@ -236,24 +234,24 @@ describe("ETS Relayer Tests", function () {
         enrich: false,
       };
       const tx = await contracts.ETSRelayer.connect(accounts.RandomOne).replaceTags([replaceTags], {
-        value: ethers.BigNumber.from(taggingFee).mul("3"),
+        value: taggingFee * BigInt(3),
       });
 
       await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 0);
       await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 2);
 
       taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-      expect(taggingRecord.tagIds.length).to.be.equal(3);
+      expect(taggingRecord.tagIds.length == 3);
     });
 
     it('should not emit "TaggingRecordUpdated" or reduce tag count if nothing changes', async () => {
       // Create the record.
       await contracts.ETSRelayer.connect(accounts.RandomOne).applyTags(taggingRecords, {
-        value: ethers.BigNumber.from(taggingFee).mul("2"),
+        value: taggingFee * BigInt(2),
       });
 
       // Estimate tagging fee
-      let calcTaggingFee = 0;
+      let calcTaggingFee = BigInt(0);
       let result;
       for (let i = 0; i < taggingRecords.length; i++) {
         result = await contracts.ETSRelayer.computeTaggingFee(
@@ -269,12 +267,12 @@ describe("ETS Relayer Tests", function () {
 
       await expect(tx).to.not.emit(contracts.ETS, "TaggingRecordUpdated");
       taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-      expect(taggingRecord.tagIds.length).to.be.equal(2);
+      expect(taggingRecord.tagIds.length == 2);
     });
 
     it("should only charge for new tags", async () => {
       // Estimate tagging fee
-      let applyTaggingFee = 0;
+      let applyTaggingFee = BigInt(0);
       let result;
       for (let i = 0; i < taggingRecords.length; i++) {
         result = await contracts.ETSRelayer.computeTaggingFee(
@@ -299,7 +297,7 @@ describe("ETS Relayer Tests", function () {
       const replaceRecords = [replaceTags];
 
       // Estimate tagging fee
-      let replaceTaggingFee = 0;
+      let replaceTaggingFee = BigInt(0);
       result;
       for (let i = 0; i < replaceRecords.length; i++) {
         result = await contracts.ETSRelayer.computeTaggingFee(
@@ -316,149 +314,10 @@ describe("ETS Relayer Tests", function () {
       receipt = await tx.wait();
 
       const taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-      expect(taggingRecord.tagIds.length).to.be.equal(5);
+      expect(taggingRecord.tagIds.length == 5);
 
       // A total of 5 tags were applied.
-      expect(ethers.BigNumber.from(applyTaggingFee).add(ethers.BigNumber.from(replaceTaggingFee))).to.be.equal(
-        ethers.BigNumber.from(taggingFee).mul("5"),
-      );
-    });
-  });
-
-  describe("Replacing tags", async () => {
-    it("should revert when Relayer contract is paused", async () => {
-      // Create the record.
-      await contracts.ETSRelayer.connect(accounts.RandomOne).applyTags(taggingRecords, {
-        value: ethers.BigNumber.from(taggingFee).mul("2"),
-      });
-
-      // Pause ETSRelayer
-      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleRelayerLock(
-        contracts.ETSRelayer.address,
-      );
-
-      replaceTags = {
-        targetURI: targetURI,
-        tagStrings: ["#newtag1", "#newtag2"],
-        recordType: "bookmark",
-        enrich: false,
-      };
-
-      await expect(
-        contracts.ETSRelayer.connect(accounts.RandomOne).replaceTags([replaceTags], {
-          value: ethers.BigNumber.from(taggingFee).mul("2"),
-        }),
-      ).to.be.revertedWith("Caller not Relayer");
-    });
-
-    it("should revert if tagging record doesn't exist", async () => {
-      // Create a tagging record.
-      await expect(
-        contracts.ETSRelayer.connect(accounts.RandomOne).replaceTags(taggingRecords, {
-          value: ethers.BigNumber.from(taggingFee).mul("2"),
-        }),
-      ).to.be.revertedWith("Not authorized");
-    });
-
-    it('should emit "TaggingRecordUpdated" and change tag count', async () => {
-      // Create the record.
-      await contracts.ETSRelayer.connect(accounts.RandomOne).applyTags(taggingRecords, {
-        value: ethers.BigNumber.from(taggingFee).mul("2"),
-      });
-      // Removing two and adding three in one step.
-      replaceTags = {
-        targetURI: targetURI,
-        tagStrings: ["#newtag1", "#newtag2", "#newtag3"],
-        recordType: "bookmark",
-        enrich: false,
-      };
-      const tx = await contracts.ETSRelayer.connect(accounts.RandomOne).replaceTags([replaceTags], {
-        value: ethers.BigNumber.from(taggingFee).mul("3"),
-      });
-
-      await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 0);
-      await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 2);
-
-      taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-      expect(taggingRecord.tagIds.length).to.be.equal(3);
-    });
-
-    it('should not emit "TaggingRecordUpdated" or reduce tag count if nothing changes', async () => {
-      // Create the record.
-      await contracts.ETSRelayer.connect(accounts.RandomOne).applyTags(taggingRecords, {
-        value: ethers.BigNumber.from(taggingFee).mul("2"),
-      });
-
-      // Estimate tagging fee
-      let calcTaggingFee = 0;
-      let result;
-      for (let i = 0; i < taggingRecords.length; i++) {
-        result = await contracts.ETSRelayer.computeTaggingFee(
-          taggingRecords[i],
-          1, // action to preform
-        );
-        let { 0: fee, 1: actualTagCount } = result;
-        calcTaggingFee += fee;
-      }
-      const tx = await contracts.ETSRelayer.connect(accounts.RandomOne).replaceTags(taggingRecords, {
-        value: calcTaggingFee,
-      });
-
-      await expect(tx).to.not.emit(contracts.ETS, "TaggingRecordUpdated");
-      taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-      expect(taggingRecord.tagIds.length).to.be.equal(2);
-    });
-
-    it("should only charge for new tags", async () => {
-      // Estimate tagging fee
-      let applyTaggingFee = 0;
-      let result;
-      for (let i = 0; i < taggingRecords.length; i++) {
-        result = await contracts.ETSRelayer.computeTaggingFee(
-          taggingRecords[i],
-          1, // action to preform
-        );
-        let { 0: fee, 1: actualTagCount } = result;
-        applyTaggingFee += fee;
-      }
-      tx = await contracts.ETSRelayer.connect(accounts.RandomOne).applyTags(taggingRecords, {
-        value: applyTaggingFee,
-      });
-
-      // keep the original two and add three in one step.
-      replaceTags = {
-        targetURI: targetURI,
-        tagStrings: ["#love", "#hate", "#newtag1", "#newtag2", "#newtag3"],
-        recordType: "bookmark",
-        enrich: false,
-      };
-
-      const replaceRecords = [replaceTags];
-
-      // Estimate tagging fee
-      let replaceTaggingFee = 0;
-      result;
-      for (let i = 0; i < replaceRecords.length; i++) {
-        result = await contracts.ETSRelayer.computeTaggingFee(
-          replaceRecords[i],
-          1, // action to preform
-        );
-        let { 0: fee, 1: actualTagCount } = result;
-        replaceTaggingFee += fee;
-      }
-      tx = await contracts.ETSRelayer.connect(accounts.RandomOne).replaceTags(replaceRecords, {
-        value: replaceTaggingFee,
-      });
-
-      receipt = await tx.wait();
-
-      const taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-      expect(taggingRecord.tagIds.length).to.be.equal(5);
-
-      // A total of 5 tags were applied.
-      expect(ethers.BigNumber.from(applyTaggingFee).add(ethers.BigNumber.from(replaceTaggingFee))).to.be.equal(
-        ethers.BigNumber.from(taggingFee).mul("5"),
-      );
+      expect(applyTaggingFee + replaceTaggingFee == taggingFee * BigInt(5));
     });
   });
 
@@ -491,8 +350,8 @@ describe("ETS Relayer Tests", function () {
         );
 
         const { 0: fee, 1: tagCount } = result;
-        expect(tagCount).to.be.equal(rawInput.tagStrings.length);
-        expect(fee.toString()).to.be.equal((taggingFee * tagCount).toString());
+        expect(tagCount == rawInput.tagStrings.length);
+        expect(fee == taggingFee * tagCount);
       });
 
 
@@ -502,7 +361,7 @@ describe("ETS Relayer Tests", function () {
       beforeEach("Setup test", async () => {
         // Create a tagging record, ETSPlatform is relayer, accounts.RandomOne is tagger.
         await contracts.ETSRelayer.connect(accounts.RandomOne).applyTags(taggingRecords, {
-          value: ethers.BigNumber.from(taggingFee).mul("2"),
+          value: taggingFee * BigInt(2),
         });
 
         tagstring1 = "#love";
@@ -523,8 +382,8 @@ describe("ETS Relayer Tests", function () {
         );
 
         const { 0: fee, 1: actualTagCount } = result;
-        expect(actualTagCount).to.be.equal(rawInput.tagStrings.length);
-        expect(fee.toString()).to.be.equal((taggingFee * actualTagCount).toString());
+        expect(actualTagCount == rawInput.tagStrings.length);
+        expect(fee == taggingFee * actualTagCount);
       });
 
       it("are computed correctly when applying new tags and duplicate tags using raw inputs", async () => {
@@ -539,9 +398,10 @@ describe("ETS Relayer Tests", function () {
         );
 
         const { 0: fee, 1: actualTagCount } = result;
-        expect(actualTagCount).to.be.equal(2);
-        expect(fee.toString()).to.be.equal((taggingFee * actualTagCount).toString());
+        expect(actualTagCount == 2);
+        expect(fee == taggingFee * actualTagCount);
       });
+
       it("are computed correctly when applying only duplicate tags using raw inputs", async () => {
         const rawInput = {
           targetURI: targetURI,
@@ -554,8 +414,8 @@ describe("ETS Relayer Tests", function () {
         );
 
         const { 0: fee, 1: actualTagCount } = result;
-        expect(actualTagCount).to.be.equal(0);
-        expect(fee.toString()).to.be.equal((0).toString());
+        expect(actualTagCount == 0);
+        expect(fee == 0);
       });
 
       it("are computed correctly when replacing with only new tags using raw inputs", async () => {
@@ -570,8 +430,8 @@ describe("ETS Relayer Tests", function () {
         );
 
         const { 0: fee, 1: actualTagCount } = result;
-        expect(actualTagCount).to.be.equal(2);
-        expect(fee.toString()).to.be.equal((2 * taggingFee).toString());
+        expect(actualTagCount == 2);
+        expect(fee == BigInt(2) * taggingFee);
       });
 
       it("are computed correctly when replacing with new & duplicate tags using raw inputs", async () => {
@@ -588,8 +448,8 @@ describe("ETS Relayer Tests", function () {
         );
 
         const { 0: fee, 1: actualTagCount } = result;
-        expect(actualTagCount).to.be.equal(2);
-        expect(fee.toString()).to.be.equal((2 * taggingFee).toString());
+        expect(actualTagCount == 2);
+        expect(fee == (BigInt(2) * taggingFee));
       });
 
       it("are computed correctly when replacing with only duplicate tags using raw inputs", async () => {
@@ -604,8 +464,8 @@ describe("ETS Relayer Tests", function () {
         );
 
         const { 0: fee, 1: actualTagCount } = result;
-        expect(actualTagCount).to.be.equal(0);
-        expect(fee.toString()).to.be.equal((0).toString());
+        expect(actualTagCount == 0);
+        expect(fee == 0);
       });
     });
   });

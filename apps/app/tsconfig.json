@@ -1,6 +1,6 @@
 {
   "extends": "@ethereum-tag-service/tsconfig/nextjs.json",
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": ["@ethereum-tag-service/tsconfig/nextjs.json, next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"],
   "compilerOptions": {
     "typeRoots": ["../node_modules/@types", "../@types"],

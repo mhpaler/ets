@@ -2,15 +2,19 @@
 /* tslint:disable */
 /* eslint-disable */
 import {
-  Signer,
-  utils,
   Contract,
   ContractFactory,
-  PayableOverrides,
-  BytesLike,
+  ContractTransactionResponse,
+  Interface,
 } from "ethers";
-import type { Provider, TransactionRequest } from "@ethersproject/providers";
-import type { PromiseOrValue } from "../../../../../common";
+import type {
+  Signer,
+  BytesLike,
+  AddressLike,
+  ContractDeployTransaction,
+  ContractRunner,
+} from "ethers";
+import type { PayableOverrides } from "../../../../../common";
 import type {
   BeaconProxy,
   BeaconProxyInterface,
@@ -108,36 +112,34 @@ export class BeaconProxy__factory extends ContractFactory {
     }
   }
 
-  override deploy(
-    beacon: PromiseOrValue<string>,
-    data: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<BeaconProxy> {
-    return super.deploy(beacon, data, overrides || {}) as Promise<BeaconProxy>;
-  }
   override getDeployTransaction(
-    beacon: PromiseOrValue<string>,
-    data: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): TransactionRequest {
+    beacon: AddressLike,
+    data: BytesLike,
+    overrides?: PayableOverrides & { from?: string }
+  ): Promise<ContractDeployTransaction> {
     return super.getDeployTransaction(beacon, data, overrides || {});
   }
-  override attach(address: string): BeaconProxy {
-    return super.attach(address) as BeaconProxy;
+  override deploy(
+    beacon: AddressLike,
+    data: BytesLike,
+    overrides?: PayableOverrides & { from?: string }
+  ) {
+    return super.deploy(beacon, data, overrides || {}) as Promise<
+      BeaconProxy & {
+        deploymentTransaction(): ContractTransactionResponse;
+      }
+    >;
   }
-  override connect(signer: Signer): BeaconProxy__factory {
-    return super.connect(signer) as BeaconProxy__factory;
+  override connect(runner: ContractRunner | null): BeaconProxy__factory {
+    return super.connect(runner) as BeaconProxy__factory;
   }
 
   static readonly bytecode = _bytecode;
   static readonly abi = _abi;
   static createInterface(): BeaconProxyInterface {
-    return new utils.Interface(_abi) as BeaconProxyInterface;
+    return new Interface(_abi) as BeaconProxyInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): BeaconProxy {
-    return new Contract(address, _abi, signerOrProvider) as BeaconProxy;
+  static connect(address: string, runner?: ContractRunner | null): BeaconProxy {
+    return new Contract(address, _abi, runner) as unknown as BeaconProxy;
   }
 }

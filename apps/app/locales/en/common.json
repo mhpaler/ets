@@ -85,13 +85,53 @@
   "target-id": "Target Id",
   "target-uri": "Target URI",
   "targets": "Targets",
-  "transaction": {
-    "viewEtherscan": "View transaction"
-  },
   "token-id": "Token Id",
   "top-creators": "Top creators",
   "top-relayers": "Top relayers",
   "top-taggers": "Top taggers",
   "view-all-bids": "View all bids",
-  "view-all": "View all {{subject}}"
+  "view-all": "View all {{subject}}",
+
+  "TXN": {
+    "ACTION": "Action",
+    "TYPE": {
+      "CREATE_RELAYER": "Create Relayer"
+    },
+    "STATUS": {
+      "WAIT_FOR_SIGNATURE": "Waiting for Signature",
+      "SENT": "Sent",
+      "PROCESSING": "Processing",
+      "COMPLETED": "Completed",
+      "ERROR": "Transaction Failed"
+    },
+    "VIEW_ETHERSCAN": "View on Etherscan",
+    "CONFIRM_DETAILS": "Confirm Details",
+    "OPEN_WALLET": "Open Wallet",
+    "DOUBLE_CHECK": "Double check these details before confirming in your wallet."
+  },
+
+  "FORM": {
+    "BUTTON": {
+      "CANCEL": "Cancel",
+      "SUBMIT": "Submit",
+      "NEXT": "Next",
+      "CLOSE": "Close",
+      "DONE": "Done",
+      "CONFIRM_DETAILS": "Confirm Details",
+      "OPEN_WALLET": "Open Wallet",
+      "CREATE_RELAYER": "Create Relayer"
+    },
+    "ADD_RELAYER": {
+      "TITLE": {
+        "CREATE_RELAYER": "Create New Relayer"
+      },
+      "FIELD_LABEL": {
+        "NAME": "Name"
+      },
+      "ERROR": {
+        "MIN_THREE_CHARACTERS": "The string must contain at least three characters",
+        "NAME_EXISTS": "Relayer name already exists"
+      }
+    }
+  }
 }

@@ -2,16 +2,19 @@
 /* tslint:disable */
 /* eslint-disable */
 import {
-  Signer,
-  utils,
   Contract,
   ContractFactory,
+  ContractTransactionResponse,
+  Interface,
+} from "ethers";
+import type {
+  Signer,
   BytesLike,
   BigNumberish,
-  Overrides,
+  ContractDeployTransaction,
+  ContractRunner,
 } from "ethers";
-import type { Provider, TransactionRequest } from "@ethersproject/providers";
-import type { PromiseOrValue } from "../../../common";
+import type { NonPayableOverrides } from "../../../common";
 import type {
   ERC721ReceiverMock,
   ERC721ReceiverMockInterface,
@@ -127,40 +130,37 @@ export class ERC721ReceiverMock__factory extends ContractFactory {
     }
   }
 
-  override deploy(
-    retval: PromiseOrValue<BytesLike>,
-    error: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ERC721ReceiverMock> {
-    return super.deploy(
-      retval,
-      error,
-      overrides || {}
-    ) as Promise<ERC721ReceiverMock>;
-  }
   override getDeployTransaction(
-    retval: PromiseOrValue<BytesLike>,
-    error: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): TransactionRequest {
+    retval: BytesLike,
+    error: BigNumberish,
+    overrides?: NonPayableOverrides & { from?: string }
+  ): Promise<ContractDeployTransaction> {
     return super.getDeployTransaction(retval, error, overrides || {});
   }
-  override attach(address: string): ERC721ReceiverMock {
-    return super.attach(address) as ERC721ReceiverMock;
+  override deploy(
+    retval: BytesLike,
+    error: BigNumberish,
+    overrides?: NonPayableOverrides & { from?: string }
+  ) {
+    return super.deploy(retval, error, overrides || {}) as Promise<
+      ERC721ReceiverMock & {
+        deploymentTransaction(): ContractTransactionResponse;
+      }
+    >;
   }
-  override connect(signer: Signer): ERC721ReceiverMock__factory {
-    return super.connect(signer) as ERC721ReceiverMock__factory;
+  override connect(runner: ContractRunner | null): ERC721ReceiverMock__factory {
+    return super.connect(runner) as ERC721ReceiverMock__factory;
   }
 
   static readonly bytecode = _bytecode;
   static readonly abi = _abi;
   static createInterface(): ERC721ReceiverMockInterface {
-    return new utils.Interface(_abi) as ERC721ReceiverMockInterface;
+    return new Interface(_abi) as ERC721ReceiverMockInterface;
   }
   static connect(
     address: string,
-    signerOrProvider: Signer | Provider
+    runner?: ContractRunner | null
   ): ERC721ReceiverMock {
-    return new Contract(address, _abi, signerOrProvider) as ERC721ReceiverMock;
+    return new Contract(address, _abi, runner) as unknown as ERC721ReceiverMock;
   }
 }

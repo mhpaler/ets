@@ -3,161 +3,159 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BigNumberish,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
-} from "ethers";
-import type {
   FunctionFragment,
   Result,
+  Interface,
   EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+  AddressLike,
+  ContractRunner,
+  ContractMethod,
+  Listener,
+} from "ethers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
+  TypedLogDescription,
   TypedListener,
-  OnEvent,
-  PromiseOrValue,
+  TypedContractMethod,
 } from "../../common";
 
-export interface ERC721ReceiverMockInterface extends utils.Interface {
-  functions: {
-    "onERC721Received(address,address,uint256,bytes)": FunctionFragment;
-  };
+export interface ERC721ReceiverMockInterface extends Interface {
+  getFunction(nameOrSignature: "onERC721Received"): FunctionFragment;
 
-  getFunction(nameOrSignatureOrTopic: "onERC721Received"): FunctionFragment;
+  getEvent(nameOrSignatureOrTopic: "Received"): EventFragment;
 
   encodeFunctionData(
     functionFragment: "onERC721Received",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>
-    ]
+    values: [AddressLike, AddressLike, BigNumberish, BytesLike]
   ): string;
 
   decodeFunctionResult(
     functionFragment: "onERC721Received",
     data: BytesLike
   ): Result;
-
-  events: {
-    "Received(address,address,uint256,bytes,uint256)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "Received"): EventFragment;
 }
 
-export interface ReceivedEventObject {
-  operator: string;
-  from: string;
-  tokenId: BigNumber;
-  data: string;
-  gas: BigNumber;
+export namespace ReceivedEvent {
+  export type InputTuple = [
+    operator: AddressLike,
+    from: AddressLike,
+    tokenId: BigNumberish,
+    data: BytesLike,
+    gas: BigNumberish
+  ];
+  export type OutputTuple = [
+    operator: string,
+    from: string,
+    tokenId: bigint,
+    data: string,
+    gas: bigint
+  ];
+  export interface OutputObject {
+    operator: string;
+    from: string;
+    tokenId: bigint;
+    data: string;
+    gas: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type ReceivedEvent = TypedEvent<
-  [string, string, BigNumber, string, BigNumber],
-  ReceivedEventObject
->;
-
-export type ReceivedEventFilter = TypedEventFilter<ReceivedEvent>;
 
 export interface ERC721ReceiverMock extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): ERC721ReceiverMock;
+  waitForDeployment(): Promise<this>;
 
   interface: ERC721ReceiverMockInterface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-  functions: {
-    onERC721Received(
-      operator: PromiseOrValue<string>,
-      from: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-  };
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-  onERC721Received(
-    operator: PromiseOrValue<string>,
-    from: PromiseOrValue<string>,
-    tokenId: PromiseOrValue<BigNumberish>,
-    data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
 
-  callStatic: {
-    onERC721Received(
-      operator: PromiseOrValue<string>,
-      from: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-  };
+  onERC721Received: TypedContractMethod<
+    [
+      operator: AddressLike,
+      from: AddressLike,
+      tokenId: BigNumberish,
+      data: BytesLike
+    ],
+    [string],
+    "nonpayable"
+  >;
+
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
+
+  getFunction(
+    nameOrSignature: "onERC721Received"
+  ): TypedContractMethod<
+    [
+      operator: AddressLike,
+      from: AddressLike,
+      tokenId: BigNumberish,
+      data: BytesLike
+    ],
+    [string],
+    "nonpayable"
+  >;
+
+  getEvent(
+    key: "Received"
+  ): TypedContractEvent<
+    ReceivedEvent.InputTuple,
+    ReceivedEvent.OutputTuple,
+    ReceivedEvent.OutputObject
+  >;
 
   filters: {
-    "Received(address,address,uint256,bytes,uint256)"(
-      operator?: null,
-      from?: null,
-      tokenId?: null,
-      data?: null,
-      gas?: null
-    ): ReceivedEventFilter;
-    Received(
-      operator?: null,
-      from?: null,
-      tokenId?: null,
-      data?: null,
-      gas?: null
-    ): ReceivedEventFilter;
-  };
-
-  estimateGas: {
-    onERC721Received(
-      operator: PromiseOrValue<string>,
-      from: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    onERC721Received(
-      operator: PromiseOrValue<string>,
-      from: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    "Received(address,address,uint256,bytes,uint256)": TypedContractEvent<
+      ReceivedEvent.InputTuple,
+      ReceivedEvent.OutputTuple,
+      ReceivedEvent.OutputObject
+    >;
+    Received: TypedContractEvent<
+      ReceivedEvent.InputTuple,
+      ReceivedEvent.OutputTuple,
+      ReceivedEvent.OutputObject
+    >;
   };
 }

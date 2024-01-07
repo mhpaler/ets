@@ -3,120 +3,74 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BigNumberish,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PayableOverrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
-} from "ethers";
-import type {
   FunctionFragment,
   Result,
+  Interface,
   EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+  AddressLike,
+  ContractRunner,
+  ContractMethod,
+  Listener,
+} from "ethers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
+  TypedLogDescription,
   TypedListener,
-  OnEvent,
-  PromiseOrValue,
+  TypedContractMethod,
 } from "../common";
 
 export declare namespace IETSAuctionHouse {
   export type AuctionStruct = {
-    auctionId: PromiseOrValue<BigNumberish>;
-    amount: PromiseOrValue<BigNumberish>;
-    startTime: PromiseOrValue<BigNumberish>;
-    endTime: PromiseOrValue<BigNumberish>;
-    reservePrice: PromiseOrValue<BigNumberish>;
-    bidder: PromiseOrValue<string>;
-    auctioneer: PromiseOrValue<string>;
-    settled: PromiseOrValue<boolean>;
+    auctionId: BigNumberish;
+    tokenId: BigNumberish;
+    amount: BigNumberish;
+    startTime: BigNumberish;
+    endTime: BigNumberish;
+    reservePrice: BigNumberish;
+    bidder: AddressLike;
+    auctioneer: AddressLike;
+    settled: boolean;
   };
 
   export type AuctionStructOutput = [
-    BigNumber,
-    BigNumber,
-    BigNumber,
-    BigNumber,
-    BigNumber,
-    string,
-    string,
-    boolean
+    auctionId: bigint,
+    tokenId: bigint,
+    amount: bigint,
+    startTime: bigint,
+    endTime: bigint,
+    reservePrice: bigint,
+    bidder: string,
+    auctioneer: string,
+    settled: boolean
   ] & {
-    auctionId: BigNumber;
-    amount: BigNumber;
-    startTime: BigNumber;
-    endTime: BigNumber;
-    reservePrice: BigNumber;
+    auctionId: bigint;
+    tokenId: bigint;
+    amount: bigint;
+    startTime: bigint;
+    endTime: bigint;
+    reservePrice: bigint;
     bidder: string;
     auctioneer: string;
     settled: boolean;
   };
 }
 
-export interface ETSAuctionHouseInterface extends utils.Interface {
-  functions: {
-    "MODULO()": FunctionFragment;
-    "NAME()": FunctionFragment;
-    "accrued(address)": FunctionFragment;
-    "auctionEnded(uint256)": FunctionFragment;
-    "auctionExists(uint256)": FunctionFragment;
-    "auctionSettled(uint256)": FunctionFragment;
-    "auctions(uint256)": FunctionFragment;
-    "createBid(uint256)": FunctionFragment;
-    "createNextAuction()": FunctionFragment;
-    "creatorPercentage()": FunctionFragment;
-    "drawDown(address)": FunctionFragment;
-    "duration()": FunctionFragment;
-    "etsAccessControls()": FunctionFragment;
-    "etsToken()": FunctionFragment;
-    "fulfillRequestCreateAuction(uint256)": FunctionFragment;
-    "getActiveCount()": FunctionFragment;
-    "getAuction(uint256)": FunctionFragment;
-    "getBalance()": FunctionFragment;
-    "getTotalCount()": FunctionFragment;
-    "initialize(address,address,address,uint256,uint256,uint256,uint8,uint256,uint256,uint256)": FunctionFragment;
-    "maxAuctions()": FunctionFragment;
-    "minBidIncrementPercentage()": FunctionFragment;
-    "paid(address)": FunctionFragment;
-    "pause()": FunctionFragment;
-    "paused()": FunctionFragment;
-    "platformPercentage()": FunctionFragment;
-    "proxiableUUID()": FunctionFragment;
-    "relayerPercentage()": FunctionFragment;
-    "reservePrice()": FunctionFragment;
-    "setDuration(uint256)": FunctionFragment;
-    "setMaxAuctions(uint256)": FunctionFragment;
-    "setMinBidIncrementPercentage(uint8)": FunctionFragment;
-    "setProceedPercentages(uint256,uint256)": FunctionFragment;
-    "setReservePrice(uint256)": FunctionFragment;
-    "setTimeBuffer(uint256)": FunctionFragment;
-    "settleAuction(uint256)": FunctionFragment;
-    "settleCurrentAndCreateNewAuction(uint256)": FunctionFragment;
-    "timeBuffer()": FunctionFragment;
-    "totalDue(address)": FunctionFragment;
-    "unpause()": FunctionFragment;
-    "upgradeTo(address)": FunctionFragment;
-    "upgradeToAndCall(address,bytes)": FunctionFragment;
-    "wmatic()": FunctionFragment;
-  };
-
+export interface ETSAuctionHouseInterface extends Interface {
   getFunction(
-    nameOrSignatureOrTopic:
+    nameOrSignature:
       | "MODULO"
       | "NAME"
       | "accrued"
       | "auctionEnded"
       | "auctionExists"
+      | "auctionExistsForTokenId"
       | "auctionSettled"
       | "auctions"
+      | "auctionsByTokenId"
       | "createBid"
       | "createNextAuction"
       | "creatorPercentage"
@@ -127,6 +81,8 @@ export interface ETSAuctionHouseInterface extends utils.Interface {
       | "fulfillRequestCreateAuction"
       | "getActiveCount"
       | "getAuction"
+      | "getAuctionCountForTokenId"
+      | "getAuctionForTokenId"
       | "getBalance"
       | "getTotalCount"
       | "initialize"
@@ -155,31 +111,61 @@ export interface ETSAuctionHouseInterface extends utils.Interface {
       | "wmatic"
   ): FunctionFragment;
 
+  getEvent(
+    nameOrSignatureOrTopic:
+      | "AdminChanged"
+      | "AuctionBid"
+      | "AuctionCreated"
+      | "AuctionDurationSet"
+      | "AuctionExtended"
+      | "AuctionMinBidIncrementPercentageSet"
+      | "AuctionProceedPercentagesSet"
+      | "AuctionProceedsWithdrawn"
+      | "AuctionReservePriceSet"
+      | "AuctionSettled"
+      | "AuctionTimeBufferSet"
+      | "AuctionsMaxSet"
+      | "BeaconUpgraded"
+      | "Initialized"
+      | "Paused"
+      | "RequestCreateAuction"
+      | "Unpaused"
+      | "Upgraded"
+  ): EventFragment;
+
   encodeFunctionData(functionFragment: "MODULO", values?: undefined): string;
   encodeFunctionData(functionFragment: "NAME", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "accrued",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "auctionEnded",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "auctionExists",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "auctionExistsForTokenId",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "auctionSettled",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "auctions",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "auctionsByTokenId",
+    values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "createBid",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "createNextAuction",
@@ -191,7 +177,7 @@ export interface ETSAuctionHouseInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "drawDown",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "duration", values?: undefined): string;
   encodeFunctionData(
@@ -201,7 +187,7 @@ export interface ETSAuctionHouseInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "etsToken", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "fulfillRequestCreateAuction",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getActiveCount",
@@ -209,7 +195,15 @@ export interface ETSAuctionHouseInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getAuction",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAuctionCountForTokenId",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAuctionForTokenId",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getBalance",
@@ -222,16 +216,16 @@ export interface ETSAuctionHouseInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "initialize",
     values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
+      AddressLike,
+      AddressLike,
+      AddressLike,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish
     ]
   ): string;
   encodeFunctionData(
@@ -242,10 +236,7 @@ export interface ETSAuctionHouseInterface extends utils.Interface {
     functionFragment: "minBidIncrementPercentage",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "paid",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "paid", values: [AddressLike]): string;
   encodeFunctionData(functionFragment: "pause", values?: undefined): string;
   encodeFunctionData(functionFragment: "paused", values?: undefined): string;
   encodeFunctionData(
@@ -266,35 +257,35 @@ export interface ETSAuctionHouseInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setDuration",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setMaxAuctions",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setMinBidIncrementPercentage",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setProceedPercentages",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+    values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setReservePrice",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setTimeBuffer",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "settleAuction",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "settleCurrentAndCreateNewAuction",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "timeBuffer",
@@ -302,16 +293,16 @@ export interface ETSAuctionHouseInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "totalDue",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "upgradeTo",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "upgradeToAndCall",
-    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
+    values: [AddressLike, BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "wmatic", values?: undefined): string;
 
@@ -327,10 +318,18 @@ export interface ETSAuctionHouseInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "auctionExistsForTokenId",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "auctionSettled",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "auctions", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "auctionsByTokenId",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "createBid", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "createNextAuction",
@@ -356,6 +355,14 @@ export interface ETSAuctionHouseInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getAuction", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getAuctionCountForTokenId",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getAuctionForTokenId",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "getBalance", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getTotalCount",
@@ -430,1287 +437,1051 @@ export interface ETSAuctionHouseInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "wmatic", data: BytesLike): Result;
-
-  events: {
-    "AdminChanged(address,address)": EventFragment;
-    "AuctionBid(uint256,address,uint256,bool)": EventFragment;
-    "AuctionCreated(uint256)": EventFragment;
-    "AuctionDurationSet(uint256)": EventFragment;
-    "AuctionExtended(uint256,uint256)": EventFragment;
-    "AuctionMinBidIncrementPercentageSet(uint8)": EventFragment;
-    "AuctionProceedPercentagesSet(uint256,uint256,uint256)": EventFragment;
-    "AuctionProceedsWithdrawn(address,uint256)": EventFragment;
-    "AuctionReservePriceSet(uint256)": EventFragment;
-    "AuctionSettled(uint256)": EventFragment;
-    "AuctionTimeBufferSet(uint256)": EventFragment;
-    "AuctionsMaxSet(uint256)": EventFragment;
-    "BeaconUpgraded(address)": EventFragment;
-    "Initialized(uint8)": EventFragment;
-    "Paused(address)": EventFragment;
-    "RequestCreateAuction()": EventFragment;
-    "Unpaused(address)": EventFragment;
-    "Upgraded(address)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "AdminChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AuctionBid"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AuctionCreated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AuctionDurationSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AuctionExtended"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AuctionMinBidIncrementPercentageSet"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AuctionProceedPercentagesSet"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AuctionProceedsWithdrawn"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AuctionReservePriceSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AuctionSettled"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AuctionTimeBufferSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AuctionsMaxSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "BeaconUpgraded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RequestCreateAuction"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Upgraded"): EventFragment;
 }
 
-export interface AdminChangedEventObject {
-  previousAdmin: string;
-  newAdmin: string;
+export namespace AdminChangedEvent {
+  export type InputTuple = [previousAdmin: AddressLike, newAdmin: AddressLike];
+  export type OutputTuple = [previousAdmin: string, newAdmin: string];
+  export interface OutputObject {
+    previousAdmin: string;
+    newAdmin: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AdminChangedEvent = TypedEvent<
-  [string, string],
-  AdminChangedEventObject
->;
 
-export type AdminChangedEventFilter = TypedEventFilter<AdminChangedEvent>;
-
-export interface AuctionBidEventObject {
-  tokenId: BigNumber;
-  sender: string;
-  value: BigNumber;
-  extended: boolean;
+export namespace AuctionBidEvent {
+  export type InputTuple = [
+    auctionId: BigNumberish,
+    sender: AddressLike,
+    value: BigNumberish,
+    extended: boolean
+  ];
+  export type OutputTuple = [
+    auctionId: bigint,
+    sender: string,
+    value: bigint,
+    extended: boolean
+  ];
+  export interface OutputObject {
+    auctionId: bigint;
+    sender: string;
+    value: bigint;
+    extended: boolean;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AuctionBidEvent = TypedEvent<
-  [BigNumber, string, BigNumber, boolean],
-  AuctionBidEventObject
->;
 
-export type AuctionBidEventFilter = TypedEventFilter<AuctionBidEvent>;
-
-export interface AuctionCreatedEventObject {
-  tokenId: BigNumber;
+export namespace AuctionCreatedEvent {
+  export type InputTuple = [
+    auctionId: BigNumberish,
+    tokenId: BigNumberish,
+    tokenAuctionNumber: BigNumberish
+  ];
+  export type OutputTuple = [
+    auctionId: bigint,
+    tokenId: bigint,
+    tokenAuctionNumber: bigint
+  ];
+  export interface OutputObject {
+    auctionId: bigint;
+    tokenId: bigint;
+    tokenAuctionNumber: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AuctionCreatedEvent = TypedEvent<
-  [BigNumber],
-  AuctionCreatedEventObject
->;
 
-export type AuctionCreatedEventFilter = TypedEventFilter<AuctionCreatedEvent>;
-
-export interface AuctionDurationSetEventObject {
-  duration: BigNumber;
+export namespace AuctionDurationSetEvent {
+  export type InputTuple = [duration: BigNumberish];
+  export type OutputTuple = [duration: bigint];
+  export interface OutputObject {
+    duration: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AuctionDurationSetEvent = TypedEvent<
-  [BigNumber],
-  AuctionDurationSetEventObject
->;
 
-export type AuctionDurationSetEventFilter =
-  TypedEventFilter<AuctionDurationSetEvent>;
-
-export interface AuctionExtendedEventObject {
-  tokenId: BigNumber;
-  endTime: BigNumber;
+export namespace AuctionExtendedEvent {
+  export type InputTuple = [auctionId: BigNumberish, endTime: BigNumberish];
+  export type OutputTuple = [auctionId: bigint, endTime: bigint];
+  export interface OutputObject {
+    auctionId: bigint;
+    endTime: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AuctionExtendedEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  AuctionExtendedEventObject
->;
 
-export type AuctionExtendedEventFilter = TypedEventFilter<AuctionExtendedEvent>;
-
-export interface AuctionMinBidIncrementPercentageSetEventObject {
-  minBidIncrementPercentagePrice: number;
+export namespace AuctionMinBidIncrementPercentageSetEvent {
+  export type InputTuple = [minBidIncrementPercentagePrice: BigNumberish];
+  export type OutputTuple = [minBidIncrementPercentagePrice: bigint];
+  export interface OutputObject {
+    minBidIncrementPercentagePrice: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AuctionMinBidIncrementPercentageSetEvent = TypedEvent<
-  [number],
-  AuctionMinBidIncrementPercentageSetEventObject
->;
 
-export type AuctionMinBidIncrementPercentageSetEventFilter =
-  TypedEventFilter<AuctionMinBidIncrementPercentageSetEvent>;
-
-export interface AuctionProceedPercentagesSetEventObject {
-  platformPercentage: BigNumber;
-  relayerPercentage: BigNumber;
-  creatorPercentage: BigNumber;
+export namespace AuctionProceedPercentagesSetEvent {
+  export type InputTuple = [
+    platformPercentage: BigNumberish,
+    relayerPercentage: BigNumberish,
+    creatorPercentage: BigNumberish
+  ];
+  export type OutputTuple = [
+    platformPercentage: bigint,
+    relayerPercentage: bigint,
+    creatorPercentage: bigint
+  ];
+  export interface OutputObject {
+    platformPercentage: bigint;
+    relayerPercentage: bigint;
+    creatorPercentage: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AuctionProceedPercentagesSetEvent = TypedEvent<
-  [BigNumber, BigNumber, BigNumber],
-  AuctionProceedPercentagesSetEventObject
->;
 
-export type AuctionProceedPercentagesSetEventFilter =
-  TypedEventFilter<AuctionProceedPercentagesSetEvent>;
-
-export interface AuctionProceedsWithdrawnEventObject {
-  who: string;
-  amount: BigNumber;
+export namespace AuctionProceedsWithdrawnEvent {
+  export type InputTuple = [who: AddressLike, amount: BigNumberish];
+  export type OutputTuple = [who: string, amount: bigint];
+  export interface OutputObject {
+    who: string;
+    amount: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AuctionProceedsWithdrawnEvent = TypedEvent<
-  [string, BigNumber],
-  AuctionProceedsWithdrawnEventObject
->;
 
-export type AuctionProceedsWithdrawnEventFilter =
-  TypedEventFilter<AuctionProceedsWithdrawnEvent>;
-
-export interface AuctionReservePriceSetEventObject {
-  reservePrice: BigNumber;
+export namespace AuctionReservePriceSetEvent {
+  export type InputTuple = [reservePrice: BigNumberish];
+  export type OutputTuple = [reservePrice: bigint];
+  export interface OutputObject {
+    reservePrice: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AuctionReservePriceSetEvent = TypedEvent<
-  [BigNumber],
-  AuctionReservePriceSetEventObject
->;
 
-export type AuctionReservePriceSetEventFilter =
-  TypedEventFilter<AuctionReservePriceSetEvent>;
-
-export interface AuctionSettledEventObject {
-  tokenId: BigNumber;
+export namespace AuctionSettledEvent {
+  export type InputTuple = [auctionId: BigNumberish];
+  export type OutputTuple = [auctionId: bigint];
+  export interface OutputObject {
+    auctionId: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AuctionSettledEvent = TypedEvent<
-  [BigNumber],
-  AuctionSettledEventObject
->;
 
-export type AuctionSettledEventFilter = TypedEventFilter<AuctionSettledEvent>;
-
-export interface AuctionTimeBufferSetEventObject {
-  timeBuffer: BigNumber;
+export namespace AuctionTimeBufferSetEvent {
+  export type InputTuple = [timeBuffer: BigNumberish];
+  export type OutputTuple = [timeBuffer: bigint];
+  export interface OutputObject {
+    timeBuffer: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AuctionTimeBufferSetEvent = TypedEvent<
-  [BigNumber],
-  AuctionTimeBufferSetEventObject
->;
 
-export type AuctionTimeBufferSetEventFilter =
-  TypedEventFilter<AuctionTimeBufferSetEvent>;
-
-export interface AuctionsMaxSetEventObject {
-  maxAuctions: BigNumber;
+export namespace AuctionsMaxSetEvent {
+  export type InputTuple = [maxAuctions: BigNumberish];
+  export type OutputTuple = [maxAuctions: bigint];
+  export interface OutputObject {
+    maxAuctions: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type AuctionsMaxSetEvent = TypedEvent<
-  [BigNumber],
-  AuctionsMaxSetEventObject
->;
 
-export type AuctionsMaxSetEventFilter = TypedEventFilter<AuctionsMaxSetEvent>;
-
-export interface BeaconUpgradedEventObject {
-  beacon: string;
+export namespace BeaconUpgradedEvent {
+  export type InputTuple = [beacon: AddressLike];
+  export type OutputTuple = [beacon: string];
+  export interface OutputObject {
+    beacon: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type BeaconUpgradedEvent = TypedEvent<
-  [string],
-  BeaconUpgradedEventObject
->;
 
-export type BeaconUpgradedEventFilter = TypedEventFilter<BeaconUpgradedEvent>;
-
-export interface InitializedEventObject {
-  version: number;
+export namespace InitializedEvent {
+  export type InputTuple = [version: BigNumberish];
+  export type OutputTuple = [version: bigint];
+  export interface OutputObject {
+    version: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
 
-export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
-
-export interface PausedEventObject {
-  account: string;
+export namespace PausedEvent {
+  export type InputTuple = [account: AddressLike];
+  export type OutputTuple = [account: string];
+  export interface OutputObject {
+    account: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type PausedEvent = TypedEvent<[string], PausedEventObject>;
 
-export type PausedEventFilter = TypedEventFilter<PausedEvent>;
-
-export interface RequestCreateAuctionEventObject {}
-export type RequestCreateAuctionEvent = TypedEvent<
-  [],
-  RequestCreateAuctionEventObject
->;
-
-export type RequestCreateAuctionEventFilter =
-  TypedEventFilter<RequestCreateAuctionEvent>;
-
-export interface UnpausedEventObject {
-  account: string;
+export namespace RequestCreateAuctionEvent {
+  export type InputTuple = [];
+  export type OutputTuple = [];
+  export interface OutputObject {}
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type UnpausedEvent = TypedEvent<[string], UnpausedEventObject>;
 
-export type UnpausedEventFilter = TypedEventFilter<UnpausedEvent>;
-
-export interface UpgradedEventObject {
-  implementation: string;
+export namespace UnpausedEvent {
+  export type InputTuple = [account: AddressLike];
+  export type OutputTuple = [account: string];
+  export interface OutputObject {
+    account: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type UpgradedEvent = TypedEvent<[string], UpgradedEventObject>;
 
-export type UpgradedEventFilter = TypedEventFilter<UpgradedEvent>;
+export namespace UpgradedEvent {
+  export type InputTuple = [implementation: AddressLike];
+  export type OutputTuple = [implementation: string];
+  export interface OutputObject {
+    implementation: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
 
 export interface ETSAuctionHouse extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): ETSAuctionHouse;
+  waitForDeployment(): Promise<this>;
 
   interface: ETSAuctionHouseInterface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-  functions: {
-    MODULO(overrides?: CallOverrides): Promise<[BigNumber]>;
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-    NAME(overrides?: CallOverrides): Promise<[string]>;
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
 
-    accrued(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+  MODULO: TypedContractMethod<[], [bigint], "view">;
 
-    auctionEnded(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+  NAME: TypedContractMethod<[], [string], "view">;
 
-    auctionExists(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+  accrued: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
-    auctionSettled(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    auctions(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        string,
-        string,
-        boolean
-      ] & {
-        auctionId: BigNumber;
-        amount: BigNumber;
-        startTime: BigNumber;
-        endTime: BigNumber;
-        reservePrice: BigNumber;
-        bidder: string;
-        auctioneer: string;
-        settled: boolean;
-      }
-    >;
-
-    createBid(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    createNextAuction(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    creatorPercentage(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    drawDown(
-      _account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    duration(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    etsAccessControls(overrides?: CallOverrides): Promise<[string]>;
-
-    etsToken(overrides?: CallOverrides): Promise<[string]>;
-
-    fulfillRequestCreateAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    getActiveCount(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    getAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[IETSAuctionHouse.AuctionStructOutput]>;
-
-    getBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    getTotalCount(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    initialize(
-      _etsToken: PromiseOrValue<string>,
-      _etsAccessControls: PromiseOrValue<string>,
-      _wmatic: PromiseOrValue<string>,
-      _maxAuctions: PromiseOrValue<BigNumberish>,
-      _timeBuffer: PromiseOrValue<BigNumberish>,
-      _reservePrice: PromiseOrValue<BigNumberish>,
-      _minBidIncrementPercentage: PromiseOrValue<BigNumberish>,
-      _duration: PromiseOrValue<BigNumberish>,
-      _relayerPercentage: PromiseOrValue<BigNumberish>,
-      _platformPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    maxAuctions(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    minBidIncrementPercentage(overrides?: CallOverrides): Promise<[number]>;
-
-    paid(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    pause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    paused(overrides?: CallOverrides): Promise<[boolean]>;
-
-    platformPercentage(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    proxiableUUID(overrides?: CallOverrides): Promise<[string]>;
-
-    relayerPercentage(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    reservePrice(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    setDuration(
-      _duration: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setMaxAuctions(
-      _maxAuctions: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setMinBidIncrementPercentage(
-      _minBidIncrementPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setProceedPercentages(
-      _platformPercentage: PromiseOrValue<BigNumberish>,
-      _relayerPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setReservePrice(
-      _reservePrice: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setTimeBuffer(
-      _timeBuffer: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    settleAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    settleCurrentAndCreateNewAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    timeBuffer(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    totalDue(
-      _account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { _due: BigNumber }>;
-
-    unpause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    upgradeTo(
-      newImplementation: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    upgradeToAndCall(
-      newImplementation: PromiseOrValue<string>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    wmatic(overrides?: CallOverrides): Promise<[string]>;
-  };
-
-  MODULO(overrides?: CallOverrides): Promise<BigNumber>;
-
-  NAME(overrides?: CallOverrides): Promise<string>;
-
-  accrued(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  auctionEnded(
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  auctionExists(
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  auctionSettled(
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  auctions(
-    arg0: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<
-    [
-      BigNumber,
-      BigNumber,
-      BigNumber,
-      BigNumber,
-      BigNumber,
-      string,
-      string,
-      boolean
-    ] & {
-      auctionId: BigNumber;
-      amount: BigNumber;
-      startTime: BigNumber;
-      endTime: BigNumber;
-      reservePrice: BigNumber;
-      bidder: string;
-      auctioneer: string;
-      settled: boolean;
-    }
+  auctionEnded: TypedContractMethod<
+    [_auctionId: BigNumberish],
+    [boolean],
+    "view"
   >;
 
-  createBid(
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  auctionExists: TypedContractMethod<
+    [_auctionId: BigNumberish],
+    [boolean],
+    "view"
+  >;
 
-  createNextAuction(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  auctionExistsForTokenId: TypedContractMethod<
+    [_tokenId: BigNumberish],
+    [boolean],
+    "view"
+  >;
 
-  creatorPercentage(overrides?: CallOverrides): Promise<BigNumber>;
+  auctionSettled: TypedContractMethod<
+    [_auctionId: BigNumberish],
+    [boolean],
+    "view"
+  >;
 
-  drawDown(
-    _account: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  duration(overrides?: CallOverrides): Promise<BigNumber>;
-
-  etsAccessControls(overrides?: CallOverrides): Promise<string>;
-
-  etsToken(overrides?: CallOverrides): Promise<string>;
-
-  fulfillRequestCreateAuction(
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  getActiveCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-  getAuction(
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<IETSAuctionHouse.AuctionStructOutput>;
-
-  getBalance(overrides?: CallOverrides): Promise<BigNumber>;
-
-  getTotalCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-  initialize(
-    _etsToken: PromiseOrValue<string>,
-    _etsAccessControls: PromiseOrValue<string>,
-    _wmatic: PromiseOrValue<string>,
-    _maxAuctions: PromiseOrValue<BigNumberish>,
-    _timeBuffer: PromiseOrValue<BigNumberish>,
-    _reservePrice: PromiseOrValue<BigNumberish>,
-    _minBidIncrementPercentage: PromiseOrValue<BigNumberish>,
-    _duration: PromiseOrValue<BigNumberish>,
-    _relayerPercentage: PromiseOrValue<BigNumberish>,
-    _platformPercentage: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  maxAuctions(overrides?: CallOverrides): Promise<BigNumber>;
-
-  minBidIncrementPercentage(overrides?: CallOverrides): Promise<number>;
-
-  paid(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  pause(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  paused(overrides?: CallOverrides): Promise<boolean>;
-
-  platformPercentage(overrides?: CallOverrides): Promise<BigNumber>;
-
-  proxiableUUID(overrides?: CallOverrides): Promise<string>;
-
-  relayerPercentage(overrides?: CallOverrides): Promise<BigNumber>;
-
-  reservePrice(overrides?: CallOverrides): Promise<BigNumber>;
-
-  setDuration(
-    _duration: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setMaxAuctions(
-    _maxAuctions: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setMinBidIncrementPercentage(
-    _minBidIncrementPercentage: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setProceedPercentages(
-    _platformPercentage: PromiseOrValue<BigNumberish>,
-    _relayerPercentage: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setReservePrice(
-    _reservePrice: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setTimeBuffer(
-    _timeBuffer: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  settleAuction(
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  settleCurrentAndCreateNewAuction(
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  timeBuffer(overrides?: CallOverrides): Promise<BigNumber>;
-
-  totalDue(
-    _account: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  unpause(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  upgradeTo(
-    newImplementation: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  upgradeToAndCall(
-    newImplementation: PromiseOrValue<string>,
-    data: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  wmatic(overrides?: CallOverrides): Promise<string>;
-
-  callStatic: {
-    MODULO(overrides?: CallOverrides): Promise<BigNumber>;
-
-    NAME(overrides?: CallOverrides): Promise<string>;
-
-    accrued(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    auctionEnded(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    auctionExists(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    auctionSettled(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    auctions(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
+  auctions: TypedContractMethod<
+    [arg0: BigNumberish],
+    [
       [
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
         string,
         string,
         boolean
       ] & {
-        auctionId: BigNumber;
-        amount: BigNumber;
-        startTime: BigNumber;
-        endTime: BigNumber;
-        reservePrice: BigNumber;
+        auctionId: bigint;
+        tokenId: bigint;
+        amount: bigint;
+        startTime: bigint;
+        endTime: bigint;
+        reservePrice: bigint;
         bidder: string;
         auctioneer: string;
         settled: boolean;
       }
-    >;
+    ],
+    "view"
+  >;
 
-    createBid(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  auctionsByTokenId: TypedContractMethod<
+    [arg0: BigNumberish, arg1: BigNumberish],
+    [bigint],
+    "view"
+  >;
 
-    createNextAuction(overrides?: CallOverrides): Promise<void>;
+  createBid: TypedContractMethod<[_auctionId: BigNumberish], [void], "payable">;
 
-    creatorPercentage(overrides?: CallOverrides): Promise<BigNumber>;
+  createNextAuction: TypedContractMethod<[], [void], "nonpayable">;
 
-    drawDown(
-      _account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  creatorPercentage: TypedContractMethod<[], [bigint], "view">;
 
-    duration(overrides?: CallOverrides): Promise<BigNumber>;
+  drawDown: TypedContractMethod<[_account: AddressLike], [void], "nonpayable">;
 
-    etsAccessControls(overrides?: CallOverrides): Promise<string>;
+  duration: TypedContractMethod<[], [bigint], "view">;
 
-    etsToken(overrides?: CallOverrides): Promise<string>;
+  etsAccessControls: TypedContractMethod<[], [string], "view">;
 
-    fulfillRequestCreateAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  etsToken: TypedContractMethod<[], [string], "view">;
 
-    getActiveCount(overrides?: CallOverrides): Promise<BigNumber>;
+  fulfillRequestCreateAuction: TypedContractMethod<
+    [_tokenId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
-    getAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<IETSAuctionHouse.AuctionStructOutput>;
+  getActiveCount: TypedContractMethod<[], [bigint], "view">;
 
-    getBalance(overrides?: CallOverrides): Promise<BigNumber>;
+  getAuction: TypedContractMethod<
+    [_auctionId: BigNumberish],
+    [IETSAuctionHouse.AuctionStructOutput],
+    "view"
+  >;
 
-    getTotalCount(overrides?: CallOverrides): Promise<BigNumber>;
+  getAuctionCountForTokenId: TypedContractMethod<
+    [_tokenId: BigNumberish],
+    [bigint],
+    "view"
+  >;
 
-    initialize(
-      _etsToken: PromiseOrValue<string>,
-      _etsAccessControls: PromiseOrValue<string>,
-      _wmatic: PromiseOrValue<string>,
-      _maxAuctions: PromiseOrValue<BigNumberish>,
-      _timeBuffer: PromiseOrValue<BigNumberish>,
-      _reservePrice: PromiseOrValue<BigNumberish>,
-      _minBidIncrementPercentage: PromiseOrValue<BigNumberish>,
-      _duration: PromiseOrValue<BigNumberish>,
-      _relayerPercentage: PromiseOrValue<BigNumberish>,
-      _platformPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  getAuctionForTokenId: TypedContractMethod<
+    [_tokenId: BigNumberish],
+    [IETSAuctionHouse.AuctionStructOutput],
+    "view"
+  >;
 
-    maxAuctions(overrides?: CallOverrides): Promise<BigNumber>;
+  getBalance: TypedContractMethod<[], [bigint], "view">;
 
-    minBidIncrementPercentage(overrides?: CallOverrides): Promise<number>;
+  getTotalCount: TypedContractMethod<[], [bigint], "view">;
 
-    paid(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+  initialize: TypedContractMethod<
+    [
+      _etsToken: AddressLike,
+      _etsAccessControls: AddressLike,
+      _wmatic: AddressLike,
+      _maxAuctions: BigNumberish,
+      _timeBuffer: BigNumberish,
+      _reservePrice: BigNumberish,
+      _minBidIncrementPercentage: BigNumberish,
+      _duration: BigNumberish,
+      _relayerPercentage: BigNumberish,
+      _platformPercentage: BigNumberish
+    ],
+    [void],
+    "nonpayable"
+  >;
 
-    pause(overrides?: CallOverrides): Promise<void>;
+  maxAuctions: TypedContractMethod<[], [bigint], "view">;
 
-    paused(overrides?: CallOverrides): Promise<boolean>;
+  minBidIncrementPercentage: TypedContractMethod<[], [bigint], "view">;
 
-    platformPercentage(overrides?: CallOverrides): Promise<BigNumber>;
+  paid: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
-    proxiableUUID(overrides?: CallOverrides): Promise<string>;
+  pause: TypedContractMethod<[], [void], "nonpayable">;
 
-    relayerPercentage(overrides?: CallOverrides): Promise<BigNumber>;
+  paused: TypedContractMethod<[], [boolean], "view">;
 
-    reservePrice(overrides?: CallOverrides): Promise<BigNumber>;
+  platformPercentage: TypedContractMethod<[], [bigint], "view">;
 
-    setDuration(
-      _duration: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  proxiableUUID: TypedContractMethod<[], [string], "view">;
 
-    setMaxAuctions(
-      _maxAuctions: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  relayerPercentage: TypedContractMethod<[], [bigint], "view">;
 
-    setMinBidIncrementPercentage(
-      _minBidIncrementPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  reservePrice: TypedContractMethod<[], [bigint], "view">;
 
-    setProceedPercentages(
-      _platformPercentage: PromiseOrValue<BigNumberish>,
-      _relayerPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  setDuration: TypedContractMethod<
+    [_duration: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
-    setReservePrice(
-      _reservePrice: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  setMaxAuctions: TypedContractMethod<
+    [_maxAuctions: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
-    setTimeBuffer(
-      _timeBuffer: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  setMinBidIncrementPercentage: TypedContractMethod<
+    [_minBidIncrementPercentage: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
-    settleAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  setProceedPercentages: TypedContractMethod<
+    [_platformPercentage: BigNumberish, _relayerPercentage: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
-    settleCurrentAndCreateNewAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  setReservePrice: TypedContractMethod<
+    [_reservePrice: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
-    timeBuffer(overrides?: CallOverrides): Promise<BigNumber>;
+  setTimeBuffer: TypedContractMethod<
+    [_timeBuffer: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
-    totalDue(
-      _account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+  settleAuction: TypedContractMethod<
+    [_auctionId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
-    unpause(overrides?: CallOverrides): Promise<void>;
+  settleCurrentAndCreateNewAuction: TypedContractMethod<
+    [_auctionId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
-    upgradeTo(
-      newImplementation: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  timeBuffer: TypedContractMethod<[], [bigint], "view">;
 
-    upgradeToAndCall(
-      newImplementation: PromiseOrValue<string>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  totalDue: TypedContractMethod<[_account: AddressLike], [bigint], "view">;
 
-    wmatic(overrides?: CallOverrides): Promise<string>;
-  };
+  unpause: TypedContractMethod<[], [void], "nonpayable">;
+
+  upgradeTo: TypedContractMethod<
+    [newImplementation: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  upgradeToAndCall: TypedContractMethod<
+    [newImplementation: AddressLike, data: BytesLike],
+    [void],
+    "payable"
+  >;
+
+  wmatic: TypedContractMethod<[], [string], "view">;
+
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
+
+  getFunction(
+    nameOrSignature: "MODULO"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "NAME"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "accrued"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "auctionEnded"
+  ): TypedContractMethod<[_auctionId: BigNumberish], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "auctionExists"
+  ): TypedContractMethod<[_auctionId: BigNumberish], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "auctionExistsForTokenId"
+  ): TypedContractMethod<[_tokenId: BigNumberish], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "auctionSettled"
+  ): TypedContractMethod<[_auctionId: BigNumberish], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "auctions"
+  ): TypedContractMethod<
+    [arg0: BigNumberish],
+    [
+      [
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        string,
+        string,
+        boolean
+      ] & {
+        auctionId: bigint;
+        tokenId: bigint;
+        amount: bigint;
+        startTime: bigint;
+        endTime: bigint;
+        reservePrice: bigint;
+        bidder: string;
+        auctioneer: string;
+        settled: boolean;
+      }
+    ],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "auctionsByTokenId"
+  ): TypedContractMethod<
+    [arg0: BigNumberish, arg1: BigNumberish],
+    [bigint],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "createBid"
+  ): TypedContractMethod<[_auctionId: BigNumberish], [void], "payable">;
+  getFunction(
+    nameOrSignature: "createNextAuction"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "creatorPercentage"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "drawDown"
+  ): TypedContractMethod<[_account: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "duration"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "etsAccessControls"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "etsToken"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "fulfillRequestCreateAuction"
+  ): TypedContractMethod<[_tokenId: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "getActiveCount"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getAuction"
+  ): TypedContractMethod<
+    [_auctionId: BigNumberish],
+    [IETSAuctionHouse.AuctionStructOutput],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getAuctionCountForTokenId"
+  ): TypedContractMethod<[_tokenId: BigNumberish], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getAuctionForTokenId"
+  ): TypedContractMethod<
+    [_tokenId: BigNumberish],
+    [IETSAuctionHouse.AuctionStructOutput],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getBalance"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getTotalCount"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "initialize"
+  ): TypedContractMethod<
+    [
+      _etsToken: AddressLike,
+      _etsAccessControls: AddressLike,
+      _wmatic: AddressLike,
+      _maxAuctions: BigNumberish,
+      _timeBuffer: BigNumberish,
+      _reservePrice: BigNumberish,
+      _minBidIncrementPercentage: BigNumberish,
+      _duration: BigNumberish,
+      _relayerPercentage: BigNumberish,
+      _platformPercentage: BigNumberish
+    ],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "maxAuctions"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "minBidIncrementPercentage"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "paid"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "pause"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "paused"
+  ): TypedContractMethod<[], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "platformPercentage"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "proxiableUUID"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "relayerPercentage"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "reservePrice"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "setDuration"
+  ): TypedContractMethod<[_duration: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setMaxAuctions"
+  ): TypedContractMethod<[_maxAuctions: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setMinBidIncrementPercentage"
+  ): TypedContractMethod<
+    [_minBidIncrementPercentage: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "setProceedPercentages"
+  ): TypedContractMethod<
+    [_platformPercentage: BigNumberish, _relayerPercentage: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "setReservePrice"
+  ): TypedContractMethod<[_reservePrice: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setTimeBuffer"
+  ): TypedContractMethod<[_timeBuffer: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "settleAuction"
+  ): TypedContractMethod<[_auctionId: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "settleCurrentAndCreateNewAuction"
+  ): TypedContractMethod<[_auctionId: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "timeBuffer"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "totalDue"
+  ): TypedContractMethod<[_account: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "unpause"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "upgradeTo"
+  ): TypedContractMethod<
+    [newImplementation: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "upgradeToAndCall"
+  ): TypedContractMethod<
+    [newImplementation: AddressLike, data: BytesLike],
+    [void],
+    "payable"
+  >;
+  getFunction(
+    nameOrSignature: "wmatic"
+  ): TypedContractMethod<[], [string], "view">;
+
+  getEvent(
+    key: "AdminChanged"
+  ): TypedContractEvent<
+    AdminChangedEvent.InputTuple,
+    AdminChangedEvent.OutputTuple,
+    AdminChangedEvent.OutputObject
+  >;
+  getEvent(
+    key: "AuctionBid"
+  ): TypedContractEvent<
+    AuctionBidEvent.InputTuple,
+    AuctionBidEvent.OutputTuple,
+    AuctionBidEvent.OutputObject
+  >;
+  getEvent(
+    key: "AuctionCreated"
+  ): TypedContractEvent<
+    AuctionCreatedEvent.InputTuple,
+    AuctionCreatedEvent.OutputTuple,
+    AuctionCreatedEvent.OutputObject
+  >;
+  getEvent(
+    key: "AuctionDurationSet"
+  ): TypedContractEvent<
+    AuctionDurationSetEvent.InputTuple,
+    AuctionDurationSetEvent.OutputTuple,
+    AuctionDurationSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "AuctionExtended"
+  ): TypedContractEvent<
+    AuctionExtendedEvent.InputTuple,
+    AuctionExtendedEvent.OutputTuple,
+    AuctionExtendedEvent.OutputObject
+  >;
+  getEvent(
+    key: "AuctionMinBidIncrementPercentageSet"
+  ): TypedContractEvent<
+    AuctionMinBidIncrementPercentageSetEvent.InputTuple,
+    AuctionMinBidIncrementPercentageSetEvent.OutputTuple,
+    AuctionMinBidIncrementPercentageSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "AuctionProceedPercentagesSet"
+  ): TypedContractEvent<
+    AuctionProceedPercentagesSetEvent.InputTuple,
+    AuctionProceedPercentagesSetEvent.OutputTuple,
+    AuctionProceedPercentagesSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "AuctionProceedsWithdrawn"
+  ): TypedContractEvent<
+    AuctionProceedsWithdrawnEvent.InputTuple,
+    AuctionProceedsWithdrawnEvent.OutputTuple,
+    AuctionProceedsWithdrawnEvent.OutputObject
+  >;
+  getEvent(
+    key: "AuctionReservePriceSet"
+  ): TypedContractEvent<
+    AuctionReservePriceSetEvent.InputTuple,
+    AuctionReservePriceSetEvent.OutputTuple,
+    AuctionReservePriceSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "AuctionSettled"
+  ): TypedContractEvent<
+    AuctionSettledEvent.InputTuple,
+    AuctionSettledEvent.OutputTuple,
+    AuctionSettledEvent.OutputObject
+  >;
+  getEvent(
+    key: "AuctionTimeBufferSet"
+  ): TypedContractEvent<
+    AuctionTimeBufferSetEvent.InputTuple,
+    AuctionTimeBufferSetEvent.OutputTuple,
+    AuctionTimeBufferSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "AuctionsMaxSet"
+  ): TypedContractEvent<
+    AuctionsMaxSetEvent.InputTuple,
+    AuctionsMaxSetEvent.OutputTuple,
+    AuctionsMaxSetEvent.OutputObject
+  >;
+  getEvent(
+    key: "BeaconUpgraded"
+  ): TypedContractEvent<
+    BeaconUpgradedEvent.InputTuple,
+    BeaconUpgradedEvent.OutputTuple,
+    BeaconUpgradedEvent.OutputObject
+  >;
+  getEvent(
+    key: "Initialized"
+  ): TypedContractEvent<
+    InitializedEvent.InputTuple,
+    InitializedEvent.OutputTuple,
+    InitializedEvent.OutputObject
+  >;
+  getEvent(
+    key: "Paused"
+  ): TypedContractEvent<
+    PausedEvent.InputTuple,
+    PausedEvent.OutputTuple,
+    PausedEvent.OutputObject
+  >;
+  getEvent(
+    key: "RequestCreateAuction"
+  ): TypedContractEvent<
+    RequestCreateAuctionEvent.InputTuple,
+    RequestCreateAuctionEvent.OutputTuple,
+    RequestCreateAuctionEvent.OutputObject
+  >;
+  getEvent(
+    key: "Unpaused"
+  ): TypedContractEvent<
+    UnpausedEvent.InputTuple,
+    UnpausedEvent.OutputTuple,
+    UnpausedEvent.OutputObject
+  >;
+  getEvent(
+    key: "Upgraded"
+  ): TypedContractEvent<
+    UpgradedEvent.InputTuple,
+    UpgradedEvent.OutputTuple,
+    UpgradedEvent.OutputObject
+  >;
 
   filters: {
-    "AdminChanged(address,address)"(
-      previousAdmin?: null,
-      newAdmin?: null
-    ): AdminChangedEventFilter;
-    AdminChanged(
-      previousAdmin?: null,
-      newAdmin?: null
-    ): AdminChangedEventFilter;
-
-    "AuctionBid(uint256,address,uint256,bool)"(
-      tokenId?: PromiseOrValue<BigNumberish> | null,
-      sender?: null,
-      value?: null,
-      extended?: null
-    ): AuctionBidEventFilter;
-    AuctionBid(
-      tokenId?: PromiseOrValue<BigNumberish> | null,
-      sender?: null,
-      value?: null,
-      extended?: null
-    ): AuctionBidEventFilter;
-
-    "AuctionCreated(uint256)"(
-      tokenId?: PromiseOrValue<BigNumberish> | null
-    ): AuctionCreatedEventFilter;
-    AuctionCreated(
-      tokenId?: PromiseOrValue<BigNumberish> | null
-    ): AuctionCreatedEventFilter;
-
-    "AuctionDurationSet(uint256)"(
-      duration?: null
-    ): AuctionDurationSetEventFilter;
-    AuctionDurationSet(duration?: null): AuctionDurationSetEventFilter;
-
-    "AuctionExtended(uint256,uint256)"(
-      tokenId?: PromiseOrValue<BigNumberish> | null,
-      endTime?: null
-    ): AuctionExtendedEventFilter;
-    AuctionExtended(
-      tokenId?: PromiseOrValue<BigNumberish> | null,
-      endTime?: null
-    ): AuctionExtendedEventFilter;
-
-    "AuctionMinBidIncrementPercentageSet(uint8)"(
-      minBidIncrementPercentagePrice?: null
-    ): AuctionMinBidIncrementPercentageSetEventFilter;
-    AuctionMinBidIncrementPercentageSet(
-      minBidIncrementPercentagePrice?: null
-    ): AuctionMinBidIncrementPercentageSetEventFilter;
-
-    "AuctionProceedPercentagesSet(uint256,uint256,uint256)"(
-      platformPercentage?: null,
-      relayerPercentage?: null,
-      creatorPercentage?: null
-    ): AuctionProceedPercentagesSetEventFilter;
-    AuctionProceedPercentagesSet(
-      platformPercentage?: null,
-      relayerPercentage?: null,
-      creatorPercentage?: null
-    ): AuctionProceedPercentagesSetEventFilter;
-
-    "AuctionProceedsWithdrawn(address,uint256)"(
-      who?: PromiseOrValue<string> | null,
-      amount?: null
-    ): AuctionProceedsWithdrawnEventFilter;
-    AuctionProceedsWithdrawn(
-      who?: PromiseOrValue<string> | null,
-      amount?: null
-    ): AuctionProceedsWithdrawnEventFilter;
-
-    "AuctionReservePriceSet(uint256)"(
-      reservePrice?: null
-    ): AuctionReservePriceSetEventFilter;
-    AuctionReservePriceSet(
-      reservePrice?: null
-    ): AuctionReservePriceSetEventFilter;
-
-    "AuctionSettled(uint256)"(
-      tokenId?: PromiseOrValue<BigNumberish> | null
-    ): AuctionSettledEventFilter;
-    AuctionSettled(
-      tokenId?: PromiseOrValue<BigNumberish> | null
-    ): AuctionSettledEventFilter;
-
-    "AuctionTimeBufferSet(uint256)"(
-      timeBuffer?: null
-    ): AuctionTimeBufferSetEventFilter;
-    AuctionTimeBufferSet(timeBuffer?: null): AuctionTimeBufferSetEventFilter;
-
-    "AuctionsMaxSet(uint256)"(maxAuctions?: null): AuctionsMaxSetEventFilter;
-    AuctionsMaxSet(maxAuctions?: null): AuctionsMaxSetEventFilter;
-
-    "BeaconUpgraded(address)"(
-      beacon?: PromiseOrValue<string> | null
-    ): BeaconUpgradedEventFilter;
-    BeaconUpgraded(
-      beacon?: PromiseOrValue<string> | null
-    ): BeaconUpgradedEventFilter;
-
-    "Initialized(uint8)"(version?: null): InitializedEventFilter;
-    Initialized(version?: null): InitializedEventFilter;
-
-    "Paused(address)"(account?: null): PausedEventFilter;
-    Paused(account?: null): PausedEventFilter;
-
-    "RequestCreateAuction()"(): RequestCreateAuctionEventFilter;
-    RequestCreateAuction(): RequestCreateAuctionEventFilter;
-
-    "Unpaused(address)"(account?: null): UnpausedEventFilter;
-    Unpaused(account?: null): UnpausedEventFilter;
-
-    "Upgraded(address)"(
-      implementation?: PromiseOrValue<string> | null
-    ): UpgradedEventFilter;
-    Upgraded(
-      implementation?: PromiseOrValue<string> | null
-    ): UpgradedEventFilter;
-  };
-
-  estimateGas: {
-    MODULO(overrides?: CallOverrides): Promise<BigNumber>;
-
-    NAME(overrides?: CallOverrides): Promise<BigNumber>;
-
-    accrued(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    auctionEnded(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    auctionExists(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    auctionSettled(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    auctions(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    createBid(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    createNextAuction(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    creatorPercentage(overrides?: CallOverrides): Promise<BigNumber>;
-
-    drawDown(
-      _account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    duration(overrides?: CallOverrides): Promise<BigNumber>;
-
-    etsAccessControls(overrides?: CallOverrides): Promise<BigNumber>;
-
-    etsToken(overrides?: CallOverrides): Promise<BigNumber>;
-
-    fulfillRequestCreateAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    getActiveCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getBalance(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getTotalCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-    initialize(
-      _etsToken: PromiseOrValue<string>,
-      _etsAccessControls: PromiseOrValue<string>,
-      _wmatic: PromiseOrValue<string>,
-      _maxAuctions: PromiseOrValue<BigNumberish>,
-      _timeBuffer: PromiseOrValue<BigNumberish>,
-      _reservePrice: PromiseOrValue<BigNumberish>,
-      _minBidIncrementPercentage: PromiseOrValue<BigNumberish>,
-      _duration: PromiseOrValue<BigNumberish>,
-      _relayerPercentage: PromiseOrValue<BigNumberish>,
-      _platformPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    maxAuctions(overrides?: CallOverrides): Promise<BigNumber>;
-
-    minBidIncrementPercentage(overrides?: CallOverrides): Promise<BigNumber>;
-
-    paid(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    pause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    paused(overrides?: CallOverrides): Promise<BigNumber>;
-
-    platformPercentage(overrides?: CallOverrides): Promise<BigNumber>;
-
-    proxiableUUID(overrides?: CallOverrides): Promise<BigNumber>;
-
-    relayerPercentage(overrides?: CallOverrides): Promise<BigNumber>;
-
-    reservePrice(overrides?: CallOverrides): Promise<BigNumber>;
-
-    setDuration(
-      _duration: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setMaxAuctions(
-      _maxAuctions: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setMinBidIncrementPercentage(
-      _minBidIncrementPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setProceedPercentages(
-      _platformPercentage: PromiseOrValue<BigNumberish>,
-      _relayerPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setReservePrice(
-      _reservePrice: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setTimeBuffer(
-      _timeBuffer: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    settleAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    settleCurrentAndCreateNewAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    timeBuffer(overrides?: CallOverrides): Promise<BigNumber>;
-
-    totalDue(
-      _account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    unpause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    upgradeTo(
-      newImplementation: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    upgradeToAndCall(
-      newImplementation: PromiseOrValue<string>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    wmatic(overrides?: CallOverrides): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    MODULO(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    NAME(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    accrued(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    auctionEnded(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    auctionExists(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    auctionSettled(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    auctions(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    createBid(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    createNextAuction(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    creatorPercentage(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    drawDown(
-      _account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    duration(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    etsAccessControls(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    etsToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    fulfillRequestCreateAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getActiveCount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getBalance(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getTotalCount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    initialize(
-      _etsToken: PromiseOrValue<string>,
-      _etsAccessControls: PromiseOrValue<string>,
-      _wmatic: PromiseOrValue<string>,
-      _maxAuctions: PromiseOrValue<BigNumberish>,
-      _timeBuffer: PromiseOrValue<BigNumberish>,
-      _reservePrice: PromiseOrValue<BigNumberish>,
-      _minBidIncrementPercentage: PromiseOrValue<BigNumberish>,
-      _duration: PromiseOrValue<BigNumberish>,
-      _relayerPercentage: PromiseOrValue<BigNumberish>,
-      _platformPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    maxAuctions(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    minBidIncrementPercentage(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    paid(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    pause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    paused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    platformPercentage(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    proxiableUUID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    relayerPercentage(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    reservePrice(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    setDuration(
-      _duration: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setMaxAuctions(
-      _maxAuctions: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setMinBidIncrementPercentage(
-      _minBidIncrementPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setProceedPercentages(
-      _platformPercentage: PromiseOrValue<BigNumberish>,
-      _relayerPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setReservePrice(
-      _reservePrice: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setTimeBuffer(
-      _timeBuffer: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    settleAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    settleCurrentAndCreateNewAuction(
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    timeBuffer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    totalDue(
-      _account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    unpause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    upgradeTo(
-      newImplementation: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    upgradeToAndCall(
-      newImplementation: PromiseOrValue<string>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    wmatic(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    "AdminChanged(address,address)": TypedContractEvent<
+      AdminChangedEvent.InputTuple,
+      AdminChangedEvent.OutputTuple,
+      AdminChangedEvent.OutputObject
+    >;
+    AdminChanged: TypedContractEvent<
+      AdminChangedEvent.InputTuple,
+      AdminChangedEvent.OutputTuple,
+      AdminChangedEvent.OutputObject
+    >;
+
+    "AuctionBid(uint256,address,uint256,bool)": TypedContractEvent<
+      AuctionBidEvent.InputTuple,
+      AuctionBidEvent.OutputTuple,
+      AuctionBidEvent.OutputObject
+    >;
+    AuctionBid: TypedContractEvent<
+      AuctionBidEvent.InputTuple,
+      AuctionBidEvent.OutputTuple,
+      AuctionBidEvent.OutputObject
+    >;
+
+    "AuctionCreated(uint256,uint256,uint256)": TypedContractEvent<
+      AuctionCreatedEvent.InputTuple,
+      AuctionCreatedEvent.OutputTuple,
+      AuctionCreatedEvent.OutputObject
+    >;
+    AuctionCreated: TypedContractEvent<
+      AuctionCreatedEvent.InputTuple,
+      AuctionCreatedEvent.OutputTuple,
+      AuctionCreatedEvent.OutputObject
+    >;
+
+    "AuctionDurationSet(uint256)": TypedContractEvent<
+      AuctionDurationSetEvent.InputTuple,
+      AuctionDurationSetEvent.OutputTuple,
+      AuctionDurationSetEvent.OutputObject
+    >;
+    AuctionDurationSet: TypedContractEvent<
+      AuctionDurationSetEvent.InputTuple,
+      AuctionDurationSetEvent.OutputTuple,
+      AuctionDurationSetEvent.OutputObject
+    >;
+
+    "AuctionExtended(uint256,uint256)": TypedContractEvent<
+      AuctionExtendedEvent.InputTuple,
+      AuctionExtendedEvent.OutputTuple,
+      AuctionExtendedEvent.OutputObject
+    >;
+    AuctionExtended: TypedContractEvent<
+      AuctionExtendedEvent.InputTuple,
+      AuctionExtendedEvent.OutputTuple,
+      AuctionExtendedEvent.OutputObject
+    >;
+
+    "AuctionMinBidIncrementPercentageSet(uint8)": TypedContractEvent<
+      AuctionMinBidIncrementPercentageSetEvent.InputTuple,
+      AuctionMinBidIncrementPercentageSetEvent.OutputTuple,
+      AuctionMinBidIncrementPercentageSetEvent.OutputObject
+    >;
+    AuctionMinBidIncrementPercentageSet: TypedContractEvent<
+      AuctionMinBidIncrementPercentageSetEvent.InputTuple,
+      AuctionMinBidIncrementPercentageSetEvent.OutputTuple,
+      AuctionMinBidIncrementPercentageSetEvent.OutputObject
+    >;
+
+    "AuctionProceedPercentagesSet(uint256,uint256,uint256)": TypedContractEvent<
+      AuctionProceedPercentagesSetEvent.InputTuple,
+      AuctionProceedPercentagesSetEvent.OutputTuple,
+      AuctionProceedPercentagesSetEvent.OutputObject
+    >;
+    AuctionProceedPercentagesSet: TypedContractEvent<
+      AuctionProceedPercentagesSetEvent.InputTuple,
+      AuctionProceedPercentagesSetEvent.OutputTuple,
+      AuctionProceedPercentagesSetEvent.OutputObject
+    >;
+
+    "AuctionProceedsWithdrawn(address,uint256)": TypedContractEvent<
+      AuctionProceedsWithdrawnEvent.InputTuple,
+      AuctionProceedsWithdrawnEvent.OutputTuple,
+      AuctionProceedsWithdrawnEvent.OutputObject
+    >;
+    AuctionProceedsWithdrawn: TypedContractEvent<
+      AuctionProceedsWithdrawnEvent.InputTuple,
+      AuctionProceedsWithdrawnEvent.OutputTuple,
+      AuctionProceedsWithdrawnEvent.OutputObject
+    >;
+
+    "AuctionReservePriceSet(uint256)": TypedContractEvent<
+      AuctionReservePriceSetEvent.InputTuple,
+      AuctionReservePriceSetEvent.OutputTuple,
+      AuctionReservePriceSetEvent.OutputObject
+    >;
+    AuctionReservePriceSet: TypedContractEvent<
+      AuctionReservePriceSetEvent.InputTuple,
+      AuctionReservePriceSetEvent.OutputTuple,
+      AuctionReservePriceSetEvent.OutputObject
+    >;
+
+    "AuctionSettled(uint256)": TypedContractEvent<
+      AuctionSettledEvent.InputTuple,
+      AuctionSettledEvent.OutputTuple,
+      AuctionSettledEvent.OutputObject
+    >;
+    AuctionSettled: TypedContractEvent<
+      AuctionSettledEvent.InputTuple,
+      AuctionSettledEvent.OutputTuple,
+      AuctionSettledEvent.OutputObject
+    >;
+
+    "AuctionTimeBufferSet(uint256)": TypedContractEvent<
+      AuctionTimeBufferSetEvent.InputTuple,
+      AuctionTimeBufferSetEvent.OutputTuple,
+      AuctionTimeBufferSetEvent.OutputObject
+    >;
+    AuctionTimeBufferSet: TypedContractEvent<
+      AuctionTimeBufferSetEvent.InputTuple,
+      AuctionTimeBufferSetEvent.OutputTuple,
+      AuctionTimeBufferSetEvent.OutputObject
+    >;
+
+    "AuctionsMaxSet(uint256)": TypedContractEvent<
+      AuctionsMaxSetEvent.InputTuple,
+      AuctionsMaxSetEvent.OutputTuple,
+      AuctionsMaxSetEvent.OutputObject
+    >;
+    AuctionsMaxSet: TypedContractEvent<
+      AuctionsMaxSetEvent.InputTuple,
+      AuctionsMaxSetEvent.OutputTuple,
+      AuctionsMaxSetEvent.OutputObject
+    >;
+
+    "BeaconUpgraded(address)": TypedContractEvent<
+      BeaconUpgradedEvent.InputTuple,
+      BeaconUpgradedEvent.OutputTuple,
+      BeaconUpgradedEvent.OutputObject
+    >;
+    BeaconUpgraded: TypedContractEvent<
+      BeaconUpgradedEvent.InputTuple,
+      BeaconUpgradedEvent.OutputTuple,
+      BeaconUpgradedEvent.OutputObject
+    >;
+
+    "Initialized(uint8)": TypedContractEvent<
+      InitializedEvent.InputTuple,
+      InitializedEvent.OutputTuple,
+      InitializedEvent.OutputObject
+    >;
+    Initialized: TypedContractEvent<
+      InitializedEvent.InputTuple,
+      InitializedEvent.OutputTuple,
+      InitializedEvent.OutputObject
+    >;
+
+    "Paused(address)": TypedContractEvent<
+      PausedEvent.InputTuple,
+      PausedEvent.OutputTuple,
+      PausedEvent.OutputObject
+    >;
+    Paused: TypedContractEvent<
+      PausedEvent.InputTuple,
+      PausedEvent.OutputTuple,
+      PausedEvent.OutputObject
+    >;
+
+    "RequestCreateAuction()": TypedContractEvent<
+      RequestCreateAuctionEvent.InputTuple,
+      RequestCreateAuctionEvent.OutputTuple,
+      RequestCreateAuctionEvent.OutputObject
+    >;
+    RequestCreateAuction: TypedContractEvent<
+      RequestCreateAuctionEvent.InputTuple,
+      RequestCreateAuctionEvent.OutputTuple,
+      RequestCreateAuctionEvent.OutputObject
+    >;
+
+    "Unpaused(address)": TypedContractEvent<
+      UnpausedEvent.InputTuple,
+      UnpausedEvent.OutputTuple,
+      UnpausedEvent.OutputObject
+    >;
+    Unpaused: TypedContractEvent<
+      UnpausedEvent.InputTuple,
+      UnpausedEvent.OutputTuple,
+      UnpausedEvent.OutputObject
+    >;
+
+    "Upgraded(address)": TypedContractEvent<
+      UpgradedEvent.InputTuple,
+      UpgradedEvent.OutputTuple,
+      UpgradedEvent.OutputObject
+    >;
+    Upgraded: TypedContractEvent<
+      UpgradedEvent.InputTuple,
+      UpgradedEvent.OutputTuple,
+      UpgradedEvent.OutputObject
+    >;
   };
 }

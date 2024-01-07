@@ -28,28 +28,28 @@ describe("ETSRelayerFactory Tests", function () {
 
   describe("Valid setup/initialization", async function () {
     it("sets RELAYER_ADMIN_ROLE as the role that can administer RELAYER_ROLE role.", async () => {
-      expect(await contracts.ETSAccessControls.getRoleAdmin(ethers.utils.id("RELAYER_ROLE"))).to.be.equal(
-        await ethers.utils.id("RELAYER_FACTORY_ROLE"),
+      expect(await contracts.ETSAccessControls.getRoleAdmin(ethers.id("RELAYER_ROLE"))).to.be.equal(
+        await ethers.id("RELAYER_FACTORY_ROLE"),
       );
     });
 
     it("Enables ETSRelayerFactory as a relayer factory.", async function () {
-      expect(await contracts.ETSAccessControls.isRelayerFactory(contracts.ETSRelayerFactory.address)).to.be.equal(true);
+      expect(await contracts.ETSAccessControls.isRelayerFactory(await contracts.ETSRelayerFactory.getAddress())).to.be.equal(true);
     });
   });
 
   describe("New relayers", async function () {
     it("can only be added by if factory has correct role.", async () => {
       await contracts.ETSAccessControls.connect(accounts.ETSPlatform).revokeRole(
-        ethers.utils.id("RELAYER_FACTORY_ROLE"),
-        contracts.ETSRelayerFactory.address,
+        ethers.id("RELAYER_FACTORY_ROLE"),
+        await contracts.ETSRelayerFactory.getAddress(),
       );
 
       await expect(contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap")).to.be.reverted;
 
       await contracts.ETSAccessControls.connect(accounts.ETSPlatform).grantRole(
-        ethers.utils.id("RELAYER_FACTORY_ROLE"),
-        contracts.ETSRelayerFactory.address,
+        ethers.id("RELAYER_FACTORY_ROLE"),
+        await contracts.ETSRelayerFactory.getAddress(),
       );
 
       const tx = await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap");

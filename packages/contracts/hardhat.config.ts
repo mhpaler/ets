@@ -11,6 +11,7 @@ import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-truffle5";
 import "@nomiclabs/hardhat-etherscan";
 import "@openzeppelin/hardhat-upgrades";
+import "@nomicfoundation/hardhat-chai-matchers";
 
 import {resolve} from "path";
 import {config as dotenvConfig} from "dotenv";
@@ -30,7 +31,7 @@ const config: HardhatUserConfig = {
     hardhat: {
       mining: {
         auto: false,
-        interval: 5000,
+        interval: 2000,
         mempool: {
           order: "fifo",
         },
@@ -49,7 +50,15 @@ const config: HardhatUserConfig = {
     },
     mumbai: {
       url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_MUMBAI}`,
-      //url: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      chainId: 80001,
+      accounts: {
+        mnemonic: mnemonic.mumbai,
+      },
+      gas: 2100000,
+      gasPrice: 8000000000,
+    },
+    mumbai_stage: {
+      url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_MUMBAI}`,
       chainId: 80001,
       accounts: {
         mnemonic: mnemonic.mumbai,

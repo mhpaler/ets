@@ -3,178 +3,151 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BigNumberish,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
-} from "ethers";
-import type {
   FunctionFragment,
   Result,
+  Interface,
   EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+  ContractRunner,
+  ContractMethod,
+  Listener,
+} from "ethers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
+  TypedLogDescription,
   TypedListener,
-  OnEvent,
-  PromiseOrValue,
+  TypedContractMethod,
 } from "../../common";
 
-export interface IETSEnrichTargetInterface extends utils.Interface {
-  functions: {
-    "fulfillEnrichTarget(uint256,string,uint256)": FunctionFragment;
-    "requestEnrichTarget(uint256)": FunctionFragment;
-  };
-
+export interface IETSEnrichTargetInterface extends Interface {
   getFunction(
-    nameOrSignatureOrTopic: "fulfillEnrichTarget" | "requestEnrichTarget"
+    nameOrSignature: "fulfillEnrichTarget" | "requestEnrichTarget"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "fulfillEnrichTarget",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "requestEnrichTarget",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-
-  decodeFunctionResult(
-    functionFragment: "fulfillEnrichTarget",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "requestEnrichTarget",
-    data: BytesLike
-  ): Result;
-
-  events: {
-    "RequestEnrichTarget(uint256)": EventFragment;
-  };
-
   getEvent(nameOrSignatureOrTopic: "RequestEnrichTarget"): EventFragment;
+
+  encodeFunctionData(
+    functionFragment: "fulfillEnrichTarget",
+    values: [BigNumberish, string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "requestEnrichTarget",
+    values: [BigNumberish]
+  ): string;
+
+  decodeFunctionResult(
+    functionFragment: "fulfillEnrichTarget",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "requestEnrichTarget",
+    data: BytesLike
+  ): Result;
 }
 
-export interface RequestEnrichTargetEventObject {
-  targetId: BigNumber;
+export namespace RequestEnrichTargetEvent {
+  export type InputTuple = [targetId: BigNumberish];
+  export type OutputTuple = [targetId: bigint];
+  export interface OutputObject {
+    targetId: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type RequestEnrichTargetEvent = TypedEvent<
-  [BigNumber],
-  RequestEnrichTargetEventObject
->;
-
-export type RequestEnrichTargetEventFilter =
-  TypedEventFilter<RequestEnrichTargetEvent>;
 
 export interface IETSEnrichTarget extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): IETSEnrichTarget;
+  waitForDeployment(): Promise<this>;
 
   interface: IETSEnrichTargetInterface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-  functions: {
-    fulfillEnrichTarget(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _ipfsHash: PromiseOrValue<string>,
-      _httpStatus: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-    requestEnrichTarget(
-      _targetId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-  };
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
 
-  fulfillEnrichTarget(
-    _targetId: PromiseOrValue<BigNumberish>,
-    _ipfsHash: PromiseOrValue<string>,
-    _httpStatus: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  fulfillEnrichTarget: TypedContractMethod<
+    [_targetId: BigNumberish, _ipfsHash: string, _httpStatus: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
-  requestEnrichTarget(
-    _targetId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  requestEnrichTarget: TypedContractMethod<
+    [_targetId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
-  callStatic: {
-    fulfillEnrichTarget(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _ipfsHash: PromiseOrValue<string>,
-      _httpStatus: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
 
-    requestEnrichTarget(
-      _targetId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-  };
+  getFunction(
+    nameOrSignature: "fulfillEnrichTarget"
+  ): TypedContractMethod<
+    [_targetId: BigNumberish, _ipfsHash: string, _httpStatus: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "requestEnrichTarget"
+  ): TypedContractMethod<[_targetId: BigNumberish], [void], "nonpayable">;
+
+  getEvent(
+    key: "RequestEnrichTarget"
+  ): TypedContractEvent<
+    RequestEnrichTargetEvent.InputTuple,
+    RequestEnrichTargetEvent.OutputTuple,
+    RequestEnrichTargetEvent.OutputObject
+  >;
 
   filters: {
-    "RequestEnrichTarget(uint256)"(
-      targetId?: null
-    ): RequestEnrichTargetEventFilter;
-    RequestEnrichTarget(targetId?: null): RequestEnrichTargetEventFilter;
-  };
-
-  estimateGas: {
-    fulfillEnrichTarget(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _ipfsHash: PromiseOrValue<string>,
-      _httpStatus: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    requestEnrichTarget(
-      _targetId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    fulfillEnrichTarget(
-      _targetId: PromiseOrValue<BigNumberish>,
-      _ipfsHash: PromiseOrValue<string>,
-      _httpStatus: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    requestEnrichTarget(
-      _targetId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    "RequestEnrichTarget(uint256)": TypedContractEvent<
+      RequestEnrichTargetEvent.InputTuple,
+      RequestEnrichTargetEvent.OutputTuple,
+      RequestEnrichTargetEvent.OutputObject
+    >;
+    RequestEnrichTarget: TypedContractEvent<
+      RequestEnrichTargetEvent.InputTuple,
+      RequestEnrichTargetEvent.OutputTuple,
+      RequestEnrichTargetEvent.OutputObject
+    >;
   };
 }

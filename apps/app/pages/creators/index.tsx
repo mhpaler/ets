@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
 import { settings } from "../../constants/settings";
 import { timestampToString } from "../../utils";
-import { toDp, toEth } from "../../utils";
+import { toEth } from "../../utils";
 import useNumberFormatter from "../../hooks/useNumberFormatter";
 import { useCreators } from "../../hooks/useCreators";
 import { Table } from "../../components/Table";
@@ -33,8 +33,7 @@ const Creators: NextPage = () => {
     },
   });
 
-  const pageSizeSet =
-    pageSize === undefined ? settings["DEFAULT_PAGESIZE"] : pageSize;
+  const pageSizeSet = pageSize === undefined ? settings["DEFAULT_PAGESIZE"] : pageSize;
 
   const nextPage = () => {
     setSkip(skip + pageSizeSet);
@@ -47,15 +46,10 @@ const Creators: NextPage = () => {
   };
 
   const showPrevNext = () => {
-    return (nextCreators && nextCreators.length > 0) || (skip && skip !== 0)
-      ? true
-      : false;
+    return (nextCreators && nextCreators.length > 0) || (skip && skip !== 0) ? true : false;
   };
 
-  const columns = useMemo(
-    () => [t("creator"), t("first-seen"), t("tags-created"), t("revenue")],
-    [t]
-  );
+  const columns = useMemo(() => [t("creator"), t("first-seen"), t("tags-created"), t("revenue")], [t]);
 
   const pageTitle = `Tag ${t("creators")}`;
   const browserTitle = `${pageTitle} | ETS`;
@@ -70,40 +64,17 @@ const Creators: NextPage = () => {
 
       <Table loading={!creators} rows={pageSize}>
         <Table.Head>
-          <Table.Tr>
-            {columns &&
-              columns.map((column) => (
-                <Table.Th key={column}>{column}</Table.Th>
-              ))}
-          </Table.Tr>
+          <Table.Tr>{columns && columns.map((column) => <Table.Th key={column}>{column}</Table.Th>)}</Table.Tr>
         </Table.Head>
         <Table.Body>
           {creators &&
             creators.map((creator: any) => (
               <Table.Tr key={creator.id}>
+                <Table.Cell value={Truncate(creator.id)} url={`/creators/${creator.id}`} copyAndPaste />
+                <Table.Cell value={creators && timestampToString(parseInt(creators[0].firstSeen))} right />
+                <Table.Cell value={number(parseInt(creator.tagsCreated))} right />
                 <Table.Cell
-                  value={Truncate(creator.id)}
-                  url={`/creators/${creator.id}`}
-                  copyAndPaste
-                />
-                <Table.Cell
-                  value={
-                    creators &&
-                    timestampToString(parseInt(creators[0].firstSeen))
-                  }
-                  right
-                />
-                <Table.Cell
-                  value={number(parseInt(creator.tagsCreated))}
-                  right
-                />
-                <Table.Cell
-                  value={`${toDp(
-                    toEth(
-                      creator.createdTagsAuctionRevenue +
-                        creator.createdTagsTaggingFeeRevenue
-                    )
-                  )} MATIC`}
+                  value={`${toEth(creator.createdTagsAuctionRevenue + creator.createdTagsTaggingFeeRevenue, 4)} MATIC`}
                 />
               </Table.Tr>
             ))}
@@ -113,11 +84,7 @@ const Creators: NextPage = () => {
             <tr>
               <td className="flex justify-between">
                 <Button disabled={skip === 0} onClick={() => prevPage()}>
-                  <svg
-                    className="relative inline-flex w-6 h-6 mr-2 -ml-1"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="relative inline-flex w-6 h-6 mr-2 -ml-1" fill="none" viewBox="0 0 24 24">
                     <path
                       stroke="currentColor"
                       strokeLinecap="round"
@@ -135,16 +102,9 @@ const Creators: NextPage = () => {
                   </svg>
                   {t("prev")}
                 </Button>
-                <Button
-                  disabled={nextCreators && nextCreators.length === 0}
-                  onClick={() => nextPage()}
-                >
+                <Button disabled={nextCreators && nextCreators.length === 0} onClick={() => nextPage()}>
                   {t("next")}
-                  <svg
-                    className="relative inline-flex w-6 h-6 ml-2 -mr-1"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="relative inline-flex w-6 h-6 ml-2 -mr-1" fill="none" viewBox="0 0 24 24">
                     <path
                       stroke="currentColor"
                       strokeLinecap="round"

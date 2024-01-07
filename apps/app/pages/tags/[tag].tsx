@@ -5,7 +5,7 @@ import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
 import { useCtags } from "../../hooks/useCtags";
 import { timestampToString } from "../../utils";
-import { toDp, toEth } from "../../utils";
+import { toEth } from "../../utils";
 import { TaggingRecords } from "../../components/TaggingRecords";
 import { Number } from "../../components/Number";
 import { Truncate } from "../../components/Truncate";
@@ -143,7 +143,7 @@ const Tag: NextPage = () => {
                 <div className="text-slate-500">{t("creator")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {tags && toDp(toEth(tags[0].creatorRevenue))} {t("matic")}
+                    {tags && toEth(tags[0].creatorRevenue, 4)} {t("matic")}
                   </div>
                 </div>
               </div>
@@ -152,7 +152,7 @@ const Tag: NextPage = () => {
                 <div className="text-slate-500">{t("owner")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {tags && toDp(toEth(tags[0].ownerRevenue))} {t("matic")}
+                    {tags && toEth(tags[0].ownerRevenue, 4)} {t("matic")}
                   </div>
                 </div>
               </div>
@@ -161,7 +161,7 @@ const Tag: NextPage = () => {
                 <div className="text-slate-500">{t("relayer")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {tags && toDp(toEth(tags[0].relayerRevenue))} {t("matic")}
+                    {tags && toEth(tags[0].relayerRevenue, 4)} {t("matic")}
                   </div>
                 </div>
               </div>
@@ -170,7 +170,7 @@ const Tag: NextPage = () => {
                 <div className="text-slate-500">{t("protocol")}</div>
                 <div className="text-right">
                   <div className="text-slate-500">
-                    {tags && toDp(toEth(tags[0].protocolRevenue))} {t("matic")}
+                    {tags && toEth(tags[0].protocolRevenue, 4)} {t("matic")}
                   </div>
                 </div>
               </div>

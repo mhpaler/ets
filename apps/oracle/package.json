@@ -1,0 +1,26 @@
+{
+  "name": "@ethereum-tag-service/oracle",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wagmi generate && node --loader ts-node/esm src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@ethereum-tag-service/config": "workspace:*",
+    "@wagmi/core": "^1.4.7",
+    "abitype": "^0.10.3",
+    "axios": "^1.6.2",
+    "viem": "~1.19.11"
+  },
+  "devDependencies": {
+    "@sunodo/wagmi-plugin-hardhat-deploy": "github:ethereum-tag-service/wagmi-plugin-hardhat-deploy#ets-temp",
+    "@types/node": "^20.10.4",
+    "@wagmi/cli": "^1.5.2",
+    "dotenv": "^16.3.1",
+    "dotenv-cli": "^7.3.0",
+    "ts-node": "^10.9.1"
+  }
+}

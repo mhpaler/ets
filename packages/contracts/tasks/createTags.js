@@ -11,25 +11,28 @@ task("createTags", "Create CTAGs")
   .setAction(async (taskArgs) => {
     const { getAccounts } = require("./utils/getAccounts");
     const accounts = await getAccounts();
-    const chainId = hre.network.config.chainId;
-    const config = require("../config/config.json");
 
-    // ABIs
-    const ETSTokenABI = require("../abi/contracts/ETSToken.sol/ETSToken.json");
-    const ETSAccessControlsABI = require("../abi/contracts/ETSAccessControls.sol/ETSAccessControls.json");
-    const ETSRelayerV1ABI = require("../abi/contracts/relayers/ETSRelayerV1.sol/ETSRelayerV1.json");
+    // Load network configuration
+    const networkConfig = require(`../export/chainConfig/${hre.network.name}.json`);
 
-    // Contract Addresses
-    const ETSAccessControlsAddress = config[chainId].contracts.ETSAccessControls.address;
-    const ETSTokenAddress = config[chainId].contracts.ETSToken.address;
+    // ABIs and Contract addresses from network configuration
+    const ETSTokenABI = networkConfig.contracts.ETSToken.abi;
+    const ETSTokenAddress = networkConfig.contracts.ETSToken.address;
+    const ETSAccessControlsABI = networkConfig.contracts.ETSAccessControls.abi;
+    const ETSAccessControlsAddress = networkConfig.contracts.ETSAccessControls.address;
+    const ETSRelayerV1ABI = networkConfig.contracts.ETSRelayerV1.abi;
 
     // Contract instances
-    const etsAccessControls = new ethers.Contract(
+    const etsAccessControls = new hre.ethers.Contract(
       ETSAccessControlsAddress,
       ETSAccessControlsABI,
       accounts[taskArgs.signer],
     );
-    const etsToken = new ethers.Contract(ETSTokenAddress, ETSTokenABI, accounts[taskArgs.signer]);
+    const etsToken = new hre.ethers.Contract(
+      ETSTokenAddress,
+      ETSTokenABI,
+      accounts[taskArgs.signer],
+    );
 
     // Check that caller is using a valid relayer.
     let etsRelayerV1;

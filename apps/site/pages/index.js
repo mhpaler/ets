@@ -31,10 +31,9 @@ export default function Home() {
 
         <p className="font-medium">ETS is a permissionless protocol for writing immutable tagging records to an EVM blockchain.</p>
 
+        <p>In simpler terms, an ETS tagging record is a record of &ldquo;who tagged what, with what, where, when &amp; why.&rdquo;</p>
 
-        <p>In simpler terms, an ETS tagging record is a record of "who tagged what, with what, where, when & why."</p>
-
-        <p>Technically, a tagging record is similar to a DNS record, but unlike DNS, ETS allows a name or "tag" to be used across multiple records. This is possible in part because tags are Non-Fungible Tokens (NFTs), which means that each tag has a unique identification number.</p>
+        <p>Technically, a tagging record is similar to a DNS record, but unlike DNS, ETS allows a name or &ldquo;tag&rdquo; to be used across multiple records. This is possible in part because tags are Non-Fungible Tokens (NFTs), which means that each tag has a unique identification number.</p>
 
         <p>When a user writes a new tagging record that includes existing tags, the system will reference their unique token IDs. If a new tag is used, the system will create a new token for that tag.</p>
 
@@ -45,23 +44,23 @@ export default function Home() {
         <p>All tagging records create a public tag graph that can be queried by any client in any dimension defined by the core ETS tagging record schema.</p>
 
         <div className="flex justify-center space-x-4 pt-5 pb-20">
-          <a href="https://app.ets.xyz" target="_blank">
-            <button class="bg-transparent text-sm hover:bg-pink-500 text-pink-700 hover:text-white py-2 px-4 border border-pink-500 hover:border-transparent rounded">
+          <a href="https://app.ets.xyz" target="_blank" rel="noreferrer">
+            <button className="bg-transparent text-sm hover:bg-pink-500 text-pink-700 hover:text-white py-2 px-4 border border-pink-500 hover:border-transparent rounded">
               Explorer
             </button>
           </a>
-          <a href="https://github.com/ethereum-tag-service/ets#readme" target="_blank">
-            <button class="bg-transparent text-sm hover:bg-pink-500 text-pink-700 hover:text-white py-2 px-4 border border-pink-500 hover:border-transparent rounded">
+          <a href="https://github.com/ethereum-tag-service/ets#readme" target="_blank" rel="noreferrer">
+            <button className="bg-transparent text-sm hover:bg-pink-500 text-pink-700 hover:text-white py-2 px-4 border border-pink-500 hover:border-transparent rounded">
               Github
             </button>
           </a>
-          <a href="https://discord.gg/dDWenbVEEQ" target='_blank'>
-            <button class="bg-transparent text-sm hover:bg-pink-500 text-pink-700 hover:text-white py-2 px-4 border border-pink-500 hover:border-transparent rounded">
+          <a href="https://discord.gg/dDWenbVEEQ" target='_blank' rel="noreferrer">
+            <button className="bg-transparent text-sm hover:bg-pink-500 text-pink-700 hover:text-white py-2 px-4 border border-pink-500 hover:border-transparent rounded">
               Discord
             </button>
           </a>
         </div>
       </main>
-    </div >
+    </div>
   )
 }

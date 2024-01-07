@@ -13,20 +13,20 @@
     "yarn"
   ],
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev --parallel",
+    "dev": "rm -rf apps/*/.next && dotenv -- turbo run dev --filter=!@ethereum-tag-service/api",
+    "build": "rm -rf apps/*/.next && dotenv -- turbo run build --filter=!@ethereum-tag-service/api",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "api:dev": "cd apps/api && pnpm run dev",
     "api:build": "cd apps/api && pnpm run build",
     "api:start": "cd apps/api && pnpm run start",
-    "app:dev": "cd apps/app && pnpm run dev",
+    "app:dev": "cd apps/app && wagmi generate && pnpm run dev",
     "app:build": "cd apps/app && pnpm run build",
     "app:start": "cd apps/app && pnpm run start",
     "site:dev": "cd apps/site && pnpm run dev",
     "site:build": "cd apps/site && pnpm run build",
     "site:start": "cd apps/site && pnpm run start",
-    "hardhat": "cd packages/contracts && pnpm run hardhat",
+    "hardhat:start": "cd packages/contracts && pnpm run hardhat",
     "hardhat:build": "cd packages/contracts && pnpm run build",
     "hardhat:deploy": "cd packages/contracts && pnpm run deploy",
     "hardhat:deploy-mumbai": "cd packages/contracts && pnpm run deploy-mumbai",
@@ -35,20 +35,20 @@
     "hardhat:solhint": "cd packages/contracts && pnpm solhint",
     "hardhat:test": "cd packages/contracts && pnpm run hardhat",
     "hardhat:clean": "cd packages/hardhat && pnpm hardhat clean",
-    "graph:node-start": "cd packages/subgraph && pnpm run run-graph-node",
+    "graph:node-start": "cd packages/subgraph && pnpm run start-graph-node",
     "graph:node-stop": "cd packages/subgraph && pnpm run remove-graph-node",
     "graph:node-clean": "cd packages/subgraph && pnpm run clean-graph-node",
-    "graph:prepare-local": "cd packages/subgraph && pnpm run prepare-local",
-    "graph:prepare-mumbai": "cd packages/subgraph && pnpm run prepare-mumbai",
-    "graph:create-local": "cd packages/subgraph && pnpm run create-local",
-    "graph:remove-local": "cd packages/subgraph && pnpm run remove-local",
-    "graph:ship-local": "cd packages/subgraph && pnpm run ship-local",
-    "graph:deploy-and-graph": "pnpm run hardhat:deploy && pnpm run graph:ship-local",
-    "graph:ship-mumbai": "cd packages/subgraph && pnpm run ship-mumbai"
+    "graph:deploy-local": "cd packages/subgraph && pnpm graph-deploy-local",
+    "graph:deploy-mumbai": "cd packages/subgraph && pnpm graph-deploy-mumbai",
+    "graph:deploy-mumbai-stage": "cd packages/subgraph && pnpm graph-deploy-mumbai-stage"
   },
   "devDependencies": {
-    "prettier": "^2.6.2",
-    "turbo": "^1.2.6"
+    "@types/node": "^20.10.5",
+    "dotenv": "^16.3.1",
+    "dotenv-cli": "^7.3.0",
+    "prettier": "^3.1.1",
+    "turbo": "^1.11.2",
+    "typescript": "^5.3.3"
   },
   "pnpm": {
     "overrides": {

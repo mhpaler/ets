@@ -4,9 +4,9 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   plugins: [
-    require('tailwindcss-font-inter'),
+    //require("tailwindcss-font-inter"),
     require("daisyui"),
-    //require('@tailwindcss/forms'),
+    require('@tailwindcss/forms'),
   ],
 
   daisyui: {

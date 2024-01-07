@@ -1,21 +1,11 @@
 const { ethers, upgrades } = require("hardhat");
 const { verify } = require("./utils/verify.js");
-const { saveNetworkConfig, readNetworkConfig } = require("./utils/config.js");
+const { saveNetworkConfig } = require("./utils/config.js");
 
-module.exports = async ({ getChainId, getNamedAccounts, deployments }) => {
+module.exports = async ({ deployments }) => {
   const { log, save } = deployments;
-  const networkConfig = readNetworkConfig();
-  const chainId = await getChainId();
-  const { ETSAdmin } = await getNamedAccounts();
   const ETSAccessControls = await ethers.getContractFactory("ETSAccessControls");
-  let etsAccessControlsAddress;
-
-  if (chainId == 31337) {
-    let etsAccessControls = await deployments.get("ETSAccessControls");
-    etsAccessControlsAddress = etsAccessControls.address;
-  } else {
-    etsAccessControlsAddress = networkConfig[chainId].contracts["ETSAccessControls"].address;
-  }
+  const etsAccessControlsAddress = (await deployments.get("ETSAccessControls")).address;
 
   const upgrade = await upgrades.upgradeProxy(etsAccessControlsAddress, ETSAccessControls);
   await upgrade.deployTransaction.wait();

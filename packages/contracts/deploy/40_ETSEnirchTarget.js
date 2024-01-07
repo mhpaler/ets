@@ -1,25 +1,14 @@
 const { upgrades } = require("hardhat");
-const { setup } = require("./setup.ts");
+const { setup } = require("./setup.js");
 const { verify } = require("./utils/verify.js");
-const { saveNetworkConfig, readNetworkConfig } = require("./utils/config.js");
+const { saveNetworkConfig } = require("./utils/config.js");
 
-module.exports = async ({ getChainId, deployments }) => {
+module.exports = async ({ deployments }) => {
   const { save, log } = deployments;
   [accounts, factories, initSettings] = await setup();
-  const networkConfig = readNetworkConfig();
-  const chainId = await getChainId();
-  let etsAccessControlsAddress;
-  let etsTargetAddress;
 
-  if (chainId == 31337) {
-    let etsAccessControls = await deployments.get("ETSAccessControls");
-    let etsTarget = await deployments.get("ETSTarget");
-    etsAccessControlsAddress = etsAccessControls.address;
-    etsTargetAddress = etsTarget.address;
-  } else {
-    etsAccessControlsAddress = networkConfig[chainId].contracts["ETSAccessControls"].address;
-    etsTargetAddress = networkConfig[chainId].contracts["ETSTarget"].address;
-  }
+  const etsAccessControlsAddress = (await deployments.get("ETSAccessControls")).address;
+  const etsTargetAddress = (await deployments.get("ETSTarget")).address;
 
   // Deploy ETSEnrichTarget
   const deployment = await upgrades.deployProxy(
@@ -27,27 +16,29 @@ module.exports = async ({ getChainId, deployments }) => {
     [etsAccessControlsAddress, etsTargetAddress],
     { kind: "uups", pollingInterval: 3000, timeout: 0 },
   );
-  await deployment.deployed();
-  const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
+  await deployment.waitForDeployment();
 
-  if (process.env.ETHERNAL_DISABLED === "false" || process.env.VERIFY_ON_DEPLOY) {
+  const deploymentAddress = await deployment.getAddress();
+  const implementationAddress = await upgrades.erc1967.getImplementationAddress(deploymentAddress);
+
+  if (process.env.VERIFY_ON_DEPLOY == "true") {
     // Verify & Update network configuration file.
-    await verify("ETSEnrichTarget", deployment, implementation, []);
+    await verify("ETSEnrichTarget", deployment, implementationAddress, []);
   }
 
-  await saveNetworkConfig("ETSEnrichTarget", deployment, implementation, false);
+  await saveNetworkConfig("ETSEnrichTarget", deployment, implementationAddress, false);
 
   // Add to deployments.
   let artifact = await deployments.getExtendedArtifact("ETSEnrichTarget");
   let proxyDeployments = {
-    address: deployment.address,
+    address: deploymentAddress,
     ...artifact,
   };
   await save("ETSEnrichTarget", proxyDeployments);
 
   log("====================================================");
-  log("ETSEnrichTarget proxy deployed to -> " + deployment.address);
-  log("ETSEnrichTarget implementation deployed to -> " + implementation);
+  log("ETSEnrichTarget proxy deployed to -> " + deploymentAddress);
+  log("ETSEnrichTarget implementation deployed to -> " + implementationAddress);
   log("====================================================");
 };
 module.exports.tags = ["ETSEnrichTarget"];

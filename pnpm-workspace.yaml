@@ -1,7 +1,8 @@
 packages:
   # all packages in subdirs of apps/ and packages/
-  - 'apps/**'
-  - 'packages/**'
+  - "apps/**"
+  - "packages/**"
   # exclude packages that are inside test directories
-  - '!**/test/**'
-  
+  - "!**/.next/**" # NEW
+  - "!**/dist/**" # NEW
+  - "!**/test/**"

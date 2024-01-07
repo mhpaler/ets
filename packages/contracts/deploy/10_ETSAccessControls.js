@@ -1,5 +1,5 @@
 const { upgrades } = require("hardhat");
-const { setup } = require("./setup.ts");
+const { setup } = require("./setup.js");
 const { verify } = require("./utils/verify.js");
 const { saveNetworkConfig } = require("./utils/config.js");
 
@@ -13,27 +13,40 @@ module.exports = async ({ deployments }) => {
     pollingInterval: 3000,
     timeout: 0,
   });
-  await deployment.deployed();
-  const implementation = await upgrades.erc1967.getImplementationAddress(deployment.address);
 
-  if (process.env.ETHERNAL_DISABLED === "false" || process.env.VERIFY_ON_DEPLOY) {
+  await deployment.waitForDeployment();
+  const deploymentAddress = await deployment.getAddress();
+  const implementationAddress = await upgrades.erc1967.getImplementationAddress(deploymentAddress);
+
+  if (process.env.VERIFY_ON_DEPLOY == "true") {
     // Verify & Update network configuration file.
-    await verify("ETSAccessControls", deployment, implementation, []);
+    try {
+      await verify("ETSAccessControls", deployment, implementationAddress, []);
+    } catch (error) {
+      console.error("Error verifying ETSAccessControls:", error);
+    }
+
   }
 
-  await saveNetworkConfig("ETSAccessControls", deployment, implementation, false);
+  try {
+    console.log("saving Network Config");
+    await saveNetworkConfig("ETSAccessControls", deployment, implementationAddress, false);
+  } catch (error) {
+    console.error("Error saving ETSAccessControls network configuration:", error);
+  }
+
 
   // Add to hardhat-deploy deployments.
   let artifact = await deployments.getExtendedArtifact("ETSAccessControls");
   let proxyDeployments = {
-    address: deployment.address,
+    address: deploymentAddress,
     ...artifact,
   };
   await save("ETSAccessControls", proxyDeployments);
 
   log("====================================================");
-  log("ETSAccessControls proxy deployed to -> " + deployment.address);
-  log("ETSAccessControls implementation deployed to -> " + implementation);
+  log("ETSAccessControls proxy deployed to -> " + deploymentAddress);
+  log("ETSAccessControls implementationAddress deployed to -> " + implementationAddress);
   log("====================================================");
 };
 
