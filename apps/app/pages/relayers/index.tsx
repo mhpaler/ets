@@ -61,11 +61,11 @@ const Relayers: NextPage = () => {
       </Head>
       <div className="flex justify-between">
         <PageTitle title={pageTitle} />
-        {/*         <AddRelayerProvider>
+        <AddRelayerProvider>
           <Modal buttonText={t("create-relayer")}>
             <FormWrapper />
           </Modal>
-        </AddRelayerProvider> */}
+        </AddRelayerProvider>
       </div>
       <Table loading={!relayers} rows={pageSize}>
         <Table.Title>{t("relayers")}</Table.Title>
@@ -82,7 +82,6 @@ const Relayers: NextPage = () => {
                     <TimeAgo date={relayer.firstSeen * 1000} />
                   </div>
                 </Table.CellWithChildren>
-
                 <Table.Cell value={number(parseInt(relayer.taggingRecordsPublished))} />
                 <Table.Cell value={number(parseInt(relayer.tagsPublished))} right />
                 <Table.Cell
