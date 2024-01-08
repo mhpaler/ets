@@ -27,7 +27,7 @@ const Modal = ({ buttonText, children }: Props) => {
   return (
     <>
       <div>
-        <Button onClick={openModal} className="btn-primary btn-outline">
+        <Button onClick={openModal} className="btn btn-sm btn-primary btn-outline">
           {buttonText}
         </Button>
       </div>
