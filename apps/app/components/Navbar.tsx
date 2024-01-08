@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
 import Breadcrumbs from "nextjs-breadcrumbs2";
@@ -6,6 +7,13 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export default function Navbar() {
   const { t } = useTranslation("common");
+  const router = useRouter();
+
+  const isActive = (basePath: string): boolean => {
+    const firstSegment = router.pathname.split("/")[1];
+    return firstSegment === basePath;
+  };
+
   return (
     <div className="flex-grow px-4">
       <header className="max-w-7xl mx-auto">
@@ -60,13 +68,19 @@ export default function Navbar() {
           <div className="navbar-center hidden md:flex">
             <ul className="menu menu-horizontal px-1">
               <li>
-                <Link href="/auction">{t("auction")}</Link>
+                <Link className={isActive("auction") ? "bg-gray-200" : ""} href="/auction">
+                  {t("auction")}
+                </Link>
               </li>
               <li>
-                <Link href="/relayers">{t("relayers")}</Link>
+                <Link className={isActive("relayers") ? "bg-gray-200" : ""} href="/relayers">
+                  {t("relayers")}
+                </Link>
               </li>
               <li>
-                <Link href="/playground">{t("playground")}</Link>
+                <Link className={isActive("playground") ? "bg-gray-200" : ""} href="/playground">
+                  {t("playground")}
+                </Link>
               </li>
             </ul>
           </div>
