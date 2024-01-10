@@ -264,6 +264,9 @@ importers:
         specifier: ~1.19.11
         version: 1.19.11(typescript@5.3.3)(zod@3.21.4)
     devDependencies:
+      '@ethereum-tag-service/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@sunodo/wagmi-plugin-hardhat-deploy':
         specifier: github:ethereum-tag-service/wagmi-plugin-hardhat-deploy#ets-temp
         version: github.com/ethereum-tag-service/wagmi-plugin-hardhat-deploy/f02bbcb578f1f70b38aff6f10752af6a70bc76f7(@wagmi/core@1.4.7)(typescript@5.3.3)
