@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "wagmi generate && node --loader ts-node/esm src/index.ts",
-    "build": "wagmi generate && node --loader ts-node/esm src/index.ts"
+    "build": "wagmi generate",
+    "start": "node --loader ts-node/esm src/index.ts"
   },
   "keywords": [],
   "author": "",
