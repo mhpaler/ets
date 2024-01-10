@@ -26,22 +26,28 @@ export class BlockchainService {
   constructor() {
     // Determine the chain based on the NETWORK environment variable
     let chain;
+    let transport = http();
     if (process.env.NETWORK === "localhost") {
       chain = hardhat;
     } else if (process.env.NETWORK === "mumbai" || process.env.NETWORK === "mumbai_stage") {
       chain = polygonMumbai;
+      const alchemyBaseUrl = chain.rpcUrls.alchemy.http[0]; // Accessing the first element of the array
+      const fullAlchemyUrl = `${alchemyBaseUrl}/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
+      transport = http(fullAlchemyUrl, {
+        batch: true,
+      });
     }
 
     console.log("Chain: ", chain?.name);
 
     this.publicClient = createPublicClient({
       chain: chain,
-      transport: http(),
+      transport,
     });
 
     this.walletClient = createWalletClient({
       chain: chain,
-      transport: http(),
+      transport,
     });
 
     // Load ETSOracle account from mnemonic. Make sure key corresponds to correct chain.
