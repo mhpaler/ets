@@ -27,8 +27,9 @@ export class TagService {
    * @throws An error if there's an issue with the blockchain or GraphQL queries.
    */
   public async findNextCTAG(platformAddress: string, lastAuctionTokenId: string): Promise<string> {
-    // Get the environment from the REACT_APP_ENV variable
-    const environment: string = process.env.REACT_APP_ENV || "development";
+    // Get the environment from the NEXT_PUBLIC_ETS_ENVIRONMENT variable
+    // Maps to development/stage/production
+    const environment: string = process.env.NEXT_PUBLIC_ETS_ENVIRONMENT || "development";
 
     // Use the environment to select the appropriate endpoint
     const GRAPH_API_ENDPOINT: string = graphEndpoints[environment];

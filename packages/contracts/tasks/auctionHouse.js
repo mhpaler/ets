@@ -1,3 +1,4 @@
+const { ethers } = require('ethers');
 var randomWords = require('random-words');
 
 task("auctionhouse", "Create and interact with an auction")
@@ -6,7 +7,7 @@ task("auctionhouse", "Create and interact with an auction")
   .addOptionalParam("tag", "specify tag to be acted on", "", types.string)
   .addOptionalParam("id", "auction id", "", types.string)
   .addOptionalParam("bid", "bid amount in ETH/MATIC. eg. \"0.1\"", "", types.string)
-  .addOptionalParam("reserve", "reserve price (min bid) in ETH/MATIC. eg. \"0.1\"", "", types.string)
+  .addOptionalParam("value", "Value to pass to setting.", "", types.string)
   .addOptionalParam(
     "signer",
     'Named wallet accounts. options are "account0", "account1", "account2", "account3", "account4", "account5". Defaults to "account0"',
@@ -36,7 +37,15 @@ task("auctionhouse", "Create and interact with an auction")
     }
 
     if (taskArgs.action == "setreserve") {
-      await hre.run("auctionhouse:setreserve", { reserve: taskArgs.reserve });
+      await hre.run("auctionhouse:setreserve", { reserve: taskArgs.value });
+    }
+
+    if (taskArgs.action == "setduration") {
+      await hre.run("auctionhouse:setduration", { duration: taskArgs.value });
+    }
+
+    if (taskArgs.action == "settimebuffer") {
+      await hre.run("auctionhouse:settimebuffer", { timebuffer: taskArgs.value });
     }
 
     if (taskArgs.action == "increasemax") {
@@ -80,6 +89,7 @@ subtask("auctionhouse:settings", "List auction settings")
     totalAuctions = await contracts.etsAuctionHouse.getTotalCount();
     reserve = await contracts.etsAuctionHouse.reservePrice();
     duration = await contracts.etsAuctionHouse.duration();
+    timebuffer = await contracts.etsAuctionHouse.timeBuffer();
     bidIncrement = await contracts.etsAuctionHouse.minBidIncrementPercentage();
 
     const auctionSettings = {
@@ -88,8 +98,9 @@ subtask("auctionhouse:settings", "List auction settings")
       'activeAuctions': ethers.toNumber(activeAuctions),
       'totalAuctions': ethers.toNumber(totalAuctions),
       'reserve': ethers.formatEther(reserve),
+      'bidIncrement': ethers.toNumber(bidIncrement),
       'duration': ethers.toNumber(duration),
-      'bidIncrement': ethers.toNumber(bidIncrement)
+      'timebuffer': ethers.toNumber(timebuffer),
     };
 
     if (taskArgs.output === "return") {
@@ -189,12 +200,29 @@ subtask("auctionhouse:togglepause", "Pause/Unpause the auctionhouse.")
 subtask("auctionhouse:setreserve", "Sets reserve price for all actions (eg. min first bid)")
   .addParam("reserve", "Reserve price")
   .setAction(async (taskArgs) => {
-
     ({ accounts, contracts } = await setup());
     const reserveInWEI = ethers.parseUnits(taskArgs.reserve, "ether");
     await contracts.etsAuctionHouse.connect(accounts.account0).setReservePrice(reserveInWEI);
     console.log("Reserve set to: ", reserveInWEI + " WEI (" + taskArgs.reserve + " ETH/MATIC)");
   });
+
+
+subtask("auctionhouse:setduration", "Sets duration of auction in seconds.")
+  .addParam("duration", "Duration in seconds")
+  .setAction(async (taskArgs) => {
+    ({ accounts, contracts } = await setup());
+    await contracts.etsAuctionHouse.connect(accounts.account0).setDuration(taskArgs.duration);
+    console.log(`Auction duration set to: ${taskArgs.duration} seconds`);
+  });
+
+subtask("auctionhouse:settimebuffer", "Sets time window for a bid to extend auction in seconds.")
+  .addParam("timebuffer", "Duration in seconds")
+  .setAction(async (taskArgs) => {
+    ({ accounts, contracts } = await setup());
+    await contracts.etsAuctionHouse.connect(accounts.account0).setTimeBuffer(taskArgs.timebuffer);
+    console.log(`Auction timebuffer set to: ${taskArgs.timebuffer} seconds`);
+  });
+
 
 subtask("auctionhouse:increasemax", "Increases max auctions by one.")
   .setAction(async () => {
@@ -333,8 +361,15 @@ subtask("auctionhouse:settleauction", "Settles a CTAG auction for a given tag, t
     const latestBlock = (await hre.ethers.provider.getBlock()).timestamp;
     const auctionEndTime = ethers.toNumber(auction.endTime);
 
-    if (auctionEndTime + 60 > latestBlock) {
-      await ethers.provider.send("evm_setNextBlockTimestamp", [auctionEndTime + 60]);
+    if (auctionEndTime > latestBlock) {
+      // Calculate the wait time in seconds
+      const waitTimeInSeconds = auctionEndTime - latestBlock;
+
+      // Display the wait time
+      console.log(`Waiting for auction to end. Estimated wait time: ${waitTimeInSeconds} seconds`);
+
+      // Call waitForProcessing with the calculated wait time
+      await waitForProcessing(waitTimeInSeconds);
     }
 
     console.log("Settling auction: ", auction.auctionId.toString());

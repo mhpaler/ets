@@ -5,9 +5,9 @@
 
 // Import necessary modules and configurations.
 import { AbiEvent } from "abitype";
-import { createPublicClient, http, createWalletClient, HDAccount, PublicClient, WalletClient } from "viem";
-import { mnemonicToAccount } from "viem/accounts";
-import { hardhat } from "viem/chains";
+import { createPublicClient, http, createWalletClient, PublicClient, WalletClient, PrivateKeyAccount } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { hardhat, polygonMumbai } from "viem/chains";
 import { etsAuctionHouseConfig, etsAccessControlsConfig } from "../contracts.ts";
 import { TagService } from "./tagService.ts";
 
@@ -17,31 +17,35 @@ export class BlockchainService {
   private static instance: BlockchainService;
   public publicClient: PublicClient;
   public walletClient: WalletClient;
-  private account: HDAccount;
+  private etsOracleAccount: PrivateKeyAccount;
 
   /**
    * Create a new instance of BlockchainService.
    * Initialize the necessary clients and account.
    */
   constructor() {
+    // Determine the chain based on the NETWORK environment variable
+    let chain;
+    if (process.env.NETWORK === "localhost") {
+      chain = hardhat;
+    } else if (process.env.NETWORK === "mumbai" || process.env.NETWORK === "mumbai_stage") {
+      chain = polygonMumbai;
+    }
+
+    console.log("Chain: ", chain?.name);
+
     this.publicClient = createPublicClient({
-      chain: hardhat,
+      chain: chain,
       transport: http(),
     });
 
     this.walletClient = createWalletClient({
-      chain: hardhat,
+      chain: chain,
       transport: http(),
     });
 
-    // Load or generate credentials
-    this.account = mnemonicToAccount(
-      process.env.MNEMONIC_LOCAL || "test test test test test test test test test test test junk",
-      {
-        accountIndex: 0,
-        addressIndex: 1,
-      },
-    );
+    // Load ETSOracle account from mnemonic. Make sure key corresponds to correct chain.
+    this.etsOracleAccount = privateKeyToAccount(`0x${process.env.ETS_ORACLE_PK}`);
   }
 
   /**
@@ -71,8 +75,9 @@ export class BlockchainService {
    * Fetch the HDAccount representing the platform's account.
    * @returns A Promise that resolves to the platform's HDAccount.
    */
-  public async getPlatformAccount(): Promise<HDAccount> {
-    return this.account;
+  public async getOracleAccount(): Promise<PrivateKeyAccount> {
+    // TODO: check isAuctionOracle.
+    return this.etsOracleAccount;
   }
 
   /**
@@ -116,6 +121,7 @@ export class BlockchainService {
 
     console.log("Watching for RequestCreateAuction event...");
     console.log("Event ABI:", requestCreateAuction);
+    console.log("Watching Contract: ", etsAuctionHouseConfig.address);
 
     const unwatchRequestCreateAuction = this.publicClient.watchEvent({
       address: etsAuctionHouseConfig.address,
@@ -125,13 +131,13 @@ export class BlockchainService {
         //console.log(logs);
         try {
           // Find the oldest CTAG owned by ETS
-          const account: HDAccount = await this.getPlatformAccount();
+          const account: PrivateKeyAccount = await this.getOracleAccount();
+          const platformAccount = (await this.getPlatformAddress()).toLowerCase();
           const lastAuctionId = await this.getLastAuctionId();
-          const lastAuctionTokenId = await this.getAuctionedTokenId(lastAuctionId);
+          const lastAuctionTokenId = (await this.getAuctionedTokenId(lastAuctionId)).toString();
           const tagService = new TagService();
-          const tokenId = await tagService.findNextCTAG(account.address.toLowerCase(), lastAuctionTokenId.toString());
+          const tokenId = await tagService.findNextCTAG(platformAccount, lastAuctionTokenId);
 
-          //const account: HDAccount = await blockchainService.getPlatformAccount();
           const { request } = await this.publicClient.simulateContract({
             account,
             ...etsAuctionHouseConfig,
