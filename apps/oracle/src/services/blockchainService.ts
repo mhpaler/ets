@@ -24,7 +24,7 @@ export class BlockchainService {
    * Initialize the necessary clients and account.
    */
   constructor() {
-    // Determine the chain & transport based on the NETWORK environment variable
+    // Determine the chain based on the NETWORK environment variable
     let chain;
     let transport = http();
     if (process.env.NETWORK === "localhost") {
