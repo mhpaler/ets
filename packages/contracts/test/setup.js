@@ -25,6 +25,7 @@ async function getAccounts() {
   const accounts = {
     ETSAdmin: namedAccounts["ETSAdmin"],
     ETSPlatform: namedAccounts["ETSPlatform"],
+    ETSOracle: namedAccounts["ETSOracle"],
     Buyer: unnamedAccounts[0],
     RandomOne: unnamedAccounts[1],
     RandomTwo: unnamedAccounts[2],
@@ -209,6 +210,7 @@ async function setup() {
 
   // Set auction oracle to platform just for testing.
   await ETSAccessControls.grantRole(await ETSAccessControls.AUCTION_ORACLE_ROLE(), accounts.ETSPlatform.address);
+  await ETSAccessControls.grantRole(await ETSAccessControls.AUCTION_ORACLE_ROLE(), accounts.ETSOracle.address);
   await ETSAccessControls.grantRole(await ETSAccessControls.SMART_CONTRACT_ROLE(), accounts.ETSAdmin.address);
 
   await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(ETSEnrichTargetAddress);

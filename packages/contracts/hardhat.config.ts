@@ -75,6 +75,7 @@ const config: HardhatUserConfig = {
   namedAccounts: {
     ETSAdmin: {default: 0},
     ETSPlatform: {default: 1},
+    ETSOracle: {default: 2},
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,

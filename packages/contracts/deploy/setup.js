@@ -6,6 +6,7 @@ async function setup() {
   const accounts = {
     ETSAdmin: namedAccounts["ETSAdmin"],
     ETSPlatform: namedAccounts["ETSPlatform"],
+    ETSOracle: namedAccounts["ETSOracle"],
   };
 
   const initSettings = {
