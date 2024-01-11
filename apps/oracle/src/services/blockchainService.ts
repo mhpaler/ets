@@ -31,11 +31,13 @@ export class BlockchainService {
       chain = hardhat;
     } else if (process.env.NETWORK === "mumbai" || process.env.NETWORK === "mumbai_stage") {
       chain = polygonMumbai;
-      const alchemyBaseUrl = chain.rpcUrls.alchemy.http[0]; // Accessing the first element of the array
-      const fullAlchemyUrl = `${alchemyBaseUrl}/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
-      transport = http(fullAlchemyUrl, {
-        batch: true,
-      });
+      if (process.env.NEXT_PUBLIC_ALCHEMY_KEY) {
+        const alchemyBaseUrl = chain.rpcUrls.alchemy.http[0]; // Accessing the first element of the array
+        const fullAlchemyUrl = `${alchemyBaseUrl}/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
+        transport = http(fullAlchemyUrl, {
+          batch: true,
+        });
+      }
     }
 
     console.log("Chain: ", chain?.name);
