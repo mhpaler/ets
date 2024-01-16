@@ -1,16 +1,11 @@
 import Document, { Html, Head, Main, NextScript } from 'next/document';
-import { classNames } from '@app/utils/classNames';
 
-export default class MyDocument extends Document {
+class MyDocument extends Document {
   render() {
-    const pageProps = this.props?.__NEXT_DATA__?.props?.pageProps;
     return (
       <Html>
         <Head />
-        <body className={classNames(
-          'selection:bg-sky-200 selection:text-sky-700 font-inter',
-          pageProps.isDark ? 'dark-mode' : 'light-mode',
-        )}>
+        <body className="min-h-screen bg-gradient-to-b from-base-200 to-white">
           <Main />
           <NextScript />
         </body>
@@ -18,3 +13,23 @@ export default class MyDocument extends Document {
     );
   }
 }
+
+export default MyDocument;
+
+{/*
+export default class MyDocument extends Document {
+  render() {
+    const pageProps = this.props?.__NEXT_DATA__?.props?.pageProps;
+    return (
+      <Html>
+        <Head />
+        <body className="drawer min-h-screen bg-base-200 lg:drawer-open">
+          <DrawerToggle />
+          <Main />
+          <NextScript />
+        </body>
+      </Html>
+    );
+  }
+}
+*/}

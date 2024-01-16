@@ -6,12 +6,11 @@ interface PageTitle {
 
 export default function PageTitle({ title, shareUrl }: PageTitle) {
   return (
-    <header className="mb-8 space-y-4 md:flex">
-      <div className="flex items-center md:flex-grow">
-        <h1 className="text-3xl font-bold text-slate-700">{title}</h1>
+    <>
+      <div className="col-span-12 lg:hidden">
+        <h1 className="text-xl font-medium">{title}</h1>
       </div>
-      {/*       {shareUrl && <Share url={shareUrl} />}
-       */}
-    </header>
+      {/*{shareUrl && <Share url={shareUrl} />}*/}
+    </>
   );
 }

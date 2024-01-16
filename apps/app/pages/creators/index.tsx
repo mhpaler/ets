@@ -3,15 +3,15 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
-import { settings } from "../../constants/settings";
-import { timestampToString } from "../../utils";
-import { toEth } from "../../utils";
-import useNumberFormatter from "../../hooks/useNumberFormatter";
-import { useCreators } from "../../hooks/useCreators";
-import { Table } from "../../components/Table";
-import { Button } from "../../components/Button";
-import { Truncate } from "../../components/Truncate";
-import PageTitle from "../../components/PageTitle";
+import { settings } from "@app/constants/settings";
+import { timestampToString } from "@app/utils";
+import { toEth } from "@app/utils";
+import useNumberFormatter from "@app/hooks/useNumberFormatter";
+import { useCreators } from "@app/hooks/useCreators";
+import Layout from "@app/layouts/default";
+import { Table } from "@app/components/Table";
+import { Button } from "@app/components/Button";
+import { Truncate } from "@app/components/Truncate";
 
 const pageSize = 20;
 
@@ -55,78 +55,77 @@ const Creators: NextPage = () => {
   const browserTitle = `${pageTitle} | ETS`;
 
   return (
-    <div className="max-w-7xl mx-auto mt-12">
-      <Head>
-        <title>{browserTitle}</title>
-      </Head>
-
-      <PageTitle title={pageTitle} />
-
-      <Table loading={!creators} rows={pageSize}>
-        <Table.Head>
-          <Table.Tr>{columns && columns.map((column) => <Table.Th key={column}>{column}</Table.Th>)}</Table.Tr>
-        </Table.Head>
-        <Table.Body>
-          {creators &&
-            creators.map((creator: any) => (
-              <Table.Tr key={creator.id}>
-                <Table.Cell value={Truncate(creator.id)} url={`/creators/${creator.id}`} copyAndPaste />
-                <Table.Cell value={creators && timestampToString(parseInt(creators[0].firstSeen))} right />
-                <Table.Cell value={number(parseInt(creator.tagsCreated))} right />
-                <Table.Cell
-                  value={`${toEth(creator.createdTagsAuctionRevenue + creator.createdTagsTaggingFeeRevenue, 4)} MATIC`}
-                />
-              </Table.Tr>
-            ))}
-        </Table.Body>
-        {showPrevNext() && (
-          <Table.Footer>
-            <tr>
-              <td className="flex justify-between">
-                <Button disabled={skip === 0} onClick={() => prevPage()}>
-                  <svg className="relative inline-flex w-6 h-6 mr-2 -ml-1" fill="none" viewBox="0 0 24 24">
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M10.25 6.75L4.75 12L10.25 17.25"
-                    ></path>
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M19.25 12H5"
-                    ></path>
-                  </svg>
-                  {t("prev")}
-                </Button>
-                <Button disabled={nextCreators && nextCreators.length === 0} onClick={() => nextPage()}>
-                  {t("next")}
-                  <svg className="relative inline-flex w-6 h-6 ml-2 -mr-1" fill="none" viewBox="0 0 24 24">
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M13.75 6.75L19.25 12L13.75 17.25"
-                    ></path>
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M19 12H4.75"
-                    ></path>
-                  </svg>
-                </Button>
-              </td>
-            </tr>
-          </Table.Footer>
-        )}
-      </Table>
-    </div>
+    <Layout>
+      <div className="col-span-12">
+        <Table loading={!creators} rows={pageSize}>
+          <Table.Head>
+            <Table.Tr>{columns && columns.map((column) => <Table.Th key={column}>{column}</Table.Th>)}</Table.Tr>
+          </Table.Head>
+          <Table.Body>
+            {creators &&
+              creators.map((creator: any) => (
+                <Table.Tr key={creator.id}>
+                  <Table.Cell value={Truncate(creator.id)} url={`/creators/${creator.id}`} copyAndPaste />
+                  <Table.Cell value={creators && timestampToString(parseInt(creators[0].firstSeen))} />
+                  <Table.Cell value={number(parseInt(creator.tagsCreated))} />
+                  <Table.Cell
+                    value={`${toEth(
+                      creator.createdTagsAuctionRevenue + creator.createdTagsTaggingFeeRevenue,
+                      4,
+                    )} MATIC`}
+                  />
+                </Table.Tr>
+              ))}
+          </Table.Body>
+          {showPrevNext() && (
+            <Table.Footer>
+              <tr>
+                <td className="flex justify-between">
+                  <Button disabled={skip === 0} onClick={() => prevPage()}>
+                    <svg className="relative inline-flex w-6 h-6 mr-2 -ml-1" fill="none" viewBox="0 0 24 24">
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M10.25 6.75L4.75 12L10.25 17.25"
+                      ></path>
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19.25 12H5"
+                      ></path>
+                    </svg>
+                    {t("prev")}
+                  </Button>
+                  <Button disabled={nextCreators && nextCreators.length === 0} onClick={() => nextPage()}>
+                    {t("next")}
+                    <svg className="relative inline-flex w-6 h-6 ml-2 -mr-1" fill="none" viewBox="0 0 24 24">
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M13.75 6.75L19.25 12L13.75 17.25"
+                      ></path>
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 12H4.75"
+                      ></path>
+                    </svg>
+                  </Button>
+                </td>
+              </tr>
+            </Table.Footer>
+          )}
+        </Table>
+      </div>
+    </Layout>
   );
 };
 

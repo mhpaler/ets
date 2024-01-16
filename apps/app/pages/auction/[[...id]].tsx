@@ -8,7 +8,7 @@ import { AuctionHouseProvider } from "@app/context/AuctionHouseContext";
 import { Auctions } from "@app/components/Auctions";
 import AuctionWrapper from "@app/components/AuctionWrapper";
 import { FeaturedAuction } from "../../components/FeaturedAuction";
-import PageTitle from "../../components/PageTitle";
+import PageTitle from "@app/components/PageTitle";
 
 interface AuctionPageProps {
   initialAuctionId?: number;

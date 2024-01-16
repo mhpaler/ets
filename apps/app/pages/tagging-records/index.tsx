@@ -1,21 +1,14 @@
 import type { NextPage } from "next";
-import Head from "next/head";
-import useTranslation from "next-translate/useTranslation";
-import { TaggingRecords } from "../../components/TaggingRecords";
-import PageTitle from "../../components/PageTitle";
+import Layout from "@app/layouts/default";
+import { TaggingRecords } from "@app/components/TaggingRecords";
 
 const RecentlyTagged: NextPage = () => {
-  const { t } = useTranslation("common");
-  const pageTitle = `${t("tagging-records")}`;
-  const browserTitle = `${pageTitle} | ETS`;
   return (
-    <div className="max-w-7xl mx-auto mt-12">
-      <Head>
-        <title>{browserTitle}</title>
-      </Head>
-      <PageTitle title={pageTitle} />
-      <TaggingRecords />
-    </div>
+    <Layout>
+      <div className="col-span-12">
+        <TaggingRecords />
+      </div>
+    </Layout>
   );
 };
 

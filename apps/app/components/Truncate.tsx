@@ -1,18 +1,27 @@
-// Captures 0x + 4 characters, then the last 4 characters.
-const ethRegex = /^(0x[a-zA-Z0-9]{4})[a-zA-Z0-9]+([a-zA-Z0-9]{4})$/;
-const otherRegex = /^([a-zA-Z0-9]{6})[a-zA-Z0-9]+([a-zA-Z0-9]{10})$/;
+const Truncate = (
+  str: string | string[] | undefined,
+  maxLength: number = 20,
+  ellipsisLocation: "start" | "middle" | "end" = "end",
+) => {
+  // Ensure that the str is a single string
+  if (typeof str !== "string") {
+    return ""; // or return a default value, or handle arrays as needed
+  }
 
-const Truncate = (address: string) => {
-  let match;
-  if (address.match(/^0x[a-fA-F0-9]{40}$/)) {
-    match = address.match(ethRegex);
-  } else {
-    match = address.match(otherRegex);
+  if (str.length <= maxLength) {
+    return str;
   }
-  if (match) {
-    return `${match[1]}…${match[2]}`;
+
+  switch (ellipsisLocation) {
+    case "start":
+      return `${str.substring(0, maxLength - 3)}...`;
+    case "middle":
+      const mid = Math.floor(maxLength / 2);
+      return `${str.substring(0, mid)}...${str.substring(str.length - (maxLength - mid - 3))}`;
+    case "end":
+    default:
+      return `${str.substring(0, maxLength - 3)}...`;
   }
-  return address;
 };
 
 export { Truncate };
