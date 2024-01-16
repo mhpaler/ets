@@ -63,6 +63,12 @@ If you wish run the explorer locally, but have it interact with the Mumbai contr
 NETWORK="mumbai_stage"
 NEXT_PUBLIC_ETS_ENVIRONMENT="stage"
 ```
+If you intend to write blockchain records on to the ETS contracts deployed on mumbai, you'll need to fill out the following `.env` variables:
+
+```bash
+MNEMONIC_MUMBAI=
+NEXT_PUBLIC_ALCHEMY_KEY=
+```
 
 For more detailed rundown of the dev stack, please see our [Development Stack Overview (todo)](./dev-stack.md).
 
