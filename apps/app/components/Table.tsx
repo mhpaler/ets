@@ -1,17 +1,9 @@
-import React, {
-  createContext,
-  useContext,
-  ReactNode,
-  useState,
-  useEffect,
-  Children,
-  ReactElement,
-} from "react";
+import React, { createContext, useContext, ReactNode, useState, useEffect, Children, ReactElement } from "react";
 import { getChildrenByType, removeChildrenByType } from "react-nanny";
 import Link from "next/link";
-import { CopyAndPaste } from "../components/CopyAndPaste";
-import { Truncate } from "../components/Truncate";
-import { classNames } from "../utils/classNames";
+import { CopyAndPaste } from "@app/components/CopyAndPaste";
+import { Truncate } from "@app/components/Truncate";
+import { classNames } from "@app/utils/classNames";
 
 interface TableContext {
   tableLoading: boolean;
@@ -35,11 +27,8 @@ function useTableContext(component: string) {
   let context = useContext(TableContext);
 
   if (context === null) {
-    let error = new Error(
-      `<${component} /> is missing a parent <Table /> component.`
-    );
-    if (Error.captureStackTrace)
-      Error.captureStackTrace(error, useTableContext);
+    let error = new Error(`<${component} /> is missing a parent <Table /> component.`);
+    if (Error.captureStackTrace) Error.captureStackTrace(error, useTableContext);
     throw error;
   }
 
@@ -79,39 +68,35 @@ const Table = ({ children, className, loading, rows }: Table) => {
   const title = getChildrenByType(children, [Title]);
   children = removeChildrenByType(children, [Title]);
 
-  const tableClasses = classNames(
-    "grid items-center min-w-full border-separate text-slate-500",
+  /*   const tableClasses = classNames(
+    "table grid items-center min-w-full border-separate",
     columnCount === 2 && "grid-cols-2",
     columnCount === 3 && "grid-cols-3",
     columnCount === 4 && "grid-cols-4",
     columnCount === 5 && "grid-cols-5",
-    columnCount === 6 && "grid-cols-6"
-  );
+    columnCount === 6 && "grid-cols-6",
+  ); */
 
-  const containerClasses = classNames(
+  const tableClasses = classNames("table rounded-md bg-white shadow-lg shadow-slate-400/20 ring-1 ring-slate-200");
+
+  /*   const containerClasses = classNames(
     "-mx-4 shadow-lg lg:rounded-md lg:mx-0 ring-1 ring-slate-200 ring-opacity-100 shadow-slate-300/20",
-    className
-  );
+    className,
+  ); */
+
+  const containerClasses = classNames("");
 
   return (
     <TableContext.Provider value={value}>
-      <div className={containerClasses}>
-        {title}
-        <div className="grid grid-cols-1 gap-2 overflow-x-auto">
-          <table className={tableClasses}>{children}</table>
-        </div>
-      </div>
+      {title}
+      <table className={tableClasses}>{children}</table>
     </TableContext.Provider>
   );
 };
 
 const Title = ({ children }: { children: ReactNode }) => {
   const {} = useTableContext("Table.Title");
-  return (
-    <h2 className="px-6 py-3 font-semibold text-left col-span-full text-slate-700">
-      {children}
-    </h2>
-  );
+  return <h2 className="py-3 font-medium text-left">{children}</h2>;
 };
 
 const Head = ({ children }: { children: ReactElement }) => {
@@ -121,30 +106,27 @@ const Head = ({ children }: { children: ReactElement }) => {
     setColumnCount(Children.count(children.props.children));
   }, [setColumnCount, children]);
 
-  const theadClasses = classNames(
+  const theadClasses = classNames("");
+
+  /*   const theadClasses = classNames(
     "z-[1] col-span-full grid min-w-fit",
     columnCount === 2 && "grid-cols-2",
     columnCount === 3 && "grid-cols-3",
     columnCount === 4 && "grid-cols-4",
     columnCount === 5 && "grid-cols-5",
-    columnCount === 6 && "grid-cols-6"
-  );
+    columnCount === 6 && "grid-cols-6",
+  ); */
 
   return <thead className={theadClasses}>{children}</thead>;
 };
 
 const Footer = ({ children }: { children: ReactNode }) => {
   const {} = useTableContext("Table.Footer");
-  return (
-    <tfoot className="grid px-3 py-3 border-y text-left col-span-full text-slate-700">
-      {children}
-    </tfoot>
-  );
+  return <tfoot className="p-4 border-y">{children}</tfoot>;
 };
 
 const Body = ({ children }: { children: ReactNode }) => {
-  const { tableLoading, columnCount, rowsPerPage } =
-    useTableContext("Table.Body");
+  const { tableLoading, columnCount, rowsPerPage } = useTableContext("Table.Body");
 
   // Display a bunch of loading rows and columns if the table is
   // loading based on the pagination amount and column count
@@ -157,7 +139,7 @@ const Body = ({ children }: { children: ReactNode }) => {
               {[...Array(columnCount)].map((item, index) => {
                 return (
                   <Td key={`loading-td-${index}`}>
-                    <div className="w-full h-6 rounded bg-slate-100"></div>
+                    <div className="w-full h-6 rounded"></div>
                   </Td>
                 );
               })}
@@ -172,26 +154,24 @@ const Body = ({ children }: { children: ReactNode }) => {
 
 const Th = ({ children }: { children: ReactNode }) => {
   const {} = useTableContext("Table.Th");
-  return (
-    <th className="px-3 py-3.5 first:pl-6 last:pr-6 top-0 z-10 text-sm font-semibold text-left border-b whitespace-nowrap text-slate-700 bg-slate-50/75 border-slate-200 backdrop-blur backdrop-filter">
-      {children}
-    </th>
-  );
+  return <th className="text-sm font-semibold">{children}</th>;
 };
 
 const Td = ({ children }: { children: ReactNode }) => {
   const {} = useTableContext("Table.Td");
-  return <td className="py-3.5 px-3 first:pl-6 last:pr-6 ">{children}</td>;
+  return <td>{children}</td>;
 };
 
 const Tr = ({ children }: { children: ReactNode }) => {
   const {} = useTableContext("Table.Row");
-  return <tr className="contents">{children}</tr>;
+
+  // Use a state variable to track whether the row is even or odd
+  return <tr className="hover:bg-base-200">{children}</tr>;
 };
 
 const CellLink = ({ value, url }: { value: string; url: string }) => {
   return (
-    <Link href={url} className="text-pink-600 hover:text-pink-700" legacyBehavior>
+    <Link href={url} legacyBehavior>
       {value}
     </Link>
   );
@@ -214,16 +194,14 @@ const Cell = ({
   value = truncate ? Truncate(value) : value;
   return (
     <Td>
-      <div className="flex space-x-1">
-        <div
-          className={classNames(
-            "overflow-hidden text-ellipsis whitespace-nowrap",
-            url ? "text-pink-600 hover:text-pink-700" : "",
-            right && "text-right"
-          )}
-        >
-          {url ? <CellLink value={value} url={url} /> : value}
-        </div>
+      <div
+        className={classNames(
+          "overflow-hidden text-ellipsis whitespace-nowrap",
+          url ? "link link-primary" : "",
+          right && "text-right",
+        )}
+      >
+        {url ? <CellLink value={value} url={url} /> : value}
         {copyAndPaste && <CopyAndPaste value={value} />}
       </div>
     </Td>

@@ -7,11 +7,7 @@ const BreadcrumbItem = (props: any) => {
   const { t, lang } = useTranslation("common");
 
   const dividerIcon = (
-    <svg
-      className="flex-shrink-0 h-5 w-5 text-gray-300 mr-2"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
+    <svg className="flex-shrink-0 h-5 w-5 text-base mr-2" fill="none" viewBox="0 0 24 24">
       <path
         stroke="currentColor"
         strokeLinecap="round"

@@ -1,13 +1,11 @@
 import { Router } from "next/router";
 import type { AppProps } from "next/app";
 import type { Session } from "next-auth";
-//import { SessionProvider } from "next-auth/react";
 
 import { SWRConfig } from "swr";
 import { fetcher } from "@app/utils/fetchers";
 
 import "@app/styles/globals.css";
-import Layout from "@app/layouts/default";
 import nProgress from "nprogress";
 
 //import { RainbowKitSiweNextAuthProvider, GetSiweMessageOptions } from "@rainbow-me/rainbowkit-siwe-next-auth";
@@ -60,7 +58,7 @@ const wagmiConfig = createConfig({
 //  statement: "Sign in to Ethereum Tag Service",
 //});
 
-// Custom theming for connect button.
+// Custom theming for Rainbow connect button.
 const etsTheme = merge(
   lightTheme({
     accentColorForeground: "white",
@@ -103,9 +101,7 @@ function App({ Component, pageProps }: AppProps<{ session: Session }>) {
         initialChain={initialChain}
       >
         <SWRConfig value={{ refreshInterval: 3000, fetcher: fetcher }}>
-          <Layout>
-            <Component {...pageProps} />
-          </Layout>
+          <Component {...pageProps} />
         </SWRConfig>
       </RainbowKitProvider>
       {/*

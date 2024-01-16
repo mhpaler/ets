@@ -696,7 +696,7 @@ export const etsABI = [
   },
 ] as const
 
-export const etsAddress = '0x6b76f4e0E03bF060D75A59886B0649ce071d6e09' as const
+export const etsAddress = '0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0' as const
 
 export const etsConfig = { address: etsAddress, abi: etsABI } as const
 
@@ -1194,7 +1194,7 @@ export const etsAccessControlsABI = [
 ] as const
 
 export const etsAccessControlsAddress =
-  '0x0359D6A7AB4064EEA89358519a34842eEFf0Fd78' as const
+  '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512' as const
 
 export const etsAccessControlsConfig = {
   address: etsAccessControlsAddress,
@@ -1914,7 +1914,7 @@ export const etsAuctionHouseABI = [
 ] as const
 
 export const etsAuctionHouseAddress =
-  '0xf5d631DC08211e649FA7B025179De146AfFAEe41' as const
+  '0x0165878A594ca255338adfa4d48449f69242Eb8F' as const
 
 export const etsAuctionHouseConfig = {
   address: etsAuctionHouseAddress,
@@ -2087,7 +2087,7 @@ export const etsEnrichTargetABI = [
 ] as const
 
 export const etsEnrichTargetAddress =
-  '0xfCaCd44f31BD7446E49De06D6BE9952B1394431E' as const
+  '0x610178dA211FEF7D417bC0e6FeD39F05609AD788' as const
 
 export const etsEnrichTargetConfig = {
   address: etsEnrichTargetAddress,
@@ -2191,7 +2191,7 @@ export const etsRelayerFactoryABI = [
 ] as const
 
 export const etsRelayerFactoryAddress =
-  '0x8d2cd1B3D223DAa5F2DF27d5dC438eF252b3d71c' as const
+  '0x9A676e781A523b5d0C0e43731313A708CB607508' as const
 
 export const etsRelayerFactoryConfig = {
   address: etsRelayerFactoryAddress,
@@ -2575,7 +2575,7 @@ export const etsRelayerV1ABI = [
 ] as const
 
 export const etsRelayerV1Address =
-  '0x5aFbc0d9d7864A2d901e121124679e80b94f384f' as const
+  '0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82' as const
 
 export const etsRelayerV1Config = {
   address: etsRelayerV1Address,
@@ -2883,7 +2883,7 @@ export const etsTargetABI = [
 ] as const
 
 export const etsTargetAddress =
-  '0x84d21f164D4fb8591f5F092443575621eBd13Cf3' as const
+  '0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6' as const
 
 export const etsTargetConfig = {
   address: etsTargetAddress,
@@ -3677,7 +3677,7 @@ export const etsTokenABI = [
 ] as const
 
 export const etsTokenAddress =
-  '0x46056073E5917Dd5883Ad24d51A20AD6dF5730E9' as const
+  '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9' as const
 
 export const etsTokenConfig = {
   address: etsTokenAddress,

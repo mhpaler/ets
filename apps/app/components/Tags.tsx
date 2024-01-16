@@ -8,7 +8,6 @@ import { Table } from "./Table";
 import { Button } from "./Button";
 import { Tag } from "./Tag";
 
-const pageSize = 20;
 type Props = {
   filter?: any;
   pageSize?: number;
@@ -35,8 +34,7 @@ const Tags: NextPage<Props> = ({ filter, pageSize, orderBy, title }) => {
     },
   });
 
-  const pageSizeSet =
-    pageSize === undefined ? settings["DEFAULT_PAGESIZE"] : pageSize;
+  const pageSizeSet = pageSize === undefined ? settings["DEFAULT_PAGESIZE"] : pageSize;
 
   const nextPage = () => {
     setSkip(skip + pageSizeSet);
@@ -49,27 +47,17 @@ const Tags: NextPage<Props> = ({ filter, pageSize, orderBy, title }) => {
   };
 
   const showPrevNext = () => {
-    return (nextTags && nextTags.length > 0) || (skip && skip !== 0)
-      ? true
-      : false;
+    return (nextTags && nextTags.length > 0) || (skip && skip !== 0) ? true : false;
   };
 
-  const columns = useMemo(
-    () => [t("tag"), t("created"), t("relayer"), t("creator"), t("owner")],
-    [t]
-  );
+  const columns = useMemo(() => [t("tag"), t("created"), t("relayer"), t("creator"), t("owner")], [t]);
 
   return (
     <div className="max-w-7xl mx-auto">
       <Table loading={!tags} rows={pageSizeSet}>
         {title ? <Table.Title>{title}</Table.Title> : ""}
         <Table.Head>
-          <Table.Tr>
-            {columns &&
-              columns.map((column) => (
-                <Table.Th key={column}>{column}</Table.Th>
-              ))}
-          </Table.Tr>
+          <Table.Tr>{columns && columns.map((column) => <Table.Th key={column}>{column}</Table.Th>)}</Table.Tr>
         </Table.Head>
         <Table.Body>
           {tags &&
@@ -84,80 +72,31 @@ const Tags: NextPage<Props> = ({ filter, pageSize, orderBy, title }) => {
                     <TimeAgo date={tag.timestamp * 1000} />
                   </div>
                 </Table.CellWithChildren>
-                <Table.Cell
-                  value={tag.relayer.name}
-                  url={"/relayers/" + tag.relayer.id}
-                  truncate
-                />
-                <Table.Cell
-                  value={tag.creator.id}
-                  url={"/creators/" + tag.creator.id}
-                  copyAndPaste
-                  truncate
-                />
+                <Table.Cell value={tag.relayer.name} url={"/relayers/" + tag.relayer.id} truncate />
+                <Table.Cell value={tag.creator.id} url={"/creators/" + tag.creator.id} copyAndPaste truncate />
 
-                <Table.Cell
-                  value={tag.owner.id}
-                  url={"/owners/" + tag.owner.id}
-                  copyAndPaste
-                  truncate
-                />
+                <Table.Cell value={tag.owner.id} url={"/owners/" + tag.owner.id} copyAndPaste truncate />
               </Table.Tr>
             ))}
         </Table.Body>
         {showPrevNext() && (
           <Table.Footer>
-            <div className="flex justify-between">
-              <Button disabled={skip === 0} onClick={() => prevPage()}>
-                <svg
-                  className="relative inline-flex w-6 h-6 mr-2 -ml-1"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M10.25 6.75L4.75 12L10.25 17.25"
-                  ></path>
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M19.25 12H5"
-                  ></path>
-                </svg>
-                Prev
-              </Button>
-              <Button
-                disabled={nextTags && nextTags.length === 0}
-                onClick={() => nextPage()}
-              >
-                Next
-                <svg
-                  className="relative inline-flex w-6 h-6 ml-2 -mr-1"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M13.75 6.75L19.25 12L13.75 17.25"
-                  ></path>
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M19 12H4.75"
-                  ></path>
-                </svg>
-              </Button>
-            </div>
+            <Table.Tr>
+              <Table.CellWithChildren>
+                <div className="flex space-x-2 justify-self-center">
+                  <Button className="btn btn-sm btn-primary" disabled={skip === 0} onClick={() => prevPage()}>
+                    Prev
+                  </Button>
+                  <Button
+                    className="btn btn-sm btn-primary"
+                    disabled={nextTags && nextTags.length === 0}
+                    onClick={() => nextPage()}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </Table.CellWithChildren>
+            </Table.Tr>
           </Table.Footer>
         )}
       </Table>
