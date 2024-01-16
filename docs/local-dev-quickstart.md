@@ -2,10 +2,25 @@
 
 This guide will get you up and running with the full ETS stack running locally, including contracts, subgraph, auction oracle and the ETS Explorer for visualizing ETS data.
 
+First, make a fork of the main ETS repository located at https://github.com/ethereum-tag-service/ets
+
+Clone your forked repository to your local system, eg.
+
+```bash
+git clone git@github.com:mhpaler/ets.git ets
+```
+
+Install ETS
+
+```bash
+cd ets
+pnpm install
+```
+
 Make a copy of `.env.example` in the project root named `.env`.
 The default settings in there should be enough to get you going.
 
-All commands should be run from the project root.
+The following should all be run from the project root.
 
 ## Contracts
 
