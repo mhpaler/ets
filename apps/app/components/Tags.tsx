@@ -53,7 +53,7 @@ const Tags: NextPage<Props> = ({ filter, pageSize, orderBy, title }) => {
   const columns = useMemo(() => [t("tag"), t("created"), t("relayer"), t("creator"), t("owner")], [t]);
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="col-span-12">
       <Table loading={!tags} rows={pageSizeSet}>
         {title ? <Table.Title>{title}</Table.Title> : ""}
         <Table.Head>

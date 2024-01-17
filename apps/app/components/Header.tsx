@@ -1,55 +1,21 @@
-import { useRouter } from "next/router";
 import Head from "next/head";
-
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
 import Breadcrumbs from "nextjs-breadcrumbs2";
 import { BreadcrumbItem } from "./BreadcrumbItem";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { pathToTitle } from "@app/utils/titleUtils";
 import PageTitle from "@app/components/PageTitle";
 import { Truncate } from "@app/components/Truncate";
 
 export default function Header() {
   const { t } = useTranslation("common");
-  const router = useRouter();
-
-  const getTranslatedPath = (): string => {
-    const pathSegments = router.pathname.split("/").slice(1);
-    return pathSegments
-      .map((segment, index, segments) => {
-        // Check if the segment is a dynamic route parameter
-        if (segment.startsWith("[") && segment.endsWith("]")) {
-          // Extract the actual parameter name
-          const paramName = segment.slice(1, -1);
-          // Use the value from the router query, if available
-          const value = router.query[paramName];
-
-          if (index === 1 && segments[0] === "tags" && value) {
-            // If the first segment is "tags" and there is a dynamic argument, append "#" to it
-            return `#${Truncate(value)}`;
-          } else {
-            return Truncate(value);
-          }
-        }
-
-        // Check if there is a dynamic segment following this regular segment
-        //if (index < segments.length - 1 && segments[index + 1].startsWith("[") && segments[index + 1].endsWith("]")) {
-        //  // If the regular segment ends with "s", strip it before translation
-        //  if (segment.endsWith("s")) {
-        //    segment = segment.slice(0, -1);
-        //  }
-        //}
-
-        // For regular segments, use the translation function
-        return t(segment);
-      })
-      .join(": ");
-  };
+  const title = pathToTitle();
 
   return (
     <>
       <Head>
-        <title>{getTranslatedPath()}</title>
+        <title>title</title>
       </Head>
       <header className="col-span-12 flex items-center gap-2 lg:gap-4">
         <label htmlFor="main-drawer" className="btn btn-square btn-ghost drawer-button lg:hidden">
@@ -69,7 +35,7 @@ export default function Header() {
           </div>
         </Link>
         <div className="grow">
-          <h1 className="lg:text-xl font-medium hidden lg:block">{getTranslatedPath() || t("Dashboard")}</h1>
+          <h1 className="lg:text-xl font-medium hidden lg:block">{title}</h1>
         </div>
         <div>
           <input type="text" placeholder="Search (todo)" className="input input-sm max-sm:w-24" />
@@ -79,8 +45,7 @@ export default function Header() {
         </span>
       </header>
 
-      <PageTitle title={getTranslatedPath() || t("Dashboard")} />
-
+      <PageTitle title={title} />
       <div className="col-span-12 hidden lg:block">
         <Breadcrumbs
           rootLabel="Home"
