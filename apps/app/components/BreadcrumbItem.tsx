@@ -42,7 +42,7 @@ const BreadcrumbItem = (props: any) => {
     <>
       {!label ? null : (
         <span className="flex">
-          {label == "dashboard" ? null : dividerIcon}
+          {label == t("dashboard") ? null : dividerIcon}
           {label}
         </span>
       )}
