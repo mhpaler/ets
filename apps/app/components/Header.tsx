@@ -1,6 +1,5 @@
 import Head from "next/head";
 import Link from "next/link";
-import useTranslation from "next-translate/useTranslation";
 import Breadcrumbs from "nextjs-breadcrumbs2";
 import { BreadcrumbItem } from "./BreadcrumbItem";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
@@ -9,7 +8,6 @@ import PageTitle from "@app/components/PageTitle";
 import { Truncate } from "@app/components/Truncate";
 
 export default function Header() {
-  const { t } = useTranslation("common");
   const title = pathToTitle();
 
   return (
@@ -48,7 +46,7 @@ export default function Header() {
       <PageTitle title={title} />
       <div className="col-span-12 hidden lg:block">
         <Breadcrumbs
-          rootLabel="Home"
+          rootLabel="dashboard"
           transformLabel={(title) => {
             return <BreadcrumbItem title={Truncate(title)} />;
           }}
