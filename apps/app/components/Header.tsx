@@ -15,7 +15,7 @@ export default function Header() {
   return (
     <>
       <Head>
-        <title>title</title>
+        <title>{title} | Ethereum Tag Service</title>
       </Head>
       <header className="col-span-12 flex items-center gap-2 lg:gap-4">
         <label htmlFor="main-drawer" className="btn btn-square btn-ghost drawer-button lg:hidden">
