@@ -4,7 +4,7 @@ import useTranslation from "next-translate/useTranslation";
 const BreadcrumbItem = (props: any) => {
   let label;
   const router = useRouter();
-  const { t, lang } = useTranslation("common");
+  const { t } = useTranslation("common");
 
   const dividerIcon = (
     <svg className="flex-shrink-0 h-5 w-5 text-base mr-2" fill="none" viewBox="0 0 24 24">
@@ -42,7 +42,7 @@ const BreadcrumbItem = (props: any) => {
     <>
       {!label ? null : (
         <span className="flex">
-          {label == "Home" ? null : dividerIcon}
+          {label == t("dashboard") ? null : dividerIcon}
           {label}
         </span>
       )}

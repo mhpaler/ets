@@ -8,9 +8,7 @@ const Ctags: NextPage = () => {
 
   return (
     <Layout>
-      <div className="col-span-12">
-        <Tags title={t("newest-tags")} />
-      </div>
+      <Tags title={t("newest-tags")} />
     </Layout>
   );
 };

@@ -13,7 +13,7 @@ export default function Navigation() {
   return (
     <>
       <nav className="flex min-h-screen w-80 flex-col gap-2 overflow-y-auto bg-base-100 px-6 py-10">
-        <div className="mx-4 flex items-center gap-2 font-black mb-4">
+        <div className="mr-0 ml-4 items-center font-black mb-4">
           <Link href="/" passHref>
             <div className="relative flex items-center">
               <svg

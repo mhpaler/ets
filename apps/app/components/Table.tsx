@@ -96,7 +96,7 @@ const Table = ({ children, className, loading, rows }: Table) => {
 
 const Title = ({ children }: { children: ReactNode }) => {
   const {} = useTableContext("Table.Title");
-  return <h2 className="py-3 font-medium text-left">{children}</h2>;
+  return <h2 className="py-3 px-2 font-medium text-left">{children}</h2>;
 };
 
 const Head = ({ children }: { children: ReactElement }) => {
