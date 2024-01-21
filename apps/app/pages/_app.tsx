@@ -13,11 +13,14 @@ import { RainbowKitProvider, connectorsForWallets, lightTheme, Theme } from "@ra
 import "@rainbow-me/rainbowkit/styles.css";
 import merge from "lodash.merge";
 import { metaMaskWallet } from "@rainbow-me/rainbowkit/wallets";
-
-import { createConfig, configureChains, WagmiConfig } from "wagmi";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query' 
+import { createConfig, configureChains, WagmiConfig, WagmiProvider } from "wagmi";
 import { hardhat, polygonMumbai } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
+
+//Wagmi uses tenstack's react-query for caching and fetching data
+const queryClient = new QueryClient() 
 
 //Configure the chain and the RPC provider. Note that we've added localhost here
 const { chains, publicClient, webSocketPublicClient } = configureChains(
@@ -93,21 +96,23 @@ function App({ Component, pageProps }: AppProps<{ session: Session }>) {
       <SessionProvider refetchInterval={0} session={pageProps.session}>
         <RainbowKitSiweNextAuthProvider getSiweMessageOptions={getSiweMessageOptions}>
       */}
-      <RainbowKitProvider
-        appInfo={appInfo}
-        chains={chains}
-        modalSize="compact"
-        theme={etsTheme}
-        initialChain={initialChain}
-      >
-        <SWRConfig value={{ refreshInterval: 3000, fetcher: fetcher }}>
-          <Component {...pageProps} />
-        </SWRConfig>
-      </RainbowKitProvider>
-      {/*
-        </RainbowKitSiweNextAuthProvider>
-      </SessionProvider>
-      */}
+      <QueryClientProvider client={queryClient}> 
+        <RainbowKitProvider
+          appInfo={appInfo}
+          chains={chains}
+          modalSize="compact"
+          theme={etsTheme}
+          initialChain={initialChain}
+        >
+          <SWRConfig value={{ refreshInterval: 3000, fetcher: fetcher }}>
+            <Component {...pageProps} />
+          </SWRConfig>
+        </RainbowKitProvider>
+        {/*
+          </RainbowKitSiweNextAuthProvider>
+        </SessionProvider>
+        */}
+      </QueryClientProvider>
     </WagmiConfig>
   );
 }
