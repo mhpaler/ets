@@ -9,26 +9,24 @@ import "@app/styles/globals.css";
 import nProgress from "nprogress";
 
 //import { RainbowKitSiweNextAuthProvider, GetSiweMessageOptions } from "@rainbow-me/rainbowkit-siwe-next-auth";
-import { RainbowKitProvider, connectorsForWallets, lightTheme, Theme } from "@rainbow-me/rainbowkit";
+import { RainbowKitProvider, lightTheme, Theme, getDefaultWallets } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
 import merge from "lodash.merge";
-import { metaMaskWallet } from "@rainbow-me/rainbowkit/wallets";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query' 
-import { createConfig, configureChains, WagmiConfig, WagmiProvider } from "wagmi";
+import { WagmiProvider } from "wagmi";
 import { hardhat, polygonMumbai } from "wagmi/chains";
-import { alchemyProvider } from "wagmi/providers/alchemy";
-import { publicProvider } from "wagmi/providers/public";
 
+import { wagmiConfig } from "@app/constants/wagmiConfig";
 //Wagmi uses tenstack's react-query for caching and fetching data
 const queryClient = new QueryClient() 
 
 //Configure the chain and the RPC provider. Note that we've added localhost here
-const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [...(process.env.NEXT_PUBLIC_ETS_ENVIRONMENT === "development" ? [hardhat] : [polygonMumbai])],
-  [alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_KEY || "" }), publicProvider()],
-);
+// const { chains, publicClient, webSocketPublicClient } = configureChains(
+//   [...(process.env.NEXT_PUBLIC_ETS_ENVIRONMENT === "development" ? [hardhat] : [polygonMumbai])],
+//   [alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_KEY || "" }), publicProvider()],
+// );
 
-const initialChain = process.env.NEXT_PUBLIC_ETS_ENVIRONMENT === "development" ? hardhat : polygonMumbai;
+// const initialChain = process.env.NEXT_PUBLIC_ETS_ENVIRONMENT === "development" ? hardhat : polygonMumbai;
 
 const projectId = "1";
 
@@ -43,19 +41,19 @@ const appInfo = {
   learnMoreUrl: "https://ets.xyz",
 };
 
-const connectors = connectorsForWallets([
-  {
-    groupName: "Recommended",
-    wallets: [metaMaskWallet({ projectId, chains })],
-  },
-]);
+// const connectors = connectorsForWallets([
+//   {
+//     groupName: "Recommended",
+//     wallets: [metaMaskWallet({ projectId, chains })],
+//   },
+// ]);
 
-const wagmiConfig = createConfig({
-  autoConnect: true,
-  connectors,
-  publicClient,
-  webSocketPublicClient,
-});
+// const wagmiConfig = createConfig({
+//   autoConnect: true,
+//   connectors,
+//   publicClient,
+//   webSocketPublicClient,
+// });
 
 //const getSiweMessageOptions: GetSiweMessageOptions = () => ({
 //  statement: "Sign in to Ethereum Tag Service",
@@ -90,20 +88,14 @@ Router.events.on("routeChangeComplete", nProgress.done);
 
 function App({ Component, pageProps }: AppProps<{ session: Session }>) {
   return (
-    <WagmiConfig config={wagmiConfig}>
+    <WagmiProvider config={wagmiConfig}>
       {/*
       // ! SIWE was enabled and working, but disabling for now till we really need it.
       <SessionProvider refetchInterval={0} session={pageProps.session}>
         <RainbowKitSiweNextAuthProvider getSiweMessageOptions={getSiweMessageOptions}>
       */}
       <QueryClientProvider client={queryClient}> 
-        <RainbowKitProvider
-          appInfo={appInfo}
-          chains={chains}
-          modalSize="compact"
-          theme={etsTheme}
-          initialChain={initialChain}
-        >
+        <RainbowKitProvider chains={[polygonMumbai]}>
           <SWRConfig value={{ refreshInterval: 3000, fetcher: fetcher }}>
             <Component {...pageProps} />
           </SWRConfig>
@@ -113,7 +105,7 @@ function App({ Component, pageProps }: AppProps<{ session: Session }>) {
         </SessionProvider>
         */}
       </QueryClientProvider>
-    </WagmiConfig>
+    </WagmiProvider>
   );
 }
 
