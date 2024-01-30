@@ -2,9 +2,10 @@
 import { readContract } from "wagmi/actions";
 import { Auction } from "@app/context/AuctionHouseContext";
 import { etsAuctionHouseConfig } from "../src/contracts";
+import { wagmiConfig } from "@app/constants/wagmiConfig";
 
 export const fetchMaxAuctions = async (): Promise<number> => {
-  const data = await readContract({
+  const data = await readContract(wagmiConfig, {
     ...etsAuctionHouseConfig,
     functionName: "maxAuctions",
   });
@@ -12,7 +13,7 @@ export const fetchMaxAuctions = async (): Promise<number> => {
 };
 
 export const fetchCurrentAuctionId = async (): Promise<number> => {
-  const data = await readContract({
+  const data = await readContract(wagmiConfig, {
     ...etsAuctionHouseConfig,
     functionName: "getTotalCount",
   });
@@ -20,7 +21,7 @@ export const fetchCurrentAuctionId = async (): Promise<number> => {
 };
 
 export const fetchAuction = async (auctionId: number): Promise<Auction> => {
-  const data = await readContract({
+  const data = await readContract(wagmiConfig, {
     ...etsAuctionHouseConfig,
     functionName: "getAuction",
     args: [BigInt(auctionId)],
