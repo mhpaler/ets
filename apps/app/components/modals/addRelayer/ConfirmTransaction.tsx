@@ -29,13 +29,14 @@
 import React, { useState } from "react";
 import { etsRelayerFactoryConfig } from "@app/src/contracts";
 
-import { usePrepareContractWrite, useContractWrite, useWaitForTransaction } from "wagmi";
+import { useSimulateContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import useTranslation from "next-translate/useTranslation";
 import { useAddRelayer } from "@app/hooks/useAddRelayer";
 
 import { Dialog } from "@headlessui/react";
 import { Button } from "@app/components/Button";
 import { Wallet, CheckCircle } from "@app/components/icons";
+import { wagmiConfig } from "@app/constants/wagmiConfig";
 
 /**
  * Define the type for the props
@@ -58,71 +59,54 @@ const ConfirmTransaction = ({ closeModal }: Props) => {
   const [transactionStarted, setTransactionStarted] = useState(false);
 
   // Prepare the transaction without initiating any action
-  const { config: addRelayerConfig, error: prepareError } = usePrepareContractWrite({
+  const { data: addRelayerConfig, error: prepareError } = useSimulateContract({
     ...etsRelayerFactoryConfig,
     functionName: "addRelayer",
     args: [formData.name],
   });
 
   // Write to the contract when the user confirms in their wallet
-  const {
-    write: addRelayer,
-    isLoading: txWaitForSignature,
-    isSuccess: txPosted,
-    data: addRelayerData,
-    error: writeError,
-  } = useContractWrite({
-    ...addRelayerConfig,
-  });
+  const { writeContract } = useWriteContract();
 
   // Wait for the transaction to complete after it's sent to the blockchain
-  const {
-    isLoading: txProcessing,
-    isSuccess: txSuccess,
-    error: waitForTxError,
-  } = useWaitForTransaction({
-    hash: addRelayerData?.hash,
-  });
-
-  const hasErrors = prepareError || writeError || waitForTxError;
 
   // Function to initiate the transaction
-  const handleButtonClick = () => {
-    if (txSuccess || hasErrors) {
-      closeModal?.(); // Close the modal when transaction is successful
-    } else if (!txWaitForSignature && !txProcessing) {
-      setTransactionStarted(true);
-      addRelayer?.(); // Initiates the transaction
-    }
-  };
+  // const handleButtonClick = () => {
+  //   if (txSuccess || hasErrors) {
+  //     closeModal?.(); // Close the modal when transaction is successful
+  //   } else if (!txWaitForSignature && !txProcessing) {
+  //     setTransactionStarted(true);
+  //     addRelayerData?.(); // Initiates the transaction
+  //   }
+  // };
 
-  // Determine the button label and dialog title based on the transaction state
-  let dialogTitle, buttonLabel;
-  if (hasErrors) {
-    dialogTitle = t("TXN.STATUS.ERROR");
-    buttonLabel = t("FORM.BUTTON.CANCEL");
-  } else if (txWaitForSignature) {
-    dialogTitle = t("TXN.CONFIRM_DETAILS");
-    buttonLabel = t("TXN.STATUS.WAIT_FOR_SIGNATURE");
-  } else if (txProcessing) {
-    dialogTitle = t("TXN.STATUS.SENT");
-    buttonLabel = t("TXN.STATUS.PROCESSING");
-  } else if (txSuccess) {
-    dialogTitle = t("TXN.STATUS.COMPLETED");
-    buttonLabel = t("FORM.BUTTON.DONE");
-  } else {
-    dialogTitle = t("FORM.BUTTON.CONFIRM_DETAILS");
-    buttonLabel = t("FORM.BUTTON.OPEN_WALLET");
-  }
+  // // Determine the button label and dialog title based on the transaction state
+  // let dialogTitle, buttonLabel;
+  // if (hasErrors) {
+  //   dialogTitle = t("TXN.STATUS.ERROR");
+  //   buttonLabel = t("FORM.BUTTON.CANCEL");
+  // } else if (txWaitForSignature) {
+  //   dialogTitle = t("TXN.CONFIRM_DETAILS");
+  //   buttonLabel = t("TXN.STATUS.WAIT_FOR_SIGNATURE");
+  // } else if (txProcessing) {
+  //   dialogTitle = t("TXN.STATUS.SENT");
+  //   buttonLabel = t("TXN.STATUS.PROCESSING");
+  // } else if (txSuccess) {
+  //   dialogTitle = t("TXN.STATUS.COMPLETED");
+  //   buttonLabel = t("FORM.BUTTON.DONE");
+  // } else {
+  //   dialogTitle = t("FORM.BUTTON.CONFIRM_DETAILS");
+  //   buttonLabel = t("FORM.BUTTON.OPEN_WALLET");
+  // }
 
   const content = (
     <>
-      <Dialog.Title as="h3" className="text-center text-xl font-bold leading-6 text-gray-900">
+      {/* <Dialog.Title as="h3" className="text-center text-xl font-bold leading-6 text-gray-900">
         {dialogTitle}
-      </Dialog.Title>
+      </Dialog.Title> */}
       <div className="overflow-x-auto">
         <div className="mt-4 pl-8 pr-8 text-center flex flex-col items-center">
-          {txSuccess ? (
+          {/* {txSuccess ? (
             <div className="text-green-600">
               <CheckCircle size={48} />
             </div>
@@ -131,7 +115,7 @@ const ConfirmTransaction = ({ closeModal }: Props) => {
               <Wallet />
               {t("TXN.DOUBLE_CHECK")}
             </div>
-          )}
+          )} */}
         </div>
         <div className="flex flex-col w-full mt-8 mb-4 gap-4">
           <div className="flex flex-row justify-between h-16 items-center pl-6 pr-6 rounded-box border-2 border-base-300">
@@ -145,7 +129,7 @@ const ConfirmTransaction = ({ closeModal }: Props) => {
         </div>
       </div>
 
-      {hasErrors && (
+      {/* {hasErrors && (
         <details className="collapse collapse-arrow bg-secondary text-primary-content">
           <summary className="collapse-title text-error collapse-arrow text-sm font-bold">Transaction error</summary>
           <div className="collapse-content text-error">
@@ -170,7 +154,7 @@ const ConfirmTransaction = ({ closeModal }: Props) => {
           {(txWaitForSignature || txProcessing) && <span className="loading loading-spinner mr-2 bg-primary"></span>}
           {buttonLabel}
         </Button>
-      </div>
+      </div> */}
     </>
   );
 

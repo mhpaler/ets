@@ -1,13 +1,13 @@
 import { http, createConfig, Config, fallback } from 'wagmi'
 import { polygonMumbai, hardhat } from 'wagmi/chains'
 import { lightTheme, Theme } from '@rainbow-me/rainbowkit'
-import { metaMask } from 'wagmi/connectors'
+import { injected } from 'wagmi/connectors'
 import merge from "lodash.merge";
 
 
 export const wagmiConfig: Config = createConfig({
-  chains: [polygonMumbai, hardhat],
-  connectors: [metaMask()],
+  chains: [process.env.NEXT_PUBLIC_ETS_ENVIRONMEENT === 'development' ? hardhat : polygonMumbai],
+  connectors: [injected()],
   transports: {
     [polygonMumbai.id]: fallback([
       http('https://polygon-mumbai-pokt.nodies.app/'),
