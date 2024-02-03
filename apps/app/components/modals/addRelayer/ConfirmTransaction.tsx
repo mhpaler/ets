@@ -71,14 +71,13 @@ const ConfirmTransaction = ({ closeModal }: Props) => {
   const handleButtonClick = () => {
     if (txPosted || hasErrors) {
       closeModal?.(); // Close the modal when transaction is successful
-    } else {
-      setTransactionStarted(true);
-      addRelayer({
-        ...etsRelayerFactoryConfig,
-        functionName: "addRelayer",
-        args: [formData.name]
-      })
-    }
+    } 
+    setTransactionStarted(true);
+    addRelayer({
+      ...etsRelayerFactoryConfig,
+      functionName: "addRelayer",
+      args: [formData.name]
+    })
   };
 
   // Determine the button label and dialog title based on the transaction state
