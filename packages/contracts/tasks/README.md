@@ -100,7 +100,9 @@ hardhat removeTags --relayer "Uniswap" --uri "https://solana.com/" --tags "#Mono
 
 ## Auction House
 
-All auctionhouse tasks are called with the `action` flag. So a typical command will follow the pattern `hardhat auctionhouse --action [action name]`.
+**`auctionhouse`**
+
+All `auctionhouse` tasks are called with the `action` flag. So a typical command will follow the pattern `hardhat auctionhouse --action [action name]`.
 
 Depending on the action being called, additional flags may be required. Those are detailed below.
 
@@ -283,6 +285,8 @@ hardhat auctionhouse --action settleauction --network [localhost|mumbai_stage]
 ```
 
 ## Test Data
+
+**`testdata`**
 
 The following test data commands are meant to rapidly populate a blockchain with ETS test data. Useful when developing locally (or on test nets).
 
