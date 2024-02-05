@@ -29,7 +29,7 @@
 import React, { useState } from "react";
 import { etsRelayerFactoryConfig } from "@app/src/contracts";
 
-import { usePrepareContractWrite, useContractWrite, useWaitForTransaction } from "wagmi";
+import { useWriteContract } from "wagmi";
 import useTranslation from "next-translate/useTranslation";
 import { useAddRelayer } from "@app/hooks/useAddRelayer";
 
@@ -48,52 +48,31 @@ interface Props {
 const ConfirmTransaction = ({ closeModal }: Props) => {
   const { t } = useTranslation("common");
   const context = useAddRelayer();
-
-  //  if (!context) {
-  //    return null;
-  //  }
-
   const { AddRelayerSteps, goToStep, formData } = context;
 
   const [transactionStarted, setTransactionStarted] = useState(false);
 
-  // Prepare the transaction without initiating any action
-  const { config: addRelayerConfig, error: prepareError } = usePrepareContractWrite({
-    ...etsRelayerFactoryConfig,
-    functionName: "addRelayer",
-    args: [formData.name],
-  });
-
   // Write to the contract when the user confirms in their wallet
   const {
-    write: addRelayer,
-    isLoading: txWaitForSignature,
     isSuccess: txPosted,
-    data: addRelayerData,
     error: writeError,
-  } = useContractWrite({
-    ...addRelayerConfig,
-  });
+    isPending,
+    writeContract: addRelayer,
+  } = useWriteContract();
 
-  // Wait for the transaction to complete after it's sent to the blockchain
-  const {
-    isLoading: txProcessing,
-    isSuccess: txSuccess,
-    error: waitForTxError,
-  } = useWaitForTransaction({
-    hash: addRelayerData?.hash,
-  });
-
-  const hasErrors = prepareError || writeError || waitForTxError;
+  const hasErrors = writeError;
 
   // Function to initiate the transaction
   const handleButtonClick = () => {
-    if (txSuccess || hasErrors) {
+    if (txPosted || hasErrors) {
       closeModal?.(); // Close the modal when transaction is successful
-    } else if (!txWaitForSignature && !txProcessing) {
-      setTransactionStarted(true);
-      addRelayer?.(); // Initiates the transaction
-    }
+    } 
+    setTransactionStarted(true);
+    addRelayer({
+      ...etsRelayerFactoryConfig,
+      functionName: "addRelayer",
+      args: [formData.name]
+    })
   };
 
   // Determine the button label and dialog title based on the transaction state
@@ -101,13 +80,13 @@ const ConfirmTransaction = ({ closeModal }: Props) => {
   if (hasErrors) {
     dialogTitle = t("TXN.STATUS.ERROR");
     buttonLabel = t("FORM.BUTTON.CANCEL");
-  } else if (txWaitForSignature) {
+  } else if (transactionStarted) {
     dialogTitle = t("TXN.CONFIRM_DETAILS");
     buttonLabel = t("TXN.STATUS.WAIT_FOR_SIGNATURE");
-  } else if (txProcessing) {
-    dialogTitle = t("TXN.STATUS.SENT");
-    buttonLabel = t("TXN.STATUS.PROCESSING");
-  } else if (txSuccess) {
+  } else if (isPending) {
+    dialogTitle = t("TXN.STATUS.PENDING");
+    buttonLabel = t("TXN.STATUS.WAIT_FOR_CONFIRMATION");
+  } else if (txPosted) {
     dialogTitle = t("TXN.STATUS.COMPLETED");
     buttonLabel = t("FORM.BUTTON.DONE");
   } else {
@@ -122,7 +101,7 @@ const ConfirmTransaction = ({ closeModal }: Props) => {
       </Dialog.Title>
       <div className="overflow-x-auto">
         <div className="mt-4 pl-8 pr-8 text-center flex flex-col items-center">
-          {txSuccess ? (
+          {txPosted ? (
             <div className="text-green-600">
               <CheckCircle size={48} />
             </div>
@@ -162,12 +141,12 @@ const ConfirmTransaction = ({ closeModal }: Props) => {
         )}
         <Button
           onClick={handleButtonClick}
-          disabled={txWaitForSignature || txProcessing}
+          disabled={isPending}
           className={`flex align-middle items-center gap-2 ${
-            txWaitForSignature || txProcessing ? "btn-disabled" : "btn-primary btn-outline"
+            isPending ? "btn-disabled" : "btn-primary btn-outline"
           }`}
         >
-          {(txWaitForSignature || txProcessing) && <span className="loading loading-spinner mr-2 bg-primary"></span>}
+          {(isPending) && <span className="loading loading-spinner mr-2 bg-primary"></span>}
           {buttonLabel}
         </Button>
       </div>

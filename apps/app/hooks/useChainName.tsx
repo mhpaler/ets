@@ -1,10 +1,10 @@
-import { useNetwork } from "wagmi";
+import { useAccount } from "wagmi";
 
 export const useChainName = () => {
-  const { chain } = useNetwork();
+  const { chain } = useAccount();
   if (chain) {
-    if (!chain.network) throw new Error("Chain network is not defined");
-    const name = chain.network.toLowerCase();
+    if (!chain.name) throw new Error("Chain network is not defined");
+    const name = chain.name.toLowerCase();
     return name === "homestead" ? "mainnet" : name;
   }
   return "mainnet";

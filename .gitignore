@@ -76,3 +76,4 @@ apps/app/src/contracts.ts
 
 apps/oracle/.env
 apps/oracle/.env
+apps/oracle/src/contracts.ts
