@@ -1,6 +1,6 @@
 task(
   "addRelayer",
-  'Add a relayer to the protocol. eg hh addRelayer --name "#Uniswap" --owner "RandomOne" --network localhost',
+  'Add a relayer to the protocol. eg hardhat addRelayer --name "#Uniswap" --signer account3 --network localhost',
 )
   .addParam("name", 'Relayer Name eg. "Uniswap"')
   .addParam(

@@ -16,22 +16,6 @@ task("auctionhouse", "Create and interact with an auction")
   .addOptionalParam("output", "The format for outputting auction details", "standard", types.string)
   .setAction(async (taskArgs, hre) => {
 
-    if (taskArgs.action == "settings") {
-      await hre.run("auctionhouse:settings", { output: taskArgs.output });
-    }
-
-    if (taskArgs.action == "showcurrent") {
-      await hre.run("auctionhouse:showcurrent", { output: taskArgs.output });
-    }
-
-    if (taskArgs.action == "status") {
-      if (taskArgs.id || taskArgs.tag) {
-        await hre.run("auctionhouse:auctionstatus", { id: taskArgs.id, tag: taskArgs.tag, output: taskArgs.output });
-      } else {
-        console.error("You must provide either an id or a tag for the status action.");
-      }
-    }
-
     if (taskArgs.action == "togglepause") {
       await hre.run("auctionhouse:togglepause");
     }
@@ -48,8 +32,24 @@ task("auctionhouse", "Create and interact with an auction")
       await hre.run("auctionhouse:settimebuffer", { timebuffer: taskArgs.value });
     }
 
-    if (taskArgs.action == "increasemax") {
-      await hre.run("auctionhouse:increasemax");
+    if (taskArgs.action == "setmaxauctions") {
+      await hre.run("auctionhouse:setmaxauctions", { maxauctions: taskArgs.value });
+    }
+
+    if (taskArgs.action == "settings") {
+      await hre.run("auctionhouse:settings", { output: taskArgs.output });
+    }
+
+    if (taskArgs.action == "showcurrent") {
+      await hre.run("auctionhouse:showcurrent", { output: taskArgs.output });
+    }
+
+    if (taskArgs.action == "status") {
+      if (taskArgs.id || taskArgs.tag) {
+        await hre.run("auctionhouse:auctionstatus", { id: taskArgs.id, tag: taskArgs.tag, output: taskArgs.output });
+      } else {
+        console.error("You must provide either an id or a tag for the status action.");
+      }
     }
 
     if (taskArgs.action == "nextauction") {
@@ -224,13 +224,12 @@ subtask("auctionhouse:settimebuffer", "Sets time window for a bid to extend auct
   });
 
 
-subtask("auctionhouse:increasemax", "Increases max auctions by one.")
-  .setAction(async () => {
+subtask("auctionhouse:setmaxauctions", "Sets maximum number of concurrent auctions.")
+  .addParam("maxauctions", "Maximum Number of Concurrent Auctions")
+  .setAction(async (taskArgs) => {
     ({ accounts, contracts } = await setup());
-    const maxAuctions = await contracts.etsAuctionHouse.maxAuctions();
-    await contracts.etsAuctionHouse.connect(accounts.account0).setMaxAuctions(maxAuctions + 1);
-    console.log("max auctions increased to", maxAuctions + 1);
-
+    await contracts.etsAuctionHouse.connect(accounts.account0).setMaxAuctions(taskArgs.maxauctions);
+    console.log(`Max concurrent auctions set to ${taskArgs.maxauctions}`);
   });
 
 subtask("auctionhouse:nextauction", "Creates next auction using ETS Oracle")
