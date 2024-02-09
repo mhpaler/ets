@@ -107,10 +107,12 @@
       "WAIT_FOR_SIGNATURE": "Waiting for Signature",
       "SENT": "Sent",
       "PROCESSING": "Processing",
+      "WAIT_FOR_CONFIRMATION": "Processing transaction",
       "COMPLETED": "Completed",
       "ERROR": "Transaction Failed"
     },
     "VIEW_ETHERSCAN": "View on Etherscan",
+    "VIEW_TRANSACTION": "View transaction",
     "CONFIRM_DETAILS": "Confirm Details",
     "OPEN_WALLET": "Open Wallet",
     "DOUBLE_CHECK": "Double check these details before confirming in your wallet."
