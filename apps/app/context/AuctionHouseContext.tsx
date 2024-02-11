@@ -1,18 +1,8 @@
 // context/AuctionHouseContext.ts
 
-import React, {
-  createContext,
-  useState,
-  useEffect,
-  Dispatch,
-  SetStateAction,
-} from "react";
+import React, { createContext, useState, useEffect, Dispatch, SetStateAction } from "react";
 
-import {
-  fetchMaxAuctions,
-  fetchCurrentAuctionId,
-  fetchAuction,
-} from "../services/auctionHouseService";
+import { fetchMaxAuctions, fetchCurrentAuctionId, fetchAuction } from "@app/services/auctionHouseService";
 
 export type Auction = {
   // Define your auction data structure here
@@ -38,9 +28,7 @@ export type AuctionHouse = {
   //placeBid: (bidAmount: number) => Promise<void>;
 };
 
-export const AuctionHouseContext = createContext<AuctionHouse | undefined>(
-  undefined
-);
+export const AuctionHouseContext = createContext<AuctionHouse | undefined>(undefined);
 
 type AuctionHouseProviderProps = {
   children: React.ReactNode;
@@ -59,12 +47,8 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
   const [currentAuctionId, setCurrentAuctionId] = useState<number>(0);
   //const [currentAuction, setCurrentAuction] = useState<Auction | null>(null); // Specify the type explicitly
   const [maxAuctions, setMaxAuctions] = useState<number | null>(null); // Specify the type explicitly
-  const [onDisplayAuctionId, setOnDisplayAuctionId] = useState<number | null>(
-    null
-  );
-  const [onDisplayAuction, setOnDisplayAuction] = useState<Auction | null>(
-    null
-  );
+  const [onDisplayAuctionId, setOnDisplayAuctionId] = useState<number | null>(null);
+  const [onDisplayAuction, setOnDisplayAuction] = useState<Auction | null>(null);
 
   const placeBid = async (bidAmount: number): Promise<void> => {};
 
@@ -80,21 +64,18 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
         setCurrentAuctionId(currentAuctionId);
 
         let displayAuction: Auction;
-        if (
-          requestedAuctionId === null ||
-          requestedAuctionId >= currentAuctionId
-        ) {
-          // Fetch auction from the blockchain.
-          // TODO: figure out if we should and can pull from cache.
+
+        if (requestedAuctionId === null || requestedAuctionId >= currentAuctionId) {
+          // User is visiting /auction/ or requesting the latest auction.
+          // Load from Blockchain.
+          // TODO: figure out if we can (or should) pull from cache.
           displayAuction = await fetchAuction(currentAuctionId);
         } else {
-          // Pull from subgraph.until then, let's return this fake one.
+          // User is requested an older, settled auction so we can pull from subgraph.
+          // until then, let's return this fake one.
           displayAuction = {
             auctionId: 1,
-            tokenId:
-              BigInt(
-                69278005498511452274587717384892228969906926286618996293140899278898321299239
-              ),
+            tokenId: BigInt(69278005498511452274587717384892228969906926286618996293140899278898321299239),
             amount: BigInt(1000000000), // Adjust the BigInt value as needed
             startTime: Date.now() / 1000, // Current timestamp in seconds
             endTime: Date.now() / 1000 + 3600, // One hour from now
@@ -124,9 +105,5 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
     setOnDisplayAuctionId,
   };
 
-  return (
-    <AuctionHouseContext.Provider value={contextValue}>
-      {children}
-    </AuctionHouseContext.Provider>
-  );
+  return <AuctionHouseContext.Provider value={contextValue}>{children}</AuctionHouseContext.Provider>;
 };

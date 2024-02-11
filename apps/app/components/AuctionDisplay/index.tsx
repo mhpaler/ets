@@ -1,9 +1,10 @@
-import { Auction, useAuctionHouse } from "../../hooks/useAuctionHouse";
+import { Auction, useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import Link from "next/link";
+import { TagGraphic } from "@app/components/TagGraphic";
 import useTranslation from "next-translate/useTranslation";
 
-interface AuctionActivityProps {
-  auction: Auction;
+interface AuctionDisplayProps {
+  onDisplayAuction: Auction;
   isFirstAuction: boolean;
   isLastAuction: boolean;
   //onPrevAuctionClick: () => void;
@@ -11,65 +12,48 @@ interface AuctionActivityProps {
   //displayGraphDepComps: boolean;
 }
 
-const AuctionActivity: React.FC<AuctionActivityProps> = (
-  props: AuctionActivityProps
-) => {
+const AuctionDisplay: React.FC<AuctionDisplayProps> = (props: AuctionDisplayProps) => {
+  const { t } = useTranslation("common");
   const {
-    auction,
+    onDisplayAuction,
     isFirstAuction,
     isLastAuction,
     //onPrevAuctionClick,
     //onNextAuctionClick,
     //displayGraphDepComps,
   } = props;
-  const { t } = useTranslation("common");
+
+  const tagGraphic = onDisplayAuction && <TagGraphic tagId={Number(onDisplayAuction.tokenId)} />;
 
   return (
     <>
-      <div>
-        <div className="grid grid-cols-2 gap-4 mb-8 md:gap-8">
-          <div className="col-span-2">
-            <h2 className="text-3xl font-bold text-slate-700">
-              <Link
-                href={`/tags/hello`}
-                className="text-pink-500 hover:text-pink-600"
-              >
-                #hello
-              </Link>
-            </h2>
-          </div>
+      <section className="col-span-12 xl:col-span-5">
+        <div>{tagGraphic}</div>
+      </section>
 
-          <section>
+      <section className="card col-span-12 overflow-hidden bg-base-100 shadow-sm xl:col-span-7">
+        <div className="card-body grid grid-cols-2 gap-4 mb-8 md:gap-8">
+          <div>
             <div className="mr-1 text-slate-500">{t("creator")}</div>
             <div className="flex">
-              <div className="flex-grow overflow-hidden text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
-                <Link
-                  href={`/creators/}`}
-                  className="text-pink-600 hover:text-pink-700"
-                  legacyBehavior
-                >
+              <div className="flex-grow overflow-hidden text-ellipsis whitespace-nowrap">
+                <Link href={`/creators/}`} legacyBehavior>
                   Tag Creator
                 </Link>
               </div>
-              {/* <CopyAndPaste value={currentBid} /> */}
             </div>
-          </section>
+          </div>
 
-          <section>
+          <div>
             <div className="mr-1 text-slate-500">{t("relayer")}</div>
             <div className="flex">
-              <div className="flex-grow overflow-hidden text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
-                <Link
-                  href={`/relayers/}`}
-                  className="text-pink-600 hover:text-pink-700"
-                  legacyBehavior
-                >
+              <div className="flex-grow overflow-hidden text-ellipsis whitespace-nowrap">
+                <Link href={`/relayers/}`} legacyBehavior>
                   ETS Relayer
                 </Link>
               </div>
-              {/* <CopyAndPaste value={currentBid} /> */}
             </div>
-          </section>
+          </div>
 
           <div className="">
             <div className="text-slate-500">Current bid</div>
@@ -118,9 +102,9 @@ const AuctionActivity: React.FC<AuctionActivityProps> = (
             {t("view-all-bids")}
           </button>
         </div>
-      </div>
+      </section>
     </>
   );
 };
 
-export default AuctionActivity;
+export default AuctionDisplay;
