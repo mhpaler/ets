@@ -151,7 +151,7 @@ const AddRelayerForm = ({ closeModal }: Props) => {
         {t("FORM.ADD_RELAYER.TITLE.CREATE_RELAYER")}
       </Dialog.Title>
       <form onSubmit={handleSubmit(onSubmit)} className="form">
-        <div className="form-control w-full max-w-xs">
+        <div className="form-control w-full">
           <div className="label">
             <span className="label-text">{t("FORM.ADD_RELAYER.FIELD_LABEL.NAME")}</span>
           </div>
@@ -159,9 +159,7 @@ const AddRelayerForm = ({ closeModal }: Props) => {
             autoComplete="off"
             id="name"
             {...register("name")}
-            className={`w-full max-w-xs input input-bordered input-secondary bg-slate-50 ${
-              errors.name ? "input-error" : ""
-            }`}
+            className={`w-full input input-bordered bg-slate-50 ${errors.name ? "input-error" : ""}`}
           />
           {errors.name && (
             <div className="label">

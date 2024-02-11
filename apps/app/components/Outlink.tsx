@@ -12,10 +12,9 @@ export const StyledAnchor = tw.a`
   flex
   flex-row
   text-center
+  link-primary
   font-semibold
   justify-center
-  text-pink-600
-  hover:text-pink-700
 `;
 
 export const Outlink = ({
@@ -27,12 +26,7 @@ export const Outlink = ({
     href: string | UrlObject;
   }) => {
   const InnerContent = (
-    <StyledAnchor
-      {...props}
-      rel="noreferrer noopener"
-      target="_blank"
-      role="link"
-    >
+    <StyledAnchor {...props} rel="noreferrer noopener" target="_blank" role="link">
       {children}
       <OutlinkIcon $as={OutlinkSVG} />
     </StyledAnchor>
