@@ -85,7 +85,9 @@ export default function Navigation() {
             <summary>Auction</summary>
             <ul>
               <li>
-                <a>Active</a>
+                <Link className={isActive("auction") ? "bg-base-200" : ""} href="/auction">
+                  {t("active")}
+                </Link>
               </li>
 
               <li>

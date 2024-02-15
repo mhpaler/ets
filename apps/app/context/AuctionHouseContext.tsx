@@ -2,20 +2,12 @@
 
 import React, { createContext, useState, useEffect, Dispatch, SetStateAction } from "react";
 
-import { fetchMaxAuctions, fetchCurrentAuctionId, fetchAuction } from "@app/services/auctionHouseService";
-
-export type Auction = {
-  // Define your auction data structure here
-  auctionId: number;
-  tokenId: bigint;
-  amount: bigint;
-  startTime: number;
-  endTime: number;
-  reservePrice: bigint;
-  bidder: `0x${string}`;
-  settled: boolean;
-  extended: boolean;
-};
+import {
+  fetchMaxAuctions,
+  fetchCurrentAuctionId,
+  fetchAuction,
+  fetchAuctionsData,
+} from "@app/services/auctionHouseService";
 
 export type AuctionHouse = {
   requestedAuctionId: number | null;
@@ -23,9 +15,64 @@ export type AuctionHouse = {
   maxAuctions: number | null;
   currentAuctionId: number | null;
   onDisplayAuction: Auction | null;
-  onDisplayAuctionId: number | null;
-  setOnDisplayAuctionId: Dispatch<SetStateAction<number | null>>;
+  allAuctions: Auction[]; // New property to store all auctions
   //placeBid: (bidAmount: number) => Promise<void>;
+};
+
+export type AuctionOnChain = {
+  id: number;
+  tokenId: string;
+  startTime: number;
+  endTime: number;
+  reservePrice: bigint;
+  amount: bigint;
+  bidder: `0x${string}`;
+  auctioneer: `0x${string}`;
+  settled: boolean;
+};
+
+// TODO: add in reservePrice & extended to the auction object.
+// this can be done by modifying the subgraph -- reserve price should
+// be set once when the auction begins and extended is a reaction
+// to the extended event.
+export type Auction = {
+  id: number;
+  tokenAuctionNumber: number; // number of times token has been auctioned.
+  startTime: number;
+  endTime: number;
+  ended: boolean | null;
+  settled: boolean;
+  amount: bigint;
+  bidder: {
+    id: `0x${string}`;
+  };
+  bids: Bid[];
+  tag: Tag;
+};
+
+export type Bid = {
+  blockTimestamp: number;
+  amount: bigint;
+  bidder: {
+    id: `0x${string}`;
+  };
+};
+
+export type Tag = {
+  id: string;
+  timestamp: number;
+  machineName: string;
+  display: string;
+  owner: {
+    id: `0x${string}`;
+  };
+  relayer: {
+    id: `0x${string}`;
+    name: string;
+  };
+  creator: {
+    id: `0x${string}`;
+  };
 };
 
 export const AuctionHouseContext = createContext<AuctionHouse | undefined>(undefined);
@@ -42,67 +89,103 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
   children: React.ReactNode;
   requestedAuctionId: number | null;
 }) => {
+  console.log("AuctionHouseProvider: requestedAuctionId", requestedAuctionId);
+
   //const { startTransaction, endTransaction } = useTransaction();
   const [auctionPaused, setAuctionPaused] = useState(true);
   const [currentAuctionId, setCurrentAuctionId] = useState<number>(0);
   //const [currentAuction, setCurrentAuction] = useState<Auction | null>(null); // Specify the type explicitly
   const [maxAuctions, setMaxAuctions] = useState<number | null>(null); // Specify the type explicitly
-  const [onDisplayAuctionId, setOnDisplayAuctionId] = useState<number | null>(null);
+  const [currentAuctionData, setCurrentAuctionData] = useState<AuctionOnChain | null>(null);
   const [onDisplayAuction, setOnDisplayAuction] = useState<Auction | null>(null);
+  const [allAuctions, setAllAuctions] = useState<Auction[]>([]); // New state for storing all auctions
 
   const placeBid = async (bidAmount: number): Promise<void> => {};
 
   useEffect(() => {
-    const fetchData = async (): Promise<void> => {
+    const initStaticData = async () => {
       try {
-        // Initialize some auctionhouse data
         const maxAuctionsData = await fetchMaxAuctions();
         setMaxAuctions(maxAuctionsData);
 
-        // Fetch current active auctionId from blockchain.
-        const currentAuctionId = await fetchCurrentAuctionId();
-        setCurrentAuctionId(currentAuctionId);
+        const currentId = await fetchCurrentAuctionId();
+        setCurrentAuctionId(currentId);
+        console.log("currentId:", currentId);
 
-        let displayAuction: Auction;
+        const currentAuction: AuctionOnChain = await fetchAuction(currentId);
+        setCurrentAuctionData(currentAuction);
 
-        if (requestedAuctionId === null || requestedAuctionId >= currentAuctionId) {
-          // User is visiting /auction/ or requesting the latest auction.
-          // Load from Blockchain.
-          // TODO: figure out if we can (or should) pull from cache.
-          displayAuction = await fetchAuction(currentAuctionId);
-        } else {
-          // User is requested an older, settled auction so we can pull from subgraph.
-          // until then, let's return this fake one.
-          displayAuction = {
-            auctionId: 1,
-            tokenId: BigInt(69278005498511452274587717384892228969906926286618996293140899278898321299239),
-            amount: BigInt(1000000000), // Adjust the BigInt value as needed
-            startTime: Date.now() / 1000, // Current timestamp in seconds
-            endTime: Date.now() / 1000 + 3600, // One hour from now
-            reservePrice: BigInt(500000000), // Adjust the BigInt value as needed
-            bidder: "0x1234567890123456789012345678901234567890", // Ethereum address
-            settled: false,
-            extended: true,
-          };
-        }
-        console.log(displayAuction);
-        setOnDisplayAuction(displayAuction);
+        // Fetch all auctions data.
+        const auctionsData = await fetchAuctionsData({});
+        setAllAuctions(auctionsData.auctions); // Assuming auctionsData is structured correctly
       } catch (error) {
-        console.error("Failed to fetch data:", error);
+        console.error("Failed to initialize auction data:", error);
       }
     };
 
-    fetchData();
-  }, [requestedAuctionId, currentAuctionId]);
+    initStaticData();
+  }, []);
+
+  useEffect(() => {
+    const fetchDynamicAuctionData = async (): Promise<void> => {
+      if (currentAuctionId !== 0 && allAuctions.length > 0) {
+        console.log("Current Auction Id:", currentAuctionId);
+        console.log("Fetching data for requestedAuctionId:", requestedAuctionId);
+
+        try {
+          let displayAuction: Auction | null = null;
+
+          if (requestedAuctionId === null || requestedAuctionId >= currentAuctionId) {
+            // This is the currently active auction
+            let foundAuctionIndex = allAuctions.findIndex((auction: Auction) => auction.id === currentAuctionId);
+            if (foundAuctionIndex !== -1 && currentAuctionData !== null) {
+              // If found, update its values with the most up-to-date on-chain data
+              const updatedAuction: Auction = {
+                ...allAuctions[foundAuctionIndex],
+                // Transform currentAuctionData (AuctionOnChain) to Auction, if needed
+                endTime: currentAuctionData.endTime,
+                settled: currentAuctionData.settled,
+                amount: currentAuctionData.amount,
+                bidder: {
+                  id: currentAuctionData.bidder, // Wrap the string in an object
+                },
+              };
+
+              // Update the auction in allAuctions with the updated object
+              allAuctions[foundAuctionIndex] = updatedAuction;
+
+              // Set displayAuction to the updated auction object
+              displayAuction = updatedAuction;
+            }
+          } else {
+            // Pull from the pre-fetched allAuctions data or use a fallback
+            const foundAuction = allAuctions.find((auction: Auction) => auction.id === requestedAuctionId) ?? null;
+            if (foundAuction) {
+              foundAuction.ended = true; // Safe to set because foundAuction is not null
+              displayAuction = foundAuction;
+            }
+          }
+
+          // Only update the state if a valid auction is found or if explicitly set to null
+          if (displayAuction !== undefined) {
+            setOnDisplayAuction(displayAuction);
+          }
+        } catch (error) {
+          console.error("Failed to fetch data:", error);
+        }
+      }
+    };
+
+    fetchDynamicAuctionData();
+  }, [requestedAuctionId, currentAuctionId, allAuctions]); // Depend on requestedAuctionId to refetch when it changes
 
   const contextValue: AuctionHouse = {
     requestedAuctionId,
     auctionPaused,
     maxAuctions,
     currentAuctionId,
-    onDisplayAuctionId,
     onDisplayAuction,
-    setOnDisplayAuctionId,
+    allAuctions, // Make the allAuctions data available through context
   };
 
   return <AuctionHouseContext.Provider value={contextValue}>{children}</AuctionHouseContext.Provider>;

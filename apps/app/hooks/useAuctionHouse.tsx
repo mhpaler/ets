@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { Auction, AuctionHouseContext } from "@app/context/AuctionHouseContext";
+import { Auction, Bid, Tag, AuctionHouseContext } from "@app/context/AuctionHouseContext";
 
 const useAuctionHouse = () => {
   return useContext(AuctionHouseContext);
@@ -7,3 +7,5 @@ const useAuctionHouse = () => {
 
 export { useAuctionHouse };
 export type { Auction };
+export type { Bid };
+export type { Tag };

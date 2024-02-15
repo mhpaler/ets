@@ -1,9 +1,11 @@
-interface TagGraphicProps {
-  tagId: number | null;
-}
+import { Tag } from "@app/hooks/useAuctionHouse";
 
+// Define the TagGraphicProps type to include a tag of type Tag
+interface TagGraphicProps {
+  tag: Tag;
+}
 const TagGraphic: React.FC<TagGraphicProps> = (props: TagGraphicProps) => {
-  const { tagId } = props;
+  const { tag } = props;
 
   return (
     <>
@@ -13,10 +15,7 @@ const TagGraphic: React.FC<TagGraphicProps> = (props: TagGraphicProps) => {
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 1000 1000"
         >
-          <path
-            fill="currentColor"
-            d="m100 775 125-125H100Zm250 125V775L225 900ZM225 650l125 125V650Z"
-          />
+          <path fill="currentColor" d="m100 775 125-125H100Zm250 125V775L225 900ZM225 650l125 125V650Z" />
           <circle fill="currentColor" cx="137.36" cy="862.38" r="12.5" />
           <text
             fill="currentColor"
@@ -27,7 +26,7 @@ const TagGraphic: React.FC<TagGraphicProps> = (props: TagGraphicProps) => {
             fontWeight="700"
             transform="translate(100 150)"
           >
-            #{tagId != null ? tagId : "no tag found"}
+            {tag.display != null ? tag.display : "no tag found"}
           </text>
         </svg>
       </div>

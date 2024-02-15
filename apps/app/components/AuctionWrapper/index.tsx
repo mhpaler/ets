@@ -2,57 +2,38 @@ import { Auction, useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import AuctionDisplay from "@app/components/AuctionDisplay";
 import useTranslation from "next-translate/useTranslation";
 
+// Define the DebugOnDisplayAuction component directly within the same file
+const DebugOnDisplayAuction: React.FC<{ onDisplayAuction: Auction }> = ({ onDisplayAuction }) => {
+  // Custom replacer function that converts BigInt to strings
+  const replacer = (key: any, value: any) => (typeof value === "bigint" ? value.toString() + "n" : value); // Append "n" to differentiate BigInt from Number
+
+  return (
+    <div className="col-span-12" style={{ whiteSpace: "pre-wrap" }}>
+      <h3>Debugging onDisplayAuction:</h3>
+      <code>{JSON.stringify(onDisplayAuction, replacer, 2)}</code>
+    </div>
+  );
+};
+
 const AuctionWrapper = () => {
   const { t } = useTranslation("common");
-
   const auctionHouse = useAuctionHouse();
   if (!auctionHouse) return null;
-
   const { currentAuctionId, onDisplayAuction } = auctionHouse;
-
-  //  const history = useHistory();
-  //  const dispatch = useAppDispatch();
-  //
-  //  let stateBgColor = useAppSelector(
-  //    (state) => state.application.stateBackgroundColor
-  //  );
-  //  const lastNounId = useAppSelector(
-  //    (state) => state.onDisplayAuction.lastAuctionNounId
-  //  );
-  //
-  //  const loadedNounHandler = (seed: INounSeed) => {
-  //    dispatch(setStateBackgroundColor(seed.background === 0 ? grey : beige));
-  //  };
-  //
-  //  const prevAuctionHandler = () => {
-  //    dispatch(setPrevOnDisplayAuctionNounId());
-  //    onDisplayAuction && history.push(`/auction/${onDisplayAuction.auctionId - 1}`);
-  //  };
-  //  const nextAuctionHandler = () => {
-  //    dispatch(setNextOnDisplayAuctionNounId());
-  //    onDisplayAuction && history.push(`/auction/${onDisplayAuction.auctionId + 1}`);
-  //  };
-
-  //const tagGraphic = onDisplayAuction && <TagGraphic tagId={Number(onDisplayAuction.tokenId)} />;
-
-  const loadingTag = <div>Loading tag</div>;
   const loadingAuction = <div>Loading auction</div>;
-
-  const currentAuctionDisplay = onDisplayAuction && currentAuctionId && (
+  const currentAuctionActivityContent = onDisplayAuction && currentAuctionId && (
     <AuctionDisplay
       onDisplayAuction={onDisplayAuction}
-      isFirstAuction={onDisplayAuction.auctionId == 0}
-      isLastAuction={onDisplayAuction.auctionId == currentAuctionId}
-      //onPrevAuctionClick={prevAuctionHandler}
-      //onNextAuctionClick={nextAuctionHandler}
-      //displayGraphDepComps={true}
+      isFirstAuction={onDisplayAuction.id == 1}
+      isLastAuction={onDisplayAuction.id == currentAuctionId}
     />
   );
 
   return (
     <>
-      {onDisplayAuction && currentAuctionDisplay ? currentAuctionDisplay : "LOADING"}
-      <div>Current/Latest Auction ID: {currentAuctionId}</div>
+      {currentAuctionActivityContent ? currentAuctionActivityContent : loadingAuction}
+
+      {onDisplayAuction && <DebugOnDisplayAuction onDisplayAuction={onDisplayAuction} />}
     </>
   );
 };
