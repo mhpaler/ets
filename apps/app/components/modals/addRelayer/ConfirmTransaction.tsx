@@ -8,9 +8,6 @@
  * Props:
  * - closeModal: Function to close the modal.
  *
- * States:
- * - transactionStarted: Indicates if the transaction process has started.
- *
  * It uses wagmi hooks:
  * - usePrepareContractWrite: Prepares the contract transaction without initiating it.
  * - useContractWrite: Initiates the contract transaction when the user confirms in their wallet.
@@ -26,16 +23,19 @@
  * Interaction with FormWrapper:
  * - Integrated within FormWrapper to be displayed as one of the steps in the relayer creation process.
  */
-import React, { useState } from "react";
+import React from "react";
 import { etsRelayerFactoryConfig } from "@app/src/contracts";
 
-import { useWriteContract } from "wagmi";
+import { type BaseError, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+
 import useTranslation from "next-translate/useTranslation";
 import { useAddRelayer } from "@app/hooks/useAddRelayer";
 
 import { Dialog } from "@headlessui/react";
 import { Button } from "@app/components/Button";
 import { Wallet, CheckCircle } from "@app/components/icons";
+
+import { Outlink } from "@app/components/Outlink";
 
 /**
  * Define the type for the props
@@ -50,29 +50,27 @@ const ConfirmTransaction = ({ closeModal }: Props) => {
   const context = useAddRelayer();
   const { AddRelayerSteps, goToStep, formData } = context;
 
-  const [transactionStarted, setTransactionStarted] = useState(false);
+  const { data: hash, error: writeError, isPending, writeContract: addRelayer } = useWriteContract();
 
-  // Write to the contract when the user confirms in their wallet
-  const {
-    isSuccess: txPosted,
-    error: writeError,
-    isPending,
-    writeContract: addRelayer,
-  } = useWriteContract();
+  // User has submitted txn.
+  const { isLoading: isConfirming, isSuccess: txPosted } = useWaitForTransactionReceipt({
+    hash,
+  });
 
+  // TODO: Catch & display post submit txn errors?
   const hasErrors = writeError;
 
   // Function to initiate the transaction
   const handleButtonClick = () => {
     if (txPosted || hasErrors) {
       closeModal?.(); // Close the modal when transaction is successful
-    } 
-    setTransactionStarted(true);
+      return;
+    }
     addRelayer({
       ...etsRelayerFactoryConfig,
       functionName: "addRelayer",
-      args: [formData.name]
-    })
+      args: [formData.name],
+    });
   };
 
   // Determine the button label and dialog title based on the transaction state
@@ -80,11 +78,11 @@ const ConfirmTransaction = ({ closeModal }: Props) => {
   if (hasErrors) {
     dialogTitle = t("TXN.STATUS.ERROR");
     buttonLabel = t("FORM.BUTTON.CANCEL");
-  } else if (transactionStarted) {
+  } else if (isPending) {
     dialogTitle = t("TXN.CONFIRM_DETAILS");
     buttonLabel = t("TXN.STATUS.WAIT_FOR_SIGNATURE");
-  } else if (isPending) {
-    dialogTitle = t("TXN.STATUS.PENDING");
+  } else if (isConfirming) {
+    dialogTitle = t("TXN.STATUS.PROCESSING");
     buttonLabel = t("TXN.STATUS.WAIT_FOR_CONFIRMATION");
   } else if (txPosted) {
     dialogTitle = t("TXN.STATUS.COMPLETED");
@@ -112,7 +110,7 @@ const ConfirmTransaction = ({ closeModal }: Props) => {
             </div>
           )}
         </div>
-        <div className="flex flex-col w-full mt-8 mb-4 gap-4">
+        <div className="flex flex-col w-full mt-8 gap-4">
           <div className="flex flex-row justify-between h-16 items-center pl-6 pr-6 rounded-box border-2 border-base-300">
             <div className="">{t("FORM.ADD_RELAYER.FIELD_LABEL.NAME")}</div>
             <div className="font-bold">{formData.name}</div>
@@ -125,7 +123,7 @@ const ConfirmTransaction = ({ closeModal }: Props) => {
       </div>
 
       {hasErrors && (
-        <details className="collapse collapse-arrow bg-secondary text-primary-content">
+        <details className="collapse collapse-arrow text-primary-content">
           <summary className="collapse-title text-error collapse-arrow text-sm font-bold">Transaction error</summary>
           <div className="collapse-content text-error">
             <p className="error-message text-xs font-semibold">{hasErrors?.message}</p>
@@ -133,8 +131,16 @@ const ConfirmTransaction = ({ closeModal }: Props) => {
         </details>
       )}
 
+      {hash && (
+        <div>
+          <Outlink href={`https://mumbai.polygonscan.com/tx/${hash}`}>
+            <span className="text-sm">{t("TXN.VIEW_TRANSACTION")}</span>
+          </Outlink>
+        </div>
+      )}
+
       <div className="grid grid-flow-col justify-stretch gap-2 mt-4">
-        {!transactionStarted && (
+        {((!hash && !isPending) || (isPending && hasErrors)) && (
           <Button type="button" onClick={() => goToStep(AddRelayerSteps.AddRelayerForm)}>
             Back
           </Button>
@@ -143,10 +149,10 @@ const ConfirmTransaction = ({ closeModal }: Props) => {
           onClick={handleButtonClick}
           disabled={isPending}
           className={`flex align-middle items-center gap-2 ${
-            isPending ? "btn-disabled" : "btn-primary btn-outline"
+            isPending || isConfirming ? "btn-disabled" : "btn-primary btn-outline"
           }`}
         >
-          {(isPending) && <span className="loading loading-spinner mr-2 bg-primary"></span>}
+          {(isPending || isConfirming) && <span className="loading loading-spinner mr-2 bg-primary"></span>}
           {buttonLabel}
         </Button>
       </div>
