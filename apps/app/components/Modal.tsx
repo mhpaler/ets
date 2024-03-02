@@ -1,13 +1,13 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState, cloneElement } from "react";
-import { Button } from "./Button";
 
 interface Props {
-  buttonText?: string;
+  label?: string;
+  link?: boolean;
   children?: any;
 }
 
-const Modal = ({ buttonText, children }: Props) => {
+const Modal = ({ label, children, link = false }: Props) => {
   let [isOpen, setIsOpen] = useState(false);
 
   function closeModal() {
@@ -24,12 +24,14 @@ const Modal = ({ buttonText, children }: Props) => {
     closeModal: closeModal,
   });
 
+  const buttonClassName = link ? "btn btn-sm btn-link" : "btn btn-sm btn-primary btn-outline";
+
   return (
     <>
-      <div>
-        <Button onClick={openModal} className="btn btn-sm btn-primary btn-outline">
-          {buttonText}
-        </Button>
+      <div className="flex w-full justify-center items-center">
+        <button onClick={openModal} className={buttonClassName}>
+          {label}
+        </button>
       </div>
 
       <Transition appear show={isOpen} as={Fragment}>

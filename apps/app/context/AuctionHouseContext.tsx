@@ -1,87 +1,64 @@
 // context/AuctionHouseContext.ts
 
-import React, { createContext, useState, useEffect, Dispatch, SetStateAction } from "react";
+/**
+ * The AuctionHouseContext provides a React context for auction-related data and operations.
+ * It encapsulates state and logic for managing auctions, including fetching current and all auctions,
+ * handling bid placement, and dynamically updating auction status based on blockchain events and user navigation.
+ *
+ * Usage:
+ * Wrap your component tree with `<AuctionHouseProvider>` to provide auction context to all child components.
+ * Use `useContext(AuctionHouseContext)` to access auction-related data and functions within your components.
+ *
+ * @module AuctionHouseContext
+ */
 
+import React, { createContext, useState, useEffect, useRef } from "react";
+import { Auction, AuctionHouse, BidFormData } from "@app/types/auction";
+import { TransactionStage, TransactionStatus } from "@app/types/transaction";
+import { useAuctions } from "@app/hooks/useAuctions";
 import {
-  fetchMaxAuctions,
+  fetchAuctionSettingsData,
   fetchCurrentAuctionId,
-  fetchAuction,
-  fetchAuctionsData,
+  fetchBlockchainTimeDifference,
+  watchNewAuctionReleased,
 } from "@app/services/auctionHouseService";
+import { bigIntReplacer } from "@app/utils";
 
-export type AuctionHouse = {
-  requestedAuctionId: number | null;
-  auctionPaused: boolean;
-  maxAuctions: number | null;
-  currentAuctionId: number | null;
-  onDisplayAuction: Auction | null;
-  allAuctions: Auction[]; // New property to store all auctions
-  //placeBid: (bidAmount: number) => Promise<void>;
+// Define the default values and functions
+const defaultAuctionHouseContextValue: AuctionHouse = {
+  requestedAuctionId: null,
+  auctionPaused: false,
+  maxAuctions: null,
+  minIncrementBidPercentage: 0,
+  duration: null,
+  timeBuffer: 0,
+  currentAuctionId: null,
+  onDisplayAuction: null,
+  allAuctions: [],
+  bidFormData: { bid: undefined },
+  setBidFormData: () => {}, // No-op function for default behavior
+  // You can add more functions with default no-op implementations as needed
 };
+/**
+ * Creating a React context for the auction house with undefined initial value.
+ */
+export const AuctionHouseContext = createContext<AuctionHouse>(defaultAuctionHouseContextValue);
 
-export type AuctionOnChain = {
-  id: number;
-  tokenId: string;
-  startTime: number;
-  endTime: number;
-  reservePrice: bigint;
-  amount: bigint;
-  bidder: `0x${string}`;
-  auctioneer: `0x${string}`;
-  settled: boolean;
-};
-
-// TODO: add in reservePrice & extended to the auction object.
-// this can be done by modifying the subgraph -- reserve price should
-// be set once when the auction begins and extended is a reaction
-// to the extended event.
-export type Auction = {
-  id: number;
-  tokenAuctionNumber: number; // number of times token has been auctioned.
-  startTime: number;
-  endTime: number;
-  ended: boolean | null;
-  settled: boolean;
-  amount: bigint;
-  bidder: {
-    id: `0x${string}`;
-  };
-  bids: Bid[];
-  tag: Tag;
-};
-
-export type Bid = {
-  blockTimestamp: number;
-  amount: bigint;
-  bidder: {
-    id: `0x${string}`;
-  };
-};
-
-export type Tag = {
-  id: string;
-  timestamp: number;
-  machineName: string;
-  display: string;
-  owner: {
-    id: `0x${string}`;
-  };
-  relayer: {
-    id: `0x${string}`;
-    name: string;
-  };
-  creator: {
-    id: `0x${string}`;
-  };
-};
-
-export const AuctionHouseContext = createContext<AuctionHouse | undefined>(undefined);
-
+/**
+ * Props definition for AuctionHouseProvider component.
+ */
 type AuctionHouseProviderProps = {
   children: React.ReactNode;
   requestedAuctionId: number | null;
 };
 
+/**
+ * The AuctionHouseProvider component manages and provides auction house context to its child components.
+ * It initializes and updates auction-related data based on user interactions and blockchain events.
+ *
+ * @param children - The child components of the AuctionHouseProvider.
+ * @param requestedAuctionId - The ID of the auction requested by the user, used to fetch specific auction data.
+ */
 export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
   children,
   requestedAuctionId,
@@ -89,104 +66,174 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
   children: React.ReactNode;
   requestedAuctionId: number | null;
 }) => {
-  console.log("AuctionHouseProvider: requestedAuctionId", requestedAuctionId);
-
-  //const { startTransaction, endTransaction } = useTransaction();
+  // State hooks for various pieces of the auction house context.
   const [auctionPaused, setAuctionPaused] = useState(true);
-  const [currentAuctionId, setCurrentAuctionId] = useState<number>(0);
-  //const [currentAuction, setCurrentAuction] = useState<Auction | null>(null); // Specify the type explicitly
+  const [timeDifference, setTimeDifference] = useState(0); // Time difference in seconds
   const [maxAuctions, setMaxAuctions] = useState<number | null>(null); // Specify the type explicitly
-  const [currentAuctionData, setCurrentAuctionData] = useState<AuctionOnChain | null>(null);
+  const [minIncrementBidPercentage, setMinIncrementBidPercentage] = useState<number>(0);
+  const [duration, setDuration] = useState<number | null>(null);
+  const [timeBuffer, setTimeBuffer] = useState<number>(0);
+  const [currentAuctionId, setCurrentAuctionId] = useState<number>(0);
   const [onDisplayAuction, setOnDisplayAuction] = useState<Auction | null>(null);
   const [allAuctions, setAllAuctions] = useState<Auction[]>([]); // New state for storing all auctions
+  const [bidFormData, setBidFormData] = useState<BidFormData>({
+    bid: undefined, // Changed from an empty string to null
+  });
 
-  const placeBid = async (bidAmount: number): Promise<void> => {};
+  const prevAuctionsRef = useRef<Auction[] | null>(null); // Initialize the ref with null or the initial auctions array if applicable
+
+  // Call useAuctions hook to fetch auction data
+  const { auctions, isLoading, isError } = useAuctions({
+    pageSize: 200, // Adjust pageSize, skip, orderBy, and filter as needed
+    skip: 0,
+    orderBy: "endTime",
+    filter: {}, // Add filter criteria if required
+    config: {
+      revalidateOnFocus: false,
+      revalidateOnMount: true,
+      revalidateOnReconnect: false,
+      refreshWhenOffline: false,
+      refreshWhenHidden: false,
+      refreshInterval: 1000,
+    },
+  });
+
+  const initStaticData = async () => {
+    try {
+      const auctionSettings = await fetchAuctionSettingsData();
+      const currentId = await fetchCurrentAuctionId();
+      const difference = await fetchBlockchainTimeDifference();
+      setMaxAuctions(auctionSettings.maxAuctions);
+      setMinIncrementBidPercentage(auctionSettings.minIncrementBidPercentage);
+      setDuration(auctionSettings.duration);
+      setTimeBuffer(auctionSettings.timeBuffer);
+      setCurrentAuctionId(currentId);
+      setTimeDifference(difference);
+    } catch (error) {
+      console.error("Failed to initialize auction data:", error);
+    }
+  };
+
+  const fetchDisplayAuctionData = async (): Promise<void> => {
+    if (currentAuctionId !== 0 && allAuctions.length > 0) {
+      try {
+        let displayAuction: Auction | null = null;
+
+        // Determine the ID to search for: if requestedAuctionId is null, use currentAuctionId
+        const searchAuctionId = requestedAuctionId === null ? currentAuctionId : requestedAuctionId;
+        const foundAuction = allAuctions.find((auction: Auction) => auction.id === searchAuctionId) ?? null;
+        if (foundAuction) {
+          if (requestedAuctionId && requestedAuctionId < currentAuctionId) {
+            foundAuction.ended = true;
+          }
+          displayAuction = foundAuction;
+        }
+        // Only update the state if a valid auction is found.
+        if (displayAuction !== undefined) {
+          setOnDisplayAuction(displayAuction);
+        }
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      }
+    }
+  };
+
+  const updateAllAuctionsData = async (): Promise<void> => {
+    // Use the custom replacer function in JSON.stringify
+    const auctionsHasChanged =
+      JSON.stringify(auctions, bigIntReplacer) !== JSON.stringify(prevAuctionsRef.current, bigIntReplacer);
+
+    if (!isLoading && !isError && auctions && auctionsHasChanged) {
+      const updatedAuctions = allAuctions.map((existingAuction) => {
+        const update = auctions.find((auction) => auction.id === existingAuction.id);
+        return update ? { ...existingAuction, ...update } : existingAuction;
+      });
+
+      const newAuctions = auctions.filter(
+        (auction) => !allAuctions.some((existingAuction) => existingAuction.id === auction.id),
+      );
+
+      setAllAuctions([...updatedAuctions, ...newAuctions]);
+
+      // Update the ref with the current 'auctions'
+      prevAuctionsRef.current = auctions;
+    }
+  };
+
+  const getCurrentTime = () => {
+    const currentTime = Math.floor(Date.now() / 1000);
+    return currentTime - timeDifference;
+  };
 
   useEffect(() => {
-    const initStaticData = async () => {
-      try {
-        const maxAuctionsData = await fetchMaxAuctions();
-        setMaxAuctions(maxAuctionsData);
-
-        const currentId = await fetchCurrentAuctionId();
-        setCurrentAuctionId(currentId);
-        console.log("currentId:", currentId);
-
-        const currentAuction: AuctionOnChain = await fetchAuction(currentId);
-        setCurrentAuctionData(currentAuction);
-
-        // Fetch all auctions data.
-        const auctionsData = await fetchAuctionsData({});
-        setAllAuctions(auctionsData.auctions); // Assuming auctionsData is structured correctly
-      } catch (error) {
-        console.error("Failed to initialize auction data:", error);
-      }
-    };
+    // Passing initStaticData as the callback to be executed on new auction event
+    const unwatch = watchNewAuctionReleased(initStaticData);
 
     initStaticData();
+    // Cleanup function to unwatch on component unmount
+    return () => unwatch();
   }, []);
 
+  // Sets currently displayed auction based on route parameter or current active
+  // TODO: Update logic to support multiple concurrent auctions.
   useEffect(() => {
-    const fetchDynamicAuctionData = async (): Promise<void> => {
-      if (currentAuctionId !== 0 && allAuctions.length > 0) {
-        console.log("Current Auction Id:", currentAuctionId);
-        console.log("Fetching data for requestedAuctionId:", requestedAuctionId);
+    fetchDisplayAuctionData();
+  }, [requestedAuctionId, currentAuctionId, allAuctions]);
 
-        try {
-          let displayAuction: Auction | null = null;
+  useEffect(() => {
+    updateAllAuctionsData();
+  }, [auctions, isLoading, isError, allAuctions]);
 
-          if (requestedAuctionId === null || requestedAuctionId >= currentAuctionId) {
-            // This is the currently active auction
-            let foundAuctionIndex = allAuctions.findIndex((auction: Auction) => auction.id === currentAuctionId);
-            if (foundAuctionIndex !== -1 && currentAuctionData !== null) {
-              // If found, update its values with the most up-to-date on-chain data
-              const updatedAuction: Auction = {
-                ...allAuctions[foundAuctionIndex],
-                // Transform currentAuctionData (AuctionOnChain) to Auction, if needed
-                endTime: currentAuctionData.endTime,
-                settled: currentAuctionData.settled,
-                amount: currentAuctionData.amount,
-                bidder: {
-                  id: currentAuctionData.bidder, // Wrap the string in an object
-                },
-              };
+  // TODO: Listen for auction release and then call initStaticData()
 
-              // Update the auction in allAuctions with the updated object
-              allAuctions[foundAuctionIndex] = updatedAuction;
+  // Handle setting onDisplayAuction.ended to true when
+  // an auction has ended.
+  // TODO: add a blockchain time normalization factor.
+  useEffect(() => {
+    if (!onDisplayAuction || onDisplayAuction.startTime <= 0) return;
 
-              // Set displayAuction to the updated auction object
-              displayAuction = updatedAuction;
-            }
-          } else {
-            // Pull from the pre-fetched allAuctions data or use a fallback
-            const foundAuction = allAuctions.find((auction: Auction) => auction.id === requestedAuctionId) ?? null;
-            if (foundAuction) {
-              foundAuction.ended = true; // Safe to set because foundAuction is not null
-              displayAuction = foundAuction;
-            }
-          }
+    const checkAuctionEnd = () => {
+      const timeLeft = onDisplayAuction.endTime - getCurrentTime();
 
-          // Only update the state if a valid auction is found or if explicitly set to null
-          if (displayAuction !== undefined) {
-            setOnDisplayAuction(displayAuction);
-          }
-        } catch (error) {
-          console.error("Failed to fetch data:", error);
-        }
+      if (timeLeft <= 0 && !onDisplayAuction.ended) {
+        // Auction has ended, update the state
+        setOnDisplayAuction({ ...onDisplayAuction, ended: true });
       }
     };
 
-    fetchDynamicAuctionData();
-  }, [requestedAuctionId, currentAuctionId, allAuctions]); // Depend on requestedAuctionId to refetch when it changes
+    // Immediately check if the auction has ended before starting the timer
+    checkAuctionEnd();
 
+    // Determine the initial interval for checking the auction status
+    const initialInterval = onDisplayAuction.endTime - Math.floor(Date.now() / 1000) > timeBuffer ? 30000 : 1000;
+
+    // Start the initial timer
+    let timer = setTimeout(function tick() {
+      checkAuctionEnd();
+
+      // Decide whether to continue checking every second or every 30 seconds
+      const nextInterval = onDisplayAuction.endTime - Math.floor(Date.now() / 1000) > timeBuffer ? 30000 : 1000;
+      timer = setTimeout(tick, nextInterval);
+    }, initialInterval);
+
+    return () => clearTimeout(timer); // Cleanup on unmount or when dependencies change
+  }, [onDisplayAuction, setOnDisplayAuction, timeBuffer]);
+
+  // Context value assembled from state and functions.
   const contextValue: AuctionHouse = {
     requestedAuctionId,
     auctionPaused,
     maxAuctions,
+    minIncrementBidPercentage,
+    duration,
+    timeBuffer,
     currentAuctionId,
     onDisplayAuction,
-    allAuctions, // Make the allAuctions data available through context
+    allAuctions,
+    bidFormData,
+    setBidFormData,
   };
 
+  // Providing the auction house context to child components.
   return <AuctionHouseContext.Provider value={contextValue}>{children}</AuctionHouseContext.Provider>;
 };

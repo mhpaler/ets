@@ -5,9 +5,12 @@ export const generateMockAuction = (): Auction => ({
   tokenAuctionNumber: 1, // Changed from string to number
   startTime: Math.floor(Date.now() / 1000), // Convert to number and remove `.toString()`
   endTime: Math.floor(Date.now() / 1000 + 3600), // Convert to number and remove `.toString()`
+  extended: false,
   ended: null,
   settled: false, // Remains boolean, no change needed
-  amount: BigInt("1000000000"), // Correctly typed as bigint
+  reservePrice: BigInt("10000000"),
+  amount: BigInt("1000000000"),
+  amountDisplay: "0.1", // Correctly typed as bigint
   bidder: {
     id: "0x1234567890123456789012345678901234567890", // Remains a string, no change needed
   },

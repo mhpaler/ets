@@ -1,14 +1,54 @@
-// services/auctionHouseServices.ts
-import { readContract } from "wagmi/actions";
-import { Auction, AuctionOnChain } from "@app/context/AuctionHouseContext";
+import { getBlock, readContract, watchContractEvent } from "@wagmi/core";
+import { AuctionSettings, Auction, AuctionOnChain } from "@app/types/auction";
 import { etsAuctionHouseConfig } from "@app/src/contracts";
-import { wagmiConfig } from "@app/constants/wagmiConfig";
-import { fetcher } from "@app/utils/fetchers"; // Adjust the import path as necessary
+import { wagmiConfig } from "@app/constants/config";
+import { fetcher } from "@app/utils/fetchers";
+import { formatEtherWithDecimals } from "@app/utils";
 
-import { generateMockAuction } from "@app/utils/mockData";
+// Define the expected response structure from the GraphQL query
+type FetchAuctionSettingsResponse = {
+  globalSettings: AuctionSettings;
+};
 
 type FetchAuctionsResponse = {
   auctions: Auction[];
+};
+
+export const watchNewAuctionReleased = (onNewAuction: () => Promise<void>) => {
+  const unwatch = watchContractEvent(wagmiConfig, {
+    ...etsAuctionHouseConfig,
+    eventName: "AuctionCreated",
+    onLogs: async (logs) => {
+      console.log("New logs!", logs);
+      await onNewAuction();
+    },
+  });
+
+  return unwatch;
+};
+
+// return the difference in local time from blockchain time.
+// Positive means  local is ahead of chain, negative means local is behind.
+export const fetchBlockchainTimeDifference = async (): Promise<number> => {
+  try {
+    // Fetch the latest block
+    const block = await getBlock(wagmiConfig, {
+      blockTag: "latest",
+    });
+
+    if (!block) {
+      // If block is undefined, return 0
+      return 0;
+    }
+
+    const blockchainTimestamp = Number(block.timestamp);
+    const localTime = Math.floor(Date.now() / 1000);
+    return localTime - blockchainTimestamp;
+  } catch (error) {
+    console.error("Failed to fetch blockchain time:", error);
+    // Return 0 in case of any error during fetching
+    return 0;
+  }
 };
 
 export const fetchMaxAuctions = async (): Promise<number> => {
@@ -47,6 +87,41 @@ export const fetchAuction = async (auctionId: number): Promise<AuctionOnChain> =
   };
 };
 
+export const fetchAuctionSettingsData = async (): Promise<AuctionSettings> => {
+  const query = `
+    query {
+      globalSettings: globalSettings(id: "globalSettings") {
+        maxAuctions
+        minIncrementBidPercentage
+        reservePrice
+        duration
+        timeBuffer
+      }
+    }
+  `;
+
+  try {
+    // Assuming fetcher is correctly set up to return the GraphQL response
+    const response = await fetcher(query, {});
+    // Directly accessing globalSettings from response, as it's not nested under a 'data' property here
+    const settings = response.globalSettings;
+
+    // Convert the string representations of BigInt to numbers
+    const convertedSettings = {
+      maxAuctions: Number(settings.maxAuctions),
+      minIncrementBidPercentage: Number(settings.minIncrementBidPercentage),
+      reservePrice: BigInt(settings.reservePrice),
+      duration: Number(settings.duration),
+      timeBuffer: Number(settings.timeBuffer),
+    };
+
+    return convertedSettings;
+  } catch (error) {
+    console.error("Error fetching auction settings data:", error);
+    throw error;
+  }
+};
+
 export const fetchAuctionsData = async ({
   pageSize = 20,
   skip = 0,
@@ -66,12 +141,15 @@ export const fetchAuctionsData = async ({
         tokenAuctionNumber
         startTime
         endTime
+        extended
         settled
+        reservePrice
         amount
         bidder {
           id
         }
         bids {
+          id
           blockTimestamp
           amount
           bidder {
@@ -116,15 +194,20 @@ export const fetchAuctionsData = async ({
       tokenAuctionNumber: Number(auction.tokenAuctionNumber),
       startTime: Number(auction.startTime),
       endTime: Number(auction.endTime),
-      ended: null,
-      settled: auction.settled, // or just auction.settled if it's already a boolean
+      extended: auction.extended,
+      ended: false,
+      settled: auction.settled,
+      reservePrice: BigInt(auction.reservePrice), // or just auction.settled if it's already a boolean
       amount: BigInt(auction.amount),
+      amountDisplay: formatEtherWithDecimals(auction.amount, 4),
       bidder: {
         id: auction.bidder.id,
       },
       bids: auction.bids.map((bid) => ({
+        id: bid.id,
         blockTimestamp: Number(bid.blockTimestamp),
         amount: BigInt(bid.amount),
+        amountDisplay: formatEtherWithDecimals(bid.amount, 4),
         bidder: {
           id: bid.bidder.id,
         },

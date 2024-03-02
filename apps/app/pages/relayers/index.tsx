@@ -1,12 +1,10 @@
 import { useState, useMemo } from "react";
 import type { NextPage } from "next";
-import Head from "next/head";
 import useTranslation from "next-translate/useTranslation";
 import { settings } from "@app/constants/settings";
 import useNumberFormatter from "@app/hooks/useNumberFormatter";
 import { useRelayers } from "@app/hooks/useRelayers";
 import Layout from "@app/layouts/default";
-import PageTitle from "@app/components/PageTitle";
 import { TimeAgo } from "@app/components/TimeAgo";
 import { Table } from "@app/components/Table";
 import { Button } from "@app/components/Button";
@@ -56,7 +54,7 @@ const Relayers: NextPage = () => {
     <Layout>
       <div className="col-span-12">
         <AddRelayerProvider>
-          <Modal buttonText={t("create-relayer")}>
+          <Modal label={t("create-relayer")}>
             <FormWrapper />
           </Modal>
         </AddRelayerProvider>

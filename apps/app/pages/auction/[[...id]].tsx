@@ -4,8 +4,7 @@ import Layout from "@app/layouts/default";
 
 import useTranslation from "next-translate/useTranslation";
 import { AuctionHouseProvider } from "@app/context/AuctionHouseContext";
-import { Auctions } from "@app/components/Auctions";
-import AuctionWrapper from "@app/components/AuctionWrapper";
+import AuctionWrapper from "@app/components/auction/AuctionWrapper";
 
 interface AuctionPageProps {
   initialAuctionId?: number;

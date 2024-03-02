@@ -1,4 +1,4 @@
-import { useStats } from "../hooks/useStats";
+import { useStats } from "@app/hooks/useStats";
 import useTranslation from "next-translate/useTranslation";
 
 const Stats = () => {
@@ -9,7 +9,7 @@ const Stats = () => {
       revalidateOnReconnect: false,
       refreshWhenOffline: false,
       refreshWhenHidden: false,
-      refreshInterval: 0,
+      refreshInterval: 1000,
     },
   });
 

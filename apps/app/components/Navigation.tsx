@@ -82,7 +82,7 @@ export default function Navigation() {
           </li>
 
           <li>
-            <summary>Auction</summary>
+            <summary>{t("NAV.AUCTION")}</summary>
             <ul>
               <li>
                 <Link className={isActive("auction") ? "bg-base-200" : ""} href="/auction">

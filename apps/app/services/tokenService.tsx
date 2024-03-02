@@ -1,7 +1,7 @@
 // services/auctionHouseServices.ts
 import { readContract } from "wagmi/actions";
-import { etsTokenConfig } from "../src/contracts";
-import { wagmiConfig } from "@app/constants/wagmiConfig";
+import { etsTokenConfig } from "@app/src/contracts";
+import { wagmiConfig } from "@app/constants/config";
 
 export const fetchHasTags = async (address: `0x${string}` | undefined): Promise<boolean> => {
   // Check if the address is undefined or not properly formatted

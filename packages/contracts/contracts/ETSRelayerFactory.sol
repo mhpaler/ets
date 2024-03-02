@@ -73,12 +73,11 @@ contract ETSRelayerFactory is Context {
     }
 
     function addRelayer(string calldata _relayerName) external onlyValidName(_relayerName) returns (address relayer) {
-        require(
-            etsToken.balanceOf(_msgSender()) > 0 || etsAccessControls.isRelayerAdmin(_msgSender()),
-            "Must own CTAG"
-        );
-        // TODO: Uncomment to restrict to single relayer
-        //require(!etsAccessControls.isRelayerByOwner(_msgSender()), "Sender owns existing relayer");
+        if (!etsAccessControls.isRelayerAdmin(_msgSender())) {
+            require(etsToken.balanceOf(_msgSender()) > 0,"Must own CTAG");
+            require(!etsAccessControls.isRelayerByOwner(_msgSender()), "Sender owns relayer");
+        }
+
         BeaconProxy relayerProxy = new BeaconProxy(
             address(etsRelayerBeacon),
             abi.encodeWithSelector(

@@ -1,11 +1,14 @@
 import { useContext } from "react";
-import { Auction, Bid, Tag, AuctionHouseContext } from "@app/context/AuctionHouseContext";
+import { AuctionHouseContext } from "@app/context/AuctionHouseContext";
 
+/**
+ * Custom hook for consuming the AuctionHouseContext in function components.
+ * Simplifies accessing the context and ensures type safety.
+ *
+ * @returns The AuctionHouse context value.
+ */
 const useAuctionHouse = () => {
   return useContext(AuctionHouseContext);
 };
 
 export { useAuctionHouse };
-export type { Auction };
-export type { Bid };
-export type { Tag };
