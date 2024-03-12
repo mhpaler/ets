@@ -1,56 +1,30 @@
-/**
- * ConfirmTransaction Component
- *
- * This component is responsible for handling the blockchain transaction process
- * for adding a new relayer. It interacts with the AddRelayerProvider for state management
- * and utilizes wagmi hooks for blockchain interactions.
- *
- * Props:
- * - closeModal: Function to close the modal.
- *
- * It uses wagmi hooks:
- * - usePrepareContractWrite: Prepares the contract transaction without initiating it.
- * - useContractWrite: Initiates the contract transaction when the user confirms in their wallet.
- * - useWaitForTransaction: Waits for the transaction to be processed on the blockchain.
- *
- * The component updates its UI based on the transaction state, displaying relevant messages
- * and a spinner during processing. It also handles any errors that might occur during the transaction.
- *
- * Interaction with AddRelayerProvider:
- * - Reads formData for the transaction data.
- * - Reads and navigates using goToStep for navigation within the modal flow.
- *
- * Interaction with FormWrapper:
- * - Integrated within FormWrapper to be displayed as one of the steps in the relayer creation process.
- */
 import React from "react";
-import { etsRelayerFactoryConfig } from "@app/src/contracts";
-
-import { type BaseError, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
-
+import { etsAuctionHouseConfig } from "@app/src/contracts";
+import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import useTranslation from "next-translate/useTranslation";
-import { useAddRelayer } from "@app/hooks/useAddRelayer";
+import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
+import { parseEther } from "viem";
 
 import { Dialog } from "@headlessui/react";
+import { BidSteps } from "./BidFlowWrapper";
 import { Button } from "@app/components/Button";
+import { Tag } from "@app/components/Tag";
 import { Wallet, CheckCircle } from "@app/components/icons";
 
 import { Outlink } from "@app/components/Outlink";
 
-/**
- * Define the type for the props
- * - closeModal: Function to close the modal when invoked.
- */
-interface Props {
+interface FormStepProps {
   closeModal: () => void;
+  goToNextStep: () => void;
+  goToStep: (step: BidSteps) => void;
 }
 
-const ConfirmTransaction = ({ closeModal }: Props) => {
+const ConfirmBid: React.FC<FormStepProps> = ({ closeModal, goToStep }) => {
   const { t } = useTranslation("common");
-  const context = useAddRelayer();
-  const { AddRelayerSteps, goToStep, formData } = context;
+  const context = useAuctionHouse();
+  const { onDisplayAuction, bidFormData } = context;
 
-  const { data: hash, error: writeError, isPending, writeContract: addRelayer } = useWriteContract();
+  const { data: hash, error: writeError, isPending, writeContract: createBid } = useWriteContract();
 
   // User has submitted txn.
   const { isLoading: isConfirming, isSuccess: txPosted } = useWaitForTransactionReceipt({
@@ -62,14 +36,15 @@ const ConfirmTransaction = ({ closeModal }: Props) => {
 
   // Function to initiate the transaction
   const handleButtonClick = () => {
-    if (txPosted || hasErrors) {
+    if (!onDisplayAuction || txPosted || hasErrors) {
       closeModal?.(); // Close the modal when transaction is successful
       return;
     }
-    addRelayer({
-      ...etsRelayerFactoryConfig,
-      functionName: "addRelayer",
-      args: [formData.name],
+    createBid({
+      ...etsAuctionHouseConfig,
+      functionName: "createBid",
+      args: [BigInt(onDisplayAuction.id)],
+      value: bidFormData.bid ? parseEther(bidFormData.bid.toString()) : BigInt(0),
     });
   };
 
@@ -111,13 +86,21 @@ const ConfirmTransaction = ({ closeModal }: Props) => {
           )}
         </div>
         <div className="flex flex-col w-full mt-8 gap-4">
-          <div className="flex flex-row justify-between h-16 items-center pl-6 pr-6 rounded-box border-2 border-base-300">
-            <div className="">{t("FORM.ADD_RELAYER.FIELD_LABEL.NAME")}</div>
-            <div className="font-bold">{formData.name}</div>
+          <div className="flex flex-row justify-between h-14 items-center pl-6 pr-6 rounded-box border-2 border-base-300">
+            <div className="">{t("tag")}</div>
+            <div className="font-bold">
+              <Tag tag={onDisplayAuction?.tag} />
+            </div>
           </div>
-          <div className="flex flex-row justify-between h-16 items-center pl-6 pr-6 rounded-box border-2 border-base-300">
+          <div className="flex flex-row justify-between h-14 items-center pl-6 pr-6 rounded-box border-2 border-base-300">
             <div className="">{t("TXN.ACTION")}</div>
-            <div className="font-bold">{t("TXN.TYPE.CREATE_RELAYER")}</div>
+            <div className="font-bold">{t("AUCTION.PLACE_BID_BUTTON")}</div>
+          </div>
+          <div className="flex flex-row justify-between h-14 items-center pl-6 pr-6 rounded-box border-2 border-base-300">
+            <div className="">{t("AUCTION.BID_AMOUNT")}</div>
+            <div className="font-bold">
+              {bidFormData.bid} <span className="text-xs">MATIC</span>
+            </div>
           </div>
         </div>
       </div>
@@ -132,7 +115,7 @@ const ConfirmTransaction = ({ closeModal }: Props) => {
       )}
 
       {hash && (
-        <div>
+        <div className="mt-4">
           <Outlink href={`https://mumbai.polygonscan.com/tx/${hash}`}>
             <span className="text-sm">{t("TXN.VIEW_TRANSACTION")}</span>
           </Outlink>
@@ -141,7 +124,7 @@ const ConfirmTransaction = ({ closeModal }: Props) => {
 
       <div className="grid grid-flow-col justify-stretch gap-2 mt-4">
         {((!hash && !isPending) || (isPending && hasErrors)) && (
-          <Button type="button" onClick={() => goToStep(AddRelayerSteps.AddRelayerForm)}>
+          <Button type="button" onClick={() => goToStep(BidSteps.BidForm)}>
             Back
           </Button>
         )}
@@ -161,4 +144,4 @@ const ConfirmTransaction = ({ closeModal }: Props) => {
 
   return content;
 };
-export { ConfirmTransaction };
+export { ConfirmBid };

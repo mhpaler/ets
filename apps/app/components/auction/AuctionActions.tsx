@@ -2,8 +2,12 @@ import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import useTranslation from "next-translate/useTranslation";
 import { formatEther } from "ethers/lib/utils";
 import { Auction } from "@app/types/auction";
-import { BidForm } from "@app/components/auction/BidForm";
+import BidFlowWrapper from "@app/components/auction/bid/BidFlowWrapper";
+import { SettleFlow } from "@app/components/auction/settle/SettleFlow";
 import { QuestionMark } from "@app/components/icons";
+import { Modal } from "@app/components/Modal";
+
+import { AuctionProvider } from "@app/context/AuctionContext";
 
 interface AuctionActionsProps {
   onDisplayAuction: Auction;
@@ -30,34 +34,26 @@ const AuctionActions: React.FC<AuctionActionsProps> = ({ onDisplayAuction }) => 
   if (onDisplayAuction.startTime === 0 || !onDisplayAuction.ended) {
     // Auction hasn't started or is ongoing
     content = (
-      <BidForm />
-      /* <input
-          type="text"
-          name="bid-amount"
-          id="bid-amount"
-          required
-          className="input input-bordered flex-1"
-          placeholder={t("AUCTION.BID_PLACEHOLDER", {
-            minimumBid: onDisplayAuction.startTime === 0 ? reservePrice : minimumBidIncrement,
-          })}
-        />
-        <button className="btn btn-primary">{t("AUCTION.PLACE_BID_BUTTON")}</button> */
+      <Modal label={t("AUCTION.PLACE_BID_BUTTON")} buttonClasses="btn-primary btn-outline btn-block">
+        <BidFlowWrapper />
+      </Modal>
     );
   } else if (onDisplayAuction.ended && !onDisplayAuction.settled) {
     // Auction has ended but not settled
     content = (
-      <div className="flex items-center justify-center gap-1 pl-8">
-        <button className="btn btn-primary">{t("AUCTION.SETTLE_BUTTON")}</button>
-        <div className="tooltip" data-tip={t("AUCTION.SETTLE_INFO")}>
-          <a className="link">
-            <QuestionMark size={24} />
-          </a>
-        </div>
-      </div>
+      <>
+        <Modal label={t("AUCTION.SETTLE_BUTTON")} buttonClasses="btn-primary btn-outline btn-block">
+          <SettleFlow />
+        </Modal>
+      </>
     );
   }
 
-  return <div>{content}</div>;
+  return (
+    <div>
+      <AuctionProvider auctionId={onDisplayAuction.id}>{content}</AuctionProvider>
+    </div>
+  );
 };
 
 export default AuctionActions;

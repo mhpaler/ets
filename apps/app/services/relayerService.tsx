@@ -6,7 +6,7 @@ import {
   writeContract,
   waitForTransactionReceipt,
   WaitForTransactionReceiptReturnType,
-} from "wagmi/actions";
+} from "@wagmi/core";
 
 export async function submitNewRelayer(name: string): Promise<WaitForTransactionReceiptReturnType> {
   // Prepare the contract write operation

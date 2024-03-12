@@ -24,21 +24,16 @@ import { useAddRelayer } from "@app/hooks/useAddRelayer";
 import { useRelayers } from "@app/hooks/useRelayers";
 import { useDebounce } from "@app/hooks/useDebounce";
 
-import { Dialog } from "@headlessui/react";
-import { Button } from "@app/components/Button";
-
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-/**
- * Define the type for the props
- * - closeModal: Function to close the modal when invoked.
- */
-interface Props {
-  closeModal: () => void;
-}
+import { Dialog } from "@headlessui/react";
+import { Button } from "@app/components/Button";
 
+interface FormStepProps {
+  closeModal: () => void; // Define other props as needed
+}
 // Define the schema for form validation using Zod.
 const AddRelayerSchema = z.object({
   name: z.string(),
@@ -47,14 +42,9 @@ const AddRelayerSchema = z.object({
 // Infer the type for form data from the Zod schema.
 type RelayerFormData = z.infer<typeof AddRelayerSchema>;
 
-const AddRelayerForm = ({ closeModal }: Props) => {
+const AddRelayerForm: React.FC<FormStepProps> = ({ closeModal }) => {
   const { t } = useTranslation("common");
   const context = useAddRelayer();
-
-  // Handle the case when context is undefined.
-  //if (!context) {
-  //  return null;
-  //}
 
   const { formData, setFormData, goToNextStep } = context;
   const [isFormDisabled, setIsFormDisabled] = useState(true);

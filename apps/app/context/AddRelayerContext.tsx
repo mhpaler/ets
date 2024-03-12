@@ -102,6 +102,7 @@ export const AddRelayerProvider = ({ children }: { children: React.ReactNode }) 
     } else {
       setCurrentStep(AddRelayerSteps.CheckUser);
     }
+    console.log("currentStep", currentStep);
   }, [isConnected, hasTags]);
 
   const contextValue: FormContextValue = {

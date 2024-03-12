@@ -1,22 +1,26 @@
 import React, { useState, useEffect } from "react";
-
 import useTranslation from "next-translate/useTranslation";
 import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
-import { useDebounce } from "@app/hooks/useDebounce";
+
 import { formatEther } from "ethers/lib/utils";
-
-import { Button } from "@app/components/Button";
-
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-// Infer the type for form data from the Zod schema.
+import { Dialog } from "@headlessui/react";
+import { Button } from "@app/components/Button";
+import { Alert } from "@app/components/icons";
 
-const BidForm = () => {
+interface FormStepProps {
+  closeModal: () => void;
+  goToNextStep: () => void;
+}
+
+const BidForm: React.FC<FormStepProps> = ({ closeModal, goToNextStep }) => {
+  //const BidForm = () => {
   const { t } = useTranslation("common");
-  const context = useAuctionHouse();
-  const { minIncrementBidPercentage, onDisplayAuction, bidFormData, setBidFormData } = context;
+  const auctionContext = useAuctionHouse();
+  const { minIncrementBidPercentage, onDisplayAuction, bidFormData, setBidFormData } = auctionContext;
 
   // Early return if onDisplayAuction is null, rendering an alternative UI or null
   if (!onDisplayAuction) {
@@ -40,7 +44,9 @@ const BidForm = () => {
   // Define Zod schema inside component to access dynamic minimum bid increment
   const bidValidationSchema = z.object({
     bid: z.union([
-      z.number().min(parsedMinimumBidIncrement, t("AUCTION.ERROR.MINIMUM_BID", { min: parsedMinimumBidIncrement })),
+      z
+        .number()
+        .min(parsedMinimumBidIncrement, t("AUCTION.BID_PLACEHOLDER", { minimumBid: parsedMinimumBidIncrement })),
       z.undefined(), // Allow bid to be undefined
     ]),
   });
@@ -53,13 +59,14 @@ const BidForm = () => {
     handleSubmit,
     formState: { errors },
     watch,
+    reset,
   } = useForm({
     resolver: zodResolver(bidValidationSchema),
     mode: "onChange",
     criteriaMode: "all",
     shouldFocusError: true,
     defaultValues: {
-      bid: undefined, // Keep bid as undefined initially for UX purposes
+      bid: bidFormData.bid, // Keep bid as undefined initially for UX purposes
     },
   });
 
@@ -80,15 +87,18 @@ const BidForm = () => {
     if (!isFormDisabled) {
       // Update context data and move to the next step.
       setBidFormData({ bid: bidFormData.bid });
+      goToNextStep();
+      console.log("onSubmitHandler called, setBidFormData: ", bidFormData);
       //goToNextStep();
     }
   };
 
-  // Function to handle click on the primary button.
-  const handleButtonClick = () => {
-    if (!isFormDisabled) {
-      setBidFormData({ bid: bidValue });
-      //goToNextStep();
+  // Function to handle the "Cancel" action.
+  const handleCancel = () => {
+    reset();
+    setBidFormData({ bid: undefined });
+    if (closeModal) {
+      closeModal();
     }
   };
 
@@ -96,33 +106,54 @@ const BidForm = () => {
 
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)} className="form ">
-        <div className="flex items-center gap-2">
-          <input
-            id="bid"
-            {...register("bid", {
-              setValueAs: (value) => parseFloat(value) || 0, // Ensure bid is always treated as a number
-            })}
-            className={`w-full input input-bordered bg-slate-50 ${errors.bid ? "input-error" : ""}`}
-            placeholder={t("AUCTION.BID_PLACEHOLDER", {
-              minimumBid: onDisplayAuction.startTime === 0 ? reservePrice : minimumBidIncrement,
-            })}
-          />
+      <Dialog.Title as="h3" className="mb-8 text-xl font-bold leading-6 text-gray-900">
+        {t("AUCTION.PLACE_YOUR_BID")}
+      </Dialog.Title>
 
+      <form onSubmit={handleSubmit(onSubmit)} className="form">
+        <div className="form-control w-full">
+          <div className="label">
+            <span className="label-text">{t("AUCTION.YOUR_MAX_BID")}</span>
+          </div>
+          <label className="input input-bordered flex items-center gap-2">
+            <input
+              autoComplete="off"
+              id="bid"
+              {...register("bid", {
+                setValueAs: (value) => parseFloat(value) || 0, // Ensure bid is always treated as a number
+              })}
+              className="grow"
+            />
+            {errors.bid && (
+              <span className="text-error">
+                <Alert />
+              </span>
+            )}
+          </label>
+
+          <div className="label">
+            {errors.bid ? (
+              <span className="label-text error-message text-error">{errors.bid.message}</span>
+            ) : (
+              <span className="label-text default-text">
+                {t("AUCTION.BID_PLACEHOLDER", { minimumBid: parsedMinimumBidIncrement })}
+              </span>
+            )}
+          </div>
+        </div>
+        <div className="grid grid-flow-col justify-stretch gap-2 mt-4">
+          <Button type="button" onClick={handleCancel}>
+            {t("FORM.BUTTON.CANCEL")}
+          </Button>
           <Button
-            onClick={handleButtonClick}
+            onClick={handleSubmit(onSubmit)}
             disabled={isFormDisabled}
             type="button"
             className={`${!isFormDisabled ? "btn-primary btn-outline" : ""}`}
           >
-            {t("AUCTION.PLACE_BID_BUTTON")}
+            {t("FORM.BUTTON.NEXT")}
           </Button>
         </div>
-        {errors.bid && (
-          <div className="label">
-            <span className="label-text error-message text-error">{errors.bid.message}</span>
-          </div>
-        )}
       </form>
     </>
   );

@@ -128,9 +128,10 @@
       "CANCEL": "Cancel",
       "SUBMIT": "Submit",
       "NEXT": "Next",
+      "BACK": "Back",
       "CLOSE": "Close",
       "DONE": "Done",
-      "CONFIRM_DETAILS": "Confirm Details",
+      "CONFIRM_DETAILS": "Confirm Txn Details",
       "OPEN_WALLET": "Open Wallet",
       "CREATE_RELAYER": "Create Relayer"
     },
@@ -149,15 +150,18 @@
   },
 
   "AUCTION": {
-    "BID_PLACEHOLDER": "{{minimumBid}} MATIC or more",
+    "BID_PLACEHOLDER": "Bid {{minimumBid}} MATIC or more",
     "CURRENT_BID": "Current bid",
     "WINNING_BID": "Winning bid",
     "TIME_LEFT": "Time left",
     "ENDED": "Ended",
     "BID_TO_START": "Bid to start",
+    "PLACE_YOUR_BID": "Place your bid",
     "WINNER": "Winner",
+    "BID_AMOUNT": "Bid amount",
     "PLACE_BID_BUTTON": "Place bid",
-    "SETTLE_BUTTON": "Settle this auction",
+    "YOUR_MAX_BID": "Your max bid",
+    "SETTLE_BUTTON": "Settle auction",
     "SETTLE_INFO": "Settling transfers tag to new owner & releases next tag for auction",
     "ERROR": {
       "MINIMUM_BID": "Must bid {{min}} or more"

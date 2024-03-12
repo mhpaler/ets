@@ -4,10 +4,13 @@ import { Fragment, useState, cloneElement } from "react";
 interface Props {
   label?: string;
   link?: boolean;
+  disabled?: boolean;
+  buttonClasses?: string;
+  onModalOpen?: () => void;
   children?: any;
 }
 
-const Modal = ({ label, children, link = false }: Props) => {
+const Modal = ({ label, children, link = false, buttonClasses = "", disabled = false, onModalOpen }: Props) => {
   let [isOpen, setIsOpen] = useState(false);
 
   function closeModal() {
@@ -16,7 +19,16 @@ const Modal = ({ label, children, link = false }: Props) => {
 
   function openModal() {
     setIsOpen(true);
+    if (onModalOpen) {
+      onModalOpen(); // Call the onModalOpen function from props if provided
+    }
   }
+
+  const handleClick = () => {
+    if (!disabled) {
+      openModal();
+    }
+  };
 
   // This is kinda cool. Clone the children element and include the close modal
   // function as a property so the modal can be closed from the child element.
@@ -24,15 +36,17 @@ const Modal = ({ label, children, link = false }: Props) => {
     closeModal: closeModal,
   });
 
-  const buttonClassName = link ? "btn btn-sm btn-link" : "btn btn-sm btn-primary btn-outline";
-
+  const buttonClassName = link ? "btn btn-link" : "btn";
+  const disabledClass = disabled ? "btn-disabled" : "";
   return (
     <>
-      <div className="flex w-full justify-center items-center">
-        <button onClick={openModal} className={buttonClassName}>
-          {label}
-        </button>
-      </div>
+      <button
+        onClick={handleClick}
+        className={`${buttonClassName} ${disabledClass} ${buttonClasses}`}
+        disabled={disabled}
+      >
+        {label}
+      </button>
 
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={closeModal}>

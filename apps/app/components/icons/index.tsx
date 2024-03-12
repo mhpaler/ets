@@ -1,3 +1,5 @@
+export { Alert } from "./Alert";
+
 export { CheckCircle } from "./CheckCircle";
 export { Gavel } from "./Gavel";
 export { QuestionMark } from "./QuestionMark";

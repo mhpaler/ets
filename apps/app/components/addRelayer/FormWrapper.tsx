@@ -1,9 +1,9 @@
 import React from "react";
 
 import { useAddRelayer } from "@app/hooks/useAddRelayer";
-import { AddRelayerForm } from "./AddRelayerForm";
-import { Warning } from "./Warning";
-import { ConfirmTransaction } from "./ConfirmTransaction";
+import { AddRelayerForm } from "@app/components/addRelayer/AddRelayerForm";
+import { Warning } from "@app/components/addRelayer/Warning";
+import { ConfirmTransaction } from "@app/components/addRelayer/ConfirmTransaction";
 
 // Props type for the FormWrapper component.
 interface Props {
@@ -19,15 +19,9 @@ interface Props {
  */
 const FormWrapper = (props: Props) => {
   const context = useAddRelayer();
+  const { AddRelayerSteps, goToStep, setFormData, currentStep } = context;
 
-  // Ensure the context is defined before proceeding.
-  if (!context) {
-    // Return null or some error UI if context is undefined.
-    return null;
-  }
-
-  // Destructure necessary states and functions from the context.
-  const { AddRelayerSteps, currentStep, goToStep, setFormData } = context;
+  //const [currentStep] = useState(AddRelayerSteps.CheckUser);
 
   /**
    * handleClose is a function to close the modal and reset the form state.

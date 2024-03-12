@@ -4,14 +4,13 @@ import useTranslation from "next-translate/useTranslation";
 import { settings } from "@app/constants/settings";
 import useNumberFormatter from "@app/hooks/useNumberFormatter";
 import { useRelayers } from "@app/hooks/useRelayers";
+import { AddRelayerProvider } from "@app/context/AddRelayerContext";
 import Layout from "@app/layouts/default";
 import { TimeAgo } from "@app/components/TimeAgo";
 import { Table } from "@app/components/Table";
 import { Button } from "@app/components/Button";
 import { Modal } from "@app/components/Modal";
-import FormWrapper from "@app/components/modals/addRelayer/FormWrapper";
-import { AddRelayerProvider } from "@app/context/AddRelayerContext";
-//import { CreateRelayerModal } from "../../transaction-flow/input/createRelayerModal";
+import FormWrapper from "@app/components/addRelayer/FormWrapper";
 
 const pageSize = 20;
 
