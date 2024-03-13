@@ -13,7 +13,7 @@ const AuctionNavigation: React.FC<AuctionNavigationProps> = ({ onDisplayAuctionI
   return (
     <div className="flex col-span-12 items-center gap-2">
       <div>
-        <Link href={`/auction/${prevAuctionId}`} legacyBehavior>
+        <Link href={`/auction/${prevAuctionId}`} legacyBehavior passHref>
           <button className={`btn btn-sm btn-circle btn-outline ${isFirstAuction ? "btn-disabled" : ""}`}>
             <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
               <path
@@ -35,7 +35,7 @@ const AuctionNavigation: React.FC<AuctionNavigationProps> = ({ onDisplayAuctionI
         </Link>
       </div>
       <div>
-        <Link href={`/auction/${nextAuctionId}`} legacyBehavior>
+        <Link href={`/auction/${nextAuctionId}`} legacyBehavior passHref>
           <button className={`btn btn-sm btn-circle btn-outline ${isLastAuction ? "btn-disabled" : ""}`}>
             <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
               <path

@@ -5,7 +5,6 @@ import { bigIntReplacer } from "@app/utils";
 
 const AuctionDebug = () => {
   const auctionHouse = useAuctionHouse();
-  if (!auctionHouse) return null;
   const { onDisplayAuction, maxAuctions, timeBuffer, duration, currentAuctionId } = auctionHouse;
   const [timeDifferenceMessage, setTimeDifferenceMessage] = useState<string>("");
 

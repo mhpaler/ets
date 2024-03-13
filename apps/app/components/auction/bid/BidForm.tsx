@@ -21,25 +21,26 @@ const BidForm: React.FC<FormStepProps> = ({ closeModal, goToNextStep }) => {
   const { t } = useTranslation("common");
   const auctionContext = useAuctionHouse();
   const { minIncrementBidPercentage, onDisplayAuction, bidFormData, setBidFormData } = auctionContext;
-
-  // Early return if onDisplayAuction is null, rendering an alternative UI or null
-  if (!onDisplayAuction) {
-    return; // or return null if you prefer not to render anything
-  }
-
   const [isFormDisabled, setIsFormDisabled] = useState(true);
+  const [parsedMinimumBidIncrement, setParsedMinimumBidIncrement] = useState<number>(0);
 
-  // Assuming onDisplayAuction.amount is in Wei and needs conversion
-  const reservePrice = formatEther(onDisplayAuction.reservePrice);
-  const currentBid: bigint = onDisplayAuction.amount;
+  // Effect to control form submit button's enabled/disabled state.
+  useEffect(() => {
+    if (!onDisplayAuction) return;
 
-  // Assuming minIncrementBidPercentage is a percentage value like 5 for 5%
-  // Convert the percentage into a scale factor for bigint calculation
-  const scaleFactor: bigint = BigInt(100); // Scale factor to allow for "decimal" operations in bigint
-  const percentageFactor: bigint = BigInt(minIncrementBidPercentage); // Convert percentage to bigint
-  const minimumBidIncrement: string = formatEther(currentBid + (currentBid * percentageFactor) / scaleFactor);
-  const parsedMinimumBidIncrement =
-    onDisplayAuction.startTime === 0 ? parseFloat(reservePrice) : parseFloat(minimumBidIncrement);
+    // Assuming onDisplayAuction.amount is in Wei and needs conversion
+    const reservePrice = formatEther(onDisplayAuction.reservePrice);
+    const currentBid: bigint = onDisplayAuction.amount;
+
+    // Assuming minIncrementBidPercentage is a percentage value like 5 for 5%
+    // Convert the percentage into a scale factor for bigint calculation
+    const scaleFactor: bigint = BigInt(100); // Scale factor to allow for "decimal" operations in bigint
+    const percentageFactor: bigint = BigInt(minIncrementBidPercentage); // Convert percentage to bigint
+    const minimumBidIncrement: string = formatEther(currentBid + (currentBid * percentageFactor) / scaleFactor);
+    setParsedMinimumBidIncrement(
+      onDisplayAuction.startTime === 0 ? parseFloat(reservePrice) : parseFloat(minimumBidIncrement),
+    );
+  }, [onDisplayAuction, minIncrementBidPercentage]);
 
   // Define Zod schema inside component to access dynamic minimum bid increment
   const bidValidationSchema = z.object({

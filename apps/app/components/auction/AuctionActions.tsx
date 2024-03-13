@@ -1,4 +1,3 @@
-import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import useTranslation from "next-translate/useTranslation";
 import { Auction } from "@app/types/auction";
 import BidFlowWrapper from "@app/components/auction/bid/BidFlowWrapper";
@@ -11,10 +10,7 @@ interface AuctionActionsProps {
   onDisplayAuction: Auction;
 }
 const AuctionActions: React.FC<AuctionActionsProps> = ({ onDisplayAuction }) => {
-  const auctionHouse = useAuctionHouse();
-  if (!auctionHouse) return null;
   const { t } = useTranslation("common");
-
   let content;
 
   if (onDisplayAuction.startTime === 0 || !onDisplayAuction.ended) {

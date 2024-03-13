@@ -1,4 +1,4 @@
-import { Tag } from "@app/hooks/useAuctionHouse";
+import { Tag } from "@app/types/tag";
 
 // Define the TagGraphicProps type to include a tag of type Tag
 interface TagGraphicProps {

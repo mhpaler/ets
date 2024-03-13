@@ -31,6 +31,7 @@ const AuctionTimer: React.FC<AuctionTimerProps> = ({ onDisplayAuction }) => {
     updateTimer();
 
     return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onDisplayAuction.endTime]);
 
   const formatTimeLeft = (seconds: number): string => {

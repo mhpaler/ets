@@ -13,7 +13,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
-import { hardhat, polygonMumbai } from "wagmi/chains";
+import { hardhat, polygonMumbai } from "@wagmi/core/chains";
 
 import { wagmiConfig, etsTheme } from "@app/constants/config";
 

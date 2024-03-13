@@ -1,7 +1,8 @@
 import { getBlock, readContract, watchContractEvent } from "@wagmi/core";
+
 import { AuctionSettings, Auction, AuctionOnChain } from "@app/types/auction";
 import { etsAuctionHouseConfig } from "@app/src/contracts";
-import { wagmiConfig } from "@app/constants/config";
+import { wagmiConfig } from "@app/constants/wagmiCoreConfig";
 import { fetcher } from "@app/utils/fetchers";
 import { formatEtherWithDecimals } from "@app/utils";
 

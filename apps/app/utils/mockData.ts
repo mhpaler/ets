@@ -1,4 +1,4 @@
-import { Auction } from "@app/context/AuctionHouseContext"; // Adjust the import path as necessary
+/* import { Auction } from "@app/context/AuctionHouseContext"; // Adjust the import path as necessary
 
 export const generateMockAuction = (): Auction => ({
   id: 1, // Changed from string to number
@@ -40,3 +40,4 @@ export const generateMockAuction = (): Auction => ({
     },
   },
 });
+ */
