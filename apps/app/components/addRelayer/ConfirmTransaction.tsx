@@ -25,17 +25,17 @@
  */
 import React from "react";
 import { etsRelayerFactoryConfig } from "@app/src/contracts";
-
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { WriteContractErrorType } from "@wagmi/core"; // Adjust the import path as necessary
 
 import useTranslation from "next-translate/useTranslation";
 import { useAddRelayer } from "@app/hooks/useAddRelayer";
-
 import { Dialog } from "@headlessui/react";
 
 import { Button } from "@app/components/Button";
 import { Wallet, CheckCircle } from "@app/components/icons";
-import { Outlink } from "@app/components/Outlink";
+import { TransactionError } from "@app/components/TransactionError";
+import { TransactionLink } from "@app/components/TransactionLink";
 
 interface FormStepProps {
   closeModal: () => void; // Define other props as needed
@@ -115,42 +115,28 @@ const ConfirmTransaction: React.FC<FormStepProps> = ({ closeModal }) => {
             <div className="">{t("TXN.ACTION")}</div>
             <div className="font-bold">{t("TXN.TYPE.CREATE_RELAYER")}</div>
           </div>
-        </div>
-      </div>
 
-      {hasErrors && (
-        <details className="collapse collapse-arrow text-primary-content">
-          <summary className="collapse-title text-error collapse-arrow text-sm font-bold">Transaction error</summary>
-          <div className="collapse-content text-error">
-            <p className="error-message text-xs font-semibold">{hasErrors?.message}</p>
+          {hasErrors && <TransactionError error={hasErrors as WriteContractErrorType} />}
+          {hash && <TransactionLink txn={hash} />}
+
+          <div className="grid grid-flow-col justify-stretch gap-2">
+            {((!hash && !isPending) || (isPending && hasErrors)) && (
+              <Button type="button" onClick={() => goToStep(AddRelayerSteps.AddRelayerForm)}>
+                Back
+              </Button>
+            )}
+            <Button
+              onClick={handleButtonClick}
+              disabled={isPending}
+              className={`flex align-middle items-center gap-2 ${
+                isPending || isConfirming ? "btn-disabled" : "btn-primary btn-outline"
+              }`}
+            >
+              {(isPending || isConfirming) && <span className="loading loading-spinner mr-2 bg-primary"></span>}
+              {buttonLabel}
+            </Button>
           </div>
-        </details>
-      )}
-
-      {hash && (
-        <div className="mt-4">
-          <Outlink href={`https://mumbai.polygonscan.com/tx/${hash}`}>
-            <span className="text-sm">{t("TXN.VIEW_TRANSACTION")}</span>
-          </Outlink>
         </div>
-      )}
-
-      <div className="grid grid-flow-col justify-stretch gap-2 mt-4">
-        {((!hash && !isPending) || (isPending && hasErrors)) && (
-          <Button type="button" onClick={() => goToStep(AddRelayerSteps.AddRelayerForm)}>
-            Back
-          </Button>
-        )}
-        <Button
-          onClick={handleButtonClick}
-          disabled={isPending}
-          className={`flex align-middle items-center gap-2 ${
-            isPending || isConfirming ? "btn-disabled" : "btn-primary btn-outline"
-          }`}
-        >
-          {(isPending || isConfirming) && <span className="loading loading-spinner mr-2 bg-primary"></span>}
-          {buttonLabel}
-        </Button>
       </div>
     </>
   );

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import useTranslation from "next-translate/useTranslation";
 import { Auction } from "@app/types/auction";
+import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 
 interface AuctionTimerProps {
   onDisplayAuction: Auction;
@@ -8,12 +9,13 @@ interface AuctionTimerProps {
 
 const AuctionTimer: React.FC<AuctionTimerProps> = ({ onDisplayAuction }) => {
   const { t } = useTranslation("common");
-  const [timeLeft, setTimeLeft] = useState<number>(onDisplayAuction.endTime - Math.floor(Date.now() / 1000));
+  const { blockchainTime } = useAuctionHouse(); // Use the context to get the function
+
+  const [timeLeft, setTimeLeft] = useState<number>(onDisplayAuction.endTime - blockchainTime());
 
   useEffect(() => {
     const updateTimer = () => {
-      const currentTime = Math.floor(Date.now() / 1000);
-      const newTimeLeft = onDisplayAuction.endTime - currentTime;
+      const newTimeLeft = onDisplayAuction.endTime - blockchainTime();
 
       if (newTimeLeft > 0) {
         setTimeLeft(newTimeLeft);

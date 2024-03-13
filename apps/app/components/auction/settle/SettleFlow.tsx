@@ -1,6 +1,8 @@
 import React from "react";
 import { etsAuctionHouseConfig } from "@app/src/contracts";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { WriteContractErrorType } from "@wagmi/core"; // Adjust the import path as necessary
+
 import useTranslation from "next-translate/useTranslation";
 import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 
@@ -9,8 +11,8 @@ import { Button } from "@app/components/Button";
 import { Tag } from "@app/components/Tag";
 import { Wallet, CheckCircle } from "@app/components/icons";
 
-import { Outlink } from "@app/components/Outlink";
-
+import { TransactionError } from "@app/components/TransactionError";
+import { TransactionLink } from "@app/components/TransactionLink";
 // Props type for the FormWrapper component.
 interface Props {
   closeModal?: Function; // closeModal is an optional function to close the modal.
@@ -71,7 +73,7 @@ const SettleFlow = (props: Props) => {
       <Dialog.Title as="h3" className="text-center text-xl font-bold leading-6 text-gray-900">
         {dialogTitle}
       </Dialog.Title>
-      <div className="overflow-x-auto">
+      <div>
         <div className="mt-4 pl-8 pr-8 text-center flex flex-col items-center">
           {txPosted ? (
             <div className="text-green-600">
@@ -98,42 +100,28 @@ const SettleFlow = (props: Props) => {
           <div className="flex flex-row justify-between h-14 items-center pl-6 pr-6 text-xs">
             {t("AUCTION.SETTLE_INFO")}
           </div>
-        </div>
-      </div>
 
-      {hasErrors && (
-        <details className="collapse collapse-arrow text-primary-content">
-          <summary className="collapse-title text-error collapse-arrow text-sm font-bold">Transaction error</summary>
-          <div className="collapse-content text-error">
-            <p className="error-message text-xs font-semibold">{hasErrors?.message}</p>
+          {hasErrors && <TransactionError error={hasErrors as WriteContractErrorType} />}
+          {hash && <TransactionLink txn={hash} />}
+
+          <div className="grid grid-flow-col justify-stretch gap-2">
+            {((!hash && !isPending) || (isPending && hasErrors)) && (
+              <Button type="button" onClick={handleCancel}>
+                {t("FORM.BUTTON.CANCEL")}
+              </Button>
+            )}
+            <Button
+              onClick={handleTransaction}
+              disabled={isPending}
+              className={`flex align-middle items-center gap-2 ${
+                isPending || isConfirming ? "btn-disabled" : "btn-primary btn-outline"
+              }`}
+            >
+              {(isPending || isConfirming) && <span className="loading loading-spinner mr-2 bg-primary"></span>}
+              {buttonLabel}
+            </Button>
           </div>
-        </details>
-      )}
-
-      {hash && (
-        <div>
-          <Outlink href={`https://mumbai.polygonscan.com/tx/${hash}`}>
-            <span className="text-sm">{t("TXN.VIEW_TRANSACTION")}</span>
-          </Outlink>
         </div>
-      )}
-
-      <div className="grid grid-flow-col justify-stretch gap-2 mt-4">
-        {((!hash && !isPending) || (isPending && hasErrors)) && (
-          <Button type="button" onClick={handleCancel}>
-            {t("FORM.BUTTON.CANCEL")}
-          </Button>
-        )}
-        <Button
-          onClick={handleTransaction}
-          disabled={isPending}
-          className={`flex align-middle items-center gap-2 ${
-            isPending || isConfirming ? "btn-disabled" : "btn-primary btn-outline"
-          }`}
-        >
-          {(isPending || isConfirming) && <span className="loading loading-spinner mr-2 bg-primary"></span>}
-          {buttonLabel}
-        </Button>
       </div>
     </>
   );

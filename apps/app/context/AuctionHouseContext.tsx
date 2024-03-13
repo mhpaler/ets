@@ -36,8 +36,8 @@ const defaultAuctionHouseContextValue: AuctionHouse = {
   onDisplayAuction: null,
   allAuctions: [],
   bidFormData: { bid: undefined },
-  setBidFormData: () => {}, // No-op function for default behavior
-  // You can add more functions with default no-op implementations as needed
+  setBidFormData: () => {},
+  blockchainTime: () => Math.floor(Date.now() / 1000),
 };
 /**
  * Creating a React context for the auction house with undefined initial value.
@@ -160,10 +160,7 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
     }
   };
 
-  const getCurrentTime = () => {
-    const currentTime = Math.floor(Date.now() / 1000);
-    return currentTime - timeDifference;
-  };
+  const blockchainTime = () => Math.floor(Date.now() / 1000) - timeDifference;
 
   useEffect(() => {
     // Passing initStaticData as the callback to be executed on new auction event
@@ -188,12 +185,11 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
 
   // Handle setting onDisplayAuction.ended to true when
   // an auction has ended.
-  // TODO: add a blockchain time normalization factor.
   useEffect(() => {
     if (!onDisplayAuction || onDisplayAuction.startTime <= 0) return;
 
     const checkAuctionEnd = () => {
-      const timeLeft = onDisplayAuction.endTime - getCurrentTime();
+      const timeLeft = onDisplayAuction.endTime - blockchainTime();
 
       if (timeLeft <= 0 && !onDisplayAuction.ended) {
         // Auction has ended, update the state
@@ -205,14 +201,14 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
     checkAuctionEnd();
 
     // Determine the initial interval for checking the auction status
-    const initialInterval = onDisplayAuction.endTime - Math.floor(Date.now() / 1000) > timeBuffer ? 30000 : 1000;
+    const initialInterval = onDisplayAuction.endTime - blockchainTime() > timeBuffer ? 30000 : 1000;
 
     // Start the initial timer
     let timer = setTimeout(function tick() {
       checkAuctionEnd();
 
       // Decide whether to continue checking every second or every 30 seconds
-      const nextInterval = onDisplayAuction.endTime - Math.floor(Date.now() / 1000) > timeBuffer ? 30000 : 1000;
+      const nextInterval = onDisplayAuction.endTime - blockchainTime() > timeBuffer ? 30000 : 1000;
       timer = setTimeout(tick, nextInterval);
     }, initialInterval);
 
@@ -232,6 +228,7 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
     allAuctions,
     bidFormData,
     setBidFormData,
+    blockchainTime,
   };
 
   // Providing the auction house context to child components.

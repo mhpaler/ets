@@ -64,10 +64,7 @@ export type AuctionHouse = {
   currentAuctionId: number | null;
   onDisplayAuction: Auction | null;
   allAuctions: Auction[]; // New property to store all auctions
-
   bidFormData: BidFormData;
   setBidFormData: (data: BidFormData) => void;
-  //submitNewRelayer: (name: string) => void;
-  //transactionStatus: TransactionStatus;
-  //setTransactionStatus: (status: TransactionStatus) => void;
+  blockchainTime: () => number;
 };
