@@ -6,10 +6,9 @@ const CopyAndPaste = ({ value }: { value: string }) => {
   const { t } = useTranslation("common");
 
   return (
-    <button onClick={() => copy(value)} className="relative link link-primary group">
-      <div className="absolute w-8 h-8 -mt-4 -ml-4 rounded-full top-1/2 left-1/2"></div>
+    <button onClick={() => copy(value)} className="link link-primary">
       {isCopied ? (
-        <svg className="relative inline-flex w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24">
+        <svg className="inline-flex w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24">
           <path
             d="M7.75 12.75L10 15.25L16.25 8.75"
             stroke="currentColor"
@@ -19,7 +18,7 @@ const CopyAndPaste = ({ value }: { value: string }) => {
           ></path>
         </svg>
       ) : (
-        <svg className="relative inline-flex w-5 h-5" fill="none" viewBox="0 0 24 24">
+        <svg className="inline-flex w-5 h-5" fill="none" viewBox="0 0 24 24">
           <path
             stroke="currentColor"
             strokeLinecap="round"

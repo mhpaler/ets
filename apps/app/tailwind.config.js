@@ -5,10 +5,10 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   plugins: [
-    //require("tailwindcss-font-inter"),
-    require("daisyui"),
-    require('@tailwindcss/line-clamp'),
     //require('@tailwindcss/forms'),
+    //require("tailwindcss-font-inter"),
+    require("@tailwindcss/typography"),
+    require("daisyui"),
   ],
 
 

@@ -78,6 +78,8 @@
     "other": "{{count, number}} tags"
   },
   "tags-created": "Tags created",
+  "tag-creator": "Tag creator",
+  "tag-owner": "Tag owner",
   "tags-created-by": "Tags created by {{ creator }}",
   "tag-tagging-records": "Tagging records that include {{tag}}",
   "tagging-records": "Tagging records",
@@ -97,6 +99,9 @@
   "top-taggers": "Top taggers",
   "view-all-bids": "View all bids",
   "view-all": "View all {{subject}}",
+  "NAV": {
+    "AUCTION": "Tag auction"
+  },
 
   "TXN": {
     "ACTION": "Action",
@@ -123,9 +128,10 @@
       "CANCEL": "Cancel",
       "SUBMIT": "Submit",
       "NEXT": "Next",
+      "BACK": "Back",
       "CLOSE": "Close",
       "DONE": "Done",
-      "CONFIRM_DETAILS": "Confirm Details",
+      "CONFIRM_DETAILS": "Confirm Txn Details",
       "OPEN_WALLET": "Open Wallet",
       "CREATE_RELAYER": "Create Relayer"
     },
@@ -140,6 +146,25 @@
         "MIN_THREE_CHARACTERS": "The string must contain at least three characters",
         "NAME_EXISTS": "Relayer name already exists"
       }
+    }
+  },
+
+  "AUCTION": {
+    "BID_PLACEHOLDER": "Bid {{minimumBid}} MATIC or more",
+    "CURRENT_BID": "Current bid",
+    "WINNING_BID": "Winning bid",
+    "TIME_LEFT": "Time left",
+    "ENDED": "Ended",
+    "BID_TO_START": "Bid to start",
+    "PLACE_YOUR_BID": "Place your bid",
+    "WINNER": "Winner",
+    "BID_AMOUNT": "Bid amount",
+    "PLACE_BID_BUTTON": "Place bid",
+    "YOUR_MAX_BID": "Your max bid",
+    "SETTLE_BUTTON": "Settle auction",
+    "SETTLE_INFO": "Settling transfers tag to new owner & releases next tag for auction",
+    "ERROR": {
+      "MINIMUM_BID": "Must bid {{min}} or more"
     }
   }
 }

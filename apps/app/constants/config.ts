@@ -1,9 +1,21 @@
-import { http, createConfig, Config, fallback } from "wagmi";
-import { polygonMumbai, hardhat } from "wagmi/chains";
+//import { http, createConfig, Config, fallback } from "@wagmi/core";
+//import { polygonMumbai, hardhat } from "@wagmi/core/chains";
 import { lightTheme, Theme } from "@rainbow-me/rainbowkit";
-import { injected } from "wagmi/connectors";
 import merge from "lodash.merge";
 
+import { http, createConfig, Config, fallback } from "wagmi";
+import { polygonMumbai, hardhat } from "wagmi/chains";
+import { injected } from "wagmi/connectors";
+
+//export const config = createConfig({
+//  chains: [mainnet, sepolia],
+//  transports: {
+//    [mainnet.id]: http(),
+//    [sepolia.id]: http(),
+//  },
+//})
+
+// Wagmi Config
 export const wagmiConfig: Config = createConfig({
   chains: [process.env.NEXT_PUBLIC_ETS_ENVIRONMENT === "development" ? hardhat : polygonMumbai],
   connectors: [injected()],

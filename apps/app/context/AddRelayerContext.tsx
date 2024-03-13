@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { createContext, useState, ReactNode } from "react";
+import { TransactionStage, TransactionStatus } from "@app/types/transaction";
 import { fetchHasTags } from "@app/services/tokenService";
 import { useAccount } from "wagmi";
 
@@ -10,15 +11,6 @@ export enum AddRelayerSteps {
   TransactionProcessing,
   TransactionComplete,
 }
-
-type TransactionStage = "Preparing" | "Waiting for Signature" | "Sent" | "Processing" | "Completed" | "Failed";
-
-type TransactionStatus = {
-  loading: boolean;
-  success: boolean;
-  error: Error | null;
-  stage: TransactionStage | null;
-};
 
 type FormData = {
   name: string;
@@ -110,6 +102,7 @@ export const AddRelayerProvider = ({ children }: { children: React.ReactNode }) 
     } else {
       setCurrentStep(AddRelayerSteps.CheckUser);
     }
+    console.log("currentStep", currentStep);
   }, [isConnected, hasTags]);
 
   const contextValue: FormContextValue = {
