@@ -1,6 +1,6 @@
 // services/auctionHouseServices.ts
 import { wagmiConfig } from "@app/constants/wagmiConfig";
-import { etsRelayerFactoryConfig } from "../src/contracts";
+import { etsRelayerFactoryConfig } from "@app/src/contracts";
 import {
   simulateContract,
   writeContract,

@@ -33,7 +33,7 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize, orderBy, title }) =
       revalidateOnReconnect: false,
       refreshWhenOffline: false,
       refreshWhenHidden: false,
-      refreshInterval: 0,
+      refreshInterval: 1000,
     },
   });
 

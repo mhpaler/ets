@@ -313,6 +313,9 @@ type Auction @entity {
   "The CTAG being auctioned"
   tag: Tag!
 
+  "The minimum price of first bid"
+  reservePrice: BigInt!
+
   "The current highest bid amount"
   amount: BigInt!
 
@@ -321,6 +324,9 @@ type Auction @entity {
 
   "The time that the auction is scheduled to end"
   endTime: BigInt!
+
+  "Whether or not the auction has been extended"
+  extended: Boolean!
 
   "The account with the current highest bid"
   bidder: Owner

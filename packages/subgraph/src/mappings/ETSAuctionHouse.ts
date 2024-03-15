@@ -19,7 +19,7 @@ import {
 
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
 import { ensureRelease } from "../entities/Release";
-import { ensureAuction, updateAuction } from "../entities/Auction";
+import { ensureAuction, updateAuction, extendAuction } from "../entities/Auction";
 import { ensureBid } from "../entities/Bid";
 import { updateCreatorAuctionStats } from "../entities/Creator";
 // import { updatePlatformTaggingRecordStats } from "../entities/Platform";
@@ -93,7 +93,7 @@ export function handleAuctionBid(event: AuctionBid): void {
 
 export function handleAuctionExtended(event: AuctionExtended): void {
   let auctionId = event.params.auctionId;
-  updateAuction(auctionId, event);
+  extendAuction(auctionId, event);
 }
 
 export function handleAuctionSettled(event: AuctionSettled): void {

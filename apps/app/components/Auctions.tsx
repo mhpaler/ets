@@ -23,7 +23,7 @@ type Props = {
 const Auctions: NextPage<Props> = ({ filter, pageSize, orderBy, title }) => {
   const { t } = useTranslation("common");
   const [skip, setSkip] = useState(0);
-  const { auctions, nextAuctions, mutate } = useAuctions({
+  const { auctions, nextAuctions } = useAuctions({
     filter: filter,
     pageSize: pageSize,
     orderBy: orderBy,
@@ -38,51 +38,35 @@ const Auctions: NextPage<Props> = ({ filter, pageSize, orderBy, title }) => {
     },
   });
 
-  const pageSizeSet =
-    pageSize === undefined ? settings["DEFAULT_PAGESIZE"] : pageSize;
+  const pageSizeSet = pageSize === undefined ? settings["DEFAULT_PAGESIZE"] : pageSize;
 
   const nextPage = () => {
     setSkip(skip + pageSizeSet);
-    mutate();
   };
 
   const prevPage = () => {
     setSkip(skip - pageSizeSet);
-    mutate();
   };
 
   const showPrevNext = () => {
-    return (nextAuctions && nextAuctions.length > 0) || (skip && skip !== 0)
-      ? true
-      : false;
+    return (nextAuctions && nextAuctions.length > 0) || (skip && skip !== 0) ? true : false;
   };
 
-  const columns = useMemo(
-    () => [t("id"), t("tag"), t("bid"), t("bidder"), t("ends")],
-    [t]
-  );
+  const columns = useMemo(() => [t("id"), t("tag"), t("bid"), t("bidder"), t("ends")], [t]);
 
   return (
     <div className="max-w-7xl mx-auto">
       <Table loading={!auctions} rows={pageSizeSet}>
         {title && <Table.Title>{title}</Table.Title>}
         <Table.Head>
-          <Table.Tr>
-            {columns &&
-              columns.map((column) => (
-                <Table.Th key={column}>{column}</Table.Th>
-              ))}
-          </Table.Tr>
+          <Table.Tr>{columns && columns.map((column) => <Table.Th key={column}>{column}</Table.Th>)}</Table.Tr>
         </Table.Head>
         <Table.Body>
           {auctions &&
             auctions.map((auction: any) => (
               <Table.Tr key={auction.id}>
                 <Table.CellWithChildren>
-                  <Link
-                    href={`/auctions/${auction.id}`}
-                    className="text-pink-600 hover:text-pink-700"
-                  >
+                  <Link href={`/auctions/${auction.id}`} className="text-pink-600 hover:text-pink-700">
                     {auction.id}
                   </Link>
                 </Table.CellWithChildren>
@@ -104,11 +88,7 @@ const Auctions: NextPage<Props> = ({ filter, pageSize, orderBy, title }) => {
             <tr>
               <td className="flex justify-between">
                 <Button disabled={skip === 0} onClick={() => prevPage()}>
-                  <svg
-                    className="relative inline-flex w-6 h-6 mr-2 -ml-1"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="relative inline-flex w-6 h-6 mr-2 -ml-1" fill="none" viewBox="0 0 24 24">
                     <path
                       stroke="currentColor"
                       strokeLinecap="round"
@@ -126,16 +106,9 @@ const Auctions: NextPage<Props> = ({ filter, pageSize, orderBy, title }) => {
                   </svg>
                   {t("prev")}
                 </Button>
-                <Button
-                  disabled={nextAuctions && nextAuctions.length === 0}
-                  onClick={() => nextPage()}
-                >
+                <Button disabled={nextAuctions && nextAuctions.length === 0} onClick={() => nextPage()}>
                   {t("next")}
-                  <svg
-                    className="relative inline-flex w-6 h-6 ml-2 -mr-1"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="relative inline-flex w-6 h-6 ml-2 -mr-1" fill="none" viewBox="0 0 24 24">
                     <path
                       stroke="currentColor"
                       strokeLinecap="round"

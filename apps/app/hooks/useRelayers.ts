@@ -58,7 +58,7 @@ export function useRelayers({
         filter: filter,
       },
     ],
-    config
+    config,
   );
 
   return {
