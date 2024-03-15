@@ -2,109 +2,78 @@ import { useState, Fragment } from "react";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Layout from "@app/layouts/default";
-import { Button } from "@app/components/Button";
 import PageTitle from "@app/components/PageTitle";
-import { createTags } from "@app/services/tokenService";
-
 import { Listbox, Transition } from "@headlessui/react";
-import { useAccount } from "wagmi";
-import { etsTokenConfig } from "../../src/contracts.js";
-
-const people = [{ name: "zachwilliams.eth" }, { name: "swaylocks.eth" }, { name: "nadim.eth" }];
+import { createTags } from "@app/services/tokenService";
+import { useRelayers } from "@app/hooks/useRelayers";
 
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");
+  const [tagInput, setTagInput] = useState("");
+  const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
+  console.log("selectedRelayer", selectedRelayer);
 
-  const [selected, setSelected] = useState(people[0]);
-  const [tagsInput, setTagsInput] = useState("#lol");
+  const { relayers } = useRelayers({});
 
-  const handleMintTags = async () => {
-    const tags = tagsInput.split(",").map((tag) => tag.trim());
-    await createTags(tags);
+  const handleCreateTags = async () => {
+    const tags = tagInput.split(",").map((tag) => tag.trim());
+    if (tags.length > 0 && selectedRelayer) {
+      await createTags(tags, selectedRelayer.id);
+    }
   };
 
   return (
     <Layout>
       <div className="max-w-7xl mx-auto mt-12">
         <div className="space-y-8">
-          <div className="lg:flex">
-            <Listbox value={selected} onChange={setSelected}>
-              <div className="relative w-64">
-                <Listbox.Button className="relative w-full py-3 pl-4 pr-10 text-left bg-white border rounded-lg appearance-none cursor-default border-slate-300 text-slate-700 focus:outline-none focus-visible:border-pink-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-pink-500">
-                  <span className="block truncate">{selected.name}</span>
-                  <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                    <svg className="w-6 h-6 text-slate-400" aria-hidden="true" fill="none" viewBox="0 0 24 24">
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="1.5"
-                        d="M15.25 10.75L12 14.25L8.75 10.75"
-                      />
-                    </svg>
-                  </span>
+          <PageTitle title={t("createTag")} />
+          <input
+            type="text"
+            placeholder="Enter tag, e.g.: #tokenize"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            className="block w-full p-4 border rounded-lg"
+          />
+          <Listbox value={selectedRelayer} onChange={setSelectedRelayer}>
+            {({ open }) => (
+              <>
+                <Listbox.Button className="relative w-full py-3 pl-4 pr-10 text-left bg-white border rounded-lg">
+                  {selectedRelayer ? selectedRelayer.name : "Select a relayer"}
                 </Listbox.Button>
-                <Transition
-                  as={Fragment}
-                  leave="transition ease-in duration-100"
-                  leaveFrom="opacity-100"
-                  leaveTo="opacity-0"
-                >
-                  <Listbox.Options className="absolute w-full py-1 mt-1 overflow-auto text-base bg-white rounded-md shadow-lg max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                    {people.map((person, personIdx) => (
+                <Transition show={open} as={Fragment}>
+                  <Listbox.Options className="p-1 mt-1 overflow-auto bg-white border rounded-md shadow-lg">
+                    {relayers?.map((relayer: any, index: number) => (
                       <Listbox.Option
-                        key={personIdx}
-                        className={({ active }) =>
-                          `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                            active ? "bg-pink-100 text-pink-600" : "text-slate-700"
-                          }`
-                        }
-                        value={person}
+                        key={index}
+                        value={relayer}
+                        className="cursor-default select-none relative py-2 pl-10 pr-4 hover:bg-gray-100"
                       >
                         {({ selected }) => (
                           <>
-                            <span
-                              className={`block truncate ${selected ? "font-medium text-pink-600" : "font-normal"}`}
-                            >
-                              {person.name}
+                            <span className={`block truncate ${selected ? "font-medium" : "font-normal"}`}>
+                              {relayer.name}
                             </span>
-                            {selected ? (
-                              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-pink-600">
-                                <svg
-                                  className="w-6 h-6"
-                                  aria-hidden="true"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M7.75 12.75L10 15.25L16.25 8.75"
-                                    stroke="currentColor"
-                                    strokeWidth="1.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  />
-                                </svg>
-                              </span>
-                            ) : null}
                           </>
                         )}
                       </Listbox.Option>
                     ))}
                   </Listbox.Options>
                 </Transition>
-              </div>
-            </Listbox>
-            <div className="lg:ml-3 lg:flex-shrink-0">
-              <button
-                type="submit"
-                className="flex items-center justify-center w-full px-8 py-3 text-base font-bold text-white transition-colors bg-pink-500 border border-transparent rounded-lg shadow-lg shadow-pink-500/30 hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-300"
-                onClick={handleMintTags}
-              >
-                Mint
-              </button>
-            </div>
-          </div>
+              </>
+            )}
+          </Listbox>
+
+          <button
+            onClick={handleCreateTags}
+            className="px-8 py-3 text-base font-bold text-white bg-pink-500 border border-transparent rounded-lg"
+            disabled={!tagInput || !selectedRelayer}
+            style={{
+              cursor: !tagInput || !selectedRelayer ? "not-allowed" : "pointer",
+              backgroundColor: !tagInput || !selectedRelayer ? "#ccc" : "#f472b6",
+            }}
+          >
+            Create
+          </button>
         </div>
       </div>
     </Layout>

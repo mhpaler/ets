@@ -1,9 +1,15 @@
-import { etsTokenConfig, etsRelayerV1Config } from "../src/contracts";
+import { etsTokenConfig, etsRelayerV1Config, etsRelayerV1ABI } from "../src/contracts";
 import { readContract, writeContract, waitForTransactionReceipt, simulateContract } from "wagmi/actions";
 
 import { wagmiConfig } from "@app/constants/wagmiConfig";
+import { Hex } from "viem";
 
-export const createTags = async (tags: string[]): Promise<void> => {
+export const createTags = async (tags: string[], relayerAddress: Hex): Promise<void> => {
+  const etsConfig = {
+    address: relayerAddress,
+    abi: etsRelayerV1ABI,
+  };
+
   if (tags.length > 0) {
     const tagsToMint = [];
 
@@ -40,7 +46,7 @@ export const createTags = async (tags: string[]): Promise<void> => {
     if (tagsToMint.length > 0) {
       try {
         const hash = await writeContract(wagmiConfig, {
-          ...etsRelayerV1Config,
+          ...etsConfig,
           functionName: "getOrCreateTagIds",
           args: [tagsToMint],
         });
