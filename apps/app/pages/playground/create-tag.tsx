@@ -33,6 +33,7 @@ const Playground: NextPage = () => {
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
             className="block w-full p-4 border rounded-lg"
+            style={{ minWidth: "300px" }}
           />
           <Listbox value={selectedRelayer} onChange={setSelectedRelayer}>
             {({ open }) => (
@@ -41,7 +42,7 @@ const Playground: NextPage = () => {
                   {selectedRelayer ? selectedRelayer.name : "Select a relayer"}
                 </Listbox.Button>
                 <Transition show={open} as={Fragment}>
-                  <Listbox.Options className="p-1 mt-1 overflow-auto bg-white border rounded-md shadow-lg">
+                  <Listbox.Options className="p-1 mt-1 overflow-auto bg-white border rounded-md shadow-lg absolute">
                     {relayers?.map((relayer: any, index: number) => (
                       <Listbox.Option
                         key={index}
