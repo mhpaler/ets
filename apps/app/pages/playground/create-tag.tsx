@@ -4,9 +4,10 @@ import useTranslation from "next-translate/useTranslation";
 import Layout from "@app/layouts/default";
 import { Button } from "@app/components/Button";
 import PageTitle from "@app/components/PageTitle";
+import { createTags } from "@app/services/tokenService";
 
 import { Listbox, Transition } from "@headlessui/react";
-import { useContractWrite } from "wagmi";
+import { useAccount } from "wagmi";
 import { etsTokenConfig } from "../../src/contracts.js";
 
 const people = [{ name: "zachwilliams.eth" }, { name: "swaylocks.eth" }, { name: "nadim.eth" }];
@@ -15,6 +16,12 @@ const Playground: NextPage = () => {
   const { t } = useTranslation("common");
 
   const [selected, setSelected] = useState(people[0]);
+  const [tagsInput, setTagsInput] = useState("#lol");
+
+  const handleMintTags = async () => {
+    const tags = tagsInput.split(",").map((tag) => tag.trim());
+    await createTags(tags);
+  };
 
   return (
     <Layout>
@@ -92,6 +99,7 @@ const Playground: NextPage = () => {
               <button
                 type="submit"
                 className="flex items-center justify-center w-full px-8 py-3 text-base font-bold text-white transition-colors bg-pink-500 border border-transparent rounded-lg shadow-lg shadow-pink-500/30 hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-300"
+                onClick={handleMintTags}
               >
                 Mint
               </button>
