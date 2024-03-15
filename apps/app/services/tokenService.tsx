@@ -1,7 +1,6 @@
 import { etsTokenConfig, etsRelayerV1Config, etsRelayerV1ABI } from "../src/contracts";
 import { readContract, writeContract, waitForTransactionReceipt, simulateContract } from "wagmi/actions";
-
-import { wagmiConfig } from "@app/constants/wagmiConfig";
+import { wagmiConfig } from "@app/constants/config";
 import { Hex } from "viem";
 
 export const createTags = async (tags: string[], relayerAddress: Hex): Promise<void> => {
