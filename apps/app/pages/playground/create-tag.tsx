@@ -61,7 +61,7 @@ const Playground: NextPage = () => {
           <PageTitle title={t("create-tag")} />
           <input
             type="text"
-            placeholder={t("Enter tag, e.g.: #tokenize")}
+            placeholder="Enter tag, e.g.: #tokenize"
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
             className="block w-full p-4 border rounded-lg"
