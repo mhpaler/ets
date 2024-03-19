@@ -3,9 +3,9 @@
 import { lightTheme, Theme } from "@rainbow-me/rainbowkit";
 import merge from "lodash.merge";
 
-import { http, createConfig, Config, fallback } from "@wagmi/core";
-import { polygonMumbai, hardhat } from "@wagmi/core/chains";
-import { injected } from "@wagmi/connectors";
+import { http, createConfig, Config, fallback } from "wagmi";
+import { polygonMumbai, hardhat } from "wagmi/chains";
+import { injected } from "wagmi/connectors";
 
 //export const config = createConfig({
 //  chains: [mainnet, sepolia],
