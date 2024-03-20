@@ -3,7 +3,7 @@ import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Layout from "@app/layouts/default";
 import PageTitle from "@app/components/PageTitle";
-import { createTags } from "@app/services/tokenService";
+import { createTags, existingTags } from "@app/services/tokenService";
 import { useRelayers } from "@app/hooks/useRelayers";
 import { useAccount } from "wagmi";
 import { isValidTag, invalidTagMsg } from "@app/utils/tagUtils";
@@ -15,6 +15,7 @@ const Playground: NextPage = () => {
   const { chain } = useAccount();
   const isCorrectNetwork = chain?.id === 80001;
   const { relayers } = useRelayers({});
+  const [tagExists, setTagExists] = useState(false);
   const [toast, setToast] = useState<{
     show: boolean;
     message: string | JSX.Element;
@@ -28,15 +29,45 @@ const Playground: NextPage = () => {
     }
   }, [toast]);
 
-  const disabled = !isValidTag(tagInput) || !selectedRelayer || !isCorrectNetwork;
+  const disabled = !isValidTag(tagInput) || !selectedRelayer || !isCorrectNetwork || tagExists;
 
   const getTooltipMessage = () => {
     if (!tagInput) return "Please enter a tag.";
     if (!isValidTag(tagInput)) return invalidTagMsg;
+    if (tagExists) return "This tag already exists. Please enter a different tag.";
     if (!selectedRelayer) return "Please select a relayer.";
     if (!isCorrectNetwork) return "Switch to Mumbai network.";
     return "";
   };
+
+  useEffect(() => {
+    let debounceTimer: any;
+    const checkTagExists = async () => {
+      if (tagInput) {
+        const tags = await existingTags([tagInput]);
+
+        if (tags.length > 0) {
+          setTagExists(true);
+        } else {
+          setTagExists(false);
+        }
+      }
+    };
+
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+    }
+
+    debounceTimer = setTimeout(() => {
+      checkTagExists();
+    }, 500);
+
+    return () => {
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+    };
+  }, [tagInput]);
 
   const handleSelectRelayer = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const relayerId = event.target.value;
@@ -55,7 +86,7 @@ const Playground: NextPage = () => {
         const viewTagUrl = `/tags/${tagWithoutHashtag}`;
         const successMessage = (
           <>
-            Tags created successfully!{" "}
+            Tag created successfully!{" "}
             <a href={viewTagUrl} className="link link-primary" style={{ color: "white" }}>
               View tag here
             </a>
@@ -90,6 +121,9 @@ const Playground: NextPage = () => {
 
         {tagInput && !isValidTag(tagInput) && tagInput !== "#" && (
           <div className="text-error mt-2 text-xs">{invalidTagMsg}</div>
+        )}
+        {tagExists && (
+          <div className="text-error mt-2 text-xs">This tag already exists. Please enter a different tag.</div>
         )}
         <div className="relative">
           <select

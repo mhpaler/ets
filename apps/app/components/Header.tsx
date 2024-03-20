@@ -53,7 +53,7 @@ export default function Header() {
             return <BreadcrumbItem title={Truncate(title)} />;
           }}
           inactiveItemClassName={"text-sm font-medium link-primary capitalize"}
-          activeItemClassName={"text-sm font-medium opacity-50 pointer-events-none"}
+          activeItemClassName={"text-sm font-medium opacity-50 pointer-events-none capitalize"}
           listClassName={"flex items-center space-x-2 truncate"}
           useDefaultStyle={false}
         />

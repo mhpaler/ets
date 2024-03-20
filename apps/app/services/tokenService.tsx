@@ -3,14 +3,9 @@ import { readContract, writeContract, waitForTransactionReceipt } from "wagmi/ac
 import { wagmiConfig } from "@app/constants/config";
 import { Hex } from "viem";
 
-export const createTags = async (tags: string[], relayerAddress: Hex): Promise<void> => {
-  const etsConfig = {
-    address: relayerAddress,
-    abi: etsRelayerV1ABI,
-  };
-
-  if (tags.length > 0) {
-    const tagsToMint = [];
+export const existingTags = async (tags: string[]): Promise<string[]> => {
+  try {
+    const existingTags = [];
 
     for (let tag of tags) {
       try {
@@ -20,28 +15,36 @@ export const createTags = async (tags: string[], relayerAddress: Hex): Promise<v
           args: [tag],
         });
 
-        console.log("tagId", tagId);
-
         const exists = await readContract(wagmiConfig, {
           ...etsTokenConfig,
           functionName: "tagExistsById",
           args: [tagId],
         });
 
-        console.log("exists", exists);
-
-        if (!exists) {
-          tagsToMint.push(tag);
-        } else {
-          console.log(`${tag} already exists`);
+        if (exists) {
+          existingTags.push(tag);
         }
       } catch (error) {
         console.error(`Error processing tag "${tag}":`, error);
       }
     }
 
-    console.log("Tags to mint:", tagsToMint);
-    console.log("wagmiConfig", wagmiConfig);
+    return existingTags;
+  } catch (error) {
+    console.error("Error checking if tag exists:", error);
+    throw error;
+  }
+};
+
+export const createTags = async (tags: string[], relayerAddress: Hex): Promise<void> => {
+  const etsConfig = {
+    address: relayerAddress,
+    abi: etsRelayerV1ABI,
+  };
+
+  if (tags.length > 0) {
+    const t = await existingTags(tags);
+    const tagsToMint = tags.filter((tag) => !t.includes(tag));
 
     if (tagsToMint.length > 0) {
       try {
@@ -50,8 +53,6 @@ export const createTags = async (tags: string[], relayerAddress: Hex): Promise<v
           functionName: "getOrCreateTagIds",
           args: [tagsToMint],
         });
-
-        console.log("Transaction hash:", hash);
 
         const transactionReceipt = await waitForTransactionReceipt(wagmiConfig, {
           hash,
