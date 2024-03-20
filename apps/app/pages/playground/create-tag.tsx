@@ -3,7 +3,7 @@ import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Layout from "@app/layouts/default";
 import PageTitle from "@app/components/PageTitle";
-import { createTags, existingTags } from "@app/services/tokenService";
+import { createTags, tagExists } from "@app/services/tokenService";
 import { useRelayers } from "@app/hooks/useRelayers";
 import { useAccount } from "wagmi";
 import { isValidTag, invalidTagMsg } from "@app/utils/tagUtils";
@@ -15,7 +15,7 @@ const Playground: NextPage = () => {
   const { chain } = useAccount();
   const isCorrectNetwork = chain?.id === 80001;
   const { relayers } = useRelayers({});
-  const [tagExists, setTagExists] = useState(false);
+  const [exists, setExists] = useState(false);
   const [toast, setToast] = useState<{
     show: boolean;
     message: string | JSX.Element;
@@ -29,12 +29,12 @@ const Playground: NextPage = () => {
     }
   }, [toast]);
 
-  const disabled = !isValidTag(tagInput) || !selectedRelayer || !isCorrectNetwork || tagExists;
+  const disabled = !isValidTag(tagInput) || !selectedRelayer || !isCorrectNetwork || exists;
 
   const getTooltipMessage = () => {
     if (!tagInput) return "Please enter a tag.";
     if (!isValidTag(tagInput)) return invalidTagMsg;
-    if (tagExists) return "This tag already exists. Please enter a different tag.";
+    if (exists) return "This tag already exists. Please enter a different tag.";
     if (!selectedRelayer) return "Please select a relayer.";
     if (!isCorrectNetwork) return "Switch to Mumbai network.";
     return "";
@@ -44,13 +44,8 @@ const Playground: NextPage = () => {
     let debounceTimer: any;
     const checkTagExists = async () => {
       if (tagInput) {
-        const tags = await existingTags([tagInput]);
-
-        if (tags.length > 0) {
-          setTagExists(true);
-        } else {
-          setTagExists(false);
-        }
+        const exists = await tagExists(tagInput);
+        setExists(exists);
       }
     };
 
@@ -122,7 +117,7 @@ const Playground: NextPage = () => {
         {tagInput && !isValidTag(tagInput) && tagInput !== "#" && (
           <div className="text-error mt-2 text-xs">{invalidTagMsg}</div>
         )}
-        {tagExists && (
+        {exists && (
           <div className="text-error mt-2 text-xs">This tag already exists. Please enter a different tag.</div>
         )}
         <div className="relative">

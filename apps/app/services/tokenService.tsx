@@ -3,29 +3,36 @@ import { readContract, writeContract, waitForTransactionReceipt } from "wagmi/ac
 import { wagmiConfig } from "@app/constants/config";
 import { Hex } from "viem";
 
+export const tagExists = async (tag: string): Promise<boolean> => {
+  try {
+    const tagId = await readContract(wagmiConfig, {
+      ...etsTokenConfig,
+      functionName: "computeTagId",
+      args: [tag],
+    });
+
+    const exists = await readContract(wagmiConfig, {
+      ...etsTokenConfig,
+      functionName: "tagExistsById",
+      args: [tagId],
+    });
+
+    return exists;
+  } catch (error) {
+    console.error("Error checking if tag exists:", error);
+    throw error;
+  }
+};
+
 export const existingTags = async (tags: string[]): Promise<string[]> => {
   try {
     const existingTags = [];
 
     for (let tag of tags) {
-      try {
-        const tagId = await readContract(wagmiConfig, {
-          ...etsTokenConfig,
-          functionName: "computeTagId",
-          args: [tag],
-        });
+      const exists = await tagExists(tag);
 
-        const exists = await readContract(wagmiConfig, {
-          ...etsTokenConfig,
-          functionName: "tagExistsById",
-          args: [tagId],
-        });
-
-        if (exists) {
-          existingTags.push(tag);
-        }
-      } catch (error) {
-        console.error(`Error processing tag "${tag}":`, error);
+      if (exists) {
+        existingTags.push(tag);
       }
     }
 
