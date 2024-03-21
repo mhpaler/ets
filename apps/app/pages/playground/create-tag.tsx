@@ -142,7 +142,7 @@ const Playground: NextPage = () => {
             disabled={disabled}
             className={`btn ${disabled ? "btn-disabled" : "btn-primary"}`}
           >
-            {t("create")}
+            {t("Create")}
           </button>
         </div>
       </div>
