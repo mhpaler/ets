@@ -2,177 +2,82 @@
  * BlockchainService is a class responsible for interacting with the blockchain.
  * It provides methods to fetch blockchain data and watch for specific events.
  */
+import { ethers } from "ethers";
+import { DefenderRelaySigner } from "@openzeppelin/defender-sdk-relay-signer-client/lib/ethers/signer";
 
-// Import necessary modules and configurations.
-import { AbiEvent } from "abitype";
-import { createPublicClient, http, createWalletClient, PublicClient, WalletClient, PrivateKeyAccount } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
-import { hardhat, polygonMumbai } from "viem/chains";
-import { etsAuctionHouseConfig, etsAccessControlsConfig } from "../contracts.ts";
-import { TagService } from "./tagService.ts";
+//import { DefenderRelaySigner } from "@openzeppelin/defender-relay-client/lib/ethers";
+import { etsAuctionHouseConfig, etsAccessControlsConfig } from "../contracts";
+import { TagService } from "./tagService";
 
-// Define the BlockchainService class.
+// Assuming ABI and addresses are correctly defined in your contracts configurations
+const { abi: accessControlsAbi, address: accessControlsAddress } = etsAccessControlsConfig;
+const { abi: auctionHouseAbi, address: auctionHouseAddress } = etsAuctionHouseConfig;
+
 export class BlockchainService {
-  // Ensure that there's only one instance of BlockchainService.
-  private static instance: BlockchainService;
-  public publicClient: PublicClient;
-  public walletClient: WalletClient;
-  private etsOracleAccount: PrivateKeyAccount;
+  //private provider: ethers.providers.Provider;
+  //private static instance: BlockchainService | null = null;
+  private signer: ethers.Signer | DefenderRelaySigner;
+  private accessControlsContract: ethers.Contract;
+  private auctionHouseContract: ethers.Contract;
 
-  /**
-   * Create a new instance of BlockchainService.
-   * Initialize the necessary clients and account.
-   */
-  constructor() {
-    // Determine the chain based on the NETWORK environment variable
-    let chain;
-    let transport = http();
-    if (process.env.NETWORK === "localhost") {
-      chain = hardhat;
-    } else if (process.env.NETWORK === "mumbai" || process.env.NETWORK === "mumbai_stage") {
-      chain = polygonMumbai;
-      if (process.env.NEXT_PUBLIC_ALCHEMY_KEY) {
-        const alchemyBaseUrl = chain.rpcUrls.alchemy.http[0]; // Accessing the first element of the array
-        const fullAlchemyUrl = `${alchemyBaseUrl}/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
-        transport = http(fullAlchemyUrl, {
-          batch: true,
-        });
-      }
-    }
-
-    console.log("Chain: ", chain?.name);
-
-    this.publicClient = createPublicClient({
-      chain: chain,
-      transport,
-    });
-
-    this.walletClient = createWalletClient({
-      chain: chain,
-      transport,
-    });
-
-    // Load ETSOracle account from mnemonic. Make sure key corresponds to correct chain.
-    this.etsOracleAccount = privateKeyToAccount(`0x${process.env.ETS_ORACLE_PK}`);
+  constructor(signer: ethers.Signer | DefenderRelaySigner) {
+    this.signer = signer as ethers.Signer;
+    this.accessControlsContract = new ethers.Contract(accessControlsAddress, accessControlsAbi, this.signer);
+    this.auctionHouseContract = new ethers.Contract(auctionHouseAddress, auctionHouseAbi, this.signer);
   }
 
-  /**
-   * Get an instance of BlockchainService (singleton pattern).
-   * @returns An instance of BlockchainService.
-   */
-  public static getInstance(): BlockchainService {
-    if (!BlockchainService.instance) {
-      BlockchainService.instance = new BlockchainService();
-    }
-    return BlockchainService.instance;
-  }
-
-  /**
-   * Fetch the ETS Platform address from the blockchain.
-   * @returns A Promise that resolves to the ETS Platform address.
-   */
   public async getPlatformAddress(): Promise<string> {
-    const platformAddress: string = await this.publicClient.readContract({
-      ...etsAccessControlsConfig,
-      functionName: "getPlatformAddress",
-    });
+    const platformAddress = await this.accessControlsContract.getPlatformAddress();
     return platformAddress.toLowerCase();
   }
 
-  /**
-   * Fetch the HDAccount representing the platform's account.
-   * @returns A Promise that resolves to the platform's HDAccount.
-   */
-  public async getOracleAccount(): Promise<PrivateKeyAccount> {
-    // TODO: check isAuctionOracle.
-    return this.etsOracleAccount;
-  }
-
-  /**
-   * Fetch the ID of the last auction from the blockchain.
-   * @returns A Promise that resolves to the ID of the last auction.
-   */
   public async getLastAuctionId(): Promise<bigint> {
-    const lastAuctionId = await this.publicClient.readContract({
-      ...etsAuctionHouseConfig,
-      functionName: "getTotalCount",
-    });
+    const lastAuctionId = await this.auctionHouseContract.getTotalCount();
     return lastAuctionId;
   }
 
-  /**
-   * Fetch the ID of the token auctioned in a specific auction.
-   * @param auctionId - The ID of the auction.
-   * @returns A Promise that resolves to the token ID.
-   */
   public async getAuctionedTokenId(auctionId: bigint): Promise<bigint> {
-    const auction = await this.publicClient.readContract({
-      ...etsAuctionHouseConfig,
-      functionName: "getAuction",
-      args: [auctionId],
-    });
+    const auction = await this.auctionHouseContract.getAuction(auctionId);
     return auction.tokenId;
   }
 
-  /**
-   * Start watching for the "RequestCreateAuction" event on the blockchain.
-   */
-  public async watchRequestCreateAuction() {
-    const requestCreateAuction = etsAuctionHouseConfig.abi.find(
-      (item) => item.type === "event" && item.name === "RequestCreateAuction",
-    ) as AbiEvent;
+  public async handleRequestCreateAuctionEvent() {
+    try {
+      const platformAccount = (await this.getPlatformAddress()).toLowerCase();
+      const lastAuctionId = await this.getLastAuctionId();
+      const lastAuctionTokenId = (await this.getAuctionedTokenId(lastAuctionId)).toString();
+      const tagService = new TagService(); // Ensure TagService is correctly initialized
+      const tokenId = await tagService.findNextCTAG(platformAccount, lastAuctionTokenId);
 
-    if (!requestCreateAuction) {
-      console.error("RequestCreateAuction event not found in ABI");
-      process.exit(1);
+      const tx = await this.auctionHouseContract.fulfillRequestCreateAuction(BigInt(tokenId));
+      const receipt = await tx.wait();
+
+      console.log(`Next token successfully released. Txn Hash: ${receipt.transactionHash}`);
+    } catch (error) {
+      console.error("An unexpected error occurred: ", error);
     }
+  }
 
-    console.log("Watching for RequestCreateAuction event...");
-    console.log("Event ABI:", requestCreateAuction);
-    console.log("Watching Contract: ", etsAuctionHouseConfig.address);
+  public async watchRequestCreateAuction() {
+    // Subscribing to the RequestCreateAuction event.
+    console.log("***** Local auction oracle started *****");
+    console.log("Listening for RequestCreateAuction event...");
 
-    const unwatchRequestCreateAuction = this.publicClient.watchEvent({
-      address: etsAuctionHouseConfig.address,
-      event: requestCreateAuction,
-      onLogs: async () => {
-        // TODO: review logs to verify block, address & transactionHash of event?
-        //console.log(logs);
-        try {
-          // Find the oldest CTAG owned by ETS
-          const account: PrivateKeyAccount = await this.getOracleAccount();
-          const platformAccount = (await this.getPlatformAddress()).toLowerCase();
-          const lastAuctionId = await this.getLastAuctionId();
-          const lastAuctionTokenId = (await this.getAuctionedTokenId(lastAuctionId)).toString();
-          const tagService = new TagService();
-          const tokenId = await tagService.findNextCTAG(platformAccount, lastAuctionTokenId);
-
-          const { request } = await this.publicClient.simulateContract({
-            account,
-            ...etsAuctionHouseConfig,
-            functionName: "fulfillRequestCreateAuction",
-            args: [BigInt(tokenId)],
-          });
-
-          const response = await this.walletClient.writeContract(request);
-          console.log(`Next token successfully released. Txn Hash: ${response}`);
-        } catch (error: any) {
-          console.error("An unexpected error occurred: ", error.message);
-        }
-      },
-      onError: (error) => {
-        console.error("Error:", error);
-      },
+    this.auctionHouseContract.on("RequestCreateAuction", async (...args) => {
+      console.log("RequestCreateAuction event detected:", args);
+      await this.handleRequestCreateAuctionEvent();
     });
 
-    // Handle graceful shutdown (e.g., with Ctrl+C)
+    const stopListening = () => {
+      this.auctionHouseContract.removeAllListeners("RequestCreateAuction");
+      console.log("Stopped listening to RequestCreateAuction events.");
+    };
+
+    // Handling SIGINT signal to gracefully shut down and cleanup.
     process.on("SIGINT", () => {
-      unwatchRequestCreateAuction();
-      console.log("requestCreateAuction Service terminated.");
+      stopListening();
+      console.log("Cleanup complete. Exiting now.");
       process.exit();
     });
   }
 }
-
-// Create a singleton instance of BlockchainService.
-const blockchainService = BlockchainService.getInstance();
-export default blockchainService;
