@@ -16,6 +16,7 @@ resources:
   actions:
     release-next-auction:
       name: ReleaseNextAuction
+      relayer: ${self:resources.relayers.ets-auction-oracle}
       trigger:
         type: sentinel
       paused: false
