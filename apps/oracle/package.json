@@ -4,7 +4,7 @@
   "scripts": {
     "build:local": "dotenv -e ../../.env wagmi generate && rollup -c rollup.localhost.config.ts",
     "build:defender": "dotenv -e ../../.env -- wagmi generate && rollup -c rollup.defender.config.ts",
-    "dev": "pnpm run build:local && dotenv -e ../../.env -- node dist/localhost.js",
+    "dev": "pnpm run build:local && dotenv -e ../../.env -- node dist/localhost/index.js",
     "dev:defender": "pnpm run build:defender && dotenv -e ../../.env node dist/defender/actions/release-next-auction/index.js",
     "deploy:defender": "pnpm run build:defender && dotenv -e ../../.env serverless deploy"
   },

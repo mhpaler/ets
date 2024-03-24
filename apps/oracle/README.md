@@ -1,64 +1,103 @@
 # ETS Oracle
 
-The "ETS Oracle" is a catchall term to describe the off-chain processes that support ETS.
+The ETS Oracle facilitates off-chain processes that support the Ethereum Tag Service (ETS), leveraging [OpenZeppelin Defender](https://www.openzeppelin.com/defender) for its robust security practices and developer tools. As ETS evolves, we aim to progressively adopt more decentralized infrastructure solutions.
 
-ETS Oracle relies heavily on [Open Zeppelin Defender](https://www.openzeppelin.com/defender). Defender was chosen for it's best in class security practices and development tooling.
-
-As ETS matures, whenever possible, we will move towards using more decentralized infrastructure.
-
-## Oracle Processes
-
-### Enrich Target
-
-Coming soon. Details can be found inside [ETSEnrichTarget.sol](https://github.com/ethereum-tag-service/ets/blob/stage/packages/contracts/contracts/ETSEnrichTarget.sol).
+## Overview of Oracle Processes
 
 ### Release Next Auction
 
-By design, ETS places strict controls on the number of concurrent tag auctions (currently one per auctioneer) as well as the order in which tags are released for auction.
+ETS enforces strict limits on concurrent tag auctions and dictates the sequence of tag releases. While the ETS Tag Auction operates entirely on-chain, inspired by [Nouns Auction](https://nouns.wtf/), selecting and releasing the next tag for auction requires off-chain computation.
 
-Based on a modified version of the [Nouns auction](https://nouns.wtf/), the ETS Tag auction is handled 100% on-chain. However, process of selecting and releasing the next tag for auction requires off-chain processing. This is handled by the **Release Next Auction** process.
+#### Workflow
 
-From a high-level, the process operates as follows:
+1. **Auction Closure**: An auction concludes when the current block time exceeds the `end_time`, disallowing further bids.
+2. **Settlement**: A public function, `ETSAuctionHouse.settleAuction(uint256 _auctionId)`, settles the auction, transferring the tag to the winner, distributing funds, and emitting an `AuctionSettled` event.
+3. **Event Monitoring**: A custom [Defender Monitor](https://docs.openzeppelin.com/defender/v2/module/monitor) listens for `AuctionSettled` events.
+4. **Action Trigger**: On detecting an `AuctionSettled` event, the monitor triggers a [Defender Action](https://docs.openzeppelin.com/defender/v2/module/actions), `ReleaseNextAuction`.
+5. **Tag Selection**: The action queries our ETS Graph to identify the next tag based on specific criteria.
+6. **Tag Release**: The selected tag is then released for auction via a [Defender Relayer](https://docs.openzeppelin.com/defender/v2/manage/relayers), calling `ETSAuctionHouse.fulfillRequestCreateAuction(uint256 _tokenId)` on-chain, initiating a new auction cycle.
 
-1. An auction ends. No more bids are permitted because current `blocktime` is greater than or equal to the auction `end_time`.
-2. Someone executes the public `ETSAuctionHouse.settleAuction(uint256 _auctionId)` function. This is an an on-chain transaction that transfers the tag to it's new owner, distributes the auction proceeds, and emits an `AuctionSettled` event.
-3. Our custom [Defender Monitor](https://docs.openzeppelin.com/defender/v2/module/monitor) is listening for `AuctionSettled` events.
-4. When the Monitor picks up the event, it triggers our custom [Defender Action](https://docs.openzeppelin.com/defender/v2/module/actions) called `ReleaseNextAuction`.
-5. Our `ReleaseNextAuction` Action makes use of our ETS Graph to find the `tokenId` for the oldest tag with the highest use count. Selection logic is described below.
-6. With the `tokenId`, our Action uses our custom [Defender Relayer](https://docs.openzeppelin.com/defender/v2/manage/relayers) to call back onchain the `ETSAuctionHouse.fulfillRequestCreateAuction(uint256 _tokenId)` function, which "releases" the tag. Once released, the token is open for bidding.
-7. Once a bid is cast, the auction begins and the cycle continues.
+#### Selection Criteria
 
-#### Release Ordering Logic
+- Prioritize tags with a positive "tagAppliedInTaggingRecord" count.
+- In the absence of such tags, select the oldest tag.
+- For ties, choose the oldest among those with equal "tagAppliedInTaggingRecord" counts.
 
-The logic for selecting the next tag to be auctioned is as follows:
+### Local Development
 
-1. Retrieve all tags owned by the ETS Platform, excluding the last auctioned tag. (New tags are owned by ETS Platform by default)
-2. Filter the tags to include only those with a positive "tagAppliedInTaggingRecord" count.
-3. If there are no tags with a positive "tagAppliedInTaggingRecord" count, select the oldest tag.
-4. If there are tags with a positive "tagAppliedInTaggingRecord" count, select the tag with the highest count.
-5. If there are multiple tags with an equal high "tagAppliedInTaggingRecord" count, select the oldest tag among them.
+For local testing with Hardhat:
+
+1. Ensure environment variables are set in the project root:
 
 ```bash
-# Defender Dependency Version: v2023-11-22
-Node version: v16.20.2
-@openzeppelin/defender-sdk: 1.5.0
-@datadog/datadog-api-client: 1.18.0
-@gnosis.pm/safe-core-sdk: 0.3.1
-@gnosis.pm/safe-ethers-adapters: 0.1.0-alpha.13
-axios: 1.6.1
-axios-retry: 3.5.0
-@openzeppelin/defender-admin-client: 1.52.0
-@openzeppelin/defender-autotask-client: 1.52.0
-@openzeppelin/defender-autotask-utils: 1.52.0
-@openzeppelin/defender-kvstore-client: 1.52.0
-@openzeppelin/defender-relay-client: 1.52.0
-@openzeppelin/defender-sentinel-client: 1.52.0
-ethers: 5.5.3
-fireblocks-sdk: 2.5.4
-graphql: 15.8.0
-graphql-request: 3.4.0
-web3: 1.9.0
+MNEMONIC_LOCAL="test test test test test test test test test test test junk"
+ETS_ORACLE_LOCALHOST_PK=your_private_key_here
+NETWORK=localhost
+NEXT_PUBLIC_ETS_ENVIRONMENT=development
 ```
+
+Start the local oracle, Hardhat, and the front-end app with:
+
+```bash
+# within repository root
+pnpm run dev
+```
+
+For front-end testing on Mumbai, configure:
+
+```bash
+NETWORK=mumbai_stage
+NEXT_PUBLIC_ETS_ENVIRONMENT=stage
+```
+
+#### Building and Deployment
+
+The source code, written in TypeScript, requires compilation via Rollup.js. Separate Rollup configurations and build commands are available for local and Defender environments:
+
+```bash
+# Build commands within /apps/oracle
+
+# For localhost oracle
+pnpm run build:localhost
+
+# For Defender oracle
+pnpm run build:defender
+```
+
+Deploy the Defender Action with the Defender as Code plugin, configured in /apps/oracle/serverless.yml. Deployment requires Team API keys:
+
+```bash
+# Environment variables for local deployment
+TEAM_API_KEY=your_api_key_here
+TEAM_API_SECRET=your_api_secret_here
+```
+
+Deploy with:
+
+```bash
+pnpm run deploy:defender
+```
+
+#### Testing Defender Processes Locally
+
+Test Defender Actions locally while using a Defender Relayer for transactions by setting:
+
+```bash
+NETWORK=mumbai_stage
+# Api keys for the Defender relayer
+API_KEY=your_api_key_here
+API_SECRET=your_api_secret_here
+```
+
+Run the Action with:
+
+```bash
+pnpm run dev:defender
+```
+
+#### Dependencies
+
+Dependencies are pinned to versions compatible with Defender's environment, ensuring seamless integration and deployment.
 
 ```bash
 # Defender Dependency Version: v2024-01-18

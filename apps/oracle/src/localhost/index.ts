@@ -1,6 +1,11 @@
 import { initializeSigner } from "./../services/initializeSigner";
 import { BlockchainService } from "./../services/blockchainService";
 
+/**
+ * The main function to initialize and start the local oracle for testing.
+ * It ensures the environment is correctly set for local testing and initializes
+ * the blockchain service to watch and handle auction-related events.
+ */
 function main() {
   // Check if the NETWORK environment variable is set to "localhost"
   if (process.env.NETWORK !== "localhost") {
