@@ -62,15 +62,24 @@ export class BlockchainService {
    */
   public async handleRequestCreateAuctionEvent() {
     try {
-      const platformAccount = await this.getPlatformAddress();
-      const lastAuctionId = await this.getLastAuctionId();
-      const lastAuctionTokenId = (await this.getAuctionedTokenId(lastAuctionId)).toString();
-      const tagService = new TagService(); // Instantiate TagService for determining the next tag.
-      const tokenId = await tagService.findNextCTAG(platformAccount, lastAuctionTokenId);
+      // Check the current number of active auctions and compare it with the max auctions limit
+      const activeAuctionsCount = await this.auctionHouseContract.getActiveCount();
+      const maxAuctions = await this.auctionHouseContract.maxAuctions();
 
-      const tx = await this.auctionHouseContract.fulfillRequestCreateAuction(BigInt(tokenId));
-      const receipt = await tx.wait();
-      console.log(`Next token successfully released. Txn Hash: ${receipt.transactionHash}`);
+      if (activeAuctionsCount < maxAuctions) {
+        // Only proceed if there are open slots for auctions
+        const platformAccount = await this.getPlatformAddress();
+        const lastAuctionId = await this.getLastAuctionId();
+        const lastAuctionTokenId = (await this.getAuctionedTokenId(lastAuctionId)).toString();
+        const tagService = new TagService(); // Instantiate TagService for determining the next tag.
+        const tokenId = await tagService.findNextCTAG(platformAccount, lastAuctionTokenId);
+
+        const tx = await this.auctionHouseContract.fulfillRequestCreateAuction(BigInt(tokenId));
+        const receipt = await tx.wait();
+        console.log(`Next token successfully released. Txn Hash: ${receipt.transactionHash}`);
+      } else {
+        console.log("No open auction slots available. Skipping auction creation.");
+      }
     } catch (error) {
       console.error("An unexpected error occurred: ", error);
     }
