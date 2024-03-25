@@ -103,6 +103,12 @@ export default function Navigation() {
                 <Link className={isActive("create-tag") ? "bg-base-200" : ""} href="/playground/create-tag">
                   {t("create-tag")}
                 </Link>
+                <Link
+                  className={isActive("create-tagging-record") ? "bg-base-200" : ""}
+                  href="/playground/create-tagging-record"
+                >
+                  {t("create-tagging-record")}
+                </Link>
               </li>
             </ul>
           </li>

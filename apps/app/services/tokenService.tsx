@@ -1,4 +1,4 @@
-import { etsTokenConfig, etsRelayerV1ABI } from "../src/contracts";
+import { etsTokenConfig, etsRelayerV1ABI, etsABI } from "../src/contracts";
 import { readContract, writeContract, waitForTransactionReceipt } from "wagmi/actions";
 import { wagmiConfig } from "@app/constants/config";
 import { Hex } from "viem";
