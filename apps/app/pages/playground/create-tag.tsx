@@ -10,17 +10,18 @@ import { isValidTag, invalidTagMsg } from "@app/utils/tagUtils";
 
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");
+  const { chain } = useAccount();
   const [tagInput, setTagInput] = useState("");
   const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
-  const { chain } = useAccount();
-  const isCorrectNetwork = chain?.id === 80001;
-  const { relayers } = useRelayers({});
   const [exists, setExists] = useState(false);
   const [toast, setToast] = useState<{
     show: boolean;
     message: string | JSX.Element;
     type: string;
   }>({ show: false, message: "", type: "" });
+  const [isCreatingTag, setIsCreatingTag] = useState(false);
+  const { relayers } = useRelayers({});
+  const isCorrectNetwork = chain?.id === 80001; // should be adapted once we enable multiple networks
 
   useEffect(() => {
     if (toast.show) {
@@ -29,7 +30,7 @@ const Playground: NextPage = () => {
     }
   }, [toast]);
 
-  const disabled = !isValidTag(tagInput) || !selectedRelayer || !isCorrectNetwork || exists;
+  const disabled = !isValidTag(tagInput) || !selectedRelayer || !isCorrectNetwork || exists || isCreatingTag; // Added isCreatingTag to the disabled condition
 
   const getTooltipMessage = () => {
     if (!tagInput) return "Please enter a tag.";
@@ -37,6 +38,7 @@ const Playground: NextPage = () => {
     if (exists) return "This tag already exists. Please enter a different tag.";
     if (!selectedRelayer) return "Please select a relayer.";
     if (!isCorrectNetwork) return "Switch to Mumbai network.";
+    if (isCreatingTag) return "Creating tag...";
     return "";
   };
 
@@ -72,6 +74,7 @@ const Playground: NextPage = () => {
 
   const handleCreateTags = async () => {
     if (!disabled) {
+      setIsCreatingTag(true);
       try {
         const firstTag = tagInput.trim();
         await createTags([firstTag], selectedRelayer.id);
@@ -93,6 +96,8 @@ const Playground: NextPage = () => {
       } catch (error) {
         console.error("Error creating tags:", error);
         setToast({ show: true, message: "Failed to create tags.", type: "alert-error" });
+      } finally {
+        setIsCreatingTag(false);
       }
     }
   };
@@ -142,7 +147,7 @@ const Playground: NextPage = () => {
             disabled={disabled}
             className={`btn ${disabled ? "btn-disabled" : "btn-primary"}`}
           >
-            {t("Create")}
+            {isCreatingTag ? "Creating..." : t("Create")}
           </button>
         </div>
       </div>
