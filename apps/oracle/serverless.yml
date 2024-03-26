@@ -33,6 +33,7 @@ resources:
       name: ETSAuctionHouse
       address: "0xf5d631DC08211e649FA7B025179De146AfFAEe41"
       network: mumbai
+      abi: ${file(./abi/ETSAuctionHouse.json.abi)}
   relayers:
     ets-auction-oracle:
       name: "ETSAuctionOracle"
@@ -99,8 +100,7 @@ resources:
         category: ${self:resources.categories.low-severity}
       conditions:
         event:
-          - expression: null
-            signature: RequestCreateAuction()
+          - signature: RequestCreateAuction()
   forked-networks: {}
   private-networks: {}
   block-explorer-api-keys: {}
