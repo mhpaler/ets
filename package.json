@@ -40,7 +40,8 @@
     "graph:node-clean": "cd packages/subgraph && pnpm run clean-graph-node",
     "graph:deploy-local": "cd packages/subgraph && pnpm graph-deploy-local",
     "graph:deploy-mumbai": "cd packages/subgraph && pnpm graph-deploy-mumbai",
-    "graph:deploy-mumbai-stage": "cd packages/subgraph && pnpm graph-deploy-mumbai-stage"
+    "graph:deploy-mumbai-stage": "cd packages/subgraph && pnpm graph-deploy-mumbai-stage",
+    "oracle:build-local": "cd packages/subgraph && pnpm graph-deploy-mumbai-stage"
   },
   "devDependencies": {
     "@types/node": "^20.10.5",
