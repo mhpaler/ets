@@ -75,7 +75,7 @@
     "one": "{{count, number}} tag",
     "other": "{{count, number}} tags"
   },
-  "tag-created-successfully": "Tag created successfully!",
+  "tag-created-successfully": "Tag created successfully",
   "tag-creator": "Tag creator",
   "tag-creators": "Tag creators",
   "tag-owner": "Tag owner",
