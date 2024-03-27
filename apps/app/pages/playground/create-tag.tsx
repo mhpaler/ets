@@ -1,104 +1,157 @@
-import { useState, Fragment } from "react";
+import { useState, useEffect } from "react";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Layout from "@app/layouts/default";
-import { Button } from "@app/components/Button";
 import PageTitle from "@app/components/PageTitle";
-
-import { Listbox, Transition } from "@headlessui/react";
-import { useContractWrite } from "wagmi";
-import { etsTokenConfig } from "../../src/contracts.js";
-
-const people = [{ name: "zachwilliams.eth" }, { name: "swaylocks.eth" }, { name: "nadim.eth" }];
+import { createTags, tagExists } from "@app/services/tokenService";
+import { useRelayers } from "@app/hooks/useRelayers";
+import { useAccount } from "wagmi";
+import { availableChainIds } from "@app/constants/config";
+import { isValidTag } from "@app/utils/tagUtils";
+import AlertComponent from "@app/components/Alert";
 
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");
+  const invalidTagMsg = t("invalid-tag-message");
+  const { chain } = useAccount();
+  const [tagInput, setTagInput] = useState("");
+  const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
+  const [exists, setExists] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertDescription, setAlertDescription] = useState<string | JSX.Element>("");
+  const [isCreatingTag, setIsCreatingTag] = useState(false);
+  const { relayers } = useRelayers({});
+  const isCorrectNetwork = chain?.id && availableChainIds.includes(chain?.id);
 
-  const [selected, setSelected] = useState(people[0]);
+  const disabled = !isValidTag(tagInput) || !selectedRelayer || !isCorrectNetwork || exists || isCreatingTag;
+
+  const getTooltipMessage = () => {
+    if (!tagInput) return t("please-enter-a-tag");
+    if (!isValidTag(tagInput)) return invalidTagMsg;
+    if (exists) return t("this-tag-already-exists-please-enter-a-different-tag");
+    if (!selectedRelayer) return t("please-select-a-relayer");
+    if (!isCorrectNetwork) return t("switch-to-mumbai-network");
+    if (isCreatingTag) return t("creating-tag");
+    return "";
+  };
+
+  useEffect(() => {
+    let debounceTimer: any;
+    const checkTagExists = async () => {
+      if (tagInput) {
+        const exists = await tagExists(tagInput);
+        setExists(exists);
+      }
+    };
+
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+    }
+
+    debounceTimer = setTimeout(() => {
+      checkTagExists();
+    }, 300);
+
+    return () => {
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+    };
+  }, [tagInput]);
+
+  const handleSelectRelayer = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const relayerId = event.target.value;
+    const selected = relayers.find((relayer: any) => relayer.id.toString() === relayerId);
+    setSelectedRelayer(selected || null);
+  };
+
+  const handleCreateTags = async () => {
+    if (!disabled) {
+      setIsCreatingTag(true);
+      try {
+        const firstTag = tagInput.trim();
+        await createTags([firstTag], selectedRelayer.id);
+        setTagInput("");
+
+        const tagWithoutHashtag = firstTag.startsWith("#") ? firstTag.slice(1) : firstTag;
+        const viewTagUrl = `/tags/${tagWithoutHashtag}`;
+        const successMessage = (
+          <>
+            {t("tag-created-successfully")}{" "}
+            <a href={viewTagUrl} className="link link-primary" style={{ textDecoration: "underline" }}>
+              View tag here
+            </a>
+            .
+          </>
+        );
+
+        setAlertTitle("Success");
+        setAlertDescription(successMessage);
+        setShowAlert(true);
+      } catch (error) {
+        console.error("Error creating tags:", error);
+        setAlertTitle("Error");
+        setAlertDescription("Failed to create tags.");
+        setShowAlert(true);
+      } finally {
+        setIsCreatingTag(false);
+      }
+    }
+  };
+
+  const toggleAlert = () => setShowAlert(!showAlert);
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto mt-12">
-        <div className="space-y-8">
-          <div className="lg:flex">
-            <Listbox value={selected} onChange={setSelected}>
-              <div className="relative w-64">
-                <Listbox.Button className="relative w-full py-3 pl-4 pr-10 text-left bg-white border rounded-lg appearance-none cursor-default border-slate-300 text-slate-700 focus:outline-none focus-visible:border-pink-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-pink-500">
-                  <span className="block truncate">{selected.name}</span>
-                  <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                    <svg className="w-6 h-6 text-slate-400" aria-hidden="true" fill="none" viewBox="0 0 24 24">
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="1.5"
-                        d="M15.25 10.75L12 14.25L8.75 10.75"
-                      />
-                    </svg>
-                  </span>
-                </Listbox.Button>
-                <Transition
-                  as={Fragment}
-                  leave="transition ease-in duration-100"
-                  leaveFrom="opacity-100"
-                  leaveTo="opacity-0"
-                >
-                  <Listbox.Options className="absolute w-full py-1 mt-1 overflow-auto text-base bg-white rounded-md shadow-lg max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                    {people.map((person, personIdx) => (
-                      <Listbox.Option
-                        key={personIdx}
-                        className={({ active }) =>
-                          `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                            active ? "bg-pink-100 text-pink-600" : "text-slate-700"
-                          }`
-                        }
-                        value={person}
-                      >
-                        {({ selected }) => (
-                          <>
-                            <span
-                              className={`block truncate ${selected ? "font-medium text-pink-600" : "font-normal"}`}
-                            >
-                              {person.name}
-                            </span>
-                            {selected ? (
-                              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-pink-600">
-                                <svg
-                                  className="w-6 h-6"
-                                  aria-hidden="true"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M7.75 12.75L10 15.25L16.25 8.75"
-                                    stroke="currentColor"
-                                    strokeWidth="1.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  />
-                                </svg>
-                              </span>
-                            ) : null}
-                          </>
-                        )}
-                      </Listbox.Option>
-                    ))}
-                  </Listbox.Options>
-                </Transition>
-              </div>
-            </Listbox>
-            <div className="lg:ml-3 lg:flex-shrink-0">
-              <button
-                type="submit"
-                className="flex items-center justify-center w-full px-8 py-3 text-base font-bold text-white transition-colors bg-pink-500 border border-transparent rounded-lg shadow-lg shadow-pink-500/30 hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-300"
-              >
-                Mint
-              </button>
-            </div>
-          </div>
+      <div className="space-y-4" style={{ width: "300px" }}>
+        <PageTitle title={t("create-tag")} />
+        <input
+          type="text"
+          placeholder="Enter tag, e.g.: #tokenize"
+          value={tagInput}
+          onChange={(e) => setTagInput(e.target.value)}
+          className="input input-bordered w-full"
+        />
+
+        {tagInput && !isValidTag(tagInput) && tagInput !== "#" && (
+          <div className="text-error mt-2 text-xs">{invalidTagMsg}</div>
+        )}
+        {exists && (
+          <div className="text-error mt-2 text-xs">This tag already exists. Please enter a different tag.</div>
+        )}
+        <div className="relative">
+          <select
+            className="select select-bordered w-full max-w-xs"
+            value={selectedRelayer ? selectedRelayer.id : ""}
+            onChange={handleSelectRelayer}
+          >
+            <option disabled value="">
+              Select a relayer
+            </option>
+            {relayers?.map((relayer: any, index: number) => (
+              <option key={index} value={relayer.id}>
+                {relayer.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className={`${disabled ? "tooltip" : ""}`} data-tip={getTooltipMessage()}>
+          <button
+            onClick={handleCreateTags}
+            disabled={disabled}
+            className={`btn ${disabled ? "btn-disabled" : "btn-primary"}`}
+          >
+            {isCreatingTag ? "Creating..." : t("create")}
+          </button>
         </div>
       </div>
+      <AlertComponent
+        showAlert={showAlert}
+        title={alertTitle}
+        description={alertDescription}
+        toggleAlert={toggleAlert}
+      />
     </Layout>
   );
 };

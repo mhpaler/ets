@@ -1,12 +1,11 @@
-// services/auctionHouseServices.ts
-import { wagmiConfig } from "@app/constants/wagmiCoreConfig";
+import { wagmiConfig } from "@app/constants/config";
 import { etsRelayerFactoryConfig } from "@app/src/contracts";
 import {
   simulateContract,
   writeContract,
   waitForTransactionReceipt,
   WaitForTransactionReceiptReturnType,
-} from "@wagmi/core";
+} from "wagmi/actions";
 
 export async function submitNewRelayer(name: string): Promise<WaitForTransactionReceiptReturnType> {
   // Prepare the contract write operation

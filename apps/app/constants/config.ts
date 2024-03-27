@@ -46,3 +46,5 @@ export const etsTheme = merge(
     },
   } as Theme,
 );
+
+export const availableChainIds = [80001, 31337];

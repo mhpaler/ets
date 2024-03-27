@@ -33,6 +33,15 @@ const Tag: NextPage = () => {
   });
 
   const taggingRecordsFilter = { tags_: { machineName: tag } };
+
+  if (!tags || tags.length === 0) {
+    return (
+      <Layout>
+        <div className="loading loading-spinner loading-md" />
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="col-span-12">
