@@ -8,6 +8,7 @@ import { useRelayers } from "@app/hooks/useRelayers";
 import { useAccount } from "wagmi";
 import { availableChainIds } from "@app/constants/config";
 import { isValidTag } from "@app/utils/tagUtils";
+import AlertComponent from "@app/components/Alert";
 
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");
@@ -16,16 +17,14 @@ const Playground: NextPage = () => {
   const [tagInput, setTagInput] = useState("");
   const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
   const [exists, setExists] = useState(false);
-  const [alert, setAlert] = useState<{
-    show: boolean;
-    title: string;
-    description: string | JSX.Element;
-  }>({ show: false, title: "", description: "" });
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertDescription, setAlertDescription] = useState<string | JSX.Element>("");
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const { relayers } = useRelayers({});
   const isCorrectNetwork = chain?.id && availableChainIds.includes(chain?.id);
 
-  const disabled = !isValidTag(tagInput) || !selectedRelayer || !isCorrectNetwork || exists || isCreatingTag; // Added isCreatingTag to the disabled condition
+  const disabled = !isValidTag(tagInput) || !selectedRelayer || !isCorrectNetwork || exists || isCreatingTag;
 
   const getTooltipMessage = () => {
     if (!tagInput) return t("please-enter-a-tag");
@@ -87,24 +86,25 @@ const Playground: NextPage = () => {
           </>
         );
 
-        setAlert({ show: true, title: "Success", description: successMessage });
+        setAlertTitle("Success");
+        setAlertDescription(successMessage);
+        setShowAlert(true);
       } catch (error) {
         console.error("Error creating tags:", error);
-        setAlert({ show: true, title: "Error", description: "Failed to create tags." });
+        setAlertTitle("Error");
+        setAlertDescription("Failed to create tags.");
+        setShowAlert(true);
       } finally {
         setIsCreatingTag(false);
       }
     }
   };
 
+  const toggleAlert = () => setShowAlert(!showAlert);
+
   return (
     <Layout>
-      <div
-        className="space-y-4"
-        style={{
-          width: "300px",
-        }}
-      >
+      <div className="space-y-4" style={{ width: "300px" }}>
         <PageTitle title={t("create-tag")} />
         <input
           type="text"
@@ -146,14 +146,12 @@ const Playground: NextPage = () => {
           </button>
         </div>
       </div>
-      {alert.show && (
-        <div className="alert alert-info">
-          <div>
-            <h3 className="font-bold">{alert.title}</h3>
-            <div className="text-sm">{alert.description}</div>
-          </div>
-        </div>
-      )}
+      <AlertComponent
+        showAlert={showAlert}
+        title={alertTitle}
+        description={alertDescription}
+        toggleAlert={toggleAlert}
+      />
     </Layout>
   );
 };

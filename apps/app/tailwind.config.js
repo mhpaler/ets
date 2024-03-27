@@ -1,16 +1,11 @@
 module.exports = {
-  content: [
-    "./layouts/**/*.{js,ts,jsx,tsx}",
-    "./pages/**/*.{js,ts,jsx,tsx}",
-    "./components/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ["./layouts/**/*.{js,ts,jsx,tsx}", "./pages/**/*.{js,ts,jsx,tsx}", "./components/**/*.{js,ts,jsx,tsx}"],
   plugins: [
     //require('@tailwindcss/forms'),
     //require("tailwindcss-font-inter"),
     require("@tailwindcss/typography"),
     require("daisyui"),
   ],
-
 
   daisyui: {
     themes: ["light"],
@@ -20,4 +15,22 @@ module.exports = {
     prefix: "", // prefix for daisyUI classnames (components, modifiers and responsive class names. Not colors)
     logs: true, // Shows info about daisyUI version and used config in the console when building your CSS
   },
-}
+  theme: {
+    extend: {
+      keyframes: {
+        slideIn: {
+          "0%": { transform: "translateY(100%)" },
+          "100%": { transform: "translateY(0)" },
+        },
+        slideOut: {
+          "0%": { transform: "translateY(0)" },
+          "100%": { transform: "translateY(100%)" },
+        },
+      },
+      animation: {
+        slideIn: "slideIn 0.3s ease-out forwards",
+        slideOut: "slideOut 0.3s ease-in forwards",
+      },
+    },
+  },
+};
