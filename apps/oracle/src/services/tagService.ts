@@ -5,7 +5,7 @@
 // Import necessary modules.
 // TODO: Get graph-endpoints going as a ets package.
 // import graphEndpoints from "@ethereum-tag-service/config/graph-endpoints";
-import graphEndpoints from "./graphEndpoints.ts";
+import graphEndpoints from "./graphEndpoints";
 import axios, { AxiosResponse } from "axios";
 
 // Define the TagService class.\
