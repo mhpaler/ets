@@ -12,7 +12,7 @@ import AlertComponent from "@app/components/Alert";
 
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");
-  const invalidTagMsg = t("invalid-tag-msg");
+  const invalidTagMsg = t("invalid-tag-message");
   const { chain } = useAccount();
   const [tagInput, setTagInput] = useState("");
   const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
