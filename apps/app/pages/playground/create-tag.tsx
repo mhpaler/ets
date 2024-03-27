@@ -6,39 +6,34 @@ import PageTitle from "@app/components/PageTitle";
 import { createTags, tagExists } from "@app/services/tokenService";
 import { useRelayers } from "@app/hooks/useRelayers";
 import { useAccount } from "wagmi";
-import { isValidTag, invalidTagMsg } from "@app/utils/tagUtils";
+import { availableChainIds } from "@app/constants/config";
+import { isValidTag } from "@app/utils/tagUtils";
 
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");
+  const invalidTagMsg = t("invalid-tag-msg");
   const { chain } = useAccount();
   const [tagInput, setTagInput] = useState("");
   const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
   const [exists, setExists] = useState(false);
-  const [toast, setToast] = useState<{
+  const [alert, setAlert] = useState<{
     show: boolean;
-    message: string | JSX.Element;
-    type: string;
-  }>({ show: false, message: "", type: "" });
+    title: string;
+    description: string | JSX.Element;
+  }>({ show: false, title: "", description: "" });
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const { relayers } = useRelayers({});
-  const isCorrectNetwork = chain?.id === 80001; // should be adapted once we enable multiple networks
-
-  useEffect(() => {
-    if (toast.show) {
-      const timer = setTimeout(() => setToast({ show: false, message: "", type: "" }), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [toast]);
+  const isCorrectNetwork = chain?.id && availableChainIds.includes(chain?.id);
 
   const disabled = !isValidTag(tagInput) || !selectedRelayer || !isCorrectNetwork || exists || isCreatingTag; // Added isCreatingTag to the disabled condition
 
   const getTooltipMessage = () => {
-    if (!tagInput) return "Please enter a tag.";
+    if (!tagInput) return t("please-enter-a-tag");
     if (!isValidTag(tagInput)) return invalidTagMsg;
-    if (exists) return "This tag already exists. Please enter a different tag.";
-    if (!selectedRelayer) return "Please select a relayer.";
-    if (!isCorrectNetwork) return "Switch to Mumbai network.";
-    if (isCreatingTag) return "Creating tag...";
+    if (exists) return t("this-tag-already-exists-please-enter-a-different-tag");
+    if (!selectedRelayer) return t("please-select-a-relayer");
+    if (!isCorrectNetwork) return t("switch-to-mumbai-network");
+    if (isCreatingTag) return t("creating-tag");
     return "";
   };
 
@@ -57,7 +52,7 @@ const Playground: NextPage = () => {
 
     debounceTimer = setTimeout(() => {
       checkTagExists();
-    }, 500);
+    }, 300);
 
     return () => {
       if (debounceTimer) {
@@ -84,18 +79,18 @@ const Playground: NextPage = () => {
         const viewTagUrl = `/tags/${tagWithoutHashtag}`;
         const successMessage = (
           <>
-            Tag created successfully!{" "}
-            <a href={viewTagUrl} className="link link-primary" style={{ color: "white" }}>
+            {t("tag-created-successfully")}{" "}
+            <a href={viewTagUrl} className="link link-primary" style={{ textDecoration: "underline" }}>
               View tag here
             </a>
             .
           </>
         );
 
-        setToast({ show: true, message: successMessage, type: "alert-success" });
+        setAlert({ show: true, title: "Success", description: successMessage });
       } catch (error) {
         console.error("Error creating tags:", error);
-        setToast({ show: true, message: "Failed to create tags.", type: "alert-error" });
+        setAlert({ show: true, title: "Error", description: "Failed to create tags." });
       } finally {
         setIsCreatingTag(false);
       }
@@ -147,14 +142,15 @@ const Playground: NextPage = () => {
             disabled={disabled}
             className={`btn ${disabled ? "btn-disabled" : "btn-primary"}`}
           >
-            {isCreatingTag ? "Creating..." : t("Create")}
+            {isCreatingTag ? "Creating..." : t("create")}
           </button>
         </div>
       </div>
-      {toast.show && (
-        <div className="toast toast-center toast-middle">
-          <div className={`alert ${toast.type}`}>
-            <span>{toast.message}</span>
+      {alert.show && (
+        <div className="alert alert-info">
+          <div>
+            <h3 className="font-bold">{alert.title}</h3>
+            <div className="text-sm">{alert.description}</div>
           </div>
         </div>
       )}

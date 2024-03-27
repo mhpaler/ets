@@ -20,6 +20,3 @@ export const isValidTag = (tag?: string) => {
 
   return true;
 };
-
-export const invalidTagMsg =
-  "Invalid tag format. Tags must start with a #, contain no spaces, and be between 2 and 32 characters long (excluding the #).";
