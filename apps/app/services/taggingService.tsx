@@ -4,7 +4,7 @@ import { wagmiConfig } from "@app/constants/config";
 import { Hex } from "viem";
 
 export const createTaggingRecord = async (
-  tagIds: number[],
+  tagIds: bigint[],
   targetId: number,
   recordType: string,
   relayerAddress: Hex,

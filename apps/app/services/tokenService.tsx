@@ -3,13 +3,24 @@ import { readContract, writeContract, waitForTransactionReceipt } from "wagmi/ac
 import { wagmiConfig } from "@app/constants/config";
 import { Hex } from "viem";
 
-export const tagExists = async (tag: string): Promise<boolean> => {
+export const computeTagId = async (tag: string): Promise<bigint> => {
   try {
     const tagId = await readContract(wagmiConfig, {
       ...etsTokenConfig,
       functionName: "computeTagId",
       args: [tag],
     });
+
+    return tagId;
+  } catch (error) {
+    console.error("Error computing tag ID:", error);
+    throw error;
+  }
+};
+
+export const tagExists = async (tag: string): Promise<boolean> => {
+  try {
+    const tagId = await computeTagId(tag);
 
     const exists = await readContract(wagmiConfig, {
       ...etsTokenConfig,
