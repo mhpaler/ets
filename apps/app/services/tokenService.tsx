@@ -18,6 +18,16 @@ export const computeTagId = async (tag: string): Promise<bigint> => {
   }
 };
 
+export const computeTagIds = async (tags: string[]): Promise<bigint[]> => {
+  try {
+    const tagIds = await Promise.all(tags.map((tag) => computeTagId(tag)));
+    return tagIds;
+  } catch (error) {
+    console.error("Error computing tag IDs:", error);
+    throw error;
+  }
+};
+
 export const tagExists = async (tag: string): Promise<boolean> => {
   try {
     const tagId = await computeTagId(tag);

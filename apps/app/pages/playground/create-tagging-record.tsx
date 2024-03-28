@@ -7,6 +7,7 @@ import { computeTargetId, createTaggingRecord } from "@app/services/taggingServi
 import { useRelayers } from "@app/hooks/useRelayers";
 import { useAccount } from "wagmi";
 import Alert from "@app/components/Alert";
+import { computeTagIds } from "@app/services/tokenService";
 
 const CreateTaggingRecord: NextPage = () => {
   const { t } = useTranslation("common");
@@ -38,7 +39,7 @@ const CreateTaggingRecord: NextPage = () => {
     setIsLoading(true);
     try {
       const targetId = await computeTargetId(imageUrl);
-      const tagIds = tags.split(",").map((tag) => BigInt(tag.trim()));
+      const tagIds = await computeTagIds(tags.split(","));
 
       await createTaggingRecord(tagIds, targetId, recordType, selectedRelayer.id, tagger);
 

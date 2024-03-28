@@ -22,7 +22,7 @@ export const createTaggingRecord = async (
     const hash = await writeContract(wagmiConfig, {
       ...etsConfig,
       functionName: "createTaggingRecord",
-      args: [tagIds.map(BigInt), BigInt(targetId), recordType, tagger],
+      args: [tagIds, BigInt(targetId), recordType, tagger],
     });
     const transactionReceipt = await waitForTransactionReceipt(wagmiConfig, { hash });
     console.log("Transaction receipt:", transactionReceipt);
