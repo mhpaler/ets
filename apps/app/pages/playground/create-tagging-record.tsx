@@ -153,7 +153,7 @@ const CreateTaggingRecord: NextPage = () => {
             <span className="font-bold">Tagger:</span>
             <div className="truncate flex-1 mx-2">{tagger}</div>
             <button
-              onClick={() => navigator.clipboard.writeText(tagger)}
+              onClick={() => tagger && navigator.clipboard.writeText(tagger)}
               className="btn btn-xs btn-outline"
               title="Copy URL"
             >
