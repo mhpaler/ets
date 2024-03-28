@@ -8,7 +8,7 @@ import { useRelayers } from "@app/hooks/useRelayers";
 import { useAccount } from "wagmi";
 import { availableChainIds } from "@app/constants/config";
 import { isValidTag } from "@app/utils/tagUtils";
-import AlertComponent from "@app/components/Alert";
+import Alert from "@app/components/Alert";
 
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");
@@ -100,8 +100,6 @@ const Playground: NextPage = () => {
     }
   };
 
-  const toggleAlert = () => setShowAlert(!showAlert);
-
   return (
     <Layout>
       <div className="space-y-4" style={{ width: "300px" }}>
@@ -146,11 +144,11 @@ const Playground: NextPage = () => {
           </button>
         </div>
       </div>
-      <AlertComponent
+      <Alert
         showAlert={showAlert}
         title={alertTitle}
         description={alertDescription}
-        toggleAlert={toggleAlert}
+        toggleAlert={() => setShowAlert(!showAlert)}
       />
     </Layout>
   );
