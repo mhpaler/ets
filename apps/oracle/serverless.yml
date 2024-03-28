@@ -1,0 +1,108 @@
+service: defender-ets
+configValidationMode: error
+frameworkVersion: "3"
+useDotenv: true
+provider:
+  name: defender
+  stage: ${opt:stage, 'dev'}
+  stackName: "mystack"
+  ssot: false
+#custom:
+#  config: ${file(secrets.${self:provider.stage}.yml)}
+defender:
+  key: "${env:TEAM_API_KEY}"
+  secret: "${env:TEAM_API_SECRET}"
+resources:
+  actions:
+    release-next-auction:
+      name: ReleaseNextAuction
+      relayer: ${self:resources.relayers.ets-auction-oracle}
+      trigger:
+        type: sentinel
+      paused: false
+      path: "./dist/defender/actions/release-next-auction"
+      environment-variables:
+        NETWORK: "mumbai_stage"
+        NEXT_PUBLIC_ETS_ENVIRONMENT: "stage"
+  policies:
+    policy-zz:
+      eip1559-pricing: true
+      private-transactions: false
+  contracts:
+    ets-auction-house:
+      name: ETSAuctionHouse
+      address: "0xf5d631DC08211e649FA7B025179De146AfFAEe41"
+      network: mumbai
+      abi: ${file(./abi/ETSAuctionHouse.json.abi)}
+  relayers:
+    ets-auction-oracle:
+      name: "ETSAuctionOracle"
+      network: "mumbai"
+      min-balance: "100000000000000000"
+      policy: ${self:resources.policies.policy-zz}
+      api-keys:
+        - key-1
+  notifications:
+    discord-actitity-internal:
+      type: discord
+      name: Discord Actitity (Internal)
+      config:
+        url: >-
+          https://discord.com/api/webhooks/1221279416324460664/4mc9uvUOVpAVyGkd7ZDeOR59ngciOiQFAV9MrwC9S4-76XQ-24EF3eC-cGaYMRddHmv0
+      paused: false
+  categories:
+    low-severity:
+      name: Low Severity
+      description: A default category to be assigned for low risk monitors.
+      notification-ids:
+        - ${self:resources.notifications.discord-actitity-internal}
+    medium-severity:
+      name: Medium Severity
+      description: A default category to be assigned for medium risk monitors.
+    high-severity:
+      name: High Severity
+      description: A default category to be assigned for high risk monitors.
+  monitors:
+    request-create-auction:
+      name: RequestCreateAuction
+      type: BLOCK
+      network: mumbai
+      addresses:
+        - "0xf5d631DC08211e649FA7B025179De146AfFAEe41"
+      skip-abi-validation: false
+      paused: false
+      action-trigger: ${self:resources.actions.release-next-auction}
+      confirm-level: 1
+      notify-config:
+        timeout: 0
+        message: |-
+          **Defender Monitor {{ sentinel.name }} Triggered**
+
+          **Network**
+
+          {{ sentinel.network }}
+
+          **Block Hash**
+
+          {{ blockHash }}
+
+          **Transaction Hash**
+
+          {{ transaction.transactionHash }}
+
+          **Explorer Link**
+
+          {{ transaction.link }}
+
+          {{ matchReasonsFormatted }}
+        message-subject: "Defender Monitor: RequestCreateAuction triggered"
+        channels: []
+        category: ${self:resources.categories.low-severity}
+      conditions:
+        event:
+          - signature: RequestCreateAuction()
+  forked-networks: {}
+  private-networks: {}
+  block-explorer-api-keys: {}
+plugins:
+  - "@openzeppelin/defender-as-code"

@@ -1,28 +1,40 @@
 {
   "name": "@ethereum-tag-service/oracle",
   "version": "0.1.0",
-  "type": "module",
   "scripts": {
-    "dev": "wagmi generate && node --loader ts-node/esm src/index.ts",
-    "build": "wagmi generate",
-    "start": "node --loader ts-node/esm src/index.ts"
+    "build:local": "dotenv -e ../../.env wagmi generate && rollup -c rollup.localhost.config.ts",
+    "build:defender": "dotenv -e ../../.env -- wagmi generate && rollup -c rollup.defender.config.ts",
+    "dev": "pnpm run build:local && dotenv -e ../../.env -- node dist/localhost/index.js",
+    "dev:defender": "pnpm run build:defender && dotenv -e ../../.env node dist/defender/actions/release-next-auction/index.js",
+    "deploy:defender": "pnpm run build:defender && dotenv -e ../../.env serverless deploy"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@wagmi/core": "^1.4.7",
-    "abitype": "^0.10.3",
-    "axios": "^1.6.2",
-    "viem": "~1.19.11"
+    "@ethereum-tag-service/contracts": "workspace:*",
+    "@openzeppelin/defender-as-code": "^2.6.0",
+    "@openzeppelin/defender-relay-client": "1.52.0",
+    "@openzeppelin/defender-sdk": "1.5.0",
+    "@openzeppelin/defender-sdk-relay-signer-client": "1.11.0",
+    "axios": "1.6.1",
+    "axios-retry": "3.5.0",
+    "ethers": "5.5.3"
   },
   "devDependencies": {
-    "@ethereum-tag-service/contracts": "workspace:*",
+    "@rollup/plugin-commonjs": "^16.0.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^10.0.0",
+    "@rollup/plugin-typescript": "^6.1.0",
     "@sunodo/wagmi-plugin-hardhat-deploy": "github:ethereum-tag-service/wagmi-plugin-hardhat-deploy#ets-temp",
     "@types/node": "^20.10.4",
     "@wagmi/cli": "^1.5.2",
+    "builtin-modules": "^3.1.0",
     "dotenv": "^16.3.1",
     "dotenv-cli": "^7.3.0",
-    "ts-node": "^10.9.1"
+    "rollup": "^2.33.3",
+    "serverless": "^3.38.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.4.2"
   }
 }
