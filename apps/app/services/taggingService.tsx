@@ -1,33 +1,43 @@
-import { etsABI, etsTargetConfig } from "../src/contracts";
+import { etsRelayerV1ABI, etsTargetConfig } from "../src/contracts";
 import { writeContract, waitForTransactionReceipt, readContract } from "wagmi/actions";
 import { wagmiConfig } from "@app/constants/config";
 import { Hex } from "viem";
+// import { utils } from "ethers";
+
+// const maticAmount = utils.parseEther("0.1");
+// const maticAmountBigInt = maticAmount.toBigInt();
 
 export const createTaggingRecord = async (
-  tagIds: bigint[],
-  targetId: number,
+  tagIds: string[],
+  targetId: string,
   recordType: string,
   relayerAddress: Hex,
-  tagger?: Hex,
 ): Promise<void> => {
   const etsConfig = {
     address: relayerAddress,
-    abi: etsABI,
+    abi: etsRelayerV1ABI,
   };
 
   try {
-    if (!tagger) {
-      throw new Error("Tagger address is required.");
-    }
+    const tagParams = [
+      {
+        targetURI: targetId,
+        tagStrings: tagIds,
+        recordType: recordType,
+        enrich: false,
+      },
+    ];
+
     const hash = await writeContract(wagmiConfig, {
       ...etsConfig,
-      functionName: "createTaggingRecord",
-      args: [tagIds, BigInt(targetId), recordType, tagger],
+      functionName: "applyTags",
+      args: [tagParams],
+      // value: maticAmountBigInt, // had to send some matic to the contract, it ran out of funds!
     });
     const transactionReceipt = await waitForTransactionReceipt(wagmiConfig, { hash });
     console.log("Transaction receipt:", transactionReceipt);
   } catch (error) {
-    console.error("Error creating tagging record:", error);
+    throw error;
   }
 };
 

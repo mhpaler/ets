@@ -3,11 +3,10 @@ import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Layout from "@app/layouts/default";
 import PageTitle from "@app/components/PageTitle";
-import { computeTargetId, createTaggingRecord } from "@app/services/taggingService";
+import { createTaggingRecord } from "@app/services/taggingService";
 import { useRelayers } from "@app/hooks/useRelayers";
 import { useAccount } from "wagmi";
 import Alert from "@app/components/Alert";
-import { computeTagIds } from "@app/services/tokenService";
 
 const CreateTaggingRecord: NextPage = () => {
   const { t } = useTranslation("common");
@@ -38,10 +37,7 @@ const CreateTaggingRecord: NextPage = () => {
   const handleCreateTaggingRecord = async () => {
     setIsLoading(true);
     try {
-      const targetId = await computeTargetId(imageUrl);
-      const tagIds = await computeTagIds(tags.split(","));
-
-      await createTaggingRecord(tagIds, targetId, recordType, selectedRelayer.id, tagger);
+      await createTaggingRecord(tags.split(","), imageUrl, recordType, selectedRelayer.id);
 
       setAlertTitle("Success");
       setAlertDescription("Tagging record created successfully!");
