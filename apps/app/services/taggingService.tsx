@@ -2,10 +2,6 @@ import { etsRelayerV1ABI, etsTargetConfig } from "../src/contracts";
 import { writeContract, waitForTransactionReceipt, readContract } from "wagmi/actions";
 import { wagmiConfig } from "@app/constants/config";
 import { Hex } from "viem";
-// import { utils } from "ethers";
-
-// const maticAmount = utils.parseEther("0.1");
-// const maticAmountBigInt = maticAmount.toBigInt();
 
 export const createTaggingRecord = async (
   tagIds: string[],
@@ -28,14 +24,25 @@ export const createTaggingRecord = async (
       },
     ];
 
+    const result = await readContract(wagmiConfig, {
+      address: etsConfig.address,
+      abi: etsConfig.abi,
+      functionName: "computeTaggingFee",
+      args: [tagParams[0], 0],
+    });
+
+    const { 0: fee, 1: actualTagCount } = result;
+
     const hash = await writeContract(wagmiConfig, {
       ...etsConfig,
       functionName: "applyTags",
       args: [tagParams],
-      // value: maticAmountBigInt, // had to send some matic to the contract, it ran out of funds!
+      value: fee,
     });
+
     const transactionReceipt = await waitForTransactionReceipt(wagmiConfig, { hash });
     console.log("Transaction receipt:", transactionReceipt);
+    console.log(`${actualTagCount} tag(s) appended`);
   } catch (error) {
     throw error;
   }
