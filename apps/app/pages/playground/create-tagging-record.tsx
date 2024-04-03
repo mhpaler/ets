@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, SetStateAction } from "react";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Layout from "@app/layouts/default";
@@ -36,6 +36,7 @@ const CreateTaggingRecord: NextPage = () => {
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const [alertTitle, setAlertTitle] = useState<string>("");
   const [alertDescription, setAlertDescription] = useState<string | JSX.Element>("");
+  const [tagInput, setTagInput] = useState<string>(""); // State to keep track of the current tag input
 
   useEffect(() => {
     fetchRandomImage();
@@ -46,7 +47,7 @@ const CreateTaggingRecord: NextPage = () => {
       const response = await fetch("https://source.unsplash.com/random?orientation=horizontal");
       setImageUrl(response.url);
     } catch (error) {
-      console.error("Error fetching random image:", error);
+      console.log("error", error);
     }
   };
 
@@ -57,9 +58,11 @@ const CreateTaggingRecord: NextPage = () => {
   const handleAddTag = (tag: Tag) => {
     if (isValidTag(tag.text)) {
       setTags((prevTags) => [...prevTags, tag]);
+      setTagInput("");
     } else {
-      console.error("Invalid tag:", tag.text);
-      // Implement user feedback here, such as setting an error state and displaying it
+      setAlertDescription(t("invalid-tag-message"));
+      setShowAlert(true);
+      setTagInput(tag.text);
     }
   };
 
@@ -72,14 +75,14 @@ const CreateTaggingRecord: NextPage = () => {
       }
 
       setAlertTitle("Success");
-      setAlertDescription("Tagging record created successfully!");
+      setAlertDescription(t("tagging-record-created-successfully"));
       setShowAlert(true);
       setTags([]);
       setRecordType("");
     } catch (error) {
       console.error("Error creating tagging record:", error);
       setAlertTitle("Error");
-      setAlertDescription("Failed to create tagging record.");
+      setAlertDescription(t("error-creating-tagging-record"));
       setShowAlert(true);
     } finally {
       setIsLoading(false);
@@ -113,6 +116,8 @@ const CreateTaggingRecord: NextPage = () => {
               placeholder="Enter tags (e.g., #photo, #random)"
               inputFieldPosition="bottom"
               autocomplete
+              handleInputChange={(value: SetStateAction<string>) => setTagInput(value)}
+              inputValue={tagInput}
             />
           </div>
           <div className="mb-4">
@@ -131,7 +136,7 @@ const CreateTaggingRecord: NextPage = () => {
               onChange={handleSelectRelayer}
             >
               <option disabled value="">
-                Select a relayer
+                {t("select-a-relayer")}
               </option>
               {relayers?.map((relayer: any, index: number) => (
                 <option key={index} value={relayer.id}>
@@ -159,7 +164,7 @@ const CreateTaggingRecord: NextPage = () => {
         <div className="bg-white rounded-lg shadow-lg p-6">
           <h2 className="text-lg font-semibold mb-4">Tagging Record Inputs</h2>
           <div className="mb-2">
-            <span className="font-bold">Relayer:</span> {selectedRelayer ? selectedRelayer.name : "Select a relayer"}
+            <span className="font-bold">Relayer:</span> {selectedRelayer ? selectedRelayer.name : "/"}
           </div>
           <div className="mb-2 flex items-center">
             <span className="font-bold">Target:</span>
@@ -195,7 +200,7 @@ const CreateTaggingRecord: NextPage = () => {
           </div>
 
           <div className="mb-2">
-            <span className="font-bold">Record Type:</span> {recordType}
+            <span className="font-bold">Record Type:</span> {recordType || "/"}
           </div>
         </div>
       </div>

@@ -115,9 +115,7 @@ const Playground: NextPage = () => {
         {tagInput && !isValidTag(tagInput) && tagInput !== "#" && (
           <div className="text-error mt-2 text-xs">{invalidTagMsg}</div>
         )}
-        {exists && (
-          <div className="text-error mt-2 text-xs">This tag already exists. Please enter a different tag.</div>
-        )}
+        {exists && <div className="text-error mt-2 text-xs">{t("tag-already-exists")}</div>}
         <div className="relative">
           <select
             className="select select-bordered w-full max-w-xs"
@@ -125,7 +123,7 @@ const Playground: NextPage = () => {
             onChange={handleSelectRelayer}
           >
             <option disabled value="">
-              Select a relayer
+              {t("select-a-relayer")}
             </option>
             {relayers?.map((relayer: any, index: number) => (
               <option key={index} value={relayer.id}>
