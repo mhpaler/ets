@@ -7,18 +7,34 @@ import { createTaggingRecord } from "@app/services/taggingService";
 import { useRelayers } from "@app/hooks/useRelayers";
 import { useAccount } from "wagmi";
 import Alert from "@app/components/Alert";
+import { WithContext as ReactTags } from "react-tag-input";
+import { isValidTag } from "@app/utils/tagUtils";
+import { Hex } from "viem";
+
+interface Tag {
+  id: string;
+  text: string;
+}
+
+const KeyCodes = {
+  comma: 188,
+  enter: 13,
+};
+
+// add tags with comma or enter
+const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
 const CreateTaggingRecord: NextPage = () => {
   const { t } = useTranslation("common");
-  const [tags, setTags] = useState("");
-  const [recordType, setRecordType] = useState("");
-  const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [recordType, setRecordType] = useState<string>("");
+  const [selectedRelayer, setSelectedRelayer] = useState<{ id: Hex; name: string } | null>(null);
   const { address: tagger } = useAccount();
   const { relayers } = useRelayers({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState("");
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertTitle, setAlertTitle] = useState("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [imageUrl, setImageUrl] = useState<string>("");
+  const [showAlert, setShowAlert] = useState<boolean>(false);
+  const [alertTitle, setAlertTitle] = useState<string>("");
   const [alertDescription, setAlertDescription] = useState<string | JSX.Element>("");
 
   useEffect(() => {
@@ -34,15 +50,31 @@ const CreateTaggingRecord: NextPage = () => {
     }
   };
 
+  const handleDeleteTag = (i: number) => {
+    setTags(tags.filter((tag, index) => index !== i));
+  };
+
+  const handleAddTag = (tag: Tag) => {
+    if (isValidTag(tag.text)) {
+      setTags((prevTags) => [...prevTags, tag]);
+    } else {
+      console.error("Invalid tag:", tag.text);
+      // Implement user feedback here, such as setting an error state and displaying it
+    }
+  };
+
   const handleCreateTaggingRecord = async () => {
     setIsLoading(true);
     try {
-      await createTaggingRecord(tags.split(","), imageUrl, recordType, selectedRelayer.id);
+      const tagValues = tags.map((tag) => tag.text);
+      if (selectedRelayer) {
+        await createTaggingRecord(tagValues, imageUrl, recordType, selectedRelayer.id);
+      }
 
       setAlertTitle("Success");
       setAlertDescription("Tagging record created successfully!");
       setShowAlert(true);
-      setTags("");
+      setTags([]);
       setRecordType("");
     } catch (error) {
       console.error("Error creating tagging record:", error);
@@ -72,13 +104,15 @@ const CreateTaggingRecord: NextPage = () => {
             </button>
           </div>
           {imageUrl && <img src={imageUrl} alt="Random Image" className="mb-4" />}
-          <div className="mb-4">
-            <input
-              type="text"
+          <div className="mb-4 w-full">
+            <ReactTags
+              tags={tags}
+              handleDelete={handleDeleteTag}
+              handleAddition={handleAddTag}
+              delimiters={delimiters}
               placeholder="Enter tags (e.g., #photo, #random)"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              className="input input-bordered w-full"
+              inputFieldPosition="bottom"
+              autocomplete
             />
           </div>
           <div className="mb-4">
@@ -109,9 +143,11 @@ const CreateTaggingRecord: NextPage = () => {
           <div className="flex justify-end">
             <button
               onClick={handleCreateTaggingRecord}
-              disabled={isLoading || !imageUrl || !tags || !recordType || !selectedRelayer}
+              disabled={isLoading || !imageUrl || tags.length === 0 || !recordType || !selectedRelayer}
               className={`btn ${
-                isLoading || !imageUrl || !tags || !recordType || !selectedRelayer ? "btn-disabled" : "btn-primary"
+                isLoading || !imageUrl || tags.length === 0 || !recordType || !selectedRelayer
+                  ? "btn-disabled"
+                  : "btn-primary"
               }`}
             >
               {isLoading ? "Creating..." : t("Create")}

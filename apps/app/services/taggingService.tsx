@@ -44,6 +44,7 @@ export const createTaggingRecord = async (
     console.log("Transaction receipt:", transactionReceipt);
     console.log(`${actualTagCount} tag(s) appended`);
   } catch (error) {
+    console.log("error", error);
     throw error;
   }
 };

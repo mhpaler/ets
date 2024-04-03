@@ -6,6 +6,7 @@ import { SWRConfig } from "swr";
 import { fetcher } from "@app/utils/fetchers";
 
 import "@app/styles/globals.css";
+import "@app/styles/tags.css";
 import nProgress from "nprogress";
 
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
