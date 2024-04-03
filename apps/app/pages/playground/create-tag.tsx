@@ -9,56 +9,41 @@ import { useAccount } from "wagmi";
 import { availableChainIds } from "@app/constants/config";
 import { isValidTag } from "@app/utils/tagUtils";
 import Alert from "@app/components/Alert";
+import { WithContext as ReactTags } from "react-tag-input";
+
+interface Tag {
+  id: string;
+  text: string;
+}
+
+const KeyCodes = {
+  comma: 188,
+  enter: 13,
+};
+
+const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");
   const invalidTagMsg = t("invalid-tag-message");
   const { chain } = useAccount();
-  const [tagInput, setTagInput] = useState("");
+  const [tags, setTags] = useState<Tag[]>([]);
   const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
-  const [exists, setExists] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertTitle, setAlertTitle] = useState("");
   const [alertDescription, setAlertDescription] = useState<string | JSX.Element>("");
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const { relayers } = useRelayers({});
   const isCorrectNetwork = chain?.id && availableChainIds.includes(chain?.id);
-
-  const disabled = !isValidTag(tagInput) || !selectedRelayer || !isCorrectNetwork || exists || isCreatingTag;
+  const disabled = !tags.length || !selectedRelayer || !isCorrectNetwork || isCreatingTag;
 
   const getTooltipMessage = () => {
-    if (!tagInput) return t("please-enter-a-tag");
-    if (!isValidTag(tagInput)) return invalidTagMsg;
-    if (exists) return t("this-tag-already-exists-please-enter-a-different-tag");
+    if (!tags.length) return t("please-enter-a-tag");
     if (!selectedRelayer) return t("please-select-a-relayer");
     if (!isCorrectNetwork) return t("switch-to-mumbai-network");
-    if (isCreatingTag) return t("creating-tag");
+    if (isCreatingTag) return t("creating-tags");
     return "";
   };
-
-  useEffect(() => {
-    let debounceTimer: any;
-    const checkTagExists = async () => {
-      if (tagInput) {
-        const exists = await tagExists(tagInput);
-        setExists(exists);
-      }
-    };
-
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-    }
-
-    debounceTimer = setTimeout(() => {
-      checkTagExists();
-    }, 300);
-
-    return () => {
-      if (debounceTimer) {
-        clearTimeout(debounceTimer);
-      }
-    };
-  }, [tagInput]);
 
   const handleSelectRelayer = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const relayerId = event.target.value;
@@ -70,18 +55,28 @@ const Playground: NextPage = () => {
     if (!disabled) {
       setIsCreatingTag(true);
       try {
-        const firstTag = tagInput.trim();
-        await createTags([firstTag], selectedRelayer.id);
-        setTagInput("");
+        if (tags.length > 0) {
+          const tagValues = tags.map((tag) => tag.text);
+          await createTags(tagValues, selectedRelayer.id);
+        }
 
-        const tagWithoutHashtag = firstTag.startsWith("#") ? firstTag.slice(1) : firstTag;
-        const viewTagUrl = `/tags/${tagWithoutHashtag}`;
+        setTags([]);
+
         const successMessage = (
           <>
             {t("tag-created-successfully")}{" "}
-            <a href={viewTagUrl} className="link link-primary" style={{ textDecoration: "underline" }}>
-              View tag here
-            </a>
+            {tags.map((tag, index) => (
+              <span key={index}>
+                <a
+                  href={`/tags/${tag.text.startsWith("#") ? tag.text.slice(1) : tag.text}`}
+                  className="link link-primary"
+                  style={{ textDecoration: "underline" }}
+                >
+                  {tag.text}
+                </a>
+                {index !== tags.length - 1 && ", "}
+              </span>
+            ))}
             .
           </>
         );
@@ -100,22 +95,40 @@ const Playground: NextPage = () => {
     }
   };
 
+  const handleDeleteTag = (i: number) => {
+    setTags(tags.filter((tag, index) => index !== i));
+  };
+
+  const handleAddTag = async (tag: Tag) => {
+    if (isValidTag(tag.text)) {
+      const exists = await tagExists(tag.text);
+      if (exists) {
+        setAlertDescription(t("tag-already-exists"));
+        setShowAlert(true);
+      } else {
+        setTags((prevTags) => [...prevTags, tag]);
+      }
+    } else {
+      setAlertDescription(invalidTagMsg);
+      setShowAlert(true);
+    }
+  };
+
   return (
     <Layout>
       <div className="space-y-4" style={{ width: "300px" }}>
         <PageTitle title={t("create-tag")} />
-        <input
-          type="text"
-          placeholder="Enter tag, e.g.: #tokenize"
-          value={tagInput}
-          onChange={(e) => setTagInput(e.target.value)}
-          className="input input-bordered w-full"
-        />
-
-        {tagInput && !isValidTag(tagInput) && tagInput !== "#" && (
-          <div className="text-error mt-2 text-xs">{invalidTagMsg}</div>
-        )}
-        {exists && <div className="text-error mt-2 text-xs">{t("tag-already-exists")}</div>}
+        <div className="mb-4 w-full">
+          <ReactTags
+            tags={tags}
+            handleDelete={handleDeleteTag}
+            handleAddition={handleAddTag}
+            delimiters={delimiters}
+            placeholder="Enter tags (e.g., #tokenize)"
+            inputFieldPosition="bottom"
+            autocomplete
+          />
+        </div>
         <div className="relative">
           <select
             className="select select-bordered w-full max-w-xs"
