@@ -6,11 +6,11 @@ import PageTitle from "@app/components/PageTitle";
 import { createTaggingRecord } from "@app/services/taggingService";
 import { useRelayers } from "@app/hooks/useRelayers";
 import { useAccount } from "wagmi";
-import Alert from "@app/components/Alert";
 import { WithContext as ReactTags } from "react-tag-input";
 import { isValidTag } from "@app/utils/tagUtils";
 import { Hex } from "viem";
 import debounce from "lodash.debounce";
+import useToast from "@app/hooks/useToast";
 
 interface Tag {
   id: string;
@@ -27,6 +27,7 @@ const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
 const CreateTaggingRecord: NextPage = () => {
   const { t } = useTranslation("common");
+  const { showToast, ToastComponent } = useToast();
   const [tags, setTags] = useState<Tag[]>([]);
   const [recordType, setRecordType] = useState<string>("");
   const [selectedRelayer, setSelectedRelayer] = useState<{ id: Hex; name: string } | null>(null);
@@ -34,10 +35,6 @@ const CreateTaggingRecord: NextPage = () => {
   const { relayers } = useRelayers({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [imageUrl, setImageUrl] = useState<string>("");
-  const [showAlert, setShowAlert] = useState<boolean>(false);
-  const [alertTitle, setAlertTitle] = useState<string>("");
-  const [alertDescription, setAlertDescription] = useState<string | JSX.Element>("");
-  const [tagInput, setTagInput] = useState<string>("");
 
   const handleDeleteTag = useCallback(
     (i: number) => {
@@ -50,14 +47,14 @@ const CreateTaggingRecord: NextPage = () => {
     (tag: Tag) => {
       if (isValidTag(tag.text)) {
         setTags((prevTags) => [...prevTags, tag]);
-        setTagInput("");
       } else {
-        setAlertDescription(t("invalid-tag-message"));
-        setShowAlert(true);
-        setTagInput(tag.text);
+        showToast({
+          title: "Error",
+          description: t("invalid-tag-message"),
+        });
       }
     },
-    [t],
+    [showToast, t],
   );
 
   const handleSelectRelayer = useCallback(
@@ -95,23 +92,28 @@ const CreateTaggingRecord: NextPage = () => {
         const tagValues = tags.map((tag) => tag.text);
         await createTaggingRecord(tagValues, imageUrl, recordType, selectedRelayer.id);
 
-        setAlertTitle("Success");
-        setAlertDescription(t("tagging-record-created-successfully"));
-        setShowAlert(true);
+        showToast({
+          title: "Success",
+          description: t("tagging-record-created-successfully"),
+        });
+
         setTags([]);
         setRecordType("");
       } catch (error) {
         console.error("Error creating tagging record:", error);
-        setAlertTitle("Error");
-        setAlertDescription(t("error-creating-tagging-record"));
-        setShowAlert(true);
+
+        showToast({
+          title: "Error",
+          description: t("error-creating-tagging-record"),
+        });
       } finally {
         setIsLoading(false);
       }
     } else {
-      setAlertTitle("Error");
-      setAlertDescription(t("please-select-a-relayer"));
-      setShowAlert(true);
+      showToast({
+        title: "Error",
+        description: t("please-select-a-relayer"),
+      });
     }
   };
 
@@ -145,8 +147,6 @@ const CreateTaggingRecord: NextPage = () => {
               placeholder="Enter tags (e.g., #photo, #random)"
               inputFieldPosition="bottom"
               autocomplete
-              handleInputChange={(value: SetStateAction<string>) => setTagInput(value)}
-              inputValue={tagInput}
             />
           </div>
           <div className="mb-4">
@@ -242,12 +242,7 @@ const CreateTaggingRecord: NextPage = () => {
           </div>
         </div>
       </div>
-      <Alert
-        showAlert={showAlert}
-        title={alertTitle}
-        description={alertDescription}
-        toggleAlert={() => setShowAlert(!showAlert)}
-      />
+      {ToastComponent}
     </Layout>
   );
 };

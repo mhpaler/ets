@@ -8,8 +8,8 @@ import { useRelayers } from "@app/hooks/useRelayers";
 import { useAccount } from "wagmi";
 import { availableChainIds } from "@app/constants/config";
 import { isValidTag } from "@app/utils/tagUtils";
-import Alert from "@app/components/Alert";
 import { WithContext as ReactTags } from "react-tag-input";
+import useToast from "@app/hooks/useToast";
 
 interface Tag {
   id: string;
@@ -25,13 +25,11 @@ const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");
+  const { showToast, ToastComponent } = useToast();
   const invalidTagMsg = t("invalid-tag-message");
   const { chain } = useAccount();
   const [tags, setTags] = useState<Tag[]>([]);
   const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertTitle, setAlertTitle] = useState("");
-  const [alertDescription, setAlertDescription] = useState<string | JSX.Element>("");
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const { relayers } = useRelayers({});
   const isCorrectNetwork = chain?.id && availableChainIds.includes(chain?.id);
@@ -80,15 +78,15 @@ const Playground: NextPage = () => {
             .
           </>
         );
-
-        setAlertTitle("Success");
-        setAlertDescription(successMessage);
-        setShowAlert(true);
+        showToast({
+          title: "Success",
+          description: successMessage,
+        });
       } catch (error) {
-        console.error("Error creating tags:", error);
-        setAlertTitle("Error");
-        setAlertDescription("Failed to create tags.");
-        setShowAlert(true);
+        showToast({
+          title: "Error",
+          description: t("failed-to-create-tags"),
+        });
       } finally {
         setIsCreatingTag(false);
       }
@@ -103,14 +101,16 @@ const Playground: NextPage = () => {
     if (isValidTag(tag.text)) {
       const exists = await tagExists(tag.text);
       if (exists) {
-        setAlertDescription(t("tag-already-exists"));
-        setShowAlert(true);
+        showToast({
+          description: t("tag-already-exists"),
+        });
       } else {
         setTags((prevTags) => [...prevTags, tag]);
       }
     } else {
-      setAlertDescription(invalidTagMsg);
-      setShowAlert(true);
+      showToast({
+        description: invalidTagMsg,
+      });
     }
   };
 
@@ -155,12 +155,7 @@ const Playground: NextPage = () => {
           </button>
         </div>
       </div>
-      <Alert
-        showAlert={showAlert}
-        title={alertTitle}
-        description={alertDescription}
-        toggleAlert={() => setShowAlert(!showAlert)}
-      />
+      {ToastComponent}
     </Layout>
   );
 };
