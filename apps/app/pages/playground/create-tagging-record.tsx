@@ -1,4 +1,4 @@
-import { useState, useEffect, SetStateAction } from "react";
+import { useState, useEffect, useCallback, SetStateAction } from "react";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Layout from "@app/layouts/default";
@@ -10,6 +10,7 @@ import Alert from "@app/components/Alert";
 import { WithContext as ReactTags } from "react-tag-input";
 import { isValidTag } from "@app/utils/tagUtils";
 import { Hex } from "viem";
+import debounce from "lodash.debounce";
 
 interface Tag {
   id: string;
@@ -21,7 +22,7 @@ const KeyCodes = {
   enter: 13,
 };
 
-// add tags with comma or enter
+// Add tags with comma or enter
 const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
 const CreateTaggingRecord: NextPage = () => {
@@ -36,63 +37,82 @@ const CreateTaggingRecord: NextPage = () => {
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const [alertTitle, setAlertTitle] = useState<string>("");
   const [alertDescription, setAlertDescription] = useState<string | JSX.Element>("");
-  const [tagInput, setTagInput] = useState<string>(""); // State to keep track of the current tag input
+  const [tagInput, setTagInput] = useState<string>("");
+
+  const handleDeleteTag = useCallback(
+    (i: number) => {
+      setTags(tags.filter((tag, index) => index !== i));
+    },
+    [tags],
+  );
+
+  const handleAddTag = useCallback(
+    (tag: Tag) => {
+      if (isValidTag(tag.text)) {
+        setTags((prevTags) => [...prevTags, tag]);
+        setTagInput("");
+      } else {
+        setAlertDescription(t("invalid-tag-message"));
+        setShowAlert(true);
+        setTagInput(tag.text);
+      }
+    },
+    [t],
+  );
+
+  const handleSelectRelayer = useCallback(
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
+      const relayerId = event.target.value;
+      const selected = relayers.find((relayer: any) => relayer.id.toString() === relayerId);
+      setSelectedRelayer(selected || null);
+    },
+    [relayers],
+  );
+
+  const fetchRandomImage = useCallback(
+    debounce(async () => {
+      try {
+        const response = await fetch("https://source.unsplash.com/random?orientation=horizontal");
+        setImageUrl(response.url);
+      } catch (error) {
+        console.error("Error fetching random image:", error);
+      }
+    }, 300),
+    [],
+  );
 
   useEffect(() => {
     fetchRandomImage();
-  }, []);
-
-  const fetchRandomImage = async () => {
-    try {
-      const response = await fetch("https://source.unsplash.com/random?orientation=horizontal");
-      setImageUrl(response.url);
-    } catch (error) {
-      console.log("error", error);
-    }
-  };
-
-  const handleDeleteTag = (i: number) => {
-    setTags(tags.filter((tag, index) => index !== i));
-  };
-
-  const handleAddTag = (tag: Tag) => {
-    if (isValidTag(tag.text)) {
-      setTags((prevTags) => [...prevTags, tag]);
-      setTagInput("");
-    } else {
-      setAlertDescription(t("invalid-tag-message"));
-      setShowAlert(true);
-      setTagInput(tag.text);
-    }
-  };
+    return () => {
+      fetchRandomImage.cancel();
+    };
+  }, [fetchRandomImage]);
 
   const handleCreateTaggingRecord = async () => {
-    setIsLoading(true);
-    try {
-      const tagValues = tags.map((tag) => tag.text);
-      if (selectedRelayer) {
+    if (selectedRelayer) {
+      setIsLoading(true);
+      try {
+        const tagValues = tags.map((tag) => tag.text);
         await createTaggingRecord(tagValues, imageUrl, recordType, selectedRelayer.id);
+
+        setAlertTitle("Success");
+        setAlertDescription(t("tagging-record-created-successfully"));
+        setShowAlert(true);
+        setTags([]);
+        setRecordType("");
+      } catch (error) {
+        console.error("Error creating tagging record:", error);
+        setAlertTitle("Error");
+        setAlertDescription(t("error-creating-tagging-record"));
+        setShowAlert(true);
+      } finally {
+        setIsLoading(false);
       }
-
-      setAlertTitle("Success");
-      setAlertDescription(t("tagging-record-created-successfully"));
-      setShowAlert(true);
-      setTags([]);
-      setRecordType("");
-    } catch (error) {
-      console.error("Error creating tagging record:", error);
+    } else {
       setAlertTitle("Error");
-      setAlertDescription(t("error-creating-tagging-record"));
+      setAlertDescription(t("please-select-a-relayer"));
       setShowAlert(true);
-    } finally {
-      setIsLoading(false);
     }
-  };
-
-  const handleSelectRelayer = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const relayerId = event.target.value;
-    const selected = relayers.find((relayer: any) => relayer.id.toString() === relayerId);
-    setSelectedRelayer(selected || null);
   };
 
   return (
@@ -106,7 +126,16 @@ const CreateTaggingRecord: NextPage = () => {
               Refresh
             </button>
           </div>
-          {imageUrl && <img src={imageUrl} alt="Random Image" className="mb-4" />}
+          {imageUrl && (
+            <div className="flex justify-center">
+              <img
+                src={imageUrl}
+                alt="Random Image"
+                className="object-cover w-full my-4"
+                style={{ maxHeight: "300px" }}
+              />
+            </div>
+          )}
           <div className="mb-4 w-full">
             <ReactTags
               tags={tags}
@@ -127,6 +156,7 @@ const CreateTaggingRecord: NextPage = () => {
               value={recordType}
               onChange={(e) => setRecordType(e.target.value)}
               className="input input-bordered w-full"
+              aria-label="Record Type"
             />
           </div>
           <div className="mb-4">
@@ -134,6 +164,7 @@ const CreateTaggingRecord: NextPage = () => {
               className="select select-bordered w-full max-w-xs"
               value={selectedRelayer ? selectedRelayer.id : ""}
               onChange={handleSelectRelayer}
+              aria-label="Select Relayer"
             >
               <option disabled value="">
                 {t("select-a-relayer")}
@@ -154,8 +185,15 @@ const CreateTaggingRecord: NextPage = () => {
                   ? "btn-disabled"
                   : "btn-primary"
               }`}
+              aria-label="Create Tagging Record"
             >
-              {isLoading ? "Creating..." : t("Create")}
+              {isLoading ? (
+                <>
+                  <span className="animate-spin">&#9696;</span> Creating...
+                </>
+              ) : (
+                t("Create")
+              )}
             </button>
           </div>
         </div>

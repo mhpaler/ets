@@ -24,14 +24,12 @@ export const createTaggingRecord = async (
       },
     ];
 
-    const result = await readContract(wagmiConfig, {
+    const { 0: fee, 1: actualTagCount } = await readContract(wagmiConfig, {
       address: etsConfig.address,
       abi: etsConfig.abi,
       functionName: "computeTaggingFee",
       args: [tagParams[0], 0],
     });
-
-    const { 0: fee, 1: actualTagCount } = result;
 
     const hash = await writeContract(wagmiConfig, {
       ...etsConfig,
@@ -40,7 +38,10 @@ export const createTaggingRecord = async (
       value: fee,
     });
 
-    const transactionReceipt = await waitForTransactionReceipt(wagmiConfig, { hash });
+    const transactionReceipt = await waitForTransactionReceipt(wagmiConfig, {
+      hash,
+    });
+
     console.log("Transaction receipt:", transactionReceipt);
     console.log(`${actualTagCount} tag(s) appended`);
   } catch (error) {
