@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, SetStateAction } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Layout from "@app/layouts/default";
@@ -123,9 +123,9 @@ const CreateTaggingRecord: NextPage = () => {
         <PageTitle title={t("create-tagging-record")} />
         <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="flex items-center mb-4">
-            <h2 className="text-lg font-semibold">Tag a random image</h2>
+            <h2 className="text-lg font-semibold">{t("tag-random-image")}</h2>
             <button onClick={fetchRandomImage} className="btn btn-primary btn-sm ml-auto">
-              Refresh
+              {t("refresh")}
             </button>
           </div>
           {imageUrl && (
@@ -189,7 +189,7 @@ const CreateTaggingRecord: NextPage = () => {
             >
               {isLoading ? (
                 <>
-                  <span className="animate-spin">&#9696;</span> Creating...
+                  <span className="animate-spin">&#9696;</span> {t("creating")}...
                 </>
               ) : (
                 t("Create")
@@ -200,12 +200,12 @@ const CreateTaggingRecord: NextPage = () => {
       </div>
       <div className="col-span-5">
         <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-lg font-semibold mb-4">Tagging Record Inputs</h2>
+          <h2 className="text-lg font-semibold mb-4">{t("tagging-record-inputs")}</h2>
           <div className="mb-2">
-            <span className="font-bold">Relayer:</span> {selectedRelayer ? selectedRelayer.name : "/"}
+            <span className="font-bold">{t("relayer")}:</span> {selectedRelayer ? selectedRelayer.name : "/"}
           </div>
           <div className="mb-2 flex items-center">
-            <span className="font-bold">Target:</span>
+            <span className="font-bold">{t("target")}:</span>
             <div className="truncate flex-1 mx-2">
               <a
                 href={imageUrl}
@@ -222,23 +222,23 @@ const CreateTaggingRecord: NextPage = () => {
               className="btn btn-xs btn-outline"
               title="Copy URL"
             >
-              Copy
+              {t("copy")}
             </button>
           </div>
           <div className="mb-2 flex items-center">
-            <span className="font-bold">Tagger:</span>
+            <span className="font-bold">{t("tagger")}:</span>
             <div className="truncate flex-1 mx-2">{tagger}</div>
             <button
               onClick={() => tagger && navigator.clipboard.writeText(tagger)}
               className="btn btn-xs btn-outline"
               title="Copy URL"
             >
-              Copy
+              {t("copy")}
             </button>
           </div>
 
           <div className="mb-2">
-            <span className="font-bold">Record Type:</span> {recordType || "/"}
+            <span className="font-bold">{t("record-type")}:</span> {recordType || "/"}
           </div>
         </div>
       </div>
