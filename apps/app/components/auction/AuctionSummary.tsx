@@ -7,25 +7,25 @@ import { Truncate } from "@app/components/Truncate";
 import { Gavel, Trophy } from "@app/components/icons";
 
 interface Props {
-  onDisplayAuction: Auction;
+  auction: Auction;
 }
 
-const AuctionSummary: React.FC<Props> = ({ onDisplayAuction }) => {
+const AuctionSummary: React.FC<Props> = ({ auction }) => {
   const { t } = useTranslation("common");
   return (
     <div>
-      {onDisplayAuction.ended && onDisplayAuction.settled && (
+      {auction.ended && auction.settled && (
         <div>
           <div className="flex items-center space-x-1">
             <Gavel size={24} />
             <span>{t("AUCTION.ENDED")}</span>
-            <span className="font-semibold">{timestampToString(onDisplayAuction.endTime)}</span>
+            <span className="font-semibold">{timestampToString(auction.endTime)}</span>
           </div>
           <div className="flex items-center space-x-1">
             <Trophy size={24} />
             <span>{t("AUCTION.WINNER")}</span>
-            <Link href={`/owners/${onDisplayAuction.bidder.id}`} legacyBehavior>
-              <a className="link link-primary font-semibold">{Truncate(onDisplayAuction.bidder.id, 14, "middle")}</a>
+            <Link href={`/owners/${auction.bidder.id}`} legacyBehavior>
+              <a className="link link-primary font-semibold">{Truncate(auction.bidder.id, 14, "middle")}</a>
             </Link>
           </div>
         </div>

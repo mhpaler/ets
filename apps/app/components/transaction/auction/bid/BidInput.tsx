@@ -1,46 +1,33 @@
 import React, { useState, useEffect } from "react";
 import useTranslation from "next-translate/useTranslation";
-import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
-
 import { formatEther } from "ethers/lib/utils";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 import { Dialog } from "@headlessui/react";
-import { Button } from "@app/components/Button";
 import { Alert } from "@app/components/icons";
 
+import { useCloseModal } from "@app/hooks/useCloseModal";
+import { useTransaction } from "@app/hooks/useTransaction";
+import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
+import { useAuction } from "@app/hooks/useAuctionContext";
+
+import TransactionFormActions from "@app/components/transaction/shared/TransactionFormActions";
+
 interface FormStepProps {
-  closeModal: () => void;
   goToNextStep: () => void;
 }
 
-const BidForm: React.FC<FormStepProps> = ({ closeModal, goToNextStep }) => {
-  //const BidForm = () => {
+const BidInput: React.FC<FormStepProps> = ({ goToNextStep }) => {
   const { t } = useTranslation("common");
-  const auctionContext = useAuctionHouse();
-  const { minIncrementBidPercentage, onDisplayAuction, bidFormData, setBidFormData } = auctionContext;
+  const { closeModal } = useCloseModal();
+  const { resetTransaction } = useTransaction();
+  const { minIncrementBidPercentage } = useAuctionHouse();
+  const { auction, bidFormData, setBidFormData } = useAuction();
+
   const [isFormDisabled, setIsFormDisabled] = useState(true);
   const [parsedMinimumBidIncrement, setParsedMinimumBidIncrement] = useState<number>(0);
-
-  // Effect to control form submit button's enabled/disabled state.
-  useEffect(() => {
-    if (!onDisplayAuction) return;
-
-    // Assuming onDisplayAuction.amount is in Wei and needs conversion
-    const reservePrice = formatEther(onDisplayAuction.reservePrice);
-    const currentBid: bigint = onDisplayAuction.amount;
-
-    // Assuming minIncrementBidPercentage is a percentage value like 5 for 5%
-    // Convert the percentage into a scale factor for bigint calculation
-    const scaleFactor: bigint = BigInt(100); // Scale factor to allow for "decimal" operations in bigint
-    const percentageFactor: bigint = BigInt(minIncrementBidPercentage); // Convert percentage to bigint
-    const minimumBidIncrement: string = formatEther(currentBid + (currentBid * percentageFactor) / scaleFactor);
-    setParsedMinimumBidIncrement(
-      onDisplayAuction.startTime === 0 ? parseFloat(reservePrice) : parseFloat(minimumBidIncrement),
-    );
-  }, [onDisplayAuction, minIncrementBidPercentage]);
 
   // Define Zod schema inside component to access dynamic minimum bid increment
   const bidValidationSchema = z.object({
@@ -58,6 +45,7 @@ const BidForm: React.FC<FormStepProps> = ({ closeModal, goToNextStep }) => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
     watch,
     reset,
@@ -74,14 +62,34 @@ const BidForm: React.FC<FormStepProps> = ({ closeModal, goToNextStep }) => {
   // Watch the 'name' input field for changes and debounce the input value.
   const bidValue = watch("bid", undefined);
 
-  // Effect to control form submit button's enabled/disabled state.
+  // Effect to set min bid increment.
   useEffect(() => {
-    if (bidValue === undefined || errors.bid) {
-      setIsFormDisabled(true);
-    } else {
-      setIsFormDisabled(false);
-    }
-  }, [bidValue, errors.bid]);
+    if (!auction) return;
+
+    // Assuming auction.amount is in Wei and needs conversion
+    const reservePrice = formatEther(auction.reservePrice);
+    const currentBid: bigint = auction.amount;
+
+    // Assuming minIncrementBidPercentage is a percentage value like 5 for 5%
+    // Convert the percentage into a scale factor for bigint calculation
+    const scaleFactor: bigint = BigInt(100); // Scale factor to allow for "decimal" operations in bigint
+    const percentageFactor: bigint = BigInt(minIncrementBidPercentage); // Convert percentage to bigint
+    const minimumBidIncrement: string = formatEther(currentBid + (currentBid * percentageFactor) / scaleFactor);
+    setParsedMinimumBidIncrement(auction.startTime === 0 ? parseFloat(reservePrice) : parseFloat(minimumBidIncrement));
+  }, [auction, minIncrementBidPercentage]);
+
+  // Use the zod validation schema directly to check validity.
+  useEffect(() => {
+    // Convert the watched bidValue to the expected form data format for validation.
+    const formDataToValidate = { bid: bidValue };
+
+    // Directly use the zod schema to check for validity.
+    const validationResult = bidValidationSchema.safeParse(formDataToValidate);
+
+    // Set form disabled state based on validation result.
+    // If validation fails or bidValue is undefined, keep the button disabled.
+    setIsFormDisabled(!validationResult.success || bidValue === undefined);
+  }, [bidValue, bidValidationSchema]);
 
   // Handler for form submission.
   const onSubmit: SubmitHandler<BidFormData> = (bidFormData) => {
@@ -89,14 +97,13 @@ const BidForm: React.FC<FormStepProps> = ({ closeModal, goToNextStep }) => {
       // Update context data and move to the next step.
       setBidFormData({ bid: bidFormData.bid });
       goToNextStep();
-      console.log("onSubmitHandler called, setBidFormData: ", bidFormData);
-      //goToNextStep();
     }
   };
 
   // Function to handle the "Cancel" action.
   const handleCancel = () => {
     reset();
+    resetTransaction();
     setBidFormData({ bid: undefined });
     if (closeModal) {
       closeModal();
@@ -116,6 +123,7 @@ const BidForm: React.FC<FormStepProps> = ({ closeModal, goToNextStep }) => {
           <div className="label">
             <span className="label-text">{t("AUCTION.YOUR_MAX_BID")}</span>
           </div>
+
           <label className="input input-bordered flex items-center gap-2">
             <input
               autoComplete="off"
@@ -125,6 +133,7 @@ const BidForm: React.FC<FormStepProps> = ({ closeModal, goToNextStep }) => {
               })}
               className="grow"
             />
+            <span className="badge font-bold">MATIC</span>
             {errors.bid && (
               <span className="text-error">
                 <Alert />
@@ -137,27 +146,28 @@ const BidForm: React.FC<FormStepProps> = ({ closeModal, goToNextStep }) => {
               <span className="label-text error-message text-error">{errors.bid.message}</span>
             ) : (
               <span className="label-text default-text">
-                {t("AUCTION.BID_PLACEHOLDER", { minimumBid: parsedMinimumBidIncrement })}
+                {t("AUCTION.BID_PLACEHOLDER_BEFORE")}
+                <button
+                  type="button"
+                  className="text-primary"
+                  onClick={() => setValue("bid", parsedMinimumBidIncrement)}
+                >
+                  &nbsp;{parsedMinimumBidIncrement}
+                </button>
+                &nbsp;MATIC&nbsp;
+                {t("AUCTION.BID_PLACEHOLDER_AFTER")}
               </span>
             )}
           </div>
         </div>
-        <div className="grid grid-flow-col justify-stretch gap-2 mt-4">
-          <Button type="button" onClick={handleCancel}>
-            {t("FORM.BUTTON.CANCEL")}
-          </Button>
-          <Button
-            onClick={handleSubmit(onSubmit)}
-            disabled={isFormDisabled}
-            type="button"
-            className={`${!isFormDisabled ? "btn-primary btn-outline" : ""}`}
-          >
-            {t("FORM.BUTTON.NEXT")}
-          </Button>
-        </div>
+        <TransactionFormActions
+          isFormDisabled={isFormDisabled}
+          handleCancel={handleCancel}
+          handleSubmit={handleSubmit(onSubmit)}
+        />
       </form>
     </>
   );
 };
 
-export { BidForm };
+export { BidInput };

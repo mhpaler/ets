@@ -1,25 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
-import { fetchBlockchainTimeDifference } from "@app/services/auctionHouseService";
+import { useAuction } from "@app/hooks/useAuctionContext";
+import { useSystem } from "@app/hooks/useSystem";
 import { bigIntReplacer } from "@app/utils";
 
 const AuctionDebug = () => {
-  const auctionHouse = useAuctionHouse();
-  const { onDisplayAuction, maxAuctions, timeBuffer, duration, currentAuctionId } = auctionHouse;
+  const { timeDifference, blockchainTime } = useSystem();
+  const { maxAuctionId, auctionPaused, maxAuctions, timeBuffer, duration } = useAuctionHouse();
+  const { auction, auctionEndTimeUI } = useAuction();
   const [timeDifferenceMessage, setTimeDifferenceMessage] = useState<string>("");
 
   useEffect(() => {
     const fetchBlockchainTime = async () => {
       try {
-        // Fetch the latest block
-        const difference = await fetchBlockchainTimeDifference();
-
         // Determine if local time is ahead or behind blockchain time and by how many seconds
         let message = "Local time and blockchain time are synchronized.";
-        if (difference > 0) {
-          message = `Local time is ${difference} seconds ahead of blockchain time.`;
-        } else if (difference < 0) {
-          message = `Local time is ${Math.abs(difference)} seconds behind blockchain time.`;
+        if (timeDifference > 0) {
+          message = `Local time is ${timeDifference} seconds ahead of blockchain time.`;
+        } else if (timeDifference < 0) {
+          message = `Local time is ${Math.abs(timeDifference)} seconds behind blockchain time.`;
         }
 
         setTimeDifferenceMessage(message);
@@ -46,11 +45,19 @@ const AuctionDebug = () => {
       <pre>
         Local Machine Time: {Math.floor(Date.now() / 1000)}
         <br />
+        BlockchainTime: {blockchainTime()}
+        <br />
         {timeDifferenceMessage}
+        <br />
+        Auction end time: {auction?.endTime}
+        <br />
+        Auction end time UI: {auctionEndTimeUI}
       </pre>
       <h3>Auction Settings</h3>
       <pre>
-        Current Auction Id: {currentAuctionId}
+        Auction Paused: {auctionPaused ? "yes" : "no"}
+        <br />
+        Max Auction Id: {maxAuctionId}
         <br />
         Max Auctions: {maxAuctions}
         <br />
@@ -58,8 +65,8 @@ const AuctionDebug = () => {
         <br />
         Duration: {duration} seconds
       </pre>
-      <h3>onDisplayAuction:</h3>
-      <pre>{JSON.stringify(onDisplayAuction, bigIntReplacer, 2)}</pre>
+      <h3>auction:</h3>
+      <pre>{JSON.stringify(auction, bigIntReplacer, 2)}</pre>
     </div>
   );
 };

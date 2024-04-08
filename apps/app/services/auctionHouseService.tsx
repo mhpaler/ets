@@ -15,12 +15,43 @@ type FetchAuctionsResponse = {
   auctions: Auction[];
 };
 
+export const fetchAuctionPaused = async (): Promise<boolean> => {
+  const data = await readContract(wagmiConfig, {
+    ...etsAuctionHouseConfig,
+    functionName: "paused",
+  });
+  return data;
+};
+
+export const watchAuctionPaused = (onPaused: () => Promise<void>) => {
+  const unwatch = watchContractEvent(wagmiConfig, {
+    ...etsAuctionHouseConfig,
+    eventName: "Paused",
+    onLogs: async () => {
+      await onPaused();
+    },
+  });
+
+  return unwatch;
+};
+
+export const watchAuctionUnpaused = (onUnpaused: () => Promise<void>) => {
+  const unwatch = watchContractEvent(wagmiConfig, {
+    ...etsAuctionHouseConfig,
+    eventName: "Unpaused",
+    onLogs: async () => {
+      await onUnpaused();
+    },
+  });
+
+  return unwatch;
+};
+
 export const watchNewAuctionReleased = (onNewAuction: () => Promise<void>) => {
   const unwatch = watchContractEvent(wagmiConfig, {
     ...etsAuctionHouseConfig,
     eventName: "AuctionCreated",
-    onLogs: async (logs) => {
-      console.log("New logs!", logs);
+    onLogs: async () => {
       await onNewAuction();
     },
   });
@@ -28,9 +59,7 @@ export const watchNewAuctionReleased = (onNewAuction: () => Promise<void>) => {
   return unwatch;
 };
 
-// return the difference in local time from blockchain time.
-// Positive means  local is ahead of chain, negative means local is behind.
-export const fetchBlockchainTimeDifference = async (): Promise<number> => {
+export const fetchBlockchainTime = async (): Promise<number> => {
   try {
     // Fetch the latest block
     const block = await getBlock(wagmiConfig, {
@@ -42,9 +71,7 @@ export const fetchBlockchainTimeDifference = async (): Promise<number> => {
       return 0;
     }
 
-    const blockchainTimestamp = Number(block.timestamp);
-    const localTime = Math.floor(Date.now() / 1000);
-    return localTime - blockchainTimestamp;
+    return Number(block.timestamp);
   } catch (error) {
     console.error("Failed to fetch blockchain time:", error);
     // Return 0 in case of any error during fetching
@@ -86,6 +113,16 @@ export const fetchAuction = async (auctionId: number): Promise<AuctionOnChain> =
     auctioneer: `0x${data.auctioneer.substring(2)}`, // Ensure the auctioneer address is in the correct format
     settled: data.settled,
   };
+};
+
+export const fetchAuctionEnded = async (auctionId: number): Promise<boolean> => {
+  const data = await readContract(wagmiConfig, {
+    ...etsAuctionHouseConfig,
+    functionName: "auctionEnded",
+    args: [BigInt(auctionId)],
+  });
+
+  return data;
 };
 
 export const fetchAuctionSettingsData = async (): Promise<AuctionSettings> => {

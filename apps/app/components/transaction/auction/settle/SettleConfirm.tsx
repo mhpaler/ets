@@ -1,52 +1,29 @@
-/**
- * ConfirmTransaction Component
- *
- * This component is responsible for handling the blockchain transaction process
- * for adding a new relayer. It interacts with the AddRelayerProvider for state management
- * and utilizes wagmi hooks for blockchain interactions.
- *
- * Props:
- * - closeModal: Function to close the modal.
- *
- * It uses wagmi hooks:
- * - usePrepareContractWrite: Prepares the contract transaction without initiating it.
- * - useContractWrite: Initiates the contract transaction when the user confirms in their wallet.
- * - useWaitForTransaction: Waits for the transaction to be processed on the blockchain.
- *
- * The component updates its UI based on the transaction state, displaying relevant messages
- * and a spinner during processing. It also handles any errors that might occur during the transaction.
- *
- * Interaction with AddRelayerProvider:
- * - Reads formData for the transaction data.
- * - Reads and navigates using goToStep for navigation within the modal flow.
- *
- * Interaction with FormWrapper:
- * - Integrated within FormWrapper to be displayed as one of the steps in the relayer creation process.
- */
 import React from "react";
-import { etsRelayerFactoryConfig } from "@app/src/contracts";
+import { etsAuctionHouseConfig } from "@app/src/contracts";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { WriteContractErrorType } from "@wagmi/core"; // Adjust the import path as necessary
 
 import useTranslation from "next-translate/useTranslation";
-import { useAddRelayer } from "@app/hooks/useAddRelayer";
-import { Dialog } from "@headlessui/react";
 
+import { Dialog } from "@headlessui/react";
 import { Button } from "@app/components/Button";
+import { Tag } from "@app/components/Tag";
 import { Wallet, CheckCircle } from "@app/components/icons";
+
 import { TransactionError } from "@app/components/transaction/shared/TransactionError";
 import { TransactionLink } from "@app/components/transaction/shared/TransactionLink";
 
-interface FormStepProps {
-  closeModal: () => void; // Define other props as needed
-}
+import { useCloseModal } from "@app/hooks/useCloseModal";
+import { useAuction } from "@app/hooks/useAuctionContext";
 
-const ConfirmTransaction: React.FC<FormStepProps> = ({ closeModal }) => {
+// Props type for the FormWrapper component
+
+const SettleConfirm = () => {
   const { t } = useTranslation("common");
-  const context = useAddRelayer();
-  const { AddRelayerSteps, goToStep, formData } = context;
+  const { closeModal } = useCloseModal();
+  const { auction, settleAuction } = useAuction();
 
-  const { data: hash, error: writeError, isPending, writeContract: addRelayer } = useWriteContract();
+  const { data: hash, error: writeError, isPending, writeContract: settleAuctionOnChain } = useWriteContract();
 
   // User has submitted txn.
   const { isLoading: isConfirming, isSuccess: txPosted } = useWaitForTransactionReceipt({
@@ -56,16 +33,19 @@ const ConfirmTransaction: React.FC<FormStepProps> = ({ closeModal }) => {
   // TODO: Catch & display post submit txn errors?
   const hasErrors = writeError;
 
+  const handleCancel = () => {
+    closeModal?.(); // Close the modal if the function is provided.
+  };
   // Function to initiate the transaction
-  const handleButtonClick = () => {
-    if (txPosted || hasErrors) {
+  const handleTransaction = () => {
+    if (!auction || txPosted || hasErrors) {
       closeModal?.(); // Close the modal when transaction is successful
       return;
     }
-    addRelayer({
-      ...etsRelayerFactoryConfig,
-      functionName: "addRelayer",
-      args: [formData.name],
+    settleAuctionOnChain({
+      ...etsAuctionHouseConfig,
+      functionName: "settleCurrentAndCreateNewAuction",
+      args: [BigInt(auction.id)],
     });
   };
 
@@ -81,6 +61,11 @@ const ConfirmTransaction: React.FC<FormStepProps> = ({ closeModal }) => {
     dialogTitle = t("TXN.STATUS.PROCESSING");
     buttonLabel = t("TXN.STATUS.WAIT_FOR_CONFIRMATION");
   } else if (txPosted) {
+    if (auction) {
+      // This updates the UI right away while we wait for The Graph to catch up with the chain.
+      settleAuction(auction.id);
+    }
+
     dialogTitle = t("TXN.STATUS.COMPLETED");
     buttonLabel = t("FORM.BUTTON.DONE");
   } else {
@@ -93,7 +78,7 @@ const ConfirmTransaction: React.FC<FormStepProps> = ({ closeModal }) => {
       <Dialog.Title as="h3" className="text-center text-xl font-bold leading-6 text-gray-900">
         {dialogTitle}
       </Dialog.Title>
-      <div className="overflow-x-auto">
+      <div>
         <div className="mt-4 pl-8 pr-8 text-center flex flex-col items-center">
           {txPosted ? (
             <div className="text-green-600">
@@ -107,25 +92,30 @@ const ConfirmTransaction: React.FC<FormStepProps> = ({ closeModal }) => {
           )}
         </div>
         <div className="flex flex-col w-full mt-8 gap-4">
-          <div className="flex flex-row justify-between h-16 items-center pl-6 pr-6 rounded-box border-2 border-base-300">
-            <div className="">{t("FORM.ADD_RELAYER.FIELD_LABEL.NAME")}</div>
-            <div className="font-bold">{formData.name}</div>
+          <div className="flex flex-row justify-between h-14 items-center pl-6 pr-6 rounded-box border-2 border-base-300">
+            <div className="">{t("tag")}</div>
+            <div className="font-bold">
+              <Tag tag={auction?.tag} />
+            </div>
           </div>
-          <div className="flex flex-row justify-between h-16 items-center pl-6 pr-6 rounded-box border-2 border-base-300">
+          <div className="flex flex-row justify-between h-14 items-center pl-6 pr-6 rounded-box border-2 border-base-300">
             <div className="">{t("TXN.ACTION")}</div>
-            <div className="font-bold">{t("TXN.TYPE.CREATE_RELAYER")}</div>
+            <div className="font-bold">{t("AUCTION.SETTLE_BUTTON")}</div>
+          </div>
+          <div className="flex flex-row justify-between h-14 items-center pl-6 pr-6 text-xs">
+            {t("AUCTION.SETTLE_INFO")}
           </div>
           {/*           {hasErrors && <TransactionError error={hasErrors as WriteContractErrorType} />}
            */}{" "}
           {hash && <TransactionLink txn={hash} />}
           <div className="grid grid-flow-col justify-stretch gap-2">
             {((!hash && !isPending) || (isPending && hasErrors)) && (
-              <Button type="button" onClick={() => goToStep(AddRelayerSteps.AddRelayerForm)}>
-                Back
+              <Button type="button" onClick={handleCancel}>
+                {t("FORM.BUTTON.CANCEL")}
               </Button>
             )}
             <Button
-              onClick={handleButtonClick}
+              onClick={handleTransaction}
               disabled={isPending}
               className={`flex align-middle items-center gap-2 ${
                 isPending || isConfirming ? "btn-disabled" : "btn-primary btn-outline"
@@ -142,4 +132,4 @@ const ConfirmTransaction: React.FC<FormStepProps> = ({ closeModal }) => {
 
   return content;
 };
-export { ConfirmTransaction };
+export { SettleConfirm };

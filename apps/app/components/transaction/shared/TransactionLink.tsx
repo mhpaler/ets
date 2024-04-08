@@ -2,13 +2,16 @@ import React from "react";
 import useTranslation from "next-translate/useTranslation";
 import { Outlink } from "@app/components/Outlink";
 
-// Define an interface for the component's props
 interface TransactionLinkProps {
-  txn: string; // Specify that txn is expected to be a string
+  txn?: string | null; // Allow txn to be string, null, or undefined
 }
 
 export const TransactionLink: React.FC<TransactionLinkProps> = ({ txn }) => {
   const { t } = useTranslation("common");
+
+  if (!txn) {
+    return null; // Do not render if there is no transaction hash
+  }
 
   return (
     <div>

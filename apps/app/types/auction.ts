@@ -1,5 +1,6 @@
-import { GlobalSettings } from "@app/types/globalSettings";
+import { GlobalSettings } from "@app/types/system";
 import { Tag } from "@app/types/tag";
+import { KeyedMutator } from "swr";
 
 // Define a type for auction-specific settings picked from GlobalSettings
 export type AuctionSettings = Pick<
@@ -25,7 +26,7 @@ export type Auction = {
   startTime: number;
   endTime: number;
   extended: boolean;
-  ended: boolean;
+  ended?: boolean;
   settled: boolean;
   reservePrice: bigint;
   amount: bigint;
@@ -51,20 +52,31 @@ export type BidFormData = {
   bid: number | undefined;
 };
 
+export type FetchAuctionsResponse = {
+  auctions: Auction[];
+};
+
 /**
  * Type definition for the auction house's state and functions.
  */
 export type AuctionHouse = {
-  requestedAuctionId: number | null;
   auctionPaused: boolean;
   maxAuctions: number | null;
   minIncrementBidPercentage: number;
   duration: number | null;
   timeBuffer: number | 0;
-  currentAuctionId: number | null;
-  onDisplayAuction: Auction | null;
-  allAuctions: Auction[]; // New property to store all auctions
+  maxAuctionId: number | null;
+  activeAuctions: Auction[];
+  mutateActiveAuctions: KeyedMutator<FetchAuctionsResponse>;
+};
+
+export type AuctionContextType = {
+  auction: Auction | null;
+  auctionEndTimeUI: number;
+  setAuctionEndTimeUI: React.Dispatch<React.SetStateAction<number>>;
   bidFormData: BidFormData;
-  setBidFormData: (data: BidFormData) => void;
-  blockchainTime: () => number;
+  setBidFormData: React.Dispatch<React.SetStateAction<BidFormData>>;
+  endAuction: (auctionId: number) => void;
+  settleAuction: (auctionId: number) => void;
+  addBidToAuction: (auctionOnChain: AuctionOnChain, newBid: Bid) => void;
 };

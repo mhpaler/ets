@@ -1,38 +1,47 @@
 import React, { useEffect, useState } from "react";
 import useTranslation from "next-translate/useTranslation";
 import { Auction } from "@app/types/auction";
-import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
+import { useSystem } from "@app/hooks/useSystem";
+import { useAuction } from "@app/hooks/useAuctionContext";
 
 interface AuctionTimerProps {
-  onDisplayAuction: Auction;
+  auction: Auction;
 }
 
-const AuctionTimer: React.FC<AuctionTimerProps> = ({ onDisplayAuction }) => {
+const AuctionTimer: React.FC<AuctionTimerProps> = ({ auction }) => {
   const { t } = useTranslation("common");
-  const { blockchainTime } = useAuctionHouse(); // Use the context to get the function
-
-  const [timeLeft, setTimeLeft] = useState<number>(onDisplayAuction.endTime - blockchainTime());
+  const { blockchainTime } = useSystem();
+  const { endAuction, setAuctionEndTimeUI } = useAuction();
+  const [timeLeft, setTimeLeft] = useState<number>(auction.endTime - blockchainTime());
 
   useEffect(() => {
     const updateTimer = () => {
-      const newTimeLeft = onDisplayAuction.endTime - blockchainTime();
+      const currentTime = blockchainTime();
+      const hasStarted = auction.startTime > 0 && currentTime >= auction.startTime;
+      const hasEnded = auction.endTime > 0 && currentTime > auction.endTime;
 
-      if (newTimeLeft > 0) {
+      // Update time left only if the auction has started
+      if (hasStarted && !hasEnded) {
+        const newTimeLeft = auction.endTime - currentTime;
         setTimeLeft(newTimeLeft);
-      } else {
+      } else if (hasEnded) {
         setTimeLeft(0);
         clearInterval(timer);
+        if (!auction.ended) {
+          endAuction(auction.id); // Call endAuction only if it hasn't been marked as ended yet
+          setAuctionEndTimeUI(currentTime);
+        }
       }
     };
 
     const timer = setInterval(updateTimer, 1000);
 
-    // Initial update in case the component mounts close to the end time
+    // Initial update in case the component mounts close to the end time or after
     updateTimer();
 
     return () => clearInterval(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onDisplayAuction.endTime]);
+    // Ensure to include all dependencies this effect uses
+  }, [auction.startTime, auction.endTime, auction.ended, blockchainTime]);
 
   const formatTimeLeft = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
@@ -44,9 +53,9 @@ const AuctionTimer: React.FC<AuctionTimerProps> = ({ onDisplayAuction }) => {
     <div>
       <div>{t("AUCTION.TIME_LEFT")}</div>
       <div className="text-2xl font-semibold">
-        {onDisplayAuction.startTime === 0 ? (
+        {auction.startTime === 0 ? (
           <div>{t("AUCTION.BID_TO_START")}</div>
-        ) : onDisplayAuction.ended ? (
+        ) : auction.ended ? (
           <div>{t("AUCTION.ENDED")}</div>
         ) : (
           <div>{formatTimeLeft(timeLeft)}</div>

@@ -4,26 +4,26 @@ import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { WriteContractErrorType } from "@wagmi/core"; // Adjust the import path as necessary
 
 import useTranslation from "next-translate/useTranslation";
-import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 
 import { Dialog } from "@headlessui/react";
 import { Button } from "@app/components/Button";
 import { Tag } from "@app/components/Tag";
 import { Wallet, CheckCircle } from "@app/components/icons";
 
-import { TransactionError } from "@app/components/TransactionError";
-import { TransactionLink } from "@app/components/TransactionLink";
-// Props type for the FormWrapper component.
-interface Props {
-  closeModal?: Function; // closeModal is an optional function to close the modal.
-}
+import { TransactionError } from "@app/components/transaction/shared/TransactionError";
+import { TransactionLink } from "@app/components/transaction/shared/TransactionLink";
 
-const SettleFlow = (props: Props) => {
+import { useCloseModal } from "@app/hooks/useCloseModal";
+import { useAuction } from "@app/hooks/useAuctionContext";
+
+// Props type for the FormWrapper component
+
+const SettleFlow = () => {
   const { t } = useTranslation("common");
-  const context = useAuctionHouse();
-  const { onDisplayAuction } = context;
+  const { closeModal } = useCloseModal();
+  const { auction, settleAuction } = useAuction();
 
-  const { data: hash, error: writeError, isPending, writeContract: settleAuction } = useWriteContract();
+  const { data: hash, error: writeError, isPending, writeContract: settleAuctionOnChain } = useWriteContract();
 
   // User has submitted txn.
   const { isLoading: isConfirming, isSuccess: txPosted } = useWaitForTransactionReceipt({
@@ -34,18 +34,18 @@ const SettleFlow = (props: Props) => {
   const hasErrors = writeError;
 
   const handleCancel = () => {
-    props.closeModal?.(); // Close the modal if the function is provided.
+    closeModal?.(); // Close the modal if the function is provided.
   };
   // Function to initiate the transaction
   const handleTransaction = () => {
-    if (!onDisplayAuction || txPosted || hasErrors) {
-      props.closeModal?.(); // Close the modal when transaction is successful
+    if (!auction || txPosted || hasErrors) {
+      closeModal?.(); // Close the modal when transaction is successful
       return;
     }
-    settleAuction({
+    settleAuctionOnChain({
       ...etsAuctionHouseConfig,
       functionName: "settleCurrentAndCreateNewAuction",
-      args: [BigInt(onDisplayAuction.id)],
+      args: [BigInt(auction.id)],
     });
   };
 
@@ -61,6 +61,11 @@ const SettleFlow = (props: Props) => {
     dialogTitle = t("TXN.STATUS.PROCESSING");
     buttonLabel = t("TXN.STATUS.WAIT_FOR_CONFIRMATION");
   } else if (txPosted) {
+    if (auction) {
+      // This updates the UI right away while we wait for The Graph to catch up with the chain.
+      settleAuction(auction.id);
+    }
+
     dialogTitle = t("TXN.STATUS.COMPLETED");
     buttonLabel = t("FORM.BUTTON.DONE");
   } else {
@@ -90,7 +95,7 @@ const SettleFlow = (props: Props) => {
           <div className="flex flex-row justify-between h-14 items-center pl-6 pr-6 rounded-box border-2 border-base-300">
             <div className="">{t("tag")}</div>
             <div className="font-bold">
-              <Tag tag={onDisplayAuction?.tag} />
+              <Tag tag={auction?.tag} />
             </div>
           </div>
           <div className="flex flex-row justify-between h-14 items-center pl-6 pr-6 rounded-box border-2 border-base-300">
@@ -100,10 +105,9 @@ const SettleFlow = (props: Props) => {
           <div className="flex flex-row justify-between h-14 items-center pl-6 pr-6 text-xs">
             {t("AUCTION.SETTLE_INFO")}
           </div>
-
-          {hasErrors && <TransactionError error={hasErrors as WriteContractErrorType} />}
+          {/*           {hasErrors && <TransactionError error={hasErrors as WriteContractErrorType} />}
+           */}{" "}
           {hash && <TransactionLink txn={hash} />}
-
           <div className="grid grid-flow-col justify-stretch gap-2">
             {((!hash && !isPending) || (isPending && hasErrors)) && (
               <Button type="button" onClick={handleCancel}>

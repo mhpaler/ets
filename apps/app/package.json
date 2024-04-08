@@ -19,7 +19,7 @@
     "@rainbow-me/rainbowkit-siwe-next-auth": "^0.3.4",
     "@sunodo/wagmi-plugin-hardhat-deploy": "github:ethereum-tag-service/wagmi-plugin-hardhat-deploy#ets-temp",
     "@tanstack/react-query": "^5.17.19",
-    "@wagmi/core": "^2.6.1",
+    "@wagmi/core": "2.6.1",
     "copy-to-clipboard": "^3.3.1",
     "ethers": "^5.6.8",
     "graphql": "^16.5.0",

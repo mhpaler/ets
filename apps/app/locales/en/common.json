@@ -81,7 +81,7 @@
   "tag-creator": "Tag creator",
   "tag-owner": "Tag owner",
   "tags-created-by": "Tags created by {{ creator }}",
-  "tag-tagging-records": "Tagging records that include {{tag}}",
+  "tag-tagging-records": "Tagging records with {{tag}}",
   "tagging-records": "Tagging records",
   "tagging-record": "Tagging record",
   "tagging-records-created": "Tagging records created",
@@ -150,7 +150,10 @@
   },
 
   "AUCTION": {
+    "BIDS_FOR": "Bids for",
     "BID_PLACEHOLDER": "Bid {{minimumBid}} MATIC or more",
+    "BID_PLACEHOLDER_BEFORE": "Bid",
+    "BID_PLACEHOLDER_AFTER": "or more",
     "CURRENT_BID": "Current bid",
     "WINNING_BID": "Winning bid",
     "TIME_LEFT": "Time left",
