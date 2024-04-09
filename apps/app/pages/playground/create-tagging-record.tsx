@@ -11,6 +11,7 @@ import { isValidTag } from "@app/utils/tagUtils";
 import { Hex } from "viem";
 import debounce from "lodash.debounce";
 import useToast from "@app/hooks/useToast";
+import { QuestionMark } from "@app/components/icons";
 
 interface Tag {
   id: string;
@@ -20,14 +21,15 @@ interface Tag {
 const KeyCodes = {
   comma: 188,
   enter: 13,
+  tab: 9,
 };
 
-// Add tags with comma or enter
-const delimiters = [KeyCodes.comma, KeyCodes.enter];
+const delimiters = [KeyCodes.comma, KeyCodes.enter, KeyCodes.tab];
 
 const CreateTaggingRecord: NextPage = () => {
   const { t } = useTranslation("common");
   const { showToast, ToastComponent } = useToast();
+  const [tagInput, setTagInput] = useState<string>("");
   const [tags, setTags] = useState<Tag[]>([]);
   const [recordType, setRecordType] = useState<string>("");
   const [selectedRelayer, setSelectedRelayer] = useState<{ id: Hex; name: string } | null>(null);
@@ -45,6 +47,7 @@ const CreateTaggingRecord: NextPage = () => {
 
   const handleAddTag = useCallback(
     (tag: Tag) => {
+      setTagInput("");
       if (isValidTag(tag.text)) {
         setTags((prevTags) => [...prevTags, tag]);
       } else {
@@ -138,16 +141,28 @@ const CreateTaggingRecord: NextPage = () => {
               />
             </div>
           )}
-          <div className="mb-4 w-full">
+          <div className="mb-4 w-full flex flex-col relative">
             <ReactTags
               tags={tags}
               handleDelete={handleDeleteTag}
               handleAddition={handleAddTag}
+              inputValue={tagInput}
+              handleInputChange={setTagInput}
               delimiters={delimiters}
-              placeholder="Enter tags (e.g., #photo, #random)"
+              placeholder="Enter tags (e.g. #Tokenize, #love)"
               inputFieldPosition="bottom"
               autocomplete
             />
+            <div
+              className="tooltip absolute flex justify-center items-center right-1 top-6"
+              data-tip="Press enter, comma or tab to add tags"
+              style={{ transform: "translateY(-50%)" }}
+            >
+              <QuestionMark color="blue" size={26} />
+            </div>
+            {tagInput && !isValidTag(tagInput) && tagInput !== "#" && (
+              <div className="text-error mt-1 text-xs">{t("invalid-tag-message")}</div>
+            )}
           </div>
           <div className="mb-4">
             <input
@@ -227,7 +242,7 @@ const CreateTaggingRecord: NextPage = () => {
           </div>
           <div className="mb-2 flex items-center">
             <span className="font-bold">{t("tagger")}:</span>
-            <div className="truncate flex-1 mx-2">{tagger}</div>
+            <div className="truncate flex-1 mx-2">{tagger || "/"}</div>
             <button
               onClick={() => tagger && navigator.clipboard.writeText(tagger)}
               className="btn btn-xs btn-outline"

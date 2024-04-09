@@ -1,5 +1,5 @@
 import Toast from "@app/components/Toast";
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 
 interface ToastOptions {
   title?: string;
@@ -10,12 +10,14 @@ interface ToastOptions {
 const useToast = () => {
   const [toast, setToast] = useState<ToastOptions | null>(null);
 
-  const showToast = useCallback(({ title, description, duration = 5000 }: ToastOptions) => {
+  const showToast = useCallback(({ title, description, duration }: ToastOptions) => {
     setToast({ title, description, duration });
-    const timeoutId = setTimeout(() => {
-      setToast(null);
-    }, duration);
-    return () => clearTimeout(timeoutId);
+    if (duration) {
+      const timeoutId = setTimeout(() => {
+        setToast(null);
+      }, duration);
+      return () => clearTimeout(timeoutId);
+    }
   }, []);
 
   const dismissToast = useCallback(() => {

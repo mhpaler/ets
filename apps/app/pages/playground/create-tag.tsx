@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Layout from "@app/layouts/default";
@@ -10,6 +10,7 @@ import { availableChainIds } from "@app/constants/config";
 import { isValidTag } from "@app/utils/tagUtils";
 import { WithContext as ReactTags } from "react-tag-input";
 import useToast from "@app/hooks/useToast";
+import { QuestionMark } from "@app/components/icons";
 
 interface Tag {
   id: string;
@@ -19,14 +20,15 @@ interface Tag {
 const KeyCodes = {
   comma: 188,
   enter: 13,
+  tab: 9,
 };
 
-const delimiters = [KeyCodes.comma, KeyCodes.enter];
+const delimiters = [KeyCodes.comma, KeyCodes.enter, KeyCodes.tab];
 
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");
   const { showToast, ToastComponent } = useToast();
-  const invalidTagMsg = t("invalid-tag-message");
+  const [tagInput, setTagInput] = useState<string>("");
   const { chain } = useAccount();
   const [tags, setTags] = useState<Tag[]>([]);
   const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
@@ -98,8 +100,10 @@ const Playground: NextPage = () => {
   };
 
   const handleAddTag = async (tag: Tag) => {
+    setTagInput("");
     if (isValidTag(tag.text)) {
       const exists = await tagExists(tag.text);
+      console.log("exists", exists);
       if (exists) {
         showToast({
           description: t("tag-already-exists"),
@@ -109,7 +113,7 @@ const Playground: NextPage = () => {
       }
     } else {
       showToast({
-        description: invalidTagMsg,
+        description: t("invalid-tag-message"),
       });
     }
   };
@@ -118,16 +122,28 @@ const Playground: NextPage = () => {
     <Layout>
       <div className="space-y-4" style={{ width: "300px" }}>
         <PageTitle title={t("create-tag")} />
-        <div className="mb-4 w-full">
+        <div className="mb-4 w-full flex flex-col relative">
           <ReactTags
             tags={tags}
             handleDelete={handleDeleteTag}
             handleAddition={handleAddTag}
+            inputValue={tagInput}
+            handleInputChange={setTagInput}
             delimiters={delimiters}
-            placeholder="Enter tags (e.g., #tokenize)"
+            placeholder="Enter tags (e.g. #Tokenize, #love)"
             inputFieldPosition="bottom"
             autocomplete
           />
+          <div
+            className="tooltip absolute flex justify-center items-center top-6"
+            data-tip="Press enter, comma or tab to add tags"
+            style={{ transform: "translateY(-50%)", right: -30 }}
+          >
+            <QuestionMark color="blue" size={26} />
+          </div>
+          {tagInput && !isValidTag(tagInput) && tagInput !== "#" && (
+            <div className="text-error mt-1 text-xs">{t("invalid-tag-message")}</div>
+          )}
         </div>
         <div className="relative">
           <select
