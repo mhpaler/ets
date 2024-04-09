@@ -147,6 +147,14 @@ const CreateTaggingRecord: NextPage = () => {
               handleDelete={handleDeleteTag}
               handleAddition={handleAddTag}
               inputValue={tagInput}
+              classNames={{
+                tag: "text-sm font-medium inline-block py-1 px-2 rounded link-primary bg-primary-content mt-2 last:mr-0 mr-1",
+                tagInputField: "input input-bordered w-full",
+                selected: "flex flex-wrap gap-1",
+                remove: "btn btn-ghost btn-xs",
+                suggestions: "dropdown dropdown-bottom",
+                activeSuggestion: "bg-primary text-primary-content cursor-pointer",
+              }}
               handleInputChange={setTagInput}
               delimiters={delimiters}
               placeholder="Enter tags (e.g. #Tokenize, #love)"
