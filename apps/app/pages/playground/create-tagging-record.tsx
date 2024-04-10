@@ -12,6 +12,7 @@ import debounce from "lodash.debounce";
 import useToast from "@app/hooks/useToast";
 import TagInput from "@app/components/TagInput";
 import { TagInput as TagInputType } from "@app/types/tag";
+import Link from "next/link";
 
 const CreateTaggingRecord: NextPage = () => {
   const { t } = useTranslation("common");
@@ -23,6 +24,7 @@ const CreateTaggingRecord: NextPage = () => {
   const { relayers } = useRelayers({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [imageUrl, setImageUrl] = useState<string>("");
+  const [taggingRecordId, setTaggingRecordId] = useState<string | null>(null);
 
   const handleDeleteTag = useCallback(
     (i: number) => {
@@ -78,11 +80,24 @@ const CreateTaggingRecord: NextPage = () => {
       setIsLoading(true);
       try {
         const tagValues = tags.map((tag) => tag.text);
-        await createTaggingRecord(tagValues, imageUrl, recordType, selectedRelayer.id);
+        const recordId = await createTaggingRecord(tagValues, imageUrl, recordType, selectedRelayer.id, tagger);
+        setTaggingRecordId(recordId);
 
         showToast({
           title: "Success",
-          description: t("tagging-record-created-successfully"),
+          description: (
+            <>
+              {t("tagging-record-created-successfully")}
+              <Link
+                href={`/tagging-records/${recordId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-2 underline"
+              >
+                View tagging record
+              </Link>
+            </>
+          ),
         });
 
         setTags([]);
@@ -154,6 +169,19 @@ const CreateTaggingRecord: NextPage = () => {
               ))}
             </select>
           </div>
+
+          {taggingRecordId && (
+            <div className="mb-2">
+              <Link
+                href={`/tagging-records/${taggingRecordId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                View tagging record
+              </Link>
+            </div>
+          )}
           <div className="flex justify-end">
             <button
               onClick={handleCreateTaggingRecord}

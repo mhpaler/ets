@@ -1,4 +1,4 @@
-import { etsRelayerV1ABI, etsTargetConfig } from "../src/contracts";
+import { etsRelayerV1ABI, etsTargetConfig, etsConfig } from "../src/contracts";
 import { writeContract, waitForTransactionReceipt, readContract } from "wagmi/actions";
 import { wagmiConfig } from "@app/constants/config";
 import { Hex } from "viem";
@@ -8,11 +8,9 @@ export const createTaggingRecord = async (
   targetId: string,
   recordType: string,
   relayerAddress: Hex,
-): Promise<void> => {
-  const etsConfig = {
-    address: relayerAddress,
-    abi: etsRelayerV1ABI,
-  };
+  signerAddress?: Hex,
+): Promise<string> => {
+  const etsRelayerConfig = { address: relayerAddress, abi: etsRelayerV1ABI };
 
   try {
     const tagParams = [
@@ -25,14 +23,14 @@ export const createTaggingRecord = async (
     ];
 
     const { 0: fee, 1: actualTagCount } = await readContract(wagmiConfig, {
-      address: etsConfig.address,
-      abi: etsConfig.abi,
+      address: etsRelayerConfig.address,
+      abi: etsRelayerConfig.abi,
       functionName: "computeTaggingFee",
       args: [tagParams[0], 0],
     });
 
     const hash = await writeContract(wagmiConfig, {
-      ...etsConfig,
+      ...etsRelayerConfig,
       functionName: "applyTags",
       args: [tagParams],
       value: fee,
@@ -44,6 +42,17 @@ export const createTaggingRecord = async (
 
     console.log("Transaction receipt:", transactionReceipt);
     console.log(`${actualTagCount} tag(s) appended`);
+
+    const taggingRecordId = await readContract(wagmiConfig, {
+      address: etsConfig.address,
+      abi: etsConfig.abi,
+      functionName: "computeTaggingRecordIdFromRawInput",
+      args: [tagParams[0], relayerAddress, signerAddress || "0x0"],
+    });
+
+    console.log("taggingRecordId", taggingRecordId);
+
+    return String(taggingRecordId);
   } catch (error) {
     console.log("error", error);
     throw error;
