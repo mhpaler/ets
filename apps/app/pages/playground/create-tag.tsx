@@ -8,29 +8,15 @@ import { useRelayers } from "@app/hooks/useRelayers";
 import { useAccount } from "wagmi";
 import { availableChainIds } from "@app/constants/config";
 import { isValidTag } from "@app/utils/tagUtils";
-import { WithContext as ReactTags } from "react-tag-input";
 import useToast from "@app/hooks/useToast";
-import { QuestionMark } from "@app/components/icons";
-
-interface Tag {
-  id: string;
-  text: string;
-}
-
-const KeyCodes = {
-  comma: 188,
-  enter: 13,
-  tab: 9,
-};
-
-const delimiters = [KeyCodes.comma, KeyCodes.enter, KeyCodes.tab];
+import TagComponent from "@app/components/TagComponent";
+import { TagInput } from "@app/types/tag";
 
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");
   const { showToast, ToastComponent } = useToast();
-  const [tagInput, setTagInput] = useState<string>("");
   const { chain } = useAccount();
-  const [tags, setTags] = useState<Tag[]>([]);
+  const [tags, setTags] = useState<TagInput[]>([]);
   const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const { relayers } = useRelayers({});
@@ -99,8 +85,7 @@ const Playground: NextPage = () => {
     setTags(tags.filter((tag, index) => index !== i));
   };
 
-  const handleAddTag = async (tag: Tag) => {
-    setTagInput("");
+  const handleAddTag = async (tag: TagInput) => {
     if (isValidTag(tag.text)) {
       const exists = await tagExists(tag.text);
       console.log("exists", exists);
@@ -122,37 +107,7 @@ const Playground: NextPage = () => {
     <Layout>
       <div className="space-y-4" style={{ width: "300px" }}>
         <PageTitle title={t("create-tag")} />
-        <div className="mb-4 w-full flex flex-col relative">
-          <ReactTags
-            tags={tags}
-            handleDelete={handleDeleteTag}
-            handleAddition={handleAddTag}
-            inputValue={tagInput}
-            classNames={{
-              tag: "text-sm font-medium inline-block py-1 px-2 rounded link-primary bg-primary-content mt-2 last:mr-0 mr-1",
-              tagInputField: "input input-bordered w-full",
-              selected: "flex flex-wrap gap-1",
-              remove: "btn btn-ghost btn-xs",
-              suggestions: "dropdown dropdown-bottom",
-              activeSuggestion: "bg-primary text-primary-content cursor-pointer",
-            }}
-            handleInputChange={setTagInput}
-            delimiters={delimiters}
-            placeholder="Enter tags (e.g. #Tokenize, #love)"
-            inputFieldPosition="bottom"
-            autocomplete
-          />
-          <div
-            className="tooltip absolute flex justify-center items-center top-6"
-            data-tip="Press enter, comma or tab to add tags"
-            style={{ transform: "translateY(-50%)", right: -30 }}
-          >
-            <QuestionMark color="blue" size={26} />
-          </div>
-          {tagInput && !isValidTag(tagInput) && tagInput !== "#" && (
-            <div className="text-error mt-1 text-xs">{t("invalid-tag-message")}</div>
-          )}
-        </div>
+        <TagComponent tags={tags} handleDeleteTag={handleDeleteTag} handleAddTag={handleAddTag} />
         <div className="relative">
           <select
             className="select select-bordered w-full max-w-xs"
