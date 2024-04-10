@@ -10,13 +10,13 @@ import { isValidTag } from "@app/utils/tagUtils";
 import { Hex } from "viem";
 import debounce from "lodash.debounce";
 import useToast from "@app/hooks/useToast";
-import TagComponent from "@app/components/TagComponent";
-import { TagInput } from "@app/types/tag";
+import TagInput from "@app/components/TagInput";
+import { TagInput as TagInputType } from "@app/types/tag";
 
 const CreateTaggingRecord: NextPage = () => {
   const { t } = useTranslation("common");
   const { showToast, ToastComponent } = useToast();
-  const [tags, setTags] = useState<TagInput[]>([]);
+  const [tags, setTags] = useState<TagInputType[]>([]);
   const [recordType, setRecordType] = useState<string>("");
   const [selectedRelayer, setSelectedRelayer] = useState<{ id: Hex; name: string } | null>(null);
   const { address: tagger } = useAccount();
@@ -32,7 +32,7 @@ const CreateTaggingRecord: NextPage = () => {
   );
 
   const handleAddTag = useCallback(
-    (tag: TagInput) => {
+    (tag: TagInputType) => {
       if (isValidTag(tag.text)) {
         setTags((prevTags) => [...prevTags, tag]);
       } else {
@@ -126,7 +126,7 @@ const CreateTaggingRecord: NextPage = () => {
               />
             </div>
           )}
-          <TagComponent tags={tags} handleDeleteTag={handleDeleteTag} handleAddTag={handleAddTag} infoInside />
+          <TagInput tags={tags} handleDeleteTag={handleDeleteTag} handleAddTag={handleAddTag} infoInside />
           <div className="mb-4">
             <input
               type="text"

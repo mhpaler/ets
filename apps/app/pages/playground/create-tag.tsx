@@ -9,14 +9,14 @@ import { useAccount } from "wagmi";
 import { availableChainIds } from "@app/constants/config";
 import { isValidTag } from "@app/utils/tagUtils";
 import useToast from "@app/hooks/useToast";
-import TagComponent from "@app/components/TagComponent";
-import { TagInput } from "@app/types/tag";
+import TagInput from "@app/components/TagInput";
+import { TagInput as TagInputType } from "@app/types/tag";
 
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");
   const { showToast, ToastComponent } = useToast();
   const { chain } = useAccount();
-  const [tags, setTags] = useState<TagInput[]>([]);
+  const [tags, setTags] = useState<TagInputType[]>([]);
   const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const { relayers } = useRelayers({});
@@ -85,10 +85,9 @@ const Playground: NextPage = () => {
     setTags(tags.filter((tag, index) => index !== i));
   };
 
-  const handleAddTag = async (tag: TagInput) => {
+  const handleAddTag = async (tag: TagInputType) => {
     if (isValidTag(tag.text)) {
       const exists = await tagExists(tag.text);
-      console.log("exists", exists);
       if (exists) {
         showToast({
           description: t("tag-already-exists"),
@@ -107,7 +106,7 @@ const Playground: NextPage = () => {
     <Layout>
       <div className="space-y-4" style={{ width: "300px" }}>
         <PageTitle title={t("create-tag")} />
-        <TagComponent tags={tags} handleDeleteTag={handleDeleteTag} handleAddTag={handleAddTag} />
+        <TagInput tags={tags} handleDeleteTag={handleDeleteTag} handleAddTag={handleAddTag} />
         <div className="relative">
           <select
             className="select select-bordered w-full max-w-xs"

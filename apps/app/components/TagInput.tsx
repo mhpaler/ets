@@ -13,17 +13,16 @@ const KeyCodes = {
 
 const delimiters = [KeyCodes.comma, KeyCodes.enter, KeyCodes.tab];
 
-interface TagComponentProps {
+interface TagInputProps {
   tags: TagInput[];
   handleDeleteTag: (i: number) => void;
   handleAddTag: (tag: TagInput) => void;
   infoInside?: boolean;
 }
 
-const TagComponent: React.FC<TagComponentProps> = ({ tags, handleDeleteTag, handleAddTag, infoInside }) => {
-  const [tagInput, setTagInput] = useState<string>("");
-
+const TagInput: React.FC<TagInputProps> = ({ tags, handleDeleteTag, handleAddTag, infoInside }) => {
   const { t } = useTranslation("common");
+  const [tagInput, setTagInput] = useState<string>("");
 
   return (
     <div className="mb-4 w-full flex flex-col relative">
@@ -63,4 +62,4 @@ const TagComponent: React.FC<TagComponentProps> = ({ tags, handleDeleteTag, hand
   );
 };
 
-export default TagComponent;
+export default TagInput;
