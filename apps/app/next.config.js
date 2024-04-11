@@ -1,4 +1,4 @@
-const nextTranslate = require('next-translate-plugin');
+const nextTranslate = require("next-translate-plugin");
 const withTM = require("next-transpile-modules")(["@ethereum-tag-service/ui"]);
 
 const withWebpack = (nextConfig = {}) => {
@@ -11,7 +11,7 @@ const withWebpack = (nextConfig = {}) => {
       });
       // See https://www.rainbowkit.com/docs/installation#additional-build-tooling-setup
       config.resolve.fallback = { fs: false, net: false, tls: false };
-      config.externals.push('pino-pretty', 'lokijs', 'encoding');
+      config.externals.push("pino-pretty", "lokijs", "encoding");
       return config;
     },
   };

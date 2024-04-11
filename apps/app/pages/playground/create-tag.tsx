@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Layout from "@app/layouts/default";
@@ -8,57 +8,28 @@ import { useRelayers } from "@app/hooks/useRelayers";
 import { useAccount } from "wagmi";
 import { availableChainIds } from "@app/constants/config";
 import { isValidTag } from "@app/utils/tagUtils";
-import AlertComponent from "@app/components/Alert";
+import useToast from "@app/hooks/useToast";
+import TagInput from "@app/components/TagInput";
+import { TagInput as TagInputType } from "@app/types/tag";
 
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");
-  const invalidTagMsg = t("invalid-tag-message");
+  const { showToast, ToastComponent } = useToast();
   const { chain } = useAccount();
-  const [tagInput, setTagInput] = useState("");
+  const [tags, setTags] = useState<TagInputType[]>([]);
   const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
-  const [exists, setExists] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertTitle, setAlertTitle] = useState("");
-  const [alertDescription, setAlertDescription] = useState<string | JSX.Element>("");
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const { relayers } = useRelayers({});
   const isCorrectNetwork = chain?.id && availableChainIds.includes(chain?.id);
-
-  const disabled = !isValidTag(tagInput) || !selectedRelayer || !isCorrectNetwork || exists || isCreatingTag;
+  const disabled = !tags.length || !selectedRelayer || !isCorrectNetwork || isCreatingTag;
 
   const getTooltipMessage = () => {
-    if (!tagInput) return t("please-enter-a-tag");
-    if (!isValidTag(tagInput)) return invalidTagMsg;
-    if (exists) return t("this-tag-already-exists-please-enter-a-different-tag");
+    if (!tags.length) return t("please-enter-a-tag");
     if (!selectedRelayer) return t("please-select-a-relayer");
     if (!isCorrectNetwork) return t("switch-to-mumbai-network");
-    if (isCreatingTag) return t("creating-tag");
+    if (isCreatingTag) return t("creating-tags");
     return "";
   };
-
-  useEffect(() => {
-    let debounceTimer: any;
-    const checkTagExists = async () => {
-      if (tagInput) {
-        const exists = await tagExists(tagInput);
-        setExists(exists);
-      }
-    };
-
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-    }
-
-    debounceTimer = setTimeout(() => {
-      checkTagExists();
-    }, 300);
-
-    return () => {
-      if (debounceTimer) {
-        clearTimeout(debounceTimer);
-      }
-    };
-  }, [tagInput]);
 
   const handleSelectRelayer = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const relayerId = event.target.value;
@@ -70,56 +41,72 @@ const Playground: NextPage = () => {
     if (!disabled) {
       setIsCreatingTag(true);
       try {
-        const firstTag = tagInput.trim();
-        await createTags([firstTag], selectedRelayer.id);
-        setTagInput("");
+        if (tags.length > 0) {
+          const tagValues = tags.map((tag) => tag.text);
+          await createTags(tagValues, selectedRelayer.id);
+        }
 
-        const tagWithoutHashtag = firstTag.startsWith("#") ? firstTag.slice(1) : firstTag;
-        const viewTagUrl = `/tags/${tagWithoutHashtag}`;
+        setTags([]);
+
         const successMessage = (
           <>
             {t("tag-created-successfully")}{" "}
-            <a href={viewTagUrl} className="link link-primary" style={{ textDecoration: "underline" }}>
-              View tag here
-            </a>
+            {tags.map((tag, index) => (
+              <span key={index}>
+                <a
+                  href={`/tags/${tag.text.startsWith("#") ? tag.text.slice(1) : tag.text}`}
+                  className="link link-primary"
+                  style={{ textDecoration: "underline" }}
+                >
+                  {tag.text}
+                </a>
+                {index !== tags.length - 1 && ", "}
+              </span>
+            ))}
             .
           </>
         );
-
-        setAlertTitle("Success");
-        setAlertDescription(successMessage);
-        setShowAlert(true);
+        showToast({
+          title: "Success",
+          description: successMessage,
+        });
       } catch (error) {
-        console.error("Error creating tags:", error);
-        setAlertTitle("Error");
-        setAlertDescription("Failed to create tags.");
-        setShowAlert(true);
+        showToast({
+          title: "Error",
+          description: t("failed-to-create-tags"),
+        });
       } finally {
         setIsCreatingTag(false);
       }
     }
   };
 
-  const toggleAlert = () => setShowAlert(!showAlert);
+  const handleDeleteTag = (i: number) => {
+    setTags(tags.filter((tag, index) => index !== i));
+  };
+
+  const handleAddTag = async (tag: TagInputType) => {
+    if (isValidTag(tag.text)) {
+      const exists = await tagExists(tag.text);
+      if (exists) {
+        showToast({
+          description: t("tag-already-exists"),
+        });
+      } else {
+        setTags((prevTags) => [...prevTags, tag]);
+      }
+    } else {
+      showToast({
+        description: t("invalid-tag-message"),
+      });
+    }
+  };
 
   return (
     <Layout>
       <div className="space-y-4" style={{ width: "300px" }}>
         <PageTitle title={t("create-tag")} />
-        <input
-          type="text"
-          placeholder="Enter tag, e.g.: #tokenize"
-          value={tagInput}
-          onChange={(e) => setTagInput(e.target.value)}
-          className="input input-bordered w-full"
-        />
-
-        {tagInput && !isValidTag(tagInput) && tagInput !== "#" && (
-          <div className="text-error mt-2 text-xs">{invalidTagMsg}</div>
-        )}
-        {exists && (
-          <div className="text-error mt-2 text-xs">This tag already exists. Please enter a different tag.</div>
-        )}
+        <TagInput tags={tags} handleDeleteTag={handleDeleteTag} handleAddTag={handleAddTag} />
         <div className="relative">
           <select
             className="select select-bordered w-full max-w-xs"
@@ -127,7 +114,7 @@ const Playground: NextPage = () => {
             onChange={handleSelectRelayer}
           >
             <option disabled value="">
-              Select a relayer
+              {t("select-a-relayer")}
             </option>
             {relayers?.map((relayer: any, index: number) => (
               <option key={index} value={relayer.id}>
@@ -146,12 +133,7 @@ const Playground: NextPage = () => {
           </button>
         </div>
       </div>
-      <AlertComponent
-        showAlert={showAlert}
-        title={alertTitle}
-        description={alertDescription}
-        toggleAlert={toggleAlert}
-      />
+      {ToastComponent}
     </Layout>
   );
 };
