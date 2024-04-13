@@ -1,10 +1,10 @@
 import React from "react";
 
-export function QuestionMark({ size = 36 }) {
+export function QuestionMark({ size = 36, color = "currentColor" }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} fill="none" viewBox="0 0 24 24">
       <path
-        stroke="currentColor"
+        stroke={color}
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="1.5"

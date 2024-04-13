@@ -20,7 +20,9 @@ export const wagmiConfig: Config = createConfig({
   chains: [process.env.NEXT_PUBLIC_ETS_ENVIRONMENT === "development" ? hardhat : polygonMumbai],
   connectors: [injected()],
   transports: {
-    [polygonMumbai.id]: fallback([http("https://polygon-mumbai-pokt.nodies.app/")]),
+    [polygonMumbai.id]: fallback([
+      http(`https://polygon-mumbai.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`),
+    ]),
     [hardhat.id]: http("http://localhost:8545"),
   },
 });
@@ -46,3 +48,5 @@ export const etsTheme = merge(
     },
   } as Theme,
 );
+
+export const availableChainIds = [80001, 31337];

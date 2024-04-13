@@ -14,3 +14,8 @@ export type Tag = {
     id: `0x${string}`;
   };
 };
+
+export interface TagInput {
+  id: string;
+  text: string;
+}
