@@ -25,8 +25,9 @@ export interface StepConfig {
 }
 
 /**
- * Manages the steps involved in performing a blockchain transaction, such as bidding or settling an auction.
- * Renders the appropriate component for each step based on the transaction type and current state.
+ * TransactionFlowWrapper renders the appropriate component for each step in a transaction.
+ * Components and steps are specified using a combo of @app/config/transactionConfig and
+ * the current state of the transaction supplied by wagmi wrapper @app/hooks/useTransaction.
  *
  * Usage Example within a Modal:
  * ```tsx
@@ -56,6 +57,7 @@ const TransactionFlowWrapper: React.FC<FlowWrapperProps> = ({ transactionType })
 
   // Automatically navigate to the confirmation step on transaction pending or error.
   useEffect(() => {
+    // confirmation step is always last step from config.
     const confirmationStepIndex = steps.length - 1;
     if (isPending || hash || isError) {
       setCurrentStepIndex(confirmationStepIndex);

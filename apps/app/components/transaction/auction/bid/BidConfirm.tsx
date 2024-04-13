@@ -1,13 +1,10 @@
 import React from "react";
 import { etsAuctionHouseConfig } from "@app/src/contracts";
-import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
-import { WriteContractErrorType } from "@wagmi/core"; // Adjust the import path as necessary
 
 import useTranslation from "next-translate/useTranslation";
 import { parseEther } from "viem";
 
 import { Dialog } from "@headlessui/react";
-import { Button } from "@app/components/Button";
 import { Tag } from "@app/components/Tag";
 import { Wallet, CheckCircle } from "@app/components/icons";
 
@@ -30,7 +27,7 @@ const BidConfirm: React.FC<FormStepProps> = ({ goToStep }) => {
 
   const { closeModal } = useCloseModal();
   const { auction, bidFormData } = useAuction();
-  const { initiateTransaction, resetTransaction, isPending, isSuccess, hash, isError, errorMessage } = useTransaction();
+  const { initiateTransaction, resetTransaction, isSuccess, hash, isError, errorMessage } = useTransaction();
   const { dialogTitle } = useTransactionLabels(); // Use the hook
 
   // Extract the specific ABI for the `createBid` function

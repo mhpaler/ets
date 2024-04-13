@@ -50,7 +50,6 @@ export const AuctionProvider: React.FC<AuctionProps> = ({
   auctionId: number | null;
 }) => {
   const { activeAuctions, mutateActiveAuctions } = useAuctionHouse(); // Access AuctionHouse context
-
   const [auction, setAuction] = useState<Auction | null>(null);
   const [auctionEndTimeUI, setAuctionEndTimeUI] = useState<number>(0);
   const [bidFormData, setBidFormData] = useState<BidFormData>({
@@ -99,7 +98,8 @@ export const AuctionProvider: React.FC<AuctionProps> = ({
     }, false);
   };
 
-  // Function to optimistically update an auction's ended status
+  // Function to optimistically update an auction's ended status in UI
+  // see /app/components/auction/AuctionTimer.tsx
   const endAuction = (auctionId: number) => {
     mutateActiveAuctions((current: FetchAuctionsResponse | undefined) => {
       if (!current || !current.auctions) return current;

@@ -1,12 +1,9 @@
 import React from "react";
 import { etsAuctionHouseConfig } from "@app/src/contracts";
-import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
-import { WriteContractErrorType } from "@wagmi/core"; // Adjust the import path as necessary
-
 import useTranslation from "next-translate/useTranslation";
+import { parseEther } from "viem";
 
 import { Dialog } from "@headlessui/react";
-import { Button } from "@app/components/Button";
 import { Tag } from "@app/components/Tag";
 import { Wallet, CheckCircle } from "@app/components/icons";
 
@@ -15,63 +12,47 @@ import { TransactionLink } from "@app/components/transaction/shared/TransactionL
 
 import { useCloseModal } from "@app/hooks/useCloseModal";
 import { useAuction } from "@app/hooks/useAuctionContext";
+import { useTransaction } from "@app/hooks/useTransaction";
+import TransactionConfirmActions from "@app/components/transaction/shared/TransactionConfirmActions";
+import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels"; // Adjust the import path as necessary
 
-// Props type for the FormWrapper component
+interface FormStepProps {
+  goToNextStep: () => void;
+  goToStep: (step: number) => void;
+}
 
-const SettleConfirm = () => {
+const SettleConfirm: React.FC<FormStepProps> = ({ goToStep }) => {
   const { t } = useTranslation("common");
+
   const { closeModal } = useCloseModal();
-  const { auction, settleAuction } = useAuction();
+  const { auction, bidFormData } = useAuction();
+  const { initiateTransaction, resetTransaction, isPending, isSuccess, hash, isError, errorMessage } = useTransaction();
+  const { dialogTitle } = useTransactionLabels(); // Use the hook
 
-  const { data: hash, error: writeError, isPending, writeContract: settleAuctionOnChain } = useWriteContract();
+  // Extract the specific ABI for the `createBid` function
+  const createBidABI = etsAuctionHouseConfig.abi.find((abi) => abi.type === "function" && abi.name === "createBid");
+  if (!createBidABI) {
+    throw new Error("createBid ABI not found");
+  }
 
-  // User has submitted txn.
-  const { isLoading: isConfirming, isSuccess: txPosted } = useWaitForTransactionReceipt({
-    hash,
-  });
-
-  // TODO: Catch & display post submit txn errors?
-  const hasErrors = writeError;
-
-  const handleCancel = () => {
-    closeModal?.(); // Close the modal if the function is provided.
-  };
   // Function to initiate the transaction
-  const handleTransaction = () => {
-    if (!auction || txPosted || hasErrors) {
-      closeModal?.(); // Close the modal when transaction is successful
+  const handleButtonClick = () => {
+    if (!auction || isSuccess || isError) {
+      // Use a timeout to delay the reset, allowing the modal to close smoothly
+      setTimeout(() => {
+        resetTransaction();
+      }, 500); // Adjust the timeout duration as needed for your modal close animation
+
+      // Close the modal
+      closeModal();
       return;
     }
-    settleAuctionOnChain({
+    initiateTransaction({
       ...etsAuctionHouseConfig,
       functionName: "settleCurrentAndCreateNewAuction",
       args: [BigInt(auction.id)],
     });
   };
-
-  // Determine the button label and dialog title based on the transaction state
-  let dialogTitle, buttonLabel;
-  if (hasErrors) {
-    dialogTitle = t("TXN.STATUS.ERROR");
-    buttonLabel = t("FORM.BUTTON.CANCEL");
-  } else if (isPending) {
-    dialogTitle = t("TXN.CONFIRM_DETAILS");
-    buttonLabel = t("TXN.STATUS.WAIT_FOR_SIGNATURE");
-  } else if (isConfirming) {
-    dialogTitle = t("TXN.STATUS.PROCESSING");
-    buttonLabel = t("TXN.STATUS.WAIT_FOR_CONFIRMATION");
-  } else if (txPosted) {
-    if (auction) {
-      // This updates the UI right away while we wait for The Graph to catch up with the chain.
-      settleAuction(auction.id);
-    }
-
-    dialogTitle = t("TXN.STATUS.COMPLETED");
-    buttonLabel = t("FORM.BUTTON.DONE");
-  } else {
-    dialogTitle = t("FORM.BUTTON.CONFIRM_DETAILS");
-    buttonLabel = t("FORM.BUTTON.OPEN_WALLET");
-  }
 
   const content = (
     <>
@@ -80,7 +61,7 @@ const SettleConfirm = () => {
       </Dialog.Title>
       <div>
         <div className="mt-4 pl-8 pr-8 text-center flex flex-col items-center">
-          {txPosted ? (
+          {isSuccess ? (
             <div className="text-green-600">
               <CheckCircle size={48} />
             </div>
@@ -105,26 +86,10 @@ const SettleConfirm = () => {
           <div className="flex flex-row justify-between h-14 items-center pl-6 pr-6 text-xs">
             {t("AUCTION.SETTLE_INFO")}
           </div>
-          {/*           {hasErrors && <TransactionError error={hasErrors as WriteContractErrorType} />}
-           */}{" "}
-          {hash && <TransactionLink txn={hash} />}
-          <div className="grid grid-flow-col justify-stretch gap-2">
-            {((!hash && !isPending) || (isPending && hasErrors)) && (
-              <Button type="button" onClick={handleCancel}>
-                {t("FORM.BUTTON.CANCEL")}
-              </Button>
-            )}
-            <Button
-              onClick={handleTransaction}
-              disabled={isPending}
-              className={`flex align-middle items-center gap-2 ${
-                isPending || isConfirming ? "btn-disabled" : "btn-primary btn-outline"
-              }`}
-            >
-              {(isPending || isConfirming) && <span className="loading loading-spinner mr-2 bg-primary"></span>}
-              {buttonLabel}
-            </Button>
-          </div>
+
+          <TransactionError errorMsg={errorMessage} />
+          <TransactionLink txn={hash} />
+          <TransactionConfirmActions handleBack={() => goToStep(0)} handlePrimaryAction={handleButtonClick} />
         </div>
       </div>
     </>

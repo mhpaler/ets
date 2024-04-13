@@ -62,6 +62,10 @@ const BidInput: React.FC<FormStepProps> = ({ goToNextStep }) => {
   // Watch the 'name' input field for changes and debounce the input value.
   const bidValue = watch("bid", undefined);
 
+  useEffect(() => {
+    setBidFormData({ bid: undefined });
+  }, []);
+
   // Effect to set min bid increment.
   useEffect(() => {
     if (!auction) return;

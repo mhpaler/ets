@@ -5,7 +5,7 @@ export interface StepConfig {
   component: React.ComponentType<any>;
   props?: { [key: string]: any };
 }
-// Define the transaction configurations
+// Define the transaction configuration
 export const transactionConfig: { [key in TransactionType]: StepConfig[] } = {
   [TransactionType.AddRelayer]: [
     {
