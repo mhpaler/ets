@@ -4,15 +4,15 @@ import useTranslation from "next-translate/useTranslation";
 import { parseEther } from "viem";
 
 import { Dialog } from "@headlessui/react";
-import { Tag } from "@app/components/Tag";
-import { Wallet, CheckCircle } from "@app/components/icons";
-
-import { TransactionError } from "@app/components/transaction/shared/TransactionError";
-import { TransactionLink } from "@app/components/transaction/shared/TransactionLink";
 
 import { useCloseModal } from "@app/hooks/useCloseModal";
 import { useAuction } from "@app/hooks/useAuctionContext";
 import { useTransaction } from "@app/hooks/useTransaction";
+
+import { Tag } from "@app/components/Tag";
+import { Wallet, CheckCircle, QuestionMark } from "@app/components/icons";
+import { TransactionError } from "@app/components/transaction/shared/TransactionError";
+import { TransactionLink } from "@app/components/transaction/shared/TransactionLink";
 import TransactionConfirmActions from "@app/components/transaction/shared/TransactionConfirmActions";
 import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels"; // Adjust the import path as necessary
 
@@ -42,7 +42,6 @@ const SettleConfirm: React.FC<FormStepProps> = ({ goToStep }) => {
       setTimeout(() => {
         resetTransaction();
       }, 500); // Adjust the timeout duration as needed for your modal close animation
-
       // Close the modal
       closeModal();
       return;
@@ -89,7 +88,7 @@ const SettleConfirm: React.FC<FormStepProps> = ({ goToStep }) => {
 
           <TransactionError errorMsg={errorMessage} />
           <TransactionLink txn={hash} />
-          <TransactionConfirmActions handleBack={() => goToStep(0)} handlePrimaryAction={handleButtonClick} />
+          <TransactionConfirmActions handleBack={() => closeModal()} handlePrimaryAction={handleButtonClick} />
         </div>
       </div>
     </>

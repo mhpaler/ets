@@ -60,7 +60,7 @@ export const AuctionProvider: React.FC<AuctionProps> = ({
     if (activeAuctions.length > 0 && auctionId !== null) {
       const foundAuction = activeAuctions.find((auction) => auction.id === auctionId) ?? null;
       if (!foundAuction) {
-        // TODO: Redirect user to "not found" page
+        // TODO: Redirect user to "404 not found" page
         console.error(`Failed to find auction with ID: ${auctionId}`);
       } else {
         setAuction(foundAuction);

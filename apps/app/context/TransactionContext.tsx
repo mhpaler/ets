@@ -1,6 +1,6 @@
 import React, { createContext, useState, ReactNode, FC } from "react";
-import { TransactionContextType, TransactionState, TransactionInitiateConfig } from "@app/types/transaction";
-import { simulateContract, writeContract, waitForTransactionReceipt, readContract } from "wagmi/actions";
+import { TransactionContextType, TransactionState } from "@app/types/transaction";
+import { simulateContract, writeContract, waitForTransactionReceipt } from "wagmi/actions";
 import { wagmiConfig } from "@app/constants/config";
 import { SimulateContractParameters } from "wagmi/actions";
 

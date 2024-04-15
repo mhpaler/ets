@@ -26,7 +26,7 @@ const BidConfirm: React.FC<FormStepProps> = ({ goToStep }) => {
   const { t } = useTranslation("common");
 
   const { closeModal } = useCloseModal();
-  const { auction, bidFormData } = useAuction();
+  const { auction, bidFormData, setBidFormData } = useAuction();
   const { initiateTransaction, resetTransaction, isSuccess, hash, isError, errorMessage } = useTransaction();
   const { dialogTitle } = useTransactionLabels(); // Use the hook
 
@@ -43,6 +43,7 @@ const BidConfirm: React.FC<FormStepProps> = ({ goToStep }) => {
       // TODO: Have a look at DaisyUI modal.
       setTimeout(() => {
         resetTransaction();
+        setBidFormData({ bid: undefined });
       }, 500); // Adjust the timeout duration as needed for your modal close animation
 
       // Close the modal

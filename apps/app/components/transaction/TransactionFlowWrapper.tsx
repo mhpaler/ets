@@ -26,8 +26,9 @@ export interface StepConfig {
 
 /**
  * TransactionFlowWrapper renders the appropriate component for each step in a transaction.
- * Components and steps are specified using a combo of @app/config/transactionConfig and
- * the current state of the transaction supplied by wagmi wrapper @app/hooks/useTransaction.
+ *
+ * Steps and their components are specified using @app/config/transactionConfig.tsx and
+ * the current state of the transaction is supplied @app/hooks/useTransaction.
  *
  * Usage Example within a Modal:
  * ```tsx
@@ -54,6 +55,11 @@ const TransactionFlowWrapper: React.FC<FlowWrapperProps> = ({ transactionType })
   const { isPending, hash, isError } = useTransaction();
   const steps = transactionConfig[transactionType];
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
+
+  // Reset step index when transactionType changes
+  useEffect(() => {
+    setCurrentStepIndex(0); // Resets to the initial step whenever the transaction type changes
+  }, [transactionType]); // Dependency on transactionType
 
   // Automatically navigate to the confirmation step on transaction pending or error.
   useEffect(() => {

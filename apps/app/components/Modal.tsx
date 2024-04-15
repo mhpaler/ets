@@ -1,5 +1,5 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useState, cloneElement } from "react";
+import { Fragment, useState } from "react";
 import { CloseModalProvider } from "@app/context/CloseModalContext"; // Adjust path as necessary
 
 interface Props {
@@ -44,7 +44,7 @@ const Modal = ({ label, children, link = false, buttonClasses = "", disabled = f
       </button>
 
       <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={closeModal}>
+        <Dialog as="div" className="relative z-10" onClose={() => {}}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"

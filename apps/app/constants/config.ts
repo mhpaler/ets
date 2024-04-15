@@ -21,7 +21,8 @@ export const wagmiConfig: Config = createConfig({
   connectors: [injected()],
   transports: {
     [polygonMumbai.id]: fallback([
-      http(`https://polygon-mumbai.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`),
+      //http(`https://polygon-mumbai.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`),
+      http("https://polygon-mumbai-bor-rpc.publicnode.com"),
     ]),
     [hardhat.id]: http("http://localhost:8545"),
   },

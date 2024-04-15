@@ -1,10 +1,10 @@
 import useTranslation from "next-translate/useTranslation";
+import { useAccount } from "wagmi";
 import { Auction } from "@app/types/auction";
+import { TransactionType } from "@app/types/transaction";
 import { Modal } from "@app/components/Modal";
 import { ConnectButtonETS } from "@app/components/ConnectButtonETS";
-import { useAccount } from "wagmi"; // Import useAccount hook
 import TransactionFlowWrapper from "@app/components/transaction/TransactionFlowWrapper";
-import { TransactionType } from "@app/types/transaction";
 
 interface AuctionActionsProps {
   auction: Auction;
@@ -12,28 +12,23 @@ interface AuctionActionsProps {
 const AuctionActions: React.FC<AuctionActionsProps> = ({ auction }) => {
   const { t } = useTranslation("common");
   const { isConnected } = useAccount();
-  let content;
+  const transactionType = auction.ended ? TransactionType.SettleAuction : TransactionType.Bid;
+  const buttonLabel = auction.ended ? t("AUCTION.SETTLE_BUTTON") : t("AUCTION.PLACE_BID_BUTTON");
+  // Hide the button so the modal doesn't close automatically when auction is settled.
+  const hideButton = auction.ended && auction.settled;
+  const buttonClasses = `btn-primary btn-outline btn-block ${hideButton ? "hidden" : ""}`;
 
-  if (!isConnected) {
-    // If user is not connected, show the Connect button
-    content = <ConnectButtonETS className="btn-outline btn-block" />;
-  } else if (auction.startTime === 0 || !auction.ended) {
-    // Auction hasn't started or is ongoing and user is connected
-    content = (
-      <Modal label={t("AUCTION.PLACE_BID_BUTTON")} buttonClasses="btn-primary btn-outline btn-block">
-        <TransactionFlowWrapper transactionType={TransactionType.Bid} />
-      </Modal>
-    );
-  } else if (auction.ended && !auction.settled) {
-    // Auction has ended but not settled and user is connected
-    content = (
-      <Modal label={t("AUCTION.SETTLE_BUTTON")} buttonClasses="btn-primary btn-outline btn-block">
-        <TransactionFlowWrapper transactionType={TransactionType.SettleAuction} />
-      </Modal>
-    );
-  }
-
-  return <div>{content}</div>;
+  return (
+    <div>
+      {!isConnected ? (
+        <ConnectButtonETS className="btn-outline btn-block" />
+      ) : (
+        <Modal label={buttonLabel} buttonClasses={buttonClasses}>
+          <TransactionFlowWrapper transactionType={transactionType} />
+        </Modal>
+      )}
+    </div>
+  );
 };
 
 export default AuctionActions;

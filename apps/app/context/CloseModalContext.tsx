@@ -1,5 +1,5 @@
 // CloseModalContext.js
-import React, { createContext } from "react";
+import { createContext } from "react";
 
 // Define the context's type for better TypeScript support (optional)
 export interface CloseModalContextType {

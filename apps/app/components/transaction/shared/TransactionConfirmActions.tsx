@@ -2,7 +2,6 @@ import React from "react";
 import { Button } from "@app/components/Button";
 import useTranslation from "next-translate/useTranslation";
 import { useTransaction } from "@app/hooks/useTransaction";
-
 import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels"; // Assuming this hook gives us the current transaction status
 
 interface TransactionConfirmActionsProps {
