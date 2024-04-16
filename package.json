@@ -29,7 +29,8 @@
     "hardhat:start": "cd packages/contracts && pnpm run hardhat",
     "hardhat:build": "cd packages/contracts && pnpm run build",
     "hardhat:deploy": "cd packages/contracts && pnpm run deploy",
-    "hardhat:deploy-mumbai": "cd packages/contracts && pnpm run deploy-mumbai",
+    "hardhat:deploy-testnet-stage": "cd packages/contracts && pnpm run deploy-testnet-stage",
+    "hardhat:deploy-testnet-production": "cd packages/contracts && pnpm run deploy-testnet-production",
     "hardhat:compile": "cd packages/contracts && pnpm run compile",
     "hardhat:watch": "cd packages/contracts && pnpm run watch",
     "hardhat:solhint": "cd packages/contracts && pnpm solhint",
@@ -39,9 +40,9 @@
     "graph:node-stop": "cd packages/subgraph && pnpm run remove-graph-node",
     "graph:node-clean": "cd packages/subgraph && pnpm run clean-graph-node",
     "graph:deploy-local": "cd packages/subgraph && pnpm graph-deploy-local",
-    "graph:deploy-mumbai": "cd packages/subgraph && pnpm graph-deploy-mumbai",
-    "graph:deploy-mumbai-stage": "cd packages/subgraph && pnpm graph-deploy-mumbai-stage",
-    "oracle:build-local": "cd packages/subgraph && pnpm graph-deploy-mumbai-stage"
+    "graph:deploy-testnet-stage": "cd packages/subgraph && pnpm graph-deploy-testnet-stage",
+    "graph:deploy-testnet-production": "cd packages/subgraph && pnpm graph-deploy-testnet-production",
+    "oracle:build-local": "cd packages/subgraph && pnpm graph-deploy-testnet-stage"
   },
   "devDependencies": {
     "@types/node": "^20.10.5",
