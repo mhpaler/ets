@@ -18,7 +18,7 @@ const networks = {
     },
   },
   testnet_production: {
-    name: "testnet_production", // subgraph chain
+    name: "arbitrum-sepolia", // subgraph chain
     configPath: "./../contracts/export/chainConfig/testnet_production.json",
     upgradesConfigPath: "./../contracts/export/upgradeConfig/testnet_production.json",
     abis: {
@@ -33,7 +33,7 @@ const networks = {
     }
   },
   testnet_stage: {
-    name: "testnet_stage", // subgraph chain
+    name: "arbitrum-sepolia", // subgraph chain
     configPath: "./../contracts/export/chainConfig/testnet_stage.json",
     upgradesConfigPath: "./../contracts/export/upgradeConfig/testnet_stage.json",
     abis: {

@@ -1,8 +1,0 @@
-{
-  "arbitrum-sepolia": {
-    "ETS": {
-      "address": "0x4763975ee6675C50381e7044524C2a25D5fD5774",
-      "startBlock": 34055374
-    }
-  }
-}

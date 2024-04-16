@@ -42,15 +42,13 @@ async function shipLocal() {
 function deployTestnetProduction() {
   runCommand("node scripts/generate-yaml.js --deployment testnet_production");
   runCommand("graph codegen --output-dir src/generated");
-  runCommand("graph deploy --product hosted-service ethereum-tag-service/ets-testnet-production");
+  runCommand("graph deploy --studio ets-testnet-production");
 }
 
 function deployTestnetStage() {
   runCommand("node scripts/generate-yaml.js --deployment testnet_stage");
   runCommand("graph codegen --output-dir src/generated");
-  runCommand("graph deploy --studio blah");
-
-  //  runCommand("graph deploy --product hosted-service ethereum-tag-service/ets-testnet-stage");
+  runCommand("graph deploy --studio ets-testnet-stage");
 }
 
 const argv = minimist(process.argv.slice(2));
