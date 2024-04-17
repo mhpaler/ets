@@ -43,10 +43,10 @@ Start the local oracle, Hardhat, and the front-end app with:
 pnpm run dev
 ```
 
-For front-end testing on Mumbai, configure:
+For front-end testing on ETS testnet, configure:
 
 ```bash
-NETWORK=mumbai_stage
+NETWORK=testnet_stage
 NEXT_PUBLIC_ETS_ENVIRONMENT=stage
 ```
 
@@ -83,7 +83,7 @@ pnpm run deploy:defender
 Test Defender Actions locally while using a Defender Relayer for transactions by setting:
 
 ```bash
-NETWORK=mumbai_stage
+NETWORK=testnet_stage
 # Api keys for the Defender relayer
 API_KEY=your_api_key_here
 API_SECRET=your_api_secret_here

@@ -1,7 +1,7 @@
 import { defineConfig } from "@wagmi/cli";
 import hardhatDeploy from "@sunodo/wagmi-plugin-hardhat-deploy";
 
-const network = process.env.NETWORK ? process.env.NETWORK : "mumbai_stage";
+const network = process.env.NETWORK ? process.env.NETWORK : "testnet_stage";
 console.log("Wagmi contract ABIs being generated for network: ", network);
 
 export default defineConfig({

@@ -6,7 +6,7 @@ If you are interested in contract-to-contract interaction, please see the [Contr
 
 ## Setup
 
-Our Hardhat Tasks can execute directly on the Polygon Mumbai testnet or on [ETS deployed to local hardhat network](./docs/local-dev-quickstart.md). This guide covers running on Polygon Mumbai. When running locally, all commands are the same except the `--network` flag is set to `localhost`.
+Our Hardhat Tasks can execute directly on the our testnet or on [ETS deployed to local hardhat network](./docs/local-dev-quickstart.md). This guide covers running on our testnet. When running locally, all commands are the same except the `--network` flag is set to `localhost`.
 
 For either method, you'll first need to clone the ETS repository and install ETS.
 
@@ -18,9 +18,9 @@ cd ets
 pnpm install
 ```
 
-Next, make sure you have a [Metamask wallet](https://blog.thirdweb.com/guides/create-a-metamask-wallet/), the secret recovery phrase for that wallet, and [some test Matic](https://blog.thirdweb.com/guides/get-matic-on-polygon-mumbai-testnet-faucet/) in one or more of the first 6 accounts.
+Next, make sure you have a [Metamask wallet](https://blog.thirdweb.com/guides/create-a-metamask-wallet/), the secret recovery phrase for that wallet, and some [Arbitrum Sepolia ETH](https://faucet.quicknode.com/arbitrum/sepolia/) in one or more of the first 6 accounts.
 
-Finally, from the root of ETS, make a copy of `example.env`, save as `.env` and add your secret recovery phrase to `MNEMONIC_MUMBAI` and a free [Alchemy API](https://www.alchemy.com/) key for Polygon Mumbai to `ALCHEMY_MUMBAI`.
+Finally, from the root of ETS, make a copy of `example.env`, save as `.env` and add your secret recovery phrase to `MNEMONIC_TESTNET` and a free [Alchemy API](https://www.alchemy.com/) key for Arbitrum Sepolia to `ALCHEMY_ARBITRUM_SEPOLIA`.
 
 Note: All commands are issued from within the contracts package.
 
@@ -30,10 +30,10 @@ cd packages/contracts
 
 ## Check accounts and balances
 
-Before interacting with ETS on Polygon Mumbai, you'll want to confirm that the accounts and test Matic amounts match that of your Metamask wallet. For example:
+Before interacting with ETS testnet, you'll want to confirm that the accounts and test ETH amounts match that of your Metamask wallet. For example:
 
 ```zsh
-$ hardhat accounts --network mumbai
+$ hardhat accounts --network testnet_stage
 
 account0: 0x93A5f58566D436Cae0711ED4d2815B85A26924e6 Balance: 1.653168035626479011
 account1: 0xE9FBC1a1925F6f117211C59b89A55b576182e1e9 Balance: 0.438160535492833465
@@ -46,7 +46,7 @@ account5: 0xdF0eB27bCc26E639137899d63B5221DABd2355f2 Balance: 0.0
 ## Create a Relayer
 
 ```zsh
-$ hardhat addRelayer --name "Solana" --network mumbai --signer "account2"
+$ hardhat addRelayer --name "Solana" --signer "account2" --network testnet_stage
 
 started txn 0x10d14f87fbab80b7f372256f1a1164c4d5283335b48168cd90ea262a4cb1d0ec
 New relayer contract deployed at 0xd928bfb9e429713d78bddbbe509f2c1d528e0608 by account2
@@ -57,11 +57,11 @@ This command calls the ETSRelayerFactory and deploys an instance of ETSRelayerFa
 Note that the signer `"account2"` becomes the Relayer Owner and that Relayer names can not be duplicated. For example, if we issue the same command:
 
 ```zsh
-$ hardhat addRelayer --name "Solana" --network mumbai --signer "account2"
+$ hardhat addRelayer --name "Solana" --signer "account2" --network testnet_stage
 Relayer name exists
 ```
 
-You can check that the Relayer was created with the correct credentials by running the following command in [our subgraph](https://api.thegraph.com/subgraphs/name/ethereum-tag-service/ets-mumbai/graphql).
+You can check that the Relayer was created with the correct credentials by running the following command in [our subgraph](https://api.studio.thegraph.com/query/71717/ets-testnet-stage/v0.0.1).
 
 ```graphql
 query Relayers {
@@ -95,7 +95,7 @@ View the [addRelayer](../packages/contracts/tasks/addRelayer.js) Hardhat Task or
 Next, we'll create two CTAGs using the Relayer contract deployed in the previous step, and sign the transaction with a different account (`account3`).
 
 ```zsh
-$ hardhat createTags --relayer "Solana" --signer "account3" --tags "#Phantom, #FamilySol" --network mumbai
+$ hardhat createTags --relayer "Solana" --signer "account3" --tags "#Phantom, #FamilySol" --network testnet_stage
 
 Minting CTAGs "#Phantom,#FamilySol"
 "#Phantom" minted by account3 with id 2534166372342226846419692081870028406351230466705393079417605661637489732040
@@ -166,20 +166,18 @@ $ hardhat applyTags --relayer "Solana" \
 --tags "#Uniswap, #APE, #WETH, #APE/WETH" \
 --uri "blink:ethereum:mainnet:0xC36442b4a4522E871399CD717aBDD847Ab11FE88:318669" \
 --record-type "bookmark" \
---network mumbai
+--network testnet_stage
 
 started txn 0xdbc7809ed849167e19798930202151259123dfb5b089054230f2a13aad1b9f53
 New tagging record created with 4 tag(s) and id: 108496552797381919177769037368004847463135908918745565862845053892120713010827
 account3 charged for 4 tags
 ```
 
-Next, lets have a look at the new Tagging Record in the [subgraph](https://api.thegraph.com/subgraphs/name/ethereum-tag-service/ets-mumbai/graphql).
+Next, lets have a look at the new Tagging Record in the [subgraph](https://api.studio.thegraph.com/query/71717/ets-testnet-stage/v0.0.1).
 
 ```graphql
 query TaggingRecord {
-  taggingRecord(
-    id: "108496552797381919177769037368004847463135908918745565862845053892120713010827"
-  ) {
+  taggingRecord(id: "108496552797381919177769037368004847463135908918745565862845053892120713010827") {
     timestamp
     relayer {
       name
@@ -290,7 +288,7 @@ $ hardhat applyTags --relayer "Solana" \
 --tags "#Uniswap, #NFT, #Ethereum, #ERC-20, #Solana" \
 --uri "blink:ethereum:mainnet:0xC36442b4a4522E871399CD717aBDD847Ab11FE88:318669" \
 --record-type "bookmark" \
---network mumbai
+--network testnet_stage
 
 started txn 0x70cf32caaad4ef89f892e6a304a325a5ae01135351b9bdca6a1ab543e8a133b9
 4 tag(s) appended to 108496552797381919177769037368004847463135908918745565862845053892120713010827
@@ -313,7 +311,7 @@ $ hardhat removeTags --relayer "Solana" \
 --tags "#ERC-20, #Solana" \
 --uri "blink:ethereum:mainnet:0xC36442b4a4522E871399CD717aBDD847Ab11FE88:318669" \
 --record-type "bookmark" \
---network mumbai
+--network testnet_stage
 
 started txn 0x46c6174132fc0ae2aa859b7856cff60c6fa0b54be72691abd0a951beb65fec94
 2 tag(s) removed from 108496552797381919177769037368004847463135908918745565862845053892120713010827
@@ -332,7 +330,7 @@ $ hardhat removeTags --relayer "Solana" \
 --tags "#ERC-20, #Solana" \
 --uri "blink:ethereum:mainnet:0xC36442b4a4522E871399CD717aBDD847Ab11FE88:318669" \
 --record-type "bookmark" \
---network mumbai
+--network testnet_stage
 
 Tagging record not found
 ```
@@ -347,7 +345,7 @@ $ hardhat replaceTags --relayer "Solana" \
 --tags "#NFTsRock, #Like, #Tracking" \
 --uri "blink:ethereum:mainnet:0xC36442b4a4522E871399CD717aBDD847Ab11FE88:318669" \
 --record-type "bookmark" \
---network mumbai
+--network testnet_stage
 
 started txn 0x3af5ee4b95d1799db9f4e166af92bec2da0e76a46ee81c9e72f5b87789cfb667
 3 tag(s) replaced in 108496552797381919177769037368004847463135908918745565862845053892120713010827
