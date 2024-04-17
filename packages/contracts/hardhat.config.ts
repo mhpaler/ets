@@ -48,24 +48,6 @@ const config: HardhatUserConfig = {
       },
       chainId: 31337,
     },
-    /*     mumbai: {
-      url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_MUMBAI}`,
-      chainId: 80001,
-      accounts: {
-        mnemonic: mnemonic.mumbai,
-      },
-      gas: 2100000,
-      gasPrice: 8000000000,
-    },
-    mumbai_stage: {
-      url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_MUMBAI}`,
-      chainId: 80001,
-      accounts: {
-        mnemonic: mnemonic.mumbai,
-      },
-      gas: 2100000,
-      gasPrice: 8000000000,
-    }, */
     testnet_stage: {
       url: `https://arb-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_ARBITRUM_SEPOLIA}`,
       chainId: 421614, // Arbitrum Sepolia
