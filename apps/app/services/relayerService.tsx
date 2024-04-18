@@ -1,4 +1,4 @@
-import { wagmiConfig } from "@app/constants/config";
+import { wagmiConfig } from "@app/config/wagmiConfig";
 import { etsRelayerFactoryConfig } from "@app/src/contracts";
 import {
   simulateContract,

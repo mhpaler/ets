@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
-import { settings } from "@app/constants/settings";
+import { globalSettings } from "@app/config/globalSettings";
 import { useTaggers } from "@app/hooks/useTaggers";
 import Layout from "@app/layouts/default";
 import { Table } from "@app/components/Table";
@@ -29,7 +29,7 @@ const Creators: NextPage = () => {
     },
   });
 
-  const pageSizeSet = pageSize === undefined ? settings["DEFAULT_PAGESIZE"] : pageSize;
+  const pageSizeSet = pageSize === undefined ? globalSettings["DEFAULT_PAGESIZE"] : pageSize;
 
   const nextPage = () => {
     setSkip(skip + pageSizeSet);

@@ -1,7 +1,7 @@
 import React, { createContext, useState, ReactNode, FC } from "react";
 import { TransactionContextType, TransactionState } from "@app/types/transaction";
 import { simulateContract, writeContract, waitForTransactionReceipt } from "wagmi/actions";
-import { wagmiConfig } from "@app/constants/config";
+import { wagmiConfig } from "@app/config/wagmiConfig";
 import { SimulateContractParameters } from "wagmi/actions";
 
 // Compile the default values and functions into a single default context value

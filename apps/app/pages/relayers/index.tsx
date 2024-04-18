@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
-import { settings } from "@app/constants/settings";
+import { globalSettings } from "@app/config/globalSettings";
 import useNumberFormatter from "@app/hooks/useNumberFormatter";
 import { useRelayers } from "@app/hooks/useRelayers";
 import { AddRelayerProvider } from "@app/context/AddRelayerContext";
@@ -51,7 +51,7 @@ const Relayers: NextPage = () => {
     },
   });
 
-  const pageSizeSet = pageSize === undefined ? settings["DEFAULT_PAGESIZE"] : pageSize;
+  const pageSizeSet = pageSize === undefined ? globalSettings["DEFAULT_PAGESIZE"] : pageSize;
 
   const nextPage = () => {
     setSkip(skip + pageSizeSet);

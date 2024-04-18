@@ -1,6 +1,6 @@
 import { etsRelayerV1ABI, etsTargetConfig, etsConfig } from "../src/contracts";
 import { writeContract, waitForTransactionReceipt, readContract } from "wagmi/actions";
-import { wagmiConfig } from "@app/constants/config";
+import { wagmiConfig } from "@app/config/wagmiConfig";
 import { Hex } from "viem";
 
 export const createTaggingRecord = async (

@@ -3,6 +3,7 @@ import { Bid } from "@app/types/auction.js";
 import { Truncate } from "@app/components/Truncate";
 import { makeScannerLink } from "@app/utils";
 import { Outlink } from "@app/components/Outlink";
+import { useChains } from "wagmi";
 
 // Your timestampToString function remains the same
 const timestampToString = (timestamp: number, language = "en-US") => {
@@ -21,11 +22,11 @@ interface AuctionProps {
   limit?: number; // Optional prop to limit the number of rows
 }
 
-const network = process.env.NETWORK ? process.env.NETWORK : "localhost";
-
 const BidsTable: React.FC<AuctionProps> = ({ bids, limit }) => {
   // If limit is provided, slice the bids array up to the limit. Otherwise, use the whole array.
   const displayedBids = limit ? bids.slice(0, limit) : bids;
+  const chains = useChains();
+  const chain = chains[0];
 
   return (
     <ul className="list-none ml-0 px-0 py-1 rounded-md bg-base-200">
@@ -36,8 +37,10 @@ const BidsTable: React.FC<AuctionProps> = ({ bids, limit }) => {
             <span className="text-xs text-gray-500 block mt-1">{timestampToString(bid.blockTimestamp)}</span>
           </div>
           <div className="flex items-center font-semibold text-right space-x-1">
-            <span>{bid.amountDisplay} MATIC</span>
-            <Outlink href={makeScannerLink(bid.id, network)} />
+            <span>
+              {bid.amountDisplay} {chain.nativeCurrency.symbol}
+            </span>
+            <Outlink href={makeScannerLink(bid.id)} />
           </div>
         </li>
       ))}

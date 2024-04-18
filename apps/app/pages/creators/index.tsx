@@ -3,7 +3,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
-import { settings } from "@app/constants/settings";
+import { globalSettings } from "@app/config/globalSettings";
 import { timestampToString } from "@app/utils";
 import { toEth } from "@app/utils";
 import useNumberFormatter from "@app/hooks/useNumberFormatter";
@@ -33,7 +33,7 @@ const Creators: NextPage = () => {
     },
   });
 
-  const pageSizeSet = pageSize === undefined ? settings["DEFAULT_PAGESIZE"] : pageSize;
+  const pageSizeSet = pageSize === undefined ? globalSettings["DEFAULT_PAGESIZE"] : pageSize;
 
   const nextPage = () => {
     setSkip(skip + pageSizeSet);

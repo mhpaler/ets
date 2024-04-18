@@ -2,7 +2,7 @@ import { useState, useMemo, Suspense } from "react";
 import type { NextPage } from "next";
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
-import { settings } from "@app/constants/settings";
+import { globalSettings } from "@app/config/globalSettings";
 import { useTargets } from "@app/hooks/useTargets";
 import Layout from "@app/layouts/default";
 
@@ -32,7 +32,7 @@ const Targets: NextPage = () => {
     },
   });
 
-  const pageSizeSet = pageSize === undefined ? settings["DEFAULT_PAGESIZE"] : pageSize;
+  const pageSizeSet = pageSize === undefined ? globalSettings["DEFAULT_PAGESIZE"] : pageSize;
 
   const nextPage = () => {
     setSkip(skip + pageSizeSet);

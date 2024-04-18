@@ -2,10 +2,7 @@
  * TagService is a class responsible for retrieving the next tag to be auctioned based on certain criteria.
  */
 
-// Import necessary modules.
-// TODO: Get graph-endpoints going as a ets package.
-// import graphEndpoints from "@ethereum-tag-service/config/graph-endpoints";
-import graphEndpoints from "./graphEndpoints";
+import subgraphEndpoints from "@ethereum-tag-service/subgraph-endpoints";
 import axios, { AxiosResponse } from "axios";
 
 // Define the TagService class.\
@@ -32,7 +29,7 @@ export class TagService {
     const environment: string = process.env.NEXT_PUBLIC_ETS_ENVIRONMENT || "development";
 
     // Use the environment to select the appropriate endpoint
-    const GRAPH_API_ENDPOINT: string = graphEndpoints[environment];
+    const GRAPH_API_ENDPOINT: string = subgraphEndpoints[environment];
     try {
       // Use the provided platformAddress and lastAuctionTokenId
       console.log("ETS Platform Address: ", platformAddress);

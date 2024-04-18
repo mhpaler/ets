@@ -1,0 +1,18 @@
+{
+  "name": "@ethereum-tag-service/subgraph-endpoints",
+  "version": "0.0.1",
+  "description": "GraphQL endpoints for ETS on The Graph.",
+  "main": "dist",
+  "exports": {
+    ".": "./dist"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "Ethereum Tag Service <team@ets.xyz>",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "typescript": "^5.4.5"
+  }
+}

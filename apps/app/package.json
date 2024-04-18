@@ -9,8 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@ethereum-tag-service/config": "workspace:*",
     "@ethereum-tag-service/contracts": "workspace:*",
+    "@ethereum-tag-service/subgraph-endpoints": "workspace:*",
     "@ethereum-tag-service/ui": "workspace:*",
     "@headlessui/react": "^1.7.17",
     "@hookform/resolvers": "^3.1.1",
@@ -42,7 +42,7 @@
     "siwe": "^2.1.4",
     "swr": "^1.3.0",
     "viem": "~2.4.0",
-    "wagmi": "~2.3.1",
+    "wagmi": "~2.5.7",
     "zod": "^3.21.4"
   },
   "devDependencies": {

@@ -3,7 +3,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
-import { settings } from "@app/constants/settings";
+import { globalSettings } from "@app/config/globalSettings";
 import { useTaggingRecords } from "@app/hooks/useTaggingRecords";
 import { TimeAgo } from "./TimeAgo";
 import { Table } from "./Table";
@@ -37,7 +37,7 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize, orderBy, title }) =
     },
   });
 
-  const pageSizeSet = pageSize === undefined ? settings["DEFAULT_PAGESIZE"] : pageSize;
+  const pageSizeSet = pageSize === undefined ? globalSettings["DEFAULT_PAGESIZE"] : pageSize;
 
   const nextPage = () => {
     setSkip(skip + pageSizeSet);
