@@ -2,7 +2,7 @@
 
 This guide will get you up and running with the full ETS stack running locally, including contracts, subgraph, auction oracle and the ETS Explorer for visualizing ETS data.
 
-First, make a fork of the main ETS repository located at https://github.com/ethereum-tag-service/ets
+First, make a fork of the main ETS repository located at <https://github.com/ethereum-tag-service/ets>
 
 Clone your forked repository to your local system, eg.
 
@@ -70,18 +70,19 @@ pnpm run dev
 
 If you're lucky and everything fired up, at this point you are ready to begin interacting with ETS. Head to the [JavaScript client quickstart](./js-client-quickstart.md) to begin.
 
-### Running explorer locally, read/write from Mumbai
+### Running explorer locally, read/write from Testnet
 
-If you wish run the explorer locally, but have it interact with the Mumbai contracts and the Mumbai subgraph, use the following environment variables before running `pnpm run dev`
+If you wish run the explorer locally, but have it interact with the ETS testnet contracts & corresponding subgraph, use the following environment variables before running `pnpm run dev`
 
 ```bash
-NETWORK="mumbai_stage"
+NETWORK="testnet_stage"
 NEXT_PUBLIC_ETS_ENVIRONMENT="stage"
 ```
-If you intend to write blockchain records on to the ETS contracts deployed on mumbai, you'll need to fill out the following `.env` variables:
+
+If you intend to write blockchain records on to the ETS testnet contracts, you'll need to fill out the following `.env` variables:
 
 ```bash
-MNEMONIC_MUMBAI=
+MNEMONIC_TESTNET=
 NEXT_PUBLIC_ALCHEMY_KEY=
 ```
 
@@ -97,10 +98,10 @@ Configure hardhat.config.js to meet your needs, then from within the contracts r
 # for localhost
 pnpm hardhat:deploy
 
-# for mumbai
-pnpm hardhat:deploy-mumbai
+# for testnet
+pnpm hardhat:deploy-testnet-stage
 
-# Or calling hardhat directly
+# Or calling hardhat directly, from within packages/contracts
 hardhat deploy --tags deployAll --network localhost
 ```
 

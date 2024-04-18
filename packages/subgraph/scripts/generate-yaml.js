@@ -17,34 +17,34 @@ const networks = {
       ETSToken: "./../contracts/deployments/localhost/ETSToken.json",
     },
   },
-  mumbai: {
-    name: "mumbai", // subgraph chain
-    configPath: "./../contracts/export/chainConfig/mumbai.json",
-    upgradesConfigPath: "./../contracts/export/upgradeConfig/mumbai.json",
+  testnet_production: {
+    name: "arbitrum-sepolia", // subgraph chain
+    configPath: "./../contracts/export/chainConfig/testnet_production.json",
+    upgradesConfigPath: "./../contracts/export/upgradeConfig/testnet_production.json",
     abis: {
-      ETS: "./../contracts/deployments/mumbai/ETS.json",
-      ETSAccessControls: "./../contracts/deployments/mumbai/ETSAccessControls.json",
-      ETSAuctionHouse: "./../contracts/deployments/mumbai/ETSAuctionHouse.json",
-      ETSEnrichTarget: "./../contracts/deployments/mumbai/ETSEnrichTarget.json",
-      ETSRelayerFactory: "./../contracts/deployments/mumbai/ETSRelayerFactory.json",
-      ETSRelayerV1: "./../contracts/deployments/mumbai/ETSRelayerV1.json",
-      ETSTarget: "./../contracts/deployments/mumbai/ETSTarget.json",
-      ETSToken: "./../contracts/deployments/mumbai/ETSToken.json",
+      ETS: "./../contracts/deployments/testnet_production/ETS.json",
+      ETSAccessControls: "./../contracts/deployments/testnet_production/ETSAccessControls.json",
+      ETSAuctionHouse: "./../contracts/deployments/testnet_production/ETSAuctionHouse.json",
+      ETSEnrichTarget: "./../contracts/deployments/testnet_production/ETSEnrichTarget.json",
+      ETSRelayerFactory: "./../contracts/deployments/testnet_production/ETSRelayerFactory.json",
+      ETSRelayerV1: "./../contracts/deployments/testnet_production/ETSRelayerV1.json",
+      ETSTarget: "./../contracts/deployments/testnet_production/ETSTarget.json",
+      ETSToken: "./../contracts/deployments/testnet_production/ETSToken.json",
     }
   },
-  mumbai_stage: {
-    name: "mumbai", // subgraph chain
-    configPath: "./../contracts/export/chainConfig/mumbai_stage.json",
-    upgradesConfigPath: "./../contracts/export/upgradeConfig/mumbai_stage.json",
+  testnet_stage: {
+    name: "arbitrum-sepolia", // subgraph chain
+    configPath: "./../contracts/export/chainConfig/testnet_stage.json",
+    upgradesConfigPath: "./../contracts/export/upgradeConfig/testnet_stage.json",
     abis: {
-      ETS: "./../contracts/deployments/mumbai_stage/ETS.json",
-      ETSAccessControls: "./../contracts/deployments/mumbai_stage/ETSAccessControls.json",
-      ETSAuctionHouse: "./../contracts/deployments/mumbai_stage/ETSAuctionHouse.json",
-      ETSEnrichTarget: "./../contracts/deployments/mumbai_stage/ETSEnrichTarget.json",
-      ETSRelayerFactory: "./../contracts/deployments/mumbai_stage/ETSRelayerFactory.json",
-      ETSRelayerV1: "./../contracts/deployments/mumbai_stage/ETSRelayerV1.json",
-      ETSTarget: "./../contracts/deployments/mumbai_stage/ETSTarget.json",
-      ETSToken: "./../contracts/deployments/mumbai_stage/ETSToken.json",
+      ETS: "./../contracts/deployments/testnet_stage/ETS.json",
+      ETSAccessControls: "./../contracts/deployments/testnet_stage/ETSAccessControls.json",
+      ETSAuctionHouse: "./../contracts/deployments/testnet_stage/ETSAuctionHouse.json",
+      ETSEnrichTarget: "./../contracts/deployments/testnet_stage/ETSEnrichTarget.json",
+      ETSRelayerFactory: "./../contracts/deployments/testnet_stage/ETSRelayerFactory.json",
+      ETSRelayerV1: "./../contracts/deployments/testnet_stage/ETSRelayerV1.json",
+      ETSTarget: "./../contracts/deployments/testnet_stage/ETSTarget.json",
+      ETSToken: "./../contracts/deployments/testnet_stage/ETSToken.json",
     }
   },
 };

@@ -34,8 +34,8 @@ if (require.main === module) {
   require("dotenv").config();
 
   // Enforce the 'mumbai_stage' network for local testing
-  if (process.env.NETWORK !== "mumbai_stage") {
-    console.error("Local testing requires NETWORK environment variable to be set to 'mumbai_stage'.");
+  if (process.env.NETWORK !== "testnet_stage") {
+    console.error("Local testing requires NETWORK environment variable to be set to 'testnet_stage'.");
     process.exit(1);
   }
 

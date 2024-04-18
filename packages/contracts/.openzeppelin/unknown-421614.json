@@ -1,0 +1,1497 @@
+{
+  "manifestVersion": "3.2",
+  "proxies": [
+    {
+      "address": "0x3114437a09aD234bCAd807Bd907036005D8E8248",
+      "txHash": "0xacf3aae1c4f400126b107f4e49913c85891700b6c4e62efaa2e0cb67c0859306",
+      "kind": "uups"
+    },
+    {
+      "address": "0x2BFf292C84520Fd13Ca94852e6f1D53640dF92a7",
+      "txHash": "0x3f4e59bddf2e78929eab1e262ebc220288a530c19045e1750afc567001ed8d3c",
+      "kind": "uups"
+    },
+    {
+      "address": "0x00521E4827C6683043eAAdC519368aCCd609D8A9",
+      "txHash": "0xdbb8857057d21c77b387f7ecc74c9e8518657c748a6ec1fd6f58e3424e96aeef",
+      "kind": "uups"
+    },
+    {
+      "address": "0x4920349247b4651026153F4A56fd08009B3528d4",
+      "txHash": "0xedf2a979b503619d8732d64a4300afa28e240c55713c2cff0562f4ad5f96fc22",
+      "kind": "uups"
+    },
+    {
+      "address": "0x717Bd826481ee31D1f670682Bf788c954CF75d74",
+      "txHash": "0x090d559b41a37e16314edc1cd309cc6551375457781de8dac0cdd7d8138e7779",
+      "kind": "uups"
+    },
+    {
+      "address": "0x638fab8C6c9a2e15E524aDEFbcc4Fc5B08f81545",
+      "txHash": "0xa2e2dc86817aa8d9d2bdfd2d28ca2154644596a60f763a3b3ac76d4e7fbab727",
+      "kind": "uups"
+    },
+    {
+      "address": "0xDcb5F65628429389D909e1BCb30cE9593BfC0177",
+      "txHash": "0xf4f0c727cc23f6316f84e4f965d3a46f859d0879a625a60a11b1914dd7338e35",
+      "kind": "uups"
+    },
+    {
+      "address": "0x1753b214AfFDa9876d65275508C7753db2A974A0",
+      "txHash": "0x709c40b2fa59d0e3941e80e7dc86a14d1a0e247385524783777f99957f1abf8c",
+      "kind": "uups"
+    },
+    {
+      "address": "0xAF205EC8bb99ff6f03b93aaE1Fc2a85918198e26",
+      "txHash": "0x2a88a826c90da5724bb38aa5ff01ede0aa54c086d6fe61702806471da299196c",
+      "kind": "uups"
+    },
+    {
+      "address": "0xE08463F5225b9725Ab5d176213Fe5eDB5195E7b3",
+      "txHash": "0x4f6b2dd18e4bd82a77610b06c54b9990fe00c4809eda8399a4ae392c71e854c9",
+      "kind": "uups"
+    },
+    {
+      "address": "0xac5BE59Bf025953c7dd3d1fA7574D53DF881f7cb",
+      "txHash": "0xcc4865b8afe9ff3491d394e54e7bf16566d9ce3f7a9b97a77c81a2ca4f814ffa",
+      "kind": "uups"
+    },
+    {
+      "address": "0x292547489d092Cf2f116d8409696E4B40d3Ab333",
+      "txHash": "0x961239dfec315216a6b21e1402de799c1631dd391e34d5537d46f65cca59ff99",
+      "kind": "uups"
+    },
+    {
+      "address": "0x12250A5E74af400057B41B71659aeBe9760c0EDb",
+      "txHash": "0x6ad41c45a06989712917604249f96f367f920130d21760314513ee4f27edcecc",
+      "kind": "uups"
+    },
+    {
+      "address": "0x112acF9C8BAB5e0830d756C96bD18730C47e6A09",
+      "txHash": "0xf06847a86ff00d8185d5878dbd275c9ed49cbf8a305366b60f1bba9543a5d0f3",
+      "kind": "uups"
+    },
+    {
+      "address": "0x36B81ee5A8c859C31D462883d9c2106c29C00B94",
+      "txHash": "0x860c47b1b34e226548a9cef3d35cf0e7dfe5dd47471b9c65a5a62389549741c9",
+      "kind": "uups"
+    },
+    {
+      "address": "0x83d3844D2Ee9E5e40e20Fe5B0b986F87887b3471",
+      "txHash": "0x285940ce2d239f2acb9d48438623baef1fc3ee2954a94e3579538bce0066e7a2",
+      "kind": "uups"
+    },
+    {
+      "address": "0xc68fc12087ef88ebe6a815DE0422748aDD54A2f4",
+      "txHash": "0x37fc07c825f9f8c07d1246caecb7da27ec50479c896a33745f96080b27dfaba1",
+      "kind": "uups"
+    },
+    {
+      "address": "0xA1114731644E499687826C026A1d92B4c31A8cb0",
+      "txHash": "0x70ac52a96f2d2f9cdfbde467fd8cd7a265490d3deec0502a5b245df5e13a9b97",
+      "kind": "uups"
+    },
+    {
+      "address": "0x945f8d0534E6e774Db73A3843568B8c5be2167C0",
+      "txHash": "0x8dc0b251dd6ae3c96879f9eae816d8f95c6273afbb3d89acf6577f740574d26e",
+      "kind": "uups"
+    },
+    {
+      "address": "0x428fcc3Ac338d8a691eAD046DC9B83B042AEF636",
+      "txHash": "0x911fac66a7e4ecfa158d99fe29c62859454952d18dbacfc133c81ac07748e71d",
+      "kind": "uups"
+    },
+    {
+      "address": "0x79A3098b1cc02b5FB675Ce7A97f51d8DdDEeA450",
+      "txHash": "0x2f9cb7b37579c4b3edbf44140a1baf731eb7d049a00cef6804b0115d31d29dd7",
+      "kind": "uups"
+    },
+    {
+      "address": "0x907fF76D79e9744c203D4580C07B7b61304CA8a7",
+      "txHash": "0x5f3b22f38483c5032491a61e9a20ac70a2465f3c4dc5ddc85851d4f8eb5a8f1a",
+      "kind": "uups"
+    },
+    {
+      "address": "0xA6714AFEa909B7e04F9E9f67612373DaB99C6D19",
+      "txHash": "0x4623e1ab4bf4be342208b8d9453648fc7b9ea5548f22ee720e5f8daa4b525560",
+      "kind": "uups"
+    },
+    {
+      "address": "0x4763975ee6675C50381e7044524C2a25D5fD5774",
+      "txHash": "0x143fbaa9c622a28d522358ab8e9a0a8c610baa777fddb73a12eef0a5fdd9a91d",
+      "kind": "uups"
+    },
+    {
+      "address": "0xa10a760E3F0124c34aB28A7C74C2f9cB83dE399b",
+      "txHash": "0x2ceaa1a7f5ec69efebd6c0743e8d507905fbf39168c1416dd9ecd55ca89d99b7",
+      "kind": "uups"
+    },
+    {
+      "address": "0x4a9B519C355568c0aF543c7B476b2d7A8E149fBb",
+      "txHash": "0x69896066c1d74756cb5abbd14da4823079b71ca44ba36f3d8608f9aae63220e3",
+      "kind": "uups"
+    },
+    {
+      "address": "0xfbB214DF2555385BE124879E89f26AB9BbFBB333",
+      "txHash": "0xecc6ae2fe4f530366cae48dabfbd2d284d2d656cbe4f808dac0ad30b1e165580",
+      "kind": "uups"
+    },
+    {
+      "address": "0x349bAFFB90A8E1de878cBeC5d2655657064fe613",
+      "txHash": "0x9f2afa5752d8283699577f9d779fc7992d9ac245bc10a8416a2b07448e9967a5",
+      "kind": "uups"
+    },
+    {
+      "address": "0x469dA64DdbBCE2Bed6351EAdb154c6fE937DaF3d",
+      "txHash": "0xc88dea704e97d4326672cec18c4cc12ed5b13828a47c03812a6e286848f832da",
+      "kind": "uups"
+    },
+    {
+      "address": "0x3dAf928361e048bAa49E1F13f354230C0c883f61",
+      "txHash": "0x812ddff49b432c5cd66ed8486ef7e9d7cf42fb5668619e74bf4d7a48bb6cd53b",
+      "kind": "uups"
+    }
+  ],
+  "impls": {
+    "d245e4705533026615fa459ee93f2ac3866ec26d0a95ff9be4ad23c2fc23e029": {
+      "address": "0xeBd659C9EfDB17ab65c2692dc23AC9A716eEf191",
+      "txHash": "0x001f2c6c875c3014204ec81a3bd24dd56978adc68bec0a2ba43aa46d0f0a62ad",
+      "layout": {
+        "solcVersion": "0.8.12",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC165Upgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol:41"
+          },
+          {
+            "label": "_roles",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)34_storage)",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:62"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:260"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC1967UpgradeUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:169"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "UUPSUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:111"
+          },
+          {
+            "label": "platform",
+            "offset": 0,
+            "slot": "251",
+            "type": "t_address_payable",
+            "contract": "ETSAccessControls",
+            "src": "contracts/ETSAccessControls.sol:45"
+          },
+          {
+            "label": "relayerLocked",
+            "offset": 0,
+            "slot": "252",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "ETSAccessControls",
+            "src": "contracts/ETSAccessControls.sol:48"
+          },
+          {
+            "label": "relayerNameToContract",
+            "offset": 0,
+            "slot": "253",
+            "type": "t_mapping(t_string_memory_ptr,t_address)",
+            "contract": "ETSAccessControls",
+            "src": "contracts/ETSAccessControls.sol:51"
+          },
+          {
+            "label": "relayerContractToName",
+            "offset": 0,
+            "slot": "254",
+            "type": "t_mapping(t_address,t_string_storage)",
+            "contract": "ETSAccessControls",
+            "src": "contracts/ETSAccessControls.sol:54"
+          },
+          {
+            "label": "relayerOwnerToAddress",
+            "offset": 0,
+            "slot": "255",
+            "type": "t_mapping(t_address,t_address)",
+            "contract": "ETSAccessControls",
+            "src": "contracts/ETSAccessControls.sol:56"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_address_payable": {
+            "label": "address payable",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_address)": {
+            "label": "mapping(address => address)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_string_storage)": {
+            "label": "mapping(address => string)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)34_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_string_memory_ptr,t_address)": {
+            "label": "mapping(string => address)",
+            "numberOfBytes": "32"
+          },
+          "t_string_memory_ptr": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(RoleData)34_storage": {
+            "label": "struct AccessControlUpgradeable.RoleData",
+            "members": [
+              {
+                "label": "members",
+                "type": "t_mapping(t_address,t_bool)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "adminRole",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "96dd1ba0d6c62369498ea8b5b4509ebb9cd1b65de996fb8335076b5ebc1cdfb3": {
+      "address": "0xb2ed2ccBEA697976c4015c0a978705b0B0cF72F3",
+      "txHash": "0xfd43b8c2398b797ef37a632b389f5bc7cb8461f8271e2d54dca121b5b674e780",
+      "layout": {
+        "solcVersion": "0.8.12",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC165Upgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol:41"
+          },
+          {
+            "label": "_name",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_string_storage",
+            "contract": "ERC721Upgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:25"
+          },
+          {
+            "label": "_symbol",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_string_storage",
+            "contract": "ERC721Upgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:28"
+          },
+          {
+            "label": "_owners",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_mapping(t_uint256,t_address)",
+            "contract": "ERC721Upgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:31"
+          },
+          {
+            "label": "_balances",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "ERC721Upgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:34"
+          },
+          {
+            "label": "_tokenApprovals",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_mapping(t_uint256,t_address)",
+            "contract": "ERC721Upgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:37"
+          },
+          {
+            "label": "_operatorApprovals",
+            "offset": 0,
+            "slot": "106",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+            "contract": "ERC721Upgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:40"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "107",
+            "type": "t_array(t_uint256)44_storage",
+            "contract": "ERC721Upgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol:477"
+          },
+          {
+            "label": "_paused",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_bool",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:29"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:116"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC721PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721PausableUpgradeable.sol:53"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "251",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC721BurnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol:38"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "301",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "302",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:88"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "351",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC1967UpgradeUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:169"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "401",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "UUPSUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:111"
+          },
+          {
+            "label": "ets",
+            "offset": 0,
+            "slot": "451",
+            "type": "t_contract(IETS)14617",
+            "contract": "ETSToken",
+            "src": "contracts/ETSToken.sol:57"
+          },
+          {
+            "label": "etsAccessControls",
+            "offset": 0,
+            "slot": "452",
+            "type": "t_contract(IETSAccessControls)14803",
+            "contract": "ETSToken",
+            "src": "contracts/ETSToken.sol:57"
+          },
+          {
+            "label": "tagMinStringLength",
+            "offset": 0,
+            "slot": "453",
+            "type": "t_uint256",
+            "contract": "ETSToken",
+            "src": "contracts/ETSToken.sol:62"
+          },
+          {
+            "label": "tagMaxStringLength",
+            "offset": 0,
+            "slot": "454",
+            "type": "t_uint256",
+            "contract": "ETSToken",
+            "src": "contracts/ETSToken.sol:63"
+          },
+          {
+            "label": "ownershipTermLength",
+            "offset": 0,
+            "slot": "455",
+            "type": "t_uint256",
+            "contract": "ETSToken",
+            "src": "contracts/ETSToken.sol:65"
+          },
+          {
+            "label": "tokenIdToTag",
+            "offset": 0,
+            "slot": "456",
+            "type": "t_mapping(t_uint256,t_struct(Tag)15146_storage)",
+            "contract": "ETSToken",
+            "src": "contracts/ETSToken.sol:66"
+          },
+          {
+            "label": "tokenIdToLastRenewed",
+            "offset": 0,
+            "slot": "457",
+            "type": "t_mapping(t_uint256,t_uint256)",
+            "contract": "ETSToken",
+            "src": "contracts/ETSToken.sol:70"
+          },
+          {
+            "label": "isTagPremium",
+            "offset": 0,
+            "slot": "458",
+            "type": "t_mapping(t_string_memory_ptr,t_bool)",
+            "contract": "ETSToken",
+            "src": "contracts/ETSToken.sol:75"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)44_storage": {
+            "label": "uint256[44]",
+            "numberOfBytes": "1408"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IETS)14617": {
+            "label": "contract IETS",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IETSAccessControls)14803": {
+            "label": "contract IETSAccessControls",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+            "label": "mapping(address => mapping(address => bool))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_string_memory_ptr,t_bool)": {
+            "label": "mapping(string => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_address)": {
+            "label": "mapping(uint256 => address)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(Tag)15146_storage)": {
+            "label": "mapping(uint256 => struct IETSToken.Tag)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_uint256)": {
+            "label": "mapping(uint256 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_string_memory_ptr": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Tag)15146_storage": {
+            "label": "struct IETSToken.Tag",
+            "members": [
+              {
+                "label": "relayer",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "creator",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "display",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "premium",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "reserved",
+                "type": "t_bool",
+                "offset": 1,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "3735be1b8e415df2dd6a361c46b324f4877b621ea14484bdca9c48602930360a": {
+      "address": "0x3c30aF8641b6e412d69c40E732A514B000d3fcE9",
+      "txHash": "0xb4aede5d341c497daa3fb6388d30bb711edc799eb911e1555a5c1456408e0eb1",
+      "layout": {
+        "solcVersion": "0.8.12",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_paused",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_bool",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:29"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:116"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:88"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC1967UpgradeUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:169"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "UUPSUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:111"
+          },
+          {
+            "label": "etsToken",
+            "offset": 0,
+            "slot": "251",
+            "type": "t_contract(IETSToken)15366",
+            "contract": "ETSAuctionHouse",
+            "src": "contracts/ETSAuctionHouse.sol:65"
+          },
+          {
+            "label": "etsAccessControls",
+            "offset": 0,
+            "slot": "252",
+            "type": "t_contract(IETSAccessControls)14803",
+            "contract": "ETSAuctionHouse",
+            "src": "contracts/ETSAuctionHouse.sol:67"
+          },
+          {
+            "label": "maxAuctions",
+            "offset": 0,
+            "slot": "253",
+            "type": "t_uint256",
+            "contract": "ETSAuctionHouse",
+            "src": "contracts/ETSAuctionHouse.sol:74"
+          },
+          {
+            "label": "activeAuctions",
+            "offset": 0,
+            "slot": "254",
+            "type": "t_struct(Counter)3515_storage",
+            "contract": "ETSAuctionHouse",
+            "src": "contracts/ETSAuctionHouse.sol:76"
+          },
+          {
+            "label": "auctionId",
+            "offset": 0,
+            "slot": "255",
+            "type": "t_struct(Counter)3515_storage",
+            "contract": "ETSAuctionHouse",
+            "src": "contracts/ETSAuctionHouse.sol:77"
+          },
+          {
+            "label": "auctions",
+            "offset": 0,
+            "slot": "256",
+            "type": "t_mapping(t_uint256,t_struct(Auction)14824_storage)",
+            "contract": "ETSAuctionHouse",
+            "src": "contracts/ETSAuctionHouse.sol:80"
+          },
+          {
+            "label": "auctionsByTokenId",
+            "offset": 0,
+            "slot": "257",
+            "type": "t_mapping(t_uint256,t_array(t_uint256)dyn_storage)",
+            "contract": "ETSAuctionHouse",
+            "src": "contracts/ETSAuctionHouse.sol:82"
+          },
+          {
+            "label": "wmatic",
+            "offset": 0,
+            "slot": "258",
+            "type": "t_address",
+            "contract": "ETSAuctionHouse",
+            "src": "contracts/ETSAuctionHouse.sol:94"
+          },
+          {
+            "label": "timeBuffer",
+            "offset": 0,
+            "slot": "259",
+            "type": "t_uint256",
+            "contract": "ETSAuctionHouse",
+            "src": "contracts/ETSAuctionHouse.sol:95"
+          },
+          {
+            "label": "reservePrice",
+            "offset": 0,
+            "slot": "260",
+            "type": "t_uint256",
+            "contract": "ETSAuctionHouse",
+            "src": "contracts/ETSAuctionHouse.sol:98"
+          },
+          {
+            "label": "minBidIncrementPercentage",
+            "offset": 0,
+            "slot": "261",
+            "type": "t_uint8",
+            "contract": "ETSAuctionHouse",
+            "src": "contracts/ETSAuctionHouse.sol:103"
+          },
+          {
+            "label": "duration",
+            "offset": 0,
+            "slot": "262",
+            "type": "t_uint256",
+            "contract": "ETSAuctionHouse",
+            "src": "contracts/ETSAuctionHouse.sol:105"
+          },
+          {
+            "label": "creatorPercentage",
+            "offset": 0,
+            "slot": "263",
+            "type": "t_uint256",
+            "contract": "ETSAuctionHouse",
+            "src": "contracts/ETSAuctionHouse.sol:107"
+          },
+          {
+            "label": "relayerPercentage",
+            "offset": 0,
+            "slot": "264",
+            "type": "t_uint256",
+            "contract": "ETSAuctionHouse",
+            "src": "contracts/ETSAuctionHouse.sol:110"
+          },
+          {
+            "label": "platformPercentage",
+            "offset": 0,
+            "slot": "265",
+            "type": "t_uint256",
+            "contract": "ETSAuctionHouse",
+            "src": "contracts/ETSAuctionHouse.sol:112"
+          },
+          {
+            "label": "accrued",
+            "offset": 0,
+            "slot": "266",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "ETSAuctionHouse",
+            "src": "contracts/ETSAuctionHouse.sol:118"
+          },
+          {
+            "label": "paid",
+            "offset": 0,
+            "slot": "267",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "ETSAuctionHouse",
+            "src": "contracts/ETSAuctionHouse.sol:123"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_address_payable": {
+            "label": "address payable",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IETSAccessControls)14803": {
+            "label": "contract IETSAccessControls",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IETSToken)15366": {
+            "label": "contract IETSToken",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_array(t_uint256)dyn_storage)": {
+            "label": "mapping(uint256 => uint256[])",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(Auction)14824_storage)": {
+            "label": "mapping(uint256 => struct IETSAuctionHouse.Auction)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Auction)14824_storage": {
+            "label": "struct IETSAuctionHouse.Auction",
+            "members": [
+              {
+                "label": "auctionId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "tokenId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "startTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "endTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "reservePrice",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "bidder",
+                "type": "t_address_payable",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "auctioneer",
+                "type": "t_address_payable",
+                "offset": 0,
+                "slot": "7"
+              },
+              {
+                "label": "settled",
+                "type": "t_bool",
+                "offset": 20,
+                "slot": "7"
+              }
+            ],
+            "numberOfBytes": "256"
+          },
+          "t_struct(Counter)3515_storage": {
+            "label": "struct CountersUpgradeable.Counter",
+            "members": [
+              {
+                "label": "_value",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "40e007f1d18f1d81ee6c91532a5de11fdf7feccc39da634c5ab907c5acd9ca96": {
+      "address": "0x0300c9f3FE108bf683D03005B6B66EA1db74007A",
+      "txHash": "0x840455a446a3ebc7a2623899dce055ec312418ad5c70bc450314c84e20ea9381",
+      "layout": {
+        "solcVersion": "0.8.12",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC1967UpgradeUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:169"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "UUPSUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:111"
+          },
+          {
+            "label": "etsAccessControls",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_contract(IETSAccessControls)14803",
+            "contract": "ETSTarget",
+            "src": "contracts/ETSTarget.sol:54"
+          },
+          {
+            "label": "etsEnrichTarget",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_contract(IETSEnrichTarget)15015",
+            "contract": "ETSTarget",
+            "src": "contracts/ETSTarget.sol:58"
+          },
+          {
+            "label": "targets",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_mapping(t_uint256,t_struct(Target)15028_storage)",
+            "contract": "ETSTarget",
+            "src": "contracts/ETSTarget.sol:65"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IETSAccessControls)14803": {
+            "label": "contract IETSAccessControls",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IETSEnrichTarget)15015": {
+            "label": "contract IETSEnrichTarget",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_uint256,t_struct(Target)15028_storage)": {
+            "label": "mapping(uint256 => struct IETSTarget.Target)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Target)15028_storage": {
+            "label": "struct IETSTarget.Target",
+            "members": [
+              {
+                "label": "targetURI",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "createdBy",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "enriched",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "httpStatus",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "ipfsHash",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "4d12adf8440ae553785d9c224f9dcfd3bf15f5e4b41ee43a440b2233cfcf20ae": {
+      "address": "0x1e49622AfF007569fdc99e5989E267d55218b066",
+      "txHash": "0x622a9f3922140a9ef579ca811dd5a51410dc5f7fa03723aab21752d2e96c79c1",
+      "layout": {
+        "solcVersion": "0.8.12",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC1967UpgradeUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:169"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "UUPSUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:111"
+          },
+          {
+            "label": "etsAccessControls",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_contract(IETSAccessControls)14803",
+            "contract": "ETSEnrichTarget",
+            "src": "contracts/ETSEnrichTarget.sol:55"
+          },
+          {
+            "label": "etsTarget",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_contract(IETSTarget)15129",
+            "contract": "ETSEnrichTarget",
+            "src": "contracts/ETSEnrichTarget.sol:58"
+          }
+        ],
+        "types": {
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IETSAccessControls)14803": {
+            "label": "contract IETSAccessControls",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IETSTarget)15129": {
+            "label": "contract IETSTarget",
+            "numberOfBytes": "20"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "7bd30af036079265a3d8d8099bd8c76e945ff1c2a23d752147b08fc26f6e18fc": {
+      "address": "0xbFC3A550Fc6c260B5B788755Aecd3c4822b7b52f",
+      "txHash": "0x48805851825172d7cd0f10851af14a4a3292c51c6a667e652770cbf314405174",
+      "layout": {
+        "solcVersion": "0.8.12",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:88"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC1967UpgradeUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:169"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "UUPSUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:111"
+          },
+          {
+            "label": "etsAccessControls",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_contract(IETSAccessControls)14803",
+            "contract": "ETS",
+            "src": "contracts/ETS.sol:45"
+          },
+          {
+            "label": "etsToken",
+            "offset": 0,
+            "slot": "202",
+            "type": "t_contract(IETSToken)15366",
+            "contract": "ETS",
+            "src": "contracts/ETS.sol:48"
+          },
+          {
+            "label": "etsTarget",
+            "offset": 0,
+            "slot": "203",
+            "type": "t_contract(IETSTarget)15129",
+            "contract": "ETS",
+            "src": "contracts/ETS.sol:51"
+          },
+          {
+            "label": "taggingFee",
+            "offset": 0,
+            "slot": "204",
+            "type": "t_uint256",
+            "contract": "ETS",
+            "src": "contracts/ETS.sol:54"
+          },
+          {
+            "label": "platformPercentage",
+            "offset": 0,
+            "slot": "205",
+            "type": "t_uint256",
+            "contract": "ETS",
+            "src": "contracts/ETS.sol:55"
+          },
+          {
+            "label": "relayerPercentage",
+            "offset": 0,
+            "slot": "206",
+            "type": "t_uint256",
+            "contract": "ETS",
+            "src": "contracts/ETS.sol:57"
+          },
+          {
+            "label": "accrued",
+            "offset": 0,
+            "slot": "207",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "ETS",
+            "src": "contracts/ETS.sol:61"
+          },
+          {
+            "label": "paid",
+            "offset": 0,
+            "slot": "208",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "ETS",
+            "src": "contracts/ETS.sol:66"
+          },
+          {
+            "label": "taggingRecords",
+            "offset": 0,
+            "slot": "209",
+            "type": "t_mapping(t_uint256,t_struct(TaggingRecord)14249_storage)",
+            "contract": "ETS",
+            "src": "contracts/ETS.sol:70"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IETSAccessControls)14803": {
+            "label": "contract IETSAccessControls",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IETSTarget)15129": {
+            "label": "contract IETSTarget",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IETSToken)15366": {
+            "label": "contract IETSToken",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(TaggingRecord)14249_storage)": {
+            "label": "mapping(uint256 => struct IETS.TaggingRecord)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(TaggingRecord)14249_storage": {
+            "label": "struct IETS.TaggingRecord",
+            "members": [
+              {
+                "label": "tagIds",
+                "type": "t_array(t_uint256)dyn_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "targetId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "recordType",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "relayer",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "tagger",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    }
+  }
+}
