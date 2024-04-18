@@ -22,7 +22,7 @@ resources:
       paused: false
       path: "./dist/defender/actions/release-next-auction"
       environment-variables:
-        NETWORK: "mumbai_stage"
+        NETWORK: "testnet_stage"
         NEXT_PUBLIC_ETS_ENVIRONMENT: "stage"
   policies:
     policy-zz:
