@@ -1,4 +1,5 @@
 import { utils, BigNumber } from "ethers";
+import { useChains } from "wagmi";
 
 /**
  * Formats a Wei amount to Ether with a specified number of decimal places.
@@ -73,7 +74,6 @@ export const toEth = (value: number, decimals: number) => {
  * Allows specification of the network and the type of data for link generation.
  *
  * @param {string} data The data to create the link for (e.g., transaction hash or address).
- * @param {string} [network] The Ethereum network name. Defaults to mainnet if not provided.
  * @param {string} [route="tx"] The Etherscan path segment corresponding to the data type (e.g., "tx" for transactions).
  * @returns {string} The full Etherscan URL.
  *
@@ -89,19 +89,22 @@ export const toEth = (value: number, decimals: number) => {
  * **Example 2: Creating a Link to an Address on the Mumbai Testnet**
  * ```javascript
  * const address = "0x456def...";
- * const addressLink = makeScannerLink(address, "mumbai", "address");
+ * const addressLink = makeScannerLink(address, "address");
  * console.log(addressLink); // Outputs: https://mumbai.polygonscan.io/address/0x456def...
  * ```
  *
  * **Example 3: Creating a Link to a Token Contract on Mainnet**
  * ```javascript
  * const contractAddress = "0x789ghi...";
- * const contractLink = makeScannerLink(contractAddress, "mainnet", "token");
+ * const contractLink = makeScannerLink(contractAddress, "token");
  * console.log(contractLink); // Outputs: https://polygonscan.io/token/0x789ghi...
  * ```
  */
-export const makeScannerLink = (data: string, network?: string, route: string = "tx") =>
-  `https://${!network || network === "mainnet" ? "" : `${network}.`}polygonscan.com/${route}/${data}`;
+export const makeScannerLink = (data: string, network?: string, route: string = "tx") => {
+  const chains = useChains();
+  const chain = chains[0];
+  return `https://${chain.blockExplorers?.default.url}/${route}/${data}`;
+};
 
 /**
  * A JSON.stringify replacer function that converts BigInt values to strings.

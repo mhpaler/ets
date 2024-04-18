@@ -17,7 +17,6 @@ import { WagmiProvider } from "wagmi";
 import { hardhat, arbitrumSepolia } from "wagmi/chains";
 import { SystemProvider } from "@app/context/SystemContext";
 import { TransactionProvider } from "@app/context/TransactionContext";
-//import { wagmiConfig, etsTheme } from "@app/config/wagmiConfig";
 import { wagmiConfig } from "@app/config/wagmiConfig";
 
 const initialChain = process.env.NEXT_PUBLIC_ETS_ENVIRONMENT === "development" ? hardhat : arbitrumSepolia;
