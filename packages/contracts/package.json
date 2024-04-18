@@ -35,8 +35,8 @@
     "hardhat": "hardhat node --no-deploy",
     "compile": "hardhat clean && hardhat compile",
     "deploy": "hardhat deploy --tags deployAll --network localhost --export export/chainConfig/localhost.json",
-    "deploy-mumbai": "hardhat deploy --tags deployAll --network mumbai --export export/chainConfig/mumbai.json",
-    "deploy-mumbai-stage": "hardhat deploy --tags deployAll --network mumbai_stage --export export/chainConfig/mumbai_stage.json"
+    "deploy-testnet-stage": "hardhat deploy --tags deployAll --network testnet_stage --export export/chainConfig/testnet_stage.json",
+    "deploy-testnet-production": "hardhat deploy --tags deployAll --network testnet_production --export export/chainConfig/testnet_production.json"
   },
   "devDependencies": {
     "@enzoferey/ethers-error-parser": "^0.2.3",
