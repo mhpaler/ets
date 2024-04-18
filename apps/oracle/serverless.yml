@@ -25,21 +25,21 @@ resources:
         NETWORK: "testnet_stage"
         NEXT_PUBLIC_ETS_ENVIRONMENT: "stage"
   policies:
-    policy-zz:
+    policy-gy:
       eip1559-pricing: true
       private-transactions: false
   contracts:
     ets-auction-house:
       name: ETSAuctionHouse
       address: "0xf5d631DC08211e649FA7B025179De146AfFAEe41"
-      network: mumbai
+      network: arbitrum-sepolia
       abi: ${file(./abi/ETSAuctionHouse.json.abi)}
   relayers:
     ets-auction-oracle:
       name: "ETSAuctionOracle"
-      network: "mumbai"
+      network: "arbitrum-sepolia"
       min-balance: "100000000000000000"
-      policy: ${self:resources.policies.policy-zz}
+      policy: ${self:resources.policies.policy-gy}
       api-keys:
         - key-1
   notifications:
@@ -50,25 +50,13 @@ resources:
         url: >-
           https://discord.com/api/webhooks/1221279416324460664/4mc9uvUOVpAVyGkd7ZDeOR59ngciOiQFAV9MrwC9S4-76XQ-24EF3eC-cGaYMRddHmv0
       paused: false
-  categories:
-    low-severity:
-      name: Low Severity
-      description: A default category to be assigned for low risk monitors.
-      notification-ids:
-        - ${self:resources.notifications.discord-actitity-internal}
-    medium-severity:
-      name: Medium Severity
-      description: A default category to be assigned for medium risk monitors.
-    high-severity:
-      name: High Severity
-      description: A default category to be assigned for high risk monitors.
   monitors:
     request-create-auction:
       name: RequestCreateAuction
       type: BLOCK
-      network: mumbai
+      network: arbitrum-sepolia
       addresses:
-        - "0xf5d631DC08211e649FA7B025179De146AfFAEe41"
+        - "0x79A3098b1cc02b5FB675Ce7A97f51d8DdDEeA450"
       skip-abi-validation: false
       paused: false
       action-trigger: ${self:resources.actions.release-next-auction}
@@ -96,8 +84,8 @@ resources:
 
           {{ matchReasonsFormatted }}
         message-subject: "Defender Monitor: RequestCreateAuction triggered"
-        channels: []
-        category: ${self:resources.categories.low-severity}
+        channels:
+          - ${self:resources.notifications.discord-actitity-internal}
       conditions:
         event:
           - signature: RequestCreateAuction()
