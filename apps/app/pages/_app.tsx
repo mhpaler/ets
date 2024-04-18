@@ -17,7 +17,8 @@ import { WagmiProvider } from "wagmi";
 import { hardhat, arbitrumSepolia } from "wagmi/chains";
 import { SystemProvider } from "@app/context/SystemContext";
 import { TransactionProvider } from "@app/context/TransactionContext";
-import { wagmiConfig, etsTheme } from "@app/constants/config";
+//import { wagmiConfig, etsTheme } from "@app/config/wagmiConfig";
+import { wagmiConfig } from "@app/config/wagmiConfig";
 
 const initialChain = process.env.NEXT_PUBLIC_ETS_ENVIRONMENT === "development" ? hardhat : arbitrumSepolia;
 
@@ -31,7 +32,7 @@ function App({ Component, pageProps }: AppProps<{ session: Session }>) {
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider theme={etsTheme} initialChain={initialChain}>
+        <RainbowKitProvider initialChain={initialChain}>
           <SWRConfig value={{ refreshInterval: 3000, fetcher: fetcher }}>
             <SystemProvider>
               <TransactionProvider>

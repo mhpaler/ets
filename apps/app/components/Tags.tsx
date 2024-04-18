@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import { useCtags } from "../hooks/useCtags";
-import { settings } from "../constants/settings";
+import { globalSettings } from "@app/config/globalSettings";
 import { TimeAgo } from "./TimeAgo";
 import { Table } from "./Table";
 import { Button } from "./Button";
@@ -34,7 +34,7 @@ const Tags: NextPage<Props> = ({ filter, pageSize, orderBy, title }) => {
     },
   });
 
-  const pageSizeSet = pageSize === undefined ? settings["DEFAULT_PAGESIZE"] : pageSize;
+  const pageSizeSet = pageSize === undefined ? globalSettings["DEFAULT_PAGESIZE"] : pageSize;
 
   const nextPage = () => {
     setSkip(skip + pageSizeSet);

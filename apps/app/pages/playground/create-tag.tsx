@@ -6,7 +6,7 @@ import PageTitle from "@app/components/PageTitle";
 import { createTags, tagExists } from "@app/services/tokenService";
 import { useRelayers } from "@app/hooks/useRelayers";
 import { useAccount } from "wagmi";
-import { availableChainIds } from "@app/constants/config";
+import { availableChainIds } from "@app/config/wagmiConfig";
 import { isValidTag } from "@app/utils/tagUtils";
 import useToast from "@app/hooks/useToast";
 import TagInput from "@app/components/TagInput";

@@ -1,6 +1,6 @@
 import { etsTokenConfig, etsRelayerV1ABI } from "@app/src/contracts";
 import { readContract, writeContract, waitForTransactionReceipt } from "wagmi/actions";
-import { wagmiConfig } from "@app/constants/config";
+import { wagmiConfig } from "@app/config/wagmiConfig";
 import { Hex } from "viem";
 
 export const computeTagId = async (tag: string): Promise<bigint> => {
