@@ -13,31 +13,28 @@
  */
 
 import React, { createContext, useState, useEffect, useRef } from "react";
-import { Auction, AuctionHouse, BidFormData } from "@app/types/auction";
-import { TransactionStage, TransactionStatus } from "@app/types/transaction";
+import { Auction, AuctionHouse } from "@app/types/auction";
 import { useAuctions } from "@app/hooks/useAuctions";
+
 import {
-  fetchAuctionSettingsData,
   fetchCurrentAuctionId,
-  fetchBlockchainTimeDifference,
+  fetchAuctionPaused,
+  fetchAuctionSettingsData,
   watchNewAuctionReleased,
+  watchAuctionPaused,
+  watchAuctionUnpaused,
 } from "@app/services/auctionHouseService";
-import { bigIntReplacer } from "@app/utils";
 
 // Define the default values and functions
 const defaultAuctionHouseContextValue: AuctionHouse = {
-  requestedAuctionId: null,
   auctionPaused: false,
   maxAuctions: null,
   minIncrementBidPercentage: 0,
   duration: null,
   timeBuffer: 0,
-  currentAuctionId: null,
-  onDisplayAuction: null,
-  allAuctions: [],
-  bidFormData: { bid: undefined },
-  setBidFormData: () => {},
-  blockchainTime: () => Math.floor(Date.now() / 1000),
+  maxAuctionId: null,
+  activeAuctions: [], // released and active
+  mutateActiveAuctions: async () => undefined, // No-op async function
 };
 /**
  * Creating a React context for the auction house with undefined initial value.
@@ -49,7 +46,6 @@ export const AuctionHouseContext = createContext<AuctionHouse>(defaultAuctionHou
  */
 type AuctionHouseProviderProps = {
   children: React.ReactNode;
-  requestedAuctionId: number | null;
 };
 
 /**
@@ -57,33 +53,26 @@ type AuctionHouseProviderProps = {
  * It initializes and updates auction-related data based on user interactions and blockchain events.
  *
  * @param children - The child components of the AuctionHouseProvider.
- * @param requestedAuctionId - The ID of the auction requested by the user, used to fetch specific auction data.
  */
 export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
   children,
-  requestedAuctionId,
 }: {
   children: React.ReactNode;
-  requestedAuctionId: number | null;
 }) => {
-  // State hooks for various pieces of the auction house context.
   const [auctionPaused, setAuctionPaused] = useState(true);
-  const [timeDifference, setTimeDifference] = useState(0); // Time difference in seconds
   const [maxAuctions, setMaxAuctions] = useState<number | null>(null); // Specify the type explicitly
   const [minIncrementBidPercentage, setMinIncrementBidPercentage] = useState<number>(0);
   const [duration, setDuration] = useState<number | null>(null);
   const [timeBuffer, setTimeBuffer] = useState<number>(0);
-  const [currentAuctionId, setCurrentAuctionId] = useState<number>(0);
-  const [onDisplayAuction, setOnDisplayAuction] = useState<Auction | null>(null);
-  const [allAuctions, setAllAuctions] = useState<Auction[]>([]); // New state for storing all auctions
-  const [bidFormData, setBidFormData] = useState<BidFormData>({
-    bid: undefined, // Changed from an empty string to null
-  });
-
-  const prevAuctionsRef = useRef<Auction[] | null>(null); // Initialize the ref with null or the initial auctions array if applicable
+  const [maxAuctionId, setMaxAuctionId] = useState<number>(0);
 
   // Call useAuctions hook to fetch auction data
-  const { auctions, isLoading, isError } = useAuctions({
+  const {
+    auctions: activeAuctions,
+    isLoading, // TODO: Expose isLoading & isError to consumers?
+    isError,
+    mutate: mutateActiveAuctions,
+  } = useAuctions({
     pageSize: 200, // Adjust pageSize, skip, orderBy, and filter as needed
     skip: 0,
     orderBy: "endTime",
@@ -98,137 +87,54 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
     },
   });
 
-  const initStaticData = async () => {
+  const fetchAuctionSettings = async () => {
     try {
-      const auctionSettings = await fetchAuctionSettingsData();
       const currentId = await fetchCurrentAuctionId();
-      const difference = await fetchBlockchainTimeDifference();
+      const auctionPaused = await fetchAuctionPaused();
+      const auctionSettings = await fetchAuctionSettingsData();
+      setMaxAuctionId(currentId);
+      setAuctionPaused(auctionPaused);
       setMaxAuctions(auctionSettings.maxAuctions);
       setMinIncrementBidPercentage(auctionSettings.minIncrementBidPercentage);
       setDuration(auctionSettings.duration);
       setTimeBuffer(auctionSettings.timeBuffer);
-      setCurrentAuctionId(currentId);
-      setTimeDifference(difference);
     } catch (error) {
       console.error("Failed to initialize auction data:", error);
     }
   };
 
-  const fetchDisplayAuctionData = async (): Promise<void> => {
-    if (currentAuctionId !== 0 && allAuctions.length > 0) {
-      try {
-        let displayAuction: Auction | null = null;
-
-        // Determine the ID to search for: if requestedAuctionId is null, use currentAuctionId
-        const searchAuctionId = requestedAuctionId === null ? currentAuctionId : requestedAuctionId;
-        const foundAuction = allAuctions.find((auction: Auction) => auction.id === searchAuctionId) ?? null;
-        if (foundAuction) {
-          if (requestedAuctionId && requestedAuctionId < currentAuctionId) {
-            foundAuction.ended = true;
-          }
-          displayAuction = foundAuction;
-        }
-        // Only update the state if a valid auction is found.
-        if (displayAuction !== undefined) {
-          setOnDisplayAuction(displayAuction);
-        }
-      } catch (error) {
-        console.error("Failed to fetch data:", error);
-      }
-    }
+  // Callback function to handle both auction paused & unpaused events
+  const handleAuctionPauseToggled = async () => {
+    const auctionPaused = await fetchAuctionPaused();
+    setAuctionPaused(auctionPaused);
   };
 
-  const updateAllAuctionsData = async (): Promise<void> => {
-    // Use the custom replacer function in JSON.stringify
-    const auctionsHasChanged =
-      JSON.stringify(auctions, bigIntReplacer) !== JSON.stringify(prevAuctionsRef.current, bigIntReplacer);
-
-    if (!isLoading && !isError && auctions && auctionsHasChanged) {
-      const updatedAuctions = allAuctions.map((existingAuction) => {
-        const update = auctions.find((auction) => auction.id === existingAuction.id);
-        return update ? { ...existingAuction, ...update } : existingAuction;
-      });
-
-      const newAuctions = auctions.filter(
-        (auction) => !allAuctions.some((existingAuction) => existingAuction.id === auction.id),
-      );
-
-      setAllAuctions([...updatedAuctions, ...newAuctions]);
-
-      // Update the ref with the current 'auctions'
-      prevAuctionsRef.current = auctions;
-    }
-  };
-
-  const blockchainTime = () => Math.floor(Date.now() / 1000) - timeDifference;
-
   useEffect(() => {
-    // Passing initStaticData as the callback to be executed on new auction event
-    const unwatch = watchNewAuctionReleased(initStaticData);
+    const unwatchNewAuction = watchNewAuctionReleased(fetchAuctionSettings);
+    const unwatchAuctionPaused = watchAuctionPaused(handleAuctionPauseToggled);
+    const unwatchAuctionUnpaused = watchAuctionUnpaused(handleAuctionPauseToggled);
 
-    initStaticData();
-    // Cleanup function to unwatch on component unmount
-    return () => unwatch();
-  }, []);
+    // Fetch auction settings initially
+    fetchAuctionSettings();
 
-  // Sets currently displayed auction based on route parameter or current active
-  // TODO: Update logic to support multiple concurrent auctions.
-  useEffect(() => {
-    fetchDisplayAuctionData();
-  }, [requestedAuctionId, currentAuctionId, allAuctions]);
-
-  useEffect(() => {
-    updateAllAuctionsData();
-  }, [auctions, isLoading, isError, allAuctions]);
-
-  // TODO: Listen for auction release and then call initStaticData()
-
-  // Handle setting onDisplayAuction.ended to true when
-  // an auction has ended.
-  useEffect(() => {
-    if (!onDisplayAuction || onDisplayAuction.startTime <= 0) return;
-
-    const checkAuctionEnd = () => {
-      const timeLeft = onDisplayAuction.endTime - blockchainTime();
-
-      if (timeLeft <= 0 && !onDisplayAuction.ended) {
-        // Auction has ended, update the state
-        setOnDisplayAuction({ ...onDisplayAuction, ended: true });
-      }
+    // Cleanup functions
+    return () => {
+      unwatchNewAuction();
+      unwatchAuctionPaused();
+      unwatchAuctionUnpaused();
     };
-
-    // Immediately check if the auction has ended before starting the timer
-    checkAuctionEnd();
-
-    // Determine the initial interval for checking the auction status
-    const initialInterval = onDisplayAuction.endTime - blockchainTime() > timeBuffer ? 30000 : 1000;
-
-    // Start the initial timer
-    let timer = setTimeout(function tick() {
-      checkAuctionEnd();
-
-      // Decide whether to continue checking every second or every 30 seconds
-      const nextInterval = onDisplayAuction.endTime - blockchainTime() > timeBuffer ? 30000 : 1000;
-      timer = setTimeout(tick, nextInterval);
-    }, initialInterval);
-
-    return () => clearTimeout(timer); // Cleanup on unmount or when dependencies change
-  }, [onDisplayAuction, setOnDisplayAuction, timeBuffer]);
+  }, []); // Empty dependency array ensures this effect runs only once
 
   // Context value assembled from state and functions.
   const contextValue: AuctionHouse = {
-    requestedAuctionId,
     auctionPaused,
     maxAuctions,
     minIncrementBidPercentage,
     duration,
     timeBuffer,
-    currentAuctionId,
-    onDisplayAuction,
-    allAuctions,
-    bidFormData,
-    setBidFormData,
-    blockchainTime,
+    maxAuctionId,
+    activeAuctions: activeAuctions || [], // Ensure it defaults to []
+    mutateActiveAuctions,
   };
 
   // Providing the auction house context to child components.

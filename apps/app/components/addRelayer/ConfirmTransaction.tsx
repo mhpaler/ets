@@ -34,8 +34,8 @@ import { Dialog } from "@headlessui/react";
 
 import { Button } from "@app/components/Button";
 import { Wallet, CheckCircle } from "@app/components/icons";
-import { TransactionError } from "@app/components/TransactionError";
-import { TransactionLink } from "@app/components/TransactionLink";
+import { TransactionError } from "@app/components/transaction/shared/TransactionError";
+import { TransactionLink } from "@app/components/transaction/shared/TransactionLink";
 
 interface FormStepProps {
   closeModal: () => void; // Define other props as needed
@@ -115,10 +115,9 @@ const ConfirmTransaction: React.FC<FormStepProps> = ({ closeModal }) => {
             <div className="">{t("TXN.ACTION")}</div>
             <div className="font-bold">{t("TXN.TYPE.CREATE_RELAYER")}</div>
           </div>
-
-          {hasErrors && <TransactionError error={hasErrors as WriteContractErrorType} />}
+          {/*           {hasErrors && <TransactionError error={hasErrors as WriteContractErrorType} />}
+           */}{" "}
           {hash && <TransactionLink txn={hash} />}
-
           <div className="grid grid-flow-col justify-stretch gap-2">
             {((!hash && !isPending) || (isPending && hasErrors)) && (
               <Button type="button" onClick={() => goToStep(AddRelayerSteps.AddRelayerForm)}>

@@ -10,6 +10,7 @@ interface AuctionNavigationProps {
 const AuctionNavigation: React.FC<AuctionNavigationProps> = ({ onDisplayAuctionId, isFirstAuction, isLastAuction }) => {
   const prevAuctionId = onDisplayAuctionId - 1;
   const nextAuctionId = onDisplayAuctionId + 1;
+
   return (
     <div className="flex col-span-12 items-center gap-2">
       <div>

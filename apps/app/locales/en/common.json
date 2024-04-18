@@ -87,7 +87,7 @@
   "tag-owner": "Tag owner",
   "tag-owners": "Tag owners",
   "tag-random-image": "Tag a random image",
-  "tag-tagging-records": "Tagging records that include {{tag}}",
+  "tag-tagging-records": "Tagging records with {{tag}}",
   "tagging-record-created-successfully": "Tagging record created successfully",
   "tagging-record-inputs": "Tagging Record Inputs",
   "tagged-content": "Tagged content",
@@ -167,7 +167,10 @@
   },
 
   "AUCTION": {
+    "BIDS_FOR": "Bids for",
     "BID_PLACEHOLDER": "Bid {{minimumBid}} MATIC or more",
+    "BID_PLACEHOLDER_BEFORE": "Bid",
+    "BID_PLACEHOLDER_AFTER": "or more",
     "CURRENT_BID": "Current bid",
     "WINNING_BID": "Winning bid",
     "TIME_LEFT": "Time left",

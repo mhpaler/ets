@@ -10,9 +10,7 @@ import { Tags } from "@app/components/Tags";
 import { Number } from "@app/components/Number";
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Truncate } from "@app/components/Truncate";
-
 import { Panel } from "@app/components/Panel";
-import PageTitle from "@app/components/PageTitle";
 
 function classNames(...classes: any) {
   return classes.filter(Boolean).join(" ");

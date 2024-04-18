@@ -1,5 +1,6 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useState, cloneElement } from "react";
+import { Fragment, useState } from "react";
+import { CloseModalProvider } from "@app/context/CloseModalContext"; // Adjust path as necessary
 
 interface Props {
   label?: string;
@@ -30,12 +31,6 @@ const Modal = ({ label, children, link = false, buttonClasses = "", disabled = f
     }
   };
 
-  // This is kinda cool. Clone the children element and include the close modal
-  // function as a property so the modal can be closed from the child element.
-  const childWithProps = cloneElement(children, {
-    closeModal: closeModal,
-  });
-
   const buttonClassName = link ? "btn btn-link" : "btn";
   const disabledClass = disabled ? "btn-disabled" : "";
   return (
@@ -49,7 +44,7 @@ const Modal = ({ label, children, link = false, buttonClasses = "", disabled = f
       </button>
 
       <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={closeModal}>
+        <Dialog as="div" className="relative z-10" onClose={() => {}}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -64,19 +59,21 @@ const Modal = ({ label, children, link = false, buttonClasses = "", disabled = f
 
           <div className="fixed inset-0 overflow-y-auto">
             <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  {childWithProps}
-                </Dialog.Panel>
-              </Transition.Child>
+              <CloseModalProvider value={{ closeModal }}>
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 scale-95"
+                  enterTo="opacity-100 scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 scale-100"
+                  leaveTo="opacity-0 scale-95"
+                >
+                  <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                    {children}
+                  </Dialog.Panel>
+                </Transition.Child>
+              </CloseModalProvider>
             </div>
           </div>
         </Dialog>

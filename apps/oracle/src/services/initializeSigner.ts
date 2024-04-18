@@ -27,10 +27,10 @@ export async function initializeSigner(credentials?: RelayerParams): Promise<eth
     const provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
     const privateKey = getRequiredEnv("ETS_ORACLE_LOCALHOST_PK");
     signer = new ethers.Wallet(privateKey, provider);
-  } else if (process.env.NETWORK === "mumbai_stage") {
-    // For the "mumbai_stage" environment, use DefenderRelaySigner which requires credentials.
+  } else if (process.env.NETWORK === "testnet_stage") {
+    // For the "testnet_stage" environment, use DefenderRelaySigner which requires credentials.
     if (!credentials) {
-      throw new Error("Defender relayer credentials must be provided for the 'mumbai_stage' network.");
+      throw new Error("Defender relayer credentials must be provided for the 'testnet_stage' network.");
     }
     const provider = new DefenderRelayProvider(credentials);
     signer = new DefenderRelaySigner(credentials, provider, { speed: "fast" });

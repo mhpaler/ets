@@ -1,21 +1,29 @@
-import React, { createContext, useEffect, useContext, useState } from "react";
-import { Auction, BidFormData } from "@app/types/auction";
+import React, { createContext, useEffect, useState } from "react";
+import {
+  Auction,
+  AuctionOnChain,
+  Bid,
+  BidFormData,
+  AuctionContextType,
+  FetchAuctionsResponse,
+} from "@app/types/auction";
+import {} from "@app/types/auction";
+import { formatEtherWithDecimals } from "@app/utils";
 import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 
-export interface AuctionContext {
-  auction: Auction | null;
-  bidFormData: BidFormData;
-  setBidFormData: React.Dispatch<React.SetStateAction<BidFormData>>;
-}
-
 // Define the default values and functions
-const defaultAuctionContextValue: AuctionContext = {
+const defaultAuctionContextValue: AuctionContextType = {
   auction: null,
+  auctionEndTimeUI: 0,
+  setAuctionEndTimeUI: () => {},
   bidFormData: { bid: undefined },
   setBidFormData: () => {},
+  endAuction: () => {},
+  settleAuction: () => {},
+  addBidToAuction: () => {},
 };
 
-export const AuctionContext = createContext<AuctionContext>(defaultAuctionContextValue);
+export const AuctionContext = createContext<AuctionContextType>(defaultAuctionContextValue);
 
 /**
  * Props definition for AuctionProvider component.
@@ -26,10 +34,10 @@ type AuctionProps = {
 };
 
 /**
- * The AuctionHouseProvider component manages and provides auction house context to its child components.
+ * The AuctionHouseProvider component manages and provides auction context to its child components.
  * It initializes and updates auction-related data based on user interactions and blockchain events.
  *
- * @param children - The child components of the AuctionHouseProvider.
+ * @param children - The child components of the AuctionProvider.
  * @param auctionId - The ID of the auction requested by the user, used to fetch specific auction data.
  */
 export const AuctionProvider: React.FC<AuctionProps> = ({
@@ -39,38 +47,98 @@ export const AuctionProvider: React.FC<AuctionProps> = ({
   children: React.ReactNode;
   auctionId: number | null;
 }) => {
-  const auctionHouse = useAuctionHouse(); // Access AuctionHouse context
-
+  const { activeAuctions, mutateActiveAuctions } = useAuctionHouse(); // Access AuctionHouse context
   const [auction, setAuction] = useState<Auction | null>(null);
+  const [auctionEndTimeUI, setAuctionEndTimeUI] = useState<number>(0);
   const [bidFormData, setBidFormData] = useState<BidFormData>({
     bid: undefined,
   });
 
-  const loadAuction = async (): Promise<void> => {
-    try {
-      const foundAuction = auctionHouse.allAuctions.find((auction: Auction) => auction.id === auctionId) ?? null;
-      if (foundAuction) {
+  useEffect(() => {
+    if (activeAuctions.length > 0 && auctionId !== null) {
+      const foundAuction = activeAuctions.find((auction) => auction.id === auctionId) ?? null;
+      if (!foundAuction) {
+        // TODO: Redirect user to "404 not found" page
+        console.error(`Failed to find auction with ID: ${auctionId}`);
+      } else {
         setAuction(foundAuction);
       }
-    } catch (error) {
-      console.error("Failed to fetch data:", error);
     }
+  }, [auctionId, activeAuctions]);
+
+  if (!auction) {
+    // Optionally show a loading state here instead of rendering nothing
+    return null; // or <Loading />
+  }
+
+  // Function to add a new bid to an auction
+  const addBidToAuction = (auctionOnChain: AuctionOnChain, newBid: Bid) => {
+    mutateActiveAuctions((current: FetchAuctionsResponse | undefined) => {
+      if (!current || !current.auctions) return current;
+
+      const updatedAuctions = current.auctions.map((auction) => {
+        if (Number(auction.id) === auctionOnChain.id) {
+          const updatedAuction = {
+            ...auction,
+            amount: auctionOnChain.amount, // Update the amount with the new bid's amount
+            amountDisplay: formatEtherWithDecimals(auctionOnChain.amount, 4), // Update display value
+            startTime: auctionOnChain.startTime,
+            endTime: auctionOnChain.endTime,
+            bidder: { id: auctionOnChain.bidder },
+            bids: [...auction.bids, newBid], // Add new bid to bids array
+          };
+          return updatedAuction;
+        }
+        return auction;
+      });
+
+      return { ...current, auctions: updatedAuctions };
+    }, false);
   };
 
-  useEffect(() => {
-    if (auctionId && auctionHouse) {
-      // Check if the auctionId corresponds to any auction in auctionHouse.allAuctions
-      const desiredAuction = auctionHouse.allAuctions.find((auction: Auction) => auction.id === auctionId);
-      if (desiredAuction) {
-        loadAuction();
-      }
-    }
-  }, [auctionId, auctionHouse.allAuctions]);
+  // Function to optimistically update an auction's ended status in UI
+  // see /app/components/auction/AuctionTimer.tsx
+  const endAuction = (auctionId: number) => {
+    mutateActiveAuctions((current: FetchAuctionsResponse | undefined) => {
+      if (!current || !current.auctions) return current;
 
-  const value: AuctionContext = {
+      const updatedAuctions = current.auctions.map((auction: Auction) => {
+        if (Number(auction.id) === auctionId) {
+          const updatedAuction = { ...auction, ended: true };
+          return updatedAuction;
+        }
+        return auction;
+      });
+
+      return { ...current, auctions: updatedAuctions };
+    }, false);
+  };
+
+  // Function to optimistically update an auction's settled status
+  const settleAuction = (auctionId: number) => {
+    mutateActiveAuctions((current: FetchAuctionsResponse | undefined) => {
+      if (!current || !current.auctions) return current;
+
+      const updatedAuctions = current.auctions.map((auction: Auction) => {
+        if (Number(auction.id) === auctionId) {
+          return { ...auction, settled: true };
+        }
+        return auction;
+      });
+
+      return { ...current, auctions: updatedAuctions };
+    }, false);
+  };
+
+  const value: AuctionContextType = {
     auction,
+    auctionEndTimeUI,
+    setAuctionEndTimeUI,
     bidFormData,
     setBidFormData,
+    endAuction,
+    settleAuction,
+    addBidToAuction,
   };
 
   return <AuctionContext.Provider value={value}>{children}</AuctionContext.Provider>;

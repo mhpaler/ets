@@ -12,11 +12,31 @@ import { Button } from "@app/components/Button";
 import { Modal } from "@app/components/Modal";
 import FormWrapper from "@app/components/addRelayer/FormWrapper";
 
+import { ConnectButtonETS } from "@app/components/ConnectButtonETS";
+import { useAccount } from "wagmi"; // Import useAccount hook
+import TransactionFlowWrapper from "@app/components/transaction/TransactionFlowWrapper";
+import { TransactionType } from "@app/types/transaction";
+
 const pageSize = 20;
 
 const Relayers: NextPage = () => {
   const [skip, setSkip] = useState(0);
   const { t } = useTranslation("common");
+  const { isConnected } = useAccount();
+  let content;
+
+  if (!isConnected) {
+    // If user is not connected, show the Connect button
+    content = <ConnectButtonETS className="btn-outline btn-block" />;
+  } else {
+    // Auction hasn't started or is ongoing and user is connected
+    content = (
+      <Modal label={t("create-relayer")} buttonClasses="btn-primary btn-outline btn-block">
+        <TransactionFlowWrapper transactionType={TransactionType.AddRelayer} />
+      </Modal>
+    );
+  }
+
   const { number } = useNumberFormatter();
   const { relayers, nextRelayers, mutate } = useRelayers({
     pageSize,
@@ -51,13 +71,7 @@ const Relayers: NextPage = () => {
 
   return (
     <Layout>
-      <div className="col-span-12">
-        <AddRelayerProvider>
-          <Modal label={t("create-relayer")}>
-            <FormWrapper />
-          </Modal>
-        </AddRelayerProvider>
-      </div>
+      <div className="col-span-12">{content}</div>
       <div className="col-span-12">
         <Table loading={!relayers} rows={pageSize}>
           <Table.Head>

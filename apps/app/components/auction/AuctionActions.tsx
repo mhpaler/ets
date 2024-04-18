@@ -1,41 +1,32 @@
 import useTranslation from "next-translate/useTranslation";
+import { useAccount } from "wagmi";
 import { Auction } from "@app/types/auction";
-import BidFlowWrapper from "@app/components/auction/bid/BidFlowWrapper";
-import { SettleFlow } from "@app/components/auction/settle/SettleFlow";
+import { TransactionType } from "@app/types/transaction";
 import { Modal } from "@app/components/Modal";
-
-import { AuctionProvider } from "@app/context/AuctionContext";
+import { ConnectButtonETS } from "@app/components/ConnectButtonETS";
+import TransactionFlowWrapper from "@app/components/transaction/TransactionFlowWrapper";
 
 interface AuctionActionsProps {
-  onDisplayAuction: Auction;
+  auction: Auction;
 }
-const AuctionActions: React.FC<AuctionActionsProps> = ({ onDisplayAuction }) => {
+const AuctionActions: React.FC<AuctionActionsProps> = ({ auction }) => {
   const { t } = useTranslation("common");
-  let content;
-
-  if (onDisplayAuction.startTime === 0 || !onDisplayAuction.ended) {
-    // Auction hasn't started or is ongoing
-    content = (
-      <Modal label={t("AUCTION.PLACE_BID_BUTTON")} buttonClasses="btn-primary btn-outline btn-block">
-        <BidFlowWrapper />
-      </Modal>
-    );
-  }
-
-  if (onDisplayAuction.ended && !onDisplayAuction.settled) {
-    // Auction has ended but not settled
-    content = (
-      <>
-        <Modal label={t("AUCTION.SETTLE_BUTTON")} buttonClasses="btn-primary btn-outline btn-block">
-          <SettleFlow />
-        </Modal>
-      </>
-    );
-  }
+  const { isConnected } = useAccount();
+  const transactionType = auction.ended ? TransactionType.SettleAuction : TransactionType.Bid;
+  const buttonLabel = auction.ended ? t("AUCTION.SETTLE_BUTTON") : t("AUCTION.PLACE_BID_BUTTON");
+  // Hide the button so the modal doesn't close automatically when auction is settled.
+  const hideButton = auction.ended && auction.settled;
+  const buttonClasses = `btn-primary btn-outline btn-block ${hideButton ? "hidden" : ""}`;
 
   return (
     <div>
-      <AuctionProvider auctionId={onDisplayAuction.id}>{content}</AuctionProvider>
+      {!isConnected ? (
+        <ConnectButtonETS className="btn-outline btn-block" />
+      ) : (
+        <Modal label={buttonLabel} buttonClasses={buttonClasses}>
+          <TransactionFlowWrapper transactionType={transactionType} />
+        </Modal>
+      )}
     </div>
   );
 };

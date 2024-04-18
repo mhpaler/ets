@@ -16,7 +16,7 @@ import "@nomicfoundation/hardhat-chai-matchers";
 import {resolve} from "path";
 import {config as dotenvConfig} from "dotenv";
 
-//import "./tasks";
+import "./tasks";
 
 dotenvConfig({path: resolve(__dirname, "../../.env")});
 

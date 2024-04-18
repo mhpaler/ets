@@ -6,40 +6,37 @@ export const pathToTitle = () => {
   const { t } = useTranslation("common");
   const router = useRouter();
 
-  // Check if pathname is root ("/") or empty
   if (router.pathname === "/" || router.pathname.trim() === "") {
     return t("dashboard");
   }
 
   const pathSegments = router.pathname.split("/").slice(1);
-
-  // If there are no segments, return the default title
   if (pathSegments.length === 0) {
     return t("dashboard");
   }
 
-  const title = pathSegments
-    .map((segment, index, segments) => {
-      // Check if the segment is a dynamic route parameter
-      if (segment.startsWith("[") && segment.endsWith("]")) {
-        // Extract the actual parameter name
-        const paramName = segment.slice(1, -1);
-        // Use the value from the router query, if available
-        const value = router.query[paramName];
-
-        if (index === 1 && segments[0] === "tags" && value) {
-          // If the first segment is "tags" and there is a dynamic argument, append "#" to it
-          return `#${Truncate(value)}`;
-        } else {
-          return Truncate(value);
-        }
+  const titleSegments = pathSegments
+    .map((segment) => {
+      // Skip the dynamic segment placeholder when building the title
+      if (segment === "[...id]") {
+        return "";
       }
-
-      // For regular segments, use the translation function
+      // Handle dynamic segments and router.query parameters
+      if (segment.startsWith("[") && segment.endsWith("]")) {
+        const paramName = segment.slice(1, -1);
+        const value = router.query[paramName];
+        if (value) {
+          return `#${Truncate(value.toString())}`; // Ensure value is treated as a string
+        }
+        return ""; // No value for the parameter, return empty
+      }
+      // Translate static segments
       return t(segment);
     })
-    .join(": ");
+    .filter(Boolean); // Filter out empty strings to avoid incorrect joining
 
-  // If the title is empty, return the default title
+  // Join with ": " only if there's more than one segment to display
+  const title = titleSegments.length > 1 ? titleSegments.join(": ") : titleSegments.join("");
+
   return title || t("dashboard");
 };

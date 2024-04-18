@@ -14,11 +14,12 @@ import "@rainbow-me/rainbowkit/styles.css";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
-import { hardhat, polygonMumbai } from "@wagmi/core/chains";
-
+import { hardhat, arbitrumSepolia } from "wagmi/chains";
+import { SystemProvider } from "@app/context/SystemContext";
+import { TransactionProvider } from "@app/context/TransactionContext";
 import { wagmiConfig, etsTheme } from "@app/constants/config";
 
-const initialChain = process.env.NEXT_PUBLIC_ETS_ENVIRONMENT === "development" ? hardhat : polygonMumbai;
+const initialChain = process.env.NEXT_PUBLIC_ETS_ENVIRONMENT === "development" ? hardhat : arbitrumSepolia;
 
 const queryClient = new QueryClient();
 
@@ -32,7 +33,11 @@ function App({ Component, pageProps }: AppProps<{ session: Session }>) {
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider theme={etsTheme} initialChain={initialChain}>
           <SWRConfig value={{ refreshInterval: 3000, fetcher: fetcher }}>
-            <Component {...pageProps} />
+            <SystemProvider>
+              <TransactionProvider>
+                <Component {...pageProps} />
+              </TransactionProvider>
+            </SystemProvider>
           </SWRConfig>
         </RainbowKitProvider>
       </QueryClientProvider>
