@@ -37,7 +37,7 @@ const AuctionDebug = () => {
 
     // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
-  }, []);
+  }, [timeDifference]);
 
   return (
     <div className="col-span-12 prose" style={{ whiteSpace: "pre-wrap" }}>

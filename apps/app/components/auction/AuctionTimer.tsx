@@ -41,7 +41,7 @@ const AuctionTimer: React.FC<AuctionTimerProps> = ({ auction }) => {
 
     return () => clearInterval(timer);
     // Ensure to include all dependencies this effect uses
-  }, [auction.startTime, auction.endTime, auction.ended, blockchainTime]);
+  }, [auction.id, auction.startTime, auction.endTime, auction.ended, endAuction, blockchainTime, setAuctionEndTimeUI]);
 
   const formatTimeLeft = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);

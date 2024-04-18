@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 // Add props parameter to your function and destructure it to get className or any other prop you might pass
@@ -57,7 +58,7 @@ export const ConnectButtonETS = ({ className = "" }) => {
                         }}
                       >
                         {chain.iconUrl && (
-                          <img alt={chain.name ?? "Chain icon"} src={chain.iconUrl} style={{ width: 12, height: 12 }} />
+                          <Image src={chain.iconUrl} alt={chain.name ?? "Chain icon"} width={12} height={12} />
                         )}
                       </div>
                     )}

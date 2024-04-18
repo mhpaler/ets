@@ -8,9 +8,7 @@ import {
   FetchAuctionsResponse,
 } from "@app/types/auction";
 import {} from "@app/types/auction";
-import { etsAuctionHouseConfig } from "@app/src/contracts";
 import { formatEtherWithDecimals } from "@app/utils";
-import { useReadContract } from "wagmi";
 import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 
 // Define the default values and functions

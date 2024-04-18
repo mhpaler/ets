@@ -64,7 +64,7 @@ const BidInput: React.FC<FormStepProps> = ({ goToNextStep }) => {
 
   useEffect(() => {
     setBidFormData({ bid: undefined });
-  }, []);
+  }, [setBidFormData]);
 
   // Effect to set min bid increment.
   useEffect(() => {

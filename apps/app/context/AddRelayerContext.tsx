@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { createContext, useState, ReactNode } from "react";
-import { TransactionStage, TransactionStatus } from "@app/types/transaction";
 import { fetchHasTags } from "@app/services/tokenService";
 import { useAccount } from "wagmi";
 
@@ -26,9 +25,6 @@ export type FormContextValue = {
   goToStep: (step: AddRelayerSteps) => void;
   formData: FormData;
   setFormData: (data: FormData) => void;
-  //submitNewRelayer: (name: string) => void;
-  transactionStatus: TransactionStatus;
-  setTransactionStatus: (status: TransactionStatus) => void;
 };
 
 // Define a default context value
@@ -42,13 +38,6 @@ const defaultContextValue: FormContextValue = {
   goToStep: () => {},
   formData: { name: "" },
   setFormData: () => {},
-  transactionStatus: {
-    loading: false,
-    success: false,
-    error: null,
-    stage: null,
-  },
-  setTransactionStatus: () => {},
 };
 
 export const AddRelayerContext = createContext<FormContextValue>(defaultContextValue);
@@ -60,12 +49,6 @@ export const AddRelayerProvider = ({ children }: { children: React.ReactNode }) 
   });
   const { address, isConnected } = useAccount();
   const [hasTags, setHasTags] = useState<boolean>(false);
-  const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>({
-    loading: false,
-    success: false,
-    error: null,
-    stage: null,
-  });
 
   const goToNextStep = () => {
     setCurrentStep((prevStep) => {
@@ -80,10 +63,6 @@ export const AddRelayerProvider = ({ children }: { children: React.ReactNode }) 
   };
 
   const goToStep = (step: AddRelayerSteps) => setCurrentStep(step);
-
-  const resetTransactionStatus = () => {
-    setTransactionStatus({ loading: false, success: false, error: null, stage: null });
-  };
 
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
@@ -115,9 +94,6 @@ export const AddRelayerProvider = ({ children }: { children: React.ReactNode }) 
     goToStep,
     formData,
     setFormData,
-    //submitNewRelayer: handleNewRelayerSubmission,
-    transactionStatus,
-    setTransactionStatus,
   };
 
   return <AddRelayerContext.Provider value={contextValue}>{children}</AddRelayerContext.Provider>;
