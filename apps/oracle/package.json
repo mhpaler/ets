@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@ethereum-tag-service/contracts": "workspace:*",
+    "@ethereum-tag-service/subgraph-endpoints": "workspace:*",
     "@openzeppelin/defender-as-code": "^2.6.0",
     "@openzeppelin/defender-relay-client": "1.52.0",
     "@openzeppelin/defender-sdk": "1.5.0",

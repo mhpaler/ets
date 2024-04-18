@@ -12,6 +12,7 @@
     "@ethereum-tag-service/config": "workspace:*",
     "@ethereum-tag-service/contracts": "workspace:*",
     "@ethereum-tag-service/ui": "workspace:*",
+    "@ethereum-tag-service/subgraph-endpoints": "workspace:*",
     "@headlessui/react": "^1.7.17",
     "@hookform/resolvers": "^3.1.1",
     "@iconicicons/react": "^1.5.0",
