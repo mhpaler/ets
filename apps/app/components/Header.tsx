@@ -27,7 +27,7 @@ export default function Header() {
           <Link href="/" passHref className="lg:hidden">
             <div className="relative flex items-center">
               <span className="ml-2.5 text-xl font-bold text-slate-900">ETS</span>
-              <h1 className="sr-only">Ethereum Tag Service</h1>
+              <h1 className="sr-only tracking-tighter">Ethereum Tag Service</h1>
             </div>
           </Link>
         </div>
