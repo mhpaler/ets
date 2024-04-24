@@ -20,7 +20,7 @@ const Playground: NextPage = () => {
   const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const { relayers } = useRelayers({});
-  const isCorrectNetwork = chain?.id && availableChainIds.includes(chain?.id);
+  const isCorrectNetwork = chain?.id && availableChainIds.includes(chain?.id as any);
   const disabled = !tags.length || !selectedRelayer || !isCorrectNetwork || isCreatingTag;
 
   const getTooltipMessage = () => {

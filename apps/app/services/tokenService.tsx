@@ -1,7 +1,58 @@
 import { etsTokenConfig, etsRelayerV1ABI } from "@app/src/contracts";
 import { readContract, writeContract, waitForTransactionReceipt } from "wagmi/actions";
-import { wagmiConfig } from "@app/config/wagmiConfig";
-import { Hex } from "viem";
+import { chainsMap, wagmiConfig } from "@app/config/wagmiConfig";
+import { Hex, createPublicClient, createWalletClient, custom, http } from "viem";
+import { ETSClient } from "@ethereum-tag-service/sdk-core";
+
+export const viemPublicClient: any = (chainId: number) => {
+  const chain = chainsMap(chainId);
+  let transportUrl = chain.rpcUrls?.default?.http?.[0];
+  const alchemyUrl = chain.rpcUrls?.alchemy?.http;
+  if (alchemyUrl) transportUrl = `${alchemyUrl}/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
+
+  return createPublicClient({
+    chain,
+    transport: http(transportUrl, { batch: true }),
+  });
+};
+
+export function createETSClient(chainId: number | undefined): any | undefined {
+  if (!chainId) return undefined;
+
+  const chain = chainsMap(chainId);
+
+  if (!chain) {
+    console.error("Unsupported chain ID");
+    return undefined;
+  }
+
+  const publicClient = viemPublicClient(chainId);
+  console.log("publicClient", publicClient);
+
+  if (!publicClient) {
+    console.error("Failed to create public client");
+    return undefined;
+  }
+
+  const walletClient = createWalletClient({
+    chain,
+    transport: custom(window.ethereum),
+  });
+  console.log("walletClient", walletClient);
+
+  console.log("ETSClient", ETSClient);
+  try {
+    const hatsClient = new ETSClient({
+      chainId,
+      publicClient,
+      walletClient,
+    });
+    return hatsClient;
+  } catch (error) {
+    console.error("Error creating ETS Client:", error);
+    return undefined;
+  }
+}
 
 export const computeTagId = async (tag: string): Promise<bigint> => {
   try {

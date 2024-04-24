@@ -1,8 +1,9 @@
 import { http, createConfig, Config, fallback } from "wagmi";
-import { arbitrumSepolia, hardhat } from "wagmi/chains";
+import { arbitrumSepolia, hardhat, Chain } from "wagmi/chains";
 import { injected } from "wagmi/connectors";
 
 // Wagmi Config
+console.log("process.env.NEXT_PUBLIC_ALCHEMY_KEY", process.env.NEXT_PUBLIC_ALCHEMY_KEY);
 export const wagmiConfig: Config = createConfig({
   chains: [process.env.NEXT_PUBLIC_ETS_ENVIRONMENT === "development" ? hardhat : arbitrumSepolia],
   connectors: [injected()],
@@ -14,4 +15,19 @@ export const wagmiConfig: Config = createConfig({
   },
 });
 
-export const availableChainIds = [421614, 31337];
+export const availableChainIds: SupportedChains[] = [
+  421614, // arbitrumSepolia
+  31337, // hardhat
+];
+
+export const chainsList: { [key in SupportedChains]: Chain } = {
+  421614: arbitrumSepolia,
+  31337: hardhat,
+};
+
+export type SupportedChains =
+  | 421614 // arbitrumSepolia
+  | 31337; // hardhat
+
+export const chainsMap = (chainId?: number) =>
+  chainId ? chainsList[chainId as SupportedChains] : (Object.values(chainsList)[0] as Chain);
