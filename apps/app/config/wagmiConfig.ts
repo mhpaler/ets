@@ -3,7 +3,6 @@ import { arbitrumSepolia, hardhat, Chain } from "wagmi/chains";
 import { injected } from "wagmi/connectors";
 
 // Wagmi Config
-console.log("process.env.NEXT_PUBLIC_ALCHEMY_KEY", process.env.NEXT_PUBLIC_ALCHEMY_KEY);
 export const wagmiConfig: Config = createConfig({
   chains: [process.env.NEXT_PUBLIC_ETS_ENVIRONMENT === "development" ? hardhat : arbitrumSepolia],
   connectors: [injected()],

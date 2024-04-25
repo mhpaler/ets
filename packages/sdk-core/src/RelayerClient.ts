@@ -1,7 +1,8 @@
 import type { Account, Address, Hex, PublicClient, WalletClient } from "viem";
-import { etsRelayerV1ABI, etsTokenConfig, etsTokenABI } from "../contracts/contracts";
+import { etsRelayerV1ABI } from "../contracts/contracts";
+import { TokenClient } from "./TokenClient";
 
-export class ETSClient {
+export class RelayerClient {
   private readonly chainId: number;
   private readonly publicClient: PublicClient;
   private readonly walletClient: WalletClient | undefined;
@@ -43,8 +44,14 @@ export class ETSClient {
 
     const etsConfig = { address: relayerAddress, abi: etsRelayerV1ABI };
 
+    const etsToken = new TokenClient({
+      chainId: this.publicClient.chain?.id ?? 0,
+      publicClient: this.publicClient,
+      walletClient: this.walletClient,
+    });
+
     if (tags.length > 0) {
-      const existingTags = await this.existingTags(tags);
+      const existingTags = await etsToken.existingTags(tags);
       const tagsToMint = tags.filter((tag) => !existingTags.includes(tag));
 
       if (tagsToMint.length > 0) {
@@ -75,82 +82,5 @@ export class ETSClient {
     }
 
     return { transactionHash: "", status: 0 };
-  }
-
-  async existingTags(tags: string[]): Promise<string[]> {
-    try {
-      const existingTags = [];
-
-      for (let tag of tags) {
-        const exists = await this.tagExists(tag);
-
-        if (exists) {
-          existingTags.push(tag);
-        }
-      }
-
-      return existingTags;
-    } catch (error) {
-      console.error("Error checking if tag exists:", error);
-      throw error;
-    }
-  }
-
-  async tagExists(tag: string): Promise<boolean> {
-    const tagId = await this.computeTagId(tag);
-
-    try {
-      const exists = await this.publicClient.readContract({
-        address: etsTokenConfig.address,
-        abi: etsTokenABI,
-        functionName: "tagExistsById",
-        args: [tagId],
-      });
-
-      return exists;
-    } catch (error) {
-      console.error("Error checking if tag exists:", error);
-      throw error;
-    }
-  }
-
-  async computeTagId(tag: string): Promise<bigint> {
-    try {
-      const tagId = await this.publicClient.readContract({
-        address: etsTokenConfig.address,
-        abi: etsTokenABI,
-        functionName: "computeTagId",
-        args: [tag],
-      });
-
-      return tagId;
-    } catch (error) {
-      console.error("Error computing tag ID:", error);
-      throw error;
-    }
-  }
-  async fetchHasTags(address: `0x${string}` | undefined): Promise<boolean> {
-    // Check if the address is undefined or not properly formatted
-    if (!address || !address.startsWith("0x")) {
-      console.error("Invalid address");
-      return false;
-    }
-    const data = await this.publicClient.readContract({
-      ...etsTokenConfig,
-      functionName: "balanceOf",
-      args: [address],
-    });
-
-    return data > BigInt(0);
-  }
-
-  async computeTagIds(tags: string[]): Promise<bigint[]> {
-    try {
-      const tagIds = await Promise.all(tags.map((tag) => this.computeTagId(tag)));
-      return tagIds;
-    } catch (error) {
-      console.error("Error computing tag IDs:", error);
-      throw error;
-    }
   }
 }
