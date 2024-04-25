@@ -21,6 +21,7 @@ import TransactionFlowWrapper from "@app/components/transaction/TransactionFlowW
 import { AuctionProvider } from "@app/context/AuctionContext";
 import AuctionActions from "@app/components/auction/AuctionActions";
 import { AuctionHouseProvider } from "@app/context/AuctionHouseContext";
+import AuctionTimer from "@app/components/auction/AuctionTimer";
 
 const Auction: NextPage = () => {
   const { t } = useTranslation("common");
@@ -39,21 +40,37 @@ const Auction: NextPage = () => {
               {
                 title: "#",
                 field: "id",
-                formatter: (id) => (
+                formatter: (id, auction) => (
                   <Link className="link-primary block" href={`/auction/${id}`}>
                     {id}
                   </Link>
                 ),
               },
-              { title: "tag", field: "tag", formatter: (tag) => <Tag tag={tag} /> },
-              { title: "current bid", field: "amount", formatter: (value) => `${toEth(value, 4)}` },
-              { title: "bidder", field: "bidder.id", formatter: Truncate },
-              { title: "time left", field: "endTime", formatter: (value) => <TimeAgo date={value * 1000} /> },
+              {
+                title: "tag",
+                field: "tag",
+                formatter: (tag, auction) => <Tag tag={tag} />, // 'tag' is derived from 'auction.tag'
+              },
+              {
+                title: "current bid",
+                field: "amount",
+                formatter: (value, auction) => (auction.startTime === 0 ? "—" : `${toEth(value, 5)} ETH`),
+              },
+              {
+                title: "bidder",
+                field: "bidder.id",
+                formatter: (value, auction) => (auction.startTime === 0 ? "—" : Truncate(value)),
+              },
+              {
+                title: "time left",
+                field: "endTime",
+                formatter: (value, auction) => <AuctionTimer auction={auction} />, // 'value' is 'auction.endTime'
+              },
               {
                 title: "",
                 field: "id",
-                formatter: (auction) => (
-                  <AuctionProvider auctionId={Number(auction.id)}>
+                formatter: (id, auction) => (
+                  <AuctionProvider auctionId={Number(id)}>
                     <AuctionActions auction={auction} />
                   </AuctionProvider>
                 ),
@@ -80,10 +97,10 @@ const Auction: NextPage = () => {
                 </Link>
               ),
             },
-            { title: "tag", field: "tag", formatter: (tag) => <Tag tag={tag} /> },
-            { title: "price", field: "amount", formatter: (value) => `${toEth(value, 4)}` },
-            { title: "winner", field: "bidder.id", formatter: Truncate },
-            { title: "ended", field: "endTime", formatter: (value) => <TimeAgo date={value * 1000} /> },
+            { title: "tag", field: "tag", formatter: (tag, auction) => <Tag tag={tag} /> },
+            { title: "price", field: "amount", formatter: (value, auction) => `${toEth(value, 4)}` },
+            { title: "winner", field: "bidder.id", formatter: (value, auction) => Truncate(value) },
+            { title: "ended", field: "endTime", formatter: (value, auction) => <TimeAgo date={value * 1000} /> },
           ]}
         />
       </div>

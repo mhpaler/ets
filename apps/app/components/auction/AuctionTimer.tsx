@@ -51,16 +51,13 @@ const AuctionTimer: React.FC<AuctionTimerProps> = ({ auction }) => {
 
   return (
     <div>
-      <div>{t("AUCTION.TIME_LEFT")}</div>
-      <div className="text-2xl font-semibold">
-        {auction.startTime === 0 ? (
-          <div>{t("AUCTION.BID_TO_START")}</div>
-        ) : auction.ended ? (
-          <div>{t("AUCTION.ENDED")}</div>
-        ) : (
-          <div>{formatTimeLeft(timeLeft)}</div>
-        )}
-      </div>
+      {auction.startTime === 0 ? (
+        <div>{t("AUCTION.BID_TO_START")}</div>
+      ) : auction.ended ? (
+        <div>{t("AUCTION.ENDED")}</div>
+      ) : (
+        <div>{formatTimeLeft(timeLeft)}</div>
+      )}
     </div>
   );
 };

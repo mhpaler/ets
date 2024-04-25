@@ -1,5 +1,5 @@
 import React from "react";
-import { Bid } from "@app/types/auction.js";
+import { Bid } from "@app/types/auction";
 import { Truncate } from "@app/components/Truncate";
 import { makeScannerLink } from "@app/utils";
 import { Outlink } from "@app/components/Outlink";

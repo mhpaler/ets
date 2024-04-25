@@ -1,6 +1,7 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
+import { Auction } from "@app/types/auction";
 import { globalSettings } from "@app/config/globalSettings";
 import { useAuctions } from "@app/hooks/useAuctions";
 import { Table } from "@app/components/Table";
@@ -9,7 +10,7 @@ import { Button } from "@app/components/Button";
 type ColumnConfig = {
   title: string; // The display name of the column
   field: string; // The field in the auction data object
-  formatter?: (value: any, auction?: any) => JSX.Element | string; // Optional formatter function
+  formatter?: (value: any, auction: Auction) => JSX.Element | string; // Optional formatter function, now includes the whole auction as a parameter
 };
 
 type Props = {
@@ -17,10 +18,8 @@ type Props = {
   pageSize?: number;
   orderBy?: string;
   title?: string;
-  columnsConfig: ColumnConfig[]; // Array of column configurations
+  columnsConfig: ColumnConfig[];
 };
-
-// { relayer_: { id: relayer } },
 
 const Auctions: NextPage<Props> = ({
   title,
@@ -31,7 +30,7 @@ const Auctions: NextPage<Props> = ({
 }) => {
   const { t } = useTranslation("common");
   const [skip, setSkip] = useState(0);
-  const { auctions, nextAuctions } = useAuctions({
+  const { auctions, nextAuctions, isLoading } = useAuctions({
     filter: filter,
     pageSize: pageSize,
     orderBy: orderBy,
@@ -42,21 +41,19 @@ const Auctions: NextPage<Props> = ({
       revalidateOnReconnect: false,
       refreshWhenOffline: false,
       refreshWhenHidden: false,
-      refreshInterval: 0,
+      refreshInterval: 3000,
     },
   });
 
-  const nextPage = () => {
-    setSkip(skip + pageSize);
-  };
+  // TODO: Display auctions loading indicator
+  /* if (isLoading) {
+    console.log("Auctions are loading...");
+  } else if (auctions) {
+    console.log("Auctions loaded:", auctions);
+  } */
 
-  const prevPage = () => {
-    setSkip(skip - pageSize);
-  };
-
-  const showPrevNext = () => {
-    return (nextAuctions && nextAuctions.length > 0) || (skip && skip !== 0) ? true : false;
-  };
+  const nextPage = () => setSkip(skip + pageSize);
+  const prevPage = () => setSkip(skip - pageSize);
 
   function getValueByPath<T>(obj: T, path: string): any {
     return path.split(".").reduce<any>((acc, part) => acc && acc[part], obj);
@@ -78,7 +75,7 @@ const Auctions: NextPage<Props> = ({
               {columnsConfig.map((column) => (
                 <Table.Cell key={column.field}>
                   {column.formatter
-                    ? column.formatter(getValueByPath(auction, column.field))
+                    ? column.formatter(getValueByPath(auction, column.field), auction) // Pass the whole auction object
                     : getValueByPath(auction, column.field)}
                 </Table.Cell>
               ))}

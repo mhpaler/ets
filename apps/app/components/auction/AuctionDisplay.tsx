@@ -12,6 +12,8 @@ import AuctionSummary from "@app/components/auction/AuctionSummary";
 import AuctionBids from "@app/components/auction/AuctionBids";
 import { Truncate } from "@app/components/Truncate";
 
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
+
 import TransactionDebug from "@app/components/transaction/shared/TransactionDebug";
 
 const AuctionDisplay = () => {
@@ -24,6 +26,7 @@ const AuctionDisplay = () => {
     return null;
   }
 
+  const chain = useCurrentChain();
   const isFirstAuction = auction.id == 1 ? true : false;
   const isLastAuction = auction.id == maxAuctionId ? true : false;
   const tagGraphic = auction && <TagGraphic tag={auction.tag} />;
@@ -47,7 +50,9 @@ const AuctionDisplay = () => {
             <div className="flex w-full mb-8 items-center">
               <div className="flex flex-grow flex-col items-start justify-center">
                 <div>{auction.ended ? t("AUCTION.WINNING_BID") : t("AUCTION.CURRENT_BID")}</div>
-                <div className="text-2xl font-semibold">{auction.amountDisplay} MATIC</div>
+                <div className="text-2xl font-semibold">
+                  {auction.amountDisplay} {chain?.nativeCurrency.symbol}
+                </div>
               </div>
               <div className="divider h-20 divider-horizontal" />
               <div className="flex flex-grow flex-col items-start justify-center">
@@ -70,7 +75,12 @@ const AuctionDisplay = () => {
                     </>
                   )
                 ) : (
-                  <AuctionTimer auction={auction} />
+                  <>
+                    <div>{t("AUCTION.TIME_LEFT")}</div>
+                    <div className="text-2xl font-semibold">
+                      <AuctionTimer auction={auction} />
+                    </div>
+                  </>
                 )}
               </div>
             </div>

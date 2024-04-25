@@ -95,7 +95,7 @@ export function useAuctions({
         settled: auction.settled,
         reservePrice: BigInt(auction.reservePrice),
         amount: BigInt(auction.amount),
-        amountDisplay: formatEtherWithDecimals(auction.amount, 4),
+        amountDisplay: formatEtherWithDecimals(auction.amount, 5),
         bidder: {
           id: auction.bidder.id,
         },
@@ -103,7 +103,7 @@ export function useAuctions({
           id: bid.id,
           blockTimestamp: Number(bid.blockTimestamp),
           amount: BigInt(bid.amount),
-          amountDisplay: formatEtherWithDecimals(bid.amount, 4),
+          amountDisplay: formatEtherWithDecimals(bid.amount, 5),
           bidder: {
             id: bid.bidder.id,
           },
