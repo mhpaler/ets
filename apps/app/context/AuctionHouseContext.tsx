@@ -13,7 +13,7 @@
  */
 
 import React, { createContext, useState, useEffect, useRef } from "react";
-import { Auction, AuctionHouse } from "@app/types/auction";
+import { AuctionHouse } from "@app/types/auction";
 import { useAuctions } from "@app/hooks/useAuctions";
 
 import {
@@ -34,7 +34,7 @@ const defaultAuctionHouseContextValue: AuctionHouse = {
   timeBuffer: 0,
   maxAuctionId: null,
   activeAuctions: [], // released and active
-  mutateActiveAuctions: async () => undefined, // No-op async function
+  refreshAuctions: async () => undefined, // No-op async function
 };
 /**
  * Creating a React context for the auction house with undefined initial value.
@@ -71,7 +71,7 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
     auctions: activeAuctions,
     isLoading, // TODO: Expose isLoading & isError to consumers?
     isError,
-    mutate: mutateActiveAuctions,
+    mutate: refreshAuctions,
   } = useAuctions({
     pageSize: 200, // Adjust pageSize, skip, orderBy, and filter as needed
     skip: 0,
@@ -134,7 +134,7 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
     timeBuffer,
     maxAuctionId,
     activeAuctions: activeAuctions || [], // Ensure it defaults to []
-    mutateActiveAuctions,
+    refreshAuctions,
   };
 
   // Providing the auction house context to child components.

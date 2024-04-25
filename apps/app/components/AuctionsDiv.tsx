@@ -2,14 +2,14 @@ import { useState } from "react";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import { globalSettings } from "@app/config/globalSettings";
-import { useAuctions } from "@app/hooks/useAuctions";
-import { Table } from "@app/components/Table";
+import { useAuctions } from "../hooks/useAuctions";
+import { DivTable, DivTableHead, DivTableRow, DivTableCell, DivTableBody } from "@app/components/DivTable";
 import { Button } from "@app/components/Button";
 
 type ColumnConfig = {
-  title: string; // The display name of the column
-  field: string; // The field in the auction data object
-  formatter?: (value: any, auction?: any) => JSX.Element | string; // Optional formatter function
+  title: string;
+  field: string;
+  formatter?: (value: any) => JSX.Element | string;
 };
 
 type Props = {
@@ -17,13 +17,10 @@ type Props = {
   pageSize?: number;
   orderBy?: string;
   title?: string;
-  columnsConfig: ColumnConfig[]; // Array of column configurations
+  columnsConfig: ColumnConfig[];
 };
 
-// { relayer_: { id: relayer } },
-
-const Auctions: NextPage<Props> = ({
-  title,
+const AuctionsDiv: NextPage<Props> = ({
   filter,
   pageSize = globalSettings["DEFAULT_PAGESIZE"],
   orderBy,
@@ -55,7 +52,7 @@ const Auctions: NextPage<Props> = ({
   };
 
   const showPrevNext = () => {
-    return (nextAuctions && nextAuctions.length > 0) || (skip && skip !== 0) ? true : false;
+    return (nextAuctions && nextAuctions.length > 0) || (skip && skip !== 0);
   };
 
   function getValueByPath<T>(obj: T, path: string): any {
@@ -64,44 +61,42 @@ const Auctions: NextPage<Props> = ({
 
   return (
     <div className="max-w-7xl mx-auto">
-      <Table loading={!auctions} rows={pageSize}>
-        <Table.Head>
-          <Table.Tr>
+      <DivTable loading={!auctions}>
+        <DivTableHead>
+          <DivTableRow>
             {columnsConfig.map((column) => (
-              <Table.Th key={column.title}>{t(column.title)}</Table.Th>
+              <DivTableCell key={column.title} isHeader={true}>
+                {t(column.title)}
+              </DivTableCell>
             ))}
-          </Table.Tr>
-        </Table.Head>
-        <Table.Body>
+          </DivTableRow>
+        </DivTableHead>
+        <DivTableBody>
           {auctions?.map((auction) => (
-            <Table.Tr key={auction.id}>
+            <DivTableRow key={auction.id}>
               {columnsConfig.map((column) => (
-                <Table.Cell key={column.field}>
+                <DivTableCell key={column.field}>
                   {column.formatter
                     ? column.formatter(getValueByPath(auction, column.field))
                     : getValueByPath(auction, column.field)}
-                </Table.Cell>
+                </DivTableCell>
               ))}
-            </Table.Tr>
+            </DivTableRow>
           ))}
-        </Table.Body>
-        {nextAuctions?.length > 0 || skip !== 0 ? (
-          <Table.Footer>
-            <tr>
-              <td className="flex justify-between">
-                <Button disabled={skip === 0} onClick={prevPage}>
-                  {t("prev")}
-                </Button>
-                <Button disabled={!nextAuctions || nextAuctions.length === 0} onClick={nextPage}>
-                  {t("next")}
-                </Button>
-              </td>
-            </tr>
-          </Table.Footer>
-        ) : null}
-      </Table>
+        </DivTableBody>
+      </DivTable>
+      {showPrevNext() && (
+        <div className="flex justify-between my-4">
+          <Button disabled={skip === 0} onClick={prevPage}>
+            {t("prev")}
+          </Button>
+          <Button disabled={!nextAuctions || nextAuctions.length === 0} onClick={nextPage}>
+            {t("next")}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
 
-export { Auctions };
+export { AuctionsDiv };

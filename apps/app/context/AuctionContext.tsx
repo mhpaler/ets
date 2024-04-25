@@ -47,7 +47,7 @@ export const AuctionProvider: React.FC<AuctionProps> = ({
   children: React.ReactNode;
   auctionId: number | null;
 }) => {
-  const { activeAuctions, mutateActiveAuctions } = useAuctionHouse(); // Access AuctionHouse context
+  const { activeAuctions, refreshAuctions } = useAuctionHouse(); // Access AuctionHouse context
   const [auction, setAuction] = useState<Auction | null>(null);
   const [auctionEndTimeUI, setAuctionEndTimeUI] = useState<number>(0);
   const [bidFormData, setBidFormData] = useState<BidFormData>({
@@ -73,7 +73,7 @@ export const AuctionProvider: React.FC<AuctionProps> = ({
 
   // Function to add a new bid to an auction
   const addBidToAuction = (auctionOnChain: AuctionOnChain, newBid: Bid) => {
-    mutateActiveAuctions((current: FetchAuctionsResponse | undefined) => {
+    refreshAuctions((current: FetchAuctionsResponse | undefined) => {
       if (!current || !current.auctions) return current;
 
       const updatedAuctions = current.auctions.map((auction) => {
@@ -99,7 +99,7 @@ export const AuctionProvider: React.FC<AuctionProps> = ({
   // Function to optimistically update an auction's ended status in UI
   // see /app/components/auction/AuctionTimer.tsx
   const endAuction = (auctionId: number) => {
-    mutateActiveAuctions((current: FetchAuctionsResponse | undefined) => {
+    refreshAuctions((current: FetchAuctionsResponse | undefined) => {
       if (!current || !current.auctions) return current;
 
       const updatedAuctions = current.auctions.map((auction: Auction) => {
@@ -116,7 +116,7 @@ export const AuctionProvider: React.FC<AuctionProps> = ({
 
   // Function to optimistically update an auction's settled status
   const settleAuction = (auctionId: number) => {
-    mutateActiveAuctions((current: FetchAuctionsResponse | undefined) => {
+    refreshAuctions((current: FetchAuctionsResponse | undefined) => {
       if (!current || !current.auctions) return current;
 
       const updatedAuctions = current.auctions.map((auction: Auction) => {

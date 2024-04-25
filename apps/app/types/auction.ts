@@ -36,6 +36,7 @@ export type Auction = {
   };
   bids: Bid[];
   tag: Tag;
+  [key: string]: any;
 };
 
 export type Bid = {
@@ -67,7 +68,7 @@ export type AuctionHouse = {
   timeBuffer: number | 0;
   maxAuctionId: number | null;
   activeAuctions: Auction[];
-  mutateActiveAuctions: KeyedMutator<FetchAuctionsResponse>;
+  refreshAuctions: KeyedMutator<FetchAuctionsResponse>;
 };
 
 export type AuctionContextType = {

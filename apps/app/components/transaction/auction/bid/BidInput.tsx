@@ -12,6 +12,7 @@ import { useCloseModal } from "@app/hooks/useCloseModal";
 import { useTransaction } from "@app/hooks/useTransaction";
 import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useAuction } from "@app/hooks/useAuctionContext";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
 
 import TransactionFormActions from "@app/components/transaction/shared/TransactionFormActions";
 
@@ -25,6 +26,7 @@ const BidInput: React.FC<FormStepProps> = ({ goToNextStep }) => {
   const { resetTransaction } = useTransaction();
   const { minIncrementBidPercentage } = useAuctionHouse();
   const { auction, bidFormData, setBidFormData } = useAuction();
+  const chain = useCurrentChain();
 
   const [isFormDisabled, setIsFormDisabled] = useState(true);
   const [parsedMinimumBidIncrement, setParsedMinimumBidIncrement] = useState<number>(0);
@@ -61,6 +63,8 @@ const BidInput: React.FC<FormStepProps> = ({ goToNextStep }) => {
 
   // Watch the 'name' input field for changes and debounce the input value.
   const bidValue = watch("bid", undefined);
+  console.log(auction);
+  //console.log(reservePrice);
 
   useEffect(() => {
     setBidFormData({ bid: undefined });
@@ -79,6 +83,7 @@ const BidInput: React.FC<FormStepProps> = ({ goToNextStep }) => {
     const scaleFactor: bigint = BigInt(100); // Scale factor to allow for "decimal" operations in bigint
     const percentageFactor: bigint = BigInt(minIncrementBidPercentage); // Convert percentage to bigint
     const minimumBidIncrement: string = formatEther(currentBid + (currentBid * percentageFactor) / scaleFactor);
+
     setParsedMinimumBidIncrement(auction.startTime === 0 ? parseFloat(reservePrice) : parseFloat(minimumBidIncrement));
   }, [auction, minIncrementBidPercentage]);
 
@@ -137,7 +142,7 @@ const BidInput: React.FC<FormStepProps> = ({ goToNextStep }) => {
               })}
               className="grow"
             />
-            <span className="badge font-bold">MATIC</span>
+            <span className="badge font-bold">{chain?.nativeCurrency.symbol}</span>
             {errors.bid && (
               <span className="text-error">
                 <Alert />
@@ -158,7 +163,7 @@ const BidInput: React.FC<FormStepProps> = ({ goToNextStep }) => {
                 >
                   &nbsp;{parsedMinimumBidIncrement}
                 </button>
-                &nbsp;MATIC&nbsp;
+                &nbsp;{chain?.nativeCurrency.symbol}&nbsp;
                 {t("AUCTION.BID_PLACEHOLDER_AFTER")}
               </span>
             )}
