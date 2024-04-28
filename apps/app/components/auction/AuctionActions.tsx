@@ -8,22 +8,28 @@ import TransactionFlowWrapper from "@app/components/transaction/TransactionFlowW
 
 interface AuctionActionsProps {
   auction: Auction;
+  buttonClasses?: string;
 }
-const AuctionActions: React.FC<AuctionActionsProps> = ({ auction }) => {
+const AuctionActions: React.FC<AuctionActionsProps> = ({ auction, buttonClasses }) => {
   const { t } = useTranslation("common");
   const { isConnected } = useAccount();
   const transactionType = auction.ended ? TransactionType.SettleAuction : TransactionType.Bid;
   const buttonLabel = auction.ended ? t("AUCTION.SETTLE_BUTTON") : t("AUCTION.PLACE_BID_BUTTON");
   // Hide the button so the modal doesn't close automatically when auction is settled.
   const hideButton = auction.ended && auction.settled;
-  const buttonClasses = `btn-primary btn-outline btn-block ${hideButton ? "hidden" : ""}`;
+
+  const visibilityClass = hideButton ? "hidden" : "";
+  // Include any additional classes passed via props
+  const extraClasses = buttonClasses ? buttonClasses : "";
+  const finalButtonClasses = `${visibilityClass} ${extraClasses}`;
+  const modalId = `auction-actions-${auction.id}`;
 
   return (
     <div>
       {!isConnected ? (
-        <ConnectButtonETS className="btn-outline btn-block" />
+        <ConnectButtonETS className={finalButtonClasses} />
       ) : (
-        <Modal label={buttonLabel} buttonClasses={buttonClasses}>
+        <Modal id={modalId} label={buttonLabel} buttonClasses={finalButtonClasses}>
           <TransactionFlowWrapper transactionType={transactionType} />
         </Modal>
       )}

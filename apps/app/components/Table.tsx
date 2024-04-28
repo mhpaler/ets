@@ -170,11 +170,17 @@ const Td = ({ children }: { children: ReactNode }) => {
   return <td>{children}</td>;
 };
 
-const Tr = ({ children }: { children: ReactNode }) => {
+const Tr = ({ children, onClick }: { children: ReactNode; onClick?: () => void }) => {
   const {} = useTableContext("Table.Row");
 
-  // Use a state variable to track whether the row is even or odd
-  return <tr className="hover:bg-base-200">{children}</tr>;
+  // Determine the cursor class based on whether an onClick handler is provided
+  const trClasses = classNames("hover:bg-base-200", onClick ? "cursor-pointer" : "cursor-auto");
+
+  return (
+    <tr className={trClasses} onClick={onClick}>
+      {children}
+    </tr>
+  );
 };
 
 const CellLink = ({ value, url }: { value: string; url: string }) => {

@@ -85,7 +85,7 @@ const AuctionDisplay = () => {
               </div>
             </div>
 
-            <AuctionActions auction={auction} />
+            <AuctionActions auction={auction} buttonClasses="btn-primary btn-outline btn-block" />
             <AuctionSummary auction={auction} />
             <AuctionBids auction={auction} />
           </div>

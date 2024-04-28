@@ -33,13 +33,6 @@ type AuctionProps = {
   auctionId: number | null;
 };
 
-/**
- * The AuctionHouseProvider component manages and provides auction context to its child components.
- * It initializes and updates auction-related data based on user interactions and blockchain events.
- *
- * @param children - The child components of the AuctionProvider.
- * @param auctionId - The ID of the auction requested by the user, used to fetch specific auction data.
- */
 export const AuctionProvider: React.FC<AuctionProps> = ({
   children,
   auctionId,
@@ -47,7 +40,7 @@ export const AuctionProvider: React.FC<AuctionProps> = ({
   children: React.ReactNode;
   auctionId: number | null;
 }) => {
-  const { activeAuctions, refreshAuctions } = useAuctionHouse(); // Access AuctionHouse context
+  const { allAuctions, refreshAuctions } = useAuctionHouse(); // Access AuctionHouse context
   const [auction, setAuction] = useState<Auction | null>(null);
   const [auctionEndTimeUI, setAuctionEndTimeUI] = useState<number>(0);
   const [bidFormData, setBidFormData] = useState<BidFormData>({
@@ -55,8 +48,8 @@ export const AuctionProvider: React.FC<AuctionProps> = ({
   });
 
   useEffect(() => {
-    if (activeAuctions.length > 0 && auctionId !== null) {
-      const foundAuction = activeAuctions.find((auction) => auction.id === auctionId) ?? null;
+    if (allAuctions.length > 0 && auctionId !== null) {
+      const foundAuction = allAuctions.find((auction) => auction.id === auctionId) ?? null;
       if (!foundAuction) {
         // TODO: Redirect user to "404 not found" page
         console.error(`Failed to find auction with ID: ${auctionId}`);
@@ -64,7 +57,7 @@ export const AuctionProvider: React.FC<AuctionProps> = ({
         setAuction(foundAuction);
       }
     }
-  }, [auctionId, activeAuctions]);
+  }, [auctionId, allAuctions]);
 
   if (!auction) {
     // Optionally show a loading state here instead of rendering nothing

@@ -14,10 +14,12 @@ import "@rainbow-me/rainbowkit/styles.css";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
+import { wagmiConfig } from "@app/config/wagmiConfig";
 import { hardhat, arbitrumSepolia } from "wagmi/chains";
+import { ModalProvider } from "@app/context/ModalContext";
 import { SystemProvider } from "@app/context/SystemContext";
 import { TransactionProvider } from "@app/context/TransactionContext";
-import { wagmiConfig } from "@app/config/wagmiConfig";
+import { AuctionHouseProvider } from "@app/context/AuctionHouseContext";
 
 const initialChain = process.env.NEXT_PUBLIC_ETS_ENVIRONMENT === "development" ? hardhat : arbitrumSepolia;
 
@@ -29,19 +31,23 @@ Router.events.on("routeChangeComplete", nProgress.done);
 
 function App({ Component, pageProps }: AppProps<{ session: Session }>) {
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider initialChain={initialChain}>
-          <SWRConfig value={{ refreshInterval: 3000, fetcher: fetcher }}>
-            <SystemProvider>
-              <TransactionProvider>
-                <Component {...pageProps} />
-              </TransactionProvider>
-            </SystemProvider>
-          </SWRConfig>
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <ModalProvider>
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <RainbowKitProvider initialChain={initialChain}>
+            <SWRConfig value={{ refreshInterval: 3000, fetcher: fetcher }}>
+              <AuctionHouseProvider>
+                <SystemProvider>
+                  <TransactionProvider>
+                    <Component {...pageProps} />
+                  </TransactionProvider>
+                </SystemProvider>
+              </AuctionHouseProvider>
+            </SWRConfig>
+          </RainbowKitProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
+    </ModalProvider>
   );
 }
 

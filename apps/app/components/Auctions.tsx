@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import type { NextPage } from "next";
-import useTranslation from "next-translate/useTranslation";
+import { useRouter } from "next/router";
 import { Auction } from "@app/types/auction";
-import { globalSettings } from "@app/config/globalSettings";
+import useTranslation from "next-translate/useTranslation";
+import { useModal } from "@app/hooks/useModalContext"; // Adjust the import path as necessary
 import { useAuctions } from "@app/hooks/useAuctions";
+import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
+
+import { globalSettings } from "@app/config/globalSettings";
 import { Table } from "@app/components/Table";
 import { Button } from "@app/components/Button";
 
@@ -14,23 +18,32 @@ type ColumnConfig = {
 };
 
 type Props = {
-  filter?: any;
-  pageSize?: number;
-  orderBy?: string;
+  listId: string;
   title?: string;
+  pageSize?: number;
+  auctions: Auction[];
+  //filter?: any;
+  //orderBy?: string;
   columnsConfig: ColumnConfig[];
+  rowLink: boolean; // Function to generate link URL based on auction data
 };
 
 const Auctions: NextPage<Props> = ({
+  listId,
   title,
-  filter,
+  auctions,
   pageSize = globalSettings["DEFAULT_PAGESIZE"],
-  orderBy,
+  //filter,
+  //orderBy,
   columnsConfig,
+  rowLink = false, // Default to false if not provided
 }) => {
   const { t } = useTranslation("common");
+  const router = useRouter();
   const [skip, setSkip] = useState(0);
-  const { auctions, nextAuctions, isLoading } = useAuctions({
+  const { isModalOpen } = useModal();
+
+  /* const { auctions, nextAuctions, isLoading } = useAuctions({
     filter: filter,
     pageSize: pageSize,
     orderBy: orderBy,
@@ -43,15 +56,9 @@ const Auctions: NextPage<Props> = ({
       refreshWhenHidden: false,
       refreshInterval: 3000,
     },
-  });
+  }); */
 
-  // TODO: Display auctions loading indicator
-  /* if (isLoading) {
-    console.log("Auctions are loading...");
-  } else if (auctions) {
-    console.log("Auctions loaded:", auctions);
-  } */
-
+  console.log("Auctions", auctions);
   const nextPage = () => setSkip(skip + pageSize);
   const prevPage = () => setSkip(skip - pageSize);
 
@@ -59,21 +66,30 @@ const Auctions: NextPage<Props> = ({
     return path.split(".").reduce<any>((acc, part) => acc && acc[part], obj);
   }
 
+  const handleRowClick = (auctionId: number) => {
+    console.log("handleRowClick", isModalOpen);
+    if (!isModalOpen && rowLink) {
+      // Only navigate if the modal is not open
+      router.push(`/auction/${auctionId}`);
+    }
+  };
+
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="col-span-12">
+      {title && <h2 className="text-2xl font-bold pb-4">{title}</h2>}
       <Table loading={!auctions} rows={pageSize}>
         <Table.Head>
           <Table.Tr>
-            {columnsConfig.map((column) => (
-              <Table.Th key={column.title}>{t(column.title)}</Table.Th>
+            {columnsConfig.map((column, index) => (
+              <Table.Th key={`${listId}-${column.title}-${index}`}>{t(column.title)}</Table.Th>
             ))}
           </Table.Tr>
         </Table.Head>
         <Table.Body>
           {auctions?.map((auction) => (
-            <Table.Tr key={auction.id}>
-              {columnsConfig.map((column) => (
-                <Table.Cell key={column.field}>
+            <Table.Tr key={`${listId}-${auction.id}`} onClick={rowLink ? () => handleRowClick(auction.id) : undefined}>
+              {columnsConfig.map((column, index) => (
+                <Table.Cell key={`${listId}-${auction.id}-${index}-${column.field}`}>
                   {column.formatter
                     ? column.formatter(getValueByPath(auction, column.field), auction) // Pass the whole auction object
                     : getValueByPath(auction, column.field)}
@@ -82,7 +98,7 @@ const Auctions: NextPage<Props> = ({
             </Table.Tr>
           ))}
         </Table.Body>
-        {nextAuctions?.length > 0 || skip !== 0 ? (
+        {/* {nextAuctions?.length > 0 || skip !== 0 ? (
           <Table.Footer>
             <tr>
               <td className="flex justify-between">
@@ -95,7 +111,7 @@ const Auctions: NextPage<Props> = ({
               </td>
             </tr>
           </Table.Footer>
-        ) : null}
+        ) : null} */}
       </Table>
     </div>
   );

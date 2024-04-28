@@ -10,11 +10,12 @@ import { Wallet, CheckCircle } from "@app/components/icons";
 
 import { TransactionError } from "@app/components/transaction/shared/TransactionError";
 import { TransactionLink } from "@app/components/transaction/shared/TransactionLink";
-
-import { useCloseModal } from "@app/hooks/useCloseModal";
-import { useAuction } from "@app/hooks/useAuctionContext";
-import { useTransaction } from "@app/hooks/useTransaction";
 import TransactionConfirmActions from "@app/components/transaction/shared/TransactionConfirmActions";
+
+import { useModal } from "@app/hooks/useModalContext";
+import { useAuction } from "@app/hooks/useAuctionContext";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
+import { useTransaction } from "@app/hooks/useTransaction";
 import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels"; // Adjust the import path as necessary
 
 interface FormStepProps {
@@ -25,8 +26,9 @@ interface FormStepProps {
 const BidConfirm: React.FC<FormStepProps> = ({ goToStep }) => {
   const { t } = useTranslation("common");
 
-  const { closeModal } = useCloseModal();
+  const { closeModal } = useModal();
   const { auction, bidFormData, setBidFormData } = useAuction();
+  const chain = useCurrentChain();
   const { initiateTransaction, resetTransaction, isSuccess, hash, isError, errorMessage } = useTransaction();
   const { dialogTitle } = useTransactionLabels(); // Use the hook
 
@@ -91,7 +93,7 @@ const BidConfirm: React.FC<FormStepProps> = ({ goToStep }) => {
           <div className="flex flex-row justify-between h-14 items-center pl-6 pr-6 rounded-box border-2 border-base-300">
             <div className="">{t("AUCTION.BID_AMOUNT")}</div>
             <div className="font-bold">
-              {bidFormData.bid} <span className="text-xs">MATIC</span>
+              {bidFormData.bid} <span className="text-xs">{chain?.nativeCurrency.symbol}</span>
             </div>
           </div>
 

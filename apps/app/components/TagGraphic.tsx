@@ -1,8 +1,8 @@
-import { Tag } from "@app/types/tag";
+import { TagType } from "@app/types/tag";
 
 // Define the TagGraphicProps type to include a tag of type Tag
 interface TagGraphicProps {
-  tag: Tag;
+  tag: TagType;
 }
 const TagGraphic: React.FC<TagGraphicProps> = (props: TagGraphicProps) => {
   const { tag } = props;

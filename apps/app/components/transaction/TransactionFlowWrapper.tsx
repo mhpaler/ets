@@ -72,6 +72,7 @@ const TransactionFlowWrapper: React.FC<FlowWrapperProps> = ({ transactionType })
     }
   }, [isPending, hash, isError, steps.length]);
 
+  console.log("currentStepIndex", currentStepIndex);
   const CurrentStepComponent = steps[currentStepIndex].component;
   const currentStepProps = steps[currentStepIndex].props;
 

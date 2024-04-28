@@ -33,7 +33,7 @@ const defaultAuctionHouseContextValue: AuctionHouse = {
   duration: null,
   timeBuffer: 0,
   maxAuctionId: null,
-  activeAuctions: [], // released and active
+  allAuctions: [], // released and active
   refreshAuctions: async () => undefined, // No-op async function
 };
 /**
@@ -66,14 +66,13 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
   const [timeBuffer, setTimeBuffer] = useState<number>(0);
   const [maxAuctionId, setMaxAuctionId] = useState<number>(0);
 
-  // Call useAuctions hook to fetch auction data
   const {
-    auctions: activeAuctions,
+    auctions: allAuctions,
     isLoading, // TODO: Expose isLoading & isError to consumers?
     isError,
     mutate: refreshAuctions,
   } = useAuctions({
-    pageSize: 200, // Adjust pageSize, skip, orderBy, and filter as needed
+    pageSize: 1000, // Adjust pageSize, skip, orderBy, and filter as needed
     skip: 0,
     orderBy: "endTime",
     filter: {}, // Add filter criteria if required
@@ -87,6 +86,17 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
     },
   });
 
+  // Log changes to allAuctions
+  useEffect(() => {
+    console.log("AuctionHouseContext: allAuctions updated:", allAuctions);
+  }, [allAuctions]);
+
+  useEffect(() => {
+    console.log("AuctionHouseContext: Fetching auction settings and data...");
+    fetchAuctionSettings();
+    startWatchers();
+  }, []); // Empty dependency array ensures this effect runs only once
+
   const fetchAuctionSettings = async () => {
     try {
       const currentId = await fetchCurrentAuctionId();
@@ -98,8 +108,29 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
       setMinIncrementBidPercentage(auctionSettings.minIncrementBidPercentage);
       setDuration(auctionSettings.duration);
       setTimeBuffer(auctionSettings.timeBuffer);
+
+      console.log("AuctionHouseContext: Auction settings fetched and state updated.");
     } catch (error) {
-      console.error("Failed to initialize auction data:", error);
+      console.error("AuctionHouseContext: Failed to initialize auction data:", error);
+    }
+  };
+
+  const startWatchers = async () => {
+    try {
+      const unwatchNewAuction = watchNewAuctionReleased(fetchAuctionSettings);
+      const unwatchAuctionPaused = watchAuctionPaused(handleAuctionPauseToggled);
+      const unwatchAuctionUnpaused = watchAuctionUnpaused(handleAuctionPauseToggled);
+
+      console.log("AuctionHouseContext: auction watchers started");
+
+      // Cleanup functions
+      return () => {
+        unwatchNewAuction();
+        unwatchAuctionPaused();
+        unwatchAuctionUnpaused();
+      };
+    } catch (error) {
+      console.error("AuctionHouseContext: Failed to initialize auction watchers: ", error);
     }
   };
 
@@ -108,23 +139,6 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
     const auctionPaused = await fetchAuctionPaused();
     setAuctionPaused(auctionPaused);
   };
-
-  useEffect(() => {
-    const unwatchNewAuction = watchNewAuctionReleased(fetchAuctionSettings);
-    const unwatchAuctionPaused = watchAuctionPaused(handleAuctionPauseToggled);
-    const unwatchAuctionUnpaused = watchAuctionUnpaused(handleAuctionPauseToggled);
-
-    // Fetch auction settings initially
-    fetchAuctionSettings();
-
-    // Cleanup functions
-    return () => {
-      unwatchNewAuction();
-      unwatchAuctionPaused();
-      unwatchAuctionUnpaused();
-    };
-  }, []); // Empty dependency array ensures this effect runs only once
-
   // Context value assembled from state and functions.
   const contextValue: AuctionHouse = {
     auctionPaused,
@@ -133,7 +147,7 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
     duration,
     timeBuffer,
     maxAuctionId,
-    activeAuctions: activeAuctions || [], // Ensure it defaults to []
+    allAuctions: allAuctions || [], // Ensure it defaults to []
     refreshAuctions,
   };
 

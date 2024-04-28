@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import useTranslation from "next-translate/useTranslation";
 import { Auction } from "@app/types/auction";
 import { useSystem } from "@app/hooks/useSystem";
+import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useAuction } from "@app/hooks/useAuctionContext";
 
 interface AuctionTimerProps {
@@ -11,6 +12,7 @@ interface AuctionTimerProps {
 const AuctionTimer: React.FC<AuctionTimerProps> = ({ auction }) => {
   const { t } = useTranslation("common");
   const { blockchainTime } = useSystem();
+  const { timeBuffer } = useAuctionHouse();
   const { endAuction, setAuctionEndTimeUI } = useAuction();
   const [timeLeft, setTimeLeft] = useState<number>(auction.endTime - blockchainTime());
 
@@ -34,7 +36,11 @@ const AuctionTimer: React.FC<AuctionTimerProps> = ({ auction }) => {
       }
     };
 
-    const timer = setInterval(updateTimer, 1000);
+    // TODO: When concurrent auctions increases > 100, consider some type of
+    // throttling mechanism. eg:
+    ///const interval = timeLeft <= timeBuffer ? 1000 : 60000; // 1 second or 1 minute
+    const interval = 1000; // 1 second
+    const timer = setInterval(updateTimer, interval);
 
     // Initial update in case the component mounts close to the end time or after
     updateTimer();
@@ -44,9 +50,10 @@ const AuctionTimer: React.FC<AuctionTimerProps> = ({ auction }) => {
   }, [auction.id, auction.startTime, auction.endTime, auction.ended, endAuction, blockchainTime, setAuctionEndTimeUI]);
 
   const formatTimeLeft = (seconds: number): string => {
-    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
     const remainingSeconds = seconds % 60;
-    return `${minutes}m ${remainingSeconds}s`;
+    return `${hours}h ${minutes}m ${remainingSeconds}s`;
   };
 
   return (

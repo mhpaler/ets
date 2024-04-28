@@ -5,7 +5,7 @@ import { parseEther } from "viem";
 
 import { Dialog } from "@headlessui/react";
 
-import { useCloseModal } from "@app/hooks/useCloseModal";
+import { useModal } from "@app/hooks/useModalContext";
 import { useAuction } from "@app/hooks/useAuctionContext";
 import { useTransaction } from "@app/hooks/useTransaction";
 
@@ -24,7 +24,7 @@ interface FormStepProps {
 const SettleConfirm: React.FC<FormStepProps> = ({ goToStep }) => {
   const { t } = useTranslation("common");
 
-  const { closeModal } = useCloseModal();
+  const { closeModal } = useModal();
   const { auction, bidFormData } = useAuction();
   const { initiateTransaction, resetTransaction, isPending, isSuccess, hash, isError, errorMessage } = useTransaction();
   const { dialogTitle } = useTransactionLabels(); // Use the hook

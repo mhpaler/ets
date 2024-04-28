@@ -8,7 +8,7 @@ import { z } from "zod";
 import { Dialog } from "@headlessui/react";
 import { Alert } from "@app/components/icons";
 
-import { useCloseModal } from "@app/hooks/useCloseModal";
+import { useModal } from "@app/hooks/useModalContext";
 import { useTransaction } from "@app/hooks/useTransaction";
 import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useAuction } from "@app/hooks/useAuctionContext";
@@ -22,7 +22,7 @@ interface FormStepProps {
 
 const BidInput: React.FC<FormStepProps> = ({ goToNextStep }) => {
   const { t } = useTranslation("common");
-  const { closeModal } = useCloseModal();
+  const { closeModal } = useModal();
   const { resetTransaction } = useTransaction();
   const { minIncrementBidPercentage } = useAuctionHouse();
   const { auction, bidFormData, setBidFormData } = useAuction();
@@ -63,8 +63,6 @@ const BidInput: React.FC<FormStepProps> = ({ goToNextStep }) => {
 
   // Watch the 'name' input field for changes and debounce the input value.
   const bidValue = watch("bid", undefined);
-  console.log(auction);
-  //console.log(reservePrice);
 
   useEffect(() => {
     setBidFormData({ bid: undefined });

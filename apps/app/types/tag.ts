@@ -1,5 +1,9 @@
-export type Tag = {
+import { Auction } from "@app/types/auction";
+
+export type TagType = {
   id: string;
+  premium?: boolean;
+  reserved?: boolean;
   timestamp: number;
   machineName: string;
   display: string;
@@ -13,6 +17,12 @@ export type Tag = {
   creator: {
     id: `0x${string}`;
   };
+  tagAppliedInTaggingRecord?: number;
+  relayerRevenue?: number;
+  ownerRevenue?: number;
+  protocolRevenue?: number;
+  creatorRevenue?: number;
+  auctions?: Auction[];
 };
 
 export interface TagInput {
