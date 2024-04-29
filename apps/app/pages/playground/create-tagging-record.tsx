@@ -123,7 +123,6 @@ const CreateTaggingRecord: NextPage = () => {
   return (
     <Layout>
       <div className="col-span-7">
-        <PageTitle title={t("create-tagging-record")} />
         <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="flex items-center mb-4">
             <h2 className="text-lg font-semibold">{t("tag-random-image")}</h2>

@@ -1,3 +1,5 @@
+import React, { useEffect } from "react";
+
 import useTranslation from "next-translate/useTranslation";
 import { useAccount } from "wagmi";
 import { Auction } from "@app/types/auction";
@@ -15,7 +17,6 @@ const AuctionActions: React.FC<AuctionActionsProps> = ({ auction, buttonClasses 
   const { isConnected } = useAccount();
   const transactionType = auction.ended ? TransactionType.SettleAuction : TransactionType.Bid;
   const buttonLabel = auction.ended ? t("AUCTION.SETTLE_BUTTON") : t("AUCTION.PLACE_BID_BUTTON");
-  // Hide the button so the modal doesn't close automatically when auction is settled.
   const hideButton = auction.ended && auction.settled;
 
   const visibilityClass = hideButton ? "hidden" : "";
@@ -23,6 +24,10 @@ const AuctionActions: React.FC<AuctionActionsProps> = ({ auction, buttonClasses 
   const extraClasses = buttonClasses ? buttonClasses : "";
   const finalButtonClasses = `${visibilityClass} ${extraClasses}`;
   const modalId = `auction-actions-${auction.id}`;
+
+  useEffect(() => {
+    console.log(`Auction ${auction.id} Ended Status:`, auction.ended);
+  }, [auction.ended]);
 
   return (
     <div>

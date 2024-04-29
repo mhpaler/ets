@@ -59,6 +59,11 @@ export const AuctionProvider: React.FC<AuctionProps> = ({
     }
   }, [auctionId, allAuctions]);
 
+  // Add this useEffect to log the auction object whenever it changes
+  useEffect(() => {
+    console.log(`Auction data updated for ID: ${auctionId}`, auction);
+  }, [auction]);
+
   if (!auction) {
     // Optionally show a loading state here instead of rendering nothing
     return null; // or <Loading />
@@ -92,13 +97,17 @@ export const AuctionProvider: React.FC<AuctionProps> = ({
   // Function to optimistically update an auction's ended status in UI
   // see /app/components/auction/AuctionTimer.tsx
   const endAuction = (auctionId: number) => {
+    console.log(`Calling endAuction for ID: ${auctionId}`);
     refreshAuctions((current: FetchAuctionsResponse | undefined) => {
-      if (!current || !current.auctions) return current;
+      if (!current || !current.auctions) {
+        console.log("No current auction data available.");
+        return current;
+      }
 
-      const updatedAuctions = current.auctions.map((auction: Auction) => {
+      const updatedAuctions = current.auctions.map((auction) => {
         if (Number(auction.id) === auctionId) {
-          const updatedAuction = { ...auction, ended: true };
-          return updatedAuction;
+          console.log(`Updating ended status for Auction ID: ${auctionId}`);
+          return { ...auction, ended: true };
         }
         return auction;
       });

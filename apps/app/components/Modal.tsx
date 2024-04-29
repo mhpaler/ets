@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { useModal } from "@app/hooks/useModalContext"; // Ensure this path is correct
@@ -14,7 +14,16 @@ interface Props {
 }
 
 const Modal = ({ id, label, children, link = false, buttonClasses = "", disabled = false, onModalOpen }: Props) => {
-  const { currentModal, openModal } = useModal();
+  const { currentModal, openModal, resetModal } = useModal();
+
+  useEffect(() => {
+    // This effect does nothing on mount, but on unmount it ensures the modal state is reset
+    return () => {
+      if (currentModal === id) {
+        resetModal();
+      }
+    };
+  }, [currentModal, id, resetModal]);
 
   const handleOpenModal = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -23,19 +32,6 @@ const Modal = ({ id, label, children, link = false, buttonClasses = "", disabled
       onModalOpen();
     }
   };
-  /* const handleOpenModal = () => {
-    openModal();
-    if (onModalOpen) {
-      onModalOpen(); // Optionally call additional function passed via props
-    }
-  };
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    if (!disabled) {
-      event.stopPropagation();
-      handleOpenModal();
-    }
-  }; */
 
   const buttonClassName = link ? "btn btn-link" : "btn";
   const disabledClass = disabled ? "btn-disabled" : "";

@@ -105,7 +105,6 @@ const Playground: NextPage = () => {
   return (
     <Layout>
       <div className="space-y-4" style={{ width: "300px" }}>
-        <PageTitle title={t("create-tag")} />
         <TagInput tags={tags} handleDeleteTag={handleDeleteTag} handleAddTag={handleAddTag} />
         <div className="relative">
           <select

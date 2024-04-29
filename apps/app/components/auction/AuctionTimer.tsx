@@ -27,6 +27,9 @@ const AuctionTimer: React.FC<AuctionTimerProps> = ({ auction }) => {
         const newTimeLeft = auction.endTime - currentTime;
         setTimeLeft(newTimeLeft);
       } else if (hasEnded) {
+        console.log(`Has ended: ${hasEnded}`);
+        console.log(`Ending Auction ID: ${auction.id}`);
+
         setTimeLeft(0);
         clearInterval(timer);
         if (!auction.ended) {

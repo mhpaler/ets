@@ -8,6 +8,7 @@ export interface ModalContextType {
   isModalOpen: boolean;
   openModal: (id: string) => void;
   closeModal: () => void;
+  resetModal: () => void;
 }
 
 const defaultModalContextValue: ModalContextType = {
@@ -15,6 +16,7 @@ const defaultModalContextValue: ModalContextType = {
   isModalOpen: false,
   openModal: () => {},
   closeModal: () => {},
+  resetModal: () => {},
 };
 
 // Create and export the context with an initial closeModal function that does nothing.
@@ -38,27 +40,25 @@ export const ModalProvider: React.FC<Props> = ({ children }: { children: React.R
   };
 
   const closeModal = () => {
+    if (currentModal) {
+      console.log(`Closing modal: ${currentModal}`);
+      setCurrentModal(null);
+    }
+  };
+
+  // Clean up function to reset modal when the component unmounts
+  // Even though does the same as closeModal() adding for future.
+  const resetModal = () => {
+    console.log("Resetting modal state");
     setCurrentModal(null);
   };
-
-  //const [isModalOpen, setModalOpen] = React.useState(false);
-
-  /*   const openModal = () => {
-    console.log("Modal context: openModal() triggered");
-
-    setModalOpen(true);
-  };
-
-  const closeModal = () => {
-    console.log("Modal context: closeModal() triggered");
-    setModalOpen(false);
-  }; */
 
   // This value object will be what the context provides to its consumers
   const value = {
     currentModal,
     openModal,
     closeModal,
+    resetModal,
     isModalOpen: currentModal !== null,
   };
 

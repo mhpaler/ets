@@ -43,22 +43,7 @@ const Auctions: NextPage<Props> = ({
   const [skip, setSkip] = useState(0);
   const { isModalOpen } = useModal();
 
-  /* const { auctions, nextAuctions, isLoading } = useAuctions({
-    filter: filter,
-    pageSize: pageSize,
-    orderBy: orderBy,
-    skip,
-    config: {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 3000,
-    },
-  }); */
-
-  console.log("Auctions", auctions);
+  //console.log("Auctions", auctions);
   const nextPage = () => setSkip(skip + pageSize);
   const prevPage = () => setSkip(skip - pageSize);
 
@@ -67,7 +52,7 @@ const Auctions: NextPage<Props> = ({
   }
 
   const handleRowClick = (auctionId: number) => {
-    console.log("handleRowClick", isModalOpen);
+    console.log(`handleRowClick: Modal Open?: ${isModalOpen}, Auction Id: ${auctionId}`);
     if (!isModalOpen && rowLink) {
       // Only navigate if the modal is not open
       router.push(`/auction/${auctionId}`);

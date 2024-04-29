@@ -88,11 +88,11 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
 
   // Log changes to allAuctions
   useEffect(() => {
-    console.log("AuctionHouseContext: allAuctions updated:", allAuctions);
+    //console.log("AuctionHouseContext: allAuctions updated:", allAuctions);
   }, [allAuctions]);
 
   useEffect(() => {
-    console.log("AuctionHouseContext: Fetching auction settings and data...");
+    //console.log("AuctionHouseContext: Fetching auction settings and data...");
     fetchAuctionSettings();
     startWatchers();
   }, []); // Empty dependency array ensures this effect runs only once
@@ -109,9 +109,9 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
       setDuration(auctionSettings.duration);
       setTimeBuffer(auctionSettings.timeBuffer);
 
-      console.log("AuctionHouseContext: Auction settings fetched and state updated.");
+      //console.log("AuctionHouseContext: Auction settings fetched and state updated.");
     } catch (error) {
-      console.error("AuctionHouseContext: Failed to initialize auction data:", error);
+      //console.error("AuctionHouseContext: Failed to initialize auction data:", error);
     }
   };
 
@@ -121,7 +121,7 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
       const unwatchAuctionPaused = watchAuctionPaused(handleAuctionPauseToggled);
       const unwatchAuctionUnpaused = watchAuctionUnpaused(handleAuctionPauseToggled);
 
-      console.log("AuctionHouseContext: auction watchers started");
+      //console.log("AuctionHouseContext: auction watchers started");
 
       // Cleanup functions
       return () => {
