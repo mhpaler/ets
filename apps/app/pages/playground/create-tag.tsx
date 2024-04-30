@@ -43,7 +43,7 @@ const Playground: NextPage = () => {
       try {
         if (tags.length > 0) {
           const tagValues = tags.map((tag) => tag.text);
-          await createTags(tagValues, selectedRelayer.id, address);
+          await createTags(tagValues, selectedRelayer.id);
         }
 
         setTags([]);

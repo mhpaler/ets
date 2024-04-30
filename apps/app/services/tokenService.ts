@@ -3,7 +3,9 @@ import { createTokenClient, createRelayerClient } from "./sdkService";
 
 export const computeTagId = async (tag: string): Promise<bigint> => {
   try {
-    const client = createTokenClient(421614);
+    const client = createTokenClient({
+      chainId: 421614,
+    });
     return await client.computeTagId(tag);
   } catch (error) {
     console.error("Error computing tag ID:", error);
@@ -13,7 +15,9 @@ export const computeTagId = async (tag: string): Promise<bigint> => {
 
 export const computeTagIds = async (tags: string[]): Promise<bigint[]> => {
   try {
-    const client = createTokenClient(421614);
+    const client = createTokenClient({
+      chainId: 421614,
+    });
     return await client.computeTagIds(tags);
   } catch (error) {
     console.error("Error computing tag IDs:", error);
@@ -23,7 +27,9 @@ export const computeTagIds = async (tags: string[]): Promise<bigint[]> => {
 
 export const tagExists = async (tag: string): Promise<boolean> => {
   try {
-    const client = createTokenClient(421614);
+    const client = createTokenClient({
+      chainId: 421614,
+    });
     return await client.tagExists(tag);
   } catch (error) {
     console.error("Error checking if tag exists:", error);
@@ -33,7 +39,9 @@ export const tagExists = async (tag: string): Promise<boolean> => {
 
 export const existingTags = async (tags: string[]): Promise<string[]> => {
   try {
-    const client = createTokenClient(421614);
+    const client = createTokenClient({
+      chainId: 421614,
+    });
     return await client.existingTags(tags);
   } catch (error) {
     console.error("Error checking if tag exists:", error);
@@ -41,10 +49,13 @@ export const existingTags = async (tags: string[]): Promise<string[]> => {
   }
 };
 
-export const createTags = async (tags: string[], relayerAddress: Hex, account?: Address): Promise<void> => {
+export const createTags = async (tags: string[], relayerAddress: Hex): Promise<void> => {
   try {
-    const client = createRelayerClient(421614);
-    const { transactionHash, status } = await client.createTags(tags, relayerAddress, account);
+    const client = createRelayerClient({
+      chainId: 421614,
+      relayerAddress,
+    });
+    const { transactionHash, status } = await client.createTags(tags, relayerAddress);
     console.log("Transaction hash:", transactionHash);
     console.log("Status:", status);
   } catch (error) {
@@ -55,7 +66,9 @@ export const createTags = async (tags: string[], relayerAddress: Hex, account?: 
 
 export const fetchHasTags = async (address: `0x${string}` | undefined): Promise<boolean> => {
   try {
-    const client = createTokenClient(421614);
+    const client = createTokenClient({
+      chainId: 421614,
+    });
     return await client.hasTags(address);
   } catch (error) {
     console.error("Error fetching has tags:", error);
