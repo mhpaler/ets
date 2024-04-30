@@ -94,7 +94,6 @@ export class TokenClient {
   }
 
   async fetchHasTags(address: `0x${string}` | undefined): Promise<boolean> {
-    // Check if the address is undefined or not properly formatted
     if (!address || !address.startsWith("0x")) {
       console.error("Invalid address");
       return false;

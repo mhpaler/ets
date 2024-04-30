@@ -34,9 +34,9 @@ export class RelayerClient {
   }
 
   async createTags(
-    account: Account | Address,
     tags: string[],
     relayerAddress: Hex,
+    account?: Account | Address,
   ): Promise<{ transactionHash: string; status: number }> {
     if (this.walletClient === undefined) {
       throw new Error("Wallet client is required to perform this action");
@@ -44,14 +44,14 @@ export class RelayerClient {
 
     const etsConfig = { address: relayerAddress, abi: etsRelayerV1ABI };
 
-    const etsToken = new TokenClient({
-      chainId: this.publicClient.chain?.id ?? 0,
+    const etsTokenClient = new TokenClient({
+      chainId: this.chainId ?? 0,
       publicClient: this.publicClient,
       walletClient: this.walletClient,
     });
 
     if (tags.length > 0) {
-      const existingTags = await etsToken.existingTags(tags);
+      const existingTags = await etsTokenClient.existingTags(tags);
       const tagsToMint = tags.filter((tag) => !existingTags.includes(tag));
 
       if (tagsToMint.length > 0) {

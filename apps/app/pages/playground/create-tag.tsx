@@ -15,7 +15,7 @@ import { TagInput as TagInputType } from "@app/types/tag";
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");
   const { showToast, ToastComponent } = useToast();
-  const { chain } = useAccount();
+  const { chain, address } = useAccount();
   const [tags, setTags] = useState<TagInputType[]>([]);
   const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
   const [isCreatingTag, setIsCreatingTag] = useState(false);
@@ -43,7 +43,7 @@ const Playground: NextPage = () => {
       try {
         if (tags.length > 0) {
           const tagValues = tags.map((tag) => tag.text);
-          await createTags(tagValues, selectedRelayer.id);
+          await createTags(tagValues, selectedRelayer.id, address);
         }
 
         setTags([]);

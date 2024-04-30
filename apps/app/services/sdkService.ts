@@ -1,5 +1,5 @@
 import { chainsMap } from "@app/config/wagmiConfig";
-import { TokenClient } from "@ethereum-tag-service/sdk-core";
+import { RelayerClient, TokenClient } from "@ethereum-tag-service/sdk-core";
 import { createPublicClient, http, createWalletClient, custom } from "viem";
 
 export const viemPublicClient: any = (chainId: number) => {
@@ -14,18 +14,16 @@ export const viemPublicClient: any = (chainId: number) => {
   });
 };
 
-export function createTokenClient(chainId: number | undefined): any | undefined {
+function createClientHelper<T>(chainId: number | undefined, ClientType: new (args: any) => T): T | undefined {
   if (!chainId) return undefined;
 
   const chain = chainsMap(chainId);
-
   if (!chain) {
     console.error("Unsupported chain ID");
     return undefined;
   }
 
   const publicClient = viemPublicClient(chainId);
-
   if (!publicClient) {
     console.error("Failed to create public client");
     return undefined;
@@ -37,14 +35,22 @@ export function createTokenClient(chainId: number | undefined): any | undefined 
   });
 
   try {
-    const hatsClient = new TokenClient({
+    const client = new ClientType({
       chainId,
       publicClient,
       walletClient,
     });
-    return hatsClient;
+    return client;
   } catch (error) {
-    console.error("Error creating ETS Client:", error);
+    console.error(`Error creating ${ClientType.name}:`, error);
     return undefined;
   }
+}
+
+export function createTokenClient(chainId: number | undefined): any | undefined {
+  return createClientHelper<TokenClient>(chainId, TokenClient);
+}
+
+export function createRelayerClient(chainId: number | undefined): any | undefined {
+  return createClientHelper<RelayerClient>(chainId, RelayerClient);
 }
