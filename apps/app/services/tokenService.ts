@@ -55,7 +55,7 @@ export const createTags = async (tags: string[], relayerAddress: Hex): Promise<v
       chainId: 421614,
       relayerAddress,
     });
-    const { transactionHash, status } = await client.createTags(tags, relayerAddress);
+    const { transactionHash, status } = await client.createTags(tags);
     console.log("Transaction hash:", transactionHash);
     console.log("Status:", status);
   } catch (error) {

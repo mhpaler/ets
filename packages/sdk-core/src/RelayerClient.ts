@@ -37,12 +37,16 @@ export class RelayerClient {
     }
   }
 
-  async createTags(tags: string[], relayerAddress: Hex): Promise<{ transactionHash: string; status: number }> {
+  async createTags(tags: string[]): Promise<{ transactionHash: string; status: number }> {
     if (this.walletClient === undefined) {
       throw new Error("Wallet client is required to perform this action");
     }
 
-    const etsConfig = { address: relayerAddress, abi: etsRelayerV1ABI };
+    if (this.relayerAddress === undefined) {
+      throw new Error("Relayer address is required");
+    }
+
+    const etsConfig = { address: this.relayerAddress, abi: etsRelayerV1ABI };
 
     const etsTokenClient = new TokenClient({
       chainId: this.chainId ?? 0,
