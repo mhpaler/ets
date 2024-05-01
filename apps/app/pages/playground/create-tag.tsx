@@ -5,7 +5,7 @@ import Layout from "@app/layouts/default";
 import PageTitle from "@app/components/PageTitle";
 import { createTags, tagExists } from "@app/services/tokenService";
 import { useRelayers } from "@app/hooks/useRelayers";
-import { useAccount } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import { availableChainIds } from "@app/config/wagmiConfig";
 import { isValidTag } from "@app/utils/tagUtils";
 import useToast from "@app/hooks/useToast";
@@ -15,7 +15,8 @@ import { TagInput as TagInputType } from "@app/types/tag";
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");
   const { showToast, ToastComponent } = useToast();
-  const { chain, address } = useAccount();
+  const { chain } = useAccount();
+  const chainId = useChainId();
   const [tags, setTags] = useState<TagInputType[]>([]);
   const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
   const [isCreatingTag, setIsCreatingTag] = useState(false);
@@ -43,7 +44,7 @@ const Playground: NextPage = () => {
       try {
         if (tags.length > 0) {
           const tagValues = tags.map((tag) => tag.text);
-          await createTags(tagValues, selectedRelayer.id);
+          await createTags(tagValues, selectedRelayer.id, chainId);
         }
 
         setTags([]);
@@ -87,7 +88,7 @@ const Playground: NextPage = () => {
 
   const handleAddTag = async (tag: TagInputType) => {
     if (isValidTag(tag.text)) {
-      const exists = await tagExists(tag.text);
+      const exists = await tagExists(tag.text, chainId);
       if (exists) {
         showToast({
           description: t("tag-already-exists"),
