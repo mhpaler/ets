@@ -1,6 +1,6 @@
 import { chainsMap } from "@app/config/wagmiConfig";
 import { RelayerClient, TokenClient } from "@ethereum-tag-service/sdk-core";
-import { createPublicClient, http, createWalletClient, custom, Hex } from "viem";
+import { createPublicClient, http, createWalletClient, custom, Hex, Account } from "viem";
 
 export const viemPublicClient: any = (chainId: number) => {
   const chain = chainsMap(chainId);
@@ -18,6 +18,7 @@ function createClientHelper<T>(
   ClientType: new (args: any) => T,
   chainId: number | undefined,
   relayerAddress?: Hex,
+  account?: Hex,
 ): T | undefined {
   if (!chainId) return undefined;
 
@@ -35,6 +36,7 @@ function createClientHelper<T>(
 
   const walletClient = createWalletClient({
     chain,
+    account,
     transport: custom(window.ethereum),
   });
 
@@ -52,16 +54,24 @@ function createClientHelper<T>(
   }
 }
 
-export function createTokenClient({ chainId }: { chainId: number | undefined }): any | undefined {
-  return createClientHelper<TokenClient>(TokenClient, chainId);
+export function createTokenClient({
+  chainId,
+  account,
+}: {
+  chainId: number | undefined;
+  account?: Hex;
+}): any | undefined {
+  return createClientHelper<TokenClient>(TokenClient, chainId, undefined, account);
 }
 
 export function createRelayerClient({
   chainId,
   relayerAddress,
+  account,
 }: {
   chainId: number | undefined;
   relayerAddress: Hex;
+  account?: Hex;
 }): any | undefined {
-  return createClientHelper<RelayerClient>(RelayerClient, chainId, relayerAddress);
+  return createClientHelper<RelayerClient>(RelayerClient, chainId, relayerAddress, account);
 }

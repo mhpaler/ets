@@ -5,7 +5,7 @@ import Layout from "@app/layouts/default";
 import PageTitle from "@app/components/PageTitle";
 import { createTaggingRecord } from "@app/services/taggingService";
 import { useRelayers } from "@app/hooks/useRelayers";
-import { useAccount } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import { isValidTag } from "@app/utils/tagUtils";
 import { Hex } from "viem";
 import debounce from "lodash.debounce";
@@ -25,6 +25,7 @@ const CreateTaggingRecord: NextPage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [imageUrl, setImageUrl] = useState<string>("");
   const [taggingRecordId, setTaggingRecordId] = useState<string | null>(null);
+  const chainId = useChainId();
 
   const handleDeleteTag = useCallback(
     (i: number) => {
@@ -80,7 +81,14 @@ const CreateTaggingRecord: NextPage = () => {
       setIsLoading(true);
       try {
         const tagValues = tags.map((tag) => tag.text);
-        const recordId = await createTaggingRecord(tagValues, imageUrl, recordType, selectedRelayer.id, tagger);
+        const recordId = await createTaggingRecord(
+          tagValues,
+          imageUrl,
+          recordType,
+          selectedRelayer.id,
+          tagger,
+          chainId,
+        );
         setTaggingRecordId(recordId);
 
         showToast({

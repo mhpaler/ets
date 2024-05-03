@@ -3,22 +3,26 @@ import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Layout from "@app/layouts/default";
 import PageTitle from "@app/components/PageTitle";
-import { createTags, tagExists } from "@app/services/tokenService";
 import { useRelayers } from "@app/hooks/useRelayers";
-import { useAccount, useChainId } from "wagmi";
+import { useAccount } from "wagmi";
 import { availableChainIds } from "@app/config/wagmiConfig";
 import { isValidTag } from "@app/utils/tagUtils";
 import useToast from "@app/hooks/useToast";
 import TagInput from "@app/components/TagInput";
 import { TagInput as TagInputType } from "@app/types/tag";
+import { useTokenService } from "@app/hooks/useTokenService";
+import { useRelayerService } from "@app/hooks/useRelayerService";
 
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");
   const { showToast, ToastComponent } = useToast();
   const { chain } = useAccount();
-  const chainId = useChainId();
   const [tags, setTags] = useState<TagInputType[]>([]);
   const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
+  const { tagExists } = useTokenService();
+  const { createTags } = useRelayerService({
+    relayerAddress: selectedRelayer?.id,
+  });
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const { relayers } = useRelayers({});
   const isCorrectNetwork = chain?.id && availableChainIds.includes(chain?.id as any);
@@ -44,7 +48,7 @@ const Playground: NextPage = () => {
       try {
         if (tags.length > 0) {
           const tagValues = tags.map((tag) => tag.text);
-          await createTags(tagValues, selectedRelayer.id, chainId);
+          await createTags(tagValues);
         }
 
         setTags([]);
@@ -88,7 +92,7 @@ const Playground: NextPage = () => {
 
   const handleAddTag = async (tag: TagInputType) => {
     if (isValidTag(tag.text)) {
-      const exists = await tagExists(tag.text, chainId);
+      const exists = await tagExists(tag.text);
       if (exists) {
         showToast({
           description: t("tag-already-exists"),
@@ -111,7 +115,7 @@ const Playground: NextPage = () => {
         <div className="relative">
           <select
             className="select select-bordered w-full max-w-xs"
-            value={selectedRelayer ? selectedRelayer.id : ""}
+            value={selectedRelayer ? selectedRelayer?.id : ""}
             onChange={handleSelectRelayer}
           >
             <option disabled value="">

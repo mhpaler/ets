@@ -1,5 +1,5 @@
-import type { Account, Address, Hex, PublicClient, WalletClient } from "viem";
-import { etsRelayerV1ABI } from "../contracts/contracts";
+import type { Address, Hex, PublicClient, WalletClient } from "viem";
+import { etsABI, etsAddress, etsRelayerV1ABI } from "../contracts/contracts";
 import { TokenClient } from "./TokenClient";
 
 export class RelayerClient {
@@ -86,6 +86,71 @@ export class RelayerClient {
     }
 
     return { transactionHash: "", status: 0 };
+  }
+
+  async createTaggingRecord(
+    tagIds: string[],
+    targetId: string,
+    recordType: string,
+    signerAddress?: Hex,
+  ): Promise<{ transactionHash: `0x${string}`; status: any; taggingRecordId: string }> {
+    if (this.relayerAddress === undefined) {
+      throw new Error("Relayer address is required");
+    }
+    if (this.walletClient === undefined) {
+      throw new Error("Wallet client is required to perform this action");
+    }
+    console.log("this.walletClient", this.walletClient);
+
+    try {
+      const tagParams = {
+        targetURI: targetId,
+        tagStrings: tagIds,
+        recordType: recordType,
+        enrich: false,
+      };
+
+      const [fee, actualTagCount] = await this.publicClient.readContract({
+        address: this.relayerAddress,
+        abi: etsRelayerV1ABI,
+        functionName: "computeTaggingFee",
+        args: [tagParams, 0],
+      });
+      const { request } = await this.publicClient.simulateContract({
+        address: this.relayerAddress,
+        abi: etsRelayerV1ABI,
+        functionName: "applyTags",
+        args: [[tagParams]],
+        value: fee,
+        account: this.walletClient.account,
+      });
+
+      const transactionHash = await this.walletClient.writeContract(request);
+
+      const receipt = await this.publicClient.waitForTransactionReceipt({
+        hash: transactionHash,
+      });
+
+      console.log(`${actualTagCount} tag(s) appended`);
+
+      const taggingRecordId = await this.publicClient.readContract({
+        address: etsAddress,
+        abi: etsABI,
+        functionName: "computeTaggingRecordIdFromRawInput",
+        args: [tagParams, this.relayerAddress, signerAddress || "0x0"],
+      });
+
+      console.log("Tagging record ID:", taggingRecordId);
+
+      return {
+        transactionHash,
+        status: receipt.status,
+        taggingRecordId: String(taggingRecordId),
+      };
+    } catch (error) {
+      console.error("Error creating tagging record:", error);
+      throw error;
+    }
   }
 
   // Additional methods derived from the ABI for tag application, owner management, pause toggles, and other functionalities:
@@ -194,6 +259,7 @@ export class RelayerClient {
     });
   }
 
+  // helper
   private async manageContractCall(
     functionName: any,
     args: any = [],

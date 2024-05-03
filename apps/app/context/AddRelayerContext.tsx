@@ -1,7 +1,7 @@
+import { useTokenService } from "@app/hooks/useTokenService";
 import React, { useEffect } from "react";
 import { createContext, useState, ReactNode } from "react";
-import { fetchHasTags } from "@app/services/tokenService";
-import { useAccount, useChainId } from "wagmi";
+import { useAccount } from "wagmi";
 
 export enum AddRelayerSteps {
   CheckUser = 1,
@@ -44,12 +44,12 @@ export const AddRelayerContext = createContext<FormContextValue>(defaultContextV
 
 export const AddRelayerProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentStep, setCurrentStep] = useState(AddRelayerSteps.CheckUser);
-  const chainId = useChainId();
   const [formData, setFormData] = useState({
     name: "",
   });
   const { address, isConnected } = useAccount();
   const [hasTags, setHasTags] = useState<boolean>(false);
+  const { fetchHasTags } = useTokenService();
 
   const goToNextStep = () => {
     setCurrentStep((prevStep) => {
@@ -67,7 +67,7 @@ export const AddRelayerProvider = ({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
-      const tags = await fetchHasTags(address, chainId);
+      const tags = await fetchHasTags(address);
       setHasTags(tags);
     };
 
