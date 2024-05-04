@@ -26,7 +26,7 @@ export const useEtsToken = () => {
 
   const tagExists = async (tag: string): Promise<boolean> => {
     if (!tokenClient) throw new Error("Token client not initialized");
-    return tokenClient.tagExists(tag);
+    return tokenClient.tagExistsById(tag);
   };
 
   const existingTags = async (tags: string[]): Promise<string[]> => {

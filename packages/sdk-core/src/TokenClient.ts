@@ -2,6 +2,50 @@ import type { PublicClient, WalletClient, Hex } from "viem";
 import { etsTokenConfig } from "../contracts/contracts";
 import { manageContractRead, manageContractCall } from "./utils";
 
+type WriteFunctionName =
+  | "approve"
+  | "burn"
+  | "getOrCreateTagId"
+  | "setETSCore"
+  | "setOwnershipTermLength"
+  | "setTagMaxStringLength"
+  | "setTagMinStringLength"
+  | "upgradeTo"
+  | "upgradeToAndCall"
+  | "setApprovalForAll"
+  | "transferFrom"
+  | "pause"
+  | "unPause"
+  | "initialize"
+  | "preSetPremiumTags"
+  | "recycleTag"
+  | "renewTag"
+  | "safeTransferFrom"
+  | "setAccessControls"
+  | "setPremiumFlag"
+  | "setReservedFlag";
+
+type ReadFunctionName =
+  | "existingTags"
+  | "hasTags"
+  | "tagExistsById"
+  | "computeTagId"
+  | "computeTagIds"
+  | "approve"
+  | "balanceOf"
+  | "getApproved"
+  | "getTagById"
+  | "getTagByString"
+  | "isApprovedForAll"
+  | "ownerOf"
+  | "getOwnershipTermLength"
+  | "tagOwnershipTermExpired"
+  | "tagMaxStringLength"
+  | "tagMinStringLength"
+  | "supportsInterface"
+  | "symbol"
+  | "getOrCreateTagId";
+
 export class TokenClient {
   private readonly chainId?: number;
   private readonly publicClient: PublicClient;
@@ -34,7 +78,7 @@ export class TokenClient {
   async existingTags(tags: string[]): Promise<string[]> {
     const existingTags = [];
     for (let tag of tags) {
-      const exists = await this.tagExists(tag);
+      const exists = await this.tagExistsById(tag);
       if (exists) existingTags.push(tag);
     }
     return existingTags;
@@ -49,7 +93,7 @@ export class TokenClient {
     return data > BigInt(0);
   }
 
-  async tagExists(tag: string): Promise<boolean> {
+  async tagExistsById(tag: string): Promise<boolean> {
     const tagId = await this.computeTagId(tag);
     return this.readContract("tagExistsById", [tagId]);
   }
@@ -74,8 +118,7 @@ export class TokenClient {
     return this.callContract("burn", [tokenId]);
   }
 
-  async createTag(tag: string, relayer: Hex, creator: Hex): Promise<bigint> {
-    const { transactionHash, status } = await this.callContract("createTag", [tag, relayer, creator]);
+  async getOrCreateTagId(tag: string, relayer: Hex, creator: Hex): Promise<bigint> {
     return this.readContract("getOrCreateTagId", [tag, relayer, creator]);
   }
 
@@ -99,6 +142,54 @@ export class TokenClient {
     return this.readContract("ownerOf", [tokenId]);
   }
 
+  async getOwnershipTermLength(): Promise<bigint> {
+    return this.readContract("getOwnershipTermLength", []);
+  }
+
+  async setETSCore(ets: Hex): Promise<{ transactionHash: string; status: number }> {
+    return this.callContract("setETSCore", [ets]);
+  }
+
+  async setOwnershipTermLength(ownershipTermLength: bigint): Promise<{ transactionHash: string; status: number }> {
+    return this.callContract("setOwnershipTermLength", [ownershipTermLength]);
+  }
+
+  async tagOwnershipTermExpired(tokenId: bigint): Promise<boolean> {
+    return this.readContract("tagOwnershipTermExpired", [tokenId]);
+  }
+
+  async tagMaxStringLength(): Promise<bigint> {
+    return this.readContract("tagMaxStringLength", []);
+  }
+
+  async tagMinStringLength(): Promise<bigint> {
+    return this.readContract("tagMinStringLength", []);
+  }
+
+  async setTagMaxStringLength(tagMaxStringLength: bigint): Promise<{ transactionHash: string; status: number }> {
+    return this.callContract("setTagMaxStringLength", [tagMaxStringLength]);
+  }
+
+  async setTagMinStringLength(tagMinStringLength: bigint): Promise<{ transactionHash: string; status: number }> {
+    return this.callContract("setTagMinStringLength", [tagMinStringLength]);
+  }
+
+  async supportsInterface(interfaceId: Hex): Promise<boolean> {
+    return this.readContract("supportsInterface", [interfaceId]);
+  }
+
+  async symbol(): Promise<string> {
+    return this.readContract("symbol", []);
+  }
+
+  async upgradeTo(newImplementation: Hex): Promise<{ transactionHash: string; status: number }> {
+    return this.callContract("upgradeTo", [newImplementation]);
+  }
+
+  async upgradeToAndCall(newImplementation: Hex, data: Hex): Promise<{ transactionHash: string; status: number }> {
+    return this.callContract("upgradeToAndCall", [newImplementation, data]);
+  }
+
   async setApprovalForAll(operator: Hex, approved: boolean): Promise<{ transactionHash: string; status: number }> {
     return this.callContract("setApprovalForAll", [operator, approved]);
   }
@@ -115,12 +206,61 @@ export class TokenClient {
     return this.callContract("unPause", []);
   }
 
-  private async readContract(functionName: any, args: any = []): Promise<any> {
+  async initialize(
+    etsAccessControls: string,
+    tagMinStringLength: number,
+    tagMaxStringLength: number,
+    ownershipTermLength: number,
+  ): Promise<{ transactionHash: string; status: number }> {
+    return this.callContract("initialize", [
+      etsAccessControls,
+      tagMinStringLength,
+      tagMaxStringLength,
+      ownershipTermLength,
+    ]);
+  }
+
+  async preSetPremiumTags(tags: string[], enabled: boolean): Promise<{ transactionHash: string; status: number }> {
+    return this.callContract("preSetPremiumTags", [tags, enabled]);
+  }
+
+  async recycleTag(tokenId: bigint): Promise<{ transactionHash: string; status: number }> {
+    return this.callContract("recycleTag", [tokenId]);
+  }
+
+  async renewTag(tokenId: bigint): Promise<{ transactionHash: string; status: number }> {
+    return this.callContract("renewTag", [tokenId]);
+  }
+
+  async safeTransferFrom(
+    from: Hex,
+    to: Hex,
+    tokenId: bigint,
+    data?: Hex,
+  ): Promise<{ transactionHash: string; status: number }> {
+    return this.callContract("safeTransferFrom", [from, to, tokenId, data]);
+  }
+
+  async setAccessControls(accessControls: Hex): Promise<{ transactionHash: string; status: number }> {
+    return this.callContract("setAccessControls", [accessControls]);
+  }
+
+  async setPremiumFlag(tokenIds: bigint[], isPremium: boolean): Promise<{ transactionHash: string; status: number }> {
+    return this.callContract("setPremiumFlag", [tokenIds, isPremium]);
+  }
+
+  async setReservedFlag(tokenIds: bigint[], isReserved: boolean): Promise<{ transactionHash: string; status: number }> {
+    return this.callContract("setReservedFlag", [tokenIds, isReserved]);
+  }
+
+  private async readContract(functionName: ReadFunctionName, args: any = []): Promise<any> {
     return manageContractRead(this.publicClient, etsTokenConfig.address, etsTokenConfig.abi, functionName, args);
   }
 
-  // fix any
-  private async callContract(functionName: any, args: any = []): Promise<{ transactionHash: string; status: number }> {
+  private async callContract(
+    functionName: WriteFunctionName,
+    args: any = [],
+  ): Promise<{ transactionHash: string; status: number }> {
     if (!this.walletClient) {
       throw new Error("Wallet client is required to perform this action");
     }

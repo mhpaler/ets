@@ -2,6 +2,10 @@ import { PublicClient, WalletClient } from "viem";
 import { etsRelayerFactoryConfig } from "../contracts/contracts";
 import { manageContractRead, manageContractCall } from "./utils";
 
+type WriteFunctionName = "addRelayer";
+
+type ReadFunctionName = "getImplementation" | "ets" | "etsAccessControls" | "etsTarget" | "etsToken" | "getBeacon";
+
 export class RelayerFactoryClient {
   private readonly publicClient: PublicClient;
   private readonly walletClient: WalletClient | undefined;
@@ -19,7 +23,27 @@ export class RelayerFactoryClient {
     return this.readContract("getImplementation", []);
   }
 
-  private async readContract(functionName: string, args: any[] = []): Promise<any> {
+  async ets(): Promise<string> {
+    return this.readContract("ets", []);
+  }
+
+  async etsAccessControls(): Promise<string> {
+    return this.readContract("etsAccessControls", []);
+  }
+
+  async etsTarget(): Promise<string> {
+    return this.readContract("etsTarget", []);
+  }
+
+  async etsToken(): Promise<string> {
+    return this.readContract("etsToken", []);
+  }
+
+  async getBeacon(): Promise<string> {
+    return this.readContract("getBeacon", []);
+  }
+
+  private async readContract(functionName: ReadFunctionName, args: any[] = []): Promise<any> {
     return manageContractRead(
       this.publicClient,
       etsRelayerFactoryConfig.address,
@@ -30,7 +54,7 @@ export class RelayerFactoryClient {
   }
 
   private async callContract(
-    functionName: string,
+    functionName: WriteFunctionName,
     args: any[] = [],
   ): Promise<{ transactionHash: string; status: number }> {
     if (!this.walletClient) {

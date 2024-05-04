@@ -90,7 +90,7 @@ export class ETSClient {
   // Methods delegating to TokenClient
   public async tagExists(tag: string): Promise<boolean> {
     if (!this.tokenClient) throw new Error("TokenClient is not initialized.");
-    return this.tokenClient.tagExists(tag);
+    return this.tokenClient.tagExistsById(tag);
   }
 
   public async existingTags(tags: string[]): Promise<string[]> {
@@ -179,14 +179,14 @@ export class ETSClient {
     return this.relayerClient.replaceTags(tags, targetURI, recordType);
   }
 
-  public async getOwner(): Promise<Address> {
+  public async owner(): Promise<Address> {
     if (!this.relayerClient) throw new Error("RelayerClient is not initialized.");
-    return this.relayerClient.getOwner();
+    return this.relayerClient.owner();
   }
 
-  public async isPaused(): Promise<boolean> {
+  public async paused(): Promise<boolean> {
     if (!this.relayerClient) throw new Error("RelayerClient is not initialized.");
-    return this.relayerClient.isPaused();
+    return this.relayerClient.paused();
   }
 
   // Methods delegating to AccessControlsClient
@@ -243,7 +243,7 @@ export class ETSClient {
   }
 
   // Methods delegating to TargetClient
-  async createTarget(targetURI: string): Promise<bigint> {
+  async createTarget(targetURI: string): Promise<{ transactionHash: string; status: number }> {
     if (!this.targetClient) throw new Error("TargetClient is not initialized.");
     return this.targetClient.createTarget(targetURI);
   }
@@ -251,6 +251,36 @@ export class ETSClient {
   async getTargetById(targetId: bigint): Promise<any> {
     if (!this.targetClient) throw new Error("TargetClient is not initialized.");
     return this.targetClient.getTargetById(targetId);
+  }
+
+  async getTargetByURI(targetURI: string): Promise<any> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.getTargetByURI(targetURI);
+  }
+
+  async targetExistsById(targetId: bigint): Promise<boolean> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.targetExistsById(targetId);
+  }
+
+  async targetExistsByURI(targetURI: string): Promise<boolean> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.targetExistsByURI(targetURI);
+  }
+
+  async getOrCreateTargetId(targetURI: string): Promise<bigint> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.getOrCreateTargetId(targetURI);
+  }
+
+  async setAccessControls(accessControlsAddress: string): Promise<{ transactionHash: string; status: number }> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.setAccessControls(accessControlsAddress);
+  }
+
+  async setEnrichTarget(enrichTargetAddress: string): Promise<{ transactionHash: string; status: number }> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.setEnrichTarget(enrichTargetAddress);
   }
 
   async updateTarget(
@@ -262,5 +292,48 @@ export class ETSClient {
   ): Promise<{ transactionHash: string; status: number }> {
     if (!this.targetClient) throw new Error("TargetClient is not initialized.");
     return this.targetClient.updateTarget(targetId, targetURI, enriched, httpStatus, ipfsHash);
+  }
+
+  async upgradeTo(newImplementation: string): Promise<{ transactionHash: string; status: number }> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.upgradeTo(newImplementation);
+  }
+
+  async upgradeToAndCall(
+    newImplementation: string,
+    data: string,
+  ): Promise<{ transactionHash: string; status: number }> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.upgradeToAndCall(newImplementation, data);
+  }
+
+  async etsAccessControls(): Promise<string> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.etsAccessControls();
+  }
+
+  async etsEnrichTarget(): Promise<string> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.etsEnrichTarget();
+  }
+
+  async initialize(accessControlsAddress: string): Promise<{ transactionHash: string; status: number }> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.initialize(accessControlsAddress);
+  }
+
+  async proxiableUUID(): Promise<string> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.proxiableUUID();
+  }
+
+  async targets(index: bigint): Promise<any> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.targets(index);
+  }
+
+  async computeTargetId(targetURI: string): Promise<bigint> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.computeTargetId(targetURI);
   }
 }

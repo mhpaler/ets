@@ -3,11 +3,37 @@ import { etsABI, etsAddress, etsRelayerV1ABI } from "../contracts/contracts";
 import { TokenClient } from "./TokenClient";
 import { manageContractCall, manageContractRead } from "./utils";
 
+type WriteFunctionName =
+  | "applyTags"
+  | "changeOwner"
+  | "initialize"
+  | "pause"
+  | "renounceOwnership"
+  | "replaceTags"
+  | "transferOwnership"
+  | "unpause"
+  | "removeTags";
+
+type ReadFunctionName =
+  | "computeTaggingFee"
+  | "creator"
+  | "ets"
+  | "etsAccessControls"
+  | "etsTarget"
+  | "etsToken"
+  | "getBalance"
+  | "owner"
+  | "getRelayerName"
+  | "paused"
+  | "supportsInterface"
+  | "version";
+
 export class RelayerClient {
   private readonly chainId?: number;
   private readonly publicClient: PublicClient;
   private readonly walletClient: WalletClient | undefined;
   private readonly relayerAddress: Hex | undefined;
+  private readonly etsConfig: { address?: Hex; abi: any };
 
   constructor({
     chainId,
@@ -24,9 +50,14 @@ export class RelayerClient {
     this.publicClient = publicClient;
     this.walletClient = walletClient;
     this.relayerAddress = relayerAddress;
+    this.etsConfig = { address: relayerAddress, abi: etsRelayerV1ABI };
 
     if (publicClient === undefined) {
       throw new Error("Public client is required");
+    }
+
+    if (relayerAddress === undefined) {
+      throw new Error("Relayer address is required");
     }
 
     if (publicClient.chain?.id !== chainId) {
@@ -43,11 +74,9 @@ export class RelayerClient {
       throw new Error("Wallet client is required to perform this action");
     }
 
-    if (this.relayerAddress === undefined) {
+    if (!this.etsConfig.address) {
       throw new Error("Relayer address is required");
     }
-
-    const etsConfig = { address: this.relayerAddress, abi: etsRelayerV1ABI };
 
     const etsTokenClient = new TokenClient({
       chainId: this.chainId ?? 0,
@@ -59,11 +88,11 @@ export class RelayerClient {
       const existingTags = await etsTokenClient.existingTags(tags);
       const tagsToMint = tags.filter((tag) => !existingTags.includes(tag));
 
-      if (tagsToMint.length > 0) {
+      if (tagsToMint.length > 0 && this.etsConfig.address) {
         try {
           const { request } = await this.publicClient.simulateContract({
-            address: etsConfig.address,
-            abi: etsConfig.abi,
+            address: this.etsConfig.address,
+            abi: this.etsConfig.abi,
             functionName: "getOrCreateTagIds",
             args: [tagsToMint],
             account: this.walletClient.account,
@@ -111,7 +140,7 @@ export class RelayerClient {
         enrich: false,
       };
 
-      const [fee, actualTagCount] = await this.readContract("computeTaggingFee", [tagParams, 0]);
+      const [fee, actualTagCount] = await this.computeTaggingFee(tagParams, 0);
 
       const { request } = await this.publicClient.simulateContract({
         address: this.relayerAddress,
@@ -149,8 +178,6 @@ export class RelayerClient {
       throw error;
     }
   }
-
-  // Additional methods derived from the ABI for tag application, owner management, pause toggles, and other functionalities:
 
   async pause(): Promise<{ transactionHash: string; status: number }> {
     return this.callContract("pause");
@@ -224,42 +251,85 @@ export class RelayerClient {
   }
 
   // Additional utility and getter functions for the contract
-  async getOwner(): Promise<Address> {
+  async owner(): Promise<Address> {
     return this.readContract("owner", []);
   }
 
-  async isPaused(): Promise<boolean> {
+  async paused(): Promise<boolean> {
     return this.readContract("paused", []);
   }
 
-  private async callContract(functionName: any, args: any = []): Promise<{ transactionHash: string; status: number }> {
+  async creator(): Promise<string> {
+    return this.readContract("creator", []);
+  }
+
+  async ets(): Promise<string> {
+    return this.readContract("ets", []);
+  }
+
+  async etsAccessControls(): Promise<string> {
+    return this.readContract("etsAccessControls", []);
+  }
+
+  async etsTarget(): Promise<string> {
+    return this.readContract("etsTarget", []);
+  }
+
+  async etsToken(): Promise<string> {
+    return this.readContract("etsToken", []);
+  }
+
+  async getBalance(): Promise<number> {
+    return this.readContract("getBalance", []);
+  }
+
+  async getRelayerName(): Promise<string> {
+    return this.readContract("getRelayerName", []);
+  }
+
+  async renounceOwnership(): Promise<{ transactionHash: string; status: number }> {
+    return this.callContract("renounceOwnership", []);
+  }
+
+  async computeTaggingFee(tagParams: any, value: number): Promise<[bigint, bigint]> {
+    return this.readContract("computeTaggingFee", [tagParams, value]);
+  }
+
+  async supportsInterface(interfaceId: string): Promise<boolean> {
+    return this.readContract("supportsInterface", [interfaceId]);
+  }
+
+  async version(): Promise<string> {
+    return this.readContract("version", []);
+  }
+
+  private async callContract(
+    functionName: WriteFunctionName,
+    args: any = [],
+  ): Promise<{ transactionHash: string; status: number }> {
     if (this.walletClient === undefined) {
       throw new Error("Wallet client is required to perform this action");
     }
 
-    if (this.relayerAddress === undefined) {
+    if (!this.etsConfig.address) {
       throw new Error("Relayer address is required");
     }
-
-    const etsConfig = { address: this.relayerAddress, abi: etsRelayerV1ABI };
 
     return manageContractCall(
       this.publicClient,
       this.walletClient,
-      etsConfig.address,
-      etsConfig.abi,
+      this.etsConfig.address,
+      this.etsConfig.abi,
       functionName,
       args,
     );
   }
 
-  private async readContract(functionName: any, args: any = []): Promise<any> {
-    if (this.relayerAddress === undefined) {
+  private async readContract(functionName: ReadFunctionName, args: any = []): Promise<any> {
+    if (!this.etsConfig.address) {
       throw new Error("Relayer address is required");
     }
 
-    const etsConfig = { address: this.relayerAddress, abi: etsRelayerV1ABI };
-
-    return manageContractRead(this.publicClient, etsConfig.address, etsConfig.abi, functionName, args);
+    return manageContractRead(this.publicClient, this.etsConfig.address, this.etsConfig.abi, functionName, args);
   }
 }

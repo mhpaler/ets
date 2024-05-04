@@ -24,6 +24,26 @@ export const useEtsTarget = () => {
     return targetClient.getTargetById(targetId);
   };
 
+  const getTargetByURI = async (targetURI: string) => {
+    if (!targetClient) throw new Error("Target client not initialized");
+    return targetClient.getTargetByURI(targetURI);
+  };
+
+  const targetExistsById = async (targetId: bigint) => {
+    if (!targetClient) throw new Error("Target client not initialized");
+    return targetClient.targetExistsById(targetId);
+  };
+
+  const targetExistsByURI = async (targetURI: string) => {
+    if (!targetClient) throw new Error("Target client not initialized");
+    return targetClient.targetExistsByURI(targetURI);
+  };
+
+  const computeTargetId = async (targetURI: string) => {
+    if (!targetClient) throw new Error("Target client not initialized");
+    return targetClient.computeTargetId(targetURI);
+  };
+
   const updateTarget = async (
     targetId: bigint,
     targetURI: string,
@@ -38,6 +58,10 @@ export const useEtsTarget = () => {
   return {
     createTarget,
     getTargetById,
+    getTargetByURI,
+    targetExistsById,
+    targetExistsByURI,
     updateTarget,
+    computeTargetId,
   };
 };
