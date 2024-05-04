@@ -39,7 +39,7 @@ export class TokenClient {
     return existingTags;
   }
 
-  async fetchHasTags(address: `0x${string}` | undefined): Promise<boolean> {
+  async hasTags(address: `0x${string}` | undefined): Promise<boolean> {
     if (!address || !address.startsWith("0x")) {
       console.error("Invalid address");
       return false;

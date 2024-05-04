@@ -60,7 +60,7 @@ export function createTokenClient({
 }: {
   chainId: number | undefined;
   account?: Hex;
-}): any | undefined {
+}): TokenClient | undefined {
   return createClientHelper<TokenClient>(TokenClient, chainId, undefined, account);
 }
 
@@ -72,6 +72,6 @@ export function createRelayerClient({
   chainId: number | undefined;
   relayerAddress: Hex;
   account?: Hex;
-}): any | undefined {
+}): RelayerClient | undefined {
   return createClientHelper<RelayerClient>(RelayerClient, chainId, relayerAddress, account);
 }

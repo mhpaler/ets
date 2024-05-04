@@ -8,6 +8,7 @@ export const useTokenService = () => {
   const [tokenClient, setTokenClient] = useState<ReturnType<typeof createTokenClient>>();
 
   useEffect(() => {
+    if (!chainId || !address) return;
     const client = createTokenClient({ chainId, account: address });
     setTokenClient(client);
   }, [chainId]);
@@ -32,7 +33,7 @@ export const useTokenService = () => {
     return tokenClient.existingTags(tags);
   };
 
-  const fetchHasTags = async (address: `0x${string}` | undefined): Promise<boolean> => {
+  const hasTags = async (address: `0x${string}` | undefined): Promise<boolean> => {
     if (!tokenClient) throw new Error("Token client not initialized");
     return tokenClient.hasTags(address);
   };
@@ -42,6 +43,6 @@ export const useTokenService = () => {
     computeTagIds,
     tagExists,
     existingTags,
-    fetchHasTags,
+    hasTags,
   };
 };

@@ -48,8 +48,8 @@ export const AddRelayerProvider = ({ children }: { children: React.ReactNode }) 
     name: "",
   });
   const { address, isConnected } = useAccount();
-  const [hasTags, setHasTags] = useState<boolean>(false);
-  const { fetchHasTags } = useTokenService();
+  const [userHasTags, setUserHasTags] = useState<boolean>(false);
+  const { hasTags } = useTokenService();
 
   const goToNextStep = () => {
     setCurrentStep((prevStep) => {
@@ -67,8 +67,8 @@ export const AddRelayerProvider = ({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
-      const tags = await fetchHasTags(address);
-      setHasTags(tags);
+      const tags = await hasTags(address);
+      setUserHasTags(tags);
     };
 
     if (address && isConnected) {
@@ -77,18 +77,18 @@ export const AddRelayerProvider = ({ children }: { children: React.ReactNode }) 
   }, [address, isConnected]);
 
   useEffect(() => {
-    if (isConnected && hasTags) {
+    if (isConnected && userHasTags) {
       setCurrentStep(AddRelayerSteps.AddRelayerForm);
     } else {
       setCurrentStep(AddRelayerSteps.CheckUser);
     }
     console.log("currentStep", currentStep);
-  }, [isConnected, hasTags]);
+  }, [isConnected, userHasTags]);
 
   const contextValue: FormContextValue = {
     address,
     isConnected,
-    hasTags,
+    hasTags: userHasTags,
     AddRelayerSteps,
     currentStep,
     goToNextStep,
