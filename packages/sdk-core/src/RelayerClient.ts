@@ -1,6 +1,7 @@
 import type { Address, Hex, PublicClient, WalletClient } from "viem";
 import { etsABI, etsAddress, etsRelayerV1ABI } from "../contracts/contracts";
 import { TokenClient } from "./TokenClient";
+import { manageContractCall, manageContractRead } from "./utils";
 
 export class RelayerClient {
   private readonly chainId: number;
@@ -110,12 +111,8 @@ export class RelayerClient {
         enrich: false,
       };
 
-      const [fee, actualTagCount] = await this.publicClient.readContract({
-        address: this.relayerAddress,
-        abi: etsRelayerV1ABI,
-        functionName: "computeTaggingFee",
-        args: [tagParams, 0],
-      });
+      const [fee, actualTagCount] = await this.readContract("computeTaggingFee", [tagParams, 0]);
+
       const { request } = await this.publicClient.simulateContract({
         address: this.relayerAddress,
         abi: etsRelayerV1ABI,
@@ -156,19 +153,19 @@ export class RelayerClient {
   // Additional methods derived from the ABI for tag application, owner management, pause toggles, and other functionalities:
 
   async pause(): Promise<{ transactionHash: string; status: number }> {
-    return this.manageContractCall("pause");
+    return this.callContract("pause");
   }
 
   async unpause(): Promise<{ transactionHash: string; status: number }> {
-    return this.manageContractCall("unpause");
+    return this.callContract("unpause");
   }
 
   async changeOwner(newOwner: Address): Promise<{ transactionHash: string; status: number }> {
-    return this.manageContractCall("changeOwner", [newOwner]);
+    return this.callContract("changeOwner", [newOwner]);
   }
 
   async transferOwnership(newOwner: Address): Promise<{ transactionHash: string; status: number }> {
-    return this.manageContractCall("transferOwnership", [newOwner]);
+    return this.callContract("transferOwnership", [newOwner]);
   }
 
   async initialize(params: {
@@ -181,15 +178,7 @@ export class RelayerClient {
     owner: Address;
   }): Promise<{ transactionHash: string; status: number }> {
     const { relayerName, ets, etsToken, etsTarget, etsAccessControls, creator, owner } = params;
-    return this.manageContractCall("initialize", [
-      relayerName,
-      ets,
-      etsToken,
-      etsTarget,
-      etsAccessControls,
-      creator,
-      owner,
-    ]);
+    return this.callContract("initialize", [relayerName, ets, etsToken, etsTarget, etsAccessControls, creator, owner]);
   }
 
   async applyTags(
@@ -197,7 +186,7 @@ export class RelayerClient {
     targetURI: string,
     recordType: string,
   ): Promise<{ transactionHash: string; status: number }> {
-    return this.manageContractCall("applyTags", [
+    return this.callContract("applyTags", [
       {
         targetURI,
         tagStrings: tags,
@@ -211,7 +200,7 @@ export class RelayerClient {
     targetURI: string,
     recordType: string,
   ): Promise<{ transactionHash: string; status: number }> {
-    return this.manageContractCall("removeTags", [
+    return this.callContract("removeTags", [
       {
         targetURI,
         tagStrings: tags,
@@ -225,7 +214,7 @@ export class RelayerClient {
     targetURI: string,
     recordType: string,
   ): Promise<{ transactionHash: string; status: number }> {
-    return this.manageContractCall("replaceTags", [
+    return this.callContract("replaceTags", [
       {
         targetURI,
         tagStrings: tags,
@@ -236,34 +225,14 @@ export class RelayerClient {
 
   // Additional utility and getter functions for the contract
   async getOwner(): Promise<Address> {
-    if (this.relayerAddress === undefined) {
-      throw new Error("Relayer address is required");
-    }
-    return this.publicClient.readContract({
-      address: this.relayerAddress,
-      abi: etsRelayerV1ABI,
-      functionName: "owner",
-      args: [],
-    });
+    return this.readContract("owner", []);
   }
 
   async isPaused(): Promise<boolean> {
-    if (this.relayerAddress === undefined) {
-      throw new Error("Relayer address is required");
-    }
-    return this.publicClient.readContract({
-      address: this.relayerAddress,
-      abi: etsRelayerV1ABI,
-      functionName: "paused",
-      args: [],
-    });
+    return this.readContract("paused", []);
   }
 
-  // helper
-  private async manageContractCall(
-    functionName: any,
-    args: any = [],
-  ): Promise<{ transactionHash: string; status: number }> {
+  private async callContract(functionName: any, args: any = []): Promise<{ transactionHash: string; status: number }> {
     if (this.walletClient === undefined) {
       throw new Error("Wallet client is required to perform this action");
     }
@@ -274,28 +243,23 @@ export class RelayerClient {
 
     const etsConfig = { address: this.relayerAddress, abi: etsRelayerV1ABI };
 
-    try {
-      const { request } = await this.publicClient.simulateContract({
-        address: etsConfig.address,
-        abi: etsConfig.abi,
-        functionName,
-        args,
-        account: this.walletClient.account,
-      });
+    return manageContractCall(
+      this.publicClient,
+      this.walletClient,
+      etsConfig.address,
+      etsConfig.abi,
+      functionName,
+      args,
+    );
+  }
 
-      const hash = await this.walletClient.writeContract(request);
-
-      const receipt = await this.publicClient.waitForTransactionReceipt({
-        hash,
-      });
-
-      return {
-        status: receipt.status,
-        transactionHash: receipt.transactionHash,
-      };
-    } catch (error) {
-      console.error(`Error in ${functionName}:`, error);
-      throw error;
+  private async readContract(functionName: any, args: any = []): Promise<any> {
+    if (this.relayerAddress === undefined) {
+      throw new Error("Relayer address is required");
     }
+
+    const etsConfig = { address: this.relayerAddress, abi: etsRelayerV1ABI };
+
+    return manageContractRead(this.publicClient, etsConfig.address, etsConfig.abi, functionName, args);
   }
 }

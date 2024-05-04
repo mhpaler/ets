@@ -1,5 +1,6 @@
 import type { PublicClient, WalletClient, Hex } from "viem";
 import { etsTokenConfig } from "../contracts/contracts";
+import { manageContractRead, manageContractCall } from "./utils";
 
 export class TokenClient {
   private readonly chainId: number;
@@ -44,17 +45,17 @@ export class TokenClient {
       console.error("Invalid address");
       return false;
     }
-    const data = await this.manageContractRead("balanceOf", [address]);
+    const data = await this.readContract("balanceOf", [address]);
     return data > BigInt(0);
   }
 
   async tagExists(tag: string): Promise<boolean> {
     const tagId = await this.computeTagId(tag);
-    return this.manageContractRead("tagExistsById", [tagId]);
+    return this.readContract("tagExistsById", [tagId]);
   }
 
   async computeTagId(tag: string): Promise<bigint> {
-    return this.manageContractRead("computeTagId", [tag]);
+    return this.readContract("computeTagId", [tag]);
   }
 
   async computeTagIds(tags: string[]): Promise<bigint[]> {
@@ -62,99 +63,74 @@ export class TokenClient {
   }
 
   async approve(to: Hex, tokenId: bigint): Promise<{ transactionHash: string; status: number }> {
-    return this.manageContractCall("approve", [to, tokenId]);
+    return this.callContract("approve", [to, tokenId]);
   }
 
   async balanceOf(owner: Hex): Promise<bigint> {
-    return this.manageContractRead("balanceOf", [owner]);
+    return this.readContract("balanceOf", [owner]);
   }
 
   async burn(tokenId: bigint): Promise<{ transactionHash: string; status: number }> {
-    return this.manageContractCall("burn", [tokenId]);
+    return this.callContract("burn", [tokenId]);
   }
 
   async createTag(tag: string, relayer: Hex, creator: Hex): Promise<bigint> {
-    const { transactionHash, status } = await this.manageContractCall("createTag", [tag, relayer, creator]);
-    return this.manageContractRead("getOrCreateTagId", [tag, relayer, creator]);
+    const { transactionHash, status } = await this.callContract("createTag", [tag, relayer, creator]);
+    return this.readContract("getOrCreateTagId", [tag, relayer, creator]);
   }
 
   async getApproved(tokenId: bigint): Promise<Hex> {
-    return this.manageContractRead("getApproved", [tokenId]);
+    return this.readContract("getApproved", [tokenId]);
   }
 
   async getTagById(tokenId: bigint): Promise<any> {
-    return this.manageContractRead("getTagById", [tokenId]);
+    return this.readContract("getTagById", [tokenId]);
   }
 
   async getTagByString(tag: string): Promise<any> {
-    return this.manageContractRead("getTagByString", [tag]);
+    return this.readContract("getTagByString", [tag]);
   }
 
   async isApprovedForAll(owner: Hex, operator: Hex): Promise<boolean> {
-    return this.manageContractRead("isApprovedForAll", [owner, operator]);
+    return this.readContract("isApprovedForAll", [owner, operator]);
   }
 
   async ownerOf(tokenId: bigint): Promise<Hex> {
-    return this.manageContractRead("ownerOf", [tokenId]);
+    return this.readContract("ownerOf", [tokenId]);
   }
 
   async setApprovalForAll(operator: Hex, approved: boolean): Promise<{ transactionHash: string; status: number }> {
-    return this.manageContractCall("setApprovalForAll", [operator, approved]);
+    return this.callContract("setApprovalForAll", [operator, approved]);
   }
 
   async transferFrom(from: Hex, to: Hex, tokenId: bigint): Promise<{ transactionHash: string; status: number }> {
-    return this.manageContractCall("transferFrom", [from, to, tokenId]);
+    return this.callContract("transferFrom", [from, to, tokenId]);
   }
 
   async pause(): Promise<{ transactionHash: string; status: number }> {
-    return this.manageContractCall("pause", []);
+    return this.callContract("pause", []);
   }
 
   async unPause(): Promise<{ transactionHash: string; status: number }> {
-    return this.manageContractCall("unPause", []);
+    return this.callContract("unPause", []);
   }
 
-  // Helper methods for contract interactions
-  // fix any
-  private async manageContractRead(functionName: any, args: any = []): Promise<any> {
-    try {
-      return await this.publicClient.readContract({
-        ...etsTokenConfig,
-        functionName,
-        args,
-      });
-    } catch (error) {
-      console.error(`Error performing read operation for function ${functionName}:`, error);
-      throw error;
-    }
+  private async readContract(functionName: any, args: any = []): Promise<any> {
+    return manageContractRead(this.publicClient, etsTokenConfig.address, etsTokenConfig.abi, functionName, args);
   }
 
   // fix any
-  private async manageContractCall(
-    functionName: any,
-    args: any = [],
-  ): Promise<{ transactionHash: string; status: number }> {
+  private async callContract(functionName: any, args: any = []): Promise<{ transactionHash: string; status: number }> {
     if (!this.walletClient) {
       throw new Error("Wallet client is required to perform this action");
     }
-    try {
-      const { request } = await this.publicClient.simulateContract({
-        address: etsTokenConfig.address,
-        abi: etsTokenConfig.abi,
-        functionName,
-        args,
-        account: this.walletClient.account,
-      });
-
-      const hash = await this.walletClient.writeContract(request);
-      const receipt = await this.publicClient.waitForTransactionReceipt({ hash });
-      return {
-        status: receipt.status,
-        transactionHash: receipt.transactionHash,
-      };
-    } catch (error) {
-      console.error(`Error in ${functionName}:`, error);
-      throw error;
-    }
+    return manageContractCall(
+      this.publicClient,
+      this.walletClient,
+      etsTokenConfig.address,
+      etsTokenConfig.abi,
+      functionName,
+      args,
+    );
   }
 }

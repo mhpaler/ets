@@ -6,12 +6,13 @@ export const useTokenService = () => {
   const chainId = useChainId();
   const { address } = useAccount();
   const [tokenClient, setTokenClient] = useState<ReturnType<typeof createTokenClient>>();
+  console.log("tokenClient", tokenClient);
 
   useEffect(() => {
     if (!chainId || !address) return;
     const client = createTokenClient({ chainId, account: address });
     setTokenClient(client);
-  }, [chainId]);
+  }, [chainId, address]);
 
   const computeTagId = async (tag: string): Promise<bigint> => {
     if (!tokenClient) throw new Error("Token client not initialized");
