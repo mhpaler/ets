@@ -1,53 +1,7 @@
 import { PublicClient, WalletClient } from "viem";
-import { etsAuctionHouseConfig } from "../contracts/contracts";
-import { manageContractRead, manageContractCall } from "./utils";
-
-type ReadFunctionName =
-  | "accrued"
-  | "auctionEnded"
-  | "auctionExists"
-  | "auctionExistsForTokenId"
-  | "auctionSettled"
-  | "auctions"
-  | "auctionsByTokenId"
-  | "creatorPercentage"
-  | "duration"
-  | "etsAccessControls"
-  | "etsToken"
-  | "maxAuctions"
-  | "minBidIncrementPercentage"
-  | "paid"
-  | "paused"
-  | "platformPercentage"
-  | "proxiableUUID"
-  | "relayerPercentage"
-  | "reservePrice"
-  | "timeBuffer"
-  | "totalDue"
-  | "getAuction"
-  | "getActiveCount"
-  | "getAuctionCountForTokenId"
-  | "getAuctionForTokenId"
-  | "getBalance"
-  | "getTotalCount";
-
-type WriteFunctionName =
-  | "createBid"
-  | "createNextAuction"
-  | "drawDown"
-  | "fulfillRequestCreateAuction"
-  | "pause"
-  | "setDuration"
-  | "setMaxAuctions"
-  | "setMinBidIncrementPercentage"
-  | "setProceedPercentages"
-  | "setReservePrice"
-  | "setTimeBuffer"
-  | "settleAuction"
-  | "settleCurrentAndCreateNewAuction"
-  | "unpause"
-  | "upgradeTo"
-  | "upgradeToAndCall";
+import { etsAuctionHouseConfig } from "../../contracts/contracts";
+import { manageContractRead, manageContractCall } from "../utils";
+import { AuctionHouseRead, AuctionHouseWrite } from "../types";
 
 export class AuctionHouseClient {
   private readonly publicClient: PublicClient;
@@ -240,7 +194,7 @@ export class AuctionHouseClient {
     return this.readContract("totalDue", [address]);
   }
 
-  private async readContract(functionName: ReadFunctionName, args: any[] = []): Promise<any> {
+  private async readContract(functionName: AuctionHouseRead, args: any[] = []): Promise<any> {
     return manageContractRead(
       this.publicClient,
       etsAuctionHouseConfig.address,
@@ -251,7 +205,7 @@ export class AuctionHouseClient {
   }
 
   private async callContract(
-    functionName: WriteFunctionName,
+    functionName: AuctionHouseWrite,
     args: any[] = [],
   ): Promise<{ transactionHash: string; status: number }> {
     if (!this.walletClient) {

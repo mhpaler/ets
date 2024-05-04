@@ -1,12 +1,14 @@
-import { AccessControlsClient } from "./AccessControlsClient";
-import { AuctionHouseClient } from "./AuctionHouseClient";
-import { CoreClient } from "./CoreClient";
-import { EnrichTargetClient } from "./EnrichTargetClient";
-import { ETSClient } from "./ETSClient";
-import { RelayerClient } from "./RelayerClient";
-import { RelayerFactoryClient } from "./RelayerFactoryClient";
-import { TargetClient } from "./TargetClient";
-import { TokenClient } from "./TokenClient";
+import { AccessControlsClient } from "./clients/AccessControlsClient";
+import { AuctionHouseClient } from "./clients/AuctionHouseClient";
+import { CoreClient } from "./clients/CoreClient";
+import { EnrichTargetClient } from "./clients/EnrichTargetClient";
+import { ETSClient } from "./clients/ETSClient";
+import { RelayerClient } from "./clients/RelayerClient";
+import { RelayerFactoryClient } from "./clients/RelayerFactoryClient";
+import { TargetClient } from "./clients/TargetClient";
+import { TokenClient } from "./clients/TokenClient";
+
+import * as types from "./types";
 
 export {
   AccessControlsClient,
@@ -19,3 +21,5 @@ export {
   TargetClient,
   TokenClient,
 };
+
+export { types };

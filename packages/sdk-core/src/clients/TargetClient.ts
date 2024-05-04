@@ -1,28 +1,7 @@
 import { PublicClient, WalletClient } from "viem";
-import { etsTargetConfig } from "../contracts/contracts";
-import { manageContractRead, manageContractCall } from "./utils";
-
-type WriteFunctionName =
-  | "createTarget"
-  | "setAccessControls"
-  | "setEnrichTarget"
-  | "updateTarget"
-  | "upgradeTo"
-  | "upgradeToAndCall"
-  | "initialize";
-
-type ReadFunctionName =
-  | "getTargetById"
-  | "getTargetByURI"
-  | "targetExistsById"
-  | "targetExistsByURI"
-  | "getOrCreateTargetId"
-  | "getName"
-  | "proxiableUUID"
-  | "targets"
-  | "computeTargetId"
-  | "etsAccessControls"
-  | "etsEnrichTarget";
+import { etsTargetConfig } from "../../contracts/contracts";
+import { manageContractRead, manageContractCall } from "../utils";
+import { TargetRead, TargetWrite } from "../types";
 
 export class TargetClient {
   private readonly publicClient: PublicClient;
@@ -110,12 +89,12 @@ export class TargetClient {
     return this.readContract("computeTargetId", [targetURI]);
   }
 
-  private async readContract(functionName: ReadFunctionName, args: any[] = []): Promise<any> {
+  private async readContract(functionName: TargetRead, args: any[] = []): Promise<any> {
     return manageContractRead(this.publicClient, etsTargetConfig.address, etsTargetConfig.abi, functionName, args);
   }
 
   private async callContract(
-    functionName: WriteFunctionName,
+    functionName: TargetWrite,
     args: any[] = [],
   ): Promise<{ transactionHash: string; status: number }> {
     if (!this.walletClient) {

@@ -1,30 +1,7 @@
 import { Address, Hex, PublicClient, WalletClient } from "viem";
-import { manageContractCall, manageContractRead } from "./utils";
-import { etsConfig } from "../contracts/contracts";
-
-type WriteFunctionName =
-  | "applyTagsWithCompositeKey"
-  | "appendTags"
-  | "initialize"
-  | "removeTags"
-  | "replaceTags"
-  | "setAccessControls"
-  | "setPercentages"
-  | "setTaggingFee"
-  | "upgradeTo"
-  | "upgradeToAndCall";
-
-type ReadFunctionName =
-  | "accrued"
-  | "platformPercentage"
-  | "relayerPercentage"
-  | "taggingFee"
-  | "taggingRecordExists"
-  | "etsAccessControls"
-  | "etsTarget"
-  | "etsToken"
-  | "totalDue"
-  | "proxiableUUID";
+import { manageContractCall, manageContractRead } from "../utils";
+import { etsConfig } from "../../contracts/contracts";
+import { CoreRead, CoreWrite } from "../types";
 
 export class CoreClient {
   private readonly publicClient: PublicClient;
@@ -161,7 +138,7 @@ export class CoreClient {
   }
 
   private async callContract(
-    functionName: WriteFunctionName,
+    functionName: CoreWrite,
     args: any = [],
   ): Promise<{ transactionHash: string; status: number }> {
     if (!this.walletClient) {
@@ -177,7 +154,7 @@ export class CoreClient {
     );
   }
 
-  private async readContract(functionName: ReadFunctionName, args: any[] = []): Promise<any> {
+  private async readContract(functionName: CoreRead, args: any[] = []): Promise<any> {
     if (!etsConfig.address) {
       throw new Error("Contract address is required");
     }

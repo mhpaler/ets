@@ -1,45 +1,7 @@
 import { PublicClient, WalletClient } from "viem";
-import { etsAccessControlsConfig } from "../contracts/contracts";
-import { manageContractRead, manageContractCall } from "./utils";
-
-type ReadFunctionName =
-  | "hasRole"
-  | "isAdmin"
-  | "isAuctionOracle"
-  | "isRelayer"
-  | "isRelayerAdmin"
-  | "isRelayerAndNotPaused"
-  | "isRelayerByAddress"
-  | "isRelayerByName"
-  | "isRelayerByOwner"
-  | "isRelayerFactory"
-  | "isRelayerLocked"
-  | "isSmartContract"
-  | "getPlatformAddress"
-  | "getRelayerAddressFromName"
-  | "getRelayerAddressFromOwner"
-  | "getRelayerNameFromAddress"
-  | "getRoleAdmin"
-  | "proxiableUUID"
-  | "relayerContractToName"
-  | "relayerLocked"
-  | "relayerNameToContract"
-  | "relayerOwnerToAddress"
-  | "supportsInterface";
-
-type WriteFunctionName =
-  | "grantRole"
-  | "revokeRole"
-  | "changeRelayerOwner"
-  | "initialize"
-  | "renounceRole"
-  | "pauseRelayerByOwnerAddress"
-  | "registerRelayer"
-  | "setPlatform"
-  | "setRoleAdmin"
-  | "toggleRelayerLock"
-  | "upgradeTo"
-  | "upgradeToAndCall";
+import { etsAccessControlsConfig } from "../../contracts/contracts";
+import { manageContractRead, manageContractCall } from "../utils";
+import { AccessControlsRead, AccessControlsWrite } from "../types";
 
 export class AccessControlsClient {
   private readonly publicClient: PublicClient;
@@ -200,7 +162,7 @@ export class AccessControlsClient {
     return this.readContract("supportsInterface", [interfaceId]);
   }
 
-  private async readContract(functionName: ReadFunctionName, args: any[] = []): Promise<any> {
+  private async readContract(functionName: AccessControlsRead, args: any[] = []): Promise<any> {
     return manageContractRead(
       this.publicClient,
       etsAccessControlsConfig.address,
@@ -211,7 +173,7 @@ export class AccessControlsClient {
   }
 
   private async callContract(
-    functionName: WriteFunctionName,
+    functionName: AccessControlsWrite,
     args: any[] = [],
   ): Promise<{ transactionHash: string; status: number }> {
     if (!this.walletClient) {

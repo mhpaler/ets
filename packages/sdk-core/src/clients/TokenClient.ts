@@ -1,50 +1,7 @@
 import type { PublicClient, WalletClient, Hex } from "viem";
-import { etsTokenConfig } from "../contracts/contracts";
-import { manageContractRead, manageContractCall } from "./utils";
-
-type WriteFunctionName =
-  | "approve"
-  | "burn"
-  | "getOrCreateTagId"
-  | "setETSCore"
-  | "setOwnershipTermLength"
-  | "setTagMaxStringLength"
-  | "setTagMinStringLength"
-  | "upgradeTo"
-  | "upgradeToAndCall"
-  | "setApprovalForAll"
-  | "transferFrom"
-  | "pause"
-  | "unPause"
-  | "initialize"
-  | "preSetPremiumTags"
-  | "recycleTag"
-  | "renewTag"
-  | "safeTransferFrom"
-  | "setAccessControls"
-  | "setPremiumFlag"
-  | "setReservedFlag";
-
-type ReadFunctionName =
-  | "existingTags"
-  | "hasTags"
-  | "tagExistsById"
-  | "computeTagId"
-  | "computeTagIds"
-  | "approve"
-  | "balanceOf"
-  | "getApproved"
-  | "getTagById"
-  | "getTagByString"
-  | "isApprovedForAll"
-  | "ownerOf"
-  | "getOwnershipTermLength"
-  | "tagOwnershipTermExpired"
-  | "tagMaxStringLength"
-  | "tagMinStringLength"
-  | "supportsInterface"
-  | "symbol"
-  | "getOrCreateTagId";
+import { etsTokenConfig } from "../../contracts/contracts";
+import { manageContractRead, manageContractCall } from "../utils";
+import { TokenRead, TokenWrite } from "../types";
 
 export class TokenClient {
   private readonly chainId?: number;
@@ -253,12 +210,12 @@ export class TokenClient {
     return this.callContract("setReservedFlag", [tokenIds, isReserved]);
   }
 
-  private async readContract(functionName: ReadFunctionName, args: any = []): Promise<any> {
+  private async readContract(functionName: TokenRead, args: any = []): Promise<any> {
     return manageContractRead(this.publicClient, etsTokenConfig.address, etsTokenConfig.abi, functionName, args);
   }
 
   private async callContract(
-    functionName: WriteFunctionName,
+    functionName: TokenWrite,
     args: any = [],
   ): Promise<{ transactionHash: string; status: number }> {
     if (!this.walletClient) {

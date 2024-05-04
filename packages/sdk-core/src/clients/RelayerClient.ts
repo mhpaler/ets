@@ -1,32 +1,8 @@
 import type { Address, Hex, PublicClient, WalletClient } from "viem";
-import { etsABI, etsAddress, etsRelayerV1ABI } from "../contracts/contracts";
+import { etsABI, etsAddress, etsRelayerV1ABI } from "../../contracts/contracts";
 import { TokenClient } from "./TokenClient";
-import { manageContractCall, manageContractRead } from "./utils";
-
-type WriteFunctionName =
-  | "applyTags"
-  | "changeOwner"
-  | "initialize"
-  | "pause"
-  | "renounceOwnership"
-  | "replaceTags"
-  | "transferOwnership"
-  | "unpause"
-  | "removeTags";
-
-type ReadFunctionName =
-  | "computeTaggingFee"
-  | "creator"
-  | "ets"
-  | "etsAccessControls"
-  | "etsTarget"
-  | "etsToken"
-  | "getBalance"
-  | "owner"
-  | "getRelayerName"
-  | "paused"
-  | "supportsInterface"
-  | "version";
+import { manageContractCall, manageContractRead } from "../utils";
+import { RelayerRead, RelayerWrite } from "../types";
 
 export class RelayerClient {
   private readonly chainId?: number;
@@ -304,7 +280,7 @@ export class RelayerClient {
   }
 
   private async callContract(
-    functionName: WriteFunctionName,
+    functionName: RelayerWrite,
     args: any = [],
   ): Promise<{ transactionHash: string; status: number }> {
     if (this.walletClient === undefined) {
@@ -325,7 +301,7 @@ export class RelayerClient {
     );
   }
 
-  private async readContract(functionName: ReadFunctionName, args: any = []): Promise<any> {
+  private async readContract(functionName: RelayerRead, args: any = []): Promise<any> {
     if (!this.etsConfig.address) {
       throw new Error("Relayer address is required");
     }
