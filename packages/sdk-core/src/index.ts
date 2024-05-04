@@ -1,17 +1,17 @@
-import { TokenClient } from "./TokenClient";
-import { RelayerClient } from "./RelayerClient";
-import { ETSClient } from "./ETSClient";
 import { AccessControlsClient } from "./AccessControlsClient";
 import { AuctionHouseClient } from "./AuctionHouseClient";
+import { ETSClient } from "./ETSClient";
+import { RelayerClient } from "./RelayerClient";
 import { RelayerFactoryClient } from "./RelayerFactoryClient";
 import { TargetClient } from "./TargetClient";
+import { TokenClient } from "./TokenClient";
 
 export {
-  TokenClient,
-  RelayerClient,
-  ETSClient,
   AccessControlsClient,
   AuctionHouseClient,
+  ETSClient,
+  RelayerClient,
   RelayerFactoryClient,
   TargetClient,
+  TokenClient,
 };

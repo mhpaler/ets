@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { useAccount, useChainId } from "wagmi";
-import { createAccessControlsClient } from "@app/services/sdk";
-import { AccessControlsClient } from "@ethereum-tag-service/sdk-core";
+import { createETSClient } from "@app/services/sdk";
+import { ETSClient } from "@ethereum-tag-service/sdk-core";
 
 export const useEtsAccessControls = () => {
   const chainId = useChainId();
   const { address } = useAccount();
-  const [accessControlsClient, setAccessControlsClient] = useState<AccessControlsClient>();
+  const [accessControlsClient, setAccessControlsClient] = useState<ETSClient>();
 
   useEffect(() => {
     if (!chainId || !address) return;
-    const client = createAccessControlsClient({ chainId, account: address });
+    const client = createETSClient({ chainId, account: address, clients: { accessControlsClient: true } });
     setAccessControlsClient(client);
   }, [chainId, address]);
 

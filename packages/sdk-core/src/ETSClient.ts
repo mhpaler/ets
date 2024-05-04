@@ -7,7 +7,7 @@ import { TokenClient } from "./TokenClient";
 import type { Address, Hex, PublicClient, WalletClient } from "viem";
 
 interface ETSClientOptions {
-  chainId: number;
+  chainId?: number;
   publicClient: PublicClient;
   walletClient?: WalletClient;
   relayerAddress?: Hex;

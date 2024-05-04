@@ -3,7 +3,7 @@ import { etsTokenConfig } from "../contracts/contracts";
 import { manageContractRead, manageContractCall } from "./utils";
 
 export class TokenClient {
-  private readonly chainId: number;
+  private readonly chainId?: number;
   private readonly publicClient: PublicClient;
   private readonly walletClient: WalletClient | undefined;
 
@@ -12,7 +12,7 @@ export class TokenClient {
     publicClient,
     walletClient,
   }: {
-    chainId: number;
+    chainId?: number;
     publicClient: PublicClient;
     walletClient?: WalletClient;
   }) {

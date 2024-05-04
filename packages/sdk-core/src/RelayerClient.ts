@@ -4,7 +4,7 @@ import { TokenClient } from "./TokenClient";
 import { manageContractCall, manageContractRead } from "./utils";
 
 export class RelayerClient {
-  private readonly chainId: number;
+  private readonly chainId?: number;
   private readonly publicClient: PublicClient;
   private readonly walletClient: WalletClient | undefined;
   private readonly relayerAddress: Hex | undefined;
@@ -15,7 +15,7 @@ export class RelayerClient {
     walletClient,
     relayerAddress,
   }: {
-    chainId: number;
+    chainId?: number;
     publicClient: PublicClient;
     walletClient?: WalletClient;
     relayerAddress?: Hex;
