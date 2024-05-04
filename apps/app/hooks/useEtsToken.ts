@@ -1,12 +1,12 @@
-import { createTokenClient } from "@app/services/sdkService";
+import { createTokenClient } from "@app/services/sdk";
+import { TokenClient } from "@ethereum-tag-service/sdk-core";
 import { useEffect, useState } from "react";
 import { useAccount, useChainId } from "wagmi";
 
-export const useTokenService = () => {
+export const useEtsToken = () => {
   const chainId = useChainId();
   const { address } = useAccount();
-  const [tokenClient, setTokenClient] = useState<ReturnType<typeof createTokenClient>>();
-  console.log("tokenClient", tokenClient);
+  const [tokenClient, setTokenClient] = useState<TokenClient>();
 
   useEffect(() => {
     if (!chainId || !address) return;

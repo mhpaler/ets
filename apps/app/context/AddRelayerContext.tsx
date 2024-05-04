@@ -1,4 +1,4 @@
-import { useTokenService } from "@app/hooks/useTokenService";
+import { useEtsToken } from "@app/hooks/useEtsToken";
 import React, { useEffect } from "react";
 import { createContext, useState, ReactNode } from "react";
 import { useAccount } from "wagmi";
@@ -49,7 +49,7 @@ export const AddRelayerProvider = ({ children }: { children: React.ReactNode }) 
   });
   const { address, isConnected } = useAccount();
   const [userHasTags, setUserHasTags] = useState<boolean>(false);
-  const { hasTags } = useTokenService();
+  const { hasTags } = useEtsToken();
 
   const goToNextStep = () => {
     setCurrentStep((prevStep) => {

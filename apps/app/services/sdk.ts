@@ -1,6 +1,13 @@
 import { chainsMap } from "@app/config/wagmiConfig";
-import { RelayerClient, TokenClient } from "@ethereum-tag-service/sdk-core";
-import { createPublicClient, http, createWalletClient, custom, Hex, Account } from "viem";
+import {
+  RelayerClient,
+  TokenClient,
+  AuctionHouseClient,
+  AccessControlsClient,
+  RelayerFactoryClient,
+  TargetClient,
+} from "@ethereum-tag-service/sdk-core";
+import { createPublicClient, http, createWalletClient, custom, Hex } from "viem";
 
 export const viemPublicClient: any = (chainId: number) => {
   const chain = chainsMap(chainId);
@@ -14,7 +21,7 @@ export const viemPublicClient: any = (chainId: number) => {
   });
 };
 
-function createClientHelper<T>(
+function createClient<T>(
   ClientType: new (args: any) => T,
   chainId: number | undefined,
   relayerAddress?: Hex,
@@ -61,7 +68,7 @@ export function createTokenClient({
   chainId: number | undefined;
   account?: Hex;
 }): TokenClient | undefined {
-  return createClientHelper<TokenClient>(TokenClient, chainId, undefined, account);
+  return createClient<TokenClient>(TokenClient, chainId, undefined, account);
 }
 
 export function createRelayerClient({
@@ -73,5 +80,45 @@ export function createRelayerClient({
   relayerAddress: Hex;
   account?: Hex;
 }): RelayerClient | undefined {
-  return createClientHelper<RelayerClient>(RelayerClient, chainId, relayerAddress, account);
+  return createClient<RelayerClient>(RelayerClient, chainId, relayerAddress, account);
+}
+
+export function createAuctionHouseClient({
+  chainId,
+  account,
+}: {
+  chainId: number | undefined;
+  account?: Hex;
+}): AuctionHouseClient | undefined {
+  return createClient<AuctionHouseClient>(AuctionHouseClient, chainId, undefined, account);
+}
+
+export function createAccessControlsClient({
+  chainId,
+  account,
+}: {
+  chainId: number | undefined;
+  account?: Hex;
+}): AccessControlsClient | undefined {
+  return createClient<AccessControlsClient>(AccessControlsClient, chainId, undefined, account);
+}
+
+export function createRelayerFactoryClient({
+  chainId,
+  account,
+}: {
+  chainId: number | undefined;
+  account?: Hex;
+}): RelayerFactoryClient | undefined {
+  return createClient<RelayerFactoryClient>(RelayerFactoryClient, chainId, undefined, account);
+}
+
+export function createTargetClient({
+  chainId,
+  account,
+}: {
+  chainId: number | undefined;
+  account?: Hex;
+}): TargetClient | undefined {
+  return createClient<TargetClient>(TargetClient, chainId, undefined, account);
 }
