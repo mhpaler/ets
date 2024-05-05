@@ -124,7 +124,7 @@ export function createTargetClient({
   return createClient<TargetClient>(TargetClient, chainId, undefined, account);
 }
 
-export function CoreateETSClient({
+export function createCoreClient({
   chainId,
   relayerAddress,
   account,

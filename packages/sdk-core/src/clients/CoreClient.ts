@@ -6,7 +6,7 @@ import { TargetClient } from "./TargetClient";
 import { TokenClient } from "./TokenClient";
 import type { Address, Hex, PublicClient, WalletClient } from "viem";
 
-interface ETSClientOptions {
+interface CoreClientOptions {
   chainId?: number;
   publicClient: PublicClient;
   walletClient?: WalletClient;
@@ -29,7 +29,7 @@ export class CoreClient {
   private relayerFactoryClient?: RelayerFactoryClient;
   private targetClient?: TargetClient;
 
-  constructor(private options: ETSClientOptions) {
+  constructor(private options: CoreClientOptions) {
     this.initializeClients();
   }
 
