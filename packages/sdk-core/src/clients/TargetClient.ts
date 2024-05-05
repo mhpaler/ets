@@ -1,7 +1,7 @@
 import { PublicClient, WalletClient } from "viem";
 import { etsTargetConfig } from "../../contracts/contracts";
 import { manageContractRead, manageContractCall } from "../utils";
-import { TargetRead, TargetWrite } from "../types";
+import { TargetReadFunction, TargetWriteFunction } from "../types";
 
 export class TargetClient {
   private readonly publicClient: PublicClient;
@@ -89,12 +89,12 @@ export class TargetClient {
     return this.readContract("computeTargetId", [targetURI]);
   }
 
-  private async readContract(functionName: TargetRead, args: any[] = []): Promise<any> {
+  private async readContract(functionName: TargetReadFunction, args: any[] = []): Promise<any> {
     return manageContractRead(this.publicClient, etsTargetConfig.address, etsTargetConfig.abi, functionName, args);
   }
 
   private async callContract(
-    functionName: TargetWrite,
+    functionName: TargetWriteFunction,
     args: any[] = [],
   ): Promise<{ transactionHash: string; status: number }> {
     if (!this.walletClient) {

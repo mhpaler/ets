@@ -1,7 +1,7 @@
 import { PublicClient, WalletClient } from "viem";
 import { etsRelayerFactoryConfig } from "../../contracts/contracts";
 import { manageContractRead, manageContractCall } from "../utils";
-import { RelayerFactoryRead, RelayerFactoryWrite } from "../types";
+import { RelayerFactoryReadFunction, RelayerFactoryWriteFunction } from "../types";
 
 export class RelayerFactoryClient {
   private readonly publicClient: PublicClient;
@@ -40,7 +40,7 @@ export class RelayerFactoryClient {
     return this.readContract("getBeacon", []);
   }
 
-  private async readContract(functionName: RelayerFactoryRead, args: any[] = []): Promise<any> {
+  private async readContract(functionName: RelayerFactoryReadFunction, args: any[] = []): Promise<any> {
     return manageContractRead(
       this.publicClient,
       etsRelayerFactoryConfig.address,
@@ -51,7 +51,7 @@ export class RelayerFactoryClient {
   }
 
   private async callContract(
-    functionName: RelayerFactoryWrite,
+    functionName: RelayerFactoryWriteFunction,
     args: any[] = [],
   ): Promise<{ transactionHash: string; status: number }> {
     if (!this.walletClient) {

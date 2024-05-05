@@ -1,7 +1,7 @@
 import { Address, Hex, PublicClient, WalletClient } from "viem";
 import { manageContractCall, manageContractRead } from "../utils";
 import { etsEnrichTargetConfig } from "../../contracts/contracts";
-import { EnrichTargetRead, EnrichTargetWrite } from "../types";
+import { EnrichTargetReadFunction, EnrichTargetWriteFunction } from "../types";
 
 export class EnrichTargetClient {
   private readonly publicClient: PublicClient;
@@ -68,7 +68,7 @@ export class EnrichTargetClient {
   }
 
   private async callContract(
-    functionName: EnrichTargetWrite,
+    functionName: EnrichTargetWriteFunction,
     args: any = [],
   ): Promise<{ transactionHash: string; status: number }> {
     if (!this.walletClient) {
@@ -84,7 +84,7 @@ export class EnrichTargetClient {
     );
   }
 
-  private async readContract(functionName: EnrichTargetRead, args: any[] = []): Promise<any> {
+  private async readContract(functionName: EnrichTargetReadFunction, args: any[] = []): Promise<any> {
     if (!etsEnrichTargetConfig.address) {
       throw new Error("Target address is required");
     }

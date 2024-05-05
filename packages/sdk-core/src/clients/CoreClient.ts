@@ -1,164 +1,339 @@
-import { Address, Hex, PublicClient, WalletClient } from "viem";
-import { manageContractCall, manageContractRead } from "../utils";
-import { etsConfig } from "../../contracts/contracts";
-import { CoreRead, CoreWrite } from "../types";
+import { AccessControlsClient } from "./AccessControlsClient";
+import { AuctionHouseClient } from "./AuctionHouseClient";
+import { RelayerClient } from "./RelayerClient";
+import { RelayerFactoryClient } from "./RelayerFactoryClient";
+import { TargetClient } from "./TargetClient";
+import { TokenClient } from "./TokenClient";
+import type { Address, Hex, PublicClient, WalletClient } from "viem";
+
+interface ETSClientOptions {
+  chainId?: number;
+  publicClient: PublicClient;
+  walletClient?: WalletClient;
+  relayerAddress?: Hex;
+  clients?: {
+    tokenClient?: boolean;
+    relayerClient?: boolean;
+    accessControlsClient?: boolean;
+    auctionHouseClient?: boolean;
+    relayerFactoryClient?: boolean;
+    targetClient?: boolean;
+  };
+}
 
 export class CoreClient {
-  private readonly publicClient: PublicClient;
-  private readonly walletClient: WalletClient;
+  private tokenClient?: TokenClient;
+  private relayerClient?: RelayerClient;
+  private accessControlsClient?: AccessControlsClient;
+  private auctionHouseClient?: AuctionHouseClient;
+  private relayerFactoryClient?: RelayerFactoryClient;
+  private targetClient?: TargetClient;
 
-  constructor({
-    publicClient,
-    walletClient,
-    address,
-  }: {
-    publicClient: PublicClient;
-    walletClient: WalletClient;
-    address?: Address;
-  }) {
-    this.publicClient = publicClient;
-    this.walletClient = walletClient;
+  constructor(private options: ETSClientOptions) {
+    this.initializeClients();
+  }
 
-    if (!publicClient) {
-      throw new Error("Public client is required");
+  private initializeClients(): void {
+    const { chainId, publicClient, walletClient, clients, relayerAddress } = this.options;
+
+    const clientSettings = {
+      tokenClient: true,
+      relayerClient: true,
+      accessControlsClient: true,
+      auctionHouseClient: true,
+      relayerFactoryClient: true,
+      targetClient: true,
+      ...clients, // Overrides defaults if specified
+    };
+
+    if (clientSettings.tokenClient) {
+      this.tokenClient = new TokenClient({
+        chainId,
+        publicClient,
+        walletClient,
+      });
     }
-    if (!walletClient) {
-      throw new Error("Wallet client is required");
+    if (clientSettings.relayerClient) {
+      this.relayerClient = new RelayerClient({
+        chainId,
+        publicClient,
+        walletClient,
+        relayerAddress,
+      });
     }
-    if (!address) {
-      throw new Error("Contract address is required");
+    if (clientSettings.accessControlsClient) {
+      this.accessControlsClient = new AccessControlsClient({
+        publicClient,
+        walletClient,
+      });
+    }
+    if (clientSettings.auctionHouseClient) {
+      this.auctionHouseClient = new AuctionHouseClient({
+        publicClient,
+        walletClient,
+      });
+    }
+    if (clientSettings.relayerFactoryClient) {
+      this.relayerFactoryClient = new RelayerFactoryClient({
+        publicClient,
+        walletClient,
+      });
+    }
+    if (clientSettings.targetClient) {
+      this.targetClient = new TargetClient({
+        publicClient,
+        walletClient,
+      });
     }
   }
 
-  // Read Functions
-  async accrued(address: Address): Promise<number> {
-    return this.readContract("accrued", [address]);
+  // Methods delegating to TokenClient
+  public async tagExists(tag: string): Promise<boolean> {
+    if (!this.tokenClient) throw new Error("TokenClient is not initialized.");
+    return this.tokenClient.tagExistsById(tag);
   }
 
-  async platformPercentage(): Promise<number> {
-    return this.readContract("platformPercentage", []);
+  public async existingTags(tags: string[]): Promise<string[]> {
+    if (!this.tokenClient) throw new Error("TokenClient is not initialized.");
+    return this.tokenClient.existingTags(tags);
   }
 
-  async relayerPercentage(): Promise<number> {
-    return this.readContract("relayerPercentage", []);
+  public async computeTagId(tag: string): Promise<bigint> {
+    if (!this.tokenClient) throw new Error("TokenClient is not initialized.");
+    return this.tokenClient.computeTagId(tag);
   }
 
-  async taggingFee(): Promise<number> {
-    return this.readContract("taggingFee", []);
+  public async computeTagIds(tags: string[]): Promise<bigint[]> {
+    if (!this.tokenClient) throw new Error("TokenClient is not initialized.");
+    return this.tokenClient.computeTagIds(tags);
   }
 
-  async taggingRecordExists(taggingRecordId: number): Promise<boolean> {
-    return this.readContract("taggingRecordExists", [taggingRecordId]);
+  public async hasTags(address: `0x${string}` | undefined): Promise<boolean> {
+    if (!this.tokenClient) throw new Error("TokenClient is not initialized.");
+    return this.tokenClient.hasTags(address);
   }
 
-  async etsAccessControls(): Promise<Address> {
-    return this.readContract("etsAccessControls", []);
+  // Methods delegating to RelayerClient
+  public async createTags(tags: string[]): Promise<{ transactionHash: string; status: number }> {
+    if (!this.relayerClient) throw new Error("RelayerClient is not initialized.");
+    return this.relayerClient.createTags(tags);
   }
 
-  async etsTarget(): Promise<Address> {
-    return this.readContract("etsTarget", []);
+  public async pause(): Promise<{ transactionHash: string; status: number }> {
+    if (!this.relayerClient) throw new Error("RelayerClient is not initialized.");
+    return this.relayerClient.pause();
   }
 
-  async etsToken(): Promise<Address> {
-    return this.readContract("etsToken", []);
+  public async unpause(): Promise<{ transactionHash: string; status: number }> {
+    if (!this.relayerClient) throw new Error("RelayerClient is not initialized.");
+    return this.relayerClient.unpause();
   }
 
-  async totalDue(account: Address): Promise<number> {
-    return this.readContract("totalDue", [account]);
+  public async changeOwner(newOwner: Address): Promise<{ transactionHash: string; status: number }> {
+    if (!this.relayerClient) throw new Error("RelayerClient is not initialized.");
+    return this.relayerClient.changeOwner(newOwner);
   }
 
-  async proxiableUUID(): Promise<string> {
-    return this.readContract("proxiableUUID", []);
+  public async transferOwnership(newOwner: Address): Promise<{ transactionHash: string; status: number }> {
+    if (!this.relayerClient) throw new Error("RelayerClient is not initialized.");
+    return this.relayerClient.transferOwnership(newOwner);
   }
 
-  // Write Functions
-  async initialize(
-    accessControls: Address,
-    etsToken: Address,
-    etsTarget: Address,
-    taggingFee: number,
-    platformPercentage: number,
-    relayerPercentage: number,
-  ): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("initialize", [
-      accessControls,
-      etsToken,
-      etsTarget,
-      taggingFee,
-      platformPercentage,
-      relayerPercentage,
-    ]);
+  public async initializeRelayer(params: {
+    relayerName: string;
+    ets: Address;
+    etsToken: Address;
+    etsTarget: Address;
+    etsAccessControls: Address;
+    creator: Address;
+    owner: Address;
+  }): Promise<{ transactionHash: string; status: number }> {
+    if (!this.relayerClient) throw new Error("RelayerClient is not initialized.");
+    return this.relayerClient.initialize(params);
   }
 
-  async applyTagsWithCompositeKey(
-    tagIds: number[],
-    targetId: number,
+  public async applyTags(
+    tags: string[],
+    targetURI: string,
     recordType: string,
-    tagger: Address,
   ): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("applyTagsWithCompositeKey", [tagIds, targetId, recordType, tagger]);
+    if (!this.relayerClient) throw new Error("RelayerClient is not initialized.");
+    return this.relayerClient.applyTags(tags, targetURI, recordType);
   }
 
-  async appendTags(taggingRecordId: number, tagIds: number[]): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("appendTags", [taggingRecordId, tagIds]);
-  }
-
-  async setAccessControls(accessControls: Address): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("setAccessControls", [accessControls]);
-  }
-
-  async setPercentages(
-    platformPercentage: number,
-    relayerPercentage: number,
+  public async removeTags(
+    tags: string[],
+    targetURI: string,
+    recordType: string,
   ): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("setPercentages", [platformPercentage, relayerPercentage]);
+    if (!this.relayerClient) throw new Error("RelayerClient is not initialized.");
+    return this.relayerClient.removeTags(tags, targetURI, recordType);
   }
 
-  async setTaggingFee(fee: number): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("setTaggingFee", [fee]);
+  public async replaceTags(
+    tags: string[],
+    targetURI: string,
+    recordType: string,
+  ): Promise<{ transactionHash: string; status: number }> {
+    if (!this.relayerClient) throw new Error("RelayerClient is not initialized.");
+    return this.relayerClient.replaceTags(tags, targetURI, recordType);
   }
 
-  async upgradeTo(newImplementation: Address): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("upgradeTo", [newImplementation]);
+  public async owner(): Promise<Address> {
+    if (!this.relayerClient) throw new Error("RelayerClient is not initialized.");
+    return this.relayerClient.owner();
+  }
+
+  public async paused(): Promise<boolean> {
+    if (!this.relayerClient) throw new Error("RelayerClient is not initialized.");
+    return this.relayerClient.paused();
+  }
+
+  // Methods delegating to AccessControlsClient
+  async grantRole(role: string, account: string): Promise<{ transactionHash: string; status: number }> {
+    if (!this.accessControlsClient) throw new Error("AccessControlsClient is not initialized.");
+    return this.accessControlsClient.grantRole(role, account);
+  }
+
+  async revokeRole(role: string, account: string): Promise<{ transactionHash: string; status: number }> {
+    if (!this.accessControlsClient) throw new Error("AccessControlsClient is not initialized.");
+    return this.accessControlsClient.revokeRole(role, account);
+  }
+
+  async hasRole(role: string, account: string): Promise<boolean> {
+    if (!this.accessControlsClient) throw new Error("AccessControlsClient is not initialized.");
+    return this.accessControlsClient.hasRole(role, account);
+  }
+
+  // Methods delegating to AuctionHouseClient
+  async createBid(auctionId: bigint): Promise<{ transactionHash: string; status: number }> {
+    if (!this.auctionHouseClient) throw new Error("AuctionHouseClient is not initialized.");
+    return this.auctionHouseClient.createBid(auctionId);
+  }
+
+  async createNextAuction(): Promise<{ transactionHash: string; status: number }> {
+    if (!this.auctionHouseClient) throw new Error("AuctionHouseClient is not initialized.");
+    return this.auctionHouseClient.createNextAuction();
+  }
+
+  async settleAuction(auctionId: bigint): Promise<{ transactionHash: string; status: number }> {
+    if (!this.auctionHouseClient) throw new Error("AuctionHouseClient is not initialized.");
+    return this.auctionHouseClient.settleAuction(auctionId);
+  }
+
+  async getAuction(auctionId: bigint): Promise<any> {
+    if (!this.auctionHouseClient) throw new Error("AuctionHouseClient is not initialized.");
+    return this.auctionHouseClient.getAuction(auctionId);
+  }
+
+  async auctionExists(auctionId: bigint): Promise<boolean> {
+    if (!this.auctionHouseClient) throw new Error("AuctionHouseClient is not initialized.");
+    return this.auctionHouseClient.auctionExists(auctionId);
+  }
+
+  // Methods delegating to RelayerFactoryClient
+  async addRelayer(relayerName: string): Promise<{ transactionHash: string; status: number }> {
+    if (!this.relayerFactoryClient) throw new Error("RelayerFactoryClient is not initialized.");
+    return this.relayerFactoryClient.addRelayer(relayerName);
+  }
+
+  async getImplementation(): Promise<string> {
+    if (!this.relayerFactoryClient) throw new Error("RelayerFactoryClient is not initialized.");
+    return this.relayerFactoryClient.getImplementation();
+  }
+
+  // Methods delegating to TargetClient
+  async createTarget(targetURI: string): Promise<{ transactionHash: string; status: number }> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.createTarget(targetURI);
+  }
+
+  async getTargetById(targetId: bigint): Promise<any> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.getTargetById(targetId);
+  }
+
+  async getTargetByURI(targetURI: string): Promise<any> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.getTargetByURI(targetURI);
+  }
+
+  async targetExistsById(targetId: bigint): Promise<boolean> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.targetExistsById(targetId);
+  }
+
+  async targetExistsByURI(targetURI: string): Promise<boolean> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.targetExistsByURI(targetURI);
+  }
+
+  async getOrCreateTargetId(targetURI: string): Promise<bigint> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.getOrCreateTargetId(targetURI);
+  }
+
+  async setAccessControls(accessControlsAddress: string): Promise<{ transactionHash: string; status: number }> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.setAccessControls(accessControlsAddress);
+  }
+
+  async setEnrichTarget(enrichTargetAddress: string): Promise<{ transactionHash: string; status: number }> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.setEnrichTarget(enrichTargetAddress);
+  }
+
+  async updateTarget(
+    targetId: bigint,
+    targetURI: string,
+    enriched: number,
+    httpStatus: number,
+    ipfsHash: string,
+  ): Promise<{ transactionHash: string; status: number }> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.updateTarget(targetId, targetURI, enriched, httpStatus, ipfsHash);
+  }
+
+  async upgradeTo(newImplementation: string): Promise<{ transactionHash: string; status: number }> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.upgradeTo(newImplementation);
   }
 
   async upgradeToAndCall(
-    newImplementation: Address,
+    newImplementation: string,
     data: string,
   ): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("upgradeToAndCall", [newImplementation, data]);
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.upgradeToAndCall(newImplementation, data);
   }
 
-  async removeTags(taggingRecordId: number, tagIds: number[]): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("removeTags", [taggingRecordId, tagIds]);
+  async etsAccessControls(): Promise<string> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.etsAccessControls();
   }
 
-  async replaceTags(taggingRecordId: number, tagIds: number[]): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("replaceTags", [taggingRecordId, tagIds]);
+  async etsEnrichTarget(): Promise<string> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.etsEnrichTarget();
   }
 
-  private async callContract(
-    functionName: CoreWrite,
-    args: any = [],
-  ): Promise<{ transactionHash: string; status: number }> {
-    if (!this.walletClient) {
-      throw new Error("Wallet client is required to perform this action");
-    }
-    return manageContractCall(
-      this.publicClient,
-      this.walletClient,
-      etsConfig.address,
-      etsConfig.abi,
-      functionName,
-      args,
-    );
+  async initialize(accessControlsAddress: string): Promise<{ transactionHash: string; status: number }> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.initialize(accessControlsAddress);
   }
 
-  private async readContract(functionName: CoreRead, args: any[] = []): Promise<any> {
-    if (!etsConfig.address) {
-      throw new Error("Contract address is required");
-    }
+  async proxiableUUID(): Promise<string> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.proxiableUUID();
+  }
 
-    return manageContractRead(this.publicClient, etsConfig.address, etsConfig.abi, functionName, args);
+  async targets(index: bigint): Promise<any> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.targets(index);
+  }
+
+  async computeTargetId(targetURI: string): Promise<bigint> {
+    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
+    return this.targetClient.computeTargetId(targetURI);
   }
 }

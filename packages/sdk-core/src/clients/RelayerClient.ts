@@ -2,7 +2,7 @@ import type { Address, Hex, PublicClient, WalletClient } from "viem";
 import { etsABI, etsAddress, etsRelayerV1ABI } from "../../contracts/contracts";
 import { TokenClient } from "./TokenClient";
 import { manageContractCall, manageContractRead } from "../utils";
-import { RelayerRead, RelayerWrite } from "../types";
+import { RelayerReadFunction, RelayerWriteFunction } from "../types";
 
 export class RelayerClient {
   private readonly chainId?: number;
@@ -280,7 +280,7 @@ export class RelayerClient {
   }
 
   private async callContract(
-    functionName: RelayerWrite,
+    functionName: RelayerWriteFunction,
     args: any = [],
   ): Promise<{ transactionHash: string; status: number }> {
     if (this.walletClient === undefined) {
@@ -301,7 +301,7 @@ export class RelayerClient {
     );
   }
 
-  private async readContract(functionName: RelayerRead, args: any = []): Promise<any> {
+  private async readContract(functionName: RelayerReadFunction, args: any = []): Promise<any> {
     if (!this.etsConfig.address) {
       throw new Error("Relayer address is required");
     }

@@ -1,7 +1,7 @@
 import { PublicClient, WalletClient } from "viem";
 import { etsAccessControlsConfig } from "../../contracts/contracts";
 import { manageContractRead, manageContractCall } from "../utils";
-import { AccessControlsRead, AccessControlsWrite } from "../types";
+import { AccessControlsReadFunction, AccessControlsWriteFunction } from "../types";
 
 export class AccessControlsClient {
   private readonly publicClient: PublicClient;
@@ -162,7 +162,7 @@ export class AccessControlsClient {
     return this.readContract("supportsInterface", [interfaceId]);
   }
 
-  private async readContract(functionName: AccessControlsRead, args: any[] = []): Promise<any> {
+  private async readContract(functionName: AccessControlsReadFunction, args: any[] = []): Promise<any> {
     return manageContractRead(
       this.publicClient,
       etsAccessControlsConfig.address,
@@ -173,7 +173,7 @@ export class AccessControlsClient {
   }
 
   private async callContract(
-    functionName: AccessControlsWrite,
+    functionName: AccessControlsWriteFunction,
     args: any[] = [],
   ): Promise<{ transactionHash: string; status: number }> {
     if (!this.walletClient) {

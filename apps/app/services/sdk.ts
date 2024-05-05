@@ -6,7 +6,7 @@ import {
   AccessControlsClient,
   RelayerFactoryClient,
   TargetClient,
-  ETSClient,
+  CoreClient,
 } from "@ethereum-tag-service/sdk-core";
 import { createPublicClient, http, createWalletClient, custom, Hex } from "viem";
 
@@ -124,7 +124,7 @@ export function createTargetClient({
   return createClient<TargetClient>(TargetClient, chainId, undefined, account);
 }
 
-export function createETSClient({
+export function CoreateETSClient({
   chainId,
   relayerAddress,
   account,
@@ -141,7 +141,7 @@ export function createETSClient({
     relayerFactoryClient?: boolean;
     targetClient?: boolean;
   };
-}): ETSClient | undefined {
+}): CoreClient | undefined {
   const publicClient = viemPublicClient(chainId);
   if (!publicClient) {
     console.error("Failed to create public client");
@@ -154,7 +154,7 @@ export function createETSClient({
     transport: custom(window.ethereum),
   });
 
-  return new ETSClient({
+  return new CoreClient({
     chainId,
     publicClient,
     walletClient,

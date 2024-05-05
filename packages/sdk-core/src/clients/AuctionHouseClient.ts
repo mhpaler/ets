@@ -1,7 +1,7 @@
 import { PublicClient, WalletClient } from "viem";
 import { etsAuctionHouseConfig } from "../../contracts/contracts";
 import { manageContractRead, manageContractCall } from "../utils";
-import { AuctionHouseRead, AuctionHouseWrite } from "../types";
+import { AuctionHouseReadFunction, AuctionHouseWriteFunction } from "../types";
 
 export class AuctionHouseClient {
   private readonly publicClient: PublicClient;
@@ -194,7 +194,7 @@ export class AuctionHouseClient {
     return this.readContract("totalDue", [address]);
   }
 
-  private async readContract(functionName: AuctionHouseRead, args: any[] = []): Promise<any> {
+  private async readContract(functionName: AuctionHouseReadFunction, args: any[] = []): Promise<any> {
     return manageContractRead(
       this.publicClient,
       etsAuctionHouseConfig.address,
@@ -205,7 +205,7 @@ export class AuctionHouseClient {
   }
 
   private async callContract(
-    functionName: AuctionHouseWrite,
+    functionName: AuctionHouseWriteFunction,
     args: any[] = [],
   ): Promise<{ transactionHash: string; status: number }> {
     if (!this.walletClient) {

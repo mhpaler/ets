@@ -2,7 +2,7 @@ import { AccessControlsClient } from "./clients/AccessControlsClient";
 import { AuctionHouseClient } from "./clients/AuctionHouseClient";
 import { CoreClient } from "./clients/CoreClient";
 import { EnrichTargetClient } from "./clients/EnrichTargetClient";
-import { ETSClient } from "./clients/ETSClient";
+import { EtsClient } from "./clients/EtsClient";
 import { RelayerClient } from "./clients/RelayerClient";
 import { RelayerFactoryClient } from "./clients/RelayerFactoryClient";
 import { TargetClient } from "./clients/TargetClient";
@@ -15,7 +15,7 @@ export {
   AuctionHouseClient,
   CoreClient,
   EnrichTargetClient,
-  ETSClient,
+  EtsClient,
   RelayerClient,
   RelayerFactoryClient,
   TargetClient,

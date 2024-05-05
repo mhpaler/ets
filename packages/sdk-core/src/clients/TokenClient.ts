@@ -1,7 +1,7 @@
 import type { PublicClient, WalletClient, Hex } from "viem";
 import { etsTokenConfig } from "../../contracts/contracts";
 import { manageContractRead, manageContractCall } from "../utils";
-import { TokenRead, TokenWrite } from "../types";
+import { TokenReadFunction, TokenWriteFunction } from "../types";
 
 export class TokenClient {
   private readonly chainId?: number;
@@ -210,12 +210,12 @@ export class TokenClient {
     return this.callContract("setReservedFlag", [tokenIds, isReserved]);
   }
 
-  private async readContract(functionName: TokenRead, args: any = []): Promise<any> {
+  private async readContract(functionName: TokenReadFunction, args: any = []): Promise<any> {
     return manageContractRead(this.publicClient, etsTokenConfig.address, etsTokenConfig.abi, functionName, args);
   }
 
   private async callContract(
-    functionName: TokenWrite,
+    functionName: TokenWriteFunction,
     args: any = [],
   ): Promise<{ transactionHash: string; status: number }> {
     if (!this.walletClient) {

@@ -1,4 +1,4 @@
-export type AccessControlsRead =
+export type AccessControlsReadFunction =
   | "hasRole"
   | "isAdmin"
   | "isAuctionOracle"
@@ -23,7 +23,7 @@ export type AccessControlsRead =
   | "relayerOwnerToAddress"
   | "supportsInterface";
 
-export type AccessControlsWrite =
+export type AccessControlsWriteFunction =
   | "grantRole"
   | "revokeRole"
   | "changeRelayerOwner"
@@ -37,7 +37,7 @@ export type AccessControlsWrite =
   | "upgradeTo"
   | "upgradeToAndCall";
 
-export type AuctionHouseRead =
+export type AuctionHouseReadFunction =
   | "accrued"
   | "auctionEnded"
   | "auctionExists"
@@ -66,7 +66,7 @@ export type AuctionHouseRead =
   | "getBalance"
   | "getTotalCount";
 
-export type AuctionHouseWrite =
+export type AuctionHouseWriteFunction =
   | "createBid"
   | "createNextAuction"
   | "drawDown"
@@ -84,7 +84,7 @@ export type AuctionHouseWrite =
   | "upgradeTo"
   | "upgradeToAndCall";
 
-export type CoreWrite =
+export type EtsWriteFunction =
   | "applyTagsWithCompositeKey"
   | "appendTags"
   | "initialize"
@@ -96,7 +96,7 @@ export type CoreWrite =
   | "upgradeTo"
   | "upgradeToAndCall";
 
-export type CoreRead =
+export type EtsReadFunction =
   | "accrued"
   | "platformPercentage"
   | "relayerPercentage"
@@ -108,16 +108,16 @@ export type CoreRead =
   | "totalDue"
   | "proxiableUUID";
 
-export type EnrichTargetWrite =
+export type EnrichTargetWriteFunction =
   | "fulfillEnrichTarget"
   | "initialize"
   | "requestEnrichTarget"
   | "upgradeTo"
   | "upgradeToAndCall";
 
-export type EnrichTargetRead = "etsAccessControls" | "etsTarget" | "proxiableUUID";
+export type EnrichTargetReadFunction = "etsAccessControls" | "etsTarget" | "proxiableUUID";
 
-export type RelayerWrite =
+export type RelayerWriteFunction =
   | "applyTags"
   | "changeOwner"
   | "initialize"
@@ -128,7 +128,7 @@ export type RelayerWrite =
   | "unpause"
   | "removeTags";
 
-export type RelayerRead =
+export type RelayerReadFunction =
   | "computeTaggingFee"
   | "creator"
   | "ets"
@@ -142,9 +142,9 @@ export type RelayerRead =
   | "supportsInterface"
   | "version";
 
-export type RelayerFactoryWrite = "addRelayer";
+export type RelayerFactoryWriteFunction = "addRelayer";
 
-export type RelayerFactoryRead =
+export type RelayerFactoryReadFunction =
   | "getImplementation"
   | "ets"
   | "etsAccessControls"
@@ -152,7 +152,7 @@ export type RelayerFactoryRead =
   | "etsToken"
   | "getBeacon";
 
-export type TargetWrite =
+export type TargetWriteFunction =
   | "createTarget"
   | "setAccessControls"
   | "setEnrichTarget"
@@ -161,7 +161,7 @@ export type TargetWrite =
   | "upgradeToAndCall"
   | "initialize";
 
-export type TargetRead =
+export type TargetReadFunction =
   | "getTargetById"
   | "getTargetByURI"
   | "targetExistsById"
@@ -174,7 +174,7 @@ export type TargetRead =
   | "etsAccessControls"
   | "etsEnrichTarget";
 
-export type TokenWrite =
+export type TokenWriteFunction =
   | "approve"
   | "burn"
   | "getOrCreateTagId"
@@ -197,7 +197,7 @@ export type TokenWrite =
   | "setPremiumFlag"
   | "setReservedFlag";
 
-export type TokenRead =
+export type TokenReadFunction =
   | "existingTags"
   | "hasTags"
   | "tagExistsById"
