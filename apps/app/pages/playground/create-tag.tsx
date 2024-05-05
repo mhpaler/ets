@@ -10,8 +10,8 @@ import { isValidTag } from "@app/utils/tagUtils";
 import useToast from "@app/hooks/useToast";
 import TagInput from "@app/components/TagInput";
 import { TagInput as TagInputType } from "@app/types/tag";
-import { useEtsToken } from "@app/hooks/useEtsToken";
-import { useEtsRelayer } from "@app/hooks/useEtsRelayer";
+import { useTokenClient } from "@app/hooks/useTokenClient";
+import { useRelayerClient } from "@app/hooks/useRelayerClient";
 
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");
@@ -19,8 +19,8 @@ const Playground: NextPage = () => {
   const { chain } = useAccount();
   const [tags, setTags] = useState<TagInputType[]>([]);
   const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
-  const { tagExists } = useEtsToken();
-  const { createTags } = useEtsRelayer({
+  const { tagExists } = useTokenClient();
+  const { createTags } = useRelayerClient({
     relayerAddress: selectedRelayer?.id,
   });
   const [isCreatingTag, setIsCreatingTag] = useState(false);

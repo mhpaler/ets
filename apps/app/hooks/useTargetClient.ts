@@ -3,7 +3,7 @@ import { useAccount, useChainId } from "wagmi";
 import { createTargetClient } from "@app/services/sdk";
 import { TargetClient } from "@ethereum-tag-service/sdk-core";
 
-export const useEtsTarget = () => {
+export const useTargetClient = () => {
   const chainId = useChainId();
   const { address } = useAccount();
   const [targetClient, setTargetClient] = useState<TargetClient>();

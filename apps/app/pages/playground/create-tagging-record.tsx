@@ -12,7 +12,7 @@ import useToast from "@app/hooks/useToast";
 import TagInput from "@app/components/TagInput";
 import { TagInput as TagInputType } from "@app/types/tag";
 import Link from "next/link";
-import { useEtsRelayer } from "@app/hooks/useEtsRelayer";
+import { useRelayerClient } from "@app/hooks/useRelayerClient";
 
 const CreateTaggingRecord: NextPage = () => {
   const { t } = useTranslation("common");
@@ -25,7 +25,7 @@ const CreateTaggingRecord: NextPage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [imageUrl, setImageUrl] = useState<string>("");
   const [taggingRecordId, setTaggingRecordId] = useState<string | null>(null);
-  const { createTaggingRecord } = useEtsRelayer({ relayerAddress: selectedRelayer?.id });
+  const { createTaggingRecord } = useRelayerClient({ relayerAddress: selectedRelayer?.id });
 
   const handleDeleteTag = useCallback(
     (i: number) => {

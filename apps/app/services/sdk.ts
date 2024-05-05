@@ -7,6 +7,8 @@ import {
   RelayerFactoryClient,
   TargetClient,
   CoreClient,
+  EnrichTargetClient,
+  EtsClient,
 } from "@ethereum-tag-service/sdk-core";
 import { createPublicClient, http, createWalletClient, custom, Hex } from "viem";
 
@@ -122,6 +124,26 @@ export function createTargetClient({
   account?: Hex;
 }): TargetClient | undefined {
   return createClient<TargetClient>(TargetClient, chainId, undefined, account);
+}
+
+export function createEnrichTargetClient({
+  chainId,
+  account,
+}: {
+  chainId: number | undefined;
+  account?: Hex;
+}): EnrichTargetClient | undefined {
+  return createClient<EnrichTargetClient>(EnrichTargetClient, chainId, undefined, account);
+}
+
+export function createEtsClient({
+  chainId,
+  account,
+}: {
+  chainId: number | undefined;
+  account?: Hex;
+}): EtsClient | undefined {
+  return createClient<EtsClient>(EtsClient, chainId, undefined, account);
 }
 
 export function createCoreClient({

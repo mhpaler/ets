@@ -3,7 +3,7 @@ import { useAccount, useChainId } from "wagmi";
 import { createRelayerFactoryClient } from "@app/services/sdk";
 import { RelayerFactoryClient } from "@ethereum-tag-service/sdk-core";
 
-export const useEtsRelayerFactory = () => {
+export const useRelayerFactoryClient = () => {
   const chainId = useChainId();
   const { address } = useAccount();
   const [relayerFactoryClient, setRelayerFactoryClient] = useState<RelayerFactoryClient>();

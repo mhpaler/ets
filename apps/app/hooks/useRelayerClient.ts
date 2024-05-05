@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useAccount, useChainId } from "wagmi";
 import { RelayerClient } from "@ethereum-tag-service/sdk-core";
 
-export const useEtsRelayer = ({ relayerAddress }: { relayerAddress?: Hex }) => {
+export const useRelayerClient = ({ relayerAddress }: { relayerAddress?: Hex }) => {
   const chainId = useChainId();
   const { address } = useAccount();
   const [relayerClient, setRelayerClient] = useState<RelayerClient>();

@@ -3,7 +3,7 @@ import { useAccount, useChainId } from "wagmi";
 import { createAuctionHouseClient } from "@app/services/sdk";
 import { AuctionHouseClient } from "@ethereum-tag-service/sdk-core";
 
-export const useEtsAuctionHouse = () => {
+export const useAuctionHouseClient = () => {
   const chainId = useChainId();
   const { address } = useAccount();
   const [auctionHouseClient, setAuctionHouseClient] = useState<AuctionHouseClient>();

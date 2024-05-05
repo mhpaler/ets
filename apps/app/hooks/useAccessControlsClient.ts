@@ -3,7 +3,7 @@ import { useAccount, useChainId } from "wagmi";
 import { createCoreClient } from "@app/services/sdk";
 import { CoreClient } from "@ethereum-tag-service/sdk-core";
 
-export const useEtsAccessControls = () => {
+export const useAccessControlsClient = () => {
   const chainId = useChainId();
   const { address } = useAccount();
   const [accessControlsClient, setAccessControlsClient] = useState<CoreClient>();

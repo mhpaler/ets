@@ -3,7 +3,7 @@ import { TokenClient } from "@ethereum-tag-service/sdk-core";
 import { useEffect, useState } from "react";
 import { useAccount, useChainId } from "wagmi";
 
-export const useEtsToken = () => {
+export const useTokenClient = () => {
   const chainId = useChainId();
   const { address } = useAccount();
   const [tokenClient, setTokenClient] = useState<TokenClient>();
