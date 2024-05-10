@@ -72,6 +72,7 @@ const Tags: NextPage<Props> = ({
   return (
     <div className="max-w-7xl mx-auto">
       <Table loading={!tags} rows={pageSize}>
+        {title && <Table.Title>{title}</Table.Title>}
         <Table.Head>
           <Table.Tr>
             {columnsConfig.map((column) => (

@@ -18,6 +18,8 @@ export class TagService {
   private async fetchTags(platformAddress: string): Promise<Tag[]> {
     const environment: string = process.env.NEXT_PUBLIC_ETS_ENVIRONMENT || "development";
     const endpoint: string = subgraphEndpoints[environment];
+    console.log("Reading from GraphQL endpoint: ", endpoint);
+    console.log("Platform address:", platformAddress);
     const query: string = `
       query {
         tags(
@@ -42,7 +44,7 @@ export class TagService {
       return response.data.data.tags;
     } catch (error: any) {
       console.error("Error fetching tags:", error.message);
-      throw new Error("Failed to fetch tags from GraphQL API.");
+      throw new Error("Failed to fetch tags from GraphQL API");
     }
   }
 

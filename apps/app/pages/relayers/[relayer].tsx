@@ -1,17 +1,17 @@
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
-import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
 import { timestampToString } from "@app/utils";
 import { toEth } from "@app/utils";
 import Layout from "@app/layouts/default";
 import { useRelayers } from "@app/hooks/useRelayers";
 import { TaggingRecords } from "@app/components/TaggingRecords";
-import { Tags } from "../../components/Tags";
-import { Number } from "../../components/Number";
+import { TimeAgo } from "@app/components/TimeAgo";
+import { Tags } from "@app/components/Tags";
+import { Tag } from "@app/components/Tag";
+import { Number } from "@app/components/Number";
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Truncate } from "@app/components/Truncate";
-
 import { Panel } from "@app/components/Panel";
 
 function classNames(...classes: any) {
@@ -51,7 +51,7 @@ const Relayer: NextPage = () => {
                 <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col hover:bg-slate-100">
                   <div className="font-semibold">{t("id")}</div>
                   <div className="flex space-x-1 justify-end">
-                    <div className="">{relayers && Truncate(relayers[0].id)}</div>
+                    <div className="">{relayers && Truncate(relayers[0].id, 14, "middle")}</div>
                     <CopyAndPaste value={relayers && relayers[0].id} />
                   </div>
                 </div>
@@ -66,7 +66,7 @@ const Relayer: NextPage = () => {
                 <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4 hover:bg-slate-100">
                   <div className="font-semibold">{t("creator")}</div>
                   <div className="flex space-x-1 justify-end">
-                    <div className="">{relayers && Truncate(relayers[0].creator)}</div>
+                    <div className="">{relayers && Truncate(relayers[0].creator, 14, "middle")}</div>
                     <CopyAndPaste value={relayers && relayers[0].creator} />
                   </div>
                 </div>
@@ -74,7 +74,7 @@ const Relayer: NextPage = () => {
                 <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4 hover:bg-slate-100">
                   <div className="font-semibold">{t("owner")}</div>
                   <div className="flex space-x-1 justify-end">
-                    <div className="">{relayers && Truncate(relayers[0].owner)}</div>
+                    <div className="">{relayers && Truncate(relayers[0].owner, 14, "middle")}</div>
                     <CopyAndPaste value={relayers && relayers[0].owner} />
                   </div>
                 </div>
@@ -144,6 +144,15 @@ const Relayer: NextPage = () => {
           title={t("relayer-tags", {
             relayer: relayers && relayers[0].name,
           })}
+          rowLink={false}
+          columnsConfig={[
+            { title: "tag", field: "tag", formatter: (_, tag) => <Tag tag={tag} /> },
+            { title: "created", field: "timestamp", formatter: (value, tag) => <TimeAgo date={value * 1000} /> },
+            { title: t("creator"), field: "creator.id", formatter: (value) => Truncate(value, 14, "middle") },
+            { title: t("owner"), field: "owner.id", formatter: (value) => Truncate(value, 14, "middle") },
+
+            { title: "tagging records", field: "tagAppliedInTaggingRecord" },
+          ]}
         />
       </div>
     </Layout>

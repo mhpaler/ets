@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import { globalSettings } from "@app/config/globalSettings";
@@ -16,6 +16,7 @@ import { ConnectButtonETS } from "@app/components/ConnectButtonETS";
 import { useAccount } from "wagmi"; // Import useAccount hook
 import TransactionFlowWrapper from "@app/components/transaction/TransactionFlowWrapper";
 import { TransactionType } from "@app/types/transaction";
+import { v4 as uuidv4 } from "uuid";
 
 const pageSize = 20;
 
@@ -23,19 +24,12 @@ const Relayers: NextPage = () => {
   const [skip, setSkip] = useState(0);
   const { t } = useTranslation("common");
   const { isConnected } = useAccount();
-  let content;
+  const [transactionId, setTransactionId] = useState<string>("");
 
-  if (!isConnected) {
-    // If user is not connected, show the Connect button
-    content = <ConnectButtonETS className="btn-outline btn-block" />;
-  } else {
-    // Auction hasn't started or is ongoing and user is connected
-    content = (
-      <Modal label={t("create-relayer")} buttonClasses="btn-primary btn-outline btn-block">
-        <TransactionFlowWrapper transactionType={TransactionType.AddRelayer} />
-      </Modal>
-    );
-  }
+  useEffect(() => {
+    // Generate a new UUID for each visit or page refresh
+    setTransactionId(uuidv4());
+  }, []);
 
   const { number } = useNumberFormatter();
   const { relayers, nextRelayers, mutate } = useRelayers({
@@ -71,7 +65,17 @@ const Relayers: NextPage = () => {
 
   return (
     <Layout>
-      <div className="col-span-12">{content}</div>
+      <div className="col-span-12">
+        {!isConnected ? (
+          <ConnectButtonETS className="btn-outline" />
+        ) : (
+          <AddRelayerProvider>
+            <Modal id={`create-relayer`} label={t("create-relayer")} buttonClasses="btn-primary btn-outline">
+              <TransactionFlowWrapper id={transactionId} transactionType={TransactionType.AddRelayer} />
+            </Modal>
+          </AddRelayerProvider>
+        )}
+      </div>
       <div className="col-span-12">
         <Table loading={!relayers} rows={pageSize}>
           <Table.Head>
@@ -99,6 +103,7 @@ const Relayers: NextPage = () => {
                 </Table.Tr>
               ))}
           </Table.Body>
+
           {showPrevNext() && (
             <Table.Footer>
               <tr>

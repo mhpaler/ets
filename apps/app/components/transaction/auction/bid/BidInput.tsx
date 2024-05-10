@@ -5,15 +5,14 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Dialog } from "@headlessui/react";
-import { Alert } from "@app/components/icons";
-
 import { useModal } from "@app/hooks/useModalContext";
 import { useTransactionManager } from "@app/hooks/useTransactionManager";
 import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useAuction } from "@app/hooks/useAuctionContext";
 import { useCurrentChain } from "@app/hooks/useCurrentChain";
 
+import { Dialog } from "@headlessui/react";
+import { Alert } from "@app/components/icons";
 import TransactionFormActions from "@app/components/transaction/shared/TransactionFormActions";
 
 interface BidInputProps {
