@@ -1,19 +1,28 @@
 import React from "react";
 import { Button } from "@app/components/Button";
 import useTranslation from "next-translate/useTranslation";
-import { useTransaction } from "@app/hooks/useTransaction";
-import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels"; // Assuming this hook gives us the current transaction status
+import { useTransactionManager } from "@app/hooks/useTransactionManager";
+import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels";
 
 interface TransactionConfirmActionsProps {
+  transactionId: string; // Add transactionId as a prop
   handleBack: () => void; // Function to handle "Back" action
   handlePrimaryAction: () => void; // Function to handle the primary action, e.g., submitting the transaction
 }
 
-const TransactionConfirmActions: React.FC<TransactionConfirmActionsProps> = ({ handleBack, handlePrimaryAction }) => {
+const TransactionConfirmActions: React.FC<TransactionConfirmActionsProps> = ({
+  transactionId,
+  handleBack,
+  handlePrimaryAction,
+}) => {
   const { t } = useTranslation("common");
-  const { isPending, isSuccess, isError, hash } = useTransaction();
-  const { buttonLabel } = useTransactionLabels();
-  const showBackButton = !isPending && !isSuccess && !isError && !hash;
+  const { transactions } = useTransactionManager(); // Access the transaction manager
+  const transaction = transactions[transactionId]; // Retrieve the specific transaction
+  const { buttonLabel } = useTransactionLabels(transactionId);
+  // Determine button visibility and state
+  const showBackButton =
+    transaction && !transaction.isPending && !transaction.isSuccess && !transaction.isError && !transaction.hash;
+  const isPending = transaction?.isPending;
 
   return (
     <div className="grid grid-flow-col justify-stretch gap-2">

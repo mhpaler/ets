@@ -68,7 +68,7 @@ export type AuctionHouse = {
   timeBuffer: number | 0;
   maxAuctionId: number | null;
   allAuctions: Auction[];
-  refreshAuctions: KeyedMutator<FetchAuctionsResponse>;
+  refreshAuctions: (updatedAuctions: Auction[]) => void; // Now expects a direct array of Auction objects
 };
 
 export type AuctionContextType = {

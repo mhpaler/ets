@@ -9,21 +9,22 @@ import { Dialog } from "@headlessui/react";
 import { Alert } from "@app/components/icons";
 
 import { useModal } from "@app/hooks/useModalContext";
-import { useTransaction } from "@app/hooks/useTransaction";
+import { useTransactionManager } from "@app/hooks/useTransactionManager";
 import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useAuction } from "@app/hooks/useAuctionContext";
 import { useCurrentChain } from "@app/hooks/useCurrentChain";
 
 import TransactionFormActions from "@app/components/transaction/shared/TransactionFormActions";
 
-interface FormStepProps {
+interface BidInputProps {
+  transactionId: string;
   goToNextStep: () => void;
 }
 
-const BidInput: React.FC<FormStepProps> = ({ goToNextStep }) => {
+const BidInput: React.FC<BidInputProps> = ({ transactionId, goToNextStep }) => {
   const { t } = useTranslation("common");
   const { closeModal } = useModal();
-  const { resetTransaction } = useTransaction();
+  const { removeTransaction } = useTransactionManager();
   const { minIncrementBidPercentage } = useAuctionHouse();
   const { auction, bidFormData, setBidFormData } = useAuction();
   const chain = useCurrentChain();
@@ -110,7 +111,7 @@ const BidInput: React.FC<FormStepProps> = ({ goToNextStep }) => {
   // Function to handle the "Cancel" action.
   const handleCancel = () => {
     reset();
-    resetTransaction();
+    removeTransaction(transactionId);
     setBidFormData({ bid: undefined });
     if (closeModal) {
       closeModal();

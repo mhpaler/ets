@@ -18,7 +18,7 @@ import { wagmiConfig } from "@app/config/wagmiConfig";
 import { hardhat, arbitrumSepolia } from "wagmi/chains";
 import { ModalProvider } from "@app/context/ModalContext";
 import { SystemProvider } from "@app/context/SystemContext";
-import { TransactionProvider } from "@app/context/TransactionContext";
+import { TransactionManagerProvider } from "@app/context/TransactionContext";
 import { AuctionHouseProvider } from "@app/context/AuctionHouseContext";
 
 const initialChain = process.env.NEXT_PUBLIC_ETS_ENVIRONMENT === "development" ? hardhat : arbitrumSepolia;
@@ -31,23 +31,23 @@ Router.events.on("routeChangeComplete", nProgress.done);
 
 function App({ Component, pageProps }: AppProps<{ session: Session }>) {
   return (
-    <ModalProvider>
-      <WagmiProvider config={wagmiConfig}>
-        <QueryClientProvider client={queryClient}>
-          <RainbowKitProvider initialChain={initialChain}>
-            <SWRConfig value={{ refreshInterval: 3000, fetcher: fetcher }}>
-              <AuctionHouseProvider>
-                <SystemProvider>
-                  <TransactionProvider>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider initialChain={initialChain}>
+          <SWRConfig value={{ refreshInterval: 3000, fetcher: fetcher }}>
+            <SystemProvider>
+              <TransactionManagerProvider>
+                <AuctionHouseProvider>
+                  <ModalProvider>
                     <Component {...pageProps} />
-                  </TransactionProvider>
-                </SystemProvider>
-              </AuctionHouseProvider>
-            </SWRConfig>
-          </RainbowKitProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
-    </ModalProvider>
+                  </ModalProvider>
+                </AuctionHouseProvider>
+              </TransactionManagerProvider>
+            </SystemProvider>
+          </SWRConfig>
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 }
 

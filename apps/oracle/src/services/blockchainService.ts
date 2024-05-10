@@ -74,6 +74,12 @@ export class BlockchainService {
         const tagService = new TagService(); // Instantiate TagService for determining the next tag.
         const tokenId = await tagService.findNextCTAG(platformAccount);
 
+        if (!tokenId) {
+          // Checking if tokenId is null
+          console.log("No eligible tag found to create an auction.");
+          return; // Early return if no tag is found
+        }
+
         const tx = await this.auctionHouseContract.fulfillRequestCreateAuction(BigInt(tokenId));
         const receipt = await tx.wait();
         console.log(`Next token successfully released. Txn Hash: ${receipt.transactionHash}`);

@@ -12,7 +12,7 @@
  * @module AuctionHouseContext
  */
 
-import React, { createContext, useState, useEffect, useRef } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import { AuctionHouse } from "@app/types/auction";
 import { useAuctions } from "@app/hooks/useAuctions";
 
@@ -68,7 +68,7 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
 
   const {
     auctions: allAuctions,
-    isLoading, // TODO: Expose isLoading & isError to consumers?
+    isLoading,
     isError,
     mutate: refreshAuctions,
   } = useAuctions({

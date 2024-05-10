@@ -17,7 +17,7 @@ const Modal = ({ id, label, children, link = false, buttonClasses = "", disabled
   const { currentModal, openModal, resetModal } = useModal();
 
   useEffect(() => {
-    // This effect does nothing on mount, but on unmount it ensures the modal state is reset
+    // resetModal() is called on unmount.
     return () => {
       if (currentModal === id) {
         resetModal();

@@ -11,10 +11,7 @@ import AuctionTimer from "@app/components/auction/AuctionTimer";
 import AuctionSummary from "@app/components/auction/AuctionSummary";
 import AuctionBids from "@app/components/auction/AuctionBids";
 import { Truncate } from "@app/components/Truncate";
-
 import { useCurrentChain } from "@app/hooks/useCurrentChain";
-
-import TransactionDebug from "@app/components/transaction/shared/TransactionDebug";
 
 const AuctionDisplay = () => {
   const { t } = useTranslation("common");
@@ -38,9 +35,7 @@ const AuctionDisplay = () => {
         isLastAuction={isLastAuction}
       />
       <section className="col-span-12 xl:col-span-6">
-        <div>
-          <TransactionDebug />
-        </div>
+        <div>{tagGraphic}</div>
       </section>
 
       <section className="col-span-12 overflow-hidden xl:col-span-6">

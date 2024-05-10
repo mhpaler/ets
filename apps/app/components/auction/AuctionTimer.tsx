@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import useTranslation from "next-translate/useTranslation";
 import { Auction } from "@app/types/auction";
 import { useSystem } from "@app/hooks/useSystem";
-import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useAuction } from "@app/hooks/useAuctionContext";
 
 interface AuctionTimerProps {
@@ -12,50 +11,43 @@ interface AuctionTimerProps {
 const AuctionTimer: React.FC<AuctionTimerProps> = ({ auction }) => {
   const { t } = useTranslation("common");
   const { blockchainTime } = useSystem();
-  const { timeBuffer } = useAuctionHouse();
   const { endAuction, setAuctionEndTimeUI } = useAuction();
   const [timeLeft, setTimeLeft] = useState<number>(auction.endTime - blockchainTime());
 
   useEffect(() => {
-    const updateTimer = () => {
-      const currentTime = blockchainTime();
-      const hasStarted = auction.startTime > 0 && currentTime >= auction.startTime;
-      const hasEnded = auction.endTime > 0 && currentTime > auction.endTime;
+    const interval: number = 1000; // Set interval to 1 second
+    let timer: NodeJS.Timeout; // Declare timer variable for setInterval
 
-      // Update time left only if the auction has started
+    const updateTimer = (): void => {
+      const currentTime: number = blockchainTime();
+      const hasStarted: boolean = auction.startTime > 0 && currentTime >= auction.startTime;
+      const hasEnded: boolean = auction.endTime > 0 && currentTime > auction.endTime;
+
       if (hasStarted && !hasEnded) {
-        const newTimeLeft = auction.endTime - currentTime;
-        setTimeLeft(newTimeLeft);
+        setTimeLeft(auction.endTime - currentTime);
       } else if (hasEnded) {
-        console.log(`Has ended: ${hasEnded}`);
-        console.log(`Ending Auction ID: ${auction.id}`);
-
         setTimeLeft(0);
-        clearInterval(timer);
+        clearInterval(timer); // Now the timer is recognized correctly
         if (!auction.ended) {
-          endAuction(auction.id); // Call endAuction only if it hasn't been marked as ended yet
+          console.log(`Calling endAuction for Auction ID: ${auction.id}`);
+          endAuction(auction.id);
           setAuctionEndTimeUI(currentTime);
         }
       }
     };
 
-    // TODO: When concurrent auctions increases > 100, consider some type of
-    // throttling mechanism. eg:
-    ///const interval = timeLeft <= timeBuffer ? 1000 : 60000; // 1 second or 1 minute
-    const interval = 1000; // 1 second
-    const timer = setInterval(updateTimer, interval);
+    if (!auction.ended) {
+      timer = setInterval(updateTimer, interval); // Assign setInterval to timer
+      updateTimer(); // Update immediately upon mounting
+    }
 
-    // Initial update in case the component mounts close to the end time or after
-    updateTimer();
-
-    return () => clearInterval(timer);
-    // Ensure to include all dependencies this effect uses
-  }, [auction.id, auction.startTime, auction.endTime, auction.ended, endAuction, blockchainTime, setAuctionEndTimeUI]);
+    return () => clearInterval(timer); // Clean up the interval on component unmount
+  }, [auction, endAuction, setAuctionEndTimeUI, blockchainTime]);
 
   const formatTimeLeft = (seconds: number): string => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = seconds % 60;
+    const hours: number = Math.floor(seconds / 3600);
+    const minutes: number = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds: number = seconds % 60;
     return `${hours}h ${minutes}m ${remainingSeconds}s`;
   };
 

@@ -7,7 +7,8 @@ import { Dialog } from "@headlessui/react";
 
 import { useModal } from "@app/hooks/useModalContext";
 import { useAuction } from "@app/hooks/useAuctionContext";
-import { useTransaction } from "@app/hooks/useTransaction";
+import { useTransactionManager } from "@app/hooks/useTransactionManager";
+import { TransactionType } from "@app/types/transaction";
 
 import { Tag } from "@app/components/Tag";
 import { Wallet, CheckCircle, QuestionMark } from "@app/components/icons";
@@ -17,40 +18,33 @@ import TransactionConfirmActions from "@app/components/transaction/shared/Transa
 import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels"; // Adjust the import path as necessary
 
 interface FormStepProps {
+  transactionId: string;
+  transactionType: TransactionType;
   goToNextStep: () => void;
   goToStep: (step: number) => void;
 }
 
-const SettleConfirm: React.FC<FormStepProps> = ({ goToStep }) => {
+const SettleConfirm: React.FC<FormStepProps> = ({ transactionId, transactionType, goToStep }) => {
   const { t } = useTranslation("common");
 
   const { closeModal } = useModal();
   const { auction, bidFormData } = useAuction();
-  const { initiateTransaction, resetTransaction, isPending, isSuccess, hash, isError, errorMessage } = useTransaction();
-  const { dialogTitle } = useTransactionLabels(); // Use the hook
-
-  // Extract the specific ABI for the `createBid` function
-  const createBidABI = etsAuctionHouseConfig.abi.find((abi) => abi.type === "function" && abi.name === "createBid");
-  if (!createBidABI) {
-    throw new Error("createBid ABI not found");
-  }
+  const { initiateTransaction, removeTransaction, transactions } = useTransactionManager();
+  const transaction = transactions[transactionId];
+  const { dialogTitle } = useTransactionLabels(transactionId);
 
   // Function to initiate the transaction
   const handleButtonClick = () => {
-    if (!auction || isSuccess || isError) {
-      // Use a timeout to delay the reset, allowing the modal to close smoothly
-      setTimeout(() => {
-        resetTransaction();
-      }, 500); // Adjust the timeout duration as needed for your modal close animation
-      // Close the modal
+    if (!auction || transaction?.isSuccess || transaction?.isError) {
+      removeTransaction(transactionId);
       closeModal();
-      return;
+    } else {
+      initiateTransaction(transactionId, transactionType, {
+        ...etsAuctionHouseConfig,
+        functionName: "settleCurrentAndCreateNewAuction",
+        args: [BigInt(auction.id)],
+      });
     }
-    initiateTransaction({
-      ...etsAuctionHouseConfig,
-      functionName: "settleCurrentAndCreateNewAuction",
-      args: [BigInt(auction.id)],
-    });
   };
 
   const content = (
@@ -60,7 +54,7 @@ const SettleConfirm: React.FC<FormStepProps> = ({ goToStep }) => {
       </Dialog.Title>
       <div>
         <div className="mt-4 pl-8 pr-8 text-center flex flex-col items-center">
-          {isSuccess ? (
+          {transaction?.isSuccess ? (
             <div className="text-green-600">
               <CheckCircle size={48} />
             </div>
@@ -85,10 +79,13 @@ const SettleConfirm: React.FC<FormStepProps> = ({ goToStep }) => {
           <div className="flex flex-row justify-between h-14 items-center pl-6 pr-6 text-xs">
             {t("AUCTION.SETTLE_INFO")}
           </div>
-
-          <TransactionError errorMsg={errorMessage} />
-          <TransactionLink txn={hash} />
-          <TransactionConfirmActions handleBack={() => closeModal()} handlePrimaryAction={handleButtonClick} />
+          <TransactionError errorMsg={transaction?.isError ? transaction.message : null} />
+          <TransactionLink txn={transaction?.hash} />
+          <TransactionConfirmActions
+            transactionId={transactionId}
+            handleBack={() => goToStep(0)}
+            handlePrimaryAction={handleButtonClick}
+          />
         </div>
       </div>
     </>

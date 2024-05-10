@@ -2,14 +2,11 @@ import React, { useState } from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { Auction } from "@app/types/auction";
+import { AuctionProvider } from "@app/context/AuctionContext";
 import useTranslation from "next-translate/useTranslation";
 import { useModal } from "@app/hooks/useModalContext"; // Adjust the import path as necessary
-import { useAuctions } from "@app/hooks/useAuctions";
-import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
-
 import { globalSettings } from "@app/config/globalSettings";
 import { Table } from "@app/components/Table";
-import { Button } from "@app/components/Button";
 
 type ColumnConfig = {
   title: string; // The display name of the column
@@ -72,15 +69,20 @@ const Auctions: NextPage<Props> = ({
         </Table.Head>
         <Table.Body>
           {auctions?.map((auction) => (
-            <Table.Tr key={`${listId}-${auction.id}`} onClick={rowLink ? () => handleRowClick(auction.id) : undefined}>
-              {columnsConfig.map((column, index) => (
-                <Table.Cell key={`${listId}-${auction.id}-${index}-${column.field}`}>
-                  {column.formatter
-                    ? column.formatter(getValueByPath(auction, column.field), auction) // Pass the whole auction object
-                    : getValueByPath(auction, column.field)}
-                </Table.Cell>
-              ))}
-            </Table.Tr>
+            <AuctionProvider key={auction.id} auctionId={auction.id}>
+              <Table.Tr
+                key={`${listId}-${auction.id}`}
+                onClick={rowLink ? () => handleRowClick(auction.id) : undefined}
+              >
+                {columnsConfig.map((column, index) => (
+                  <Table.Cell key={`${listId}-${auction.id}-${index}-${column.field}`}>
+                    {column.formatter
+                      ? column.formatter(getValueByPath(auction, column.field), auction) // Pass the whole auction object
+                      : getValueByPath(auction, column.field)}
+                  </Table.Cell>
+                ))}
+              </Table.Tr>
+            </AuctionProvider>
           ))}
         </Table.Body>
         {/* {nextAuctions?.length > 0 || skip !== 0 ? (

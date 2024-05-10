@@ -22,16 +22,15 @@ const Auction: NextPage = () => {
   }
 
   const settledAuctions = allAuctions.filter((auction) => auction.settled);
-  const activeAuctions = allAuctions.filter((auction) => auction.startTime === 0 || auction.settled === false);
+  const activeAuctions = allAuctions
+    .filter((auction) => auction.startTime === 0 || auction.settled === false)
+    .sort((a, b) => b.id - a.id);
   return (
     <Layout>
       <Auctions
         listId="active"
         title={t("active")}
         auctions={activeAuctions}
-        //filter={{
-        //  or: [{ startTime: 0 }, { settled: false }],
-        //}}
         rowLink={true}
         columnsConfig={[
           {
@@ -62,9 +61,11 @@ const Auction: NextPage = () => {
             title: "",
             field: "id",
             formatter: (id, auction) => (
-              <AuctionProvider auctionId={Number(id)}>
-                <AuctionActions auction={auction} buttonClasses="btn-primary btn-outline btn-sm" />
-              </AuctionProvider>
+              <AuctionActions
+                key={id + auction.ended}
+                auction={auction}
+                buttonClasses="btn-primary btn-outline btn-sm"
+              />
             ),
           },
         ]}

@@ -11,26 +11,29 @@ import { Wallet, CheckCircle } from "@app/components/icons";
 import { TransactionError } from "@app/components/transaction/shared/TransactionError";
 import { TransactionLink } from "@app/components/transaction/shared/TransactionLink";
 import TransactionConfirmActions from "@app/components/transaction/shared/TransactionConfirmActions";
+import { TransactionType } from "@app/types/transaction";
 
 import { useModal } from "@app/hooks/useModalContext";
 import { useAuction } from "@app/hooks/useAuctionContext";
 import { useCurrentChain } from "@app/hooks/useCurrentChain";
-import { useTransaction } from "@app/hooks/useTransaction";
+import { useTransactionManager } from "@app/hooks/useTransactionManager";
 import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels"; // Adjust the import path as necessary
 
 interface FormStepProps {
-  goToNextStep: () => void;
+  transactionId: string;
+  transactionType: TransactionType;
   goToStep: (step: number) => void;
 }
 
-const BidConfirm: React.FC<FormStepProps> = ({ goToStep }) => {
+const BidConfirm: React.FC<FormStepProps> = ({ transactionId, transactionType, goToStep }) => {
   const { t } = useTranslation("common");
 
   const { closeModal } = useModal();
   const { auction, bidFormData, setBidFormData } = useAuction();
   const chain = useCurrentChain();
-  const { initiateTransaction, resetTransaction, isSuccess, hash, isError, errorMessage } = useTransaction();
-  const { dialogTitle } = useTransactionLabels(); // Use the hook
+  const { initiateTransaction, removeTransaction, transactions } = useTransactionManager();
+  const transaction = transactions[transactionId];
+  const { dialogTitle } = useTransactionLabels(transactionId);
 
   // Extract the specific ABI for the `createBid` function
   const createBidABI = etsAuctionHouseConfig.abi.find((abi) => abi.type === "function" && abi.name === "createBid");
@@ -40,25 +43,18 @@ const BidConfirm: React.FC<FormStepProps> = ({ goToStep }) => {
 
   // Function to initiate the transaction
   const handleButtonClick = () => {
-    if (!auction || isSuccess || isError) {
-      // Use a timeout to delay the reset, allowing the modal to close smoothly
-      // TODO: Have a look at DaisyUI modal.
-      setTimeout(() => {
-        resetTransaction();
-        setBidFormData({ bid: undefined });
-      }, 500); // Adjust the timeout duration as needed for your modal close animation
-
-      // Close the modal
+    if (!auction || transaction?.isSuccess || transaction?.isError) {
+      removeTransaction(transactionId);
       closeModal();
-      return;
+    } else {
+      initiateTransaction(transactionId, transactionType, {
+        address: etsAuctionHouseConfig.address,
+        abi: [createBidABI],
+        functionName: "createBid",
+        args: [BigInt(auction.id)],
+        value: bidFormData.bid ? parseEther(bidFormData.bid.toString()) : BigInt(0),
+      });
     }
-    initiateTransaction({
-      address: etsAuctionHouseConfig.address,
-      abi: [createBidABI],
-      functionName: "createBid",
-      args: [BigInt(auction.id)],
-      value: bidFormData.bid ? parseEther(bidFormData.bid.toString()) : BigInt(0),
-    });
   };
 
   const content = (
@@ -68,7 +64,7 @@ const BidConfirm: React.FC<FormStepProps> = ({ goToStep }) => {
       </Dialog.Title>
       <div>
         <div className="mt-4 pl-8 pr-8 text-center flex flex-col items-center">
-          {isSuccess ? (
+          {transaction?.isSuccess ? (
             <div className="text-green-600">
               <CheckCircle size={48} />
             </div>
@@ -97,9 +93,13 @@ const BidConfirm: React.FC<FormStepProps> = ({ goToStep }) => {
             </div>
           </div>
 
-          <TransactionError errorMsg={errorMessage} />
-          <TransactionLink txn={hash} />
-          <TransactionConfirmActions handleBack={() => goToStep(0)} handlePrimaryAction={handleButtonClick} />
+          <TransactionError errorMsg={transaction?.isError ? transaction.message : null} />
+          <TransactionLink txn={transaction?.hash} />
+          <TransactionConfirmActions
+            transactionId={transactionId}
+            handleBack={() => goToStep(0)}
+            handlePrimaryAction={handleButtonClick}
+          />
         </div>
       </div>
     </>
