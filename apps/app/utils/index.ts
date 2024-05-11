@@ -22,7 +22,13 @@ export const formatEtherWithDecimals = (amount: bigint, decimals?: number): stri
  * @returns {string} Formatted date string.
  */
 export const timestampToString = (timestamp: number, language = "en-US") => {
+  console.log("Timestamp:", timestamp); // Debug log to check the input value
+
   const date = new Date(timestamp * 1000);
+  if (isNaN(date.getTime())) {
+    return "Invalid date"; // Handle invalid dates
+  }
+
   const formatted = new Intl.DateTimeFormat(language, {
     year: "numeric",
     month: "long",
@@ -57,14 +63,10 @@ export const toDp = (value: string) => (!value ? value : parseFloat(value).toFix
  * @param {number} decimals The number of decimal places for the returned ether value.
  * @returns {string} The value in ether, formatted as a string with the specified number of decimals.
  */
-export const toEth = (value: number, decimals: number, ticker: boolean = false) => {
-  if (!value) return value;
-  if (decimals) {
-    let ether = Number(utils.formatEther(BigNumber.from(value)));
-    return ether.toFixed(decimals);
-  }
-
-  return utils.formatEther(BigNumber.from(value));
+export const toEth = (value: number | undefined, decimals: number, ticker: boolean = false) => {
+  if (value === undefined) return ""; // Return an empty string or any other placeholder if value is undefined
+  let ether = Number(utils.formatEther(BigNumber.from(value)));
+  return decimals ? ether.toFixed(decimals) : utils.formatEther(BigNumber.from(value));
 };
 
 /**
