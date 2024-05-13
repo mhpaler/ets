@@ -1,6 +1,6 @@
 import type { PublicClient, WalletClient } from "viem";
 
-export const manageContractRead = async (
+export const handleContractRead = async (
   publicClient: PublicClient,
   address: `0x${string}`,
   abi: any,
@@ -20,7 +20,7 @@ export const manageContractRead = async (
   }
 };
 
-export const manageContractCall = async (
+export const handleContractCall = async (
   publicClient: PublicClient,
   walletClient: WalletClient,
   address: `0x${string}`,

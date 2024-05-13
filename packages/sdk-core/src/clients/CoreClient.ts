@@ -48,41 +48,44 @@ export class CoreClient {
 
     if (clientSettings.tokenClient) {
       this.tokenClient = new TokenClient({
-        chainId,
         publicClient,
         walletClient,
+        chainId,
       });
     }
     if (clientSettings.relayerClient) {
       this.relayerClient = new RelayerClient({
-        chainId,
         publicClient,
         walletClient,
+        chainId,
         relayerAddress,
       });
     }
     if (clientSettings.accessControlsClient) {
       this.accessControlsClient = new AccessControlsClient({
         publicClient,
-        walletClient,
+        chainId,
       });
     }
     if (clientSettings.auctionHouseClient) {
       this.auctionHouseClient = new AuctionHouseClient({
         publicClient,
         walletClient,
+        chainId,
       });
     }
     if (clientSettings.relayerFactoryClient) {
       this.relayerFactoryClient = new RelayerFactoryClient({
         publicClient,
         walletClient,
+        chainId,
       });
     }
     if (clientSettings.targetClient) {
       this.targetClient = new TargetClient({
         publicClient,
         walletClient,
+        chainId,
       });
     }
   }
@@ -139,19 +142,6 @@ export class CoreClient {
     return this.relayerClient.transferOwnership(newOwner);
   }
 
-  public async initializeRelayer(params: {
-    relayerName: string;
-    ets: Address;
-    etsToken: Address;
-    etsTarget: Address;
-    etsAccessControls: Address;
-    creator: Address;
-    owner: Address;
-  }): Promise<{ transactionHash: string; status: number }> {
-    if (!this.relayerClient) throw new Error("RelayerClient is not initialized.");
-    return this.relayerClient.initialize(params);
-  }
-
   public async applyTags(
     tags: string[],
     targetURI: string,
@@ -187,17 +177,6 @@ export class CoreClient {
   public async paused(): Promise<boolean> {
     if (!this.relayerClient) throw new Error("RelayerClient is not initialized.");
     return this.relayerClient.paused();
-  }
-
-  // Methods delegating to AccessControlsClient
-  async grantRole(role: string, account: string): Promise<{ transactionHash: string; status: number }> {
-    if (!this.accessControlsClient) throw new Error("AccessControlsClient is not initialized.");
-    return this.accessControlsClient.grantRole(role, account);
-  }
-
-  async revokeRole(role: string, account: string): Promise<{ transactionHash: string; status: number }> {
-    if (!this.accessControlsClient) throw new Error("AccessControlsClient is not initialized.");
-    return this.accessControlsClient.revokeRole(role, account);
   }
 
   async hasRole(role: string, account: string): Promise<boolean> {
@@ -237,11 +216,6 @@ export class CoreClient {
     return this.relayerFactoryClient.addRelayer(relayerName);
   }
 
-  async getImplementation(): Promise<string> {
-    if (!this.relayerFactoryClient) throw new Error("RelayerFactoryClient is not initialized.");
-    return this.relayerFactoryClient.getImplementation();
-  }
-
   // Methods delegating to TargetClient
   async createTarget(targetURI: string): Promise<{ transactionHash: string; status: number }> {
     if (!this.targetClient) throw new Error("TargetClient is not initialized.");
@@ -268,21 +242,6 @@ export class CoreClient {
     return this.targetClient.targetExistsByURI(targetURI);
   }
 
-  async getOrCreateTargetId(targetURI: string): Promise<bigint> {
-    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
-    return this.targetClient.getOrCreateTargetId(targetURI);
-  }
-
-  async setAccessControls(accessControlsAddress: string): Promise<{ transactionHash: string; status: number }> {
-    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
-    return this.targetClient.setAccessControls(accessControlsAddress);
-  }
-
-  async setEnrichTarget(enrichTargetAddress: string): Promise<{ transactionHash: string; status: number }> {
-    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
-    return this.targetClient.setEnrichTarget(enrichTargetAddress);
-  }
-
   async updateTarget(
     targetId: bigint,
     targetURI: string,
@@ -294,19 +253,6 @@ export class CoreClient {
     return this.targetClient.updateTarget(targetId, targetURI, enriched, httpStatus, ipfsHash);
   }
 
-  async upgradeTo(newImplementation: string): Promise<{ transactionHash: string; status: number }> {
-    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
-    return this.targetClient.upgradeTo(newImplementation);
-  }
-
-  async upgradeToAndCall(
-    newImplementation: string,
-    data: string,
-  ): Promise<{ transactionHash: string; status: number }> {
-    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
-    return this.targetClient.upgradeToAndCall(newImplementation, data);
-  }
-
   async etsAccessControls(): Promise<string> {
     if (!this.targetClient) throw new Error("TargetClient is not initialized.");
     return this.targetClient.etsAccessControls();
@@ -315,16 +261,6 @@ export class CoreClient {
   async etsEnrichTarget(): Promise<string> {
     if (!this.targetClient) throw new Error("TargetClient is not initialized.");
     return this.targetClient.etsEnrichTarget();
-  }
-
-  async initialize(accessControlsAddress: string): Promise<{ transactionHash: string; status: number }> {
-    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
-    return this.targetClient.initialize(accessControlsAddress);
-  }
-
-  async proxiableUUID(): Promise<string> {
-    if (!this.targetClient) throw new Error("TargetClient is not initialized.");
-    return this.targetClient.proxiableUUID();
   }
 
   async targets(index: bigint): Promise<any> {

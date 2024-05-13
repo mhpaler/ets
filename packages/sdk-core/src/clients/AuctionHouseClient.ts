@@ -1,15 +1,41 @@
 import { PublicClient, WalletClient } from "viem";
 import { etsAuctionHouseConfig } from "../../contracts/contracts";
-import { manageContractRead, manageContractCall } from "../utils";
+import { handleContractRead, handleContractCall } from "../utils";
 import { AuctionHouseReadFunction, AuctionHouseWriteFunction } from "../types";
 
 export class AuctionHouseClient {
   private readonly publicClient: PublicClient;
   private readonly walletClient: WalletClient | undefined;
+  private readonly chainId?: number;
 
-  constructor({ publicClient, walletClient }: { publicClient: PublicClient; walletClient?: WalletClient }) {
+  constructor({
+    publicClient,
+    walletClient,
+    chainId,
+  }: {
+    publicClient: PublicClient;
+    walletClient?: WalletClient;
+    chainId?: number;
+  }) {
     this.publicClient = publicClient;
     this.walletClient = walletClient;
+    this.chainId = chainId;
+
+    if (publicClient === undefined) {
+      throw new Error("Public client is required");
+    }
+
+    if (walletClient === undefined) {
+      throw new Error("Wallet client is required");
+    }
+
+    if (chainId !== undefined && publicClient.chain?.id !== chainId) {
+      throw new Error("Provided chain id should match the public client chain id");
+    }
+
+    if (chainId !== undefined && walletClient.chain?.id !== chainId) {
+      throw new Error("Provided chain id should match the wallet client chain id");
+    }
   }
 
   // State-changing functions
@@ -25,64 +51,12 @@ export class AuctionHouseClient {
     return this.callContract("drawDown", [account]);
   }
 
-  async fulfillRequestCreateAuction(tokenId: bigint): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("fulfillRequestCreateAuction", [tokenId]);
-  }
-
-  async pause(): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("pause", []);
-  }
-
-  async unpause(): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("unpause", []);
-  }
-
-  async setDuration(duration: bigint): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("setDuration", [duration]);
-  }
-
-  async setMaxAuctions(maxAuctions: bigint): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("setMaxAuctions", [maxAuctions]);
-  }
-
-  async setMinBidIncrementPercentage(
-    minBidIncrementPercentage: number,
-  ): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("setMinBidIncrementPercentage", [minBidIncrementPercentage]);
-  }
-
-  async setProceedPercentages(
-    platformPercentage: bigint,
-    relayerPercentage: bigint,
-  ): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("setProceedPercentages", [platformPercentage, relayerPercentage]);
-  }
-
-  async setReservePrice(reservePrice: bigint): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("setReservePrice", [reservePrice]);
-  }
-
-  async setTimeBuffer(timeBuffer: bigint): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("setTimeBuffer", [timeBuffer]);
-  }
-
   async settleAuction(auctionId: bigint): Promise<{ transactionHash: string; status: number }> {
     return this.callContract("settleAuction", [auctionId]);
   }
 
   async settleCurrentAndCreateNewAuction(auctionId: bigint): Promise<{ transactionHash: string; status: number }> {
     return this.callContract("settleCurrentAndCreateNewAuction", [auctionId]);
-  }
-
-  async upgradeTo(newImplementation: string): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("upgradeTo", [newImplementation]);
-  }
-
-  async upgradeToAndCall(
-    newImplementation: string,
-    data: string,
-  ): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("upgradeToAndCall", [newImplementation, data]);
   }
 
   // Read-only functions
@@ -174,10 +148,6 @@ export class AuctionHouseClient {
     return this.readContract("platformPercentage", []);
   }
 
-  async proxiableUUID(): Promise<string> {
-    return this.readContract("proxiableUUID", []);
-  }
-
   async relayerPercentage(): Promise<bigint> {
     return this.readContract("relayerPercentage", []);
   }
@@ -195,7 +165,7 @@ export class AuctionHouseClient {
   }
 
   private async readContract(functionName: AuctionHouseReadFunction, args: any[] = []): Promise<any> {
-    return manageContractRead(
+    return handleContractRead(
       this.publicClient,
       etsAuctionHouseConfig.address,
       etsAuctionHouseConfig.abi,
@@ -211,7 +181,7 @@ export class AuctionHouseClient {
     if (!this.walletClient) {
       throw new Error("Wallet client is required to perform this action");
     }
-    return manageContractCall(
+    return handleContractCall(
       this.publicClient,
       this.walletClient,
       etsAuctionHouseConfig.address,

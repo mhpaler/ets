@@ -1,23 +1,41 @@
 import { PublicClient, WalletClient } from "viem";
 import { etsRelayerFactoryConfig } from "../../contracts/contracts";
-import { manageContractRead, manageContractCall } from "../utils";
+import { handleContractRead, handleContractCall } from "../utils";
 import { RelayerFactoryReadFunction, RelayerFactoryWriteFunction } from "../types";
 
 export class RelayerFactoryClient {
   private readonly publicClient: PublicClient;
   private readonly walletClient: WalletClient | undefined;
+  private readonly chainId?: number;
 
-  constructor({ publicClient, walletClient }: { publicClient: PublicClient; walletClient?: WalletClient }) {
+  constructor({
+    publicClient,
+    walletClient,
+    chainId,
+  }: {
+    publicClient: PublicClient;
+    walletClient?: WalletClient;
+    chainId?: number;
+  }) {
     this.publicClient = publicClient;
     this.walletClient = walletClient;
+    this.chainId = chainId;
+
+    if (!publicClient) {
+      throw new Error("Public client is required");
+    }
+
+    if (publicClient.chain?.id !== chainId) {
+      throw new Error("Provided chain id should match the public client chain id");
+    }
+
+    if (walletClient && walletClient.chain?.id !== chainId) {
+      throw new Error("Provided chain id should match the wallet client chain id");
+    }
   }
 
   async addRelayer(relayerName: string): Promise<{ transactionHash: string; status: number }> {
     return this.callContract("addRelayer", [relayerName]);
-  }
-
-  async getImplementation(): Promise<string> {
-    return this.readContract("getImplementation", []);
   }
 
   async ets(): Promise<string> {
@@ -36,12 +54,8 @@ export class RelayerFactoryClient {
     return this.readContract("etsToken", []);
   }
 
-  async getBeacon(): Promise<string> {
-    return this.readContract("getBeacon", []);
-  }
-
   private async readContract(functionName: RelayerFactoryReadFunction, args: any[] = []): Promise<any> {
-    return manageContractRead(
+    return handleContractRead(
       this.publicClient,
       etsRelayerFactoryConfig.address,
       etsRelayerFactoryConfig.abi,
@@ -57,7 +71,7 @@ export class RelayerFactoryClient {
     if (!this.walletClient) {
       throw new Error("Wallet client is required to perform this action");
     }
-    return manageContractCall(
+    return handleContractCall(
       this.publicClient,
       this.walletClient,
       etsRelayerFactoryConfig.address,

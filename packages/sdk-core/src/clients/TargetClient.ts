@@ -1,15 +1,37 @@
 import { PublicClient, WalletClient } from "viem";
 import { etsTargetConfig } from "../../contracts/contracts";
-import { manageContractRead, manageContractCall } from "../utils";
+import { handleContractRead, handleContractCall } from "../utils";
 import { TargetReadFunction, TargetWriteFunction } from "../types";
 
 export class TargetClient {
   private readonly publicClient: PublicClient;
   private readonly walletClient: WalletClient | undefined;
+  private readonly chainId?: number;
 
-  constructor({ publicClient, walletClient }: { publicClient: PublicClient; walletClient?: WalletClient }) {
+  constructor({
+    publicClient,
+    walletClient,
+    chainId,
+  }: {
+    publicClient: PublicClient;
+    walletClient?: WalletClient;
+    chainId?: number;
+  }) {
     this.publicClient = publicClient;
     this.walletClient = walletClient;
+    this.chainId = chainId;
+
+    if (!publicClient) {
+      throw new Error("Public client is required");
+    }
+
+    if (publicClient.chain?.id !== chainId) {
+      throw new Error("Provided chain id should match the public client chain id");
+    }
+
+    if (walletClient && walletClient.chain?.id !== chainId) {
+      throw new Error("Provided chain id should match the wallet client chain id");
+    }
   }
 
   async getTargetById(targetId: bigint): Promise<any> {
@@ -28,20 +50,12 @@ export class TargetClient {
     return this.readContract("targetExistsByURI", [targetURI]);
   }
 
-  async getOrCreateTargetId(targetURI: string): Promise<bigint> {
-    return this.readContract("getOrCreateTargetId", [targetURI]);
+  async getOrCreateTargetId(targetURI: string): Promise<{ transactionHash: string; status: number }> {
+    return this.callContract("getOrCreateTargetId", [targetURI]);
   }
 
   async createTarget(targetURI: string): Promise<{ transactionHash: string; status: number }> {
     return this.callContract("createTarget", [targetURI]);
-  }
-
-  async setAccessControls(accessControlsAddress: string): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("setAccessControls", [accessControlsAddress]);
-  }
-
-  async setEnrichTarget(enrichTargetAddress: string): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("setEnrichTarget", [enrichTargetAddress]);
   }
 
   async updateTarget(
@@ -54,31 +68,12 @@ export class TargetClient {
     return this.callContract("updateTarget", [targetId, targetURI, enriched, httpStatus, ipfsHash]);
   }
 
-  async upgradeTo(newImplementation: string): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("upgradeTo", [newImplementation]);
-  }
-
-  async upgradeToAndCall(
-    newImplementation: string,
-    data: string,
-  ): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("upgradeToAndCall", [newImplementation, data]);
-  }
-
   async etsAccessControls(): Promise<string> {
     return this.readContract("etsAccessControls", []);
   }
 
   async etsEnrichTarget(): Promise<string> {
     return this.readContract("etsEnrichTarget", []);
-  }
-
-  async initialize(accessControlsAddress: string): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("initialize", [accessControlsAddress]);
-  }
-
-  async proxiableUUID(): Promise<string> {
-    return this.readContract("proxiableUUID", []);
   }
 
   async targets(index: bigint): Promise<any> {
@@ -90,7 +85,7 @@ export class TargetClient {
   }
 
   private async readContract(functionName: TargetReadFunction, args: any[] = []): Promise<any> {
-    return manageContractRead(this.publicClient, etsTargetConfig.address, etsTargetConfig.abi, functionName, args);
+    return handleContractRead(this.publicClient, etsTargetConfig.address, etsTargetConfig.abi, functionName, args);
   }
 
   private async callContract(
@@ -100,7 +95,7 @@ export class TargetClient {
     if (!this.walletClient) {
       throw new Error("Wallet client is required to perform this action");
     }
-    return manageContractCall(
+    return handleContractCall(
       this.publicClient,
       this.walletClient,
       etsTargetConfig.address,

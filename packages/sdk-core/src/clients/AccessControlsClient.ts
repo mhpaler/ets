@@ -1,73 +1,23 @@
-import { PublicClient, WalletClient } from "viem";
+import { PublicClient } from "viem";
 import { etsAccessControlsConfig } from "../../contracts/contracts";
-import { manageContractRead, manageContractCall } from "../utils";
-import { AccessControlsReadFunction, AccessControlsWriteFunction } from "../types";
+import { handleContractRead } from "../utils";
+import { AccessControlsReadFunction } from "../types";
 
 export class AccessControlsClient {
+  private readonly chainId?: number;
   private readonly publicClient: PublicClient;
-  private readonly walletClient: WalletClient | undefined;
 
-  constructor({ publicClient, walletClient }: { publicClient: PublicClient; walletClient?: WalletClient }) {
+  constructor({ publicClient, chainId }: { publicClient: PublicClient; chainId?: number }) {
     this.publicClient = publicClient;
-    this.walletClient = walletClient;
-  }
+    this.chainId = chainId;
 
-  async grantRole(role: string, account: string): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("grantRole", [role, account]);
-  }
+    if (publicClient === undefined) {
+      throw new Error("Public client is required");
+    }
 
-  async revokeRole(role: string, account: string): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("revokeRole", [role, account]);
-  }
-
-  async changeRelayerOwner(
-    currentOwner: string,
-    newOwner: string,
-  ): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("changeRelayerOwner", [currentOwner, newOwner]);
-  }
-
-  async initialize(platformAddress: string): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("initialize", [platformAddress]);
-  }
-
-  async renounceRole(role: string, account: string): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("renounceRole", [role, account]);
-  }
-
-  async pauseRelayerByOwnerAddress(relayerOwner: string): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("pauseRelayerByOwnerAddress", [relayerOwner]);
-  }
-
-  async registerRelayer(
-    relayer: string,
-    name: string,
-    owner: string,
-  ): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("registerRelayer", [relayer, name, owner]);
-  }
-
-  async setPlatform(platform: string): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("setPlatform", [platform]);
-  }
-
-  async setRoleAdmin(role: string, adminRole: string): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("setRoleAdmin", [role, adminRole]);
-  }
-
-  async toggleRelayerLock(relayer: string): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("toggleRelayerLock", [relayer]);
-  }
-
-  async upgradeTo(newImplementation: string): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("upgradeTo", [newImplementation]);
-  }
-
-  async upgradeToAndCall(
-    newImplementation: string,
-    data: string,
-  ): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("upgradeToAndCall", [newImplementation, data]);
+    if (chainId !== undefined && publicClient.chain?.id !== chainId) {
+      throw new Error("Provided chain id should match the public client chain id");
+    }
   }
 
   async hasRole(role: string, account: string): Promise<boolean> {
@@ -138,10 +88,6 @@ export class AccessControlsClient {
     return this.readContract("getRoleAdmin", [role]);
   }
 
-  async proxiableUUID(): Promise<string> {
-    return this.readContract("proxiableUUID");
-  }
-
   async relayerContractToName(address: string): Promise<string> {
     return this.readContract("relayerContractToName", [address]);
   }
@@ -163,25 +109,8 @@ export class AccessControlsClient {
   }
 
   private async readContract(functionName: AccessControlsReadFunction, args: any[] = []): Promise<any> {
-    return manageContractRead(
+    return handleContractRead(
       this.publicClient,
-      etsAccessControlsConfig.address,
-      etsAccessControlsConfig.abi,
-      functionName,
-      args,
-    );
-  }
-
-  private async callContract(
-    functionName: AccessControlsWriteFunction,
-    args: any[] = [],
-  ): Promise<{ transactionHash: string; status: number }> {
-    if (!this.walletClient) {
-      throw new Error("Wallet client is required to perform this action");
-    }
-    return manageContractCall(
-      this.publicClient,
-      this.walletClient,
       etsAccessControlsConfig.address,
       etsAccessControlsConfig.abi,
       functionName,

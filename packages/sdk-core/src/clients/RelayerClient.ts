@@ -1,7 +1,7 @@
 import type { Address, Hex, PublicClient, WalletClient } from "viem";
 import { etsABI, etsAddress, etsRelayerV1ABI } from "../../contracts/contracts";
 import { TokenClient } from "./TokenClient";
-import { manageContractCall, manageContractRead } from "../utils";
+import { handleContractCall, handleContractRead } from "../utils";
 import { RelayerReadFunction, RelayerWriteFunction } from "../types";
 
 export class RelayerClient {
@@ -171,17 +171,8 @@ export class RelayerClient {
     return this.callContract("transferOwnership", [newOwner]);
   }
 
-  async initialize(params: {
-    relayerName: string;
-    ets: Address;
-    etsToken: Address;
-    etsTarget: Address;
-    etsAccessControls: Address;
-    creator: Address;
-    owner: Address;
-  }): Promise<{ transactionHash: string; status: number }> {
-    const { relayerName, ets, etsToken, etsTarget, etsAccessControls, creator, owner } = params;
-    return this.callContract("initialize", [relayerName, ets, etsToken, etsTarget, etsAccessControls, creator, owner]);
+  async getOrCreateTags(tags: string[]): Promise<{ transactionHash: string; status: number }> {
+    return this.callContract("getOrCreateTags", [tags]);
   }
 
   async applyTags(
@@ -291,7 +282,7 @@ export class RelayerClient {
       throw new Error("Relayer address is required");
     }
 
-    return manageContractCall(
+    return handleContractCall(
       this.publicClient,
       this.walletClient,
       this.etsConfig.address,
@@ -306,6 +297,6 @@ export class RelayerClient {
       throw new Error("Relayer address is required");
     }
 
-    return manageContractRead(this.publicClient, this.etsConfig.address, this.etsConfig.abi, functionName, args);
+    return handleContractRead(this.publicClient, this.etsConfig.address, this.etsConfig.abi, functionName, args);
   }
 }

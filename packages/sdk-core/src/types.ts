@@ -16,26 +16,11 @@ export type AccessControlsReadFunction =
   | "getRelayerAddressFromOwner"
   | "getRelayerNameFromAddress"
   | "getRoleAdmin"
-  | "proxiableUUID"
   | "relayerContractToName"
   | "relayerLocked"
   | "relayerNameToContract"
   | "relayerOwnerToAddress"
   | "supportsInterface";
-
-export type AccessControlsWriteFunction =
-  | "grantRole"
-  | "revokeRole"
-  | "changeRelayerOwner"
-  | "initialize"
-  | "renounceRole"
-  | "pauseRelayerByOwnerAddress"
-  | "registerRelayer"
-  | "setPlatform"
-  | "setRoleAdmin"
-  | "toggleRelayerLock"
-  | "upgradeTo"
-  | "upgradeToAndCall";
 
 export type AuctionHouseReadFunction =
   | "accrued"
@@ -54,7 +39,6 @@ export type AuctionHouseReadFunction =
   | "paid"
   | "paused"
   | "platformPercentage"
-  | "proxiableUUID"
   | "relayerPercentage"
   | "reservePrice"
   | "timeBuffer"
@@ -70,31 +54,15 @@ export type AuctionHouseWriteFunction =
   | "createBid"
   | "createNextAuction"
   | "drawDown"
-  | "fulfillRequestCreateAuction"
-  | "pause"
-  | "setDuration"
-  | "setMaxAuctions"
-  | "setMinBidIncrementPercentage"
-  | "setProceedPercentages"
-  | "setReservePrice"
-  | "setTimeBuffer"
   | "settleAuction"
-  | "settleCurrentAndCreateNewAuction"
-  | "unpause"
-  | "upgradeTo"
-  | "upgradeToAndCall";
+  | "settleCurrentAndCreateNewAuction";
 
 export type EtsWriteFunction =
+  | "applyTagsWithRawInput"
   | "applyTagsWithCompositeKey"
   | "appendTags"
-  | "initialize"
   | "removeTags"
-  | "replaceTags"
-  | "setAccessControls"
-  | "setPercentages"
-  | "setTaggingFee"
-  | "upgradeTo"
-  | "upgradeToAndCall";
+  | "replaceTags";
 
 export type EtsReadFunction =
   | "accrued"
@@ -105,28 +73,22 @@ export type EtsReadFunction =
   | "etsAccessControls"
   | "etsTarget"
   | "etsToken"
-  | "totalDue"
-  | "proxiableUUID";
+  | "totalDue";
 
-export type EnrichTargetWriteFunction =
-  | "fulfillEnrichTarget"
-  | "initialize"
-  | "requestEnrichTarget"
-  | "upgradeTo"
-  | "upgradeToAndCall";
+export type EnrichTargetWriteFunction = "fulfillEnrichTarget" | "requestEnrichTarget";
 
-export type EnrichTargetReadFunction = "etsAccessControls" | "etsTarget" | "proxiableUUID";
+export type EnrichTargetReadFunction = "etsAccessControls" | "etsTarget";
 
 export type RelayerWriteFunction =
   | "applyTags"
   | "changeOwner"
-  | "initialize"
   | "pause"
   | "renounceOwnership"
   | "replaceTags"
   | "transferOwnership"
   | "unpause"
-  | "removeTags";
+  | "removeTags"
+  | "getOrCreateTags";
 
 export type RelayerReadFunction =
   | "computeTaggingFee"
@@ -144,58 +106,22 @@ export type RelayerReadFunction =
 
 export type RelayerFactoryWriteFunction = "addRelayer";
 
-export type RelayerFactoryReadFunction =
-  | "getImplementation"
-  | "ets"
-  | "etsAccessControls"
-  | "etsTarget"
-  | "etsToken"
-  | "getBeacon";
+export type RelayerFactoryReadFunction = "ets" | "etsAccessControls" | "etsTarget" | "etsToken";
 
-export type TargetWriteFunction =
-  | "createTarget"
-  | "setAccessControls"
-  | "setEnrichTarget"
-  | "updateTarget"
-  | "upgradeTo"
-  | "upgradeToAndCall"
-  | "initialize";
+export type TargetWriteFunction = "createTarget" | "updateTarget" | "getOrCreateTargetId";
 
 export type TargetReadFunction =
   | "getTargetById"
   | "getTargetByURI"
   | "targetExistsById"
   | "targetExistsByURI"
-  | "getOrCreateTargetId"
   | "getName"
-  | "proxiableUUID"
   | "targets"
   | "computeTargetId"
   | "etsAccessControls"
   | "etsEnrichTarget";
 
-export type TokenWriteFunction =
-  | "approve"
-  | "burn"
-  | "getOrCreateTagId"
-  | "setETSCore"
-  | "setOwnershipTermLength"
-  | "setTagMaxStringLength"
-  | "setTagMinStringLength"
-  | "upgradeTo"
-  | "upgradeToAndCall"
-  | "setApprovalForAll"
-  | "transferFrom"
-  | "pause"
-  | "unPause"
-  | "initialize"
-  | "preSetPremiumTags"
-  | "recycleTag"
-  | "renewTag"
-  | "safeTransferFrom"
-  | "setAccessControls"
-  | "setPremiumFlag"
-  | "setReservedFlag";
+export type TokenWriteFunction = "getOrCreateTagId" | "transferFrom" | "recycleTag" | "renewTag" | "safeTransferFrom";
 
 export type TokenReadFunction =
   | "existingTags"

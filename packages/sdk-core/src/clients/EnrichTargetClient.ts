@@ -1,23 +1,27 @@
 import { Address, Hex, PublicClient, WalletClient } from "viem";
-import { manageContractCall, manageContractRead } from "../utils";
+import { handleContractCall, handleContractRead } from "../utils";
 import { etsEnrichTargetConfig } from "../../contracts/contracts";
 import { EnrichTargetReadFunction, EnrichTargetWriteFunction } from "../types";
 
 export class EnrichTargetClient {
   private readonly publicClient: PublicClient;
   private readonly walletClient: WalletClient;
+  private readonly chainId?: number;
 
   constructor({
     publicClient,
     walletClient,
+    chainId,
   }: {
     publicClient: PublicClient;
     walletClient: WalletClient;
+    chainId?: number;
     accessControls?: Address;
     target?: Address;
   }) {
     this.publicClient = publicClient;
     this.walletClient = walletClient;
+    this.chainId = chainId;
 
     if (publicClient === undefined) {
       throw new Error("Public client is required");
@@ -26,10 +30,14 @@ export class EnrichTargetClient {
     if (walletClient === undefined) {
       throw new Error("Wallet client is required");
     }
-  }
 
-  async initialize(accessControls: Address, target: Address): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("initialize", [accessControls, target]);
+    if (chainId !== undefined && publicClient.chain?.id !== chainId) {
+      throw new Error("Provided chain id should match the public client chain id");
+    }
+
+    if (chainId !== undefined && walletClient.chain?.id !== chainId) {
+      throw new Error("Provided chain id should match the wallet client chain id");
+    }
   }
 
   async requestEnrichTarget(targetId: number): Promise<{ transactionHash: string; status: number }> {
@@ -44,27 +52,12 @@ export class EnrichTargetClient {
     return this.callContract("fulfillEnrichTarget", [targetId, ipfsHash, httpStatus]);
   }
 
-  async upgradeTo(newImplementation: Address): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("upgradeTo", [newImplementation]);
-  }
-
-  async upgradeToAndCall(
-    newImplementation: Address,
-    data: string,
-  ): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("upgradeToAndCall", [newImplementation, data]);
-  }
-
   async getETSAccessControls(): Promise<Address> {
     return this.readContract("etsAccessControls", []);
   }
 
   async getETSTarget(): Promise<Address> {
     return this.readContract("etsTarget", []);
-  }
-
-  async getProxiableUUID(): Promise<string> {
-    return this.readContract("proxiableUUID", []);
   }
 
   private async callContract(
@@ -74,7 +67,7 @@ export class EnrichTargetClient {
     if (!this.walletClient) {
       throw new Error("Wallet client is required to perform this action");
     }
-    return manageContractCall(
+    return handleContractCall(
       this.publicClient,
       this.walletClient,
       etsEnrichTargetConfig.address,
@@ -89,7 +82,7 @@ export class EnrichTargetClient {
       throw new Error("Target address is required");
     }
 
-    return manageContractRead(
+    return handleContractRead(
       this.publicClient,
       etsEnrichTargetConfig.address,
       etsEnrichTargetConfig.abi,
