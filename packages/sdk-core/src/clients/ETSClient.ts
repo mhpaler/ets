@@ -5,7 +5,7 @@ import { EtsReadFunction, EtsWriteFunction } from "../types";
 
 export class EtsClient {
   private readonly publicClient: PublicClient;
-  private readonly walletClient: WalletClient;
+  private readonly walletClient: WalletClient | undefined;
   private readonly chainId?: number;
 
   constructor({
@@ -15,7 +15,7 @@ export class EtsClient {
     chainId,
   }: {
     publicClient: PublicClient;
-    walletClient: WalletClient;
+    walletClient?: WalletClient;
     address?: Address;
     chainId?: number;
   }) {
@@ -74,6 +74,7 @@ export class EtsClient {
     return this.readContract("totalDue", [account]);
   }
 
+  // Write Functions
   async applyTagsWithCompositeKey(
     tagIds: number[],
     targetId: number,

@@ -50,8 +50,24 @@ export class TargetClient {
     return this.readContract("targetExistsByURI", [targetURI]);
   }
 
-  async getOrCreateTargetId(targetURI: string): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("getOrCreateTargetId", [targetURI]);
+  async etsAccessControls(): Promise<string> {
+    return this.readContract("etsAccessControls", []);
+  }
+
+  async etsEnrichTarget(): Promise<string> {
+    return this.readContract("etsEnrichTarget", []);
+  }
+
+  async getName(targetId: bigint): Promise<string> {
+    return this.readContract("getName", [targetId]);
+  }
+
+  async targets(index: bigint): Promise<any> {
+    return this.readContract("targets", [index]);
+  }
+
+  async computeTargetId(targetURI: string): Promise<bigint> {
+    return this.readContract("computeTargetId", [targetURI]);
   }
 
   async createTarget(targetURI: string): Promise<{ transactionHash: string; status: number }> {
@@ -68,20 +84,8 @@ export class TargetClient {
     return this.callContract("updateTarget", [targetId, targetURI, enriched, httpStatus, ipfsHash]);
   }
 
-  async etsAccessControls(): Promise<string> {
-    return this.readContract("etsAccessControls", []);
-  }
-
-  async etsEnrichTarget(): Promise<string> {
-    return this.readContract("etsEnrichTarget", []);
-  }
-
-  async targets(index: bigint): Promise<any> {
-    return this.readContract("targets", [index]);
-  }
-
-  async computeTargetId(targetURI: string): Promise<bigint> {
-    return this.readContract("computeTargetId", [targetURI]);
+  async getOrCreateTargetId(targetURI: string): Promise<{ transactionHash: string; status: number }> {
+    return this.callContract("getOrCreateTargetId", [targetURI]);
   }
 
   private async readContract(functionName: TargetReadFunction, args: any[] = []): Promise<any> {

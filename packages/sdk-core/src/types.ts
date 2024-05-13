@@ -129,7 +129,6 @@ export type TokenReadFunction =
   | "tagExistsById"
   | "computeTagId"
   | "computeTagIds"
-  | "approve"
   | "balanceOf"
   | "getApproved"
   | "getTagById"

@@ -5,7 +5,7 @@ import { EnrichTargetReadFunction, EnrichTargetWriteFunction } from "../types";
 
 export class EnrichTargetClient {
   private readonly publicClient: PublicClient;
-  private readonly walletClient: WalletClient;
+  private readonly walletClient: WalletClient | undefined;
   private readonly chainId?: number;
 
   constructor({
@@ -14,10 +14,8 @@ export class EnrichTargetClient {
     chainId,
   }: {
     publicClient: PublicClient;
-    walletClient: WalletClient;
+    walletClient?: WalletClient;
     chainId?: number;
-    accessControls?: Address;
-    target?: Address;
   }) {
     this.publicClient = publicClient;
     this.walletClient = walletClient;

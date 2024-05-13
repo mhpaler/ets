@@ -19,13 +19,31 @@ export const useRelayerFactoryClient = () => {
     return relayerFactoryClient.addRelayer(relayerName);
   };
 
-  const getImplementation = async () => {
+  const ets = async () => {
     if (!relayerFactoryClient) throw new Error("Relayer Factory client not initialized");
-    return relayerFactoryClient.getImplementation();
+    return relayerFactoryClient.ets();
+  };
+
+  const etsAccessControls = async () => {
+    if (!relayerFactoryClient) throw new Error("Relayer Factory client not initialized");
+    return relayerFactoryClient.etsAccessControls();
+  };
+
+  const etsTarget = async () => {
+    if (!relayerFactoryClient) throw new Error("Relayer Factory client not initialized");
+    return relayerFactoryClient.etsTarget();
+  };
+
+  const etsToken = async () => {
+    if (!relayerFactoryClient) throw new Error("Relayer Factory client not initialized");
+    return relayerFactoryClient.etsToken();
   };
 
   return {
     addRelayer,
-    getImplementation,
+    ets,
+    etsAccessControls,
+    etsTarget,
+    etsToken,
   };
 };

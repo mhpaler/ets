@@ -14,5 +14,46 @@ export const useEnrichTargetClient = () => {
     setEnrichTargetClient(client);
   }, [chainId, address]);
 
-  return {};
+  const requestEnrichTarget = async (targetId: number) => {
+    try {
+      if (!tokenClient) throw new Error("EnrichTargetClient is not initialized.");
+      return await tokenClient.requestEnrichTarget(targetId);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const fulfillEnrichTarget = async (targetId: number, ipfsHash: string, httpStatus: number) => {
+    try {
+      if (!tokenClient) throw new Error("EnrichTargetClient is not initialized.");
+      return await tokenClient.fulfillEnrichTarget(targetId, ipfsHash, httpStatus);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const getETSAccessControls = async () => {
+    try {
+      if (!tokenClient) throw new Error("EnrichTargetClient is not initialized.");
+      return await tokenClient.getETSAccessControls();
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const getETSTarget = async () => {
+    try {
+      if (!tokenClient) throw new Error("EnrichTargetClient is not initialized.");
+      return await tokenClient.getETSTarget();
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  return {
+    requestEnrichTarget,
+    fulfillEnrichTarget,
+    getETSAccessControls,
+    getETSTarget,
+  };
 };
