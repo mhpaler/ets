@@ -1,12 +1,12 @@
 import type { PublicClient, WalletClient, Hex } from "viem";
-import { etsTokenConfig } from "../../contracts/contracts";
 import { handleContractRead, handleContractCall } from "../utils";
 import { TokenReadFunction, TokenWriteFunction } from "../types";
+import { getConfig } from "../../contracts/config";
 
 export class TokenClient {
-  private readonly chainId?: number;
   private readonly publicClient: PublicClient;
   private readonly walletClient: WalletClient | undefined;
+  private readonly etsTokenConfig: { address: Hex; abi: any };
 
   constructor({
     chainId,
@@ -17,9 +17,14 @@ export class TokenClient {
     publicClient: PublicClient;
     walletClient?: WalletClient;
   }) {
-    this.chainId = chainId;
     this.publicClient = publicClient;
     this.walletClient = walletClient;
+    const config = getConfig(chainId);
+
+    if (typeof config === "undefined") {
+      throw new Error("Configuration could not be retrieved");
+    }
+    this.etsTokenConfig = config.etsTokenConfig;
 
     if (!publicClient) {
       throw new Error("Public client is required");
@@ -136,8 +141,16 @@ export class TokenClient {
     return this.callContract("safeTransferFrom", [from, to, tokenId, data]);
   }
 
+  // helpers
+
   private async readContract(functionName: TokenReadFunction, args: any = []): Promise<any> {
-    return handleContractRead(this.publicClient, etsTokenConfig.address, etsTokenConfig.abi, functionName, args);
+    return handleContractRead(
+      this.publicClient,
+      this.etsTokenConfig.address,
+      this.etsTokenConfig.abi,
+      functionName,
+      args,
+    );
   }
 
   private async callContract(
@@ -150,8 +163,8 @@ export class TokenClient {
     return handleContractCall(
       this.publicClient,
       this.walletClient,
-      etsTokenConfig.address,
-      etsTokenConfig.abi,
+      this.etsTokenConfig.address,
+      this.etsTokenConfig.abi,
       functionName,
       args,
     );

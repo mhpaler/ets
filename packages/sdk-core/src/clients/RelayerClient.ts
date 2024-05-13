@@ -1,14 +1,15 @@
 import type { Address, Hex, PublicClient, WalletClient } from "viem";
-import { etsABI, etsAddress, etsRelayerV1ABI } from "../../contracts/contracts";
+import { etsABI, etsRelayerV1ABI } from "../../contracts/contracts";
 import { TokenClient } from "./TokenClient";
 import { handleContractCall, handleContractRead } from "../utils";
 import { RelayerReadFunction, RelayerWriteFunction } from "../types";
+import { getConfig } from "../../contracts/config";
 
 export class RelayerClient {
   private readonly chainId?: number;
   private readonly publicClient: PublicClient;
-  private readonly walletClient: WalletClient | undefined;
-  private readonly relayerAddress: Hex | undefined;
+  private readonly walletClient?: WalletClient;
+  private readonly relayerConfig: { address?: Hex; abi: any };
   private readonly etsConfig: { address?: Hex; abi: any };
 
   constructor({
@@ -25,8 +26,13 @@ export class RelayerClient {
     this.chainId = chainId;
     this.publicClient = publicClient;
     this.walletClient = walletClient;
-    this.relayerAddress = relayerAddress;
-    this.etsConfig = { address: relayerAddress, abi: etsRelayerV1ABI };
+    const config = getConfig(chainId, relayerAddress);
+
+    if (typeof config === "undefined") {
+      throw new Error("Configuration could not be retrieved");
+    }
+    this.relayerConfig = config.etsRelayerV1Config;
+    this.etsConfig = config.etsConfig;
 
     if (publicClient === undefined) {
       throw new Error("Public client is required");
@@ -50,7 +56,7 @@ export class RelayerClient {
       throw new Error("Wallet client is required to perform this action");
     }
 
-    if (!this.etsConfig.address) {
+    if (!this.relayerConfig.address) {
       throw new Error("Relayer address is required");
     }
 
@@ -64,11 +70,11 @@ export class RelayerClient {
       const existingTags = await etsTokenClient.existingTags(tags);
       const tagsToMint = tags.filter((tag) => !existingTags.includes(tag));
 
-      if (tagsToMint.length > 0 && this.etsConfig.address) {
+      if (tagsToMint.length > 0 && this.relayerConfig.address) {
         try {
           const { request } = await this.publicClient.simulateContract({
-            address: this.etsConfig.address,
-            abi: this.etsConfig.abi,
+            address: this.relayerConfig.address,
+            abi: this.relayerConfig.abi,
             functionName: "getOrCreateTagIds",
             args: [tagsToMint],
             account: this.walletClient.account,
@@ -100,13 +106,12 @@ export class RelayerClient {
     recordType: string,
     signerAddress?: Hex,
   ): Promise<{ transactionHash: `0x${string}`; status: any; taggingRecordId: string }> {
-    if (this.relayerAddress === undefined) {
+    if (this.relayerConfig.address === undefined) {
       throw new Error("Relayer address is required");
     }
     if (this.walletClient === undefined) {
       throw new Error("Wallet client is required to perform this action");
     }
-    console.log("this.walletClient", this.walletClient);
 
     try {
       const tagParams = {
@@ -119,7 +124,7 @@ export class RelayerClient {
       const [fee, actualTagCount] = await this.computeTaggingFee(tagParams, 0);
 
       const { request } = await this.publicClient.simulateContract({
-        address: this.relayerAddress,
+        address: this.relayerConfig.address,
         abi: etsRelayerV1ABI,
         functionName: "applyTags",
         args: [[tagParams]],
@@ -133,16 +138,16 @@ export class RelayerClient {
         hash: transactionHash,
       });
 
-      console.log(`${actualTagCount} tag(s) appended`);
+      if (this.etsConfig.address === undefined) {
+        throw new Error("Ets address is required");
+      }
 
       const taggingRecordId = await this.publicClient.readContract({
-        address: etsAddress,
+        address: this.etsConfig.address,
         abi: etsABI,
         functionName: "computeTaggingRecordIdFromRawInput",
-        args: [tagParams, this.relayerAddress, signerAddress || "0x0"],
+        args: [tagParams, this.relayerConfig.address, signerAddress || "0x0"],
       });
-
-      console.log("Tagging record ID:", taggingRecordId);
 
       return {
         transactionHash,
@@ -270,6 +275,22 @@ export class RelayerClient {
     return this.readContract("version", []);
   }
 
+  // helpers
+
+  private async readContract(functionName: RelayerReadFunction, args: any = []): Promise<any> {
+    if (!this.relayerConfig.address) {
+      throw new Error("Relayer address is required");
+    }
+
+    return handleContractRead(
+      this.publicClient,
+      this.relayerConfig.address,
+      this.relayerConfig.abi,
+      functionName,
+      args,
+    );
+  }
+
   private async callContract(
     functionName: RelayerWriteFunction,
     args: any = [],
@@ -278,25 +299,17 @@ export class RelayerClient {
       throw new Error("Wallet client is required to perform this action");
     }
 
-    if (!this.etsConfig.address) {
+    if (!this.relayerConfig.address) {
       throw new Error("Relayer address is required");
     }
 
     return handleContractCall(
       this.publicClient,
       this.walletClient,
-      this.etsConfig.address,
-      this.etsConfig.abi,
+      this.relayerConfig.address,
+      this.relayerConfig.abi,
       functionName,
       args,
     );
-  }
-
-  private async readContract(functionName: RelayerReadFunction, args: any = []): Promise<any> {
-    if (!this.etsConfig.address) {
-      throw new Error("Relayer address is required");
-    }
-
-    return handleContractRead(this.publicClient, this.etsConfig.address, this.etsConfig.abi, functionName, args);
   }
 }

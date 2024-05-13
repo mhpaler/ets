@@ -1,12 +1,12 @@
-import { PublicClient, WalletClient } from "viem";
-import { etsRelayerFactoryConfig } from "../../contracts/contracts";
+import { PublicClient, WalletClient, Hex } from "viem";
 import { handleContractRead, handleContractCall } from "../utils";
 import { RelayerFactoryReadFunction, RelayerFactoryWriteFunction } from "../types";
+import { getConfig } from "../../contracts/config";
 
 export class RelayerFactoryClient {
   private readonly publicClient: PublicClient;
   private readonly walletClient: WalletClient | undefined;
-  private readonly chainId?: number;
+  private readonly etsRelayerFactoryConfig: { address: Hex; abi: any };
 
   constructor({
     publicClient,
@@ -19,7 +19,12 @@ export class RelayerFactoryClient {
   }) {
     this.publicClient = publicClient;
     this.walletClient = walletClient;
-    this.chainId = chainId;
+    const config = getConfig(chainId);
+
+    if (typeof config === "undefined") {
+      throw new Error("Configuration could not be retrieved");
+    }
+    this.etsRelayerFactoryConfig = config.etsRelayerFactoryConfig;
 
     if (!publicClient) {
       throw new Error("Public client is required");
@@ -54,11 +59,13 @@ export class RelayerFactoryClient {
     return this.readContract("etsToken", []);
   }
 
+  // helpers
+
   private async readContract(functionName: RelayerFactoryReadFunction, args: any[] = []): Promise<any> {
     return handleContractRead(
       this.publicClient,
-      etsRelayerFactoryConfig.address,
-      etsRelayerFactoryConfig.abi,
+      this.etsRelayerFactoryConfig.address,
+      this.etsRelayerFactoryConfig.abi,
       functionName,
       args,
     );
@@ -74,8 +81,8 @@ export class RelayerFactoryClient {
     return handleContractCall(
       this.publicClient,
       this.walletClient,
-      etsRelayerFactoryConfig.address,
-      etsRelayerFactoryConfig.abi,
+      this.etsRelayerFactoryConfig.address,
+      this.etsRelayerFactoryConfig.abi,
       functionName,
       args,
     );

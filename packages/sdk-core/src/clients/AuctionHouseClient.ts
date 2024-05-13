@@ -1,12 +1,12 @@
-import { PublicClient, WalletClient } from "viem";
-import { etsAuctionHouseConfig } from "../../contracts/contracts";
+import { PublicClient, WalletClient, Hex } from "viem";
 import { handleContractRead, handleContractCall } from "../utils";
 import { AuctionHouseReadFunction, AuctionHouseWriteFunction } from "../types";
+import { getConfig } from "../../contracts/config";
 
 export class AuctionHouseClient {
   private readonly publicClient: PublicClient;
   private readonly walletClient: WalletClient | undefined;
-  private readonly chainId?: number;
+  private readonly etsAuctionHouseConfig: { address: Hex; abi: any };
 
   constructor({
     publicClient,
@@ -19,7 +19,12 @@ export class AuctionHouseClient {
   }) {
     this.publicClient = publicClient;
     this.walletClient = walletClient;
-    this.chainId = chainId;
+    const config = getConfig(chainId);
+
+    if (typeof config === "undefined") {
+      throw new Error("Configuration could not be retrieved");
+    }
+    this.etsAuctionHouseConfig = config.etsAuctionHouseConfig;
 
     if (publicClient === undefined) {
       throw new Error("Public client is required");
@@ -164,11 +169,13 @@ export class AuctionHouseClient {
     return this.readContract("totalDue", [address]);
   }
 
+  // helpers
+
   private async readContract(functionName: AuctionHouseReadFunction, args: any[] = []): Promise<any> {
     return handleContractRead(
       this.publicClient,
-      etsAuctionHouseConfig.address,
-      etsAuctionHouseConfig.abi,
+      this.etsAuctionHouseConfig.address,
+      this.etsAuctionHouseConfig.abi,
       functionName,
       args,
     );
@@ -184,8 +191,8 @@ export class AuctionHouseClient {
     return handleContractCall(
       this.publicClient,
       this.walletClient,
-      etsAuctionHouseConfig.address,
-      etsAuctionHouseConfig.abi,
+      this.etsAuctionHouseConfig.address,
+      this.etsAuctionHouseConfig.abi,
       functionName,
       args,
     );

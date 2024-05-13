@@ -1,12 +1,12 @@
 import { Address, Hex, PublicClient, WalletClient } from "viem";
 import { handleContractCall, handleContractRead } from "../utils";
-import { etsEnrichTargetConfig } from "../../contracts/contracts";
 import { EnrichTargetReadFunction, EnrichTargetWriteFunction } from "../types";
+import { getConfig } from "../../contracts/config";
 
 export class EnrichTargetClient {
   private readonly publicClient: PublicClient;
   private readonly walletClient: WalletClient | undefined;
-  private readonly chainId?: number;
+  private readonly etsEnrichTargetConfig: { address: Hex; abi: any };
 
   constructor({
     publicClient,
@@ -19,7 +19,12 @@ export class EnrichTargetClient {
   }) {
     this.publicClient = publicClient;
     this.walletClient = walletClient;
-    this.chainId = chainId;
+    const config = getConfig(chainId);
+
+    if (typeof config === "undefined") {
+      throw new Error("Configuration could not be retrieved");
+    }
+    this.etsEnrichTargetConfig = config.etsEnrichTargetConfig;
 
     if (publicClient === undefined) {
       throw new Error("Public client is required");
@@ -58,6 +63,18 @@ export class EnrichTargetClient {
     return this.readContract("etsTarget", []);
   }
 
+  // helpers
+
+  private async readContract(functionName: EnrichTargetReadFunction, args: any[] = []): Promise<any> {
+    return handleContractRead(
+      this.publicClient,
+      this.etsEnrichTargetConfig.address,
+      this.etsEnrichTargetConfig.abi,
+      functionName,
+      args,
+    );
+  }
+
   private async callContract(
     functionName: EnrichTargetWriteFunction,
     args: any = [],
@@ -68,22 +85,8 @@ export class EnrichTargetClient {
     return handleContractCall(
       this.publicClient,
       this.walletClient,
-      etsEnrichTargetConfig.address,
-      etsEnrichTargetConfig.abi,
-      functionName,
-      args,
-    );
-  }
-
-  private async readContract(functionName: EnrichTargetReadFunction, args: any[] = []): Promise<any> {
-    if (!etsEnrichTargetConfig.address) {
-      throw new Error("Target address is required");
-    }
-
-    return handleContractRead(
-      this.publicClient,
-      etsEnrichTargetConfig.address,
-      etsEnrichTargetConfig.abi,
+      this.etsEnrichTargetConfig.address,
+      this.etsEnrichTargetConfig.abi,
       functionName,
       args,
     );

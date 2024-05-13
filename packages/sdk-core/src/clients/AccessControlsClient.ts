@@ -1,15 +1,20 @@
-import { PublicClient } from "viem";
-import { etsAccessControlsConfig } from "../../contracts/contracts";
+import { PublicClient, Hex } from "viem";
 import { handleContractRead } from "../utils";
 import { AccessControlsReadFunction } from "../types";
+import { getConfig } from "../../contracts/config";
 
 export class AccessControlsClient {
-  private readonly chainId?: number;
   private readonly publicClient: PublicClient;
+  private readonly etsAccessControlsConfig: { address: Hex; abi: any };
 
   constructor({ publicClient, chainId }: { publicClient: PublicClient; chainId?: number }) {
     this.publicClient = publicClient;
-    this.chainId = chainId;
+    const config = getConfig(chainId);
+
+    if (typeof config === "undefined") {
+      throw new Error("Configuration could not be retrieved");
+    }
+    this.etsAccessControlsConfig = config.etsAccessControlsConfig;
 
     if (publicClient === undefined) {
       throw new Error("Public client is required");
@@ -108,11 +113,13 @@ export class AccessControlsClient {
     return this.readContract("supportsInterface", [interfaceId]);
   }
 
+  // helpers
+
   private async readContract(functionName: AccessControlsReadFunction, args: any[] = []): Promise<any> {
     return handleContractRead(
       this.publicClient,
-      etsAccessControlsConfig.address,
-      etsAccessControlsConfig.abi,
+      this.etsAccessControlsConfig.address,
+      this.etsAccessControlsConfig.abi,
       functionName,
       args,
     );

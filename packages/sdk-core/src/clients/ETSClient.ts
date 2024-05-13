@@ -1,12 +1,12 @@
 import { Address, PublicClient, WalletClient } from "viem";
 import { handleContractCall, handleContractRead } from "../utils";
-import { etsConfig } from "../../contracts/contracts";
 import { EtsReadFunction, EtsWriteFunction } from "../types";
+import { getConfig } from "../../contracts/config";
 
 export class EtsClient {
   private readonly publicClient: PublicClient;
   private readonly walletClient: WalletClient | undefined;
-  private readonly chainId?: number;
+  private readonly etsConfig: { address: Address; abi: any };
 
   constructor({
     publicClient,
@@ -21,7 +21,12 @@ export class EtsClient {
   }) {
     this.publicClient = publicClient;
     this.walletClient = walletClient;
-    this.chainId = chainId;
+    const config = getConfig(chainId);
+
+    if (typeof config === "undefined") {
+      throw new Error("Configuration could not be retrieved");
+    }
+    this.etsConfig = config.etsConfig;
 
     if (!publicClient) {
       throw new Error("Public client is required");
@@ -105,6 +110,12 @@ export class EtsClient {
     return this.callContract("replaceTags", [taggingRecordId, tagIds]);
   }
 
+  // helpers
+
+  private async readContract(functionName: EtsReadFunction, args: any[] = []): Promise<any> {
+    return handleContractRead(this.publicClient, this.etsConfig.address, this.etsConfig.abi, functionName, args);
+  }
+
   private async callContract(
     functionName: EtsWriteFunction,
     args: any = [],
@@ -115,18 +126,10 @@ export class EtsClient {
     return handleContractCall(
       this.publicClient,
       this.walletClient,
-      etsConfig.address,
-      etsConfig.abi,
+      this.etsConfig.address,
+      this.etsConfig.abi,
       functionName,
       args,
     );
-  }
-
-  private async readContract(functionName: EtsReadFunction, args: any[] = []): Promise<any> {
-    if (!etsConfig.address) {
-      throw new Error("Contract address is required");
-    }
-
-    return handleContractRead(this.publicClient, etsConfig.address, etsConfig.abi, functionName, args);
   }
 }
