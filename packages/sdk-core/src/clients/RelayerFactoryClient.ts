@@ -1,7 +1,7 @@
 import { PublicClient, WalletClient, Hex } from "viem";
 import { handleContractRead, handleContractCall } from "../utils";
 import { RelayerFactoryReadFunction, RelayerFactoryWriteFunction } from "../types";
-import { getConfig } from "../../contracts/config";
+import { getConfig } from "../contracts/config";
 
 export class RelayerFactoryClient {
   private readonly publicClient: PublicClient;

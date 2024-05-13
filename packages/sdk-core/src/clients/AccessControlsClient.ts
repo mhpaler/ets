@@ -1,7 +1,7 @@
 import { PublicClient, Hex } from "viem";
 import { handleContractRead } from "../utils";
 import { AccessControlsReadFunction } from "../types";
-import { getConfig } from "../../contracts/config";
+import { getConfig } from "../contracts/config";
 
 export class AccessControlsClient {
   private readonly publicClient: PublicClient;

@@ -1,7 +1,7 @@
 import type { PublicClient, WalletClient, Hex } from "viem";
 import { handleContractRead, handleContractCall } from "../utils";
 import { TokenReadFunction, TokenWriteFunction } from "../types";
-import { getConfig } from "../../contracts/config";
+import { getConfig } from "../contracts/config";
 
 export class TokenClient {
   private readonly publicClient: PublicClient;

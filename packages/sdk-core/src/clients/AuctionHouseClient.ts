@@ -1,7 +1,7 @@
 import { PublicClient, WalletClient, Hex } from "viem";
 import { handleContractRead, handleContractCall } from "../utils";
 import { AuctionHouseReadFunction, AuctionHouseWriteFunction } from "../types";
-import { getConfig } from "../../contracts/config";
+import { getConfig } from "../contracts/config";
 
 export class AuctionHouseClient {
   private readonly publicClient: PublicClient;

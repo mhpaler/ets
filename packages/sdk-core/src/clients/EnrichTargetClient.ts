@@ -1,7 +1,7 @@
 import { Address, Hex, PublicClient, WalletClient } from "viem";
 import { handleContractCall, handleContractRead } from "../utils";
 import { EnrichTargetReadFunction, EnrichTargetWriteFunction } from "../types";
-import { getConfig } from "../../contracts/config";
+import { getConfig } from "../contracts/config";
 
 export class EnrichTargetClient {
   private readonly publicClient: PublicClient;

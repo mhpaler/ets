@@ -1,7 +1,7 @@
 import { Address, PublicClient, WalletClient } from "viem";
 import { handleContractCall, handleContractRead } from "../utils";
 import { EtsReadFunction, EtsWriteFunction } from "../types";
-import { getConfig } from "../../contracts/config";
+import { getConfig } from "../contracts/config";
 
 export class EtsClient {
   private readonly publicClient: PublicClient;
