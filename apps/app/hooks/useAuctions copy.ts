@@ -8,30 +8,6 @@ type FetchAuctionsResponse = {
   auctions: Auction[];
 };
 
-function transformAuctions(auctions: Auction[], blockchainTime: () => number): Auction[] {
-  return auctions.map((auction) => {
-    const hasEnded = Number(auction.endTime) > 0 && blockchainTime() > Number(auction.endTime);
-
-    return {
-      ...auction,
-      id: Number(auction.id),
-      tokenAuctionNumber: Number(auction.tokenAuctionNumber),
-      startTime: Number(auction.startTime),
-      endTime: Number(auction.endTime),
-      ended: hasEnded,
-      reservePrice: BigInt(auction.reservePrice),
-      amount: BigInt(auction.amount),
-      amountDisplay: formatEtherWithDecimals(auction.amount, 5),
-      bids: auction.bids.map((bid) => ({
-        ...bid,
-        blockTimestamp: Number(bid.blockTimestamp),
-        amount: BigInt(bid.amount),
-        amountDisplay: formatEtherWithDecimals(bid.amount, 5),
-      })),
-    };
-  });
-}
-
 export function useAuctions({
   pageSize = 20,
   skip = 0,
@@ -64,35 +40,92 @@ export function useAuctions({
           settled
           reservePrice
           amount
-          bidder { id }
+          bidder {
+            id
+          }
           bids {
             id
             blockTimestamp
             amount
-            bidder { id }
+            bidder {
+              id
+            }
           }
           tag {
             id
             timestamp
             machineName
             display
-            owner { id }
-            relayer { id name }
-            creator { id }
+            owner {
+              id
+            }
+            relayer {
+              id
+              name
+            }
+            creator {
+              id
+            }
           }
         }
       }`,
       {
         skip,
         first: pageSize,
-        orderBy,
-        filter,
+        orderBy: orderBy,
+        filter: filter,
       },
     ],
     config,
   );
 
-  const transformedAuctions = data ? transformAuctions(data.auctions, blockchainTime) : [];
+  // Perform data transformation if data is available
+  const auctions =
+    data?.auctions.map((auction: Auction) => {
+      // Using blockchainTime to determine if the auction has ended
+      const hasEnded = Number(auction.endTime) > 0 && blockchainTime() > Number(auction.endTime);
+
+      return {
+        id: Number(auction.id),
+        tokenAuctionNumber: Number(auction.tokenAuctionNumber),
+        startTime: Number(auction.startTime),
+        endTime: Number(auction.endTime),
+        extended: auction.extended,
+        ended: hasEnded,
+        settled: auction.settled,
+        reservePrice: BigInt(auction.reservePrice),
+        amount: BigInt(auction.amount),
+        amountDisplay: formatEtherWithDecimals(auction.amount, 5),
+        bidder: {
+          id: auction.bidder.id,
+        },
+        bids: auction.bids.map((bid) => ({
+          id: bid.id,
+          blockTimestamp: Number(bid.blockTimestamp),
+          amount: BigInt(bid.amount),
+          amountDisplay: formatEtherWithDecimals(bid.amount, 5),
+          bidder: {
+            id: bid.bidder.id,
+          },
+        })),
+        tag: {
+          id: auction.tag.id,
+          timestamp: Number(auction.tag.timestamp),
+          machineName: auction.tag.machineName,
+          display: auction.tag.display,
+          owner: {
+            id: auction.tag.owner.id,
+          },
+          relayer: {
+            id: auction.tag.relayer.id,
+            name: auction.tag.relayer.name,
+          },
+          creator: {
+            id: auction.tag.creator.id,
+          },
+        },
+      };
+    }) || []; // Default to an empty array if data?.auctions is undefined;
 
   const { data: nextAuctionsData } = useSWR(
     [
@@ -117,19 +150,11 @@ export function useAuctions({
     config,
   );
 
-  const handleMutate = (updatedAuctions: Auction[]) =>
-    mutate(
-      {
-        auctions: transformAuctions(updatedAuctions, blockchainTime),
-      },
-      false,
-    );
-
   return {
-    auctions: transformedAuctions,
+    auctions,
     nextAuctions: nextAuctionsData?.auctions,
     isLoading: (!error && !data?.auctions) || (!nextAuctionsData && !error),
     isError: error?.statusText,
-    mutate: handleMutate,
+    mutate,
   };
 }

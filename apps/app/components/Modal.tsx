@@ -1,49 +1,52 @@
+import React, { useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useState } from "react";
-import { CloseModalProvider } from "@app/context/CloseModalContext"; // Adjust path as necessary
+import { Fragment } from "react";
+import { useModal } from "@app/hooks/useModalContext"; // Ensure this path is correct
 
 interface Props {
+  id: string;
   label?: string;
   link?: boolean;
   disabled?: boolean;
   buttonClasses?: string;
   onModalOpen?: () => void;
-  children?: any;
+  children: React.ReactNode;
 }
 
-const Modal = ({ label, children, link = false, buttonClasses = "", disabled = false, onModalOpen }: Props) => {
-  let [isOpen, setIsOpen] = useState(false);
+const Modal = ({ id, label, children, link = false, buttonClasses = "", disabled = false, onModalOpen }: Props) => {
+  const { currentModal, openModal, resetModal } = useModal();
 
-  function closeModal() {
-    setIsOpen(false);
-  }
+  useEffect(() => {
+    // resetModal() is called on unmount.
+    return () => {
+      if (currentModal === id) {
+        resetModal();
+      }
+    };
+  }, [currentModal, id, resetModal]);
 
-  function openModal() {
-    setIsOpen(true);
+  const handleOpenModal = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    openModal(id);
     if (onModalOpen) {
-      onModalOpen(); // Call the onModalOpen function from props if provided
-    }
-  }
-
-  const handleClick = () => {
-    if (!disabled) {
-      openModal();
+      onModalOpen();
     }
   };
 
   const buttonClassName = link ? "btn btn-link" : "btn";
   const disabledClass = disabled ? "btn-disabled" : "";
+
   return (
     <>
       <button
-        onClick={handleClick}
+        onClick={handleOpenModal}
         className={`${buttonClassName} ${disabledClass} ${buttonClasses}`}
         disabled={disabled}
       >
         {label}
       </button>
 
-      <Transition appear show={isOpen} as={Fragment}>
+      <Transition appear show={currentModal === id} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={() => {}}>
           <Transition.Child
             as={Fragment}
@@ -59,21 +62,22 @@ const Modal = ({ label, children, link = false, buttonClasses = "", disabled = f
 
           <div className="fixed inset-0 overflow-y-auto">
             <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <CloseModalProvider value={{ closeModal }}>
-                <Transition.Child
-                  as={Fragment}
-                  enter="ease-out duration-300"
-                  enterFrom="opacity-0 scale-95"
-                  enterTo="opacity-100 scale-100"
-                  leave="ease-in duration-200"
-                  leaveFrom="opacity-100 scale-100"
-                  leaveTo="opacity-0 scale-95"
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel
+                  className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                    {children}
-                  </Dialog.Panel>
-                </Transition.Child>
-              </CloseModalProvider>
+                  {children}
+                </Dialog.Panel>
+              </Transition.Child>
             </div>
           </div>
         </Dialog>

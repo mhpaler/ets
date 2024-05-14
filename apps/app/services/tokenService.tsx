@@ -18,6 +18,14 @@ export const computeTagId = async (tag: string): Promise<bigint> => {
   }
 };
 
+export const fetchOwnershipTermLength = async (): Promise<number> => {
+  const data = await readContract(wagmiConfig, {
+    ...etsTokenConfig,
+    functionName: "getOwnershipTermLength",
+  });
+  return Number(data);
+};
+
 export const computeTagIds = async (tags: string[]): Promise<bigint[]> => {
   try {
     const tagIds = await Promise.all(tags.map((tag) => computeTagId(tag)));

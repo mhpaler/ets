@@ -6,7 +6,9 @@ import useTranslation from "next-translate/useTranslation";
 import { timestampToString } from "@app/utils";
 import { toEth } from "@app/utils";
 import Layout from "@app/layouts/default";
+import { TimeAgo } from "@app/components/TimeAgo";
 import { Tags } from "@app/components/Tags";
+import { Tag } from "@app/components/Tag";
 import { Number } from "@app/components/Number";
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Truncate } from "@app/components/Truncate";
@@ -112,6 +114,12 @@ const Creator: NextPage = () => {
             title={t("tags-created-by", {
               creator: creators && Truncate(creators[0].id),
             })}
+            rowLink={false}
+            columnsConfig={[
+              { title: "tag", field: "tag", formatter: (_, tag) => <Tag tag={tag} /> },
+              { title: "created", field: "timestamp", formatter: (value, tag) => <TimeAgo date={value * 1000} /> },
+              { title: "tagging records", field: "tagAppliedInTaggingRecord" },
+            ]}
           />
         </div>
       </div>

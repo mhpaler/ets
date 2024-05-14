@@ -1,9 +1,9 @@
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
 import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
-import AuctionDebug from "@app/components/auction/AuctionDebug";
 import { useAuction } from "@app/hooks/useAuctionContext";
-//import { Auction } from "@app/types/auction";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
+
 import { TagGraphic } from "@app/components/TagGraphic";
 import AuctionNavigation from "@app/components/auction/AuctionNavigation";
 import AuctionActions from "@app/components/auction/AuctionActions";
@@ -12,7 +12,7 @@ import AuctionSummary from "@app/components/auction/AuctionSummary";
 import AuctionBids from "@app/components/auction/AuctionBids";
 import { Truncate } from "@app/components/Truncate";
 
-import TransactionDebug from "@app/components/transaction/shared/TransactionDebug";
+import AuctionDebug from "@app/components/auction/AuctionDebug";
 
 const AuctionDisplay = () => {
   const { t } = useTranslation("common");
@@ -24,6 +24,7 @@ const AuctionDisplay = () => {
     return null;
   }
 
+  const chain = useCurrentChain();
   const isFirstAuction = auction.id == 1 ? true : false;
   const isLastAuction = auction.id == maxAuctionId ? true : false;
   const tagGraphic = auction && <TagGraphic tag={auction.tag} />;
@@ -35,9 +36,7 @@ const AuctionDisplay = () => {
         isLastAuction={isLastAuction}
       />
       <section className="col-span-12 xl:col-span-6">
-        <div>
-          <TransactionDebug />
-        </div>
+        <div>{tagGraphic}</div>
       </section>
 
       <section className="col-span-12 overflow-hidden xl:col-span-6">
@@ -47,7 +46,9 @@ const AuctionDisplay = () => {
             <div className="flex w-full mb-8 items-center">
               <div className="flex flex-grow flex-col items-start justify-center">
                 <div>{auction.ended ? t("AUCTION.WINNING_BID") : t("AUCTION.CURRENT_BID")}</div>
-                <div className="text-2xl font-semibold">{auction.amountDisplay} MATIC</div>
+                <div className="text-2xl font-semibold">
+                  {auction.amountDisplay} {chain?.nativeCurrency.symbol}
+                </div>
               </div>
               <div className="divider h-20 divider-horizontal" />
               <div className="flex flex-grow flex-col items-start justify-center">
@@ -70,12 +71,17 @@ const AuctionDisplay = () => {
                     </>
                   )
                 ) : (
-                  <AuctionTimer auction={auction} />
+                  <>
+                    <div>{t("AUCTION.TIME_LEFT")}</div>
+                    <div className="text-2xl font-semibold">
+                      <AuctionTimer auction={auction} />
+                    </div>
+                  </>
                 )}
               </div>
             </div>
 
-            <AuctionActions auction={auction} />
+            <AuctionActions auction={auction} buttonClasses="btn-primary btn-outline btn-block" />
             <AuctionSummary auction={auction} />
             <AuctionBids auction={auction} />
           </div>

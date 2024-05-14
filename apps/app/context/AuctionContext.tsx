@@ -9,6 +9,8 @@ import {
 } from "@app/types/auction";
 import {} from "@app/types/auction";
 import { formatEtherWithDecimals } from "@app/utils";
+import useTranslation from "next-translate/useTranslation";
+
 import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 
 // Define the default values and functions
@@ -33,13 +35,6 @@ type AuctionProps = {
   auctionId: number | null;
 };
 
-/**
- * The AuctionHouseProvider component manages and provides auction context to its child components.
- * It initializes and updates auction-related data based on user interactions and blockchain events.
- *
- * @param children - The child components of the AuctionProvider.
- * @param auctionId - The ID of the auction requested by the user, used to fetch specific auction data.
- */
 export const AuctionProvider: React.FC<AuctionProps> = ({
   children,
   auctionId,
@@ -47,16 +42,19 @@ export const AuctionProvider: React.FC<AuctionProps> = ({
   children: React.ReactNode;
   auctionId: number | null;
 }) => {
-  const { activeAuctions, mutateActiveAuctions } = useAuctionHouse(); // Access AuctionHouse context
+  const { allAuctions, refreshAuctions } = useAuctionHouse(); // Access AuctionHouse context
   const [auction, setAuction] = useState<Auction | null>(null);
   const [auctionEndTimeUI, setAuctionEndTimeUI] = useState<number>(0);
   const [bidFormData, setBidFormData] = useState<BidFormData>({
     bid: undefined,
   });
 
+  const { t } = useTranslation("common");
+
   useEffect(() => {
-    if (activeAuctions.length > 0 && auctionId !== null) {
-      const foundAuction = activeAuctions.find((auction) => auction.id === auctionId) ?? null;
+    if (allAuctions.length > 0 && auctionId !== null) {
+      console.log(allAuctions);
+      const foundAuction = allAuctions.find((auction) => auction.id === auctionId) ?? null;
       if (!foundAuction) {
         // TODO: Redirect user to "404 not found" page
         console.error(`Failed to find auction with ID: ${auctionId}`);
@@ -64,16 +62,21 @@ export const AuctionProvider: React.FC<AuctionProps> = ({
         setAuction(foundAuction);
       }
     }
-  }, [auctionId, activeAuctions]);
+  }, [auctionId, allAuctions]);
+
+  // Add this useEffect to log the auction object whenever it changes
+  useEffect(() => {
+    console.log(`Auction data updated for ID: ${auctionId}`, auction);
+  }, [auction]);
 
   if (!auction) {
     // Optionally show a loading state here instead of rendering nothing
-    return null; // or <Loading />
+    return <div>{t("Loading...")}</div>; // or <Loading />
   }
 
   // Function to add a new bid to an auction
   const addBidToAuction = (auctionOnChain: AuctionOnChain, newBid: Bid) => {
-    mutateActiveAuctions((current: FetchAuctionsResponse | undefined) => {
+    /* refreshAuctions((current: FetchAuctionsResponse | undefined) => {
       if (!current || !current.auctions) return current;
 
       const updatedAuctions = current.auctions.map((auction) => {
@@ -93,41 +96,40 @@ export const AuctionProvider: React.FC<AuctionProps> = ({
       });
 
       return { ...current, auctions: updatedAuctions };
-    }, false);
+    }, false); */
   };
 
   // Function to optimistically update an auction's ended status in UI
-  // see /app/components/auction/AuctionTimer.tsx
+  // see /app/components/auction/AuctionTimer.ts
   const endAuction = (auctionId: number) => {
-    mutateActiveAuctions((current: FetchAuctionsResponse | undefined) => {
-      if (!current || !current.auctions) return current;
+    console.log(`Optimistically ending auction ID: ${auctionId}`);
+    if (!allAuctions) return; // Ensure allAuctions is not undefined.
 
-      const updatedAuctions = current.auctions.map((auction: Auction) => {
-        if (Number(auction.id) === auctionId) {
-          const updatedAuction = { ...auction, ended: true };
-          return updatedAuction;
-        }
-        return auction;
-      });
+    const updatedAuctions = allAuctions.map((auction) => {
+      if (auction.id === auctionId) {
+        console.log(`Updating ended status for Auction ID: ${auctionId}`);
+        return { ...auction, ended: true };
+      }
+      return auction;
+    });
 
-      return { ...current, auctions: updatedAuctions };
-    }, false);
+    refreshAuctions(updatedAuctions); // Pass the updated list directly to refreshAuctions
   };
 
   // Function to optimistically update an auction's settled status
   const settleAuction = (auctionId: number) => {
-    mutateActiveAuctions((current: FetchAuctionsResponse | undefined) => {
-      if (!current || !current.auctions) return current;
+    console.log(`Optimistically ending auction ID: ${auctionId}`);
+    if (!allAuctions) return; // Ensure allAuctions is not undefined.
 
-      const updatedAuctions = current.auctions.map((auction: Auction) => {
-        if (Number(auction.id) === auctionId) {
-          return { ...auction, settled: true };
-        }
-        return auction;
-      });
+    const updatedAuctions = allAuctions.map((auction) => {
+      if (auction.id === auctionId) {
+        console.log(`Updating ended status for Auction ID: ${auctionId}`);
+        return { ...auction, settled: true };
+      }
+      return auction;
+    });
 
-      return { ...current, auctions: updatedAuctions };
-    }, false);
+    refreshAuctions(updatedAuctions); // Pass the updated list directly to refreshAuctions
   };
 
   const value: AuctionContextType = {

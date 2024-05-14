@@ -1,5 +1,10 @@
 import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
+import { TagType } from "@app/types/tag";
+
+type FetchTagsResponse = {
+  tags: TagType[];
+};
 
 export function useCtags({
   pageSize = 20,
@@ -14,7 +19,7 @@ export function useCtags({
   filter?: any;
   config?: SWRConfiguration;
 }) {
-  const { data, mutate, error } = useSWR(
+  const { data, mutate, error } = useSWR<FetchTagsResponse>(
     [
       `query tags($filter: Tag_filter $first: Int!, $skip: Int!, $orderBy: String!) {
         tags: tags(
@@ -46,14 +51,6 @@ export function useCtags({
           protocolRevenue
           creatorRevenue
         }
-        nextTags: tags(
-          first: $first
-          skip: ${skip + pageSize}
-          orderBy: $orderBy
-          orderDirection: desc
-          where: $filter) {
-          id
-        }
       }`,
       {
         skip,
@@ -62,14 +59,36 @@ export function useCtags({
         filter: filter,
       },
     ],
-    config
+    config,
+  );
+
+  const { data: nextTagsData } = useSWR(
+    [
+      `query nextTags($filter: Tag_filter $first: Int!, $skip: Int!, $orderBy: String!) {
+        tags(
+          first: $first
+          skip: $skip
+          orderBy: $orderBy
+          orderDirection: desc
+          where: $filter) {
+          id
+        }
+      }`,
+      {
+        skip: skip + pageSize,
+        first: pageSize,
+        orderBy: orderBy,
+        filter: filter,
+      },
+    ],
+    config,
   );
 
   return {
     tags: data?.tags,
-    nextTags: data?.nextTags,
-    isLoading: !error && !data?.tags,
-    mutate,
+    nextTags: nextTagsData?.nextTags,
+    isLoading: (!error && !data?.tags) || (!nextTagsData && !error),
     isError: error?.statusText,
+    mutate,
   };
 }

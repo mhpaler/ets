@@ -1,5 +1,5 @@
 import { GlobalSettings } from "@app/types/system";
-import { Tag } from "@app/types/tag";
+import { TagType } from "@app/types/tag";
 import { KeyedMutator } from "swr";
 
 // Define a type for auction-specific settings picked from GlobalSettings
@@ -35,7 +35,8 @@ export type Auction = {
     id: `0x${string}`;
   };
   bids: Bid[];
-  tag: Tag;
+  tag: TagType;
+  [key: string]: any;
 };
 
 export type Bid = {
@@ -66,8 +67,8 @@ export type AuctionHouse = {
   duration: number | null;
   timeBuffer: number | 0;
   maxAuctionId: number | null;
-  activeAuctions: Auction[];
-  mutateActiveAuctions: KeyedMutator<FetchAuctionsResponse>;
+  allAuctions: Auction[];
+  refreshAuctions: (updatedAuctions: Auction[]) => void; // Now expects a direct array of Auction objects
 };
 
 export type AuctionContextType = {
