@@ -1,6 +1,14 @@
 import Link from "next/link";
 import { TagType } from "@app/types/tag";
-const Tag = ({ tag }: { tag: TagType }) => {
+
+interface TagProps {
+  tag?: TagType; // Allow tag to be undefined
+}
+
+const Tag: React.FC<TagProps> = ({ tag }) => {
+  if (!tag) {
+    return <div>No Tag Available</div>;
+  }
   return (
     <Link
       href={`/tags/${tag.machineName}`}
