@@ -38,7 +38,9 @@ const TaggingRecord: NextPage = () => {
             <Panel>
               <div className="grid grid-cols-3 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                 <div className="font-semibold">{t("id")}</div>
-                <div className="col-span-2 text-left truncate">{Truncate(taggingRecords && taggingRecords[0].id)}</div>
+                <div className="col-span-2 text-left truncate">
+                  {Truncate(taggingRecords && taggingRecords[0].id, 80, "end")}
+                </div>
               </div>
 
               <div className="grid grid-cols-3 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
@@ -68,7 +70,7 @@ const TaggingRecord: NextPage = () => {
                       href={`/taggers/${taggingRecords && taggingRecords[0].tagger.id}`}
                       className="link link-primary"
                     >
-                      {taggingRecords && Truncate(taggingRecords[0].tagger.id)}
+                      {taggingRecords && Truncate(taggingRecords[0].tagger.id, 13, "middle")}
                     </Link>
                   </div>
                   <CopyAndPaste value={taggingRecords && taggingRecords[0].tagger.id} />
@@ -87,7 +89,7 @@ const TaggingRecord: NextPage = () => {
                       href={`/targets/${taggingRecords && taggingRecords[0].target.id}`}
                       className="link link-primary"
                     >
-                      {Truncate(taggingRecords && taggingRecords[0].target.id)}
+                      {Truncate(taggingRecords && taggingRecords[0].target.id, 32, "end")}
                     </Link>
                   </div>
                   <CopyAndPaste value={taggingRecords && taggingRecords[0].target.id} />

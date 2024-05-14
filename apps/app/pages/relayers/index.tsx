@@ -10,8 +10,7 @@ import { TimeAgo } from "@app/components/TimeAgo";
 import { Table } from "@app/components/Table";
 import { Button } from "@app/components/Button";
 import { Modal } from "@app/components/Modal";
-import FormWrapper from "@app/components/addRelayer/FormWrapper";
-
+import { Truncate } from "@app/components/Truncate";
 import { ConnectButtonETS } from "@app/components/ConnectButtonETS";
 import { useAccount } from "wagmi"; // Import useAccount hook
 import TransactionFlowWrapper from "@app/components/transaction/TransactionFlowWrapper";
@@ -61,7 +60,10 @@ const Relayers: NextPage = () => {
     return (nextRelayers && nextRelayers.length > 0) || (skip && skip !== 0) ? true : false;
   };
 
-  const columns = useMemo(() => [t("name"), t("created"), t("tagging-records"), t("tags"), t("status")], [t]);
+  const columns = useMemo(
+    () => [t("name"), t("created"), t("owner"), t("tagging-records"), t("tags"), t("status")],
+    [t],
+  );
 
   return (
     <Layout>
@@ -91,6 +93,7 @@ const Relayers: NextPage = () => {
                       <TimeAgo date={relayer.firstSeen * 1000} />
                     </div>
                   </Table.CellWithChildren>
+                  <Table.Cell value={Truncate(relayer.owner, 14, "middle")} />
                   <Table.Cell value={number(parseInt(relayer.taggingRecordsPublished))} />
                   <Table.Cell value={number(parseInt(relayer.tagsPublished))} />
                   <Table.Cell

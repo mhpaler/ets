@@ -18,8 +18,8 @@ const Ctags: NextPage = () => {
           columnsConfig={[
             { title: "tag", field: "tag", formatter: (_, tag) => <Tag tag={tag} /> },
             { title: "created", field: "timestamp", formatter: (value, tag) => <TimeAgo date={value * 1000} /> },
-            { title: t("owner"), field: "owner.id" },
-            { title: t("relayer"), field: "relayer.id" },
+            { title: t("owner"), field: "owner.id", formatter: (value, tag) => Truncate(value, 13, "middle") },
+            { title: t("relayer"), field: "relayer.id", formatter: (value, tag) => Truncate(value, 13, "middle") },
             { title: "tagging records", field: "tagAppliedInTaggingRecord" },
           ]}
         />

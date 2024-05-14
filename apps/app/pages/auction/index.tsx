@@ -50,7 +50,7 @@ const Auction: NextPage = () => {
           {
             title: "bidder",
             field: "bidder.id",
-            formatter: (value, auction) => (auction.startTime === 0 ? "—" : Truncate(value, 12, "middle")),
+            formatter: (value, auction) => (auction.startTime === 0 ? "—" : Truncate(value, 13, "middle")),
           },
           {
             title: "time left",
@@ -84,7 +84,7 @@ const Auction: NextPage = () => {
           },
           { title: "tag", field: "tag", formatter: (tag, auction) => <Tag tag={tag} /> },
           { title: "price", field: "amount", formatter: (value, auction) => `${toEth(value, 4)}` },
-          { title: "winner", field: "bidder.id", formatter: (value, auction) => Truncate(value, 12, "middle") },
+          { title: "winner", field: "bidder.id", formatter: (value, auction) => Truncate(value, 13, "middle") },
           { title: "ended", field: "endTime", formatter: (value, auction) => <TimeAgo date={value * 1000} /> },
         ]}
       />

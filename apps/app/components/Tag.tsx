@@ -1,6 +1,6 @@
 import Link from "next/link";
-
-const Tag = ({ tag }: { tag: any }) => {
+import { TagType } from "@app/types/tag";
+const Tag = ({ tag }: { tag: TagType }) => {
   return (
     <Link
       href={`/tags/${tag.machineName}`}
