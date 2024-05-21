@@ -5,26 +5,28 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { Dialog } from "@headlessui/react";
-import { Alert } from "@app/components/icons";
-
-import { useCloseModal } from "@app/hooks/useCloseModal";
-import { useTransaction } from "@app/hooks/useTransaction";
+import { useModal } from "@app/hooks/useModalContext";
+import { useTransactionManager } from "@app/hooks/useTransactionManager";
 import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useAuction } from "@app/hooks/useAuctionContext";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
 
+import { Dialog } from "@headlessui/react";
+import { Alert } from "@app/components/icons";
 import TransactionFormActions from "@app/components/transaction/shared/TransactionFormActions";
 
-interface FormStepProps {
+interface BidInputProps {
+  transactionId: string;
   goToNextStep: () => void;
 }
 
-const BidInput: React.FC<FormStepProps> = ({ goToNextStep }) => {
+const BidInput: React.FC<BidInputProps> = ({ transactionId, goToNextStep }) => {
   const { t } = useTranslation("common");
-  const { closeModal } = useCloseModal();
-  const { resetTransaction } = useTransaction();
+  const { closeModal } = useModal();
+  const { removeTransaction } = useTransactionManager();
   const { minIncrementBidPercentage } = useAuctionHouse();
   const { auction, bidFormData, setBidFormData } = useAuction();
+  const chain = useCurrentChain();
 
   const [isFormDisabled, setIsFormDisabled] = useState(true);
   const [parsedMinimumBidIncrement, setParsedMinimumBidIncrement] = useState<number>(0);
@@ -79,6 +81,7 @@ const BidInput: React.FC<FormStepProps> = ({ goToNextStep }) => {
     const scaleFactor: bigint = BigInt(100); // Scale factor to allow for "decimal" operations in bigint
     const percentageFactor: bigint = BigInt(minIncrementBidPercentage); // Convert percentage to bigint
     const minimumBidIncrement: string = formatEther(currentBid + (currentBid * percentageFactor) / scaleFactor);
+
     setParsedMinimumBidIncrement(auction.startTime === 0 ? parseFloat(reservePrice) : parseFloat(minimumBidIncrement));
   }, [auction, minIncrementBidPercentage]);
 
@@ -107,7 +110,7 @@ const BidInput: React.FC<FormStepProps> = ({ goToNextStep }) => {
   // Function to handle the "Cancel" action.
   const handleCancel = () => {
     reset();
-    resetTransaction();
+    removeTransaction(transactionId);
     setBidFormData({ bid: undefined });
     if (closeModal) {
       closeModal();
@@ -137,7 +140,7 @@ const BidInput: React.FC<FormStepProps> = ({ goToNextStep }) => {
               })}
               className="grow"
             />
-            <span className="badge font-bold">MATIC</span>
+            <span className="badge font-bold">{chain?.nativeCurrency.symbol}</span>
             {errors.bid && (
               <span className="text-error">
                 <Alert />
@@ -158,7 +161,7 @@ const BidInput: React.FC<FormStepProps> = ({ goToNextStep }) => {
                 >
                   &nbsp;{parsedMinimumBidIncrement}
                 </button>
-                &nbsp;MATIC&nbsp;
+                &nbsp;{chain?.nativeCurrency.symbol}&nbsp;
                 {t("AUCTION.BID_PLACEHOLDER_AFTER")}
               </span>
             )}

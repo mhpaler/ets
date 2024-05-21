@@ -15,52 +15,51 @@ const AuctionTimer: React.FC<AuctionTimerProps> = ({ auction }) => {
   const [timeLeft, setTimeLeft] = useState<number>(auction.endTime - blockchainTime());
 
   useEffect(() => {
-    const updateTimer = () => {
-      const currentTime = blockchainTime();
-      const hasStarted = auction.startTime > 0 && currentTime >= auction.startTime;
-      const hasEnded = auction.endTime > 0 && currentTime > auction.endTime;
+    const interval: number = 1000; // Set interval to 1 second
+    let timer: NodeJS.Timeout; // Declare timer variable for setInterval
 
-      // Update time left only if the auction has started
+    const updateTimer = (): void => {
+      const currentTime: number = blockchainTime();
+      const hasStarted: boolean = auction.startTime > 0 && currentTime >= auction.startTime;
+      const hasEnded: boolean = auction.endTime > 0 && currentTime > auction.endTime;
+
       if (hasStarted && !hasEnded) {
-        const newTimeLeft = auction.endTime - currentTime;
-        setTimeLeft(newTimeLeft);
+        setTimeLeft(auction.endTime - currentTime);
       } else if (hasEnded) {
         setTimeLeft(0);
-        clearInterval(timer);
+        clearInterval(timer); // Now the timer is recognized correctly
         if (!auction.ended) {
-          endAuction(auction.id); // Call endAuction only if it hasn't been marked as ended yet
+          console.log(`Calling endAuction for Auction ID: ${auction.id}`);
+          endAuction(auction.id);
           setAuctionEndTimeUI(currentTime);
         }
       }
     };
 
-    const timer = setInterval(updateTimer, 1000);
+    if (!auction.ended) {
+      timer = setInterval(updateTimer, interval); // Assign setInterval to timer
+      updateTimer(); // Update immediately upon mounting
+    }
 
-    // Initial update in case the component mounts close to the end time or after
-    updateTimer();
-
-    return () => clearInterval(timer);
-    // Ensure to include all dependencies this effect uses
-  }, [auction.id, auction.startTime, auction.endTime, auction.ended, endAuction, blockchainTime, setAuctionEndTimeUI]);
+    return () => clearInterval(timer); // Clean up the interval on component unmount
+  }, [auction, endAuction, setAuctionEndTimeUI, blockchainTime]);
 
   const formatTimeLeft = (seconds: number): string => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}m ${remainingSeconds}s`;
+    const hours: number = Math.floor(seconds / 3600);
+    const minutes: number = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds: number = seconds % 60;
+    return `${hours}h ${minutes}m ${remainingSeconds}s`;
   };
 
   return (
     <div>
-      <div>{t("AUCTION.TIME_LEFT")}</div>
-      <div className="text-2xl font-semibold">
-        {auction.startTime === 0 ? (
-          <div>{t("AUCTION.BID_TO_START")}</div>
-        ) : auction.ended ? (
-          <div>{t("AUCTION.ENDED")}</div>
-        ) : (
-          <div>{formatTimeLeft(timeLeft)}</div>
-        )}
-      </div>
+      {auction.startTime === 0 ? (
+        <div>{t("AUCTION.BID_TO_START")}</div>
+      ) : auction.ended ? (
+        <div>{t("AUCTION.ENDED")}</div>
+      ) : (
+        <div>{formatTimeLeft(timeLeft)}</div>
+      )}
     </div>
   );
 };

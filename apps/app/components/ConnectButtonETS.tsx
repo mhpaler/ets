@@ -11,6 +11,13 @@ export const ConnectButtonETS = ({ className = "" }) => {
         const ready = mounted && authenticationStatus !== "loading";
         const connected =
           ready && account && chain && (!authenticationStatus || authenticationStatus === "authenticated");
+
+        // Custom click handler
+        const handleConnectClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+          event.stopPropagation(); // Stop event propagation
+          openConnectModal(); // Forward the call to openConnectModal
+        };
+
         return (
           <div
             {...(!ready && {
@@ -26,7 +33,7 @@ export const ConnectButtonETS = ({ className = "" }) => {
               if (!connected) {
                 // Use template literals to include both the default and passed-in class names
                 return (
-                  <button className={`btn btn-primary ${className}`} onClick={openConnectModal} type="button">
+                  <button className={`btn btn-primary ${className}`} onClick={handleConnectClick} type="button">
                     Connect Wallet
                   </button>
                 );

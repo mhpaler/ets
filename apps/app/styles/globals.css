@@ -1,25 +1,9 @@
+@import "@fontsource-variable/inter";
 @import "./nprogress.css";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/*
-@layer base {
-  #__next {
-    @apply flex flex-col min-h-screen;
-  }
-
-  html,
-  body {
-    @apply h-full;
-  }
-
-  body {
-    @apply flex flex-col min-h-screen antialiased bg-white;
-  }
-}
-*/
 
 @layer utilities {
   .text-outlined {

@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import Layout from "@app/layouts/default";
 
 // TODO: Move this provider to _app.tsx?
-import { AuctionHouseProvider } from "@app/context/AuctionHouseContext";
+//import { AuctionHouseProvider } from "@app/context/AuctionHouseContext";
 import { AuctionProvider } from "@app/context/AuctionContext";
 import AuctionDisplay from "@app/components/auction/AuctionDisplay";
 
@@ -17,11 +17,9 @@ const AuctionPage: NextPage<AuctionPageProps> = () => {
 
   return (
     <Layout>
-      <AuctionHouseProvider>
-        <AuctionProvider auctionId={Number(auctionId)}>
-          <AuctionDisplay />
-        </AuctionProvider>
-      </AuctionHouseProvider>
+      <AuctionProvider auctionId={Number(auctionId)}>
+        <AuctionDisplay />
+      </AuctionProvider>
     </Layout>
   );
 };

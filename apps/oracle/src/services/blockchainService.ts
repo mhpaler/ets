@@ -69,10 +69,16 @@ export class BlockchainService {
       if (activeAuctionsCount < maxAuctions) {
         // Only proceed if there are open slots for auctions
         const platformAccount = await this.getPlatformAddress();
-        const lastAuctionId = await this.getLastAuctionId();
-        const lastAuctionTokenId = (await this.getAuctionedTokenId(lastAuctionId)).toString();
+        //const lastAuctionId = await this.getLastAuctionId();
+        //const lastAuctionTokenId = (await this.getAuctionedTokenId(lastAuctionId)).toString();
         const tagService = new TagService(); // Instantiate TagService for determining the next tag.
-        const tokenId = await tagService.findNextCTAG(platformAccount, lastAuctionTokenId);
+        const tokenId = await tagService.findNextCTAG(platformAccount);
+
+        if (!tokenId) {
+          // Checking if tokenId is null
+          console.log("No eligible tag found to create an auction.");
+          return; // Early return if no tag is found
+        }
 
         const tx = await this.auctionHouseContract.fulfillRequestCreateAuction(BigInt(tokenId));
         const receipt = await tx.wait();

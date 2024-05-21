@@ -13,6 +13,14 @@ interface TableContext {
   rowsPerPage: number;
   setRowsPerPage: (rows: number) => void;
 }
+interface CellProps {
+  value?: string;
+  url?: string;
+  copyAndPaste?: boolean;
+  right?: boolean;
+  truncate?: boolean;
+  children?: ReactNode; // Accept children as part of the props
+}
 
 const TableContext = createContext<TableContext>({
   tableLoading: false,
@@ -162,11 +170,17 @@ const Td = ({ children }: { children: ReactNode }) => {
   return <td>{children}</td>;
 };
 
-const Tr = ({ children }: { children: ReactNode }) => {
+const Tr = ({ children, onClick }: { children: ReactNode; onClick?: () => void }) => {
   const {} = useTableContext("Table.Row");
 
-  // Use a state variable to track whether the row is even or odd
-  return <tr className="hover:bg-base-200">{children}</tr>;
+  // Determine the cursor class based on whether an onClick handler is provided
+  const trClasses = classNames("hover:bg-base-200", onClick ? "cursor-pointer" : "cursor-auto");
+
+  return (
+    <tr className={trClasses} onClick={onClick}>
+      {children}
+    </tr>
+  );
 };
 
 const CellLink = ({ value, url }: { value: string; url: string }) => {
@@ -177,35 +191,32 @@ const CellLink = ({ value, url }: { value: string; url: string }) => {
   );
 };
 
-const Cell = ({
-  value,
-  url,
-  copyAndPaste,
-  right,
-  truncate,
-}: {
-  value: string;
-  url?: string;
-  copyAndPaste?: boolean;
-  right?: boolean;
-  truncate?: boolean;
-}) => {
+const Cell = ({ value = "", url, copyAndPaste = false, right = false, truncate = false, children }: CellProps) => {
   const {} = useTableContext("Table.Cell");
-  value = truncate ? Truncate(value) : value;
-  return (
-    <Td>
-      <div
-        className={classNames(
-          "overflow-hidden text-ellipsis whitespace-nowrap",
-          url ? "link link-primary" : "",
-          right && "text-right",
-        )}
-      >
-        {url ? <CellLink value={value} url={url} /> : value}
-        {copyAndPaste && <CopyAndPaste value={value} />}
-      </div>
-    </Td>
+
+  // Truncate value if needed
+  let displayValue = truncate ? Truncate(value) : value;
+
+  // Create a link if URL is provided
+  const content = url ? (
+    <Link href={url} className="link link-primary">
+      {displayValue}
+    </Link>
+  ) : (
+    displayValue
   );
+
+  // Add copy and paste functionality if required
+  const finalContent = copyAndPaste ? (
+    <>
+      {content}
+      <CopyAndPaste value={value} />
+    </>
+  ) : (
+    content
+  );
+
+  return <td className={`text-sm font-semibold ${right ? "text-right" : "text-left"}`}>{children || finalContent}</td>;
 };
 
 const CellWithChildren = ({ children }: { children: ReactNode }) => {

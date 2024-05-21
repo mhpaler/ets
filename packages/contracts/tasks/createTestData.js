@@ -157,7 +157,7 @@ subtask("testdata:createAuctions", "Creates, bids on and settles auctions. Assum
         network: hre.network.name
       });
     } else {
-      const initialAuctionDetails = await hre.run("auctionhouse:showcurrent", {
+      const initialAuctionDetails = await hre.run("auctionhouse:showlast", {
         output: "return",
         network: hre.network.name
       });
@@ -168,7 +168,7 @@ subtask("testdata:createAuctions", "Creates, bids on and settles auctions. Assum
     for (let i = 1; i <= qty; i++) {
 
       // Get the current Auction Details.
-      const auctionDetails = await hre.run("auctionhouse:showcurrent", {
+      const auctionDetails = await hre.run("auctionhouse:showlast", {
         output: "return",
         network: hre.network.name
       })// Get the current auction details.
@@ -224,6 +224,7 @@ subtask("testdata:createAuctions", "Creates, bids on and settles auctions. Assum
 
         if (!auctionDetails.settled) {
           await hre.run("auctionhouse:settleauction", {
+            id: auctionDetails.auctionId.toString(),
             network: hre.network.name
           });
 

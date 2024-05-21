@@ -16,7 +16,7 @@ import { useRelayerClient } from "@app/hooks/useRelayerClient";
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");
   const { showToast, ToastComponent } = useToast();
-  const { chain } = useAccount();
+  const { chain, isConnected } = useAccount();
   const [tags, setTags] = useState<TagInputType[]>([]);
   const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
   const { tagExists } = useTokenClient();
@@ -29,9 +29,10 @@ const Playground: NextPage = () => {
   const disabled = !tags.length || !selectedRelayer || !isCorrectNetwork || isCreatingTag;
 
   const getTooltipMessage = () => {
+    if (!isConnected) return t("connect-wallet");
     if (!tags.length) return t("please-enter-a-tag");
     if (!selectedRelayer) return t("please-select-a-relayer");
-    if (!isCorrectNetwork) return t("switch-to-mumbai-network");
+    //if (!isCorrectNetwork) return t("connect");
     if (isCreatingTag) return t("creating-tags");
     return "";
   };
@@ -111,7 +112,6 @@ const Playground: NextPage = () => {
   return (
     <Layout>
       <div className="space-y-4" style={{ width: "300px" }}>
-        <PageTitle title={t("create-tag")} />
         <TagInput tags={tags} handleDeleteTag={handleDeleteTag} handleAddTag={handleAddTag} />
         <div className="relative">
           <select

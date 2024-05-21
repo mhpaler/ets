@@ -1,7 +1,9 @@
 import useTranslation from "next-translate/useTranslation";
+import { useModal } from "@app/hooks/useModalContext";
 import { Auction } from "@app/types/auction";
 import BidsTable from "@app/components/auction/BidsTable";
 import { Modal } from "@app/components/Modal";
+import { Button } from "@app/components/Button";
 
 interface Props {
   auction: Auction;
@@ -9,15 +11,17 @@ interface Props {
 
 const AuctionBids: React.FC<Props> = ({ auction }) => {
   const { t } = useTranslation("common");
+  const { closeModal } = useModal();
 
   // Only show the button if the auction has started
   if (auction.startTime === 0) {
     return null;
   }
 
+  // unique modal identifier based on auction
+  const modalId = `auction-bids-${auction.id}`;
   // Determine if the auction has started and not ended
   const showLimitedBids = auction.startTime > 0 && !auction.ended;
-  //const showLimitedBids = true;
 
   return (
     <>
@@ -25,14 +29,17 @@ const AuctionBids: React.FC<Props> = ({ auction }) => {
         // Display a BidsTable with a limit of 3 records before the modal
         <BidsTable bids={auction.bids} limit={3} />
       )}
-      <Modal label={t("view-all-bids")} link>
-        <div className="overflow-x-auto">
-          <div className="leading-3 prose mb-4">
-            <span className="text-sm italic">{t("AUCTION.BIDS_FOR")}</span>
-            <h1 className="p-0 m-0">{auction.tag.display}</h1>
-          </div>
-          {/* Display the full BidsTable within the modal */}
-          <BidsTable bids={auction.bids} />
+      <Modal id={modalId} label={t("view-all-bids")} link>
+        <div className="leading-3 prose mb-4">
+          <span className="text-sm">{t("AUCTION.BIDS_FOR")}</span>
+          <h1 className="p-0 m-0">{auction.tag.display}</h1>
+        </div>
+        {/* Display the full BidsTable within the modal */}
+        <BidsTable bids={auction.bids} />
+        <div className="flex justify-center pt-4">
+          <Button type="button" className="btn-outline btn-primary btn-sm" onClick={closeModal}>
+            {t("close")}
+          </Button>
         </div>
       </Modal>
     </>

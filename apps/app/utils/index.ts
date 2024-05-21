@@ -1,5 +1,4 @@
 import { utils, BigNumber } from "ethers";
-import { useChains } from "wagmi";
 
 /**
  * Formats a Wei amount to Ether with a specified number of decimal places.
@@ -23,7 +22,13 @@ export const formatEtherWithDecimals = (amount: bigint, decimals?: number): stri
  * @returns {string} Formatted date string.
  */
 export const timestampToString = (timestamp: number, language = "en-US") => {
+  console.log("Timestamp:", timestamp); // Debug log to check the input value
+
   const date = new Date(timestamp * 1000);
+  if (isNaN(date.getTime())) {
+    return "Invalid date"; // Handle invalid dates
+  }
+
   const formatted = new Intl.DateTimeFormat(language, {
     year: "numeric",
     month: "long",
@@ -58,52 +63,50 @@ export const toDp = (value: string) => (!value ? value : parseFloat(value).toFix
  * @param {number} decimals The number of decimal places for the returned ether value.
  * @returns {string} The value in ether, formatted as a string with the specified number of decimals.
  */
-export const toEth = (value: number, decimals: number) => {
-  if (!value) return value;
-
-  if (decimals) {
-    let ether = Number(utils.formatEther(BigNumber.from(value)));
-    return ether.toFixed(decimals);
-  }
-
-  return utils.formatEther(BigNumber.from(value));
+export const toEth = (value: number | undefined, decimals: number, ticker: boolean = false) => {
+  if (value === undefined) return ""; // Return an empty string or any other placeholder if value is undefined
+  let ether = Number(utils.formatEther(BigNumber.from(value)));
+  return decimals ? ether.toFixed(decimals) : utils.formatEther(BigNumber.from(value));
 };
 
 /**
- * Generates an Etherscan link for a given piece of data, such as a transaction hash or an address.
- * Allows specification of the network and the type of data for link generation.
+ * Generates a URL for viewing details of blockchain entities like transactions, addresses, or tokens
+ * on a blockchain explorer website. The function takes an entity identifier (such as a transaction hash
+ * or address) and constructs a URL based on the provided base URL of the blockchain explorer.
  *
- * @param {string} data The data to create the link for (e.g., transaction hash or address).
- * @param {string} [route="tx"] The Etherscan path segment corresponding to the data type (e.g., "tx" for transactions).
- * @returns {string} The full Etherscan URL.
+ * @param {string} data The unique identifier for the blockchain entity (e.g., transaction hash, address).
+ * @param {string} [baseUrl] The base URL of the blockchain explorer without the protocol (e.g., "etherscan.io").
+ * @param {string} [route="tx"] The route segment in the explorer URL to specify the type of entity (e.g., "tx" for transactions, "address" for wallet addresses).
+ * @returns {string} A fully qualified URL to the blockchain explorer page for the given data. Returns a placeholder hash link if the base URL is undefined.
  *
- * * ### Usage Examples:
+ * ### Usage Examples:
  *
  * **Example 1: Creating a Link to a Transaction on Mainnet**
- * ```javascript
+ * ```typescript
  * const transactionHash = "0x123abc...";
- * const txLink = makeScannerLink(transactionHash);
- * console.log(txLink); // Outputs: https://polygonscan.io/tx/0x123abc...
+ * const txLink = makeScannerLink(transactionHash, "etherscan.io");
+ * console.log(txLink); // Outputs: https://etherscan.io/tx/0x123abc...
  * ```
  *
  * **Example 2: Creating a Link to an Address on the Mumbai Testnet**
- * ```javascript
+ * ```typescript
  * const address = "0x456def...";
- * const addressLink = makeScannerLink(address, "address");
- * console.log(addressLink); // Outputs: https://mumbai.polygonscan.io/address/0x456def...
+ * const addressLink = makeScannerLink(address, "mumbai.polygonscan.com", "address");
+ * console.log(addressLink); // Outputs: https://mumbai.polygonscan.com/address/0x456def...
  * ```
  *
  * **Example 3: Creating a Link to a Token Contract on Mainnet**
- * ```javascript
+ * ```typescript
  * const contractAddress = "0x789ghi...";
- * const contractLink = makeScannerLink(contractAddress, "token");
- * console.log(contractLink); // Outputs: https://polygonscan.io/token/0x789ghi...
+ * const contractLink = makeScannerLink(contractAddress, "polygonscan.com", "token");
+ * console.log(contractLink); // Outputs: https://polygonscan.com/token/0x789ghi...
  * ```
  */
-export const makeScannerLink = (data: string, network?: string, route: string = "tx") => {
-  const chains = useChains();
-  const chain = chains[0];
-  return `https://${chain.blockExplorers?.default.url}/${route}/${data}`;
+export const makeScannerLink = (data: string, baseUrl?: string, route: string = "tx") => {
+  if (!baseUrl) {
+    return "#"; // or some default/fallback URL
+  }
+  return `https://${baseUrl}/${route}/${data}`;
 };
 
 /**

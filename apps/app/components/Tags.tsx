@@ -1,24 +1,39 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import type { NextPage } from "next";
+import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
-import { useCtags } from "../hooks/useCtags";
+import { useCtags } from "@app/hooks/useCtags";
 import { globalSettings } from "@app/config/globalSettings";
-import { TimeAgo } from "./TimeAgo";
-import { Table } from "./Table";
-import { Button } from "./Button";
-import { Tag } from "./Tag";
+import { Table } from "@app/components/Table";
+import { Button } from "@app/components/Button";
+import { TagType } from "@app/types/tag";
+
+type ColumnConfig = {
+  title: string; // The display name of the column
+  field: string; // The field in the tag data object
+  formatter?: (value: any, tag: TagType) => JSX.Element | string; // Optional formatter function, now includes the whole tag as a parameter
+};
 
 type Props = {
   filter?: any;
   pageSize?: number;
   orderBy?: string;
   title?: string;
+  columnsConfig: ColumnConfig[];
+  rowLink: boolean; // Function to generate link URL based on tag data
 };
 
-const Tags: NextPage<Props> = ({ filter, pageSize, orderBy, title }) => {
-  const [skip, setSkip] = useState(0);
+const Tags: NextPage<Props> = ({
+  title,
+  filter,
+  pageSize = globalSettings["DEFAULT_PAGESIZE"],
+  orderBy,
+  columnsConfig,
+  rowLink = false,
+}) => {
   const { t } = useTranslation("common");
-
+  const router = useRouter();
+  const [skip, setSkip] = useState(0);
   const { tags, nextTags, mutate } = useCtags({
     pageSize,
     skip,
@@ -34,71 +49,65 @@ const Tags: NextPage<Props> = ({ filter, pageSize, orderBy, title }) => {
     },
   });
 
-  const pageSizeSet = pageSize === undefined ? globalSettings["DEFAULT_PAGESIZE"] : pageSize;
+  // TODO: Display auctions loading indicator
+  /* if (isLoading) {
+    console.log("Auctions are loading...");
+  } else if (auctions) {
+    console.log("Auctions loaded:", auctions);
+  } */
 
-  const nextPage = () => {
-    setSkip(skip + pageSizeSet);
-    mutate();
+  const nextPage = () => setSkip(skip + pageSize);
+  const prevPage = () => setSkip(skip - pageSize);
+
+  function getValueByPath<T>(obj: T, path: string): any {
+    return path.split(".").reduce<any>((acc, part) => acc && acc[part], obj);
+  }
+
+  const handleRowClick = (tagId: string) => {
+    if (rowLink) {
+      router.push(`/tag/${tagId}`);
+    }
   };
-
-  const prevPage = () => {
-    setSkip(skip - pageSizeSet);
-    mutate();
-  };
-
-  const showPrevNext = () => {
-    return (nextTags && nextTags.length > 0) || (skip && skip !== 0) ? true : false;
-  };
-
-  const columns = useMemo(() => [t("tag"), t("created"), t("relayer"), t("creator"), t("owner")], [t]);
 
   return (
-    <div className="col-span-12">
-      <Table loading={!tags} rows={pageSizeSet}>
-        {title ? <Table.Title>{title}</Table.Title> : ""}
+    <div className="max-w-7xl mx-auto">
+      <Table loading={!tags} rows={pageSize}>
+        {title && <Table.Title>{title}</Table.Title>}
         <Table.Head>
-          <Table.Tr>{columns && columns.map((column) => <Table.Th key={column}>{column}</Table.Th>)}</Table.Tr>
-        </Table.Head>
-        <Table.Body>
-          {tags &&
-            tags.map((tag: any) => (
-              <Table.Tr key={tag.machineName}>
-                <Table.CellWithChildren>
-                  <Tag tag={tag} />
-                </Table.CellWithChildren>
-
-                <Table.CellWithChildren>
-                  <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                    <TimeAgo date={tag.timestamp * 1000} />
-                  </div>
-                </Table.CellWithChildren>
-                <Table.Cell value={tag.relayer.name} url={"/relayers/" + tag.relayer.id} truncate />
-                <Table.Cell value={tag.creator.id} url={"/creators/" + tag.creator.id} copyAndPaste truncate />
-
-                <Table.Cell value={tag.owner.id} url={"/owners/" + tag.owner.id} copyAndPaste truncate />
-              </Table.Tr>
+          <Table.Tr>
+            {columnsConfig.map((column) => (
+              <Table.Th key={column.title}>{t(column.title)}</Table.Th>
             ))}
-        </Table.Body>
-        {showPrevNext() && (
-          <Table.Footer>
-            <Table.Tr>
-              <Table.CellWithChildren>
-                <div className="flex space-x-2 justify-self-center">
-                  <Button className="btn btn-sm btn-primary" disabled={skip === 0} onClick={() => prevPage()}>
-                    Prev
-                  </Button>
-                  <Button
-                    className="btn btn-sm btn-primary"
-                    disabled={nextTags && nextTags.length === 0}
-                    onClick={() => nextPage()}
-                  >
-                    Next
-                  </Button>
-                </div>
-              </Table.CellWithChildren>
+          </Table.Tr>
+        </Table.Head>
+
+        <Table.Body>
+          {tags?.map((tag) => (
+            <Table.Tr key={tag.id} onClick={rowLink ? () => handleRowClick(tag.id) : undefined}>
+              {columnsConfig.map((column) => (
+                <Table.Cell key={column.field}>
+                  {column.formatter
+                    ? column.formatter(getValueByPath(tag, column.field), tag) // Pass the whole tag object
+                    : getValueByPath(tag, column.field)}
+                </Table.Cell>
+              ))}
             </Table.Tr>
+          ))}
+        </Table.Body>
+        {nextTags?.length > 0 || skip !== 0 ? (
+          <Table.Footer>
+            <tr>
+              <td className="flex justify-between">
+                <Button disabled={skip === 0} onClick={prevPage}>
+                  {t("prev")}
+                </Button>
+                <Button disabled={!nextTags || nextTags.length === 0} onClick={nextPage}>
+                  {t("next")}
+                </Button>
+              </td>
+            </tr>
           </Table.Footer>
-        )}
+        ) : null}
       </Table>
     </div>
   );

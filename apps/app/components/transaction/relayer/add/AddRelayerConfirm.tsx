@@ -24,118 +24,90 @@
  * - Integrated within FormWrapper to be displayed as one of the steps in the relayer creation process.
  */
 import React from "react";
+import { TransactionType } from "@app/types/transaction";
 import { etsRelayerFactoryConfig } from "@app/src/contracts";
-import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
-import { WriteContractErrorType } from "@wagmi/core"; // Adjust the import path as necessary
 
 import useTranslation from "next-translate/useTranslation";
-import { useAddRelayer } from "@app/hooks/useAddRelayer";
-import { Dialog } from "@headlessui/react";
+import { useModal } from "@app/hooks/useModalContext";
 
-import { Button } from "@app/components/Button";
-import { Wallet, CheckCircle } from "@app/components/icons";
+import { useTransactionManager } from "@app/hooks/useTransactionManager";
+import { useAddRelayer } from "@app/hooks/useAddRelayer";
+
+import { Dialog } from "@headlessui/react";
 import { TransactionError } from "@app/components/transaction/shared/TransactionError";
 import { TransactionLink } from "@app/components/transaction/shared/TransactionLink";
+import TransactionConfirmActions from "@app/components/transaction/shared/TransactionConfirmActions";
+import { Wallet, CheckCircle } from "@app/components/icons";
+import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels";
 
 interface FormStepProps {
-  closeModal: () => void; // Define other props as needed
+  transactionId: string;
+  transactionType: TransactionType;
+  goToStep: (step: number) => void;
 }
 
-const AddRelayerConfirm: React.FC<FormStepProps> = ({ closeModal }) => {
+const AddRelayerConfirm: React.FC<FormStepProps> = ({ transactionId, transactionType, goToStep }) => {
   const { t } = useTranslation("common");
-  const context = useAddRelayer();
-  const { AddRelayerSteps, goToStep, formData } = context;
+  const { closeModal } = useModal();
+  const { initiateTransaction, removeTransaction, transactions } = useTransactionManager();
+  const transaction = transactions[transactionId];
+  const { dialogTitle } = useTransactionLabels(transactionId);
+  const { formData } = useAddRelayer();
 
-  const { data: hash, error: writeError, isPending, writeContract: addRelayer } = useWriteContract();
-
-  // User has submitted txn.
-  const { isLoading: isConfirming, isSuccess: txPosted } = useWaitForTransactionReceipt({
-    hash,
-  });
-
-  // TODO: Catch & display post submit txn errors?
-  const hasErrors = writeError;
+  const addRelayerABI = etsRelayerFactoryConfig.abi.find((abi) => abi.type === "function" && abi.name === "addRelayer");
+  if (!addRelayerABI) {
+    throw new Error("addRelayer ABI not found");
+  }
 
   // Function to initiate the transaction
   const handleButtonClick = () => {
-    if (txPosted || hasErrors) {
-      closeModal?.(); // Close the modal when transaction is successful
-      return;
+    if (transaction?.isSuccess || transaction?.isError) {
+      removeTransaction(transactionId);
+      closeModal();
+    } else {
+      initiateTransaction(transactionId, transactionType, {
+        address: etsRelayerFactoryConfig.address,
+        abi: [addRelayerABI],
+        functionName: "addRelayer",
+        args: [formData.name],
+      });
     }
-    addRelayer({
-      ...etsRelayerFactoryConfig,
-      functionName: "addRelayer",
-      args: [formData.name],
-    });
   };
-
-  // Determine the button label and dialog title based on the transaction state
-  let dialogTitle, buttonLabel;
-  if (hasErrors) {
-    dialogTitle = t("TXN.STATUS.ERROR");
-    buttonLabel = t("FORM.BUTTON.CANCEL");
-  } else if (isPending) {
-    dialogTitle = t("TXN.CONFIRM_DETAILS");
-    buttonLabel = t("TXN.STATUS.WAIT_FOR_SIGNATURE");
-  } else if (isConfirming) {
-    dialogTitle = t("TXN.STATUS.PROCESSING");
-    buttonLabel = t("TXN.STATUS.WAIT_FOR_CONFIRMATION");
-  } else if (txPosted) {
-    dialogTitle = t("TXN.STATUS.COMPLETED");
-    buttonLabel = t("FORM.BUTTON.DONE");
-  } else {
-    dialogTitle = t("FORM.BUTTON.CONFIRM_DETAILS");
-    buttonLabel = t("FORM.BUTTON.OPEN_WALLET");
-  }
 
   const content = (
     <>
       <Dialog.Title as="h3" className="text-center text-xl font-bold leading-6 text-gray-900">
         {dialogTitle}
       </Dialog.Title>
-      <div className="overflow-x-auto">
-        <div className="mt-4 pl-8 pr-8 text-center flex flex-col items-center">
-          {txPosted ? (
-            <div className="text-green-600">
-              <CheckCircle size={48} />
-            </div>
-          ) : (
-            <div className="flex flex-col items-center">
-              <Wallet />
-              {t("TXN.DOUBLE_CHECK")}
-            </div>
-          )}
+      <div className="mt-4 pl-8 pr-8 text-center flex flex-col items-center">
+        {transaction?.isSuccess ? (
+          <div className="text-green-600">
+            <CheckCircle size={48} />
+          </div>
+        ) : (
+          <div className="flex flex-col items-center">
+            <Wallet />
+            {t("TXN.DOUBLE_CHECK")}
+          </div>
+        )}
+      </div>
+      <div className="flex flex-col w-full mt-8 gap-4">
+        <div className="flex flex-row justify-between h-16 items-center pl-6 pr-6 rounded-box border-2 border-base-300">
+          <div className="">{t("FORM.ADD_RELAYER.FIELD_LABEL.NAME")}</div>
+          <div className="font-bold">{formData.name}</div>
         </div>
-        <div className="flex flex-col w-full mt-8 gap-4">
-          <div className="flex flex-row justify-between h-16 items-center pl-6 pr-6 rounded-box border-2 border-base-300">
-            <div className="">{t("FORM.ADD_RELAYER.FIELD_LABEL.NAME")}</div>
-            <div className="font-bold">{formData.name}</div>
-          </div>
-          <div className="flex flex-row justify-between h-16 items-center pl-6 pr-6 rounded-box border-2 border-base-300">
-            <div className="">{t("TXN.ACTION")}</div>
-            <div className="font-bold">{t("TXN.TYPE.CREATE_RELAYER")}</div>
-          </div>
-          {/*           {hasErrors && <TransactionError error={hasErrors as WriteContractErrorType} />}
-           */}{" "}
-          {hash && <TransactionLink txn={hash} />}
-          <div className="grid grid-flow-col justify-stretch gap-2">
-            {((!hash && !isPending) || (isPending && hasErrors)) && (
-              <Button type="button" onClick={() => goToStep(AddRelayerSteps.AddRelayerForm)}>
-                Back
-              </Button>
-            )}
-            <Button
-              onClick={handleButtonClick}
-              disabled={isPending}
-              className={`flex align-middle items-center gap-2 ${
-                isPending || isConfirming ? "btn-disabled" : "btn-primary btn-outline"
-              }`}
-            >
-              {(isPending || isConfirming) && <span className="loading loading-spinner mr-2 bg-primary"></span>}
-              {buttonLabel}
-            </Button>
-          </div>
+        <div className="flex flex-row justify-between h-16 items-center pl-6 pr-6 rounded-box border-2 border-base-300">
+          <div className="">{t("TXN.ACTION")}</div>
+          <div className="font-bold">{t("TXN.TYPE.CREATE_RELAYER")}</div>
         </div>
+
+        <TransactionError errorMsg={transaction?.isError ? transaction.message : null} />
+        <TransactionLink txn={transaction?.hash} />
+        <TransactionConfirmActions
+          transactionId={transactionId}
+          handleBack={() => goToStep(0)}
+          handlePrimaryAction={handleButtonClick}
+        />
       </div>
     </>
   );

@@ -92,6 +92,9 @@ type Tag @entity {
 
   "Tagging records containing this CTAG."
   taggingRecords: [TaggingRecord!]! @derivedFrom(field: "tags")
+
+  "Auctions containing this CTAG."
+  auctions: [Auction!]! @derivedFrom(field: "tag")
 }
 
 type TaggingRecord @entity {

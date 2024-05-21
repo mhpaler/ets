@@ -40,8 +40,8 @@ task("auctionhouse", "Create and interact with an auction")
       await hre.run("auctionhouse:settings", { output: taskArgs.output });
     }
 
-    if (taskArgs.action == "showcurrent") {
-      await hre.run("auctionhouse:showcurrent", { output: taskArgs.output });
+    if (taskArgs.action == "showlast") {
+      await hre.run("auctionhouse:showlast", { output: taskArgs.output });
     }
 
     if (taskArgs.action == "status") {
@@ -73,7 +73,7 @@ task("auctionhouse", "Create and interact with an auction")
     }
 
     if (taskArgs.action == "settleauction") {
-      await hre.run("auctionhouse:settleauction", { tag: taskArgs.tag, id: taskArgs.id, signer: taskArgs.signer });
+      await hre.run("auctionhouse:settleauction", { id: taskArgs.id, signer: taskArgs.signer });
     }
 
   });
@@ -148,16 +148,18 @@ subtask("auctionhouse:auctionstatus", "Shows status of a given tag auction id")
 
 
 // Note this task only works if there is one active action at a time.
-subtask("auctionhouse:showcurrent", "Shows status of a current active auction")
+subtask("auctionhouse:showlast", "Shows status of most recently released auction")
   .addOptionalParam("output", "The format for outputting auction details", "standard", types.string)
   .setAction(async (taskArgs) => {
 
     ({ accounts, contracts } = await setup());
 
-    if (await contracts.etsAuctionHouse.getActiveCount() > 1) {
-      console.log("Command not possible when more than one active auction");
-      return;
-    }
+    // Released and unsettled auctions
+    const releasedAuctions = await contracts.etsAuctionHouse.getActiveCount();
+    const maxAuctions = await contracts.etsAuctionHouse.maxAuctions();
+
+    console.log("Released auction count: ", Number(releasedAuctions));
+    console.log("maxAuctions: ", Number(maxAuctions));
 
     const auctionId = await contracts.etsAuctionHouse.getTotalCount();
 
@@ -172,7 +174,6 @@ subtask("auctionhouse:showcurrent", "Shows status of a current active auction")
       let ended = (ethers.toNumber(auction.startTime) > 0 && latestBlock > ethers.toNumber(auction.endTime)) ? "Yes" : "No";
       const tag = await contracts.etsToken.getTagById(auction.tokenId);
 
-      //await displayAuctionDetails(auction, tag.display, taskArgs.output);
       return await displayAuctionDetails(auction, tag, taskArgs.output);
 
 
@@ -249,7 +250,7 @@ subtask("auctionhouse:nextauction", "Creates next auction using ETS Oracle")
 
     // Waiting with visual indicator
     await waitForProcessing(8);
-    await hre.run("auctionhouse:showcurrent");
+    await hre.run("auctionhouse:showlast");
 
   });
 
@@ -322,29 +323,18 @@ subtask("auctionhouse:createbid", "Creates a bid on a CTAG auction")
   });
 
 subtask("auctionhouse:settleauction", "Settles a CTAG auction for a given tag, triggers oracle to release next auction.")
-  .addOptionalParam("tag", "Tag to be bid on", null, types.string)
-  .addOptionalParam("id", "Auction ID to bid on", null, types.string)
+  .addParam("id", "Auction ID to bid on", null, types.string)
   .addParam("signer", "signer", "account2") // ETS Platform
   .setAction(async (taskArgs) => {
     ({ accounts, contracts } = await setup());
 
     let auction;
-    if (taskArgs.tag) {
-      const tagId = await contracts.etsToken.computeTagId(taskArgs.tag);
-      if (!(await contracts.etsAuctionHouse.auctionExistsForTokenId(tagId))) {
-        console.log("Auction not found for ", taskArgs.tag);
-        return;
-      }
-      auction = await contracts.etsAuctionHouse.getAuctionForTokenId(tagId);
-    } else if (taskArgs.id) {
+    if (taskArgs.id) {
       if (!(await contracts.etsAuctionHouse.auctionExists(taskArgs.id))) {
         console.log("Auction not found for ", taskArgs.id);
         return;
       }
       auction = await contracts.etsAuctionHouse.getAuction(taskArgs.id);
-    } else {
-      const currentAuctionDetails = await hre.run("auctionhouse:showcurrent", { output: "return" });
-      auction = await contracts.etsAuctionHouse.getAuction(currentAuctionDetails.auctionId);
     }
 
     if (auction.startTime == 0) {

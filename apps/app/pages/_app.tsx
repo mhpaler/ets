@@ -14,10 +14,12 @@ import "@rainbow-me/rainbowkit/styles.css";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
-import { hardhat, arbitrumSepolia } from "wagmi/chains";
-import { SystemProvider } from "@app/context/SystemContext";
-import { TransactionProvider } from "@app/context/TransactionContext";
 import { wagmiConfig } from "@app/config/wagmiConfig";
+import { hardhat, arbitrumSepolia } from "wagmi/chains";
+import { ModalProvider } from "@app/context/ModalContext";
+import { SystemProvider } from "@app/context/SystemContext";
+import { TransactionManagerProvider } from "@app/context/TransactionContext";
+import { AuctionHouseProvider } from "@app/context/AuctionHouseContext";
 
 const initialChain = process.env.NEXT_PUBLIC_ETS_ENVIRONMENT === "development" ? hardhat : arbitrumSepolia;
 
@@ -34,9 +36,13 @@ function App({ Component, pageProps }: AppProps<{ session: Session }>) {
         <RainbowKitProvider initialChain={initialChain}>
           <SWRConfig value={{ refreshInterval: 3000, fetcher: fetcher }}>
             <SystemProvider>
-              <TransactionProvider>
-                <Component {...pageProps} />
-              </TransactionProvider>
+              <TransactionManagerProvider>
+                <AuctionHouseProvider>
+                  <ModalProvider>
+                    <Component {...pageProps} />
+                  </ModalProvider>
+                </AuctionHouseProvider>
+              </TransactionManagerProvider>
             </SystemProvider>
           </SWRConfig>
         </RainbowKitProvider>

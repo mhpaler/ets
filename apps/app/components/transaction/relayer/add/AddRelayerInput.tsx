@@ -23,32 +23,37 @@ import useTranslation from "next-translate/useTranslation";
 import { useAddRelayer } from "@app/hooks/useAddRelayer";
 import { useRelayers } from "@app/hooks/useRelayers";
 import { useDebounce } from "@app/hooks/useDebounce";
+import { useModal } from "@app/hooks/useModalContext";
+import { useTransactionManager } from "@app/hooks/useTransactionManager";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
 
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
+import TransactionFormActions from "@app/components/transaction/shared/TransactionFormActions";
 import { Dialog } from "@headlessui/react";
-import { Button } from "@app/components/Button";
 
-interface FormStepProps {
-  closeModal: () => void; // Define other props as needed
+interface AddRelayerInputProps {
+  transactionId: string;
+  goToNextStep: () => void;
 }
-// Define the schema for form validation using Zod.
-const AddRelayerSchema = z.object({
-  name: z.string(),
-});
 
-// Infer the type for form data from the Zod schema.
-type RelayerFormData = z.infer<typeof AddRelayerSchema>;
-
-const AddRelayerInput: React.FC<FormStepProps> = ({ closeModal }) => {
+const AddRelayerInput: React.FC<AddRelayerInputProps> = ({ transactionId, goToNextStep }) => {
   const { t } = useTranslation("common");
-  const context = useAddRelayer();
-
-  const { formData, setFormData, goToNextStep } = context;
+  //const chain = useCurrentChain();
+  const { removeTransaction } = useTransactionManager();
+  const { formData, setFormData } = useAddRelayer();
+  const { closeModal } = useModal();
   const [isFormDisabled, setIsFormDisabled] = useState(true);
 
+  // Define the schema for form validation using Zod.
+  const AddRelayerSchema = z.object({
+    name: z.string(),
+  });
+
+  // Infer the type for form data from the Zod schema.
+  type RelayerFormData = z.infer<typeof AddRelayerSchema>;
   // Initialize form handling using react-hook-form with Zod for schema validation.
   const {
     register,
@@ -118,17 +123,10 @@ const AddRelayerInput: React.FC<FormStepProps> = ({ closeModal }) => {
     }
   };
 
-  // Function to handle click on the primary button.
-  const handleButtonClick = () => {
-    if (!isFormDisabled) {
-      setFormData({ name: nameValue });
-      goToNextStep();
-    }
-  };
-
   // Function to handle the "Cancel" action.
   const handleCancel = () => {
     reset();
+    removeTransaction(transactionId);
     setFormData({ name: "" });
     if (closeModal) {
       closeModal();
@@ -158,17 +156,11 @@ const AddRelayerInput: React.FC<FormStepProps> = ({ closeModal }) => {
           )}
         </div>
         <div className="grid grid-flow-col justify-stretch gap-2 mt-4">
-          <Button type="button" onClick={handleCancel}>
-            {t("FORM.BUTTON.CANCEL")}
-          </Button>
-          <Button
-            onClick={handleButtonClick}
-            disabled={isFormDisabled}
-            type="button"
-            className={`${!isFormDisabled ? "btn-primary btn-outline" : ""}`}
-          >
-            {t("FORM.BUTTON.NEXT")}
-          </Button>
+          <TransactionFormActions
+            isFormDisabled={isFormDisabled}
+            handleCancel={handleCancel}
+            handleSubmit={handleSubmit(onSubmit)}
+          />
         </div>
       </form>
     </>

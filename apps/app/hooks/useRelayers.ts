@@ -16,7 +16,7 @@ export function useRelayers({
 }) {
   const { data, mutate, error } = useSWR(
     [
-      `query relayers($first: Int!, $skip: Int!, $orderBy: String! $filter: Relayer_filter) {
+      `query relayers($first: Int!, $skip: Int!, $orderBy: Relayer_orderBy! $filter: Relayer_filter) {
         relayers: relayers(
           first: $first
           skip: $skip

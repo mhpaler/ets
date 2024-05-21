@@ -1,3 +1,0 @@
-{
-  "extends": "@ethereum-tag-service/tsconfig/defender.json"
-}

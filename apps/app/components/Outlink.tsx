@@ -9,7 +9,6 @@ export const StyledAnchor = tw.a`
   flex-row
   text-center
   link-primary
-  font-semibold
   justify-center
 `;
 

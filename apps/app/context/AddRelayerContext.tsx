@@ -34,22 +34,27 @@ const defaultContextValue: FormContextValue = {
   hasTags: false,
   AddRelayerSteps,
   currentStep: AddRelayerSteps.CheckUser,
-  goToNextStep: () => {},
-  goToStep: () => {},
   formData: { name: "" },
   setFormData: () => {},
+  goToNextStep: () => {},
+  goToStep: () => {},
 };
 
 export const AddRelayerContext = createContext<FormContextValue>(defaultContextValue);
 
 export const AddRelayerProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentStep, setCurrentStep] = useState(AddRelayerSteps.CheckUser);
-  const [formData, setFormData] = useState({
+  const [formData, setFormDataState] = useState({
     name: "",
   });
   const { address, isConnected } = useAccount();
   const [userHasTags, setUserHasTags] = useState<boolean>(false);
   const { hasTags } = useTokenClient();
+
+  const setFormData = (data: FormData) => {
+    console.log("Updating form data in provider:", data);
+    setFormDataState(data); // Directly update the state here
+  };
 
   const goToNextStep = () => {
     setCurrentStep((prevStep) => {

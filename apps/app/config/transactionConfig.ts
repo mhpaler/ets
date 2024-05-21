@@ -6,41 +6,17 @@ export interface StepConfig {
   props?: { [key: string]: any };
 }
 // Define the transaction configuration
+// prettier-ignore
 export const transactionConfig: { [key in TransactionType]: StepConfig[] } = {
   [TransactionType.AddRelayer]: [
-    {
-      component: AddRelayerInput,
-      props: {
-        /* props needed for AddRelayerForm */
-      },
-    },
-    {
-      component: AddRelayerConfirm,
-      props: {
-        /* props for confirmation */
-      },
-    },
+    { component: AddRelayerInput },
+    { component: AddRelayerConfirm }
   ],
   [TransactionType.Bid]: [
-    {
-      component: BidInput,
-      props: {
-        /* props for BidForm */
-      },
-    },
-    {
-      component: BidConfirm,
-      props: {
-        /* props for ConfirmBid */
-      },
-    },
+    { component: BidInput },
+    { component: BidConfirm }
   ],
   [TransactionType.SettleAuction]: [
-    {
-      component: SettleConfirm,
-      props: {
-        /* props for ConfirmSettleAuction */
-      },
-    },
+    { component: SettleConfirm }
   ],
 };

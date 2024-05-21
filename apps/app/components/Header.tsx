@@ -4,12 +4,12 @@ import { ConnectButtonETS } from "@app/components/ConnectButtonETS";
 import { pathToTitle } from "@app/utils/titleUtils";
 
 export default function Header() {
-  const title = pathToTitle();
+  const title = pathToTitle() + " | Ethereum Tag Service";
 
   return (
     <>
       <Head>
-        <title>{title} | Ethereum Tag Service</title>
+        <title>{title}</title>
       </Head>
       <header className="col-span-12 flex items-center justify-between lg:gap-4">
         {/* Left aligned elements */}
@@ -27,7 +27,7 @@ export default function Header() {
           <Link href="/" passHref className="lg:hidden">
             <div className="relative flex items-center">
               <span className="ml-2.5 text-xl font-bold text-slate-900">ETS</span>
-              <h1 className="sr-only">Ethereum Tag Service</h1>
+              <h1 className="sr-only tracking-tighter">Ethereum Tag Service</h1>
             </div>
           </Link>
         </div>
