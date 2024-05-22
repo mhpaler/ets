@@ -2,7 +2,7 @@ import React, { createContext, useState, useCallback, ReactNode, FC } from "reac
 import { simulateContract, writeContract, waitForTransactionReceipt } from "wagmi/actions";
 import { wagmiConfig } from "@app/config/wagmiConfig";
 import { SimulateContractParameters } from "wagmi/actions";
-import { TransactionType } from "@app/types/transaction"; // Ensure the path is correct
+import { TransactionContextType, TransactionType } from "@app/types/transaction"; // Ensure the path is correct
 
 // Define the structure of each transaction's data
 interface TransactionData {
@@ -105,5 +105,7 @@ export const TransactionManagerProvider: FC<TransactionProviderProps> = ({ child
 
   return <TransactionManagerContext.Provider value={value}>{children}</TransactionManagerContext.Provider>;
 };
+
+export const TransactionContext = React.createContext<TransactionContextType | undefined>(undefined);
 
 // Hook to use transaction manager

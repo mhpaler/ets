@@ -1,11 +1,10 @@
 {
   "name": "@ethereum-tag-service/sdk-core",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Core SDK for Ethereum Tag Service",
-  "main": "dist/src/index.js",
+  "main": "dist",
   "exports": {
-    ".": "./dist/src/index.js",
-    "./core": "./dist/src/core.js"
+    ".": "./dist"
   },
   "scripts": {
     "build": "tsc"
