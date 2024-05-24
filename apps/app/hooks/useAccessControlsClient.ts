@@ -1,16 +1,22 @@
 import { useEffect, useState } from "react";
 import { useAccount, useChainId } from "wagmi";
-import { createCoreClient } from "@app/services/sdk";
-import { CoreClient } from "@ethereum-tag-service/sdk-core";
+//import { createCoreClient } from "@app/services/sdk";
+import { createAccessControlsClient } from "@app/services/sdk";
+
+//import { CoreClient } from "@ethereum-tag-service/sdk-core";
+import { AccessControlsClient } from "@ethereum-tag-service/sdk-core";
 
 export const useAccessControlsClient = () => {
   const chainId = useChainId();
   const { address } = useAccount();
-  const [accessControlsClient, setAccessControlsClient] = useState<CoreClient>();
+  // const [accessControlsClient, setAccessControlsClient] = useState<CoreClient>();
+  const [accessControlsClient, setAccessControlsClient] = useState<AccessControlsClient>();
 
   useEffect(() => {
     if (!chainId || !address) return;
-    const client = createCoreClient({ chainId, account: address, clients: { accessControlsClient: true } });
+    //const client = createCoreClient({ chainId, account: address, clients: { accessControlsClient: true } });
+
+    const client = createAccessControlsClient({ chainId, account: address });
     setAccessControlsClient(client);
   }, [chainId, address]);
 
@@ -213,6 +219,7 @@ export const useAccessControlsClient = () => {
   };
 
   return {
+    accessControlsClient,
     hasRole,
     isAdmin,
     isAuctionOracle,

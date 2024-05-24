@@ -8,7 +8,7 @@ import { AddRelayerProvider } from "@app/context/AddRelayerContext";
 import Layout from "@app/layouts/default";
 import { TimeAgo } from "@app/components/TimeAgo";
 import { Table } from "@app/components/Table";
-import { Button } from "@app/components/Button";
+//import { Button } from "@app/components/Button";
 import { Modal } from "@app/components/Modal";
 import { Truncate } from "@app/components/Truncate";
 import { ConnectButtonETS } from "@app/components/ConnectButtonETS";
@@ -24,9 +24,10 @@ const Relayers: NextPage = () => {
   const { t } = useTranslation("common");
   const { isConnected } = useAccount();
   const [transactionId, setTransactionId] = useState<string>("");
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    // Generate a new UUID for each visit or page refresh
+    setIsClient(true);
     setTransactionId(uuidv4());
   }, []);
 
@@ -68,14 +69,12 @@ const Relayers: NextPage = () => {
   return (
     <Layout>
       <div className="col-span-12">
-        {!isConnected ? (
+        {isClient && !isConnected ? (
           <ConnectButtonETS className="btn-outline" />
         ) : (
-          <AddRelayerProvider>
-            <Modal id={`create-relayer`} label={t("create-relayer")} buttonClasses="btn-primary btn-outline">
-              <TransactionFlowWrapper id={transactionId} transactionType={TransactionType.AddRelayer} />
-            </Modal>
-          </AddRelayerProvider>
+          <Modal id={`create-relayer`} label={t("create-relayer")} buttonClasses="btn-primary btn-outline">
+            <TransactionFlowWrapper id={transactionId} transactionType={TransactionType.AddRelayer} />
+          </Modal>
         )}
       </div>
       <div className="col-span-12">
@@ -107,7 +106,7 @@ const Relayers: NextPage = () => {
               ))}
           </Table.Body>
 
-          {showPrevNext() && (
+          {/* {showPrevNext() && (
             <Table.Footer>
               <tr>
                 <td className="flex justify-between">
@@ -152,7 +151,7 @@ const Relayers: NextPage = () => {
                 </td>
               </tr>
             </Table.Footer>
-          )}
+          )} */}
         </Table>
       </div>
     </Layout>

@@ -1,7 +1,6 @@
 import type { NextPage } from "next";
 import Layout from "@app/layouts/default";
 import useTranslation from "next-translate/useTranslation";
-import { AuctionProvider } from "@app/context/AuctionContext";
 import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { Auctions } from "@app/components/Auctions";
 // TODO: Think about turning html tables into Div tables.

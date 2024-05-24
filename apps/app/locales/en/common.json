@@ -163,7 +163,9 @@
       },
       "ERROR": {
         "MIN_THREE_CHARACTERS": "The string must contain at least three characters",
-        "NAME_EXISTS": "Relayer name already exists"
+        "NAME_EXISTS": "Relayer name already exists",
+        "ALREADY_OWN_RELAYER": "Connected account already owns Relayer",
+        "NO_TAGS": "Must own CTAG to create Relayer"
       }
     }
   },

@@ -52,7 +52,7 @@ const AddRelayerConfirm: React.FC<FormStepProps> = ({ transactionId, transaction
   const { initiateTransaction, removeTransaction, transactions } = useTransactionManager();
   const transaction = transactions[transactionId];
   const { dialogTitle } = useTransactionLabels(transactionId);
-  const { formData } = useAddRelayer();
+  const { addRelayerFormData } = useAddRelayer();
 
   const addRelayerABI = etsRelayerFactoryConfig.abi.find((abi) => abi.type === "function" && abi.name === "addRelayer");
   if (!addRelayerABI) {
@@ -69,7 +69,7 @@ const AddRelayerConfirm: React.FC<FormStepProps> = ({ transactionId, transaction
         address: etsRelayerFactoryConfig.address,
         abi: [addRelayerABI],
         functionName: "addRelayer",
-        args: [formData.name],
+        args: [addRelayerFormData.name],
       });
     }
   };
@@ -94,7 +94,7 @@ const AddRelayerConfirm: React.FC<FormStepProps> = ({ transactionId, transaction
       <div className="flex flex-col w-full mt-8 gap-4">
         <div className="flex flex-row justify-between h-16 items-center pl-6 pr-6 rounded-box border-2 border-base-300">
           <div className="">{t("FORM.ADD_RELAYER.FIELD_LABEL.NAME")}</div>
-          <div className="font-bold">{formData.name}</div>
+          <div className="font-bold">{addRelayerFormData.name}</div>
         </div>
         <div className="flex flex-row justify-between h-16 items-center pl-6 pr-6 rounded-box border-2 border-base-300">
           <div className="">{t("TXN.ACTION")}</div>

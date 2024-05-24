@@ -1,105 +1,36 @@
-import { useTokenClient } from "@app/hooks/useTokenClient";
-import React, { useEffect } from "react";
+import React from "react";
 import { createContext, useState, ReactNode } from "react";
-import { useAccount } from "wagmi";
 
-export enum AddRelayerSteps {
-  CheckUser = 1,
-  AddRelayerForm,
-  ConfirmTransaction,
-  TransactionProcessing,
-  TransactionComplete,
-}
-
-type FormData = {
+type AddRelayerFormData = {
   name: string;
 };
 
-export type FormContextValue = {
-  address: `0x${string}` | undefined;
-  isConnected: boolean;
-  hasTags: boolean;
-  AddRelayerSteps: typeof AddRelayerSteps;
-  currentStep: AddRelayerSteps;
-  goToNextStep: () => void;
-  goToStep: (step: AddRelayerSteps) => void;
-  formData: FormData;
-  setFormData: (data: FormData) => void;
+export type RelayerContextType = {
+  addRelayerFormData: AddRelayerFormData;
+  setAddRelayerFormData: (data: AddRelayerFormData) => void;
 };
 
 // Define a default context value
-const defaultContextValue: FormContextValue = {
-  address: undefined,
-  isConnected: false,
-  hasTags: false,
-  AddRelayerSteps,
-  currentStep: AddRelayerSteps.CheckUser,
-  formData: { name: "" },
-  setFormData: () => {},
-  goToNextStep: () => {},
-  goToStep: () => {},
+const defaultRelayerContextValue: RelayerContextType = {
+  addRelayerFormData: { name: "" },
+  setAddRelayerFormData: () => {},
 };
 
-export const AddRelayerContext = createContext<FormContextValue>(defaultContextValue);
+export const AddRelayerContext = createContext<RelayerContextType>(defaultRelayerContextValue);
 
 export const AddRelayerProvider = ({ children }: { children: React.ReactNode }) => {
-  const [currentStep, setCurrentStep] = useState(AddRelayerSteps.CheckUser);
-  const [formData, setFormDataState] = useState({
+  const [addRelayerFormData, setAddRelayerFormData] = useState({
     name: "",
   });
-  const { address, isConnected } = useAccount();
-  const [userHasTags, setUserHasTags] = useState<boolean>(false);
-  const { hasTags } = useTokenClient();
 
-  const setFormData = (data: FormData) => {
+  const setFormData = (data: AddRelayerFormData) => {
     console.log("Updating form data in provider:", data);
-    setFormDataState(data); // Directly update the state here
+    setAddRelayerFormData(data); // Directly update the state here
   };
 
-  const goToNextStep = () => {
-    setCurrentStep((prevStep) => {
-      let nextStep;
-      if (prevStep === AddRelayerSteps.AddRelayerForm) {
-        nextStep = AddRelayerSteps.ConfirmTransaction;
-      } else {
-        nextStep = prevStep + 1;
-      }
-      return nextStep;
-    });
-  };
-
-  const goToStep = (step: AddRelayerSteps) => setCurrentStep(step);
-
-  useEffect(() => {
-    const fetchData = async (): Promise<void> => {
-      const tags = await hasTags(address);
-      setUserHasTags(tags);
-    };
-
-    if (address && isConnected) {
-      fetchData();
-    }
-  }, [address, isConnected]);
-
-  useEffect(() => {
-    if (isConnected && userHasTags) {
-      setCurrentStep(AddRelayerSteps.AddRelayerForm);
-    } else {
-      setCurrentStep(AddRelayerSteps.CheckUser);
-    }
-    console.log("currentStep", currentStep);
-  }, [isConnected, userHasTags]);
-
-  const contextValue: FormContextValue = {
-    address,
-    isConnected,
-    hasTags: userHasTags,
-    AddRelayerSteps,
-    currentStep,
-    goToNextStep,
-    goToStep,
-    formData,
-    setFormData,
+  const contextValue: RelayerContextType = {
+    addRelayerFormData,
+    setAddRelayerFormData,
   };
 
   return <AddRelayerContext.Provider value={contextValue}>{children}</AddRelayerContext.Provider>;
