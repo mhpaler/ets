@@ -106,7 +106,7 @@ export const makeScannerLink = (data: string, baseUrl?: string, route: string = 
   if (!baseUrl) {
     return "#"; // or some default/fallback URL
   }
-  return `https://${baseUrl}/${route}/${data}`;
+  return `${baseUrl}/${route}/${data}`;
 };
 
 /**
