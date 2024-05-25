@@ -22,8 +22,14 @@ export interface TransactionManagerContextType {
   initiateTransaction: (
     id: string,
     type: TransactionType,
-    transactionDetails: SimulateContractParameters,
+    sdkFunction: (...args: any[]) => Promise<any>,
+    sdkFunctionParams: any[],
   ) => Promise<void>;
+  //initiateTransaction: (
+  //  id: string,
+  //  type: TransactionType,
+  //  transactionDetails: SimulateContractParameters,
+  //) => Promise<void>;
 }
 
 // Define the default context value
@@ -69,26 +75,27 @@ export const TransactionManagerProvider: FC<TransactionProviderProps> = ({ child
   }, []);
 
   const initiateTransaction = useCallback(
-    async (id: string, type: TransactionType, transactionDetails: SimulateContractParameters) => {
-      // Add transaction with initial pending state
+    async (
+      id: string,
+      type: TransactionType,
+      sdkFunction: (...args: any[]) => Promise<any>,
+      sdkFunctionParams: any[],
+    ) => {
       addTransaction(id, type, "");
       try {
-        const { request } = await simulateContract(wagmiConfig, transactionDetails);
-        const hash = await writeContract(wagmiConfig, request);
+        const result = await sdkFunction(...sdkFunctionParams);
+        const hash = result.transactionHash; // Assuming result contains a transactionHash
 
-        // Update transaction with the obtained hash
         updateTransaction(id, { hash, message: "Transaction submitted." });
 
-        // Wait for the transaction to complete
-        const receipt = await waitForTransactionReceipt(wagmiConfig, { hash });
-        // Update transaction to reflect success
+        // Wait for the transaction to complete if needed
+        // Assuming SDK function already waits for completion and returns a receipt
+        const receipt = result;
         updateTransaction(id, { isPending: false, isSuccess: true, message: "Transaction successful." });
 
-        // Log receipt to the console or store it for further processing
         console.log(`Transaction Receipt for ${id}:`, receipt);
       } catch (error: unknown) {
         console.error("Transaction Error:", error);
-        // Update transaction to reflect error
         updateTransaction(id, { isPending: false, isError: true, message: (error as Error).message });
       }
     },

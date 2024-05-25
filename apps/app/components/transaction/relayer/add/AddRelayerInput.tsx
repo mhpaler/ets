@@ -20,7 +20,7 @@
 import React, { useState, useEffect } from "react";
 
 import useTranslation from "next-translate/useTranslation";
-import { useAddRelayer } from "@app/hooks/useAddRelayer";
+import { useRelayerContext } from "@app/hooks/useRelayerContext";
 import { useRelayers } from "@app/hooks/useRelayers";
 import { useDebounce } from "@app/hooks/useDebounce";
 import { useModal } from "@app/hooks/useModalContext";
@@ -28,14 +28,12 @@ import { useTransactionManager } from "@app/hooks/useTransactionManager";
 import { useTokenClient } from "@app/hooks/useTokenClient";
 import { useAccessControlsClient } from "@app/hooks/useAccessControlsClient";
 import { useAccount } from "wagmi";
-
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 import TransactionFormActions from "@app/components/transaction/shared/TransactionFormActions";
 import { Dialog } from "@headlessui/react";
-
 import { Button } from "@app/components/Button";
 
 interface AddRelayerInputProps {
@@ -46,7 +44,7 @@ interface AddRelayerInputProps {
 const AddRelayerInput: React.FC<AddRelayerInputProps> = ({ transactionId, goToNextStep }) => {
   const { t } = useTranslation("common");
   const { removeTransaction } = useTransactionManager();
-  const { addRelayerFormData, setAddRelayerFormData } = useAddRelayer();
+  const { addRelayerFormData, setAddRelayerFormData } = useRelayerContext();
   const { closeModal } = useModal();
   const { address, isConnected } = useAccount();
   const { hasTags, tokenClient } = useTokenClient();
@@ -189,7 +187,7 @@ const AddRelayerInput: React.FC<AddRelayerInputProps> = ({ transactionId, goToNe
       {error ? (
         <div className="flex flex-col items-center pt-4">
           <div className="text-red-600 mb-4">{error}</div>
-          <Button type="button" className="btn-outline btn-primary btn-sm" onClick={handleCancel}>
+          <Button type="button" className="btn btn-primary btn-sm" onClick={handleCancel}>
             {t("close")}
           </Button>
         </div>

@@ -1,14 +1,14 @@
 import React from "react";
-import { etsAuctionHouseConfig } from "@app/src/contracts";
 
-import useTranslation from "next-translate/useTranslation";
 import { parseEther } from "viem";
 import { TransactionType } from "@app/types/transaction";
 
+import useTranslation from "next-translate/useTranslation";
 import { useModal } from "@app/hooks/useModalContext";
 import { useAuction } from "@app/hooks/useAuctionContext";
 import { useCurrentChain } from "@app/hooks/useCurrentChain";
 import { useTransactionManager } from "@app/hooks/useTransactionManager";
+import { useAuctionHouseClient } from "@app/hooks/useAuctionHouseClient";
 
 import { Dialog } from "@headlessui/react";
 import { Tag } from "@app/components/Tag";
@@ -32,12 +32,7 @@ const BidConfirm: React.FC<FormStepProps> = ({ transactionId, transactionType, g
   const transaction = transactions[transactionId];
   const { dialogTitle } = useTransactionLabels(transactionId);
   const { auction, bidFormData } = useAuction();
-
-  // Extract the specific ABI for the `createBid` function
-  const createBidABI = etsAuctionHouseConfig.abi.find((abi) => abi.type === "function" && abi.name === "createBid");
-  if (!createBidABI) {
-    throw new Error("createBid ABI not found");
-  }
+  const { createBid } = useAuctionHouseClient();
 
   // Function to initiate the transaction
   const handleButtonClick = () => {
@@ -45,13 +40,8 @@ const BidConfirm: React.FC<FormStepProps> = ({ transactionId, transactionType, g
       removeTransaction(transactionId);
       closeModal();
     } else {
-      initiateTransaction(transactionId, transactionType, {
-        address: etsAuctionHouseConfig.address,
-        abi: [createBidABI],
-        functionName: "createBid",
-        args: [BigInt(auction.id)],
-        value: bidFormData.bid ? parseEther(bidFormData.bid.toString()) : BigInt(0),
-      });
+      const value = bidFormData.bid ? parseEther(bidFormData.bid.toString()) : BigInt(0);
+      initiateTransaction(transactionId, transactionType, createBid, [BigInt(auction.id), value]);
     }
   };
 

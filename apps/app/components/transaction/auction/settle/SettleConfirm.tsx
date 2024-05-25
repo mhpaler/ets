@@ -1,21 +1,19 @@
 import React from "react";
-import { etsAuctionHouseConfig } from "@app/src/contracts";
+import { TransactionType } from "@app/types/transaction";
+
 import useTranslation from "next-translate/useTranslation";
-import { parseEther } from "viem";
-
-import { Dialog } from "@headlessui/react";
-
 import { useModal } from "@app/hooks/useModalContext";
 import { useAuction } from "@app/hooks/useAuctionContext";
 import { useTransactionManager } from "@app/hooks/useTransactionManager";
-import { TransactionType } from "@app/types/transaction";
+import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels"; // Adjust the import path as necessary
+import { useAuctionHouseClient } from "@app/hooks/useAuctionHouseClient";
 
+import { Dialog } from "@headlessui/react";
 import { Tag } from "@app/components/Tag";
-import { Wallet, CheckCircle, QuestionMark } from "@app/components/icons";
+import { Wallet, CheckCircle } from "@app/components/icons";
 import { TransactionError } from "@app/components/transaction/shared/TransactionError";
 import { TransactionLink } from "@app/components/transaction/shared/TransactionLink";
 import TransactionConfirmActions from "@app/components/transaction/shared/TransactionConfirmActions";
-import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels"; // Adjust the import path as necessary
 
 interface FormStepProps {
   transactionId: string;
@@ -26,12 +24,12 @@ interface FormStepProps {
 
 const SettleConfirm: React.FC<FormStepProps> = ({ transactionId, transactionType, goToStep }) => {
   const { t } = useTranslation("common");
-
   const { closeModal } = useModal();
-  const { auction, bidFormData } = useAuction();
+  const { auction } = useAuction();
   const { initiateTransaction, removeTransaction, transactions } = useTransactionManager();
   const transaction = transactions[transactionId];
   const { dialogTitle } = useTransactionLabels(transactionId);
+  const { settleCurrentAndCreateNewAuction } = useAuctionHouseClient();
 
   // Function to initiate the transaction
   const handleButtonClick = () => {
@@ -39,11 +37,7 @@ const SettleConfirm: React.FC<FormStepProps> = ({ transactionId, transactionType
       removeTransaction(transactionId);
       closeModal();
     } else {
-      initiateTransaction(transactionId, transactionType, {
-        ...etsAuctionHouseConfig,
-        functionName: "settleCurrentAndCreateNewAuction",
-        args: [BigInt(auction.id)],
-      });
+      initiateTransaction(transactionId, transactionType, settleCurrentAndCreateNewAuction, [BigInt(auction.id)]);
     }
   };
 

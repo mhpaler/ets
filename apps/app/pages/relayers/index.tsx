@@ -4,11 +4,10 @@ import useTranslation from "next-translate/useTranslation";
 import { globalSettings } from "@app/config/globalSettings";
 import useNumberFormatter from "@app/hooks/useNumberFormatter";
 import { useRelayers } from "@app/hooks/useRelayers";
-import { AddRelayerProvider } from "@app/context/AddRelayerContext";
+import { RelayerProvider } from "@app/context/RelayerContext";
 import Layout from "@app/layouts/default";
 import { TimeAgo } from "@app/components/TimeAgo";
 import { Table } from "@app/components/Table";
-//import { Button } from "@app/components/Button";
 import { Modal } from "@app/components/Modal";
 import { Truncate } from "@app/components/Truncate";
 import { ConnectButtonETS } from "@app/components/ConnectButtonETS";
@@ -68,45 +67,46 @@ const Relayers: NextPage = () => {
 
   return (
     <Layout>
-      <div className="col-span-12">
-        {isClient && !isConnected ? (
-          <ConnectButtonETS className="btn-outline" />
-        ) : (
-          <Modal id={`create-relayer`} label={t("create-relayer")} buttonClasses="btn-primary btn-outline">
-            <TransactionFlowWrapper id={transactionId} transactionType={TransactionType.AddRelayer} />
-          </Modal>
-        )}
-      </div>
-      <div className="col-span-12">
-        <Table loading={!relayers} rows={pageSize}>
-          <Table.Head>
-            <Table.Tr>{columns && columns.map((column) => <Table.Th key={column}>{column}</Table.Th>)}</Table.Tr>
-          </Table.Head>
-          <Table.Body>
-            {relayers &&
-              relayers.map((relayer: any) => (
-                <Table.Tr key={relayer.id}>
-                  <Table.Cell value={relayer.name} url={`/relayers/${relayer.id}`} />
-                  <Table.CellWithChildren>
-                    <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                      <TimeAgo date={relayer.firstSeen * 1000} />
-                    </div>
-                  </Table.CellWithChildren>
-                  <Table.Cell value={Truncate(relayer.owner, 14, "middle")} />
-                  <Table.Cell value={number(parseInt(relayer.taggingRecordsPublished))} />
-                  <Table.Cell value={number(parseInt(relayer.tagsPublished))} />
-                  <Table.Cell
-                    value={
-                      (relayers && relayers[0].pausedByOwner) || (relayers && relayers[0].lockedByProtocol)
-                        ? t("disabled")
-                        : t("enabled")
-                    }
-                  />
-                </Table.Tr>
-              ))}
-          </Table.Body>
+      <RelayerProvider>
+        <div className="col-span-12">
+          {isClient && !isConnected ? (
+            <ConnectButtonETS className="btn-outline" />
+          ) : (
+            <Modal id={`create-relayer`} label={t("create-relayer")} buttonClasses="btn-primary btn-outline">
+              <TransactionFlowWrapper id={transactionId} transactionType={TransactionType.AddRelayer} />
+            </Modal>
+          )}
+        </div>
+        <div className="col-span-12">
+          <Table loading={!relayers} rows={pageSize}>
+            <Table.Head>
+              <Table.Tr>{columns && columns.map((column) => <Table.Th key={column}>{column}</Table.Th>)}</Table.Tr>
+            </Table.Head>
+            <Table.Body>
+              {relayers &&
+                relayers.map((relayer: any) => (
+                  <Table.Tr key={relayer.id}>
+                    <Table.Cell value={relayer.name} url={`/relayers/${relayer.id}`} />
+                    <Table.CellWithChildren>
+                      <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+                        <TimeAgo date={relayer.firstSeen * 1000} />
+                      </div>
+                    </Table.CellWithChildren>
+                    <Table.Cell value={Truncate(relayer.owner, 14, "middle")} />
+                    <Table.Cell value={number(parseInt(relayer.taggingRecordsPublished))} />
+                    <Table.Cell value={number(parseInt(relayer.tagsPublished))} />
+                    <Table.Cell
+                      value={
+                        (relayers && relayers[0].pausedByOwner) || (relayers && relayers[0].lockedByProtocol)
+                          ? t("disabled")
+                          : t("enabled")
+                      }
+                    />
+                  </Table.Tr>
+                ))}
+            </Table.Body>
 
-          {/* {showPrevNext() && (
+            {/* {showPrevNext() && (
             <Table.Footer>
               <tr>
                 <td className="flex justify-between">
@@ -152,8 +152,9 @@ const Relayers: NextPage = () => {
               </tr>
             </Table.Footer>
           )} */}
-        </Table>
-      </div>
+          </Table>
+        </div>
+      </RelayerProvider>
     </Layout>
   );
 };

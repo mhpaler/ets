@@ -16,9 +16,9 @@ const defaultRelayerContextValue: RelayerContextType = {
   setAddRelayerFormData: () => {},
 };
 
-export const AddRelayerContext = createContext<RelayerContextType>(defaultRelayerContextValue);
+export const RelayerContext = createContext<RelayerContextType>(defaultRelayerContextValue);
 
-export const AddRelayerProvider = ({ children }: { children: React.ReactNode }) => {
+export const RelayerProvider = ({ children }: { children: React.ReactNode }) => {
   const [addRelayerFormData, setAddRelayerFormData] = useState({
     name: "",
   });
@@ -33,5 +33,5 @@ export const AddRelayerProvider = ({ children }: { children: React.ReactNode }) 
     setAddRelayerFormData,
   };
 
-  return <AddRelayerContext.Provider value={contextValue}>{children}</AddRelayerContext.Provider>;
+  return <RelayerContext.Provider value={contextValue}>{children}</RelayerContext.Provider>;
 };
