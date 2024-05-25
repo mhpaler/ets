@@ -44,8 +44,8 @@ export class AuctionHouseClient {
   }
 
   // State-changing functions
-  async createBid(auctionId: bigint): Promise<{ transactionHash: string; status: number }> {
-    return this.callContract("createBid", [auctionId]);
+  async createBid(auctionId: bigint, value?: bigint): Promise<{ transactionHash: string; status: number }> {
+    return this.callContract("createBid", [auctionId], value);
   }
 
   async createNextAuction(): Promise<{ transactionHash: string; status: number }> {
@@ -184,6 +184,7 @@ export class AuctionHouseClient {
   private async callContract(
     functionName: AuctionHouseWriteFunction,
     args: any[] = [],
+    value?: bigint,
   ): Promise<{ transactionHash: string; status: number }> {
     if (!this.walletClient) {
       throw new Error("Wallet client is required to perform this action");
@@ -195,6 +196,7 @@ export class AuctionHouseClient {
       this.etsAuctionHouseConfig.abi,
       functionName,
       args,
+      value,
     );
   }
 }

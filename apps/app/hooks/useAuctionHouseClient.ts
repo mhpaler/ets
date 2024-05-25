@@ -14,10 +14,10 @@ export const useAuctionHouseClient = () => {
     setAuctionHouseClient(client);
   }, [chainId, address]);
 
-  const createBid = async (auctionId: bigint) => {
+  const createBid = async (auctionId: bigint, value?: bigint) => {
     try {
       if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.createBid(auctionId);
+      return await auctionHouseClient.createBid(auctionId, value);
     } catch (error) {
       throw error;
     }

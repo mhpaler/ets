@@ -27,6 +27,7 @@ export const handleContractCall = async (
   abi: any,
   functionName: any,
   args: any = [],
+  value?: bigint, // in wei
 ): Promise<{ transactionHash: string; status: number }> => {
   try {
     const { request } = await publicClient.simulateContract({
@@ -35,6 +36,7 @@ export const handleContractCall = async (
       functionName,
       args,
       account: walletClient.account,
+      value,
     });
 
     const hash = await walletClient.writeContract(request);
