@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAccount, useChainId } from "wagmi";
-import { createAuctionHouseClient } from "@app/services/sdk";
+import { createAuctionHouseClient } from "@ethereum-tag-service/sdk-core";
 import { AuctionHouseClient } from "@ethereum-tag-service/sdk-core";
 
 export const useAuctionHouseClient = () => {

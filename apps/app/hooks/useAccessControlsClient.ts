@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAccount, useChainId } from "wagmi";
-//import { createCoreClient } from "@app/services/sdk";
-import { createAccessControlsClient } from "@app/services/sdk";
+//import { createCoreClient } from "@ethereum-tag-service/sdk-core";
+import { createAccessControlsClient } from "@ethereum-tag-service/sdk-core";
 
 //import { CoreClient } from "@ethereum-tag-service/sdk-core";
 import { AccessControlsClient } from "@ethereum-tag-service/sdk-core";

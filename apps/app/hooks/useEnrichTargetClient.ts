@@ -1,4 +1,4 @@
-import { createEnrichTargetClient } from "@app/services/sdk";
+import { createEnrichTargetClient } from "@ethereum-tag-service/sdk-core";
 import { EnrichTargetClient } from "@ethereum-tag-service/sdk-core";
 import { useEffect, useState } from "react";
 import { useAccount, useChainId } from "wagmi";

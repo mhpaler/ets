@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAccount, useChainId } from "wagmi";
-import { createTargetClient } from "@app/services/sdk";
+import { createTargetClient } from "@ethereum-tag-service/sdk-core";
 import { TargetClient } from "@ethereum-tag-service/sdk-core";
 
 export const useTargetClient = () => {

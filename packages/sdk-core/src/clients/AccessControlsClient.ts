@@ -1,5 +1,5 @@
 import { PublicClient, Hex } from "viem";
-import { handleContractRead } from "../utils";
+import { handleContractRead } from "../utils/handleContractRead";
 import { AccessControlsReadFunction } from "../types";
 import { getConfig } from "../contracts/config";
 

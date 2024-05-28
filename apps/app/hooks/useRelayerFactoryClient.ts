@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAccount, useChainId } from "wagmi";
-import { createRelayerFactoryClient } from "@app/services/sdk";
+import { createRelayerFactoryClient } from "@ethereum-tag-service/sdk-core";
 import { RelayerFactoryClient } from "@ethereum-tag-service/sdk-core";
 
 export const useRelayerFactoryClient = () => {

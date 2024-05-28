@@ -1,5 +1,6 @@
 import { PublicClient, WalletClient, Hex } from "viem";
-import { handleContractRead, handleContractCall } from "../utils";
+import { handleContractCall } from "../utils/handleContractCall";
+import { handleContractRead } from "../utils/handleContractRead";
 import { TargetReadFunction, TargetWriteFunction } from "../types";
 import { getConfig } from "../contracts/config";
 

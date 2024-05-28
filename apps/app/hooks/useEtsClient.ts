@@ -1,4 +1,4 @@
-import { createEtsClient } from "@app/services/sdk";
+import { createEtsClient } from "@ethereum-tag-service/sdk-core";
 import { EtsClient } from "@ethereum-tag-service/sdk-core";
 import { useEffect, useState } from "react";
 import { Hex } from "viem";

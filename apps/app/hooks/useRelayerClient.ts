@@ -1,5 +1,5 @@
 import { Hex } from "viem";
-import { createRelayerClient } from "@app/services/sdk";
+import { createRelayerClient } from "@ethereum-tag-service/sdk-core";
 import { useEffect, useState } from "react";
 import { useAccount, useChainId } from "wagmi";
 import { RelayerClient } from "@ethereum-tag-service/sdk-core";

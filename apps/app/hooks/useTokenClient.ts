@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Hex } from "viem";
 import { useAccount, useChainId } from "wagmi";
-import { createTokenClient } from "@app/services/sdk";
+import { createTokenClient } from "@ethereum-tag-service/sdk-core";
 import { TokenClient } from "@ethereum-tag-service/sdk-core";
 
 export const useTokenClient = () => {

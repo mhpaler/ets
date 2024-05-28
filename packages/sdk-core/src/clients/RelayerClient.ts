@@ -1,7 +1,8 @@
 import type { Address, Hex, PublicClient, WalletClient } from "viem";
 import { etsABI, etsRelayerV1ABI } from "../contracts/contracts";
 import { TokenClient } from "./TokenClient";
-import { handleContractCall, handleContractRead } from "../utils";
+import { handleContractCall } from "../utils/handleContractCall";
+import { handleContractRead } from "../utils/handleContractRead";
 import { RelayerReadFunction, RelayerWriteFunction } from "../types";
 import { getConfig } from "../contracts/config";
 
