@@ -57,7 +57,7 @@ const CreateTaggingRecord: NextPage = () => {
 
   const fetchRandomImage = useCallback(
     debounce(async () => {
-      const accessKey = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY; // Use the environment variable
+      const accessKey = process.env.NEXT_PUBLIC_UNSPLASH_KEY; // Use the environment variable
       if (!accessKey) {
         console.error("Unsplash Access Key is not defined");
         return;
