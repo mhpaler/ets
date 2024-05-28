@@ -2,7 +2,6 @@ import { useState } from "react";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Layout from "@app/layouts/default";
-import PageTitle from "@app/components/PageTitle";
 import { useRelayers } from "@app/hooks/useRelayers";
 import { useAccount } from "wagmi";
 import { availableChainIds } from "@app/config/wagmiConfig";

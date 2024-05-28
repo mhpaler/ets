@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Layout from "@app/layouts/default";
-import PageTitle from "@app/components/PageTitle";
 import { useRelayers } from "@app/hooks/useRelayers";
 import { useAccount } from "wagmi";
 import { isValidTag } from "@app/utils/tagUtils";
@@ -59,9 +58,20 @@ const CreateTaggingRecord: NextPage = () => {
 
   const fetchRandomImage = useCallback(
     debounce(async () => {
+      const accessKey = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY; // Use the environment variable
+      if (!accessKey) {
+        console.error("Unsplash Access Key is not defined");
+        return;
+      }
+      const url = `https://api.unsplash.com/photos/random?orientation=landscape&client_id=${accessKey}`;
+
       try {
-        const response = await fetch("https://source.unsplash.com/random?orientation=horizontal");
-        setImageUrl(response.url);
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        setImageUrl(data.urls.regular); // Get the regular-sized image URL
       } catch (error) {
         console.error("Error fetching random image:", error);
       }
