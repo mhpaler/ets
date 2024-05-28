@@ -13,6 +13,42 @@ export class RelayerClient {
   private readonly relayerConfig: { address?: Hex; abi: any };
   private readonly etsConfig: { address?: Hex; abi: any };
 
+  private async readContract(functionName: RelayerReadFunction, args: any = []): Promise<any> {
+    if (!this.relayerConfig.address) {
+      throw new Error("Relayer address is required");
+    }
+
+    return handleContractRead(
+      this.publicClient,
+      this.relayerConfig.address,
+      this.relayerConfig.abi,
+      functionName,
+      args,
+    );
+  }
+
+  private async callContract(
+    functionName: RelayerWriteFunction,
+    args: any = [],
+  ): Promise<{ transactionHash: string; status: number }> {
+    if (this.walletClient === undefined) {
+      throw new Error("Wallet client is required to perform this action");
+    }
+
+    if (!this.relayerConfig.address) {
+      throw new Error("Relayer address is required");
+    }
+
+    return handleContractCall(
+      this.publicClient,
+      this.walletClient,
+      this.relayerConfig.address,
+      this.relayerConfig.abi,
+      functionName,
+      args,
+    );
+  }
+
   constructor({
     chainId,
     publicClient,
@@ -276,43 +312,5 @@ export class RelayerClient {
 
   async version(): Promise<string> {
     return this.readContract("version", []);
-  }
-
-  // helpers
-
-  private async readContract(functionName: RelayerReadFunction, args: any = []): Promise<any> {
-    if (!this.relayerConfig.address) {
-      throw new Error("Relayer address is required");
-    }
-
-    return handleContractRead(
-      this.publicClient,
-      this.relayerConfig.address,
-      this.relayerConfig.abi,
-      functionName,
-      args,
-    );
-  }
-
-  private async callContract(
-    functionName: RelayerWriteFunction,
-    args: any = [],
-  ): Promise<{ transactionHash: string; status: number }> {
-    if (this.walletClient === undefined) {
-      throw new Error("Wallet client is required to perform this action");
-    }
-
-    if (!this.relayerConfig.address) {
-      throw new Error("Relayer address is required");
-    }
-
-    return handleContractCall(
-      this.publicClient,
-      this.walletClient,
-      this.relayerConfig.address,
-      this.relayerConfig.abi,
-      functionName,
-      args,
-    );
   }
 }

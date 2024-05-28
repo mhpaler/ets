@@ -9,6 +9,33 @@ export class TokenClient {
   private readonly walletClient: WalletClient | undefined;
   private readonly etsTokenConfig: { address: Hex; abi: any };
 
+  private async readContract(functionName: TokenReadFunction, args: any = []): Promise<any> {
+    return handleContractRead(
+      this.publicClient,
+      this.etsTokenConfig.address,
+      this.etsTokenConfig.abi,
+      functionName,
+      args,
+    );
+  }
+
+  private async callContract(
+    functionName: TokenWriteFunction,
+    args: any = [],
+  ): Promise<{ transactionHash: string; status: number }> {
+    if (!this.walletClient) {
+      throw new Error("Wallet client is required to perform this action");
+    }
+    return handleContractCall(
+      this.publicClient,
+      this.walletClient,
+      this.etsTokenConfig.address,
+      this.etsTokenConfig.abi,
+      functionName,
+      args,
+    );
+  }
+
   constructor({
     chainId,
     publicClient,
@@ -147,34 +174,5 @@ export class TokenClient {
     data?: Hex,
   ): Promise<{ transactionHash: string; status: number }> {
     return this.callContract("safeTransferFrom", [from, to, tokenId, data]);
-  }
-
-  // helpers
-
-  private async readContract(functionName: TokenReadFunction, args: any = []): Promise<any> {
-    return handleContractRead(
-      this.publicClient,
-      this.etsTokenConfig.address,
-      this.etsTokenConfig.abi,
-      functionName,
-      args,
-    );
-  }
-
-  private async callContract(
-    functionName: TokenWriteFunction,
-    args: any = [],
-  ): Promise<{ transactionHash: string; status: number }> {
-    if (!this.walletClient) {
-      throw new Error("Wallet client is required to perform this action");
-    }
-    return handleContractCall(
-      this.publicClient,
-      this.walletClient,
-      this.etsTokenConfig.address,
-      this.etsTokenConfig.abi,
-      functionName,
-      args,
-    );
   }
 }

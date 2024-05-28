@@ -7,6 +7,16 @@ export class AccessControlsClient {
   private readonly publicClient: PublicClient;
   private readonly etsAccessControlsConfig: { address: Hex; abi: any };
 
+  private async readContract(functionName: AccessControlsReadFunction, args: any[] = []): Promise<any> {
+    return handleContractRead(
+      this.publicClient,
+      this.etsAccessControlsConfig.address,
+      this.etsAccessControlsConfig.abi,
+      functionName,
+      args,
+    );
+  }
+
   constructor({ publicClient, chainId }: { publicClient: PublicClient; chainId?: number }) {
     this.publicClient = publicClient;
     const config = getConfig(chainId);
@@ -112,17 +122,5 @@ export class AccessControlsClient {
 
   async supportsInterface(interfaceId: string): Promise<boolean> {
     return this.readContract("supportsInterface", [interfaceId]);
-  }
-
-  // helpers
-
-  private async readContract(functionName: AccessControlsReadFunction, args: any[] = []): Promise<any> {
-    return handleContractRead(
-      this.publicClient,
-      this.etsAccessControlsConfig.address,
-      this.etsAccessControlsConfig.abi,
-      functionName,
-      args,
-    );
   }
 }

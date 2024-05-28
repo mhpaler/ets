@@ -9,6 +9,35 @@ export class AuctionHouseClient {
   private readonly walletClient: WalletClient | undefined;
   private readonly etsAuctionHouseConfig: { address: Hex; abi: any };
 
+  private async readContract(functionName: AuctionHouseReadFunction, args: any[] = []): Promise<any> {
+    return handleContractRead(
+      this.publicClient,
+      this.etsAuctionHouseConfig.address,
+      this.etsAuctionHouseConfig.abi,
+      functionName,
+      args,
+    );
+  }
+
+  private async callContract(
+    functionName: AuctionHouseWriteFunction,
+    args: any[] = [],
+    value?: bigint,
+  ): Promise<{ transactionHash: string; status: number }> {
+    if (!this.walletClient) {
+      throw new Error("Wallet client is required to perform this action");
+    }
+    return handleContractCall(
+      this.publicClient,
+      this.walletClient,
+      this.etsAuctionHouseConfig.address,
+      this.etsAuctionHouseConfig.abi,
+      functionName,
+      args,
+      value,
+    );
+  }
+
   constructor({
     publicClient,
     walletClient,
@@ -173,36 +202,5 @@ export class AuctionHouseClient {
 
   async totalDue(address: string): Promise<bigint> {
     return this.readContract("totalDue", [address]);
-  }
-
-  // helpers
-
-  private async readContract(functionName: AuctionHouseReadFunction, args: any[] = []): Promise<any> {
-    return handleContractRead(
-      this.publicClient,
-      this.etsAuctionHouseConfig.address,
-      this.etsAuctionHouseConfig.abi,
-      functionName,
-      args,
-    );
-  }
-
-  private async callContract(
-    functionName: AuctionHouseWriteFunction,
-    args: any[] = [],
-    value?: bigint,
-  ): Promise<{ transactionHash: string; status: number }> {
-    if (!this.walletClient) {
-      throw new Error("Wallet client is required to perform this action");
-    }
-    return handleContractCall(
-      this.publicClient,
-      this.walletClient,
-      this.etsAuctionHouseConfig.address,
-      this.etsAuctionHouseConfig.abi,
-      functionName,
-      args,
-      value,
-    );
   }
 }

@@ -9,6 +9,33 @@ export class TargetClient {
   private readonly walletClient: WalletClient | undefined;
   private readonly etsTargetConfig: { address: Hex; abi: any };
 
+  private async readContract(functionName: TargetReadFunction, args: any[] = []): Promise<any> {
+    return handleContractRead(
+      this.publicClient,
+      this.etsTargetConfig.address,
+      this.etsTargetConfig.abi,
+      functionName,
+      args,
+    );
+  }
+
+  private async callContract(
+    functionName: TargetWriteFunction,
+    args: any[] = [],
+  ): Promise<{ transactionHash: string; status: number }> {
+    if (!this.walletClient) {
+      throw new Error("Wallet client is required to perform this action");
+    }
+    return handleContractCall(
+      this.publicClient,
+      this.walletClient,
+      this.etsTargetConfig.address,
+      this.etsTargetConfig.abi,
+      functionName,
+      args,
+    );
+  }
+
   constructor({
     publicClient,
     walletClient,
@@ -96,34 +123,5 @@ export class TargetClient {
 
   async getOrCreateTargetId(targetURI: string): Promise<{ transactionHash: string; status: number }> {
     return this.callContract("getOrCreateTargetId", [targetURI]);
-  }
-
-  // helpers
-
-  private async readContract(functionName: TargetReadFunction, args: any[] = []): Promise<any> {
-    return handleContractRead(
-      this.publicClient,
-      this.etsTargetConfig.address,
-      this.etsTargetConfig.abi,
-      functionName,
-      args,
-    );
-  }
-
-  private async callContract(
-    functionName: TargetWriteFunction,
-    args: any[] = [],
-  ): Promise<{ transactionHash: string; status: number }> {
-    if (!this.walletClient) {
-      throw new Error("Wallet client is required to perform this action");
-    }
-    return handleContractCall(
-      this.publicClient,
-      this.walletClient,
-      this.etsTargetConfig.address,
-      this.etsTargetConfig.abi,
-      functionName,
-      args,
-    );
   }
 }
