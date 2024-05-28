@@ -24,7 +24,7 @@ type Props = {
 export const SystemProvider: React.FC<Props> = ({ children }: { children: React.ReactNode }) => {
   const [timeDifference, setTimeDifference] = useState(0); // Time difference in seconds
   const [ownershipTermLength, setOwnershipTermLength] = useState(0); // Time difference in seconds
-  const { getOwnershipTermLength } = useTokenClient();
+  const { tokenClient, getOwnershipTermLength } = useTokenClient();
 
   const blockchainTime = () => Math.floor(Date.now() / 1000) - timeDifference;
 
@@ -40,7 +40,9 @@ export const SystemProvider: React.FC<Props> = ({ children }: { children: React.
   };
 
   useEffect(() => {
-    fetchGlobalSettings();
+    if (tokenClient) {
+      fetchGlobalSettings();
+    }
     updateBlockchainTime(); // Initial check on component mount
 
     const intervalId = setInterval(
@@ -51,7 +53,7 @@ export const SystemProvider: React.FC<Props> = ({ children }: { children: React.
     );
 
     return () => clearInterval(intervalId); // Cleanup on component unmount
-  }, []);
+  }, [tokenClient]);
 
   const fetchGlobalSettings = async () => {
     try {
