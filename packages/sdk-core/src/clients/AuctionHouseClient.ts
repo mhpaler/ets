@@ -34,13 +34,18 @@ export class AuctionHouseClient {
     if (walletClient === undefined) {
       throw new Error("Wallet client is required");
     }
-
-    if (chainId !== undefined && publicClient.chain?.id !== chainId) {
-      throw new Error("Provided chain id should match the public client chain id");
+    if (!publicClient) {
+      throw new Error("Public client is required");
     }
-
-    if (chainId !== undefined && walletClient.chain?.id !== chainId) {
-      throw new Error("Provided chain id should match the wallet client chain id");
+    if (publicClient.chain?.id !== chainId) {
+      throw new Error(
+        `Provided chain id (${chainId}) should match the public client chain id (${publicClient.chain?.id})`,
+      );
+    }
+    if (walletClient && walletClient.chain?.id !== chainId) {
+      throw new Error(
+        `Provided chain id (${chainId}) should match the wallet client chain id (${walletClient.chain?.id})`,
+      );
     }
   }
 

@@ -29,17 +29,24 @@ export class EtsClient {
     }
     this.etsConfig = config.etsConfig;
 
-    if (!publicClient) {
-      throw new Error("Public client is required");
-    }
-    if (!walletClient) {
-      throw new Error("Wallet client is required");
-    }
     if (!address) {
       throw new Error("Contract address is required");
     }
-    if (chainId !== undefined && publicClient.chain?.id !== chainId) {
-      throw new Error("Provided chain id should match the public client chain id");
+    if (walletClient === undefined) {
+      throw new Error("Wallet client is required");
+    }
+    if (!publicClient) {
+      throw new Error("Public client is required");
+    }
+    if (publicClient.chain?.id !== chainId) {
+      throw new Error(
+        `Provided chain id (${chainId}) should match the public client chain id (${publicClient.chain?.id})`,
+      );
+    }
+    if (walletClient && walletClient.chain?.id !== chainId) {
+      throw new Error(
+        `Provided chain id (${chainId}) should match the wallet client chain id (${walletClient.chain?.id})`,
+      );
     }
   }
 

@@ -44,7 +44,9 @@ export class RelayerClient {
     }
 
     if (publicClient.chain?.id !== chainId) {
-      throw new Error("Provided chain id should match the public client chain id");
+      throw new Error(
+        `Provided chain id (${chainId}) should match the public client chain id (${publicClient.chain?.id})`,
+      );
     }
 
     if (walletClient !== undefined && walletClient.chain?.id !== chainId) {

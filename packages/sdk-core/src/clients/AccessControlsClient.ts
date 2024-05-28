@@ -16,12 +16,13 @@ export class AccessControlsClient {
     }
     this.etsAccessControlsConfig = config.etsAccessControlsConfig;
 
-    if (publicClient === undefined) {
+    if (!publicClient) {
       throw new Error("Public client is required");
     }
-
-    if (chainId !== undefined && publicClient.chain?.id !== chainId) {
-      throw new Error("Provided chain id should match the public client chain id");
+    if (publicClient.chain?.id !== chainId) {
+      throw new Error(
+        `Provided chain id (${chainId}) should match the public client chain id (${publicClient.chain?.id})`,
+      );
     }
   }
 

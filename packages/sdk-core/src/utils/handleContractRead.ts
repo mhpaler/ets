@@ -1,4 +1,4 @@
-import type { PublicClient, WalletClient } from "viem";
+import type { PublicClient } from "viem";
 
 export const handleContractRead = async (
   publicClient: PublicClient,
