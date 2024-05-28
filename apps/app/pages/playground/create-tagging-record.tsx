@@ -62,7 +62,7 @@ const CreateTaggingRecord: NextPage = () => {
         console.error("Unsplash Access Key is not defined");
         return;
       }
-      const url = `https://api.unsplash.com/photos/random?client_id=${accessKey}`;
+      const url = `https://api.unsplash.com/photos/random?orientation=landscape&client_id=${accessKey}`;
 
       try {
         const response = await fetch(url);
