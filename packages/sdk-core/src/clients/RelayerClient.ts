@@ -13,6 +13,50 @@ export class RelayerClient {
   private readonly relayerConfig: { address?: Hex; abi: any };
   private readonly etsConfig: { address?: Hex; abi: any };
 
+  constructor({
+    chainId,
+    publicClient,
+    walletClient,
+    relayerAddress,
+  }: {
+    chainId?: number;
+    publicClient: PublicClient;
+    walletClient?: WalletClient;
+    relayerAddress?: Hex;
+  }) {
+    this.chainId = chainId;
+    this.publicClient = publicClient;
+    this.walletClient = walletClient;
+
+    this.validateConfig(chainId, relayerAddress, publicClient, walletClient);
+
+    const config = getConfig(chainId, relayerAddress);
+    if (!config) {
+      throw new Error("Configuration could not be retrieved");
+    }
+
+    this.relayerConfig = config.etsRelayerV1Config;
+    this.etsConfig = config.etsConfig;
+  }
+
+  private validateConfig(
+    chainId: number | undefined,
+    relayerAddress: Hex | undefined,
+    publicClient: PublicClient,
+    walletClient: WalletClient | undefined,
+  ) {
+    if (!publicClient) throw new Error("Public client is required");
+    if (!relayerAddress) throw new Error("Relayer address is required");
+    if (publicClient.chain?.id !== chainId)
+      throw new Error(
+        `Provided chain id (${chainId}) should match the public client chain id (${publicClient.chain?.id})`,
+      );
+    if (walletClient && walletClient.chain?.id !== chainId)
+      throw new Error(
+        `Provided chain id (${chainId}) should match the wallet client chain id (${walletClient.chain?.id})`,
+      );
+  }
+
   private async readContract(functionName: RelayerReadFunction, args: any = []): Promise<any> {
     if (!this.relayerConfig.address) {
       throw new Error("Relayer address is required");
@@ -38,7 +82,6 @@ export class RelayerClient {
     if (!this.relayerConfig.address) {
       throw new Error("Relayer address is required");
     }
-
     return handleContractCall(
       this.publicClient,
       this.walletClient,
@@ -47,47 +90,6 @@ export class RelayerClient {
       functionName,
       args,
     );
-  }
-
-  constructor({
-    chainId,
-    publicClient,
-    walletClient,
-    relayerAddress,
-  }: {
-    chainId?: number;
-    publicClient: PublicClient;
-    walletClient?: WalletClient;
-    relayerAddress?: Hex;
-  }) {
-    this.chainId = chainId;
-    this.publicClient = publicClient;
-    this.walletClient = walletClient;
-    const config = getConfig(chainId, relayerAddress);
-
-    if (typeof config === "undefined") {
-      throw new Error("Configuration could not be retrieved");
-    }
-    this.relayerConfig = config.etsRelayerV1Config;
-    this.etsConfig = config.etsConfig;
-
-    if (publicClient === undefined) {
-      throw new Error("Public client is required");
-    }
-
-    if (relayerAddress === undefined) {
-      throw new Error("Relayer address is required");
-    }
-
-    if (publicClient.chain?.id !== chainId) {
-      throw new Error(
-        `Provided chain id (${chainId}) should match the public client chain id (${publicClient.chain?.id})`,
-      );
-    }
-
-    if (walletClient !== undefined && walletClient.chain?.id !== chainId) {
-      throw new Error("Provided chain id should match the wallet client chain id");
-    }
   }
 
   async createTags(tags: string[]): Promise<{ transactionHash: string; status: number }> {
