@@ -3,11 +3,31 @@ import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
 import { AuctionHouseReadFunction, AuctionHouseWriteFunction } from "../types";
 import { getConfig } from "../contracts/config";
+import { validateConfig } from "@/utils/validateConfig";
 
 export class AuctionHouseClient {
   private readonly publicClient: PublicClient;
   private readonly walletClient: WalletClient | undefined;
   private readonly etsAuctionHouseConfig: { address: Hex; abi: any };
+
+  constructor({
+    publicClient,
+    walletClient,
+    chainId,
+  }: {
+    publicClient: PublicClient;
+    walletClient?: WalletClient;
+    chainId?: number;
+  }) {
+    this.publicClient = publicClient;
+    this.walletClient = walletClient;
+    validateConfig(chainId, publicClient, walletClient);
+
+    const config = getConfig(chainId);
+    if (!config) throw new Error("Configuration could not be retrieved");
+
+    this.etsAuctionHouseConfig = config.etsAuctionHouseConfig;
+  }
 
   private async readContract(functionName: AuctionHouseReadFunction, args: any[] = []): Promise<any> {
     return handleContractRead(
@@ -36,46 +56,6 @@ export class AuctionHouseClient {
       args,
       value,
     );
-  }
-
-  constructor({
-    publicClient,
-    walletClient,
-    chainId,
-  }: {
-    publicClient: PublicClient;
-    walletClient?: WalletClient;
-    chainId?: number;
-  }) {
-    this.publicClient = publicClient;
-    this.walletClient = walletClient;
-    const config = getConfig(chainId);
-
-    if (typeof config === "undefined") {
-      throw new Error("Configuration could not be retrieved");
-    }
-    this.etsAuctionHouseConfig = config.etsAuctionHouseConfig;
-
-    if (publicClient === undefined) {
-      throw new Error("Public client is required");
-    }
-
-    if (walletClient === undefined) {
-      throw new Error("Wallet client is required");
-    }
-    if (!publicClient) {
-      throw new Error("Public client is required");
-    }
-    if (publicClient.chain?.id !== chainId) {
-      throw new Error(
-        `Provided chain id (${chainId}) should match the public client chain id (${publicClient.chain?.id})`,
-      );
-    }
-    if (walletClient && walletClient.chain?.id !== chainId) {
-      throw new Error(
-        `Provided chain id (${chainId}) should match the wallet client chain id (${walletClient.chain?.id})`,
-      );
-    }
   }
 
   // State-changing functions

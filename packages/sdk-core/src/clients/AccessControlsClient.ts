@@ -7,6 +7,26 @@ export class AccessControlsClient {
   private readonly publicClient: PublicClient;
   private readonly etsAccessControlsConfig: { address: Hex; abi: any };
 
+  constructor({ publicClient, chainId }: { publicClient: PublicClient; chainId?: number }) {
+    this.publicClient = publicClient;
+
+    this.validateConfig(chainId, publicClient);
+
+    const config = getConfig(chainId);
+    if (!config) throw new Error("Configuration could not be retrieved");
+
+    this.etsAccessControlsConfig = config.etsAccessControlsConfig;
+  }
+
+  private validateConfig(chainId: number | undefined, publicClient: PublicClient) {
+    if (!publicClient) throw new Error("Public client is required");
+
+    if (publicClient.chain?.id !== chainId)
+      throw new Error(
+        `Provided chain id (${chainId}) should match the public client chain id (${publicClient.chain?.id})`,
+      );
+  }
+
   private async readContract(functionName: AccessControlsReadFunction, args: any[] = []): Promise<any> {
     return handleContractRead(
       this.publicClient,
@@ -15,25 +35,6 @@ export class AccessControlsClient {
       functionName,
       args,
     );
-  }
-
-  constructor({ publicClient, chainId }: { publicClient: PublicClient; chainId?: number }) {
-    this.publicClient = publicClient;
-    const config = getConfig(chainId);
-
-    if (typeof config === "undefined") {
-      throw new Error("Configuration could not be retrieved");
-    }
-    this.etsAccessControlsConfig = config.etsAccessControlsConfig;
-
-    if (!publicClient) {
-      throw new Error("Public client is required");
-    }
-    if (publicClient.chain?.id !== chainId) {
-      throw new Error(
-        `Provided chain id (${chainId}) should match the public client chain id (${publicClient.chain?.id})`,
-      );
-    }
   }
 
   async hasRole(role: string, account: string): Promise<boolean> {
