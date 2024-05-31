@@ -1,9 +1,16 @@
-import { useEffect, useState } from "react";
-import { useAccount, useChainId } from "wagmi";
+import { useContext, useEffect, useState } from "react";
+import { WagmiContext, useAccount, useChainId } from "wagmi";
 import { createAccessControlsClient } from "@ethereum-tag-service/sdk-core";
 import { AccessControlsClient } from "@ethereum-tag-service/sdk-core";
 
 export const useAccessControlsClient = () => {
+  const wagmiContext = useContext(WagmiContext);
+
+  if (!wagmiContext) {
+    throw new Error(
+      "useAccessControlsClient must be used within a WagmiProvider. Make sure your application is wrapped with WagmiProvider.",
+    );
+  }
   const chainId = useChainId();
   const { address } = useAccount();
   const [accessControlsClient, setAccessControlsClient] = useState<AccessControlsClient>();

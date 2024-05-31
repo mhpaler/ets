@@ -1,9 +1,16 @@
-import { useEffect, useState } from "react";
-import { useAccount, useChainId } from "wagmi";
+import { useContext, useEffect, useState } from "react";
+import { WagmiContext, useAccount, useChainId } from "wagmi";
 import { createRelayerFactoryClient } from "@ethereum-tag-service/sdk-core";
 import { RelayerFactoryClient } from "@ethereum-tag-service/sdk-core";
 
 export const useRelayerFactoryClient = () => {
+  const wagmiContext = useContext(WagmiContext);
+
+  if (!wagmiContext) {
+    throw new Error(
+      "useRelayerFactoryClient must be used within a WagmiProvider. Make sure your application is wrapped with WagmiProvider.",
+    );
+  }
   const chainId = useChainId();
   const { address } = useAccount();
   const [relayerFactoryClient, setRelayerFactoryClient] = useState<RelayerFactoryClient>();

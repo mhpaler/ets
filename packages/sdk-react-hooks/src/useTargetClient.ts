@@ -1,9 +1,16 @@
-import { useEffect, useState } from "react";
-import { useAccount, useChainId } from "wagmi";
+import { useContext, useEffect, useState } from "react";
+import { WagmiContext, useAccount, useChainId } from "wagmi";
 import { createTargetClient } from "@ethereum-tag-service/sdk-core";
 import { TargetClient } from "@ethereum-tag-service/sdk-core";
 
 export const useTargetClient = () => {
+  const wagmiContext = useContext(WagmiContext);
+
+  if (!wagmiContext) {
+    throw new Error(
+      "useTargetClient must be used within a WagmiProvider. Make sure your application is wrapped with WagmiProvider.",
+    );
+  }
   const chainId = useChainId();
   const { address } = useAccount();
   const [targetClient, setTargetClient] = useState<TargetClient>();
