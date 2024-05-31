@@ -19,12 +19,16 @@ const CreateTaggingRecord: NextPage = () => {
   const [tags, setTags] = useState<TagInputType[]>([]);
   const [recordType, setRecordType] = useState<string>("");
   const [selectedRelayer, setSelectedRelayer] = useState<{ id: Hex; name: string } | null>(null);
-  const { address: tagger } = useAccount();
+  const { address: tagger, chain } = useAccount();
   const { relayers } = useRelayers({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [imageUrl, setImageUrl] = useState<string>("");
   const [taggingRecordId, setTaggingRecordId] = useState<string | null>(null);
-  const { createTaggingRecord } = useRelayerClient({ relayerAddress: selectedRelayer?.id });
+  const { createTaggingRecord } = useRelayerClient({
+    relayerAddress: selectedRelayer?.id,
+    account: tagger,
+    chainId: chain?.id,
+  });
 
   const handleDeleteTag = useCallback(
     (i: number) => {

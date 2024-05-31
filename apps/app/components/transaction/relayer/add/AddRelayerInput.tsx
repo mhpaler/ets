@@ -45,9 +45,15 @@ const AddRelayerInput: React.FC<AddRelayerInputProps> = ({ transactionId, goToNe
   const { removeTransaction } = useTransactionManager();
   const { addRelayerFormData, setAddRelayerFormData } = useRelayerContext();
   const { closeModal } = useModal();
-  const { address, isConnected } = useAccount();
-  const { hasTags, tokenClient } = useTokenClient();
-  const { isRelayerByOwner, accessControlsClient } = useAccessControlsClient();
+  const { address, isConnected, chain } = useAccount();
+  const { hasTags, tokenClient } = useTokenClient({
+    chainId: chain?.id,
+    account: address,
+  });
+  const { isRelayerByOwner, accessControlsClient } = useAccessControlsClient({
+    chainId: chain?.id,
+    account: address,
+  });
 
   const [isFormDisabled, setIsFormDisabled] = useState(true);
   const [error, setError] = useState<string | null>(null);

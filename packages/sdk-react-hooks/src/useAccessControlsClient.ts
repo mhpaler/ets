@@ -1,23 +1,15 @@
 import { useContext, useEffect, useState } from "react";
-import { WagmiContext, useAccount, useChainId } from "wagmi";
 import { createAccessControlsClient, AccessControlsClient } from "@ethereum-tag-service/sdk-core";
 
-export const useAccessControlsClient = () => {
-  const wagmiContext = useContext(WagmiContext);
-
-  if (!wagmiContext) {
-    return {};
-  }
-  const chainId = useChainId();
-  const { address } = useAccount();
+export const useAccessControlsClient = ({ chainId, account }: { chainId?: number; account?: `0x${string}` }) => {
   const [accessControlsClient, setAccessControlsClient] = useState<AccessControlsClient>();
 
   useEffect(() => {
-    if (!chainId || !address) return;
+    if (!chainId || !account) return;
 
-    const client = createAccessControlsClient({ chainId, account: address });
+    const client = createAccessControlsClient({ chainId, account });
     setAccessControlsClient(client);
-  }, [chainId, address]);
+  }, [chainId, account]);
 
   const hasRole = async (role: string, account: string): Promise<boolean> => {
     try {

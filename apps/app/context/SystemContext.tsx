@@ -6,6 +6,7 @@ import React, { createContext, useState, useEffect } from "react";
 import { System } from "@app/types/system";
 import { fetchBlockchainTime } from "@app/services/auctionHouseService";
 import { useTokenClient } from "@ethereum-tag-service/sdk-react-hooks";
+import { useAccount } from "wagmi";
 
 // Define the default values and functions
 const defaultSystemContextValue: System = {
@@ -24,7 +25,11 @@ type Props = {
 export const SystemProvider: React.FC<Props> = ({ children }: { children: React.ReactNode }) => {
   const [timeDifference, setTimeDifference] = useState(0); // Time difference in seconds
   const [ownershipTermLength, setOwnershipTermLength] = useState(0); // Time difference in seconds
-  const { tokenClient, getOwnershipTermLength } = useTokenClient();
+  const { chain, address } = useAccount();
+  const { tokenClient, getOwnershipTermLength } = useTokenClient({
+    chainId: chain?.id,
+    account: address,
+  });
 
   const blockchainTime = () => Math.floor(Date.now() / 1000) - timeDifference;
 

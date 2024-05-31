@@ -14,12 +14,18 @@ import { useTokenClient, useRelayerClient } from "@ethereum-tag-service/sdk-reac
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");
   const { showToast, ToastComponent } = useToast();
-  const { chain, isConnected } = useAccount();
+  const { chain, isConnected, address } = useAccount();
   const [tags, setTags] = useState<TagInputType[]>([]);
   const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
-  const { tagExists } = useTokenClient();
+  const { tagExists } = useTokenClient({
+    chainId: chain?.id,
+    account: address,
+  });
+
   const { createTags } = useRelayerClient({
     relayerAddress: selectedRelayer?.id,
+    account: address,
+    chainId: chain?.id,
   });
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const { relayers } = useRelayers({});
@@ -41,6 +47,7 @@ const Playground: NextPage = () => {
     setSelectedRelayer(selected || null);
   };
 
+  console.log("createTags", createTags);
   const handleCreateTags = async () => {
     if (!disabled) {
       setIsCreatingTag(true);

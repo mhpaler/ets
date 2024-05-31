@@ -1,6 +1,5 @@
 import React from "react";
 import { TransactionType } from "@app/types/transaction";
-import { etsRelayerFactoryConfig } from "@app/src/contracts";
 
 import useTranslation from "next-translate/useTranslation";
 import { useModal } from "@app/hooks/useModalContext";
@@ -14,6 +13,7 @@ import TransactionConfirmActions from "@app/components/transaction/shared/Transa
 import { TransactionError } from "@app/components/transaction/shared/TransactionError";
 import { TransactionLink } from "@app/components/transaction/shared/TransactionLink";
 import { Wallet, CheckCircle } from "@app/components/icons";
+import { useAccount } from "wagmi";
 
 interface FormStepProps {
   transactionId: string;
@@ -24,8 +24,12 @@ interface FormStepProps {
 const AddRelayerConfirm: React.FC<FormStepProps> = ({ transactionId, transactionType, goToStep }) => {
   const { t } = useTranslation("common");
   const { closeModal } = useModal();
+  const { address, chain } = useAccount();
 
-  const { addRelayer } = useRelayerFactoryClient();
+  const { addRelayer } = useRelayerFactoryClient({
+    chainId: chain?.id,
+    account: address,
+  });
   const { initiateTransaction, removeTransaction, transactions } = useTransactionManager();
   const { dialogTitle } = useTransactionLabels(transactionId);
   const { addRelayerFormData } = useRelayerContext();

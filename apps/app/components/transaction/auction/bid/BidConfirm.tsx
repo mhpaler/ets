@@ -17,6 +17,7 @@ import { TransactionLink } from "@app/components/transaction/shared/TransactionL
 import TransactionConfirmActions from "@app/components/transaction/shared/TransactionConfirmActions";
 import { Wallet, CheckCircle } from "@app/components/icons";
 import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels"; // Adjust the import path as necessary
+import { useAccount } from "wagmi";
 
 interface FormStepProps {
   transactionId: string;
@@ -31,8 +32,12 @@ const BidConfirm: React.FC<FormStepProps> = ({ transactionId, transactionType, g
   const { initiateTransaction, removeTransaction, transactions } = useTransactionManager();
   const transaction = transactions[transactionId];
   const { dialogTitle } = useTransactionLabels(transactionId);
+  const { address } = useAccount();
   const { auction, bidFormData } = useAuction();
-  const { createBid } = useAuctionHouseClient();
+  const { createBid } = useAuctionHouseClient({
+    chainId: chain?.id,
+    account: address,
+  });
 
   // Function to initiate the transaction
   const handleButtonClick = () => {

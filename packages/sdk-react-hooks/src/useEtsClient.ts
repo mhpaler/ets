@@ -1,22 +1,14 @@
 import { useContext, useEffect, useState } from "react";
-import { WagmiContext, useAccount, useChainId } from "wagmi";
 import { createEtsClient, EtsClient } from "@ethereum-tag-service/sdk-core";
 
-export const useEtsClient = () => {
-  const wagmiContext = useContext(WagmiContext);
-
-  if (!wagmiContext) {
-    return {};
-  }
-  const chainId = useChainId();
-  const { address } = useAccount();
+export const useEtsClient = ({ chainId, account }: { chainId?: number; account?: `0x${string}` }) => {
   const [tokenClient, setEtsClient] = useState<EtsClient>();
 
   useEffect(() => {
-    if (!chainId || !address) return;
-    const client = createEtsClient({ chainId, account: address });
+    if (!chainId || !account) return;
+    const client = createEtsClient({ chainId, account: account });
     setEtsClient(client);
-  }, [chainId, address]);
+  }, [chainId, account]);
 
   const accrued = async (address: `0x${string}`) => {
     try {

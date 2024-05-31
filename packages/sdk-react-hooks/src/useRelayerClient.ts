@@ -1,22 +1,22 @@
-import { useContext, useEffect, useState } from "react";
-import { WagmiContext, useAccount, useChainId } from "wagmi";
+import { useEffect, useState } from "react";
 import { createRelayerClient, RelayerClient } from "@ethereum-tag-service/sdk-core";
 
-export const useRelayerClient = ({ relayerAddress }: { relayerAddress?: `0x${string}` }) => {
-  const wagmiContext = useContext(WagmiContext);
-
-  if (!wagmiContext) {
-    return {};
-  }
-  const chainId = useChainId();
-  const { address } = useAccount();
+export const useRelayerClient = ({
+  relayerAddress,
+  chainId,
+  account,
+}: {
+  relayerAddress?: `0x${string}`;
+  chainId?: number;
+  account?: `0x${string}`;
+}) => {
   const [relayerClient, setRelayerClient] = useState<RelayerClient>();
 
   useEffect(() => {
-    if (!chainId || !address || !relayerAddress) return;
-    const client = createRelayerClient({ chainId, account: address, relayerAddress });
+    if (!chainId || !account || !relayerAddress) return;
+    const client = createRelayerClient({ chainId, account, relayerAddress });
     setRelayerClient(client);
-  }, [chainId, address, relayerAddress]);
+  }, [chainId, account, relayerAddress]);
 
   const createTags = async (tags: string[]): Promise<void> => {
     try {

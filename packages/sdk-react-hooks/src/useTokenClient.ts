@@ -1,23 +1,14 @@
-import { useContext, useEffect, useState } from "react";
-import { WagmiContext, useAccount, useChainId } from "wagmi";
+import { useEffect, useState } from "react";
 import { createTokenClient, TokenClient } from "@ethereum-tag-service/sdk-core";
 
-export const useTokenClient = () => {
-  const wagmiContext = useContext(WagmiContext);
-
-  if (!wagmiContext) {
-    return {};
-  }
-
-  const chainId = useChainId();
-  const { address } = useAccount();
+export const useTokenClient = ({ chainId, account }: { chainId?: number; account?: `0x${string}` }) => {
   const [tokenClient, setTokenClient] = useState<TokenClient>();
 
   useEffect(() => {
-    if (!chainId || !address) return;
-    const client = createTokenClient({ chainId, account: address });
+    if (!chainId || !account) return;
+    const client = createTokenClient({ chainId, account: account });
     setTokenClient(client);
-  }, [chainId, address]);
+  }, [chainId, account]);
 
   const computeTagId = async (tag: string): Promise<bigint> => {
     try {

@@ -14,6 +14,7 @@ import { Wallet, CheckCircle } from "@app/components/icons";
 import { TransactionError } from "@app/components/transaction/shared/TransactionError";
 import { TransactionLink } from "@app/components/transaction/shared/TransactionLink";
 import TransactionConfirmActions from "@app/components/transaction/shared/TransactionConfirmActions";
+import { useAccount } from "wagmi";
 
 interface FormStepProps {
   transactionId: string;
@@ -26,10 +27,14 @@ const SettleConfirm: React.FC<FormStepProps> = ({ transactionId, transactionType
   const { t } = useTranslation("common");
   const { closeModal } = useModal();
   const { auction } = useAuction();
+  const { address, chain } = useAccount();
   const { initiateTransaction, removeTransaction, transactions } = useTransactionManager();
   const transaction = transactions[transactionId];
   const { dialogTitle } = useTransactionLabels(transactionId);
-  const { settleCurrentAndCreateNewAuction } = useAuctionHouseClient();
+  const { settleCurrentAndCreateNewAuction } = useAuctionHouseClient({
+    chainId: chain?.id,
+    account: address,
+  });
 
   // Function to initiate the transaction
   const handleButtonClick = () => {
