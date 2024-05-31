@@ -3,7 +3,7 @@ import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
 import { AuctionHouseReadFunction, AuctionHouseWriteFunction } from "../types";
 import { getConfig } from "../contracts/config";
-import { validateConfig } from "@/utils/validateConfig";
+import { validateConfig } from "../utils/validateConfig";
 
 export class AuctionHouseClient {
   private readonly publicClient: PublicClient;

@@ -3,7 +3,7 @@ import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
 import { TokenReadFunction, TokenWriteFunction } from "../types";
 import { getConfig } from "../contracts/config";
-import { validateConfig } from "@/utils/validateConfig";
+import { validateConfig } from "../utils/validateConfig";
 
 export class TokenClient {
   private readonly publicClient: PublicClient;

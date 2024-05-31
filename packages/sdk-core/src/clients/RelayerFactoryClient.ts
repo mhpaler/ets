@@ -3,7 +3,7 @@ import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
 import { RelayerFactoryReadFunction, RelayerFactoryWriteFunction } from "../types";
 import { getConfig } from "../contracts/config";
-import { validateConfig } from "@/utils/validateConfig";
+import { validateConfig } from "../utils/validateConfig";
 
 export class RelayerFactoryClient {
   private readonly publicClient: PublicClient;
