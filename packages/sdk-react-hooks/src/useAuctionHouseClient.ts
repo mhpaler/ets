@@ -1,15 +1,12 @@
 import { useContext, useEffect, useState } from "react";
 import { WagmiContext, useAccount, useChainId } from "wagmi";
-import { createAuctionHouseClient } from "@ethereum-tag-service/sdk-core";
-import { AuctionHouseClient } from "@ethereum-tag-service/sdk-core";
+import { createAuctionHouseClient, AuctionHouseClient } from "@ethereum-tag-service/sdk-core";
 
 export const useAuctionHouseClient = () => {
   const wagmiContext = useContext(WagmiContext);
 
   if (!wagmiContext) {
-    throw new Error(
-      "useAuctionHouseClient must be used within a WagmiProvider. Make sure your application is wrapped with WagmiProvider.",
-    );
+    return {};
   }
   const chainId = useChainId();
   const { address } = useAccount();

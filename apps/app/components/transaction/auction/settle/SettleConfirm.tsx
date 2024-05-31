@@ -36,7 +36,7 @@ const SettleConfirm: React.FC<FormStepProps> = ({ transactionId, transactionType
     if (!auction || transaction?.isSuccess || transaction?.isError) {
       removeTransaction(transactionId);
       closeModal();
-    } else {
+    } else if (auction && settleCurrentAndCreateNewAuction) {
       initiateTransaction(transactionId, transactionType, settleCurrentAndCreateNewAuction, [BigInt(auction.id)]);
     }
   };

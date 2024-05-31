@@ -39,7 +39,7 @@ const BidConfirm: React.FC<FormStepProps> = ({ transactionId, transactionType, g
     if (!auction || transaction?.isSuccess || transaction?.isError) {
       removeTransaction(transactionId);
       closeModal();
-    } else {
+    } else if (auction && createBid) {
       const value = bidFormData.bid ? parseEther(bidFormData.bid.toString()) : BigInt(0);
       initiateTransaction(transactionId, transactionType, createBid, [BigInt(auction.id), value]);
     }

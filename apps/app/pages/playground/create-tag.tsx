@@ -47,7 +47,7 @@ const Playground: NextPage = () => {
       try {
         if (tags.length > 0) {
           const tagValues = tags.map((tag) => tag.text);
-          await createTags(tagValues);
+          await createTags?.(tagValues);
         }
 
         setTags([]);
@@ -91,7 +91,7 @@ const Playground: NextPage = () => {
 
   const handleAddTag = async (tag: TagInputType) => {
     if (isValidTag(tag.text)) {
-      const exists = await tagExists(tag.text);
+      const exists = await tagExists?.(tag.text);
       console.log("exists", exists);
       if (exists) {
         showToast({

@@ -36,7 +36,7 @@ const AddRelayerConfirm: React.FC<FormStepProps> = ({ transactionId, transaction
     if (transaction?.isSuccess || transaction?.isError) {
       removeTransaction(transactionId);
       closeModal();
-    } else {
+    } else if (addRelayer) {
       initiateTransaction(transactionId, transactionType, addRelayer, [addRelayerFormData.name]);
     }
   };

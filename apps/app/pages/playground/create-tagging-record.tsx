@@ -91,8 +91,11 @@ const CreateTaggingRecord: NextPage = () => {
       setIsLoading(true);
       try {
         const tagValues = tags.map((tag) => tag.text);
-        const recordId = await createTaggingRecord(tagValues, imageUrl, recordType, tagger);
-        setTaggingRecordId(recordId);
+        const recordId = await createTaggingRecord?.(tagValues, imageUrl, recordType, tagger);
+
+        if (recordId) {
+          setTaggingRecordId(recordId);
+        }
 
         showToast({
           title: "Success",

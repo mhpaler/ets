@@ -57,7 +57,7 @@ export const SystemProvider: React.FC<Props> = ({ children }: { children: React.
 
   const fetchGlobalSettings = async () => {
     try {
-      const termLength = await getOwnershipTermLength();
+      const termLength = await getOwnershipTermLength?.();
       setOwnershipTermLength(Number(termLength));
     } catch (error) {
       console.error("System: Failed to initialize system data:", error);
