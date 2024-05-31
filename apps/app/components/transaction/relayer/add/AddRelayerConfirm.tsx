@@ -7,7 +7,7 @@ import { useModal } from "@app/hooks/useModalContext";
 import { useTransactionManager } from "@app/hooks/useTransactionManager";
 import { useRelayerContext } from "@app/hooks/useRelayerContext";
 import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels";
-import { useRelayerFactoryClient } from "@app/hooks/useRelayerFactoryClient";
+import { useRelayerFactoryClient } from "@ethereum-tag-service/sdk-react-hooks";
 
 import { Dialog } from "@headlessui/react";
 import TransactionConfirmActions from "@app/components/transaction/shared/TransactionConfirmActions";

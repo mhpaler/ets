@@ -5,7 +5,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import { System } from "@app/types/system";
 import { fetchBlockchainTime } from "@app/services/auctionHouseService";
-import { useTokenClient } from "@app/hooks/useTokenClient";
+import { useTokenClient } from "@ethereum-tag-service/sdk-react-hooks";
 
 // Define the default values and functions
 const defaultSystemContextValue: System = {

@@ -85,6 +85,9 @@ importers:
       '@ethereum-tag-service/sdk-core':
         specifier: workspace:*
         version: link:../../packages/sdk-core
+      '@ethereum-tag-service/sdk-react-hooks':
+        specifier: workspace:*
+        version: link:../../packages/sdk-react-hooks
       '@ethereum-tag-service/subgraph-endpoints':
         specifier: workspace:*
         version: link:../../packages/subgraph-endpoints

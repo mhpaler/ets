@@ -6,7 +6,7 @@ import { useModal } from "@app/hooks/useModalContext";
 import { useAuction } from "@app/hooks/useAuctionContext";
 import { useTransactionManager } from "@app/hooks/useTransactionManager";
 import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels"; // Adjust the import path as necessary
-import { useAuctionHouseClient } from "@app/hooks/useAuctionHouseClient";
+import { useAuctionHouseClient } from "@ethereum-tag-service/sdk-react-hooks";
 
 import { Dialog } from "@headlessui/react";
 import { Tag } from "@app/components/Tag";

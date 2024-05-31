@@ -9,8 +9,7 @@ import { isValidTag } from "@app/utils/tagUtils";
 import useToast from "@app/hooks/useToast";
 import TagInput from "@app/components/TagInput";
 import { TagInput as TagInputType } from "@app/types/tag";
-import { useTokenClient } from "@app/hooks/useTokenClient";
-import { useRelayerClient } from "@app/hooks/useRelayerClient";
+import { useTokenClient, useRelayerClient } from "@ethereum-tag-service/sdk-react-hooks";
 
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");

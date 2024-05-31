@@ -11,7 +11,7 @@ import useToast from "@app/hooks/useToast";
 import TagInput from "@app/components/TagInput";
 import { TagInput as TagInputType } from "@app/types/tag";
 import Link from "next/link";
-import { useRelayerClient } from "@app/hooks/useRelayerClient";
+import { useRelayerClient } from "@ethereum-tag-service/sdk-react-hooks";
 
 const CreateTaggingRecord: NextPage = () => {
   const { t } = useTranslation("common");
