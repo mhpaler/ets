@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAccount, useChainId } from "wagmi";
 import { createAccessControlsClient } from "@ethereum-tag-service/sdk-core";
-
 import { AccessControlsClient } from "@ethereum-tag-service/sdk-core";
 
 export const useAccessControlsClient = () => {
