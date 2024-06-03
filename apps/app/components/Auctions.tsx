@@ -15,12 +15,12 @@ type ColumnConfig = {
 };
 
 type Props = {
+  //filter?: any;
+  //orderBy?: string;
   listId: string;
   title?: string;
   pageSize?: number;
   auctions: Auction[];
-  //filter?: any;
-  //orderBy?: string;
   columnsConfig: ColumnConfig[];
   rowLink: boolean; // Function to generate link URL based on auction data
 };

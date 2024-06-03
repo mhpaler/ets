@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
-import { useCtags } from "@app/hooks/useCtags";
+//import { useCtags } from "@app/hooks/useCtags";
 import { globalSettings } from "@app/config/globalSettings";
 import { Table } from "@app/components/Table";
 import { Button } from "@app/components/Button";
@@ -15,25 +15,30 @@ type ColumnConfig = {
 };
 
 type Props = {
-  filter?: any;
-  pageSize?: number;
-  orderBy?: string;
+  //filter?: any;
+  //orderBy?: string;
+  listId: string;
   title?: string;
+  pageSize?: number;
+  tags: TagType[];
   columnsConfig: ColumnConfig[];
   rowLink: boolean; // Function to generate link URL based on tag data
 };
 
 const Tags: NextPage<Props> = ({
+  listId,
   title,
-  filter,
+  //filter,
+  //orderBy,
+  tags,
   pageSize = globalSettings["DEFAULT_PAGESIZE"],
-  orderBy,
   columnsConfig,
   rowLink = false,
 }) => {
   const { t } = useTranslation("common");
   const router = useRouter();
   const [skip, setSkip] = useState(0);
+  /*
   const { tags, nextTags, mutate } = useCtags({
     pageSize,
     skip,
@@ -47,7 +52,7 @@ const Tags: NextPage<Props> = ({
       refreshWhenHidden: false,
       refreshInterval: 1500,
     },
-  });
+  }); */
 
   // TODO: Display auctions loading indicator
   /* if (isLoading) {
@@ -70,9 +75,9 @@ const Tags: NextPage<Props> = ({
   };
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="col-span-12">
+      {title && <h2 className="text-2xl font-bold pb-4">{title}</h2>}
       <Table loading={!tags} rows={pageSize}>
-        {title && <Table.Title>{title}</Table.Title>}
         <Table.Head>
           <Table.Tr>
             {columnsConfig.map((column) => (
@@ -94,7 +99,7 @@ const Tags: NextPage<Props> = ({
             </Table.Tr>
           ))}
         </Table.Body>
-        {nextTags?.length > 0 || skip !== 0 ? (
+        {/* {nextTags?.length > 0 || skip !== 0 ? (
           <Table.Footer>
             <tr>
               <td className="flex justify-between">
@@ -107,7 +112,7 @@ const Tags: NextPage<Props> = ({
               </td>
             </tr>
           </Table.Footer>
-        ) : null}
+        ) : null} */}
       </Table>
     </div>
   );
