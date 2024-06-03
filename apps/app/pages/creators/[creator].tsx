@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
-import Head from "next/head";
 import { useRouter } from "next/router";
 import { useCreators } from "@app/hooks/useCreators";
+import { useCtags } from "@app/hooks/useCtags";
 import useTranslation from "next-translate/useTranslation";
 import { timestampToString } from "@app/utils";
 import { toEth } from "@app/utils";
@@ -14,17 +14,10 @@ import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Truncate } from "@app/components/Truncate";
 import { Panel } from "@app/components/Panel";
 
-function classNames(...classes: any) {
-  return classes.filter(Boolean).join(" ");
-}
-
 const Creator: NextPage = () => {
   const { query } = useRouter();
   const { creator } = query;
   const { t } = useTranslation("common");
-  const filter = {
-    creator_: { id: creator },
-  };
   const { creators } = useCreators({
     pageSize: 1,
     skip: 0,
@@ -39,8 +32,21 @@ const Creator: NextPage = () => {
     },
   });
 
-  const pageTitle = `${t("creator")}: ${creators && Truncate(creators[0].id)}`;
-  const browserTitle = `${pageTitle} | ETS`;
+  const {
+    tags = [],
+    nextTags,
+    mutate,
+  } = useCtags({
+    filter: { creator_: { id: creator } },
+    config: {
+      revalidateOnFocus: false,
+      revalidateOnMount: true,
+      revalidateOnReconnect: false,
+      refreshWhenOffline: false,
+      refreshWhenHidden: false,
+      refreshInterval: 1500,
+    },
+  });
 
   return (
     <Layout>
@@ -52,7 +58,7 @@ const Creator: NextPage = () => {
                 <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col hover:bg-slate-100">
                   <div className="font-semibold">{t("id")}</div>
                   <div className="flex space-x-1 justify-end">
-                    <div className="">{creators && Truncate(creators[0].id)}</div>
+                    <div className="">{creators && Truncate(creators[0].id, 13, "middle")}</div>
                     <CopyAndPaste value={creators && creators[0].id} />
                   </div>
                 </div>
@@ -110,10 +116,11 @@ const Creator: NextPage = () => {
         </div>
         <div>
           <Tags
-            filter={filter}
+            listId="creatorTags"
             title={t("tags-created-by", {
-              creator: creators && Truncate(creators[0].id),
+              creator: creators && Truncate(creators[0].id, 13, "middle"),
             })}
+            tags={tags}
             rowLink={false}
             columnsConfig={[
               { title: "tag", field: "tag", formatter: (_, tag) => <Tag tag={tag} /> },

@@ -1,10 +1,11 @@
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
+import { useCtags } from "@app/hooks/useCtags";
+import { useRelayers } from "@app/hooks/useRelayers";
 import { timestampToString } from "@app/utils";
 import { toEth } from "@app/utils";
 import Layout from "@app/layouts/default";
-import { useRelayers } from "@app/hooks/useRelayers";
 import { TaggingRecords } from "@app/components/TaggingRecords";
 import { TimeAgo } from "@app/components/TimeAgo";
 import { Tags } from "@app/components/Tags";
@@ -13,10 +14,6 @@ import { Number } from "@app/components/Number";
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Truncate } from "@app/components/Truncate";
 import { Panel } from "@app/components/Panel";
-
-function classNames(...classes: any) {
-  return classes.filter(Boolean).join(" ");
-}
 
 const Relayer: NextPage = () => {
   const { query } = useRouter();
@@ -38,6 +35,22 @@ const Relayer: NextPage = () => {
       refreshWhenOffline: false,
       refreshWhenHidden: false,
       refreshInterval: 0,
+    },
+  });
+
+  const {
+    tags = [],
+    nextTags,
+    mutate,
+  } = useCtags({
+    filter: { relayer_: { id: relayer } },
+    config: {
+      revalidateOnFocus: false,
+      revalidateOnMount: true,
+      revalidateOnReconnect: false,
+      refreshWhenOffline: false,
+      refreshWhenHidden: false,
+      refreshInterval: 1500,
     },
   });
 
@@ -140,10 +153,11 @@ const Relayer: NextPage = () => {
       </div>
       <div className="col-span-12">
         <Tags
-          filter={filter}
+          listId="relayerTags"
           title={t("relayer-tags", {
             relayer: relayers && relayers[0].name,
           })}
+          tags={tags}
           rowLink={false}
           columnsConfig={[
             { title: "tag", field: "tag", formatter: (_, tag) => <Tag tag={tag} /> },
