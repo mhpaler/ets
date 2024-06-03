@@ -1,7 +1,4 @@
 import React, { createContext, useState, useCallback, ReactNode, FC } from "react";
-import { simulateContract, writeContract, waitForTransactionReceipt } from "wagmi/actions";
-import { wagmiConfig } from "@app/config/wagmiConfig";
-import { SimulateContractParameters } from "wagmi/actions";
 import { TransactionContextType, TransactionType } from "@app/types/transaction"; // Ensure the path is correct
 
 // Define the structure of each transaction's data

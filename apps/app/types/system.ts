@@ -13,4 +13,5 @@ export type System = {
   blockchainTime: () => number;
   updateBlockchainTime: () => Promise<void>;
   ownershipTermLength: number | 0;
+  platformAddress: string;
 };
