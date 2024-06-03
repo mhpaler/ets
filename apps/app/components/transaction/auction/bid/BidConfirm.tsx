@@ -8,7 +8,7 @@ import { useModal } from "@app/hooks/useModalContext";
 import { useAuction } from "@app/hooks/useAuctionContext";
 import { useCurrentChain } from "@app/hooks/useCurrentChain";
 import { useTransactionManager } from "@app/hooks/useTransactionManager";
-import { useAuctionHouseClient } from "@app/hooks/useAuctionHouseClient";
+import { useAuctionHouseClient } from "@ethereum-tag-service/sdk-react-hooks";
 
 import { Dialog } from "@headlessui/react";
 import { Tag } from "@app/components/Tag";
@@ -17,6 +17,7 @@ import { TransactionLink } from "@app/components/transaction/shared/TransactionL
 import TransactionConfirmActions from "@app/components/transaction/shared/TransactionConfirmActions";
 import { Wallet, CheckCircle } from "@app/components/icons";
 import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels"; // Adjust the import path as necessary
+import { useAccount } from "wagmi";
 
 interface FormStepProps {
   transactionId: string;
@@ -31,15 +32,19 @@ const BidConfirm: React.FC<FormStepProps> = ({ transactionId, transactionType, g
   const { initiateTransaction, removeTransaction, transactions } = useTransactionManager();
   const transaction = transactions[transactionId];
   const { dialogTitle } = useTransactionLabels(transactionId);
+  const { address } = useAccount();
   const { auction, bidFormData } = useAuction();
-  const { createBid } = useAuctionHouseClient();
+  const { createBid } = useAuctionHouseClient({
+    chainId: chain?.id,
+    account: address,
+  });
 
   // Function to initiate the transaction
   const handleButtonClick = () => {
     if (!auction || transaction?.isSuccess || transaction?.isError) {
       removeTransaction(transactionId);
       closeModal();
-    } else {
+    } else if (auction && createBid) {
       const value = bidFormData.bid ? parseEther(bidFormData.bid.toString()) : BigInt(0);
       initiateTransaction(transactionId, transactionType, createBid, [BigInt(auction.id), value]);
     }

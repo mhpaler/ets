@@ -1,18 +1,14 @@
-import { useEffect, useState } from "react";
-import { useAccount, useChainId } from "wagmi";
-import { createAuctionHouseClient } from "@ethereum-tag-service/sdk-core";
-import { AuctionHouseClient } from "@ethereum-tag-service/sdk-core";
+import { useContext, useEffect, useState } from "react";
+import { createAuctionHouseClient, AuctionHouseClient } from "@ethereum-tag-service/sdk-core";
 
-export const useAuctionHouseClient = () => {
-  const chainId = useChainId();
-  const { address } = useAccount();
+export const useAuctionHouseClient = ({ chainId, account }: { chainId?: number; account?: `0x${string}` }) => {
   const [auctionHouseClient, setAuctionHouseClient] = useState<AuctionHouseClient>();
 
   useEffect(() => {
-    if (!chainId || !address) return;
-    const client = createAuctionHouseClient({ chainId, account: address });
+    if (!chainId || !account) return;
+    const client = createAuctionHouseClient({ chainId, account: account });
     setAuctionHouseClient(client);
-  }, [chainId, address]);
+  }, [chainId, account]);
 
   const createBid = async (auctionId: bigint, value?: bigint) => {
     try {

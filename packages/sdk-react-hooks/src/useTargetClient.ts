@@ -1,18 +1,14 @@
 import { useEffect, useState } from "react";
-import { useAccount, useChainId } from "wagmi";
-import { createTargetClient } from "@ethereum-tag-service/sdk-core";
-import { TargetClient } from "@ethereum-tag-service/sdk-core";
+import { createTargetClient, TargetClient } from "@ethereum-tag-service/sdk-core";
 
-export const useTargetClient = () => {
-  const chainId = useChainId();
-  const { address } = useAccount();
+export const useTargetClient = ({ chainId, account }: { chainId?: number; account?: `0x${string}` }) => {
   const [targetClient, setTargetClient] = useState<TargetClient>();
 
   useEffect(() => {
-    if (!chainId || !address) return;
-    const client = createTargetClient({ chainId, account: address });
+    if (!chainId || !account) return;
+    const client = createTargetClient({ chainId, account: account });
     setTargetClient(client);
-  }, [chainId, address]);
+  }, [chainId, account]);
 
   const getTargetById = async (targetId: bigint) => {
     try {

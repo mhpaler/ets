@@ -6,7 +6,7 @@ import { useModal } from "@app/hooks/useModalContext";
 import { useAuction } from "@app/hooks/useAuctionContext";
 import { useTransactionManager } from "@app/hooks/useTransactionManager";
 import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels"; // Adjust the import path as necessary
-import { useAuctionHouseClient } from "@app/hooks/useAuctionHouseClient";
+import { useAuctionHouseClient } from "@ethereum-tag-service/sdk-react-hooks";
 
 import { Dialog } from "@headlessui/react";
 import { Tag } from "@app/components/Tag";
@@ -14,6 +14,7 @@ import { Wallet, CheckCircle } from "@app/components/icons";
 import { TransactionError } from "@app/components/transaction/shared/TransactionError";
 import { TransactionLink } from "@app/components/transaction/shared/TransactionLink";
 import TransactionConfirmActions from "@app/components/transaction/shared/TransactionConfirmActions";
+import { useAccount } from "wagmi";
 
 interface FormStepProps {
   transactionId: string;
@@ -26,17 +27,21 @@ const SettleConfirm: React.FC<FormStepProps> = ({ transactionId, transactionType
   const { t } = useTranslation("common");
   const { closeModal } = useModal();
   const { auction } = useAuction();
+  const { address, chain } = useAccount();
   const { initiateTransaction, removeTransaction, transactions } = useTransactionManager();
   const transaction = transactions[transactionId];
   const { dialogTitle } = useTransactionLabels(transactionId);
-  const { settleCurrentAndCreateNewAuction } = useAuctionHouseClient();
+  const { settleCurrentAndCreateNewAuction } = useAuctionHouseClient({
+    chainId: chain?.id,
+    account: address,
+  });
 
   // Function to initiate the transaction
   const handleButtonClick = () => {
     if (!auction || transaction?.isSuccess || transaction?.isError) {
       removeTransaction(transactionId);
       closeModal();
-    } else {
+    } else if (auction && settleCurrentAndCreateNewAuction) {
       initiateTransaction(transactionId, transactionType, settleCurrentAndCreateNewAuction, [BigInt(auction.id)]);
     }
   };

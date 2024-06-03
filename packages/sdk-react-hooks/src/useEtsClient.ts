@@ -1,21 +1,16 @@
-import { createEtsClient } from "@ethereum-tag-service/sdk-core";
-import { EtsClient } from "@ethereum-tag-service/sdk-core";
-import { useEffect, useState } from "react";
-import { Hex } from "viem";
-import { useAccount, useChainId } from "wagmi";
+import { useContext, useEffect, useState } from "react";
+import { createEtsClient, EtsClient } from "@ethereum-tag-service/sdk-core";
 
-export const useEtsClient = () => {
-  const chainId = useChainId();
-  const { address } = useAccount();
+export const useEtsClient = ({ chainId, account }: { chainId?: number; account?: `0x${string}` }) => {
   const [tokenClient, setEtsClient] = useState<EtsClient>();
 
   useEffect(() => {
-    if (!chainId || !address) return;
-    const client = createEtsClient({ chainId, account: address });
+    if (!chainId || !account) return;
+    const client = createEtsClient({ chainId, account: account });
     setEtsClient(client);
-  }, [chainId, address]);
+  }, [chainId, account]);
 
-  const accrued = async (address: Hex) => {
+  const accrued = async (address: `0x${string}`) => {
     try {
       if (!tokenClient) throw new Error("Token client not initialized");
       return await tokenClient.accrued(address);
@@ -87,7 +82,7 @@ export const useEtsClient = () => {
     }
   };
 
-  const totalDue = async (account: Hex) => {
+  const totalDue = async (account: `0x${string}`) => {
     try {
       if (!tokenClient) throw new Error("Token client not initialized");
       return await tokenClient.totalDue(account);
@@ -96,7 +91,12 @@ export const useEtsClient = () => {
     }
   };
 
-  const applyTagsWithCompositeKey = async (tagIds: number[], targetId: number, recordType: string, tagger: Hex) => {
+  const applyTagsWithCompositeKey = async (
+    tagIds: number[],
+    targetId: number,
+    recordType: string,
+    tagger: `0x${string}`,
+  ) => {
     try {
       if (!tokenClient) throw new Error("Token client not initialized");
       return await tokenClient.applyTagsWithCompositeKey(tagIds, targetId, recordType, tagger);
@@ -114,7 +114,12 @@ export const useEtsClient = () => {
     }
   };
 
-  const applyTagsWithRawInput = async (tagIds: number[], targetId: number, recordType: string, tagger: Hex) => {
+  const applyTagsWithRawInput = async (
+    tagIds: number[],
+    targetId: number,
+    recordType: string,
+    tagger: `0x${string}`,
+  ) => {
     try {
       if (!tokenClient) throw new Error("Token client not initialized");
       return await tokenClient.applyTagsWithRawInput(tagIds, targetId, recordType, tagger);

@@ -5,6 +5,7 @@ import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
 import { RelayerReadFunction, RelayerWriteFunction } from "../types";
 import { getConfig } from "../contracts/config";
+import { validateConfig } from "../utils/validateConfig";
 
 export class RelayerClient {
   private readonly chainId?: number;
@@ -28,33 +29,14 @@ export class RelayerClient {
     this.publicClient = publicClient;
     this.walletClient = walletClient;
 
-    this.validateConfig(chainId, relayerAddress, publicClient, walletClient);
+    validateConfig(chainId, publicClient, walletClient);
+    if (!relayerAddress) throw new Error("Relayer address is required");
 
     const config = getConfig(chainId, relayerAddress);
-    if (!config) {
-      throw new Error("Configuration could not be retrieved");
-    }
+    if (!config) throw new Error("Configuration could not be retrieved");
 
     this.relayerConfig = config.etsRelayerV1Config;
     this.etsConfig = config.etsConfig;
-  }
-
-  private validateConfig(
-    chainId: number | undefined,
-    relayerAddress: Hex | undefined,
-    publicClient: PublicClient,
-    walletClient: WalletClient | undefined,
-  ) {
-    if (!publicClient) throw new Error("Public client is required");
-    if (!relayerAddress) throw new Error("Relayer address is required");
-    if (publicClient.chain?.id !== chainId)
-      throw new Error(
-        `Provided chain id (${chainId}) should match the public client chain id (${publicClient.chain?.id})`,
-      );
-    if (walletClient && walletClient.chain?.id !== chainId)
-      throw new Error(
-        `Provided chain id (${chainId}) should match the wallet client chain id (${walletClient.chain?.id})`,
-      );
   }
 
   private async readContract(functionName: RelayerReadFunction, args: any = []): Promise<any> {

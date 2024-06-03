@@ -1,19 +1,19 @@
 import React from "react";
 import { TransactionType } from "@app/types/transaction";
-import { etsRelayerFactoryConfig } from "@app/src/contracts";
 
 import useTranslation from "next-translate/useTranslation";
 import { useModal } from "@app/hooks/useModalContext";
 import { useTransactionManager } from "@app/hooks/useTransactionManager";
 import { useRelayerContext } from "@app/hooks/useRelayerContext";
 import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels";
-import { useRelayerFactoryClient } from "@app/hooks/useRelayerFactoryClient";
+import { useRelayerFactoryClient } from "@ethereum-tag-service/sdk-react-hooks";
 
 import { Dialog } from "@headlessui/react";
 import TransactionConfirmActions from "@app/components/transaction/shared/TransactionConfirmActions";
 import { TransactionError } from "@app/components/transaction/shared/TransactionError";
 import { TransactionLink } from "@app/components/transaction/shared/TransactionLink";
 import { Wallet, CheckCircle } from "@app/components/icons";
+import { useAccount } from "wagmi";
 
 interface FormStepProps {
   transactionId: string;
@@ -24,8 +24,12 @@ interface FormStepProps {
 const AddRelayerConfirm: React.FC<FormStepProps> = ({ transactionId, transactionType, goToStep }) => {
   const { t } = useTranslation("common");
   const { closeModal } = useModal();
+  const { address, chain } = useAccount();
 
-  const { addRelayer } = useRelayerFactoryClient();
+  const { addRelayer } = useRelayerFactoryClient({
+    chainId: chain?.id,
+    account: address,
+  });
   const { initiateTransaction, removeTransaction, transactions } = useTransactionManager();
   const { dialogTitle } = useTransactionLabels(transactionId);
   const { addRelayerFormData } = useRelayerContext();
@@ -36,7 +40,7 @@ const AddRelayerConfirm: React.FC<FormStepProps> = ({ transactionId, transaction
     if (transaction?.isSuccess || transaction?.isError) {
       removeTransaction(transactionId);
       closeModal();
-    } else {
+    } else if (addRelayer) {
       initiateTransaction(transactionId, transactionType, addRelayer, [addRelayerFormData.name]);
     }
   };

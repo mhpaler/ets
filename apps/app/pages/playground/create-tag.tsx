@@ -9,18 +9,23 @@ import { isValidTag } from "@app/utils/tagUtils";
 import useToast from "@app/hooks/useToast";
 import TagInput from "@app/components/TagInput";
 import { TagInput as TagInputType } from "@app/types/tag";
-import { useTokenClient } from "@app/hooks/useTokenClient";
-import { useRelayerClient } from "@app/hooks/useRelayerClient";
+import { useTokenClient, useRelayerClient } from "@ethereum-tag-service/sdk-react-hooks";
 
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");
   const { showToast, ToastComponent } = useToast();
-  const { chain, isConnected } = useAccount();
+  const { chain, isConnected, address } = useAccount();
   const [tags, setTags] = useState<TagInputType[]>([]);
   const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
-  const { tagExists } = useTokenClient();
+  const { tagExists } = useTokenClient({
+    chainId: chain?.id,
+    account: address,
+  });
+
   const { createTags } = useRelayerClient({
     relayerAddress: selectedRelayer?.id,
+    account: address,
+    chainId: chain?.id,
   });
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const { relayers } = useRelayers({});
@@ -42,13 +47,14 @@ const Playground: NextPage = () => {
     setSelectedRelayer(selected || null);
   };
 
+  console.log("createTags", createTags);
   const handleCreateTags = async () => {
     if (!disabled) {
       setIsCreatingTag(true);
       try {
         if (tags.length > 0) {
           const tagValues = tags.map((tag) => tag.text);
-          await createTags(tagValues);
+          await createTags?.(tagValues);
         }
 
         setTags([]);
@@ -92,7 +98,7 @@ const Playground: NextPage = () => {
 
   const handleAddTag = async (tag: TagInputType) => {
     if (isValidTag(tag.text)) {
-      const exists = await tagExists(tag.text);
+      const exists = await tagExists?.(tag.text);
       console.log("exists", exists);
       if (exists) {
         showToast({

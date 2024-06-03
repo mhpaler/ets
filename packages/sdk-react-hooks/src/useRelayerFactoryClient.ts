@@ -1,18 +1,14 @@
-import { useEffect, useState } from "react";
-import { useAccount, useChainId } from "wagmi";
-import { createRelayerFactoryClient } from "@ethereum-tag-service/sdk-core";
-import { RelayerFactoryClient } from "@ethereum-tag-service/sdk-core";
+import { useContext, useEffect, useState } from "react";
+import { createRelayerFactoryClient, RelayerFactoryClient } from "@ethereum-tag-service/sdk-core";
 
-export const useRelayerFactoryClient = () => {
-  const chainId = useChainId();
-  const { address } = useAccount();
+export const useRelayerFactoryClient = ({ chainId, account }: { chainId?: number; account?: `0x${string}` }) => {
   const [relayerFactoryClient, setRelayerFactoryClient] = useState<RelayerFactoryClient>();
 
   useEffect(() => {
-    if (!chainId || !address) return;
-    const client = createRelayerFactoryClient({ chainId, account: address });
+    if (!chainId || !account) return;
+    const client = createRelayerFactoryClient({ chainId, account: account });
     setRelayerFactoryClient(client);
-  }, [chainId, address]);
+  }, [chainId, account]);
 
   const addRelayer = async (relayerName: string) => {
     if (!relayerFactoryClient) throw new Error("Relayer Factory client not initialized");

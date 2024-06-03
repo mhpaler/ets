@@ -1,18 +1,14 @@
-import { createEnrichTargetClient } from "@ethereum-tag-service/sdk-core";
-import { EnrichTargetClient } from "@ethereum-tag-service/sdk-core";
 import { useEffect, useState } from "react";
-import { useAccount, useChainId } from "wagmi";
+import { createEnrichTargetClient, EnrichTargetClient } from "@ethereum-tag-service/sdk-core";
 
-export const useEnrichTargetClient = () => {
-  const chainId = useChainId();
-  const { address } = useAccount();
+export const useEnrichTargetClient = ({ chainId, account }: { chainId?: number; account?: `0x${string}` }) => {
   const [tokenClient, setEnrichTargetClient] = useState<EnrichTargetClient>();
 
   useEffect(() => {
-    if (!chainId || !address) return;
-    const client = createEnrichTargetClient({ chainId, account: address });
+    if (!chainId || !account) return;
+    const client = createEnrichTargetClient({ chainId, account: account });
     setEnrichTargetClient(client);
-  }, [chainId, address]);
+  }, [chainId, account]);
 
   const requestEnrichTarget = async (targetId: number) => {
     try {

@@ -3,11 +3,32 @@ import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
 import { TargetReadFunction, TargetWriteFunction } from "../types";
 import { getConfig } from "../contracts/config";
+import { validateConfig } from "../utils/validateConfig";
 
 export class TargetClient {
   private readonly publicClient: PublicClient;
   private readonly walletClient: WalletClient | undefined;
   private readonly etsTargetConfig: { address: Hex; abi: any };
+
+  constructor({
+    publicClient,
+    walletClient,
+    chainId,
+  }: {
+    publicClient: PublicClient;
+    walletClient?: WalletClient;
+    chainId?: number;
+  }) {
+    this.publicClient = publicClient;
+    this.walletClient = walletClient;
+
+    const config = getConfig(chainId);
+    if (!config) throw new Error("Configuration could not be retrieved");
+
+    validateConfig(chainId, publicClient, walletClient);
+
+    this.etsTargetConfig = config.etsTargetConfig;
+  }
 
   private async readContract(functionName: TargetReadFunction, args: any[] = []): Promise<any> {
     return handleContractRead(
@@ -34,41 +55,6 @@ export class TargetClient {
       functionName,
       args,
     );
-  }
-
-  constructor({
-    publicClient,
-    walletClient,
-    chainId,
-  }: {
-    publicClient: PublicClient;
-    walletClient?: WalletClient;
-    chainId?: number;
-  }) {
-    this.publicClient = publicClient;
-    this.walletClient = walletClient;
-    const config = getConfig(chainId);
-
-    if (typeof config === "undefined") {
-      throw new Error("Configuration could not be retrieved");
-    }
-    this.etsTargetConfig = config.etsTargetConfig;
-
-    if (!publicClient) {
-      throw new Error("Public client is required");
-    }
-
-    if (publicClient.chain?.id !== chainId) {
-      throw new Error(
-        `Provided chain id (${chainId}) should match the public client chain id (${publicClient.chain?.id})`,
-      );
-    }
-
-    if (walletClient && walletClient.chain?.id !== chainId) {
-      throw new Error(
-        `Provided chain id (${chainId}) should match the wallet client chain id (${walletClient.chain?.id})`,
-      );
-    }
   }
 
   async getTargetById(targetId: bigint): Promise<any> {

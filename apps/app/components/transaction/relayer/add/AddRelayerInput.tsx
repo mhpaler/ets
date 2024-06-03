@@ -25,8 +25,7 @@ import { useRelayers } from "@app/hooks/useRelayers";
 import { useDebounce } from "@app/hooks/useDebounce";
 import { useModal } from "@app/hooks/useModalContext";
 import { useTransactionManager } from "@app/hooks/useTransactionManager";
-import { useTokenClient } from "@app/hooks/useTokenClient";
-import { useAccessControlsClient } from "@app/hooks/useAccessControlsClient";
+import { useTokenClient, useAccessControlsClient } from "@ethereum-tag-service/sdk-react-hooks";
 import { useAccount } from "wagmi";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -46,9 +45,15 @@ const AddRelayerInput: React.FC<AddRelayerInputProps> = ({ transactionId, goToNe
   const { removeTransaction } = useTransactionManager();
   const { addRelayerFormData, setAddRelayerFormData } = useRelayerContext();
   const { closeModal } = useModal();
-  const { address, isConnected } = useAccount();
-  const { hasTags, tokenClient } = useTokenClient();
-  const { isRelayerByOwner, accessControlsClient } = useAccessControlsClient();
+  const { address, isConnected, chain } = useAccount();
+  const { hasTags, tokenClient } = useTokenClient({
+    chainId: chain?.id,
+    account: address,
+  });
+  const { isRelayerByOwner, accessControlsClient } = useAccessControlsClient({
+    chainId: chain?.id,
+    account: address,
+  });
 
   const [isFormDisabled, setIsFormDisabled] = useState(true);
   const [error, setError] = useState<string | null>(null);

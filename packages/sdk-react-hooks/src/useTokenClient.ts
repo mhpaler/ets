@@ -1,19 +1,14 @@
 import { useEffect, useState } from "react";
-import { Hex } from "viem";
-import { useAccount, useChainId } from "wagmi";
-import { createTokenClient } from "@ethereum-tag-service/sdk-core";
-import { TokenClient } from "@ethereum-tag-service/sdk-core";
+import { createTokenClient, TokenClient } from "@ethereum-tag-service/sdk-core";
 
-export const useTokenClient = () => {
-  const chainId = useChainId();
-  const { address } = useAccount();
+export const useTokenClient = ({ chainId, account }: { chainId?: number; account?: `0x${string}` }) => {
   const [tokenClient, setTokenClient] = useState<TokenClient>();
 
   useEffect(() => {
-    if (!chainId || !address) return;
-    const client = createTokenClient({ chainId, account: address });
+    if (!chainId || !account) return;
+    const client = createTokenClient({ chainId, account: account });
     setTokenClient(client);
-  }, [chainId, address]);
+  }, [chainId, account]);
 
   const computeTagId = async (tag: string): Promise<bigint> => {
     try {
@@ -60,7 +55,7 @@ export const useTokenClient = () => {
     }
   };
 
-  const balanceOf = async (owner: Hex): Promise<bigint> => {
+  const balanceOf = async (owner: `0x${string}`): Promise<bigint> => {
     try {
       if (!tokenClient) throw new Error("Token client not initialized");
       return await tokenClient.balanceOf(owner);
@@ -69,7 +64,7 @@ export const useTokenClient = () => {
     }
   };
 
-  const getOrCreateTagId = async (tag: string, relayer: Hex, creator: Hex): Promise<bigint> => {
+  const getOrCreateTagId = async (tag: string, relayer: `0x${string}`, creator: `0x${string}`): Promise<bigint> => {
     try {
       if (!tokenClient) throw new Error("Token client not initialized");
       return await tokenClient.getOrCreateTagId(tag, relayer, creator);
@@ -105,7 +100,7 @@ export const useTokenClient = () => {
     }
   };
 
-  const isApprovedForAll = async (owner: Hex, operator: Hex): Promise<boolean> => {
+  const isApprovedForAll = async (owner: `0x${string}`, operator: `0x${string}`): Promise<boolean> => {
     try {
       if (!tokenClient) throw new Error("Token client not initialized");
       return await tokenClient.isApprovedForAll(owner, operator);
@@ -159,7 +154,7 @@ export const useTokenClient = () => {
     }
   };
 
-  const supportsInterface = async (interfaceId: Hex): Promise<boolean> => {
+  const supportsInterface = async (interfaceId: `0x${string}`): Promise<boolean> => {
     try {
       if (!tokenClient) throw new Error("Token client not initialized");
       return await tokenClient.supportsInterface(interfaceId);
@@ -178,8 +173,8 @@ export const useTokenClient = () => {
   };
 
   const transferFrom = async (
-    from: Hex,
-    to: Hex,
+    from: `0x${string}`,
+    to: `0x${string}`,
     tokenId: bigint,
   ): Promise<{ transactionHash: string; status: number }> => {
     try {
@@ -209,10 +204,10 @@ export const useTokenClient = () => {
   };
 
   const safeTransferFrom = async (
-    from: Hex,
-    to: Hex,
+    from: `0x${string}`,
+    to: `0x${string}`,
     tokenId: bigint,
-    data?: Hex,
+    data?: `0x${string}`,
   ): Promise<{ transactionHash: string; status: number }> => {
     try {
       if (!tokenClient) throw new Error("Token client not initialized");

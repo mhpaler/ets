@@ -3,11 +3,35 @@ import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
 import { EtsReadFunction, EtsWriteFunction } from "../types";
 import { getConfig } from "../contracts/config";
+import { validateConfig } from "../utils/validateConfig";
 
 export class EtsClient {
   private readonly publicClient: PublicClient;
   private readonly walletClient: WalletClient | undefined;
   private readonly etsConfig: { address: Address; abi: any };
+
+  constructor({
+    publicClient,
+    walletClient,
+    address,
+    chainId,
+  }: {
+    publicClient: PublicClient;
+    walletClient?: WalletClient;
+    address?: Address;
+    chainId?: number;
+  }) {
+    this.publicClient = publicClient;
+    this.walletClient = walletClient;
+
+    validateConfig(chainId, publicClient, walletClient);
+    if (!address) throw new Error("Contract address is required");
+
+    const config = getConfig(chainId);
+    if (!config) throw new Error("Configuration could not be retrieved");
+
+    this.etsConfig = config.etsConfig;
+  }
 
   private async readContract(functionName: EtsReadFunction, args: any[] = []): Promise<any> {
     return handleContractRead(this.publicClient, this.etsConfig.address, this.etsConfig.abi, functionName, args);
@@ -28,47 +52,6 @@ export class EtsClient {
       functionName,
       args,
     );
-  }
-
-  constructor({
-    publicClient,
-    walletClient,
-    address,
-    chainId,
-  }: {
-    publicClient: PublicClient;
-    walletClient?: WalletClient;
-    address?: Address;
-    chainId?: number;
-  }) {
-    this.publicClient = publicClient;
-    this.walletClient = walletClient;
-    const config = getConfig(chainId);
-
-    if (typeof config === "undefined") {
-      throw new Error("Configuration could not be retrieved");
-    }
-    this.etsConfig = config.etsConfig;
-
-    if (!address) {
-      throw new Error("Contract address is required");
-    }
-    if (walletClient === undefined) {
-      throw new Error("Wallet client is required");
-    }
-    if (!publicClient) {
-      throw new Error("Public client is required");
-    }
-    if (publicClient.chain?.id !== chainId) {
-      throw new Error(
-        `Provided chain id (${chainId}) should match the public client chain id (${publicClient.chain?.id})`,
-      );
-    }
-    if (walletClient && walletClient.chain?.id !== chainId) {
-      throw new Error(
-        `Provided chain id (${chainId}) should match the wallet client chain id (${walletClient.chain?.id})`,
-      );
-    }
   }
 
   // Read Functions

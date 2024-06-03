@@ -1,19 +1,22 @@
-import { Hex } from "viem";
-import { createRelayerClient } from "@ethereum-tag-service/sdk-core";
 import { useEffect, useState } from "react";
-import { useAccount, useChainId } from "wagmi";
-import { RelayerClient } from "@ethereum-tag-service/sdk-core";
+import { createRelayerClient, RelayerClient } from "@ethereum-tag-service/sdk-core";
 
-export const useRelayerClient = ({ relayerAddress }: { relayerAddress?: Hex }) => {
-  const chainId = useChainId();
-  const { address } = useAccount();
+export const useRelayerClient = ({
+  relayerAddress,
+  chainId,
+  account,
+}: {
+  relayerAddress?: `0x${string}`;
+  chainId?: number;
+  account?: `0x${string}`;
+}) => {
   const [relayerClient, setRelayerClient] = useState<RelayerClient>();
 
   useEffect(() => {
-    if (!chainId || !address || !relayerAddress) return;
-    const client = createRelayerClient({ chainId, account: address, relayerAddress });
+    if (!chainId || !account || !relayerAddress) return;
+    const client = createRelayerClient({ chainId, account, relayerAddress });
     setRelayerClient(client);
-  }, [chainId, address, relayerAddress]);
+  }, [chainId, account, relayerAddress]);
 
   const createTags = async (tags: string[]): Promise<void> => {
     try {
@@ -30,7 +33,7 @@ export const useRelayerClient = ({ relayerAddress }: { relayerAddress?: Hex }) =
     tagIds: string[],
     targetId: string,
     recordType: string,
-    signerAddress?: Hex,
+    signerAddress?: `0x${string}`,
   ): Promise<string> => {
     try {
       if (!relayerClient) throw new Error("Relayer client not initialized");
@@ -97,7 +100,7 @@ export const useRelayerClient = ({ relayerAddress }: { relayerAddress?: Hex }) =
     }
   };
 
-  const changeOwner = async (newOwner: Hex): Promise<void> => {
+  const changeOwner = async (newOwner: `0x${string}`): Promise<void> => {
     try {
       if (!relayerClient) throw new Error("Relayer client not initialized");
       const { transactionHash, status } = await relayerClient.changeOwner(newOwner);
@@ -108,7 +111,7 @@ export const useRelayerClient = ({ relayerAddress }: { relayerAddress?: Hex }) =
     }
   };
 
-  const transferOwnership = async (newOwner: Hex): Promise<void> => {
+  const transferOwnership = async (newOwner: `0x${string}`): Promise<void> => {
     try {
       if (!relayerClient) throw new Error("Relayer client not initialized");
       const { transactionHash, status } = await relayerClient.transferOwnership(newOwner);
