@@ -2,7 +2,6 @@ import { useState } from "react";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Layout from "@app/layouts/default";
-import { createTags, tagExists } from "@app/services/tokenService";
 import { useRelayers } from "@app/hooks/useRelayers";
 import { useAccount } from "wagmi";
 import { availableChainIds } from "@app/config/wagmiConfig";
@@ -10,16 +9,27 @@ import { isValidTag } from "@app/utils/tagUtils";
 import useToast from "@app/hooks/useToast";
 import TagInput from "@app/components/TagInput";
 import { TagInput as TagInputType } from "@app/types/tag";
+import { useTokenClient, useRelayerClient } from "@ethereum-tag-service/sdk-react-hooks";
 
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");
   const { showToast, ToastComponent } = useToast();
-  const { chain, isConnected } = useAccount();
+  const { chain, isConnected, address } = useAccount();
   const [tags, setTags] = useState<TagInputType[]>([]);
   const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
+  const { tagExists } = useTokenClient({
+    chainId: chain?.id,
+    account: address,
+  });
+
+  const { createTags } = useRelayerClient({
+    relayerAddress: selectedRelayer?.id,
+    account: address,
+    chainId: chain?.id,
+  });
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const { relayers } = useRelayers({});
-  const isCorrectNetwork = chain?.id && availableChainIds.includes(chain?.id);
+  const isCorrectNetwork = chain?.id && availableChainIds.includes(chain?.id as any);
   const disabled = !tags.length || !selectedRelayer || !isCorrectNetwork || isCreatingTag;
 
   const getTooltipMessage = () => {
@@ -37,13 +47,14 @@ const Playground: NextPage = () => {
     setSelectedRelayer(selected || null);
   };
 
+  console.log("createTags", createTags);
   const handleCreateTags = async () => {
     if (!disabled) {
       setIsCreatingTag(true);
       try {
         if (tags.length > 0) {
           const tagValues = tags.map((tag) => tag.text);
-          await createTags(tagValues, selectedRelayer.id);
+          await createTags?.(tagValues);
         }
 
         setTags([]);
@@ -87,7 +98,8 @@ const Playground: NextPage = () => {
 
   const handleAddTag = async (tag: TagInputType) => {
     if (isValidTag(tag.text)) {
-      const exists = await tagExists(tag.text);
+      const exists = await tagExists?.(tag.text);
+      console.log("exists", exists);
       if (exists) {
         showToast({
           description: t("tag-already-exists"),
@@ -109,7 +121,7 @@ const Playground: NextPage = () => {
         <div className="relative">
           <select
             className="select select-bordered w-full max-w-xs"
-            value={selectedRelayer ? selectedRelayer.id : ""}
+            value={selectedRelayer ? selectedRelayer?.id : ""}
             onChange={handleSelectRelayer}
           >
             <option disabled value="">

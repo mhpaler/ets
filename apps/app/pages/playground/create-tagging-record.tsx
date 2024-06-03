@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Layout from "@app/layouts/default";
-import { createTaggingRecord } from "@app/services/taggingService";
 import { useRelayers } from "@app/hooks/useRelayers";
 import { useAccount } from "wagmi";
 import { isValidTag } from "@app/utils/tagUtils";
@@ -12,6 +11,7 @@ import useToast from "@app/hooks/useToast";
 import TagInput from "@app/components/TagInput";
 import { TagInput as TagInputType } from "@app/types/tag";
 import Link from "next/link";
+import { useRelayerClient } from "@ethereum-tag-service/sdk-react-hooks";
 
 const CreateTaggingRecord: NextPage = () => {
   const { t } = useTranslation("common");
@@ -19,11 +19,16 @@ const CreateTaggingRecord: NextPage = () => {
   const [tags, setTags] = useState<TagInputType[]>([]);
   const [recordType, setRecordType] = useState<string>("");
   const [selectedRelayer, setSelectedRelayer] = useState<{ id: Hex; name: string } | null>(null);
-  const { address: tagger } = useAccount();
+  const { address: tagger, chain } = useAccount();
   const { relayers } = useRelayers({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [imageUrl, setImageUrl] = useState<string>("");
   const [taggingRecordId, setTaggingRecordId] = useState<string | null>(null);
+  const { createTaggingRecord } = useRelayerClient({
+    relayerAddress: selectedRelayer?.id,
+    account: tagger,
+    chainId: chain?.id,
+  });
 
   const handleDeleteTag = useCallback(
     (i: number) => {
@@ -90,8 +95,11 @@ const CreateTaggingRecord: NextPage = () => {
       setIsLoading(true);
       try {
         const tagValues = tags.map((tag) => tag.text);
-        const recordId = await createTaggingRecord(tagValues, imageUrl, recordType, selectedRelayer.id, tagger);
-        setTaggingRecordId(recordId);
+        const recordId = await createTaggingRecord?.(tagValues, imageUrl, recordType, tagger);
+
+        if (recordId) {
+          setTaggingRecordId(recordId);
+        }
 
         showToast({
           title: "Success",

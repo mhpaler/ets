@@ -10,23 +10,31 @@ export function useCtags({
   pageSize = 20,
   skip = 0,
   orderBy = "timestamp",
+  orderDirection = "desc",
   filter = {},
   config = {},
 }: {
   pageSize?: number;
   skip?: number;
   orderBy?: string;
+  orderDirection?: string;
   filter?: any;
   config?: SWRConfiguration;
 }) {
   const { data, mutate, error } = useSWR<FetchTagsResponse>(
     [
-      `query tags($filter: Tag_filter $first: Int!, $skip: Int!, $orderBy: String!) {
+      `query tags(
+        $filter: Tag_filter,
+        $first: Int!,
+        $skip: Int!,
+        $orderBy: Tag_orderBy!,
+        $orderDirection: OrderDirection
+      ) {
         tags: tags(
           first: $first
           skip: $skip
           orderBy: $orderBy
-          orderDirection: desc
+          orderDirection: $orderDirection
           where: $filter
         ) {
           id
@@ -56,6 +64,7 @@ export function useCtags({
         skip,
         first: pageSize,
         orderBy: orderBy,
+        orderDirection: orderDirection,
         filter: filter,
       },
     ],
@@ -64,12 +73,18 @@ export function useCtags({
 
   const { data: nextTagsData } = useSWR(
     [
-      `query nextTags($filter: Tag_filter $first: Int!, $skip: Int!, $orderBy: String!) {
+      `query nextTags(
+        $filter: Tag_filter,
+        $first: Int!,
+        $skip: Int!,
+        $orderBy: Tag_orderBy!,
+        $orderDirection: OrderDirection
+      ) {
         tags(
           first: $first
           skip: $skip
           orderBy: $orderBy
-          orderDirection: desc
+          orderDirection: $orderDirection
           where: $filter) {
           id
         }
@@ -78,6 +93,7 @@ export function useCtags({
         skip: skip + pageSize,
         first: pageSize,
         orderBy: orderBy,
+        orderDirection: orderDirection,
         filter: filter,
       },
     ],

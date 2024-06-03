@@ -20,19 +20,20 @@
 import React, { useState, useEffect } from "react";
 
 import useTranslation from "next-translate/useTranslation";
-import { useAddRelayer } from "@app/hooks/useAddRelayer";
+import { useRelayerContext } from "@app/hooks/useRelayerContext";
 import { useRelayers } from "@app/hooks/useRelayers";
 import { useDebounce } from "@app/hooks/useDebounce";
 import { useModal } from "@app/hooks/useModalContext";
 import { useTransactionManager } from "@app/hooks/useTransactionManager";
-import { useCurrentChain } from "@app/hooks/useCurrentChain";
-
+import { useTokenClient, useAccessControlsClient } from "@ethereum-tag-service/sdk-react-hooks";
+import { useAccount } from "wagmi";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 import TransactionFormActions from "@app/components/transaction/shared/TransactionFormActions";
 import { Dialog } from "@headlessui/react";
+import { Button } from "@app/components/Button";
 
 interface AddRelayerInputProps {
   transactionId: string;
@@ -41,11 +42,21 @@ interface AddRelayerInputProps {
 
 const AddRelayerInput: React.FC<AddRelayerInputProps> = ({ transactionId, goToNextStep }) => {
   const { t } = useTranslation("common");
-  //const chain = useCurrentChain();
   const { removeTransaction } = useTransactionManager();
-  const { formData, setFormData } = useAddRelayer();
+  const { addRelayerFormData, setAddRelayerFormData } = useRelayerContext();
   const { closeModal } = useModal();
+  const { address, isConnected, chain } = useAccount();
+  const { hasTags, tokenClient } = useTokenClient({
+    chainId: chain?.id,
+    account: address,
+  });
+  const { isRelayerByOwner, accessControlsClient } = useAccessControlsClient({
+    chainId: chain?.id,
+    account: address,
+  });
+
   const [isFormDisabled, setIsFormDisabled] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Define the schema for form validation using Zod.
   const AddRelayerSchema = z.object({
@@ -60,7 +71,7 @@ const AddRelayerInput: React.FC<AddRelayerInputProps> = ({ transactionId, goToNe
     handleSubmit,
     formState: { errors },
     watch,
-    setError,
+    setError: setFormError,
     clearErrors,
     reset,
   } = useForm<RelayerFormData>({
@@ -68,7 +79,7 @@ const AddRelayerInput: React.FC<AddRelayerInputProps> = ({ transactionId, goToNe
     mode: "onChange",
     criteriaMode: "all",
     shouldFocusError: true,
-    defaultValues: { name: formData.name }, // Pre-populate form with name
+    defaultValues: { name: addRelayerFormData.name }, // Pre-populate form with name
   });
 
   // Watch the 'name' input field for changes and debounce the input value.
@@ -95,9 +106,9 @@ const AddRelayerInput: React.FC<AddRelayerInputProps> = ({ transactionId, goToNe
     const validateName = async () => {
       // Check for minimum length and existing relayer name.
       if (nameValue.length > 0 && nameValue.length < 3) {
-        setError("name", { type: "manual", message: t("FORM.ADD_RELAYER.ERROR.MIN_THREE_CHARACTERS") });
+        setFormError("name", { type: "manual", message: t("FORM.ADD_RELAYER.ERROR.MIN_THREE_CHARACTERS") });
       } else if (relayers && relayers.length > 0) {
-        setError("name", { type: "manual", message: t("FORM.ADD_RELAYER.ERROR.NAME_EXISTS") });
+        setFormError("name", { type: "manual", message: t("FORM.ADD_RELAYER.ERROR.NAME_EXISTS") });
       } else {
         clearErrors("name");
       }
@@ -114,11 +125,51 @@ const AddRelayerInput: React.FC<AddRelayerInputProps> = ({ transactionId, goToNe
     }
   }, [nameValue, errors.name]);
 
+  useEffect(() => {
+    const fetchData = async (): Promise<void> => {
+      if (!address) {
+        console.error("Address is undefined");
+        setError(t("ERROR.NO_ADDRESS"));
+        return;
+      }
+
+      if (!tokenClient) {
+        console.error("tokenClient not initialized");
+        setError(t("ERROR.TOKEN_CLIENT_NOT_INITIALIZED"));
+        return;
+      }
+
+      const tags = await hasTags(address);
+      if (!tags) {
+        setError(t("FORM.ADD_RELAYER.ERROR.NO_TAGS"));
+        return;
+      }
+
+      if (!accessControlsClient) {
+        console.error("accessControlsClient not initialized");
+        setError(t("ERROR.ACCESS_CONTROLS_CLIENT_NOT_INITIALIZED"));
+        return;
+      }
+
+      const hasRelayer = await isRelayerByOwner(address);
+      if (hasRelayer) {
+        setError(t("FORM.ADD_RELAYER.ERROR.ALREADY_OWN_RELAYER"));
+        return;
+      }
+
+      setError(null); // Clear any existing errors if all checks pass
+    };
+
+    if (address && isConnected) {
+      fetchData();
+    }
+  }, [address, isConnected, tokenClient, accessControlsClient, hasTags, isRelayerByOwner, t]);
+
   // Handler for form submission.
   const onSubmit: SubmitHandler<RelayerFormData> = (formData) => {
     if (!isFormDisabled) {
       // Update context data and move to the next step.
-      setFormData({ name: formData.name });
+      setAddRelayerFormData({ name: formData.name });
       goToNextStep();
     }
   };
@@ -127,7 +178,7 @@ const AddRelayerInput: React.FC<AddRelayerInputProps> = ({ transactionId, goToNe
   const handleCancel = () => {
     reset();
     removeTransaction(transactionId);
-    setFormData({ name: "" });
+    setAddRelayerFormData({ name: "" });
     if (closeModal) {
       closeModal();
     }
@@ -138,31 +189,40 @@ const AddRelayerInput: React.FC<AddRelayerInputProps> = ({ transactionId, goToNe
       <Dialog.Title as="h3" className="text-xl font-bold leading-6 text-gray-900">
         {t("FORM.ADD_RELAYER.TITLE.CREATE_RELAYER")}
       </Dialog.Title>
-      <form onSubmit={handleSubmit(onSubmit)} className="form">
-        <div className="form-control w-full">
-          <div className="label">
-            <span className="label-text">{t("FORM.ADD_RELAYER.FIELD_LABEL.NAME")}</span>
-          </div>
-          <input
-            autoComplete="off"
-            id="name"
-            {...register("name")}
-            className={`w-full input input-bordered bg-slate-50 ${errors.name ? "input-error" : ""}`}
-          />
-          {errors.name && (
+      {error ? (
+        <div className="flex flex-col items-center pt-4">
+          <div className="text-red-600 mb-4">{error}</div>
+          <Button type="button" className="btn btn-primary btn-sm" onClick={handleCancel}>
+            {t("close")}
+          </Button>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit(onSubmit)} className="form">
+          <div className="form-control w-full">
             <div className="label">
-              <span className="label-text error-message text-error">{errors.name.message}</span>
+              <span className="label-text">{t("FORM.ADD_RELAYER.FIELD_LABEL.NAME")}</span>
             </div>
-          )}
-        </div>
-        <div className="grid grid-flow-col justify-stretch gap-2 mt-4">
-          <TransactionFormActions
-            isFormDisabled={isFormDisabled}
-            handleCancel={handleCancel}
-            handleSubmit={handleSubmit(onSubmit)}
-          />
-        </div>
-      </form>
+            <input
+              autoComplete="off"
+              id="name"
+              {...register("name")}
+              className={`w-full input input-bordered bg-slate-50 ${errors.name ? "input-error" : ""}`}
+            />
+            {errors.name && (
+              <div className="label">
+                <span className="label-text error-message text-error">{errors.name.message}</span>
+              </div>
+            )}
+          </div>
+          <div className="grid grid-flow-col justify-stretch gap-2 mt-4">
+            <TransactionFormActions
+              isFormDisabled={isFormDisabled}
+              handleCancel={handleCancel}
+              handleSubmit={handleSubmit(onSubmit)}
+            />
+          </div>
+        </form>
+      )}
     </>
   );
 };

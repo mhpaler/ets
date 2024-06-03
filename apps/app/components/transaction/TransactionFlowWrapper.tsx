@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { transactionConfig } from "@app/config/transactionConfig";
 import { useTransactionManager } from "@app/hooks/useTransactionManager";
-
 import { TransactionType } from "@app/types/transaction";
-import { TransactionError } from "@app/components/transaction/shared/TransactionError";
-import { TransactionLink } from "@app/components/transaction/shared/TransactionLink";
-import TransactionConfirmActions from "@app/components/transaction/shared/TransactionConfirmActions";
-
 import TransactionDebug from "@app/components/transaction/shared/TransactionDebug";
 
 interface FlowWrapperProps {

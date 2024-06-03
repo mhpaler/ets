@@ -17,9 +17,13 @@ import { WagmiProvider } from "wagmi";
 import { wagmiConfig } from "@app/config/wagmiConfig";
 import { hardhat, arbitrumSepolia } from "wagmi/chains";
 import { ModalProvider } from "@app/context/ModalContext";
-import { SystemProvider } from "@app/context/SystemContext";
 import { TransactionManagerProvider } from "@app/context/TransactionContext";
 import { AuctionHouseProvider } from "@app/context/AuctionHouseContext";
+import dynamic from "next/dynamic";
+
+const SystemProvider = dynamic(() => import("@app/context/SystemContext").then((mod) => mod.SystemProvider), {
+  ssr: false,
+});
 
 const initialChain = process.env.NEXT_PUBLIC_ETS_ENVIRONMENT === "development" ? hardhat : arbitrumSepolia;
 

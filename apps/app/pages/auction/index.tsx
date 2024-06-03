@@ -1,8 +1,9 @@
 import type { NextPage } from "next";
 import Layout from "@app/layouts/default";
 import useTranslation from "next-translate/useTranslation";
-import { AuctionProvider } from "@app/context/AuctionContext";
+import { useSystem } from "@app/hooks/useSystem";
 import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
+import { useCtags } from "@app/hooks/useCtags";
 import { Auctions } from "@app/components/Auctions";
 // TODO: Think about turning html tables into Div tables.
 // import { AuctionsDiv } from "@app/components/AuctionsDiv";
@@ -10,11 +11,30 @@ import { toEth } from "@app/utils";
 import { Truncate } from "@app/components/Truncate";
 import { TimeAgo } from "@app/components/TimeAgo";
 import { Tag } from "@app/components/Tag";
+import { Tags } from "@app/components/Tags";
 import AuctionActions from "@app/components/auction/AuctionActions";
 import AuctionTimer from "@app/components/auction/AuctionTimer";
 
 const Auction: NextPage = () => {
   const { t } = useTranslation("common");
+  const { platformAddress } = useSystem();
+  const {
+    tags = [],
+    nextTags,
+    mutate,
+  } = useCtags({
+    orderBy: "tagAppliedInTaggingRecord",
+    // filter: { owner_: { id: `${platformAddress}` } },
+    config: {
+      revalidateOnFocus: false,
+      revalidateOnMount: true,
+      revalidateOnReconnect: false,
+      refreshWhenOffline: false,
+      refreshWhenHidden: false,
+      refreshInterval: 1500,
+    },
+  });
+
   const { allAuctions } = useAuctionHouse();
 
   if (!allAuctions || allAuctions.length === 0) {
@@ -25,6 +45,7 @@ const Auction: NextPage = () => {
   const activeAuctions = allAuctions
     .filter((auction) => auction.startTime === 0 || auction.settled === false)
     .sort((a, b) => b.id - a.id);
+
   return (
     <Layout>
       <Auctions
@@ -89,9 +110,19 @@ const Auction: NextPage = () => {
         ]}
       />
 
-      <div className="col-span-12">
-        <h2>Upcoming</h2>
-      </div>
+      <Tags
+        listId="upcomingTags"
+        title={t("upcoming")}
+        tags={tags}
+        rowLink={false}
+        columnsConfig={[
+          { title: "tag", field: "tag", formatter: (_, tag) => <Tag tag={tag} /> },
+          { title: "created", field: "timestamp", formatter: (value, tag) => <TimeAgo date={value * 1000} /> },
+          { title: t("owner"), field: "owner.id", formatter: (value, tag) => Truncate(value, 13, "middle") },
+          { title: t("relayer"), field: "relayer.id", formatter: (value, tag) => Truncate(value, 13, "middle") },
+          { title: "tagging records", field: "tagAppliedInTaggingRecord" },
+        ]}
+      />
     </Layout>
   );
 };

@@ -1,7 +1,8 @@
 import type { NextPage } from "next";
-import Head from "next/head";
 import { useRouter } from "next/router";
 import { useOwners } from "@app/hooks/useOwners";
+import { useCtags } from "@app/hooks/useCtags";
+
 import useTranslation from "next-translate/useTranslation";
 import { timestampToString } from "@app/utils";
 import { toEth } from "@app/utils";
@@ -13,10 +14,6 @@ import { Number } from "@app/components/Number";
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Truncate } from "@app/components/Truncate";
 import { Panel } from "@app/components/Panel";
-
-function classNames(...classes: any) {
-  return classes.filter(Boolean).join(" ");
-}
 
 const Owner: NextPage = () => {
   const { query } = useRouter();
@@ -36,6 +33,22 @@ const Owner: NextPage = () => {
       refreshWhenOffline: false,
       refreshWhenHidden: false,
       refreshInterval: 0,
+    },
+  });
+
+  const {
+    tags = [],
+    nextTags,
+    mutate,
+  } = useCtags({
+    filter: { owner_: { id: owner } },
+    config: {
+      revalidateOnFocus: false,
+      revalidateOnMount: true,
+      revalidateOnReconnect: false,
+      refreshWhenOffline: false,
+      refreshWhenHidden: false,
+      refreshInterval: 1500,
     },
   });
 
@@ -101,8 +114,9 @@ const Owner: NextPage = () => {
         </div>
         <div>
           <Tags
-            filter={filter}
-            title={t("owner-tags") + " " + (owners && Truncate(owners[0].id))}
+            listId="ownerTags"
+            title={t("owner-tags") + " " + (owners && Truncate(owners[0].id, 13, "middle"))}
+            tags={tags}
             rowLink={false}
             columnsConfig={[
               { title: "tag", field: "tag", formatter: (_, tag) => <Tag tag={tag} /> },

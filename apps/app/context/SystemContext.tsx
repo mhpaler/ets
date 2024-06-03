@@ -5,7 +5,8 @@
 import React, { createContext, useState, useEffect } from "react";
 import { System } from "@app/types/system";
 import { fetchBlockchainTime } from "@app/services/auctionHouseService";
-import { fetchOwnershipTermLength } from "@app/services/tokenService";
+import { useTokenClient, useAccessControlsClient } from "@ethereum-tag-service/sdk-react-hooks";
+import { useAccount } from "wagmi";
 
 // Define the default values and functions
 const defaultSystemContextValue: System = {
@@ -13,6 +14,7 @@ const defaultSystemContextValue: System = {
   blockchainTime: () => Math.floor(Date.now() / 1000),
   updateBlockchainTime: async () => {},
   ownershipTermLength: 0,
+  platformAddress: "",
 };
 
 export const SystemContext = createContext<System>(defaultSystemContextValue);
@@ -23,7 +25,18 @@ type Props = {
 
 export const SystemProvider: React.FC<Props> = ({ children }: { children: React.ReactNode }) => {
   const [timeDifference, setTimeDifference] = useState(0); // Time difference in seconds
-  const [ownershipTermLength, setOwnershipTermLength] = useState(0); // Time difference in seconds
+  const [ownershipTermLength, setOwnershipTermLength] = useState(0);
+  const [platformAddress, setPlatformAddress] = useState<string>("");
+  const { chain, address } = useAccount();
+  const { accessControlsClient, getPlatformAddress } = useAccessControlsClient({
+    chainId: chain?.id,
+    account: address,
+  });
+
+  const { tokenClient, getOwnershipTermLength } = useTokenClient({
+    chainId: chain?.id,
+    account: address,
+  });
 
   const blockchainTime = () => Math.floor(Date.now() / 1000) - timeDifference;
 
@@ -38,8 +51,21 @@ export const SystemProvider: React.FC<Props> = ({ children }: { children: React.
     }
   };
 
+  const fetchGlobalSettings = async () => {
+    try {
+      const termLength = await getOwnershipTermLength();
+      const platform = await getPlatformAddress();
+      setOwnershipTermLength(Number(termLength));
+      setPlatformAddress(platform);
+    } catch (error) {
+      console.error("System: Failed to initialize system data:", error);
+    }
+  };
+
   useEffect(() => {
-    fetchGlobalSettings();
+    if (tokenClient && accessControlsClient) {
+      fetchGlobalSettings();
+    }
     updateBlockchainTime(); // Initial check on component mount
 
     const intervalId = setInterval(
@@ -50,16 +76,7 @@ export const SystemProvider: React.FC<Props> = ({ children }: { children: React.
     );
 
     return () => clearInterval(intervalId); // Cleanup on component unmount
-  }, []);
-
-  const fetchGlobalSettings = async () => {
-    try {
-      const termLength = await fetchOwnershipTermLength();
-      setOwnershipTermLength(termLength);
-    } catch (error) {
-      console.error("System: Failed to initialize system data:", error);
-    }
-  };
+  }, [tokenClient, accessControlsClient]);
 
   // Context value assembled from state and functions.
   const contextValue: System = {
@@ -67,6 +84,7 @@ export const SystemProvider: React.FC<Props> = ({ children }: { children: React.
     blockchainTime,
     updateBlockchainTime,
     ownershipTermLength,
+    platformAddress,
   };
 
   // Providing the auction house context to child components.

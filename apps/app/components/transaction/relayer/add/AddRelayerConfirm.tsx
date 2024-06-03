@@ -1,44 +1,19 @@
-/**
- * AddRelayerConfirm Component
- *
- * This component is responsible for handling the blockchain transaction process
- * for adding a new relayer. It interacts with the AddRelayerProvider for state management
- * and utilizes wagmi hooks for blockchain interactions.
- *
- * Props:
- * - closeModal: Function to close the modal.
- *
- * It uses wagmi hooks:
- * - usePrepareContractWrite: Prepares the contract transaction without initiating it.
- * - useContractWrite: Initiates the contract transaction when the user confirms in their wallet.
- * - useWaitForTransaction: Waits for the transaction to be processed on the blockchain.
- *
- * The component updates its UI based on the transaction state, displaying relevant messages
- * and a spinner during processing. It also handles any errors that might occur during the transaction.
- *
- * Interaction with AddRelayerProvider:
- * - Reads formData for the transaction data.
- * - Reads and navigates using goToStep for navigation within the modal flow.
- *
- * Interaction with FormWrapper:
- * - Integrated within FormWrapper to be displayed as one of the steps in the relayer creation process.
- */
 import React from "react";
 import { TransactionType } from "@app/types/transaction";
-import { etsRelayerFactoryConfig } from "@app/src/contracts";
 
 import useTranslation from "next-translate/useTranslation";
 import { useModal } from "@app/hooks/useModalContext";
-
 import { useTransactionManager } from "@app/hooks/useTransactionManager";
-import { useAddRelayer } from "@app/hooks/useAddRelayer";
+import { useRelayerContext } from "@app/hooks/useRelayerContext";
+import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels";
+import { useRelayerFactoryClient } from "@ethereum-tag-service/sdk-react-hooks";
 
 import { Dialog } from "@headlessui/react";
+import TransactionConfirmActions from "@app/components/transaction/shared/TransactionConfirmActions";
 import { TransactionError } from "@app/components/transaction/shared/TransactionError";
 import { TransactionLink } from "@app/components/transaction/shared/TransactionLink";
-import TransactionConfirmActions from "@app/components/transaction/shared/TransactionConfirmActions";
 import { Wallet, CheckCircle } from "@app/components/icons";
-import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels";
+import { useAccount } from "wagmi";
 
 interface FormStepProps {
   transactionId: string;
@@ -49,28 +24,24 @@ interface FormStepProps {
 const AddRelayerConfirm: React.FC<FormStepProps> = ({ transactionId, transactionType, goToStep }) => {
   const { t } = useTranslation("common");
   const { closeModal } = useModal();
-  const { initiateTransaction, removeTransaction, transactions } = useTransactionManager();
-  const transaction = transactions[transactionId];
-  const { dialogTitle } = useTransactionLabels(transactionId);
-  const { formData } = useAddRelayer();
+  const { address, chain } = useAccount();
 
-  const addRelayerABI = etsRelayerFactoryConfig.abi.find((abi) => abi.type === "function" && abi.name === "addRelayer");
-  if (!addRelayerABI) {
-    throw new Error("addRelayer ABI not found");
-  }
+  const { addRelayer } = useRelayerFactoryClient({
+    chainId: chain?.id,
+    account: address,
+  });
+  const { initiateTransaction, removeTransaction, transactions } = useTransactionManager();
+  const { dialogTitle } = useTransactionLabels(transactionId);
+  const { addRelayerFormData } = useRelayerContext();
+  const transaction = transactions[transactionId];
 
   // Function to initiate the transaction
   const handleButtonClick = () => {
     if (transaction?.isSuccess || transaction?.isError) {
       removeTransaction(transactionId);
       closeModal();
-    } else {
-      initiateTransaction(transactionId, transactionType, {
-        address: etsRelayerFactoryConfig.address,
-        abi: [addRelayerABI],
-        functionName: "addRelayer",
-        args: [formData.name],
-      });
+    } else if (addRelayer) {
+      initiateTransaction(transactionId, transactionType, addRelayer, [addRelayerFormData.name]);
     }
   };
 
@@ -94,7 +65,7 @@ const AddRelayerConfirm: React.FC<FormStepProps> = ({ transactionId, transaction
       <div className="flex flex-col w-full mt-8 gap-4">
         <div className="flex flex-row justify-between h-16 items-center pl-6 pr-6 rounded-box border-2 border-base-300">
           <div className="">{t("FORM.ADD_RELAYER.FIELD_LABEL.NAME")}</div>
-          <div className="font-bold">{formData.name}</div>
+          <div className="font-bold">{addRelayerFormData.name}</div>
         </div>
         <div className="flex flex-row justify-between h-16 items-center pl-6 pr-6 rounded-box border-2 border-base-300">
           <div className="">{t("TXN.ACTION")}</div>
