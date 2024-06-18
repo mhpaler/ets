@@ -21,6 +21,7 @@
     "@rainbow-me/rainbowkit-siwe-next-auth": "^0.3.4",
     "@sunodo/wagmi-plugin-hardhat-deploy": "github:ethereum-tag-service/wagmi-plugin-hardhat-deploy#ets-temp",
     "@tanstack/react-query": "^5.17.19",
+    "@tanstack/react-table": "^8.17.3",
     "@types/lodash.debounce": "^4.0.9",
     "@wagmi/core": "2.6.1",
     "copy-to-clipboard": "^3.3.1",
