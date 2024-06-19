@@ -13,7 +13,7 @@ import useNumberFormatter from "@app/hooks/useNumberFormatter";
 
 const pageSize = 20;
 
-const Creators: NextPage = () => {
+const Taggers: NextPage = () => {
   const { t } = useTranslation("common");
   const { number } = useNumberFormatter();
   const { taggers } = useTaggers({
@@ -71,4 +71,4 @@ const Creators: NextPage = () => {
   );
 };
 
-export default Creators;
+export default Taggers;
