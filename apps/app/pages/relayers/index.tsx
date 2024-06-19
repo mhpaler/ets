@@ -107,16 +107,13 @@ const Relayers: NextPage = () => {
             </Modal>
           )}
         </div>
-        <div className="col-span-12">
-          <TanstackTable
-            columns={columns}
-            data={relayers}
-            loading={!relayers?.length}
-            rowsPerPage={pageSize}
-            totalItems={relayers?.length}
-            title={t("relayers")}
-          />
-        </div>
+        <TanstackTable
+          columns={columns}
+          data={relayers}
+          loading={!relayers?.length}
+          rowsPerPage={pageSize}
+          totalItems={relayers?.length}
+        />
       </RelayerProvider>
     </Layout>
   );

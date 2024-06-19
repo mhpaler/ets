@@ -65,16 +65,14 @@ const Creators: NextPage = () => {
 
   return (
     <Layout>
-      <div className="col-span-12">
-        <TanstackTable
-          columns={columns}
-          data={creators}
-          loading={!creators?.length}
-          rowsPerPage={pageSize}
-          totalItems={creators?.length}
-          rowLink={(creator: any) => `/creators/${creator.id}`}
-        />
-      </div>
+      <TanstackTable
+        columns={columns}
+        data={creators}
+        loading={!creators?.length}
+        rowsPerPage={pageSize}
+        totalItems={creators?.length}
+        rowLink={(creator: any) => `/creators/${creator.id}`}
+      />
     </Layout>
   );
 };
