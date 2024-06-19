@@ -12,16 +12,9 @@ import TransactionFlowWrapper from "@app/components/transaction/TransactionFlowW
 import { TransactionType } from "@app/types/transaction";
 import { v4 as uuidv4 } from "uuid";
 import { useMemo, useState, useEffect } from "react";
-import { Button } from "@app/components/Button";
 import { NextPage } from "next";
-import {
-  useReactTable,
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  getPaginationRowModel,
-  ColumnDef,
-} from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import { TanstackTable } from "@app/components/TanstackTable";
 
 const pageSize = 20;
 
@@ -62,17 +55,16 @@ const Relayers: NextPage = () => {
     mutate();
   };
 
-  const showPrevNext = () => {
-    return (nextRelayers && nextRelayers.length > 0) || (skip && skip !== 0) ? true : false;
-  };
-
   const columnHelper = createColumnHelper(); // Create Tanstack column helper
 
-  const columns = useMemo(
+  const columns = useMemo<any[]>(
     () => [
       columnHelper.accessor("name", {
         header: t("name"),
-        cell: (info) => <a href={`/relayers/${info.getValue()}`}>{info.getValue()}</a>,
+        cell: (info) => {
+          const relayer = info.row.original as any;
+          return <a href={`/relayers/${relayer.id}`}>{info.getValue()}</a>;
+        },
       }),
       columnHelper.accessor("firstSeen", {
         header: t("created"),
@@ -98,17 +90,6 @@ const Relayers: NextPage = () => {
     [t],
   );
 
-  const table = useReactTable({
-    data: relayers || [],
-    columns: columns as ColumnDef<unknown, any>[],
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
-
-  if (!relayers) {
-    return <p>Loading...</p>;
-  }
-
   return (
     <Layout>
       <RelayerProvider>
@@ -122,79 +103,14 @@ const Relayers: NextPage = () => {
           )}
         </div>
         <div className="col-span-12">
-          {relayers ? (
-            <>
-              <table className="table table-zebra">
-                <thead>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <tr key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => (
-                        <th key={header.id}>
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(header.column.columnDef.header, header.getContext())}
-                        </th>
-                      ))}
-                    </tr>
-                  ))}
-                </thead>
-                <tbody>
-                  {table.getRowModel().rows.map((row) => (
-                    <tr key={row.id}>
-                      {row.getVisibleCells().map((cell) => (
-                        <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {showPrevNext() && (
-                <div className="flex justify-between">
-                  <Button disabled={skip === 0} onClick={prevPage}>
-                    <svg className="relative inline-flex w-6 h-6 mr-2 -ml-1" fill="none" viewBox="0 0 24 24">
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M10.25 6.75L4.75 12L10.25 17.25"
-                      ></path>
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M19.25 12H5"
-                      ></path>
-                    </svg>
-                    {t("prev")}
-                  </Button>
-                  <Button disabled={nextRelayers && nextRelayers.length === 0} onClick={nextPage}>
-                    {t("next")}
-                    <svg className="relative inline-flex w-6 h-6 ml-2 -mr-1" fill="none" viewBox="0 0 24 24">
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M13.75 6.75L19.25 12L13.75 17.25"
-                      ></path>
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M19 12H4.75"
-                      ></path>
-                    </svg>
-                    {t("next")}
-                  </Button>
-                </div>
-              )}
-            </>
-          ) : (
-            <p>Loading...</p>
-          )}
+          <TanstackTable
+            columns={columns}
+            data={relayers}
+            loading={!relayers?.length}
+            rowsPerPage={pageSize}
+            totalItems={relayers?.length}
+            title={t("relayers")}
+          />
         </div>
       </RelayerProvider>
     </Layout>
