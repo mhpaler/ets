@@ -1,5 +1,4 @@
 import useTranslation from "next-translate/useTranslation";
-import { globalSettings } from "@app/config/globalSettings";
 import { useRelayers } from "@app/hooks/useRelayers";
 import { RelayerProvider } from "@app/context/RelayerContext";
 import Layout from "@app/layouts/default";
@@ -20,7 +19,6 @@ import Link from "next/link";
 const pageSize = 20;
 
 const Relayers: NextPage = () => {
-  const [skip, setSkip] = useState(0);
   const { t } = useTranslation("common");
   const { isConnected } = useAccount();
   const [transactionId, setTransactionId] = useState<string>("");
@@ -31,9 +29,8 @@ const Relayers: NextPage = () => {
     setTransactionId(uuidv4());
   }, []);
 
-  const { relayers, nextRelayers, mutate } = useRelayers({
+  const { relayers } = useRelayers({
     pageSize,
-    skip,
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -43,18 +40,6 @@ const Relayers: NextPage = () => {
       refreshInterval: 1000,
     },
   });
-
-  const pageSizeSet = pageSize === undefined ? globalSettings["DEFAULT_PAGESIZE"] : pageSize;
-
-  const nextPage = () => {
-    setSkip(skip + pageSizeSet);
-    mutate();
-  };
-
-  const prevPage = () => {
-    setSkip(skip - pageSizeSet);
-    mutate();
-  };
 
   const columnHelper = createColumnHelper(); // Create Tanstack column helper
 
