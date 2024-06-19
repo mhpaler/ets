@@ -116,15 +116,18 @@ const Creator: NextPage = () => {
         </div>
         <div>
           <Tags
-            listId="creatorTags"
             title={t("tags-created-by", {
               creator: creators && Truncate(creators[0].id, 13, "middle"),
             })}
             tags={tags}
             rowLink={false}
             columnsConfig={[
-              { title: "tag", field: "tag", formatter: (_, tag) => <Tag tag={tag} /> },
-              { title: "created", field: "timestamp", formatter: (value, tag) => <TimeAgo date={value * 1000} /> },
+              { title: "tag", field: "tag", formatter: (_: any, tag: any) => <Tag tag={tag} /> },
+              {
+                title: "created",
+                field: "timestamp",
+                formatter: (value: any, tag: any) => <TimeAgo date={value * 1000} />,
+              },
               { title: "tagging records", field: "tagAppliedInTaggingRecord" },
             ]}
           />

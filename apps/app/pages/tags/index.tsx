@@ -9,11 +9,7 @@ import { Tag } from "@app/components/Tag";
 
 const Ctags: NextPage = () => {
   const { t } = useTranslation("common");
-  const {
-    tags = [],
-    nextTags,
-    mutate,
-  } = useCtags({
+  const { tags = [] } = useCtags({
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -28,15 +24,25 @@ const Ctags: NextPage = () => {
     <Layout>
       <div className="col-span-12">
         <Tags
-          listId="tagsHome"
-          title={t("newest-tags")}
           tags={tags}
           rowLink={false}
           columnsConfig={[
-            { title: "tag", field: "tag", formatter: (_, tag) => <Tag tag={tag} /> },
-            { title: "created", field: "timestamp", formatter: (value, tag) => <TimeAgo date={value * 1000} /> },
-            { title: t("owner"), field: "owner.id", formatter: (value, tag) => Truncate(value, 13, "middle") },
-            { title: t("relayer"), field: "relayer.id", formatter: (value, tag) => Truncate(value, 13, "middle") },
+            { title: "tag", field: "tag", formatter: (_: any, tag: any) => <Tag tag={tag} /> },
+            {
+              title: "created",
+              field: "timestamp",
+              formatter: (value: any, tag: any) => <TimeAgo date={value * 1000} />,
+            },
+            {
+              title: t("owner"),
+              field: "owner.id",
+              formatter: (value: any, tag: any) => Truncate(value, 13, "middle"),
+            },
+            {
+              title: t("relayer"),
+              field: "relayer.id",
+              formatter: (value: any, tag: any) => Truncate(value, 13, "middle"),
+            },
             { title: "tagging records", field: "tagAppliedInTaggingRecord" },
           ]}
         />

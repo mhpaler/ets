@@ -143,15 +143,14 @@ const Auction: NextPage = () => {
         rowLink={(auction) => `/auction/${auction.id}`}
       />
       <Tags
-        listId="upcomingTags"
         title={t("upcoming")}
         tags={tags}
         rowLink={false}
         columnsConfig={[
-          { title: "tag", field: "tag", formatter: (_, tag) => <Tag tag={tag} /> },
-          { title: "created", field: "timestamp", formatter: (value) => <TimeAgo date={value * 1000} /> },
-          { title: t("owner"), field: "owner.id", formatter: (value) => Truncate(value, 13, "middle") },
-          { title: t("relayer"), field: "relayer.id", formatter: (value) => Truncate(value, 13, "middle") },
+          { title: "tag", field: "tag", formatter: (_: any, tag: any) => <Tag tag={tag} /> },
+          { title: "created", field: "timestamp", formatter: (value: any) => <TimeAgo date={value * 1000} /> },
+          { title: t("owner"), field: "owner.id", formatter: (value: any) => Truncate(value, 13, "middle") },
+          { title: t("relayer"), field: "relayer.id", formatter: (value: any) => Truncate(value, 13, "middle") },
           { title: "tagging records", field: "tagAppliedInTaggingRecord" },
         ]}
       />
