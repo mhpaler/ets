@@ -13,6 +13,7 @@ import AuctionTimer from "@app/components/auction/AuctionTimer";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { TanstackTable } from "@app/components/TanstackTable";
+import Link from "next/link";
 
 const Auction: NextPage = () => {
   const { t } = useTranslation("common");
@@ -36,7 +37,13 @@ const Auction: NextPage = () => {
     () => [
       columnHelper.accessor("id", {
         header: "#",
-        cell: (info) => info.getValue(),
+        cell: (info) => {
+          return (
+            <Link href={`/auction/${info.getValue()}`} className="link link-primary">
+              {info.getValue()}
+            </Link>
+          );
+        },
       }),
       columnHelper.accessor("tag", {
         header: t("tag"),
@@ -80,7 +87,13 @@ const Auction: NextPage = () => {
     () => [
       columnHelper.accessor("id", {
         header: "#",
-        cell: (info) => info.getValue(),
+        cell: (info) => {
+          return (
+            <Link href={`/auction/${info.getValue()}`} className="link link-primary">
+              {info.getValue()}
+            </Link>
+          );
+        },
       }),
       columnHelper.accessor("tag", {
         header: t("tag"),

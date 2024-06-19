@@ -15,6 +15,7 @@ import { useMemo, useState, useEffect } from "react";
 import { NextPage } from "next";
 import { createColumnHelper } from "@tanstack/react-table";
 import { TanstackTable } from "@app/components/TanstackTable";
+import Link from "next/link";
 
 const pageSize = 20;
 
@@ -63,7 +64,11 @@ const Relayers: NextPage = () => {
         header: t("name"),
         cell: (info) => {
           const relayer = info.row.original as any;
-          return <a href={`/relayers/${relayer.id}`}>{info.getValue()}</a>;
+          return (
+            <Link href={`/relayers/${relayer.id}`} className="link link-primary">
+              {info.getValue()}
+            </Link>
+          );
         },
       }),
       columnHelper.accessor("firstSeen", {
