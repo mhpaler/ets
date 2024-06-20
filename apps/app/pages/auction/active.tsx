@@ -17,42 +17,12 @@ import AuctionTimer from "@app/components/auction/AuctionTimer";
 const Auction: NextPage = () => {
   const { t } = useTranslation("common");
   const { platformAddress } = useSystem();
-  const {
-    tags = [],
-    nextTags,
-    mutate,
-  } = useCtags({
-    orderBy: "tagAppliedInTaggingRecord",
-    filter: { owner_: { id: platformAddress.toLowerCase() } },
-    config: {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 1500,
-    },
-  });
-
-  // Perform secondary sorting by timestamp on the client side
-  const sortedTags = (tags as TagType[]).sort((a, b) => {
-    // Check if tagAppliedInTaggingRecord is undefined for either a or b
-    const tagAppliedA = a.tagAppliedInTaggingRecord ?? -Infinity;
-    const tagAppliedB = b.tagAppliedInTaggingRecord ?? -Infinity;
-
-    if (tagAppliedA === tagAppliedB) {
-      return a.timestamp - b.timestamp; // Unix timestamp comparison (ascending order)
-    }
-    return tagAppliedB - tagAppliedA;
-  });
-
   const { allAuctions } = useAuctionHouse();
 
   if (!allAuctions || allAuctions.length === 0) {
     return <Layout>Loading auctions...</Layout>; // Or some other loading/error handling
   }
 
-  const settledAuctions = allAuctions.filter((auction) => auction.settled);
   const activeAuctions = allAuctions
     .filter((auction) => auction.startTime === 0 || auction.settled === false)
     .sort((a, b) => b.id - a.id);
@@ -100,37 +70,6 @@ const Auction: NextPage = () => {
               />
             ),
           },
-        ]}
-      />
-      <Tags
-        listId="upcomingTags"
-        title={t("upcoming")}
-        pageSize={5}
-        tags={sortedTags}
-        rowLink={false}
-        columnsConfig={[
-          { title: "tag", field: "tag", formatter: (_, tag) => <Tag tag={tag} /> },
-          { title: "created", field: "timestamp", formatter: (value, tag) => <TimeAgo date={value * 1000} /> },
-          { title: t("creator"), field: "creator.id", formatter: (value, tag) => value },
-          { title: t("relayer"), field: "relayer.id", formatter: (value, tag) => Truncate(value, 13, "middle") },
-          { title: "tagging records", field: "tagAppliedInTaggingRecord" },
-        ]}
-      />
-
-      <Auctions
-        listId="settled"
-        title={t("settled")}
-        auctions={settledAuctions}
-        rowLink={true}
-        columnsConfig={[
-          {
-            title: "#",
-            field: "id",
-          },
-          { title: "tag", field: "tag", formatter: (tag, auction) => <Tag tag={tag} /> },
-          { title: "price", field: "amount", formatter: (value, auction) => `${toEth(value, 4)}` },
-          { title: "winner", field: "bidder.id", formatter: (value, auction) => Truncate(value, 13, "middle") },
-          { title: "ended", field: "endTime", formatter: (value, auction) => <TimeAgo date={value * 1000} /> },
         ]}
       />
     </Layout>

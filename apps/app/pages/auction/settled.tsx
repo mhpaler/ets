@@ -6,6 +6,8 @@ import { useSystem } from "@app/hooks/useSystem";
 import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useCtags } from "@app/hooks/useCtags";
 import { Auctions } from "@app/components/Auctions";
+// TODO: Think about turning html tables into Div tables.
+// import { AuctionsDiv } from "@app/components/AuctionsDiv";
 import { toEth } from "@app/utils";
 import { Truncate } from "@app/components/Truncate";
 import { TimeAgo } from "@app/components/TimeAgo";
@@ -102,20 +104,6 @@ const Auction: NextPage = () => {
           },
         ]}
       />
-      <Tags
-        listId="upcomingTags"
-        title={t("upcoming")}
-        pageSize={5}
-        tags={sortedTags}
-        rowLink={false}
-        columnsConfig={[
-          { title: "tag", field: "tag", formatter: (_, tag) => <Tag tag={tag} /> },
-          { title: "created", field: "timestamp", formatter: (value, tag) => <TimeAgo date={value * 1000} /> },
-          { title: t("creator"), field: "creator.id", formatter: (value, tag) => value },
-          { title: t("relayer"), field: "relayer.id", formatter: (value, tag) => Truncate(value, 13, "middle") },
-          { title: "tagging records", field: "tagAppliedInTaggingRecord" },
-        ]}
-      />
 
       <Auctions
         listId="settled"
@@ -131,6 +119,20 @@ const Auction: NextPage = () => {
           { title: "price", field: "amount", formatter: (value, auction) => `${toEth(value, 4)}` },
           { title: "winner", field: "bidder.id", formatter: (value, auction) => Truncate(value, 13, "middle") },
           { title: "ended", field: "endTime", formatter: (value, auction) => <TimeAgo date={value * 1000} /> },
+        ]}
+      />
+      {platformAddress}
+      <Tags
+        listId="upcomingTags"
+        title={t("upcoming")}
+        tags={sortedTags}
+        rowLink={false}
+        columnsConfig={[
+          { title: "tag", field: "tag", formatter: (_, tag) => <Tag tag={tag} /> },
+          { title: "created", field: "timestamp", formatter: (value, tag) => <TimeAgo date={value * 1000} /> },
+          { title: t("creator"), field: "creator.id", formatter: (value, tag) => value },
+          { title: t("relayer"), field: "relayer.id", formatter: (value, tag) => Truncate(value, 13, "middle") },
+          { title: "tagging records", field: "tagAppliedInTaggingRecord" },
         ]}
       />
     </Layout>

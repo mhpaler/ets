@@ -15,8 +15,6 @@ type ColumnConfig = {
 };
 
 type Props = {
-  //filter?: any;
-  //orderBy?: string;
   listId: string;
   title?: string;
   pageSize?: number;
@@ -25,44 +23,16 @@ type Props = {
   rowLink: boolean; // Function to generate link URL based on tag data
 };
 
-const Tags: NextPage<Props> = ({
-  listId,
-  title,
-  //filter,
-  //orderBy,
-  tags,
-  pageSize = globalSettings["DEFAULT_PAGESIZE"],
-  columnsConfig,
-  rowLink = false,
-}) => {
+const Tags: NextPage<Props> = ({ listId, title, tags, pageSize, columnsConfig, rowLink = false }) => {
+  const size = pageSize ?? globalSettings["DEFAULT_PAGESIZE"];
+
+  console.log(size);
   const { t } = useTranslation("common");
   const router = useRouter();
   const [skip, setSkip] = useState(0);
-  /*
-  const { tags, nextTags, mutate } = useCtags({
-    pageSize,
-    skip,
-    orderBy,
-    filter: filter,
-    config: {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 1500,
-    },
-  }); */
 
-  // TODO: Display auctions loading indicator
-  /* if (isLoading) {
-    console.log("Auctions are loading...");
-  } else if (auctions) {
-    console.log("Auctions loaded:", auctions);
-  } */
-
-  const nextPage = () => setSkip(skip + pageSize);
-  const prevPage = () => setSkip(skip - pageSize);
+  const nextPage = () => setSkip(skip + size);
+  const prevPage = () => setSkip(skip - size);
 
   function getValueByPath<T>(obj: T, path: string): any {
     return path.split(".").reduce<any>((acc, part) => acc && acc[part], obj);
@@ -77,7 +47,7 @@ const Tags: NextPage<Props> = ({
   return (
     <div className="col-span-12">
       {title && <h2 className="text-2xl font-bold pb-4">{title}</h2>}
-      <Table loading={!tags} rows={pageSize}>
+      <Table loading={!tags} rows={size}>
         <Table.Head>
           <Table.Tr>
             {columnsConfig.map((column) => (

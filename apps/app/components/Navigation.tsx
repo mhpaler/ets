@@ -82,16 +82,25 @@ export default function Navigation() {
           </li>
 
           <li>
-            <summary>{t("NAV.AUCTION")}</summary>
+            <Link className={isActive("auction") ? "bg-base-200" : ""} href="/auction">
+              {t("NAV.AUCTION")}
+            </Link>
             <ul>
               <li>
-                <Link className={isActive("auction") ? "bg-base-200" : ""} href="/auction">
+                <Link className={isActive("active") ? "bg-base-200" : ""} href="/auction/active">
                   {t("active")}
                 </Link>
               </li>
 
               <li>
-                <a>Upcoming</a>
+                <Link className={isActive("upcoming") ? "bg-base-200" : ""} href="/auction/upcoming">
+                  {t("upcoming")}
+                </Link>
+              </li>
+              <li>
+                <Link className={isActive("settled") ? "bg-base-200" : ""} href="/auction/settled">
+                  {t("settled")}
+                </Link>
               </li>
             </ul>
           </li>

@@ -6,6 +6,8 @@ import { useSystem } from "@app/hooks/useSystem";
 import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useCtags } from "@app/hooks/useCtags";
 import { Auctions } from "@app/components/Auctions";
+// TODO: Think about turning html tables into Div tables.
+// import { AuctionsDiv } from "@app/components/AuctionsDiv";
 import { toEth } from "@app/utils";
 import { Truncate } from "@app/components/Truncate";
 import { TimeAgo } from "@app/components/TimeAgo";
@@ -48,64 +50,15 @@ const Auction: NextPage = () => {
 
   const { allAuctions } = useAuctionHouse();
 
-  if (!allAuctions || allAuctions.length === 0) {
+  if (!tags || tags.length === 0) {
     return <Layout>Loading auctions...</Layout>; // Or some other loading/error handling
   }
 
-  const settledAuctions = allAuctions.filter((auction) => auction.settled);
-  const activeAuctions = allAuctions
-    .filter((auction) => auction.startTime === 0 || auction.settled === false)
-    .sort((a, b) => b.id - a.id);
-
   return (
     <Layout>
-      <Auctions
-        listId="active"
-        title={t("active")}
-        auctions={activeAuctions}
-        rowLink={true}
-        columnsConfig={[
-          {
-            title: "#",
-            field: "id",
-          },
-          {
-            title: "tag",
-            field: "tag",
-            formatter: (tag, auction) => <Tag tag={tag} />,
-          },
-          {
-            title: "current bid",
-            field: "amount",
-            formatter: (value, auction) => (auction.startTime === 0 ? "—" : `${toEth(value, 5)} ETH`),
-          },
-          {
-            title: "bidder",
-            field: "bidder.id",
-            formatter: (value, auction) => (auction.startTime === 0 ? "—" : Truncate(value, 13, "middle")),
-          },
-          {
-            title: "time left",
-            field: "endTime",
-            formatter: (value, auction) => <AuctionTimer auction={auction} />, // 'value' is 'auction.endTime'
-          },
-          {
-            title: "",
-            field: "id",
-            formatter: (id, auction) => (
-              <AuctionActions
-                key={id + auction.ended}
-                auction={auction}
-                buttonClasses="btn-primary btn-outline btn-sm"
-              />
-            ),
-          },
-        ]}
-      />
       <Tags
         listId="upcomingTags"
         title={t("upcoming")}
-        pageSize={5}
         tags={sortedTags}
         rowLink={false}
         columnsConfig={[
@@ -114,23 +67,6 @@ const Auction: NextPage = () => {
           { title: t("creator"), field: "creator.id", formatter: (value, tag) => value },
           { title: t("relayer"), field: "relayer.id", formatter: (value, tag) => Truncate(value, 13, "middle") },
           { title: "tagging records", field: "tagAppliedInTaggingRecord" },
-        ]}
-      />
-
-      <Auctions
-        listId="settled"
-        title={t("settled")}
-        auctions={settledAuctions}
-        rowLink={true}
-        columnsConfig={[
-          {
-            title: "#",
-            field: "id",
-          },
-          { title: "tag", field: "tag", formatter: (tag, auction) => <Tag tag={tag} /> },
-          { title: "price", field: "amount", formatter: (value, auction) => `${toEth(value, 4)}` },
-          { title: "winner", field: "bidder.id", formatter: (value, auction) => Truncate(value, 13, "middle") },
-          { title: "ended", field: "endTime", formatter: (value, auction) => <TimeAgo date={value * 1000} /> },
         ]}
       />
     </Layout>
