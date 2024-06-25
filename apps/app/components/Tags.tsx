@@ -1,6 +1,5 @@
 import type { NextPage } from "next";
 import { useMemo } from "react";
-import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
 import { globalSettings } from "@app/config/globalSettings";
 import { TanstackTable } from "@app/components/TanstackTable";
@@ -15,6 +14,7 @@ type Props = {
   rowLink: boolean;
   pageIndex?: number;
   setPageIndex?: (index: number) => void;
+  hasNextPage?: boolean;
 };
 
 const Tags: NextPage<Props> = ({
@@ -25,6 +25,7 @@ const Tags: NextPage<Props> = ({
   rowLink,
   pageIndex,
   setPageIndex,
+  hasNextPage,
 }) => {
   const { t } = useTranslation("common");
 
@@ -49,6 +50,7 @@ const Tags: NextPage<Props> = ({
       <TanstackTable
         columns={columns}
         data={tags}
+        hasNextPage={hasNextPage}
         loading={!tags?.length}
         rowsPerPage={pageSize}
         title={title}

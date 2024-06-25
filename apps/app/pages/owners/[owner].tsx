@@ -36,11 +36,7 @@ const Owner: NextPage = () => {
     },
   });
 
-  const {
-    tags = [],
-    nextTags,
-    mutate,
-  } = useCtags({
+  const { tags = [] } = useCtags({
     filter: { owner_: { id: owner } },
     config: {
       revalidateOnFocus: false,

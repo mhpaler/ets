@@ -38,11 +38,7 @@ const Relayer: NextPage = () => {
     },
   });
 
-  const {
-    tags = [],
-    nextTags,
-    mutate,
-  } = useCtags({
+  const { tags = [] } = useCtags({
     filter: { relayer_: { id: relayer } },
     config: {
       revalidateOnFocus: false,

@@ -32,11 +32,7 @@ const Creator: NextPage = () => {
     },
   });
 
-  const {
-    tags = [],
-    nextTags,
-    mutate,
-  } = useCtags({
+  const { tags = [] } = useCtags({
     filter: { creator_: { id: creator } },
     config: {
       revalidateOnFocus: false,

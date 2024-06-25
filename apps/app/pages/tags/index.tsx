@@ -6,10 +6,13 @@ import { Truncate } from "@app/components/Truncate";
 import { TimeAgo } from "@app/components/TimeAgo";
 import { Tags } from "@app/components/Tags";
 import { Tag } from "@app/components/Tag";
+import { useState } from "react";
 
 const Ctags: NextPage = () => {
   const { t } = useTranslation("common");
-  const { tags = [] } = useCtags({
+  const [pageIndex, setPageIndex] = useState(0);
+  const { tags = [], nextTags } = useCtags({
+    skip: pageIndex * 20,
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -26,6 +29,9 @@ const Ctags: NextPage = () => {
         <Tags
           tags={tags}
           rowLink={false}
+          pageIndex={pageIndex}
+          setPageIndex={setPageIndex}
+          hasNextPage={!!nextTags?.length}
           columnsConfig={[
             { title: "tag", field: "tag", formatter: (_: any, tag: any) => <Tag tag={tag} /> },
             {
