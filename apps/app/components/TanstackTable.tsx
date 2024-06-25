@@ -1,5 +1,5 @@
-import React, { useState, ReactNode } from "react";
-import { useReactTable, getCoreRowModel, getPaginationRowModel, flexRender } from "@tanstack/react-table";
+import React, { useState, ReactNode, useEffect } from "react";
+import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
 import { Button } from "@app/components/Button";
 import useTranslation from "next-translate/useTranslation";
 import { useRouter } from "next/router";
@@ -10,9 +10,11 @@ interface TableProps<TData> {
   data: TData[];
   loading: boolean;
   rowsPerPage?: number;
-  totalItems: number;
   title?: ReactNode;
   rowLink?: (data: TData) => string | undefined;
+  hasNextPage?: boolean;
+  pageIndex: number;
+  setPageIndex: (pageIndex: number) => void;
 }
 
 const TanstackTable = <TData extends object>({
@@ -20,31 +22,36 @@ const TanstackTable = <TData extends object>({
   data,
   loading,
   rowsPerPage = globalSettings["DEFAULT_PAGESIZE"],
-  totalItems,
   title,
   rowLink,
+  hasNextPage,
+  pageIndex,
+  setPageIndex,
 }: TableProps<TData>) => {
   const { t } = useTranslation("common");
-  const [pageIndex, setPageIndex] = useState(0);
 
   const table = useReactTable({
     data,
     columns,
-    pageCount: Math.ceil(totalItems / rowsPerPage),
     state: {
       pagination: {
         pageIndex,
         pageSize: rowsPerPage,
       },
     },
+    manualPagination: true,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
   });
 
   const router = useRouter();
 
-  const nextPage = () => setPageIndex((prev) => prev + 1);
-  const prevPage = () => setPageIndex((prev) => prev - 1);
+  const nextPage = () => {
+    setPageIndex(pageIndex + 1);
+  };
+
+  const prevPage = () => {
+    setPageIndex(pageIndex - 1);
+  };
 
   return (
     <div className="col-span-12">
@@ -94,7 +101,7 @@ const TanstackTable = <TData extends object>({
         <Button className="btn-sm" disabled={pageIndex === 0} onClick={prevPage}>
           {t("prev")}
         </Button>
-        <Button className="btn-sm" disabled={pageIndex + 1 >= Math.ceil(totalItems / rowsPerPage)} onClick={nextPage}>
+        <Button className="btn-sm" disabled={!hasNextPage} onClick={nextPage}>
           {t("next")}
         </Button>
       </div>

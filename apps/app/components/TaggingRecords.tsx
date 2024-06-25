@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { NextPage } from "next";
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
@@ -20,9 +20,12 @@ type Props = {
 
 const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings["DEFAULT_PAGESIZE"], orderBy, title }) => {
   const { t } = useTranslation("common");
-  const { taggingRecords } = useTaggingRecords({
+  const [pageIndex, setPageIndex] = useState(0);
+
+  const { taggingRecords, nextTaggingRecords } = useTaggingRecords({
     filter: filter,
     pageSize: pageSize,
+    skip: pageIndex * pageSize,
     orderBy: orderBy,
     config: {
       revalidateOnFocus: false,
@@ -123,9 +126,11 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings["DE
       data={taggingRecords}
       loading={!taggingRecords?.length}
       rowsPerPage={pageSize}
-      totalItems={taggingRecords?.length}
       title={title}
       rowLink={(taggingRecord: any) => `/tagging-records/${taggingRecord.id}`}
+      hasNextPage={!!nextTaggingRecords?.length}
+      pageIndex={pageIndex}
+      setPageIndex={setPageIndex}
     />
   );
 };
