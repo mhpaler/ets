@@ -1,24 +1,25 @@
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
 import { globalSettings } from "@app/config/globalSettings";
 import { useTaggers } from "@app/hooks/useTaggers";
 import Layout from "@app/layouts/default";
-import { Table } from "@app/components/Table";
-import { Button } from "@app/components/Button";
+import { TanstackTable } from "@app/components/TanstackTable";
+import { createColumnHelper } from "@tanstack/react-table";
+import { CopyAndPaste } from "@app/components/CopyAndPaste";
+import Link from "next/link";
 import useNumberFormatter from "@app/hooks/useNumberFormatter";
 
 const pageSize = 20;
 
-const Creators: NextPage = () => {
-  const [skip, setSkip] = useState(0);
-  const { query } = useRouter();
+const Taggers: NextPage = () => {
   const { t } = useTranslation("common");
+  const [pageIndex, setPageIndex] = useState(0);
   const { number } = useNumberFormatter();
-  const { taggers, nextTaggers, mutate } = useTaggers({
+  const { taggers, nextTaggers } = useTaggers({
     pageSize,
-    skip,
+    skip: pageIndex * pageSize,
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -29,90 +30,49 @@ const Creators: NextPage = () => {
     },
   });
 
-  const pageSizeSet = pageSize === undefined ? globalSettings["DEFAULT_PAGESIZE"] : pageSize;
+  const columnHelper = createColumnHelper();
 
-  const nextPage = () => {
-    setSkip(skip + pageSizeSet);
-    mutate();
-  };
-
-  const prevPage = () => {
-    setSkip(skip - pageSizeSet);
-    mutate();
-  };
-
-  const showPrevNext = () => {
-    return (nextTaggers && nextTaggers.length > 0) || (skip && skip !== 0) ? true : false;
-  };
-
-  const columns = useMemo(() => [t("tagger"), t("tagging-records")], [t]);
+  const columns = useMemo<any[]>(
+    () => [
+      columnHelper.accessor("id", {
+        header: t("tagger"),
+        cell: (info) => {
+          const tagger = info.row.original as any;
+          return (
+            <>
+              <Link href={`/taggers/${tagger.id}`} className="link link-primary">
+                {info.getValue()}
+              </Link>
+              <CopyAndPaste value={info.getValue()} />
+            </>
+          );
+        },
+      }),
+      columnHelper.accessor("taggingRecordsCreated", {
+        header: t("tagging-records"),
+        cell: (info) => number(parseInt(info.getValue())),
+      }),
+    ],
+    [t, number],
+  );
 
   return (
     <Layout>
       <div className="col-span-12">
-        <Table loading={!taggers} rows={pageSize}>
-          <Table.Head>
-            <Table.Tr>{columns && columns.map((column) => <Table.Th key={column}>{column}</Table.Th>)}</Table.Tr>
-          </Table.Head>
-          <Table.Body>
-            {taggers &&
-              taggers.map((tagger: any) => (
-                <Table.Tr key={tagger.id}>
-                  <Table.Cell value={tagger.id} url={`/taggers/${tagger.id}`} copyAndPaste />
-                  <Table.Cell value={number(parseInt(tagger.taggingRecordsCreated))} />
-                </Table.Tr>
-              ))}
-          </Table.Body>
-          {showPrevNext() && (
-            <Table.Footer>
-              <tr>
-                <td className="flex justify-between">
-                  <Button disabled={skip === 0} onClick={() => prevPage()}>
-                    <svg className="relative inline-flex w-6 h-6 mr-2 -ml-1" fill="none" viewBox="0 0 24 24">
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M10.25 6.75L4.75 12L10.25 17.25"
-                      ></path>
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M19.25 12H5"
-                      ></path>
-                    </svg>
-                    {t("prev")}
-                  </Button>
-                  <Button disabled={nextTaggers && nextTaggers.length === 0} onClick={() => nextPage()}>
-                    {t("next")}
-                    <svg className="relative inline-flex w-6 h-6 ml-2 -mr-1" fill="none" viewBox="0 0 24 24">
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M13.75 6.75L19.25 12L13.75 17.25"
-                      ></path>
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M19 12H4.75"
-                      ></path>
-                    </svg>
-                  </Button>
-                </td>
-              </tr>
-            </Table.Footer>
-          )}
-        </Table>
+        <TanstackTable
+          columns={columns}
+          data={taggers}
+          loading={!taggers?.length}
+          rowsPerPage={pageSize}
+          hasNextPage={!!nextTaggers?.length}
+          pageIndex={pageIndex}
+          setPageIndex={setPageIndex}
+          title={t("taggers")}
+          rowLink={(tagger: any) => `/taggers/${tagger.id}`}
+        />
       </div>
     </Layout>
   );
 };
 
-export default Creators;
+export default Taggers;

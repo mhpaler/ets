@@ -102,7 +102,7 @@ export function useCtags({
 
   return {
     tags: data?.tags,
-    nextTags: nextTagsData?.nextTags,
+    nextTags: nextTagsData?.tags,
     isLoading: (!error && !data?.tags) || (!nextTagsData && !error),
     isError: error?.statusText,
     mutate,

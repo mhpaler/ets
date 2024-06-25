@@ -6,7 +6,13 @@ const CopyAndPaste = ({ value }: { value: string }) => {
   const { t } = useTranslation("common");
 
   return (
-    <button onClick={() => copy(value)} className="link link-primary">
+    <button
+      onClick={(event) => {
+        event.stopPropagation();
+        copy(value);
+      }}
+      className="link link-primary"
+    >
       {isCopied ? (
         <svg className="inline-flex w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24">
           <path
