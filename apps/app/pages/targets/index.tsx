@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { NextPage } from "next";
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
@@ -15,8 +15,10 @@ const pageSize = 20;
 
 const Targets: NextPage = () => {
   const { t } = useTranslation("common");
+  const [pageIndex, setPageIndex] = useState(0);
   const { targets } = useTargets({
     pageSize,
+    skip: pageIndex * pageSize,
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -68,7 +70,8 @@ const Targets: NextPage = () => {
           data={targets}
           loading={!targets?.length}
           rowsPerPage={pageSize}
-          totalItems={targets?.length}
+          pageIndex={pageIndex}
+          setPageIndex={setPageIndex}
           rowLink={(target: any) => `/targets/${target.id}`}
         />
       </div>

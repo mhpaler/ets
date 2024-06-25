@@ -13,8 +13,8 @@ interface TableProps<TData> {
   title?: ReactNode;
   rowLink?: (data: TData) => string | undefined;
   hasNextPage?: boolean;
-  pageIndex: number;
-  setPageIndex: (pageIndex: number) => void;
+  pageIndex?: number;
+  setPageIndex?: (pageIndex: number) => void;
 }
 
 const TanstackTable = <TData extends object>({
@@ -25,7 +25,7 @@ const TanstackTable = <TData extends object>({
   title,
   rowLink,
   hasNextPage,
-  pageIndex,
+  pageIndex = 0,
   setPageIndex,
 }: TableProps<TData>) => {
   const { t } = useTranslation("common");
@@ -46,11 +46,11 @@ const TanstackTable = <TData extends object>({
   const router = useRouter();
 
   const nextPage = () => {
-    setPageIndex(pageIndex + 1);
+    setPageIndex?.(pageIndex + 1);
   };
 
   const prevPage = () => {
-    setPageIndex(pageIndex - 1);
+    setPageIndex?.(pageIndex - 1);
   };
 
   return (
@@ -97,14 +97,16 @@ const TanstackTable = <TData extends object>({
           </tbody>
         </table>
       </div>
-      <div className="flex justify-between mt-2 py-2">
-        <Button className="btn-sm" disabled={pageIndex === 0} onClick={prevPage}>
-          {t("prev")}
-        </Button>
-        <Button className="btn-sm" disabled={!hasNextPage} onClick={nextPage}>
-          {t("next")}
-        </Button>
-      </div>
+      {setPageIndex && (
+        <div className="flex justify-between mt-2 py-2">
+          <Button className="btn-sm" disabled={pageIndex === 0} onClick={prevPage}>
+            {t("prev")}
+          </Button>
+          <Button className="btn-sm" disabled={!hasNextPage} onClick={nextPage}>
+            {t("next")}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

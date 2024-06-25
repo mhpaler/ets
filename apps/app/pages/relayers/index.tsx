@@ -20,6 +20,7 @@ const pageSize = 20;
 
 const Relayers: NextPage = () => {
   const { t } = useTranslation("common");
+  const [pageIndex, setPageIndex] = useState(0);
   const { isConnected } = useAccount();
   const [transactionId, setTransactionId] = useState<string>("");
   const [isClient, setIsClient] = useState(false);
@@ -31,6 +32,7 @@ const Relayers: NextPage = () => {
 
   const { relayers } = useRelayers({
     pageSize,
+    skip: pageIndex * pageSize,
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -97,7 +99,8 @@ const Relayers: NextPage = () => {
           data={relayers}
           loading={!relayers?.length}
           rowsPerPage={pageSize}
-          totalItems={relayers?.length}
+          pageIndex={pageIndex}
+          setPageIndex={setPageIndex}
         />
       </RelayerProvider>
     </Layout>

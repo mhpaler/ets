@@ -13,6 +13,8 @@ type Props = {
   tags: TagType[];
   columnsConfig: any[];
   rowLink: boolean;
+  pageIndex?: number;
+  setPageIndex?: (index: number) => void;
 };
 
 const Tags: NextPage<Props> = ({
@@ -21,6 +23,8 @@ const Tags: NextPage<Props> = ({
   pageSize = globalSettings["DEFAULT_PAGESIZE"],
   columnsConfig,
   rowLink,
+  pageIndex,
+  setPageIndex,
 }) => {
   const { t } = useTranslation("common");
 
@@ -47,8 +51,9 @@ const Tags: NextPage<Props> = ({
         data={tags}
         loading={!tags?.length}
         rowsPerPage={pageSize}
-        totalItems={tags?.length}
         title={title}
+        pageIndex={pageIndex}
+        setPageIndex={setPageIndex}
         rowLink={rowLink ? (tag: TagType) => `/tag/${tag.id}` : undefined}
       />
     </div>

@@ -11,14 +11,18 @@ import { Tags } from "@app/components/Tags";
 import AuctionActions from "@app/components/auction/AuctionActions";
 import AuctionTimer from "@app/components/auction/AuctionTimer";
 import { createColumnHelper } from "@tanstack/react-table";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { TanstackTable } from "@app/components/TanstackTable";
 import Link from "next/link";
+import { globalSettings } from "@app/config/globalSettings";
 
 const Auction: NextPage = () => {
   const { t } = useTranslation("common");
+  const [pageIndex, setPageIndex] = useState(0);
+
   const { tags = [] } = useCtags({
     orderBy: "tagAppliedInTaggingRecord",
+    skip: pageIndex * globalSettings["DEFAULT_PAGESIZE"],
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -130,7 +134,6 @@ const Auction: NextPage = () => {
         columns={activeColumns}
         data={activeAuctions}
         loading={!activeAuctions.length}
-        totalItems={activeAuctions.length}
         title={t("active")}
         rowLink={(auction) => `/auction/${auction.id}`}
       />
@@ -138,7 +141,6 @@ const Auction: NextPage = () => {
         columns={settledColumns}
         data={settledAuctions}
         loading={!settledAuctions.length}
-        totalItems={settledAuctions.length}
         title={t("settled")}
         rowLink={(auction) => `/auction/${auction.id}`}
       />

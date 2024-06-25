@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import { useOwners } from "@app/hooks/useOwners";
@@ -15,9 +15,11 @@ const pageSize = 20;
 
 const Owners: NextPage = () => {
   const { t } = useTranslation("common");
+  const [pageIndex, setPageIndex] = useState(0);
   const { number } = useNumberFormatter();
   const { owners } = useOwners({
     pageSize,
+    skip: pageIndex * pageSize,
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -65,7 +67,8 @@ const Owners: NextPage = () => {
         data={owners}
         loading={!owners?.length}
         rowsPerPage={pageSize}
-        totalItems={owners?.length}
+        pageIndex={pageIndex}
+        setPageIndex={setPageIndex}
         rowLink={(owner: any) => `/owners/${owner.id}`}
       />
     </Layout>

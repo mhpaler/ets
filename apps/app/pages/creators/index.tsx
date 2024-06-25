@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import { timestampToString } from "@app/utils";
@@ -16,9 +16,11 @@ const pageSize = 20;
 
 const Creators: NextPage = () => {
   const { t } = useTranslation("common");
+  const [pageIndex, setPageIndex] = useState(0);
   const { number } = useNumberFormatter();
   const { creators } = useCreators({
     pageSize,
+    skip: pageIndex * pageSize,
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -70,7 +72,8 @@ const Creators: NextPage = () => {
         data={creators}
         loading={!creators?.length}
         rowsPerPage={pageSize}
-        totalItems={creators?.length}
+        pageIndex={pageIndex}
+        setPageIndex={setPageIndex}
         rowLink={(creator: any) => `/creators/${creator.id}`}
       />
     </Layout>

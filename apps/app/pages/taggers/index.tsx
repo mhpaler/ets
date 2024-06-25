@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
@@ -15,9 +15,11 @@ const pageSize = 20;
 
 const Taggers: NextPage = () => {
   const { t } = useTranslation("common");
+  const [pageIndex, setPageIndex] = useState(0);
   const { number } = useNumberFormatter();
   const { taggers } = useTaggers({
     pageSize,
+    skip: pageIndex * pageSize,
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -62,7 +64,8 @@ const Taggers: NextPage = () => {
           data={taggers}
           loading={!taggers?.length}
           rowsPerPage={pageSize}
-          totalItems={taggers?.length}
+          pageIndex={pageIndex}
+          setPageIndex={setPageIndex}
           title={t("taggers")}
           rowLink={(tagger: any) => `/taggers/${tagger.id}`}
         />
