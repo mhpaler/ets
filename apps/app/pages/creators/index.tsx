@@ -18,7 +18,7 @@ const Creators: NextPage = () => {
   const { t } = useTranslation("common");
   const [pageIndex, setPageIndex] = useState(0);
   const { number } = useNumberFormatter();
-  const { creators } = useCreators({
+  const { creators, nextCreators } = useCreators({
     pageSize,
     skip: pageIndex * pageSize,
     config: {
@@ -72,6 +72,7 @@ const Creators: NextPage = () => {
         data={creators}
         loading={!creators?.length}
         rowsPerPage={pageSize}
+        hasNextPage={!!nextCreators?.length}
         pageIndex={pageIndex}
         setPageIndex={setPageIndex}
         rowLink={(creator: any) => `/creators/${creator.id}`}

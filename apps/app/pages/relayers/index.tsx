@@ -30,7 +30,7 @@ const Relayers: NextPage = () => {
     setTransactionId(uuidv4());
   }, []);
 
-  const { relayers } = useRelayers({
+  const { relayers, nextRelayers } = useRelayers({
     pageSize,
     skip: pageIndex * pageSize,
     config: {
@@ -99,6 +99,7 @@ const Relayers: NextPage = () => {
           data={relayers}
           loading={!relayers?.length}
           rowsPerPage={pageSize}
+          hasNextPage={!!nextRelayers?.length}
           pageIndex={pageIndex}
           setPageIndex={setPageIndex}
         />

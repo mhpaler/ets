@@ -16,7 +16,7 @@ const pageSize = 20;
 const Targets: NextPage = () => {
   const { t } = useTranslation("common");
   const [pageIndex, setPageIndex] = useState(0);
-  const { targets } = useTargets({
+  const { targets, nextTargets } = useTargets({
     pageSize,
     skip: pageIndex * pageSize,
     config: {
@@ -70,6 +70,7 @@ const Targets: NextPage = () => {
           data={targets}
           loading={!targets?.length}
           rowsPerPage={pageSize}
+          hasNextPage={!!nextTargets?.length}
           pageIndex={pageIndex}
           setPageIndex={setPageIndex}
           rowLink={(target: any) => `/targets/${target.id}`}

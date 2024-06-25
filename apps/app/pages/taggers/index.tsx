@@ -17,7 +17,7 @@ const Taggers: NextPage = () => {
   const { t } = useTranslation("common");
   const [pageIndex, setPageIndex] = useState(0);
   const { number } = useNumberFormatter();
-  const { taggers } = useTaggers({
+  const { taggers, nextTaggers } = useTaggers({
     pageSize,
     skip: pageIndex * pageSize,
     config: {
@@ -64,6 +64,7 @@ const Taggers: NextPage = () => {
           data={taggers}
           loading={!taggers?.length}
           rowsPerPage={pageSize}
+          hasNextPage={!!nextTaggers?.length}
           pageIndex={pageIndex}
           setPageIndex={setPageIndex}
           title={t("taggers")}

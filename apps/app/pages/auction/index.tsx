@@ -18,11 +18,9 @@ import { globalSettings } from "@app/config/globalSettings";
 
 const Auction: NextPage = () => {
   const { t } = useTranslation("common");
-  const [pageIndex, setPageIndex] = useState(0);
 
   const { tags = [] } = useCtags({
     orderBy: "tagAppliedInTaggingRecord",
-    skip: pageIndex * globalSettings["DEFAULT_PAGESIZE"],
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,

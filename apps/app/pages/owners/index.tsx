@@ -17,7 +17,7 @@ const Owners: NextPage = () => {
   const { t } = useTranslation("common");
   const [pageIndex, setPageIndex] = useState(0);
   const { number } = useNumberFormatter();
-  const { owners } = useOwners({
+  const { owners, nextOwners } = useOwners({
     pageSize,
     skip: pageIndex * pageSize,
     config: {
@@ -67,6 +67,7 @@ const Owners: NextPage = () => {
         data={owners}
         loading={!owners?.length}
         rowsPerPage={pageSize}
+        hasNextPage={!!nextOwners?.length}
         pageIndex={pageIndex}
         setPageIndex={setPageIndex}
         rowLink={(owner: any) => `/owners/${owner.id}`}
