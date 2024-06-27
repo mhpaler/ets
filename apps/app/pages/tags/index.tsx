@@ -6,14 +6,13 @@ import { Truncate } from "@app/components/Truncate";
 import { TimeAgo } from "@app/components/TimeAgo";
 import { Tags } from "@app/components/Tags";
 import { Tag } from "@app/components/Tag";
+import { useState } from "react";
 
 const Ctags: NextPage = () => {
   const { t } = useTranslation("common");
-  const {
-    tags = [],
-    nextTags,
-    mutate,
-  } = useCtags({
+  const [pageIndex, setPageIndex] = useState(0);
+  const { tags = [], nextTags } = useCtags({
+    skip: pageIndex * 20,
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -28,15 +27,28 @@ const Ctags: NextPage = () => {
     <Layout>
       <div className="col-span-12">
         <Tags
-          listId="tagsHome"
-          title={t("newest-tags")}
           tags={tags}
           rowLink={false}
+          pageIndex={pageIndex}
+          setPageIndex={setPageIndex}
+          hasNextPage={!!nextTags?.length}
           columnsConfig={[
-            { title: "tag", field: "tag", formatter: (_, tag) => <Tag tag={tag} /> },
-            { title: "created", field: "timestamp", formatter: (value, tag) => <TimeAgo date={value * 1000} /> },
-            { title: t("owner"), field: "owner.id", formatter: (value, tag) => Truncate(value, 13, "middle") },
-            { title: t("relayer"), field: "relayer.id", formatter: (value, tag) => Truncate(value, 13, "middle") },
+            { title: "tag", field: "tag", formatter: (_: any, tag: any) => <Tag tag={tag} /> },
+            {
+              title: "created",
+              field: "timestamp",
+              formatter: (value: any, tag: any) => <TimeAgo date={value * 1000} />,
+            },
+            {
+              title: t("owner"),
+              field: "owner.id",
+              formatter: (value: any, tag: any) => Truncate(value, 13, "middle"),
+            },
+            {
+              title: t("relayer"),
+              field: "relayer.id",
+              formatter: (value: any, tag: any) => Truncate(value, 13, "middle"),
+            },
             { title: "tagging records", field: "tagAppliedInTaggingRecord" },
           ]}
         />

@@ -7,7 +7,13 @@ const URI = ({ value }: { value: string }) => {
   };
 
   return (
-    <button onClick={() => openURI(value)} className="link link-primary">
+    <button
+      onClick={(event) => {
+        event.stopPropagation();
+        openURI(value);
+      }}
+      className="link link-primary"
+    >
       <svg className="inline-flex w-5 h-5" width="24" height="24" fill="none" viewBox="0 0 24 24">
         <path
           stroke="currentColor"

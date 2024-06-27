@@ -18,14 +18,12 @@ export const useRelayerClient = ({
     setRelayerClient(client);
   }, [chainId, account, relayerAddress]);
 
-  const createTags = async (tags: string[]): Promise<void> => {
+  const createTags = async (tags: string[]): Promise<{ transactionHash: string; status: number }> => {
     try {
       if (!relayerClient) throw new Error("Relayer client not initialized");
-      const { transactionHash, status } = await relayerClient.createTags(tags);
-      console.log("Transaction hash:", transactionHash);
-      console.log("Status:", status);
+      return await relayerClient.createTags(tags);
     } catch (error) {
-      console.error("Error creating tags:", error);
+      throw error;
     }
   };
 
@@ -40,107 +38,100 @@ export const useRelayerClient = ({
       const { taggingRecordId } = await relayerClient.createTaggingRecord(tagIds, targetId, recordType, signerAddress);
       return taggingRecordId;
     } catch (error) {
-      console.error("Error creating tagging record:", error);
       throw error;
     }
   };
 
-  const applyTags = async (tags: string[], targetURI: string, recordType: string): Promise<void> => {
+  const applyTags = async (
+    tags: string[],
+    targetURI: string,
+    recordType: string,
+  ): Promise<{ transactionHash: string; status: number }> => {
     try {
       if (!relayerClient) throw new Error("Relayer client not initialized");
-      const { transactionHash, status } = await relayerClient.applyTags(tags, targetURI, recordType);
-      console.log("Apply tags transaction hash:", transactionHash);
-      console.log("Status:", status);
+      return await relayerClient.applyTags(tags, targetURI, recordType);
     } catch (error) {
-      console.error("Error applying tags:", error);
+      throw error;
     }
   };
 
-  const removeTags = async (tags: string[], targetURI: string, recordType: string): Promise<void> => {
+  const removeTags = async (
+    tags: string[],
+    targetURI: string,
+    recordType: string,
+  ): Promise<{ transactionHash: string; status: number }> => {
     try {
       if (!relayerClient) throw new Error("Relayer client not initialized");
-      const { transactionHash, status } = await relayerClient.removeTags(tags, targetURI, recordType);
-      console.log("Remove tags transaction hash:", transactionHash);
-      console.log("Status:", status);
+      return await relayerClient.removeTags(tags, targetURI, recordType);
     } catch (error) {
-      console.error("Error removing tags:", error);
+      throw error;
     }
   };
 
-  const replaceTags = async (tags: string[], targetURI: string, recordType: string): Promise<void> => {
+  const replaceTags = async (
+    tags: string[],
+    targetURI: string,
+    recordType: string,
+  ): Promise<{ transactionHash: string; status: number }> => {
     try {
       if (!relayerClient) throw new Error("Relayer client not initialized");
-      const { transactionHash, status } = await relayerClient.replaceTags(tags, targetURI, recordType);
-      console.log("Replace tags transaction hash:", transactionHash);
-      console.log("Status:", status);
+      return await relayerClient.replaceTags(tags, targetURI, recordType);
     } catch (error) {
-      console.error("Error replacing tags:", error);
+      throw error;
     }
   };
 
-  const pause = async (): Promise<void> => {
+  const pause = async (): Promise<{ transactionHash: string; status: number }> => {
     try {
       if (!relayerClient) throw new Error("Relayer client not initialized");
-      const { transactionHash, status } = await relayerClient.pause();
-      console.log("Pause transaction hash:", transactionHash);
-      console.log("Status:", status);
+      return await relayerClient.pause();
     } catch (error) {
-      console.error("Error pausing:", error);
+      throw error;
     }
   };
 
-  const unpause = async (): Promise<void> => {
+  const unpause = async (): Promise<{ transactionHash: string; status: number }> => {
     try {
       if (!relayerClient) throw new Error("Relayer client not initialized");
-      const { transactionHash, status } = await relayerClient.unpause();
-      console.log("Unpause transaction hash:", transactionHash);
-      console.log("Status:", status);
+      return await relayerClient.unpause();
     } catch (error) {
-      console.error("Error unpausing:", error);
+      throw error;
     }
   };
 
-  const changeOwner = async (newOwner: `0x${string}`): Promise<void> => {
+  const changeOwner = async (newOwner: `0x${string}`): Promise<{ transactionHash: string; status: number }> => {
     try {
       if (!relayerClient) throw new Error("Relayer client not initialized");
-      const { transactionHash, status } = await relayerClient.changeOwner(newOwner);
-      console.log("Change owner transaction hash:", transactionHash);
-      console.log("Status:", status);
+      return await relayerClient.changeOwner(newOwner);
     } catch (error) {
-      console.error("Error changing owner:", error);
+      throw error;
     }
   };
 
-  const transferOwnership = async (newOwner: `0x${string}`): Promise<void> => {
+  const transferOwnership = async (newOwner: `0x${string}`): Promise<{ transactionHash: string; status: number }> => {
     try {
       if (!relayerClient) throw new Error("Relayer client not initialized");
-      const { transactionHash, status } = await relayerClient.transferOwnership(newOwner);
-      console.log("Transfer ownership transaction hash:", transactionHash);
-      console.log("Status:", status);
+      return await relayerClient.transferOwnership(newOwner);
     } catch (error) {
-      console.error("Error transferring ownership:", error);
+      throw error;
     }
   };
 
-  const getOrCreateTags = async (tags: string[]): Promise<void> => {
+  const getOrCreateTags = async (tags: string[]): Promise<{ transactionHash: string; status: number }> => {
     try {
       if (!relayerClient) throw new Error("Relayer client not initialized");
-      const { transactionHash, status } = await relayerClient.getOrCreateTags(tags);
-      console.log("Get or create tags transaction hash:", transactionHash);
-      console.log("Status:", status);
+      return await relayerClient.getOrCreateTags(tags);
     } catch (error) {
-      console.error("Error getting or creating tags:", error);
+      throw error;
     }
   };
 
-  const renounceOwnership = async (): Promise<void> => {
+  const renounceOwnership = async (): Promise<{ transactionHash: string; status: number }> => {
     try {
       if (!relayerClient) throw new Error("Relayer client not initialized");
-      const { transactionHash, status } = await relayerClient.renounceOwnership();
-      console.log("Renounce ownership transaction hash:", transactionHash);
-      console.log("Status:", status);
+      return await relayerClient.renounceOwnership();
     } catch (error) {
-      console.error("Error renouncing ownership:", error);
+      throw error;
     }
   };
 
@@ -150,7 +141,6 @@ export const useRelayerClient = ({
       const ownerAddress = await relayerClient.owner();
       return ownerAddress;
     } catch (error) {
-      console.error("Error getting owner:", error);
       throw error;
     }
   };
@@ -161,7 +151,6 @@ export const useRelayerClient = ({
       const isPaused = await relayerClient.paused();
       return isPaused;
     } catch (error) {
-      console.error("Error getting paused state:", error);
       throw error;
     }
   };
@@ -172,7 +161,6 @@ export const useRelayerClient = ({
       const creatorAddress = await relayerClient.creator();
       return creatorAddress;
     } catch (error) {
-      console.error("Error getting creator:", error);
       throw error;
     }
   };
@@ -183,7 +171,6 @@ export const useRelayerClient = ({
       const etsAddress = await relayerClient.ets();
       return etsAddress;
     } catch (error) {
-      console.error("Error getting ets:", error);
       throw error;
     }
   };
@@ -194,7 +181,6 @@ export const useRelayerClient = ({
       const etsAccessControlsAddress = await relayerClient.etsAccessControls();
       return etsAccessControlsAddress;
     } catch (error) {
-      console.error("Error getting etsAccessControls:", error);
       throw error;
     }
   };
@@ -205,7 +191,6 @@ export const useRelayerClient = ({
       const etsTargetAddress = await relayerClient.etsTarget();
       return etsTargetAddress;
     } catch (error) {
-      console.error("Error getting etsTarget:", error);
       throw error;
     }
   };
@@ -216,7 +201,6 @@ export const useRelayerClient = ({
       const etsTokenAddress = await relayerClient.etsToken();
       return etsTokenAddress;
     } catch (error) {
-      console.error("Error getting etsToken:", error);
       throw error;
     }
   };
@@ -227,7 +211,6 @@ export const useRelayerClient = ({
       const balance = await relayerClient.getBalance();
       return balance;
     } catch (error) {
-      console.error("Error getting balance:", error);
       throw error;
     }
   };
@@ -238,7 +221,6 @@ export const useRelayerClient = ({
       const relayerName = await relayerClient.getRelayerName();
       return relayerName;
     } catch (error) {
-      console.error("Error getting relayer name:", error);
       throw error;
     }
   };
@@ -249,7 +231,6 @@ export const useRelayerClient = ({
       const [fee, actualTagCount] = await relayerClient.computeTaggingFee(tagParams, value);
       return [fee, actualTagCount];
     } catch (error) {
-      console.error("Error computing tagging fee:", error);
       throw error;
     }
   };
@@ -260,7 +241,6 @@ export const useRelayerClient = ({
       const supported = await relayerClient.supportsInterface(interfaceId);
       return supported;
     } catch (error) {
-      console.error("Error checking interface support:", error);
       throw error;
     }
   };
@@ -271,7 +251,6 @@ export const useRelayerClient = ({
       const versionString = await relayerClient.version();
       return versionString;
     } catch (error) {
-      console.error("Error getting version:", error);
       throw error;
     }
   };

@@ -5,9 +5,7 @@ import { TaggingRecords } from "@app/components/TaggingRecords";
 const RecentlyTagged: NextPage = () => {
   return (
     <Layout>
-      <div className="col-span-12">
-        <TaggingRecords />
-      </div>
+      <TaggingRecords />
     </Layout>
   );
 };

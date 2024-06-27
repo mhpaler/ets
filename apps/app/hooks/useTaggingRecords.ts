@@ -23,7 +23,6 @@ export function useTaggingRecords({
           orderBy: $orderBy
           orderDirection: desc
           where: $filter
-
         ) {
           id
           recordType
@@ -62,7 +61,7 @@ export function useTaggingRecords({
         filter: filter,
       },
     ],
-    config
+    config,
   );
 
   return {

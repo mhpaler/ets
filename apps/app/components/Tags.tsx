@@ -1,28 +1,27 @@
-import { useState } from "react";
 import type { NextPage } from "next";
-import { useRouter } from "next/router";
+import { useMemo } from "react";
 import useTranslation from "next-translate/useTranslation";
-//import { useCtags } from "@app/hooks/useCtags";
 import { globalSettings } from "@app/config/globalSettings";
-import { Table } from "@app/components/Table";
-import { Button } from "@app/components/Button";
+import { TanstackTable } from "@app/components/TanstackTable";
 import { TagType } from "@app/types/tag";
-
-type ColumnConfig = {
-  title: string; // The display name of the column
-  field: string; // The field in the tag data object
-  formatter?: (value: any, tag: TagType) => JSX.Element | string; // Optional formatter function, now includes the whole tag as a parameter
-};
+import { createColumnHelper } from "@tanstack/react-table";
 
 type Props = {
+<<<<<<< HEAD
   listId: string;
+=======
+>>>>>>> stage
   title?: string;
   pageSize?: number;
   tags: TagType[];
-  columnsConfig: ColumnConfig[];
-  rowLink: boolean; // Function to generate link URL based on tag data
+  columnsConfig: any[];
+  rowLink: boolean;
+  pageIndex?: number;
+  setPageIndex?: (index: number) => void;
+  hasNextPage?: boolean;
 };
 
+<<<<<<< HEAD
 const Tags: NextPage<Props> = ({ listId, title, tags, pageSize, columnsConfig, rowLink = false }) => {
   const size = pageSize ?? globalSettings["DEFAULT_PAGESIZE"];
 
@@ -84,6 +83,49 @@ const Tags: NextPage<Props> = ({ listId, title, tags, pageSize, columnsConfig, r
           </Table.Footer>
         ) : null} */}
       </Table>
+=======
+const Tags: NextPage<Props> = ({
+  title,
+  tags,
+  pageSize = globalSettings["DEFAULT_PAGESIZE"],
+  columnsConfig,
+  rowLink,
+  pageIndex,
+  setPageIndex,
+  hasNextPage,
+}) => {
+  const { t } = useTranslation("common");
+
+  const columnHelper = createColumnHelper<TagType>();
+
+  const columns = useMemo<any[]>(
+    () =>
+      columnsConfig.map((column) =>
+        columnHelper.accessor(column.field, {
+          header: () => t(column.title),
+          cell: (info) => {
+            const tag = info.row.original;
+            return column.formatter ? column.formatter(info.getValue(), tag) : info.getValue();
+          },
+        }),
+      ),
+    [columnsConfig, t],
+  );
+
+  return (
+    <div className="col-span-12">
+      <TanstackTable
+        columns={columns}
+        data={tags}
+        hasNextPage={hasNextPage}
+        loading={!tags?.length}
+        rowsPerPage={pageSize}
+        title={title}
+        pageIndex={pageIndex}
+        setPageIndex={setPageIndex}
+        rowLink={rowLink ? (tag: TagType) => `/tag/${tag.id}` : undefined}
+      />
+>>>>>>> stage
     </div>
   );
 };

@@ -47,7 +47,6 @@ const Playground: NextPage = () => {
     setSelectedRelayer(selected || null);
   };
 
-  console.log("createTags", createTags);
   const handleCreateTags = async () => {
     if (!disabled) {
       setIsCreatingTag(true);
@@ -99,7 +98,6 @@ const Playground: NextPage = () => {
   const handleAddTag = async (tag: TagInputType) => {
     if (isValidTag(tag.text)) {
       const exists = await tagExists?.(tag.text);
-      console.log("exists", exists);
       if (exists) {
         showToast({
           description: t("tag-already-exists"),

@@ -38,11 +38,7 @@ const Relayer: NextPage = () => {
     },
   });
 
-  const {
-    tags = [],
-    nextTags,
-    mutate,
-  } = useCtags({
+  const { tags = [] } = useCtags({
     filter: { relayer_: { id: relayer } },
     config: {
       revalidateOnFocus: false,
@@ -153,18 +149,20 @@ const Relayer: NextPage = () => {
       </div>
       <div className="col-span-12">
         <Tags
-          listId="relayerTags"
           title={t("relayer-tags", {
             relayer: relayers && relayers[0].name,
           })}
           tags={tags}
           rowLink={false}
           columnsConfig={[
-            { title: "tag", field: "tag", formatter: (_, tag) => <Tag tag={tag} /> },
-            { title: "created", field: "timestamp", formatter: (value, tag) => <TimeAgo date={value * 1000} /> },
-            { title: t("creator"), field: "creator.id", formatter: (value) => Truncate(value, 14, "middle") },
-            { title: t("owner"), field: "owner.id", formatter: (value) => Truncate(value, 14, "middle") },
-
+            { title: "tag", field: "tag", formatter: (_: any, tag: any) => <Tag tag={tag} /> },
+            {
+              title: "created",
+              field: "timestamp",
+              formatter: (value: any) => <TimeAgo date={value * 1000} />,
+            },
+            { title: t("creator"), field: "creator.id", formatter: (value: any) => Truncate(value, 14, "middle") },
+            { title: t("owner"), field: "owner.id", formatter: (value: any) => Truncate(value, 14, "middle") },
             { title: "tagging records", field: "tagAppliedInTaggingRecord" },
           ]}
         />

@@ -1,0 +1,76 @@
+name: Set Default Custom Field Value
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  update-custom-field:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up GitHub CLI
+        uses: actions/setup-gh-cli@v2
+
+      - name: Get Project ID
+        id: get-project-id
+        run: |
+          PROJECT_NUMBER=1
+          QUERY="{
+            viewer {
+              projectV2(number: $PROJECT_NUMBER) {
+                id
+              }
+            }
+          }"
+          PROJECT_ID=$(gh api graphql -f query="$QUERY" --jq '.data.viewer.projectV2.id')
+          echo "project_id=$PROJECT_ID" >> $GITHUB_ENV
+
+      - name: Get Custom Field ID
+        id: get-field-id
+        run: |
+          PROJECT_ID=${{ env.project_id }}
+          FIELD_NAME="Status" # Replace with your custom field name
+          QUERY="{
+            node(id: \\"$PROJECT_ID\\") {
+              ... on ProjectV2 {
+                fields(first: 20) {
+                  nodes {
+                    ... on ProjectV2SingleSelectField {
+                      id
+                      name
+                      options {
+                        id
+                        name
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }"
+          FIELD_ID=$(gh api graphql -f query="$QUERY" --jq ".data.node.fields.nodes[] | select(.name==\"$FIELD_NAME\").id")
+          OPTION_ID=$(gh api graphql -f query="$QUERY" --jq ".data.node.fields.nodes[] | select(.name==\"$FIELD_NAME\").options[] | select(.name==\"On Deck\").id")
+          echo "field_id=$FIELD_ID" >> $GITHUB_ENV
+          echo "option_id=$OPTION_ID" >> $GITHUB_ENV
+
+      - name: Update Custom Field Value
+        run: |
+          ISSUE_ID=${{ github.event.issue.node_id }}
+          FIELD_ID=${{ env.field_id }}
+          OPTION_ID=${{ env.option_id }}
+          QUERY="mutation {
+            updateProjectV2ItemFieldValue(
+              input: {
+                projectId: \\"${{ env.project_id }}\\"
+                itemId: \\"$ISSUE_ID\\"
+                fieldId: \\"$FIELD_ID\\"
+                value: {singleSelectOptionId: \\"$OPTION_ID\\"}
+              }
+            ) {
+              clientMutationId
+            }
+          }"
+          gh api graphql -f query="$QUERY"
