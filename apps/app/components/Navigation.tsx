@@ -36,12 +36,8 @@ export default function Navigation() {
         <ul className="menu">
           <li>
             <Link className={isActive("") ? "bg-base-200" : ""} href="/">
-              {t("dashboard")}
+              {t("explorer")}
             </Link>
-          </li>
-
-          <li>
-            <h2>Explorer</h2>
             <ul>
               <li>
                 <Link className={isActive("tagging-records") ? "bg-base-200" : ""} href="/tagging-records">
@@ -85,24 +81,6 @@ export default function Navigation() {
             <Link className={isActive("auction") ? "bg-base-200" : ""} href="/auction">
               {t("NAV.AUCTION")}
             </Link>
-            <ul>
-              <li>
-                <Link className={isActive("active") ? "bg-base-200" : ""} href="/auction/active">
-                  {t("active")}
-                </Link>
-              </li>
-
-              <li>
-                <Link className={isActive("upcoming") ? "bg-base-200" : ""} href="/auction/upcoming">
-                  {t("upcoming")}
-                </Link>
-              </li>
-              <li>
-                <Link className={isActive("settled") ? "bg-base-200" : ""} href="/auction/settled">
-                  {t("settled")}
-                </Link>
-              </li>
-            </ul>
           </li>
 
           <li>

@@ -5,7 +5,6 @@ import useTranslation from "next-translate/useTranslation";
 import { useSystem } from "@app/hooks/useSystem";
 import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useCtags } from "@app/hooks/useCtags";
-import { Auctions } from "@app/components/Auctions";
 import { toEth } from "@app/utils";
 import { Truncate } from "@app/components/Truncate";
 import { TimeAgo } from "@app/components/TimeAgo";

@@ -5,6 +5,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import { System } from "@app/types/system";
 import { fetchBlockchainTime } from "@app/services/auctionHouseService";
+import { globalSettings } from "@app/config/globalSettings";
 import { useTokenClient, useAccessControlsClient } from "@ethereum-tag-service/sdk-react-hooks";
 import { useAccount } from "wagmi";
 
@@ -53,19 +54,18 @@ export const SystemProvider: React.FC<Props> = ({ children }: { children: React.
 
   const fetchGlobalSettings = async () => {
     try {
-      const termLength = await getOwnershipTermLength();
-      const platform = await getPlatformAddress();
-      setOwnershipTermLength(Number(termLength));
-      setPlatformAddress(platform);
+      if (tokenClient && accessControlsClient) {
+        const termLength = await getOwnershipTermLength();
+        setOwnershipTermLength(Number(termLength));
+      }
+      setPlatformAddress(globalSettings.PLATFORM_ADDRESS);
     } catch (error) {
       console.error("System: Failed to initialize system data:", error);
     }
   };
 
   useEffect(() => {
-    if (tokenClient && accessControlsClient) {
-      fetchGlobalSettings();
-    }
+    fetchGlobalSettings();
     updateBlockchainTime(); // Initial check on component mount
 
     const intervalId = setInterval(

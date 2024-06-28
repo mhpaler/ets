@@ -58,6 +58,10 @@ export function useCtags({
           ownerRevenue
           protocolRevenue
           creatorRevenue
+          auctions {
+            id
+            settled
+          }
         }
       }`,
       {

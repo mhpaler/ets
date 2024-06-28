@@ -5,7 +5,6 @@ import useTranslation from "next-translate/useTranslation";
 import { useSystem } from "@app/hooks/useSystem";
 import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useCtags } from "@app/hooks/useCtags";
-import { Auctions } from "@app/components/Auctions";
 // TODO: Think about turning html tables into Div tables.
 // import { AuctionsDiv } from "@app/components/AuctionsDiv";
 import { toEth } from "@app/utils";

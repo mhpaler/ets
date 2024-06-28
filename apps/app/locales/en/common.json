@@ -30,6 +30,7 @@
   "ets": "ETS",
   "etstag-id": "ETSTAG ID",
   "expires": "Expires",
+  "explorer": "Explorer",
   "first-seen": "First seen",
   "id": "Id",
   "invalid-tag-message": "Invalid tag format. Tags must start with a #, contain no spaces, and be between 2 and 32 characters long (excluding the #).",

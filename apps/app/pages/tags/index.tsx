@@ -4,9 +4,12 @@ import { useCtags } from "@app/hooks/useCtags";
 import Layout from "@app/layouts/default";
 import { Truncate } from "@app/components/Truncate";
 import { TimeAgo } from "@app/components/TimeAgo";
-import { Tags } from "@app/components/Tags";
 import { Tag } from "@app/components/Tag";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { createColumnHelper } from "@tanstack/react-table";
+import { TanstackTable } from "@app/components/TanstackTable";
+import { globalSettings } from "@app/config/globalSettings";
+import { TagType } from "@app/types/tag";
 
 const Ctags: NextPage = () => {
   const { t } = useTranslation("common");
@@ -23,34 +26,44 @@ const Ctags: NextPage = () => {
     },
   });
 
+  const columnHelper = createColumnHelper<TagType>();
+
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor("display", {
+        header: () => "Tag",
+        cell: (info) => <Tag tag={info.row.original} />,
+      }),
+      columnHelper.accessor("timestamp", {
+        header: () => "Created",
+        cell: (info) => <TimeAgo date={info.getValue() * 1000} />,
+      }),
+      columnHelper.accessor("owner.id", {
+        header: () => t("owner"),
+        cell: (info) => Truncate(info.getValue(), 13, "middle"),
+      }),
+      columnHelper.accessor("relayer.id", {
+        header: () => t("relayer"),
+        cell: (info) => Truncate(info.getValue(), 13, "middle"),
+      }),
+      columnHelper.accessor("tagAppliedInTaggingRecord", {
+        header: () => "Tagging Records",
+      }),
+    ],
+    [columnHelper, t],
+  );
+
   return (
     <Layout>
       <div className="col-span-12">
-        <Tags
-          tags={tags}
-          rowLink={false}
+        <TanstackTable
+          columns={columns}
+          data={tags}
+          hasNextPage={!!nextTags?.length}
+          loading={!tags?.length}
+          rowsPerPage={globalSettings["DEFAULT_PAGESIZE"]}
           pageIndex={pageIndex}
           setPageIndex={setPageIndex}
-          hasNextPage={!!nextTags?.length}
-          columnsConfig={[
-            { title: "tag", field: "tag", formatter: (_: any, tag: any) => <Tag tag={tag} /> },
-            {
-              title: "created",
-              field: "timestamp",
-              formatter: (value: any, tag: any) => <TimeAgo date={value * 1000} />,
-            },
-            {
-              title: t("owner"),
-              field: "owner.id",
-              formatter: (value: any, tag: any) => Truncate(value, 13, "middle"),
-            },
-            {
-              title: t("relayer"),
-              field: "relayer.id",
-              formatter: (value: any, tag: any) => Truncate(value, 13, "middle"),
-            },
-            { title: "tagging records", field: "tagAppliedInTaggingRecord" },
-          ]}
         />
       </div>
     </Layout>

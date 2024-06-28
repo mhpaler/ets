@@ -48,3 +48,11 @@
 .ReactTags__tags {
   flex-flow: column-reverse;
 }
+
+.auctions .tab {
+  @apply text-gray-400 text-2xl font-medium mb-1;
+}
+
+.auctions .tab:checked {
+  @apply text-gray-900; /* Example styles */
+}

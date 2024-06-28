@@ -9,6 +9,9 @@ import Layout from "@app/layouts/default";
 import { timestampToString } from "@app/utils";
 import { toEth } from "@app/utils";
 
+import { AuctionProvider } from "@app/context/AuctionContext";
+import WithinTagAuctionDisplay from "@app/components/auction/WithinTagAuctionDisplay";
+
 import { TaggingRecords } from "@app/components/TaggingRecords";
 import { TagGraphic } from "@app/components/TagGraphic";
 import { Truncate } from "@app/components/Truncate";
@@ -46,12 +49,25 @@ const Tag: NextPage = () => {
     );
   }
 
+  let auctionBlock;
+  if (tags[0].auctions && tags[0].auctions.length > 0) {
+    const auction = tags[0].auctions[tags[0].auctions.length - 1];
+    auctionBlock = (
+      <AuctionProvider auctionId={Number(auction.id)}>
+        <WithinTagAuctionDisplay />
+      </AuctionProvider>
+    );
+  } else {
+    auctionBlock = <div>NO AUCTION FOUND</div>;
+  }
+
   return (
     <Layout>
-      <section className="col-span-12 xl:col-span-4">
-        <div>
-          <TagGraphic tag={tags[0]} />
-        </div>
+      <section className="col-span-12 xl:col-span-4 flex flex-col gap-y-12  text-sm">
+        <TagGraphic tag={tags[0]} />
+        <Panel title={t("auction")}>
+          <div className="p-6">{auctionBlock}</div>
+        </Panel>
       </section>
       <section className="col-span-12 xl:col-span-8 flex flex-col gap-y-12 text-sm">
         <Panel title={t("overview")}>
