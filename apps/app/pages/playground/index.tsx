@@ -9,16 +9,14 @@ const Playground: NextPage = () => {
   return (
     <Layout>
       <div className="container mx-auto col-span-12">
-        <h1 className="text-2xl font-bold mb-4">Pages</h1>
-
         <ul className="list-disc pl-6">
           <li>
-            <Link href="/playground/create-tag" className="text-blue-500 hover:text-blue-700">
+            <Link href="/playground/create-tag" className="link-primary">
               {t("create-tag")}
             </Link>
           </li>
           <li>
-            <Link href="/playground/create-tagging-record" className="text-blue-500 hover:text-blue-700">
+            <Link href="/playground/create-tagging-record" className="link-primary">
               {t("create-tagging-record")}
             </Link>
           </li>
