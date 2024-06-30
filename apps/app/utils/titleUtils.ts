@@ -33,12 +33,12 @@ export const pathToTitle = (): string => {
   const router = useRouter();
 
   if (router.pathname === "/" || router.pathname.trim() === "") {
-    return t("dashboard");
+    return t("explorer");
   }
 
   let titleSegments = getTitleSegments(router, t);
   titleSegments = adjustSegments(titleSegments);
 
   const title = titleSegments.length > 1 ? titleSegments.join(": ") : titleSegments.join("");
-  return title || t("dashboard");
+  return title || t("explorer");
 };

@@ -1,8 +1,9 @@
 export { Alert } from "./Alert";
-
+export { AuctionIcon } from "./AuctionIcon";
 export { CheckCircle } from "./CheckCircle";
-export { Gavel } from "./Gavel";
+export { Globe } from "./Globe";
 export { QuestionMark } from "./QuestionMark";
 export { OutlinkIcon } from "./OutlinkIcon";
+export { Playground } from "./Playground";
 export { Trophy } from "./Trophy";
 export { Wallet } from "./Wallet";

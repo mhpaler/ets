@@ -13,7 +13,7 @@ export default function PageInfo() {
     <>
       <div className="col-span-12 hidden lg:block">
         <Breadcrumbs
-          rootLabel={t("dashboard")}
+          rootLabel={t("explorer")}
           transformLabel={(title) => {
             return <BreadcrumbItem title={Truncate(title)} />;
           }}

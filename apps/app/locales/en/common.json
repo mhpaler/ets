@@ -30,6 +30,7 @@
   "ets": "ETS",
   "etstag-id": "ETSTAG ID",
   "expires": "Expires",
+  "explorer": "Explorer",
   "first-seen": "First seen",
   "id": "Id",
   "invalid-tag-message": "Invalid tag format. Tags must start with a #, contain no spaces, and be between 2 and 32 characters long (excluding the #).",
@@ -116,10 +117,11 @@
   "top-relayers": "Top relayers",
   "top-taggers": "Top taggers",
   "total-tags-applied": "Total tags applied",
+  "upcoming": "Upcoming",
   "view-all": "View all {{subject}}",
   "view-all-bids": "View all bids",
   "NAV": {
-    "AUCTION": "Tag auction"
+    "AUCTION": "Auction"
   },
 
   "TXN": {

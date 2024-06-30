@@ -1,26 +1,32 @@
+import { useState, useMemo } from "react";
 import type { NextPage } from "next";
+import { TagType } from "@app/types/tag";
 import Layout from "@app/layouts/default";
 import useTranslation from "next-translate/useTranslation";
+import { useSystem } from "@app/hooks/useSystem";
+import { AuctionProvider } from "@app/context/AuctionContext";
 import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useCtags } from "@app/hooks/useCtags";
 import { toEth } from "@app/utils";
 import { Truncate } from "@app/components/Truncate";
 import { TimeAgo } from "@app/components/TimeAgo";
 import { Tag } from "@app/components/Tag";
-import { Tags } from "@app/components/Tags";
 import AuctionActions from "@app/components/auction/AuctionActions";
 import AuctionTimer from "@app/components/auction/AuctionTimer";
 import { createColumnHelper } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
 import { TanstackTable } from "@app/components/TanstackTable";
 import Link from "next/link";
-import { globalSettings } from "@app/config/globalSettings";
 
 const Auction: NextPage = () => {
   const { t } = useTranslation("common");
+  const { platformAddress } = useSystem();
+  const { allAuctions } = useAuctionHouse();
 
-  const { tags = [] } = useCtags({
+  const [pageIndex, setPageIndex] = useState(0);
+  const { tags = [], nextTags } = useCtags({
+    skip: pageIndex * 20,
     orderBy: "tagAppliedInTaggingRecord",
+    filter: { owner_: { id: platformAddress.toLowerCase() } },
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -31,22 +37,47 @@ const Auction: NextPage = () => {
     },
   });
 
-  const { allAuctions } = useAuctionHouse();
+  // Function to print debugging information
+  const printDebugInfo = (tags: TagType[]) => {
+    tags.forEach((tag) => {
+      console.log(`Tag ID: ${tag.display}`);
+      if (tag.auctions) {
+        tag.auctions.forEach((auction) => {
+          console.log(`  Auction ID: ${auction.display}, Status: ${auction.settled ? "Settled" : "Active"}`);
+        });
+      } else {
+        console.log("  No auctions available for this tag.");
+      }
+    });
+  };
+
+  // Function to filter out tags with active auctions
+  const filterEligibleTags = (tags: TagType[]): TagType[] => {
+    //printDebugInfo(tags);
+    return tags.filter(
+      (tag) => !tag.auctions || tag.auctions.length === 0 || tag.auctions.every((auction) => auction.settled),
+    );
+  };
+
+  // Perform secondary sorting by timestamp on the client side and filter eligible tags
+  const upcomingTags = filterEligibleTags(tags as TagType[]).sort((a, b) => {
+    const tagAppliedA = a.tagAppliedInTaggingRecord ?? -Infinity;
+    const tagAppliedB = b.tagAppliedInTaggingRecord ?? -Infinity;
+
+    if (tagAppliedA === tagAppliedB) {
+      return a.timestamp - b.timestamp; // Unix timestamp comparison (ascending order)
+    }
+    return tagAppliedB - tagAppliedA;
+  });
+
+  const settledAuctions = allAuctions.filter((auction) => auction.settled);
+  const activeAuctions = allAuctions
+    .filter((auction) => auction.startTime === 0 || auction.settled === false)
+    .sort((a, b) => b.id - a.id);
 
   const columnHelper = createColumnHelper();
-
   const activeColumns = useMemo(
     () => [
-      columnHelper.accessor("id", {
-        header: "#",
-        cell: (info) => {
-          return (
-            <Link href={`/auction/${info.getValue()}`} className="link link-primary">
-              {info.getValue()}
-            </Link>
-          );
-        },
-      }),
       columnHelper.accessor("tag", {
         header: t("tag"),
         cell: (info) => <Tag tag={info.getValue()} />,
@@ -77,7 +108,9 @@ const Auction: NextPage = () => {
         cell: (info) => {
           const auction = info.row.original as any;
           return (
-            <AuctionActions key={info.getValue()} auction={auction} buttonClasses="btn-primary btn-outline btn-sm" />
+            <AuctionProvider key={auction.id} auctionId={auction.id}>
+              <AuctionActions key={info.getValue()} auction={auction} buttonClasses="btn-primary btn-outline btn-sm" />
+            </AuctionProvider>
           );
         },
       }),
@@ -85,9 +118,34 @@ const Auction: NextPage = () => {
     [t],
   );
 
+  const upcomingColumns = useMemo(
+    () => [
+      columnHelper.accessor("display", {
+        header: () => t("tag"),
+        cell: (info) => <Tag tag={info.row.original as TagType} />,
+      }),
+      columnHelper.accessor("timestamp", {
+        header: t("created"),
+        cell: (info) => <TimeAgo date={info.getValue() * 1000} />,
+      }),
+      columnHelper.accessor("owner.id", {
+        header: t("owner"),
+        cell: (info) => Truncate(info.getValue(), 13, "middle"),
+      }),
+      columnHelper.accessor("relayer.id", {
+        header: t("relayer"),
+        cell: (info) => Truncate(info.getValue(), 13, "middle"),
+      }),
+      columnHelper.accessor("tagAppliedInTaggingRecord", {
+        header: t("tagging records"),
+      }),
+    ],
+    [t],
+  );
+
   const settledColumns = useMemo(
     () => [
-      columnHelper.accessor("id", {
+      /*       columnHelper.accessor("id", {
         header: "#",
         cell: (info) => {
           return (
@@ -96,7 +154,7 @@ const Auction: NextPage = () => {
             </Link>
           );
         },
-      }),
+      }), */
       columnHelper.accessor("tag", {
         header: t("tag"),
         cell: (info) => <Tag tag={info.getValue()} />,
@@ -117,43 +175,63 @@ const Auction: NextPage = () => {
     [t],
   );
 
-  if (!allAuctions || allAuctions.length === 0) {
-    return <Layout>Loading auctions...</Layout>;
-  }
-
-  const settledAuctions = allAuctions.filter((auction) => auction.settled);
-  const activeAuctions = allAuctions
-    .filter((auction) => auction.startTime === 0 || auction.settled === false)
-    .sort((a, b) => b.id - a.id);
-
   return (
     <Layout>
-      <TanstackTable
-        columns={activeColumns}
-        data={activeAuctions}
-        loading={!activeAuctions.length}
-        title={t("active")}
-        rowLink={(auction) => `/auction/${auction.id}`}
-      />
-      <TanstackTable
-        columns={settledColumns}
-        data={settledAuctions}
-        loading={!settledAuctions.length}
-        title={t("settled")}
-        rowLink={(auction) => `/auction/${auction.id}`}
-      />
-      <Tags
-        title={t("upcoming")}
-        tags={tags}
-        rowLink={false}
-        columnsConfig={[
-          { title: "tag", field: "tag", formatter: (_: any, tag: any) => <Tag tag={tag} /> },
-          { title: "created", field: "timestamp", formatter: (value: any) => <TimeAgo date={value * 1000} /> },
-          { title: t("owner"), field: "owner.id", formatter: (value: any) => Truncate(value, 13, "middle") },
-          { title: t("relayer"), field: "relayer.id", formatter: (value: any) => Truncate(value, 13, "middle") },
-          { title: "tagging records", field: "tagAppliedInTaggingRecord" },
-        ]}
-      />
+      {/*
+      <div className="dropdown dropdown-hover dropdown-end">
+        <div tabIndex={0} role="button" className="text-info">
+          <svg
+            tabIndex={0}
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            className="h-4 w-4 stroke-current"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+          </svg>
+        </div>
+        <div tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+          <p className="font-semibold">Upcoming Auctions</p>
+          <p>Tags with the most tagging records are released next.</p>
+        </div>
+      </div>
+      */}
+      <div role="tablist" className="tabs tabs-lg col-span-12 auctions">
+        <input type="radio" name="auctions" role="tab" className="tab" aria-label={t("active")} defaultChecked />
+        <div role="tabpanel" className="tab-content">
+          <TanstackTable
+            columns={activeColumns}
+            data={activeAuctions}
+            loading={!activeAuctions.length}
+            rowLink={(auction) => `/tags/${auction.tag.machineName}`}
+          />
+        </div>
+
+        <input type="radio" name="auctions" role="tab" className="tab" aria-label={t("upcoming")} />
+        <div role="tabpanel" className="tab-content">
+          <TanstackTable
+            columns={upcomingColumns}
+            data={upcomingTags}
+            loading={!upcomingTags.length}
+            rowLink={(tag) => `/tags/${tag.machineName}`}
+          />
+        </div>
+
+        <input type="radio" name="auctions" role="tab" className="tab" aria-label={t("settled")} />
+        <div role="tabpanel" className="tab-content">
+          <TanstackTable
+            columns={settledColumns}
+            data={settledAuctions}
+            loading={!settledAuctions.length}
+            rowLink={(auction) => `/tags/${auction.tag.machineName}`}
+          />
+        </div>
+      </div>
     </Layout>
   );
 };

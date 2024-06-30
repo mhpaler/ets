@@ -4,7 +4,7 @@ import useTranslation from "next-translate/useTranslation";
 import { Auction } from "@app/types/auction";
 import { timestampToString } from "@app/utils";
 import { Truncate } from "@app/components/Truncate";
-import { Gavel, Trophy } from "@app/components/icons";
+import { AuctionIcon, Trophy } from "@app/components/icons";
 
 interface Props {
   auction: Auction;
@@ -17,7 +17,7 @@ const AuctionSummary: React.FC<Props> = ({ auction }) => {
       {auction.ended && auction.settled && (
         <div>
           <div className="flex items-center space-x-1">
-            <Gavel size={24} />
+            <AuctionIcon size={24} />
             <span>{t("AUCTION.ENDED")}</span>
             <span className="font-semibold">{timestampToString(auction.endTime)}</span>
           </div>

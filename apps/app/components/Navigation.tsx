@@ -2,6 +2,10 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
 
+import { AuctionIcon } from "./icons/AuctionIcon";
+import { Globe } from "./icons/Globe";
+import { Playground } from "./icons/Playground";
+
 export default function Navigation() {
   const { t } = useTranslation("common");
   const router = useRouter();
@@ -33,48 +37,47 @@ export default function Navigation() {
             </div>
           </Link>
         </div>
-        <ul className="menu">
+        <ul className="menu font-normal text-gray-400">
           <li>
-            <Link className={isActive("") ? "bg-base-200" : ""} href="/">
-              {t("dashboard")}
+            <Link className={isActive("") ? "text-gray-950 bg-gray-100" : ""} href="/">
+              <span className="-mr-1.5">
+                <Globe size={24} />
+              </span>
+              {t("explorer")}
             </Link>
-          </li>
-
-          <li>
-            <h2>Explorer</h2>
             <ul>
               <li>
-                <Link className={isActive("tagging-records") ? "bg-base-200" : ""} href="/tagging-records">
+                <Link className={isActive("tagging-records") ? "text-gray-950 bg-gray-50" : ""} href="/tagging-records">
                   {t("tagging-records")}
                 </Link>
               </li>
               <li>
-                <Link className={isActive("tags") ? "bg-base-200" : ""} href="/tags">
+                <Link className={isActive("tags") ? "text-gray-950 bg-gray-50" : ""} href="/tags">
                   {t("tags")}
                 </Link>
               </li>
               <li>
-                <Link className={isActive("targets") ? "bg-base-200" : ""} href="/targets">
+                <Link className={isActive("targets") ? "text-gray-950 bg-gray-50" : ""} href="/targets">
                   {t("targets")}
                 </Link>
               </li>
               <li>
-                <Link className={isActive("relayers") ? "bg-slate-100" : ""} href="/relayers">
+                <Link className={isActive("relayers") ? "text-gray-950 bg-gray-50" : ""} href="/relayers">
                   {t("relayers")}
                 </Link>
               </li>
               <li>
-                <Link className={isActive("taggers") ? "bg-base-200" : ""} href="/taggers">
+                <Link className={isActive("taggers") ? "text-gray-950 bg-gray-50" : ""} href="/taggers">
                   {t("taggers")}
                 </Link>
               </li>
               <li>
-                <Link className={isActive("creators") ? "bg-base-200" : ""} href="/creators">
+                <Link className={isActive("creators") ? "text-gray-950 bg-gray-50" : ""} href="/creators">
                   {t("tag-creators")}
                 </Link>
               </li>
               <li>
-                <Link className={isActive("owners") ? "bg-base-200" : ""} href="/owners">
+                <Link className={isActive("owners") ? "text-gray-950 bg-gray-50" : ""} href="/owners">
                   {t("tag-owners")}
                 </Link>
               </li>
@@ -82,37 +85,21 @@ export default function Navigation() {
           </li>
 
           <li>
-            <summary>{t("NAV.AUCTION")}</summary>
-            <ul>
-              <li>
-                <Link className={isActive("auction") ? "bg-base-200" : ""} href="/auction">
-                  {t("active")}
-                </Link>
-              </li>
-
-              <li>
-                <a>Upcoming</a>
-              </li>
-            </ul>
+            <Link className={isActive("auction") ? "text-gray-950 bg-gray-50" : ""} href="/auction">
+              <span className="-mr-1.5">
+                <AuctionIcon size={24} />
+              </span>
+              {t("auction")}
+            </Link>
           </li>
 
           <li>
-            <Link className={isActive("playground") ? "bg-base-200" : ""} href="/playground">
+            <Link className={isActive("playground") ? "text-gray-950 bg-gray-50" : ""} href="/playground">
+              <span className="-mr-1.5">
+                <Playground size={24} />
+              </span>
               {t("playground")}
             </Link>
-            <ul>
-              <li>
-                <Link className={isActive("create-tag") ? "bg-base-200" : ""} href="/playground/create-tag">
-                  {t("create-tag")}
-                </Link>
-                <Link
-                  className={isActive("create-tagging-record") ? "bg-base-200" : ""}
-                  href="/playground/create-tagging-record"
-                >
-                  {t("create-tagging-record")}
-                </Link>
-              </li>
-            </ul>
           </li>
         </ul>
       </nav>

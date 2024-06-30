@@ -1,8 +1,14 @@
 import React from "react";
 
-export function Gavel({ size = 36 }) {
+export function AuctionIcon({ size = 24 }) {
+  // Calculate aspect ratio based on the desired size
+  const aspectRatio = 24 / size;
+
+  // Calculate viewBox dimensions dynamically
+  const viewBoxDimensions = `0 0 24 ${24 / aspectRatio}`;
+
   return (
-    <svg width={size} height={size} fill="none" viewBox="0 0 24 24">
+    <svg width={size} height={size} viewBox={viewBoxDimensions} fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M10 14.25L5.75 10L7 8.75L7.5 9.25L10 6.75L9.5 6.25L11 4.75L15.25 9L14 10.25L13.5 9.75L10.75 12.5L11.25 13L10 14.25Z"
         stroke="currentColor"

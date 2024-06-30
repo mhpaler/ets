@@ -1,9 +1,10 @@
-import React, { useState, ReactNode, useEffect } from "react";
+import React, { ReactNode } from "react";
 import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
 import { Button } from "@app/components/Button";
 import useTranslation from "next-translate/useTranslation";
 import { useRouter } from "next/router";
 import { globalSettings } from "@app/config/globalSettings";
+import { useModal } from "@app/hooks/useModalContext";
 
 interface TableProps<TData> {
   columns: any[];
@@ -29,6 +30,7 @@ const TanstackTable = <TData extends object>({
   setPageIndex,
 }: TableProps<TData>) => {
   const { t } = useTranslation("common");
+  const { isModalOpen } = useModal();
 
   const table = useReactTable({
     data,
@@ -83,9 +85,8 @@ const TanstackTable = <TData extends object>({
               : table.getRowModel().rows.map((row, rowIndex) => (
                   <tr
                     key={`table-row-${row.id}-${rowIndex}`}
-                    className={`hover:bg-base-200 ${rowLink ? "cursor-pointer" : "cursor-auto"}`}
-                    onClick={() => rowLink && router.push(String(rowLink(row.original)))}
-                    style={{ cursor: rowLink ? "pointer" : "default" }}
+                    className={rowLink && !isModalOpen ? "hover:bg-base-200 cursor-pointer" : ""}
+                    onClick={() => rowLink && !isModalOpen && router.push(String(rowLink(row.original)))}
                   >
                     {row.getVisibleCells().map((cell, cellIndex) => (
                       <td key={`table-cell-${cell.id}-${cellIndex}`}>
