@@ -1,23 +1,23 @@
 import { useMemo, useState } from "react";
 import type { NextPage } from "next";
-import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
-import { globalSettings } from "@app/config/globalSettings";
-import { useTaggers } from "@app/hooks/useTaggers";
+import { useOwners } from "@app/hooks/useOwners";
 import Layout from "@app/layouts/default";
+import { TimeAgo } from "@app/components/TimeAgo";
+import { Truncate } from "@app/components/Truncate";
 import { TanstackTable } from "@app/components/TanstackTable";
+import Link from "next/link";
 import { createColumnHelper } from "@tanstack/react-table";
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
-import Link from "next/link";
 import useNumberFormatter from "@app/hooks/useNumberFormatter";
 
 const pageSize = 20;
 
-const Taggers: NextPage = () => {
+const Owners: NextPage = () => {
   const { t } = useTranslation("common");
   const [pageIndex, setPageIndex] = useState(0);
   const { number } = useNumberFormatter();
-  const { taggers, nextTaggers } = useTaggers({
+  const { owners, nextOwners } = useOwners({
     pageSize,
     skip: pageIndex * pageSize,
     config: {
@@ -35,21 +35,25 @@ const Taggers: NextPage = () => {
   const columns = useMemo<any[]>(
     () => [
       columnHelper.accessor("id", {
-        header: t("tagger"),
+        header: t("owner"),
         cell: (info) => {
-          const tagger = info.row.original as any;
+          const owner = info.row.original as any;
           return (
             <>
-              <Link href={`/taggers/${tagger.id}`} className="link link-primary">
-                {info.getValue()}
+              <Link href={`/explore/owners/${owner.id}`} className="link link-primary">
+                {Truncate(info.getValue())}
               </Link>
               <CopyAndPaste value={info.getValue()} />
             </>
           );
         },
       }),
-      columnHelper.accessor("taggingRecordsCreated", {
-        header: t("tagging-records"),
+      columnHelper.accessor("firstSeen", {
+        header: t("first-seen"),
+        cell: (info) => <TimeAgo date={info.getValue() * 1000} />,
+      }),
+      columnHelper.accessor("tagsOwned", {
+        header: t("tags-owned", { timeframe: t("current") }),
         cell: (info) => number(parseInt(info.getValue())),
       }),
     ],
@@ -58,21 +62,18 @@ const Taggers: NextPage = () => {
 
   return (
     <Layout>
-      <div className="col-span-12">
-        <TanstackTable
-          columns={columns}
-          data={taggers}
-          loading={!taggers?.length}
-          rowsPerPage={pageSize}
-          hasNextPage={!!nextTaggers?.length}
-          pageIndex={pageIndex}
-          setPageIndex={setPageIndex}
-          title={t("taggers")}
-          rowLink={(tagger: any) => `/taggers/${tagger.id}`}
-        />
-      </div>
+      <TanstackTable
+        columns={columns}
+        data={owners}
+        loading={!owners?.length}
+        rowsPerPage={pageSize}
+        hasNextPage={!!nextOwners?.length}
+        pageIndex={pageIndex}
+        setPageIndex={setPageIndex}
+        rowLink={(owner: any) => `/explore/owners/${owner.id}`}
+      />
     </Layout>
   );
 };
 
-export default Taggers;
+export default Owners;

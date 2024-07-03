@@ -11,9 +11,10 @@ export default function Navigation() {
   const router = useRouter();
 
   const isActive = (basePath: string): boolean => {
-    const firstSegment = router.pathname.split("/")[1];
-    return firstSegment === basePath;
+    const pathSegments = router.pathname.split("/").filter(Boolean);
+    return pathSegments.includes(basePath);
   };
+
   return (
     <>
       <nav className="flex min-h-screen w-80 flex-col gap-2 overflow-y-auto bg-base-100 px-6 py-10">
@@ -39,45 +40,48 @@ export default function Navigation() {
         </div>
         <ul className="menu font-normal text-gray-400">
           <li>
-            <Link className={isActive("") ? "text-gray-950 bg-gray-100" : ""} href="/">
+            <Link className={isActive("explore") ? "text-gray-950 bg-gray-50" : ""} href="">
               <span className="-mr-1.5">
                 <Globe size={24} />
               </span>
-              {t("explorer")}
+              {t("explore")}
             </Link>
             <ul>
               <li>
-                <Link className={isActive("tagging-records") ? "text-gray-950 bg-gray-50" : ""} href="/tagging-records">
+                <Link
+                  className={isActive("tagging-records") ? "text-gray-950 bg-gray-50" : ""}
+                  href="/explore/tagging-records"
+                >
                   {t("tagging-records")}
                 </Link>
               </li>
               <li>
-                <Link className={isActive("tags") ? "text-gray-950 bg-gray-50" : ""} href="/tags">
+                <Link className={isActive("tags") ? "text-gray-950 bg-gray-50" : ""} href="/explore/tags">
                   {t("tags")}
                 </Link>
               </li>
               <li>
-                <Link className={isActive("targets") ? "text-gray-950 bg-gray-50" : ""} href="/targets">
+                <Link className={isActive("targets") ? "text-gray-950 bg-gray-50" : ""} href="/explore/targets">
                   {t("targets")}
                 </Link>
               </li>
               <li>
-                <Link className={isActive("relayers") ? "text-gray-950 bg-gray-50" : ""} href="/relayers">
+                <Link className={isActive("relayers") ? "text-gray-950 bg-gray-50" : ""} href="/explore/relayers">
                   {t("relayers")}
                 </Link>
               </li>
               <li>
-                <Link className={isActive("taggers") ? "text-gray-950 bg-gray-50" : ""} href="/taggers">
+                <Link className={isActive("taggers") ? "text-gray-950 bg-gray-50" : ""} href="/explore/taggers">
                   {t("taggers")}
                 </Link>
               </li>
               <li>
-                <Link className={isActive("creators") ? "text-gray-950 bg-gray-50" : ""} href="/creators">
+                <Link className={isActive("creators") ? "text-gray-950 bg-gray-50" : ""} href="/explore/creators">
                   {t("tag-creators")}
                 </Link>
               </li>
               <li>
-                <Link className={isActive("owners") ? "text-gray-950 bg-gray-50" : ""} href="/owners">
+                <Link className={isActive("owners") ? "text-gray-950 bg-gray-50" : ""} href="/explore/owners">
                   {t("tag-owners")}
                 </Link>
               </li>

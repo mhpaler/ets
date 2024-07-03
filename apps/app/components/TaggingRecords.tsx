@@ -49,7 +49,7 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings["DE
               onClick={(e) => {
                 e.stopPropagation();
               }}
-              href={`/tagging-records/${info.getValue()}`}
+              href={`/explore/tagging-records/${info.getValue()}`}
               className="link link-primary"
             >
               {Truncate(info.getValue())}
@@ -71,7 +71,7 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings["DE
               onClick={(e) => {
                 e.stopPropagation();
               }}
-              href={`/relayers/${relayer.id}`}
+              href={`/explore/relayers/${relayer.id}`}
               className="link link-primary"
             >
               {relayer.name}
@@ -91,7 +91,7 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings["DE
               onClick={(e) => {
                 e.stopPropagation();
               }}
-              href={`/targets/${info.getValue()}`}
+              href={`/explore/targets/${info.getValue()}`}
               className="link link-primary"
             >
               {Truncate(info.getValue())}
@@ -127,7 +127,7 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings["DE
       loading={!taggingRecords?.length}
       rowsPerPage={pageSize}
       title={title}
-      rowLink={(taggingRecord: any) => `/tagging-records/${taggingRecord.id}`}
+      rowLink={(taggingRecord: any) => `/explore/tagging-records/${taggingRecord.id}`}
       hasNextPage={!!nextTaggingRecords?.length}
       pageIndex={pageIndex}
       setPageIndex={setPageIndex}

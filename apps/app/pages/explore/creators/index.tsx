@@ -1,23 +1,24 @@
 import { useMemo, useState } from "react";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
-import { useOwners } from "@app/hooks/useOwners";
+import { timestampToString } from "@app/utils";
+import { toEth } from "@app/utils";
+import useNumberFormatter from "@app/hooks/useNumberFormatter";
+import { useCreators } from "@app/hooks/useCreators";
 import Layout from "@app/layouts/default";
-import { TimeAgo } from "@app/components/TimeAgo";
 import { Truncate } from "@app/components/Truncate";
 import { TanstackTable } from "@app/components/TanstackTable";
 import Link from "next/link";
 import { createColumnHelper } from "@tanstack/react-table";
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
-import useNumberFormatter from "@app/hooks/useNumberFormatter";
 
 const pageSize = 20;
 
-const Owners: NextPage = () => {
+const Creators: NextPage = () => {
   const { t } = useTranslation("common");
   const [pageIndex, setPageIndex] = useState(0);
   const { number } = useNumberFormatter();
-  const { owners, nextOwners } = useOwners({
+  const { creators, nextCreators } = useCreators({
     pageSize,
     skip: pageIndex * pageSize,
     config: {
@@ -35,12 +36,12 @@ const Owners: NextPage = () => {
   const columns = useMemo<any[]>(
     () => [
       columnHelper.accessor("id", {
-        header: t("owner"),
+        header: t("creator"),
         cell: (info) => {
-          const owner = info.row.original as any;
+          const creator = info.row.original as any;
           return (
             <>
-              <Link href={`/owners/${owner.id}`} className="link link-primary">
+              <Link href={`/explore/creators/${creator.id}`} className="link link-primary">
                 {Truncate(info.getValue())}
               </Link>
               <CopyAndPaste value={info.getValue()} />
@@ -50,11 +51,15 @@ const Owners: NextPage = () => {
       }),
       columnHelper.accessor("firstSeen", {
         header: t("first-seen"),
-        cell: (info) => <TimeAgo date={info.getValue() * 1000} />,
+        cell: (info) => timestampToString(parseInt(info.getValue())),
       }),
-      columnHelper.accessor("tagsOwned", {
-        header: t("tags-owned", { timeframe: t("current") }),
+      columnHelper.accessor("tagsCreated", {
+        header: t("tags-created"),
         cell: (info) => number(parseInt(info.getValue())),
+      }),
+      columnHelper.accessor("revenue", {
+        header: t("revenue"),
+        cell: (info) => `${toEth(info.getValue(), 4)} MATIC`,
       }),
     ],
     [t, number],
@@ -64,16 +69,16 @@ const Owners: NextPage = () => {
     <Layout>
       <TanstackTable
         columns={columns}
-        data={owners}
-        loading={!owners?.length}
+        data={creators}
+        loading={!creators?.length}
         rowsPerPage={pageSize}
-        hasNextPage={!!nextOwners?.length}
+        hasNextPage={!!nextCreators?.length}
         pageIndex={pageIndex}
         setPageIndex={setPageIndex}
-        rowLink={(owner: any) => `/owners/${owner.id}`}
+        rowLink={(creator: any) => `/explore/creators/${creator.id}`}
       />
     </Layout>
   );
 };
 
-export default Owners;
+export default Creators;
