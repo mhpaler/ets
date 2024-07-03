@@ -7,30 +7,33 @@ import { useTransactionLabels } from "@app/components/transaction/shared/hooks/u
 interface TransactionConfirmActionsProps {
   transactionId: string; // Add transactionId as a prop
   handleBack: () => void; // Function to handle "Back" action
+  handleCancel: () => void;
   handlePrimaryAction: () => void; // Function to handle the primary action, e.g., submitting the transaction
 }
 
 const TransactionConfirmActions: React.FC<TransactionConfirmActionsProps> = ({
   transactionId,
   handleBack,
+  handleCancel,
   handlePrimaryAction,
 }) => {
   const { t } = useTranslation("common");
   const { transactions } = useTransactionManager(); // Access the transaction manager
   const transaction = transactions[transactionId]; // Retrieve the specific transaction
   const { buttonLabel } = useTransactionLabels(transactionId);
-  // Determine button visibility and state
-  const showBackButton =
-    transaction && !transaction.isPending && !transaction.isSuccess && !transaction.isError && !transaction.hash;
+
+  // show close button, unless there is a txn error.
+  const showClose = !transaction?.isError && !transaction?.isPending && !transaction?.hash;
   const isPending = transaction?.isPending;
 
   return (
     <div className="grid grid-flow-col justify-stretch gap-2">
-      {showBackButton && (
-        <Button type="button" onClick={handleBack}>
-          {t("FORM.BUTTON.BACK")}
+      {showClose && (
+        <Button type="button" onClick={handleCancel}>
+          {t("FORM.BUTTON.CANCEL")}
         </Button>
       )}
+
       <Button
         onClick={handlePrimaryAction}
         disabled={isPending}

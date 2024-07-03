@@ -54,7 +54,7 @@ const TaggingRecord: NextPage = () => {
                 <div className="font-semibold">{t("relayer")}</div>
                 <div className="col-span-2 text-left">
                   <Link
-                    href={`/relayers/${taggingRecords && taggingRecords[0].relayer.id}`}
+                    href={`/explore/relayers/${taggingRecords && taggingRecords[0].relayer.id}`}
                     className="link link-primary"
                   >
                     {taggingRecords && taggingRecords[0].relayer.name}
@@ -67,7 +67,7 @@ const TaggingRecord: NextPage = () => {
                 <div className="flex space-x-1 col-span-2 justify-start">
                   <div className="">
                     <Link
-                      href={`/taggers/${taggingRecords && taggingRecords[0].tagger.id}`}
+                      href={`/explore/taggers/${taggingRecords && taggingRecords[0].tagger.id}`}
                       className="link link-primary"
                     >
                       {taggingRecords && Truncate(taggingRecords[0].tagger.id, 13, "middle")}
@@ -86,7 +86,7 @@ const TaggingRecord: NextPage = () => {
                 <div className="flex space-x-1 col-span-2 justify-start">
                   <div className="truncate">
                     <Link
-                      href={`/targets/${taggingRecords && taggingRecords[0].target.id}`}
+                      href={`/explore/targets/${taggingRecords && taggingRecords[0].target.id}`}
                       className="link link-primary"
                     >
                       {Truncate(taggingRecords && taggingRecords[0].target.id, 32, "end")}

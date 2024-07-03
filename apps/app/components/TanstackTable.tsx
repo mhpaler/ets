@@ -91,6 +91,14 @@ const TanstackTable = <TData extends object>({
                     {row.getVisibleCells().map((cell, cellIndex) => (
                       <td key={`table-cell-${cell.id}-${cellIndex}`}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        {/* {rowLink ? (
+                        @todo: fix modal popup when each cell is linked
+                          <a href={rowLink(row.original)} className="block w-full h-full">
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </a>
+                        ) : (
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        )} */}
                       </td>
                     ))}
                   </tr>

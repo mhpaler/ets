@@ -38,7 +38,7 @@ const Targets: NextPage = () => {
         cell: (info) => {
           const target = info.row.original as any;
           return (
-            <Link href={`/targets/${target.id}`} className="link link-primary">
+            <Link href={`/explore/targets/${target.id}`} className="link link-primary">
               {Truncate(info.getValue(), 24, "middle")}
             </Link>
           );
@@ -73,7 +73,7 @@ const Targets: NextPage = () => {
           hasNextPage={!!nextTargets?.length}
           pageIndex={pageIndex}
           setPageIndex={setPageIndex}
-          rowLink={(target: any) => `/targets/${target.id}`}
+          rowLink={(target: any) => `/explore/targets/${target.id}`}
         />
       </div>
     </Layout>

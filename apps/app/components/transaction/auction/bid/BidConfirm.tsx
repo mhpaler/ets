@@ -50,6 +50,14 @@ const BidConfirm: React.FC<FormStepProps> = ({ transactionId, transactionType, g
     }
   };
 
+  // Function to handle the "Cancel" action.
+  const handleCancel = () => {
+    removeTransaction(transactionId);
+    if (closeModal) {
+      closeModal();
+    }
+  };
+
   const content = (
     <>
       <Dialog.Title as="h3" className="text-center text-xl font-bold leading-6 text-gray-900">
@@ -90,6 +98,7 @@ const BidConfirm: React.FC<FormStepProps> = ({ transactionId, transactionType, g
         <TransactionConfirmActions
           transactionId={transactionId}
           handleBack={() => goToStep(0)}
+          handleCancel={handleCancel}
           handlePrimaryAction={handleButtonClick}
         />
       </div>

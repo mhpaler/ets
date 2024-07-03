@@ -45,6 +45,10 @@
 }
 */
 
+.menu :where(li ul) {
+  margin-inline-start: 1.7rem;
+}
+
 .ReactTags__tags {
   flex-flow: column-reverse;
 }
