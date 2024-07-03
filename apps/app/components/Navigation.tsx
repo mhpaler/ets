@@ -40,7 +40,7 @@ export default function Navigation() {
         </div>
         <ul className="menu font-normal text-gray-400">
           <li>
-            <Link className={isActive("explore") ? "text-gray-950 bg-gray-50" : ""} href="">
+            <Link className={isActive("explore") ? "text-gray-950 bg-gray-50" : ""} href="/explore">
               <span className="-mr-1.5">
                 <Globe size={24} />
               </span>
