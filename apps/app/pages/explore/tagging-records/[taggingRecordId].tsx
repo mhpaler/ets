@@ -70,10 +70,14 @@ const TaggingRecord: NextPage = () => {
                       href={`/explore/taggers/${taggingRecords && taggingRecords[0].tagger.id}`}
                       className="link link-primary"
                     >
-                      {taggingRecords && Truncate(taggingRecords[0].tagger.id, 13, "middle")}
+                      {taggingRecords && taggingRecords[0].tagger.ens
+                        ? taggingRecords[0].tagger.ens
+                        : taggingRecords
+                          ? Truncate(taggingRecords[0].tagger.id, 13, "middle")
+                          : ""}
                     </Link>
                   </div>
-                  <CopyAndPaste value={taggingRecords && taggingRecords[0].tagger.id} />
+                  <CopyAndPaste value={(taggingRecords && taggingRecords[0].tagger.id) || ""} />
                 </div>
               </div>
 
@@ -92,15 +96,15 @@ const TaggingRecord: NextPage = () => {
                       {Truncate(taggingRecords && taggingRecords[0].target.id, 32, "end")}
                     </Link>
                   </div>
-                  <CopyAndPaste value={taggingRecords && taggingRecords[0].target.id} />
+                  <CopyAndPaste value={(taggingRecords && taggingRecords[0].target.id) || ""} />
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                 <div className="font-semibold">{t("target-uri")}</div>
                 <div className="flex space-x-1 col-span-2 justify-start">
                   <div className="truncate">{taggingRecords && taggingRecords[0].target.targetURI}</div>
-                  <CopyAndPaste value={taggingRecords && taggingRecords[0].target.targetURI} />
-                  <URI value={taggingRecords && taggingRecords[0].target.targetURI} />
+                  <CopyAndPaste value={(taggingRecords && taggingRecords[0].target.targetURI) || ""} />
+                  <URI value={(taggingRecords && taggingRecords[0].target.targetURI) || ""} />
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">

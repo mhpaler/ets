@@ -123,7 +123,7 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings["DE
   return (
     <TanstackTable
       columns={columns}
-      data={taggingRecords}
+      data={taggingRecords || []}
       loading={!taggingRecords?.length}
       rowsPerPage={pageSize}
       title={title}

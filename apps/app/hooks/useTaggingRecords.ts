@@ -1,5 +1,13 @@
 import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
+import { usePublicClient } from "wagmi";
+import { useEnsNames } from "./useEnsNames";
+import { TaggingRecordType } from "@app/types/taggingrecord";
+
+type FetchTaggingRecordResponse = {
+  taggingRecords: TaggingRecordType[];
+  nextTaggingRecords: TaggingRecordType[];
+};
 
 export function useTaggingRecords({
   pageSize = 20,
@@ -14,7 +22,9 @@ export function useTaggingRecords({
   filter?: any;
   config?: SWRConfiguration;
 }) {
-  const { data, mutate, error } = useSWR(
+  const client = usePublicClient();
+
+  const { data, mutate, error } = useSWR<FetchTaggingRecordResponse>(
     [
       `query taggingRecords($filter: TaggingRecord_filter $first: Int!, $skip: Int!, $orderBy: String!) {
         taggingRecords: taggingRecords(
@@ -64,10 +74,22 @@ export function useTaggingRecords({
     config,
   );
 
+  const taggerAddresses = data?.taggingRecords?.map((record) => record.tagger.id) || [];
+
+  const { ensNames, isLoading: isLoadingEns } = useEnsNames(taggerAddresses);
+
+  const taggingRecordsWithEns = data?.taggingRecords?.map((record) => ({
+    ...record,
+    tagger: {
+      ...record.tagger,
+      ens: ensNames[record.tagger.id],
+    },
+  }));
+
   return {
-    taggingRecords: data?.taggingRecords,
+    taggingRecords: taggingRecordsWithEns,
     nextTaggingRecords: data?.nextTaggingRecords,
-    isLoading: !error && !data?.taggingRecords,
+    isLoading: (!error && !data?.taggingRecords) || isLoadingEns,
     mutate,
     isError: error?.statusText,
   };

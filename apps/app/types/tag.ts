@@ -9,7 +9,7 @@ export type TagType = {
   display: string;
   owner: {
     id: `0x${string}`;
-    ens?: string;
+    ens?: string | null;
   };
   relayer: {
     id: `0x${string}`;
@@ -17,7 +17,7 @@ export type TagType = {
   };
   creator: {
     id: `0x${string}`;
-    ens?: string;
+    ens?: string | null;
   };
   tagAppliedInTaggingRecord?: number;
   relayerRevenue?: number;
