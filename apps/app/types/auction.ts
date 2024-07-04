@@ -33,6 +33,7 @@ export type Auction = {
   amountDisplay: string;
   bidder: {
     id: `0x${string}`;
+    ens?: string | null;
   };
   bids: Bid[];
   tag: TagType;
