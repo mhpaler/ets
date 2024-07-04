@@ -100,7 +100,7 @@ const Tag: NextPage = () => {
             <div className="flex col-span-3 space-x-1">
               <div className="grid flex-grow grid-cols-1 md:grid-flow-col ">
                 <div className="overflow-hidden text-right text-ellipsis whitespace-nowrap">
-                  <Link href={`/relayers/${tags && tags[0].relayer.id}`} className="link link-primary">
+                  <Link href={`/explore/relayers/${tags && tags[0].relayer.id}`} className="link link-primary">
                     {tags && tags[0].relayer.name}
                   </Link>
                 </div>

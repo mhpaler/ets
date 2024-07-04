@@ -107,7 +107,7 @@ const CreateTaggingRecord: NextPage = () => {
             <>
               {t("tagging-record-created-successfully")}
               <Link
-                href={`/tagging-records/${recordId}`}
+                href={`/explore/tagging-records/${recordId}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="ml-2 underline"
@@ -190,7 +190,7 @@ const CreateTaggingRecord: NextPage = () => {
           {taggingRecordId && (
             <div className="mb-2">
               <Link
-                href={`/tagging-records/${taggingRecordId}`}
+                href={`/explore/tagging-records/${taggingRecordId}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline"

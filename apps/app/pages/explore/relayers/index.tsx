@@ -52,7 +52,7 @@ const Relayers: NextPage = () => {
         cell: (info) => {
           const relayer = info.row.original as any;
           return (
-            <Link href={`/relayers/${relayer.id}`} className="link link-primary">
+            <Link href={`/explore/relayers/${relayer.id}`} className="link link-primary">
               {info.getValue()}
             </Link>
           );

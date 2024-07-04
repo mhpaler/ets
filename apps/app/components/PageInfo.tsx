@@ -1,29 +1,38 @@
-import useTranslation from "next-translate/useTranslation";
+import { useRouter } from "next/router";
 import Breadcrumbs from "nextjs-breadcrumbs2";
-import { pathToTitle } from "@app/utils/titleUtils";
 import { BreadcrumbItem } from "@app/components/BreadcrumbItem";
 import PageTitle from "@app/components/PageTitle";
-import { Truncate } from "@app/components/Truncate";
 
+/**
+ * PageInfo component that renders breadcrumbs and page title based on the current route.
+ *
+ * @returns {JSX.Element} - The PageInfo component.
+ */
 export default function PageInfo() {
-  const { t } = useTranslation("common");
-  const title = pathToTitle();
+  const router = useRouter();
+  const pathSegments = router.pathname.split("/").filter(Boolean);
+
+  // Only start showing breadcrumbs on sub page of a section eg. /explore/explore/tags
+  const showBreadcrumbs = pathSegments.length > 1;
 
   return (
     <>
-      <div className="col-span-12 hidden lg:block">
-        <Breadcrumbs
-          rootLabel={t("explorer")}
-          transformLabel={(title) => {
-            return <BreadcrumbItem title={Truncate(title)} />;
-          }}
-          inactiveItemClassName={"text-sm font-medium link-primary capitalize"}
-          activeItemClassName={"text-sm font-medium opacity-50 pointer-events-none"}
-          listClassName={"flex items-center space-x-2 truncate"}
-          useDefaultStyle={false}
-        />
-      </div>
-      <PageTitle title={title} />
+      {showBreadcrumbs && (
+        <div className="col-span-12 hidden lg:block">
+          <Breadcrumbs
+            omitRootLabel
+            transformLabel={(label) => {
+              return <BreadcrumbItem breadcrumb={label} />;
+            }}
+            containerClassName={"breadcrumbs"}
+            inactiveItemClassName={"text-sm font-medium link-primary"}
+            activeItemClassName={"text-sm font-medium opacity-50 pointer-events-none"}
+            listClassName={"flex items-center space-x-2 breadcrumbs text-sm"}
+            useDefaultStyle={false}
+          />
+        </div>
+      )}
+      <PageTitle />
     </>
   );
 }
