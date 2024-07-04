@@ -68,15 +68,19 @@ export function useRelayers({
     config,
   );
 
-  const ownerAddresses = data?.relayers.map((relayer) => relayer.owner) || [];
+  const addressesToResolve = data?.relayers.flatMap((relayer) => [relayer.owner, relayer.creator]) || [];
 
-  const { ensNames } = useEnsNames(ownerAddresses);
+  const { ensNames } = useEnsNames(addressesToResolve);
 
   const relayersWithEns: RelayerType[] | undefined = data?.relayers.map((relayer) => ({
     ...relayer,
     owner: {
       id: relayer.owner,
       ens: ensNames[relayer.owner] || null,
+    },
+    creator: {
+      id: relayer.creator,
+      ens: ensNames[relayer.creator] || null,
     },
   }));
 

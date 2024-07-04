@@ -75,8 +75,10 @@ const Relayer: NextPage = () => {
                 <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4 hover:bg-slate-100">
                   <div className="font-semibold">{t("creator")}</div>
                   <div className="flex space-x-1 justify-end">
-                    <div className="">{relayers && Truncate(relayers[0]?.creator ?? "", 14, "middle")}</div>
-                    <CopyAndPaste value={(relayers && relayers[0]?.creator) ?? ""} />
+                    <div className="">
+                      {relayers && Truncate(relayers[0]?.creator.ens ?? relayers[0]?.creator.id ?? "", 14, "middle")}
+                    </div>
+                    <CopyAndPaste value={(relayers && (relayers[0]?.creator.ens ?? relayers[0]?.creator.id)) ?? ""} />
                   </div>
                 </div>
 

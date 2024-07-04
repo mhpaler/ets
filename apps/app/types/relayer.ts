@@ -19,8 +19,12 @@ export type RawRelayerType = {
   tagsRemoved: number;
 };
 
-export type RelayerType = Omit<RawRelayerType, "owner"> & {
+export type RelayerType = Omit<RawRelayerType, "owner" | "creator"> & {
   owner: {
+    id: Hex;
+    ens: string | null;
+  };
+  creator: {
     id: Hex;
     ens: string | null;
   };
