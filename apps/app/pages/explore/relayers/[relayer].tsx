@@ -60,31 +60,33 @@ const Relayer: NextPage = () => {
                 <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col hover:bg-slate-100">
                   <div className="font-semibold">{t("id")}</div>
                   <div className="flex space-x-1 justify-end">
-                    <div className="">{relayers && Truncate(relayers[0].id, 14, "middle")}</div>
-                    <CopyAndPaste value={relayers && relayers[0].id} />
+                    <div className="">{relayers && Truncate(relayers[0]?.id ?? "", 14, "middle")}</div>
+                    <CopyAndPaste value={(relayers && relayers[0]?.id) ?? ""} />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                   <div className="font-semibold">{t("created")}</div>
                   <div className="text-right">
-                    <div className="">{relayers && timestampToString(parseInt(relayers[0].firstSeen))}</div>
+                    <div className="">{relayers && timestampToString(relayers[0]?.firstSeen)}</div>
                   </div>
                 </div>
 
                 <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4 hover:bg-slate-100">
                   <div className="font-semibold">{t("creator")}</div>
                   <div className="flex space-x-1 justify-end">
-                    <div className="">{relayers && Truncate(relayers[0].creator, 14, "middle")}</div>
-                    <CopyAndPaste value={relayers && relayers[0].creator} />
+                    <div className="">{relayers && Truncate(relayers[0]?.creator ?? "", 14, "middle")}</div>
+                    <CopyAndPaste value={(relayers && relayers[0]?.creator) ?? ""} />
                   </div>
                 </div>
 
                 <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4 hover:bg-slate-100">
                   <div className="font-semibold">{t("owner")}</div>
                   <div className="flex space-x-1 justify-end">
-                    <div className="">{relayers && Truncate(relayers[0].owner, 14, "middle")}</div>
-                    <CopyAndPaste value={relayers && relayers[0].owner} />
+                    <div className="">
+                      {relayers && Truncate(relayers[0]?.owner.ens ?? relayers[0]?.owner.id ?? "", 14, "middle")}
+                    </div>
+                    <CopyAndPaste value={(relayers && (relayers[0]?.owner.ens ?? relayers[0]?.owner.id)) ?? ""} />
                   </div>
                 </div>
 
