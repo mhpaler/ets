@@ -113,7 +113,7 @@ const Tag: NextPage = () => {
             <div className="flex space-x-1 justify-end">
               <div className="">
                 <Link href={`/creators/${tags && tags[0].creator.id}`} className="link link-primary">
-                  {tags && Truncate(tags[0].creator.id)}
+                  {tags && tags[0].creator.ens ? tags[0].creator.ens : Truncate(tags[0].creator.id)}
                 </Link>
               </div>
               <CopyAndPaste value={tags && tags[0].creator.id} />
@@ -125,7 +125,7 @@ const Tag: NextPage = () => {
             <div className="flex space-x-1 justify-end">
               <div className="">
                 <Link href={`/owners/${tags && tags[0].owner.id}`} className="link link-primary">
-                  {tags && Truncate(tags[0].owner.id)}
+                  {tags && tags[0].owner.ens ? tags[0].owner.ens : Truncate(tags[0].owner.id)}
                 </Link>
               </div>
               <CopyAndPaste value={tags && tags[0].owner.id} />
