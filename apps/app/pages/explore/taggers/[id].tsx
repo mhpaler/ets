@@ -13,15 +13,15 @@ import { Panel } from "@app/components/Panel";
 
 const Tagger: NextPage = () => {
   const { query } = useRouter();
-  const { tagger } = query;
+  const { id } = query;
   const { t } = useTranslation("common");
   const filter = {
-    tagger_: { id: tagger },
+    tagger_: { id },
   };
   const { taggers } = useTaggers({
     pageSize: 1,
     skip: 0,
-    filter: { id: tagger },
+    filter: { id },
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -32,13 +32,12 @@ const Tagger: NextPage = () => {
     },
   });
 
-  const currentTagger = taggers && taggers[0];
-  const taggerIdentifier = currentTagger?.ens || currentTagger?.id;
+  const tagger = taggers && taggers[0];
 
   return (
     <Layout>
       <Head>
-        <title>{`${t("tagger")}: ${taggerIdentifier}`}</title>
+        <title>{`${t("tagger")}: ${tagger?.ens || Truncate(tagger?.id)}`}</title>
       </Head>
       <div className="col-span-12">
         <div className="grid gap-6 lg:gap-12 md:space-y-0 md:grid sm:w-full md:grid-cols-2">
@@ -47,15 +46,15 @@ const Tagger: NextPage = () => {
               <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col hover:bg-slate-100">
                 <div className="">{t("id")}</div>
                 <div className="flex space-x-1 justify-end">
-                  <div className="">{currentTagger?.ens ? taggerIdentifier : Truncate(currentTagger?.id)}</div>
-                  {currentTagger?.id && <CopyAndPaste value={currentTagger.id} />}
+                  <div className="">{tagger?.ens || Truncate(tagger?.id)}</div>
+                  {tagger?.id && <CopyAndPaste value={tagger.id} />}
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                 <div className="">{t("first-seen")}</div>
                 <div className="text-right">
-                  <div className="">{currentTagger && timestampToString(parseInt(currentTagger.firstSeen))}</div>
+                  <div className="">{tagger && timestampToString(parseInt(tagger.firstSeen))}</div>
                 </div>
               </div>
             </Panel>
@@ -65,15 +64,13 @@ const Tagger: NextPage = () => {
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                 <div className="">{t("tagging-records-created")}</div>
                 <div className="text-right">
-                  <div className="">
-                    {currentTagger && <Number value={parseInt(currentTagger.taggingRecordsCreated)} />}
-                  </div>
+                  <div className="">{tagger && <Number value={parseInt(tagger.taggingRecordsCreated)} />}</div>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                 <div className="">{t("total-tags-applied")}</div>
                 <div className="text-right">
-                  <div className="">{currentTagger && <Number value={parseInt(currentTagger.tagsApplied)} />}</div>
+                  <div className="">{tagger && <Number value={parseInt(tagger.tagsApplied)} />}</div>
                 </div>
               </div>
             </Panel>

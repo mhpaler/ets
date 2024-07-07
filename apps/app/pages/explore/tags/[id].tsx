@@ -22,13 +22,13 @@ const Tag: NextPage = () => {
   const { query } = useRouter();
   const { ownershipTermLength } = useSystem();
   const chain = useCurrentChain();
-  const { tag } = query;
+  const { id } = query;
   const { t } = useTranslation("common");
 
   const { tags } = useCtags({
     pageSize: 1,
     skip: 0,
-    filter: { machineName: tag },
+    filter: { machineName: id },
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -39,9 +39,11 @@ const Tag: NextPage = () => {
     },
   });
 
-  const taggingRecordsFilter = { tags_: { machineName: tag } };
+  const tag = tags ? tags[0] : null;
 
-  if (!tags || tags.length === 0) {
+  const taggingRecordsFilter = { tags_: { machineName: id } };
+
+  if (!tag || tags?.length === 0) {
     return (
       <Layout>
         <div className="loading loading-spinner loading-md" />
@@ -50,8 +52,8 @@ const Tag: NextPage = () => {
   }
 
   let auctionBlock;
-  if (tags[0].auctions && tags[0].auctions.length > 0) {
-    const auction = tags[0].auctions[tags[0].auctions.length - 1];
+  if (tag.auctions && tag.auctions.length > 0) {
+    const auction = tag.auctions[tag.auctions.length - 1];
     auctionBlock = (
       <AuctionProvider auctionId={Number(auction.id)}>
         <WithinTagAuctionDisplay />
@@ -64,7 +66,7 @@ const Tag: NextPage = () => {
   return (
     <Layout>
       <section className="col-span-12 xl:col-span-4 flex flex-col gap-y-12  text-sm">
-        <TagGraphic tag={tags[0]} />
+        <TagGraphic tag={tag} />
         <Panel title={t("auction")}>
           <div className="p-6">{auctionBlock}</div>
         </Panel>
@@ -75,23 +77,23 @@ const Tag: NextPage = () => {
             <div className="font-semibold">{t("id")}</div>
             <div className="flex space-x-1">
               <div className="grid flex-grow md:grid-flow-col justify-end">
-                <div className=" ">{tags && Truncate(tags[0].id)}</div>
+                <div className=" ">{Truncate(tag.id)}</div>
               </div>
-              <CopyAndPaste value={tags && tags[0].id} />
+              <CopyAndPaste value={tag.id} />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
             <div className="font-semibold">{t("created")}</div>
             <div className="text-right">
-              <div className="">{tags && timestampToString(tags[0].timestamp)}</div>
+              <div className="">{timestampToString(tag.timestamp)}</div>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
             <div className="font-semibold">{t("expires")}</div>
             <div className="text-right">
-              <div className="">{tags && timestampToString(+tags[0].timestamp + ownershipTermLength)}</div>
+              <div className="">{timestampToString(+tag.timestamp + ownershipTermLength)}</div>
             </div>
           </div>
 
@@ -100,8 +102,8 @@ const Tag: NextPage = () => {
             <div className="flex col-span-3 space-x-1">
               <div className="grid flex-grow grid-cols-1 md:grid-flow-col ">
                 <div className="overflow-hidden text-right text-ellipsis whitespace-nowrap">
-                  <Link href={`/explore/relayers/${tags && tags[0].relayer.id}`} className="link link-primary">
-                    {tags && tags[0].relayer.name}
+                  <Link href={`/explore/relayers/${tag.relayer.id}`} className="link link-primary">
+                    {tag.relayer.name}
                   </Link>
                 </div>
               </div>
@@ -112,11 +114,11 @@ const Tag: NextPage = () => {
             <div className="font-semibold">{t("creator")}</div>
             <div className="flex space-x-1 justify-end">
               <div className="">
-                <Link href={`/creators/${tags && tags[0].creator.id}`} className="link link-primary">
-                  {tags && tags[0].creator.ens ? tags[0].creator.ens : Truncate(tags[0].creator.id)}
+                <Link href={`/creators/${tag.creator.id}`} className="link link-primary">
+                  {tag.creator.ens ? tag.creator.ens : Truncate(tag.creator.id)}
                 </Link>
               </div>
-              <CopyAndPaste value={tags && tags[0].creator.id} />
+              <CopyAndPaste value={tag.creator.id} />
             </div>
           </div>
 
@@ -124,11 +126,11 @@ const Tag: NextPage = () => {
             <div className="font-semibold">{t("owner")}</div>
             <div className="flex space-x-1 justify-end">
               <div className="">
-                <Link href={`/owners/${tags && tags[0].owner.id}`} className="link link-primary">
-                  {tags && tags[0].owner.ens ? tags[0].owner.ens : Truncate(tags[0].owner.id)}
+                <Link href={`/owners/${tag.owner.id}`} className="link link-primary">
+                  {tag.owner.ens ? tag.owner.ens : Truncate(tag.owner.id)}
                 </Link>
               </div>
-              <CopyAndPaste value={tags && tags[0].owner.id} />
+              <CopyAndPaste value={tag.owner.id} />
             </div>
           </div>
         </Panel>
@@ -136,14 +138,14 @@ const Tag: NextPage = () => {
           <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
             <div className="font-semibold">{t("tagging-records")}</div>
             <div className="text-right">
-              <div className="">{tags && tags[0].tagAppliedInTaggingRecord}</div>
+              <div className="">{tag.tagAppliedInTaggingRecord}</div>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
             <div className="font-semibold">{t("creator")}</div>
             <div className="text-right">
               <div className="">
-                {tags && toEth(tags[0].creatorRevenue, 8)} {chain?.nativeCurrency.symbol}
+                {toEth(tag.creatorRevenue, 8)} {chain?.nativeCurrency.symbol}
               </div>
             </div>
           </div>
@@ -152,7 +154,7 @@ const Tag: NextPage = () => {
             <div className="font-semibold">{t("owner")}</div>
             <div className="text-right">
               <div className="">
-                {tags && toEth(tags[0].ownerRevenue, 8)} {chain?.nativeCurrency.symbol}
+                {toEth(tag.ownerRevenue, 8)} {chain?.nativeCurrency.symbol}
               </div>
             </div>
           </div>
@@ -161,7 +163,7 @@ const Tag: NextPage = () => {
             <div className="font-semibold">{t("relayer")}</div>
             <div className="text-right">
               <div className="">
-                {tags && toEth(tags[0].relayerRevenue, 8)} {chain?.nativeCurrency.symbol}
+                {toEth(tag.relayerRevenue, 8)} {chain?.nativeCurrency.symbol}
               </div>
             </div>
           </div>
@@ -170,7 +172,7 @@ const Tag: NextPage = () => {
             <div className="font-semibold">{t("protocol")}</div>
             <div className="text-right">
               <div className="">
-                {tags && toEth(tags[0].protocolRevenue, 8)} {chain?.nativeCurrency.symbol}
+                {toEth(tag.protocolRevenue, 8)} {chain?.nativeCurrency.symbol}
               </div>
             </div>
           </div>
@@ -180,7 +182,7 @@ const Tag: NextPage = () => {
         <TaggingRecords
           filter={taggingRecordsFilter}
           title={t("tag-tagging-records", {
-            tag: tags && tags[0].display,
+            tag: tag.display,
           })}
         />
       </div>

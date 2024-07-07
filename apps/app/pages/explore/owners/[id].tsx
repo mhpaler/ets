@@ -58,7 +58,7 @@ const Owner: NextPage = () => {
                   <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col hover:bg-slate-100 ">
                     <div className="font-semibold">{t("id")}</div>
                     <div className="flex space-x-1 justify-end">
-                      <div className="">{owner.ens ? owner.ens : Truncate(owner.id)}</div>
+                      <div className="">{owner.ens || Truncate(owner.id)}</div>
                       <CopyAndPaste value={owner.id} />
                     </div>
                   </div>

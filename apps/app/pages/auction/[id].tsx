@@ -11,11 +11,11 @@ interface AuctionPageProps {
 
 const AuctionPage: NextPage<AuctionPageProps> = () => {
   const router = useRouter();
-  const { auctionId } = router.query;
+  const { id } = router.query;
 
   return (
     <Layout>
-      <AuctionProvider auctionId={Number(auctionId)}>
+      <AuctionProvider auctionId={Number(id)}>
         <AuctionDisplay />
       </AuctionProvider>
     </Layout>
