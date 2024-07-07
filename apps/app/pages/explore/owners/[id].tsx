@@ -1,7 +1,8 @@
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
-import { useCreators } from "@app/hooks/useCreators";
+import { useOwners } from "@app/hooks/useOwners";
 import { useCtags } from "@app/hooks/useCtags";
+
 import useTranslation from "next-translate/useTranslation";
 import { timestampToString } from "@app/utils";
 import { toEth } from "@app/utils";
@@ -14,11 +15,11 @@ import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Truncate } from "@app/components/Truncate";
 import { Panel } from "@app/components/Panel";
 
-const Creator: NextPage = () => {
+const Owner: NextPage = () => {
   const { query } = useRouter();
   const { id } = query;
   const { t } = useTranslation("common");
-  const { creators } = useCreators({
+  const { owners } = useOwners({
     pageSize: 1,
     skip: 0,
     filter: { id },
@@ -32,10 +33,10 @@ const Creator: NextPage = () => {
     },
   });
 
-  const creator = creators ? creators[0] : null;
+  const owner = owners ? owners[0] : null;
 
   const { tags = [] } = useCtags({
-    filter: { creator_: { id } },
+    filter: { owner_: { id } },
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -48,24 +49,24 @@ const Creator: NextPage = () => {
 
   return (
     <Layout>
-      {creator && (
+      {owner && (
         <div className="col-span-12">
           <div className="grid gap-6 mx-auto mt-8 lg:mb-12 mb-6 lg:gap-12 md:space-y-0 md:grid sm:w-full md:grid-cols-2">
             <div className="grid content-start w-full gap-6 mx-auto lg:gap-12 text-sm">
               <div>
                 <Panel title={t("overview")}>
-                  <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col hover:bg-slate-100">
+                  <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col hover:bg-slate-100 ">
                     <div className="font-semibold">{t("id")}</div>
                     <div className="flex space-x-1 justify-end">
-                      <div className="">{Truncate(creator.ens || creator.id, 13, "middle")}</div>
-                      {creator.id && <CopyAndPaste value={creator.id} />}
+                      <div className="">{owner.ens ? owner.ens : Truncate(owner.id)}</div>
+                      <CopyAndPaste value={owner.id} />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                     <div className="font-semibold">{t("first-seen")}</div>
                     <div className="text-right">
-                      <div className="">{timestampToString(parseInt(creator.firstSeen))}</div>
+                      <div className="">{timestampToString(parseInt(owner.firstSeen))}</div>
                     </div>
                   </div>
                 </Panel>
@@ -75,34 +76,30 @@ const Creator: NextPage = () => {
               <div>
                 <Panel title={t("stats")}>
                   <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
-                    <div className="font-semibold">{t("tags-created")}</div>
+                    <div className="font-semibold">{t("tags-owned", { timeframe: t("current") })}</div>
                     <div className="text-right">
-                      <div className="">{<Number value={parseInt(creator.tagsCreated)} />}</div>
+                      <div className="">{<Number value={parseInt(owner.tagsOwned)} />}</div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
+                    <div className="font-semibold">{t("tags-owned", { timeframe: t("lifetime") })}</div>
+                    <div className="text-right">
+                      <div className="">{<Number value={parseInt(owner.tagsOwnedLifeTime)} />}</div>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
-                    <div className="font-semibold">{t("created-tags-in-tagging-record")}</div>
+                    <div className="font-semibold">{t("owned-tags-in-tagging-records")}</div>
                     <div className="text-right">
-                      <div className="">{<Number value={parseInt(creator.createdTagsAddedToTaggingRecords)} />}</div>
+                      <div className="">{<Number value={parseInt(owner.ownedTagsAddedToTaggingRecords)} />}</div>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
-                    <div className="font-semibold">{t("created-tags-auction-revenue")}</div>
+                    <div className="font-semibold">{t("tagging-revenue")}</div>
                     <div className="text-right">
                       <div className="">
-                        {toEth(parseFloat(creator.createdTagsAuctionRevenue), 4)}
-                        &nbsp;{t("matic")}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
-                    <div className="font-semibold">{t("created-tags-tagging-revenue")}</div>
-                    <div className="text-right">
-                      <div className="">
-                        {toEth(parseFloat(creator.createdTagsTaggingFeeRevenue), 4)}
+                        {toEth(parseFloat(owner.ownedTagsTaggingFeeRevenue), 4)}
                         &nbsp;{t("matic")}
                       </div>
                     </div>
@@ -113,9 +110,7 @@ const Creator: NextPage = () => {
           </div>
           <div>
             <Tags
-              title={t("tags-created-by", {
-                creator: Truncate(creator.id, 13, "middle"),
-              })}
+              title={t("owner-tags") + " " + Truncate(owner.id, 13, "middle")}
               tags={tags}
               rowLink={false}
               columnsConfig={[
@@ -123,7 +118,7 @@ const Creator: NextPage = () => {
                 {
                   title: "created",
                   field: "timestamp",
-                  formatter: (value: any, tag: any) => <TimeAgo date={value * 1000} />,
+                  formatter: (value: any, _: any) => <TimeAgo date={value * 1000} />,
                 },
                 { title: "tagging records", field: "tagAppliedInTaggingRecord" },
               ]}
@@ -135,4 +130,4 @@ const Creator: NextPage = () => {
   );
 };
 
-export default Creator;
+export default Owner;
