@@ -9,7 +9,6 @@ import { TaggingRecords } from "@app/components/TaggingRecords";
 import { Number } from "@app/components/Number";
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Truncate } from "@app/components/Truncate";
-
 import { Panel } from "@app/components/Panel";
 
 const Tagger: NextPage = () => {
@@ -33,8 +32,14 @@ const Tagger: NextPage = () => {
     },
   });
 
+  const currentTagger = taggers && taggers[0];
+  const taggerIdentifier = currentTagger?.ens || currentTagger?.id;
+
   return (
     <Layout>
+      <Head>
+        <title>{`${t("tagger")}: ${taggerIdentifier}`}</title>
+      </Head>
       <div className="col-span-12">
         <div className="grid gap-6 lg:gap-12 md:space-y-0 md:grid sm:w-full md:grid-cols-2">
           <div className="grid content-start w-full gap-6 mx-auto lg:gap-12 text-sm">
@@ -42,15 +47,15 @@ const Tagger: NextPage = () => {
               <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col hover:bg-slate-100">
                 <div className="">{t("id")}</div>
                 <div className="flex space-x-1 justify-end">
-                  <div className="">{taggers && Truncate(taggers[0].id)}</div>
-                  <CopyAndPaste value={taggers && taggers[0].id} />
+                  <div className="">{currentTagger?.ens ? taggerIdentifier : Truncate(currentTagger?.id)}</div>
+                  {currentTagger?.id && <CopyAndPaste value={currentTagger.id} />}
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                 <div className="">{t("first-seen")}</div>
                 <div className="text-right">
-                  <div className="">{taggers && timestampToString(parseInt(taggers[0].firstSeen))}</div>
+                  <div className="">{currentTagger && timestampToString(parseInt(currentTagger.firstSeen))}</div>
                 </div>
               </div>
             </Panel>
@@ -60,13 +65,15 @@ const Tagger: NextPage = () => {
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                 <div className="">{t("tagging-records-created")}</div>
                 <div className="text-right">
-                  <div className="">{taggers && <Number value={taggers[0].taggingRecordsCreated} />}</div>
+                  <div className="">
+                    {currentTagger && <Number value={parseInt(currentTagger.taggingRecordsCreated)} />}
+                  </div>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                 <div className="">{t("total-tags-applied")}</div>
                 <div className="text-right">
-                  <div className="">{taggers && <Number value={taggers[0].tagsApplied} />}</div>
+                  <div className="">{currentTagger && <Number value={parseInt(currentTagger.tagsApplied)} />}</div>
                 </div>
               </div>
             </Panel>

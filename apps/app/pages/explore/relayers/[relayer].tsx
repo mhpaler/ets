@@ -165,8 +165,16 @@ const Relayer: NextPage = () => {
               field: "timestamp",
               formatter: (value: any) => <TimeAgo date={value * 1000} />,
             },
-            { title: t("creator"), field: "creator.id", formatter: (value: any) => Truncate(value, 14, "middle") },
-            { title: t("owner"), field: "owner.id", formatter: (value: any) => Truncate(value, 14, "middle") },
+            {
+              title: t("creator"),
+              field: "creator.id",
+              formatter: (value: any, row: any) => (row.creator.ens ? row.creator.ens : Truncate(value, 14, "middle")),
+            },
+            {
+              title: t("owner"),
+              field: "owner.id",
+              formatter: (value: any, row: any) => (row.owner.ens ? row.owner.ens : Truncate(value, 14, "middle")),
+            },
             { title: "tagging records", field: "tagAppliedInTaggingRecord" },
           ]}
         />
