@@ -60,7 +60,7 @@ const Taggers: NextPage = () => {
       <div className="col-span-12">
         <TanstackTable
           columns={columns}
-          data={taggers || []}
+          data={taggers}
           loading={!taggers?.length}
           rowsPerPage={pageSize}
           hasNextPage={!!nextTaggers?.length}

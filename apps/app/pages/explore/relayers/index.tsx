@@ -103,7 +103,7 @@ const Relayers: NextPage = () => {
         </div>
         <TanstackTable
           columns={columns}
-          data={relayers || []}
+          data={relayers}
           loading={!relayers?.length}
           rowsPerPage={pageSize}
           hasNextPage={!!nextRelayers?.length}

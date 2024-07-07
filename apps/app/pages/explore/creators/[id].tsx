@@ -16,12 +16,12 @@ import { Panel } from "@app/components/Panel";
 
 const Creator: NextPage = () => {
   const { query } = useRouter();
-  const { creator } = query;
+  const { id } = query;
   const { t } = useTranslation("common");
   const { creators } = useCreators({
     pageSize: 1,
     skip: 0,
-    filter: { id: creator },
+    filter: { id },
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -32,8 +32,10 @@ const Creator: NextPage = () => {
     },
   });
 
+  const creator = creators ? creators[0] : null;
+
   const { tags = [] } = useCtags({
-    filter: { creator_: { id: creator } },
+    filter: { creator_: { id } },
     config: {
       revalidateOnFocus: false,
       revalidateOnMount: true,
@@ -43,6 +45,11 @@ const Creator: NextPage = () => {
       refreshInterval: 1500,
     },
   });
+
+  // should implement a similar system elsewhere
+  if (!creator) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Layout>
@@ -54,15 +61,15 @@ const Creator: NextPage = () => {
                 <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col hover:bg-slate-100">
                   <div className="font-semibold">{t("id")}</div>
                   <div className="flex space-x-1 justify-end">
-                    <div className="">{creators && Truncate(creators[0].id, 13, "middle")}</div>
-                    <CopyAndPaste value={creators && creators[0].id} />
+                    <div className="">{Truncate(creator.ens || creator.id, 13, "middle")}</div>
+                    {creator.id && <CopyAndPaste value={creator.id} />}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                   <div className="font-semibold">{t("first-seen")}</div>
                   <div className="text-right">
-                    <div className="">{creators && timestampToString(parseInt(creators[0].firstSeen))}</div>
+                    <div className="">{timestampToString(parseInt(creator.firstSeen))}</div>
                   </div>
                 </div>
               </Panel>
@@ -74,16 +81,14 @@ const Creator: NextPage = () => {
                 <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                   <div className="font-semibold">{t("tags-created")}</div>
                   <div className="text-right">
-                    <div className="">{creators && <Number value={creators[0].tagsCreated} />}</div>
+                    <div className="">{<Number value={parseInt(creator.tagsCreated)} />}</div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                   <div className="font-semibold">{t("created-tags-in-tagging-record")}</div>
                   <div className="text-right">
-                    <div className="">
-                      {creators && <Number value={creators[0].createdTagsAddedToTaggingRecords} />}
-                    </div>
+                    <div className="">{<Number value={parseInt(creator.createdTagsAddedToTaggingRecords)} />}</div>
                   </div>
                 </div>
 
@@ -91,7 +96,7 @@ const Creator: NextPage = () => {
                   <div className="font-semibold">{t("created-tags-auction-revenue")}</div>
                   <div className="text-right">
                     <div className="">
-                      {creators && toEth(creators[0].createdTagsAuctionRevenue, 4)}
+                      {toEth(parseFloat(creator.createdTagsAuctionRevenue), 4)}
                       &nbsp;{t("matic")}
                     </div>
                   </div>
@@ -101,7 +106,7 @@ const Creator: NextPage = () => {
                   <div className="font-semibold">{t("created-tags-tagging-revenue")}</div>
                   <div className="text-right">
                     <div className="">
-                      {creators && toEth(creators[0].createdTagsTaggingFeeRevenue, 4)}
+                      {toEth(parseFloat(creator.createdTagsTaggingFeeRevenue), 4)}
                       &nbsp;{t("matic")}
                     </div>
                   </div>
@@ -113,7 +118,7 @@ const Creator: NextPage = () => {
         <div>
           <Tags
             title={t("tags-created-by", {
-              creator: creators && Truncate(creators[0].id, 13, "middle"),
+              creator: Truncate(creator.id, 13, "middle"),
             })}
             tags={tags}
             rowLink={false}
