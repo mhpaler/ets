@@ -47,6 +47,7 @@ export type Bid = {
   amountDisplay: string;
   bidder: {
     id: `0x${string}`;
+    ens?: string | null;
   };
 };
 

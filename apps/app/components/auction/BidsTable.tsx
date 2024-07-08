@@ -32,7 +32,9 @@ const BidsTable: React.FC<AuctionProps> = ({ bids, limit }) => {
       {displayedBids.map((bid, index) => (
         <li key={index} className="text-sm flex justify-between items-center rounded-md m-4 py-2 px-3 bg-white">
           <div>
-            <span className="font-semibold">{Truncate(bid.bidder.id, 12, "middle")}</span>
+            <span className="font-semibold">
+              {bid.bidder.ens ? bid.bidder.ens : Truncate(bid.bidder.id, 12, "middle")}
+            </span>
             <span className="text-xs text-gray-500 block mt-1">{timestampToString(bid.blockTimestamp)}</span>
           </div>
           <div className="flex items-center font-semibold text-right space-x-1">
