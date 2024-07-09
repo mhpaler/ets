@@ -43,7 +43,7 @@ const Playground: NextPage = () => {
 
   const handleSelectRelayer = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const relayerId = event.target.value;
-    const selected = relayers.find((relayer: any) => relayer.id.toString() === relayerId);
+    const selected = relayers?.find((relayer: any) => relayer.id.toString() === relayerId);
     setSelectedRelayer(selected || null);
   };
 

@@ -1,6 +1,7 @@
 import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
 import { TagType } from "@app/types/tag";
+import { useEnsNames } from "./useEnsNames";
 
 type FetchTagsResponse = {
   tags: TagType[];
@@ -104,10 +105,28 @@ export function useCtags({
     config,
   );
 
+  const addresses = Array.from(
+    new Set([...(data?.tags || []).map((tag) => tag.creator.id), ...(data?.tags || []).map((tag) => tag.owner.id)]),
+  );
+
+  const { ensNames, isLoading: isLoadingEns } = useEnsNames(addresses);
+
+  const tagsWithEns = data?.tags.map((tag) => ({
+    ...tag,
+    creator: {
+      ...tag.creator,
+      ens: ensNames[tag.creator.id],
+    },
+    owner: {
+      ...tag.owner,
+      ens: ensNames[tag.owner.id],
+    },
+  }));
+
   return {
-    tags: data?.tags,
+    tags: tagsWithEns,
     nextTags: nextTagsData?.tags,
-    isLoading: (!error && !data?.tags) || (!nextTagsData && !error),
+    isLoading: (!error && !data?.tags) || (!nextTagsData && !error) || isLoadingEns,
     isError: error?.statusText,
     mutate,
   };

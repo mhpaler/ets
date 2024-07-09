@@ -24,8 +24,10 @@ const AuctionSummary: React.FC<Props> = ({ auction }) => {
           <div className="flex items-center space-x-1">
             <Trophy size={24} />
             <span>{t("AUCTION.WINNER")}</span>
-            <Link href={`/owners/${auction.bidder.id}`} legacyBehavior>
-              <a className="link link-primary font-semibold">{Truncate(auction.bidder.id, 14, "middle")}</a>
+            <Link href={`/explore/owners/${auction.bidder.id}`} legacyBehavior>
+              <a className="link link-primary font-semibold">
+                {auction.bidder.ens ? auction.bidder.ens : Truncate(auction.bidder.id, 14, "middle")}
+              </a>
             </Link>
           </div>
         </div>

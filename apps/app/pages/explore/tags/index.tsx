@@ -38,9 +38,12 @@ const Ctags: NextPage = () => {
         header: () => "Created",
         cell: (info) => <TimeAgo date={info.getValue() * 1000} />,
       }),
-      columnHelper.accessor("owner.id", {
+      columnHelper.accessor("owner", {
         header: () => t("owner"),
-        cell: (info) => Truncate(info.getValue(), 13, "middle"),
+        cell: (info) => {
+          const owner = info.getValue();
+          return owner.ens ? <span title={owner.id}>{owner.ens}</span> : Truncate(owner.id, 13, "middle");
+        },
       }),
       columnHelper.accessor("relayer.id", {
         header: () => t("relayer"),

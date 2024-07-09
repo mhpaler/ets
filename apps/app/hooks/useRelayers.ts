@@ -1,5 +1,12 @@
 import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
+import { useEnsNames } from "@app/hooks/useEnsNames";
+import { RelayerType, RawRelayerType } from "@app/types/relayer";
+
+type FetchRelayersResponse = {
+  relayers: RawRelayerType[];
+  nextRelayers: { id: string }[];
+};
 
 export function useRelayers({
   pageSize = 20,
@@ -14,7 +21,7 @@ export function useRelayers({
   filter?: any;
   config?: SWRConfiguration;
 }) {
-  const { data, mutate, error } = useSWR(
+  const { data, mutate, error } = useSWR<FetchRelayersResponse>(
     [
       `query relayers($first: Int!, $skip: Int!, $orderBy: Relayer_orderBy! $filter: Relayer_filter) {
         relayers: relayers(
@@ -61,8 +68,24 @@ export function useRelayers({
     config,
   );
 
+  const addressesToResolve = data?.relayers.flatMap((relayer) => [relayer.owner, relayer.creator]) || [];
+
+  const { ensNames } = useEnsNames(addressesToResolve);
+
+  const relayersWithEns: RelayerType[] | undefined = data?.relayers.map((relayer) => ({
+    ...relayer,
+    owner: {
+      id: relayer.owner,
+      ens: ensNames[relayer.owner] || null,
+    },
+    creator: {
+      id: relayer.creator,
+      ens: ensNames[relayer.creator] || null,
+    },
+  }));
+
   return {
-    relayers: data?.relayers,
+    relayers: relayersWithEns,
     nextRelayers: data?.nextRelayers,
     isLoading: !error && !data?.relayers,
     mutate,

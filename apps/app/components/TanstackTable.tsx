@@ -8,7 +8,7 @@ import { useModal } from "@app/hooks/useModalContext";
 
 interface TableProps<TData> {
   columns: any[];
-  data: TData[];
+  data?: TData[];
   loading: boolean;
   rowsPerPage?: number;
   title?: ReactNode;
@@ -20,7 +20,7 @@ interface TableProps<TData> {
 
 const TanstackTable = <TData extends object>({
   columns,
-  data,
+  data = [],
   loading,
   rowsPerPage = globalSettings["DEFAULT_PAGESIZE"],
   title,
