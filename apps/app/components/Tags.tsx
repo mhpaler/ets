@@ -5,6 +5,7 @@ import { globalSettings } from "@app/config/globalSettings";
 import { TanstackTable } from "@app/components/TanstackTable";
 import { TagType } from "@app/types/tag";
 import { createColumnHelper } from "@tanstack/react-table";
+import ENSAddress from "@app/components/ENSAddress";
 
 type Props = {
   title?: string;
@@ -38,7 +39,14 @@ const Tags: NextPage<Props> = ({
           header: () => t(column.title),
           cell: (info) => {
             const tag = info.row.original;
-            return column.formatter ? column.formatter(info.getValue(), tag) : info.getValue();
+            if (column.formatter) {
+              return column.formatter(info.getValue(), tag);
+            }
+            if (typeof info.getValue() === "object" && info.getValue() !== null && "id" in info.getValue()) {
+              const value = info.getValue() as { id: string; ens?: string };
+              return <ENSAddress address={value.id} ens={value.ens} />;
+            }
+            return info.getValue();
           },
         }),
       ),

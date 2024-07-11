@@ -13,6 +13,7 @@ import { Number } from "@app/components/Number";
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Truncate } from "@app/components/Truncate";
 import { Panel } from "@app/components/Panel";
+import ENSAddress from "@app/components/ENSAddress";
 
 const Creator: NextPage = () => {
   const { query } = useRouter();
@@ -57,7 +58,7 @@ const Creator: NextPage = () => {
                   <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col hover:bg-slate-100">
                     <div className="font-semibold">{t("id")}</div>
                     <div className="flex space-x-1 justify-end">
-                      <div className="">{Truncate(creator.ens || creator.id, 13, "middle")}</div>
+                      <ENSAddress address={creator.id} ens={creator.ens} truncateLength={13} />
                       {creator.id && <CopyAndPaste value={creator.id} />}
                     </div>
                   </div>

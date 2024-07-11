@@ -10,6 +10,7 @@ import Link from "next/link";
 import { createColumnHelper } from "@tanstack/react-table";
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import useNumberFormatter from "@app/hooks/useNumberFormatter";
+import ENSAddress from "@app/components/ENSAddress";
 
 const pageSize = 20;
 
@@ -38,11 +39,10 @@ const Owners: NextPage = () => {
         header: t("owner"),
         cell: (info) => {
           const owner = info.row.original as any;
-          const displayName = owner.ens || info.getValue();
           return (
             <>
               <Link href={`/explore/owners/${owner.id}`} className="link link-primary">
-                {Truncate(displayName)}
+                <ENSAddress address={owner.id} ens={owner.ens} />
               </Link>
               <CopyAndPaste value={info.getValue()} />
             </>

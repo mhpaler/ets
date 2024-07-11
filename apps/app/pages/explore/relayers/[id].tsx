@@ -14,6 +14,7 @@ import { Number } from "@app/components/Number";
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Truncate } from "@app/components/Truncate";
 import { Panel } from "@app/components/Panel";
+import ENSAddress from "@app/components/ENSAddress";
 
 const Relayer: NextPage = () => {
   const { query } = useRouter();
@@ -79,9 +80,7 @@ const Relayer: NextPage = () => {
                     <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4 hover:bg-slate-100">
                       <div className="font-semibold">{t("creator")}</div>
                       <div className="flex space-x-1 justify-end">
-                        <div className="">
-                          {relayer.creator.ens ?? Truncate(relayer.creator.id ?? "", 14, "middle")}
-                        </div>
+                        <ENSAddress address={relayer.creator.id} ens={relayer.creator.ens} />
                         <CopyAndPaste value={relayer.creator.ens ?? relayer.creator.id ?? ""} />
                       </div>
                     </div>
@@ -89,7 +88,7 @@ const Relayer: NextPage = () => {
                     <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4 hover:bg-slate-100">
                       <div className="font-semibold">{t("owner")}</div>
                       <div className="flex space-x-1 justify-end">
-                        <div className="">{relayer.owner.ens ?? Truncate(relayer.owner.id ?? "", 14, "middle")}</div>
+                        <ENSAddress address={relayer.owner.id} ens={relayer.owner.ens} />
                         <CopyAndPaste value={relayer.owner.ens ?? relayer.owner.id ?? ""} />
                       </div>
                     </div>
@@ -168,13 +167,12 @@ const Relayer: NextPage = () => {
                 {
                   title: t("creator"),
                   field: "creator.id",
-                  formatter: (value: any, row: any) =>
-                    row.creator.ens ? row.creator.ens : Truncate(value, 14, "middle"),
+                  formatter: (value: any) => <ENSAddress address={value.id} ens={value.ens} />,
                 },
                 {
                   title: t("owner"),
-                  field: "owner.id",
-                  formatter: (value: any, row: any) => (row.owner.ens ? row.owner.ens : Truncate(value, 14, "middle")),
+                  field: "owner",
+                  formatter: (value: any) => <ENSAddress address={value.id} ens={value.ens} />,
                 },
                 { title: "tagging records", field: "tagAppliedInTaggingRecord" },
               ]}

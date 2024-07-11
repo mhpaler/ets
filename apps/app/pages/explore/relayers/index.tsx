@@ -16,6 +16,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { TanstackTable } from "@app/components/TanstackTable";
 import Link from "next/link";
 import { RelayerType } from "@app/types/relayer";
+import ENSAddress from "@app/components/ENSAddress";
 
 const pageSize = 20;
 
@@ -69,8 +70,7 @@ const Relayers: NextPage = () => {
         header: () => t("owner"),
         cell: (info) => {
           const owner = info.getValue();
-          const displayValue = owner.ens ?? owner.id;
-          return Truncate(displayValue, 14, "middle");
+          return <ENSAddress address={owner.id} ens={owner.ens} />;
         },
       }),
       columnHelper.accessor("taggingRecordsPublished", {
