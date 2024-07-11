@@ -12,6 +12,7 @@ import Link from "next/link";
 import { createColumnHelper } from "@tanstack/react-table";
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { CreatorType } from "@app/types/creator";
+import ENSAddress from "@app/components/ENSAddress";
 
 const pageSize = 20;
 
@@ -44,7 +45,7 @@ const Creators: NextPage = () => {
           return (
             <>
               <Link href={`/explore/creators/${creator.id}`} className="link link-primary">
-                {creator.ens || Truncate(creator.id)}
+                <ENSAddress address={creator.id} ens={creator.ens} />
               </Link>
               <CopyAndPaste value={creator.id} />
             </>

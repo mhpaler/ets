@@ -3,8 +3,8 @@ import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
 import { Auction } from "@app/types/auction";
 import { timestampToString } from "@app/utils";
-import { Truncate } from "@app/components/Truncate";
 import { AuctionIcon, Trophy } from "@app/components/icons";
+import ENSAddress from "@app/components/ENSAddress";
 
 interface Props {
   auction: Auction;
@@ -24,10 +24,8 @@ const AuctionSummary: React.FC<Props> = ({ auction }) => {
           <div className="flex items-center space-x-1">
             <Trophy size={24} />
             <span>{t("AUCTION.WINNER")}</span>
-            <Link href={`/explore/owners/${auction.bidder.id}`} legacyBehavior>
-              <a className="link link-primary font-semibold">
-                {auction.bidder.ens ? auction.bidder.ens : Truncate(auction.bidder.id, 14, "middle")}
-              </a>
+            <Link href={`/explore/owners/${auction.bidder.id}`} className="link link-primary font-semibold">
+              <ENSAddress address={auction.bidder.id} ens={auction.bidder.ens} />
             </Link>
           </div>
         </div>

@@ -10,6 +10,7 @@ import { Number } from "@app/components/Number";
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Truncate } from "@app/components/Truncate";
 import { Panel } from "@app/components/Panel";
+import ENSAddress from "@app/components/ENSAddress";
 
 const Tagger: NextPage = () => {
   const { query } = useRouter();
@@ -46,7 +47,7 @@ const Tagger: NextPage = () => {
               <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col hover:bg-slate-100">
                 <div className="">{t("id")}</div>
                 <div className="flex space-x-1 justify-end">
-                  <div className="">{tagger?.ens || Truncate(tagger?.id)}</div>
+                  <ENSAddress address={tagger?.id} ens={tagger?.ens} />
                   {tagger?.id && <CopyAndPaste value={tagger.id} />}
                 </div>
               </div>

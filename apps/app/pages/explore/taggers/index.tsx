@@ -9,6 +9,7 @@ import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import Link from "next/link";
 import useNumberFormatter from "@app/hooks/useNumberFormatter";
 import { TaggerType } from "@app/types/tagger";
+import ENSAddress from "@app/components/ENSAddress";
 
 const pageSize = 20;
 
@@ -40,7 +41,7 @@ const Taggers: NextPage = () => {
           return (
             <>
               <Link href={`/explore/taggers/${tagger.id}`} className="link link-primary">
-                {tagger.ens || info.getValue()}
+                <ENSAddress address={tagger.id} ens={tagger.ens} />
               </Link>
               <CopyAndPaste value={info.getValue()} />
             </>
