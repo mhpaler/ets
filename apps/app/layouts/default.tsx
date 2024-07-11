@@ -20,7 +20,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       <div className="drawer lg:drawer-open">
         <input id="main-drawer" type="checkbox" className="drawer-toggle" />
         <main className="drawer-content">
-          <div className="lg:p-10">
+          <div className="lg:p-5">
             <Header />
           </div>
           <div className="grid grid-cols-12 grid-rows-[min-content] gap-y-12 lg:gap-x-12 p-4 max-w-[1200px] mx-auto">

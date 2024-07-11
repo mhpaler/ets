@@ -11,7 +11,7 @@ export default function Header() {
       <Head>
         <title>{title}</title>
       </Head>
-      <header className="col-span-12 flex items-center justify-between lg:gap-4">
+      <header className="col-span-12 flex items-center justify-between lg:gap-4 pr-4 pt-2 lg:pr-0 lg:pt-0">
         {/* Left aligned elements */}
         <div className="flex items-center gap-2">
           <label htmlFor="main-drawer" className="btn btn-square btn-ghost drawer-button lg:hidden">
@@ -26,7 +26,7 @@ export default function Header() {
           </label>
           <Link href="/" passHref className="lg:hidden">
             <div className="relative flex items-center">
-              <span className="ml-2.5 text-xl font-bold text-slate-900">ETS</span>
+              <span className="text-xl font-bold text-slate-900">ETS</span>
               <h1 className="sr-only tracking-tighter">Ethereum Tag Service</h1>
             </div>
           </Link>

@@ -2,9 +2,12 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
 
-import { AuctionIcon } from "./icons/AuctionIcon";
-import { Globe } from "./icons/Globe";
-import { Playground } from "./icons/Playground";
+import { AuctionIcon } from "./icons";
+import { Globe } from "./icons";
+import { Playground } from "./icons";
+import { Relayer } from "./icons";
+import { Tag } from "./icons";
+import { Target } from "./icons";
 
 export default function Navigation() {
   const { t } = useTranslation("common");
@@ -17,8 +20,8 @@ export default function Navigation() {
 
   return (
     <>
-      <nav className="flex min-h-screen w-80 flex-col gap-2 overflow-y-auto bg-base-100 px-6 py-10">
-        <div className="mr-0 ml-4 items-center font-black mb-4">
+      <nav className="flex min-h-screen w-80 flex-col gap-2 overflow-y-auto bg-base-100 px-6 py-5">
+        <div className="mr-0 ml-0 items-center font-black mb-4">
           <Link href="/" passHref>
             <div className="relative flex items-center">
               <svg
@@ -38,7 +41,7 @@ export default function Navigation() {
             </div>
           </Link>
         </div>
-        <ul className="menu font-normal text-gray-400">
+        <ul className="menu font-normal text-gray-400 ml-0 pl-0">
           <li>
             <Link className={isActive("explore") ? "text-gray-950 bg-gray-50" : ""} href="/explore">
               <span className="-mr-1.5">
@@ -57,16 +60,25 @@ export default function Navigation() {
               </li>
               <li>
                 <Link className={isActive("tags") ? "text-gray-950 bg-gray-50" : ""} href="/explore/tags">
+                  <span className="-mr-1.5">
+                    <Tag size={24} />
+                  </span>
                   {t("tags")}
                 </Link>
               </li>
               <li>
                 <Link className={isActive("targets") ? "text-gray-950 bg-gray-50" : ""} href="/explore/targets">
+                  <span className="-mr-1.5">
+                    <Target size={24} />
+                  </span>
                   {t("targets")}
                 </Link>
               </li>
               <li>
                 <Link className={isActive("relayers") ? "text-gray-950 bg-gray-50" : ""} href="/explore/relayers">
+                  <span className="-mr-1.5">
+                    <Relayer size={24} />
+                  </span>
                   {t("relayers")}
                 </Link>
               </li>
