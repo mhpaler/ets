@@ -7,6 +7,7 @@ export { OutlinkIcon } from "./OutlinkIcon";
 export { Playground } from "./Playground";
 export { Relayer } from "./Relayer";
 export { Tag } from "./Tag";
+export { TaggingRecord } from "./TaggingRecord";
 export { Target } from "./Target";
 export { Trophy } from "./Trophy";
 export { Wallet } from "./Wallet";

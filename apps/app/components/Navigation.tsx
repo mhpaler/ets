@@ -1,13 +1,7 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
-
-import { AuctionIcon } from "./icons";
-import { Globe } from "./icons";
-import { Playground } from "./icons";
-import { Relayer } from "./icons";
-import { Tag } from "./icons";
-import { Target } from "./icons";
+import { AuctionIcon, Globe, Playground, Relayer, Tag, TaggingRecord, Target } from "./icons";
 
 export default function Navigation() {
   const { t } = useTranslation("common");
@@ -55,6 +49,9 @@ export default function Navigation() {
                   className={isActive("tagging-records") ? "text-gray-950 bg-gray-50" : ""}
                   href="/explore/tagging-records"
                 >
+                  <span className="-mr-1.5">
+                    <TaggingRecord size={24} />
+                  </span>
                   {t("tagging-records")}
                 </Link>
               </li>

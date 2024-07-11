@@ -124,20 +124,16 @@ const Auction: NextPage = () => {
         header: () => t("tag"),
         cell: (info) => <Tag tag={info.row.original as TagType} />,
       }),
+      columnHelper.accessor("tagAppliedInTaggingRecord", {
+        header: t("tagging-records"),
+      }),
       columnHelper.accessor("timestamp", {
-        header: t("created"),
+        header: t("tag-created"),
         cell: (info) => <TimeAgo date={info.getValue() * 1000} />,
       }),
-      columnHelper.accessor("owner.id", {
-        header: t("owner"),
+      columnHelper.accessor("creator.id", {
+        header: () => t("tag-creator"),
         cell: (info) => Truncate(info.getValue(), 13, "middle"),
-      }),
-      columnHelper.accessor("relayer.id", {
-        header: t("relayer"),
-        cell: (info) => Truncate(info.getValue(), 13, "middle"),
-      }),
-      columnHelper.accessor("tagAppliedInTaggingRecord", {
-        header: t("tagging records"),
       }),
     ],
     [t],
