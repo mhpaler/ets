@@ -89,11 +89,13 @@ const Auction: NextPage = () => {
           return auction.startTime === 0 ? "—" : `${toEth(info.getValue(), 5)} ETH`;
         },
       }),
-      columnHelper.accessor("bidder.id", {
+      columnHelper.accessor("bidder", {
         header: t("bidder"),
         cell: (info) => {
           const auction = info.row.original as any;
-          return auction.startTime === 0 ? "—" : Truncate(info.getValue(), 13, "middle");
+          if (auction.startTime === 0) return "—";
+          const bidder = info.getValue() as { ens?: string; id: string };
+          return bidder.ens || Truncate(bidder.id, 13, "middle");
         },
       }),
       columnHelper.accessor("endTime", {
@@ -131,9 +133,12 @@ const Auction: NextPage = () => {
         header: t("tag-created"),
         cell: (info) => <TimeAgo date={info.getValue() * 1000} />,
       }),
-      columnHelper.accessor("creator.id", {
-        header: () => t("tag-creator"),
-        cell: (info) => Truncate(info.getValue(), 13, "middle"),
+      columnHelper.accessor("creator", {
+        header: t("tag-creator"),
+        cell: (info) => {
+          const creator = info.getValue() as { ens?: string; id: string };
+          return creator.ens || Truncate(creator.id, 13, "middle");
+        },
       }),
     ],
     [t],
@@ -159,9 +164,12 @@ const Auction: NextPage = () => {
         header: t("price"),
         cell: (info) => `${toEth(info.getValue(), 4)}`,
       }),
-      columnHelper.accessor("bidder.id", {
+      columnHelper.accessor("bidder", {
         header: t("winner"),
-        cell: (info) => Truncate(info.getValue(), 13, "middle"),
+        cell: (info) => {
+          const bidder = info.getValue() as { ens?: string; id: string };
+          return bidder.ens || Truncate(bidder.id, 13, "middle");
+        },
       }),
       columnHelper.accessor("endTime", {
         header: t("ended"),

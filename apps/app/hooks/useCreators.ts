@@ -1,5 +1,7 @@
 import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
+import { useEnsNames } from "@app/hooks/useEnsNames";
+import { FetchCreatorsResponse, CreatorType } from "@app/types/creator";
 
 export function useCreators({
   pageSize = 20,
@@ -14,7 +16,7 @@ export function useCreators({
   filter?: any;
   config?: SWRConfiguration;
 }) {
-  const { data, mutate, error } = useSWR(
+  const { data, mutate, error } = useSWR<FetchCreatorsResponse>(
     [
       `query creators(
         $first: Int!
@@ -54,11 +56,19 @@ export function useCreators({
         filter: filter,
       },
     ],
-    config
+    config,
   );
 
+  const creatorAddresses = data?.creators.map((creator) => creator.id) || [];
+  const { ensNames } = useEnsNames(creatorAddresses);
+
+  const creatorsWithEns: CreatorType[] | undefined = data?.creators.map((creator) => ({
+    ...creator,
+    ens: ensNames[creator.id] || null,
+  }));
+
   return {
-    creators: data?.creators,
+    creators: creatorsWithEns,
     nextCreators: data?.nextCreators,
     isLoading: !error && !data?.creators,
     mutate,

@@ -3,12 +3,17 @@ import type { SWRConfiguration } from "swr";
 import { useSystem } from "@app/hooks/useSystem";
 import { Auction } from "@app/types/auction";
 import { formatEtherWithDecimals } from "@app/utils";
+import { useEnsNames } from "@app/hooks/useEnsNames";
 
 type FetchAuctionsResponse = {
   auctions: Auction[];
 };
 
-function transformAuctions(auctions: Auction[], blockchainTime: () => number): Auction[] {
+function transformAuctions(
+  auctions: Auction[],
+  blockchainTime: () => number,
+  ensNames: Record<string, string | null | undefined>,
+): Auction[] {
   return auctions.map((auction) => {
     const hasEnded = Number(auction.endTime) > 0 && blockchainTime() > Number(auction.endTime);
 
@@ -22,12 +27,31 @@ function transformAuctions(auctions: Auction[], blockchainTime: () => number): A
       reservePrice: BigInt(auction.reservePrice),
       amount: BigInt(auction.amount),
       amountDisplay: formatEtherWithDecimals(auction.amount, 5),
+      bidder: {
+        ...auction.bidder,
+        ens: ensNames[auction.bidder.id],
+      },
       bids: auction.bids.map((bid) => ({
         ...bid,
         blockTimestamp: Number(bid.blockTimestamp),
         amount: BigInt(bid.amount),
         amountDisplay: formatEtherWithDecimals(bid.amount, 5),
+        bidder: {
+          ...bid.bidder,
+          ens: ensNames[bid.bidder.id],
+        },
       })),
+      tag: {
+        ...auction.tag,
+        owner: {
+          ...auction.tag.owner,
+          ens: ensNames[auction.tag.owner.id],
+        },
+        creator: {
+          ...auction.tag.creator,
+          ens: ensNames[auction.tag.creator.id],
+        },
+      },
     };
   });
 }
@@ -92,7 +116,18 @@ export function useAuctions({
     config,
   );
 
-  const transformedAuctions = data ? transformAuctions(data.auctions, blockchainTime) : [];
+  const addresses =
+    data?.auctions.flatMap((auction) => [
+      auction.bidder.id,
+      ...auction.bids.map((bid) => bid.bidder.id),
+      auction.tag.owner.id,
+      auction.tag.creator.id,
+    ]) || [];
+  const uniqueAddresses = Array.from(new Set(addresses));
+
+  const { ensNames } = useEnsNames(uniqueAddresses);
+
+  const transformedAuctions = data ? transformAuctions(data.auctions, blockchainTime, ensNames) : [];
 
   const { data: nextAuctionsData } = useSWR(
     [
@@ -120,7 +155,7 @@ export function useAuctions({
   const handleMutate = (updatedAuctions: Auction[]) =>
     mutate(
       {
-        auctions: transformAuctions(updatedAuctions, blockchainTime),
+        auctions: transformAuctions(updatedAuctions, blockchainTime, ensNames),
       },
       false,
     );

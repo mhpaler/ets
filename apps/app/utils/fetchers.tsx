@@ -1,5 +1,7 @@
 import subgraphEndpoints from "@ethereum-tag-service/subgraph-endpoints";
 import { request, gql } from "graphql-request";
+import { PublicClient } from "viem";
+
 type Variables = Record<string, any>; // Define your custom variable types here if needed
 
 export const fetcher = async <T = any,>(query: string, variables: Variables): Promise<T> => {
@@ -26,3 +28,12 @@ export const fetcher = async <T = any,>(query: string, variables: Variables): Pr
 
 // Example usage:
 // const data = await fetcher<YourResponseType>(yourQuery, yourVariables);
+
+export async function fetchEnsName(client: PublicClient, address: string): Promise<string | null> {
+  try {
+    return await client.getEnsName({ address: address as `0x${string}` });
+  } catch (error) {
+    console.error(`Error fetching ENS name for ${address}:`, error);
+    return null;
+  }
+}

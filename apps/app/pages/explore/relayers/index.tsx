@@ -15,6 +15,7 @@ import { NextPage } from "next";
 import { createColumnHelper } from "@tanstack/react-table";
 import { TanstackTable } from "@app/components/TanstackTable";
 import Link from "next/link";
+import { RelayerType } from "@app/types/relayer";
 
 const pageSize = 20;
 
@@ -30,7 +31,7 @@ const Relayers: NextPage = () => {
     setTransactionId(uuidv4());
   }, []);
 
-  const { relayers, nextRelayers } = useRelayers({
+  const { relayers = [], nextRelayers } = useRelayers({
     pageSize,
     skip: pageIndex * pageSize,
     config: {
@@ -43,14 +44,16 @@ const Relayers: NextPage = () => {
     },
   });
 
-  const columnHelper = createColumnHelper(); // Create Tanstack column helper
+  console.log("relayers", relayers);
 
-  const columns = useMemo<any[]>(
+  const columnHelper = createColumnHelper<RelayerType>();
+
+  const columns = useMemo(
     () => [
       columnHelper.accessor("name", {
-        header: t("name"),
+        header: () => t("name"),
         cell: (info) => {
-          const relayer = info.row.original as any;
+          const relayer = info.row.original as RelayerType;
           return (
             <Link href={`/explore/relayers/${relayer.id}`} className="link link-primary">
               {info.getValue()}
@@ -59,23 +62,27 @@ const Relayers: NextPage = () => {
         },
       }),
       columnHelper.accessor("firstSeen", {
-        header: t("created"),
-        cell: (info) => <TimeAgo date={parseInt(info.getValue()) * 1000} />,
+        header: () => t("created"),
+        cell: (info) => <TimeAgo date={info.getValue() * 1000} />,
       }),
       columnHelper.accessor("owner", {
-        header: t("owner"),
-        cell: (info) => Truncate(info.getValue(), 14, "middle"),
+        header: () => t("owner"),
+        cell: (info) => {
+          const owner = info.getValue();
+          const displayValue = owner.ens ?? owner.id;
+          return Truncate(displayValue, 14, "middle");
+        },
       }),
       columnHelper.accessor("taggingRecordsPublished", {
-        header: t("tagging-records"),
+        header: () => t("tagging-records"),
         cell: (info) => info.getValue(),
       }),
       columnHelper.accessor("tagsPublished", {
-        header: t("tags"),
+        header: () => t("tags"),
         cell: (info) => info.getValue(),
       }),
       columnHelper.accessor("pausedByOwner", {
-        header: t("status"),
+        header: () => t("status"),
         cell: (info) => (info.getValue() ? t("disabled") : t("enabled")),
       }),
     ],

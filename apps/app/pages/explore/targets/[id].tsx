@@ -10,12 +10,12 @@ import { URI } from "@app/components/URI";
 
 const Target: NextPage = () => {
   const { query } = useRouter();
-  const { targetId } = query;
+  const { id } = query;
   const { t } = useTranslation("common");
   const { targets } = useTargets({
     pageSize: 1,
     skip: 0,
-    filter: { id: targetId },
+    filter: { id },
     orderBy: "created",
     config: {
       revalidateOnFocus: false,

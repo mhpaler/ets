@@ -38,10 +38,11 @@ const Owners: NextPage = () => {
         header: t("owner"),
         cell: (info) => {
           const owner = info.row.original as any;
+          const displayName = owner.ens || info.getValue();
           return (
             <>
               <Link href={`/explore/owners/${owner.id}`} className="link link-primary">
-                {Truncate(info.getValue())}
+                {Truncate(displayName)}
               </Link>
               <CopyAndPaste value={info.getValue()} />
             </>

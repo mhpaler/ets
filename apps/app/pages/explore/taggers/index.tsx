@@ -1,15 +1,14 @@
 import { useMemo, useState } from "react";
 import type { NextPage } from "next";
-import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
-import { globalSettings } from "@app/config/globalSettings";
 import { useTaggers } from "@app/hooks/useTaggers";
 import Layout from "@app/layouts/default";
 import { TanstackTable } from "@app/components/TanstackTable";
-import { createColumnHelper } from "@tanstack/react-table";
+import { createColumnHelper, ColumnDef } from "@tanstack/react-table";
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import Link from "next/link";
 import useNumberFormatter from "@app/hooks/useNumberFormatter";
+import { TaggerType } from "@app/types/tagger";
 
 const pageSize = 20;
 
@@ -30,18 +29,18 @@ const Taggers: NextPage = () => {
     },
   });
 
-  const columnHelper = createColumnHelper();
+  const columnHelper = createColumnHelper<TaggerType>();
 
-  const columns = useMemo<any[]>(
+  const columns: ColumnDef<TaggerType, any>[] = useMemo(
     () => [
       columnHelper.accessor("id", {
-        header: t("tagger"),
+        header: () => t("tagger"),
         cell: (info) => {
-          const tagger = info.row.original as any;
+          const tagger = info.row.original;
           return (
             <>
               <Link href={`/explore/taggers/${tagger.id}`} className="link link-primary">
-                {info.getValue()}
+                {tagger.ens || info.getValue()}
               </Link>
               <CopyAndPaste value={info.getValue()} />
             </>
@@ -49,8 +48,8 @@ const Taggers: NextPage = () => {
         },
       }),
       columnHelper.accessor("taggingRecordsCreated", {
-        header: t("tagging-records"),
-        cell: (info) => number(parseInt(info.getValue())),
+        header: () => t("tagging-records"),
+        cell: (info) => number(info.getValue()),
       }),
     ],
     [t, number],
@@ -68,7 +67,7 @@ const Taggers: NextPage = () => {
           pageIndex={pageIndex}
           setPageIndex={setPageIndex}
           title={t("taggers")}
-          rowLink={(tagger: any) => `/explore/taggers/${tagger.id}`}
+          rowLink={(tagger: TaggerType) => `/explore/taggers/${tagger.id}`}
         />
       </div>
     </Layout>

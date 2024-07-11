@@ -42,8 +42,8 @@ const WithinTagAuctionDisplay = () => {
               <>
                 <div>{t("tag-owner")}</div>
                 <div className="font-semibold">
-                  <Link href={`/owners/${auction.tag.owner.id}`} legacyBehavior>
-                    {Truncate(auction.tag.owner.id, 14, "middle")}
+                  <Link href={`/explore/owners/${auction.tag.owner.id}`} legacyBehavior>
+                    {auction.tag.owner.ens ? auction.tag.owner.ens : Truncate(auction.tag.owner.id, 14, "middle")}
                   </Link>
                 </div>
               </>
@@ -51,7 +51,9 @@ const WithinTagAuctionDisplay = () => {
               // Auction has ended but is not settled, show "Winner"
               <>
                 <div>{t("AUCTION.WINNER")}</div>
-                <div className="font-semibold">{Truncate(auction.bidder.id, 14, "middle")}</div>
+                <div className="font-semibold">
+                  {auction.bidder.ens ? auction.bidder.ens : Truncate(auction.bidder.id, 14, "middle")}
+                </div>
               </>
             )
           ) : (

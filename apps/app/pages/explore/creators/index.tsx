@@ -11,6 +11,7 @@ import { TanstackTable } from "@app/components/TanstackTable";
 import Link from "next/link";
 import { createColumnHelper } from "@tanstack/react-table";
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
+import { CreatorType } from "@app/types/creator";
 
 const pageSize = 20;
 
@@ -30,36 +31,37 @@ const Creators: NextPage = () => {
       refreshInterval: 0,
     },
   });
+  console.log("creators", creators);
 
   const columnHelper = createColumnHelper();
 
-  const columns = useMemo<any[]>(
+  const columns = useMemo(
     () => [
       columnHelper.accessor("id", {
-        header: t("creator"),
+        header: () => t("creator"),
         cell: (info) => {
-          const creator = info.row.original as any;
+          const creator = info.row.original as CreatorType;
           return (
             <>
               <Link href={`/explore/creators/${creator.id}`} className="link link-primary">
-                {Truncate(info.getValue())}
+                {creator.ens || Truncate(creator.id)}
               </Link>
-              <CopyAndPaste value={info.getValue()} />
+              <CopyAndPaste value={creator.id} />
             </>
           );
         },
       }),
       columnHelper.accessor("firstSeen", {
         header: t("first-seen"),
-        cell: (info) => timestampToString(parseInt(info.getValue())),
+        cell: (info) => timestampToString(parseInt(info.getValue() as string)),
       }),
       columnHelper.accessor("tagsCreated", {
         header: t("tags-created"),
-        cell: (info) => number(parseInt(info.getValue())),
+        cell: (info) => number(parseInt(info.getValue() as string)),
       }),
-      columnHelper.accessor("revenue", {
+      columnHelper.accessor("createdTagsAuctionRevenue", {
         header: t("revenue"),
-        cell: (info) => `${toEth(info.getValue(), 4)} MATIC`,
+        cell: (info) => `${toEth(parseFloat(info.getValue() as string), 4)} MATIC`,
       }),
     ],
     [t, number],

@@ -1,5 +1,7 @@
 import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
+import { useEnsNames } from "@app/hooks/useEnsNames";
+import { FetchOwnersResponse, OwnerType } from "@app/types/owners";
 
 export function useOwners({
   pageSize = 20,
@@ -14,7 +16,7 @@ export function useOwners({
   filter?: any;
   config?: SWRConfiguration;
 }) {
-  const { data, mutate, error } = useSWR(
+  const { data, mutate, error } = useSWR<FetchOwnersResponse>(
     [
       `query owners(
         $first: Int!
@@ -54,11 +56,19 @@ export function useOwners({
         filter: filter,
       },
     ],
-    config
+    config,
   );
 
+  const ownerAddresses = data?.owners.map((owner) => owner.id) || [];
+  const { ensNames } = useEnsNames(ownerAddresses);
+
+  const ownersWithEns: OwnerType[] | undefined = data?.owners.map((owner) => ({
+    ...owner,
+    ens: ensNames[owner.id] || null,
+  }));
+
   return {
-    owners: data?.owners,
+    owners: ownersWithEns,
     nextOwners: data?.nextOwners,
     isLoading: !error && !data?.owners,
     mutate,
