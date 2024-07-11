@@ -12,7 +12,7 @@ export default function PageInfo() {
   const router = useRouter();
   const pathSegments = router.pathname.split("/").filter(Boolean);
 
-  // Only start showing breadcrumbs on sub page of a section eg. /explore/explore/tags
+  // Only start showing breadcrumbs on sub page of a section eg. /explore/tags
   const showBreadcrumbs = pathSegments.length > 1;
 
   return (

@@ -50,10 +50,15 @@ export const usePathToTitle = (segment: string) => {
         setLabel(t(segment));
       }
 
+      // Playground
+      if (segmentIndex === 1 && pathSegments[0] === "playground") {
+        setLabel(t(segment));
+      }
       // Truncate the third segment if the first segment is "explore" and the second segment is not "tags"
       if (segmentIndex === 2 && pathSegments[0] === "explore" && pathSegments[1] !== "tags") {
         setLabel(Truncate(segment, 13, "middle"));
       }
+
       setLoading(false);
     }
   }, [segment, segmentIndex, pathSegments, t, fetchTagDisplayName, tags]);
