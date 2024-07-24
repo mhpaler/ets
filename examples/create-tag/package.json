@@ -1,0 +1,19 @@
+{
+  "name": "create-tag-example",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@ethereum-tag-service/sdk-react-hooks": "workspace:*",
+    "@rainbow-me/rainbowkit": "2.1.1",
+    "@tanstack/react-query": "5.17.19",
+    "next": "13.4.5",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "wagmi": "2.5.7"
+  }
+}
