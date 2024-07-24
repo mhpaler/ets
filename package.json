@@ -13,7 +13,7 @@
     "yarn"
   ],
   "scripts": {
-    "dev": "rm -rf apps/*/.next && dotenv -- turbo run dev --filter=!@ethereum-tag-service/api",
+    "dev": "rm -rf apps/*/.next && dotenv -- turbo run dev --filter=!@ethereum-tag-service/api --filter=!./examples/*",
     "build": "rm -rf apps/*/.next && dotenv -- turbo run build --filter=!@ethereum-tag-service/api",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
@@ -26,6 +26,10 @@
     "site:dev": "cd apps/site && pnpm run dev",
     "site:build": "cd apps/site && pnpm run build",
     "site:start": "cd apps/site && pnpm run start",
+    "create-tag:dev": "cd examples/create-tag && pnpm run dev",
+    "create-tag:build": "cd examples/create-tag && pnpm run build",
+    "create-tagging-record:dev": "cd examples/create-tagging-record && pnpm run dev",
+    "create-tagging-record:build": "cd examples/create-tagging-record && pnpm run build",
     "hardhat:start": "cd packages/contracts && pnpm run hardhat",
     "hardhat:build": "cd packages/contracts && pnpm run build",
     "hardhat:deploy": "cd packages/contracts && pnpm run deploy",

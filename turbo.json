@@ -9,13 +9,16 @@
     },
     "dev": {
       "dotEnv": [".env"],
-      "cache": false
+      "cache": false,
+      "dependsOn": ["build"]
     },
     "test": {
-      "dotEnv": [".env"]
+      "dotEnv": [".env"],
+      "dependsOn": ["build"]
     },
     "lint": {
-      "outputs": []
+      "outputs": [],
+      "dependsOn": ["build"]
     }
   }
 }
