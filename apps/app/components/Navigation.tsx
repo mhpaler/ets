@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
-import { AuctionIcon, Globe, Playground, Relayer, Tag, TaggingRecord, Target } from "./icons";
+import { AuctionIcon, Globe, Playground, Relayer, Tag, TaggingRecord, Target } from "@app/components/icons";
 
 export default function Navigation() {
   const { t } = useTranslation("common");

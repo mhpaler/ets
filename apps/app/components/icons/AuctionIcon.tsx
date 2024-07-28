@@ -1,11 +1,7 @@
 import React from "react";
 
 export function AuctionIcon({ size = 24 }) {
-  // Calculate aspect ratio based on the desired size
-  const aspectRatio = 24 / size;
-
-  // Calculate viewBox dimensions dynamically
-  const viewBoxDimensions = `0 0 24 ${24 / aspectRatio}`;
+  const viewBoxDimensions = "0 0 24 24";
 
   return (
     <svg width={size} height={size} viewBox={viewBoxDimensions} fill="none" xmlns="http://www.w3.org/2000/svg">
