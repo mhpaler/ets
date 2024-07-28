@@ -103,7 +103,7 @@ function CreateTagForm() {
       </select>
       <button
         onClick={handleCreateTags}
-        disabled={!isConnected || tags.length === 0 || !selectedRelayer || isCreatingTag}
+        disabled={!isConnected || !chainId || tags.length === 0 || !selectedRelayer || isCreatingTag}
       >
         {isCreatingTag ? "Creating Tags..." : "Create Tags"}
       </button>

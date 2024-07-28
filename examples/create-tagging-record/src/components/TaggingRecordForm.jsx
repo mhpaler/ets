@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useAccount } from "wagmi";
+import React, { useState, useEffect } from "react";
+import { useAccount, useChainId } from "wagmi";
 import { useRelayers } from "../hooks/useRelayers";
 import { useRelayerClient } from "@ethereum-tag-service/sdk-react-hooks";
 
@@ -8,25 +8,44 @@ function TaggingRecordForm() {
   const [targetURI, setTargetURI] = useState("");
   const [recordType, setRecordType] = useState("");
   const [selectedRelayer, setSelectedRelayer] = useState(null);
-  const { address, chain } = useAccount();
+  const [error, setError] = useState("");
+  const [isCreatingRecord, setIsCreatingRecord] = useState(false);
+  const { address, isConnected } = useAccount();
+  const chainId = useChainId();
 
-  const { relayers } = useRelayers({});
+  const { relayers, isLoading: relayersLoading, error: relayersError } = useRelayers({});
   const relayerClient = useRelayerClient({
     relayerAddress: selectedRelayer?.id,
     account: address,
-    chainId: chain?.id,
+    chainId: chainId,
   });
 
+  useEffect(() => {
+    if (!isConnected) {
+      setError("Please connect your wallet");
+    } else if (!chainId) {
+      setError("Please connect to a supported network");
+    } else {
+      setError("");
+    }
+  }, [isConnected, chainId]);
+
   const handleCreateTaggingRecord = async () => {
-    try {
-      if (tags.length > 0 && targetURI && recordType && selectedRelayer) {
+    if (tags.length > 0 && targetURI && recordType && selectedRelayer && isConnected && chainId) {
+      setIsCreatingRecord(true);
+      setError("");
+      try {
         await relayerClient?.createTaggingRecord(tags, targetURI, recordType, address);
         setTags([]);
         setTargetURI("");
         setRecordType("");
+        setError("Tagging record created successfully!");
+      } catch (error) {
+        console.error("Error creating tagging record:", error);
+        setError("Failed to create tagging record. Please try again.");
+      } finally {
+        setIsCreatingRecord(false);
       }
-    } catch (error) {
-      console.error("Error creating tagging record:", error);
     }
   };
 
@@ -43,6 +62,9 @@ function TaggingRecordForm() {
     setTags(tags.filter((_, i) => i !== index));
   };
 
+  if (relayersLoading) return <div>Loading relayers...</div>;
+  if (relayersError) return <div>Error loading relayers: {relayersError}</div>;
+
   return (
     <div>
       <form onSubmit={handleAddTag}>
@@ -51,7 +73,7 @@ function TaggingRecordForm() {
       </form>
       <div>
         {tags.map((tag, index) => (
-          <span key={index}>
+          <span key={index} style={{ margin: "0 5px" }}>
             {tag}
             <button onClick={() => handleRemoveTag(index)}>x</button>
           </span>
@@ -72,10 +94,19 @@ function TaggingRecordForm() {
       </select>
       <button
         onClick={handleCreateTaggingRecord}
-        disabled={tags.length === 0 || !targetURI || !recordType || !selectedRelayer}
+        disabled={
+          !isConnected ||
+          !chainId ||
+          tags.length === 0 ||
+          !targetURI ||
+          !recordType ||
+          !selectedRelayer ||
+          isCreatingRecord
+        }
       >
-        Create Tagging Record
+        {isCreatingRecord ? "Creating Record..." : "Create Tagging Record"}
       </button>
+      {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );
 }
