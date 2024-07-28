@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { graphqlEndpoint } from "../config";
 
 function useRelayers() {
   const [relayers, setRelayers] = useState([]);
@@ -8,8 +9,7 @@ function useRelayers() {
   useEffect(() => {
     const fetchRelayers = async () => {
       try {
-        // fix
-        const response = await fetch("https://api.yourgraphqlendpoint.com", {
+        const response = await fetch(graphqlEndpoint, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
