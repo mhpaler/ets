@@ -11,7 +11,7 @@ import TagInput from "@app/components/TagInput";
 import { TagInput as TagInputType } from "@app/types/tag";
 import { useTokenClient, useRelayerClient } from "@ethereum-tag-service/sdk-react-hooks";
 
-const Playground: NextPage = () => {
+const CreateTag: NextPage = () => {
   const { t } = useTranslation("common");
   const { showToast, ToastComponent } = useToast();
   const { chain, isConnected, address } = useAccount();
@@ -147,4 +147,4 @@ const Playground: NextPage = () => {
   );
 };
 
-export default Playground;
+export default CreateTag;
