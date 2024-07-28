@@ -8,10 +8,10 @@ function TaggingRecordForm() {
   const [targetURI, setTargetURI] = useState("");
   const [recordType, setRecordType] = useState("");
   const [selectedRelayer, setSelectedRelayer] = useState(null);
-  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const [isCreatingRecord, setIsCreatingRecord] = useState(false);
   const account = useAccount();
-  const { address, isConnected, chain } = account;
+  const { address, isConnected } = account;
   const chainId = useChainId();
 
   const { relayers, isLoading: relayersLoading, error: relayersError } = useRelayers({});
@@ -23,27 +23,27 @@ function TaggingRecordForm() {
 
   useEffect(() => {
     if (!isConnected) {
-      setError("Please connect your wallet");
+      setMessage("Please connect your wallet");
     } else if (!chainId) {
-      setError("Please connect to a supported network");
+      setMessage("Please connect to a supported network");
     } else {
-      setError("");
+      setMessage("");
     }
   }, [isConnected, chainId]);
 
   const handleCreateTaggingRecord = async () => {
     if (tags.length > 0 && targetURI && recordType && selectedRelayer && isConnected && chainId) {
       setIsCreatingRecord(true);
-      setError("");
+      setMessage("");
       try {
-        await relayerClient?.createTaggingRecord(tags, targetURI, recordType, address);
+        const recordId = await relayerClient?.createTaggingRecord(tags, targetURI, recordType, address);
         setTags([]);
         setTargetURI("");
         setRecordType("");
-        setError("Tagging record created successfully!");
+        setMessage(`Tagging record created successfully! ID: ${recordId}`);
       } catch (error) {
         console.error("Error creating tagging record:", error);
-        setError("Failed to create tagging record. Please try again.");
+        setMessage("Failed to create tagging record. Please try again.");
       } finally {
         setIsCreatingRecord(false);
       }
@@ -68,6 +68,7 @@ function TaggingRecordForm() {
 
   return (
     <div>
+      <h2>Create Tagging Record</h2>
       <form onSubmit={handleAddTag}>
         <input type="text" name="tag" placeholder="Enter tag name" />
         <button type="submit">Add Tag</button>
@@ -107,7 +108,7 @@ function TaggingRecordForm() {
       >
         {isCreatingRecord ? "Creating Record..." : "Create Tagging Record"}
       </button>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {message && <p style={{ color: message.includes("successfully") ? "green" : "red" }}>{message}</p>}
     </div>
   );
 }

@@ -7,7 +7,7 @@ function CreateTagForm() {
   const [tags, setTags] = useState([]);
   const [selectedRelayer, setSelectedRelayer] = useState(null);
   const [isCreatingTag, setIsCreatingTag] = useState(false);
-  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
 
@@ -24,9 +24,9 @@ function CreateTagForm() {
 
   useEffect(() => {
     if (!isConnected) {
-      setError("Please connect your wallet");
+      setMessage("Please connect your wallet");
     } else {
-      setError("");
+      setMessage("");
     }
   }, [isConnected]);
 
@@ -35,10 +35,11 @@ function CreateTagForm() {
     const newTag = event.target.tag.value.trim();
     const exists = await tagExists?.(newTag);
     if (exists) {
-      setError("This tag already exists");
+      setMessage("This tag already exists");
     } else {
       setTags([...tags, { text: newTag }]);
       event.target.tag.value = "";
+      setMessage("");
     }
   };
 
@@ -55,15 +56,26 @@ function CreateTagForm() {
   const handleCreateTags = async () => {
     if (tags.length > 0 && selectedRelayer && isConnected) {
       setIsCreatingTag(true);
-      setError("");
+      setMessage("");
       try {
         const tagValues = tags.map((tag) => tag.text);
-        await createTags?.(tagValues);
+        const createdTags = await createTags?.(tagValues);
         setTags([]);
-        setError("Tags created successfully!");
+
+        const successMessage = (
+          <>
+            Tags created successfully:{" "}
+            {createdTags.map((tag, index) => (
+              <span key={index}>
+                {tag.text} (ID: {tag.id}){index !== createdTags.length - 1 && ", "}
+              </span>
+            ))}
+          </>
+        );
+        setMessage(successMessage);
       } catch (error) {
         console.error("Error creating tags:", error);
-        setError("Failed to create tags. Please try again.");
+        setMessage("Failed to create tags. Please try again.");
       } finally {
         setIsCreatingTag(false);
       }
@@ -107,7 +119,7 @@ function CreateTagForm() {
       >
         {isCreatingTag ? "Creating Tags..." : "Create Tags"}
       </button>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {message && <p style={{ color: message.includes("successfully") ? "green" : "red" }}>{message}</p>}
     </div>
   );
 }
