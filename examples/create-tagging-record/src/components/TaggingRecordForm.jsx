@@ -10,8 +10,7 @@ function TaggingRecordForm() {
   const [selectedRelayer, setSelectedRelayer] = useState(null);
   const [message, setMessage] = useState("");
   const [isCreatingRecord, setIsCreatingRecord] = useState(false);
-  const account = useAccount();
-  const { address, isConnected } = account;
+  const { address, isConnected } = useAccount();
   const chainId = useChainId();
 
   const { relayers, isLoading: relayersLoading, error: relayersError } = useRelayers({});
