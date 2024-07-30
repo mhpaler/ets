@@ -1,6 +1,6 @@
 {
   "name": "@ethereum-tag-service/oracle",
-  "version": "0.1.0",
+  "private": true,
   "scripts": {
     "build:local": "dotenv -e ../../.env wagmi generate && rollup -c rollup.localhost.config.ts",
     "build:defender": "dotenv -e ../../.env -- wagmi generate && rollup -c rollup.defender.config.ts",
