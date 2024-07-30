@@ -1,18 +1,24 @@
 {
   "name": "@ethereum-tag-service/subgraph-endpoints",
-  "version": "0.0.2",
+  "version": "0.1.0-alpha-testnet.0",
+  "packageManager": "pnpm@8.6.3",
   "description": "GraphQL endpoints for ETS on The Graph.",
-  "main": "dist",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": "./dist"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "lint": "tsc"
   },
   "author": "Ethereum Tag Service <team@ets.xyz>",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^20.12.7",
+    "tsup": "^8.2.3",
     "typescript": "^5.4.5"
   }
 }
