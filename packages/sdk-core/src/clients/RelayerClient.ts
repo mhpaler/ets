@@ -33,7 +33,8 @@ export class RelayerClient {
     if (!relayerAddress) throw new Error("Relayer address is required");
 
     const config = getConfig(chainId, relayerAddress);
-    if (!config) throw new Error("Configuration could not be retrieved");
+    if (!config || config.etsRelayerV1Config == undefined || config.etsConfig == undefined)
+      throw new Error("Configuration could not be retrieved");
 
     this.relayerConfig = config.etsRelayerV1Config;
     this.etsConfig = config.etsConfig;
