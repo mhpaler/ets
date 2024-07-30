@@ -18,10 +18,17 @@ export const useRelayerClient = ({
     setRelayerClient(client);
   }, [chainId, account, relayerAddress]);
 
-  const createTags = async (tags: string[]): Promise<{ transactionHash: string; status: number }> => {
+  const createTags = async (
+    tags: string[],
+  ): Promise<{ transactionHash: string; status: number; createdTags: string[] }> => {
     try {
       if (!relayerClient) throw new Error("Relayer client not initialized");
-      return await relayerClient.createTags(tags);
+      const result = await relayerClient.createTags(tags);
+      return {
+        transactionHash: result.transactionHash,
+        status: result.status,
+        createdTags: result.createdTags || [],
+      };
     } catch (error) {
       throw error;
     }
