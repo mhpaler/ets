@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { graphqlEndpoint } from "../config";
+import { graphqlEndpoint } from "../utils/config";
 
 function useRelayers() {
   const [relayers, setRelayers] = useState([]);

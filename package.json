@@ -12,6 +12,10 @@
     "workspaces",
     "yarn"
   ],
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
   "scripts": {
     "dev": "rm -rf apps/*/.next && dotenv -- turbo run dev --filter=!@ethereum-tag-service/api --filter=!./examples/*",
     "build": "rm -rf apps/*/.next && dotenv -- turbo run build --filter=!@ethereum-tag-service/api",
@@ -54,7 +58,9 @@
     "dotenv-cli": "^7.3.0",
     "prettier": "^3.1.1",
     "turbo": "^2.0.9",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vite": "^4.2.0",
+    "@vitejs/plugin-react": "^3.1.0"
   },
   "pnpm": {
     "overrides": {
@@ -68,7 +74,6 @@
     "node": ">=14.0.0"
   },
   "dependencies": {
-    "vite": "^5.3.1",
     "yaml": "^2.4.5"
   },
   "packageManager": "pnpm@8.11.0"

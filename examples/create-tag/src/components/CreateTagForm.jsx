@@ -10,6 +10,7 @@ function CreateTagForm() {
   const [message, setMessage] = useState("");
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
+  console.log("chainId", chainId);
 
   const { relayers, isLoading: relayersLoading, error: relayersError } = useRelayers({});
   const { tagExists } = useTokenClient({
@@ -60,18 +61,10 @@ function CreateTagForm() {
       try {
         const tagValues = tags.map((tag) => tag.text);
         const createdTags = await createTags?.(tagValues);
+        console.log("createdTags", createdTags);
         setTags([]);
 
-        const successMessage = (
-          <>
-            Tags created successfully:{" "}
-            {createdTags.map((tag, index) => (
-              <span key={index}>
-                {tag.text} (ID: {tag.id}){index !== createdTags.length - 1 && ", "}
-              </span>
-            ))}
-          </>
-        );
+        const successMessage = <>Tags created successfully</>;
         setMessage(successMessage);
       } catch (error) {
         console.error("Error creating tags:", error);
@@ -87,7 +80,6 @@ function CreateTagForm() {
 
   return (
     <div>
-      <h2>Create Tags</h2>
       <p>Enter tags to create. Each tag must start with # and contain at least one character after.</p>
       <form onSubmit={handleAddTag}>
         <div>
@@ -119,7 +111,7 @@ function CreateTagForm() {
       >
         {isCreatingTag ? "Creating Tags..." : "Create Tags"}
       </button>
-      {message && <p style={{ color: message.includes("successfully") ? "green" : "red" }}>{message}</p>}
+      {message && <p>{message}</p>}
     </div>
   );
 }

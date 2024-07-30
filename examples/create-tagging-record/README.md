@@ -1,14 +1,13 @@
 # Create Tag Example
 
-This example demonstrates how to create tags using the Ethereum Tag Service (ETS) SDK for React Hooks.
+This example demonstrates how to createa tagging record using the Ethereum Tag Service (ETS) SDK for React.
 
 ## Getting Started
 
-1. **Install dependencies:**
+1. Install dependencies:
 
    ```bash
-   cd examples/create-tag
-   pnpm install
+   npm install
    ```
 
 2. **Run the development server:**

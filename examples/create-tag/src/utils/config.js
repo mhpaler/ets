@@ -1,11 +1,11 @@
 import { createConfig, http } from "wagmi";
-import { sepolia } from "wagmi/chains";
+import { arbitrumSepolia } from "wagmi/chains";
 import { QueryClient } from "@tanstack/react-query";
 
 export const wagmiConfig = createConfig({
-  chains: [sepolia],
+  chains: [arbitrumSepolia],
   transports: {
-    [sepolia.id]: http(),
+    [arbitrumSepolia.id]: http(),
   },
 });
 
