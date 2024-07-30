@@ -8,9 +8,9 @@ function CreateTagForm() {
   const [selectedRelayer, setSelectedRelayer] = useState(null);
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const [message, setMessage] = useState("");
+  const [createdTags, setCreatedTags] = useState([]);
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
-  console.log("chainId", chainId);
 
   const { relayers, isLoading: relayersLoading, error: relayersError } = useRelayers({});
   const { tagExists } = useTokenClient({
@@ -58,14 +58,18 @@ function CreateTagForm() {
     if (tags.length > 0 && selectedRelayer && isConnected) {
       setIsCreatingTag(true);
       setMessage("");
+      setCreatedTags([]);
       try {
         const tagValues = tags.map((tag) => tag.text);
-        const createdTags = await createTags?.(tagValues);
-        console.log("createdTags", createdTags);
+        const result = await createTags?.(tagValues);
+        console.log("createdTags result", result);
         setTags([]);
-
-        const successMessage = <>Tags created successfully</>;
-        setMessage(successMessage);
+        if (result && result.createdTags) {
+          setCreatedTags(result.createdTags.map((tag) => ({ text: tag })));
+          setMessage(`Tags created successfully. Transaction hash: ${result.transactionHash}`);
+        } else {
+          setMessage("No new tags were created. They might already exist.");
+        }
       } catch (error) {
         console.error("Error creating tags:", error);
         setMessage("Failed to create tags. Please try again.");
@@ -112,6 +116,25 @@ function CreateTagForm() {
         {isCreatingTag ? "Creating Tags..." : "Create Tags"}
       </button>
       {message && <p>{message}</p>}
+      {createdTags.length > 0 && (
+        <div>
+          <h3>Created Tags:</h3>
+          <p>These tags will soon be viewable at the following links:</p>
+          <ul>
+            {createdTags.map((tag, index) => (
+              <li key={index}>
+                <a
+                  href={`https://stage.app.ets.xyz/explore/tags/${tag.text.slice(1)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {tag.text}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

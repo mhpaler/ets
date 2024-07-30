@@ -10,6 +10,7 @@ function TaggingRecordForm() {
   const [selectedRelayer, setSelectedRelayer] = useState(null);
   const [message, setMessage] = useState("");
   const [isCreatingRecord, setIsCreatingRecord] = useState(false);
+  const [createdRecordId, setCreatedRecordId] = useState(null);
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
 
@@ -34,12 +35,14 @@ function TaggingRecordForm() {
     if (tags.length > 0 && targetURI && recordType && selectedRelayer && isConnected && chainId) {
       setIsCreatingRecord(true);
       setMessage("");
+      setCreatedRecordId(null);
       try {
         const recordId = await relayerClient?.createTaggingRecord(tags, targetURI, recordType, address);
         setTags([]);
         setTargetURI("");
         setRecordType("");
-        setMessage(`Tagging record created successfully! ID: ${recordId}`);
+        setCreatedRecordId(recordId);
+        setMessage(`Tagging record created successfully!`);
       } catch (error) {
         console.error("Error creating tagging record:", error);
         setMessage("Failed to create tagging record. Please try again.");
@@ -108,6 +111,18 @@ function TaggingRecordForm() {
         {isCreatingRecord ? "Creating Record..." : "Create Tagging Record"}
       </button>
       {message && <p style={{ color: message.includes("successfully") ? "green" : "red" }}>{message}</p>}
+      {createdRecordId && (
+        <p>
+          Your tagging record will be soon viewable at this link:{" "}
+          <a
+            href={`https://stage.app.ets.xyz/explore/tagging-records/${createdRecordId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            https://stage.app.ets.xyz/explore/tagging-records/{createdRecordId}
+          </a>
+        </p>
+      )}
     </div>
   );
 }
