@@ -1,6 +1,6 @@
 {
   "name": "@ethereum-tag-service/subgraph-endpoints",
-  "version": "0.1.0-alpha-testnet.0",
+  "version": "0.0.0",
   "packageManager": "pnpm@8.6.3",
   "description": "GraphQL endpoints for ETS on The Graph.",
   "main": "./dist/index.js",
