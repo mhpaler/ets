@@ -1,12 +1,7 @@
 import { defineConfig } from "@wagmi/cli";
 import hardhatDeploy from "@sunodo/wagmi-plugin-hardhat-deploy";
-import dotenv from "dotenv";
 
-// Optionally load .env file if running locally
-dotenv.config({ path: "../../.env" });
-
-console.log("### Wagmi Config ###");
-console.log("All Environment Variables:", process.env);
+console.log("### App Wagmi Config ###");
 console.log("Specific Environment Variable NETWORK:", process.env.NETWORK);
 
 const network = process.env.NETWORK || "localhost";

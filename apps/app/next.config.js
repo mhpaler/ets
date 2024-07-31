@@ -1,10 +1,6 @@
 const nextTranslate = require("next-translate-plugin");
 const withTM = require("next-transpile-modules")(["@ethereum-tag-service/ui"]);
 
-console.log('Next.js Environment Variables:', {
-  NETWORK: process.env.NETWORK,
-});
-
 const withWebpack = (nextConfig = {}) => {
   return {
     ...nextConfig,
