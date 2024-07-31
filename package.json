@@ -14,8 +14,8 @@
     "yarn"
   ],
   "scripts": {
-    "dev": "rm -rf apps/*/.next && dotenv -e .env -- turbo run dev --filter=!@ethereum-tag-service/api",
-    "build": "rm -rf apps/*/.next && dotenv -e .env -- turbo run build --filter=!@ethereum-tag-service/api",
+    "dev": "rm -rf apps/*/.next && dotenv -e ./.env -- turbo run dev --env-mode=loose --filter=!@ethereum-tag-service/api",
+    "build": "rm -rf apps/*/.next && dotenv -e ./.env -- turbo run build --env-mode=loose --filter=!@ethereum-tag-service/api",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "api:dev": "cd apps/api && pnpm run dev",
@@ -50,7 +50,7 @@
     "dotenv": "^16.3.1",
     "dotenv-cli": "^7.3.0",
     "prettier": "^3.1.1",
-    "turbo": "^2.0.9",
+    "turbo": "^2.0.10",
     "typescript": "^5.3.3"
   },
   "pnpm": {
