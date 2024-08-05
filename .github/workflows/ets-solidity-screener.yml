@@ -49,7 +49,7 @@ jobs:
       - name: Clear pnpm cache and store
         run: |
           pnpm store prune
-          pnpm store path | xargs rm -rf
+          pnpm store path | xargs rm -rf || true
 
       - name: Get pnpm store directory
         id: pnpm-cache
