@@ -74,5 +74,8 @@
   },
   "dependencies": {
     "@changesets/cli": "^2.27.7"
+  },
+  "resolutions": {
+    "esbuild": "0.23.0"
   }
 }
