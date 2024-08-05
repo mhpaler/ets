@@ -75,7 +75,7 @@ export class RelayerClient {
     );
   }
 
-  async createTags(tags: string[]): Promise<{ transactionHash: string; status: number }> {
+  async createTags(tags: string[]): Promise<{ transactionHash: string; status: number; createdTags: string[] }> {
     if (this.walletClient === undefined) {
       throw new Error("Wallet client is required to perform this action");
     }
@@ -89,6 +89,8 @@ export class RelayerClient {
       publicClient: this.publicClient,
       walletClient: this.walletClient,
     });
+
+    let createdTags: string[] = [];
 
     if (tags.length > 0) {
       const existingTags = await etsTokenClient.existingTags(tags);
@@ -110,9 +112,12 @@ export class RelayerClient {
             hash,
           });
 
+          createdTags = tagsToMint;
+
           return {
             status: receipt.status,
             transactionHash: receipt.transactionHash,
+            createdTags,
           };
         } catch (error) {
           console.error("Error minting tags:", error);
@@ -121,7 +126,7 @@ export class RelayerClient {
       }
     }
 
-    return { transactionHash: "", status: 0 };
+    return { transactionHash: "", status: 0, createdTags };
   }
 
   async createTaggingRecord(

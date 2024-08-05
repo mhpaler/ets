@@ -64,6 +64,7 @@ dist
 # production
 packages/*/build
 apps/*/build
+examples/*/build
 
 # contracts
 # packages/app/src/contracts/*

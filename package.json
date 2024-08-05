@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "author": "Ethereum Tag Service <team@ets.xyz>",
   "private": true,
-  "packageManager": "pnpm@8.6.3",
+  "packageManager": "pnpm@8.11.0",
   "keywords": [
     "ethereum",
     "react",
@@ -13,8 +13,12 @@
     "workspaces",
     "yarn"
   ],
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
   "scripts": {
-    "dev": "rm -rf apps/*/.next && dotenv -e ./.env -- turbo run dev --env-mode=loose --filter=!@ethereum-tag-service/api",
+    "dev": "rm -rf apps/*/.next && dotenv -e ./.env -- turbo run dev --env-mode=loose --filter=!@ethereum-tag-service/api --filter=!./examples/*",
     "build": "rm -rf apps/*/.next && dotenv -e ./.env -- turbo run build --env-mode=loose --filter=!@ethereum-tag-service/api",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
@@ -27,6 +31,10 @@
     "site:dev": "cd apps/site && pnpm run dev",
     "site:build": "cd apps/site && pnpm run build",
     "site:start": "cd apps/site && pnpm run start",
+    "create-tag:dev": "cd examples/create-tag && pnpm run dev",
+    "create-tag:build": "cd examples/create-tag && pnpm run build",
+    "create-tagging-record:dev": "cd examples/create-tagging-record && pnpm run dev",
+    "create-tagging-record:build": "cd examples/create-tagging-record && pnpm run build",
     "hardhat:start": "cd packages/contracts && pnpm run hardhat",
     "hardhat:build": "cd packages/contracts && pnpm run build",
     "hardhat:deploy": "cd packages/contracts && pnpm run deploy",
@@ -36,7 +44,7 @@
     "hardhat:watch": "cd packages/contracts && pnpm run watch",
     "hardhat:solhint": "cd packages/contracts && pnpm solhint",
     "hardhat:test": "cd packages/contracts && pnpm run hardhat",
-    "hardhat:clean": "cd packages/hardhat && pnpm hardhat clean",
+    "hardhat:clean": "cd packages/contracts && pnpm hardhat clean",
     "graph:node-start": "cd packages/subgraph && pnpm run start-graph-node",
     "graph:node-stop": "cd packages/subgraph && pnpm run remove-graph-node",
     "graph:node-clean": "cd packages/subgraph && pnpm run clean-graph-node",
@@ -50,6 +58,7 @@
     "dotenv": "^16.3.1",
     "dotenv-cli": "^7.3.0",
     "prettier": "^3.1.1",
+    "@vitejs/plugin-react": "^3.1.0",
     "turbo": "^2.0.10",
     "typescript": "^5.3.3"
   },
