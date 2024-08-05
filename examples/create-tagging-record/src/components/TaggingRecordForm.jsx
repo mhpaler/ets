@@ -70,7 +70,6 @@ function TaggingRecordForm() {
 
   return (
     <div>
-      <h2>Create Tagging Record</h2>
       <form onSubmit={handleAddTag}>
         <input type="text" name="tag" placeholder="Enter tag name" />
         <button type="submit">Add Tag</button>
