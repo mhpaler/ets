@@ -1,6 +1,10 @@
 {
   "name": "@ethereum-tag-service/subgraph",
-  "version": "1.0.0",
+  "author": "Ethereum Tag Service <team@ets.xyz>",
+  "version": "0.0.1",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "clean-graph-node": "rm -rf graph-node/data/",
     "remove-graph-node": "cd graph-node && docker-compose down && pnpm clean-graph-node",

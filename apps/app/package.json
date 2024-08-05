@@ -1,11 +1,10 @@
 {
   "name": "@ethereum-tag-service/app",
   "private": true,
-  "version": "1.0.0",
   "scripts": {
     "dev": "wagmi generate && next dev -p 3000",
     "build": "wagmi generate && next build",
-    "start": "dotenv -e ../../.env -- next start",
+    "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
