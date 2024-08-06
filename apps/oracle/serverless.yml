@@ -1,14 +1,12 @@
-service: defender-ets
+service: defender-as-code-test-project
 configValidationMode: error
 frameworkVersion: "3"
 useDotenv: true
 provider:
   name: defender
   stage: ${opt:stage, 'dev'}
-  stackName: "mystack"
+  stackName: mystack
   ssot: false
-#custom:
-#  config: ${file(secrets.${self:provider.stage}.yml)}
 defender:
   key: "${env:TEAM_API_KEY}"
   secret: "${env:TEAM_API_SECRET}"
@@ -25,21 +23,24 @@ resources:
         NETWORK: "testnet_stage"
         NEXT_PUBLIC_ETS_ENVIRONMENT: "stage"
   policies:
-    policy-gy:
-      eip1559-pricing: true
+    policy-8d:
+      eip1559-pricing: false
       private-transactions: false
   contracts:
+    ets-auction-oracle:
+      name: ETSAuctionOracle
+      address: "0x79A3098b1cc02b5FB675Ce7A97f51d8DdDEeA450"
+      network: arbitrum-sepolia
     ets-auction-house:
       name: ETSAuctionHouse
       address: "0xf5d631DC08211e649FA7B025179De146AfFAEe41"
       network: arbitrum-sepolia
-      abi: ${file(./abi/ETSAuctionHouse.json.abi)}
   relayers:
     ets-auction-oracle:
-      name: "ETSAuctionOracle"
-      network: "arbitrum-sepolia"
+      name: ETSAuctionOracle
+      network: arbitrum-sepolia
       min-balance: "100000000000000000"
-      policy: ${self:resources.policies.policy-gy}
+      policy: ${self:resources.policies.policy-8d}
       api-keys:
         - key-1
   notifications:
@@ -88,7 +89,8 @@ resources:
           - ${self:resources.notifications.discord-actitity-internal}
       conditions:
         event:
-          - signature: RequestCreateAuction()
+          - expression: null
+            signature: RequestCreateAuction()
   forked-networks: {}
   private-networks: {}
   block-explorer-api-keys: {}

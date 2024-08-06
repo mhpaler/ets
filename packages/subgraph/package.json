@@ -18,8 +18,8 @@
     "graph-deploy-testnet-production": "node scripts/deploy.js --deployment testnet_production"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "^0.70.0",
-    "@graphprotocol/graph-ts": "^0.31.0"
+    "@graphprotocol/graph-cli": "^0.80.0",
+    "@graphprotocol/graph-ts": "^0.35.1"
   },
   "devDependencies": {
     "axios": "^1.6.3",
