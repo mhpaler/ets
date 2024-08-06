@@ -40,7 +40,7 @@ note addresses for all locally deployed contracts are saved to `config/config.js
 
 ## Subgraph
 
-```
+```bash
 👉 Start Docker desktop 👈
 ```
 
@@ -61,6 +61,13 @@ If everything is successful, the deployment url of your local subgraph will be p
 ## ETS Explorer App
 
 To easily visualize data written locally, you'll probably find the ETS Explorer App useful. This is the same explorer running at [app.ets.xyz](https://app.ets.xyz).
+
+If you wish run the explorer locally, with it reading and writing from your local stack, set the .env variables as follows:
+
+```bash
+NETWORK="localhost"
+NEXT_PUBLIC_ETS_ENVIRONMENT="development"
+```
 
 Open another tab in your terminal, still in the project root and run:
 

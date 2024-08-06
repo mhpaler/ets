@@ -13,9 +13,9 @@
  * transactions on behalf of the user.
  *
  * Local Testing:
- * To test this Defender Action locally, ensure the NETWORK environment variable is set to 'mumbai_stage'.
+ * To test this Defender Action locally, ensure the NETWORK environment variable is set to 'testnet_stage'.
  * This setup allows developers to simulate the action's behavior in a test environment similar to the
- * production configuration on the Mumbai test network.
+ * production configuration on the Arbitrum Seplolia test network.
  */
 
 import { initializeSigner } from "./../../../services/initializeSigner";
