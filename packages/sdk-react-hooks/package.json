@@ -1,0 +1,37 @@
+{
+  "name": "@ethereum-tag-service/sdk-react-hooks",
+  "author": "Ethereum Tag Service <team@ets.xyz>",
+  "version": "0.0.2",
+  "description": "React Hooks for Ethereum Tag Service",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "dev": "tsup src/index.ts --format cjs,esm --dts --outDir dist --watch",
+    "build": "tsup src/index.ts --format cjs,esm --dts --outDir dist",
+    "lint": "tsc"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "@types/react": "18.2.41",
+    "tsc-alias": "^1.8.8",
+    "tsup": "^8.2.3",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@ethereum-tag-service/sdk-core": "workspace:*",
+    "react": "18.2.0",
+    "wagmi": "~2.5.7"
+  }
+}

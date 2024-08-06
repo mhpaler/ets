@@ -1,39 +1,53 @@
+import React, { useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useState, cloneElement } from "react";
-import { Button } from "./Button";
+import { Fragment } from "react";
+import { useModal } from "@app/hooks/useModalContext"; // Ensure this path is correct
 
 interface Props {
-  buttonText?: string;
-  children?: any;
+  id: string;
+  label?: string;
+  link?: boolean;
+  disabled?: boolean;
+  buttonClasses?: string;
+  onModalOpen?: () => void;
+  children: React.ReactNode;
 }
 
-const Modal = ({ buttonText, children }: Props) => {
-  let [isOpen, setIsOpen] = useState(false);
+const Modal = ({ id, label, children, link = false, buttonClasses = "", disabled = false, onModalOpen }: Props) => {
+  const { currentModal, openModal, resetModal } = useModal();
 
-  function closeModal() {
-    setIsOpen(false);
-  }
+  useEffect(() => {
+    // resetModal() is called on unmount.
+    return () => {
+      if (currentModal === id) {
+        resetModal();
+      }
+    };
+  }, [currentModal, id, resetModal]);
 
-  function openModal() {
-    setIsOpen(true);
-  }
+  const handleOpenModal = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    openModal(id);
+    if (onModalOpen) {
+      onModalOpen();
+    }
+  };
 
-  // This is kinda cool. Clone the children element and include the close modal
-  // function as a property so the modal can be closed from the child element.
-  const childWithProps = cloneElement(children, {
-    closeModal: closeModal,
-  });
+  const buttonClassName = link ? "btn btn-link" : "btn";
+  const disabledClass = disabled ? "btn-disabled" : "";
 
   return (
     <>
-      <div>
-        <Button onClick={openModal} className="btn-primary btn-outline">
-          {buttonText}
-        </Button>
-      </div>
+      <button
+        onClick={handleOpenModal}
+        className={`${buttonClassName} ${disabledClass} ${buttonClasses}`}
+        disabled={disabled}
+      >
+        {label}
+      </button>
 
-      <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={closeModal}>
+      <Transition appear show={currentModal === id} as={Fragment}>
+        <Dialog as="div" className="relative z-10" onClose={() => {}}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -57,8 +71,11 @@ const Modal = ({ buttonText, children }: Props) => {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  {childWithProps}
+                <Dialog.Panel
+                  className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {children}
                 </Dialog.Panel>
               </Transition.Child>
             </div>

@@ -46,8 +46,9 @@ module.exports = async ({ deployments }) => {
   await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), etsAccessControls.address);
   await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), etsToken.address);
 
-  // Set auction oracle to platform just for testing.
+  // Set auction oracle roles.
   await ETSAccessControls.grantRole(await ETSAccessControls.AUCTION_ORACLE_ROLE(), accounts.ETSPlatform.address);
+  await ETSAccessControls.grantRole(await ETSAccessControls.AUCTION_ORACLE_ROLE(), accounts.ETSOracle.address);
   await ETSAccessControls.grantRole(await ETSAccessControls.SMART_CONTRACT_ROLE(), accounts.ETSAdmin.address);
 
   await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(etsEnrichTarget.address);
@@ -76,5 +77,5 @@ module.exports = async ({ deployments }) => {
   }
 };
 
-module.exports.tags = ["deployAll"];
 module.exports.dependencies = ["ETSRelayerFactory"];
+module.exports.tags = ["deployAll"];

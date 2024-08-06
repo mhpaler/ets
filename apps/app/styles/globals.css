@@ -1,23 +1,9 @@
+@import "@fontsource-variable/inter";
 @import "./nprogress.css";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@layer base {
-  #__next {
-    @apply flex flex-col min-h-screen;
-  }
-
-  html,
-  body {
-    @apply h-full;
-  }
-
-  body {
-    @apply flex flex-col min-h-screen antialiased bg-white;
-  }
-}
 
 @layer utilities {
   .text-outlined {
@@ -37,7 +23,7 @@
 
 /* Override the rainbow connect button! */
 .connect-btn button {
-  @apply font-semibold !important;
+  @apply btn-sm btn-primary font-semibold hover:scale-100 !important;
 }
 
 .connect-btn.connected button {
@@ -45,5 +31,32 @@
 }
 
 .connect-btn button div {
-  @apply font-semibold text-sm border !important;
+  @apply font-semibold text-sm border-0 text-white p-0 hover:scale-100 !important;
+}
+
+/*
+.navbar {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.navbar .menu {
+  padding: 0;
+}
+*/
+
+.menu :where(li ul) {
+  margin-inline-start: 1.7rem;
+}
+
+.ReactTags__tags {
+  flex-flow: column-reverse;
+}
+
+.auctions .tab {
+  @apply text-gray-400 text-2xl font-medium mb-1;
+}
+
+.auctions .tab:checked {
+  @apply text-gray-900; /* Example styles */
 }

@@ -1,5 +1,7 @@
 import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
+import { useEnsNames } from "@app/hooks/useEnsNames";
+import { FetchTaggersResponse, TaggerType } from "@app/types/tagger";
 
 export function useTaggers({
   pageSize = 20,
@@ -14,7 +16,7 @@ export function useTaggers({
   filter?: any;
   config?: SWRConfiguration;
 }) {
-  const { data, mutate, error } = useSWR(
+  const { data, mutate, error } = useSWR<FetchTaggersResponse>(
     [
       `query taggers(
         $first: Int!
@@ -53,11 +55,19 @@ export function useTaggers({
         filter: filter,
       },
     ],
-    config
+    config,
   );
 
+  const taggerAddresses = data?.taggers.map((tagger) => tagger.id) || [];
+  const { ensNames } = useEnsNames(taggerAddresses);
+
+  const taggersWithEns: TaggerType[] | undefined = data?.taggers.map((tagger) => ({
+    ...tagger,
+    ens: ensNames[tagger.id] || null,
+  }));
+
   return {
-    taggers: data?.taggers,
+    taggers: taggersWithEns,
     nextTaggers: data?.nextTaggers,
     isLoading: !error && !data?.taggers,
     mutate,

@@ -9,25 +9,22 @@ on:
   pull_request:
 
 jobs:
-  # JOB to run change detection
   changes:
     name: Detect changes
     runs-on: ubuntu-latest
-    # Set job outputs to values from filter step
     outputs:
       contracts: ${{ steps.filter.outputs.contracts }}
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
 
-      # For pull requests it's not necessary to checkout the code
       - uses: dorny/paths-filter@v2
         id: filter
         with:
           filters: |
             contracts:
               - 'packages/contracts/contracts/**'
-
+              
   screener:
     name: Run Solhint & Tests
     needs: changes
@@ -49,6 +46,11 @@ jobs:
           version: 7
           run_install: false
 
+      - name: Clear pnpm cache and store
+        run: |
+          pnpm store path | xargs -I {} bash -c 'if [ -d "{}" ]; then pnpm store prune; fi'
+          pnpm store path | xargs -I {} bash -c 'if [ -d "{}" ]; then rm -rf "{}"; fi'
+
       - name: Get pnpm store directory
         id: pnpm-cache
         run: |
@@ -64,6 +66,15 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
+
+      - name: Debug package.json
+        run: cat package.json
+
+      - name: Debug pnpm-lock.yaml
+        run: cat pnpm-lock.yaml
+
+      - name: Debug installed versions
+        run: pnpm list esbuild
 
       - name: Run Solhint
         run: |

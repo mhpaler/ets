@@ -40,6 +40,7 @@ packages/contracts*/*.txt
 packages/contracts*/cache*
 packages/contracts*/artifacts/
 packages/contracts*/deployments/localhost/
+packages/contracts*/typechain-types
 packages/contracts*/export/chainConfig/localhost.json
 packages/contracts*/export/upgradeConfig/localhost.json
 #packages/contracts*/.openzeppelin/
@@ -63,6 +64,7 @@ dist
 # production
 packages/*/build
 apps/*/build
+examples/*/build
 
 # contracts
 # packages/app/src/contracts/*
@@ -74,4 +76,5 @@ apps/app/artifacts/**/*.dbg.json
 apps/app/src/contracts.ts
 
 apps/oracle/.env
-apps/oracle/.env
+apps/oracle/.defender
+apps/oracle/src/contracts.ts

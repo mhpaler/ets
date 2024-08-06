@@ -16,8 +16,6 @@ In ETS, tags, content tagging & tagging data are fully composable units & servic
 
 If you want to jump right in, head over to [JavaScript client quickstart](./docs/js-client-quickstart.md) or [Contract-to-contract quickstart](./docs/contract-to-contract-quickstart.md).
 
-
-
 To learn a bit more before diving in, see [key concepts](./docs/key-concepts.md) and the [system architecture diagram](./docs/system-architecture.md/).
 
 ## Demos
@@ -32,9 +30,9 @@ To learn a bit more before diving in, see [key concepts](./docs/key-concepts.md)
 
 - [Key concepts](./docs/key-concepts.md)
 - [System architecture diagram](./docs/system-architecture.md)
-- [Get a Publisher ID](./docs/get-publisher-id.md)
 - [JavaScript client quickstart](./docs/js-client-quickstart.md)
-- [Local development quickstart](./docs/local-dev-quickstart.md) (todo)
+- [Custom Hardhat Tasks](./packages/contracts/tasks/README.md)
+- [Local development quickstart](./docs/local-dev-quickstart.md)
 - [Contract-to-contract quickstart](./packages/contracts/README.md)
 - [Backend API (contracts)](./docs/backend-api/index.md)
 - [Front-end API (subgraph)](./docs/subgraph.md)

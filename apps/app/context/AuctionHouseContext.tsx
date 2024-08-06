@@ -1,132 +1,156 @@
 // context/AuctionHouseContext.ts
 
-import React, {
-  createContext,
-  useState,
-  useEffect,
-  Dispatch,
-  SetStateAction,
-} from "react";
+/**
+ * The AuctionHouseContext provides a React context for auction-related data and operations.
+ * It encapsulates state and logic for managing auctions, including fetching current and all auctions,
+ * handling bid placement, and dynamically updating auction status based on blockchain events and user navigation.
+ *
+ * Usage:
+ * Wrap your component tree with `<AuctionHouseProvider>` to provide auction context to all child components.
+ * Use `useContext(AuctionHouseContext)` to access auction-related data and functions within your components.
+ *
+ * @module AuctionHouseContext
+ */
+
+import React, { createContext, useState, useEffect } from "react";
+import { AuctionHouse } from "@app/types/auction";
+import { useAuctions } from "@app/hooks/useAuctions";
 
 import {
-  fetchMaxAuctions,
   fetchCurrentAuctionId,
-  fetchAuction,
-} from "../services/auctionHouseService";
+  fetchAuctionPaused,
+  fetchAuctionSettingsData,
+  watchNewAuctionReleased,
+  watchAuctionPaused,
+  watchAuctionUnpaused,
+} from "@app/services/auctionHouseService";
 
-export type Auction = {
-  // Define your auction data structure here
-  auctionId: number;
-  tokenId: bigint;
-  amount: bigint;
-  startTime: number;
-  endTime: number;
-  reservePrice: bigint;
-  bidder: `0x${string}`;
-  settled: boolean;
-  extended: boolean;
+// Define the default values and functions
+const defaultAuctionHouseContextValue: AuctionHouse = {
+  auctionPaused: false,
+  maxAuctions: null,
+  minIncrementBidPercentage: 0,
+  duration: null,
+  timeBuffer: 0,
+  maxAuctionId: null,
+  allAuctions: [], // released and active
+  refreshAuctions: async () => undefined, // No-op async function
 };
+/**
+ * Creating a React context for the auction house with undefined initial value.
+ */
+export const AuctionHouseContext = createContext<AuctionHouse>(defaultAuctionHouseContextValue);
 
-export type AuctionHouse = {
-  requestedAuctionId: number | null;
-  auctionPaused: boolean;
-  maxAuctions: number | null;
-  currentAuctionId: number | null;
-  onDisplayAuction: Auction | null;
-  onDisplayAuctionId: number | null;
-  setOnDisplayAuctionId: Dispatch<SetStateAction<number | null>>;
-  //placeBid: (bidAmount: number) => Promise<void>;
-};
-
-export const AuctionHouseContext = createContext<AuctionHouse | undefined>(
-  undefined
-);
-
+/**
+ * Props definition for AuctionHouseProvider component.
+ */
 type AuctionHouseProviderProps = {
   children: React.ReactNode;
-  requestedAuctionId: number | null;
 };
 
+/**
+ * The AuctionHouseProvider component manages and provides auction house context to its child components.
+ * It initializes and updates auction-related data based on user interactions and blockchain events.
+ *
+ * @param children - The child components of the AuctionHouseProvider.
+ */
 export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
   children,
-  requestedAuctionId,
 }: {
   children: React.ReactNode;
-  requestedAuctionId: number | null;
 }) => {
-  //const { startTransaction, endTransaction } = useTransaction();
   const [auctionPaused, setAuctionPaused] = useState(true);
-  const [currentAuctionId, setCurrentAuctionId] = useState<number>(0);
-  //const [currentAuction, setCurrentAuction] = useState<Auction | null>(null); // Specify the type explicitly
   const [maxAuctions, setMaxAuctions] = useState<number | null>(null); // Specify the type explicitly
-  const [onDisplayAuctionId, setOnDisplayAuctionId] = useState<number | null>(
-    null
-  );
-  const [onDisplayAuction, setOnDisplayAuction] = useState<Auction | null>(
-    null
-  );
+  const [minIncrementBidPercentage, setMinIncrementBidPercentage] = useState<number>(0);
+  const [duration, setDuration] = useState<number | null>(null);
+  const [timeBuffer, setTimeBuffer] = useState<number>(0);
+  const [maxAuctionId, setMaxAuctionId] = useState<number>(0);
 
-  const placeBid = async (bidAmount: number): Promise<void> => {};
+  const {
+    auctions: allAuctions,
+    isLoading,
+    isError,
+    mutate: refreshAuctions,
+  } = useAuctions({
+    pageSize: 1000, // Adjust pageSize, skip, orderBy, and filter as needed
+    skip: 0,
+    orderBy: "endTime",
+    filter: {}, // Add filter criteria if required
+    config: {
+      revalidateOnFocus: false,
+      revalidateOnMount: true,
+      revalidateOnReconnect: false,
+      refreshWhenOffline: false,
+      refreshWhenHidden: false,
+      refreshInterval: 1000,
+    },
+  });
+
+  // Log changes to allAuctions
+  useEffect(() => {
+    //console.log("AuctionHouseContext: allAuctions updated:", allAuctions);
+  }, [allAuctions]);
 
   useEffect(() => {
-    const fetchData = async (): Promise<void> => {
-      try {
-        // Initialize some auctionhouse data
-        const maxAuctionsData = await fetchMaxAuctions();
-        setMaxAuctions(maxAuctionsData);
+    //console.log("AuctionHouseContext: Fetching auction settings and data...");
+    fetchAuctionSettings();
+    startWatchers();
+  }, []); // Empty dependency array ensures this effect runs only once
 
-        // Fetch current active auctionId from blockchain.
-        const currentAuctionId = await fetchCurrentAuctionId();
-        setCurrentAuctionId(currentAuctionId);
+  const fetchAuctionSettings = async () => {
+    try {
+      const currentId = await fetchCurrentAuctionId();
+      const auctionPaused = await fetchAuctionPaused();
+      const auctionSettings = await fetchAuctionSettingsData();
+      setMaxAuctionId(currentId);
+      setAuctionPaused(auctionPaused);
+      setMaxAuctions(auctionSettings.maxAuctions);
+      setMinIncrementBidPercentage(auctionSettings.minIncrementBidPercentage);
+      setDuration(auctionSettings.duration);
+      setTimeBuffer(auctionSettings.timeBuffer);
 
-        let displayAuction: Auction;
-        if (
-          requestedAuctionId === null ||
-          requestedAuctionId >= currentAuctionId
-        ) {
-          // Fetch auction from the blockchain.
-          // TODO: figure out if we should and can pull from cache.
-          displayAuction = await fetchAuction(currentAuctionId);
-        } else {
-          // Pull from subgraph.until then, let's return this fake one.
-          displayAuction = {
-            auctionId: 1,
-            tokenId:
-              BigInt(
-                69278005498511452274587717384892228969906926286618996293140899278898321299239
-              ),
-            amount: BigInt(1000000000), // Adjust the BigInt value as needed
-            startTime: Date.now() / 1000, // Current timestamp in seconds
-            endTime: Date.now() / 1000 + 3600, // One hour from now
-            reservePrice: BigInt(500000000), // Adjust the BigInt value as needed
-            bidder: "0x1234567890123456789012345678901234567890", // Ethereum address
-            settled: false,
-            extended: true,
-          };
-        }
-        console.log(displayAuction);
-        setOnDisplayAuction(displayAuction);
-      } catch (error) {
-        console.error("Failed to fetch data:", error);
-      }
-    };
-
-    fetchData();
-  }, [requestedAuctionId, currentAuctionId]);
-
-  const contextValue: AuctionHouse = {
-    requestedAuctionId,
-    auctionPaused,
-    maxAuctions,
-    currentAuctionId,
-    onDisplayAuctionId,
-    onDisplayAuction,
-    setOnDisplayAuctionId,
+      //console.log("AuctionHouseContext: Auction settings fetched and state updated.");
+    } catch (error) {
+      //console.error("AuctionHouseContext: Failed to initialize auction data:", error);
+    }
   };
 
-  return (
-    <AuctionHouseContext.Provider value={contextValue}>
-      {children}
-    </AuctionHouseContext.Provider>
-  );
+  const startWatchers = async () => {
+    try {
+      const unwatchNewAuction = watchNewAuctionReleased(fetchAuctionSettings);
+      const unwatchAuctionPaused = watchAuctionPaused(handleAuctionPauseToggled);
+      const unwatchAuctionUnpaused = watchAuctionUnpaused(handleAuctionPauseToggled);
+
+      //console.log("AuctionHouseContext: auction watchers started");
+
+      // Cleanup functions
+      return () => {
+        unwatchNewAuction();
+        unwatchAuctionPaused();
+        unwatchAuctionUnpaused();
+      };
+    } catch (error) {
+      console.error("AuctionHouseContext: Failed to initialize auction watchers: ", error);
+    }
+  };
+
+  // Callback function to handle both auction paused & unpaused events
+  const handleAuctionPauseToggled = async () => {
+    const auctionPaused = await fetchAuctionPaused();
+    setAuctionPaused(auctionPaused);
+  };
+  // Context value assembled from state and functions.
+  const contextValue: AuctionHouse = {
+    auctionPaused,
+    maxAuctions,
+    minIncrementBidPercentage,
+    duration,
+    timeBuffer,
+    maxAuctionId,
+    allAuctions: allAuctions || [], // Ensure it defaults to []
+    refreshAuctions,
+  };
+
+  // Providing the auction house context to child components.
+  return <AuctionHouseContext.Provider value={contextValue}>{children}</AuctionHouseContext.Provider>;
 };

@@ -1,3 +1,4 @@
+const { ethers } = require('ethers');
 var randomWords = require('random-words');
 
 task("auctionhouse", "Create and interact with an auction")
@@ -6,7 +7,7 @@ task("auctionhouse", "Create and interact with an auction")
   .addOptionalParam("tag", "specify tag to be acted on", "", types.string)
   .addOptionalParam("id", "auction id", "", types.string)
   .addOptionalParam("bid", "bid amount in ETH/MATIC. eg. \"0.1\"", "", types.string)
-  .addOptionalParam("reserve", "reserve price (min bid) in ETH/MATIC. eg. \"0.1\"", "", types.string)
+  .addOptionalParam("value", "Value to pass to setting.", "", types.string)
   .addOptionalParam(
     "signer",
     'Named wallet accounts. options are "account0", "account1", "account2", "account3", "account4", "account5". Defaults to "account0"',
@@ -15,12 +16,32 @@ task("auctionhouse", "Create and interact with an auction")
   .addOptionalParam("output", "The format for outputting auction details", "standard", types.string)
   .setAction(async (taskArgs, hre) => {
 
+    if (taskArgs.action == "togglepause") {
+      await hre.run("auctionhouse:togglepause");
+    }
+
+    if (taskArgs.action == "setreserve") {
+      await hre.run("auctionhouse:setreserve", { reserve: taskArgs.value });
+    }
+
+    if (taskArgs.action == "setduration") {
+      await hre.run("auctionhouse:setduration", { duration: taskArgs.value });
+    }
+
+    if (taskArgs.action == "settimebuffer") {
+      await hre.run("auctionhouse:settimebuffer", { timebuffer: taskArgs.value });
+    }
+
+    if (taskArgs.action == "setmaxauctions") {
+      await hre.run("auctionhouse:setmaxauctions", { maxauctions: taskArgs.value });
+    }
+
     if (taskArgs.action == "settings") {
       await hre.run("auctionhouse:settings", { output: taskArgs.output });
     }
 
-    if (taskArgs.action == "showcurrent") {
-      await hre.run("auctionhouse:showcurrent", { output: taskArgs.output });
+    if (taskArgs.action == "showlast") {
+      await hre.run("auctionhouse:showlast", { output: taskArgs.output });
     }
 
     if (taskArgs.action == "status") {
@@ -29,18 +50,6 @@ task("auctionhouse", "Create and interact with an auction")
       } else {
         console.error("You must provide either an id or a tag for the status action.");
       }
-    }
-
-    if (taskArgs.action == "togglepause") {
-      await hre.run("auctionhouse:togglepause");
-    }
-
-    if (taskArgs.action == "setreserve") {
-      await hre.run("auctionhouse:setreserve", { reserve: taskArgs.reserve });
-    }
-
-    if (taskArgs.action == "increasemax") {
-      await hre.run("auctionhouse:increasemax");
     }
 
     if (taskArgs.action == "nextauction") {
@@ -64,7 +73,7 @@ task("auctionhouse", "Create and interact with an auction")
     }
 
     if (taskArgs.action == "settleauction") {
-      await hre.run("auctionhouse:settleauction", { tag: taskArgs.tag, id: taskArgs.id, signer: taskArgs.signer });
+      await hre.run("auctionhouse:settleauction", { id: taskArgs.id, signer: taskArgs.signer });
     }
 
   });
@@ -80,6 +89,7 @@ subtask("auctionhouse:settings", "List auction settings")
     totalAuctions = await contracts.etsAuctionHouse.getTotalCount();
     reserve = await contracts.etsAuctionHouse.reservePrice();
     duration = await contracts.etsAuctionHouse.duration();
+    timebuffer = await contracts.etsAuctionHouse.timeBuffer();
     bidIncrement = await contracts.etsAuctionHouse.minBidIncrementPercentage();
 
     const auctionSettings = {
@@ -88,8 +98,9 @@ subtask("auctionhouse:settings", "List auction settings")
       'activeAuctions': ethers.toNumber(activeAuctions),
       'totalAuctions': ethers.toNumber(totalAuctions),
       'reserve': ethers.formatEther(reserve),
+      'bidIncrement': ethers.toNumber(bidIncrement),
       'duration': ethers.toNumber(duration),
-      'bidIncrement': ethers.toNumber(bidIncrement)
+      'timebuffer': ethers.toNumber(timebuffer),
     };
 
     if (taskArgs.output === "return") {
@@ -137,16 +148,18 @@ subtask("auctionhouse:auctionstatus", "Shows status of a given tag auction id")
 
 
 // Note this task only works if there is one active action at a time.
-subtask("auctionhouse:showcurrent", "Shows status of a current active auction")
+subtask("auctionhouse:showlast", "Shows status of most recently released auction")
   .addOptionalParam("output", "The format for outputting auction details", "standard", types.string)
   .setAction(async (taskArgs) => {
 
     ({ accounts, contracts } = await setup());
 
-    if (await contracts.etsAuctionHouse.getActiveCount() > 1) {
-      console.log("Command not possible when more than one active auction");
-      return;
-    }
+    // Released and unsettled auctions
+    const releasedAuctions = await contracts.etsAuctionHouse.getActiveCount();
+    const maxAuctions = await contracts.etsAuctionHouse.maxAuctions();
+
+    console.log("Released auction count: ", Number(releasedAuctions));
+    console.log("maxAuctions: ", Number(maxAuctions));
 
     const auctionId = await contracts.etsAuctionHouse.getTotalCount();
 
@@ -161,7 +174,6 @@ subtask("auctionhouse:showcurrent", "Shows status of a current active auction")
       let ended = (ethers.toNumber(auction.startTime) > 0 && latestBlock > ethers.toNumber(auction.endTime)) ? "Yes" : "No";
       const tag = await contracts.etsToken.getTagById(auction.tokenId);
 
-      //await displayAuctionDetails(auction, tag.display, taskArgs.output);
       return await displayAuctionDetails(auction, tag, taskArgs.output);
 
 
@@ -189,20 +201,36 @@ subtask("auctionhouse:togglepause", "Pause/Unpause the auctionhouse.")
 subtask("auctionhouse:setreserve", "Sets reserve price for all actions (eg. min first bid)")
   .addParam("reserve", "Reserve price")
   .setAction(async (taskArgs) => {
-
     ({ accounts, contracts } = await setup());
     const reserveInWEI = ethers.parseUnits(taskArgs.reserve, "ether");
     await contracts.etsAuctionHouse.connect(accounts.account0).setReservePrice(reserveInWEI);
     console.log("Reserve set to: ", reserveInWEI + " WEI (" + taskArgs.reserve + " ETH/MATIC)");
   });
 
-subtask("auctionhouse:increasemax", "Increases max auctions by one.")
-  .setAction(async () => {
-    ({ accounts, contracts } = await setup());
-    const maxAuctions = await contracts.etsAuctionHouse.maxAuctions();
-    await contracts.etsAuctionHouse.connect(accounts.account0).setMaxAuctions(maxAuctions + 1);
-    console.log("max auctions increased to", maxAuctions + 1);
 
+subtask("auctionhouse:setduration", "Sets duration of auction in seconds.")
+  .addParam("duration", "Duration in seconds")
+  .setAction(async (taskArgs) => {
+    ({ accounts, contracts } = await setup());
+    await contracts.etsAuctionHouse.connect(accounts.account0).setDuration(taskArgs.duration);
+    console.log(`Auction duration set to: ${taskArgs.duration} seconds`);
+  });
+
+subtask("auctionhouse:settimebuffer", "Sets time window for a bid to extend auction in seconds.")
+  .addParam("timebuffer", "Duration in seconds")
+  .setAction(async (taskArgs) => {
+    ({ accounts, contracts } = await setup());
+    await contracts.etsAuctionHouse.connect(accounts.account0).setTimeBuffer(taskArgs.timebuffer);
+    console.log(`Auction timebuffer set to: ${taskArgs.timebuffer} seconds`);
+  });
+
+
+subtask("auctionhouse:setmaxauctions", "Sets maximum number of concurrent auctions.")
+  .addParam("maxauctions", "Maximum Number of Concurrent Auctions")
+  .setAction(async (taskArgs) => {
+    ({ accounts, contracts } = await setup());
+    await contracts.etsAuctionHouse.connect(accounts.account0).setMaxAuctions(taskArgs.maxauctions);
+    console.log(`Max concurrent auctions set to ${taskArgs.maxauctions}`);
   });
 
 subtask("auctionhouse:nextauction", "Creates next auction using ETS Oracle")
@@ -222,7 +250,7 @@ subtask("auctionhouse:nextauction", "Creates next auction using ETS Oracle")
 
     // Waiting with visual indicator
     await waitForProcessing(8);
-    await hre.run("auctionhouse:showcurrent");
+    await hre.run("auctionhouse:showlast");
 
   });
 
@@ -295,29 +323,18 @@ subtask("auctionhouse:createbid", "Creates a bid on a CTAG auction")
   });
 
 subtask("auctionhouse:settleauction", "Settles a CTAG auction for a given tag, triggers oracle to release next auction.")
-  .addOptionalParam("tag", "Tag to be bid on", null, types.string)
-  .addOptionalParam("id", "Auction ID to bid on", null, types.string)
+  .addParam("id", "Auction ID to bid on", null, types.string)
   .addParam("signer", "signer", "account2") // ETS Platform
   .setAction(async (taskArgs) => {
     ({ accounts, contracts } = await setup());
 
     let auction;
-    if (taskArgs.tag) {
-      const tagId = await contracts.etsToken.computeTagId(taskArgs.tag);
-      if (!(await contracts.etsAuctionHouse.auctionExistsForTokenId(tagId))) {
-        console.log("Auction not found for ", taskArgs.tag);
-        return;
-      }
-      auction = await contracts.etsAuctionHouse.getAuctionForTokenId(tagId);
-    } else if (taskArgs.id) {
+    if (taskArgs.id) {
       if (!(await contracts.etsAuctionHouse.auctionExists(taskArgs.id))) {
         console.log("Auction not found for ", taskArgs.id);
         return;
       }
       auction = await contracts.etsAuctionHouse.getAuction(taskArgs.id);
-    } else {
-      const currentAuctionDetails = await hre.run("auctionhouse:showcurrent", { output: "return" });
-      auction = await contracts.etsAuctionHouse.getAuction(currentAuctionDetails.auctionId);
     }
 
     if (auction.startTime == 0) {
@@ -333,8 +350,15 @@ subtask("auctionhouse:settleauction", "Settles a CTAG auction for a given tag, t
     const latestBlock = (await hre.ethers.provider.getBlock()).timestamp;
     const auctionEndTime = ethers.toNumber(auction.endTime);
 
-    if (auctionEndTime + 60 > latestBlock) {
-      await ethers.provider.send("evm_setNextBlockTimestamp", [auctionEndTime + 60]);
+    if (auctionEndTime > latestBlock) {
+      // Calculate the wait time in seconds
+      const waitTimeInSeconds = auctionEndTime - latestBlock;
+
+      // Display the wait time
+      console.log(`Waiting for auction to end. Estimated wait time: ${waitTimeInSeconds} seconds`);
+
+      // Call waitForProcessing with the calculated wait time
+      await waitForProcessing(waitTimeInSeconds);
     }
 
     console.log("Settling auction: ", auction.auctionId.toString());

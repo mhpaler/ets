@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es2022",
-    "module": "esnext",
-    "allowImportingTsExtensions": true,
+    "target": "es2017",
+    "module": "es6",
     "noEmit": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
@@ -14,6 +13,7 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "noImplicitAny": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "allowJs": true,
@@ -24,13 +24,7 @@
       "@/*": ["src/*"]
     }
   },
-  "include": [
-    "./*.ts",
-    "./*.tsx",
-    "./src/**/*.ts",
-    "./src/**/*.mjs",
-    "./src/**/*.tsx"
-  ],
+  "include": ["./*.ts", "./*.tsx", "./src/**/*.ts", "./src/**/*.mjs", "./src/**/*.tsx"],
   "exclude": ["node_modules", "**/*.spec.ts"],
   "package": "module"
 }

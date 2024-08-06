@@ -8,11 +8,13 @@ const URI = ({ value }: { value: string }) => {
 
   return (
     <button
-      onClick={() => openURI(value)}
-      className="relative text-pink-600 transition-colors hover:text-pink-800 group"
+      onClick={(event) => {
+        event.stopPropagation();
+        openURI(value);
+      }}
+      className="link link-primary"
     >
-      <div className="absolute w-8 h-8 -mt-4 -ml-4 rounded-full top-1/2 left-1/2"></div>
-      <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
+      <svg className="inline-flex w-5 h-5" width="24" height="24" fill="none" viewBox="0 0 24 24">
         <path
           stroke="currentColor"
           strokeLinecap="round"

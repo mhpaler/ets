@@ -1,17 +1,33 @@
 # Local development quickstart
 
-This guide will get you up and running with a full ETS stack running locally, including contracts, subgraph, and the ETS Explorer for visualizing ETS data.
+This guide will get you up and running with the full ETS stack running locally, including contracts, subgraph, auction oracle and the ETS Explorer for visualizing ETS data.
 
-Make a copy of `.env.example` in the project root named `.env`. The default settings in there should be enough to get you going.
+First, make a fork of the main ETS repository located at <https://github.com/ethereum-tag-service/ets>
 
-Run all commands should be run from the project root.
+Clone your forked repository to your local system, eg.
+
+```bash
+git clone git@github.com:mhpaler/ets.git ets
+```
+
+Install ETS
+
+```bash
+cd ets
+pnpm install
+```
+
+Make a copy of `.env.example` in the project root named `.env`.
+The default settings in there should be enough to get you going.
+
+The following should all be run from the project root.
 
 ## Contracts
 
 Open a tab in your terminal and start the local Hardhat blockchain
 
 ```bash
-pnpm run hardhat
+pnpm hardhat:start
 ```
 
 Open another tab and compile and deploy the contracts
@@ -24,43 +40,60 @@ note addresses for all locally deployed contracts are saved to `config/config.js
 
 ## Subgraph
 
-Make sure Docker is up and running, then open another terminal tab and run the following (still from the project root) to start your local graph node:
+```bash
+👉 Start Docker desktop 👈
+```
+
+Next, open another terminal tab and run the following (still from the project root) to start your local graph node:
 
 ```bash
 pnpm graph:node-start
 ```
 
-Next, open another terminal tab and run the following to generate your local subgraph.yaml (uses a script to parse hardhat config into a template):
+Next, open another terminal tab and run the following to generate & deploy the ets subgraph to the local node:
 
 ```bash
-pnpm graph:prepare-local
-```
-
-Next, create your local subgraph (only required to run once):
-
-```bash
-pnpm graph:create-local
-```
-
-Deploy your local subgraph:
-
-```bash
-pnpm graph:ship-local
+pnpm graph:deploy-local
 ```
 
 If everything is successful, the deployment url of your local subgraph will be printed out, which you can copy and paste into a browser to use the local subgraph explorer. Your query end-point will also be printed out.
 
-## ETS Explorer
+## ETS Explorer App
 
-To easily visualize data written locally, you might find the ETS Explorer useful. This is the same explorer running at [app.ets.xyz](https://app.ets.xyz).
+To easily visualize data written locally, you'll probably find the ETS Explorer App useful. This is the same explorer running at [app.ets.xyz](https://app.ets.xyz).
+
+If you wish run the explorer locally, with it reading and writing from your local stack, set the .env variables as follows:
+
+```bash
+NETWORK="localhost"
+NEXT_PUBLIC_ETS_ENVIRONMENT="development"
+```
 
 Open another tab in your terminal, still in the project root and run:
 
 ```bash
-pnpm app:dev
+pnpm run dev
 ```
 
-At this point you are ready to begin interacting with ETS. We recommend heading to the [JavaScript client quickstart](./js-client-quickstart.md)
+If you're lucky and everything fired up, at this point you are ready to begin interacting with ETS. Head to the [JavaScript client quickstart](./js-client-quickstart.md) to begin.
+
+### Running explorer locally, read/write from Testnet
+
+If you wish run the explorer locally, but have it interact with the ETS testnet contracts & corresponding subgraph, use the following environment variables before running `pnpm run dev`
+
+```bash
+NETWORK="testnet_stage"
+NEXT_PUBLIC_ETS_ENVIRONMENT="stage"
+```
+
+If you intend to write blockchain records on to the ETS testnet contracts, you'll need to fill out the following `.env` variables:
+
+```bash
+MNEMONIC_TESTNET=
+NEXT_PUBLIC_ALCHEMY_KEY=
+```
+
+For more detailed rundown of the dev stack, please see our [Development Stack Overview (todo)](./dev-stack.md).
 
 ## Deployment
 
@@ -72,10 +105,10 @@ Configure hardhat.config.js to meet your needs, then from within the contracts r
 # for localhost
 pnpm hardhat:deploy
 
-# for mumbai
-pnpm hardhat:deploy-mumbai
+# for testnet
+pnpm hardhat:deploy-testnet-stage
 
-# Or calling hardhat directly
+# Or calling hardhat directly, from within packages/contracts
 hardhat deploy --tags deployAll --network localhost
 ```
 

@@ -1,27 +1,41 @@
 import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
+import { TagType } from "@app/types/tag";
+import { useEnsNames } from "./useEnsNames";
+
+type FetchTagsResponse = {
+  tags: TagType[];
+};
 
 export function useCtags({
   pageSize = 20,
   skip = 0,
   orderBy = "timestamp",
+  orderDirection = "desc",
   filter = {},
   config = {},
 }: {
   pageSize?: number;
   skip?: number;
   orderBy?: string;
+  orderDirection?: string;
   filter?: any;
   config?: SWRConfiguration;
 }) {
-  const { data, mutate, error } = useSWR(
+  const { data, mutate, error } = useSWR<FetchTagsResponse>(
     [
-      `query tags($filter: Tag_filter $first: Int!, $skip: Int!, $orderBy: String!) {
+      `query tags(
+        $filter: Tag_filter,
+        $first: Int!,
+        $skip: Int!,
+        $orderBy: Tag_orderBy!,
+        $orderDirection: OrderDirection
+      ) {
         tags: tags(
           first: $first
           skip: $skip
           orderBy: $orderBy
-          orderDirection: desc
+          orderDirection: $orderDirection
           where: $filter
         ) {
           id
@@ -45,31 +59,75 @@ export function useCtags({
           ownerRevenue
           protocolRevenue
           creatorRevenue
-        }
-        nextTags: tags(
-          first: $first
-          skip: ${skip + pageSize}
-          orderBy: $orderBy
-          orderDirection: desc
-          where: $filter) {
-          id
+          auctions {
+            id
+            settled
+          }
         }
       }`,
       {
         skip,
         first: pageSize,
         orderBy: orderBy,
+        orderDirection: orderDirection,
         filter: filter,
       },
     ],
-    config
+    config,
   );
 
+  const { data: nextTagsData } = useSWR(
+    [
+      `query nextTags(
+        $filter: Tag_filter,
+        $first: Int!,
+        $skip: Int!,
+        $orderBy: Tag_orderBy!,
+        $orderDirection: OrderDirection
+      ) {
+        tags(
+          first: $first
+          skip: $skip
+          orderBy: $orderBy
+          orderDirection: $orderDirection
+          where: $filter) {
+          id
+        }
+      }`,
+      {
+        skip: skip + pageSize,
+        first: pageSize,
+        orderBy: orderBy,
+        orderDirection: orderDirection,
+        filter: filter,
+      },
+    ],
+    config,
+  );
+
+  const addresses = Array.from(
+    new Set([...(data?.tags || []).map((tag) => tag.creator.id), ...(data?.tags || []).map((tag) => tag.owner.id)]),
+  );
+
+  const { ensNames, isLoading: isLoadingEns } = useEnsNames(addresses);
+
+  const tagsWithEns = data?.tags.map((tag) => ({
+    ...tag,
+    creator: {
+      ...tag.creator,
+      ens: ensNames[tag.creator.id],
+    },
+    owner: {
+      ...tag.owner,
+      ens: ensNames[tag.owner.id],
+    },
+  }));
+
   return {
-    tags: data?.tags,
-    nextTags: data?.nextTags,
-    isLoading: !error && !data?.tags,
-    mutate,
+    tags: tagsWithEns,
+    nextTags: nextTagsData?.tags,
+    isLoading: (!error && !data?.tags) || (!nextTagsData && !error) || isLoadingEns,
     isError: error?.statusText,
+    mutate,
   };
 }

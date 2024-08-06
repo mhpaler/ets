@@ -1,21 +1,25 @@
 {
   "name": "@ethereum-tag-service/subgraph",
-  "version": "1.0.0",
+  "author": "Ethereum Tag Service <team@ets.xyz>",
+  "version": "0.0.1",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "clean-graph-node": "rm -rf graph-node/data/",
     "remove-graph-node": "cd graph-node && docker-compose down && pnpm clean-graph-node",
     "start-graph-node": "cd scripts && ./start-graph-node.sh",
     "prepare-local": "node scripts/generate-yaml.js --deployment localhost",
-    "prepare-mumbai": "node scripts/generate-yaml.js --deployment mumbai",
-    "prepare-mumbai-stage": "node scripts/generate-yaml.js --deployment mumbai_stage",
+    "prepare-testnet-stage": "node scripts/generate-yaml.js --deployment testnet_stage",
+    "prepare-testnet-production": "node scripts/generate-yaml.js --deployment testnet_production",
     "codegen": "graph codegen --output-dir src/generated",
     "graph-deploy-local": "node scripts/deploy.js --deployment localhost",
-    "graph-deploy-mumbai": "node scripts/deploy.js --deployment mumbai",
-    "graph-deploy-mumbai-stage": "node scripts/deploy.js --deployment mumbai_stage"
+    "graph-deploy-testnet-stage": "node scripts/deploy.js --deployment testnet_stage",
+    "graph-deploy-testnet-production": "node scripts/deploy.js --deployment testnet_production"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "^0.61.0",
-    "@graphprotocol/graph-ts": "^0.31.0"
+    "@graphprotocol/graph-cli": "^0.80.0",
+    "@graphprotocol/graph-ts": "^0.35.1"
   },
   "devDependencies": {
     "axios": "^1.6.3",

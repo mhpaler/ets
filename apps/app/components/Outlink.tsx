@@ -1,21 +1,15 @@
-import React from "react";
+import React, { ComponentProps } from "react";
 import Link from "next/link";
-import { ComponentProps } from "react";
 import type { UrlObject } from "url";
 import tw from "tailwind-styled-components";
-
-import OutlinkSVG from "@app/assets/Outlink.svg";
-const OutlinkIcon = tw.div`ml-1`;
+import { OutlinkIcon } from "@app/components/icons";
 
 export const StyledAnchor = tw.a`
-  m-4
   flex
   flex-row
   text-center
-  font-semibold
+  link-primary
   justify-center
-  text-pink-600
-  hover:text-pink-700
 `;
 
 export const Outlink = ({
@@ -26,23 +20,10 @@ export const Outlink = ({
   ComponentProps<typeof StyledAnchor> & {
     href: string | UrlObject;
   }) => {
-  const InnerContent = (
-    <StyledAnchor
-      {...props}
-      rel="noreferrer noopener"
-      target="_blank"
-      role="link"
-    >
+  return (
+    <StyledAnchor href={href} {...props} rel="noreferrer noopener" target="_blank" role="link">
       {children}
-      <OutlinkIcon $as={OutlinkSVG} />
+      <OutlinkIcon size={18} />
     </StyledAnchor>
   );
-
-  if (typeof href === "string" && href.startsWith("http")) {
-    return (
-      <Link href={href} passHref>
-        {InnerContent}
-      </Link>
-    );
-  }
 };

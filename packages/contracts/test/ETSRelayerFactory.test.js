@@ -56,7 +56,13 @@ describe("ETSRelayerFactory Tests", function () {
       await expect(tx).to.emit(contracts.ETSAccessControls, "RelayerAdded");
     });
 
-    it("can only be added if sender owns a CTAG.", async () => {
+    it("will revert if sender does not own CTAG", async () => {
+      await expect(contracts.ETSRelayerFactory.connect(accounts.RandomTwo).addRelayer("Solana")).to.be.revertedWith(
+        "Must own CTAG",
+      );
+    });
+
+    it("will be added if sender owns a CTAG.", async () => {
       await contracts.ETSToken.connect(accounts.RandomOne).transferFrom(
         accounts.RandomOne.address,
         accounts.ETSPlatform.address,
@@ -77,6 +83,14 @@ describe("ETSRelayerFactory Tests", function () {
 
       const tx = await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap");
       await expect(tx).to.emit(contracts.ETSAccessControls, "RelayerAdded");
+    });
+
+    it("will revert if sender already owns relayer", async () => {
+      await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap");
+
+      await expect(contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Solana")).to.be.revertedWith(
+        "Sender owns relayer",
+      );
     });
 
     it("will revert if name is too short", async () => {
@@ -103,6 +117,13 @@ describe("ETSRelayerFactory Tests", function () {
 
     it("will emit RelayerAdded", async () => {
       const tx = await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap");
+      await expect(tx).to.emit(contracts.ETSAccessControls, "RelayerAdded");
+    });
+
+    it.only("can add multiple relayers if sender is platform", async () => {
+      const tx = await contracts.ETSRelayerFactory.connect(accounts.ETSPlatform).addRelayer("Uniswap");
+      await expect(tx).to.emit(contracts.ETSAccessControls, "RelayerAdded");
+      const tx2 = await contracts.ETSRelayerFactory.connect(accounts.ETSPlatform).addRelayer("Solana");
       await expect(tx).to.emit(contracts.ETSAccessControls, "RelayerAdded");
     });
 

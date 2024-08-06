@@ -4,32 +4,38 @@ const randomWords = require('random-words');
 task("testdata", "Create ETS test data on the targeted chain")
   .addOptionalParam("action", "Options include: createTag, createTaggingRecord", "", types.string)
   .addOptionalParam("qty", "Specify quantity to be created", "1", types.integer)
+  .addOptionalParam("signers", "Number of different signers", "1", types.integer)
   .setAction(async (taskArgs, hre) => {
     if (taskArgs.action == "createTag") {
-      await hre.run("testdata:createTag", { qty: taskArgs.qty });
+      await hre.run("testdata:createTag", { qty: taskArgs.qty, signers: taskArgs.signers });
     }
 
     if (taskArgs.action == "createTaggingRecords") {
-      await hre.run("testdata:createTaggingRecords", { qty: taskArgs.qty });
+      await hre.run("testdata:createTaggingRecords", { qty: taskArgs.qty, signers: taskArgs.signers });
     }
 
     if (taskArgs.action == "createAuctions") {
-      await hre.run("testdata:createAuctions", { qty: taskArgs.qty });
+      await hre.run("testdata:createAuctions", { qty: taskArgs.qty, signers: taskArgs.signers });
     }
 
   });
 
 subtask("testdata:createTag", "Creates a random CTAG from a random account.")
   .addParam("qty", "Number of CTAGs to mint")
+  .addParam("signers", "Number of signers, taken from getNamedAccounts()")
   .setAction(async (taskArgs) => {
+    const namedAccounts = await getNamedAccounts();
     const qty = taskArgs.qty;
-    const namedAccounts = await getNamedAccounts();//["account3", "account4", "account5", "account6", "account7", "account8"];
+    const signersCount = parseInt(taskArgs.signers); // Parse the signers count
+    // Ensure signersCount is within the range of available namedAccounts
+    const effectiveSignersCount = Math.min(signersCount, namedAccounts.length);
+
 
     for (let i = 1; i <= qty; i++) {
       //const tags = Array.from({ length: tagsPerRecord }, (_, index) => `#tag${i * tagsPerRecord + index}`);
       await run("createTags", {
         relayer: "ETSRelayer",
-        signer: namedAccounts[i % namedAccounts.length], // Rotate through the available namedAccounts
+        signer: namedAccounts[(i % effectiveSignersCount)], // Rotate through the specified number of signers starting from account3
         tags: "#" + randomWords(),
         network: hre.network.name,
       });
@@ -38,9 +44,13 @@ subtask("testdata:createTag", "Creates a random CTAG from a random account.")
 
 subtask("testdata:createTaggingRecords", "Creates random tagging records")
   .addParam("qty", "Number of CTAGs to mint")
+  .addParam("signers", "Number of signers, taken from getNamedAccounts()")
   .setAction(async (taskArgs) => {
-    const qty = taskArgs.qty;
     const namedAccounts = await getNamedAccounts();
+    const qty = taskArgs.qty;
+    const signersCount = parseInt(taskArgs.signers); // Parse the signers count
+    // Ensure signersCount is within the range of available namedAccounts
+    const effectiveSignersCount = Math.min(signersCount, namedAccounts.length);
 
     for (let i = 1; i <= qty; i++) {
 
@@ -66,7 +76,7 @@ subtask("testdata:createTaggingRecords", "Creates random tagging records")
 
       await run("applyTags", {
         relayer: "ETSRelayer",
-        signer: namedAccounts[i % namedAccounts.length], // Rotate through the available namedAccounts
+        signer: namedAccounts[(i % effectiveSignersCount)], // Rotate through the specified number of signers starting from account3
         tags: tags,
         uri: imageUrl,
         recordType: "bookmark",
@@ -81,9 +91,15 @@ subtask("testdata:createTaggingRecords", "Creates random tagging records")
 
 subtask("testdata:createAuctions", "Creates, bids on and settles auctions. Assumes existence of tags.")
   .addParam("qty", "Number of auctions")
+  .addParam("signers", "Number of signers, taken from getNamedAccounts()")
   .setAction(async (taskArgs) => {
-    const qty = taskArgs.qty;
     const namedAccounts = await getNamedAccounts();
+    const qty = taskArgs.qty;
+    const signersCount = parseInt(taskArgs.signers);// Parse the signers count from taskArgs
+
+    // Adjust the range to include only the specified number of signers starting from the first account
+    const adjustedNamedAccounts = namedAccounts.slice(0, signersCount);
+
 
     let previousAuctionId;
 
@@ -94,9 +110,42 @@ subtask("testdata:createAuctions", "Creates, bids on and settles auctions. Assum
     });
 
     if (auctionSettings.paused) {
+      console.log("Enabling auction")
       await hre.run("auctionhouse:togglepause", {
         network: hre.network.name
       });
+      await waitForProcessing(3);
+    }
+
+    // Convert the string to a floating-point number
+    const reserveAmount = parseFloat(auctionSettings.reserve);
+
+    // Check if the converted number is greater than 0.1
+    if (reserveAmount > 0.1) {
+      console.log("Setting auction reserve to 0.1");
+      await hre.run("auctionhouse:setreserve", {
+        reserve: "0.1",
+        network: hre.network.name
+      });
+      await waitForProcessing(3);
+    }
+
+    if (auctionSettings.duration > 10) {
+      console.log("Setting auction duration to 10 seconds.")
+      await hre.run("auctionhouse:setduration", {
+        duration: "10",
+        network: hre.network.name
+      });
+      await waitForProcessing(3);
+    }
+
+    if (auctionSettings.timebuffer > 10) {
+      console.log("Setting timebuffer to 10 seconds.")
+      await hre.run("auctionhouse:settimebuffer", {
+        timebuffer: "10",
+        network: hre.network.name
+      });
+      await waitForProcessing(3);
     }
 
     if (auctionSettings.totalAuctions == 0) {
@@ -108,7 +157,7 @@ subtask("testdata:createAuctions", "Creates, bids on and settles auctions. Assum
         network: hre.network.name
       });
     } else {
-      const initialAuctionDetails = await hre.run("auctionhouse:showcurrent", {
+      const initialAuctionDetails = await hre.run("auctionhouse:showlast", {
         output: "return",
         network: hre.network.name
       });
@@ -119,7 +168,7 @@ subtask("testdata:createAuctions", "Creates, bids on and settles auctions. Assum
     for (let i = 1; i <= qty; i++) {
 
       // Get the current Auction Details.
-      const auctionDetails = await hre.run("auctionhouse:showcurrent", {
+      const auctionDetails = await hre.run("auctionhouse:showlast", {
         output: "return",
         network: hre.network.name
       })// Get the current auction details.
@@ -155,9 +204,9 @@ subtask("testdata:createAuctions", "Creates, bids on and settles auctions. Assum
 
             console.log(`Executing bid ${bidCount + 1} of ${numberOfBids}`);
 
-            // Select a random signer
-            const randomIndex = Math.floor(Math.random() * namedAccounts.length);
-            const signer = namedAccounts[randomIndex];
+            // Select a random signer from the adjusted range
+            const randomIndex = Math.floor(Math.random() * adjustedNamedAccounts.length);
+            const signer = adjustedNamedAccounts[randomIndex];
 
             // Place bid
             await hre.run("auctionhouse:createbid", {
@@ -167,7 +216,7 @@ subtask("testdata:createAuctions", "Creates, bids on and settles auctions. Assum
               network: hre.network.name
             });
 
-            // Wait for one second after each bid
+            // Wait for two seconds after each bid
             await waitForProcessing(2);
             lastBid = nextBid;
           }
@@ -175,6 +224,7 @@ subtask("testdata:createAuctions", "Creates, bids on and settles auctions. Assum
 
         if (!auctionDetails.settled) {
           await hre.run("auctionhouse:settleauction", {
+            id: auctionDetails.auctionId.toString(),
             network: hre.network.name
           });
 

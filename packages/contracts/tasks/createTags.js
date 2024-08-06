@@ -1,4 +1,4 @@
-const { ethers } = require("ethers");
+const {ethers} = require("ethers");
 
 task("createTags", "Create CTAGs")
   .addParam("tags", 'Hashtags separated by commas. eg. --tags "#USDC, #Solana"')
@@ -9,7 +9,7 @@ task("createTags", "Create CTAGs")
     "account0",
   )
   .setAction(async (taskArgs) => {
-    const { getAccounts } = require("./utils/getAccounts");
+    const {getAccounts} = require("./utils/getAccounts");
     const accounts = await getAccounts();
 
     // Load network configuration
@@ -28,11 +28,8 @@ task("createTags", "Create CTAGs")
       ETSAccessControlsABI,
       accounts[taskArgs.signer],
     );
-    const etsToken = new hre.ethers.Contract(
-      ETSTokenAddress,
-      ETSTokenABI,
-      accounts[taskArgs.signer],
-    );
+
+    const etsToken = new hre.ethers.Contract(ETSTokenAddress, ETSTokenABI, accounts[taskArgs.signer]);
 
     // Check that caller is using a valid relayer.
     let etsRelayerV1;
@@ -48,7 +45,7 @@ task("createTags", "Create CTAGs")
     let tagsToMint = [];
 
     for (let i = 0; i < tags.length; i++) {
-      const tagId = await etsToken.computeTagId(tags[i]);
+      const tagId = await etsToken.computeTagId(tags[i]); // creating a deterministic hash
       if (await etsToken.tagExistsById(tagId)) {
         console.log(`${tags[i]} already exists`);
       } else {

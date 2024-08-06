@@ -7,16 +7,14 @@ const CopyAndPaste = ({ value }: { value: string }) => {
 
   return (
     <button
-      onClick={() => copy(value)}
-      className="relative text-pink-600 transition-colors hover:text-pink-800 group"
+      onClick={(event) => {
+        event.stopPropagation();
+        copy(value);
+      }}
+      className="link link-primary"
     >
-      <div className="absolute w-8 h-8 -mt-4 -ml-4 rounded-full top-1/2 left-1/2"></div>
       {isCopied ? (
-        <svg
-          className="relative inline-flex w-5 h-5 text-green-600"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
+        <svg className="inline-flex w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24">
           <path
             d="M7.75 12.75L10 15.25L16.25 8.75"
             stroke="currentColor"
@@ -26,11 +24,7 @@ const CopyAndPaste = ({ value }: { value: string }) => {
           ></path>
         </svg>
       ) : (
-        <svg
-          className="relative inline-flex w-5 h-5"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
+        <svg className="inline-flex w-5 h-5" fill="none" viewBox="0 0 24 24">
           <path
             stroke="currentColor"
             strokeLinecap="round"
