@@ -6,6 +6,8 @@ import { Hex } from "viem";
 import useToast from "@app/hooks/useToast";
 import TagInput from "@app/components/TagInput";
 import { TagInput as TagInputType } from "@app/types/tag";
+import { useAccount } from "wagmi";
+import { ConnectButtonETS } from "./ConnectButtonETS";
 
 interface TaggingFormProps {
   target: string;
@@ -27,6 +29,8 @@ const TaggingForm: React.FC<TaggingFormProps> = ({
   const [tags, setTags] = useState<TagInputType[]>([]);
   const [recordType, setRecordType] = useState<string>("");
   const { relayers } = useRelayers({});
+  const { isConnected } = useAccount();
+  console.log("isConnected", isConnected);
 
   const handleDeleteTag = useCallback(
     (i: number) => {
@@ -101,24 +105,28 @@ const TaggingForm: React.FC<TaggingFormProps> = ({
         </select>
       </div>
       <div className="flex justify-end">
-        <button
-          onClick={handleSubmit}
-          disabled={isLoading || !target || tags.length === 0 || !recordType || !selectedRelayer}
-          className={`btn ${
-            isLoading || !target || tags.length === 0 || !recordType || !selectedRelayer
-              ? "btn-disabled"
-              : "btn-primary"
-          }`}
-          aria-label="Create Tagging Record"
-        >
-          {isLoading ? (
-            <>
-              <span className="animate-spin">&#9696;</span> {t("creating")}...
-            </>
-          ) : (
-            t("Create")
-          )}
-        </button>
+        {!isConnected ? (
+          <ConnectButtonETS className="btn-primary btn-sm" />
+        ) : (
+          <button
+            onClick={handleSubmit}
+            disabled={isLoading || !target || tags.length === 0 || !recordType || !selectedRelayer}
+            className={`btn ${
+              isLoading || !target || tags.length === 0 || !recordType || !selectedRelayer
+                ? "btn-disabled"
+                : "btn-primary"
+            }`}
+            aria-label="Create Tagging Record"
+          >
+            {isLoading ? (
+              <>
+                <span className="animate-spin">&#9696;</span> {t("creating")}...
+              </>
+            ) : (
+              t("Create")
+            )}
+          </button>
+        )}
       </div>
     </>
   );
