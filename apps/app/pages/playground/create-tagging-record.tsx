@@ -45,7 +45,6 @@ const CreateTaggingRecord: NextPage = () => {
     chainId: chain?.id,
   });
   const [activeTab, setActiveTab] = useState<"random" | "url">("random");
-  console.log("activeTab", activeTab);
 
   const fetchRandomImageDebounced = useCallback(
     debounce(async () => {
