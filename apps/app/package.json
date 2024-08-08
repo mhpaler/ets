@@ -1,5 +1,8 @@
 {
   "name": "@ethereum-tag-service/app",
+  "author": "Ethereum Tag Service <team@ets.xyz>",
+  "version": "0.0.0",
+  "description": "Ethereum Tag Service Explorer app",
   "private": true,
   "scripts": {
     "dev": "wagmi generate && next dev -p 3000",
