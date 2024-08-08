@@ -120,6 +120,7 @@
   "target-id": "Target Id",
   "target-uri": "Target URI",
   "targets": "Targets",
+  "testnet-warning": "This is a test network. Tokens have no value. Testnet is not finalized and may be reset at anytime.",
   "this-tag-already-exists-please-enter-a-different-tag": "This tag already exists. Please enter a different tag.",
   "token-id": "Token Id",
   "top-creators": "Top creators",
