@@ -1,4 +1,5 @@
 // components/SiteMessage.tsx
+// Sitewide message component that can be dismissed by the user.
 import React, { useState, useEffect } from "react";
 import useTranslation from "next-translate/useTranslation";
 
