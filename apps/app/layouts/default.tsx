@@ -3,6 +3,7 @@ import Navigation from "@app/components/Navigation";
 import Header from "@app/components/Header";
 import Footer from "@app/components/Footer";
 import PageInfo from "@app/components/PageInfo";
+import SiteMessage from "@app/components/SiteMessage";
 
 export const metadata = {
   viewport: {
@@ -17,6 +18,7 @@ export const metadata = {
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <>
+      <SiteMessage />
       <div className="drawer lg:drawer-open">
         <input id="main-drawer" type="checkbox" className="drawer-toggle" />
         <main className="drawer-content">
