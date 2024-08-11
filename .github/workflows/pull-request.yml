@@ -18,6 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
+    permissions:
+      contents: read # Read access to clone the repository and read contents
+      pull-requests: write # Write access to post comments on the pull request
+
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
