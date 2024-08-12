@@ -114,32 +114,34 @@ const CreateTag: NextPage = () => {
 
   return (
     <Layout>
-      <div className="space-y-4" style={{ width: "300px" }}>
-        <TagInput tags={tags} handleDeleteTag={handleDeleteTag} handleAddTag={handleAddTag} />
-        <div className="relative">
-          <select
-            className="select select-bordered w-full max-w-xs"
-            value={selectedRelayer ? selectedRelayer?.id : ""}
-            onChange={handleSelectRelayer}
-          >
-            <option disabled value="">
-              {t("select-a-relayer")}
-            </option>
-            {relayers?.map((relayer: any, index: number) => (
-              <option key={index} value={relayer.id}>
-                {relayer.name}
+      <div className="col-span-12 md:col-span-6">
+        <div className="space-y-4">
+          <TagInput tags={tags} handleDeleteTag={handleDeleteTag} handleAddTag={handleAddTag} />
+          <div className="relative">
+            <select
+              className="select select-bordered w-full"
+              value={selectedRelayer ? selectedRelayer?.id : ""}
+              onChange={handleSelectRelayer}
+            >
+              <option disabled value="">
+                {t("select-a-relayer")}
               </option>
-            ))}
-          </select>
-        </div>
-        <div className={`${disabled ? "tooltip" : ""}`} data-tip={getTooltipMessage()}>
-          <button
-            onClick={handleCreateTags}
-            disabled={disabled}
-            className={`btn ${disabled ? "btn-disabled" : "btn-primary"}`}
-          >
-            {isCreatingTag ? "Creating..." : t("create")}
-          </button>
+              {relayers?.map((relayer: any, index: number) => (
+                <option key={index} value={relayer.id}>
+                  {relayer.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className={`${disabled ? "tooltip" : ""}`} data-tip={getTooltipMessage()}>
+            <button
+              onClick={handleCreateTags}
+              disabled={disabled}
+              className={`btn w-full ${disabled ? "btn-disabled" : "btn-primary"}`}
+            >
+              {isCreatingTag ? "Creating..." : t("create")}
+            </button>
+          </div>
         </div>
       </div>
       {ToastComponent}

@@ -76,7 +76,7 @@ const TaggingForm: React.FC<TaggingFormProps> = ({
 
   return (
     <>
-      <TagInput tags={tags} handleDeleteTag={handleDeleteTag} handleAddTag={handleAddTag} infoInside />
+      <TagInput tags={tags} handleDeleteTag={handleDeleteTag} handleAddTag={handleAddTag} />
       <div className="mb-4">
         <input
           type="text"
