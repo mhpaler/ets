@@ -53,7 +53,7 @@ const TagInput: React.FC<TagInputProps> = ({ tags, handleDeleteTag, handleAddTag
           data-tip="Press enter, comma or tab to add tags"
           style={{ top: "50%", right: "0.5rem", transform: "translateY(-50%)" }}
         >
-          <QuestionMark color="blue" size={26} />
+          <QuestionMark color="#db2777" size={26} />
         </div>
       </div>
       {tagInput && !isValidTag(tagInput) && tagInput !== "#" && (
