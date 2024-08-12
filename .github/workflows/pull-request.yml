@@ -34,3 +34,5 @@ jobs:
         with:
           pattern: "packages/**/dist/**"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          NETWORK: ${{ vars.NETWORK }}
