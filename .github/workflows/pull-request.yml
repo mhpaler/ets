@@ -16,7 +16,7 @@ jobs:
   size:
     name: Size
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
 
     permissions:
       contents: read # Read access to clone the repository and read contents
@@ -29,10 +29,13 @@ jobs:
       - name: Install dependencies
         uses: ethereum-tag-service/actions/.github/actions/pnpm@main
 
+      - name: Print environment variables
+        run: env
+
       - name: Report build size
         uses: preactjs/compressed-size-action@v2
         with:
           pattern: "packages/**/dist/**"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
         env:
-          NETWORK: ${{ vars.NETWORK }}
+          NETWORK: testnet_stage
