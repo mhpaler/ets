@@ -13,7 +13,7 @@ import AuctionBids from "@app/components/auction/AuctionBids";
 import { Truncate } from "@app/components/Truncate";
 
 import AuctionDebug from "@app/components/auction/AuctionDebug";
-import ENSAddress from "../ENSAddress";
+import Address from "../Address";
 
 const WithinTagAuctionDisplay = () => {
   const { t } = useTranslation("common");
@@ -44,7 +44,7 @@ const WithinTagAuctionDisplay = () => {
                 <div>{t("tag-owner")}</div>
                 <div className="font-semibold">
                   <Link href={`/explore/owners/${auction.tag.owner.id}`} legacyBehavior>
-                    <ENSAddress address={auction.tag.owner.id} ens={auction.tag.owner.ens} truncateLength={14} />
+                    <Address address={auction.tag.owner.id} ens={auction.tag.owner.ens} truncateLength={14} />
                   </Link>
                 </div>
               </>
@@ -53,7 +53,7 @@ const WithinTagAuctionDisplay = () => {
               <>
                 <div>{t("AUCTION.WINNER")}</div>
                 <div className="font-semibold">
-                  <ENSAddress address={auction.bidder.id} ens={auction.bidder.ens} truncateLength={14} />
+                  <Address address={auction.bidder.id} ens={auction.bidder.ens} truncateLength={14} />
                 </div>
               </>
             )

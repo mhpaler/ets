@@ -38,9 +38,12 @@ const Targets: NextPage = () => {
         cell: (info) => {
           const target = info.row.original as any;
           return (
-            <Link href={`/explore/targets/${target.id}`} className="link link-primary">
-              {Truncate(info.getValue(), 14, "middle")}
-            </Link>
+            <div className="flex items-center">
+              <Link href={`/explore/targets/${target.id}`} className="link link-primary">
+                {Truncate(info.getValue(), 14, "middle")}
+              </Link>
+              <CopyAndPaste value={target.id} />
+            </div>
           );
         },
       }),
@@ -52,9 +55,11 @@ const Targets: NextPage = () => {
         header: t("URI"),
         cell: (info) => (
           <div className="flex items-center space-x-2">
-            <span className="line-clamp-1">{info.getValue()}</span>
-            <CopyAndPaste value={info.getValue()} />
-            <URI value={info.getValue()} />
+            <span className="block truncate max-w-[60ch]">{info.getValue()}</span>
+            <div className="flex-shrink-0 flex space-x-2">
+              <CopyAndPaste value={info.getValue()} />
+              <URI value={info.getValue()} />
+            </div>
           </div>
         ),
       }),

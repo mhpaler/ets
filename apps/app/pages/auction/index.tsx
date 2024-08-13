@@ -15,7 +15,7 @@ import AuctionActions from "@app/components/auction/AuctionActions";
 import AuctionTimer from "@app/components/auction/AuctionTimer";
 import { createColumnHelper } from "@tanstack/react-table";
 import { TanstackTable } from "@app/components/TanstackTable";
-import ENSAddress from "@app/components/ENSAddress";
+import Address from "@app/components/Address";
 
 const Auction: NextPage = () => {
   const { t } = useTranslation("common");
@@ -95,7 +95,7 @@ const Auction: NextPage = () => {
           const auction = info.row.original as any;
           if (auction.startTime === 0) return "—";
           const bidder = info.getValue() as { ens?: string; id: string };
-          return <ENSAddress address={bidder.id} ens={bidder.ens} />;
+          return <Address address={bidder.id} ens={bidder.ens} />;
         },
       }),
       columnHelper.accessor("endTime", {
@@ -137,7 +137,7 @@ const Auction: NextPage = () => {
         header: t("tag-creator"),
         cell: (info) => {
           const owner = info.getValue() as { ens?: string; id: string };
-          return <ENSAddress address={owner.id} ens={owner.ens} />;
+          return <Address address={owner.id} ens={owner.ens} />;
         },
       }),
     ],
@@ -168,7 +168,7 @@ const Auction: NextPage = () => {
         header: t("winner"),
         cell: (info) => {
           const bidder = info.getValue() as { ens?: string; id: string };
-          return <ENSAddress address={bidder.id} ens={bidder.ens} />;
+          return <Address address={bidder.id} ens={bidder.ens} />;
         },
       }),
       columnHelper.accessor("endTime", {

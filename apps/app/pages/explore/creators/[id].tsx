@@ -10,10 +10,9 @@ import { TimeAgo } from "@app/components/TimeAgo";
 import { Tags } from "@app/components/Tags";
 import { Tag } from "@app/components/Tag";
 import { Number } from "@app/components/Number";
-import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Truncate } from "@app/components/Truncate";
 import { Panel } from "@app/components/Panel";
-import ENSAddress from "@app/components/ENSAddress";
+import Address from "@app/components/Address";
 
 const Creator: NextPage = () => {
   const { query } = useRouter();
@@ -58,8 +57,7 @@ const Creator: NextPage = () => {
                   <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col hover:bg-slate-100">
                     <div className="font-semibold">{t("id")}</div>
                     <div className="flex space-x-1 justify-end">
-                      <ENSAddress address={creator.id} ens={creator.ens} truncateLength={13} />
-                      {creator.id && <CopyAndPaste value={creator.id} />}
+                      <Address address={creator.id} ens={creator.ens} truncateLength={13} />
                     </div>
                   </div>
 

@@ -6,13 +6,11 @@ import { toEth } from "@app/utils";
 import useNumberFormatter from "@app/hooks/useNumberFormatter";
 import { useCreators } from "@app/hooks/useCreators";
 import Layout from "@app/layouts/default";
-import { Truncate } from "@app/components/Truncate";
 import { TanstackTable } from "@app/components/TanstackTable";
 import Link from "next/link";
 import { createColumnHelper } from "@tanstack/react-table";
-import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { CreatorType } from "@app/types/creator";
-import ENSAddress from "@app/components/ENSAddress";
+import Address from "@app/components/Address";
 
 const pageSize = 20;
 
@@ -45,9 +43,8 @@ const Creators: NextPage = () => {
           return (
             <>
               <Link href={`/explore/creators/${creator.id}`} className="link link-primary">
-                <ENSAddress address={creator.id} ens={creator.ens} />
+                <Address address={creator.id} ens={creator.ens} />
               </Link>
-              <CopyAndPaste value={creator.id} />
             </>
           );
         },

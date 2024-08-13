@@ -11,10 +11,8 @@ import { TimeAgo } from "@app/components/TimeAgo";
 import { Tags } from "@app/components/Tags";
 import { Tag } from "@app/components/Tag";
 import { Number } from "@app/components/Number";
-import { CopyAndPaste } from "@app/components/CopyAndPaste";
-import { Truncate } from "@app/components/Truncate";
 import { Panel } from "@app/components/Panel";
-import ENSAddress from "@app/components/ENSAddress";
+import Address from "@app/components/Address";
 
 const Relayer: NextPage = () => {
   const { query } = useRouter();
@@ -65,8 +63,7 @@ const Relayer: NextPage = () => {
                     <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col hover:bg-slate-100">
                       <div className="font-semibold">{t("id")}</div>
                       <div className="flex space-x-1 justify-end">
-                        <div className="">{Truncate(relayer.id ?? "", 14, "middle")}</div>
-                        <CopyAndPaste value={relayer.id ?? ""} />
+                        <Address address={relayer.id} />
                       </div>
                     </div>
 
@@ -80,16 +77,14 @@ const Relayer: NextPage = () => {
                     <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4 hover:bg-slate-100">
                       <div className="font-semibold">{t("creator")}</div>
                       <div className="flex space-x-1 justify-end">
-                        <ENSAddress address={relayer.creator.id} ens={relayer.creator.ens} />
-                        <CopyAndPaste value={relayer.creator.ens ?? relayer.creator.id ?? ""} />
+                        <Address address={relayer.creator.id} ens={relayer.creator.ens} />
                       </div>
                     </div>
 
                     <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4 hover:bg-slate-100">
                       <div className="font-semibold">{t("owner")}</div>
                       <div className="flex space-x-1 justify-end">
-                        <ENSAddress address={relayer.owner.id} ens={relayer.owner.ens} />
-                        <CopyAndPaste value={relayer.owner.ens ?? relayer.owner.id ?? ""} />
+                        <Address address={relayer.owner.id} ens={relayer.owner.ens} />
                       </div>
                     </div>
 
@@ -167,12 +162,12 @@ const Relayer: NextPage = () => {
                 {
                   title: t("creator"),
                   field: "creator.id",
-                  formatter: (value: any) => <ENSAddress address={value.id} ens={value.ens} />,
+                  formatter: (value: any) => <Address address={value.id} ens={value.ens} />,
                 },
                 {
                   title: t("owner"),
                   field: "owner",
-                  formatter: (value: any) => <ENSAddress address={value.id} ens={value.ens} />,
+                  formatter: (value: any) => <Address address={value.id} ens={value.ens} />,
                 },
                 { title: "tagging records", field: "tagAppliedInTaggingRecord" },
               ]}

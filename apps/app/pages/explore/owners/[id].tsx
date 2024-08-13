@@ -11,10 +11,9 @@ import { TimeAgo } from "@app/components/TimeAgo";
 import { Tags } from "@app/components/Tags";
 import { Tag } from "@app/components/Tag";
 import { Number } from "@app/components/Number";
-import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Truncate } from "@app/components/Truncate";
 import { Panel } from "@app/components/Panel";
-import ENSAddress from "@app/components/ENSAddress";
+import Address from "@app/components/Address";
 
 const Owner: NextPage = () => {
   const { query } = useRouter();
@@ -58,9 +57,8 @@ const Owner: NextPage = () => {
                 <Panel title={t("overview")}>
                   <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col hover:bg-slate-100 ">
                     <div className="font-semibold">{t("id")}</div>
-                    <div className="flex space-x-1 justify-end">
-                      <ENSAddress address={owner.id} ens={owner.ens} />
-                      <CopyAndPaste value={owner.id} />
+                    <div className="flex justify-end">
+                      <Address address={owner.id} ens={owner.ens} />
                     </div>
                   </div>
 
