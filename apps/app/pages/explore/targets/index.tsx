@@ -39,7 +39,7 @@ const Targets: NextPage = () => {
           const target = info.row.original as any;
           return (
             <Link href={`/explore/targets/${target.id}`} className="link link-primary">
-              {Truncate(info.getValue(), 24, "middle")}
+              {Truncate(info.getValue(), 14, "middle")}
             </Link>
           );
         },
@@ -51,7 +51,7 @@ const Targets: NextPage = () => {
       columnHelper.accessor("targetURI", {
         header: t("URI"),
         cell: (info) => (
-          <div>
+          <div className="flex items-center space-x-2">
             <span className="line-clamp-1">{info.getValue()}</span>
             <CopyAndPaste value={info.getValue()} />
             <URI value={info.getValue()} />
