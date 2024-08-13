@@ -127,6 +127,7 @@ export type TokenReadFunction =
   | "existingTags"
   | "hasTags"
   | "tagExistsById"
+  | "tagExistsByString"
   | "computeTagId"
   | "computeTagIds"
   | "balanceOf"

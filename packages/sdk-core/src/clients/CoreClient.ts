@@ -566,7 +566,12 @@ export class CoreClient {
   // =========================================
   public async tagExists(tag: string): Promise<boolean> {
     if (!this.tokenClient) throw new Error("TokenClient is not initialized.");
-    return this.tokenClient.tagExistsById(tag);
+    return this.tokenClient.tagExistsByString(tag);
+  }
+
+  public async tagExistsById(tagId: bigint): Promise<boolean> {
+    if (!this.tokenClient) throw new Error("TokenClient is not initialized.");
+    return this.tokenClient.tagExistsById(tagId);
   }
 
   public async existingTags(tags: string[]): Promise<string[]> {

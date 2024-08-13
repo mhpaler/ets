@@ -60,7 +60,7 @@ export class TokenClient {
   async existingTags(tags: string[]): Promise<string[]> {
     const existingTags = [];
     for (let tag of tags) {
-      const exists = await this.tagExistsById(tag);
+      const exists = await this.tagExistsByString(tag);
       if (exists) existingTags.push(tag);
     }
     return existingTags;
@@ -75,9 +75,12 @@ export class TokenClient {
     return data > BigInt(0);
   }
 
-  async tagExistsById(tag: string): Promise<boolean> {
-    const tagId = await this.computeTagId(tag);
+  async tagExistsById(tagId: bigint): Promise<boolean> {
     return this.readContract("tagExistsById", [tagId]);
+  }
+
+  async tagExistsByString(tag: string): Promise<boolean> {
+    return this.readContract("tagExistsByString", [tag]);
   }
 
   async computeTagId(tag: string): Promise<bigint> {
