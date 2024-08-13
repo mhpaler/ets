@@ -61,7 +61,7 @@ const TopCreators = () => {
                 </div>
                 <div className="col-span-2">
                   <div className="overflow-hidden text-slate-700 text-ellipsis whitespace-nowrap">
-                    {toEth(creator.tagFees, 4)} {t("matic-earned")}
+                    {toEth(creator.tagFees, 4)} {t("eth-earned")}
                   </div>
                   <div className="text-sm leading-6 text-slate-500">
                     {t("tagged-count", { count: parseInt(creator.tagCount) })}

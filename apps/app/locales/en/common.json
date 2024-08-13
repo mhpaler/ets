@@ -37,6 +37,7 @@
   "disabled": "Disabled",
   "enabled": "Enabled",
   "error-creating-tagging-record": "Failed to create tagging record",
+  "eth-earned": "ETH earned",
   "ets": "ETS",
   "etstag-id": "ETSTAG ID",
   "expires": "Expires",

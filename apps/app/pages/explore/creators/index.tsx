@@ -62,7 +62,7 @@ const Creators: NextPage = () => {
       }),
       columnHelper.accessor("createdTagsAuctionRevenue", {
         header: t("revenue"),
-        cell: (info) => `${toEth(parseFloat(info.getValue() as string), 4)} MATIC`,
+        cell: (info) => `${toEth(parseFloat(info.getValue() as string), 4)} ETH`,
       }),
     ],
     [t, number],

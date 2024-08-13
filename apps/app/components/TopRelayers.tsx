@@ -62,7 +62,7 @@ const TopRelayers = () => {
                 </div>
                 <div className="col-span-2">
                   <div className="overflow-hidden text-slate-700 text-ellipsis whitespace-nowrap">
-                    {toEth(relayer.tagFees, 4)} {t("matic-earned")}
+                    {toEth(relayer.tagFees, 4)} {t("eth-earned")}
                   </div>
                   <div className="text-sm leading-6 text-slate-500">
                     {t("tagged-count", { count: parseInt(relayer.tagCount) })}

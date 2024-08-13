@@ -133,7 +133,7 @@ const Relayer: NextPage = () => {
                         <div className="">
                           {relayers &&
                             toEth(relayer.publishedTagsAuctionRevenue + relayer.publishedTagsTaggingFeeRevenue, 4)}
-                          &nbsp;{t("matic")}
+                          &nbsp;ETH
                         </div>
                       </div>
                     </div>

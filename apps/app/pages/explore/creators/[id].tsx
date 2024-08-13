@@ -94,7 +94,7 @@ const Creator: NextPage = () => {
                     <div className="text-right">
                       <div className="">
                         {toEth(parseFloat(creator.createdTagsAuctionRevenue), 4)}
-                        &nbsp;{t("matic")}
+                        &nbsp;ETH
                       </div>
                     </div>
                   </div>
@@ -104,7 +104,7 @@ const Creator: NextPage = () => {
                     <div className="text-right">
                       <div className="">
                         {toEth(parseFloat(creator.createdTagsTaggingFeeRevenue), 4)}
-                        &nbsp;{t("matic")}
+                        &nbsp;ETH
                       </div>
                     </div>
                   </div>

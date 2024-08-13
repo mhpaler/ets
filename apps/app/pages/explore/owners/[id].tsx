@@ -101,7 +101,7 @@ const Owner: NextPage = () => {
                     <div className="text-right">
                       <div className="">
                         {toEth(parseFloat(owner.ownedTagsTaggingFeeRevenue), 4)}
-                        &nbsp;{t("matic")}
+                        &nbsp;ETH
                       </div>
                     </div>
                   </div>
