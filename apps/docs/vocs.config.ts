@@ -2,10 +2,12 @@ import { defineConfig } from "vocs";
 
 export default defineConfig({
   rootDir: "./",
-  title: "Ethereum Tag Service Docs",
+  title: "Ethereum Tag Service",
   topNav: [
-    { text: "Core", link: "/core/getting-started", match: "/core" },
-    { text: "Blog", link: "/blog" },
+    { text: "Concepts", link: "/concepts", match: "/concepts" },
+    { text: "SDKs", link: "/sdks", match: "/sdks" },
+    { text: "API", link: "/api/getting-started", match: "/api" },
+    { text: "Contracts", link: "/contracts/", match: "/contracts" },
     {
       text: "more",
       items: [
@@ -20,7 +22,42 @@ export default defineConfig({
       ],
     },
   ],
-  sidebar: [
+  sidebar: {
+    "/concepts": [
+      {
+        text: "ETS Overview",
+        link: "/concepts/",
+      },
+    ],
+    "/sdks": [
+      {
+        text: "Introduction",
+        link: "/sdk",
+      },
+      {
+        text: "SDK React",
+        //collapsed: false,
+        items: [
+          {
+            text: "Getting Started",
+            link: "/sdks/react/getting-started",
+          },
+        ],
+      },
+      {
+        text: "SDK Core",
+        //collapsed: false,
+        items: [
+          {
+            text: "Getting Started",
+            link: "/sdks/core/getting-started",
+          },
+        ],
+      },
+    ],
+  },
+
+  /*   [
     {
       text: "Getting Started",
       link: "/getting-started",
@@ -29,5 +66,5 @@ export default defineConfig({
       text: "Example",
       link: "/example",
     },
-  ],
+  ], */
 });
