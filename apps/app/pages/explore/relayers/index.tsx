@@ -70,7 +70,11 @@ const Relayers: NextPage = () => {
         header: () => t("owner"),
         cell: (info) => {
           const owner = info.getValue();
-          return <Address address={owner.id} ens={owner.ens} />;
+          return (
+            <Link href={`/explore/owners/${owner.id}`} className="link link-primary">
+              <Address address={owner.id} ens={owner.ens} />
+            </Link>
+          );
         },
       }),
       columnHelper.accessor("taggingRecordsPublished", {

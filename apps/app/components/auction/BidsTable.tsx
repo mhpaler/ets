@@ -5,6 +5,7 @@ import { makeScannerLink } from "@app/utils";
 import { Outlink } from "@app/components/Outlink";
 import { useCurrentChain } from "@app/hooks/useCurrentChain";
 import Address from "@app/components/Address";
+import Link from "next/link";
 
 // Your timestampToString function remains the same
 const timestampToString = (timestamp: number, language = "en-US") => {

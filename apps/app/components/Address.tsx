@@ -30,7 +30,7 @@ const Address: React.FC<AddressProps> = ({ address, ens, truncateLength = 14 }) 
     <span className="inline-flex items-center gap-1">
       <span
         ref={spanRef}
-        className="border-b border-dotted border-gray-400 cursor-help"
+        className="border-b border-dotted border-gray-400 cursor-pointer"
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
       >

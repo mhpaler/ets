@@ -4,15 +4,11 @@ import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useAuction } from "@app/hooks/useAuctionContext";
 import { useCurrentChain } from "@app/hooks/useCurrentChain";
 
-import { TagGraphic } from "@app/components/TagGraphic";
-import AuctionNavigation from "@app/components/auction/AuctionNavigation";
 import AuctionActions from "@app/components/auction/AuctionActions";
 import AuctionTimer from "@app/components/auction/AuctionTimer";
 import AuctionSummary from "@app/components/auction/AuctionSummary";
 import AuctionBids from "@app/components/auction/AuctionBids";
-import { Truncate } from "@app/components/Truncate";
 
-import AuctionDebug from "@app/components/auction/AuctionDebug";
 import Address from "../Address";
 
 const WithinTagAuctionDisplay = () => {

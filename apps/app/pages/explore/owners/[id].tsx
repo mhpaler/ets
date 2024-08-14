@@ -109,17 +109,25 @@ const Owner: NextPage = () => {
           </div>
           <div>
             <Tags
-              title={t("owner-tags") + " " + Truncate(owner.id, 13, "middle")}
+              title={`${t("owner-tags")} ${Truncate(owner.id, 13, "middle")}`}
               tags={tags}
               rowLink={false}
               columnsConfig={[
-                { title: "tag", field: "tag", formatter: (_: any, tag: any) => <Tag tag={tag} /> },
+                {
+                  title: "tag",
+                  field: "tag",
+                  formatter: (_: any, tag: any) => <Tag tag={tag} />,
+                },
                 {
                   title: "created",
                   field: "timestamp",
-                  formatter: (value: any, _: any) => <TimeAgo date={value * 1000} />,
+                  formatter: (value: any) => <TimeAgo date={value * 1000} />,
                 },
-                { title: "tagging records", field: "tagAppliedInTaggingRecord" },
+                {
+                  title: "tagging records",
+                  field: "tagAppliedInTaggingRecord",
+                  formatter: (value: any) => value,
+                },
               ]}
             />
           </div>

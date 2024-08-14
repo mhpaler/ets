@@ -16,6 +16,7 @@ import AuctionTimer from "@app/components/auction/AuctionTimer";
 import { createColumnHelper } from "@tanstack/react-table";
 import { TanstackTable } from "@app/components/TanstackTable";
 import Address from "@app/components/Address";
+import Link from "next/link";
 
 const Auction: NextPage = () => {
   const { t } = useTranslation("common");
@@ -137,7 +138,15 @@ const Auction: NextPage = () => {
         header: t("tag-creator"),
         cell: (info) => {
           const owner = info.getValue() as { ens?: string; id: string };
-          return <Address address={owner.id} ens={owner.ens} />;
+          return (
+            <Link
+              href={`/explore/creators/${owner.id}`}
+              className="link link-primary"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Address address={owner.id} ens={owner.ens} />
+            </Link>
+          );
         },
       }),
     ],
@@ -168,7 +177,15 @@ const Auction: NextPage = () => {
         header: t("winner"),
         cell: (info) => {
           const bidder = info.getValue() as { ens?: string; id: string };
-          return <Address address={bidder.id} ens={bidder.ens} />;
+          return (
+            <Link
+              href={`/explore/owners/${bidder.id}`}
+              className="link link-primary"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Address address={bidder.id} ens={bidder.ens} />
+            </Link>
+          );
         },
       }),
       columnHelper.accessor("endTime", {
