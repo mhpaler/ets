@@ -31,7 +31,7 @@ export const useTokenClient = ({ chainId, account }: { chainId?: number; account
   const tagExists = async (tag: string): Promise<boolean> => {
     try {
       if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.tagExistsById(tag);
+      return await tokenClient.tagExistsByString(tag);
     } catch (error) {
       throw error;
     }
