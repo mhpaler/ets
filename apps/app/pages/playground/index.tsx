@@ -24,13 +24,13 @@ const Playground: NextPage = () => {
   return (
     <Layout>
       <div className="container mx-auto col-span-12">
-        <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+        <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4">
           {cardsData.map((card, index) => {
             const IconComponent = card.Icon;
             return (
               <a
                 key={index}
-                className="card card-compact border hover:bg-base-200 transition-all duration-200 text-gray-400 hover:text-gray-950 hover:-translate-y-1"
+                className="card card-compact border hover:bg-base-200 transition-all duration-200 text-gray-400 hover:text-gray-950 hover:-translate-y-1 max-w-[300px] w-full mx-auto"
                 href={`/playground/${card.slug}`}
               >
                 <figure className="bg-slate-100 rounded-lg col-span-3 m-4 py-8">
