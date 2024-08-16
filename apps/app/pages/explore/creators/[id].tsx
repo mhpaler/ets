@@ -13,11 +13,13 @@ import { Number } from "@app/components/Number";
 import { Truncate } from "@app/components/Truncate";
 import { Panel } from "@app/components/Panel";
 import Address from "@app/components/Address";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
 
 const Creator: NextPage = () => {
   const { query } = useRouter();
   const { id } = query;
   const { t } = useTranslation("common");
+  const chain = useCurrentChain();
   const { creators } = useCreators({
     pageSize: 1,
     skip: 0,
@@ -91,8 +93,8 @@ const Creator: NextPage = () => {
                     <div className="font-semibold">{t("created-tags-auction-revenue")}</div>
                     <div className="text-right">
                       <div className="">
-                        {toEth(parseFloat(creator.createdTagsAuctionRevenue), 4)}
-                        &nbsp;ETH
+                        {toEth(parseFloat(creator.createdTagsAuctionRevenue), 8)}
+                        &nbsp;{chain?.nativeCurrency.symbol}
                       </div>
                     </div>
                   </div>
@@ -101,8 +103,8 @@ const Creator: NextPage = () => {
                     <div className="font-semibold">{t("created-tags-tagging-revenue")}</div>
                     <div className="text-right">
                       <div className="">
-                        {toEth(parseFloat(creator.createdTagsTaggingFeeRevenue), 4)}
-                        &nbsp;ETH
+                        {toEth(parseFloat(creator.createdTagsTaggingFeeRevenue), 8)}
+                        &nbsp;{chain?.nativeCurrency.symbol}
                       </div>
                     </div>
                   </div>

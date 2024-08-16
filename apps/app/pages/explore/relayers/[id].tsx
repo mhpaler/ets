@@ -14,11 +14,13 @@ import { Tag } from "@app/components/Tag";
 import { Number } from "@app/components/Number";
 import { Panel } from "@app/components/Panel";
 import Address from "@app/components/Address";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
 
 const Relayer: NextPage = () => {
   const { query } = useRouter();
   const { id } = query;
   const { t } = useTranslation("common");
+  const chain = useCurrentChain();
 
   const filter = {
     relayer_: { id },
@@ -131,9 +133,8 @@ const Relayer: NextPage = () => {
                       <div className="font-semibold">{t("lifetime-revenue")}</div>
                       <div className="text-right">
                         <div className="">
-                          {relayers &&
-                            toEth(relayer.publishedTagsAuctionRevenue + relayer.publishedTagsTaggingFeeRevenue, 4)}
-                          &nbsp;ETH
+                          {toEth(relayer.publishedTagsAuctionRevenue + relayer.publishedTagsTaggingFeeRevenue, 8)}{" "}
+                          {chain?.nativeCurrency.symbol}
                         </div>
                       </div>
                     </div>

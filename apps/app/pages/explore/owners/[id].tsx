@@ -14,11 +14,13 @@ import { Number } from "@app/components/Number";
 import { Truncate } from "@app/components/Truncate";
 import { Panel } from "@app/components/Panel";
 import Address from "@app/components/Address";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
 
 const Owner: NextPage = () => {
   const { query } = useRouter();
   const { id } = query;
   const { t } = useTranslation("common");
+  const chain = useCurrentChain();
   const { owners } = useOwners({
     pageSize: 1,
     skip: 0,
@@ -98,8 +100,8 @@ const Owner: NextPage = () => {
                     <div className="font-semibold">{t("tagging-revenue")}</div>
                     <div className="text-right">
                       <div className="">
-                        {toEth(parseFloat(owner.ownedTagsTaggingFeeRevenue), 4)}
-                        &nbsp;ETH
+                        {toEth(parseFloat(owner.ownedTagsTaggingFeeRevenue), 8)}
+                        &nbsp;{chain?.nativeCurrency.symbol}
                       </div>
                     </div>
                   </div>

@@ -9,6 +9,8 @@ import Link from "next/link";
 import { createColumnHelper } from "@tanstack/react-table";
 import useNumberFormatter from "@app/hooks/useNumberFormatter";
 import Address from "@app/components/Address";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
+import { toEth } from "@app/utils";
 
 const pageSize = 20;
 
@@ -16,6 +18,7 @@ const Owners: NextPage = () => {
   const { t } = useTranslation("common");
   const [pageIndex, setPageIndex] = useState(0);
   const { number } = useNumberFormatter();
+  const chain = useCurrentChain();
   const { owners, nextOwners } = useOwners({
     pageSize,
     skip: pageIndex * pageSize,
@@ -38,24 +41,26 @@ const Owners: NextPage = () => {
         cell: (info) => {
           const owner = info.row.original as any;
           return (
-            <>
-              <Link href={`/explore/owners/${owner.id}`} className="link link-primary">
-                <Address address={owner.id} ens={owner.ens} />
-              </Link>
-            </>
+            <Link href={`/explore/owners/${owner.id}`} className="link link-primary">
+              <Address address={owner.id} ens={owner.ens} />
+            </Link>
           );
         },
       }),
       columnHelper.accessor("firstSeen", {
         header: t("first-seen"),
-        cell: (info) => <TimeAgo date={info.getValue() * 1000} />,
+        cell: (info) => <TimeAgo date={parseInt(info.getValue()) * 1000} />,
       }),
       columnHelper.accessor("tagsOwned", {
         header: t("tags-owned", { timeframe: t("current") }),
         cell: (info) => number(parseInt(info.getValue())),
       }),
+      columnHelper.accessor("ownedTagsTaggingFeeRevenue", {
+        header: t("tagging-revenue"),
+        cell: (info) => `${toEth(info.getValue(), 8)} ${chain?.nativeCurrency.symbol}`,
+      }),
     ],
-    [t, number],
+    [t, number, chain],
   );
 
   return (

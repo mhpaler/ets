@@ -11,6 +11,7 @@ import Link from "next/link";
 import { createColumnHelper } from "@tanstack/react-table";
 import { CreatorType } from "@app/types/creator";
 import Address from "@app/components/Address";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
 
 const pageSize = 20;
 
@@ -18,6 +19,7 @@ const Creators: NextPage = () => {
   const { t } = useTranslation("common");
   const [pageIndex, setPageIndex] = useState(0);
   const { number } = useNumberFormatter();
+  const chain = useCurrentChain();
   const { creators, nextCreators } = useCreators({
     pageSize,
     skip: pageIndex * pageSize,
@@ -59,7 +61,7 @@ const Creators: NextPage = () => {
       }),
       columnHelper.accessor("createdTagsAuctionRevenue", {
         header: t("revenue"),
-        cell: (info) => `${toEth(parseFloat(info.getValue() as string), 4)} ETH`,
+        cell: (info) => `${toEth(parseFloat(info.getValue() as string), 8)} ${chain?.nativeCurrency.symbol}`,
       }),
     ],
     [t, number],
