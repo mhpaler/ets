@@ -19,7 +19,7 @@
     "@openzeppelin/defender-relay-client": "1.52.0",
     "@openzeppelin/defender-sdk": "1.5.0",
     "@openzeppelin/defender-sdk-relay-signer-client": "1.11.0",
-    "axios": "1.6.1",
+    "axios": "^1.6.2",
     "axios-retry": "3.5.0",
     "ethers": "5.7.0"
   },
@@ -29,7 +29,7 @@
     "@rollup/plugin-node-resolve": "^10.0.0",
     "@rollup/plugin-typescript": "^6.1.0",
     "@sunodo/wagmi-plugin-hardhat-deploy": "^0.3.0",
-    "@types/node": "^20.10.4",
+    "@types/node": "^20.12.7",
     "@wagmi/cli": "^2.1.15",
     "builtin-modules": "^3.1.0",
     "dotenv": "^16.3.1",
@@ -37,6 +37,6 @@
     "rollup": "^2.33.3",
     "serverless": "^3.38.0",
     "ts-node": "^10.9.1",
-    "typescript": "^5.4.2"
+    "typescript": "^5.4.5"
   }
 }
