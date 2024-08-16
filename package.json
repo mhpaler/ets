@@ -19,7 +19,7 @@
     "examples/*"
   ],
   "scripts": {
-    "build": "rm -rf apps/*/.next && dotenv -e ./.env -- turbo run build --env-mode=loose",
+    "build": "turbo run build --env-mode=loose",
     "changeset:build": "pnpm run --recursive --filter \"./packages/**\" --filter \"./apps/app\" build",
     "changeset:prepublish": "pnpm version:update && pnpm changeset:build && bun scripts/formatPackageJson.ts",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish",

@@ -5,8 +5,9 @@
   "description": "Ethereum Tag Service Explorer app",
   "private": true,
   "scripts": {
-    "dev": "wagmi generate && next dev -p 3000",
-    "build": "wagmi generate && next build",
+    "clean": "rm -rf .next",
+    "dev": "pnpm run clean && dotenv -e ../../.env wagmi generate && next dev -p 3000",
+    "build": "dotenv -e ../../.env wagmi generate && next build",
     "start": "next start",
     "lint": "next lint"
   },
