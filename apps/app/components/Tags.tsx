@@ -1,24 +1,22 @@
-import type { NextPage } from "next";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
+import { createColumnHelper } from "@tanstack/react-table";
 import useTranslation from "next-translate/useTranslation";
-import { globalSettings } from "@app/config/globalSettings";
 import { TanstackTable } from "@app/components/TanstackTable";
 import { TagType } from "@app/types/tag";
-import { createColumnHelper } from "@tanstack/react-table";
-import ENSAddress from "@app/components/ENSAddress";
+import { globalSettings } from "@app/config/globalSettings";
 
 type Props = {
   title?: string;
   pageSize?: number;
   tags: TagType[];
   columnsConfig: any[];
-  rowLink: boolean;
+  rowLink: boolean | ((tag: TagType) => string);
   pageIndex?: number;
   setPageIndex?: (index: number) => void;
   hasNextPage?: boolean;
 };
 
-const Tags: NextPage<Props> = ({
+const Tags: React.FC<Props> = ({
   title,
   tags,
   pageSize = globalSettings["DEFAULT_PAGESIZE"],
@@ -29,25 +27,14 @@ const Tags: NextPage<Props> = ({
   hasNextPage,
 }) => {
   const { t } = useTranslation("common");
-
   const columnHelper = createColumnHelper<TagType>();
 
-  const columns = useMemo<any[]>(
+  const columns = useMemo(
     () =>
       columnsConfig.map((column) =>
         columnHelper.accessor(column.field, {
           header: () => t(column.title),
-          cell: (info) => {
-            const tag = info.row.original;
-            if (column.formatter) {
-              return column.formatter(info.getValue(), tag);
-            }
-            if (typeof info.getValue() === "object" && info.getValue() !== null && "id" in info.getValue()) {
-              const value = info.getValue() as { id: string; ens?: string };
-              return <ENSAddress address={value.id} ens={value.ens} />;
-            }
-            return info.getValue();
-          },
+          cell: (info) => column.formatter(info.getValue(), info.row.original),
         }),
       ),
     [columnsConfig, t],
@@ -64,7 +51,7 @@ const Tags: NextPage<Props> = ({
         title={title}
         pageIndex={pageIndex}
         setPageIndex={setPageIndex}
-        rowLink={rowLink ? (tag: TagType) => `/tag/${tag.id}` : undefined}
+        rowLink={typeof rowLink === "function" ? rowLink : rowLink ? (tag: TagType) => `/tag/${tag.id}` : undefined}
       />
     </div>
   );

@@ -9,12 +9,8 @@ const Home: NextPage = () => {
 
   return (
     <Layout>
-      <div className="col-span-12 grid gap-y-12">
-        <Stats />
-        <div className="col-span-12 gap-6 md:grid-cols-1 lg:gap-12">
-          <TaggingRecords title={t("latest-tagging-records")} />
-        </div>
-      </div>
+      <Stats />
+      <TaggingRecords title={t("latest-tagging-records")} />
     </Layout>
   );
 };

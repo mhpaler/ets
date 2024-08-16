@@ -10,7 +10,7 @@ import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { URI } from "@app/components/URI";
 import { Panel } from "@app/components/Panel";
 import { Tag } from "@app/components/Tag";
-import ENSAddress from "@app/components/ENSAddress";
+import Address from "@app/components/Address";
 
 const TaggingRecord: NextPage = () => {
   const { query } = useRouter();
@@ -66,10 +66,9 @@ const TaggingRecord: NextPage = () => {
                   <div className="flex space-x-1 col-span-2 justify-start">
                     <div className="">
                       <Link href={`/explore/taggers/${taggingRecord.tagger.id}`} className="link link-primary">
-                        <ENSAddress address={taggingRecord.tagger?.id} ens={taggingRecord.tagger?.ens} />
+                        <Address address={taggingRecord.tagger?.id} ens={taggingRecord.tagger?.ens} />
                       </Link>
                     </div>
-                    <CopyAndPaste value={taggingRecord.tagger.id || ""} />
                   </div>
                 </div>
 

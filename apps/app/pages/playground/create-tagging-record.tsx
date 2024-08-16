@@ -101,7 +101,7 @@ const CreateTaggingRecord: NextPage = () => {
 
   return (
     <Layout>
-      <div className="col-span-7">
+      <div className="col-span-12 sm:col-span-7">
         <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="mb-4 min-w-[300px]">
             <div role="tablist" className="tabs tabs-bordered w-full">
@@ -191,7 +191,7 @@ const CreateTaggingRecord: NextPage = () => {
           )}
         </div>
       </div>
-      <div className="col-span-5">
+      <div className="col-span-12 sm:col-span-5">
         <div className="bg-white rounded-lg shadow-lg p-6">
           <h2 className="text-lg font-semibold mb-4">{t("tagging-record-inputs")}</h2>
           <div className="mb-2 flex items-center">

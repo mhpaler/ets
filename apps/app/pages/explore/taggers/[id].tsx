@@ -7,10 +7,9 @@ import { timestampToString } from "@app/utils";
 import Layout from "@app/layouts/default";
 import { TaggingRecords } from "@app/components/TaggingRecords";
 import { Number } from "@app/components/Number";
-import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Truncate } from "@app/components/Truncate";
 import { Panel } from "@app/components/Panel";
-import ENSAddress from "@app/components/ENSAddress";
+import Address from "@app/components/Address";
 
 const Tagger: NextPage = () => {
   const { query } = useRouter();
@@ -47,8 +46,7 @@ const Tagger: NextPage = () => {
               <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col hover:bg-slate-100">
                 <div className="">{t("id")}</div>
                 <div className="flex space-x-1 justify-end">
-                  <ENSAddress address={tagger?.id} ens={tagger?.ens} />
-                  {tagger?.id && <CopyAndPaste value={tagger.id} />}
+                  <Address address={tagger?.id} ens={tagger?.ens} />
                 </div>
               </div>
 

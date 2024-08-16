@@ -44,7 +44,7 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings["DE
       columnHelper.accessor("id", {
         header: t("id"),
         cell: (info) => (
-          <>
+          <div className="flex items-center">
             <Link
               onClick={(e) => {
                 e.stopPropagation();
@@ -52,10 +52,10 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings["DE
               href={`/explore/tagging-records/${info.getValue()}`}
               className="link link-primary"
             >
-              {Truncate(info.getValue())}
+              {Truncate(info.getValue(), 14, "middle")}
             </Link>
             <CopyAndPaste value={info.getValue()} />
-          </>
+          </div>
         ),
       }),
       columnHelper.accessor("timestamp", {
@@ -86,7 +86,7 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings["DE
       columnHelper.accessor("target.id", {
         header: t("target"),
         cell: (info) => (
-          <>
+          <div className="flex items-center">
             <Link
               onClick={(e) => {
                 e.stopPropagation();
@@ -94,10 +94,10 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings["DE
               href={`/explore/targets/${info.getValue()}`}
               className="link link-primary"
             >
-              {Truncate(info.getValue())}
+              {Truncate(info.getValue(), 14, "middle")}
             </Link>
             <CopyAndPaste value={info.getValue()} />
-          </>
+          </div>
         ),
       }),
       columnHelper.accessor("tags", {

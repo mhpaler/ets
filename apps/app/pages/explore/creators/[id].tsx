@@ -10,15 +10,16 @@ import { TimeAgo } from "@app/components/TimeAgo";
 import { Tags } from "@app/components/Tags";
 import { Tag } from "@app/components/Tag";
 import { Number } from "@app/components/Number";
-import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Truncate } from "@app/components/Truncate";
 import { Panel } from "@app/components/Panel";
-import ENSAddress from "@app/components/ENSAddress";
+import Address from "@app/components/Address";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
 
 const Creator: NextPage = () => {
   const { query } = useRouter();
   const { id } = query;
   const { t } = useTranslation("common");
+  const chain = useCurrentChain();
   const { creators } = useCreators({
     pageSize: 1,
     skip: 0,
@@ -58,8 +59,7 @@ const Creator: NextPage = () => {
                   <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col hover:bg-slate-100">
                     <div className="font-semibold">{t("id")}</div>
                     <div className="flex space-x-1 justify-end">
-                      <ENSAddress address={creator.id} ens={creator.ens} truncateLength={13} />
-                      {creator.id && <CopyAndPaste value={creator.id} />}
+                      <Address address={creator.id} ens={creator.ens} truncateLength={13} />
                     </div>
                   </div>
 
@@ -93,8 +93,8 @@ const Creator: NextPage = () => {
                     <div className="font-semibold">{t("created-tags-auction-revenue")}</div>
                     <div className="text-right">
                       <div className="">
-                        {toEth(parseFloat(creator.createdTagsAuctionRevenue), 4)}
-                        &nbsp;{t("matic")}
+                        {toEth(parseFloat(creator.createdTagsAuctionRevenue), 8)}
+                        &nbsp;{chain?.nativeCurrency.symbol}
                       </div>
                     </div>
                   </div>
@@ -103,8 +103,8 @@ const Creator: NextPage = () => {
                     <div className="font-semibold">{t("created-tags-tagging-revenue")}</div>
                     <div className="text-right">
                       <div className="">
-                        {toEth(parseFloat(creator.createdTagsTaggingFeeRevenue), 4)}
-                        &nbsp;{t("matic")}
+                        {toEth(parseFloat(creator.createdTagsTaggingFeeRevenue), 8)}
+                        &nbsp;{chain?.nativeCurrency.symbol}
                       </div>
                     </div>
                   </div>
@@ -114,19 +114,25 @@ const Creator: NextPage = () => {
           </div>
           <div>
             <Tags
-              title={t("tags-created-by", {
-                creator: Truncate(creator.id, 13, "middle"),
-              })}
+              title={t("tags-created-by", { creator: Truncate(creator.id, 13, "middle") })}
               tags={tags}
               rowLink={false}
               columnsConfig={[
-                { title: "tag", field: "tag", formatter: (_: any, tag: any) => <Tag tag={tag} /> },
+                {
+                  title: "tag",
+                  field: "tag",
+                  formatter: (_: any, tag: any) => <Tag tag={tag} />,
+                },
                 {
                   title: "created",
                   field: "timestamp",
-                  formatter: (value: any, tag: any) => <TimeAgo date={value * 1000} />,
+                  formatter: (value: any) => <TimeAgo date={value * 1000} />,
                 },
-                { title: "tagging records", field: "tagAppliedInTaggingRecord" },
+                {
+                  title: "tagging records",
+                  field: "tagAppliedInTaggingRecord",
+                  formatter: (value: any) => value,
+                },
               ]}
             />
           </div>

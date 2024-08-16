@@ -2,9 +2,22 @@ import Head from "next/head";
 import Link from "next/link";
 import { ConnectButtonETS } from "@app/components/ConnectButtonETS";
 import { pathToTitle } from "@app/utils/titleUtils";
+import { useEffect, useState } from "react";
 
 export default function Header() {
   const title = pathToTitle() + " | Ethereum Tag Service";
+  const [isCompact, setIsCompact] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsCompact(window.innerWidth < 768);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <>
@@ -42,9 +55,9 @@ export default function Header() {
         </div>
 
         {/* Right aligned elements */}
-        <span>
-          <ConnectButtonETS className="btn-primary btn-outline btn-sm" />
-        </span>
+        <div className="flex-shrink-0">
+          <ConnectButtonETS className="btn-primary btn-outline btn-sm" compact={isCompact} />
+        </div>
       </header>
     </>
   );

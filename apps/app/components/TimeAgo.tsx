@@ -1,11 +1,15 @@
-import TimeAgoComponent from 'react-timeago';
-import useTranslation from 'next-translate/useTranslation';
-import { timeagoFormatters } from '../i18n';
+import TimeAgoComponent from "react-timeago";
+import useTranslation from "next-translate/useTranslation";
+import { timeagoFormatters } from "../i18n";
 
-const TimeAgo = ({ date }: { date: string|Date|number }) => {
+const TimeAgo = ({ date }: { date: string | Date | number }) => {
   const { lang } = useTranslation();
 
-  return <TimeAgoComponent date={date} formatter={timeagoFormatters[lang]} />;
-}
+  return (
+    <span className="whitespace-nowrap">
+      <TimeAgoComponent date={date} formatter={timeagoFormatters[lang as keyof typeof timeagoFormatters]} />
+    </span>
+  );
+};
 
 export { TimeAgo };

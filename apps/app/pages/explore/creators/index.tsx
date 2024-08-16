@@ -6,13 +6,12 @@ import { toEth } from "@app/utils";
 import useNumberFormatter from "@app/hooks/useNumberFormatter";
 import { useCreators } from "@app/hooks/useCreators";
 import Layout from "@app/layouts/default";
-import { Truncate } from "@app/components/Truncate";
 import { TanstackTable } from "@app/components/TanstackTable";
 import Link from "next/link";
 import { createColumnHelper } from "@tanstack/react-table";
-import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { CreatorType } from "@app/types/creator";
-import ENSAddress from "@app/components/ENSAddress";
+import Address from "@app/components/Address";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
 
 const pageSize = 20;
 
@@ -20,6 +19,7 @@ const Creators: NextPage = () => {
   const { t } = useTranslation("common");
   const [pageIndex, setPageIndex] = useState(0);
   const { number } = useNumberFormatter();
+  const chain = useCurrentChain();
   const { creators, nextCreators } = useCreators({
     pageSize,
     skip: pageIndex * pageSize,
@@ -45,9 +45,8 @@ const Creators: NextPage = () => {
           return (
             <>
               <Link href={`/explore/creators/${creator.id}`} className="link link-primary">
-                <ENSAddress address={creator.id} ens={creator.ens} />
+                <Address address={creator.id} ens={creator.ens} />
               </Link>
-              <CopyAndPaste value={creator.id} />
             </>
           );
         },
@@ -62,7 +61,7 @@ const Creators: NextPage = () => {
       }),
       columnHelper.accessor("createdTagsAuctionRevenue", {
         header: t("revenue"),
-        cell: (info) => `${toEth(parseFloat(info.getValue() as string), 4)} MATIC`,
+        cell: (info) => `${toEth(parseFloat(info.getValue() as string), 8)} ${chain?.nativeCurrency.symbol}`,
       }),
     ],
     [t, number],

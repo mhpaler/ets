@@ -45,7 +45,7 @@ const Target: NextPage = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
+              <div className="grid grid-cols-3 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                 <div className="font-semibold">{t("URI")}</div>
                 <div className="flex space-x-1 col-span-2 justify-start">
                   <div className=" truncate">{targets && targets[0].targetURI}</div>

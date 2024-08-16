@@ -17,7 +17,7 @@ import { TagGraphic } from "@app/components/TagGraphic";
 import { Truncate } from "@app/components/Truncate";
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Panel } from "@app/components/Panel";
-import ENSAddress from "@app/components/ENSAddress";
+import Address from "@app/components/Address";
 
 const Tag: NextPage = () => {
   const { query } = useRouter();
@@ -116,10 +116,9 @@ const Tag: NextPage = () => {
             <div className="flex space-x-1 justify-end">
               <div className="">
                 <Link href={`/creators/${tag.creator.id}`} className="link link-primary">
-                  <ENSAddress address={tag.creator.id} ens={tag.creator.ens} />
+                  <Address address={tag.creator.id} ens={tag.creator.ens} />
                 </Link>
               </div>
-              <CopyAndPaste value={tag.creator.id} />
             </div>
           </div>
 
@@ -128,10 +127,9 @@ const Tag: NextPage = () => {
             <div className="flex space-x-1 justify-end">
               <div className="">
                 <Link href={`/owners/${tag.owner.id}`} className="link link-primary">
-                  <ENSAddress address={tag.owner.id} ens={tag.owner.ens} />
+                  <Address address={tag.owner.id} ens={tag.owner.ens} />
                 </Link>
               </div>
-              <CopyAndPaste value={tag.owner.id} />
             </div>
           </div>
         </Panel>

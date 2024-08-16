@@ -7,8 +7,9 @@ const CopyAndPaste = ({ value }: { value: string }) => {
 
   return (
     <button
-      onClick={(event) => {
-        event.stopPropagation();
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
         copy(value);
       }}
       className="link link-primary"

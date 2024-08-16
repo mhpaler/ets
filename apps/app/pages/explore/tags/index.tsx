@@ -10,7 +10,8 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { TanstackTable } from "@app/components/TanstackTable";
 import { globalSettings } from "@app/config/globalSettings";
 import { TagType } from "@app/types/tag";
-import ENSAddress from "@app/components/ENSAddress";
+import Address from "@app/components/Address";
+import Link from "next/link";
 
 const Ctags: NextPage = () => {
   const { t } = useTranslation("common");
@@ -43,12 +44,20 @@ const Ctags: NextPage = () => {
         header: () => t("owner"),
         cell: (info) => {
           const owner = info.getValue();
-          return <ENSAddress address={owner.id} ens={owner.ens} />;
+          return (
+            <Link href={`/explore/owners/${owner.id}`} className="link link-primary">
+              <Address address={owner.id} ens={owner.ens} />
+            </Link>
+          );
         },
       }),
       columnHelper.accessor("relayer.id", {
         header: () => t("relayer"),
-        cell: (info) => Truncate(info.getValue(), 13, "middle"),
+        cell: (info) => (
+          <Link href={`/explore/relayers/${info.getValue()}`} className="link link-primary">
+            <Address address={info.getValue()} />
+          </Link>
+        ),
       }),
       columnHelper.accessor("tagAppliedInTaggingRecord", {
         header: () => "Tagging Records",

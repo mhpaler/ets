@@ -27,6 +27,8 @@
 
   "description-tagging-records": "The central data type of ETS, a tagging record describes who (tagger) tagged what (target) with what (tags), where (relayer), when, and why (record type). This provides a universal structure for recording all relevant details of a tagging action.",
   "description-creators": "Wallets that have created a tag via a relayer either directly or when a tagging record is created. Identifies the originators of tags, ensuring proper attribution.",
+  "description-create-tag": "Create a new tokenized tag string that can be linked with targets in tagging records. Each tag is unique and can be reused across many tagging records, ensuring consistency and reusability in the tagging system.",
+  "description-create-tagging-record": "Create a new tagging record, the central data type of ETS. Specify who (tagger) is tagging what (target) with which tags, where (relayer), when, and why (record type). This action creates an immutable record of a tagging action on the blockchain.",
   "description-owners": "Wallets that own tags by purchasing them at ETS auction or via the secondary market.",
   "description-relayers": "Relayers host the creation of new tagging records. Only relayers can write tagging records to ETS core. Relayers are essential intermediaries that facilitate and validate the creation of tagging records on the blockchain.",
   "description-tags": "Tokenized tag strings that can be linked with targets in tagging records. Only one token exists per tag string. Tag tokens (e.g., '#love') can be reused across many tagging records. Ensures uniqueness and reusability of tags, enabling them to be consistently referenced across multiple records.",
@@ -35,6 +37,7 @@
   "disabled": "Disabled",
   "enabled": "Enabled",
   "error-creating-tagging-record": "Failed to create tagging record",
+  "eth-earned": "ETH earned",
   "ets": "ETS",
   "etstag-id": "ETSTAG ID",
   "expires": "Expires",
