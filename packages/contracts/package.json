@@ -3,13 +3,14 @@
   "description": "Composable content tagging service for Web3",
   "license": "MIT",
   "version": "0.1.0-alpha.1",
+  "type": "commonjs",
   "files": [
     "/dist"
   ],
   "author": "Ethereum Tag Service <team@ets.xyz>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ethereum-tag-service/ets.git",
+    "url": "git+https://github.com/ethereum-tag-service/ets.git",
     "directory": "packages/contracts"
   },
   "keywords": [
@@ -24,19 +25,20 @@
   "homepage": "https://ets.xyz",
   "scripts": {
     "build": "pnpm build:contracts && pnpm build:package",
-    "prepublishOnly": "pnpm build",
-    "coverage": "hardhat coverage",
-    "prettier": "prettier --write 'contracts/**/*.sol'",
-    "solhint": "./node_modules/.bin/solhint contracts/*.sol contracts/**/*.sol",
     "build:contracts": "pnpm compile",
     "build:package": "rm -rf ./dist && cp -R export dist && cp -R artifacts/contracts dist/artifacts && cp -R contracts dist",
-    "watch": "ts-node scripts/watch.ts",
-    "test": "hardhat test",
-    "hardhat": "hardhat node --no-deploy",
     "compile": "hardhat clean && hardhat compile",
+    "coverage": "hardhat coverage",
     "deploy": "hardhat deploy --tags deployAll --network localhost --export export/chainConfig/localhost.json",
+    "deploy-testnet-production": "hardhat deploy --tags deployAll --network testnet_production --export export/chainConfig/testnet_production.json",
     "deploy-testnet-stage": "hardhat deploy --tags deployAll --network testnet_stage --export export/chainConfig/testnet_stage.json",
-    "deploy-testnet-production": "hardhat deploy --tags deployAll --network testnet_production --export export/chainConfig/testnet_production.json"
+    "hardhat": "hardhat node --no-deploy",
+    "prepublishOnly": "pnpm build",
+    "prettier": "prettier --write 'contracts/**/*.sol'",
+    "solhint": "./node_modules/.bin/solhint contracts/*.sol contracts/**/*.sol",
+    "test": "hardhat test",
+    "test:build": "publint --strict",
+    "watch": "ts-node scripts/watch.ts"
   },
   "devDependencies": {
     "@enzoferey/ethers-error-parser": "^0.2.3",

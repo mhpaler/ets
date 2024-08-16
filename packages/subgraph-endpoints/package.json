@@ -7,6 +7,7 @@
     "access": "public"
   },
   "packageManager": "pnpm@8.6.3",
+  "type": "commonjs",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -20,7 +21,8 @@
     "clean": "rm -rf dist",
     "dev": "tsup src/index.ts --format cjs,esm --dts --outDir dist --watch",
     "build": "pnpm run clean && tsup src/index.ts --format cjs,esm --dts --outDir dist",
-    "lint": "tsc"
+    "lint": "tsc",
+    "test:build": "publint --strict"
   },
   "license": "ISC",
   "devDependencies": {
