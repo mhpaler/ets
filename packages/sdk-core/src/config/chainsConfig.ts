@@ -1,4 +1,4 @@
-import { type Chain, arbitrumSepolia, hardhat } from "wagmi/chains";
+import { type Chain, arbitrumSepolia, hardhat } from "viem/chains";
 
 export const availableChainIds: SupportedChains[] = [
   421614, // arbitrumSepolia

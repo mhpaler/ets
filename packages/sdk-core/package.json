@@ -25,14 +25,13 @@
   },
   "keywords": [],
   "license": "ISC",
+  "dependencies": {
+    "viem": "~2.4.0"
+  },
   "devDependencies": {
     "@types/node": "^20.12.7",
     "tsc-alias": "^1.8.8",
     "tsup": "^8.2.3",
-    "typescript": "^5.4.5",
-    "viem": "~2.4.0"
-  },
-  "dependencies": {
-    "wagmi": "~2.5.7"
+    "typescript": "^5.4.5"
   }
 }
