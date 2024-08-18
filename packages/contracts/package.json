@@ -19,7 +19,8 @@
   "scripts": {
     "build": "pnpm build:contracts && pnpm build:package",
     "build:contracts": "pnpm compile",
-    "build:package": "rm -rf ./dist && cp -R export dist && cp -R artifacts/contracts dist/artifacts && cp -R contracts dist",
+    "build:package": "pnpm run clean && cp -R export dist && cp -R artifacts/contracts dist/artifacts && cp -R contracts dist",
+    "clean": "rm -rf dist",
     "compile": "hardhat clean && hardhat compile",
     "coverage": "hardhat coverage",
     "deploy": "hardhat deploy --tags deployAll --network localhost --export export/chainConfig/localhost.json",
