@@ -1,30 +1,30 @@
-import { useState, useMemo } from "react";
-import type { NextPage } from "next";
-import { TagType } from "@app/types/tag";
-import Layout from "@app/layouts/default";
-import useTranslation from "next-translate/useTranslation";
-import { useSystem } from "@app/hooks/useSystem";
+import Address from "@app/components/Address";
+import { Tag } from "@app/components/Tag";
+import { TanstackTable } from "@app/components/TanstackTable";
+import { TimeAgo } from "@app/components/TimeAgo";
+import { Truncate } from "@app/components/Truncate";
+import AuctionActions from "@app/components/auction/AuctionActions";
+import AuctionTimer from "@app/components/auction/AuctionTimer";
 import { AuctionProvider } from "@app/context/AuctionContext";
 import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useCtags } from "@app/hooks/useCtags";
+import { useSystem } from "@app/hooks/useSystem";
+import Layout from "@app/layouts/default";
+import type { TagType } from "@app/types/tag";
 import { toEth } from "@app/utils";
-import { Truncate } from "@app/components/Truncate";
-import { TimeAgo } from "@app/components/TimeAgo";
-import { Tag } from "@app/components/Tag";
-import AuctionActions from "@app/components/auction/AuctionActions";
-import AuctionTimer from "@app/components/auction/AuctionTimer";
 import { createColumnHelper } from "@tanstack/react-table";
-import { TanstackTable } from "@app/components/TanstackTable";
-import Address from "@app/components/Address";
+import type { NextPage } from "next";
+import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
+import { useMemo, useState } from "react";
 
 const Auction: NextPage = () => {
   const { t } = useTranslation("common");
   const { platformAddress } = useSystem();
   const { allAuctions } = useAuctionHouse();
 
-  const [pageIndex, setPageIndex] = useState(0);
-  const { tags = [], nextTags } = useCtags({
+  const [pageIndex, _setPageIndex] = useState(0);
+  const { tags = [] } = useCtags({
     skip: pageIndex * 20,
     orderBy: "tagAppliedInTaggingRecord",
     filter: { owner_: { id: platformAddress.toLowerCase() } },
@@ -38,20 +38,6 @@ const Auction: NextPage = () => {
     },
   });
 
-  // Function to print debugging information
-  const printDebugInfo = (tags: TagType[]) => {
-    tags.forEach((tag) => {
-      console.log(`Tag ID: ${tag.display}`);
-      if (tag.auctions) {
-        tag.auctions.forEach((auction) => {
-          console.log(`  Auction ID: ${auction.display}, Status: ${auction.settled ? "Settled" : "Active"}`);
-        });
-      } else {
-        console.log("  No auctions available for this tag.");
-      }
-    });
-  };
-
   // Function to filter out tags with active auctions
   const filterEligibleTags = (tags: TagType[]): TagType[] => {
     //printDebugInfo(tags);
@@ -62,8 +48,8 @@ const Auction: NextPage = () => {
 
   // Perform secondary sorting by timestamp on the client side and filter eligible tags
   const upcomingTags = filterEligibleTags(tags as TagType[]).sort((a, b) => {
-    const tagAppliedA = a.tagAppliedInTaggingRecord ?? -Infinity;
-    const tagAppliedB = b.tagAppliedInTaggingRecord ?? -Infinity;
+    const tagAppliedA = a.tagAppliedInTaggingRecord ?? Number.NEGATIVE_INFINITY;
+    const tagAppliedB = b.tagAppliedInTaggingRecord ?? Number.NEGATIVE_INFINITY;
 
     if (tagAppliedA === tagAppliedB) {
       return a.timestamp - b.timestamp; // Unix timestamp comparison (ascending order)
@@ -118,7 +104,7 @@ const Auction: NextPage = () => {
         },
       }),
     ],
-    [t],
+    [t, columnHelper.accessor],
   );
 
   const upcomingColumns = useMemo(
@@ -150,7 +136,7 @@ const Auction: NextPage = () => {
         },
       }),
     ],
-    [t],
+    [t, columnHelper.accessor],
   );
 
   const settledColumns = useMemo(
@@ -193,7 +179,7 @@ const Auction: NextPage = () => {
         cell: (info) => <TimeAgo date={info.getValue() * 1000} />,
       }),
     ],
-    [t],
+    [t, columnHelper.accessor],
   );
 
   return (

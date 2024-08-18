@@ -1,20 +1,20 @@
+import { useCtags } from "@app/hooks/useCtags";
+import { useOwners } from "@app/hooks/useOwners";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
-import { useOwners } from "@app/hooks/useOwners";
-import { useCtags } from "@app/hooks/useCtags";
 
-import useTranslation from "next-translate/useTranslation";
+import Address from "@app/components/Address";
+import { FormattedNumber } from "@app/components/FormattedNumber";
+import { Panel } from "@app/components/Panel";
+import { Tag } from "@app/components/Tag";
+import { Tags } from "@app/components/Tags";
+import { TimeAgo } from "@app/components/TimeAgo";
+import { Truncate } from "@app/components/Truncate";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
+import Layout from "@app/layouts/default";
 import { timestampToString } from "@app/utils";
 import { toEth } from "@app/utils";
-import Layout from "@app/layouts/default";
-import { TimeAgo } from "@app/components/TimeAgo";
-import { Tags } from "@app/components/Tags";
-import { Tag } from "@app/components/Tag";
-import { Number } from "@app/components/Number";
-import { Truncate } from "@app/components/Truncate";
-import { Panel } from "@app/components/Panel";
-import Address from "@app/components/Address";
-import { useCurrentChain } from "@app/hooks/useCurrentChain";
+import useTranslation from "next-translate/useTranslation";
 
 const Owner: NextPage = () => {
   const { query } = useRouter();
@@ -67,7 +67,7 @@ const Owner: NextPage = () => {
                   <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                     <div className="font-semibold">{t("first-seen")}</div>
                     <div className="text-right">
-                      <div className="">{timestampToString(parseInt(owner.firstSeen))}</div>
+                      <div className="">{timestampToString(Number.parseInt(owner.firstSeen))}</div>
                     </div>
                   </div>
                 </Panel>
@@ -79,20 +79,22 @@ const Owner: NextPage = () => {
                   <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                     <div className="font-semibold">{t("tags-owned", { timeframe: t("current") })}</div>
                     <div className="text-right">
-                      <div className="">{<Number value={parseInt(owner.tagsOwned)} />}</div>
+                      <div className="">{<FormattedNumber value={Number.parseInt(owner.tagsOwned)} />}</div>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                     <div className="font-semibold">{t("tags-owned", { timeframe: t("lifetime") })}</div>
                     <div className="text-right">
-                      <div className="">{<Number value={parseInt(owner.tagsOwnedLifeTime)} />}</div>
+                      <div className="">{<FormattedNumber value={Number.parseInt(owner.tagsOwnedLifeTime)} />}</div>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                     <div className="font-semibold">{t("owned-tags-in-tagging-records")}</div>
                     <div className="text-right">
-                      <div className="">{<Number value={parseInt(owner.ownedTagsAddedToTaggingRecords)} />}</div>
+                      <div className="">
+                        {<FormattedNumber value={Number.parseInt(owner.ownedTagsAddedToTaggingRecords)} />}
+                      </div>
                     </div>
                   </div>
 
@@ -100,7 +102,7 @@ const Owner: NextPage = () => {
                     <div className="font-semibold">{t("tagging-revenue")}</div>
                     <div className="text-right">
                       <div className="">
-                        {toEth(parseFloat(owner.ownedTagsTaggingFeeRevenue), 8)}
+                        {toEth(Number.parseFloat(owner.ownedTagsTaggingFeeRevenue), 8)}
                         &nbsp;{chain?.nativeCurrency.symbol}
                       </div>
                     </div>

@@ -1,5 +1,5 @@
-import { useContext } from "react";
 import { AuctionContext } from "@app/context/AuctionContext";
+import { useContext } from "react";
 
 /**
  * Custom hook for consuming the AuctionContext in function components.

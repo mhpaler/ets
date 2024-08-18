@@ -1,8 +1,8 @@
-import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
+import Link from "next/link";
+import { useRelayers } from "../hooks/useRelayers";
 import { toDp, toEth } from "../utils";
 import { CopyAndPaste } from "./CopyAndPaste";
-import { useRelayers } from "../hooks/useRelayers";
 
 const TopRelayers = () => {
   const { t } = useTranslation("common");
@@ -18,20 +18,21 @@ const TopRelayers = () => {
             </div>
             <div className="flex items-center pr-2">
               <svg className="inline-flex w-6 h-6 text-pink-600 hover:text-pink-700" fill="none" viewBox="0 0 24 24">
+                <title>Open main menu</title>
                 <path
                   stroke="currentColor"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="1.5"
                   d="M17.25 15.25V6.75H8.75"
-                ></path>
+                />
                 <path
                   stroke="currentColor"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="1.5"
                   d="M17 7L6.75 17.25"
-                ></path>
+                />
               </svg>
             </div>
           </Link>
@@ -39,37 +40,36 @@ const TopRelayers = () => {
 
         <div className="divide-y rounded-b-md divide-slate-200">
           {/* TODO: update :any to use type */}
-          {relayers &&
-            relayers.map((relayer: any) => (
-              <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4" key={relayer.id}>
-                <div>
-                  <div className="flex space-x-2">
-                    <div className="flex-grow overflow-hidden text-right text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
-                      <Link
-                        href={`/explore/relayers/${relayer.id}`}
-                        className="text-pink-600 hover:text-pink-700"
-                        legacyBehavior
-                        passHref
-                      >
-                        {relayer.id}
-                      </Link>
-                    </div>
-                    <CopyAndPaste value={relayer.id} />
+          {relayers?.map((relayer: any) => (
+            <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4" key={relayer.id}>
+              <div>
+                <div className="flex space-x-2">
+                  <div className="flex-grow overflow-hidden text-right text-pink-600 hover:text-pink-700 text-ellipsis whitespace-nowrap">
+                    <Link
+                      href={`/explore/relayers/${relayer.id}`}
+                      className="text-pink-600 hover:text-pink-700"
+                      legacyBehavior
+                      passHref
+                    >
+                      {relayer.id}
+                    </Link>
                   </div>
-                  <div className="text-sm leading-6 text-slate-500">
-                    {t("tag-count", { count: parseInt(relayer.mintCount) })}
-                  </div>
+                  <CopyAndPaste value={relayer.id} />
                 </div>
-                <div className="col-span-2">
-                  <div className="overflow-hidden text-slate-700 text-ellipsis whitespace-nowrap">
-                    {toEth(relayer.tagFees, 4)} {t("eth-earned")}
-                  </div>
-                  <div className="text-sm leading-6 text-slate-500">
-                    {t("tagged-count", { count: parseInt(relayer.tagCount) })}
-                  </div>
+                <div className="text-sm leading-6 text-slate-500">
+                  {t("tag-count", { count: Number.parseInt(relayer.mintCount) })}
                 </div>
               </div>
-            ))}
+              <div className="col-span-2">
+                <div className="overflow-hidden text-slate-700 text-ellipsis whitespace-nowrap">
+                  {toEth(relayer.tagFees, 4)} {t("eth-earned")}
+                </div>
+                <div className="text-sm leading-6 text-slate-500">
+                  {t("tagged-count", { count: Number.parseInt(relayer.tagCount) })}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

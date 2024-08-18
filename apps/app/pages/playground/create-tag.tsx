@@ -1,15 +1,15 @@
-import { useState } from "react";
+import TagInput from "@app/components/TagInput";
+import { availableChainIds } from "@app/config/wagmiConfig";
+import { useRelayers } from "@app/hooks/useRelayers";
+import useToast from "@app/hooks/useToast";
+import Layout from "@app/layouts/default";
+import type { TagInput as TagInputType } from "@app/types/tag";
+import { isValidTag } from "@app/utils/tagUtils";
+import { useRelayerClient, useTokenClient } from "@ethereum-tag-service/sdk-react-hooks";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
-import Layout from "@app/layouts/default";
-import { useRelayers } from "@app/hooks/useRelayers";
+import { useState } from "react";
 import { useAccount } from "wagmi";
-import { availableChainIds } from "@app/config/wagmiConfig";
-import { isValidTag } from "@app/utils/tagUtils";
-import useToast from "@app/hooks/useToast";
-import TagInput from "@app/components/TagInput";
-import { TagInput as TagInputType } from "@app/types/tag";
-import { useTokenClient, useRelayerClient } from "@ethereum-tag-service/sdk-react-hooks";
 
 const CreateTag: NextPage = () => {
   const { t } = useTranslation("common");
@@ -80,7 +80,7 @@ const CreateTag: NextPage = () => {
           title: "Success",
           description: successMessage,
         });
-      } catch (error) {
+      } catch (_error) {
         showToast({
           title: "Error",
           description: t("failed-to-create-tags"),
@@ -92,7 +92,7 @@ const CreateTag: NextPage = () => {
   };
 
   const handleDeleteTag = (i: number) => {
-    setTags(tags.filter((tag, index) => index !== i));
+    setTags(tags.filter((_tag, index) => index !== i));
   };
 
   const handleAddTag = async (tag: TagInputType) => {

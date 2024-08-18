@@ -21,7 +21,7 @@ module.exports = async ({ deployments }) => {
   const deploymentAddress = await deployment.getAddress();
   const implementationAddress = await upgrades.erc1967.getImplementationAddress(deploymentAddress);
 
-  if (process.env.VERIFY_ON_DEPLOY == "true") {
+  if (process.env.VERIFY_ON_DEPLOY === "true") {
     // Verify & Update network configuration file.
     await verify("ETSTarget", deployment, implementationAddress, []);
   }
@@ -29,16 +29,16 @@ module.exports = async ({ deployments }) => {
   await saveNetworkConfig("ETSTarget", deployment, implementationAddress, false);
 
   // Add to deployments.
-  let artifact = await deployments.getExtendedArtifact("ETSTarget");
-  let proxyDeployments = {
+  const artifact = await deployments.getExtendedArtifact("ETSTarget");
+  const proxyDeployments = {
     address: deploymentAddress,
     ...artifact,
   };
   await save("ETSTarget", proxyDeployments);
 
   log("====================================================");
-  log("ETSTarget proxy deployed to -> " + deploymentAddress);
-  log("ETSTarget implementation deployed to -> " + implementationAddress);
+  log(`ETSTarget proxy deployed to -> ${deploymentAddress}`);
+  log(`ETSTarget implementation deployed to -> ${implementationAddress}`);
   log("====================================================");
 };
 module.exports.tags = ["ETSTarget"];

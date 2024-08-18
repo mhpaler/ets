@@ -21,7 +21,7 @@
  */
 const Truncate = (
   str: string | string[] | undefined,
-  maxLength: number = 20,
+  maxLength = 20,
   ellipsisLocation: "start" | "middle" | "end" = "end",
 ): string => {
   if (typeof str !== "string") {
@@ -45,7 +45,6 @@ const Truncate = (
       const backChars = Math.floor(charsToShow / 2);
       return `${str.substring(0, frontChars)}...${str.substring(str.length - backChars)}`;
     }
-    case "end":
     default:
       // Truncate from the end: "first part of the string + ..."
       return `${str.substring(0, maxLength - 3)}...`;

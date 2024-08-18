@@ -1,15 +1,14 @@
-import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
-import { Creator } from "../generated/schema";
-import { Transfer } from "../generated/ETSToken/ETSToken";
+import { Address, BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
 import { ensurePlatform, updateCreatorCount } from "../entities/Platform";
 import { ensureTag } from "../entities/Tag";
-import { ensureAuction } from "./Auction";
-import { getTaggingFee } from "../utils/getTaggingFee";
-import { arrayDiff } from "../utils/arrayDiff";
-import { ZERO_ADDRESS, ZERO, ONE, CREATE, APPEND, REMOVE, OWNER, MODULO, PLATFORM, RELAYER } from "../utils/constants";
-
 import { AuctionSettled } from "../generated/ETSAuctionHouse/ETSAuctionHouse";
+import { Transfer } from "../generated/ETSToken/ETSToken";
+import { Creator } from "../generated/schema";
+import { arrayDiff } from "../utils/arrayDiff";
+import { APPEND, CREATE, MODULO, ONE, OWNER, REMOVE, ZERO, ZERO_ADDRESS } from "../utils/constants";
+import { getTaggingFee } from "../utils/getTaggingFee";
+import { ensureAuction } from "./Auction";
 
 export function ensureCreator(creatorAddress: Address, event: ethereum.Event): Creator {
   let creator = Creator.load(creatorAddress.toHex());
@@ -30,21 +29,21 @@ export function ensureCreator(creatorAddress: Address, event: ethereum.Event): C
 }
 
 export function updateCreatorTagStats(creatorAddress: Address, event: Transfer): void {
-  let creator = ensureCreator(creatorAddress, event);
-  if (creator && event.params.from.toHexString() == ZERO_ADDRESS) {
+  const creator = ensureCreator(creatorAddress, event);
+  if (creator && event.params.from.toHexString() === ZERO_ADDRESS) {
     creator.tagsCreated = creator.tagsCreated.plus(ONE);
     creator.save();
   }
 }
 
-export function updateCreatorAuctionStats(auctionId: BigInt, event: AuctionSettled): void {
-  let auction = ensureAuction(auctionId, event);
-  let tag = ensureTag(BigInt.fromString(auction.tag), event);
-  let creator = ensureCreator(Address.fromString(tag.creator), event);
+export function updateCreatorAuctionStats(auctionId: GraphBigInt, event: AuctionSettled): void {
+  const auction = ensureAuction(auctionId, event);
+  const tag = ensureTag(GraphBigInt.fromString(auction.tag), event);
+  const creator = ensureCreator(Address.fromString(tag.creator), event);
   if (creator && event) {
     // pull percentages from settings.
-    let settings = ensureGlobalSettings();
-    let creatorAuctionRevenue = auction.amount.times(settings.creatorPercentage).div(MODULO);
+    const settings = ensureGlobalSettings();
+    const creatorAuctionRevenue = auction.amount.times(settings.creatorPercentage).div(MODULO);
     creator.createdTagsAuctionRevenue = creator.createdTagsAuctionRevenue.plus(creatorAuctionRevenue);
     creator.save();
   }
@@ -53,47 +52,47 @@ export function updateCreatorAuctionStats(auctionId: BigInt, event: AuctionSettl
 export function updateCreatorTaggingRecordStats(
   newTagIds: string[] | null,
   previousTagIds: string[] | null,
-  action: BigInt,
+  action: GraphBigInt,
   event: ethereum.Event,
 ): void {
   if (newTagIds && previousTagIds) {
     // Go through each tag in the tagging record and update stats for the creator of that tag.
-    let platform = ensurePlatform(null);
+    const platform = ensurePlatform(null);
 
-    if (action == CREATE) {
+    if (action === CREATE) {
       for (let i = 0; i < newTagIds.length; i++) {
-        let tag = ensureTag(BigInt.fromString(newTagIds[i]), event);
-        let creator = ensureCreator(Address.fromString(tag.creator), event);
+        const tag = ensureTag(GraphBigInt.fromString(newTagIds[i]), event);
+        const creator = ensureCreator(Address.fromString(tag.creator), event);
         creator.createdTagsAddedToTaggingRecords = creator.createdTagsAddedToTaggingRecords.plus(ONE);
-        if (tag.owner == platform.address) {
+        if (tag.owner === platform.address) {
           // Until the tag is purchased, owner portion of tagging fee goes to creator.
-          let creatorFee = getTaggingFee(OWNER);
+          const creatorFee = getTaggingFee(OWNER);
           creator.createdTagsTaggingFeeRevenue = creator.createdTagsTaggingFeeRevenue.plus(creatorFee);
         }
         creator.save();
       }
     }
 
-    if (action == APPEND) {
-      let appendedTagIds = arrayDiff(newTagIds, previousTagIds);
+    if (action === APPEND) {
+      const appendedTagIds = arrayDiff(newTagIds, previousTagIds);
       for (let i = 0; i < appendedTagIds.length; i++) {
-        let tag = ensureTag(BigInt.fromString(appendedTagIds[i]), event);
-        let creator = ensureCreator(Address.fromString(tag.creator), event);
+        const tag = ensureTag(GraphBigInt.fromString(appendedTagIds[i]), event);
+        const creator = ensureCreator(Address.fromString(tag.creator), event);
         creator.createdTagsAddedToTaggingRecords = creator.createdTagsAddedToTaggingRecords.plus(ONE);
-        if (tag.owner == platform.address) {
+        if (tag.owner === platform.address) {
           // Until the tag is purchased, owner portion of tagging fee goes to creator.
-          let creatorFee = getTaggingFee(OWNER);
+          const creatorFee = getTaggingFee(OWNER);
           creator.createdTagsTaggingFeeRevenue = creator.createdTagsTaggingFeeRevenue.plus(creatorFee);
         }
         creator.save();
       }
     }
 
-    if (action == REMOVE) {
-      let removedTagIds = arrayDiff(previousTagIds, newTagIds);
+    if (action === REMOVE) {
+      const removedTagIds = arrayDiff(previousTagIds, newTagIds);
       for (let i = 0; i < removedTagIds.length; i++) {
-        let tag = ensureTag(BigInt.fromString(removedTagIds[i]), event);
-        let creator = ensureCreator(Address.fromString(tag.creator), event);
+        const tag = ensureTag(GraphBigInt.fromString(removedTagIds[i]), event);
+        const creator = ensureCreator(Address.fromString(tag.creator), event);
         creator.createdTagsRemovedFromTaggingRecords = creator.createdTagsRemovedFromTaggingRecords.plus(ONE);
         creator.save();
       }

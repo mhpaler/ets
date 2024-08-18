@@ -1,8 +1,8 @@
-import { BigInt, ethereum, log } from "@graphprotocol/graph-ts";
-import { Platform } from "../generated/schema";
-import { Transfer } from "../generated/ETSToken/ETSToken";
+import { BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
-import { ZERO_ADDRESS, ZERO, ONE, ADDED, PAUSED, UNPAUSED } from "../utils/constants";
+import { Transfer } from "../generated/ETSToken/ETSToken";
+import { Platform } from "../generated/schema";
+import { ADDED, ONE, PAUSED, UNPAUSED, ZERO, ZERO_ADDRESS } from "../utils/constants";
 
 export function ensurePlatform(event: ethereum.Event | null): Platform {
   let platform = Platform.load("ETSPlatform");
@@ -28,49 +28,49 @@ export function ensurePlatform(event: ethereum.Event | null): Platform {
 }
 
 export function updateTargetCount(event: ethereum.Event): void {
-  let platform = ensurePlatform(event);
+  const platform = ensurePlatform(event);
   platform.targetCount = platform.targetCount.plus(ONE);
   platform.save();
 }
 
 // Track CTAGs minted; see ETSToken.ts
 export function updatePlatformTagStats(event: Transfer): void {
-  let platform = ensurePlatform(event);
-  if (platform && event.params.from.toHexString() == ZERO_ADDRESS) {
+  const platform = ensurePlatform(event);
+  if (platform && event.params.from.toHexString() === ZERO_ADDRESS) {
     platform.tagsCount = platform.tagsCount.plus(ONE);
     platform.save();
   }
 }
 
 export function updatePlatformTaggingRecordStats(tagIds: string[] | null, event: ethereum.Event): void {
-  let platform = ensurePlatform(event);
+  const platform = ensurePlatform(event);
   platform.taggingRecordsCount = platform.taggingRecordsCount.plus(ONE);
 
   if (tagIds && tagIds.length > 0) {
-    let settings = ensureGlobalSettings();
+    const settings = ensureGlobalSettings();
 
     platform.taggingFeesRevenue = platform.taggingFeesRevenue.plus(
-      BigInt.fromI32(tagIds.length).times(settings.taggingFee),
+      GraphBigInt.fromI32(tagIds.length).times(settings.taggingFee),
     );
   }
 
   platform.save();
 }
 
-export function updateRelayerCount(action: BigInt, event: ethereum.Event): void {
-  let platform = ensurePlatform(event);
+export function updateRelayerCount(action: GraphBigInt, event: ethereum.Event): void {
+  const platform = ensurePlatform(event);
   // Action ZERO is used to decrement count.
   if (platform) {
-    if (action == ADDED) {
+    if (action === ADDED) {
       platform.relayerCountLifetime = platform.relayerCountLifetime.plus(ONE);
       platform.relayerCountActive = platform.relayerCountActive.plus(ONE);
     }
 
-    if (action == PAUSED) {
+    if (action === PAUSED) {
       platform.relayerCountActive = platform.relayerCountActive.minus(ONE);
     }
 
-    if (action == UNPAUSED) {
+    if (action === UNPAUSED) {
       platform.relayerCountActive = platform.relayerCountActive.plus(ONE);
     }
     platform.save();
@@ -78,19 +78,19 @@ export function updateRelayerCount(action: BigInt, event: ethereum.Event): void 
 }
 
 export function updateTaggerCount(event: ethereum.Event): void {
-  let platform = ensurePlatform(event);
+  const platform = ensurePlatform(event);
   platform.taggerCount = platform.taggerCount.plus(ONE);
   platform.save();
 }
 
 export function updateCreatorCount(event: ethereum.Event): void {
-  let platform = ensurePlatform(event);
+  const platform = ensurePlatform(event);
   platform.creatorCount = platform.creatorCount.plus(ONE);
   platform.save();
 }
 
 export function updateOwnerCount(event: ethereum.Event): void {
-  let platform = ensurePlatform(event);
+  const platform = ensurePlatform(event);
   platform.ownerCount = platform.ownerCount.plus(ONE);
   platform.save();
 }

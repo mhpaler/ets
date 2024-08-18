@@ -1,4 +1,4 @@
-const {ethers} = require("ethers");
+const { ethers } = require("ethers");
 
 task("createTags", "Create CTAGs")
   .addParam("tags", 'Hashtags separated by commas. eg. --tags "#USDC, #Solana"')
@@ -9,7 +9,7 @@ task("createTags", "Create CTAGs")
     "account0",
   )
   .setAction(async (taskArgs) => {
-    const {getAccounts} = require("./utils/getAccounts");
+    const { getAccounts } = require("./utils/getAccounts");
     const accounts = await getAccounts();
 
     // Load network configuration
@@ -35,33 +35,32 @@ task("createTags", "Create CTAGs")
     let etsRelayerV1;
     const relayerAddress = await etsAccessControls.getRelayerAddressFromName(taskArgs.relayer);
     if ((await etsAccessControls.isRelayer(relayerAddress)) === false) {
-      console.log(`"${taskArgs.relayer}" is not a relayer`);
+      console.info(`"${taskArgs.relayer}" is not a relayer`);
       return;
-    } else {
-      etsRelayerV1 = new ethers.Contract(relayerAddress, ETSRelayerV1ABI, accounts[taskArgs.signer]);
     }
+    etsRelayerV1 = new ethers.Contract(relayerAddress, ETSRelayerV1ABI, accounts[taskArgs.signer]);
 
     const tags = taskArgs.tags.replace(/\s+/g, "").split(","); // remove spaces & split on comma
-    let tagsToMint = [];
+    const tagsToMint = [];
 
     for (let i = 0; i < tags.length; i++) {
       const tagId = await etsToken.computeTagId(tags[i]); // creating a deterministic hash
       if (await etsToken.tagExistsById(tagId)) {
-        console.log(`${tags[i]} already exists`);
+        console.info(`${tags[i]} already exists`);
       } else {
         tagsToMint.push(tags[i]);
       }
     }
 
     if (tagsToMint.length > 0) {
-      console.log(`Minting CTAGs "${tagsToMint.toString()}"`);
+      console.info(`Minting CTAGs "${tagsToMint.toString()}"`);
       const tx = await etsRelayerV1.getOrCreateTagIds(tagsToMint);
       await tx.wait();
 
       for (let i = 0; i < tagsToMint.length; i++) {
         const tagId = await etsToken.computeTagId(tags[i]);
         if (await etsToken.tagExistsById(tagId)) {
-          console.log(`"${tagsToMint[i]}" minted by ${taskArgs.signer} with id ${tagId}`);
+          console.info(`"${tagsToMint[i]}" minted by ${taskArgs.signer} with id ${tagId}`);
         }
       }
     }

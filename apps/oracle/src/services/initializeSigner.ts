@@ -1,6 +1,6 @@
+import { DefenderRelayProvider, DefenderRelaySigner } from "@openzeppelin/defender-relay-client/lib/ethers";
 // File: initializeSigner.ts
-import { RelayerParams } from "@openzeppelin/defender-relay-client/lib/relayer";
-import { DefenderRelaySigner, DefenderRelayProvider } from "@openzeppelin/defender-relay-client/lib/ethers";
+import type { RelayerParams } from "@openzeppelin/defender-relay-client/lib/relayer";
 import { ethers } from "ethers";
 
 /**

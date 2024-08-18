@@ -1,27 +1,26 @@
-import { Address, BigInt } from "@graphprotocol/graph-ts";
-
+import { BigInt as GraphBigInt } from "@graphprotocol/graph-ts";
 import {
-  Initialized,
-  Upgraded,
-  AuctionsMaxSet,
-  AuctionDurationSet,
-  AuctionMinBidIncrementPercentageSet,
-  AuctionReservePriceSet,
-  AuctionTimeBufferSet,
-  AuctionProceedPercentagesSet,
-  RequestCreateAuction,
-  AuctionCreated,
   AuctionBid,
+  AuctionCreated,
+  AuctionDurationSet,
   AuctionExtended,
-  AuctionSettled,
+  AuctionMinBidIncrementPercentageSet,
+  AuctionProceedPercentagesSet,
   AuctionProceedsWithdrawn,
+  AuctionReservePriceSet,
+  AuctionSettled,
+  AuctionTimeBufferSet,
+  AuctionsMaxSet,
+  Initialized,
+  RequestCreateAuction,
+  Upgraded,
 } from "../generated/ETSAuctionHouse/ETSAuctionHouse";
 
-import { ensureGlobalSettings } from "../entities/GlobalSettings";
-import { ensureRelease } from "../entities/Release";
-import { ensureAuction, updateAuction, extendAuction } from "../entities/Auction";
+import { ensureAuction, extendAuction, updateAuction } from "../entities/Auction";
 import { ensureBid } from "../entities/Bid";
 import { updateCreatorAuctionStats } from "../entities/Creator";
+import { ensureGlobalSettings } from "../entities/GlobalSettings";
+import { ensureRelease } from "../entities/Release";
 // import { updatePlatformTaggingRecordStats } from "../entities/Platform";
 // import { updateRelayerTaggingRecordStats } from "../entities/Relayer";
 // import { updateTaggerTaggingRecordStats } from "../entities/Tagger";
@@ -31,76 +30,76 @@ import { updateCreatorAuctionStats } from "../entities/Creator";
 // import { ensureTaggingRecord, updateTaggingRecord } from "../entities/TaggingRecord";
 
 export function handleInitialized(event: Initialized): void {
-  let settings = ensureRelease();
+  const settings = ensureRelease();
   settings.etsAuctionHouse = event.address.toHexString();
-  settings.etsAuctionHouseVersion = BigInt.fromI32(event.params.version);
+  settings.etsAuctionHouseVersion = GraphBigInt.fromI32(event.params.version);
   settings.etsAuctionHouseVersionDate = event.block.timestamp;
   settings.save();
 }
 
-export function handleUpgraded(event: Upgraded): void {}
+export function handleUpgraded(_event: Upgraded): void {}
 
 export function handleAuctionsMaxSet(event: AuctionsMaxSet): void {
-  let settings = ensureGlobalSettings();
+  const settings = ensureGlobalSettings();
   settings.maxAuctions = event.params.maxAuctions;
   settings.save();
 }
 
 export function handleAuctionMinBidIncrementPercentageSet(event: AuctionMinBidIncrementPercentageSet): void {
-  let settings = ensureGlobalSettings();
+  const settings = ensureGlobalSettings();
 
-  settings.minIncrementBidPercentage = BigInt.fromI32(event.params.minBidIncrementPercentagePrice);
+  settings.minIncrementBidPercentage = GraphBigInt.fromI32(event.params.minBidIncrementPercentagePrice);
   settings.save();
 }
 
 export function handleAuctionDurationSet(event: AuctionDurationSet): void {
-  let settings = ensureGlobalSettings();
+  const settings = ensureGlobalSettings();
   settings.duration = event.params.duration;
   settings.save();
 }
 
 export function handleAuctionReservePriceSet(event: AuctionReservePriceSet): void {
-  let settings = ensureGlobalSettings();
+  const settings = ensureGlobalSettings();
   settings.reservePrice = event.params.reservePrice;
   settings.save();
 }
 
 export function handleAuctionTimeBufferSet(event: AuctionTimeBufferSet): void {
-  let settings = ensureGlobalSettings();
+  const settings = ensureGlobalSettings();
   settings.timeBuffer = event.params.timeBuffer;
   settings.save();
 }
 
 export function handleAuctionProceedPercentagesSet(event: AuctionProceedPercentagesSet): void {
-  let settings = ensureGlobalSettings();
+  const settings = ensureGlobalSettings();
   settings.relayerPercentage = event.params.relayerPercentage;
   settings.creatorPercentage = event.params.creatorPercentage;
   settings.platformPercentage = event.params.platformPercentage;
   settings.save();
 }
 
-export function handleRequestCreateAuction(event: RequestCreateAuction): void {}
+export function handleRequestCreateAuction(_event: RequestCreateAuction): void {}
 
 export function handleAuctionCreated(event: AuctionCreated): void {
-  let auctionId = event.params.auctionId;
+  const auctionId = event.params.auctionId;
   ensureAuction(auctionId, event);
 }
 
 export function handleAuctionBid(event: AuctionBid): void {
-  let auctionId = event.params.auctionId;
+  const auctionId = event.params.auctionId;
   ensureBid(auctionId, event);
 }
 
 export function handleAuctionExtended(event: AuctionExtended): void {
-  let auctionId = event.params.auctionId;
+  const auctionId = event.params.auctionId;
   extendAuction(auctionId, event);
 }
 
 export function handleAuctionSettled(event: AuctionSettled): void {
-  let auctionId = event.params.auctionId;
+  const auctionId = event.params.auctionId;
   updateAuction(auctionId, event);
 
   updateCreatorAuctionStats(auctionId, event);
 }
 
-export function handleAuctionProceedsWithdrawn(event: AuctionProceedsWithdrawn): void {}
+export function handleAuctionProceedsWithdrawn(_event: AuctionProceedsWithdrawn): void {}

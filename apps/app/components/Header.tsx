@@ -1,11 +1,11 @@
-import Head from "next/head";
-import Link from "next/link";
 import { ConnectButtonETS } from "@app/components/ConnectButtonETS";
 import { pathToTitle } from "@app/utils/titleUtils";
+import Head from "next/head";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Header() {
-  const title = pathToTitle() + " | Ethereum Tag Service";
+  const title = `${pathToTitle()} | Ethereum Tag Service`;
   const [isCompact, setIsCompact] = useState(false);
 
   useEffect(() => {
@@ -34,7 +34,8 @@ export default function Header() {
               viewBox="0 0 24 24"
               className="inline-block w-5 h-5 stroke-current"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-16 6h16"></path>
+              <title>Open main menu</title>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-16 6h16" />
             </svg>
           </label>
           <Link href="/" passHref className="lg:hidden">

@@ -1,17 +1,17 @@
-import { useMemo, useState } from "react";
-import type { NextPage } from "next";
-import useTranslation from "next-translate/useTranslation";
+import Address from "@app/components/Address";
+import { TanstackTable } from "@app/components/TanstackTable";
+import { useCreators } from "@app/hooks/useCreators";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
+import useNumberFormatter from "@app/hooks/useNumberFormatter";
+import Layout from "@app/layouts/default";
+import type { CreatorType } from "@app/types/creator";
 import { timestampToString } from "@app/utils";
 import { toEth } from "@app/utils";
-import useNumberFormatter from "@app/hooks/useNumberFormatter";
-import { useCreators } from "@app/hooks/useCreators";
-import Layout from "@app/layouts/default";
-import { TanstackTable } from "@app/components/TanstackTable";
-import Link from "next/link";
 import { createColumnHelper } from "@tanstack/react-table";
-import { CreatorType } from "@app/types/creator";
-import Address from "@app/components/Address";
-import { useCurrentChain } from "@app/hooks/useCurrentChain";
+import type { NextPage } from "next";
+import useTranslation from "next-translate/useTranslation";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 
 const pageSize = 20;
 
@@ -32,7 +32,6 @@ const Creators: NextPage = () => {
       refreshInterval: 0,
     },
   });
-  console.log("creators", creators);
 
   const columnHelper = createColumnHelper();
 
@@ -53,18 +52,18 @@ const Creators: NextPage = () => {
       }),
       columnHelper.accessor("firstSeen", {
         header: t("first-seen"),
-        cell: (info) => timestampToString(parseInt(info.getValue() as string)),
+        cell: (info) => timestampToString(Number.parseInt(info.getValue() as string)),
       }),
       columnHelper.accessor("tagsCreated", {
         header: t("tags-created"),
-        cell: (info) => number(parseInt(info.getValue() as string)),
+        cell: (info) => number(Number.parseInt(info.getValue() as string)),
       }),
       columnHelper.accessor("createdTagsAuctionRevenue", {
         header: t("revenue"),
-        cell: (info) => `${toEth(parseFloat(info.getValue() as string), 8)} ${chain?.nativeCurrency.symbol}`,
+        cell: (info) => `${toEth(Number.parseFloat(info.getValue() as string), 8)} ${chain?.nativeCurrency.symbol}`,
       }),
     ],
-    [t, number],
+    [t, number, chain?.nativeCurrency.symbol, columnHelper.accessor],
   );
 
   return (

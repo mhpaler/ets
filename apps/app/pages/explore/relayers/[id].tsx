@@ -1,20 +1,20 @@
-import type { NextPage } from "next";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import useTranslation from "next-translate/useTranslation";
+import Address from "@app/components/Address";
+import { FormattedNumber } from "@app/components/FormattedNumber";
+import { Panel } from "@app/components/Panel";
+import { Tag } from "@app/components/Tag";
+import { TaggingRecords } from "@app/components/TaggingRecords";
+import { Tags } from "@app/components/Tags";
+import { TimeAgo } from "@app/components/TimeAgo";
 import { useCtags } from "@app/hooks/useCtags";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
 import { useRelayers } from "@app/hooks/useRelayers";
+import Layout from "@app/layouts/default";
 import { timestampToString } from "@app/utils";
 import { toEth } from "@app/utils";
-import Layout from "@app/layouts/default";
-import { TaggingRecords } from "@app/components/TaggingRecords";
-import { TimeAgo } from "@app/components/TimeAgo";
-import { Tags } from "@app/components/Tags";
-import { Tag } from "@app/components/Tag";
-import { Number } from "@app/components/Number";
-import { Panel } from "@app/components/Panel";
-import Address from "@app/components/Address";
-import { useCurrentChain } from "@app/hooks/useCurrentChain";
+import type { NextPage } from "next";
+import useTranslation from "next-translate/useTranslation";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 const Relayer: NextPage = () => {
   const { query } = useRouter();
@@ -112,20 +112,20 @@ const Relayer: NextPage = () => {
                     <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                       <div className="font-semibold">{t("tagging-records")}</div>
                       <div className="text-right">
-                        <div className="">{<Number value={relayer.taggingRecordsPublished} />}</div>
+                        <div className="">{<FormattedNumber value={relayer.taggingRecordsPublished} />}</div>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                       <div className="font-semibold">{t("tags-published")}</div>
                       <div className="text-right">
-                        <div className="">{<Number value={relayer.tagsPublished} />}</div>
+                        <div className="">{<FormattedNumber value={relayer.tagsPublished} />}</div>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                       <div className="font-semibold">{t("lifetime-tags-applied")}</div>
                       <div className="text-right">
-                        <div className="">{<Number value={relayer.tagsApplied} />}</div>
+                        <div className="">{<FormattedNumber value={relayer.tagsApplied} />}</div>
                       </div>
                     </div>
 

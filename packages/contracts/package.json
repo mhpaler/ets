@@ -4,21 +4,14 @@
   "license": "MIT",
   "version": "0.1.0-alpha.1",
   "type": "commonjs",
-  "files": [
-    "/dist"
-  ],
+  "files": ["/dist"],
   "author": "Ethereum Tag Service <team@ets.xyz>",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ethereum-tag-service/ets.git",
     "directory": "packages/contracts"
   },
-  "keywords": [
-    "ets",
-    "composable",
-    "nft",
-    "tagging"
-  ],
+  "keywords": ["ets", "composable", "nft", "tagging"],
   "bugs": {
     "url": "https://github.com/ethereum-tag-service/ets/issues"
   },

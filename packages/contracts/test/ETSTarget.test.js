@@ -5,36 +5,38 @@ const { expect } = require("chai");
 //let accounts, factories, contracts.ETSAccessControls, ETSLifeCycleControls, contracts.ETSToken;
 let targetURI;
 
-describe("ETS Target tests", function () {
+describe("ETS Target tests", () => {
   // we create a setup function that can be called by every test and setup variable for easy to read tests
-  beforeEach("Setup test", async function () {
+  beforeEach("Setup test", async () => {
     [accounts, contracts, initSettings] = await setup();
     targetURI = "https://google.com";
   });
 
-  describe("Valid setup", async function () {
-    it("should have Access controls set to ETSAccessControls contract", async function () {
+  describe("Valid setup", async () => {
+    it("should have Access controls set to ETSAccessControls contract", async () => {
       //const enrich = await contracts.ETSTarget.etsEnrichTarget();
       expect(await contracts.ETSTarget.etsAccessControls()).to.be.equal(await contracts.ETSAccessControls.getAddress());
     });
   });
 
   describe("Setting access controls", async () => {
-    it("should revert if set to zero address", async function () {
+    it("should revert if set to zero address", async () => {
       await expect(
         contracts.ETSTarget.connect(accounts.ETSPlatform).setAccessControls(ethers.ZeroAddress),
       ).to.be.revertedWith("Address cannot be zero");
     });
 
-    it("should revert if caller is not administrator", async function () {
-      await expect(contracts.ETSTarget.connect(accounts.RandomTwo).setAccessControls(accounts.RandomOne.address)).to.be.reverted;
+    it("should revert if caller is not administrator", async () => {
+      await expect(contracts.ETSTarget.connect(accounts.RandomTwo).setAccessControls(accounts.RandomOne.address)).to.be
+        .reverted;
     });
 
-    it("should revert if a access controls is set to a non-access control contract", async function () {
-      await expect(contracts.ETSTarget.connect(accounts.ETSPlatform).setAccessControls(accounts.RandomTwo.address)).to.be.reverted;
+    it("should revert if a access controls is set to a non-access control contract", async () => {
+      await expect(contracts.ETSTarget.connect(accounts.ETSPlatform).setAccessControls(accounts.RandomTwo.address)).to
+        .be.reverted;
     });
 
-    it("should revert if caller is not set as admin in contract being set.", async function () {
+    it("should revert if caller is not set as admin in contract being set.", async () => {
       factories = await getFactories();
       const ETSAccessControlsNew = await upgrades.deployProxy(
         factories.ETSAccessControls,
@@ -48,7 +50,7 @@ describe("ETS Target tests", function () {
       ).to.be.revertedWith("Access denied");
     });
 
-    it("should emit AccessControlsSet", async function () {
+    it("should emit AccessControlsSet", async () => {
       factories = await getFactories();
       const ETSAccessControlsNew = await upgrades.deployProxy(
         factories.ETSAccessControls,
@@ -56,14 +58,16 @@ describe("ETS Target tests", function () {
         { kind: "uups" },
       );
 
-      await expect(contracts.ETSTarget.connect(accounts.ETSPlatform).setAccessControls(await ETSAccessControlsNew.getAddress()))
+      await expect(
+        contracts.ETSTarget.connect(accounts.ETSPlatform).setAccessControls(await ETSAccessControlsNew.getAddress()),
+      )
         .to.emit(contracts.ETSTarget, "AccessControlsSet")
         .withArgs(await ETSAccessControlsNew.getAddress());
       expect(await contracts.ETSTarget.etsAccessControls()).to.be.equal(await ETSAccessControlsNew.getAddress());
     });
   });
 
-  describe("Creating a new target Id via getOrCreateTargetId", async function () {
+  describe("Creating a new target Id via getOrCreateTargetId", async () => {
     it("should emit the new target Id", async () => {
       //const target = "https://google.com";
       const targetId = await contracts.ETSTarget.computeTargetId(targetURI);
@@ -72,9 +76,9 @@ describe("ETS Target tests", function () {
     });
   });
 
-  describe("Getting an existing target Id via getOrCreateTargetId ", async function () {
+  describe("Getting an existing target Id via getOrCreateTargetId ", async () => {
     it("should not emit the TargetCreated event", async () => {
-      const targetId = await contracts.ETSTarget.computeTargetId(targetURI);
+      const _targetId = await contracts.ETSTarget.computeTargetId(targetURI);
       await contracts.ETSTarget.getOrCreateTargetId(targetURI);
 
       tx = await contracts.ETSTarget.getOrCreateTargetId(targetURI);
@@ -82,7 +86,7 @@ describe("ETS Target tests", function () {
     });
   });
 
-  describe("Getting a target object", async function () {
+  describe("Getting a target object", async () => {
     it("should work with either target URI or target Id", async () => {
       await contracts.ETSTarget.connect(accounts.RandomOne).getOrCreateTargetId(targetURI);
       // Fetch target object using target URI string.
@@ -102,9 +106,9 @@ describe("ETS Target tests", function () {
     it("should revert when attempted directly", async () => {
       await contracts.ETSTarget.connect(accounts.RandomOne).getOrCreateTargetId(targetURI);
       const targetId = await contracts.ETSTarget.computeTargetId(targetURI);
-      let blockNum = await ethers.provider.getBlockNumber();
-      let block = await ethers.provider.getBlock(blockNum);
-      let timestamp = block.timestamp;
+      const blockNum = await ethers.provider.getBlockNumber();
+      const block = await ethers.provider.getBlock(blockNum);
+      const timestamp = block.timestamp;
       await expect(
         contracts.ETSTarget.connect(accounts.RandomOne).updateTarget(
           targetId,

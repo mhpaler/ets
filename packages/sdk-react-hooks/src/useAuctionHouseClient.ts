@@ -1,5 +1,5 @@
-import { useContext, useEffect, useState } from "react";
-import { createAuctionHouseClient, AuctionHouseClient } from "@ethereum-tag-service/sdk-core";
+import { type AuctionHouseClient, createAuctionHouseClient } from "@ethereum-tag-service/sdk-core";
+import { useEffect, useState } from "react";
 
 export const useAuctionHouseClient = ({ chainId, account }: { chainId?: number; account?: `0x${string}` }) => {
   const [auctionHouseClient, setAuctionHouseClient] = useState<AuctionHouseClient>();
@@ -11,282 +11,158 @@ export const useAuctionHouseClient = ({ chainId, account }: { chainId?: number; 
   }, [chainId, account]);
 
   const createBid = async (auctionId: bigint, value?: bigint) => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.createBid(auctionId, value);
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.createBid(auctionId, value);
   };
 
   const createNextAuction = async () => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.createNextAuction();
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.createNextAuction();
   };
 
   const settleAuction = async (auctionId: bigint) => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.settleAuction(auctionId);
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.settleAuction(auctionId);
   };
 
   const drawDown = async (account: string) => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.drawDown(account);
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.drawDown(account);
   };
 
   const settleCurrentAndCreateNewAuction = async (auctionId: bigint) => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.settleCurrentAndCreateNewAuction(auctionId);
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.settleCurrentAndCreateNewAuction(auctionId);
   };
 
   const getAuction = async (auctionId: bigint) => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.getAuction(auctionId);
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.getAuction(auctionId);
   };
 
   const auctionExists = async (auctionId: bigint) => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.auctionExists(auctionId);
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.auctionExists(auctionId);
   };
 
   const getActiveCount = async () => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.getActiveCount();
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.getActiveCount();
   };
 
   const getAuctionCountForTokenId = async (tokenId: bigint) => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.getAuctionCountForTokenId(tokenId);
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.getAuctionCountForTokenId(tokenId);
   };
 
   const getAuctionForTokenId = async (tokenId: bigint) => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.getAuctionForTokenId(tokenId);
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.getAuctionForTokenId(tokenId);
   };
 
   const getBalance = async () => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.getBalance();
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.getBalance();
   };
 
   const getTotalCount = async () => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.getTotalCount();
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.getTotalCount();
   };
 
   const paused = async () => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.paused();
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.paused();
   };
 
   const accrued = async (address: string) => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.accrued(address);
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.accrued(address);
   };
 
   const auctionEnded = async (auctionId: bigint) => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.auctionEnded(auctionId);
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.auctionEnded(auctionId);
   };
 
   const auctionExistsForTokenId = async (tokenId: bigint) => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.auctionExistsForTokenId(tokenId);
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.auctionExistsForTokenId(tokenId);
   };
 
   const auctionSettled = async (auctionId: bigint) => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.auctionSettled(auctionId);
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.auctionSettled(auctionId);
   };
 
   const auctions = async (index: bigint) => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.auctions(index);
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.auctions(index);
   };
 
   const auctionsByTokenId = async (tokenId: bigint, index: bigint) => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.auctionsByTokenId(tokenId, index);
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.auctionsByTokenId(tokenId, index);
   };
 
   const creatorPercentage = async () => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.creatorPercentage();
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.creatorPercentage();
   };
 
   const duration = async () => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.duration();
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.duration();
   };
 
   const etsAccessControls = async () => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.etsAccessControls();
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.etsAccessControls();
   };
 
   const etsToken = async () => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.etsToken();
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.etsToken();
   };
 
   const maxAuctions = async () => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.maxAuctions();
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.maxAuctions();
   };
 
   const minBidIncrementPercentage = async () => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.minBidIncrementPercentage();
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.minBidIncrementPercentage();
   };
 
   const paid = async (address: string) => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.paid(address);
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.paid(address);
   };
 
   const platformPercentage = async () => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.platformPercentage();
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.platformPercentage();
   };
 
   const relayerPercentage = async () => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.relayerPercentage();
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.relayerPercentage();
   };
 
   const reservePrice = async () => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.reservePrice();
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.reservePrice();
   };
 
   const timeBuffer = async () => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.timeBuffer();
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.timeBuffer();
   };
 
   const totalDue = async (address: string) => {
-    try {
-      if (!auctionHouseClient) throw new Error("Auction House client not initialized");
-      return await auctionHouseClient.totalDue(address);
-    } catch (error) {
-      throw error;
-    }
+    if (!auctionHouseClient) throw new Error("Auction House client not initialized");
+    return await auctionHouseClient.totalDue(address);
   };
 
   return {

@@ -1,7 +1,7 @@
-import { PublicClient, Hex } from "viem";
-import { handleContractRead } from "../utils/handleContractRead";
-import { AccessControlsReadFunction } from "../types";
+import type { Hex, PublicClient } from "viem";
 import { getConfig } from "../contracts/config";
+import type { AccessControlsReadFunction } from "../types";
+import { handleContractRead } from "../utils/handleContractRead";
 
 export class AccessControlsClient {
   private readonly publicClient: PublicClient;
@@ -13,7 +13,8 @@ export class AccessControlsClient {
     this.validateConfig(chainId, publicClient);
 
     const config = getConfig(chainId);
-    if (!config || config.etsAccessControlsConfig == undefined) throw new Error("Configuration could not be retrieved");
+    if (!config || config.etsAccessControlsConfig === undefined)
+      throw new Error("Configuration could not be retrieved");
 
     this.etsAccessControlsConfig = config.etsAccessControlsConfig;
   }

@@ -1,7 +1,8 @@
+import useTranslation from "next-translate/useTranslation";
 // components/SiteMessage.tsx
 // Sitewide message component that can be dismissed by the user.
-import React, { useState, useEffect } from "react";
-import useTranslation from "next-translate/useTranslation";
+import type React from "react";
+import { useEffect, useState } from "react";
 
 const SiteMessage: React.FC = () => {
   const { t } = useTranslation("common");
@@ -32,6 +33,7 @@ const SiteMessage: React.FC = () => {
         fill="none"
         viewBox="0 0 24 24"
       >
+        <title>Info Alter Icon</title>
         <path
           strokeLinecap="round"
           strokeLinejoin="round"

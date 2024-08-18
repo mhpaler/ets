@@ -15,9 +15,9 @@ const chainId = network.config.chainId;
  */
 async function verify(name, deployment, implementation, args) {
   // If we are on hardhat local chain and ethernal is enabled.
-  if (chainId == 31337) {
+  if (chainId === 31337) {
     if (ethernal && process.env.ETHERNAL_DISABLED === "false") {
-      console.log(`Verifying ${name} on Ethernal`);
+      console.info(`Verifying ${name} on Ethernal`);
       try {
         await ethernal.push({
           name: name,
@@ -25,23 +25,23 @@ async function verify(name, deployment, implementation, args) {
           address: deployment.address,
         });
       } catch (err) {
-        console.log("Verification failed", { name, chainId: chainId, address: deployment.address, args, err });
+        console.info("Verification failed", { name, chainId: chainId, address: deployment.address, args, err });
       }
     } else {
-      console.log("Ethernal verification disabled. See repo README.md for enabling Ethernal.");
+      console.info("Ethernal verification disabled. See repo README.md for enabling Ethernal.");
     }
   } else {
     try {
-      console.log(`Verifying ${name}`);
-      console.log("implementation", implementation);
-      console.log("deployment", deployment.address);
+      console.info(`Verifying ${name}`);
+      console.info("implementation", implementation);
+      console.info("deployment", deployment.address);
       await run("verify:verify", {
         network: networkName,
         address: implementation,
         constructorArguments: args,
       });
     } catch (err) {
-      console.log("Verification failed", {
+      console.info("Verification failed", {
         name,
         address: deployment.address,
         chainId: chainId,

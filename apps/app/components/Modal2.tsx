@@ -4,7 +4,7 @@ interface Props {
   children?: any;
 }
 
-const Modal2 = ({ label, children, link = false }: Props) => {
+const Modal2 = ({ link = false }: Props) => {
   const buttonClassName = link ? "btn btn-link" : "btn btn-sm btn-primary btn-outline";
 
   const openModal = () => {

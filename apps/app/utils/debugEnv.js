@@ -1,4 +1,4 @@
 // debugEnv.js
 export const debugEnv = () => {
-  console.log('Environment Variables:', process.env);
+  console.info("Environment Variables:", process.env);
 };

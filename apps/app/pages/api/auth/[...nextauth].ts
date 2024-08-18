@@ -2,9 +2,9 @@
 // with added process.env.VERCEL_URL detection to support preview deployments
 // and with auth option logic extracted into a 'getAuthOptions' function so it
 // can be used to get the session server-side with 'getServerSession'
-import { IncomingMessage } from "http";
-import { NextApiRequest, NextApiResponse } from "next";
-import NextAuth, { NextAuthOptions } from "next-auth";
+import type { IncomingMessage } from "node:http";
+import type { NextApiRequest, NextApiResponse } from "next";
+import NextAuth, { type NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { getCsrfToken } from "next-auth/react";
 import { SiweMessage } from "siwe";
@@ -14,15 +14,10 @@ export function getAuthOptions(req: IncomingMessage): NextAuthOptions {
     CredentialsProvider({
       async authorize(credentials) {
         try {
-          const siwe = new SiweMessage(
-            JSON.parse(credentials?.message || "{}")
-          );
+          const siwe = new SiweMessage(JSON.parse(credentials?.message || "{}"));
 
           const nextAuthUrl =
-            process.env.NEXTAUTH_URL ||
-            (process.env.VERCEL_URL
-              ? `https://${process.env.VERCEL_URL}`
-              : null);
+            process.env.NEXTAUTH_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null);
           if (!nextAuthUrl) {
             return null;
           }
@@ -40,7 +35,7 @@ export function getAuthOptions(req: IncomingMessage): NextAuthOptions {
           return {
             id: siwe.address,
           };
-        } catch (e) {
+        } catch (_e) {
           return null;
         }
       },
@@ -89,9 +84,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
     return;
   }
 
-  const isDefaultSigninPage =
-    req.method === "GET" &&
-    req.query.nextauth.find((value) => value === "signin");
+  const isDefaultSigninPage = req.method === "GET" && req.query.nextauth.find((value) => value === "signin");
 
   // Hide Sign-In with Ethereum from default sign page
   if (isDefaultSigninPage) {

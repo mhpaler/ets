@@ -1,10 +1,10 @@
 import subgraphEndpoints from "@ethereum-tag-service/subgraph-endpoints";
-import { request, gql } from "graphql-request";
-import { PublicClient } from "viem";
+import { gql, request } from "graphql-request";
+import type { PublicClient } from "viem";
 
 type Variables = Record<string, any>; // Define your custom variable types here if needed
 
-export const fetcher = async <T = any,>(query: string, variables: Variables): Promise<T> => {
+export const fetcher = async <T = any>(query: string, variables: Variables): Promise<T> => {
   // Current ETS_ENVIRONMENTS are development/stage/production
   const environment: string = process.env.NEXT_PUBLIC_ETS_ENVIRONMENT || "development";
 
@@ -22,6 +22,7 @@ export const fetcher = async <T = any,>(query: string, variables: Variables): Pr
     return data;
   } catch (error) {
     // Handle errors here if needed
+    console.error(error);
     throw error;
   }
 };

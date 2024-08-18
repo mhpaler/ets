@@ -1,17 +1,17 @@
 export function getTargetTypeKeywords(uri: string): string[] {
-  let parts = uri.split(":");
+  const parts = uri.split(":");
 
   if (parts.length > 0) {
-    if (parts[0].toLowerCase() == "blink") {
+    if (parts[0].toLowerCase() === "blink") {
       // blink:[chain-name]:[chain-network]:[block]:[transaction]
       // blink:polygon:mumbai:0x60Ae865ee4C725cd04353b5AAb364553f56ceF82:0x8635-0x0b"
       // https://lenster.xyz/posts/0x8635-0x17
       // blink:polygon:mainnet:0xDb46d1Dc155634FbC732f92E853b10B288AD5a1d:0x8635-0x17"
-      let typeName = "Blink";
-      let chainName = parts[1];
-      let chainNetwork = parts[2];
+      const typeName = "Blink";
+      const chainName = parts[1];
+      const chainNetwork = parts[2];
       // ChainAssetId is everything after chainNetwork.
-      let chainAssetId = parts.slice(3, parts.length).join(":");
+      const chainAssetId = parts.slice(3, parts.length).join(":");
       // Here we should do some introspection on the Blink to add additional color.
       // for now, this will be 100% procedural for the purposes of identifying
       // Lens Publications.
@@ -28,11 +28,11 @@ export function getTargetTypeKeywords(uri: string): string[] {
         chainAssetSubtype = "Lens Publication";
       }
 
-      let terms: string[] = [typeName, chainName, chainNetwork, chainAssetId, chainAssetType, chainAssetSubtype];
+      const terms: string[] = [typeName, chainName, chainNetwork, chainAssetId, chainAssetType, chainAssetSubtype];
       return terms;
     }
 
-    if (parts[0] == "https" || parts[0] == "http") {
+    if (parts[0] === "https" || parts[0] === "http") {
       return ["URL"];
     }
 

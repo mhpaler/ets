@@ -30,14 +30,13 @@ task("togglePauseRelayerByOwner", "Pauses/Unpauses a Relayer contract by owner")
     let etsRelayerV1;
     const relayerAddress = await etsAccessControls.getRelayerAddressFromName(taskArgs.relayer);
     if ((await etsAccessControls.isRelayerByAddress(relayerAddress)) === false) {
-      console.log(`"${taskArgs.relayer}" is not a relayer`);
+      console.info(`"${taskArgs.relayer}" is not a relayer`);
       return;
-    } else {
-      etsRelayerV1 = new ethers.Contract(relayerAddress, ETSRelayerV1ABI, accounts[taskArgs.signer]);
     }
+    etsRelayerV1 = new ethers.Contract(relayerAddress, ETSRelayerV1ABI, accounts[taskArgs.signer]);
 
     if (accounts[taskArgs.signer].address !== (await etsRelayerV1.getOwner())) {
-      console.log(`${taskArgs.signer} is not the owner of "${taskArgs.relayer}" relayer contract`);
+      console.info(`${taskArgs.signer} is not the owner of "${taskArgs.relayer}" relayer contract`);
       return;
     }
 
@@ -50,8 +49,8 @@ task("togglePauseRelayerByOwner", "Pauses/Unpauses a Relayer contract by owner")
     }
 
     if ((await etsRelayerV1.isPaused()) === true) {
-      console.log(`${taskArgs.relayer} paused`);
+      console.info(`${taskArgs.relayer} paused`);
     } else {
-      console.log(`${taskArgs.relayer} unpaused`);
+      console.info(`${taskArgs.relayer} unpaused`);
     }
   });

@@ -23,9 +23,9 @@ async function getAccounts() {
   const namedAccounts = await ethers.getNamedSigners();
   const unnamedAccounts = await ethers.getUnnamedSigners();
   const accounts = {
-    ETSAdmin: namedAccounts["ETSAdmin"],
-    ETSPlatform: namedAccounts["ETSPlatform"],
-    ETSOracle: namedAccounts["ETSOracle"],
+    ETSAdmin: namedAccounts.ETSAdmin,
+    ETSPlatform: namedAccounts.ETSPlatform,
+    ETSOracle: namedAccounts.ETSOracle,
     Buyer: unnamedAccounts[0],
     RandomOne: unnamedAccounts[1],
     RandomTwo: unnamedAccounts[2],
@@ -85,7 +85,6 @@ function getInitSettings() {
 }
 
 async function setup() {
-
   const factories = await getFactories();
   const accounts = await getAccounts();
 
@@ -198,10 +197,16 @@ async function setup() {
   // ============ GRANT ROLES & APPROVALS ============
 
   // Allows relayer admin role to grant relayer factory role.
-  await ETSAccessControls.setRoleAdmin(await ETSAccessControls.RELAYER_FACTORY_ROLE(), await ETSAccessControls.RELAYER_ADMIN_ROLE());
+  await ETSAccessControls.setRoleAdmin(
+    await ETSAccessControls.RELAYER_FACTORY_ROLE(),
+    await ETSAccessControls.RELAYER_ADMIN_ROLE(),
+  );
 
   // Allows relayer factory role to grant relayer role.
-  await ETSAccessControls.setRoleAdmin(await ETSAccessControls.RELAYER_ROLE(), await ETSAccessControls.RELAYER_FACTORY_ROLE());
+  await ETSAccessControls.setRoleAdmin(
+    await ETSAccessControls.RELAYER_ROLE(),
+    await ETSAccessControls.RELAYER_FACTORY_ROLE(),
+  );
 
   await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), accounts.ETSAdmin.address);
   await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), accounts.ETSPlatform.address);

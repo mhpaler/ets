@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useAuction } from "@app/hooks/useAuctionContext";
+import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useSystem } from "@app/hooks/useSystem";
 import { bigIntReplacer } from "@app/utils";
+import React, { useEffect, useState } from "react";
 
 const AuctionDebug = () => {
   const { timeDifference, blockchainTime } = useSystem();

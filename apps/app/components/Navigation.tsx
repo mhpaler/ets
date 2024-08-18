@@ -1,7 +1,7 @@
-import { useRouter } from "next/router";
-import Link from "next/link";
-import useTranslation from "next-translate/useTranslation";
 import { AuctionIcon, Globe, Playground, Relayer, Tag, TaggingRecord, Target } from "@app/components/icons";
+import useTranslation from "next-translate/useTranslation";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 export default function Navigation() {
   const { t } = useTranslation("common");
@@ -23,6 +23,7 @@ export default function Navigation() {
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 100 100"
               >
+                <title>ETS Logo</title>
                 <path
                   fill="currentColor"
                   d="M0 50 50 0H0v50zm100 50V50l-50 50h50zM50 0l50 50V0H50zM19.9 84.9c0 2.8-2.2 5-5 5s-5-2.2-5-5 2.2-5 5-5 5 2.3 5 5z"

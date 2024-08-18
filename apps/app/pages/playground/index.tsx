@@ -1,7 +1,7 @@
+import { CreateTagIcon, CreateTaggingRecordIcon } from "@app/components/icons";
+import Layout from "@app/layouts/default";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
-import Layout from "@app/layouts/default";
-import { CreateTaggingRecordIcon, CreateTagIcon } from "@app/components/icons";
 
 const Playground: NextPage = () => {
   const { t } = useTranslation("common");

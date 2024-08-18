@@ -9,36 +9,41 @@ module.exports = async ({ deployments }) => {
   const etsToken = await deployments.get("ETSToken");
   const ETSToken = await ethers.getContractAt("ETSToken", etsToken.address);
   const etsAuctionHouse = await deployments.get("ETSAuctionHouse");
-  const ETSAuctionHouse = await ethers.getContractAt("ETSAuctionHouse", etsAuctionHouse.address);
+  const _ETSAuctionHouse = await ethers.getContractAt("ETSAuctionHouse", etsAuctionHouse.address);
   const etsTarget = await deployments.get("ETSTarget");
   const ETSTarget = await ethers.getContractAt("ETSTarget", etsTarget.address);
   const etsEnrichTarget = await deployments.get("ETSEnrichTarget");
-  const ETSEnrichTarget = await ethers.getContractAt("ETSEnrichTarget", etsEnrichTarget.address);
+  const _ETSEnrichTarget = await ethers.getContractAt("ETSEnrichTarget", etsEnrichTarget.address);
   const ets = await deployments.get("ETS");
-  const ETS = await ethers.getContractAt("ETS", ets.address);
+  const _ETS = await ethers.getContractAt("ETS", ets.address);
   const etsRelayerFactory = await deployments.get("ETSRelayerFactory");
   const ETSRelayerFactory = await ethers.getContractAt("ETSRelayerFactory", etsRelayerFactory.address);
 
-  console.log("============ CONFIGURE ROLES & APPROVALS ============");
-  console.log("See /packages/contracts/deploy/deploy.js for settings.");
+  console.info("============ CONFIGURE ROLES & APPROVALS ============");
+  console.info("See /packages/contracts/deploy/deploy.js for settings.");
 
-  let hardhat_automine;// = await network.provider.send("hardhat_getAutomine");
-  if (network.config["chainId"] == 31337) {
-
+  let hardhat_automine; // = await network.provider.send("hardhat_getAutomine");
+  if (network.config.chainId === 31337) {
     hardhat_automine = await network.provider.send("hardhat_getAutomine");
 
     // if automine is off, enable it to apply these settings faster.
-    if (hardhat_automine == false) {
+    if (hardhat_automine === false) {
       await network.provider.send("evm_setAutomine", [true]);
-      console.log("Hardhat automine set to", await network.provider.send("hardhat_getAutomine"));
+      console.info("Hardhat automine set to", await network.provider.send("hardhat_getAutomine"));
     }
   }
 
   // Allows relayer admin role to grant relayer factory role.
-  await ETSAccessControls.setRoleAdmin(await ETSAccessControls.RELAYER_FACTORY_ROLE(), await ETSAccessControls.RELAYER_ADMIN_ROLE());
+  await ETSAccessControls.setRoleAdmin(
+    await ETSAccessControls.RELAYER_FACTORY_ROLE(),
+    await ETSAccessControls.RELAYER_ADMIN_ROLE(),
+  );
 
   // Allows relayer factory role to grant relayer role.
-  await ETSAccessControls.setRoleAdmin(await ETSAccessControls.RELAYER_ROLE(), await ETSAccessControls.RELAYER_FACTORY_ROLE());
+  await ETSAccessControls.setRoleAdmin(
+    await ETSAccessControls.RELAYER_ROLE(),
+    await ETSAccessControls.RELAYER_FACTORY_ROLE(),
+  );
 
   await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), accounts.ETSAdmin.address);
   await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), accounts.ETSPlatform.address);
@@ -65,14 +70,12 @@ module.exports = async ({ deployments }) => {
   // Add a relayer proxy for use in tests. Note: ETSPlatform not required to own CTAG to add relayer.
   await ETSRelayerFactory.connect(accounts.ETSPlatform).addRelayer("ETSRelayer");
 
-
   // This turns automine off, so hardhat blockchain mines sequentially.
-  if (network.config["chainId"] == 31337) {
-
+  if (network.config.chainId === 31337) {
     // Disable automine if it was originally disabled.
-    if (hardhat_automine === false && await network.provider.send("hardhat_getAutomine")) {
+    if (hardhat_automine === false && (await network.provider.send("hardhat_getAutomine"))) {
       await network.provider.send("evm_setAutomine", [false]);
-      console.log("Hardhat automine set to", await network.provider.send("hardhat_getAutomine"));
+      console.info("Hardhat automine set to", await network.provider.send("hardhat_getAutomine"));
     }
   }
 };

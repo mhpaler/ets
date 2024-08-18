@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noBarrelFile: <explanation>
 export { Alert } from "./Alert";
 export { AuctionIcon } from "./AuctionIcon";
 export { CheckCircle } from "./CheckCircle";

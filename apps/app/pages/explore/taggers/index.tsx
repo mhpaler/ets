@@ -1,14 +1,14 @@
-import { useMemo, useState } from "react";
-import type { NextPage } from "next";
-import useTranslation from "next-translate/useTranslation";
+import Address from "@app/components/Address";
+import { TanstackTable } from "@app/components/TanstackTable";
+import useNumberFormatter from "@app/hooks/useNumberFormatter";
 import { useTaggers } from "@app/hooks/useTaggers";
 import Layout from "@app/layouts/default";
-import { TanstackTable } from "@app/components/TanstackTable";
-import { createColumnHelper, ColumnDef } from "@tanstack/react-table";
+import type { TaggerType } from "@app/types/tagger";
+import { type ColumnDef, createColumnHelper } from "@tanstack/react-table";
+import type { NextPage } from "next";
+import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
-import useNumberFormatter from "@app/hooks/useNumberFormatter";
-import { TaggerType } from "@app/types/tagger";
-import Address from "@app/components/Address";
+import { useMemo, useState } from "react";
 
 const pageSize = 20;
 
@@ -51,7 +51,7 @@ const Taggers: NextPage = () => {
         cell: (info) => number(info.getValue()),
       }),
     ],
-    [t, number],
+    [t, number, columnHelper.accessor],
   );
 
   return (

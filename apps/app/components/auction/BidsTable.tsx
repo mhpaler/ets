@@ -1,11 +1,11 @@
-import React from "react";
-import { Bid } from "@app/types/auction";
-import { Truncate } from "@app/components/Truncate";
-import { makeScannerLink } from "@app/utils";
-import { Outlink } from "@app/components/Outlink";
-import { useCurrentChain } from "@app/hooks/useCurrentChain";
 import Address from "@app/components/Address";
+import { Outlink } from "@app/components/Outlink";
+import { Truncate } from "@app/components/Truncate";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
+import type { Bid } from "@app/types/auction";
+import { makeScannerLink } from "@app/utils";
 import Link from "next/link";
+import type React from "react";
 
 // Your timestampToString function remains the same
 const timestampToString = (timestamp: number, language = "en-US") => {

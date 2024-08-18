@@ -1,12 +1,12 @@
+import type { RelayerParams } from "@openzeppelin/defender-relay-client/lib/relayer";
 // Import the blockchain service instance.
 import { BlockchainService } from "./services/blockchainService";
-import { RelayerParams } from "@openzeppelin/defender-relay-client/lib/relayer";
 //import { DefenderRelaySigner, DefenderRelayProvider } from "@openzeppelin/defender-relay-client/lib/ethers";
 
 //import { AutotaskEvent } from "@openzeppelin/defender-autotask-utils";
 import { Defender } from "@openzeppelin/defender-sdk";
 
-import { DefenderRelaySigner } from "@openzeppelin/defender-sdk-relay-signer-client/lib/ethers/signer";
+import type { DefenderRelaySigner } from "@openzeppelin/defender-sdk-relay-signer-client/lib/ethers/signer";
 import { ethers } from "ethers";
 
 async function initializeBlockchainService(credentials?: RelayerParams): Promise<BlockchainService> {
@@ -37,12 +37,9 @@ async function initializeBlockchainService(credentials?: RelayerParams): Promise
 }
 
 export async function handler(credentials: RelayerParams) {
-  //console.log(event);
-  //console.log(`Node version: ${process.version}`);
-  //console.log(`Ethers version: ${ethers.version}`);
   const blockchainService = await initializeBlockchainService(credentials);
   const platformAddress = await blockchainService.getPlatformAddress();
-  console.log("mumbai etsPlatformAddress", platformAddress);
+  console.info("etsPlatformAddress", platformAddress);
 }
 
 function getRequiredEnv(variable: string): string {

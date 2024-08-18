@@ -12,17 +12,18 @@
  * @module AuctionHouseContext
  */
 
-import React, { createContext, useState, useEffect } from "react";
-import { AuctionHouse } from "@app/types/auction";
 import { useAuctions } from "@app/hooks/useAuctions";
+import type { AuctionHouse } from "@app/types/auction";
+import type React from "react";
+import { createContext, useEffect, useState } from "react";
 
 import {
-  fetchCurrentAuctionId,
   fetchAuctionPaused,
   fetchAuctionSettingsData,
-  watchNewAuctionReleased,
+  fetchCurrentAuctionId,
   watchAuctionPaused,
   watchAuctionUnpaused,
+  watchNewAuctionReleased,
 } from "@app/services/auctionHouseService";
 
 // Define the default values and functions
@@ -66,12 +67,7 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
   const [timeBuffer, setTimeBuffer] = useState<number>(0);
   const [maxAuctionId, setMaxAuctionId] = useState<number>(0);
 
-  const {
-    auctions: allAuctions,
-    isLoading,
-    isError,
-    mutate: refreshAuctions,
-  } = useAuctions({
+  const { auctions: allAuctions, mutate: refreshAuctions } = useAuctions({
     pageSize: 1000, // Adjust pageSize, skip, orderBy, and filter as needed
     skip: 0,
     orderBy: "endTime",
@@ -86,13 +82,8 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
     },
   });
 
-  // Log changes to allAuctions
   useEffect(() => {
-    //console.log("AuctionHouseContext: allAuctions updated:", allAuctions);
-  }, [allAuctions]);
-
-  useEffect(() => {
-    //console.log("AuctionHouseContext: Fetching auction settings and data...");
+    //console.info("AuctionHouseContext: Fetching auction settings and data...");
     fetchAuctionSettings();
     startWatchers();
   }, []); // Empty dependency array ensures this effect runs only once
@@ -109,9 +100,9 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
       setDuration(auctionSettings.duration);
       setTimeBuffer(auctionSettings.timeBuffer);
 
-      //console.log("AuctionHouseContext: Auction settings fetched and state updated.");
+      //console.info("AuctionHouseContext: Auction settings fetched and state updated.");
     } catch (error) {
-      //console.error("AuctionHouseContext: Failed to initialize auction data:", error);
+      console.error("AuctionHouseContext: Failed to initialize auction data:", error);
     }
   };
 
@@ -121,7 +112,7 @@ export const AuctionHouseProvider: React.FC<AuctionHouseProviderProps> = ({
       const unwatchAuctionPaused = watchAuctionPaused(handleAuctionPauseToggled);
       const unwatchAuctionUnpaused = watchAuctionUnpaused(handleAuctionPauseToggled);
 
-      //console.log("AuctionHouseContext: auction watchers started");
+      //console.info("AuctionHouseContext: auction watchers started");
 
       // Cleanup functions
       return () => {

@@ -16,7 +16,6 @@
     "@ethereum-tag-service/sdk-core": "workspace:*",
     "@ethereum-tag-service/sdk-react-hooks": "workspace:*",
     "@ethereum-tag-service/subgraph-endpoints": "workspace:*",
-    "@ethereum-tag-service/ui": "workspace:*",
     "@headlessui/react": "^1.7.17",
     "@hookform/resolvers": "^3.1.1",
     "@iconicicons/react": "^1.5.0",

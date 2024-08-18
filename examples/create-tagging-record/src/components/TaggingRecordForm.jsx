@@ -1,7 +1,7 @@
+import { useRelayerClient } from "@ethereum-tag-service/sdk-react-hooks";
 import React, { useState, useEffect } from "react";
 import { useAccount, useChainId } from "wagmi";
 import { useRelayers } from "../hooks/useRelayers";
-import { useRelayerClient } from "@ethereum-tag-service/sdk-react-hooks";
 
 function TaggingRecordForm() {
   const [tags, setTags] = useState([]);
@@ -42,7 +42,7 @@ function TaggingRecordForm() {
         setTargetURI("");
         setRecordType("");
         setCreatedRecordId(recordId);
-        setMessage(`Tagging record created successfully!`);
+        setMessage("Tagging record created successfully!");
       } catch (error) {
         console.error("Error creating tagging record:", error);
         setMessage("Failed to create tagging record. Please try again.");

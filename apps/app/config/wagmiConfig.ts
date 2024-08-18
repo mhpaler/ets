@@ -1,5 +1,5 @@
-import { http, createConfig, Config, fallback } from "wagmi";
-import { arbitrumSepolia, hardhat, Chain } from "wagmi/chains";
+import { http, type Config, createConfig, fallback } from "wagmi";
+import { type Chain, arbitrumSepolia, hardhat } from "wagmi/chains";
 import { injected } from "wagmi/connectors";
 
 // Wagmi Config

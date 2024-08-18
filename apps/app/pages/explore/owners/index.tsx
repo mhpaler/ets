@@ -1,16 +1,16 @@
-import { useMemo, useState } from "react";
-import type { NextPage } from "next";
-import useTranslation from "next-translate/useTranslation";
+import Address from "@app/components/Address";
+import { TanstackTable } from "@app/components/TanstackTable";
+import { TimeAgo } from "@app/components/TimeAgo";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
+import useNumberFormatter from "@app/hooks/useNumberFormatter";
 import { useOwners } from "@app/hooks/useOwners";
 import Layout from "@app/layouts/default";
-import { TimeAgo } from "@app/components/TimeAgo";
-import { TanstackTable } from "@app/components/TanstackTable";
-import Link from "next/link";
-import { createColumnHelper } from "@tanstack/react-table";
-import useNumberFormatter from "@app/hooks/useNumberFormatter";
-import Address from "@app/components/Address";
-import { useCurrentChain } from "@app/hooks/useCurrentChain";
 import { toEth } from "@app/utils";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { NextPage } from "next";
+import useTranslation from "next-translate/useTranslation";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 
 const pageSize = 20;
 
@@ -49,18 +49,18 @@ const Owners: NextPage = () => {
       }),
       columnHelper.accessor("firstSeen", {
         header: t("first-seen"),
-        cell: (info) => <TimeAgo date={parseInt(info.getValue()) * 1000} />,
+        cell: (info) => <TimeAgo date={Number.parseInt(info.getValue()) * 1000} />,
       }),
       columnHelper.accessor("tagsOwned", {
         header: t("tags-owned", { timeframe: t("current") }),
-        cell: (info) => number(parseInt(info.getValue())),
+        cell: (info) => number(Number.parseInt(info.getValue())),
       }),
       columnHelper.accessor("ownedTagsTaggingFeeRevenue", {
         header: t("tagging-revenue"),
         cell: (info) => `${toEth(info.getValue(), 8)} ${chain?.nativeCurrency.symbol}`,
       }),
     ],
-    [t, number, chain],
+    [t, number, chain, columnHelper.accessor],
   );
 
   return (

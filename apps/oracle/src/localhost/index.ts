@@ -1,5 +1,5 @@
-import { initializeSigner } from "./../services/initializeSigner";
 import { BlockchainService } from "./../services/blockchainService";
+import { initializeSigner } from "./../services/initializeSigner";
 
 /**
  * The main function to initialize and start the local oracle for testing.

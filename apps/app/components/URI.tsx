@@ -15,6 +15,7 @@ const URI = ({ value }: { value: string }) => {
       className="link link-primary"
     >
       <svg className="inline-flex w-5 h-5" width="24" height="24" fill="none" viewBox="0 0 24 24">
+        <title>{t("open URI")}</title>
         <path
           stroke="currentColor"
           strokeLinecap="round"

@@ -1,43 +1,43 @@
 const { setup } = require("./setup.js");
 const { ethers } = require("hardhat");
 const { expect, assert } = require("chai");
-const { constants } = ethers;
 
-describe("CTAG ownership lifecycle tests", function () {
+describe("CTAG ownership lifecycle tests", () => {
   // we create a setup function that can be called by every test and setup variable for easy to read tests
-  beforeEach("Setup test", async function () {
+  beforeEach("Setup test", async () => {
     [accounts, contracts, initSettings] = await setup();
   });
 
-  describe("Validate setup", async function () {
-    it("should have name and symbol", async function () {
+  describe("Validate setup", async () => {
+    it("should have name and symbol", async () => {
       expect(await contracts.ETSToken.name()).to.be.equal("Ethereum Tag Service");
       expect(await contracts.ETSToken.symbol()).to.be.equal("CTAG");
     });
 
-    it("should have default configs", async function () {
+    it("should have default configs", async () => {
       expect(await contracts.ETSToken.ownershipTermLength()).to.be.equal("730");
     });
   });
 
-  describe("Owner/Admin functions", async function () {
-    it("Admin should be able to set ownership term", async function () {
+  describe("Owner/Admin functions", async () => {
+    it("Admin should be able to set ownership term", async () => {
       const thirtyDays = 30 * 24 * 60 * 60;
       await contracts.ETSToken.setOwnershipTermLength(thirtyDays);
       expect(await contracts.ETSToken.ownershipTermLength()).to.be.equal(thirtyDays);
     });
 
-    it("Only admin should be able to set ownership term", async function () {
+    it("Only admin should be able to set ownership term", async () => {
       await expect(contracts.ETSToken.connect(accounts.RandomTwo).setOwnershipTermLength(10)).to.be.revertedWith(
         "Access denied",
       );
     });
   });
 
-  describe("Renewing a tag", async function () {
-    let lastRenewed, tokenId;
+  describe("Renewing a tag", async () => {
+    let lastRenewed;
+    let tokenId;
 
-    beforeEach(async function () {
+    beforeEach(async () => {
       const tag = "#BlockRocket";
 
       // RandomTwo account creates a tag.
@@ -45,26 +45,26 @@ describe("CTAG ownership lifecycle tests", function () {
       tokenId = await contracts.ETSToken.computeTagId(tag);
     });
 
-    it("for newly minted tag should have last renewed be zero", async function () {
+    it("for newly minted tag should have last renewed be zero", async () => {
       lastRenewed = await contracts.ETSToken.getLastRenewed(tokenId);
       assert(Number(lastRenewed.toString()) === 0);
     });
 
-    it("will occur only when token is transferred away from platform", async function () {
+    it("will occur only when token is transferred away from platform", async () => {
       await contracts.ETSToken.connect(accounts.ETSPlatform).transferFrom(
         accounts.ETSPlatform.address,
         accounts.RandomTwo.address,
         tokenId,
       );
       lastRenewed = await contracts.ETSToken.getLastRenewed(tokenId);
-      let blockNum = await ethers.provider.getBlockNumber();
-      let block = await ethers.provider.getBlock(blockNum);
-      let timestamp = block.timestamp;
+      const blockNum = await ethers.provider.getBlockNumber();
+      const block = await ethers.provider.getBlock(blockNum);
+      const timestamp = block.timestamp;
       // Verify current block timestamp and last renewTime are equal.
       expect(timestamp).to.be.equal(lastRenewed);
     });
 
-    it("is reset when transferred back to platform", async function () {
+    it("is reset when transferred back to platform", async () => {
       // Transfer tag away from platform.
       await contracts.ETSToken.connect(accounts.ETSPlatform).transferFrom(
         accounts.ETSPlatform.address,
@@ -83,18 +83,18 @@ describe("CTAG ownership lifecycle tests", function () {
       assert(Number(lastRenewed) === 0);
     });
 
-    it("will not fail if renewer not the owner", async function () {
+    it("will not fail if renewer not the owner", async () => {
       // Tag owned by platform.
       await expect(contracts.ETSToken.connect(accounts.RandomTwo).renewTag(tokenId)).to.not.be.reverted;
     });
 
-    it("will fail if token does not exist", async function () {
+    it("will fail if token does not exist", async () => {
       await expect(contracts.ETSToken.connect(accounts.RandomTwo).renewTag(Number(2))).to.be.revertedWith(
         "ETS: CTAG not found",
       );
     });
 
-    it("can be done before renewal period has passed", async function () {
+    it("can be done before renewal period has passed", async () => {
       // Transfer tag away from platform.
       await contracts.ETSToken.connect(accounts.ETSPlatform).transferFrom(
         accounts.ETSPlatform.address,
@@ -106,7 +106,7 @@ describe("CTAG ownership lifecycle tests", function () {
 
       // Advance current time by 30 days less than ownershipTermLength (2 years).
       const thirtyDays = 30 * 24 * 60 * 60;
-      let advanceTime = lastRenewed + ((await contracts.ETSToken.ownershipTermLength()) - BigInt(thirtyDays));
+      const advanceTime = lastRenewed + ((await contracts.ETSToken.ownershipTermLength()) - BigInt(thirtyDays));
 
       const advanceTimeNumber = Number(advanceTime.toString());
 
@@ -123,7 +123,7 @@ describe("CTAG ownership lifecycle tests", function () {
       block = await ethers.provider.getBlock(blockNum);
       timestamp = block.timestamp;
 
-      let newRenewTime = await contracts.ETSToken.getLastRenewed(tokenId);
+      const newRenewTime = await contracts.ETSToken.getLastRenewed(tokenId);
 
       expect(newRenewTime).to.be.equal(timestamp);
       // Check that newRenewTime is equal to lastRenewed + 1year + 1microsecond.
@@ -132,7 +132,7 @@ describe("CTAG ownership lifecycle tests", function () {
       );
     });
 
-    it("can be done after renewal period has passed", async function () {
+    it("can be done after renewal period has passed", async () => {
       // Transfer tag away from platform.
       await contracts.ETSToken.connect(accounts.ETSPlatform).transferFrom(
         accounts.ETSPlatform.address,
@@ -144,7 +144,7 @@ describe("CTAG ownership lifecycle tests", function () {
 
       // Advance current time by 30 days more than ownershipTermLength (2 years).
       const thirtyDays = 30 * 24 * 60 * 60;
-      let advanceTime = lastRenewed + ((await contracts.ETSToken.ownershipTermLength()) + BigInt(thirtyDays));
+      const advanceTime = lastRenewed + ((await contracts.ETSToken.ownershipTermLength()) + BigInt(thirtyDays));
 
       const advanceTimeNumber = Number(advanceTime.toString());
 
@@ -161,7 +161,7 @@ describe("CTAG ownership lifecycle tests", function () {
       block = await ethers.provider.getBlock(blockNum);
       timestamp = block.timestamp;
 
-      let newRenewTime = await contracts.ETSToken.getLastRenewed(tokenId);
+      const newRenewTime = await contracts.ETSToken.getLastRenewed(tokenId);
 
       expect(newRenewTime).to.be.equal(timestamp);
       // Check that newRenewTime is equal to lastRenewed + 1year + 1microsecond.
@@ -171,10 +171,11 @@ describe("CTAG ownership lifecycle tests", function () {
     });
   });
 
-  describe("Recycling a tag", async function () {
-    let lastRenewed, tokenId;
+  describe("Recycling a tag", async () => {
+    let lastRenewed;
+    let tokenId;
 
-    beforeEach(async function () {
+    beforeEach(async () => {
       const tag = "#BlockRocket";
 
       // RandomTwo account creates a tag.
@@ -189,13 +190,13 @@ describe("CTAG ownership lifecycle tests", function () {
       );
     });
 
-    it("will fail if token does not exist", async function () {
+    it("will fail if token does not exist", async () => {
       await expect(contracts.ETSToken.connect(accounts.RandomTwo).recycleTag(Number(2))).to.be.revertedWith(
         "ETS: CTAG not found",
       );
     });
 
-    it("will fail if already owned by the platform", async function () {
+    it("will fail if already owned by the platform", async () => {
       // Send back to platform.
       await contracts.ETSToken.connect(accounts.RandomTwo).transferFrom(
         accounts.RandomTwo.address,
@@ -207,7 +208,7 @@ describe("CTAG ownership lifecycle tests", function () {
       );
     });
 
-    it("will fail if token not not eligible yet", async function () {
+    it("will fail if token not not eligible yet", async () => {
       // Attempt to recycle by accounts.RandomTwo address, should fail.
       // Notice non-owner is connected.
       await expect(contracts.ETSToken.connect(accounts.RandomOne).recycleTag(tokenId)).to.be.revertedWith(
@@ -215,7 +216,7 @@ describe("CTAG ownership lifecycle tests", function () {
       );
     });
 
-    it("will succeed once renewal period has passed", async function () {
+    it("will succeed once renewal period has passed", async () => {
       lastRenewed = await contracts.ETSToken.getLastRenewed(tokenId);
 
       // Advance current time by 30 days more than ownershipTermLength (2 years).
@@ -240,7 +241,7 @@ describe("CTAG ownership lifecycle tests", function () {
       expect(await contracts.ETSToken.ownerOf(tokenId)).to.be.equal(accounts.ETSPlatform.address);
     });
 
-    it("will increase platform balance and decrease owner balance", async function () {
+    it("will increase platform balance and decrease owner balance", async () => {
       expect((await contracts.ETSToken.balanceOf(accounts.ETSPlatform.address)).toString()).to.be.equal("0");
       expect((await contracts.ETSToken.balanceOf(accounts.RandomTwo.address)).toString()).to.be.equal("1");
 

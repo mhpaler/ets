@@ -17,23 +17,24 @@
  * The component is used within the context of AddRelayerContext, which provides the necessary state and functions.
  * It is rendered within a modal and allows users to input and validate the name of a new relayer.
  */
-import React, { useState, useEffect } from "react";
+import type React from "react";
+import { useEffect, useState } from "react";
 
-import useTranslation from "next-translate/useTranslation";
-import { useRelayerContext } from "@app/hooks/useRelayerContext";
-import { useRelayers } from "@app/hooks/useRelayers";
 import { useDebounce } from "@app/hooks/useDebounce";
 import { useModal } from "@app/hooks/useModalContext";
+import { useRelayerContext } from "@app/hooks/useRelayerContext";
+import { useRelayers } from "@app/hooks/useRelayers";
 import { useTransactionManager } from "@app/hooks/useTransactionManager";
-import { useTokenClient, useAccessControlsClient } from "@ethereum-tag-service/sdk-react-hooks";
-import { useAccount } from "wagmi";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useAccessControlsClient, useTokenClient } from "@ethereum-tag-service/sdk-react-hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
+import useTranslation from "next-translate/useTranslation";
+import { type SubmitHandler, useForm } from "react-hook-form";
+import { useAccount } from "wagmi";
 import { z } from "zod";
 
+import { Button } from "@app/components/Button";
 import TransactionFormActions from "@app/components/transaction/shared/TransactionFormActions";
 import { Dialog } from "@headlessui/react";
-import { Button } from "@app/components/Button";
 
 interface AddRelayerInputProps {
   transactionId: string;
@@ -114,7 +115,7 @@ const AddRelayerInput: React.FC<AddRelayerInputProps> = ({ transactionId, goToNe
       }
     };
     validateName();
-  }, [nameValue, relayers, setError, clearErrors, t]);
+  }, [setFormError, nameValue, relayers, clearErrors, t]);
 
   // Effect to control form submit button's enabled/disabled state.
   useEffect(() => {

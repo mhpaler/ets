@@ -1,3 +1,4 @@
+import type { Address, Hex, PublicClient, WalletClient } from "viem";
 import { AccessControlsClient } from "./AccessControlsClient";
 import { AuctionHouseClient } from "./AuctionHouseClient";
 import { EnrichTargetClient } from "./EnrichTargetClient";
@@ -5,7 +6,6 @@ import { RelayerClient } from "./RelayerClient";
 import { RelayerFactoryClient } from "./RelayerFactoryClient";
 import { TargetClient } from "./TargetClient";
 import { TokenClient } from "./TokenClient";
-import type { Address, Hex, PublicClient, WalletClient } from "viem";
 
 interface CoreClientOptions {
   chainId?: number;

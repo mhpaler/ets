@@ -1,18 +1,18 @@
-import React from "react";
-import { TransactionType } from "@app/types/transaction";
+import type { TransactionType } from "@app/types/transaction";
+import type React from "react";
 
-import useTranslation from "next-translate/useTranslation";
-import { useModal } from "@app/hooks/useModalContext";
-import { useTransactionManager } from "@app/hooks/useTransactionManager";
-import { useRelayerContext } from "@app/hooks/useRelayerContext";
 import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels";
+import { useModal } from "@app/hooks/useModalContext";
+import { useRelayerContext } from "@app/hooks/useRelayerContext";
+import { useTransactionManager } from "@app/hooks/useTransactionManager";
 import { useRelayerFactoryClient } from "@ethereum-tag-service/sdk-react-hooks";
+import useTranslation from "next-translate/useTranslation";
 
-import { Dialog } from "@headlessui/react";
+import { CheckCircle, Wallet } from "@app/components/icons";
 import TransactionConfirmActions from "@app/components/transaction/shared/TransactionConfirmActions";
 import { TransactionError } from "@app/components/transaction/shared/TransactionError";
 import { TransactionLink } from "@app/components/transaction/shared/TransactionLink";
-import { Wallet, CheckCircle } from "@app/components/icons";
+import { Dialog } from "@headlessui/react";
 import { useAccount } from "wagmi";
 
 interface FormStepProps {
