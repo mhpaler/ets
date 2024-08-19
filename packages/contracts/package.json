@@ -2,7 +2,7 @@
   "name": "@ethereum-tag-service/contracts",
   "description": "Composable content tagging service for Web3",
   "license": "MIT",
-  "version": "0.1.0-alpha.1",
+  "version": "0.0.0",
   "type": "commonjs",
   "files": ["/dist"],
   "author": "Ethereum Tag Service <team@ets.xyz>",
