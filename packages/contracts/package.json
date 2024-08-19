@@ -27,6 +27,7 @@
     "deploy-testnet-production": "hardhat deploy --tags deployAll --network testnet_production --export export/chainConfig/testnet_production.json",
     "deploy-testnet-stage": "hardhat deploy --tags deployAll --network testnet_stage --export export/chainConfig/testnet_stage.json",
     "hardhat": "hardhat node --no-deploy",
+    "hardhat:clean": "hardhat clean",
     "prepublishOnly": "pnpm build",
     "prettier": "prettier --write 'contracts/**/*.sol'",
     "solhint": "./node_modules/.bin/solhint contracts/*.sol contracts/**/*.sol",

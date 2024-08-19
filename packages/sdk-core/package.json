@@ -3,10 +3,13 @@
   "author": "Ethereum Tag Service <team@ets.xyz>",
   "version": "0.0.3",
   "description": "Core SDK for Ethereum Tag Service",
+  "keywords": ["ethereum", "blockchain", "tagging", "sdk", "typescript"],
+  "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
   "type": "commonjs",
+  "files": ["dist/**", "src/**"],
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -20,17 +23,13 @@
     "clean": "rm -rf dist",
     "dev": "tsup src/index.ts --format cjs,esm --dts --outDir dist --watch",
     "build": "pnpm run clean && tsup src/index.ts --format cjs,esm --dts --outDir dist",
-    "lint": "tsc",
     "test:build": "publint --strict"
   },
-  "keywords": [],
-  "license": "ISC",
   "dependencies": {
-    "viem": "~2.4.0"
+    "viem": "^2.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.12.7",
-    "tsc-alias": "^1.8.8",
     "tsup": "^8.2.3",
     "typescript": "^5.4.5"
   }

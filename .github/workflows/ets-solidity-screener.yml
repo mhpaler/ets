@@ -24,7 +24,7 @@ jobs:
           filters: |
             contracts:
               - 'packages/contracts/contracts/**'
-              
+
   screener:
     name: Run Solhint & Tests
     needs: changes
@@ -79,7 +79,7 @@ jobs:
       - name: Run Solhint
         run: |
           cd packages/contracts/
-          pnpm solhint
+          pnpm run solhint
 
       - name: Run Tests
         run: |
