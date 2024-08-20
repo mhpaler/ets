@@ -32,8 +32,7 @@
     "prettier": "prettier --write 'contracts/**/*.sol'",
     "solhint": "./node_modules/.bin/solhint contracts/*.sol contracts/**/*.sol",
     "test": "hardhat test",
-    "test:build": "publint --strict",
-    "watch": "ts-node scripts/watch.ts"
+    "test:build": "publint --strict"
   },
   "devDependencies": {
     "@enzoferey/ethers-error-parser": "^0.2.3",
