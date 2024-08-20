@@ -1,8 +1,8 @@
-import { PublicClient, WalletClient, Hex } from "viem";
+import type { Hex, PublicClient, WalletClient } from "viem";
+import { getConfig } from "../contracts/config";
+import type { TargetReadFunction, TargetWriteFunction } from "../types";
 import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
-import { TargetReadFunction, TargetWriteFunction } from "../types";
-import { getConfig } from "../contracts/config";
 import { validateConfig } from "../utils/validateConfig";
 
 export class TargetClient {
@@ -23,7 +23,7 @@ export class TargetClient {
     this.walletClient = walletClient;
 
     const config = getConfig(chainId);
-    if (!config || config.etsTargetConfig == undefined) throw new Error("Configuration could not be retrieved");
+    if (!config || config.etsTargetConfig === undefined) throw new Error("Configuration could not be retrieved");
 
     validateConfig(chainId, publicClient, walletClient);
 

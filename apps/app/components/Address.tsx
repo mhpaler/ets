@@ -1,15 +1,17 @@
-import React, { useState, useRef, useEffect } from "react";
-import { createPortal } from "react-dom";
+import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Truncate } from "@app/components/Truncate";
-import { Hex } from "viem";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import type { Hex } from "viem";
 
-interface ENSAddressProps {
+interface AddressProps {
   address?: string | Hex;
   ens?: string | null;
   truncateLength?: number;
 }
 
-const ENSAddress: React.FC<ENSAddressProps> = ({ address, ens, truncateLength = 14 }) => {
+const Address: React.FC<AddressProps> = ({ address, ens, truncateLength = 14 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
   const spanRef = useRef<HTMLSpanElement>(null);
@@ -26,15 +28,16 @@ const ENSAddress: React.FC<ENSAddressProps> = ({ address, ens, truncateLength = 
   }, [showTooltip]);
 
   return (
-    <>
+    <span className="inline-flex items-center gap-1">
       <span
         ref={spanRef}
-        className="border-b border-dotted border-gray-400 cursor-help"
+        className="border-b border-dotted border-gray-400 cursor-pointer"
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
       >
         {displayText}
       </span>
+      {address && <CopyAndPaste value={address.toString()} />}
       {showTooltip &&
         createPortal(
           <div
@@ -45,8 +48,8 @@ const ENSAddress: React.FC<ENSAddressProps> = ({ address, ens, truncateLength = 
           </div>,
           document.body,
         )}
-    </>
+    </span>
   );
 };
 
-export default ENSAddress;
+export default Address;

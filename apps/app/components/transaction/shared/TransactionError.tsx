@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 
 interface TransactionErrorProps {
   errorMsg?: string | null; // Make errorMsg optional

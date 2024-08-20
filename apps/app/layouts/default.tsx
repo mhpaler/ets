@@ -1,9 +1,9 @@
-import React, { ReactNode } from "react";
-import Navigation from "@app/components/Navigation";
-import Header from "@app/components/Header";
 import Footer from "@app/components/Footer";
+import Header from "@app/components/Header";
+import Navigation from "@app/components/Navigation";
 import PageInfo from "@app/components/PageInfo";
 import SiteMessage from "@app/components/SiteMessage";
+import React, { type ReactNode } from "react";
 
 export const metadata = {
   viewport: {
@@ -31,7 +31,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           </div>
         </main>
         <div className="drawer-side">
-          <label htmlFor="main-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
+          <label htmlFor="main-drawer" aria-label="close sidebar" className="drawer-overlay" />
           <Navigation />
         </div>
       </div>

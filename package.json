@@ -1,88 +1,112 @@
 {
   "name": "@ethereum-tag-service/monorepo",
-  "version": "1.0.0",
   "author": "Ethereum Tag Service <team@ets.xyz>",
   "private": true,
   "packageManager": "pnpm@8.11.0",
-  "keywords": [
-    "ethereum",
-    "react",
-    "ets",
-    "tag",
-    "tagging",
-    "workspaces",
-    "yarn"
-  ],
-  "workspaces": [
-    "apps/*",
-    "packages/*",
-    "examples/*"
-  ],
+  "keywords": ["ethereum", "react", "ets", "tag", "tagging", "workspaces", "yarn"],
+  "workspaces": ["apps/*", "packages/*", "examples/*"],
   "scripts": {
-    "build": "rm -rf apps/*/.next && dotenv -e ./.env -- turbo run build --env-mode=loose --filter=!@ethereum-tag-service/api",
+    "build": "pnpm run clean && dotenv -e ./.env -- turbo run build --env-mode=loose",
     "changeset:build": "pnpm run --recursive --filter \"./packages/**\" --filter \"./apps/app\" build",
-    "changeset:prepublish": "pnpm version:update && pnpm changeset:build && bun scripts/formatPackageJson.ts",
+    "changeset:prepublish": "pnpm version:update && pnpm changeset:build && bun ./scripts/formatPackageJson.ts",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish",
-    "changeset:version": "changeset version && pnpm version:update",
-    "dev": "rm -rf apps/*/.next && dotenv -e ./.env -- turbo run dev --env-mode=loose --filter=!@ethereum-tag-service/api --filter=!./examples/*",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "api:dev": "cd apps/api && pnpm run dev",
-    "api:build": "cd apps/api && pnpm run build",
-    "api:start": "cd apps/api && pnpm run start",
-    "app:dev": "cd apps/app && wagmi generate && pnpm run dev",
-    "app:build": "cd apps/app && pnpm run build",
-    "app:start": "cd apps/app && pnpm run start",
-    "site:dev": "cd apps/site && pnpm run dev",
-    "site:build": "cd apps/site && pnpm run build",
-    "site:start": "cd apps/site && pnpm run start",
-    "create-tag:dev": "cd examples/create-tag && pnpm run dev",
+    "changeset:version": "changeset version && pnpm version:update && pnpm format",
+    "clean": "pnpm run --r --parallel clean && rm -rf packages/**/*.json.tmp",
     "create-tag:build": "cd examples/create-tag && pnpm run build",
-    "create-tagging-record:dev": "cd examples/create-tagging-record && pnpm run dev",
+    "create-tag:dev": "cd examples/create-tag && pnpm run dev",
     "create-tagging-record:build": "cd examples/create-tagging-record && pnpm run build",
-    "hardhat:start": "cd packages/contracts && pnpm run hardhat",
-    "hardhat:build": "cd packages/contracts && pnpm run build",
-    "hardhat:deploy": "cd packages/contracts && pnpm run deploy",
-    "hardhat:deploy-testnet-stage": "cd packages/contracts && pnpm run deploy-testnet-stage",
-    "hardhat:deploy-testnet-production": "cd packages/contracts && pnpm run deploy-testnet-production",
-    "hardhat:compile": "cd packages/contracts && pnpm run compile",
-    "hardhat:watch": "cd packages/contracts && pnpm run watch",
-    "hardhat:solhint": "cd packages/contracts && pnpm solhint",
-    "hardhat:test": "cd packages/contracts && pnpm run hardhat",
-    "hardhat:clean": "cd packages/contracts && pnpm hardhat clean",
+    "create-tagging-record:dev": "cd examples/create-tagging-record && pnpm run dev",
+    "dev": "dotenv -e ./.env -- turbo run dev --env-mode=loose --filter=!./examples/*",
+    "format": "biome format --write",
+    "graph:deploy-local": "cd packages/subgraph && pnpm run graph-deploy-local",
+    "graph:deploy-testnet-production": "cd packages/subgraph && pnpm run graph-deploy-testnet-production",
+    "graph:deploy-testnet-stage": "cd packages/subgraph && pnpm run graph-deploy-testnet-stage",
+    "graph:node-clean": "cd packages/subgraph && pnpm run clean-graph-node",
     "graph:node-start": "cd packages/subgraph && pnpm run start-graph-node",
     "graph:node-stop": "cd packages/subgraph && pnpm run remove-graph-node",
-    "graph:node-clean": "cd packages/subgraph && pnpm run clean-graph-node",
-    "graph:deploy-local": "cd packages/subgraph && pnpm graph-deploy-local",
-    "graph:deploy-testnet-stage": "cd packages/subgraph && pnpm graph-deploy-testnet-stage",
-    "graph:deploy-testnet-production": "cd packages/subgraph && pnpm graph-deploy-testnet-production",
-    "oracle:build-local": "cd packages/subgraph && pnpm graph-deploy-testnet-stage",
-    "version:update": "bun scripts/updateVersion.ts"
+    "hardhat:build": "cd packages/contracts && pnpm run build",
+    "hardhat:clean": "cd packages/contracts && pnpm hardhat:clean",
+    "hardhat:compile": "cd packages/contracts && pnpm run compile",
+    "hardhat:deploy": "cd packages/contracts && pnpm run deploy",
+    "hardhat:deploy-testnet-production": "cd packages/contracts && pnpm run deploy-testnet-production",
+    "hardhat:deploy-testnet-stage": "cd packages/contracts && pnpm run deploy-testnet-stage",
+    "hardhat:solhint": "cd packages/contracts && pnpm run solhint",
+    "hardhat:start": "cd packages/contracts && pnpm run hardhat",
+    "hardhat:test": "cd packages/contracts && pnpm run hardhat",
+    "hardhat:watch": "cd packages/contracts && pnpm run watch",
+    "lint": "biome check",
+    "lint:repo": "sherif -i ethers",
+    "lint:unused": "pnpm clean && knip",
+    "start-graph-node": "cd scripts && ./start-graph-node.sh",
+    "test:build": "pnpm run --r --parallel test:build",
+    "version:update": "bun ./scripts/updateVersion.ts"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.8.3",
     "@changesets/changelog-github": "^0.5.0",
+    "@changesets/cli": "^2.27.7",
     "@types/bun": "^1.1.1",
-    "@types/node": "^20.10.5",
+    "@types/node": "^20.12.7",
     "bun": "^1.1.22",
     "dotenv": "^16.3.1",
     "dotenv-cli": "^7.3.0",
     "glob": "^10.3.12",
-    "prettier": "^3.1.1",
+    "knip": "^5.27.2",
+    "node-fetch": "2",
+    "publint": "^0.2.10",
+    "sherif": "^0.11.0",
     "turbo": "^2.0.10",
-    "typescript": "^5.3.3",
+    "typescript": "^5.4.5",
     "yaml": "2.4.5"
   },
   "pnpm": {
     "overrides": {
       "@types/react": "18.2.12",
-      "@types/react-dom": "18.2.5"
+      "@types/react-dom": "18.2.5",
+      "@wagmi/core": "^2.6.5",
+      "i18next": "^23.14.0",
+      "@rainbow-me/rainbowkit": "^2.1.1",
+      "next-auth": "^4.21.0"
     }
   },
   "engines": {
     "npm": ">=7.0.0",
     "node": ">=14.0.0"
   },
-  "dependencies": {
-    "@changesets/cli": "^2.27.7"
+  "knip": {
+    "ignore": ["**/hardhat.config.js", "packages/**/src/version.ts"],
+    "ignoreBinaries": [],
+    "ignoreWorkspaces": [
+      "examples/**",
+      "apps/app",
+      "apps/site",
+      "apps/docs",
+      "apps/oracle",
+      "packages/brand",
+      "packages/contracts",
+      "packages/tsconfig"
+    ],
+    "workspaces": {
+      ".": {
+        "entry": ["scripts/*.js", "scripts/*.*.ts"],
+        "project": "scripts/**/*.ts"
+      },
+      "packages/sdk-core": {
+        "entry": ["src/index.ts!"],
+        "project": ["src/**/*.ts!"]
+      },
+      "packages/sdk-react-hooks": {
+        "entry": ["src/**/*.ts!"],
+        "project": ["src/**/*.ts!"]
+      },
+      "packages/subgraph-endpoints": {
+        "entry": ["src/**/*.ts!"],
+        "project": ["src/**/*.ts!"]
+      },
+      "packages/subgraph": {
+        "entry": ["src/**/*.ts!"],
+        "project": ["src/**/*.ts!"]
+      }
+    }
   }
 }

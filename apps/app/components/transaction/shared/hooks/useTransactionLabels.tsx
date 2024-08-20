@@ -1,6 +1,6 @@
-import useTranslation from "next-translate/useTranslation";
 import { useTransactionManager } from "@app/hooks/useTransactionManager";
 import { TransactionType } from "@app/types/transaction"; // If needed for specific labels based on type
+import useTranslation from "next-translate/useTranslation";
 
 export function useTransactionLabels(transactionId: string) {
   const { t } = useTranslation("common");

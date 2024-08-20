@@ -1,10 +1,10 @@
-import React from "react";
-import Link from "next/link";
-import useTranslation from "next-translate/useTranslation";
-import { Auction } from "@app/types/auction";
-import { timestampToString } from "@app/utils";
+import Address from "@app/components/Address";
 import { AuctionIcon, Trophy } from "@app/components/icons";
-import ENSAddress from "@app/components/ENSAddress";
+import type { Auction } from "@app/types/auction";
+import { timestampToString } from "@app/utils";
+import useTranslation from "next-translate/useTranslation";
+import Link from "next/link";
+import type React from "react";
 
 interface Props {
   auction: Auction;
@@ -25,7 +25,7 @@ const AuctionSummary: React.FC<Props> = ({ auction }) => {
             <Trophy size={24} />
             <span>{t("AUCTION.WINNER")}</span>
             <Link href={`/explore/owners/${auction.bidder.id}`} className="link link-primary font-semibold">
-              <ENSAddress address={auction.bidder.id} ens={auction.bidder.ens} />
+              <Address address={auction.bidder.id} ens={auction.bidder.ens} />
             </Link>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { TagType } from "@app/types/tag";
+import type { TagType } from "@app/types/tag";
 
 // Define the TagGraphicProps type to include a tag of type Tag
 interface TagGraphicProps {
@@ -15,6 +15,7 @@ const TagGraphic: React.FC<TagGraphicProps> = (props: TagGraphicProps) => {
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 1000 1000"
         >
+          <title>CTAG Graphic</title>
           <path fill="currentColor" d="m100 775 125-125H100Zm250 125V775L225 900ZM225 650l125 125V650Z" />
           <circle fill="currentColor" cx="137.36" cy="862.38" r="12.5" />
           <text

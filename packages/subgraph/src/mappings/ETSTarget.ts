@@ -1,30 +1,30 @@
-import { BigInt } from "@graphprotocol/graph-ts";
+import { BigInt as GraphBigInt } from "@graphprotocol/graph-ts";
+import { ensureRelease } from "../entities/Release";
 import { ensureTarget } from "../entities/Target";
 import {
-  Initialized,
-  Upgraded,
   AccessControlsSet,
   EnrichTargetSet,
+  Initialized,
   TargetCreated,
   TargetUpdated,
+  Upgraded,
 } from "../generated/ETSTarget/ETSTarget";
-import { ensureRelease } from "../entities/Release";
 
 export function handleInitialized(event: Initialized): void {
-  let settings = ensureRelease();
+  const settings = ensureRelease();
   settings.etsTarget = event.address.toHexString();
-  settings.etsTargetVersion = BigInt.fromI32(event.params.version);
+  settings.etsTargetVersion = GraphBigInt.fromI32(event.params.version);
   settings.etsTargetVersionDate = event.block.timestamp;
   settings.save();
 }
 
-export function handleUpgraded(event: Upgraded): void {}
+export function handleUpgraded(_event: Upgraded): void {}
 
-export function handleAccessControlsSet(event: AccessControlsSet): void {}
+export function handleAccessControlsSet(_event: AccessControlsSet): void {}
 
-export function handleEnrichTargetSet(event: EnrichTargetSet): void {}
+export function handleEnrichTargetSet(_event: EnrichTargetSet): void {}
 
-export function handleTargetUpdated(event: TargetUpdated): void {}
+export function handleTargetUpdated(_event: TargetUpdated): void {}
 
 export function handleTargetCreated(event: TargetCreated): void {
   ensureTarget(event.params.targetId, event);

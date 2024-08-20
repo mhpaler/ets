@@ -1,5 +1,5 @@
+import { type RelayerFactoryClient, createRelayerFactoryClient } from "@ethereum-tag-service/sdk-core";
 import { useContext, useEffect, useState } from "react";
-import { createRelayerFactoryClient, RelayerFactoryClient } from "@ethereum-tag-service/sdk-core";
 
 export const useRelayerFactoryClient = ({ chainId, account }: { chainId?: number; account?: `0x${string}` }) => {
   const [relayerFactoryClient, setRelayerFactoryClient] = useState<RelayerFactoryClient>();

@@ -1,6 +1,6 @@
-import type { NextPage } from "next";
-import Layout from "@app/layouts/default";
 import { TaggingRecords } from "@app/components/TaggingRecords";
+import Layout from "@app/layouts/default";
+import type { NextPage } from "next";
 
 const RecentlyTagged: NextPage = () => {
   return (

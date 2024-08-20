@@ -1,5 +1,5 @@
-import { TransactionType } from "@app/types/transaction"; // Adjust import paths as necessary
 import { BidConfirm, BidInput, SettleConfirm } from "@app/components/transaction";
+import { TransactionType } from "@app/types/transaction"; // Adjust import paths as necessary
 import dynamic from "next/dynamic";
 
 const AddRelayerConfirm = dynamic(
@@ -23,15 +23,7 @@ export interface StepConfig {
 // Define the transaction configuration
 // prettier-ignore
 export const transactionConfig: { [key in TransactionType]: StepConfig[] } = {
-  [TransactionType.AddRelayer]: [
-    { component: AddRelayerInput },
-    { component: AddRelayerConfirm }
-  ],
-  [TransactionType.Bid]: [
-    { component: BidInput },
-    { component: BidConfirm }
-  ],
-  [TransactionType.SettleAuction]: [
-    { component: SettleConfirm }
-  ],
+  [TransactionType.AddRelayer]: [{ component: AddRelayerInput }, { component: AddRelayerConfirm }],
+  [TransactionType.Bid]: [{ component: BidInput }, { component: BidConfirm }],
+  [TransactionType.SettleAuction]: [{ component: SettleConfirm }],
 };

@@ -1,27 +1,27 @@
-import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts/index";
-import { Release, Platform, Tag } from "../generated/schema";
-import { ETSToken } from "../generated/ETSToken/ETSToken";
+import { Address, BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts/index";
 import { ensurePlatform } from "../entities/Platform";
-import { getTaggingFee } from "../utils/getTaggingFee";
-import { logCritical } from "../utils/logCritical";
-import { toLowerCase } from "../utils/helpers";
+import { ETSToken } from "../generated/ETSToken/ETSToken";
+import { Platform, Release, Tag } from "../generated/schema";
 import { arrayDiff } from "../utils/arrayDiff";
-import { ZERO, ONE, CREATE, APPEND, REMOVE, PLATFORM, RELAYER, OWNER } from "../utils/constants";
+import { APPEND, CREATE, ONE, OWNER, PLATFORM, RELAYER, REMOVE, ZERO } from "../utils/constants";
+import { getTaggingFee } from "../utils/getTaggingFee";
+import { toLowerCase } from "../utils/helpers";
+import { logCritical } from "../utils/logCritical";
 
-export function ensureTag(id: BigInt, event: ethereum.Event): Tag {
+export function ensureTag(id: GraphBigInt, event: ethereum.Event): Tag {
   let tag = Tag.load(id.toString());
-  let release = Release.load("ETSRelease");
-  let platform = Platform.load("ETSPlatform");
+  const release = Release.load("ETSRelease");
+  const platform = Platform.load("ETSPlatform");
 
   if (tag === null && release && platform && event) {
     tag = new Tag(id.toString());
 
-    let contract = ETSToken.bind(Address.fromString(release.etsToken));
-    let getTagCall = contract.try_getTagById(id);
+    const contract = ETSToken.bind(Address.fromString(release.etsToken));
+    const getTagCall = contract.try_getTagById(id);
     if (getTagCall.reverted) {
       logCritical("getTagCall reverted for {}", [id.toString()]);
     }
-    let lowerTag: string = toLowerCase(getTagCall.value.display);
+    const lowerTag: string = toLowerCase(getTagCall.value.display);
     tag.machineName = lowerTag.substring(1, lowerTag.length);
     tag.display = getTagCall.value.display;
     tag.owner = platform.address;
@@ -42,8 +42,8 @@ export function ensureTag(id: BigInt, event: ethereum.Event): Tag {
   return tag as Tag;
 }
 
-export function updateTagOwner(tagId: BigInt, newOwner: Address, event: ethereum.Event): void {
-  let tag = ensureTag(tagId, event);
+export function updateTagOwner(tagId: GraphBigInt, newOwner: Address, event: ethereum.Event): void {
+  const tag = ensureTag(tagId, event);
   tag.owner = newOwner.toHexString();
   tag.save();
 }
@@ -51,22 +51,22 @@ export function updateTagOwner(tagId: BigInt, newOwner: Address, event: ethereum
 export function updateCTAGTaggingRecordStats(
   newTagIds: string[] | null,
   previousTagIds: string[] | null,
-  action: BigInt,
+  action: GraphBigInt,
   event: ethereum.Event,
 ): void {
   if (newTagIds && previousTagIds) {
-    let platform = ensurePlatform(null);
-    let platformFee = getTaggingFee(PLATFORM);
-    let relayerFee = getTaggingFee(RELAYER);
-    let ownerFee = getTaggingFee(OWNER);
+    const platform = ensurePlatform(null);
+    const platformFee = getTaggingFee(PLATFORM);
+    const relayerFee = getTaggingFee(RELAYER);
+    const ownerFee = getTaggingFee(OWNER);
 
-    if (action == CREATE) {
+    if (action === CREATE) {
       for (let i = 0; i < newTagIds.length; i++) {
-        let tag = ensureTag(BigInt.fromString(newTagIds[i]), event);
+        const tag = ensureTag(GraphBigInt.fromString(newTagIds[i]), event);
         tag.tagAppliedInTaggingRecord = tag.tagAppliedInTaggingRecord.plus(ONE);
         tag.protocolRevenue = tag.protocolRevenue.plus(platformFee);
         tag.relayerRevenue = tag.relayerRevenue.plus(relayerFee);
-        if (tag.owner != platform.address) {
+        if (tag.owner !== platform.address) {
           tag.ownerRevenue = tag.ownerRevenue.plus(ownerFee);
         } else {
           tag.creatorRevenue = tag.creatorRevenue.plus(ownerFee);
@@ -75,14 +75,14 @@ export function updateCTAGTaggingRecordStats(
       }
     }
 
-    if (action == APPEND) {
-      let appendedTagIds = arrayDiff(newTagIds, previousTagIds);
+    if (action === APPEND) {
+      const appendedTagIds = arrayDiff(newTagIds, previousTagIds);
       for (let i = 0; i < appendedTagIds.length; i++) {
-        let tag = ensureTag(BigInt.fromString(appendedTagIds[i]), event);
+        const tag = ensureTag(GraphBigInt.fromString(appendedTagIds[i]), event);
         tag.tagAppliedInTaggingRecord = tag.tagAppliedInTaggingRecord.plus(ONE);
         tag.protocolRevenue = tag.protocolRevenue.plus(platformFee);
         tag.relayerRevenue = tag.relayerRevenue.plus(relayerFee);
-        if (tag.owner != platform.address) {
+        if (tag.owner !== platform.address) {
           tag.ownerRevenue = tag.ownerRevenue.plus(ownerFee);
         } else {
           tag.creatorRevenue = tag.creatorRevenue.plus(ownerFee);
@@ -91,10 +91,10 @@ export function updateCTAGTaggingRecordStats(
       }
     }
 
-    if (action == REMOVE) {
-      let removedTagIds = arrayDiff(previousTagIds, newTagIds);
+    if (action === REMOVE) {
+      const removedTagIds = arrayDiff(previousTagIds, newTagIds);
       for (let i = 0; i < removedTagIds.length; i++) {
-        let tag = ensureTag(BigInt.fromString(removedTagIds[i]), event);
+        const tag = ensureTag(GraphBigInt.fromString(removedTagIds[i]), event);
         tag.tagRemovedFromTaggingRecord = tag.tagRemovedFromTaggingRecord.plus(ONE);
         tag.save();
       }

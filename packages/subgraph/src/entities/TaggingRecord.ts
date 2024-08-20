@@ -1,28 +1,28 @@
-import { BigInt, ethereum } from "@graphprotocol/graph-ts";
-import { TaggingRecord } from "../generated/schema";
-import { ETS } from "../generated/ETS/ETS";
+import { BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
 import { ensureRelayer } from "../entities/Relayer";
-import { ensureTagger } from "../entities/Tagger";
 import { ensureTag } from "../entities/Tag";
+import { ensureTagger } from "../entities/Tagger";
 import { ensureTarget } from "../entities/Target";
+import { ETS } from "../generated/ETS/ETS";
+import { TaggingRecord } from "../generated/schema";
 import { logCritical } from "../utils/logCritical";
 
-export function ensureTaggingRecord(taggingRecordId: BigInt, event: ethereum.Event): TaggingRecord {
+export function ensureTaggingRecord(taggingRecordId: GraphBigInt, event: ethereum.Event): TaggingRecord {
   let taggingRecord = TaggingRecord.load(taggingRecordId.toString());
 
   if (taggingRecord === null && event) {
-    let contract = ETS.bind(event.address);
-    let taggingRecordCall = contract.try_getTaggingRecordFromId(taggingRecordId);
+    const contract = ETS.bind(event.address);
+    const taggingRecordCall = contract.try_getTaggingRecordFromId(taggingRecordId);
 
     if (taggingRecordCall.reverted) {
       logCritical("getTaggingRecordFromId reverted for {}", [taggingRecordId.toString()]);
     }
 
-    let tags: BigInt[] = taggingRecordCall.value.getTagIds();
-    let tagIDs: string[] = [];
+    const tags: GraphBigInt[] = taggingRecordCall.value.getTagIds();
+    const tagIDs: string[] = [];
     if (tags.length > 0) {
       for (let i = 0; i < tags.length; i++) {
-        let ctag = ensureTag(tags[i], event);
+        const ctag = ensureTag(tags[i], event);
         tagIDs.push(ctag.id.toString());
       }
     }
@@ -39,22 +39,22 @@ export function ensureTaggingRecord(taggingRecordId: BigInt, event: ethereum.Eve
   return taggingRecord as TaggingRecord;
 }
 
-export function updateTaggingRecord(taggingRecordId: BigInt, event: ethereum.Event): TaggingRecord {
-  let taggingRecord = ensureTaggingRecord(taggingRecordId, event);
+export function updateTaggingRecord(taggingRecordId: GraphBigInt, event: ethereum.Event): TaggingRecord {
+  const taggingRecord = ensureTaggingRecord(taggingRecordId, event);
 
   if (taggingRecord && event) {
-    let contract = ETS.bind(event.address);
-    let taggingRecordCall = contract.try_getTaggingRecordFromId(taggingRecordId);
+    const contract = ETS.bind(event.address);
+    const taggingRecordCall = contract.try_getTaggingRecordFromId(taggingRecordId);
 
     if (taggingRecordCall.reverted) {
       logCritical("getTaggingRecordFromId reverted for {}", [taggingRecordId.toString()]);
     }
 
-    let tags: BigInt[] = taggingRecordCall.value.getTagIds();
-    let tagIDs: string[] = [];
+    const tags: GraphBigInt[] = taggingRecordCall.value.getTagIds();
+    const tagIDs: string[] = [];
     if (tags.length > 0) {
       for (let i = 0; i < tags.length; i++) {
-        let ctag = ensureTag(tags[i], event);
+        const ctag = ensureTag(tags[i], event);
         tagIDs.push(ctag.id.toString());
       }
     }

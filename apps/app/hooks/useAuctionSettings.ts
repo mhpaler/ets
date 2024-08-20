@@ -1,7 +1,7 @@
+import type { AuctionSettings } from "@app/types/auction";
 import { useEffect } from "react";
 import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
-import { AuctionSettings } from "@app/types/auction";
 
 export function useAuctionSettings({ config = {} }: { config?: SWRConfiguration }) {
   const { data, mutate, error } = useSWR(
@@ -29,8 +29,9 @@ export function useAuctionSettings({ config = {} }: { config?: SWRConfiguration 
   });
 
   // Use useEffect to apply transformations after data fetching
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    if (data && data.globalSettings) {
+    if (data?.globalSettings) {
       mutate(transformData(data.globalSettings), false); // Mutate data with transformed values
     }
   }, [data, mutate]);

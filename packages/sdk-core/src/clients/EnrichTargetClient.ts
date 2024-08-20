@@ -1,8 +1,8 @@
-import { Address, Hex, PublicClient, WalletClient } from "viem";
+import type { Address, Hex, PublicClient, WalletClient } from "viem";
+import { getConfig } from "../contracts/config";
+import type { EnrichTargetReadFunction, EnrichTargetWriteFunction } from "../types";
 import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
-import { EnrichTargetReadFunction, EnrichTargetWriteFunction } from "../types";
-import { getConfig } from "../contracts/config";
 import { validateConfig } from "../utils/validateConfig";
 
 export class EnrichTargetClient {
@@ -25,7 +25,7 @@ export class EnrichTargetClient {
     validateConfig(chainId, publicClient, walletClient);
 
     const config = getConfig(chainId);
-    if (!config || config.etsEnrichTargetConfig == undefined) throw new Error("Configuration could not be retrieved");
+    if (!config || config.etsEnrichTargetConfig === undefined) throw new Error("Configuration could not be retrieved");
 
     this.etsEnrichTargetConfig = config.etsEnrichTargetConfig;
   }

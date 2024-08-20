@@ -1,16 +1,16 @@
 import { chainsMap } from "@app/config/wagmiConfig";
 import {
-  RelayerClient,
-  TokenClient,
-  AuctionHouseClient,
   AccessControlsClient,
-  RelayerFactoryClient,
-  TargetClient,
+  AuctionHouseClient,
   CoreClient,
   EnrichTargetClient,
   EtsClient,
+  RelayerClient,
+  RelayerFactoryClient,
+  TargetClient,
+  TokenClient,
 } from "@ethereum-tag-service/sdk-core";
-import { createPublicClient, http, createWalletClient, custom, Hex } from "viem";
+import { http, type Hex, createPublicClient, createWalletClient, custom } from "viem";
 
 export const viemPublicClient: any = (chainId: number) => {
   const chain = chainsMap(chainId);

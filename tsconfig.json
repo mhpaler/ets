@@ -4,5 +4,6 @@
     "module": "CommonJS",
     "strict": true
   },
-  "include": ["apps/**/*.ts", "packages/**/*.ts"]
+  "include": ["scripts/**/*.ts"],
+  "exclude": [],
 }

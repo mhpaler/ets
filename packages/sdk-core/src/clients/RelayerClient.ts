@@ -1,11 +1,11 @@
 import type { Address, Hex, PublicClient, WalletClient } from "viem";
+import { getConfig } from "../contracts/config";
 import { etsABI, etsRelayerV1ABI } from "../contracts/contracts";
-import { TokenClient } from "./TokenClient";
+import type { RelayerReadFunction, RelayerWriteFunction } from "../types";
 import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
-import { RelayerReadFunction, RelayerWriteFunction } from "../types";
-import { getConfig } from "../contracts/config";
 import { validateConfig } from "../utils/validateConfig";
+import { TokenClient } from "./TokenClient";
 
 export class RelayerClient {
   private readonly chainId?: number;
@@ -33,7 +33,7 @@ export class RelayerClient {
     if (!relayerAddress) throw new Error("Relayer address is required");
 
     const config = getConfig(chainId, relayerAddress);
-    if (!config || config.etsRelayerV1Config == undefined || config.etsConfig == undefined)
+    if (!config || config.etsRelayerV1Config === undefined || config.etsConfig === undefined)
       throw new Error("Configuration could not be retrieved");
 
     this.relayerConfig = config.etsRelayerV1Config;
@@ -150,7 +150,7 @@ export class RelayerClient {
         enrich: false,
       };
 
-      const [fee, actualTagCount] = await this.computeTaggingFee(tagParams, 0);
+      const [fee, _actualTagCount] = await this.computeTaggingFee(tagParams, 0);
 
       const { request } = await this.publicClient.simulateContract({
         address: this.relayerConfig.address,

@@ -1,5 +1,5 @@
-import React from "react";
-import { createContext, useState, ReactNode } from "react";
+import type React from "react";
+import { createContext, useState } from "react";
 
 type AddRelayerFormData = {
   name: string;
@@ -23,8 +23,7 @@ export const RelayerProvider = ({ children }: { children: React.ReactNode }) => 
     name: "",
   });
 
-  const setFormData = (data: AddRelayerFormData) => {
-    console.log("Updating form data in provider:", data);
+  const _setFormData = (data: AddRelayerFormData) => {
     setAddRelayerFormData(data); // Directly update the state here
   };
 

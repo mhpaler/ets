@@ -27,7 +27,7 @@ for (const packagePath of packagePaths) {
   console.log(`${packageJson.name} — ${packageJson.version}`);
 
   const versionFilePath = path.resolve(path.dirname(packagePath), "src", "version.ts");
-  await Bun.write(versionFilePath, `export const version = '${packageJson.version}'\n`);
+  await Bun.write(versionFilePath, `export const version = "${packageJson.version}";\n`);
 }
 
 console.log(`Done. Updated version file for ${count} ${count === 1 ? "package" : "packages"}.`);

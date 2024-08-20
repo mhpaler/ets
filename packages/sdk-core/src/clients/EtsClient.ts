@@ -1,8 +1,8 @@
-import { Address, PublicClient, WalletClient } from "viem";
+import type { Address, PublicClient, WalletClient } from "viem";
+import { getConfig } from "../contracts/config";
+import type { EtsReadFunction, EtsWriteFunction } from "../types";
 import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
-import { EtsReadFunction, EtsWriteFunction } from "../types";
-import { getConfig } from "../contracts/config";
 import { validateConfig } from "../utils/validateConfig";
 
 export class EtsClient {
@@ -28,7 +28,7 @@ export class EtsClient {
     if (!address) throw new Error("Contract address is required");
 
     const config = getConfig(chainId);
-    if (!config || config.etsConfig == undefined) throw new Error("Configuration could not be retrieved");
+    if (!config || config.etsConfig === undefined) throw new Error("Configuration could not be retrieved");
 
     this.etsConfig = config.etsConfig;
   }

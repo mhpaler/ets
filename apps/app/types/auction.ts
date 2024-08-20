@@ -1,5 +1,5 @@
-import { GlobalSettings } from "@app/types/system";
-import { TagType } from "@app/types/tag";
+import type { GlobalSettings } from "@app/types/system";
+import type { TagType } from "@app/types/tag";
 import { KeyedMutator } from "swr";
 
 // Define a type for auction-specific settings picked from GlobalSettings

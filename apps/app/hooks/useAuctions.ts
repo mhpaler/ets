@@ -1,9 +1,9 @@
+import { useEnsNames } from "@app/hooks/useEnsNames";
+import { useSystem } from "@app/hooks/useSystem";
+import type { Auction } from "@app/types/auction";
+import { formatEtherWithDecimals } from "@app/utils";
 import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
-import { useSystem } from "@app/hooks/useSystem";
-import { Auction } from "@app/types/auction";
-import { formatEtherWithDecimals } from "@app/utils";
-import { useEnsNames } from "@app/hooks/useEnsNames";
 
 type FetchAuctionsResponse = {
   auctions: Auction[];

@@ -1,5 +1,5 @@
+import { type RelayerClient, createRelayerClient } from "@ethereum-tag-service/sdk-core";
 import { useEffect, useState } from "react";
-import { createRelayerClient, RelayerClient } from "@ethereum-tag-service/sdk-core";
 
 export const useRelayerClient = ({
   relayerAddress,
@@ -21,17 +21,13 @@ export const useRelayerClient = ({
   const createTags = async (
     tags: string[],
   ): Promise<{ transactionHash: string; status: number; createdTags: string[] }> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      const result = await relayerClient.createTags(tags);
-      return {
-        transactionHash: result.transactionHash,
-        status: result.status,
-        createdTags: result.createdTags || [],
-      };
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    const result = await relayerClient.createTags(tags);
+    return {
+      transactionHash: result.transactionHash,
+      status: result.status,
+      createdTags: result.createdTags || [],
+    };
   };
 
   const createTaggingRecord = async (
@@ -40,13 +36,9 @@ export const useRelayerClient = ({
     recordType: string,
     signerAddress?: `0x${string}`,
   ): Promise<string> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      const { taggingRecordId } = await relayerClient.createTaggingRecord(tagIds, targetId, recordType, signerAddress);
-      return taggingRecordId;
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    const { taggingRecordId } = await relayerClient.createTaggingRecord(tagIds, targetId, recordType, signerAddress);
+    return taggingRecordId;
   };
 
   const applyTags = async (
@@ -54,12 +46,8 @@ export const useRelayerClient = ({
     targetURI: string,
     recordType: string,
   ): Promise<{ transactionHash: string; status: number }> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      return await relayerClient.applyTags(tags, targetURI, recordType);
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    return await relayerClient.applyTags(tags, targetURI, recordType);
   };
 
   const removeTags = async (
@@ -67,12 +55,8 @@ export const useRelayerClient = ({
     targetURI: string,
     recordType: string,
   ): Promise<{ transactionHash: string; status: number }> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      return await relayerClient.removeTags(tags, targetURI, recordType);
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    return await relayerClient.removeTags(tags, targetURI, recordType);
   };
 
   const replaceTags = async (
@@ -80,186 +64,110 @@ export const useRelayerClient = ({
     targetURI: string,
     recordType: string,
   ): Promise<{ transactionHash: string; status: number }> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      return await relayerClient.replaceTags(tags, targetURI, recordType);
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    return await relayerClient.replaceTags(tags, targetURI, recordType);
   };
 
   const pause = async (): Promise<{ transactionHash: string; status: number }> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      return await relayerClient.pause();
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    return await relayerClient.pause();
   };
 
   const unpause = async (): Promise<{ transactionHash: string; status: number }> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      return await relayerClient.unpause();
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    return await relayerClient.unpause();
   };
 
   const changeOwner = async (newOwner: `0x${string}`): Promise<{ transactionHash: string; status: number }> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      return await relayerClient.changeOwner(newOwner);
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    return await relayerClient.changeOwner(newOwner);
   };
 
   const transferOwnership = async (newOwner: `0x${string}`): Promise<{ transactionHash: string; status: number }> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      return await relayerClient.transferOwnership(newOwner);
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    return await relayerClient.transferOwnership(newOwner);
   };
 
   const getOrCreateTags = async (tags: string[]): Promise<{ transactionHash: string; status: number }> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      return await relayerClient.getOrCreateTags(tags);
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    return await relayerClient.getOrCreateTags(tags);
   };
 
   const renounceOwnership = async (): Promise<{ transactionHash: string; status: number }> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      return await relayerClient.renounceOwnership();
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    return await relayerClient.renounceOwnership();
   };
 
   const owner = async (): Promise<string> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      const ownerAddress = await relayerClient.owner();
-      return ownerAddress;
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    const ownerAddress = await relayerClient.owner();
+    return ownerAddress;
   };
 
   const paused = async (): Promise<boolean> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      const isPaused = await relayerClient.paused();
-      return isPaused;
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    const isPaused = await relayerClient.paused();
+    return isPaused;
   };
 
   const creator = async (): Promise<string> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      const creatorAddress = await relayerClient.creator();
-      return creatorAddress;
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    const creatorAddress = await relayerClient.creator();
+    return creatorAddress;
   };
 
   const ets = async (): Promise<string> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      const etsAddress = await relayerClient.ets();
-      return etsAddress;
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    const etsAddress = await relayerClient.ets();
+    return etsAddress;
   };
 
   const etsAccessControls = async (): Promise<string> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      const etsAccessControlsAddress = await relayerClient.etsAccessControls();
-      return etsAccessControlsAddress;
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    const etsAccessControlsAddress = await relayerClient.etsAccessControls();
+    return etsAccessControlsAddress;
   };
 
   const etsTarget = async (): Promise<string> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      const etsTargetAddress = await relayerClient.etsTarget();
-      return etsTargetAddress;
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    const etsTargetAddress = await relayerClient.etsTarget();
+    return etsTargetAddress;
   };
 
   const etsToken = async (): Promise<string> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      const etsTokenAddress = await relayerClient.etsToken();
-      return etsTokenAddress;
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    const etsTokenAddress = await relayerClient.etsToken();
+    return etsTokenAddress;
   };
 
   const getBalance = async (): Promise<number> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      const balance = await relayerClient.getBalance();
-      return balance;
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    const balance = await relayerClient.getBalance();
+    return balance;
   };
 
   const getRelayerName = async (): Promise<string> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      const relayerName = await relayerClient.getRelayerName();
-      return relayerName;
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    const relayerName = await relayerClient.getRelayerName();
+    return relayerName;
   };
 
   const computeTaggingFee = async (tagParams: any, value: number): Promise<[bigint, bigint]> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      const [fee, actualTagCount] = await relayerClient.computeTaggingFee(tagParams, value);
-      return [fee, actualTagCount];
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    const [fee, actualTagCount] = await relayerClient.computeTaggingFee(tagParams, value);
+    return [fee, actualTagCount];
   };
 
   const supportsInterface = async (interfaceId: string): Promise<boolean> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      const supported = await relayerClient.supportsInterface(interfaceId);
-      return supported;
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    const supported = await relayerClient.supportsInterface(interfaceId);
+    return supported;
   };
 
   const version = async (): Promise<string> => {
-    try {
-      if (!relayerClient) throw new Error("Relayer client not initialized");
-      const versionString = await relayerClient.version();
-      return versionString;
-    } catch (error) {
-      throw error;
-    }
+    if (!relayerClient) throw new Error("Relayer client not initialized");
+    const versionString = await relayerClient.version();
+    return versionString;
   };
 
   return {

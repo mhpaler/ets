@@ -1,7 +1,7 @@
+import { useRelayerClient, useTokenClient } from "@ethereum-tag-service/sdk-react-hooks";
 import React, { useState, useEffect } from "react";
 import { useAccount, useChainId } from "wagmi";
 import { useRelayers } from "../hooks/useRelayers";
-import { useTokenClient, useRelayerClient } from "@ethereum-tag-service/sdk-react-hooks";
 
 function CreateTagForm() {
   const [tags, setTags] = useState([]);
@@ -62,9 +62,9 @@ function CreateTagForm() {
       try {
         const tagValues = tags.map((tag) => tag.text);
         const result = await createTags?.(tagValues);
-        console.log("createdTags result", result);
+        console.info("createdTags result", result);
         setTags([]);
-        if (result && result.createdTags) {
+        if (result?.createdTags) {
           setCreatedTags(result.createdTags.map((tag) => ({ text: tag })));
           setMessage(`Tags created successfully. Transaction hash: ${result.transactionHash}`);
         } else {

@@ -1,14 +1,14 @@
-import { BigInt } from "@graphprotocol/graph-ts";
-import { Bid } from "../generated/schema";
+import { BigInt as GraphBigInt } from "@graphprotocol/graph-ts";
 import { AuctionBid } from "../generated/ETSAuctionHouse/ETSAuctionHouse";
-import { ensureOwner } from "./Owner";
-import { updateAuction } from "./Auction";
+import { Bid } from "../generated/schema";
 import { logCritical } from "../utils/logCritical";
+import { updateAuction } from "./Auction";
+import { ensureOwner } from "./Owner";
 
-export function ensureBid(auctionId: BigInt, event: AuctionBid): void {
+export function ensureBid(auctionId: GraphBigInt, event: AuctionBid): void {
   //let auction = ensureAuction(auctionId, event);
   // Update and fetch the local auction object from blockchain.
-  let auction = updateAuction(auctionId, event);
+  const auction = updateAuction(auctionId, event);
 
   if (auction == null) {
     logCritical("[handleAuctionBid] Auction not found for auction #{}. Hash: {}", [
@@ -18,8 +18,8 @@ export function ensureBid(auctionId: BigInt, event: AuctionBid): void {
     return;
   }
 
-  let bidder = ensureOwner(event.params.sender, event);
-  let bid = new Bid(event.transaction.hash.toHex());
+  const bidder = ensureOwner(event.params.sender, event);
+  const bid = new Bid(event.transaction.hash.toHex());
   bid.bidder = bidder.id;
   bid.amount = auction.amount;
   bid.tag = auction.id;

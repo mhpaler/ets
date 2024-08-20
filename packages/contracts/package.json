@@ -2,41 +2,37 @@
   "name": "@ethereum-tag-service/contracts",
   "description": "Composable content tagging service for Web3",
   "license": "MIT",
-  "version": "0.1.0-alpha.1",
-  "files": [
-    "/dist"
-  ],
+  "version": "0.0.0",
+  "type": "commonjs",
+  "files": ["/dist"],
   "author": "Ethereum Tag Service <team@ets.xyz>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ethereum-tag-service/ets.git",
+    "url": "git+https://github.com/ethereum-tag-service/ets.git",
     "directory": "packages/contracts"
   },
-  "keywords": [
-    "ets",
-    "composable",
-    "nft",
-    "tagging"
-  ],
+  "keywords": ["ets", "composable", "nft", "tagging"],
   "bugs": {
     "url": "https://github.com/ethereum-tag-service/ets/issues"
   },
   "homepage": "https://ets.xyz",
   "scripts": {
     "build": "pnpm build:contracts && pnpm build:package",
-    "prepublishOnly": "pnpm build",
+    "build:contracts": "pnpm compile",
+    "build:package": "pnpm run clean && cp -R export dist && cp -R artifacts/contracts dist/artifacts && cp -R contracts dist",
+    "clean": "rm -rf dist",
+    "compile": "hardhat clean && hardhat compile",
     "coverage": "hardhat coverage",
+    "deploy": "hardhat deploy --tags deployAll --network localhost --export export/chainConfig/localhost.json",
+    "deploy-testnet-production": "hardhat deploy --tags deployAll --network testnet_production --export export/chainConfig/testnet_production.json",
+    "deploy-testnet-stage": "hardhat deploy --tags deployAll --network testnet_stage --export export/chainConfig/testnet_stage.json",
+    "hardhat": "hardhat node --no-deploy",
+    "hardhat:clean": "hardhat clean",
+    "prepublishOnly": "pnpm build",
     "prettier": "prettier --write 'contracts/**/*.sol'",
     "solhint": "./node_modules/.bin/solhint contracts/*.sol contracts/**/*.sol",
-    "build:contracts": "pnpm compile",
-    "build:package": "rm -rf ./dist && cp -R export dist && cp -R artifacts/contracts dist/artifacts && cp -R contracts dist",
-    "watch": "ts-node scripts/watch.ts",
     "test": "hardhat test",
-    "hardhat": "hardhat node --no-deploy",
-    "compile": "hardhat clean && hardhat compile",
-    "deploy": "hardhat deploy --tags deployAll --network localhost --export export/chainConfig/localhost.json",
-    "deploy-testnet-stage": "hardhat deploy --tags deployAll --network testnet_stage --export export/chainConfig/testnet_stage.json",
-    "deploy-testnet-production": "hardhat deploy --tags deployAll --network testnet_production --export export/chainConfig/testnet_production.json"
+    "test:build": "publint --strict"
   },
   "devDependencies": {
     "@enzoferey/ethers-error-parser": "^0.2.3",
@@ -56,10 +52,10 @@
     "@typechain/hardhat": "^9.1.0",
     "@types/chai": "^4.2.18",
     "@types/mocha": "^10.0.1",
-    "@types/node": "^20.1.4",
+    "@types/node": "^20.12.7",
     "axios": "^1.6.2",
     "chai": "^4.3.4",
-    "dotenv": "^16.0.0",
+    "dotenv": "^16.3.1",
     "ethereum-waffle": "^4.0.10",
     "ethereumjs-util": "^7.1.4",
     "ethers": "6.8.1",
@@ -69,7 +65,7 @@
     "hardhat-ethernal": "3.1.0",
     "lodash.merge": "^4.6.2",
     "node-watch": "^0.7.2",
-    "prettier": "^2.8.8",
+    "prettier": "^3.1.1",
     "prettier-plugin-solidity": "1.1.3",
     "random-words": "^1.1.1",
     "solhint": "^3.4.1",
@@ -78,7 +74,7 @@
     "solidity-docgen": "0.6.0-beta.35",
     "ts-node": "^10.9.1",
     "typechain": "^8.1.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.4.5"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.2",

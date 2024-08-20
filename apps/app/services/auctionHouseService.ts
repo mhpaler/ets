@@ -1,14 +1,9 @@
-import { getBlock, readContract, watchContractEvent } from "wagmi/actions";
-import { AuctionSettings, Auction, AuctionOnChain } from "@app/types/auction";
-import { etsAuctionHouseConfig } from "@app/src/contracts";
 import { wagmiConfig } from "@app/config/wagmiConfig";
-import { fetcher } from "@app/utils/fetchers";
+import { etsAuctionHouseConfig } from "@app/src/contracts";
+import type { Auction, AuctionOnChain, AuctionSettings } from "@app/types/auction";
 import { formatEtherWithDecimals } from "@app/utils";
-
-// Define the expected response structure from the GraphQL query
-type FetchAuctionSettingsResponse = {
-  globalSettings: AuctionSettings;
-};
+import { fetcher } from "@app/utils/fetchers";
+import { getBlock, readContract, watchContractEvent } from "wagmi/actions";
 
 type FetchAuctionsResponse = {
   auctions: Auction[];

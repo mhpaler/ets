@@ -1,6 +1,6 @@
-const buildFormatter = require('react-timeago/lib/formatters/buildFormatter').default;
-const timeagoEn = require('react-timeago/lib/language-strings/en').default;
-const timeagoEs = require('react-timeago/lib/language-strings/es').default;
+const buildFormatter = require("react-timeago/lib/formatters/buildFormatter").default;
+const timeagoEn = require("react-timeago/lib/language-strings/en").default;
+const timeagoEs = require("react-timeago/lib/language-strings/es").default;
 
 /** @type {key:string} */
 const numberFormatters = {
@@ -11,19 +11,19 @@ const numberFormatters = {
 module.exports = {
   numberFormatters: numberFormatters,
   timeagoFormatters: {
-    'en': buildFormatter(timeagoEn),
-    'es': buildFormatter(timeagoEs),
+    en: buildFormatter(timeagoEn),
+    es: buildFormatter(timeagoEs),
   },
-  locales: ['en', 'es'],
-  defaultLocale: 'en',
+  locales: ["en", "es"],
+  defaultLocale: "en",
   pages: {
-    '*': ['common'],
-    '/404': ['error'],
+    "*": ["common"],
+    "/404": ["error"],
   },
   interpolation: {
     format: (value, format, lang) => {
-      if (format === 'number') return numberFormatters[lang].format(value);
+      if (format === "number") return numberFormatters[lang].format(value);
       return value;
-    }
-  }
-}
+    },
+  },
+};

@@ -1,33 +1,35 @@
-const { execSync } = require('child_process');
-const axios = require('axios');
-const minimist = require('minimist');
+const { execSync } = require("node:child_process");
+const axios = require("axios");
+const minimist = require("minimist");
 
 function runCommand(command) {
-  console.log(`Executing: ${command}`);
-  execSync(command, { stdio: 'inherit' });
+  console.info(`Executing: ${command}`);
+  execSync(command, { stdio: "inherit" });
 }
 
 async function checkGraphIsRunning() {
   // Skip the check for non-local deployments
-  if (deployment !== 'localhost') {
+  if (deployment !== "localhost") {
     return true;
   }
 
-  console.log('Checking if local Graph Node is running...');
+  console.info("Checking if local Graph Node is running...");
   try {
-    await axios.post('http://localhost:8020', {});
-    console.log('Local Graph Node is running.');
+    await axios.post("http://localhost:8020", {});
+    console.info("Local Graph Node is running.");
     return true;
-  } catch (error) {
-    console.error('Local Graph Node is not running or not ready.');
-    console.error('Please ensure Docker is running and then start the Graph Node using the command: "pnpm run-graph-node".');
-    console.error('After the Graph Node has started, you can rerun this deployment script.');
+  } catch (_error) {
+    console.error("Local Graph Node is not running or not ready.");
+    console.error(
+      'Please ensure Docker is running and then start the Graph Node using the command: "pnpm run-graph-node".',
+    );
+    console.error("After the Graph Node has started, you can rerun this deployment script.");
     return false;
   }
 }
 
 async function shipLocal() {
-  if (!await checkGraphIsRunning()) {
+  if (!(await checkGraphIsRunning())) {
     return;
   }
 
@@ -36,7 +38,9 @@ async function shipLocal() {
   runCommand("graph build");
   runCommand("graph remove --node http://localhost:8020/ ets/ets-local");
   runCommand("graph create --node http://localhost:8020/ ets/ets-local");
-  runCommand("graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 ets/ets-local --version-label dev");
+  runCommand(
+    "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 ets/ets-local --version-label dev",
+  );
 }
 
 function deployTestnetProduction() {
@@ -63,5 +67,7 @@ if (deployment === "localhost") {
 } else {
   console.error(`Unknown deployment target: '${deployment}'.`);
   console.error(`Please use a valid deployment target such as 'localhost', 'testnet_production', or 'testnet_stage'.`);
-  console.error(`To deploy, use the command: 'pnpm graph-deploy --deployment [target]' or 'pnpm graph-deploy -d [target]', where [target] is the deployment target.`);
+  console.error(
+    `To deploy, use the command: 'pnpm graph-deploy --deployment [target]' or 'pnpm graph-deploy -d [target]', where [target] is the deployment target.`,
+  );
 }

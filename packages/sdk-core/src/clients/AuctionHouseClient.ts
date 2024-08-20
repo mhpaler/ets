@@ -1,8 +1,8 @@
-import { PublicClient, WalletClient, Hex } from "viem";
+import type { Hex, PublicClient, WalletClient } from "viem";
+import { getConfig } from "../contracts/config";
+import type { AuctionHouseReadFunction, AuctionHouseWriteFunction } from "../types";
 import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
-import { AuctionHouseReadFunction, AuctionHouseWriteFunction } from "../types";
-import { getConfig } from "../contracts/config";
 import { validateConfig } from "../utils/validateConfig";
 
 export class AuctionHouseClient {
@@ -24,7 +24,7 @@ export class AuctionHouseClient {
     validateConfig(chainId, publicClient, walletClient);
 
     const config = getConfig(chainId);
-    if (!config || config.etsAuctionHouseConfig == undefined) throw new Error("Configuration could not be retrieved");
+    if (!config || config.etsAuctionHouseConfig === undefined) throw new Error("Configuration could not be retrieved");
 
     this.etsAuctionHouseConfig = config.etsAuctionHouseConfig;
   }

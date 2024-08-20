@@ -1,10 +1,7 @@
-import { Administrator } from "../generated/schema";
 import { Address, ethereum } from "@graphprotocol/graph-ts";
+import { Administrator } from "../generated/schema";
 
-export function ensureAdministrator(
-  address: Address,
-  event: ethereum.Event
-): Administrator {
+export function ensureAdministrator(address: Address, event: ethereum.Event): Administrator {
   let administrator = Administrator.load(address.toHex());
 
   if (administrator === null) {

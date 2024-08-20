@@ -1,5 +1,5 @@
-import React, { createContext, useState, useCallback, ReactNode, FC } from "react";
-import { TransactionContextType, TransactionType } from "@app/types/transaction"; // Ensure the path is correct
+import type { TransactionContextType, TransactionType } from "@app/types/transaction"; // Ensure the path is correct
+import React, { createContext, useState, useCallback, type ReactNode, type FC } from "react";
 
 // Define the structure of each transaction's data
 interface TransactionData {
@@ -90,7 +90,7 @@ export const TransactionManagerProvider: FC<TransactionProviderProps> = ({ child
         const receipt = result;
         updateTransaction(id, { isPending: false, isSuccess: true, message: "Transaction successful." });
 
-        console.log(`Transaction Receipt for ${id}:`, receipt);
+        console.info(`Transaction Receipt for ${id}:`, receipt);
       } catch (error: unknown) {
         console.error("Transaction Error:", error);
         updateTransaction(id, { isPending: false, isError: true, message: (error as Error).message });

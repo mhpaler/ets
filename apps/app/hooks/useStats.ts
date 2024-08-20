@@ -13,7 +13,7 @@ export function useStats({ config = {} }: { config?: SWRConfiguration }) {
         }
       }`,
     ],
-    config
+    config,
   );
 
   return {

@@ -34,24 +34,22 @@ task(
     const ets = new ethers.Contract(etsAddress, etsABI, accounts[taskArgs.signer]);
 
     // Check that Relayer that caller (signer) is using exists.
-    let etsRelayerV1;
     const relayerAddress = await etsAccessControls.getRelayerAddressFromName(taskArgs.relayer);
     if ((await etsAccessControls.isRelayer(relayerAddress)) === false) {
-      console.log(`"${taskArgs.relayer}" is not a relayer`);
+      console.info(`"${taskArgs.relayer}" is not a relayer`);
       return;
-    } else {
-      etsRelayerV1 = new ethers.Contract(relayerAddress, etsRelayerV1ABI, accounts[taskArgs.signer]);
     }
+    const etsRelayerV1 = new ethers.Contract(relayerAddress, etsRelayerV1ABI, accounts[taskArgs.signer]);
 
     const tags = taskArgs.tags.replace(/\s+/g, "").split(","); // remove spaces & split on comma
     const targetURI = taskArgs.uri;
     const recordType = taskArgs.recordType;
 
     const tagParams = {
-      "targetURI": targetURI,
-      "tagStrings": tags,
-      "recordType": recordType,
-      "enrich": false,
+      targetURI: targetURI,
+      tagStrings: tags,
+      recordType: recordType,
+      enrich: false,
     };
 
     const taggingRecordId = await ets.computeTaggingRecordIdFromRawInput(
@@ -63,12 +61,9 @@ task(
 
     // Calculate tagging fees
     let taggingFee = 0;
-    let result = await etsRelayerV1.computeTaggingFee(
-      tagParams,
-      0,
-    );
+    const result = await etsRelayerV1.computeTaggingFee(tagParams, 0);
 
-    let { 0: fee, 1: actualTagCount } = result;
+    const { 0: fee, 1: actualTagCount } = result;
     taggingFee = fee;
 
     const tx = await etsRelayerV1.applyTags([tagParams], {
@@ -77,13 +72,13 @@ task(
       // gasLimit: 5000000, // do we need this?
     });
 
-    console.log(`started txn ${tx.hash.toString()}`);
+    console.info(`started txn ${tx.hash.toString()}`);
     tx.wait();
 
     if (existingRecord) {
-      console.log(`${actualTagCount} tag(s) appended to ${taggingRecordId}`);
+      console.info(`${actualTagCount} tag(s) appended to ${taggingRecordId}`);
     } else {
-      console.log(`New tagging record created with ${actualTagCount} tag(s) and id: ${taggingRecordId}`);
+      console.info(`New tagging record created with ${actualTagCount} tag(s) and id: ${taggingRecordId}`);
     }
-    console.log(`${taskArgs.signer} charged for ${actualTagCount} tags`);
+    console.info(`${taskArgs.signer} charged for ${actualTagCount} tags`);
   });

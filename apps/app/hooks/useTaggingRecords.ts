@@ -1,8 +1,8 @@
+import type { TaggingRecordType } from "@app/types/taggingrecord";
 import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
 import { usePublicClient } from "wagmi";
 import { useEnsNames } from "./useEnsNames";
-import { TaggingRecordType } from "@app/types/taggingrecord";
 
 type FetchTaggingRecordResponse = {
   taggingRecords: TaggingRecordType[];
@@ -22,7 +22,7 @@ export function useTaggingRecords({
   filter?: any;
   config?: SWRConfiguration;
 }) {
-  const client = usePublicClient();
+  const _client = usePublicClient();
 
   const { data, mutate, error } = useSWR<FetchTaggingRecordResponse>(
     [

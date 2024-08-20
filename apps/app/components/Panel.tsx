@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 const Panel = ({ href, title, children }: { href?: string; title?: string; children: ReactNode }) => {
   return (
@@ -13,20 +13,21 @@ const Panel = ({ href, title, children }: { href?: string; title?: string; child
               </div>
               <div className="flex items-center pr-2">
                 <svg className="inline-flex w-6 h-6 text-pink-600 hover:text-pink-700" fill="none" viewBox="0 0 24 24">
+                  <title>Open main menu</title>
                   <path
                     stroke="currentColor"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="1.5"
                     d="M17.25 15.25V6.75H8.75"
-                  ></path>
+                  />
                   <path
                     stroke="currentColor"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="1.5"
                     d="M17 7L6.75 17.25"
-                  ></path>
+                  />
                 </svg>
               </div>
             </Link>

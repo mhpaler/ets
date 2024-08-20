@@ -1,7 +1,7 @@
-// TransactionDebug.tsx
-import React from "react";
 import { useTransactionManager } from "@app/hooks/useTransactionManager";
 import { TransactionType } from "@app/types/transaction";
+// TransactionDebug.tsx
+import type React from "react";
 
 interface TransactionDebugProps {
   transactionId: string; // Unique identifier for the transaction
@@ -13,7 +13,7 @@ const TransactionDebug: React.FC<TransactionDebugProps> = ({ transactionId, tran
   const transaction = transactions[transactionId];
 
   // Determine the transaction status based on the transaction data
-  let status;
+  let status: string;
   if (transaction) {
     if (transaction.isPending) {
       status = "Pending";

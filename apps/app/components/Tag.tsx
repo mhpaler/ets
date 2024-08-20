@@ -1,5 +1,5 @@
+import type { TagType } from "@app/types/tag";
 import Link from "next/link";
-import { TagType } from "@app/types/tag";
 
 interface TagProps {
   tag?: TagType; // Allow tag to be undefined

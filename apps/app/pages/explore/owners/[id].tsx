@@ -1,25 +1,26 @@
+import { useCtags } from "@app/hooks/useCtags";
+import { useOwners } from "@app/hooks/useOwners";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
-import { useOwners } from "@app/hooks/useOwners";
-import { useCtags } from "@app/hooks/useCtags";
 
-import useTranslation from "next-translate/useTranslation";
+import Address from "@app/components/Address";
+import { FormattedNumber } from "@app/components/FormattedNumber";
+import { Panel } from "@app/components/Panel";
+import { Tag } from "@app/components/Tag";
+import { Tags } from "@app/components/Tags";
+import { TimeAgo } from "@app/components/TimeAgo";
+import { Truncate } from "@app/components/Truncate";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
+import Layout from "@app/layouts/default";
 import { timestampToString } from "@app/utils";
 import { toEth } from "@app/utils";
-import Layout from "@app/layouts/default";
-import { TimeAgo } from "@app/components/TimeAgo";
-import { Tags } from "@app/components/Tags";
-import { Tag } from "@app/components/Tag";
-import { Number } from "@app/components/Number";
-import { CopyAndPaste } from "@app/components/CopyAndPaste";
-import { Truncate } from "@app/components/Truncate";
-import { Panel } from "@app/components/Panel";
-import ENSAddress from "@app/components/ENSAddress";
+import useTranslation from "next-translate/useTranslation";
 
 const Owner: NextPage = () => {
   const { query } = useRouter();
   const { id } = query;
   const { t } = useTranslation("common");
+  const chain = useCurrentChain();
   const { owners } = useOwners({
     pageSize: 1,
     skip: 0,
@@ -58,16 +59,15 @@ const Owner: NextPage = () => {
                 <Panel title={t("overview")}>
                   <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col hover:bg-slate-100 ">
                     <div className="font-semibold">{t("id")}</div>
-                    <div className="flex space-x-1 justify-end">
-                      <ENSAddress address={owner.id} ens={owner.ens} />
-                      <CopyAndPaste value={owner.id} />
+                    <div className="flex justify-end">
+                      <Address address={owner.id} ens={owner.ens} />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                     <div className="font-semibold">{t("first-seen")}</div>
                     <div className="text-right">
-                      <div className="">{timestampToString(parseInt(owner.firstSeen))}</div>
+                      <div className="">{timestampToString(Number.parseInt(owner.firstSeen))}</div>
                     </div>
                   </div>
                 </Panel>
@@ -79,20 +79,22 @@ const Owner: NextPage = () => {
                   <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                     <div className="font-semibold">{t("tags-owned", { timeframe: t("current") })}</div>
                     <div className="text-right">
-                      <div className="">{<Number value={parseInt(owner.tagsOwned)} />}</div>
+                      <div className="">{<FormattedNumber value={Number.parseInt(owner.tagsOwned)} />}</div>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                     <div className="font-semibold">{t("tags-owned", { timeframe: t("lifetime") })}</div>
                     <div className="text-right">
-                      <div className="">{<Number value={parseInt(owner.tagsOwnedLifeTime)} />}</div>
+                      <div className="">{<FormattedNumber value={Number.parseInt(owner.tagsOwnedLifeTime)} />}</div>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                     <div className="font-semibold">{t("owned-tags-in-tagging-records")}</div>
                     <div className="text-right">
-                      <div className="">{<Number value={parseInt(owner.ownedTagsAddedToTaggingRecords)} />}</div>
+                      <div className="">
+                        {<FormattedNumber value={Number.parseInt(owner.ownedTagsAddedToTaggingRecords)} />}
+                      </div>
                     </div>
                   </div>
 
@@ -100,8 +102,8 @@ const Owner: NextPage = () => {
                     <div className="font-semibold">{t("tagging-revenue")}</div>
                     <div className="text-right">
                       <div className="">
-                        {toEth(parseFloat(owner.ownedTagsTaggingFeeRevenue), 4)}
-                        &nbsp;{t("matic")}
+                        {toEth(Number.parseFloat(owner.ownedTagsTaggingFeeRevenue), 8)}
+                        &nbsp;{chain?.nativeCurrency.symbol}
                       </div>
                     </div>
                   </div>
@@ -111,17 +113,25 @@ const Owner: NextPage = () => {
           </div>
           <div>
             <Tags
-              title={t("owner-tags") + " " + Truncate(owner.id, 13, "middle")}
+              title={`${t("owner-tags")} ${Truncate(owner.id, 13, "middle")}`}
               tags={tags}
               rowLink={false}
               columnsConfig={[
-                { title: "tag", field: "tag", formatter: (_: any, tag: any) => <Tag tag={tag} /> },
+                {
+                  title: "tag",
+                  field: "tag",
+                  formatter: (_: any, tag: any) => <Tag tag={tag} />,
+                },
                 {
                   title: "created",
                   field: "timestamp",
-                  formatter: (value: any, _: any) => <TimeAgo date={value * 1000} />,
+                  formatter: (value: any) => <TimeAgo date={value * 1000} />,
                 },
-                { title: "tagging records", field: "tagAppliedInTaggingRecord" },
+                {
+                  title: "tagging records",
+                  field: "tagAppliedInTaggingRecord",
+                  formatter: (value: any) => value,
+                },
               ]}
             />
           </div>

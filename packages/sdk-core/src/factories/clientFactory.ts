@@ -9,7 +9,7 @@ import { TargetClient } from "../clients/TargetClient";
 import { TokenClient } from "../clients/TokenClient";
 import { chainsMap } from "../config/chainsConfig";
 
-import { createPublicClient, http, createWalletClient, custom, Hex } from "viem";
+import { http, type Hex, createPublicClient, createWalletClient, custom } from "viem";
 
 export const viemPublicClient = (chainId?: number): any => {
   const chain = chainsMap(chainId);

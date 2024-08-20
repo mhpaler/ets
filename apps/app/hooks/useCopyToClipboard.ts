@@ -1,5 +1,5 @@
 import copyToClipboard from "copy-to-clipboard";
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from "react";
 
 export default function useCopyToClipboard(resetInterval = 3000) {
   const [isCopied, setCopied] = useState(false);
@@ -15,19 +15,14 @@ export default function useCopyToClipboard(resetInterval = 3000) {
   }, [isCopied, resetInterval]);
 
   const copy = useCallback((value: string | number) => {
-    if (typeof value === "string" || typeof value == "number") {
+    if (typeof value === "string" || typeof value === "number") {
       copyToClipboard(value.toString());
       setCopied(true);
     } else {
       setCopied(false);
-      console.error(
-        `Cannot copy typeof ${typeof value} to clipboard, must be a string or number.`
-      );
+      console.error(`Cannot copy typeof ${typeof value} to clipboard, must be a string or number.`);
     }
   }, []);
 
-  return [
-    isCopied,
-    copy,
-  ] as const;
+  return [isCopied, copy] as const;
 }

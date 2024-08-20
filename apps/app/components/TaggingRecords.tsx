@@ -1,14 +1,14 @@
-import { useMemo, useState } from "react";
-import type { NextPage } from "next";
-import Link from "next/link";
-import useTranslation from "next-translate/useTranslation";
 import { globalSettings } from "@app/config/globalSettings";
 import { useTaggingRecords } from "@app/hooks/useTaggingRecords";
-import { TimeAgo } from "./TimeAgo";
-import { TanstackTable } from "./TanstackTable";
-import { Tag } from "./Tag";
 import { createColumnHelper } from "@tanstack/react-table";
+import type { NextPage } from "next";
+import useTranslation from "next-translate/useTranslation";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 import { CopyAndPaste } from "./CopyAndPaste";
+import { Tag } from "./Tag";
+import { TanstackTable } from "./TanstackTable";
+import { TimeAgo } from "./TimeAgo";
 import { Truncate } from "./Truncate";
 
 type Props = {
@@ -18,7 +18,7 @@ type Props = {
   title?: string;
 };
 
-const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings["DEFAULT_PAGESIZE"], orderBy, title }) => {
+const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings.DEFAULT_PAGESIZE, orderBy, title }) => {
   const { t } = useTranslation("common");
   const [pageIndex, setPageIndex] = useState(0);
 
@@ -44,7 +44,7 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings["DE
       columnHelper.accessor("id", {
         header: t("id"),
         cell: (info) => (
-          <>
+          <div className="flex items-center">
             <Link
               onClick={(e) => {
                 e.stopPropagation();
@@ -52,10 +52,10 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings["DE
               href={`/explore/tagging-records/${info.getValue()}`}
               className="link link-primary"
             >
-              {Truncate(info.getValue())}
+              {Truncate(info.getValue(), 14, "middle")}
             </Link>
             <CopyAndPaste value={info.getValue()} />
-          </>
+          </div>
         ),
       }),
       columnHelper.accessor("timestamp", {
@@ -86,7 +86,7 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings["DE
       columnHelper.accessor("target.id", {
         header: t("target"),
         cell: (info) => (
-          <>
+          <div className="flex items-center">
             <Link
               onClick={(e) => {
                 e.stopPropagation();
@@ -94,10 +94,10 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings["DE
               href={`/explore/targets/${info.getValue()}`}
               className="link link-primary"
             >
-              {Truncate(info.getValue())}
+              {Truncate(info.getValue(), 14, "middle")}
             </Link>
             <CopyAndPaste value={info.getValue()} />
-          </>
+          </div>
         ),
       }),
       columnHelper.accessor("tags", {
@@ -105,6 +105,12 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings["DE
         cell: (info) => (
           <div
             onClick={(e) => {
+              e.stopPropagation();
+            }}
+            onKeyUp={(e) => {
+              e.stopPropagation();
+            }}
+            onKeyDown={(e) => {
               e.stopPropagation();
             }}
           >
@@ -117,7 +123,7 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings["DE
         ),
       }),
     ],
-    [t],
+    [t, columnHelper.accessor],
   );
 
   return (

@@ -5,6 +5,7 @@ export function Target({ size = 24 }) {
 
   return (
     <svg width={size} height={size} viewBox={viewBoxDimensions} fill="none" xmlns="http://www.w3.org/2000/svg">
+      <title>Target</title>
       <circle
         cx="12"
         cy="12"
@@ -13,7 +14,7 @@ export function Target({ size = 24 }) {
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="1.5"
-      ></circle>
+      />
       <circle
         cx="12"
         cy="12"
@@ -22,7 +23,7 @@ export function Target({ size = 24 }) {
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="1.5"
-      ></circle>
+      />
       <circle
         cx="12"
         cy="12"
@@ -31,7 +32,7 @@ export function Target({ size = 24 }) {
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="1.5"
-      ></circle>
+      />
     </svg>
   );
 }

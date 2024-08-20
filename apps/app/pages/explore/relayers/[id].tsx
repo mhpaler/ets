@@ -1,25 +1,26 @@
-import type { NextPage } from "next";
-import { useRouter } from "next/router";
-import useTranslation from "next-translate/useTranslation";
+import Address from "@app/components/Address";
+import { FormattedNumber } from "@app/components/FormattedNumber";
+import { Panel } from "@app/components/Panel";
+import { Tag } from "@app/components/Tag";
+import { TaggingRecords } from "@app/components/TaggingRecords";
+import { Tags } from "@app/components/Tags";
+import { TimeAgo } from "@app/components/TimeAgo";
 import { useCtags } from "@app/hooks/useCtags";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
 import { useRelayers } from "@app/hooks/useRelayers";
+import Layout from "@app/layouts/default";
 import { timestampToString } from "@app/utils";
 import { toEth } from "@app/utils";
-import Layout from "@app/layouts/default";
-import { TaggingRecords } from "@app/components/TaggingRecords";
-import { TimeAgo } from "@app/components/TimeAgo";
-import { Tags } from "@app/components/Tags";
-import { Tag } from "@app/components/Tag";
-import { Number } from "@app/components/Number";
-import { CopyAndPaste } from "@app/components/CopyAndPaste";
-import { Truncate } from "@app/components/Truncate";
-import { Panel } from "@app/components/Panel";
-import ENSAddress from "@app/components/ENSAddress";
+import type { NextPage } from "next";
+import useTranslation from "next-translate/useTranslation";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 const Relayer: NextPage = () => {
   const { query } = useRouter();
   const { id } = query;
   const { t } = useTranslation("common");
+  const chain = useCurrentChain();
 
   const filter = {
     relayer_: { id },
@@ -65,8 +66,7 @@ const Relayer: NextPage = () => {
                     <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col hover:bg-slate-100">
                       <div className="font-semibold">{t("id")}</div>
                       <div className="flex space-x-1 justify-end">
-                        <div className="">{Truncate(relayer.id ?? "", 14, "middle")}</div>
-                        <CopyAndPaste value={relayer.id ?? ""} />
+                        <Address address={relayer.id} />
                       </div>
                     </div>
 
@@ -80,16 +80,18 @@ const Relayer: NextPage = () => {
                     <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4 hover:bg-slate-100">
                       <div className="font-semibold">{t("creator")}</div>
                       <div className="flex space-x-1 justify-end">
-                        <ENSAddress address={relayer.creator.id} ens={relayer.creator.ens} />
-                        <CopyAndPaste value={relayer.creator.ens ?? relayer.creator.id ?? ""} />
+                        <Link href={`/explore/creators/${relayer.creator.id}`} className="link link-primary">
+                          <Address address={relayer.creator.id} ens={relayer.creator.ens} />
+                        </Link>
                       </div>
                     </div>
 
                     <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4 hover:bg-slate-100">
                       <div className="font-semibold">{t("owner")}</div>
                       <div className="flex space-x-1 justify-end">
-                        <ENSAddress address={relayer.owner.id} ens={relayer.owner.ens} />
-                        <CopyAndPaste value={relayer.owner.ens ?? relayer.owner.id ?? ""} />
+                        <Link href={`/explore/owners/${relayer.owner.id}`} className="link link-primary">
+                          <Address address={relayer.owner.id} ens={relayer.owner.ens} />
+                        </Link>
                       </div>
                     </div>
 
@@ -110,20 +112,20 @@ const Relayer: NextPage = () => {
                     <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                       <div className="font-semibold">{t("tagging-records")}</div>
                       <div className="text-right">
-                        <div className="">{<Number value={relayer.taggingRecordsPublished} />}</div>
+                        <div className="">{<FormattedNumber value={relayer.taggingRecordsPublished} />}</div>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                       <div className="font-semibold">{t("tags-published")}</div>
                       <div className="text-right">
-                        <div className="">{<Number value={relayer.tagsPublished} />}</div>
+                        <div className="">{<FormattedNumber value={relayer.tagsPublished} />}</div>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                       <div className="font-semibold">{t("lifetime-tags-applied")}</div>
                       <div className="text-right">
-                        <div className="">{<Number value={relayer.tagsApplied} />}</div>
+                        <div className="">{<FormattedNumber value={relayer.tagsApplied} />}</div>
                       </div>
                     </div>
 
@@ -131,9 +133,8 @@ const Relayer: NextPage = () => {
                       <div className="font-semibold">{t("lifetime-revenue")}</div>
                       <div className="text-right">
                         <div className="">
-                          {relayers &&
-                            toEth(relayer.publishedTagsAuctionRevenue + relayer.publishedTagsTaggingFeeRevenue, 4)}
-                          &nbsp;{t("matic")}
+                          {toEth(relayer.publishedTagsAuctionRevenue + relayer.publishedTagsTaggingFeeRevenue, 8)}{" "}
+                          {chain?.nativeCurrency.symbol}
                         </div>
                       </div>
                     </div>
@@ -152,13 +153,15 @@ const Relayer: NextPage = () => {
           </div>
           <div className="col-span-12">
             <Tags
-              title={t("relayer-tags", {
-                relayer: relayer.name,
-              })}
+              title={t("relayer-tags", { relayer: relayer.name })}
               tags={tags}
               rowLink={false}
               columnsConfig={[
-                { title: "tag", field: "tag", formatter: (_: any, tag: any) => <Tag tag={tag} /> },
+                {
+                  title: "tag",
+                  field: "tag",
+                  formatter: (_: any, tag: any) => <Tag tag={tag} />,
+                },
                 {
                   title: "created",
                   field: "timestamp",
@@ -166,15 +169,27 @@ const Relayer: NextPage = () => {
                 },
                 {
                   title: t("creator"),
-                  field: "creator.id",
-                  formatter: (value: any) => <ENSAddress address={value.id} ens={value.ens} />,
+                  field: "creator",
+                  formatter: (value: any) => (
+                    <Link href={`/explore/creators/${value.id}`} className="link link-primary">
+                      <Address address={value.id} ens={value.ens} />
+                    </Link>
+                  ),
                 },
                 {
                   title: t("owner"),
                   field: "owner",
-                  formatter: (value: any) => <ENSAddress address={value.id} ens={value.ens} />,
+                  formatter: (value: any) => (
+                    <Link href={`/explore/owners/${value.id}`} className="link link-primary">
+                      <Address address={value.id} ens={value.ens} />
+                    </Link>
+                  ),
                 },
-                { title: "tagging records", field: "tagAppliedInTaggingRecord" },
+                {
+                  title: "tagging records",
+                  field: "tagAppliedInTaggingRecord",
+                  formatter: (value: any) => value,
+                },
               ]}
             />
           </div>
