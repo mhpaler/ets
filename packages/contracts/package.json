@@ -6,6 +6,7 @@
   "type": "commonjs",
   "files": ["/dist"],
   "author": "Ethereum Tag Service <team@ets.xyz>",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ethereum-tag-service/ets.git",
