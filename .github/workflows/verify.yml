@@ -36,9 +36,7 @@ jobs:
         with:
           # Specify the commit message for the automated commit
           commit_message: 'chore: format'
-          # Set the name for the Git user who will author the commit
           commit_user_name: 'github-actions[bot]'
-          # Set the email for the Git user who will author the commit
           commit_user_email: 'github-actions[bot]@users.noreply.github.com'
           # Dynamically set the branch name:
           # - For pull requests, use the head branch name (github.head_ref)
