@@ -44,8 +44,9 @@ jobs:
           commit_message: 'chore: format'
           commit_user_name: 'github-actions[bot]'
           commit_user_email: 'github-actions[bot]@users.noreply.github.com'
+          branch: stage
           commit_options: '--no-verify'
-          skip_fetch: true
+          skip_fetch: false
 
       # Debug: Print git status after auto-commit
       - name: Debug - Git status after auto-commit attempt
