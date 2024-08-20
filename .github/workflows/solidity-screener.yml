@@ -1,12 +1,12 @@
-name: ETS Solidity screener
+name: Solidity screener
 
 env:
   MNEMONIC_LOCAL: test test test test test test test test test test test junk
   ETHERNAL_DISABLED: true
 
 on:
-  push:
-  pull_request:
+  workflow_call:
+  workflow_dispatch:
 
 jobs:
   changes:
@@ -24,9 +24,9 @@ jobs:
           filters: |
             contracts:
               - 'packages/contracts/contracts/**'
-              
+
   screener:
-    name: Run Solhint & Tests
+    name: Solhint & Tests
     needs: changes
     if: ${{ needs.changes.outputs.contracts == 'true' }}
     runs-on: ubuntu-latest
@@ -79,7 +79,7 @@ jobs:
       - name: Run Solhint
         run: |
           cd packages/contracts/
-          pnpm solhint
+          pnpm run solhint
 
       - name: Run Tests
         run: |

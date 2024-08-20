@@ -1,9 +1,9 @@
-import { Router } from "next/router";
-import type { AppProps } from "next/app";
 import type { Session } from "next-auth";
+import type { AppProps } from "next/app";
+import { Router } from "next/router";
 
-import { SWRConfig } from "swr";
 import { fetcher } from "@app/utils/fetchers";
+import { SWRConfig } from "swr";
 
 import "@app/styles/globals.css";
 import "@app/styles/tags.css";
@@ -12,14 +12,14 @@ import nProgress from "nprogress";
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { WagmiProvider } from "wagmi";
 import { wagmiConfig } from "@app/config/wagmiConfig";
-import { hardhat, arbitrumSepolia } from "wagmi/chains";
+import { AuctionHouseProvider } from "@app/context/AuctionHouseContext";
 import { ModalProvider } from "@app/context/ModalContext";
 import { TransactionManagerProvider } from "@app/context/TransactionContext";
-import { AuctionHouseProvider } from "@app/context/AuctionHouseContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
+import { WagmiProvider } from "wagmi";
+import { arbitrumSepolia, hardhat } from "wagmi/chains";
 
 const SystemProvider = dynamic(() => import("@app/context/SystemContext").then((mod) => mod.SystemProvider), {
   ssr: false,

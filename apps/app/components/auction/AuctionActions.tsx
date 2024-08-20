@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react";
-import useTranslation from "next-translate/useTranslation";
-import { useAccount } from "wagmi";
-import { Auction } from "@app/types/auction";
-import { TransactionType } from "@app/types/transaction";
-import { Modal } from "@app/components/Modal";
 import { ConnectButtonETS } from "@app/components/ConnectButtonETS";
+import { Modal } from "@app/components/Modal";
 import TransactionFlowWrapper from "@app/components/transaction/TransactionFlowWrapper";
+import type { Auction } from "@app/types/auction";
+import { TransactionType } from "@app/types/transaction";
+import useTranslation from "next-translate/useTranslation";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { useAccount } from "wagmi";
 interface AuctionActionsProps {
   auction: Auction;
   buttonClasses?: string;
@@ -24,13 +25,13 @@ const AuctionActions: React.FC<AuctionActionsProps> = ({ auction, buttonClasses 
   const [transactionId, setTransactionId] = useState<string>("");
 
   useEffect(() => {
-    console.log(`Auction ${auction.id} Ended Status:`, auction.ended);
+    console.info(`Auction ${auction.id} Ended Status:`, auction.ended);
     // Generate a new UUID for each new auction or transaction type change
     setTransactionId(uuidv4());
-  }, [auction.id, auction.ended, transactionType]);
+  }, [auction.id, auction.ended]);
 
   useEffect(() => {
-    console.log("Auction updated (Auction Actions):", auction);
+    console.info("Auction updated (Auction Actions):", auction);
   }, [auction]);
 
   return (

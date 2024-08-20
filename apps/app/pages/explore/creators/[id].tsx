@@ -1,19 +1,19 @@
-import type { NextPage } from "next";
-import { useRouter } from "next/router";
+import Address from "@app/components/Address";
+import { FormattedNumber } from "@app/components/FormattedNumber";
+import { Panel } from "@app/components/Panel";
+import { Tag } from "@app/components/Tag";
+import { Tags } from "@app/components/Tags";
+import { TimeAgo } from "@app/components/TimeAgo";
+import { Truncate } from "@app/components/Truncate";
 import { useCreators } from "@app/hooks/useCreators";
 import { useCtags } from "@app/hooks/useCtags";
-import useTranslation from "next-translate/useTranslation";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
+import Layout from "@app/layouts/default";
 import { timestampToString } from "@app/utils";
 import { toEth } from "@app/utils";
-import Layout from "@app/layouts/default";
-import { TimeAgo } from "@app/components/TimeAgo";
-import { Tags } from "@app/components/Tags";
-import { Tag } from "@app/components/Tag";
-import { Number } from "@app/components/Number";
-import { Truncate } from "@app/components/Truncate";
-import { Panel } from "@app/components/Panel";
-import Address from "@app/components/Address";
-import { useCurrentChain } from "@app/hooks/useCurrentChain";
+import type { NextPage } from "next";
+import useTranslation from "next-translate/useTranslation";
+import { useRouter } from "next/router";
 
 const Creator: NextPage = () => {
   const { query } = useRouter();
@@ -66,7 +66,7 @@ const Creator: NextPage = () => {
                   <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                     <div className="font-semibold">{t("first-seen")}</div>
                     <div className="text-right">
-                      <div className="">{timestampToString(parseInt(creator.firstSeen))}</div>
+                      <div className="">{timestampToString(Number.parseInt(creator.firstSeen))}</div>
                     </div>
                   </div>
                 </Panel>
@@ -78,14 +78,16 @@ const Creator: NextPage = () => {
                   <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                     <div className="font-semibold">{t("tags-created")}</div>
                     <div className="text-right">
-                      <div className="">{<Number value={parseInt(creator.tagsCreated)} />}</div>
+                      <div className="">{<FormattedNumber value={Number.parseInt(creator.tagsCreated)} />}</div>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                     <div className="font-semibold">{t("created-tags-in-tagging-record")}</div>
                     <div className="text-right">
-                      <div className="">{<Number value={parseInt(creator.createdTagsAddedToTaggingRecords)} />}</div>
+                      <div className="">
+                        {<FormattedNumber value={Number.parseInt(creator.createdTagsAddedToTaggingRecords)} />}
+                      </div>
                     </div>
                   </div>
 
@@ -93,7 +95,7 @@ const Creator: NextPage = () => {
                     <div className="font-semibold">{t("created-tags-auction-revenue")}</div>
                     <div className="text-right">
                       <div className="">
-                        {toEth(parseFloat(creator.createdTagsAuctionRevenue), 8)}
+                        {toEth(Number.parseFloat(creator.createdTagsAuctionRevenue), 8)}
                         &nbsp;{chain?.nativeCurrency.symbol}
                       </div>
                     </div>
@@ -103,7 +105,7 @@ const Creator: NextPage = () => {
                     <div className="font-semibold">{t("created-tags-tagging-revenue")}</div>
                     <div className="text-right">
                       <div className="">
-                        {toEth(parseFloat(creator.createdTagsTaggingFeeRevenue), 8)}
+                        {toEth(Number.parseFloat(creator.createdTagsTaggingFeeRevenue), 8)}
                         &nbsp;{chain?.nativeCurrency.symbol}
                       </div>
                     </div>

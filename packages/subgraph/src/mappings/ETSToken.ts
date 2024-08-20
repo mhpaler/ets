@@ -1,72 +1,72 @@
-import { Address, BigInt } from "@graphprotocol/graph-ts";
-import {
-  Initialized,
-  Upgraded,
-  TagMaxStringLengthSet,
-  TagMinStringLengthSet,
-  OwnershipTermLengthSet,
-  ETSCoreSet,
-  AccessControlsSet,
-  PremiumTagPreSet,
-  PremiumFlagSet,
-  ReservedFlagSet,
-  TagRenewed,
-  TagRecycled,
-  Transfer,
-} from "../generated/ETSToken/ETSToken";
-import { ensureRelease } from "../entities/Release";
+import { Address, BigInt as GraphBigInt } from "@graphprotocol/graph-ts";
+import { updateCreatorTagStats } from "../entities/Creator";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
+import { updateOwnerTagStats } from "../entities/Owner";
+import { updatePlatformTagStats } from "../entities/Platform";
+import { updateRelayerTagStats } from "../entities/Relayer";
+import { ensureRelease } from "../entities/Release";
 import { ensureTag } from "../entities/Tag";
 import { updateTagOwner } from "../entities/Tag";
-import { updateOwnerTagStats } from "../entities/Owner";
-import { updateRelayerTagStats } from "../entities/Relayer";
-import { updateCreatorTagStats } from "../entities/Creator";
-import { updatePlatformTagStats } from "../entities/Platform";
+import {
+  AccessControlsSet,
+  ETSCoreSet,
+  Initialized,
+  OwnershipTermLengthSet,
+  PremiumFlagSet,
+  PremiumTagPreSet,
+  ReservedFlagSet,
+  TagMaxStringLengthSet,
+  TagMinStringLengthSet,
+  TagRecycled,
+  TagRenewed,
+  Transfer,
+  Upgraded,
+} from "../generated/ETSToken/ETSToken";
 
 export function handleInitialized(event: Initialized): void {
-  let settings = ensureRelease();
+  const settings = ensureRelease();
   settings.etsToken = event.address.toHexString();
-  settings.etsTokenVersion = BigInt.fromI32(event.params.version);
+  settings.etsTokenVersion = GraphBigInt.fromI32(event.params.version);
   settings.etsTokenVersionDate = event.block.timestamp;
   settings.save();
 }
 
-export function handleUpgraded(event: Upgraded): void {}
+export function handleUpgraded(_event: Upgraded): void {}
 
 export function handleTagMaxStringLengthSet(event: TagMaxStringLengthSet): void {
-  let settings = ensureGlobalSettings();
+  const settings = ensureGlobalSettings();
   settings.tagMaxStringLength = event.params.maxStringLength;
   settings.save();
 }
 
 export function handleTagMinStringLengthSet(event: TagMinStringLengthSet): void {
-  let settings = ensureGlobalSettings();
+  const settings = ensureGlobalSettings();
   settings.tagMinStringLength = event.params.minStringLength;
   settings.save();
 }
 
 export function handleOwnershipTermLengthSet(event: OwnershipTermLengthSet): void {
-  let settings = ensureGlobalSettings();
+  const settings = ensureGlobalSettings();
   settings.ownershipTermLength = event.params.termLength;
   settings.save();
 }
 
-export function handleETSCoreSet(event: ETSCoreSet): void {}
+export function handleETSCoreSet(_event: ETSCoreSet): void {}
 
-export function handleAccessControlsSet(event: AccessControlsSet): void {}
+export function handleAccessControlsSet(_event: AccessControlsSet): void {}
 
-export function handlePremiumTagPreSet(event: PremiumTagPreSet): void {}
+export function handlePremiumTagPreSet(_event: PremiumTagPreSet): void {}
 
-export function handlePremiumFlagSet(event: PremiumFlagSet): void {}
+export function handlePremiumFlagSet(_event: PremiumFlagSet): void {}
 
-export function handleReservedFlagSet(event: ReservedFlagSet): void {}
+export function handleReservedFlagSet(_event: ReservedFlagSet): void {}
 
-export function handleTagRenewed(event: TagRenewed): void {}
+export function handleTagRenewed(_event: TagRenewed): void {}
 
-export function handleTagRecycled(event: TagRecycled): void {}
+export function handleTagRecycled(_event: TagRecycled): void {}
 
 export function handleTransfer(event: Transfer): void {
-  let tagEntity = ensureTag(event.params.tokenId, event);
+  const tagEntity = ensureTag(event.params.tokenId, event);
   updateTagOwner(event.params.tokenId, event.params.to, event);
   updatePlatformTagStats(event);
   updateRelayerTagStats(Address.fromString(tagEntity.relayer), event);

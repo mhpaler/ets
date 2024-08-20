@@ -1,10 +1,10 @@
-import React, { ReactNode } from "react";
-import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
 import { Button } from "@app/components/Button";
-import useTranslation from "next-translate/useTranslation";
-import { useRouter } from "next/router";
 import { globalSettings } from "@app/config/globalSettings";
 import { useModal } from "@app/hooks/useModalContext";
+import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import useTranslation from "next-translate/useTranslation";
+import { useRouter } from "next/router";
+import React, { type ReactNode } from "react";
 
 interface TableProps<TData> {
   columns: any[];
@@ -22,7 +22,7 @@ const TanstackTable = <TData extends object>({
   columns,
   data = [],
   loading,
-  rowsPerPage = globalSettings["DEFAULT_PAGESIZE"],
+  rowsPerPage = globalSettings.DEFAULT_PAGESIZE,
   title,
   rowLink,
   hasNextPage,
@@ -77,7 +77,7 @@ const TanstackTable = <TData extends object>({
                   <tr key={`loading-row-${rowIndex}`}>
                     {[...Array(columns.length)].map((_, colIndex) => (
                       <td key={`loading-cell-${rowIndex}-${colIndex}`}>
-                        <div className="w-full h-6 rounded bg-gray-200 animate-pulse"></div>
+                        <div className="w-full h-6 rounded bg-gray-200 animate-pulse" />
                       </td>
                     ))}
                   </tr>
@@ -87,6 +87,8 @@ const TanstackTable = <TData extends object>({
                     key={`table-row-${row.id}-${rowIndex}`}
                     className={rowLink && !isModalOpen ? "hover:bg-base-200 cursor-pointer" : ""}
                     onClick={() => rowLink && !isModalOpen && router.push(String(rowLink(row.original)))}
+                    onKeyUp={() => {}}
+                    onKeyDown={() => {}}
                   >
                     {row.getVisibleCells().map((cell, cellIndex) => (
                       <td key={`table-cell-${cell.id}-${cellIndex}`}>

@@ -1,17 +1,17 @@
-import type { NextPage } from "next";
-import useTranslation from "next-translate/useTranslation";
+import Address from "@app/components/Address";
+import { Tag } from "@app/components/Tag";
+import { TanstackTable } from "@app/components/TanstackTable";
+import { TimeAgo } from "@app/components/TimeAgo";
+import { Truncate } from "@app/components/Truncate";
+import { globalSettings } from "@app/config/globalSettings";
 import { useCtags } from "@app/hooks/useCtags";
 import Layout from "@app/layouts/default";
-import { Truncate } from "@app/components/Truncate";
-import { TimeAgo } from "@app/components/TimeAgo";
-import { Tag } from "@app/components/Tag";
-import { useState, useMemo } from "react";
+import type { TagType } from "@app/types/tag";
 import { createColumnHelper } from "@tanstack/react-table";
-import { TanstackTable } from "@app/components/TanstackTable";
-import { globalSettings } from "@app/config/globalSettings";
-import { TagType } from "@app/types/tag";
-import Address from "@app/components/Address";
+import type { NextPage } from "next";
+import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
+import { useMemo, useState } from "react";
 
 const Ctags: NextPage = () => {
   const { t } = useTranslation("common");
@@ -74,7 +74,7 @@ const Ctags: NextPage = () => {
           data={tags}
           hasNextPage={!!nextTags?.length}
           loading={!tags?.length}
-          rowsPerPage={globalSettings["DEFAULT_PAGESIZE"]}
+          rowsPerPage={globalSettings.DEFAULT_PAGESIZE}
           pageIndex={pageIndex}
           setPageIndex={setPageIndex}
         />

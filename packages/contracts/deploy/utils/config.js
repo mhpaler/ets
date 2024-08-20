@@ -1,6 +1,6 @@
 const { network } = require("hardhat");
-const fs = require("fs");
-const path = require('path');
+const fs = require("node:fs");
+const path = require("node:path");
 const merge = require("lodash.merge");
 //const configPath = "./config/config.json";
 const emptyConfig = {
@@ -29,10 +29,9 @@ function getConfigPath() {
  * @param {boolean} upgrade Set true to indicate deployment was an upgrade.
  */
 async function saveNetworkConfig(name, deployment, implementation, upgrade) {
+  const config = readNetworkConfig();
 
-  let config = readNetworkConfig();
-
-  if (network.config.chainId == 31337) {
+  if (network.config.chainId === 31337) {
     // If on localhost, flush any previous config.
     config.contracts = {};
   }
@@ -44,21 +43,19 @@ async function saveNetworkConfig(name, deployment, implementation, upgrade) {
   const deploymentTxn = await deployment.deploymentTransaction();
   const deploymentReceipt = await deploymentTxn.wait(1);
 
-  //  console.log(deploymentTxn);
-  //  console.log("=====================================");
-  //  console.log(deploymentReceipt);
+  //  console.info(deploymentTxn);
+  //  console.info("=====================================");
+  //  console.info(deploymentReceipt);
 
-  const receipt = deployment.receipt
-    ? deployment.receipt
-    : deploymentReceipt;
+  const receipt = deployment.receipt ? deployment.receipt : deploymentReceipt;
 
   // Load up deployment block from config if it exists.
   let deploymentBlock = config?.contracts?.[name]?.deploymentBlock;
 
   // If deployment block has not been set, use the initial deployment block from the receipt.
-  deploymentBlock ??= parseInt(receipt.blockNumber);
+  deploymentBlock ??= Number.parseInt(receipt.blockNumber);
 
-  const upgradeBlock = upgrade ? parseInt(receipt.blockNumber) : null;
+  const upgradeBlock = upgrade ? Number.parseInt(receipt.blockNumber) : null;
 
   const newConfig = merge(config, {
     contracts: {
@@ -91,7 +88,7 @@ function mergeNetworkConfig(config) {
 
   const _config = merge(readNetworkConfig(), config);
   fs.writeFileSync(configPath, `${JSON.stringify(_config, null, 2)}\n`);
-  console.log(`${configPath} updated.`);
+  console.info(`${configPath} updated.`);
 }
 
 module.exports = {

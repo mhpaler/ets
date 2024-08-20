@@ -1,7 +1,7 @@
+import { useEnsNames } from "@app/hooks/useEnsNames";
+import type { FetchOwnersResponse, OwnerType } from "@app/types/owners";
 import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
-import { useEnsNames } from "@app/hooks/useEnsNames";
-import { FetchOwnersResponse, OwnerType } from "@app/types/owners";
 
 export function useOwners({
   pageSize = 20,

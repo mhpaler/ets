@@ -1,8 +1,9 @@
-import React, { useState, useRef, useEffect } from "react";
-import { createPortal } from "react-dom";
-import { Truncate } from "@app/components/Truncate";
-import { Hex } from "viem";
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
+import { Truncate } from "@app/components/Truncate";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import type { Hex } from "viem";
 
 interface AddressProps {
   address?: string | Hex;

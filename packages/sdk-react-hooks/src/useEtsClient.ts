@@ -1,5 +1,5 @@
+import { type EtsClient, createEtsClient } from "@ethereum-tag-service/sdk-core";
 import { useContext, useEffect, useState } from "react";
-import { createEtsClient, EtsClient } from "@ethereum-tag-service/sdk-core";
 
 export const useEtsClient = ({ chainId, account }: { chainId?: number; account?: `0x${string}` }) => {
   const [tokenClient, setEtsClient] = useState<EtsClient>();

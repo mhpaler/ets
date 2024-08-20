@@ -1,8 +1,8 @@
-import React, { ComponentProps } from "react";
-import Link from "next/link";
-import type { UrlObject } from "url";
-import tw from "tailwind-styled-components";
+import type { UrlObject } from "node:url";
 import { OutlinkIcon } from "@app/components/icons";
+import Link from "next/link";
+import React, { type ComponentProps } from "react";
+import tw from "tailwind-styled-components";
 
 export const StyledAnchor = tw.a`
   flex

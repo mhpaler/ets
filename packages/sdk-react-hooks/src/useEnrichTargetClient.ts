@@ -1,5 +1,5 @@
+import { type EnrichTargetClient, createEnrichTargetClient } from "@ethereum-tag-service/sdk-core";
 import { useEffect, useState } from "react";
-import { createEnrichTargetClient, EnrichTargetClient } from "@ethereum-tag-service/sdk-core";
 
 export const useEnrichTargetClient = ({ chainId, account }: { chainId?: number; account?: `0x${string}` }) => {
   const [tokenClient, setEnrichTargetClient] = useState<EnrichTargetClient>();
@@ -11,39 +11,23 @@ export const useEnrichTargetClient = ({ chainId, account }: { chainId?: number; 
   }, [chainId, account]);
 
   const requestEnrichTarget = async (targetId: number) => {
-    try {
-      if (!tokenClient) throw new Error("EnrichTargetClient is not initialized.");
-      return await tokenClient.requestEnrichTarget(targetId);
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("EnrichTargetClient is not initialized.");
+    return await tokenClient.requestEnrichTarget(targetId);
   };
 
   const fulfillEnrichTarget = async (targetId: number, ipfsHash: string, httpStatus: number) => {
-    try {
-      if (!tokenClient) throw new Error("EnrichTargetClient is not initialized.");
-      return await tokenClient.fulfillEnrichTarget(targetId, ipfsHash, httpStatus);
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("EnrichTargetClient is not initialized.");
+    return await tokenClient.fulfillEnrichTarget(targetId, ipfsHash, httpStatus);
   };
 
   const getETSAccessControls = async () => {
-    try {
-      if (!tokenClient) throw new Error("EnrichTargetClient is not initialized.");
-      return await tokenClient.getETSAccessControls();
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("EnrichTargetClient is not initialized.");
+    return await tokenClient.getETSAccessControls();
   };
 
   const getETSTarget = async () => {
-    try {
-      if (!tokenClient) throw new Error("EnrichTargetClient is not initialized.");
-      return await tokenClient.getETSTarget();
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("EnrichTargetClient is not initialized.");
+    return await tokenClient.getETSTarget();
   };
 
   return {

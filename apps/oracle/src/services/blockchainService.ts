@@ -1,3 +1,4 @@
+import type { DefenderRelaySigner } from "@openzeppelin/defender-sdk-relay-signer-client/lib/ethers/signer";
 /**
  * The BlockchainService class encapsulates interactions with the blockchain, particularly
  * focusing on operations related to the ETS Auction House and Access Controls. It utilizes ethers.js
@@ -5,8 +6,7 @@
  * OpenZeppelin Defender Autotask.
  */
 import { ethers } from "ethers";
-import { DefenderRelaySigner } from "@openzeppelin/defender-sdk-relay-signer-client/lib/ethers/signer";
-import { etsAuctionHouseConfig, etsAccessControlsConfig } from "../contracts";
+import { etsAccessControlsConfig, etsAuctionHouseConfig } from "../contracts";
 import { TagService } from "./tagService";
 
 // ABI and contract addresses for the ETS Auction House and Access Controls, assuming these are correctly defined in your contracts configurations.
@@ -76,15 +76,15 @@ export class BlockchainService {
 
         if (!tokenId) {
           // Checking if tokenId is null
-          console.log("No eligible tag found to create an auction.");
+          console.info("No eligible tag found to create an auction.");
           return; // Early return if no tag is found
         }
 
         const tx = await this.auctionHouseContract.fulfillRequestCreateAuction(BigInt(tokenId));
         const receipt = await tx.wait();
-        console.log(`Next token successfully released. Txn Hash: ${receipt.transactionHash}`);
+        console.info(`Next token successfully released. Txn Hash: ${receipt.transactionHash}`);
       } else {
-        console.log("No open auction slots available. Skipping auction creation.");
+        console.info("No open auction slots available. Skipping auction creation.");
       }
     } catch (error) {
       console.error("An unexpected error occurred: ", error);
@@ -96,24 +96,24 @@ export class BlockchainService {
    * processes them by triggering handleRequestCreateAuctionEvent.
    */
   public async watchRequestCreateAuction() {
-    console.log("***** Local auction oracle started *****");
-    console.log("Listening for RequestCreateAuction event...");
+    console.info("***** Local auction oracle started *****");
+    console.info("Listening for RequestCreateAuction event...");
 
     this.auctionHouseContract.on("RequestCreateAuction", async (...args) => {
-      console.log("RequestCreateAuction event detected:", args);
+      console.info("RequestCreateAuction event detected:", args);
       await this.handleRequestCreateAuctionEvent();
     });
 
     // Defines a function to stop listening to events, intended for cleanup.
     const stopListening = () => {
       this.auctionHouseContract.removeAllListeners("RequestCreateAuction");
-      console.log("Stopped listening to RequestCreateAuction events.");
+      console.info("Stopped listening to RequestCreateAuction events.");
     };
 
     // Attaches stopListening to the SIGINT event for graceful shutdown.
     process.on("SIGINT", () => {
       stopListening();
-      console.log("Cleanup complete. Exiting now.");
+      console.info("Cleanup complete. Exiting now.");
       process.exit();
     });
   }

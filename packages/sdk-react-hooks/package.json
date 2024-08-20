@@ -3,9 +3,13 @@
   "author": "Ethereum Tag Service <team@ets.xyz>",
   "version": "0.0.3",
   "description": "React Hooks for Ethereum Tag Service",
+  "keywords": ["ethereum", "blockchain", "tagging", "sdk", "typescript"],
+  "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
+  "type": "commonjs",
+  "files": ["dist/**", "src/**"],
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -16,22 +20,28 @@
     }
   },
   "scripts": {
+    "clean": "rm -rf dist",
     "dev": "tsup src/index.ts --format cjs,esm --dts --outDir dist --watch",
-    "build": "tsup src/index.ts --format cjs,esm --dts --outDir dist",
-    "lint": "tsc"
+    "build": "pnpm run clean && tsup src/index.ts --format cjs,esm --dts --outDir dist",
+    "test:build": "publint --strict"
   },
-  "keywords": [],
-  "license": "ISC",
+  "peerDependencies": {
+    "react": "^17.0.0 || ^18.0.0",
+    "viem": "^2.0.0"
+  },
+  "peerDependenciesMeta": {
+    "viem": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@ethereum-tag-service/sdk-core": "workspace:*"
+  },
   "devDependencies": {
     "@types/node": "^20.12.7",
     "@types/react": "18.2.41",
-    "tsc-alias": "^1.8.8",
     "tsup": "^8.2.3",
-    "typescript": "^5.4.5"
-  },
-  "dependencies": {
-    "@ethereum-tag-service/sdk-core": "workspace:*",
-    "react": "18.2.0",
-    "wagmi": "~2.5.7"
+    "typescript": "^5.4.5",
+    "react": "18.2.0"
   }
 }

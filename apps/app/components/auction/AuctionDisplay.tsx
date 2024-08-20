@@ -1,16 +1,16 @@
-import Link from "next/link";
-import useTranslation from "next-translate/useTranslation";
-import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useAuction } from "@app/hooks/useAuctionContext";
+import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useCurrentChain } from "@app/hooks/useCurrentChain";
+import useTranslation from "next-translate/useTranslation";
+import Link from "next/link";
 
 import { TagGraphic } from "@app/components/TagGraphic";
-import AuctionNavigation from "@app/components/auction/AuctionNavigation";
-import AuctionActions from "@app/components/auction/AuctionActions";
-import AuctionTimer from "@app/components/auction/AuctionTimer";
-import AuctionSummary from "@app/components/auction/AuctionSummary";
-import AuctionBids from "@app/components/auction/AuctionBids";
 import { Truncate } from "@app/components/Truncate";
+import AuctionActions from "@app/components/auction/AuctionActions";
+import AuctionBids from "@app/components/auction/AuctionBids";
+import AuctionNavigation from "@app/components/auction/AuctionNavigation";
+import AuctionSummary from "@app/components/auction/AuctionSummary";
+import AuctionTimer from "@app/components/auction/AuctionTimer";
 
 import AuctionDebug from "@app/components/auction/AuctionDebug";
 
@@ -25,8 +25,8 @@ const AuctionDisplay = () => {
   }
 
   const chain = useCurrentChain();
-  const isFirstAuction = auction.id == 1 ? true : false;
-  const isLastAuction = auction.id == maxAuctionId ? true : false;
+  const isFirstAuction = auction.id === 1;
+  const isLastAuction = auction.id === maxAuctionId;
   const tagGraphic = auction && <TagGraphic tag={auction.tag} />;
   return (
     <>

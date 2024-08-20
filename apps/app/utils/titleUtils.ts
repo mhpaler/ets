@@ -1,6 +1,6 @@
-import { useRouter } from "next/router";
-import useTranslation from "next-translate/useTranslation";
 import { Truncate } from "@app/components/Truncate";
+import useTranslation from "next-translate/useTranslation";
+import { useRouter } from "next/router";
 
 const getTitleSegments = (router: ReturnType<typeof useRouter>, t: (key: string) => string): string[] => {
   const pathSegments = router.pathname.split("/").slice(1);
@@ -23,7 +23,7 @@ const adjustSegments = (segments: string[]): string[] => {
   }
   if (segments.length > 1 && segments[0] === "Tag") {
     // Remove the first segment and truncate the rest
-    return segments.slice(1).map((segment, index) => `#${Truncate(segment, 32, "middle")}`);
+    return segments.slice(1).map((segment) => `#${Truncate(segment, 32, "middle")}`);
   }
   return segments.map((segment) => Truncate(segment, 32, "middle")); // Ensure other segments are also truncated
 };

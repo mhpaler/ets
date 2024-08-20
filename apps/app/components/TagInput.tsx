@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import { WithContext as ReactTags } from "react-tag-input";
 import { QuestionMark } from "@app/components/icons";
-import useTranslation from "next-translate/useTranslation";
+import type { TagInput as TagInputType } from "@app/types/tag";
 import { isValidTag } from "@app/utils/tagUtils";
-import { TagInput as TagInputType } from "@app/types/tag";
+import useTranslation from "next-translate/useTranslation";
+import type React from "react";
+import { useState } from "react";
+import { WithContext as ReactTags } from "react-tag-input";
 
 const KeyCodes = {
   comma: 188,

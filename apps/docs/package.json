@@ -1,9 +1,9 @@
 {
-  "name": "docs",
+  "name": "@ethereum-tag-service/docs",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vocs dev",
+    "dev": "vocs -c dev",
     "build": "vocs build",
     "preview": "vocs preview"
   },

@@ -1,9 +1,10 @@
-import React, { useMemo } from "react";
+import { TanstackTable } from "@app/components/TanstackTable";
+import { globalSettings } from "@app/config/globalSettings";
+import type { TagType } from "@app/types/tag";
 import { createColumnHelper } from "@tanstack/react-table";
 import useTranslation from "next-translate/useTranslation";
-import { TanstackTable } from "@app/components/TanstackTable";
-import { TagType } from "@app/types/tag";
-import { globalSettings } from "@app/config/globalSettings";
+import type React from "react";
+import { useMemo } from "react";
 
 type Props = {
   title?: string;
@@ -19,7 +20,7 @@ type Props = {
 const Tags: React.FC<Props> = ({
   title,
   tags,
-  pageSize = globalSettings["DEFAULT_PAGESIZE"],
+  pageSize = globalSettings.DEFAULT_PAGESIZE,
   columnsConfig,
   rowLink,
   pageIndex,
@@ -37,7 +38,7 @@ const Tags: React.FC<Props> = ({
           cell: (info) => column.formatter(info.getValue(), info.row.original),
         }),
       ),
-    [columnsConfig, t],
+    [columnsConfig, t, columnHelper.accessor],
   );
 
   return (

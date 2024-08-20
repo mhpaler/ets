@@ -1,26 +1,26 @@
-import { BigInt } from "@graphprotocol/graph-ts";
+import { BigInt as GraphBigInt } from "@graphprotocol/graph-ts";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
-import { ZERO, MODULO, PLATFORM, RELAYER, OWNER } from "../utils/constants";
+import { MODULO, OWNER, PLATFORM, RELAYER, ZERO } from "../utils/constants";
 
-export function getTaggingFee(actor: BigInt): BigInt {
-  let settings = ensureGlobalSettings();
-  let modulo = MODULO;
-  let tagFee = settings.taggingFee;
+export function getTaggingFee(actor: GraphBigInt): GraphBigInt {
+  const settings = ensureGlobalSettings();
+  const modulo = MODULO;
+  const tagFee = settings.taggingFee;
 
   if (tagFee > ZERO) {
-    let platformPercentageTaggingFee = settings.taggingFeePlatformPercentage;
-    let relayerPercentageTaggingFee = settings.taggingFeeRelayerPercentage;
-    let remainingPercentageTaggingFee = modulo.minus(platformPercentageTaggingFee).minus(relayerPercentageTaggingFee);
+    const platformPercentageTaggingFee = settings.taggingFeePlatformPercentage;
+    const relayerPercentageTaggingFee = settings.taggingFeeRelayerPercentage;
+    const remainingPercentageTaggingFee = modulo.minus(platformPercentageTaggingFee).minus(relayerPercentageTaggingFee);
 
-    if (actor == PLATFORM) {
+    if (actor === PLATFORM) {
       return tagFee.times(platformPercentageTaggingFee).div(modulo);
     }
 
-    if (actor == RELAYER) {
+    if (actor === RELAYER) {
       return tagFee.times(relayerPercentageTaggingFee).div(modulo);
     }
 
-    if (actor == OWNER) {
+    if (actor === OWNER) {
       return tagFee.times(remainingPercentageTaggingFee).div(modulo);
     }
   }

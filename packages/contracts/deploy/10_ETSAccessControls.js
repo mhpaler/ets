@@ -18,35 +18,33 @@ module.exports = async ({ deployments }) => {
   const deploymentAddress = await deployment.getAddress();
   const implementationAddress = await upgrades.erc1967.getImplementationAddress(deploymentAddress);
 
-  if (process.env.VERIFY_ON_DEPLOY == "true") {
+  if (process.env.VERIFY_ON_DEPLOY === "true") {
     // Verify & Update network configuration file.
     try {
       await verify("ETSAccessControls", deployment, implementationAddress, []);
     } catch (error) {
       console.error("Error verifying ETSAccessControls:", error);
     }
-
   }
 
   try {
-    console.log("saving Network Config");
+    console.info("saving Network Config");
     await saveNetworkConfig("ETSAccessControls", deployment, implementationAddress, false);
   } catch (error) {
     console.error("Error saving ETSAccessControls network configuration:", error);
   }
 
-
   // Add to hardhat-deploy deployments.
-  let artifact = await deployments.getExtendedArtifact("ETSAccessControls");
-  let proxyDeployments = {
+  const artifact = await deployments.getExtendedArtifact("ETSAccessControls");
+  const proxyDeployments = {
     address: deploymentAddress,
     ...artifact,
   };
   await save("ETSAccessControls", proxyDeployments);
 
   log("====================================================");
-  log("ETSAccessControls proxy deployed to -> " + deploymentAddress);
-  log("ETSAccessControls implementationAddress deployed to -> " + implementationAddress);
+  log(`ETSAccessControls proxy deployed to -> ${deploymentAddress}`);
+  log(`ETSAccessControls implementationAddress deployed to -> ${implementationAddress}`);
   log("====================================================");
 };
 

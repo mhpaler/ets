@@ -1,10 +1,10 @@
 const nextTranslate = require("next-translate-plugin");
-const withTM = require("next-transpile-modules")(["@ethereum-tag-service/ui"]);
+const withTM = require("next-transpile-modules")();
 
 const withWebpack = (nextConfig = {}) => {
   return {
     ...nextConfig,
-    webpack: (config, options) => {
+    webpack: (config, _options) => {
       config.module.rules.push({
         test: /\.svg$/,
         use: ["@svgr/webpack"],

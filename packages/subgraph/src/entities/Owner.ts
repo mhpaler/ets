@@ -1,11 +1,11 @@
-import { Address, BigInt, ethereum, log } from "@graphprotocol/graph-ts";
-import { Owner, Platform } from "../generated/schema";
-import { Transfer } from "../generated/ETSToken/ETSToken";
+import { Address, BigInt as GraphBigInt, ethereum, log } from "@graphprotocol/graph-ts";
 import { ensurePlatform, updateOwnerCount } from "../entities/Platform";
 import { ensureTag } from "../entities/Tag";
-import { getTaggingFee } from "../utils/getTaggingFee";
+import { Transfer } from "../generated/ETSToken/ETSToken";
+import { Owner, Platform } from "../generated/schema";
 import { arrayDiff } from "../utils/arrayDiff";
-import { ZERO_ADDRESS, ZERO, ONE, CREATE, APPEND, REMOVE, OWNER } from "../utils/constants";
+import { APPEND, CREATE, ONE, OWNER, REMOVE, ZERO, ZERO_ADDRESS } from "../utils/constants";
+import { getTaggingFee } from "../utils/getTaggingFee";
 
 export function ensureOwner(ownerAddress: Address, event: ethereum.Event): Owner {
   let owner = Owner.load(ownerAddress.toHex());
@@ -20,7 +20,7 @@ export function ensureOwner(ownerAddress: Address, event: ethereum.Event): Owner
     owner.ownedTagsTaggingFeeRevenue = ZERO;
     owner.save();
 
-    if (ownerAddress.toHex() != ZERO_ADDRESS) {
+    if (ownerAddress.toHex() !== ZERO_ADDRESS) {
       updateOwnerCount(event);
     }
   }
@@ -30,19 +30,19 @@ export function ensureOwner(ownerAddress: Address, event: ethereum.Event): Owner
 
 export function updateOwnerTagStats(event: Transfer): void {
   //let from = event.params.from.toHexString();
-  let from = ensureOwner(event.params.from, event);
-  let to = ensureOwner(event.params.to, event);
-  let platform = Platform.load("ETSPlatform");
+  const from = ensureOwner(event.params.from, event);
+  const to = ensureOwner(event.params.to, event);
+  const platform = Platform.load("ETSPlatform");
 
   // Handle new CTAG Minted.
-  if (platform && to.id == platform.address && from.id == ZERO_ADDRESS) {
+  if (platform && to.id === platform.address && from.id === ZERO_ADDRESS) {
     to.tagsOwned = to.tagsOwned.plus(ONE);
     to.tagsOwnedLifeTime = to.tagsOwnedLifeTime.plus(ONE);
     to.save();
   }
 
   // Handle CTAG Sold at Auction.
-  if (platform && to.id != ZERO_ADDRESS && from.id == platform.address) {
+  if (platform && to.id !== ZERO_ADDRESS && from.id === platform.address) {
     to.tagsOwned = to.tagsOwned.plus(ONE);
     to.tagsOwnedLifeTime = to.tagsOwnedLifeTime.plus(ONE);
     to.save();
@@ -52,7 +52,7 @@ export function updateOwnerTagStats(event: Transfer): void {
   }
 
   // Handle CTAG Recycled.
-  if (platform && to.id == platform.address && from.id != ZERO_ADDRESS) {
+  if (platform && to.id === platform.address && from.id !== ZERO_ADDRESS) {
     to.tagsOwned = to.tagsOwned.plus(ONE);
     to.save();
 
@@ -63,10 +63,10 @@ export function updateOwnerTagStats(event: Transfer): void {
   // Handle CTAG transfer outside platform.
   if (
     platform &&
-    to.id != platform.address &&
-    from.id != platform.address &&
-    to.id != ZERO_ADDRESS &&
-    from.id != ZERO_ADDRESS
+    to.id !== platform.address &&
+    from.id !== platform.address &&
+    to.id !== ZERO_ADDRESS &&
+    from.id !== ZERO_ADDRESS
   ) {
     to.tagsOwned = to.tagsOwned.plus(ONE);
     // ! This one maybe doesn't make sense.
@@ -81,45 +81,45 @@ export function updateOwnerTagStats(event: Transfer): void {
 export function updateOwnerTaggingRecordStats(
   newTagIds: string[] | null,
   previousTagIds: string[] | null,
-  action: BigInt,
+  action: GraphBigInt,
   event: ethereum.Event,
 ): void {
   if (newTagIds && previousTagIds) {
-    let platform = ensurePlatform(null);
+    const platform = ensurePlatform(null);
 
-    if (action == CREATE) {
+    if (action === CREATE) {
       for (let i = 0; i < newTagIds.length; i++) {
-        let tag = ensureTag(BigInt.fromString(newTagIds[i]), event);
-        let owner = ensureOwner(Address.fromString(tag.owner), event);
+        const tag = ensureTag(GraphBigInt.fromString(newTagIds[i]), event);
+        const owner = ensureOwner(Address.fromString(tag.owner), event);
         owner.ownedTagsAddedToTaggingRecords = owner.ownedTagsAddedToTaggingRecords.plus(ONE);
-        if (tag.owner != platform.address) {
-          let ownerFee = getTaggingFee(OWNER);
+        if (tag.owner !== platform.address) {
+          const ownerFee = getTaggingFee(OWNER);
           owner.ownedTagsTaggingFeeRevenue = owner.ownedTagsTaggingFeeRevenue.plus(ownerFee);
         }
         owner.save();
       }
     }
 
-    if (action == APPEND) {
-      let appendedTagIds = arrayDiff(newTagIds, previousTagIds);
+    if (action === APPEND) {
+      const appendedTagIds = arrayDiff(newTagIds, previousTagIds);
       for (let i = 0; i < appendedTagIds.length; i++) {
-        let tag = ensureTag(BigInt.fromString(appendedTagIds[i]), event);
-        let owner = ensureOwner(Address.fromString(tag.owner), event);
+        const tag = ensureTag(GraphBigInt.fromString(appendedTagIds[i]), event);
+        const owner = ensureOwner(Address.fromString(tag.owner), event);
         owner.ownedTagsAddedToTaggingRecords = owner.ownedTagsAddedToTaggingRecords.plus(ONE);
-        if (tag.owner != platform.address) {
-          let ownerFee = getTaggingFee(OWNER);
+        if (tag.owner !== platform.address) {
+          const ownerFee = getTaggingFee(OWNER);
           owner.ownedTagsTaggingFeeRevenue = owner.ownedTagsTaggingFeeRevenue.plus(ownerFee);
         }
         owner.save();
       }
     }
 
-    if (action == REMOVE) {
-      let removedTagIds = arrayDiff(previousTagIds, newTagIds);
+    if (action === REMOVE) {
+      const removedTagIds = arrayDiff(previousTagIds, newTagIds);
 
       for (let i = 0; i < removedTagIds.length; i++) {
-        let tag = ensureTag(BigInt.fromString(removedTagIds[i]), event);
-        let owner = ensureOwner(Address.fromString(tag.owner), event);
+        const tag = ensureTag(GraphBigInt.fromString(removedTagIds[i]), event);
+        const owner = ensureOwner(Address.fromString(tag.owner), event);
         owner.ownedTagsRemovedFromTaggingRecords = owner.ownedTagsRemovedFromTaggingRecords.plus(ONE);
         owner.save();
       }

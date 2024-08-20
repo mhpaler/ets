@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
-import { Dialog, Transition } from "@headlessui/react";
-import { Fragment } from "react";
 import { useModal } from "@app/hooks/useModalContext"; // Ensure this path is correct
+import { Dialog, Transition } from "@headlessui/react";
+import type React from "react";
+import { useEffect } from "react";
+import { Fragment } from "react";
 
 interface Props {
   id: string;

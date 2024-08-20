@@ -20,25 +20,25 @@ const Stats = () => {
       <a href="/explore/tagging-records" className="hover:bg-base-200">
         <div className="stat">
           <div className="stat-title">{t("tagging-records")}</div>
-          <div className="stat-value">{stats && stats.taggingRecordsCount ? stats.taggingRecordsCount : null}</div>
+          <div className="stat-value">{stats?.taggingRecordsCount ? stats.taggingRecordsCount : null}</div>
         </div>
       </a>
       <a href="/explore/tags" className="hover:bg-base-200">
         <div className="stat">
           <div className="stat-title">{t("tags")}</div>
-          <div className="stat-value">{stats && stats.tagsCount ? stats.tagsCount : null}</div>
+          <div className="stat-value">{stats?.tagsCount ? stats.tagsCount : null}</div>
         </div>
       </a>
       <a href="/explore/relayers" className="hover:bg-base-200">
         <div className="stat">
           <div className="stat-title">{t("relayers")}</div>
-          <div className="stat-value">{stats && stats.relayerCountActive ? stats.relayerCountActive : null}</div>
+          <div className="stat-value">{stats?.relayerCountActive ? stats.relayerCountActive : null}</div>
         </div>
       </a>
       <a href="/explore/tagging-records" className="hover:bg-base-200">
         <div className="stat">
           <div className="stat-title">{t("taggers")}</div>
-          <div className="stat-value">{stats && stats.taggerCount ? stats.taggerCount : null}</div>
+          <div className="stat-value">{stats?.taggerCount ? stats.taggerCount : null}</div>
         </div>
       </a>
     </section>

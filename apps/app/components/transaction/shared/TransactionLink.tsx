@@ -1,8 +1,8 @@
-import React from "react";
-import useTranslation from "next-translate/useTranslation";
-import { makeScannerLink } from "@app/utils";
 import { Outlink } from "@app/components/Outlink";
 import { useCurrentChain } from "@app/hooks/useCurrentChain";
+import { makeScannerLink } from "@app/utils";
+import useTranslation from "next-translate/useTranslation";
+import type React from "react";
 
 interface TransactionLinkProps {
   txn?: string | null; // Allow txn to be string, null, or undefined

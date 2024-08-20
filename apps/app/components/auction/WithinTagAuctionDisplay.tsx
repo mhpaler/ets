@@ -1,20 +1,19 @@
-import Link from "next/link";
-import useTranslation from "next-translate/useTranslation";
-import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useAuction } from "@app/hooks/useAuctionContext";
+import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useCurrentChain } from "@app/hooks/useCurrentChain";
+import useTranslation from "next-translate/useTranslation";
+import Link from "next/link";
 
 import AuctionActions from "@app/components/auction/AuctionActions";
-import AuctionTimer from "@app/components/auction/AuctionTimer";
-import AuctionSummary from "@app/components/auction/AuctionSummary";
 import AuctionBids from "@app/components/auction/AuctionBids";
+import AuctionSummary from "@app/components/auction/AuctionSummary";
+import AuctionTimer from "@app/components/auction/AuctionTimer";
 
 import Address from "../Address";
 
 const WithinTagAuctionDisplay = () => {
   const { t } = useTranslation("common");
   const { auction } = useAuction();
-  const { maxAuctionId } = useAuctionHouse();
 
   if (!auction) {
     // If auction is null, return null or handle it as per your requirement

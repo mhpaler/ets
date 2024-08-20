@@ -1,8 +1,8 @@
-import React from "react";
 import { Button } from "@app/components/Button";
-import useTranslation from "next-translate/useTranslation";
-import { useTransactionManager } from "@app/hooks/useTransactionManager";
 import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels";
+import { useTransactionManager } from "@app/hooks/useTransactionManager";
+import useTranslation from "next-translate/useTranslation";
+import type React from "react";
 
 interface TransactionConfirmActionsProps {
   transactionId: string; // Add transactionId as a prop
@@ -13,7 +13,6 @@ interface TransactionConfirmActionsProps {
 
 const TransactionConfirmActions: React.FC<TransactionConfirmActionsProps> = ({
   transactionId,
-  handleBack,
   handleCancel,
   handlePrimaryAction,
 }) => {
@@ -39,7 +38,7 @@ const TransactionConfirmActions: React.FC<TransactionConfirmActionsProps> = ({
         disabled={isPending}
         className={`flex align-middle items-center gap-2 ${isPending ? "btn-disabled" : "btn-primary btn-outline"}`}
       >
-        {isPending && <span className="loading loading-spinner mr-2 bg-primary"></span>}
+        {isPending && <span className="loading loading-spinner mr-2 bg-primary" />}
         {buttonLabel}
       </Button>
     </div>

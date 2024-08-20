@@ -1,7 +1,7 @@
-import { useRouter } from "next/router";
-import Breadcrumbs from "nextjs-breadcrumbs2";
 import { BreadcrumbItem } from "@app/components/BreadcrumbItem";
 import PageTitle from "@app/components/PageTitle";
+import { useRouter } from "next/router";
+import Breadcrumbs from "nextjs-breadcrumbs2";
 
 /**
  * PageInfo component that renders breadcrumbs and page title based on the current route.

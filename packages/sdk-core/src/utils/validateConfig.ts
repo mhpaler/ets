@@ -1,4 +1,4 @@
-import { PublicClient, WalletClient } from "viem";
+import type { PublicClient, WalletClient } from "viem";
 
 export function validateConfig(
   chainId: number | undefined,

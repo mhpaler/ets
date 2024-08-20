@@ -1,15 +1,15 @@
+import Address from "@app/components/Address";
+import { FormattedNumber } from "@app/components/FormattedNumber";
+import { Panel } from "@app/components/Panel";
+import { TaggingRecords } from "@app/components/TaggingRecords";
+import { Truncate } from "@app/components/Truncate";
+import { useTaggers } from "@app/hooks/useTaggers";
+import Layout from "@app/layouts/default";
+import { timestampToString } from "@app/utils";
 import type { NextPage } from "next";
+import useTranslation from "next-translate/useTranslation";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useTaggers } from "@app/hooks/useTaggers";
-import useTranslation from "next-translate/useTranslation";
-import { timestampToString } from "@app/utils";
-import Layout from "@app/layouts/default";
-import { TaggingRecords } from "@app/components/TaggingRecords";
-import { Number } from "@app/components/Number";
-import { Truncate } from "@app/components/Truncate";
-import { Panel } from "@app/components/Panel";
-import Address from "@app/components/Address";
 
 const Tagger: NextPage = () => {
   const { query } = useRouter();
@@ -32,7 +32,7 @@ const Tagger: NextPage = () => {
     },
   });
 
-  const tagger = taggers && taggers[0];
+  const tagger = taggers?.[0];
 
   return (
     <Layout>
@@ -53,7 +53,7 @@ const Tagger: NextPage = () => {
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                 <div className="">{t("first-seen")}</div>
                 <div className="text-right">
-                  <div className="">{tagger && timestampToString(parseInt(tagger.firstSeen))}</div>
+                  <div className="">{tagger && timestampToString(Number.parseInt(tagger.firstSeen))}</div>
                 </div>
               </div>
             </Panel>
@@ -63,13 +63,15 @@ const Tagger: NextPage = () => {
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                 <div className="">{t("tagging-records-created")}</div>
                 <div className="text-right">
-                  <div className="">{tagger && <Number value={parseInt(tagger.taggingRecordsCreated)} />}</div>
+                  <div className="">
+                    {tagger && <FormattedNumber value={Number.parseInt(tagger.taggingRecordsCreated)} />}
+                  </div>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                 <div className="">{t("total-tags-applied")}</div>
                 <div className="text-right">
-                  <div className="">{tagger && <Number value={parseInt(tagger.tagsApplied)} />}</div>
+                  <div className="">{tagger && <FormattedNumber value={Number.parseInt(tagger.tagsApplied)} />}</div>
                 </div>
               </div>
             </Panel>

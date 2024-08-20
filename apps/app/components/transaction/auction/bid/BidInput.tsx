@@ -1,19 +1,20 @@
-import React, { useState, useEffect } from "react";
-import useTranslation from "next-translate/useTranslation";
-import { formatEther } from "ethers/lib/utils";
-import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { formatEther } from "ethers/lib/utils";
+import useTranslation from "next-translate/useTranslation";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { type SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { useAuction } from "@app/hooks/useAuctionContext";
+import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
 import { useModal } from "@app/hooks/useModalContext";
 import { useTransactionManager } from "@app/hooks/useTransactionManager";
-import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
-import { useAuction } from "@app/hooks/useAuctionContext";
-import { useCurrentChain } from "@app/hooks/useCurrentChain";
 
-import { Dialog } from "@headlessui/react";
 import { Alert } from "@app/components/icons";
 import TransactionFormActions from "@app/components/transaction/shared/TransactionFormActions";
+import { Dialog } from "@headlessui/react";
 
 interface BidInputProps {
   transactionId: string;
@@ -82,7 +83,9 @@ const BidInput: React.FC<BidInputProps> = ({ transactionId, goToNextStep }) => {
     const percentageFactor: bigint = BigInt(minIncrementBidPercentage); // Convert percentage to bigint
     const minimumBidIncrement: string = formatEther(currentBid + (currentBid * percentageFactor) / scaleFactor);
 
-    setParsedMinimumBidIncrement(auction.startTime === 0 ? parseFloat(reservePrice) : parseFloat(minimumBidIncrement));
+    setParsedMinimumBidIncrement(
+      auction.startTime === 0 ? Number.parseFloat(reservePrice) : Number.parseFloat(minimumBidIncrement),
+    );
   }, [auction, minIncrementBidPercentage]);
 
   // Use the zod validation schema directly to check validity.
@@ -136,7 +139,7 @@ const BidInput: React.FC<BidInputProps> = ({ transactionId, goToNextStep }) => {
               autoComplete="off"
               id="bid"
               {...register("bid", {
-                setValueAs: (value) => parseFloat(value) || 0, // Ensure bid is always treated as a number
+                setValueAs: (value) => Number.parseFloat(value) || 0, // Ensure bid is always treated as a number
               })}
               className="grow"
             />

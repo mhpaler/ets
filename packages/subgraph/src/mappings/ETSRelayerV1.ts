@@ -1,20 +1,20 @@
+import { ensureRelayer } from "../entities/Relayer";
 import {
   ETSRelayerV1,
-  RelayerPauseToggledByOwner,
-  RelayerOwnerChanged,
   OwnershipTransferred,
   Paused,
+  RelayerOwnerChanged,
+  RelayerPauseToggledByOwner,
   Unpaused,
 } from "../generated/templates/ETSRelayerV1/ETSRelayerV1";
-import { ensureRelayer } from "../entities/Relayer";
 import { logCritical } from "../utils/logCritical";
 
 export function handleRelayerPauseToggledByOwner(event: RelayerPauseToggledByOwner): void {
-  let relayer = ensureRelayer(event.params.relayerAddress, event);
+  const relayer = ensureRelayer(event.params.relayerAddress, event);
 
   if (relayer && event) {
-    let contract = ETSRelayerV1.bind(event.params.relayerAddress);
-    let isPausedByOwnerCall = contract.try_isPaused();
+    const contract = ETSRelayerV1.bind(event.params.relayerAddress);
+    const isPausedByOwnerCall = contract.try_isPaused();
     if (isPausedByOwnerCall.reverted) {
       logCritical("isPausedByOwner reverted for {}", [event.params.relayerAddress.toString()]);
     }
@@ -25,11 +25,11 @@ export function handleRelayerPauseToggledByOwner(event: RelayerPauseToggledByOwn
 }
 
 export function handleRelayerOwnerChanged(event: RelayerOwnerChanged): void {
-  let relayer = ensureRelayer(event.params.relayerAddress, event);
+  const relayer = ensureRelayer(event.params.relayerAddress, event);
 
   if (relayer && event) {
-    let contract = ETSRelayerV1.bind(event.params.relayerAddress);
-    let getOwnerCall = contract.try_getOwner();
+    const contract = ETSRelayerV1.bind(event.params.relayerAddress);
+    const getOwnerCall = contract.try_getOwner();
     if (getOwnerCall.reverted) {
       logCritical("getOwnerCall reverted for {}", [event.params.relayerAddress.toString()]);
     }
@@ -38,8 +38,8 @@ export function handleRelayerOwnerChanged(event: RelayerOwnerChanged): void {
   }
 }
 
-export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
+export function handleOwnershipTransferred(_event: OwnershipTransferred): void {}
 
-export function handlePausedByOwner(event: Paused): void {}
+export function handlePausedByOwner(_event: Paused): void {}
 
-export function handleUnpausedByOwner(event: Unpaused): void {}
+export function handleUnpausedByOwner(_event: Unpaused): void {}

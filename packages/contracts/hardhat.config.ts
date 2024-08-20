@@ -1,6 +1,6 @@
 //import "hardhat-ethernal";
 import "@typechain/hardhat";
-import {HardhatUserConfig} from "hardhat/types";
+import type { HardhatUserConfig } from "hardhat/types";
 import "hardhat-deploy";
 import "solidity-docgen";
 import "solidity-coverage";
@@ -13,12 +13,12 @@ import "@nomiclabs/hardhat-etherscan";
 import "@openzeppelin/hardhat-upgrades";
 import "@nomicfoundation/hardhat-chai-matchers";
 
-import {resolve} from "path";
-import {config as dotenvConfig} from "dotenv";
+import { resolve } from "node:path";
+import { config as dotenvConfig } from "dotenv";
 
 import "./tasks";
 
-dotenvConfig({path: resolve(__dirname, "../../.env")});
+dotenvConfig({ path: resolve(__dirname, "../../.env") });
 
 const mnemonic = {
   local: `${process.env.MNEMONIC_LOCAL}`.replace(/_/g, " "),
@@ -73,9 +73,9 @@ const config: HardhatUserConfig = {
   },
   // ETS administration accounts.
   namedAccounts: {
-    ETSAdmin: {default: 0},
-    ETSPlatform: {default: 1},
-    ETSOracle: {default: 2},
+    ETSAdmin: { default: 0 },
+    ETSPlatform: { default: 1 },
+    ETSOracle: { default: 2 },
   },
   etherscan: {
     apiKey: {

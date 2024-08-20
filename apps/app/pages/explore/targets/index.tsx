@@ -1,15 +1,15 @@
-import { useMemo, useState } from "react";
-import type { NextPage } from "next";
-import Link from "next/link";
-import useTranslation from "next-translate/useTranslation";
+import { CopyAndPaste } from "@app/components/CopyAndPaste";
+import { TanstackTable } from "@app/components/TanstackTable";
+import { TimeAgo } from "@app/components/TimeAgo";
+import { Truncate } from "@app/components/Truncate";
+import { URI } from "@app/components/URI";
 import { useTargets } from "@app/hooks/useTargets";
 import Layout from "@app/layouts/default";
-import { TimeAgo } from "@app/components/TimeAgo";
-import { TanstackTable } from "@app/components/TanstackTable";
 import { createColumnHelper } from "@tanstack/react-table";
-import { CopyAndPaste } from "@app/components/CopyAndPaste";
-import { URI } from "@app/components/URI";
-import { Truncate } from "@app/components/Truncate";
+import type { NextPage } from "next";
+import useTranslation from "next-translate/useTranslation";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 
 const pageSize = 20;
 
@@ -64,7 +64,7 @@ const Targets: NextPage = () => {
         ),
       }),
     ],
-    [t],
+    [t, columnHelper.accessor],
   );
 
   return (

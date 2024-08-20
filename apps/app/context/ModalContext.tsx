@@ -1,5 +1,6 @@
 // CloseModalContext.js
-import React, { createContext, useContext, useState } from "react";
+import type React from "react";
+import { createContext, useContext, useState } from "react";
 
 // Define the context's type for better TypeScript support (optional)
 // Define the context's type for better TypeScript support
@@ -35,13 +36,11 @@ export const ModalProvider: React.FC<Props> = ({ children }: { children: React.R
   const [currentModal, setCurrentModal] = useState<string | null>(null);
 
   const openModal = (id: string) => {
-    console.log("opening modal", id);
     setCurrentModal(id);
   };
 
   const closeModal = () => {
     if (currentModal) {
-      console.log(`Closing modal: ${currentModal}`);
       setCurrentModal(null);
     }
   };
@@ -49,7 +48,6 @@ export const ModalProvider: React.FC<Props> = ({ children }: { children: React.R
   // Clean up function to reset modal when the component unmounts
   // Even though does the same as closeModal() adding for future.
   const resetModal = () => {
-    console.log("Resetting modal state");
     setCurrentModal(null);
   };
 

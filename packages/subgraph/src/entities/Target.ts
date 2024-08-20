@@ -1,16 +1,16 @@
-import { BigInt, ethereum } from "@graphprotocol/graph-ts";
-import { Target } from "../generated/schema";
-import { ETSTarget } from "../generated/ETSTarget/ETSTarget";
+import { BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
 import { updateTargetCount } from "../entities/Platform";
+import { ETSTarget } from "../generated/ETSTarget/ETSTarget";
+import { Target } from "../generated/schema";
 import { getTargetType } from "../utils/getTargetType";
 import { getTargetTypeKeywords } from "../utils/getTargetTypeKeywords";
 import { logCritical } from "../utils/logCritical";
 
-export function ensureTarget(targetId: BigInt, event: ethereum.Event): Target {
+export function ensureTarget(targetId: GraphBigInt, event: ethereum.Event): Target {
   let target = Target.load(targetId.toString());
   if (target === null && event) {
-    let contract = ETSTarget.bind(event.address);
-    let targetCall = contract.try_getTargetById(targetId);
+    const contract = ETSTarget.bind(event.address);
+    const targetCall = contract.try_getTargetById(targetId);
 
     if (targetCall.reverted) {
       logCritical("getTargetById() reverted for {}", [targetId.toString()]);
