@@ -47,3 +47,8 @@ jobs:
 
       - name: Check for unused files, dependencies, and exports
         run: pnpm knip --production
+
+  test:
+    name: Smart Contracts
+    uses: ./.github/workflows/solidity-screener.yml
+    secrets: inherit
