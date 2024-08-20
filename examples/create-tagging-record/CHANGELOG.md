@@ -1,5 +1,12 @@
 # create-tagging-record
 
+## 0.0.3
+
+### Patch Changes
+
+- Updated dependencies [[`c85ab03`](https://github.com/ethereum-tag-service/ets/commit/c85ab033adbff506a27e0c747da01a0ac53e9f59)]:
+  - @ethereum-tag-service/sdk-react-hooks@0.0.4
+
 ## 0.0.2
 
 ### Patch Changes
