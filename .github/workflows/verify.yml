@@ -27,10 +27,19 @@ jobs:
       - name: Update package versions
         run: pnpm version:update
 
-      # This step automatically commits changes made by previous steps (like linting or formatting)
-      # It uses the git-auto-commit-action to detect changes and create a commit if necessary
-      - uses: stefanzweifel/git-auto-commit-action@v5
+      # Debug: Print current GitHub context
+      - name: Debug - Print GitHub context
+        run: echo '${{ toJson(github) }}'
+
+      # Debug: Print current git status
+      - name: Debug - Git status before auto-commit
+        run: git status
+
+      # Auto-commit changes
+      - name: Auto-commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
         env:
+          # Provide the action with a GitHub token for authentication
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           # Specify the commit message for the automated commit
@@ -45,6 +54,14 @@ jobs:
           commit_options: '--no-verify'
           # Skip fetching the latest changes from the remote to improve performance
           skip_fetch: true
+
+      # Debug: Print git status after auto-commit
+      - name: Debug - Git status after auto-commit
+        run: git status
+
+      # Debug: Print last commit
+      - name: Debug - Show last commit
+        run: git log -1
 
   build:
     name: Build
