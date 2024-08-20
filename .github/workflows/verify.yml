@@ -14,8 +14,6 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
-        #with:
-        #  ref: ${{ github.head_ref }}
 
       - name: Install dependencies
         uses: ethereum-tag-service/actions/.github/actions/pnpm@main
@@ -26,37 +24,37 @@ jobs:
       - name: Lint code
         run: pnpm lint
 
-      - name: Update package versions
-        run: pnpm version:update
-
-      # Debug: Print current git status
-      - name: Debug - Git status before auto-commit
-        run: git status
-
-      # Debug: Print GitHub context
-      - name: Debug - Git diff
-        run: git diff
-
-      # Auto-commit changes
-      - name: Auto-commit changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        id: auto-commit-action
-        with:
-          commit_options: '--no-verify'
-          commit_message: 'chore: format'
-          #skip_fetch: false
-          #commit_user_name: 'github-actions[bot]'
-          #commit_user_email: 'github-actions[bot]@users.noreply.github.com'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Debug: Print git status after auto-commit
-      - name: Debug - Git status after auto-commit attempt
-        run: git status
-
-      # Debug: Show last commit
-      - name: Debug - Show last commit
-        run: git log -1
+#      - name: Update package versions
+#        run: pnpm version:update
+#
+#      # Debug: Print current git status
+#      - name: Debug - Git status before auto-commit
+#        run: git status
+#
+#      # Debug: Print GitHub context
+#      - name: Debug - Git diff
+#        run: git diff
+#
+#      # Auto-commit changes
+#      - name: Auto-commit changes
+#        uses: stefanzweifel/git-auto-commit-action@v5
+#        id: auto-commit-action
+#        with:
+#          commit_options: '--no-verify'
+#          commit_message: 'chore: format'
+#          #skip_fetch: false
+#          #commit_user_name: 'github-actions[bot]'
+#          #commit_user_email: 'github-actions[bot]@users.noreply.github.com'
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#
+#      # Debug: Print git status after auto-commit
+#      - name: Debug - Git status after auto-commit attempt
+#        run: git status
+#
+#      # Debug: Show last commit
+#      - name: Debug - Show last commit
+#        run: git log -1
 
   build:
     name: Build
@@ -73,6 +71,8 @@ jobs:
 
       - name: Build
         run: pnpm build
+        env:
+          NETWORK: testnet_stage # TODO: Change to mainnet when time is right.
 
       - name: Publint
         run: pnpm test:build
