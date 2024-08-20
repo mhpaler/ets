@@ -27,13 +27,13 @@ jobs:
       - name: Update package versions
         run: pnpm version:update
 
-      # Debug: Print GitHub context
-      - name: Debug - Print GitHub context
-        run: echo '${{ toJson(github) }}'
-
       # Debug: Print current git status
       - name: Debug - Git status before auto-commit
         run: git status
+
+      # Debug: Print GitHub context
+      - name: Debug - Git diff
+        run: git diff
 
       # Auto-commit changes
       - name: Auto-commit changes
