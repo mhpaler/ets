@@ -5,8 +5,8 @@ env:
   ETHERNAL_DISABLED: true
 
 on:
-  push:
-  pull_request:
+  workflow_call:
+  workflow_dispatch:
 
 jobs:
   changes:
