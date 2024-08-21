@@ -1,5 +1,0 @@
-{
-  "extends": "@ethereum-tag-service/tsconfig/react-library.json",
-  "include": ["."],
-  "exclude": ["dist", "build", "node_modules"]
-}

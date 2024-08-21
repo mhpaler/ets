@@ -7,31 +7,34 @@ const CopyAndPaste = ({ value }: { value: string }) => {
 
   return (
     <button
-      onClick={(event) => {
-        event.stopPropagation();
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
         copy(value);
       }}
       className="link link-primary"
     >
       {isCopied ? (
         <svg className="inline-flex w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24">
+          <title>{t("copied")}</title>
           <path
             d="M7.75 12.75L10 15.25L16.25 8.75"
             stroke="currentColor"
             strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
-          ></path>
+          />
         </svg>
       ) : (
         <svg className="inline-flex w-5 h-5" fill="none" viewBox="0 0 24 24">
+          <title>{t("copy")}</title>
           <path
             stroke="currentColor"
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth="1.5"
             d="M6.5 15.25V15.25C5.5335 15.25 4.75 14.4665 4.75 13.5V6.75C4.75 5.64543 5.64543 4.75 6.75 4.75H13.5C14.4665 4.75 15.25 5.5335 15.25 6.5V6.5"
-          ></path>
+          />
           <rect
             width="10.5"
             height="10.5"
@@ -42,7 +45,7 @@ const CopyAndPaste = ({ value }: { value: string }) => {
             strokeLinejoin="round"
             strokeWidth="1.5"
             rx="2"
-          ></rect>
+          />
         </svg>
       )}
       <span className="sr-only">{t("copy")}</span>

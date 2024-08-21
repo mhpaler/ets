@@ -1,7 +1,7 @@
+import { useEnsNames } from "@app/hooks/useEnsNames";
+import type { FetchTaggersResponse, TaggerType } from "@app/types/tagger";
 import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
-import { useEnsNames } from "@app/hooks/useEnsNames";
-import { FetchTaggersResponse, TaggerType } from "@app/types/tagger";
 
 export function useTaggers({
   pageSize = 20,

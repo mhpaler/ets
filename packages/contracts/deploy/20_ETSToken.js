@@ -3,7 +3,7 @@ const { setup } = require("./setup.js");
 const { verify } = require("./utils/verify.js");
 const { saveNetworkConfig } = require("./utils/config.js");
 
-module.exports = async ({ getChainId, deployments }) => {
+module.exports = async ({ deployments }) => {
   const { save, log } = deployments;
   [accounts, factories, initSettings] = await setup();
 
@@ -25,7 +25,7 @@ module.exports = async ({ getChainId, deployments }) => {
   const deploymentAddress = await deployment.getAddress();
   const implementationAddress = await upgrades.erc1967.getImplementationAddress(deploymentAddress);
 
-  if (process.env.VERIFY_ON_DEPLOY == "true") {
+  if (process.env.VERIFY_ON_DEPLOY === "true") {
     // Verify & Update network configuration file.
     await verify("ETSToken", deployment, implementationAddress, []);
   }
@@ -33,16 +33,16 @@ module.exports = async ({ getChainId, deployments }) => {
   await saveNetworkConfig("ETSToken", deployment, implementationAddress, false);
 
   // Add to deployments.
-  let artifact = await deployments.getExtendedArtifact("ETSToken");
-  let proxyDeployments = {
+  const artifact = await deployments.getExtendedArtifact("ETSToken");
+  const proxyDeployments = {
     address: deploymentAddress,
     ...artifact,
   };
   await save("ETSToken", proxyDeployments);
 
   log("====================================================");
-  log("ETSToken proxy deployed to -> " + deploymentAddress);
-  log("ETSToken implementation deployed to -> " + implementationAddress);
+  log(`ETSToken proxy deployed to -> ${deploymentAddress}`);
+  log(`ETSToken implementation deployed to -> ${implementationAddress}`);
   log("====================================================");
 };
 module.exports.tags = ["ETSToken"];

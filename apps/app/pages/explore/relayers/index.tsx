@@ -1,22 +1,22 @@
-import useTranslation from "next-translate/useTranslation";
-import { useRelayers } from "@app/hooks/useRelayers";
-import { RelayerProvider } from "@app/context/RelayerContext";
-import Layout from "@app/layouts/default";
-import { TimeAgo } from "@app/components/TimeAgo";
-import { Modal } from "@app/components/Modal";
-import { Truncate } from "@app/components/Truncate";
+import Address from "@app/components/Address";
 import { ConnectButtonETS } from "@app/components/ConnectButtonETS";
-import { useAccount } from "wagmi";
-import TransactionFlowWrapper from "@app/components/transaction/TransactionFlowWrapper";
-import { TransactionType } from "@app/types/transaction";
-import { v4 as uuidv4 } from "uuid";
-import { useMemo, useState, useEffect } from "react";
-import { NextPage } from "next";
-import { createColumnHelper } from "@tanstack/react-table";
+import { Modal } from "@app/components/Modal";
 import { TanstackTable } from "@app/components/TanstackTable";
+import { TimeAgo } from "@app/components/TimeAgo";
+import { Truncate } from "@app/components/Truncate";
+import TransactionFlowWrapper from "@app/components/transaction/TransactionFlowWrapper";
+import { RelayerProvider } from "@app/context/RelayerContext";
+import { useRelayers } from "@app/hooks/useRelayers";
+import Layout from "@app/layouts/default";
+import type { RelayerType } from "@app/types/relayer";
+import { TransactionType } from "@app/types/transaction";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { NextPage } from "next";
+import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
-import { RelayerType } from "@app/types/relayer";
-import ENSAddress from "@app/components/ENSAddress";
+import { useEffect, useMemo, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { useAccount } from "wagmi";
 
 const pageSize = 20;
 
@@ -45,7 +45,7 @@ const Relayers: NextPage = () => {
     },
   });
 
-  console.log("relayers", relayers);
+  console.info("relayers", relayers);
 
   const columnHelper = createColumnHelper<RelayerType>();
 
@@ -70,7 +70,11 @@ const Relayers: NextPage = () => {
         header: () => t("owner"),
         cell: (info) => {
           const owner = info.getValue();
-          return <ENSAddress address={owner.id} ens={owner.ens} />;
+          return (
+            <Link href={`/explore/owners/${owner.id}`} className="link link-primary">
+              <Address address={owner.id} ens={owner.ens} />
+            </Link>
+          );
         },
       }),
       columnHelper.accessor("taggingRecordsPublished", {
@@ -86,7 +90,7 @@ const Relayers: NextPage = () => {
         cell: (info) => (info.getValue() ? t("disabled") : t("enabled")),
       }),
     ],
-    [t],
+    [t, columnHelper.accessor],
   );
 
   return (
@@ -96,7 +100,7 @@ const Relayers: NextPage = () => {
           {isClient && !isConnected ? (
             <ConnectButtonETS className="btn-outline" />
           ) : (
-            <Modal id={`create-relayer`} label={t("create-relayer")} buttonClasses="btn-primary btn-outline">
+            <Modal id={"create-relayer"} label={t("create-relayer")} buttonClasses="btn-primary btn-outline">
               <TransactionFlowWrapper id={transactionId} transactionType={TransactionType.AddRelayer} />
             </Modal>
           )}

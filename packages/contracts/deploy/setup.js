@@ -4,9 +4,9 @@ async function setup() {
   const namedAccounts = await ethers.getNamedSigners();
 
   const accounts = {
-    ETSAdmin: namedAccounts["ETSAdmin"],
-    ETSPlatform: namedAccounts["ETSPlatform"],
-    ETSOracle: namedAccounts["ETSOracle"],
+    ETSAdmin: namedAccounts.ETSAdmin,
+    ETSPlatform: namedAccounts.ETSPlatform,
+    ETSOracle: namedAccounts.ETSOracle,
   };
 
   const initSettings = {

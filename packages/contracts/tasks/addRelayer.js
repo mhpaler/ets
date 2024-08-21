@@ -34,14 +34,14 @@ task(
     );
 
     if ((await etsAccessControls.isRelayerByName(taskArgs.name)) === true) {
-      console.log("Relayer name exists");
+      console.info("Relayer name exists");
       return;
     }
 
-    let tx = await etsRelayerFactory.addRelayer(taskArgs.name);
-    console.log(`started txn ${tx.hash.toString()}`);
+    const tx = await etsRelayerFactory.addRelayer(taskArgs.name);
+    console.info(`started txn ${tx.hash.toString()}`);
     await tx.wait();
 
     const relayerAddress = await etsAccessControls.getRelayerAddressFromName(taskArgs.name);
-    console.log(`New relayer contract deployed at ${relayerAddress} by ${taskArgs.signer}`);
+    console.info(`New relayer contract deployed at ${relayerAddress} by ${taskArgs.signer}`);
   });

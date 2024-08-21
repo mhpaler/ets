@@ -18,9 +18,9 @@
  * production configuration on the Arbitrum Seplolia test network.
  */
 
-import { initializeSigner } from "./../../../services/initializeSigner";
+import type { RelayerParams } from "@openzeppelin/defender-relay-client/lib/relayer";
 import { BlockchainService } from "./../../../services/blockchainService";
-import { RelayerParams } from "@openzeppelin/defender-relay-client/lib/relayer";
+import { initializeSigner } from "./../../../services/initializeSigner";
 
 // Main handler function to be invoked by Defender or locally for testing.
 export async function handler(credentials: RelayerParams) {

@@ -1,11 +1,11 @@
-import { useState, useCallback } from "react";
-import useTranslation from "next-translate/useTranslation";
-import { useRelayers } from "@app/hooks/useRelayers";
-import { isValidTag } from "@app/utils/tagUtils";
-import { Hex } from "viem";
-import useToast from "@app/hooks/useToast";
 import TagInput from "@app/components/TagInput";
-import { TagInput as TagInputType } from "@app/types/tag";
+import { useRelayers } from "@app/hooks/useRelayers";
+import useToast from "@app/hooks/useToast";
+import type { TagInput as TagInputType } from "@app/types/tag";
+import { isValidTag } from "@app/utils/tagUtils";
+import useTranslation from "next-translate/useTranslation";
+import { useCallback, useState } from "react";
+import type { Hex } from "viem";
 import { useAccount } from "wagmi";
 import { ConnectButtonETS } from "./ConnectButtonETS";
 
@@ -30,11 +30,11 @@ const TaggingForm: React.FC<TaggingFormProps> = ({
   const [recordType, setRecordType] = useState<string>("");
   const { relayers } = useRelayers({});
   const { isConnected } = useAccount();
-  console.log("isConnected", isConnected);
+  console.info("isConnected", isConnected);
 
   const handleDeleteTag = useCallback(
     (i: number) => {
-      setTags(tags.filter((tag, index) => index !== i));
+      setTags(tags.filter((_tag, index) => index !== i));
     },
     [tags],
   );
@@ -76,7 +76,7 @@ const TaggingForm: React.FC<TaggingFormProps> = ({
 
   return (
     <>
-      <TagInput tags={tags} handleDeleteTag={handleDeleteTag} handleAddTag={handleAddTag} infoInside />
+      <TagInput tags={tags} handleDeleteTag={handleDeleteTag} handleAddTag={handleAddTag} />
       <div className="mb-4">
         <input
           type="text"

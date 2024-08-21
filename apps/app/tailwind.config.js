@@ -7,7 +7,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        'sans': ['Inter Variable', 'sans-serif']
+        sans: ["Inter Variable", "sans-serif"],
       },
       keyframes: {
         slideIn: {
@@ -26,20 +26,19 @@ module.exports = {
     },
   },
 
-
   daisyui: {
     themes: [
       {
         ets: {
-          "primary": "#db2777",
-          "secondary": "#fbcfe8",
-          "accent": "#a8a29e",
-          "neutral": "#0a071f",
+          primary: "#db2777",
+          secondary: "#fbcfe8",
+          accent: "#a8a29e",
+          neutral: "#0a071f",
           "base-100": "#ffffff",
-          "info": "#00aeff",
-          "success": "#84e455",
-          "warning": "#feb100",
-          "error": "#da4148",
+          info: "#00aeff",
+          success: "#84e455",
+          warning: "#feb100",
+          error: "#da4148",
         },
       },
     ],
@@ -52,4 +51,4 @@ module.exports = {
   },
 
   plugins: [typography, daisyui],
-}
+};

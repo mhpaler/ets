@@ -1,16 +1,16 @@
-import type { NextPage } from "next";
-import { useRouter } from "next/router";
-import Link from "next/link";
-import useTranslation from "next-translate/useTranslation";
-import { useTaggingRecords } from "@app/hooks/useTaggingRecords";
-import { timestampToString } from "@app/utils";
-import Layout from "@app/layouts/default";
-import { Truncate } from "@app/components/Truncate";
+import Address from "@app/components/Address";
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
-import { URI } from "@app/components/URI";
 import { Panel } from "@app/components/Panel";
 import { Tag } from "@app/components/Tag";
-import ENSAddress from "@app/components/ENSAddress";
+import { Truncate } from "@app/components/Truncate";
+import { URI } from "@app/components/URI";
+import { useTaggingRecords } from "@app/hooks/useTaggingRecords";
+import Layout from "@app/layouts/default";
+import { timestampToString } from "@app/utils";
+import type { NextPage } from "next";
+import useTranslation from "next-translate/useTranslation";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 const TaggingRecord: NextPage = () => {
   const { query } = useRouter();
@@ -31,7 +31,7 @@ const TaggingRecord: NextPage = () => {
     },
   });
 
-  const taggingRecord = taggingRecords && taggingRecords[0];
+  const taggingRecord = taggingRecords?.[0];
 
   return (
     <Layout>
@@ -48,7 +48,7 @@ const TaggingRecord: NextPage = () => {
                 <div className="grid grid-cols-3 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                   <div className="font-semibold">{t("created")}</div>
                   <div className="col-span-2 text-left">
-                    {taggingRecords && timestampToString(parseInt(taggingRecords[0].timestamp))}
+                    {taggingRecords && timestampToString(Number.parseInt(taggingRecords[0].timestamp))}
                   </div>
                 </div>
 
@@ -66,10 +66,9 @@ const TaggingRecord: NextPage = () => {
                   <div className="flex space-x-1 col-span-2 justify-start">
                     <div className="">
                       <Link href={`/explore/taggers/${taggingRecord.tagger.id}`} className="link link-primary">
-                        <ENSAddress address={taggingRecord.tagger?.id} ens={taggingRecord.tagger?.ens} />
+                        <Address address={taggingRecord.tagger?.id} ens={taggingRecord.tagger?.ens} />
                       </Link>
                     </div>
-                    <CopyAndPaste value={taggingRecord.tagger.id || ""} />
                   </div>
                 </div>
 
@@ -99,12 +98,11 @@ const TaggingRecord: NextPage = () => {
                 <div className="grid grid-cols-3 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                   <div className="font-semibold">{t("tags")}</div>
                   <div className="col-span-2 text-left">
-                    {taggingRecords &&
-                      taggingRecords[0].tags.map((tag: any, i: number) => (
-                        <span key={i} className="mr-2">
-                          <Tag tag={tag} />
-                        </span>
-                      ))}
+                    {taggingRecords?.[0].tags.map((tag: any, i: number) => (
+                      <span key={i} className="mr-2">
+                        <Tag tag={tag} />
+                      </span>
+                    ))}
                   </div>
                 </div>
               </Panel>

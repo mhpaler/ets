@@ -1,5 +1,5 @@
-import axios, { AxiosResponse } from "axios";
 import subgraphEndpoints from "@ethereum-tag-service/subgraph-endpoints";
+import axios, { type AxiosResponse } from "axios";
 
 interface Auction {
   id: string;
@@ -18,8 +18,8 @@ export class TagService {
   private async fetchTags(platformAddress: string): Promise<Tag[]> {
     const environment: string = process.env.NEXT_PUBLIC_ETS_ENVIRONMENT || "development";
     const endpoint: string = subgraphEndpoints[environment];
-    console.log("Reading from GraphQL endpoint: ", endpoint);
-    console.log("Platform address:", platformAddress);
+    console.info("Reading from GraphQL endpoint: ", endpoint);
+    console.info("Platform address:", platformAddress);
     const query: string = `
       query {
         tags(
@@ -85,17 +85,17 @@ export class TagService {
     const eligibleTags = this.filterEligibleTags(tags);
 
     if (eligibleTags.length === 0) {
-      console.log("No eligible tags available for auctioning.");
+      console.info("No eligible tags available for auctioning.");
       return null;
     }
 
     const selectedTag = this.selectTagForAuction(eligibleTags);
     if (!selectedTag) {
-      console.log("No suitable tag found after filtering.");
+      console.info("No suitable tag found after filtering.");
       return null;
     }
 
-    console.log(`Next tag selected for auction: ${selectedTag.display} with ID ${selectedTag.id}`);
+    console.info(`Next tag selected for auction: ${selectedTag.display} with ID ${selectedTag.id}`);
     return selectedTag.id;
   }
 }

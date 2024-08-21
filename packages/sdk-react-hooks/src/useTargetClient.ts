@@ -1,5 +1,5 @@
+import { type TargetClient, createTargetClient } from "@ethereum-tag-service/sdk-core";
 import { useEffect, useState } from "react";
-import { createTargetClient, TargetClient } from "@ethereum-tag-service/sdk-core";
 
 export const useTargetClient = ({ chainId, account }: { chainId?: number; account?: `0x${string}` }) => {
   const [targetClient, setTargetClient] = useState<TargetClient>();

@@ -1,23 +1,23 @@
-import type { NextPage } from "next";
-import { useRouter } from "next/router";
-import Link from "next/link";
-import useTranslation from "next-translate/useTranslation";
-import { useSystem } from "@app/hooks/useSystem";
 import { useCtags } from "@app/hooks/useCtags";
 import { useCurrentChain } from "@app/hooks/useCurrentChain";
+import { useSystem } from "@app/hooks/useSystem";
 import Layout from "@app/layouts/default";
 import { timestampToString } from "@app/utils";
 import { toEth } from "@app/utils";
+import type { NextPage } from "next";
+import useTranslation from "next-translate/useTranslation";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
-import { AuctionProvider } from "@app/context/AuctionContext";
 import WithinTagAuctionDisplay from "@app/components/auction/WithinTagAuctionDisplay";
+import { AuctionProvider } from "@app/context/AuctionContext";
 
-import { TaggingRecords } from "@app/components/TaggingRecords";
-import { TagGraphic } from "@app/components/TagGraphic";
-import { Truncate } from "@app/components/Truncate";
+import Address from "@app/components/Address";
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Panel } from "@app/components/Panel";
-import ENSAddress from "@app/components/ENSAddress";
+import { TagGraphic } from "@app/components/TagGraphic";
+import { TaggingRecords } from "@app/components/TaggingRecords";
+import { Truncate } from "@app/components/Truncate";
 
 const Tag: NextPage = () => {
   const { query } = useRouter();
@@ -52,7 +52,7 @@ const Tag: NextPage = () => {
     );
   }
 
-  let auctionBlock;
+  let auctionBlock: React.ReactNode;
   if (tag.auctions && tag.auctions.length > 0) {
     const auction = tag.auctions[tag.auctions.length - 1];
     auctionBlock = (
@@ -116,10 +116,9 @@ const Tag: NextPage = () => {
             <div className="flex space-x-1 justify-end">
               <div className="">
                 <Link href={`/creators/${tag.creator.id}`} className="link link-primary">
-                  <ENSAddress address={tag.creator.id} ens={tag.creator.ens} />
+                  <Address address={tag.creator.id} ens={tag.creator.ens} />
                 </Link>
               </div>
-              <CopyAndPaste value={tag.creator.id} />
             </div>
           </div>
 
@@ -128,10 +127,9 @@ const Tag: NextPage = () => {
             <div className="flex space-x-1 justify-end">
               <div className="">
                 <Link href={`/owners/${tag.owner.id}`} className="link link-primary">
-                  <ENSAddress address={tag.owner.id} ens={tag.owner.ens} />
+                  <Address address={tag.owner.id} ens={tag.owner.ens} />
                 </Link>
               </div>
-              <CopyAndPaste value={tag.owner.id} />
             </div>
           </div>
         </Panel>

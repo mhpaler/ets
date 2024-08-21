@@ -1,5 +1,5 @@
-import { RelayerAdmin } from "../generated/schema";
 import { Address, ethereum } from "@graphprotocol/graph-ts";
+import { RelayerAdmin } from "../generated/schema";
 
 export function ensureRelayerAdmin(address: Address, event: ethereum.Event): RelayerAdmin {
   let relayerAdmin = RelayerAdmin.load(address.toHex());

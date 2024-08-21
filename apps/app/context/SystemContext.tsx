@@ -2,11 +2,12 @@
  * @module SystemContext
  */
 
-import React, { createContext, useState, useEffect } from "react";
-import { System } from "@app/types/system";
-import { fetchBlockchainTime } from "@app/services/auctionHouseService";
 import { globalSettings } from "@app/config/globalSettings";
-import { useTokenClient, useAccessControlsClient } from "@ethereum-tag-service/sdk-react-hooks";
+import { fetchBlockchainTime } from "@app/services/auctionHouseService";
+import type { System } from "@app/types/system";
+import { useAccessControlsClient, useTokenClient } from "@ethereum-tag-service/sdk-react-hooks";
+import type React from "react";
+import { createContext, useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 
 // Define the default values and functions
@@ -29,7 +30,7 @@ export const SystemProvider: React.FC<Props> = ({ children }: { children: React.
   const [ownershipTermLength, setOwnershipTermLength] = useState(0);
   const [platformAddress, setPlatformAddress] = useState<string>("");
   const { chain, address } = useAccount();
-  const { accessControlsClient, getPlatformAddress } = useAccessControlsClient({
+  const { accessControlsClient } = useAccessControlsClient({
     chainId: chain?.id,
     account: address,
   });
@@ -64,6 +65,7 @@ export const SystemProvider: React.FC<Props> = ({ children }: { children: React.
     }
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     fetchGlobalSettings();
     updateBlockchainTime(); // Initial check on component mount
@@ -76,7 +78,7 @@ export const SystemProvider: React.FC<Props> = ({ children }: { children: React.
     );
 
     return () => clearInterval(intervalId); // Cleanup on component unmount
-  }, [tokenClient, accessControlsClient]);
+  }, []);
 
   // Context value assembled from state and functions.
   const contextValue: System = {

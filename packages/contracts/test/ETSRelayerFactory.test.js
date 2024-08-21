@@ -2,8 +2,8 @@ const { setup } = require("./setup.js");
 const { ethers } = require("hardhat");
 const { expect } = require("chai");
 
-describe("ETSRelayerFactory Tests", function () {
-  beforeEach("Setup test", async function () {
+describe("ETSRelayerFactory Tests", () => {
+  beforeEach("Setup test", async () => {
     [accounts, contracts, initSettings] = await setup();
 
     // Create two tags and transfer them to RandomOne so that user can add a relayer in tests.
@@ -26,19 +26,21 @@ describe("ETSRelayerFactory Tests", function () {
     );
   });
 
-  describe("Valid setup/initialization", async function () {
+  describe("Valid setup/initialization", async () => {
     it("sets RELAYER_ADMIN_ROLE as the role that can administer RELAYER_ROLE role.", async () => {
       expect(await contracts.ETSAccessControls.getRoleAdmin(ethers.id("RELAYER_ROLE"))).to.be.equal(
         await ethers.id("RELAYER_FACTORY_ROLE"),
       );
     });
 
-    it("Enables ETSRelayerFactory as a relayer factory.", async function () {
-      expect(await contracts.ETSAccessControls.isRelayerFactory(await contracts.ETSRelayerFactory.getAddress())).to.be.equal(true);
+    it("Enables ETSRelayerFactory as a relayer factory.", async () => {
+      expect(
+        await contracts.ETSAccessControls.isRelayerFactory(await contracts.ETSRelayerFactory.getAddress()),
+      ).to.be.equal(true);
     });
   });
 
-  describe("New relayers", async function () {
+  describe("New relayers", async () => {
     it("can only be added by if factory has correct role.", async () => {
       await contracts.ETSAccessControls.connect(accounts.ETSPlatform).revokeRole(
         ethers.id("RELAYER_FACTORY_ROLE"),
@@ -120,15 +122,15 @@ describe("ETSRelayerFactory Tests", function () {
       await expect(tx).to.emit(contracts.ETSAccessControls, "RelayerAdded");
     });
 
-    it.only("can add multiple relayers if sender is platform", async () => {
+    it("can add multiple relayers if sender is platform", async () => {
       const tx = await contracts.ETSRelayerFactory.connect(accounts.ETSPlatform).addRelayer("Uniswap");
       await expect(tx).to.emit(contracts.ETSAccessControls, "RelayerAdded");
-      const tx2 = await contracts.ETSRelayerFactory.connect(accounts.ETSPlatform).addRelayer("Solana");
+      const _tx2 = await contracts.ETSRelayerFactory.connect(accounts.ETSPlatform).addRelayer("Solana");
       await expect(tx).to.emit(contracts.ETSAccessControls, "RelayerAdded");
     });
 
     it("are not paused when added", async () => {
-      const tx = await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap");
+      const _tx = await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap");
       const relayerAddress = contracts.ETSAccessControls.getRelayerAddressFromName("Uniswap");
       expect(await contracts.ETSAccessControls.isRelayerAndNotPaused(relayerAddress)).to.be.equal(true);
     });
@@ -286,6 +288,5 @@ describe("ETSRelayerFactory Tests", function () {
       expect(await contracts.ETSAccessControls.isRelayerByOwner(accounts.RandomOne.address)).to.be.equal(false);
       expect(await contracts.ETSAccessControls.isRelayerByOwner(accounts.RandomTwo.address)).to.be.equal(true);
     });
-
   });
 });

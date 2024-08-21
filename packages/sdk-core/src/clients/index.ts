@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noBarrelFile: <explanation>
 export { AccessControlsClient } from "./AccessControlsClient";
 export { AuctionHouseClient } from "./AuctionHouseClient";
 export { CoreClient } from "./CoreClient";

@@ -1,9 +1,9 @@
-import useTranslation from "next-translate/useTranslation";
-import { useModal } from "@app/hooks/useModalContext";
-import { Auction } from "@app/types/auction";
-import BidsTable from "@app/components/auction/BidsTable";
-import { Modal } from "@app/components/Modal";
 import { Button } from "@app/components/Button";
+import { Modal } from "@app/components/Modal";
+import BidsTable from "@app/components/auction/BidsTable";
+import { useModal } from "@app/hooks/useModalContext";
+import type { Auction } from "@app/types/auction";
+import useTranslation from "next-translate/useTranslation";
 
 interface Props {
   auction: Auction;

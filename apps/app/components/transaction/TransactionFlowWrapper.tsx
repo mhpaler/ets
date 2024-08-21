@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import TransactionDebug from "@app/components/transaction/shared/TransactionDebug";
 import { transactionConfig } from "@app/config/transactionConfig";
 import { useTransactionManager } from "@app/hooks/useTransactionManager";
-import { TransactionType } from "@app/types/transaction";
-import TransactionDebug from "@app/components/transaction/shared/TransactionDebug";
+import type { TransactionType } from "@app/types/transaction";
+import type React from "react";
+import { useEffect, useState } from "react";
 
 interface FlowWrapperProps {
   id: string;
@@ -17,7 +18,7 @@ const TransactionFlowWrapper: React.FC<FlowWrapperProps> = ({ id, transactionTyp
 
   useEffect(() => {
     setCurrentStepIndex(0);
-  }, [transactionType]);
+  }, []);
 
   useEffect(() => {
     const confirmationStepIndex = steps.length - 1;

@@ -45,7 +45,7 @@ export function useTargets({
         filter: filter,
       },
     ],
-    config
+    config,
   );
 
   return {

@@ -28,10 +28,16 @@ module.exports = async ({ deployments }) => {
   await relayerFactory.waitForDeployment();
   const relayerFactoryAddress = await relayerFactory.getAddress();
 
-  if (process.env.VERIFY_ON_DEPLOY == "true") {
+  if (process.env.VERIFY_ON_DEPLOY === "true") {
     // Verify & Update network configuration file.
     await verify("ETSRelayerV1", relayerV1, relayerV1Address, []);
-    await verify("ETSRelayerFactory", relayerFactory, relayerFactoryAddress, [relayerV1Address, etsAccessControlsAddress, etsAddress, etsTokenAddress, etsTargetAddress]);
+    await verify("ETSRelayerFactory", relayerFactory, relayerFactoryAddress, [
+      relayerV1Address,
+      etsAccessControlsAddress,
+      etsAddress,
+      etsTokenAddress,
+      etsTargetAddress,
+    ]);
   }
 
   await saveNetworkConfig("ETSRelayerV1", relayerV1, null, false);
@@ -53,8 +59,8 @@ module.exports = async ({ deployments }) => {
   await save("ETSRelayerV1", proxyDeployments);
 
   log("====================================================");
-  log("ETSRelayerV1 deployed to -> " + relayerV1Address);
-  log("ETSRelayerFactory deployed to -> " + relayerFactoryAddress);
+  log(`ETSRelayerV1 deployed to -> ${relayerV1Address}`);
+  log(`ETSRelayerFactory deployed to -> ${relayerFactoryAddress}`);
   log("====================================================");
 };
 module.exports.tags = ["ETSRelayerFactory"];

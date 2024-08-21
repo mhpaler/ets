@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
-import useTranslation from "next-translate/useTranslation";
-import { Auction } from "@app/types/auction";
-import { useSystem } from "@app/hooks/useSystem";
 import { useAuction } from "@app/hooks/useAuctionContext";
+import { useSystem } from "@app/hooks/useSystem";
+import type { Auction } from "@app/types/auction";
+import useTranslation from "next-translate/useTranslation";
+import type React from "react";
+import { useEffect, useState } from "react";
 
 interface AuctionTimerProps {
   auction: Auction;
@@ -29,7 +30,7 @@ const AuctionTimer: React.FC<AuctionTimerProps> = ({ auction }) => {
         setTimeLeft(0);
         clearInterval(timer); // Now the timer is recognized correctly
         if (!auction.ended) {
-          console.log(`Calling endAuction for Auction ID: ${auction.id}`);
+          console.info(`Calling endAuction for Auction ID: ${auction.id}`);
           endAuction(auction.id);
           setAuctionEndTimeUI(currentTime);
         }

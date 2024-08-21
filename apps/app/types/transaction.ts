@@ -1,5 +1,5 @@
-import { Abi } from "viem";
-import { SimulateContractParameters } from "wagmi/actions";
+import type { Abi } from "viem";
+import type { SimulateContractParameters } from "wagmi/actions";
 
 //export type TransactionStage = "Preparing" | "Waiting for Signature" | "Sent" | "Processing" | "Completed" | "Failed";
 //
@@ -13,9 +13,9 @@ import { SimulateContractParameters } from "wagmi/actions";
 
 // TransactionTypes.ts
 export enum TransactionType {
-  AddRelayer,
-  Bid,
-  SettleAuction,
+  AddRelayer = 0,
+  Bid = 1,
+  SettleAuction = 2,
 }
 
 export type TransactionState = {

@@ -3,19 +3,19 @@ const { setup } = require("./setup.js");
 const { verify } = require("./utils/verify.js");
 const { saveNetworkConfig } = require("./utils/config.js");
 
-module.exports = async ({ getChainId, deployments }) => {
+module.exports = async ({ deployments }) => {
   const { save, log } = deployments;
   [accounts, factories, initSettings] = await setup();
 
   const wmatic = await factories.WMATIC.deploy();
   await wmatic.waitForDeployment();
   await saveNetworkConfig("WMATIC", wmatic, null, false);
-  const wmaticAddress = await wmatic.getAddress();;
+  const wmaticAddress = await wmatic.getAddress();
   const etsAccessControlsAddress = (await deployments.get("ETSAccessControls")).address;
   const etsTokenAddress = (await deployments.get("ETSToken")).address;
 
   log("====================================================");
-  log("WMATIC deployed to -> " + wmaticAddress);
+  log(`WMATIC deployed to -> ${wmaticAddress}`);
   log("====================================================");
 
   // Deploy ETS core using OpenZeppelin upgrades plugin.
@@ -40,7 +40,7 @@ module.exports = async ({ getChainId, deployments }) => {
   const deploymentAddress = await deployment.getAddress();
   const implementationAddress = await upgrades.erc1967.getImplementationAddress(deploymentAddress);
 
-  if (process.env.VERIFY_ON_DEPLOY == "true") {
+  if (process.env.VERIFY_ON_DEPLOY === "true") {
     // Verify & Update network configuration file.
     await verify("ETSAuctionHouse", deployment, implementationAddress, []);
   }
@@ -56,8 +56,8 @@ module.exports = async ({ getChainId, deployments }) => {
   await save("ETSAuctionHouse", proxyDeployments);
 
   log("====================================================");
-  log("ETSAuctionHouse proxy deployed to -> " + deploymentAddress);
-  log("ETSAuctionHouse implementation deployed to -> " + implementationAddress);
+  log(`ETSAuctionHouse proxy deployed to -> ${deploymentAddress}`);
+  log(`ETSAuctionHouse implementation deployed to -> ${implementationAddress}`);
   log("====================================================");
 };
 

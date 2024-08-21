@@ -1,4 +1,4 @@
-import { Auction } from "@app/types/auction";
+import type { Auction } from "@app/types/auction";
 
 export type TagType = {
   id: string;

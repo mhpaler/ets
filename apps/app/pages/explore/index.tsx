@@ -1,8 +1,8 @@
+import { Relayer, Tag, TaggingRecord, Target, Users } from "@app/components/icons";
+import Layout from "@app/layouts/default";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
-import Layout from "@app/layouts/default";
 import Link from "next/link";
-import { Users, Relayer, Tag, TaggingRecord, Target } from "@app/components/icons";
 
 const Explore: NextPage = () => {
   const { t } = useTranslation("common");

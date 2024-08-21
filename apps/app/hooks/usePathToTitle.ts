@@ -1,7 +1,7 @@
-import { useRouter } from "next/router";
-import useTranslation from "next-translate/useTranslation";
 import { Truncate } from "@app/components/Truncate";
 import { useCtags } from "@app/hooks/useCtags";
+import useTranslation from "next-translate/useTranslation";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
 /**

@@ -1,9 +1,9 @@
-const { setup, getFactories, getArtifacts } = require("./setup.js");
+const { setup, getFactories } = require("./setup.js");
 
-let artifacts, factories;
+let factories;
 
-describe("Upgrades tests", function () {
-  beforeEach("Setup test", async function () {
+describe("Upgrades tests", () => {
+  beforeEach("Setup test", async () => {
     factories = await getFactories();
     [accounts, contracts, initSettings] = await setup();
 
@@ -38,9 +38,8 @@ describe("Upgrades tests", function () {
     etsRelayerV2testABI = require("../abi/contracts/test/ETSRelayerV2test.sol/ETSRelayerV2test.json");
   });
 
-  describe("ETSRelayer", function () {
-    it("is upgradeable", async function () {
-
+  describe("ETSRelayer", () => {
+    it("is upgradeable", async () => {
       relayer1v1 = new ethers.Contract(relayer1Address, etsRelayerV1ABI, accounts.Buyer);
       relayer2v1 = new ethers.Contract(relayer2Address, etsRelayerV1ABI, accounts.Creator);
 
@@ -68,8 +67,7 @@ describe("Upgrades tests", function () {
       expect(await relayer2v2.newFunction()).to.be.equal(true);
     });
 
-    it("is only upgradeable by owner", async function () {
-
+    it("is only upgradeable by owner", async () => {
       // Connect to the beacon contract using random address.
       etsRelayerBeacon = new ethers.Contract(beaconAddress, etsRelayerBeaconABI, accounts.RandomTwo);
 

@@ -1,14 +1,14 @@
-import { useState, useEffect, useCallback } from "react";
+import TaggingForm from "@app/components/TaggingForm";
+import useToast from "@app/hooks/useToast";
+import Layout from "@app/layouts/default";
+import { useRelayerClient } from "@ethereum-tag-service/sdk-react-hooks";
+import debounce from "lodash.debounce";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
-import Layout from "@app/layouts/default";
-import { useAccount } from "wagmi";
-import debounce from "lodash.debounce";
-import useToast from "@app/hooks/useToast";
 import Link from "next/link";
-import { useRelayerClient } from "@ethereum-tag-service/sdk-react-hooks";
-import TaggingForm from "@app/components/TaggingForm";
-import { Hex } from "viem";
+import { useCallback, useEffect, useState } from "react";
+import type { Hex } from "viem";
+import { useAccount } from "wagmi";
 
 const fetchRandomImage = async (accessKey: string): Promise<string | null> => {
   if (!accessKey) {
@@ -101,7 +101,7 @@ const CreateTaggingRecord: NextPage = () => {
 
   return (
     <Layout>
-      <div className="col-span-7">
+      <div className="col-span-12 sm:col-span-7">
         <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="mb-4 min-w-[300px]">
             <div role="tablist" className="tabs tabs-bordered w-full">
@@ -138,6 +138,7 @@ const CreateTaggingRecord: NextPage = () => {
                   <div className="flex justify-center">
                     <img
                       src={imageUrl}
+                      // biome-ignore lint/a11y/noRedundantAlt: <explanation>
                       alt="Random Image"
                       className="object-cover w-full my-4"
                       style={{ maxHeight: "300px" }}
@@ -191,7 +192,7 @@ const CreateTaggingRecord: NextPage = () => {
           )}
         </div>
       </div>
-      <div className="col-span-5">
+      <div className="col-span-12 sm:col-span-5">
         <div className="bg-white rounded-lg shadow-lg p-6">
           <h2 className="text-lg font-semibold mb-4">{t("tagging-record-inputs")}</h2>
           <div className="mb-2 flex items-center">

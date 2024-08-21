@@ -1,19 +1,19 @@
-import { BigInt, ethereum } from "@graphprotocol/graph-ts";
-import { Auction } from "../generated/schema";
+import { BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
 import { ETSAuctionHouse } from "../generated/ETSAuctionHouse/ETSAuctionHouse";
+import { Auction } from "../generated/schema";
 
-import { ensureTag } from "./Tag";
-import { ensureOwner } from "./Owner";
 import { ZERO } from "../utils/constants";
+import { ensureOwner } from "./Owner";
+import { ensureTag } from "./Tag";
 
 import { logCritical } from "../utils/logCritical";
 
-export function ensureAuction(auctionId: BigInt, event: ethereum.Event): Auction {
+export function ensureAuction(auctionId: GraphBigInt, event: ethereum.Event): Auction {
   let auction = Auction.load(auctionId.toString());
 
   if (auction === null && event) {
-    let contract = ETSAuctionHouse.bind(event.address);
-    let auctionCall = contract.try_getAuction(auctionId);
+    const contract = ETSAuctionHouse.bind(event.address);
+    const auctionCall = contract.try_getAuction(auctionId);
 
     if (auctionCall.reverted) {
       logCritical("getAuction reverted for {}", [auctionId.toString()]);
@@ -22,7 +22,7 @@ export function ensureAuction(auctionId: BigInt, event: ethereum.Event): Auction
     auction = new Auction(auctionId.toString());
     auction.tag = ensureTag(auctionCall.value.tokenId, event).id;
 
-    let tokenAuctionNumberCall = contract.try_getAuctionCountForTokenId(auctionCall.value.tokenId);
+    const tokenAuctionNumberCall = contract.try_getAuctionCountForTokenId(auctionCall.value.tokenId);
     if (tokenAuctionNumberCall.reverted) {
       logCritical("getAuctionCountForTokenId reverted for {}", [auctionCall.value.tokenId.toString()]);
     }
@@ -40,11 +40,11 @@ export function ensureAuction(auctionId: BigInt, event: ethereum.Event): Auction
   return auction as Auction;
 }
 
-export function updateAuction(auctionId: BigInt, event: ethereum.Event): Auction {
-  let auction = ensureAuction(auctionId, event);
+export function updateAuction(auctionId: GraphBigInt, event: ethereum.Event): Auction {
+  const auction = ensureAuction(auctionId, event);
   if (auction && event) {
-    let contract = ETSAuctionHouse.bind(event.address);
-    let auctionCall = contract.try_getAuction(auctionId);
+    const contract = ETSAuctionHouse.bind(event.address);
+    const auctionCall = contract.try_getAuction(auctionId);
     if (auctionCall.reverted) {
       logCritical("getAuction reverted for {}", [auctionId.toString()]);
     }
@@ -59,11 +59,11 @@ export function updateAuction(auctionId: BigInt, event: ethereum.Event): Auction
   return auction as Auction;
 }
 
-export function extendAuction(auctionId: BigInt, event: ethereum.Event): Auction {
-  let auction = ensureAuction(auctionId, event);
+export function extendAuction(auctionId: GraphBigInt, event: ethereum.Event): Auction {
+  const auction = ensureAuction(auctionId, event);
   if (auction && event) {
-    let contract = ETSAuctionHouse.bind(event.address);
-    let auctionCall = contract.try_getAuction(auctionId);
+    const contract = ETSAuctionHouse.bind(event.address);
+    const auctionCall = contract.try_getAuction(auctionId);
     if (auctionCall.reverted) {
       logCritical("getAuction reverted for {}", [auctionId.toString()]);
     }

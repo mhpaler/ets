@@ -1,6 +1,6 @@
-import { useRouter } from "next/router";
 import { usePathToTitle } from "@app/hooks/usePathToTitle";
 import useTranslation from "next-translate/useTranslation";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
 /**

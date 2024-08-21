@@ -1,8 +1,8 @@
-import type { PublicClient, WalletClient, Hex } from "viem";
+import type { Hex, PublicClient, WalletClient } from "viem";
+import { getConfig } from "../contracts/config";
+import type { TokenReadFunction, TokenWriteFunction } from "../types";
 import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
-import { TokenReadFunction, TokenWriteFunction } from "../types";
-import { getConfig } from "../contracts/config";
 import { validateConfig } from "../utils/validateConfig";
 
 export class TokenClient {
@@ -52,15 +52,15 @@ export class TokenClient {
     validateConfig(chainId, publicClient, walletClient);
 
     const config = getConfig(chainId);
-    if (!config || config.etsTokenConfig == undefined) throw new Error("Configuration could not be retrieved");
+    if (!config || config.etsTokenConfig === undefined) throw new Error("Configuration could not be retrieved");
 
     this.etsTokenConfig = config.etsTokenConfig;
   }
 
   async existingTags(tags: string[]): Promise<string[]> {
     const existingTags = [];
-    for (let tag of tags) {
-      const exists = await this.tagExistsById(tag);
+    for (const tag of tags) {
+      const exists = await this.tagExistsByString(tag);
       if (exists) existingTags.push(tag);
     }
     return existingTags;
@@ -75,9 +75,12 @@ export class TokenClient {
     return data > BigInt(0);
   }
 
-  async tagExistsById(tag: string): Promise<boolean> {
-    const tagId = await this.computeTagId(tag);
+  async tagExistsById(tagId: bigint): Promise<boolean> {
     return this.readContract("tagExistsById", [tagId]);
+  }
+
+  async tagExistsByString(tag: string): Promise<boolean> {
+    return this.readContract("tagExistsByString", [tag]);
   }
 
   async computeTagId(tag: string): Promise<bigint> {

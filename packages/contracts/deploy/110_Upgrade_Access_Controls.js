@@ -18,15 +18,15 @@ module.exports = async ({ deployments }) => {
   await saveNetworkConfig("ETSAccessControls", upgrade, implementation, true);
 
   const artifact = await deployments.getExtendedArtifact("ETSAccessControls");
-  let proxyDeployments = {
+  const proxyDeployments = {
     address: upgrade.address,
     ...artifact,
   };
   await save("ETSAccessControls", proxyDeployments);
 
   log("====================================================");
-  log("ETSAccessControls upgraded proxy -> " + upgrade.address);
-  log("ETSAccessControls upgraded implementation -> " + implementation);
+  log(`ETSAccessControls upgraded proxy -> ${upgrade.address}`);
+  log(`ETSAccessControls upgraded implementation -> ${implementation}`);
   log("====================================================");
 };
 

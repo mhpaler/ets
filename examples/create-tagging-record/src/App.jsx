@@ -1,6 +1,6 @@
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import React from "react";
 import { useAccount } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import TaggingRecordForm from "./components/TaggingRecordForm";
 
 function App() {

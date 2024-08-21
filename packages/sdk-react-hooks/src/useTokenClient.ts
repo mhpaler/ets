@@ -1,5 +1,5 @@
+import { type TokenClient, createTokenClient } from "@ethereum-tag-service/sdk-core";
 import { useEffect, useState } from "react";
-import { createTokenClient, TokenClient } from "@ethereum-tag-service/sdk-core";
 
 export const useTokenClient = ({ chainId, account }: { chainId?: number; account?: `0x${string}` }) => {
   const [tokenClient, setTokenClient] = useState<TokenClient>();
@@ -11,165 +11,93 @@ export const useTokenClient = ({ chainId, account }: { chainId?: number; account
   }, [chainId, account]);
 
   const computeTagId = async (tag: string): Promise<bigint> => {
-    try {
-      if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.computeTagId(tag);
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("Token client not initialized");
+    return await tokenClient.computeTagId(tag);
   };
 
   const computeTagIds = async (tags: string[]): Promise<bigint[]> => {
-    try {
-      if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.computeTagIds(tags);
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("Token client not initialized");
+    return await tokenClient.computeTagIds(tags);
   };
 
   const tagExists = async (tag: string): Promise<boolean> => {
-    try {
-      if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.tagExistsById(tag);
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("Token client not initialized");
+    return await tokenClient.tagExistsByString(tag);
   };
 
   const existingTags = async (tags: string[]): Promise<string[]> => {
-    try {
-      if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.existingTags(tags);
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("Token client not initialized");
+    return await tokenClient.existingTags(tags);
   };
 
   const hasTags = async (address: `0x${string}` | undefined): Promise<boolean> => {
-    try {
-      if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.hasTags(address);
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("Token client not initialized");
+    return await tokenClient.hasTags(address);
   };
 
   const balanceOf = async (owner: `0x${string}`): Promise<bigint> => {
-    try {
-      if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.balanceOf(owner);
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("Token client not initialized");
+    return await tokenClient.balanceOf(owner);
   };
 
   const getOrCreateTagId = async (tag: string, relayer: `0x${string}`, creator: `0x${string}`): Promise<bigint> => {
-    try {
-      if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.getOrCreateTagId(tag, relayer, creator);
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("Token client not initialized");
+    return await tokenClient.getOrCreateTagId(tag, relayer, creator);
   };
 
   const getApproved = async (tokenId: bigint): Promise<string> => {
-    try {
-      if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.getApproved(tokenId);
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("Token client not initialized");
+    return await tokenClient.getApproved(tokenId);
   };
 
   const getTagById = async (tokenId: bigint): Promise<any> => {
-    try {
-      if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.getTagById(tokenId);
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("Token client not initialized");
+    return await tokenClient.getTagById(tokenId);
   };
 
   const getTagByString = async (tag: string): Promise<any> => {
-    try {
-      if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.getTagByString(tag);
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("Token client not initialized");
+    return await tokenClient.getTagByString(tag);
   };
 
   const isApprovedForAll = async (owner: `0x${string}`, operator: `0x${string}`): Promise<boolean> => {
-    try {
-      if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.isApprovedForAll(owner, operator);
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("Token client not initialized");
+    return await tokenClient.isApprovedForAll(owner, operator);
   };
 
   const ownerOf = async (tokenId: bigint): Promise<string> => {
-    try {
-      if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.ownerOf(tokenId);
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("Token client not initialized");
+    return await tokenClient.ownerOf(tokenId);
   };
 
   const getOwnershipTermLength = async (): Promise<bigint> => {
-    try {
-      if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.getOwnershipTermLength();
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("Token client not initialized");
+    return await tokenClient.getOwnershipTermLength();
   };
 
   const tagOwnershipTermExpired = async (tokenId: bigint): Promise<boolean> => {
-    try {
-      if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.tagOwnershipTermExpired(tokenId);
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("Token client not initialized");
+    return await tokenClient.tagOwnershipTermExpired(tokenId);
   };
 
   const tagMaxStringLength = async (): Promise<bigint> => {
-    try {
-      if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.tagMaxStringLength();
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("Token client not initialized");
+    return await tokenClient.tagMaxStringLength();
   };
 
   const tagMinStringLength = async (): Promise<bigint> => {
-    try {
-      if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.tagMinStringLength();
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("Token client not initialized");
+    return await tokenClient.tagMinStringLength();
   };
 
   const supportsInterface = async (interfaceId: `0x${string}`): Promise<boolean> => {
-    try {
-      if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.supportsInterface(interfaceId);
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("Token client not initialized");
+    return await tokenClient.supportsInterface(interfaceId);
   };
 
   const symbol = async (): Promise<string> => {
-    try {
-      if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.symbol();
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("Token client not initialized");
+    return await tokenClient.symbol();
   };
 
   const transferFrom = async (
@@ -177,30 +105,18 @@ export const useTokenClient = ({ chainId, account }: { chainId?: number; account
     to: `0x${string}`,
     tokenId: bigint,
   ): Promise<{ transactionHash: string; status: number }> => {
-    try {
-      if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.transferFrom(from, to, tokenId);
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("Token client not initialized");
+    return await tokenClient.transferFrom(from, to, tokenId);
   };
 
   const recycleTag = async (tokenId: bigint): Promise<{ transactionHash: string; status: number }> => {
-    try {
-      if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.recycleTag(tokenId);
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("Token client not initialized");
+    return await tokenClient.recycleTag(tokenId);
   };
 
   const renewTag = async (tokenId: bigint): Promise<{ transactionHash: string; status: number }> => {
-    try {
-      if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.renewTag(tokenId);
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("Token client not initialized");
+    return await tokenClient.renewTag(tokenId);
   };
 
   const safeTransferFrom = async (
@@ -209,12 +125,8 @@ export const useTokenClient = ({ chainId, account }: { chainId?: number; account
     tokenId: bigint,
     data?: `0x${string}`,
   ): Promise<{ transactionHash: string; status: number }> => {
-    try {
-      if (!tokenClient) throw new Error("Token client not initialized");
-      return await tokenClient.safeTransferFrom(from, to, tokenId, data);
-    } catch (error) {
-      throw error;
-    }
+    if (!tokenClient) throw new Error("Token client not initialized");
+    return await tokenClient.safeTransferFrom(from, to, tokenId, data);
   };
   return {
     tokenClient,

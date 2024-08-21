@@ -1,10 +1,11 @@
-import React from "react";
-import { Bid } from "@app/types/auction";
-import { Truncate } from "@app/components/Truncate";
-import { makeScannerLink } from "@app/utils";
+import Address from "@app/components/Address";
 import { Outlink } from "@app/components/Outlink";
+import { Truncate } from "@app/components/Truncate";
 import { useCurrentChain } from "@app/hooks/useCurrentChain";
-import ENSAddress from "@app/components/ENSAddress";
+import type { Bid } from "@app/types/auction";
+import { makeScannerLink } from "@app/utils";
+import Link from "next/link";
+import type React from "react";
 
 // Your timestampToString function remains the same
 const timestampToString = (timestamp: number, language = "en-US") => {
@@ -34,7 +35,7 @@ const BidsTable: React.FC<AuctionProps> = ({ bids, limit }) => {
         <li key={index} className="text-sm flex justify-between items-center rounded-md m-4 py-2 px-3 bg-white">
           <div>
             <span className="font-semibold">
-              <ENSAddress address={bid.bidder.id} ens={bid.bidder.ens} truncateLength={12} />
+              <Address address={bid.bidder.id} ens={bid.bidder.ens} truncateLength={12} />
             </span>
             <span className="text-xs text-gray-500 block mt-1">{timestampToString(bid.blockTimestamp)}</span>
           </div>

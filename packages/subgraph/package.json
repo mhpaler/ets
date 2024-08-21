@@ -1,30 +1,30 @@
 {
   "name": "@ethereum-tag-service/subgraph",
   "author": "Ethereum Tag Service <team@ets.xyz>",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publishConfig": {
     "access": "public"
   },
+  "type": "commonjs",
   "scripts": {
     "clean-graph-node": "rm -rf graph-node/data/",
-    "remove-graph-node": "cd graph-node && docker-compose down && pnpm clean-graph-node",
-    "start-graph-node": "cd scripts && ./start-graph-node.sh",
-    "prepare-local": "node scripts/generate-yaml.js --deployment localhost",
-    "prepare-testnet-stage": "node scripts/generate-yaml.js --deployment testnet_stage",
-    "prepare-testnet-production": "node scripts/generate-yaml.js --deployment testnet_production",
     "codegen": "graph codegen --output-dir src/generated",
     "graph-deploy-local": "node scripts/deploy.js --deployment localhost",
+    "graph-deploy-testnet-production": "node scripts/deploy.js --deployment testnet_production",
     "graph-deploy-testnet-stage": "node scripts/deploy.js --deployment testnet_stage",
-    "graph-deploy-testnet-production": "node scripts/deploy.js --deployment testnet_production"
-  },
-  "dependencies": {
-    "@graphprotocol/graph-cli": "^0.80.0",
-    "@graphprotocol/graph-ts": "^0.35.1"
+    "prepare-local": "node scripts/generate-yaml.js --deployment localhost",
+    "prepare-testnet-production": "node scripts/generate-yaml.js --deployment testnet_production",
+    "prepare-testnet-stage": "node scripts/generate-yaml.js --deployment testnet_stage",
+    "start-graph-node": "cd scripts && ./start-graph-node.sh",
+    "test:build": "publint --strict"
   },
   "devDependencies": {
-    "axios": "^1.6.3",
+    "@graphprotocol/graph-cli": "^0.80.0",
+    "@graphprotocol/graph-ts": "^0.35.1",
+    "axios": "^1.6.2",
     "fs-extra": "^11.1.1",
     "handlebars": "^4.7.7",
-    "minimist": "^1.2.8"
+    "minimist": "^1.2.8",
+    "node-fetch": "2"
   }
 }

@@ -1,7 +1,7 @@
-// TransactionFormActions.tsx
-import React from "react";
 import { Button } from "@app/components/Button";
 import useTranslation from "next-translate/useTranslation";
+// TransactionFormActions.tsx
+import type React from "react";
 
 interface TransactionFormActionsProps {
   isFormDisabled: boolean;
