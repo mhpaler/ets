@@ -1,3 +1,53 @@
 # Get started
 
-Hello world!
+## Installation
+
+To an existing project:
+
+:::code-group
+
+```bash [npm]
+npm install @ethereum-tag-service/sdk-core
+```
+
+```bash [pnpm]
+pnpm add @ethereum-tag-service/sdk-core
+```
+
+```bash [yarn]
+yarn add @ethereum-tag-service/sdk-core
+```
+
+```bash [bun]
+bun add @ethereum-tag-service/sdk-core
+```
+
+:::
+
+## Using ETS `sdk-core`
+
+### Simple read example
+
+```typescript
+import { createTokenClient } from "@ethereum-tag-service/sdk-core";
+
+// Arbitrum Sepolia
+const chainId = 421614;
+
+// Create a token client to read from Arbitrum Sepolia.
+const client = createTokenClient({ chainId });
+
+// Tag we are curious about
+const tag = "#rainbow";
+
+// Compute tag id.
+const tagId = await client?.computeTagId(tag);
+
+// See if this tag id exists on ETS. Note that we could
+const tagExists = tagId && (await client?.tagExistsById(tagId));
+
+export { tag, tagId, tagExists };
+```
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/ethereum-tag-service/examples/tree/main/sdk-core/simple_read)
+
+open in [examples repo](https://github.com/ethereum-tag-service/examples/tree/main/sdk-core/simple_read)

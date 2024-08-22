@@ -32,17 +32,7 @@ export default defineConfig({
     "/sdks": [
       {
         text: "Introduction",
-        link: "/sdk",
-      },
-      {
-        text: "SDK React",
-        //collapsed: false,
-        items: [
-          {
-            text: "Getting Started",
-            link: "/sdks/react/getting-started",
-          },
-        ],
+        link: "/sdks",
       },
       {
         text: "SDK Core",
@@ -51,6 +41,16 @@ export default defineConfig({
           {
             text: "Getting Started",
             link: "/sdks/core/getting-started",
+          },
+        ],
+      },
+      {
+        text: "SDK React",
+        //collapsed: false,
+        items: [
+          {
+            text: "Getting Started",
+            link: "/sdks/react/getting-started",
           },
         ],
       },
