@@ -37,16 +37,11 @@ const chainId = 421614;
 // Create a token client to read from Arbitrum Sepolia.
 const client = createTokenClient({ chainId });
 
-// Tag we are curious about
+// See if tag #rainbow exists on ETS.
 const tag = "#rainbow";
+const tagExists = await client?.tagExistsByString(tag);
 
-// Compute tag id.
-const tagId = await client?.computeTagId(tag);
-
-// See if this tag id exists on ETS. Note that we could
-const tagExists = tagId && (await client?.tagExistsById(tagId));
-
-export { tag, tagId, tagExists };
+export { tag, tagExists };
 ```
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/ethereum-tag-service/examples/tree/main/sdk-core/simple_read)
 
