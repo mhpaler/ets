@@ -1,5 +1,12 @@
 # @ethereum-tag-service/app
 
+## 0.0.4
+
+### Patch Changes
+
+- Updated dependencies [[`4d2a9f2`](https://github.com/ethereum-tag-service/ets/commit/4d2a9f27ab59017b87294573ebc5f5f5a08d22f7)]:
+  - @ethereum-tag-service/subgraph-endpoints@0.0.3
+
 ## 0.0.3
 
 ### Patch Changes
