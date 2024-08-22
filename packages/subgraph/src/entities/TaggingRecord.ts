@@ -28,6 +28,7 @@ export function ensureTaggingRecord(taggingRecordId: GraphBigInt, event: ethereu
     }
 
     taggingRecord = new TaggingRecord(taggingRecordId.toString());
+    taggingRecord.txnHash = event.transaction.hash.toHexString();
     taggingRecord.tags = tagIDs;
     taggingRecord.target = ensureTarget(taggingRecordCall.value.getTargetId(), event).id;
     taggingRecord.recordType = taggingRecordCall.value.getRecordType();
