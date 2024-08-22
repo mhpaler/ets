@@ -3,7 +3,9 @@ import { Tag } from "@app/components/Tag";
 import { TanstackTable } from "@app/components/TanstackTable";
 import { TimeAgo } from "@app/components/TimeAgo";
 import { Truncate } from "@app/components/Truncate";
+import { URI } from "@app/components/URI";
 import { globalSettings } from "@app/config/globalSettings";
+import { getExplorerUrl } from "@app/config/wagmiConfig";
 import { useCtags } from "@app/hooks/useCtags";
 import Layout from "@app/layouts/default";
 import type { TagType } from "@app/types/tag";
@@ -12,10 +14,12 @@ import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useChainId } from "wagmi";
 
 const Ctags: NextPage = () => {
   const { t } = useTranslation("common");
   const [pageIndex, setPageIndex] = useState(0);
+  const chainId = useChainId();
   const { tags = [], nextTags } = useCtags({
     skip: pageIndex * 20,
     config: {
@@ -34,7 +38,12 @@ const Ctags: NextPage = () => {
     () => [
       columnHelper.accessor("display", {
         header: () => "Tag",
-        cell: (info) => <Tag tag={info.row.original} />,
+        cell: (info) => (
+          <div className="flex-shrink-0 flex space-x-2 items-center">
+            <Tag tag={info.row.original} />
+            <URI value={getExplorerUrl(chainId, 'token', info.row.original.id)} />
+          </div>
+        ),
       }),
       columnHelper.accessor("timestamp", {
         header: () => "Created",
@@ -63,7 +72,7 @@ const Ctags: NextPage = () => {
         header: () => "Tagging Records",
       }),
     ],
-    [columnHelper, t],
+    [columnHelper, t, chainId],
   );
 
   return (

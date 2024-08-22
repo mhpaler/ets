@@ -9,13 +9,14 @@ const URI = ({ value }: { value: string }) => {
   return (
     <button
       onClick={(event) => {
+        event.preventDefault();
         event.stopPropagation();
         openURI(value);
       }}
       className="link link-primary"
     >
       <svg className="inline-flex w-5 h-5" width="24" height="24" fill="none" viewBox="0 0 24 24">
-        <title>{t("open URI")}</title>
+        <title>{t("Open URI")}</title>
         <path
           stroke="currentColor"
           strokeLinecap="round"
@@ -31,7 +32,7 @@ const URI = ({ value }: { value: string }) => {
           d="M17 7L6.75 17.25"
         />
       </svg>
-      <span className="sr-only">{t("open URI")}</span>
+      <span className="sr-only">{t("Open URI")}</span>
     </button>
   );
 };

@@ -10,6 +10,9 @@ import { Tag } from "./Tag";
 import { TanstackTable } from "./TanstackTable";
 import { TimeAgo } from "./TimeAgo";
 import { Truncate } from "./Truncate";
+import { URI } from "./URI";
+import { getExplorerUrl } from "@app/config/wagmiConfig";
+import { useChainId } from "wagmi";
 
 type Props = {
   filter?: any;
@@ -21,6 +24,7 @@ type Props = {
 const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings.DEFAULT_PAGESIZE, orderBy, title }) => {
   const { t } = useTranslation("common");
   const [pageIndex, setPageIndex] = useState(0);
+  const chainId = useChainId();
 
   const { taggingRecords, nextTaggingRecords } = useTaggingRecords({
     filter: filter,
@@ -55,6 +59,7 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings.DEF
               {Truncate(info.getValue(), 14, "middle")}
             </Link>
             <CopyAndPaste value={info.getValue()} />
+            <URI value={getExplorerUrl(chainId, 'tx', info.getValue())} />
           </div>
         ),
       }),
