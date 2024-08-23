@@ -80,7 +80,6 @@
       "examples/**",
       "apps/app",
       "apps/site",
-      "apps/docs",
       "apps/oracle",
       "packages/brand",
       "packages/contracts",
