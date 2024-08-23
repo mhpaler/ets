@@ -1,9 +1,7 @@
 import Address from "@app/components/Address";
 import { FormattedNumber } from "@app/components/FormattedNumber";
 import { Panel } from "@app/components/Panel";
-import { Tag } from "@app/components/Tag";
 import { Tags } from "@app/components/Tags";
-import { TimeAgo } from "@app/components/TimeAgo";
 import { Truncate } from "@app/components/Truncate";
 import { useCreators } from "@app/hooks/useCreators";
 import { useCtags } from "@app/hooks/useCtags";
@@ -119,23 +117,7 @@ const Creator: NextPage = () => {
               title={t("tags-created-by", { creator: Truncate(creator.id, 13, "middle") })}
               tags={tags}
               rowLink={false}
-              columnsConfig={[
-                {
-                  title: "tag",
-                  field: "tag",
-                  formatter: (_: any, tag: any) => <Tag tag={tag} />,
-                },
-                {
-                  title: "created",
-                  field: "timestamp",
-                  formatter: (value: any) => <TimeAgo date={value * 1000} />,
-                },
-                {
-                  title: "tagging records",
-                  field: "tagAppliedInTaggingRecord",
-                  formatter: (value: any) => value,
-                },
-              ]}
+              columns={["tag", "created", "taggingRecords"]}
             />
           </div>
         </div>

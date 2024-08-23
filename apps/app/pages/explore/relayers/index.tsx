@@ -63,7 +63,7 @@ const Relayers: NextPage = () => {
               <Link href={`/explore/relayers/${relayer.id}`} className="link link-primary">
                 {info.getValue()}
               </Link>
-              <URI value={getExplorerUrl(chainId, 'address', info.row.original.id)} />
+              <URI value={getExplorerUrl(chainId, "address", info.row.original.id)} />
             </div>
           );
         },
@@ -96,7 +96,7 @@ const Relayers: NextPage = () => {
         cell: (info) => (info.getValue() ? t("disabled") : t("enabled")),
       }),
     ],
-    [t, columnHelper.accessor],
+    [t, columnHelper.accessor, chainId],
   );
 
   return (
