@@ -1,15 +1,11 @@
-import Head from "next/head";
-import Image from "next/image";
-import Link from "next/link";
+---
+layout: minimal
+showLogo: false
+showOutline: false
+---
 
-export default function Home() {
-  return (
-    <div className="flex items-center justify-center h-screen px-6">
-      <Head>
-        <title>Ethereum Tag Service</title>
-        <meta name="description" content="An experimental EVM based content tagging service" />
-        <link rel="icon" href="/favicon.svg" />
-      </Head>
+
+<div className="flex items-center justify-center h-screen px-6">
 
       <main className="max-w-sm py-6 my-auto space-y-6">
         <div className="flex items-center justify-center mt-10 mb-14">
@@ -67,7 +63,7 @@ export default function Home() {
           </a>
           <a href="https://app.ets.xyz" target="_blank" rel="noreferrer">
             <button className="bg-transparent text-sm hover:bg-pink-500 text-pink-700 hover:text-white py-2 px-4 border border-pink-500 hover:border-transparent rounded">
-              Explorer
+              Explore
             </button>
           </a>
           <a href="https://github.com/ethereum-tag-service/ets#readme" target="_blank" rel="noreferrer">
@@ -83,5 +79,3 @@ export default function Home() {
         </div>
       </main>
     </div>
-  );
-}

@@ -1,5 +1,11 @@
 # @ethereum-tag-service/subgraph-endpoints
 
+## 0.0.3
+
+### Patch Changes
+
+- [#370](https://github.com/ethereum-tag-service/ets/pull/370) [`4d2a9f2`](https://github.com/ethereum-tag-service/ets/commit/4d2a9f27ab59017b87294573ebc5f5f5a08d22f7) Thanks [@mhpaler](https://github.com/mhpaler)! - Added tagging record txnHash as field to the subgraph api.
+
 ## 0.0.2
 
 ### Patch Changes

@@ -3,8 +3,9 @@ import { defineConfig } from "vocs";
 export default defineConfig({
   rootDir: "./",
   title: "Ethereum Tag Service",
+  iconUrl: { light: "/favicons/ets-symbol.svg", dark: "/favicons/ets-symbol-white.svg" },
   topNav: [
-    { text: "Concepts", link: "/concepts", match: "/concepts" },
+    /* { text: "Concepts", link: "/concepts", match: "/concepts" },
     { text: "SDKs", link: "/sdks", match: "/sdks" },
     { text: "API", link: "/api/getting-started", match: "/api" },
     { text: "Contracts", link: "/contracts/", match: "/contracts" },
@@ -20,7 +21,7 @@ export default defineConfig({
           link: "https://github.com/wevm/vocs/blob/main/.github/CONTRIBUTING.md",
         },
       ],
-    },
+    }, */
   ],
   sidebar: {
     "/concepts": [
