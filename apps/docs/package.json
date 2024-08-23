@@ -7,11 +7,11 @@
     "build": "vocs build",
     "preview": "vocs preview"
   },
-  "dependencies": {
-    "@types/react": "latest",
-    "react": "latest",
-    "react-dom": "latest",
+  "devDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "typescript": "latest",
-    "vocs": "latest"
+    "@types/react": "latest",
+    "vocs": "1.0.0-alpha.54"
   }
 }
