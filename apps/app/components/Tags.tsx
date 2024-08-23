@@ -46,7 +46,7 @@ const Tags: React.FC<Props> = ({
       tag: columnHelper.accessor("display", {
         header: () => "Tag",
         cell: (info) => (
-          <div className="flex-shrink-0 flex space-x-2 items-center">
+          <div className="flex items-center">
             <Tag tag={info.row.original} />
             <URI value={getExplorerUrl(chainId, "nft", `${etsTokenAddress}/${info.row.original.id}`)} />
           </div>
