@@ -276,24 +276,6 @@ importers:
         specifier: ^5.4.5
         version: 5.5.4
 
-  apps/docs:
-    devDependencies:
-      '@types/react':
-        specifier: 18.2.12
-        version: 18.2.12
-      react:
-        specifier: 18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
-      typescript:
-        specifier: latest
-        version: 5.5.4
-      vocs:
-        specifier: 1.0.0-alpha.54
-        version: 1.0.0-alpha.54(@types/node@20.12.7)(@types/react@18.2.12)(react-dom@18.2.0)(react@18.2.0)(typescript@5.5.4)
-
   apps/oracle:
     dependencies:
       '@ethereum-tag-service/contracts':
@@ -366,6 +348,24 @@ importers:
       typescript:
         specifier: ^5.4.5
         version: 5.5.4
+
+  apps/site:
+    devDependencies:
+      '@types/react':
+        specifier: 18.2.12
+        version: 18.2.12
+      react:
+        specifier: 18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
+      typescript:
+        specifier: latest
+        version: 5.5.4
+      vocs:
+        specifier: 1.0.0-alpha.54
+        version: 1.0.0-alpha.54(@types/node@20.12.7)(@types/react@18.2.12)(react-dom@18.2.0)(react@18.2.0)(typescript@5.5.4)
 
   packages/brand: {}
 
