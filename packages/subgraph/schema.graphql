@@ -101,6 +101,9 @@ type TaggingRecord @entity {
   "Tagging Record Id."
   id: ID!
 
+  "Tagging record transaction hash."
+  txnHash: String!
+
   "Entity relationship field for CTAGs used in tagging record."
   tags: [Tag!]
 

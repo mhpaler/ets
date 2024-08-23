@@ -1,27 +1,17 @@
 {
   "name": "@ethereum-tag-service/site",
   "private": true,
+  "type": "module",
   "scripts": {
-    "clean": "rm -rf .next",
-    "dev": "pnpm run clean && dotenv -e ../../.env next dev -p 3001",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "@ethereum-tag-service/brand": "latest",
-    "next": "^13.4.5",
-    "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "dev": "vocs -c dev",
+    "build": "vocs build",
+    "preview": "vocs preview"
   },
   "devDependencies": {
-    "@types/node": "^20.12.7",
-    "@types/react": "18.2.41",
-    "autoprefixer": "^10.4.16",
-    "eslint": "8.17.0",
-    "next-transpile-modules": "^10.0.0",
-    "postcss": "^8.4.33",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5.4.5"
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "typescript": "latest",
+    "@types/react": "latest",
+    "vocs": "1.0.0-alpha.54"
   }
 }
