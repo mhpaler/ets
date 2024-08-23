@@ -37,6 +37,7 @@ export function useTaggingRecords({
           id
           recordType
           timestamp
+          txnHash
           relayer {
             id
             name

@@ -4,6 +4,7 @@ export type TaggingRecordType = {
   id: string;
   recordType: string;
   timestamp: string;
+  txnHash: string;
   relayer: {
     id: Hex;
     name: string;
