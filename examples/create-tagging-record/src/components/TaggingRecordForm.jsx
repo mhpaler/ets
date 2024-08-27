@@ -37,7 +37,7 @@ function TaggingRecordForm() {
       setMessage("");
       setCreatedRecordId(null);
       try {
-        const recordId = await relayerClient?.createTaggingRecord(tags, targetURI, recordType, address);
+        const recordId = await relayerClient?.createTaggingRecord(tags, targetURI, recordType);
         setTags([]);
         setTargetURI("");
         setRecordType("");
