@@ -4,7 +4,9 @@ class MyDocument extends Document {
   render() {
     return (
       <Html lang="en" data-theme="ets">
-        <Head />
+        <Head>
+          <link rel="icon" href="/favicon.svg" />
+        </Head>
         <body>
           <Main />
           <NextScript />

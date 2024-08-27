@@ -115,7 +115,7 @@ export class RelayerClient {
           createdTags = tagsToMint;
 
           return {
-            status: receipt.status,
+            status: receipt.status === "success" ? 1 : 0,
             transactionHash: receipt.transactionHash,
             createdTags,
           };
