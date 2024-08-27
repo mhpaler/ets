@@ -1,10 +1,8 @@
 import Address from "@app/components/Address";
 import { FormattedNumber } from "@app/components/FormattedNumber";
 import { Panel } from "@app/components/Panel";
-import { Tag } from "@app/components/Tag";
 import { TaggingRecords } from "@app/components/TaggingRecords";
 import { Tags } from "@app/components/Tags";
-import { TimeAgo } from "@app/components/TimeAgo";
 import { useCtags } from "@app/hooks/useCtags";
 import { useCurrentChain } from "@app/hooks/useCurrentChain";
 import { useRelayers } from "@app/hooks/useRelayers";
@@ -156,41 +154,7 @@ const Relayer: NextPage = () => {
               title={t("relayer-tags", { relayer: relayer.name })}
               tags={tags}
               rowLink={false}
-              columnsConfig={[
-                {
-                  title: "tag",
-                  field: "tag",
-                  formatter: (_: any, tag: any) => <Tag tag={tag} />,
-                },
-                {
-                  title: "created",
-                  field: "timestamp",
-                  formatter: (value: any) => <TimeAgo date={value * 1000} />,
-                },
-                {
-                  title: t("creator"),
-                  field: "creator",
-                  formatter: (value: any) => (
-                    <Link href={`/explore/creators/${value.id}`} className="link link-primary">
-                      <Address address={value.id} ens={value.ens} />
-                    </Link>
-                  ),
-                },
-                {
-                  title: t("owner"),
-                  field: "owner",
-                  formatter: (value: any) => (
-                    <Link href={`/explore/owners/${value.id}`} className="link link-primary">
-                      <Address address={value.id} ens={value.ens} />
-                    </Link>
-                  ),
-                },
-                {
-                  title: "tagging records",
-                  field: "tagAppliedInTaggingRecord",
-                  formatter: (value: any) => value,
-                },
-              ]}
+              columns={["tag", "timestamp", "creator", "owner", "taggingRecords"]}
             />
           </div>
         </>
