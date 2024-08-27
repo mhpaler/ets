@@ -1,9 +1,12 @@
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Truncate } from "@app/components/Truncate";
+import { getExplorerUrl } from "@app/config/wagmiConfig";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Hex } from "viem";
+import { useChainId } from "wagmi";
+import { URI } from "./URI";
 
 interface AddressProps {
   address?: string | Hex;
@@ -16,6 +19,7 @@ const Address: React.FC<AddressProps> = ({ address, ens, truncateLength = 14 }) 
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
   const spanRef = useRef<HTMLSpanElement>(null);
   const displayText = ens || Truncate(address, truncateLength, "middle");
+  const chainId = useChainId();
 
   useEffect(() => {
     if (showTooltip && spanRef.current) {
@@ -38,6 +42,7 @@ const Address: React.FC<AddressProps> = ({ address, ens, truncateLength = 14 }) 
         {displayText}
       </span>
       {address && <CopyAndPaste value={address.toString()} />}
+      <URI value={getExplorerUrl(chainId, "address", address)} />
       {showTooltip &&
         createPortal(
           <div

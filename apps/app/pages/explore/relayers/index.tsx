@@ -4,7 +4,9 @@ import { Modal } from "@app/components/Modal";
 import { TanstackTable } from "@app/components/TanstackTable";
 import { TimeAgo } from "@app/components/TimeAgo";
 import { Truncate } from "@app/components/Truncate";
+import { URI } from "@app/components/URI";
 import TransactionFlowWrapper from "@app/components/transaction/TransactionFlowWrapper";
+import { getExplorerUrl } from "@app/config/wagmiConfig";
 import { RelayerProvider } from "@app/context/RelayerContext";
 import { useRelayers } from "@app/hooks/useRelayers";
 import Layout from "@app/layouts/default";
@@ -16,7 +18,7 @@ import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { useAccount } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 
 const pageSize = 20;
 
@@ -24,6 +26,7 @@ const Relayers: NextPage = () => {
   const { t } = useTranslation("common");
   const [pageIndex, setPageIndex] = useState(0);
   const { isConnected } = useAccount();
+  const chainId = useChainId();
   const [transactionId, setTransactionId] = useState<string>("");
   const [isClient, setIsClient] = useState(false);
 
@@ -56,9 +59,12 @@ const Relayers: NextPage = () => {
         cell: (info) => {
           const relayer = info.row.original as RelayerType;
           return (
-            <Link href={`/explore/relayers/${relayer.id}`} className="link link-primary">
-              {info.getValue()}
-            </Link>
+            <div className="flex items-center">
+              <Link href={`/explore/relayers/${relayer.id}`} className="link link-primary">
+                {info.getValue()}
+              </Link>
+              <URI value={getExplorerUrl(chainId, "address", info.row.original.id)} />
+            </div>
           );
         },
       }),
@@ -90,7 +96,7 @@ const Relayers: NextPage = () => {
         cell: (info) => (info.getValue() ? t("disabled") : t("enabled")),
       }),
     ],
-    [t, columnHelper.accessor],
+    [t, columnHelper.accessor, chainId],
   );
 
   return (

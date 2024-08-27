@@ -1,6 +1,5 @@
 import type { UrlObject } from "node:url";
 import { OutlinkIcon } from "@app/components/icons";
-import Link from "next/link";
 import React, { type ComponentProps } from "react";
 import tw from "tailwind-styled-components";
 

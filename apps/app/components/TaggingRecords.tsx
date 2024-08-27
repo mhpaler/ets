@@ -1,15 +1,19 @@
 import { globalSettings } from "@app/config/globalSettings";
+import { getExplorerUrl } from "@app/config/wagmiConfig";
 import { useTaggingRecords } from "@app/hooks/useTaggingRecords";
+import type { TaggingRecordType } from "@app/types/taggingrecord";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useChainId } from "wagmi";
 import { CopyAndPaste } from "./CopyAndPaste";
 import { Tag } from "./Tag";
 import { TanstackTable } from "./TanstackTable";
 import { TimeAgo } from "./TimeAgo";
 import { Truncate } from "./Truncate";
+import { URI } from "./URI";
 
 type Props = {
   filter?: any;
@@ -21,6 +25,7 @@ type Props = {
 const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings.DEFAULT_PAGESIZE, orderBy, title }) => {
   const { t } = useTranslation("common");
   const [pageIndex, setPageIndex] = useState(0);
+  const chainId = useChainId();
 
   const { taggingRecords, nextTaggingRecords } = useTaggingRecords({
     filter: filter,
@@ -55,6 +60,7 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings.DEF
               {Truncate(info.getValue(), 14, "middle")}
             </Link>
             <CopyAndPaste value={info.getValue()} />
+            <URI value={getExplorerUrl(chainId, "tx", (info.row.original as TaggingRecordType).txnHash)} />
           </div>
         ),
       }),
@@ -65,7 +71,7 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings.DEF
       columnHelper.accessor("relayer.id", {
         header: t("relayer"),
         cell: (info) => {
-          const relayer = (info.row.original as any).relayer;
+          const relayer = (info.row.original as TaggingRecordType).relayer;
           return (
             <Link
               onClick={(e) => {
@@ -123,7 +129,7 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings.DEF
         ),
       }),
     ],
-    [t, columnHelper.accessor],
+    [t, columnHelper.accessor, chainId],
   );
 
   return (
