@@ -22,7 +22,8 @@ export const handleContractCall = async (
     const hash = await walletClient.writeContract(request);
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
     return {
-      status: receipt.status,
+      // Retun 1 if success, 0 if reverted or null.
+      status: receipt.status === "success" ? 1 : 0,
       transactionHash: receipt.transactionHash,
     };
   } catch (error) {

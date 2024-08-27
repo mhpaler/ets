@@ -26,7 +26,7 @@
     "test:build": "publint --strict"
   },
   "dependencies": {
-    "viem": "~2.4.0"
+    "viem": "^2.20.0"
   },
   "devDependencies": {
     "@types/node": "^20.12.7",

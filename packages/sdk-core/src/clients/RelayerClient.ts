@@ -115,7 +115,7 @@ export class RelayerClient {
           createdTags = tagsToMint;
 
           return {
-            status: receipt.status,
+            status: receipt.status === "success" ? 1 : 0,
             transactionHash: receipt.transactionHash,
             createdTags,
           };
@@ -133,13 +133,12 @@ export class RelayerClient {
     tagIds: string[],
     targetId: string,
     recordType: string,
-    signerAddress?: Hex,
   ): Promise<{ transactionHash: `0x${string}`; status: any; taggingRecordId: string }> {
     if (this.relayerConfig.address === undefined) {
       throw new Error("Relayer address is required");
     }
-    if (this.walletClient === undefined) {
-      throw new Error("Wallet client is required to perform this action");
+    if (this.walletClient === undefined || this.walletClient.account?.address === undefined) {
+      throw new Error("Wallet client with a valid account address is required to perform this action");
     }
 
     try {
@@ -175,7 +174,7 @@ export class RelayerClient {
         address: this.etsConfig.address,
         abi: etsABI,
         functionName: "computeTaggingRecordIdFromRawInput",
-        args: [tagParams, this.relayerConfig.address, signerAddress || "0x0"],
+        args: [tagParams, this.relayerConfig.address, this.walletClient.account.address],
       });
 
       return {
