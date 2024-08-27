@@ -1,5 +1,16 @@
 # @ethereum-tag-service/sdk-react-hooks
 
+## 0.0.5
+
+### Patch Changes
+
+- [#381](https://github.com/ethereum-tag-service/ets/pull/381) [`29f28d2`](https://github.com/ethereum-tag-service/ets/commit/29f28d22ffdf412156afe76f1acc08aa72d5ce00) Thanks [@mhpaler](https://github.com/mhpaler)! - Simplify the RelayerClient.createTaggingRecord function.
+
+- [#380](https://github.com/ethereum-tag-service/ets/pull/380) [`13e2413`](https://github.com/ethereum-tag-service/ets/commit/13e24136e3eae44404e3655c5a826465736452d0) Thanks [@mhpaler](https://github.com/mhpaler)! - Upgrade Viem version in SDKs to 2.20.0
+
+- Updated dependencies [[`29f28d2`](https://github.com/ethereum-tag-service/ets/commit/29f28d22ffdf412156afe76f1acc08aa72d5ce00), [`13e2413`](https://github.com/ethereum-tag-service/ets/commit/13e24136e3eae44404e3655c5a826465736452d0)]:
+  - @ethereum-tag-service/sdk-core@0.0.5
+
 ## 0.0.4
 
 ### Patch Changes
