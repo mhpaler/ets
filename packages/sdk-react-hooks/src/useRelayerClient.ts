@@ -30,14 +30,9 @@ export const useRelayerClient = ({
     };
   };
 
-  const createTaggingRecord = async (
-    tagIds: string[],
-    targetId: string,
-    recordType: string,
-    signerAddress?: `0x${string}`,
-  ): Promise<string> => {
+  const createTaggingRecord = async (tagIds: string[], targetId: string, recordType: string): Promise<string> => {
     if (!relayerClient) throw new Error("Relayer client not initialized");
-    const { taggingRecordId } = await relayerClient.createTaggingRecord(tagIds, targetId, recordType, signerAddress);
+    const { taggingRecordId } = await relayerClient.createTaggingRecord(tagIds, targetId, recordType);
     return taggingRecordId;
   };
 

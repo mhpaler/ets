@@ -8,6 +8,7 @@ export const fetcher = async <T = any>(query: string, variables: Variables): Pro
   // Current ETS_ENVIRONMENTS are development/stage/production
   const environment: string = process.env.NEXT_PUBLIC_ETS_ENVIRONMENT || "development";
 
+  console.info(`Fetching data from ${environment} environment`);
   // Use the environment to select the appropriate endpoint
   const GRAPH_API_ENDPOINT: string = subgraphEndpoints[environment];
 

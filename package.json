@@ -6,7 +6,7 @@
   "keywords": ["ethereum", "react", "ets", "tag", "tagging", "workspaces", "yarn"],
   "workspaces": ["apps/*", "packages/*", "examples/*"],
   "scripts": {
-    "build": "pnpm run clean && dotenv -e ./.env -- turbo run build --env-mode=loose",
+    "build": "pnpm run clean && turbo run build --env-mode=loose",
     "changeset:build": "pnpm run --recursive --filter \"./packages/**\" --filter \"./apps/app\" build",
     "changeset:prepublish": "pnpm version:update && pnpm changeset:build && bun ./scripts/formatPackageJson.ts",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish",
@@ -16,7 +16,7 @@
     "create-tag:dev": "cd examples/create-tag && pnpm run dev",
     "create-tagging-record:build": "cd examples/create-tagging-record && pnpm run build",
     "create-tagging-record:dev": "cd examples/create-tagging-record && pnpm run dev",
-    "dev": "dotenv -e ./.env -- turbo run dev --env-mode=loose --filter=!./examples/*",
+    "dev": "turbo run dev --env-mode=loose --filter=!./examples/*",
     "format": "biome format --write",
     "graph:deploy-local": "cd packages/subgraph && pnpm run graph-deploy-local",
     "graph:deploy-testnet-production": "cd packages/subgraph && pnpm run graph-deploy-testnet-production",

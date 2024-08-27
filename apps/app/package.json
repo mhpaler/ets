@@ -6,8 +6,8 @@
   "private": true,
   "scripts": {
     "clean": "rm -rf .next",
-    "dev": "pnpm run clean && dotenv -e ../../.env wagmi generate && next dev -p 3000",
-    "build": "dotenv -e ../../.env wagmi generate && next build",
+    "dev": "pnpm run clean && dotenv -e ../../.env -- sh -c 'wagmi generate && next dev -p 3000'",
+    "build": "dotenv -e ../../.env -- sh -c 'wagmi generate && next build'",
     "start": "next start"
   },
   "dependencies": {

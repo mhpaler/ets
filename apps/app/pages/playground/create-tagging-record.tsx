@@ -66,7 +66,7 @@ const CreateTaggingRecord: NextPage = () => {
   const handleCreateTaggingRecord = async (tagValues: string[], target: string, recordType: string) => {
     setIsLoading(true);
     try {
-      const recordId = await createTaggingRecord?.(tagValues, target, recordType, tagger);
+      const recordId = await createTaggingRecord?.(tagValues, target, recordType);
 
       if (recordId) {
         setTaggingRecordId(recordId);
