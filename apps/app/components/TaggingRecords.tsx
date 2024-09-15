@@ -1,6 +1,7 @@
 import { globalSettings } from "@app/config/globalSettings";
 import { getExplorerUrl } from "@app/config/wagmiConfig";
 import { useTaggingRecords } from "@app/hooks/useTaggingRecords";
+import type { TaggerType } from "@app/types/tagger";
 import type { TaggingRecordType } from "@app/types/taggingrecord";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { NextPage } from "next";
@@ -8,6 +9,7 @@ import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useChainId } from "wagmi";
+import Address from "./Address";
 import { CopyAndPaste } from "./CopyAndPaste";
 import { Tag } from "./Tag";
 import { TanstackTable } from "./TanstackTable";
@@ -85,9 +87,16 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings.DEF
           );
         },
       }),
-      columnHelper.accessor("recordType", {
-        header: t("record-type"),
-        cell: (info) => info.getValue(),
+      columnHelper.accessor("tagger", {
+        header: t("tagger"),
+        cell: (info) => {
+          const tagger = info.getValue() as TaggerType;
+          return (
+            <Link href={`/explore/taggers/${tagger.id}`} className="link link-primary">
+              <Address address={tagger.id} ens={tagger.ens} />
+            </Link>
+          );
+        },
       }),
       columnHelper.accessor("target.id", {
         header: t("target"),
