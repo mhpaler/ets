@@ -51,7 +51,7 @@ const Tags: React.FC<Props> = ({
         cell: (info) => (
           <div className="flex items-center">
             <Tag tag={info.row.original} />
-            <URI value={getExplorerUrl(chainId, "nft", `${etsTokenAddress}/${info.row.original.id}`)} />
+            <URI value={getExplorerUrl({ chainId, type: "nft", hash: `${etsTokenAddress}/${info.row.original.id}` })} />
           </div>
         ),
       }),

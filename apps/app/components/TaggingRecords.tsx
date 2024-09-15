@@ -62,7 +62,13 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings.DEF
               {Truncate(info.getValue(), 14, "middle")}
             </Link>
             <CopyAndPaste value={info.getValue()} />
-            <URI value={getExplorerUrl(chainId, "tx", (info.row.original as TaggingRecordType).txnHash)} />
+            <URI
+              value={getExplorerUrl({
+                chainId: chainId,
+                type: "tx",
+                hash: (info.row.original as TaggingRecordType).txnHash,
+              })}
+            />
           </div>
         ),
       }),

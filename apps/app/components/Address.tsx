@@ -42,7 +42,7 @@ const Address: React.FC<AddressProps> = ({ address, ens, truncateLength = 14 }) 
         {displayText}
       </span>
       {address && <CopyAndPaste value={address.toString()} />}
-      <URI value={getExplorerUrl(chainId, "address", address)} />
+      <URI value={getExplorerUrl({ chainId, type: "address", hash: address })} />
       {showTooltip &&
         createPortal(
           <div
