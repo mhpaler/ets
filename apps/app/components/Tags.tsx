@@ -5,8 +5,10 @@ import { TimeAgo } from "@app/components/TimeAgo";
 import { URI } from "@app/components/URI";
 import { globalSettings } from "@app/config/globalSettings";
 import { getExplorerUrl } from "@app/config/wagmiConfig";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
 import { etsTokenAddress } from "@app/src/contracts";
 import type { TagType } from "@app/types/tag";
+import { toEth } from "@app/utils";
 import { createColumnHelper } from "@tanstack/react-table";
 import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
@@ -14,7 +16,7 @@ import type React from "react";
 import { useMemo } from "react";
 import { useChainId } from "wagmi";
 
-type ColumnKey = "tag" | "created" | "owner" | "creator" | "relayer" | "timestamp" | "taggingRecords";
+type ColumnKey = "tag" | "created" | "owner" | "creator" | "relayer" | "timestamp" | "taggingRecords" | "totalRevenue";
 
 type Props = {
   title?: string;
@@ -39,6 +41,7 @@ const Tags: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation("common");
   const chainId = useChainId();
+  const chain = useCurrentChain();
   const columnHelper = createColumnHelper<TagType>();
 
   const columnConfigs = useMemo(
@@ -93,8 +96,27 @@ const Tags: React.FC<Props> = ({
       taggingRecords: columnHelper.accessor("tagAppliedInTaggingRecord", {
         header: () => "Tagging Records",
       }),
+      totalRevenue: columnHelper.accessor(
+        (row) => {
+          const total =
+            BigInt(row.creatorRevenue ?? 0) +
+            BigInt(row.ownerRevenue ?? 0) +
+            BigInt(row.relayerRevenue ?? 0) +
+            BigInt(row.protocolRevenue ?? 0);
+          return total.toString();
+        },
+        {
+          id: "totalRevenue",
+          header: () => "Total Revenue",
+          cell: (info) => (
+            <div>
+              {toEth(Number(info.getValue()), 8)} {chain?.nativeCurrency.symbol}
+            </div>
+          ),
+        },
+      ),
     }),
-    [columnHelper, t, chainId],
+    [columnHelper, t, chainId, chain],
   );
 
   const selectedColumns = useMemo(
