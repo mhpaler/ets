@@ -13,7 +13,6 @@ import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
 
 import { wagmiConfig } from "@app/config/wagmiConfig";
-import { AuctionHouseProvider } from "@app/context/AuctionHouseContext";
 import { ModalProvider } from "@app/context/ModalContext";
 import { TransactionManagerProvider } from "@app/context/TransactionContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -38,14 +37,12 @@ function App({ Component, pageProps }: AppProps<{ session: Session }>) {
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider initialChain={initialChain}>
-          <SWRConfig value={{ refreshInterval: 3000, fetcher: fetcher }}>
+          <SWRConfig value={{ refreshInterval: 0, fetcher }}>
             <SystemProvider>
               <TransactionManagerProvider>
-                <AuctionHouseProvider>
-                  <ModalProvider>
-                    <Component {...pageProps} />
-                  </ModalProvider>
-                </AuctionHouseProvider>
+                <ModalProvider>
+                  <Component {...pageProps} />
+                </ModalProvider>
               </TransactionManagerProvider>
             </SystemProvider>
           </SWRConfig>

@@ -18,6 +18,7 @@ import { Panel } from "@app/components/Panel";
 import { TagGraphic } from "@app/components/TagGraphic";
 import { TaggingRecords } from "@app/components/TaggingRecords";
 import { Truncate } from "@app/components/Truncate";
+import { AuctionHouseProvider } from "@app/context/AuctionHouseContext";
 
 const Tag: NextPage = () => {
   const { query } = useRouter();
@@ -56,9 +57,11 @@ const Tag: NextPage = () => {
   if (tag.auctions && tag.auctions.length > 0) {
     const auction = tag.auctions[tag.auctions.length - 1];
     auctionBlock = (
-      <AuctionProvider auctionId={Number(auction.id)}>
-        <WithinTagAuctionDisplay />
-      </AuctionProvider>
+      <AuctionHouseProvider>
+        <AuctionProvider auctionId={Number(auction.id)}>
+          <WithinTagAuctionDisplay />
+        </AuctionProvider>
+      </AuctionHouseProvider>
     );
   } else {
     auctionBlock = <div>NO AUCTION FOUND</div>;

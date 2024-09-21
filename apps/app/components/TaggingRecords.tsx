@@ -40,7 +40,7 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings.DEF
       revalidateOnReconnect: false,
       refreshWhenOffline: false,
       refreshWhenHidden: false,
-      refreshInterval: 1000,
+      refreshInterval: 0,
     },
   });
 
