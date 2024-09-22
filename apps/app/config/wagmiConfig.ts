@@ -31,11 +31,15 @@ export type SupportedChains =
 export const chainsMap = (chainId?: number) =>
   chainId ? chainsList[chainId as SupportedChains] : (Object.values(chainsList)[0] as Chain);
 
-export const getExplorerUrl = (
-  chainId: number,
-  type: "tx" | "nft" | "address" | "token" = "tx",
-  hash?: string,
-): string => {
+export const getExplorerUrl = ({
+  chainId,
+  type = "tx",
+  hash,
+}: {
+  chainId?: number;
+  type?: "tx" | "nft" | "address" | "token";
+  hash?: string;
+}): string => {
   const baseUrl = chainsList[chainId as SupportedChains]?.blockExplorers?.default.url;
   return baseUrl ? `${baseUrl}/${type}/${hash}` : `https://etherscan.io/${type}/${hash}`;
 };

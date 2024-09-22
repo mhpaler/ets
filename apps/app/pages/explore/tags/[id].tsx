@@ -18,6 +18,7 @@ import { Panel } from "@app/components/Panel";
 import { TagGraphic } from "@app/components/TagGraphic";
 import { TaggingRecords } from "@app/components/TaggingRecords";
 import { Truncate } from "@app/components/Truncate";
+import { AuctionHouseProvider } from "@app/context/AuctionHouseContext";
 
 const Tag: NextPage = () => {
   const { query } = useRouter();
@@ -56,9 +57,11 @@ const Tag: NextPage = () => {
   if (tag.auctions && tag.auctions.length > 0) {
     const auction = tag.auctions[tag.auctions.length - 1];
     auctionBlock = (
-      <AuctionProvider auctionId={Number(auction.id)}>
-        <WithinTagAuctionDisplay />
-      </AuctionProvider>
+      <AuctionHouseProvider>
+        <AuctionProvider auctionId={Number(auction.id)}>
+          <WithinTagAuctionDisplay />
+        </AuctionProvider>
+      </AuctionHouseProvider>
     );
   } else {
     auctionBlock = <div>NO AUCTION FOUND</div>;
@@ -115,7 +118,7 @@ const Tag: NextPage = () => {
             <div className="font-semibold">{t("creator")}</div>
             <div className="flex space-x-1 justify-end">
               <div className="">
-                <Link href={`/creators/${tag.creator.id}`} className="link link-primary">
+                <Link href={`/explore/creators/${tag.creator.id}`} className="link link-primary">
                   <Address address={tag.creator.id} ens={tag.creator.ens} />
                 </Link>
               </div>
@@ -126,7 +129,7 @@ const Tag: NextPage = () => {
             <div className="font-semibold">{t("owner")}</div>
             <div className="flex space-x-1 justify-end">
               <div className="">
-                <Link href={`/owners/${tag.owner.id}`} className="link link-primary">
+                <Link href={`/explore/owners/${tag.owner.id}`} className="link link-primary">
                   <Address address={tag.owner.id} ens={tag.owner.ens} />
                 </Link>
               </div>

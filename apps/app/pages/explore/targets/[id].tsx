@@ -1,5 +1,6 @@
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Panel } from "@app/components/Panel";
+import { TaggingRecords } from "@app/components/TaggingRecords";
 import { URI } from "@app/components/URI";
 import { useTargets } from "@app/hooks/useTargets";
 import Layout from "@app/layouts/default";
@@ -35,12 +36,12 @@ const Target: NextPage = () => {
             <Panel title={t("overview")}>
               <div className="grid grid-cols-3 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                 <div className="font-semibold">{t("id")}</div>
-                <div className=" col-span-2 text-left truncate">{targets?.[0].id}</div>
+                <div className="col-span-2 text-left truncate">{targets?.[0].id}</div>
               </div>
 
               <div className="grid grid-cols-3 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                 <div className="font-semibold">{t("created")}</div>
-                <div className=" col-span-2 text-left">
+                <div className="col-span-2 text-left">
                   {targets && timestampToString(Number.parseInt(targets[0].created))}
                 </div>
               </div>
@@ -48,7 +49,7 @@ const Target: NextPage = () => {
               <div className="grid grid-cols-3 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                 <div className="font-semibold">{t("URI")}</div>
                 <div className="flex space-x-1 col-span-2 justify-start">
-                  <div className=" truncate">{targets?.[0].targetURI}</div>
+                  <div className="truncate">{targets?.[0].targetURI}</div>
                   <CopyAndPaste value={targets?.[0].targetURI} />
                   <URI value={targets?.[0].targetURI} />
                 </div>
@@ -56,6 +57,14 @@ const Target: NextPage = () => {
             </Panel>
           </div>
         </div>
+      </div>
+      <div className="col-span-12 mt-6">
+        <TaggingRecords
+          filter={{
+            target_: { id },
+          }}
+          title={t("tagging-records-for-target")}
+        />
       </div>
     </Layout>
   );

@@ -14,12 +14,20 @@ import { useMemo, useState } from "react";
 
 const pageSize = 20;
 
+type OwnerType = {
+  id: string;
+  firstSeen: string;
+  tagsOwned: string;
+  ownedTagsTaggingFeeRevenue: string;
+  ens: string | null;
+};
+
 const Owners: NextPage = () => {
   const { t } = useTranslation("common");
   const [pageIndex, setPageIndex] = useState(0);
   const { number } = useNumberFormatter();
   const chain = useCurrentChain();
-  const { owners, nextOwners } = useOwners({
+  const { owners: rawOwners, nextOwners } = useOwners({
     pageSize,
     skip: pageIndex * pageSize,
     config: {
@@ -32,35 +40,36 @@ const Owners: NextPage = () => {
     },
   });
 
-  const columnHelper = createColumnHelper();
+  const owners = useMemo(() => {
+    return (rawOwners || []).filter((owner) => owner.id !== "0x0000000000000000000000000000000000000000");
+  }, [rawOwners]);
 
-  const columns = useMemo<any[]>(
+  const columnHelper = createColumnHelper<OwnerType>();
+
+  const columns = useMemo(
     () => [
       columnHelper.accessor("id", {
-        header: t("owner"),
-        cell: (info) => {
-          const owner = info.row.original as any;
-          return (
-            <Link href={`/explore/owners/${owner.id}`} className="link link-primary">
-              <Address address={owner.id} ens={owner.ens} />
-            </Link>
-          );
-        },
+        header: () => t("owner"),
+        cell: (info) => (
+          <Link href={`/explore/owners/${info.getValue()}`} className="link link-primary">
+            <Address address={info.getValue()} ens={info.row.original.ens} />
+          </Link>
+        ),
       }),
       columnHelper.accessor("firstSeen", {
-        header: t("first-seen"),
-        cell: (info) => <TimeAgo date={Number.parseInt(info.getValue()) * 1000} />,
+        header: () => t("first-seen"),
+        cell: (info) => <TimeAgo date={Number(info.getValue()) * 1000} />,
       }),
       columnHelper.accessor("tagsOwned", {
-        header: t("tags-owned", { timeframe: t("current") }),
-        cell: (info) => number(Number.parseInt(info.getValue())),
+        header: () => t("tags-owned", { timeframe: t("current") }),
+        cell: (info) => number(Number(info.getValue())),
       }),
       columnHelper.accessor("ownedTagsTaggingFeeRevenue", {
-        header: t("tagging-revenue"),
-        cell: (info) => `${toEth(info.getValue(), 8)} ${chain?.nativeCurrency.symbol}`,
+        header: () => t("tagging-revenue"),
+        cell: (info) => `${toEth(Number(info.getValue()), 8)} ${chain?.nativeCurrency.symbol}`,
       }),
     ],
-    [t, number, chain, columnHelper.accessor],
+    [t, number, chain?.nativeCurrency.symbol, columnHelper],
   );
 
   return (
@@ -73,7 +82,7 @@ const Owners: NextPage = () => {
         hasNextPage={!!nextOwners?.length}
         pageIndex={pageIndex}
         setPageIndex={setPageIndex}
-        rowLink={(owner: any) => `/explore/owners/${owner.id}`}
+        rowLink={(owner: OwnerType) => `/explore/owners/${owner.id}`}
       />
     </Layout>
   );

@@ -52,7 +52,7 @@ const TagInput: React.FC<TagInputProps> = ({ tags, handleDeleteTag, handleAddTag
         <div
           className="tooltip tooltip-left md:tooltip-top absolute flex justify-center items-center"
           data-tip="Press enter, comma or tab to add tags"
-          style={{ top: "50%", right: "0.5rem", transform: "translateY(-50%)" }}
+          style={{ top: "24px", right: "0.5rem", transform: "translateY(-50%)" }}
         >
           <QuestionMark color="#db2777" size={26} />
         </div>
