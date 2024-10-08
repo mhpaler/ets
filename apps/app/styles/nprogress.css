@@ -1,5 +1,7 @@
 /* Make clicks pass-through */
 #nprogress {
+  /* biome-ignore lint/correctness/noUnknownFunction: reason */
+  --primary-color: theme("colors.pink.600");
   @apply pointer-events-none;
 }
 

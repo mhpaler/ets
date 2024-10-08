@@ -36,7 +36,7 @@ To learn a bit more before diving in, see [key concepts](./docs/key-concepts.md)
 - [Contract-to-contract quickstart](./packages/contracts/README.md)
 - [Backend API (contracts)](./docs/backend-api/index.md)
 - [Front-end API (subgraph)](./docs/subgraph.md)
-- [Demos & examples](./docs/examples.md) (todo)
+- [Demos & examples](./docs/examples.md)
 
 ## Contributing
 
