@@ -1,17 +1,60 @@
 import { wagmiConfig } from "@app/config/wagmiConfig";
-import { etsAuctionHouseConfig } from "@app/src/contracts";
 import type { Auction, AuctionOnChain, AuctionSettings } from "@app/types/auction";
 import { formatEtherWithDecimals } from "@app/utils";
 import { fetcher } from "@app/utils/fetchers";
-import { getBlock, readContract, watchContractEvent } from "wagmi/actions";
+import { etsAuctionHouseConfig } from "@ethereum-tag-service/contracts/contracts";
+import { getBlock, getChainId, readContract, watchContractEvent } from "wagmi/actions";
 
 type FetchAuctionsResponse = {
   auctions: Auction[];
 };
 
+// TODO: Modify functions to use SDK and remove direct contract calls
+
+// Simplified helper function to get the correct contract address for the currently active chain
+
+/* const getContractAddress = (): `0x${string}` =>
+  etsAuctionHouseConfig.address[getChainId(wagmiConfig) as keyof typeof etsAuctionHouseConfig.address];
+const address = getContractAddress();
+
+// Create a config object with the shared address and ABI
+const auctionHouseConfig = {
+  address,
+  abi: etsAuctionHouseConfig.abi,
+}; */
+
+let cachedAddress: `0x${string}` | null = null;
+
+const getContractAddress = (): `0x${string}` => {
+  if (cachedAddress) return cachedAddress;
+
+  const chainId = getChainId(wagmiConfig);
+  if (typeof chainId !== "number") {
+    throw new Error("Invalid chain ID");
+  }
+
+  const address = etsAuctionHouseConfig.address[chainId as keyof typeof etsAuctionHouseConfig.address];
+  if (!address) {
+    throw new Error(`No contract address found for chain ID: ${chainId}`);
+  }
+
+  cachedAddress = address as `0x${string}`;
+  return cachedAddress;
+};
+
+// Create a config object with the shared address and ABI
+const getAuctionHouseConfig = () => ({
+  get address() {
+    return getContractAddress();
+  },
+  abi: etsAuctionHouseConfig.abi,
+});
+
+export const auctionHouseConfig = getAuctionHouseConfig();
+
 export const fetchAuctionPaused = async (): Promise<boolean> => {
   const data = await readContract(wagmiConfig, {
-    ...etsAuctionHouseConfig,
+    ...auctionHouseConfig,
     functionName: "paused",
   });
   return data;
@@ -19,7 +62,7 @@ export const fetchAuctionPaused = async (): Promise<boolean> => {
 
 export const watchAuctionPaused = (onPaused: () => Promise<void>) => {
   const unwatch = watchContractEvent(wagmiConfig, {
-    ...etsAuctionHouseConfig,
+    ...auctionHouseConfig,
     eventName: "Paused",
     onLogs: async () => {
       await onPaused();
@@ -31,7 +74,7 @@ export const watchAuctionPaused = (onPaused: () => Promise<void>) => {
 
 export const watchAuctionUnpaused = (onUnpaused: () => Promise<void>) => {
   const unwatch = watchContractEvent(wagmiConfig, {
-    ...etsAuctionHouseConfig,
+    ...auctionHouseConfig,
     eventName: "Unpaused",
     onLogs: async () => {
       await onUnpaused();
@@ -43,7 +86,7 @@ export const watchAuctionUnpaused = (onUnpaused: () => Promise<void>) => {
 
 export const watchNewAuctionReleased = (onNewAuction: () => Promise<void>) => {
   const unwatch = watchContractEvent(wagmiConfig, {
-    ...etsAuctionHouseConfig,
+    ...auctionHouseConfig,
     eventName: "AuctionCreated",
     onLogs: async () => {
       await onNewAuction();
@@ -75,23 +118,33 @@ export const fetchBlockchainTime = async (): Promise<number> => {
 
 export const fetchMaxAuctions = async (): Promise<number> => {
   const data = await readContract(wagmiConfig, {
-    ...etsAuctionHouseConfig,
+    ...auctionHouseConfig,
     functionName: "maxAuctions",
   });
   return Number(data);
 };
 
 export const fetchCurrentAuctionId = async (): Promise<number> => {
-  const data = await readContract(wagmiConfig, {
-    ...etsAuctionHouseConfig,
-    functionName: "getTotalCount",
-  });
-  return Number(data);
+  try {
+    console.info("Fetching current auction ID...");
+    console.info("Contract address:", auctionHouseConfig.address);
+
+    const data = await readContract(wagmiConfig, {
+      ...auctionHouseConfig,
+      functionName: "getTotalCount",
+    });
+
+    console.info("Fetched current auction ID:", Number(data));
+    return Number(data);
+  } catch (error) {
+    console.error("Error fetching current auction ID:", error);
+    throw error;
+  }
 };
 
 export const fetchAuction = async (auctionId: number): Promise<AuctionOnChain> => {
   const data = await readContract(wagmiConfig, {
-    ...etsAuctionHouseConfig,
+    ...auctionHouseConfig,
     functionName: "getAuction",
     args: [BigInt(auctionId)],
   });
@@ -111,7 +164,7 @@ export const fetchAuction = async (auctionId: number): Promise<AuctionOnChain> =
 
 export const fetchAuctionEnded = async (auctionId: number): Promise<boolean> => {
   const data = await readContract(wagmiConfig, {
-    ...etsAuctionHouseConfig,
+    ...auctionHouseConfig,
     functionName: "auctionEnded",
     args: [BigInt(auctionId)],
   });

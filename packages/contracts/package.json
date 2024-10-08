@@ -1,12 +1,13 @@
 {
   "name": "@ethereum-tag-service/contracts",
+  "author": "Ethereum Tag Service <team@ets.xyz>",
   "description": "Composable content tagging service for Web3",
   "license": "MIT",
-  "version": "0.0.1",
+  "version": "0.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "commonjs",
-  "files": ["/dist"],
-  "author": "Ethereum Tag Service <team@ets.xyz>",
-  "private": true,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ethereum-tag-service/ets.git",
@@ -14,19 +15,56 @@
   },
   "keywords": ["ets", "composable", "nft", "tagging"],
   "bugs": {
-    "url": "https://github.com/ethereum-tag-service/ets/issues"
+    "url": "https://github.com/orgs/ethereum-tag-service/discussions"
   },
   "homepage": "https://ets.xyz",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "exports": {
+    "./version": {
+      "types": "./dist/version.d.ts",
+      "import": "./dist/version.mjs",
+      "require": "./dist/version.js"
+    },
+    "./multiChainConfig": {
+      "types": "./dist/multiChainConfig.d.ts",
+      "import": "./dist/multiChainConfig.mjs",
+      "require": "./dist/multiChainConfig.js"
+    },
+    "./utils": {
+      "types": "./dist/utils.d.ts",
+      "import": "./dist/utils.mjs",
+      "require": "./dist/utils.js"
+    },
+    "./contracts": {
+      "types": "./dist/contracts.d.ts",
+      "import": "./dist/contracts.mjs",
+      "require": "./dist/contracts.js"
+    },
+    "./chainConfig/*": {
+      "types": "./dist/chainConfig/*.d.ts",
+      "import": "./dist/chainConfig/*.mjs",
+      "require": "./dist/chainConfig/*.js"
+    },
+    "./upgradeConfig/*": {
+      "types": "./dist/upgradeConfig/*.d.ts",
+      "import": "./dist/upgradeConfig/*.mjs",
+      "require": "./dist/upgradeConfig/*.js"
+    }
+  },
+  "main": "./dist/multiChainConfig.js",
+  "module": "./dist/multiChainConfig.mjs",
+  "types": "./dist/multiChainConfig.d.ts",
+  "files": ["dist", "src"],
   "scripts": {
-    "build": "pnpm build:contracts && pnpm build:package",
+    "build": "pnpm build:package",
     "build:contracts": "pnpm compile",
-    "build:package": "pnpm run clean && cp -R export dist && cp -R artifacts/contracts dist/artifacts && cp -R contracts dist",
+    "build:package": "scripts/build-package.sh",
     "clean": "rm -rf dist",
     "compile": "hardhat clean && hardhat compile",
     "coverage": "hardhat coverage",
-    "deploy": "hardhat deploy --tags deployAll --network localhost --export export/chainConfig/localhost.json",
-    "deploy-testnet-production": "hardhat deploy --tags deployAll --network testnet_production --export export/chainConfig/testnet_production.json",
-    "deploy-testnet-stage": "hardhat deploy --tags deployAll --network testnet_stage --export export/chainConfig/testnet_stage.json",
+    "deploy": "hardhat deploy-all",
     "hardhat": "hardhat node --no-deploy",
     "hardhat:clean": "hardhat clean",
     "prepublishOnly": "pnpm build",
@@ -39,31 +77,39 @@
     "@enzoferey/ethers-error-parser": "^0.2.3",
     "@ethereum-tag-service/tsconfig": "workspace:*",
     "@ethersproject/abstract-signer": "^5.6.0",
+    "@ledgerhq/hw-app-eth": "^6.38.0",
+    "@ledgerhq/hw-transport-node-hid": "^6.29.3",
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
     "@nomicfoundation/hardhat-ethers": "^3.0.2",
+    "@nomicfoundation/hardhat-ignition": "^0.15.5",
+    "@nomicfoundation/hardhat-ignition-ethers": "^0.15.5",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.11",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.9",
+    "@nomicfoundation/ignition-core": "^0.15.5",
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@^0.4.1",
-    "@nomiclabs/hardhat-etherscan": "^3.1.0",
     "@nomiclabs/hardhat-truffle5": "^2.0.6",
-    "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@nomiclabs/hardhat-web3": "^2.0.0",
     "@openzeppelin/hardhat-upgrades": "^2.4.1",
     "@openzeppelin/test-helpers": "^0.5.15",
+    "@sunodo/wagmi-plugin-hardhat-deploy": "^0.3.0",
     "@typechain/ethers-v5": "^11.1.2",
     "@typechain/ethers-v6": "^0.5.1",
     "@typechain/hardhat": "^9.1.0",
     "@types/chai": "^4.2.18",
     "@types/mocha": "^10.0.1",
     "@types/node": "^20.12.7",
+    "@wagmi/cli": "^2.1.15",
     "axios": "^1.6.2",
-    "chai": "^4.3.4",
+    "chai": "^4.5.0",
     "dotenv": "^16.3.1",
-    "ethereum-waffle": "^4.0.10",
     "ethereumjs-util": "^7.1.4",
     "ethers": "6.8.1",
     "hardhat": "^2.19.0",
     "hardhat-abi-exporter": "^2.4.0",
     "hardhat-deploy": "^0.11.43",
     "hardhat-ethernal": "3.1.0",
+    "hardhat-gas-reporter": "^2.2.1",
     "lodash.merge": "^4.6.2",
     "node-watch": "^0.7.2",
     "prettier": "^3.1.1",
@@ -74,8 +120,10 @@
     "solidity-coverage": "^0.8.2",
     "solidity-docgen": "0.6.0-beta.35",
     "ts-node": "^10.9.1",
+    "tsup": "^8.2.3",
     "typechain": "^8.1.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "viem": "^2.20.0"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.2",

@@ -1,7 +1,6 @@
 import { globalSettings } from "@app/config/globalSettings";
 import { getExplorerUrl } from "@app/config/wagmiConfig";
 import { useTaggingRecords } from "@app/hooks/useTaggingRecords";
-import type { TaggerType } from "@app/types/tagger";
 import type { TaggingRecordType } from "@app/types/taggingrecord";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { NextPage } from "next";
@@ -9,7 +8,6 @@ import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useChainId } from "wagmi";
-import Address from "./Address";
 import { CopyAndPaste } from "./CopyAndPaste";
 import { Tag } from "./Tag";
 import { TanstackTable } from "./TanstackTable";
@@ -27,8 +25,6 @@ type Props = {
 const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings.DEFAULT_PAGESIZE, orderBy, title }) => {
   const { t } = useTranslation("common");
   const [pageIndex, setPageIndex] = useState(0);
-  const chainId = useChainId();
-
   const { taggingRecords, nextTaggingRecords } = useTaggingRecords({
     filter: filter,
     pageSize: pageSize,
@@ -40,7 +36,7 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings.DEF
       revalidateOnReconnect: false,
       refreshWhenOffline: false,
       refreshWhenHidden: false,
-      refreshInterval: 0,
+      refreshInterval: 1000,
     },
   });
 
@@ -62,13 +58,7 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings.DEF
               {Truncate(info.getValue(), 14, "middle")}
             </Link>
             <CopyAndPaste value={info.getValue()} />
-            <URI
-              value={getExplorerUrl({
-                chainId: chainId,
-                type: "tx",
-                hash: (info.row.original as TaggingRecordType).txnHash,
-              })}
-            />
+            <URI value={getExplorerUrl("tx", (info.row.original as TaggingRecordType).txnHash)} />
           </div>
         ),
       }),
@@ -93,16 +83,9 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings.DEF
           );
         },
       }),
-      columnHelper.accessor("tagger", {
-        header: t("tagger"),
-        cell: (info) => {
-          const tagger = info.getValue() as TaggerType;
-          return (
-            <Link href={`/explore/taggers/${tagger.id}`} className="link link-primary">
-              <Address address={tagger.id} ens={tagger.ens} />
-            </Link>
-          );
-        },
+      columnHelper.accessor("recordType", {
+        header: t("record-type"),
+        cell: (info) => info.getValue(),
       }),
       columnHelper.accessor("target.id", {
         header: t("target"),
@@ -144,7 +127,7 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings.DEF
         ),
       }),
     ],
-    [t, columnHelper.accessor, chainId],
+    [t, columnHelper.accessor],
   );
 
   return (

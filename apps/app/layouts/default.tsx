@@ -1,3 +1,4 @@
+import ChainDebugger from "@app/components/ChainDebugger";
 import Footer from "@app/components/Footer";
 import Header from "@app/components/Header";
 import Navigation from "@app/components/Navigation";
@@ -29,6 +30,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             <PageInfo />
             {children}
           </div>
+          <ChainDebugger />
         </main>
         <div className="drawer-side">
           <label htmlFor="main-drawer" aria-label="close sidebar" className="drawer-overlay" />

@@ -1,4 +1,11 @@
-import type { Auction, AuctionContextType, AuctionOnChain, Bid, BidFormData } from "@app/types/auction";
+import {
+  type Auction,
+  type AuctionContextType,
+  type AuctionOnChain,
+  type Bid,
+  type BidFormData,
+  FetchAuctionsResponse,
+} from "@app/types/auction";
 import {} from "@app/types/auction";
 import useTranslation from "next-translate/useTranslation";
 import type React from "react";

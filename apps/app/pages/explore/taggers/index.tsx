@@ -65,6 +65,7 @@ const Taggers: NextPage = () => {
           hasNextPage={!!nextTaggers?.length}
           pageIndex={pageIndex}
           setPageIndex={setPageIndex}
+          title={t("taggers")}
           rowLink={(tagger: TaggerType) => `/explore/taggers/${tagger.id}`}
         />
       </div>

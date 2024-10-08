@@ -46,7 +46,7 @@ const Relayer: NextPage = () => {
       revalidateOnReconnect: false,
       refreshWhenOffline: false,
       refreshWhenHidden: false,
-      refreshInterval: 0,
+      refreshInterval: 1500,
     },
   });
 

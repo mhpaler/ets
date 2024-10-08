@@ -21,8 +21,9 @@ const Ctags: NextPage = () => {
   return (
     <Layout>
       <Tags
+        title="Tags"
         tags={tags}
-        columns={["tag", "created", "owner", "creator", "taggingRecords", "totalRevenue"]}
+        columns={["tag", "created", "owner", "relayer", "taggingRecords"]}
         rowLink={false}
         pageIndex={pageIndex}
         setPageIndex={setPageIndex}

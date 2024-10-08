@@ -30,6 +30,7 @@ const TaggingForm: React.FC<TaggingFormProps> = ({
   const [recordType, setRecordType] = useState<string>("");
   const { relayers } = useRelayers({});
   const { isConnected } = useAccount();
+  console.info("isConnected", isConnected);
 
   const handleDeleteTag = useCallback(
     (i: number) => {
