@@ -1,4 +1,5 @@
-import { chainsMap } from "@app/config/wagmiConfig";
+import { chains as chainsMap } from "@ethereum-tag-service/contracts/multiChainConfig";
+//import { chainsMap } from "@app/config/wagmiConfig";
 import {
   AccessControlsClient,
   AuctionHouseClient,
@@ -13,7 +14,7 @@ import {
 import { http, type Hex, createPublicClient, createWalletClient, custom } from "viem";
 
 export const viemPublicClient: any = (chainId: number) => {
-  const chain = chainsMap(chainId);
+  const chain = chainsMap[chainId];
   let transportUrl = chain.rpcUrls?.default?.http?.[0];
   const alchemyUrl = chain.rpcUrls?.alchemy?.http;
   if (alchemyUrl) transportUrl = `${alchemyUrl}/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
@@ -32,7 +33,7 @@ function createClient<T>(
 ): T | undefined {
   if (!chainId) return undefined;
 
-  const chain = chainsMap(chainId);
+  const chain = chainsMap[chainId];
   if (!chain) {
     console.error("Unsupported chain ID");
     return undefined;
@@ -170,8 +171,14 @@ export function createCoreClient({
     return undefined;
   }
 
+  const chain = chainId ? chainsMap[chainId] : undefined;
+  if (!chain) {
+    console.error("Unsupported or undefined chain ID");
+    return undefined;
+  }
+
   const walletClient = createWalletClient({
-    chain: chainsMap(chainId),
+    chain,
     account,
     transport: custom(window.ethereum),
   });
