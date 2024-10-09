@@ -22,6 +22,7 @@
     "node": ">=14.0.0"
   },
   "exports": {
+    ".": "./dist/multiChainConfig.js",
     "./version": {
       "types": "./dist/version.d.ts",
       "import": "./dist/version.mjs",
