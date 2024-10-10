@@ -1,16 +1,24 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
+    "target": "es2020",
+    "lib": ["es2020", "dom"],
     "module": "commonjs",
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "./dist",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
     "strict": true,
-    "rootDirs": ["./src", "./scripts", "./test"],
-    "esModuleInterop": true
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist",
+    "declaration": true,
+    "resolveJsonModule": true
   },
-  "exclude": ["dist", "node_modules"],
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.js"],
-  "files": ["./hardhat.config.ts"]
+  "include": [
+    "src/**/*",
+    "hardhat.config.ts",
+    "scripts/**/*.ts",
+    "test/**/*.ts",
+    "tasks/**/*.ts"
+  ],
+  "exclude": ["node_modules", "dist"],
+  "files": ["hardhat.config.ts"]
 }

@@ -1,8 +1,8 @@
+import ChainDebugger from "@app/components/ChainDebugger";
 import Footer from "@app/components/Footer";
 import Header from "@app/components/Header";
 import Navigation from "@app/components/Navigation";
 import PageInfo from "@app/components/PageInfo";
-import SiteMessage from "@app/components/SiteMessage";
 import React, { type ReactNode } from "react";
 
 export const metadata = {
@@ -18,7 +18,6 @@ export const metadata = {
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <>
-      <SiteMessage />
       <div className="drawer lg:drawer-open">
         <input id="main-drawer" type="checkbox" className="drawer-toggle" />
         <main className="drawer-content">
@@ -29,6 +28,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             <PageInfo />
             {children}
           </div>
+          <ChainDebugger />
         </main>
         <div className="drawer-side">
           <label htmlFor="main-drawer" aria-label="close sidebar" className="drawer-overlay" />

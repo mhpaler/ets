@@ -1,45 +1,51 @@
-import { http, type Config, createConfig, fallback } from "wagmi";
-import { type Chain, arbitrumSepolia, hardhat } from "wagmi/chains";
+// config/wagmiConfig.ts
+
+import { getChainInfo } from "@app/utils/getChainInfo";
+import type { SupportedChainId } from "@ethereum-tag-service/contracts/multiChainConfig";
+import { getAlchemyRpcUrlById } from "@ethereum-tag-service/contracts/utils";
+import type { Chain } from "viem/chains";
+import { http, createConfig } from "wagmi";
 import { injected } from "wagmi/connectors";
 
+// Get the current chain based on the subdomain
+const { chain: currentChain } = getChainInfo();
+
 // Wagmi Config
-export const wagmiConfig: Config = createConfig({
-  chains: [process.env.NEXT_PUBLIC_ETS_ENVIRONMENT === "development" ? hardhat : arbitrumSepolia],
+export const wagmiConfig = createConfig({
+  chains: [currentChain],
   connectors: [injected()],
   transports: {
-    [arbitrumSepolia.id]: fallback([
-      http(`https://arb-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`),
-    ]),
-    [hardhat.id]: http("http://localhost:8545"),
+    [currentChain.id]: http(
+      currentChain.id === 31337
+        ? "http://127.0.0.1:8545" // Use localhost URL for Hardhat
+        : getAlchemyRpcUrlById(currentChain.id.toString(), process.env.NEXT_PUBLIC_ALCHEMY_KEY || ""),
+    ),
   },
 });
 
-export const availableChainIds: SupportedChains[] = [
-  421614, // arbitrumSepolia
-  31337, // hardhat
-];
+// Re-export types and functions
+export { getChainInfo };
+export type { SupportedChainId };
 
-export const chainsList: { [key in SupportedChains]: Chain } = {
-  421614: arbitrumSepolia,
-  31337: hardhat,
+// Helper function to get the current chain ID
+export const getCurrentChainId = (): SupportedChainId => currentChain.id.toString() as SupportedChainId;
+
+// Helper function to get the current chain
+export const getCurrentChain = (): Chain => currentChain;
+
+// Helper function to get the explorer URL for the current chain
+export const getExplorerUrl = (type: "tx" | "address" | "token" = "tx", hash?: string): string => {
+  const baseUrl = currentChain.blockExplorers?.default?.url || "https://etherscan.io";
+  return `${baseUrl}/${type}/${hash}`;
 };
 
-export type SupportedChains =
-  | 421614 // arbitrumSepolia
-  | 31337; // hardhat
-
-export const chainsMap = (chainId?: number) =>
-  chainId ? chainsList[chainId as SupportedChains] : (Object.values(chainsList)[0] as Chain);
-
-export const getExplorerUrl = ({
-  chainId,
-  type = "tx",
-  hash,
-}: {
-  chainId?: number;
-  type?: "tx" | "nft" | "address" | "token";
-  hash?: string;
-}): string => {
-  const baseUrl = chainsList[chainId as SupportedChains]?.blockExplorers?.default.url;
-  return baseUrl ? `${baseUrl}/${type}/${hash}` : `https://etherscan.io/${type}/${hash}`;
+// Helper function to get the Alchemy RPC URL for the current chain
+export const getCurrentAlchemyRpcUrl = (): string => {
+  if (currentChain.id === 31337) {
+    return "http://127.0.0.1:8545";
+  }
+  return getAlchemyRpcUrlById(
+    currentChain.id.toString() as SupportedChainId,
+    process.env.NEXT_PUBLIC_ALCHEMY_KEY || "",
+  );
 };

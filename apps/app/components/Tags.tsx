@@ -5,10 +5,8 @@ import { TimeAgo } from "@app/components/TimeAgo";
 import { URI } from "@app/components/URI";
 import { globalSettings } from "@app/config/globalSettings";
 import { getExplorerUrl } from "@app/config/wagmiConfig";
-import { useCurrentChain } from "@app/hooks/useCurrentChain";
-import { etsTokenAddress } from "@app/src/contracts";
 import type { TagType } from "@app/types/tag";
-import { toEth } from "@app/utils";
+import { etsTokenConfig } from "@ethereum-tag-service/contracts/contracts";
 import { createColumnHelper } from "@tanstack/react-table";
 import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
@@ -16,7 +14,7 @@ import type React from "react";
 import { useMemo } from "react";
 import { useChainId } from "wagmi";
 
-type ColumnKey = "tag" | "created" | "owner" | "creator" | "relayer" | "timestamp" | "taggingRecords" | "totalRevenue";
+type ColumnKey = "tag" | "created" | "owner" | "creator" | "relayer" | "timestamp" | "taggingRecords";
 
 type Props = {
   title?: string;
@@ -41,7 +39,9 @@ const Tags: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation("common");
   const chainId = useChainId();
-  const chain = useCurrentChain();
+
+  // TODO: Evaluate if this is proper way to support MULTICHAIN
+  const etsTokenAddress = etsTokenConfig.address[chainId as keyof typeof etsTokenConfig.address];
   const columnHelper = createColumnHelper<TagType>();
 
   const columnConfigs = useMemo(
@@ -51,7 +51,7 @@ const Tags: React.FC<Props> = ({
         cell: (info) => (
           <div className="flex items-center">
             <Tag tag={info.row.original} />
-            <URI value={getExplorerUrl({ chainId, type: "nft", hash: `${etsTokenAddress}/${info.row.original.id}` })} />
+            <URI value={getExplorerUrl("token", `${etsTokenAddress}/${info.row.original.id}`)} />
           </div>
         ),
       }),
@@ -96,27 +96,8 @@ const Tags: React.FC<Props> = ({
       taggingRecords: columnHelper.accessor("tagAppliedInTaggingRecord", {
         header: () => "Tagging Records",
       }),
-      totalRevenue: columnHelper.accessor(
-        (row) => {
-          const total =
-            BigInt(row.creatorRevenue ?? 0) +
-            BigInt(row.ownerRevenue ?? 0) +
-            BigInt(row.relayerRevenue ?? 0) +
-            BigInt(row.protocolRevenue ?? 0);
-          return total.toString();
-        },
-        {
-          id: "totalRevenue",
-          header: () => "Total Revenue",
-          cell: (info) => (
-            <div>
-              {toEth(Number(info.getValue()), 8)} {chain?.nativeCurrency.symbol}
-            </div>
-          ),
-        },
-      ),
     }),
-    [columnHelper, t, chainId, chain],
+    [columnHelper, t, etsTokenAddress],
   );
 
   const selectedColumns = useMemo(

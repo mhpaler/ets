@@ -3,23 +3,22 @@ import { ConnectButtonETS } from "@app/components/ConnectButtonETS";
 import { Modal } from "@app/components/Modal";
 import { TanstackTable } from "@app/components/TanstackTable";
 import { TimeAgo } from "@app/components/TimeAgo";
+import { Truncate } from "@app/components/Truncate";
 import { URI } from "@app/components/URI";
 import TransactionFlowWrapper from "@app/components/transaction/TransactionFlowWrapper";
 import { getExplorerUrl } from "@app/config/wagmiConfig";
 import { RelayerProvider } from "@app/context/RelayerContext";
-import { useCurrentChain } from "@app/hooks/useCurrentChain";
 import { useRelayers } from "@app/hooks/useRelayers";
 import Layout from "@app/layouts/default";
 import type { RelayerType } from "@app/types/relayer";
 import { TransactionType } from "@app/types/transaction";
-import { toEth } from "@app/utils";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { useAccount } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 
 const pageSize = 20;
 
@@ -27,8 +26,6 @@ const Relayers: NextPage = () => {
   const { t } = useTranslation("common");
   const [pageIndex, setPageIndex] = useState(0);
   const { isConnected } = useAccount();
-  const chain = useCurrentChain();
-  const chainId = chain?.id;
   const [transactionId, setTransactionId] = useState<string>("");
   const [isClient, setIsClient] = useState(false);
 
@@ -46,7 +43,7 @@ const Relayers: NextPage = () => {
       revalidateOnReconnect: false,
       refreshWhenOffline: false,
       refreshWhenHidden: false,
-      refreshInterval: 0,
+      refreshInterval: 1000,
     },
   });
 
@@ -65,7 +62,7 @@ const Relayers: NextPage = () => {
               <Link href={`/explore/relayers/${relayer.id}`} className="link link-primary">
                 {info.getValue()}
               </Link>
-              <URI value={getExplorerUrl({ chainId, type: "address", hash: info.row.original.id })} />
+              <URI value={getExplorerUrl("address", info.row.original.id)} />
             </div>
           );
         },
@@ -93,24 +90,12 @@ const Relayers: NextPage = () => {
         header: () => t("tags"),
         cell: (info) => info.getValue(),
       }),
-      columnHelper.accessor(
-        (row) => Number(row.publishedTagsAuctionRevenue) + Number(row.publishedTagsTaggingFeeRevenue),
-        {
-          id: "totalRevenue",
-          header: () => t("revenue"),
-          cell: (info) => (
-            <div>
-              {toEth(info.getValue(), 8)} {chain?.nativeCurrency.symbol}
-            </div>
-          ),
-        },
-      ),
       columnHelper.accessor("pausedByOwner", {
         header: () => t("status"),
         cell: (info) => (info.getValue() ? t("disabled") : t("enabled")),
       }),
     ],
-    [t, columnHelper.accessor, chainId, chain],
+    [t, columnHelper.accessor],
   );
 
   return (

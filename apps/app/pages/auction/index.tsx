@@ -1,11 +1,14 @@
 import Address from "@app/components/Address";
 import { Tag } from "@app/components/Tag";
+import { TanstackTable } from "@app/components/TanstackTable";
 import { TimeAgo } from "@app/components/TimeAgo";
+import { Truncate } from "@app/components/Truncate";
 import AuctionActions from "@app/components/auction/AuctionActions";
-import AuctionTableContent from "@app/components/auction/AuctionTableContent";
 import AuctionTimer from "@app/components/auction/AuctionTimer";
 import { AuctionProvider } from "@app/context/AuctionContext";
-import { AuctionHouseProvider } from "@app/context/AuctionHouseContext";
+import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
+import { useCtags } from "@app/hooks/useCtags";
+import { useSystem } from "@app/hooks/useSystem";
 import Layout from "@app/layouts/default";
 import type { TagType } from "@app/types/tag";
 import { toEth } from "@app/utils";
@@ -13,10 +16,53 @@ import { createColumnHelper } from "@tanstack/react-table";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
-const AuctionPage: NextPage = () => {
+const Auction: NextPage = () => {
   const { t } = useTranslation("common");
+  const { platformAddress } = useSystem();
+  const { allAuctions } = useAuctionHouse();
+
+  const [pageIndex, _setPageIndex] = useState(0);
+
+  const { tags = [] } = useCtags({
+    skip: pageIndex * 20,
+    orderBy: "tagAppliedInTaggingRecord",
+    filter: { owner_: { id: platformAddress.toLowerCase() } },
+    config: {
+      revalidateOnFocus: false,
+      revalidateOnMount: true,
+      revalidateOnReconnect: false,
+      refreshWhenOffline: false,
+      refreshWhenHidden: false,
+      refreshInterval: 1500,
+    },
+  });
+
+  // Function to filter out tags with active auctions
+  const filterEligibleTags = (tags: TagType[]): TagType[] => {
+    //printDebugInfo(tags);
+    return tags.filter(
+      (tag) => !tag.auctions || tag.auctions.length === 0 || tag.auctions.every((auction) => auction.settled),
+    );
+  };
+
+  // Perform secondary sorting by timestamp on the client side and filter eligible tags
+  const upcomingTags = filterEligibleTags(tags as TagType[]).sort((a, b) => {
+    const tagAppliedA = a.tagAppliedInTaggingRecord ?? Number.NEGATIVE_INFINITY;
+    const tagAppliedB = b.tagAppliedInTaggingRecord ?? Number.NEGATIVE_INFINITY;
+
+    if (tagAppliedA === tagAppliedB) {
+      return a.timestamp - b.timestamp; // Unix timestamp comparison (ascending order)
+    }
+    return tagAppliedB - tagAppliedA;
+  });
+
+  const settledAuctions = allAuctions.filter((auction) => auction.settled);
+  const activeAuctions = allAuctions
+    .filter((auction) => auction.startTime === 0 || auction.settled === false)
+    .sort((a, b) => b.id - a.id);
+
   const columnHelper = createColumnHelper();
   const activeColumns = useMemo(
     () => [
@@ -139,26 +185,63 @@ const AuctionPage: NextPage = () => {
 
   return (
     <Layout>
-      <AuctionHouseProvider>
-        <div role="tablist" className="tabs tabs-lg col-span-12 auctions">
-          <input type="radio" name="auctions" role="tab" className="tab" aria-label={t("active")} defaultChecked />
-          <div role="tabpanel" className="tab-content">
-            <AuctionTableContent type="active" columns={activeColumns} />
-          </div>
-
-          <input type="radio" name="auctions" role="tab" className="tab" aria-label={t("upcoming")} />
-          <div role="tabpanel" className="tab-content">
-            <AuctionTableContent type="upcoming" columns={upcomingColumns} />
-          </div>
-
-          <input type="radio" name="auctions" role="tab" className="tab" aria-label={t("settled")} />
-          <div role="tabpanel" className="tab-content">
-            <AuctionTableContent type="settled" columns={settledColumns} />
-          </div>
+      {/*
+      <div className="dropdown dropdown-hover dropdown-end">
+        <div tabIndex={0} role="button" className="text-info">
+          <svg
+            tabIndex={0}
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            className="h-4 w-4 stroke-current"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+          </svg>
         </div>
-      </AuctionHouseProvider>
+        <div tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+          <p className="font-semibold">Upcoming Auctions</p>
+          <p>Tags with the most tagging records are released next.</p>
+        </div>
+      </div>
+      */}
+      <div role="tablist" className="tabs tabs-lg col-span-12 auctions">
+        <input type="radio" name="auctions" role="tab" className="tab" aria-label={t("active")} defaultChecked />
+        <div role="tabpanel" className="tab-content">
+          <TanstackTable
+            columns={activeColumns}
+            data={activeAuctions}
+            loading={!activeAuctions.length}
+            rowLink={(auction) => `/explore/tags/${auction.tag.machineName}`}
+          />
+        </div>
+
+        <input type="radio" name="auctions" role="tab" className="tab" aria-label={t("upcoming")} />
+        <div role="tabpanel" className="tab-content">
+          <TanstackTable
+            columns={upcomingColumns}
+            data={upcomingTags}
+            loading={!upcomingTags.length}
+            rowLink={(tag) => `/explore/tags/${tag.machineName}`}
+          />
+        </div>
+
+        <input type="radio" name="auctions" role="tab" className="tab" aria-label={t("settled")} />
+        <div role="tabpanel" className="tab-content">
+          <TanstackTable
+            columns={settledColumns}
+            data={settledAuctions}
+            loading={!settledAuctions.length}
+            rowLink={(auction) => `/explore/tags/${auction.tag.machineName}`}
+          />
+        </div>
+      </div>
     </Layout>
   );
 };
 
-export default AuctionPage;
+export default Auction;
