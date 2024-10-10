@@ -1,7 +1,8 @@
+import { getCurrentChain } from "@app/config/wagmiConfig";
+import { getChainInfo } from "@app/utils/getChainInfo";
 import useTranslation from "next-translate/useTranslation";
-// components/SiteMessage.tsx
-// Sitewide message component that can be dismissed by the user.
-import type React from "react";
+import Image from "next/image";
+import Link from "next/link.js";
 import { useEffect, useState } from "react";
 
 const SiteMessage: React.FC = () => {
@@ -9,7 +10,6 @@ const SiteMessage: React.FC = () => {
   const [isVisible, setIsVisible] = useState<boolean>(true);
 
   useEffect(() => {
-    // Check localStorage to see if the alert should be hidden
     const siteMessageDismissed = localStorage.getItem("siteMessageDismissed");
     if (siteMessageDismissed) {
       setIsVisible(false);
@@ -17,38 +17,41 @@ const SiteMessage: React.FC = () => {
   }, []);
 
   const handleDismiss = () => {
-    // Hide the alert
     setIsVisible(false);
-    // Store the dismissal in localStorage
     localStorage.setItem("siteMessageDismissed", "true");
   };
 
   if (!isVisible) return null;
 
+  const currentChain = getCurrentChain();
+  const { chainName, iconPath } = getChainInfo(currentChain.name.toLowerCase());
+
   return (
-    <div role="alert" className="alert alert-warning">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-6 w-6 shrink-0 stroke-current"
-        fill="none"
-        viewBox="0 0 24 24"
-      >
-        <title>Info Alter Icon</title>
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-        />
-      </svg>
-      <span>{t("testnet-warning")}</span>
-      <div>
-        <button className="btn btn-warning btn-sm" onClick={handleDismiss}>
-          Dismiss
-        </button>
-        {/* <button className="btn btn-sm btn-primary">Learn more</button> */}
+    <>
+      <div role="alert" className="alert flex items-center justify-between">
+        {/* Left Section with Icon and Text */}
+        <div className="flex items-center">
+          <Image src={iconPath} alt={`${chainName} icon`} width={24} height={24} className="mr-3" />
+          <div>
+            <h3 className="text-lg">
+              Welcome to <span className="font-bold">ETS</span> on{" "}
+              <span className="font-bold">{currentChain.name}</span>
+            </h3>
+            <div className="text-sm">{t("testnet-warning")}</div>
+          </div>
+        </div>
+
+        {/* Right Section with Link and Button */}
+        <div className="flex items-center space-x-4 ml-auto">
+          <Link className="link-primary font-medium text-sm" href="/about" passHref>
+            Learn more
+          </Link>
+          <button className="btn btn-primary btn-outline btn-sm" onClick={handleDismiss}>
+            Dismiss
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
