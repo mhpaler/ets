@@ -32,29 +32,54 @@ const Home: NextPage = () => {
   if (showIndexPage) {
     // Render index page with links to chain subdomains
     return (
-      <div className="bg-gray-100 p-4 rounded-lg mt-8 text-sm">
-        <h1>Welcome to Ethereum Tag Service</h1>
-        <p>Select a network:</p>
-        <ul>
-          <li>
-            <Link href="http://arbitrumsepolia.localhost:3000">Arbitrum Sepolia (Localhost)</Link>
-          </li>
-          <li>
-            <Link href="http://basesepolia.localhost:3000">Base Sepolia (Localhost)</Link>
-          </li>
-          <li>
-            <Link href="https://arbitrumsepolia.stage.app.ets.xyz">Arbitrum Sepolia (Staging)</Link>
-          </li>
-          <li>
-            <Link href="https://basesepolia.stage.app.ets.xyz">Base Sepolia (Staging)</Link>
-          </li>
-          <li>
-            <Link href="https://arbitrumsepolia.app.ets.xyz">Arbitrum Sepolia (Production)</Link>
-          </li>
-          <li>
-            <Link href="https://basesepolia.app.ets.xyz">Base Sepolia (Production)</Link>
-          </li>
-        </ul>
+      <div className="flex items-center justify-center h-screen px-6">
+        <main className="max-w-sm py-6 my-auto space-y-6">
+          <div className="flex items-center justify-center mt-10 mb-14">
+            <svg className="w-8 h-8 text-slate-800" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+              <title>ETS Logo</title>
+              <path
+                fill="currentColor"
+                d="M0 50 50 0H0v50zm100 50V50l-50 50h50zM50 0l50 50V0H50zM19.9 84.9c0 2.8-2.2 5-5 5s-5-2.2-5-5 2.2-5 5-5 5 2.3 5 5z"
+              />
+            </svg>
+            <span className="inline-flex ml-2.5 text-xl font-medium text-slate-900">Ethereum Tag Service</span>
+          </div>
+          <h1>Welcome to Ethereum Tag Service</h1>
+
+          <p>Select a network:</p>
+          <ul>
+            <li>
+              <Link className="link-primary" href="http://arbitrumsepolia.localhost:3000">
+                Arbitrum Sepolia (Localhost)
+              </Link>
+            </li>
+            <li>
+              <Link className="link-primary" href="http://basesepolia.localhost:3000">
+                Base Sepolia (Localhost)
+              </Link>
+            </li>
+            <li>
+              <Link className="link-primary" href="https://arbitrumsepolia.stage.app.ets.xyz">
+                Arbitrum Sepolia (Staging)
+              </Link>
+            </li>
+            <li>
+              <Link className="link-primary" href="https://basesepolia.stage.app.ets.xyz">
+                Base Sepolia (Staging)
+              </Link>
+            </li>
+            <li>
+              <Link className="link-primary" href="https://arbitrumsepolia.app.ets.xyz">
+                Arbitrum Sepolia (Production)
+              </Link>
+            </li>
+            <li>
+              <Link className="link-primary" href="https://basesepolia.app.ets.xyz">
+                Base Sepolia (Production)
+              </Link>
+            </li>
+          </ul>
+        </main>
       </div>
     );
   }

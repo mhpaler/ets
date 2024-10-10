@@ -29,6 +29,8 @@ Router.events.on("routeChangeComplete", nProgress.done);
 function AppContent({ Component, pageProps }: AppProps) {
   const currentChain = getCurrentChain();
 
+  console.info("currentChain", currentChain);
+
   return (
     <RainbowKitProvider initialChain={currentChain}>
       <SWRConfig value={{ refreshInterval: 3000, fetcher: fetcher }}>
