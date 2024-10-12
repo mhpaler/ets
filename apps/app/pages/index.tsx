@@ -17,14 +17,13 @@ const Home: NextPage = () => {
   useEffect(() => {
     const hostname = window.location.hostname;
     const isLocalhost = hostname === "localhost";
-    //const isPR = hostname.includes("-git-");
-    const isStage = hostname.includes("stage.app.ets.xyz");
+    const isStage = hostname === "stage.app.ets.xyz";
     const isMain = hostname === "app.ets.xyz";
 
     const parts = hostname.split(".");
     const subdomain = parts.length > 2 ? parts[0].toLowerCase() : null;
 
-    // Show index page only for localhost, stage, and main (not for PR environments)
+    // Show index page only for root domains in localhost, stage, and main (not for specific chain subdomains)
     if ((isLocalhost || isStage || isMain) && !subdomain) {
       setShowIndexPage(true);
     }

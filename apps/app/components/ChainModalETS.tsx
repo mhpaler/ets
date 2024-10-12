@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 interface ChainModalETSProps {
   show: boolean;
   onClose: () => void;
-  asModal?: boolean; // Add a prop to control modal styling
+  asModal?: boolean; // Controls whether displayed as modal or inline content
 }
 
 const ChainModalETS: React.FC<ChainModalETSProps> = ({ show, onClose, asModal = true }) => {
@@ -16,9 +16,9 @@ const ChainModalETS: React.FC<ChainModalETSProps> = ({ show, onClose, asModal = 
     const hostname = window.location.hostname;
     if (hostname === "localhost" || hostname.endsWith(".localhost")) {
       setEnvironment("localhost");
-    } else if (hostname.includes(".stage.app.ets.xyz")) {
+    } else if (hostname.endsWith(".stage.app.ets.xyz")) {
       setEnvironment("staging");
-    } else if (hostname.includes(".app.ets.xyz")) {
+    } else if (hostname.endsWith(".app.ets.xyz")) {
       setEnvironment("production");
     }
   }, []);
@@ -47,31 +47,41 @@ const ChainModalETS: React.FC<ChainModalETSProps> = ({ show, onClose, asModal = 
     <div className={asModal ? "space-y-4" : "space-y-6"}>
       <h2 className="text-lg font-medium mb-4">Select a Network</h2>
 
-      {/* Localhost buttons */}
+      {/* Localhost buttons - include localhost, staging, and production links */}
       {environment === "localhost" && (
         <div className="space-y-2">
           <p className="text-sm">Localhost</p>
           {renderChainLink("http://arbitrumsepolia.localhost:3000", "arbitrumsepolia")}
           {renderChainLink("http://basesepolia.localhost:3000", "basesepolia")}
           {renderChainLink("http://hardhat.localhost:3000", "hardhat")}
+
+          <p className="text-sm mt-4">Staging on Vercel</p>
+          {renderChainLink("https://arbitrumsepolia.stage.app.ets.xyz", "arbitrumsepolia")}
+          {renderChainLink("https://basesepolia.stage.app.ets.xyz", "basesepolia")}
+
+          <p className="text-sm mt-4">Production on Vercel</p>
+          {renderChainLink("https://arbitrumsepolia.app.ets.xyz", "arbitrumsepolia")}
+          {renderChainLink("https://basesepolia.app.ets.xyz", "basesepolia")}
         </div>
       )}
 
-      {/* Staging buttons */}
-      {(environment === "staging" || environment === "localhost") && (
+      {/* Staging buttons - include staging and production links only */}
+      {environment === "staging" && (
         <div className="space-y-2">
           <p className="text-sm">Staging on Vercel</p>
           {renderChainLink("https://arbitrumsepolia.stage.app.ets.xyz", "arbitrumsepolia")}
           {renderChainLink("https://basesepolia.stage.app.ets.xyz", "basesepolia")}
+
+          <p className="text-sm mt-4">Production on Vercel</p>
+          {renderChainLink("https://arbitrumsepolia.app.ets.xyz", "arbitrumsepolia")}
+          {renderChainLink("https://basesepolia.app.ets.xyz", "basesepolia")}
         </div>
       )}
 
-      {/* Production buttons */}
-      {(environment === "production" || environment === "staging" || environment === "localhost") && (
+      {/* Production buttons - include production links only */}
+      {environment === "production" && (
         <div className="space-y-2">
-          {(environment === "staging" || environment === "localhost") && (
-            <p className="text-sm">Production on Vercel</p>
-          )}
+          <p className="text-sm">Production on Vercel</p>
           {renderChainLink("https://arbitrumsepolia.app.ets.xyz", "arbitrumsepolia")}
           {renderChainLink("https://basesepolia.app.ets.xyz", "basesepolia")}
         </div>
