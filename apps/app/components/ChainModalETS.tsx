@@ -21,13 +21,17 @@ const ChainModalETS: React.FC<ChainModalETSProps> = ({ show, onClose, asModal = 
     } else if (hostname.endsWith(".app.ets.xyz")) {
       setEnvironment("production");
     }
-  }, []);
+
+    console.info("ChainModalETS - Detected Environment:", environment);
+    console.info("ChainModalETS - Hostname:", hostname);
+  }, [environment]);
 
   if (!show) return null;
 
-  // Helper function to render a chain link with dynamic icon and name
   const renderChainLink = (url: string, subdomain: string) => {
     const { iconPath, displayName } = getChainInfo(subdomain);
+    console.info(`Rendering link for ${displayName} with URL: ${url}, Icon Path: ${iconPath}`);
+
     return (
       <a
         className="card card-compact border hover:bg-base-200 transition-all duration-200 text-gray-600 hover:text-gray-950 hover:-translate-y-1"

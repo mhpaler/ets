@@ -42,7 +42,7 @@ const ChainDebugger: FC = () => {
   const currentSubdomain = hostname.split(".")[0].toLowerCase();
 
   // Logging for debugging purposes
-  useEffect(() => {
+  /*   useEffect(() => {
     console.info("Raw Hostname:", hostname);
     console.info("Detected Subdomain:", currentSubdomain);
     console.info("Expected Chain from Wagmi (useChainId):", correctChain?.name, "(ID:", correctChain?.id, ")");
@@ -59,7 +59,7 @@ const ChainDebugger: FC = () => {
     environment,
     graphqlEndpoint,
     rpcUrl,
-  ]);
+  ]); */
 
   return (
     <div className="bg-gray-100 p-4 rounded-lg mt-8 text-sm">

@@ -23,11 +23,17 @@ const Home: NextPage = () => {
     const parts = hostname.split(".");
     const subdomain = parts.length > 2 ? parts[0].toLowerCase() : null;
 
-    // Show index page only for root domains in localhost, stage, and main (not for specific chain subdomains)
     if ((isLocalhost || isStage || isMain) && !subdomain) {
       setShowIndexPage(true);
     }
-  }, []);
+
+    console.info("Home Component - Detected Hostname:", hostname);
+    console.info("Home Component - isLocalhost:", isLocalhost);
+    console.info("Home Component - isStage:", isStage);
+    console.info("Home Component - isMain:", isMain);
+    console.info("Home Component - Subdomain:", subdomain);
+    console.info("Home Component - Show Index Page:", showIndexPage);
+  }, [showIndexPage]);
 
   if (showIndexPage) {
     // Render index page with links to chain subdomains
