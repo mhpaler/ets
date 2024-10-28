@@ -1,4 +1,3 @@
-import ChainDebugger from "@app/components/ChainDebugger";
 import Footer from "@app/components/Footer";
 import Header from "@app/components/Header";
 import Navigation from "@app/components/Navigation";
