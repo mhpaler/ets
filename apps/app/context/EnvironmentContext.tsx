@@ -45,8 +45,19 @@ export const EnvironmentContextProvider: React.FC<EnvironmentContextProviderProp
       isProductionEnvironment = true;
     }
 
-    // Detect subdomain
-    if (hostnameParts.length > (isLocalhostEnvironment ? 1 : 2)) {
+    // Replace the existing subdomain detection logic with:
+    if (isStagingEnvironment) {
+      // For staging: check if there's anything before "stage.app.ets.xyz"
+      if (hostnameParts.length > 4) {
+        detectedSubdomain = hostnameParts[0].toLowerCase();
+      }
+    } else if (isProductionEnvironment) {
+      // For production: check if there's anything before "app.ets.xyz"
+      if (hostnameParts.length > 3) {
+        detectedSubdomain = hostnameParts[0].toLowerCase();
+      }
+    } else if (isLocalhostEnvironment && hostnameParts.length > 1) {
+      // Keep existing localhost logic
       detectedSubdomain = hostnameParts[0].toLowerCase();
     }
 
