@@ -3,11 +3,11 @@
  */
 
 import { globalSettings } from "@app/config/globalSettings";
-import { fetchBlockchainTime } from "@app/services/auctionHouseService";
+import { useAuctionHouseService } from "@app/services/auctionHouseService";
 import type { System } from "@app/types/system";
 import { useAccessControlsClient, useTokenClient } from "@ethereum-tag-service/sdk-react-hooks";
 import type React from "react";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useAccount } from "wagmi";
 
 // Define the default values and functions
@@ -29,6 +29,7 @@ export const SystemProvider: React.FC<Props> = ({ children }: { children: React.
   const [timeDifference, setTimeDifference] = useState(0); // Time difference in seconds
   const [ownershipTermLength, setOwnershipTermLength] = useState(0);
   const [platformAddress, setPlatformAddress] = useState<string>("");
+
   const { chain, address } = useAccount();
   const { accessControlsClient } = useAccessControlsClient({
     chainId: chain?.id,
@@ -40,9 +41,9 @@ export const SystemProvider: React.FC<Props> = ({ children }: { children: React.
     account: address,
   });
 
-  const blockchainTime = () => Math.floor(Date.now() / 1000) - timeDifference;
-
-  const updateBlockchainTime = async () => {
+  const { fetchBlockchainTime } = useAuctionHouseService();
+  const blockchainTime = useCallback(() => Math.floor(Date.now() / 1000) - timeDifference, [timeDifference]);
+  const updateBlockchainTime = useCallback(async () => {
     try {
       const blockchainTimestamp = await fetchBlockchainTime();
       const localTime = Math.floor(Date.now() / 1000);
@@ -51,9 +52,9 @@ export const SystemProvider: React.FC<Props> = ({ children }: { children: React.
     } catch (error) {
       console.error("Failed to read blockchain time", error);
     }
-  };
+  }, [fetchBlockchainTime]);
 
-  const fetchGlobalSettings = async () => {
+  const fetchGlobalSettings = useCallback(async () => {
     try {
       if (tokenClient && accessControlsClient) {
         const termLength = await getOwnershipTermLength();
@@ -63,32 +64,38 @@ export const SystemProvider: React.FC<Props> = ({ children }: { children: React.
     } catch (error) {
       console.error("System: Failed to initialize system data:", error);
     }
-  };
+  }, [tokenClient, accessControlsClient, getOwnershipTermLength]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     fetchGlobalSettings();
     updateBlockchainTime(); // Initial check on component mount
 
-    const intervalId = setInterval(
-      () => {
-        updateBlockchainTime(); // Periodic checks
-      },
-      15 * 60 * 1000, // 15 minutes in milliseconds
-    );
+    const intervalId = setInterval(updateBlockchainTime, 15 * 60 * 1000); // 15 minutes in milliseconds
 
     return () => clearInterval(intervalId); // Cleanup on component unmount
-  }, []);
+  }, [fetchGlobalSettings, updateBlockchainTime]);
 
-  // Context value assembled from state and functions.
-  const contextValue: System = {
-    timeDifference,
-    blockchainTime,
-    updateBlockchainTime,
-    ownershipTermLength,
-    platformAddress,
-  };
+  // Memoize the context value
+  const contextValue = useMemo<System>(
+    () => ({
+      timeDifference,
+      blockchainTime,
+      updateBlockchainTime,
+      ownershipTermLength,
+      platformAddress,
+    }),
+    [timeDifference, blockchainTime, updateBlockchainTime, ownershipTermLength, platformAddress],
+  );
 
-  // Providing the auction house context to child components.
+  // Providing the system context to child components.
   return <SystemContext.Provider value={contextValue}>{children}</SystemContext.Provider>;
+};
+
+// Custom hook to consume the system context.
+export const useSystem = () => {
+  const context = useContext(SystemContext);
+  if (context === undefined) {
+    throw new Error("useSystem must be used within a SystemProvider");
+  }
+  return context;
 };

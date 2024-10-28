@@ -9,9 +9,9 @@ export type GlobalSettings = {
 };
 
 export type System = {
-  timeDifference: number | 0; // Differential b/w local and blockchain time
+  timeDifference: number; // Differential b/w local and blockchain time
   blockchainTime: () => number;
   updateBlockchainTime: () => Promise<void>;
-  ownershipTermLength: number | 0;
+  ownershipTermLength: number;
   platformAddress: string;
 };

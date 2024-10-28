@@ -1,51 +1,52 @@
 // config/wagmiConfig.ts
 
-import { getChainInfo } from "@app/utils/getChainInfo";
-import type { SupportedChainId } from "@ethereum-tag-service/contracts/multiChainConfig";
+import {
+  type SupportedChainId,
+  availableChainIds,
+  chains,
+  networkNames,
+} from "@ethereum-tag-service/contracts/multiChainConfig";
 import { getAlchemyRpcUrlById } from "@ethereum-tag-service/contracts/utils";
 import type { Chain } from "viem/chains";
-import { http, createConfig } from "wagmi";
+import { http, type Config, createConfig } from "wagmi";
 import { injected } from "wagmi/connectors";
 
-// Get the current chain based on the subdomain
-const { chain: currentChain } = getChainInfo();
+export { availableChainIds, networkNames };
 
-// Wagmi Config
-export const wagmiConfig = createConfig({
-  chains: [currentChain],
-  connectors: [injected()],
-  transports: {
-    [currentChain.id]: http(
-      currentChain.id === 31337
-        ? "http://127.0.0.1:8545" // Use localhost URL for Hardhat
-        : getAlchemyRpcUrlById(currentChain.id.toString(), process.env.NEXT_PUBLIC_ALCHEMY_KEY || ""),
-    ),
+const allChains = Object.values(chains) as [Chain, ...Chain[]];
+
+const transports = allChains.reduce(
+  (acc, chain) => {
+    if (chain.id === 31337 || chain.id === 1337) {
+      acc[chain.id] = http("http://127.0.0.1:8545"); // Use localhost URL for Hardhat
+    } else {
+      try {
+        acc[chain.id] = http(getAlchemyRpcUrlById(chain.id.toString(), process.env.NEXT_PUBLIC_ALCHEMY_KEY || ""));
+      } catch {
+        console.warn(`Unsupported chain ID for Alchemy RPC: ${chain.id}`);
+      }
+    }
+    return acc;
   },
+  {} as { [chainId: number]: ReturnType<typeof http> },
+);
+
+export const wagmiConfig: Config = createConfig({
+  chains: allChains,
+  connectors: [injected()],
+  transports,
 });
 
-// Re-export types and functions
-export { getChainInfo };
-export type { SupportedChainId };
-
-// Helper function to get the current chain ID
-export const getCurrentChainId = (): SupportedChainId => currentChain.id.toString() as SupportedChainId;
-
-// Helper function to get the current chain
-export const getCurrentChain = (): Chain => currentChain;
-
-// Helper function to get the explorer URL for the current chain
-export const getExplorerUrl = (type: "tx" | "address" | "token" = "tx", hash?: string): string => {
-  const baseUrl = currentChain.blockExplorers?.default?.url || "https://etherscan.io";
-  return `${baseUrl}/${type}/${hash}`;
-};
-
-// Helper function to get the Alchemy RPC URL for the current chain
-export const getCurrentAlchemyRpcUrl = (): string => {
-  if (currentChain.id === 31337) {
+// Helper function to get the Alchemy RPC URL for a given chain
+export const getAlchemyRpcUrl = (chain: Chain): string => {
+  if (chain.id === 31337) {
     return "http://127.0.0.1:8545";
   }
-  return getAlchemyRpcUrlById(
-    currentChain.id.toString() as SupportedChainId,
-    process.env.NEXT_PUBLIC_ALCHEMY_KEY || "",
-  );
+  return getAlchemyRpcUrlById(chain.id.toString(), process.env.NEXT_PUBLIC_ALCHEMY_KEY || "");
+};
+
+// Helper function to get chain by network name
+export const getChainByNetworkName = (networkName: string): Chain | undefined => {
+  const chainId = Object.keys(networkNames).find((key) => networkNames[key as SupportedChainId] === networkName);
+  return chainId ? chains[chainId as SupportedChainId] : undefined;
 };

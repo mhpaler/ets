@@ -6,18 +6,17 @@ import "@app/styles/tags.css";
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import nProgress from "nprogress";
 import "@rainbow-me/rainbowkit/styles.css";
-import { getCurrentChain, wagmiConfig } from "@app/config/wagmiConfig";
+import ChainModalETS from "@app/components/ChainModalETS";
+import { SWR_CONFIG } from "@app/config/swrConfig";
+import { getChainByNetworkName, wagmiConfig } from "@app/config/wagmiConfig";
 import { AuctionHouseProvider } from "@app/context/AuctionHouseContext";
+import { EnvironmentContextProvider, useEnvironmentContext } from "@app/context/EnvironmentContext";
 import { ModalProvider } from "@app/context/ModalContext";
+import { SystemProvider } from "@app/context/SystemContext";
 import { TransactionManagerProvider } from "@app/context/TransactionContext";
-import { fetcher } from "@app/utils/fetchers";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
 import { WagmiProvider } from "wagmi";
-
-const SystemProvider = dynamic(() => import("@app/context/SystemContext").then((mod) => mod.SystemProvider), {
-  ssr: false,
-});
 
 const queryClient = new QueryClient();
 
@@ -26,15 +25,37 @@ Router.events.on("routeChangeStart", nProgress.start);
 Router.events.on("routeChangeError", nProgress.done);
 Router.events.on("routeChangeComplete", nProgress.done);
 
-function AppContent({ Component, pageProps }: AppProps) {
-  const currentChain = getCurrentChain();
+function WagmiConfigWrapper({ children }: { children: React.ReactNode }) {
+  const { network, isValidPathWithoutNetwork } = useEnvironmentContext();
+  const [mounted, setMounted] = useState(false);
+  const [showNetworkModal, setShowNetworkModal] = useState(false);
 
-  console.info("currentChain", currentChain);
+  useEffect(() => {
+    setMounted(true);
+    if (isValidPathWithoutNetwork) {
+      setShowNetworkModal(true);
+    }
+  }, [isValidPathWithoutNetwork]);
+
+  const initialChain = getChainByNetworkName(network);
+
+  if (!mounted) return null;
 
   return (
-    <RainbowKitProvider initialChain={currentChain}>
-      <SWRConfig value={{ refreshInterval: 3000, fetcher: fetcher }}>
-        <SystemProvider>
+    <WagmiProvider config={wagmiConfig}>
+      <RainbowKitProvider initialChain={initialChain}>
+        {showNetworkModal && <ChainModalETS show={showNetworkModal} onClose={() => setShowNetworkModal(false)} />}
+        {children}
+      </RainbowKitProvider>
+    </WagmiProvider>
+  );
+}
+
+function AppContent({ Component, pageProps }: AppProps) {
+  return (
+    <WagmiConfigWrapper>
+      <SystemProvider>
+        <SWRConfig value={SWR_CONFIG}>
           <TransactionManagerProvider>
             <AuctionHouseProvider>
               <ModalProvider>
@@ -42,19 +63,19 @@ function AppContent({ Component, pageProps }: AppProps) {
               </ModalProvider>
             </AuctionHouseProvider>
           </TransactionManagerProvider>
-        </SystemProvider>
-      </SWRConfig>
-    </RainbowKitProvider>
+        </SWRConfig>
+      </SystemProvider>
+    </WagmiConfigWrapper>
   );
 }
 
 function App(props: AppProps) {
   return (
-    <WagmiProvider config={wagmiConfig}>
+    <EnvironmentContextProvider>
       <QueryClientProvider client={queryClient}>
         <AppContent {...props} />
       </QueryClientProvider>
-    </WagmiProvider>
+    </EnvironmentContextProvider>
   );
 }
 

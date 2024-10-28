@@ -1,10 +1,11 @@
+// components/TanstackTable.tsx
 import { Button } from "@app/components/Button";
 import { globalSettings } from "@app/config/globalSettings";
 import { useModal } from "@app/hooks/useModalContext";
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import useTranslation from "next-translate/useTranslation";
 import { useRouter } from "next/router";
-import React, { type ReactNode } from "react";
+import React, { type ReactNode, useMemo } from "react";
 
 interface TableProps<TData> {
   columns: any[];
@@ -55,6 +56,46 @@ const TanstackTable = <TData extends object>({
     setPageIndex?.(pageIndex - 1);
   };
 
+  // Create skeleton rows for loading state
+  const loadingRows = useMemo(
+    () =>
+      [...Array(rowsPerPage)].map((_, rowIndex) => (
+        <tr key={`loading-row-${rowIndex}`} className="opacity-0 animate-fadeIn">
+          {[...Array(columns.length)].map((_, colIndex) => (
+            <td key={`loading-cell-${rowIndex}-${colIndex}`}>
+              <div className="w-full h-6 rounded bg-gray-200 animate-pulse" />
+            </td>
+          ))}
+        </tr>
+      )),
+    [rowsPerPage, columns.length],
+  );
+
+  // Memoize the content rows
+  const contentRows = useMemo(
+    () =>
+      table.getRowModel().rows.map((row, rowIndex) => (
+        <tr
+          key={`table-row-${row.id}-${rowIndex}`}
+          className={`${rowLink && !isModalOpen ? "hover:bg-base-200 cursor-pointer" : ""} opacity-0 animate-fadeIn`}
+          onClick={() => rowLink && !isModalOpen && router.push(String(rowLink(row.original)))}
+          onKeyUp={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              rowLink && !isModalOpen && router.push(String(rowLink(row.original)));
+            }
+          }}
+          tabIndex={0}
+        >
+          {row.getVisibleCells().map((cell, cellIndex) => (
+            <td key={`table-cell-${cell.id}-${cellIndex}`}>
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </td>
+          ))}
+        </tr>
+      )),
+    [rowLink, isModalOpen, router, table.getRowModel],
+  );
+
   return (
     <div className="col-span-12">
       {title && <h2 className="text-2xl font-bold pb-4">{title}</h2>}
@@ -71,41 +112,7 @@ const TanstackTable = <TData extends object>({
               </tr>
             ))}
           </thead>
-          <tbody>
-            {loading
-              ? [...Array(rowsPerPage)].map((_, rowIndex) => (
-                  <tr key={`loading-row-${rowIndex}`}>
-                    {[...Array(columns.length)].map((_, colIndex) => (
-                      <td key={`loading-cell-${rowIndex}-${colIndex}`}>
-                        <div className="w-full h-6 rounded bg-gray-200 animate-pulse" />
-                      </td>
-                    ))}
-                  </tr>
-                ))
-              : table.getRowModel().rows.map((row, rowIndex) => (
-                  <tr
-                    key={`table-row-${row.id}-${rowIndex}`}
-                    className={rowLink && !isModalOpen ? "hover:bg-base-200 cursor-pointer" : ""}
-                    onClick={() => rowLink && !isModalOpen && router.push(String(rowLink(row.original)))}
-                    onKeyUp={() => {}}
-                    onKeyDown={() => {}}
-                  >
-                    {row.getVisibleCells().map((cell, cellIndex) => (
-                      <td key={`table-cell-${cell.id}-${cellIndex}`}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        {/* {rowLink ? (
-                        @todo: fix modal popup when each cell is linked
-                          <a href={rowLink(row.original)} className="block w-full h-full">
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </a>
-                        ) : (
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        )} */}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-          </tbody>
+          <tbody>{loading ? loadingRows : contentRows}</tbody>
         </table>
       </div>
       {setPageIndex && (

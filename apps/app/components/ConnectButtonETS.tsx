@@ -1,9 +1,11 @@
 import ChainModalETS from "@app/components/ChainModalETS";
+import { useEnvironmentContext } from "@app/context/EnvironmentContext";
 import { getChainInfo } from "@app/utils/getChainInfo";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
-import { useState } from "react";
-import { useDisconnect, useSwitchChain } from "wagmi";
+import type React from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useAccount, useChainId, useDisconnect, useSwitchChain } from "wagmi";
 
 interface ConnectButtonETSProps {
   className?: string;
@@ -12,26 +14,40 @@ interface ConnectButtonETSProps {
 
 export const ConnectButtonETS: React.FC<ConnectButtonETSProps> = ({ className = "", compact = false }) => {
   const { switchChain } = useSwitchChain();
-  const { chain: expectedChain } = getChainInfo();
-
   const { disconnect } = useDisconnect();
-
+  const { network } = useEnvironmentContext();
+  const expectedChain = useMemo(() => getChainInfo(network), [network]);
+  const chainId = useChainId();
+  const { isConnected, isReconnecting } = useAccount();
   const [showChainModal, setShowChainModal] = useState(false);
   const [showUnsupportedModal, setShowUnsupportedModal] = useState(false);
 
-  const handleSwitchNetwork = () => {
-    if (expectedChain?.id) {
-      switchChain({ chainId: expectedChain.id });
+  const handleSwitchNetwork = useCallback(() => {
+    if (expectedChain?.chain.id) {
+      try {
+        switchChain({ chainId: expectedChain.chain.id });
+        setShowUnsupportedModal(false);
+      } catch (error) {
+        console.error("Failed to switch chain:", error);
+        setShowUnsupportedModal(true);
+      }
+    } else {
+      setShowUnsupportedModal(true);
     }
-    setShowUnsupportedModal(false); // Close the modal after switching
-  };
+  }, [expectedChain, switchChain]);
 
-  const openChainModalETS = (event: React.MouseEvent<HTMLButtonElement>) => {
+  useEffect(() => {
+    if (isConnected && !isReconnecting && chainId && expectedChain && chainId !== expectedChain.chain.id) {
+      handleSwitchNetwork();
+    }
+  }, [chainId, isConnected, isReconnecting, expectedChain, handleSwitchNetwork]);
+
+  const openChainModalETS = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     setShowChainModal(true);
-  };
+  }, []);
 
-  const closeChainModalETS = () => setShowChainModal(false);
+  const closeChainModalETS = useCallback(() => setShowChainModal(false), []);
 
   return (
     <>
@@ -40,6 +56,8 @@ export const ConnectButtonETS: React.FC<ConnectButtonETSProps> = ({ className = 
           const ready = mounted && authenticationStatus !== "loading";
           const connected =
             ready && account && chain && (!authenticationStatus || authenticationStatus === "authenticated");
+
+          const isWrongNetwork = connected && expectedChain && chain.id !== expectedChain.chain.id;
 
           const handleConnectClick = (event: React.MouseEvent<HTMLButtonElement>) => {
             event.stopPropagation();
@@ -52,11 +70,31 @@ export const ConnectButtonETS: React.FC<ConnectButtonETSProps> = ({ className = 
             return (
               <div className="flex space-x-2">
                 <button
-                  className={`btn btn-primary btn-outline ${className}`}
+                  className={`btn ${compact ? "btn-sm px-2" : ""} ${className}`}
                   onClick={openChainModalETS}
                   type="button"
                 >
-                  Select Network
+                  {expectedChain.iconPath && (
+                    <div
+                      style={{
+                        width: 16,
+                        height: 16,
+                        borderRadius: 999,
+                        overflow: "hidden",
+                        marginRight: compact ? 0 : 4,
+                      }}
+                    >
+                      {expectedChain.iconPath && (
+                        <Image
+                          src={expectedChain.iconPath}
+                          alt={expectedChain.displayName ?? "Chain icon"}
+                          width={16}
+                          height={16}
+                        />
+                      )}
+                    </div>
+                  )}
+                  {!compact && expectedChain.displayName}
                 </button>
                 <button className={`btn btn-primary ${className}`} onClick={handleConnectClick} type="button">
                   {compact ? "Connect" : "Connect Wallet"}
@@ -65,13 +103,15 @@ export const ConnectButtonETS: React.FC<ConnectButtonETSProps> = ({ className = 
             );
           }
 
-          // Display a "Wrong network" button if the chain is unsupported
-          if (chain.unsupported) {
+          if (isWrongNetwork) {
+            console.info("Wrong network detected");
+            console.info("Connected chain:", chain);
+            console.info("Expected chain:", expectedChain);
             return (
               <div className="flex space-x-2">
                 <button
                   className={`btn btn-warning ${className}`}
-                  onClick={() => setShowUnsupportedModal(true)} // Open unsupported modal on click
+                  onClick={() => setShowUnsupportedModal(true)}
                   type="button"
                 >
                   Wrong network
@@ -146,18 +186,16 @@ export const ConnectButtonETS: React.FC<ConnectButtonETSProps> = ({ className = 
         }}
       </ConnectButton.Custom>
 
-      {/* DaisyUI Modal for network switching */}
       <ChainModalETS show={showChainModal} onClose={closeChainModalETS} />
 
-      {/* Custom Unsupported Network Modal */}
       {showUnsupportedModal && (
         <div className="modal modal-open">
           <div className="modal-box">
             <h3 className="font-bold text-lg">Switch Network</h3>
-            <p className="py-4">Wrong network detected, switch or disconnect to continue. </p>
+            <p className="py-4">Wrong network detected. Expected network: {expectedChain?.displayName}</p>
             <div className="modal-action">
               <button className="btn btn-primary" onClick={handleSwitchNetwork}>
-                {expectedChain?.name || "Supported Network"}
+                Switch to {expectedChain?.displayName || "Supported Network"}
               </button>
               <button className="btn" onClick={() => disconnect()}>
                 Disconnect

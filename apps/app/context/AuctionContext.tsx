@@ -1,19 +1,9 @@
-import {
-  type Auction,
-  type AuctionContextType,
-  type AuctionOnChain,
-  type Bid,
-  type BidFormData,
-  FetchAuctionsResponse,
-} from "@app/types/auction";
-import {} from "@app/types/auction";
+import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
+import type { Auction, AuctionContextType, AuctionOnChain, Bid, BidFormData } from "@app/types/auction";
 import useTranslation from "next-translate/useTranslation";
 import type React from "react";
-import { createContext, useEffect, useState } from "react";
+import { createContext, memo, useCallback, useEffect, useMemo, useState } from "react";
 
-import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
-
-// Define the default values and functions
 const defaultAuctionContextValue: AuctionContextType = {
   auction: null,
   auctionEndTimeUI: 0,
@@ -27,120 +17,96 @@ const defaultAuctionContextValue: AuctionContextType = {
 
 export const AuctionContext = createContext<AuctionContextType>(defaultAuctionContextValue);
 
-/**
- * Props definition for AuctionProvider component.
- */
 type AuctionProps = {
   children: React.ReactNode;
   auctionId: number | null;
 };
 
-export const AuctionProvider: React.FC<AuctionProps> = ({
-  children,
-  auctionId,
-}: {
-  children: React.ReactNode;
-  auctionId: number | null;
-}) => {
-  const { allAuctions, refreshAuctions } = useAuctionHouse(); // Access AuctionHouse context
+export const AuctionProvider = memo(({ children, auctionId }: AuctionProps) => {
+  const { t } = useTranslation("common");
+  const { allAuctions, refreshAuctions } = useAuctionHouse();
   const [auction, setAuction] = useState<Auction | null>(null);
   const [auctionEndTimeUI, setAuctionEndTimeUI] = useState<number>(0);
   const [bidFormData, setBidFormData] = useState<BidFormData>({
     bid: undefined,
   });
 
-  const { t } = useTranslation("common");
+  // Memoize auction lookup
+  const foundAuction = useMemo(() => {
+    if (!allAuctions.length || auctionId === null) return null;
+    return allAuctions.find((a) => a.id === auctionId) ?? null;
+  }, [allAuctions, auctionId]);
 
+  // Update auction state when foundAuction changes
   useEffect(() => {
-    if (allAuctions.length > 0 && auctionId !== null) {
-      const foundAuction = allAuctions.find((auction) => auction.id === auctionId) ?? null;
-      if (!foundAuction) {
-        // TODO: Redirect user to "404 not found" page
-        console.error(`Failed to find auction with ID: ${auctionId}`);
-      } else {
-        setAuction(foundAuction);
-      }
+    if (foundAuction) {
+      setAuction(foundAuction);
+    } else if (auctionId !== null && allAuctions.length > 0) {
+      console.error(`Failed to find auction with ID: ${auctionId}`);
     }
-  }, [auctionId, allAuctions]);
+  }, [foundAuction, auctionId, allAuctions.length]);
 
-  // Add this useEffect to log the auction object whenever it changes
-  /*   useEffect(() => {
-    console.info(`Auction data updated for ID: ${auctionId}`, auction);
-  }, [auction]); */
+  // Memoize callback functions
+  const addBidToAuction = useCallback((_auctionOnChain: AuctionOnChain, _newBid: Bid) => {
+    // Implementation commented out as in original
+  }, []);
 
-  if (!auction) {
-    // Optionally show a loading state here instead of rendering nothing
-    return <div>{t("Loading...")}</div>; // or <Loading />
-  }
+  // In AuctionContext
+  const endAuction = useCallback(
+    (auctionId: number) => {
+      console.info("AuctionContext endAuction called for:", auctionId);
+      if (!allAuctions?.length) return;
 
-  // Function to optimistically add a new bid to an auction
-  const addBidToAuction = (_auctionOnChain: AuctionOnChain, _newBid: Bid) => {
-    /* refreshAuctions((current: FetchAuctionsResponse | undefined) => {
-      if (!current || !current.auctions) return current;
-
-      const updatedAuctions = current.auctions.map((auction) => {
-        if (Number(auction.id) === auctionOnChain.id) {
-          const updatedAuction = {
-            ...auction,
-            amount: auctionOnChain.amount, // Update the amount with the new bid's amount
-            amountDisplay: formatEtherWithDecimals(auctionOnChain.amount, 4), // Update display value
-            startTime: auctionOnChain.startTime,
-            endTime: auctionOnChain.endTime,
-            bidder: { id: auctionOnChain.bidder },
-            bids: [...auction.bids, newBid], // Add new bid to bids array
-          };
-          return updatedAuction;
+      const updatedAuctions = allAuctions.map((auction) => {
+        if (auction.id === auctionId) {
+          console.info("Marking auction as ended:", auctionId);
+          return { ...auction, ended: true };
         }
         return auction;
       });
 
-      return { ...current, auctions: updatedAuctions };
-    }, false); */
-  };
+      console.info("Refreshing auctions with updated data");
+      refreshAuctions(updatedAuctions);
+    },
+    [allAuctions, refreshAuctions],
+  );
 
-  // Function to optimistically update an auction's ended status in UI
-  // see /app/components/auction/AuctionTimer.ts
-  const endAuction = (auctionId: number) => {
-    //console.info(`Optimistically ending auction ID: ${auctionId}`);
-    if (!allAuctions) return; // Ensure allAuctions is not undefined.
+  const settleAuction = useCallback(
+    (auctionId: number) => {
+      if (!allAuctions?.length) return;
 
-    const updatedAuctions = allAuctions.map((auction) => {
-      if (auction.id === auctionId) {
-        //console.info(`Updating ended status for Auction ID: ${auctionId}`);
-        return { ...auction, ended: true };
-      }
-      return auction;
-    });
+      const updatedAuctions = allAuctions.map((auction) =>
+        auction.id === auctionId ? { ...auction, settled: true } : auction,
+      );
 
-    refreshAuctions(updatedAuctions); // Pass the updated list directly to refreshAuctions
-  };
+      refreshAuctions(updatedAuctions);
+    },
+    [allAuctions, refreshAuctions],
+  );
 
-  // Function to optimistically update an auction's settled status
-  const settleAuction = (auctionId: number) => {
-    //console.info(`Optimistically ending auction ID: ${auctionId}`);
-    if (!allAuctions) return; // Ensure allAuctions is not undefined.
+  // Memoize context value
+  const contextValue = useMemo(
+    () => ({
+      auction,
+      auctionEndTimeUI,
+      setAuctionEndTimeUI,
+      bidFormData,
+      setBidFormData,
+      endAuction,
+      settleAuction,
+      addBidToAuction,
+    }),
+    [auction, auctionEndTimeUI, bidFormData, endAuction, settleAuction, addBidToAuction],
+  );
 
-    const updatedAuctions = allAuctions.map((auction) => {
-      if (auction.id === auctionId) {
-        //console.info(`Updating ended status for Auction ID: ${auctionId}`);
-        return { ...auction, settled: true };
-      }
-      return auction;
-    });
+  if (!auction) {
+    return <div className="loading">{t("Loading...")}</div>;
+  }
 
-    refreshAuctions(updatedAuctions); // Pass the updated list directly to refreshAuctions
-  };
+  return <AuctionContext.Provider value={contextValue}>{children}</AuctionContext.Provider>;
+});
 
-  const value: AuctionContextType = {
-    auction,
-    auctionEndTimeUI,
-    setAuctionEndTimeUI,
-    bidFormData,
-    setBidFormData,
-    endAuction,
-    settleAuction,
-    addBidToAuction,
-  };
+// Add display name for better debugging
+AuctionProvider.displayName = "AuctionProvider";
 
-  return <AuctionContext.Provider value={value}>{children}</AuctionContext.Provider>;
-};
+export default AuctionContext;

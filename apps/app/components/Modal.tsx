@@ -39,13 +39,15 @@ const Modal = ({ id, label, children, link = false, buttonClasses = "", disabled
 
   return (
     <>
-      <button
-        onClick={handleOpenModal}
-        className={`${buttonClassName} ${disabledClass} ${buttonClasses}`}
-        disabled={disabled}
-      >
-        {label}
-      </button>
+      <div className="flex justify-center">
+        <button
+          onClick={handleOpenModal}
+          className={`${buttonClassName} ${disabledClass} ${buttonClasses}`}
+          disabled={disabled}
+        >
+          {label}
+        </button>
+      </div>
 
       <Transition appear show={currentModal === id} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={() => {}}>

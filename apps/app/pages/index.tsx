@@ -2,41 +2,16 @@ import ChainModalETS from "@app/components/ChainModalETS";
 import SiteMessage from "@app/components/SiteMessage";
 import { Stats } from "@app/components/Stats";
 import { TaggingRecords } from "@app/components/TaggingRecords";
-import { getCurrentChain } from "@app/config/wagmiConfig";
+import { useEnvironmentContext } from "@app/context/EnvironmentContext";
 import Layout from "@app/layouts/default";
-import { getChainInfo } from "@app/utils/getChainInfo";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 
-import { useEffect, useState } from "react";
-
 const Home: NextPage = () => {
   const { t } = useTranslation("common");
-  const [showIndexPage, setShowIndexPage] = useState(false);
+  const { isIndexPage } = useEnvironmentContext();
 
-  useEffect(() => {
-    const hostname = window.location.hostname;
-    const isLocalhost = hostname === "localhost";
-    const isStage = hostname === "stage.app.ets.xyz";
-    const isMain = hostname === "app.ets.xyz";
-
-    const parts = hostname.split(".");
-    const subdomain = parts.length > 2 ? parts[0].toLowerCase() : null;
-
-    if ((isLocalhost || isStage || isMain) && !subdomain) {
-      setShowIndexPage(true);
-    }
-
-    console.info("Home Component - Detected Hostname:", hostname);
-    console.info("Home Component - isLocalhost:", isLocalhost);
-    console.info("Home Component - isStage:", isStage);
-    console.info("Home Component - isMain:", isMain);
-    console.info("Home Component - Subdomain:", subdomain);
-    console.info("Home Component - Show Index Page:", showIndexPage);
-  }, [showIndexPage]);
-
-  if (showIndexPage) {
-    // Render index page with links to chain subdomains
+  if (isIndexPage) {
     return (
       <div className="flex items-center justify-center h-screen px-6">
         <main className="max-w-sm py-6 my-auto space-y-6">

@@ -1,5 +1,5 @@
 import { globalSettings } from "@app/config/globalSettings";
-import { getExplorerUrl } from "@app/config/wagmiConfig";
+import { useExplorerUrl } from "@app/hooks/useExplorerUrl";
 import { useTaggingRecords } from "@app/hooks/useTaggingRecords";
 import type { TaggingRecordType } from "@app/types/taggingrecord";
 import { createColumnHelper } from "@tanstack/react-table";
@@ -7,7 +7,6 @@ import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { useChainId } from "wagmi";
 import { CopyAndPaste } from "./CopyAndPaste";
 import { Tag } from "./Tag";
 import { TanstackTable } from "./TanstackTable";
@@ -24,6 +23,8 @@ type Props = {
 
 const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings.DEFAULT_PAGESIZE, orderBy, title }) => {
   const { t } = useTranslation("common");
+  const getExplorerUrl = useExplorerUrl();
+
   const [pageIndex, setPageIndex] = useState(0);
   const { taggingRecords, nextTaggingRecords } = useTaggingRecords({
     filter: filter,
@@ -127,7 +128,7 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings.DEF
         ),
       }),
     ],
-    [t, columnHelper.accessor],
+    [t, columnHelper.accessor, getExplorerUrl],
   );
 
   return (

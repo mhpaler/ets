@@ -1,4 +1,4 @@
-import { getCurrentChain } from "@app/config/wagmiConfig";
+import { useEnvironmentContext } from "@app/context/EnvironmentContext";
 import { getChainInfo } from "@app/utils/getChainInfo";
 import useTranslation from "next-translate/useTranslation";
 import Image from "next/image";
@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 const SiteMessage: React.FC = () => {
   const { t } = useTranslation("common");
   const [isVisible, setIsVisible] = useState<boolean>(true);
+  const { network } = useEnvironmentContext(); // Use the useSystem hook to get the current network
 
   useEffect(() => {
     const siteMessageDismissed = localStorage.getItem("siteMessageDismissed");
@@ -23,8 +24,11 @@ const SiteMessage: React.FC = () => {
 
   if (!isVisible) return null;
 
-  const currentChain = getCurrentChain();
-  const { chainName, iconPath } = getChainInfo(currentChain.name.toLowerCase());
+  if (network === "none") {
+    return null; // or return a default message
+  }
+
+  const { chainName, displayName, iconPath } = getChainInfo(network);
 
   return (
     <>
@@ -34,8 +38,7 @@ const SiteMessage: React.FC = () => {
           <Image src={iconPath} alt={`${chainName} icon`} width={24} height={24} className="mr-3" />
           <div>
             <h3 className="text-lg">
-              Welcome to <span className="font-bold">ETS</span> on{" "}
-              <span className="font-bold">{currentChain.name}</span>
+              Welcome to <span className="font-bold">ETS</span> on <span className="font-bold">{displayName}</span>
             </h3>
             <div className="text-sm">{t("testnet-warning")}</div>
           </div>

@@ -6,8 +6,8 @@ import { TimeAgo } from "@app/components/TimeAgo";
 import { Truncate } from "@app/components/Truncate";
 import { URI } from "@app/components/URI";
 import TransactionFlowWrapper from "@app/components/transaction/TransactionFlowWrapper";
-import { getExplorerUrl } from "@app/config/wagmiConfig";
 import { RelayerProvider } from "@app/context/RelayerContext";
+import { useExplorerUrl } from "@app/hooks/useExplorerUrl";
 import { useRelayers } from "@app/hooks/useRelayers";
 import Layout from "@app/layouts/default";
 import type { RelayerType } from "@app/types/relayer";
@@ -24,6 +24,7 @@ const pageSize = 20;
 
 const Relayers: NextPage = () => {
   const { t } = useTranslation("common");
+  const getExplorerUrl = useExplorerUrl();
   const [pageIndex, setPageIndex] = useState(0);
   const { isConnected } = useAccount();
   const [transactionId, setTransactionId] = useState<string>("");
@@ -95,7 +96,7 @@ const Relayers: NextPage = () => {
         cell: (info) => (info.getValue() ? t("disabled") : t("enabled")),
       }),
     ],
-    [t, columnHelper.accessor],
+    [t, columnHelper.accessor, getExplorerUrl],
   );
 
   return (

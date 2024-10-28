@@ -1,11 +1,10 @@
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Truncate } from "@app/components/Truncate";
-import { getExplorerUrl } from "@app/config/wagmiConfig";
+import { useExplorerUrl } from "@app/hooks/useExplorerUrl";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Hex } from "viem";
-import { useChainId } from "wagmi";
 import { URI } from "./URI";
 
 interface AddressProps {
@@ -15,6 +14,7 @@ interface AddressProps {
 }
 
 const Address: React.FC<AddressProps> = ({ address, ens, truncateLength = 14 }) => {
+  const getExplorerUrl = useExplorerUrl();
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
   const spanRef = useRef<HTMLSpanElement>(null);

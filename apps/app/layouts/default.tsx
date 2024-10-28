@@ -28,7 +28,6 @@ export default function Layout({ children }: { children: ReactNode }) {
             <PageInfo />
             {children}
           </div>
-          <ChainDebugger />
         </main>
         <div className="drawer-side">
           <label htmlFor="main-drawer" aria-label="close sidebar" className="drawer-overlay" />

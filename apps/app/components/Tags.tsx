@@ -4,7 +4,7 @@ import { TanstackTable } from "@app/components/TanstackTable";
 import { TimeAgo } from "@app/components/TimeAgo";
 import { URI } from "@app/components/URI";
 import { globalSettings } from "@app/config/globalSettings";
-import { getExplorerUrl } from "@app/config/wagmiConfig";
+import { useExplorerUrl } from "@app/hooks/useExplorerUrl";
 import type { TagType } from "@app/types/tag";
 import { etsTokenConfig } from "@ethereum-tag-service/contracts/contracts";
 import { createColumnHelper } from "@tanstack/react-table";
@@ -39,8 +39,7 @@ const Tags: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation("common");
   const chainId = useChainId();
-
-  // TODO: Evaluate if this is proper way to support MULTICHAIN
+  const getExplorerUrl = useExplorerUrl();
   const etsTokenAddress = etsTokenConfig.address[chainId as keyof typeof etsTokenConfig.address];
   const columnHelper = createColumnHelper<TagType>();
 
@@ -97,7 +96,7 @@ const Tags: React.FC<Props> = ({
         header: () => "Tagging Records",
       }),
     }),
-    [columnHelper, t, etsTokenAddress],
+    [columnHelper, t, etsTokenAddress, getExplorerUrl],
   );
 
   const selectedColumns = useMemo(

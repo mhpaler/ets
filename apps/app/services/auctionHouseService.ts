@@ -1,323 +1,322 @@
 import { wagmiConfig } from "@app/config/wagmiConfig";
+import { useEnvironmentContext } from "@app/context/EnvironmentContext";
 import type { Auction, AuctionOnChain, AuctionSettings } from "@app/types/auction";
 import { formatEtherWithDecimals } from "@app/utils";
 import { fetcher } from "@app/utils/fetchers";
+import { getChainInfo } from "@app/utils/getChainInfo";
 import { etsAuctionHouseConfig } from "@ethereum-tag-service/contracts/contracts";
-import { getBlock, getChainId, readContract, watchContractEvent } from "wagmi/actions";
+import { useCallback, useMemo } from "react";
+import { getBlock, readContract, watchContractEvent } from "wagmi/actions";
 
 type FetchAuctionsResponse = {
   auctions: Auction[];
 };
 
-// TODO: Modify functions to use SDK and remove direct contract calls
+export const useAuctionHouseService = () => {
+  const { network } = useEnvironmentContext();
+  const { chain } = getChainInfo(network);
+  //const wagmiConfig = useMemo(() => createWagmiConfig(chain), [chain]);
+  const chainId = chain.id;
 
-// Simplified helper function to get the correct contract address for the currently active chain
+  const isValidNetwork = useMemo(() => network !== "none" && chainId !== undefined, [network, chainId]);
 
-/* const getContractAddress = (): `0x${string}` =>
-  etsAuctionHouseConfig.address[getChainId(wagmiConfig) as keyof typeof etsAuctionHouseConfig.address];
-const address = getContractAddress();
+  const getContractAddress = useCallback((): `0x${string}` | null => {
+    if (!isValidNetwork) return null;
+    const address = etsAuctionHouseConfig.address[chainId as keyof typeof etsAuctionHouseConfig.address];
+    if (!address) {
+      console.warn(`No contract address found for chain ID: ${chainId}`);
+      return null;
+    }
+    return address as `0x${string}`;
+  }, [chainId, isValidNetwork]);
 
-// Create a config object with the shared address and ABI
-const auctionHouseConfig = {
-  address,
-  abi: etsAuctionHouseConfig.abi,
-}; */
+  const auctionHouseConfig = useMemo(() => {
+    const address = getContractAddress();
+    return address ? { address, abi: etsAuctionHouseConfig.abi } : null;
+  }, [getContractAddress]);
 
-let cachedAddress: `0x${string}` | null = null;
+  const fetchAuctionPaused = useCallback(async (): Promise<boolean> => {
+    if (!isValidNetwork || !auctionHouseConfig) return false;
+    try {
+      const data = await readContract(wagmiConfig, {
+        ...auctionHouseConfig,
+        functionName: "paused",
+      });
+      return data;
+    } catch (error) {
+      console.error("Error fetching auction paused state:", error);
+      return false;
+    }
+  }, [auctionHouseConfig, isValidNetwork]);
 
-const getContractAddress = (): `0x${string}` => {
-  if (cachedAddress) return cachedAddress;
-
-  const chainId = getChainId(wagmiConfig);
-  if (typeof chainId !== "number") {
-    throw new Error("Invalid chain ID");
-  }
-
-  const address = etsAuctionHouseConfig.address[chainId as keyof typeof etsAuctionHouseConfig.address];
-  if (!address) {
-    throw new Error(`No contract address found for chain ID: ${chainId}`);
-  }
-
-  cachedAddress = address as `0x${string}`;
-  return cachedAddress;
-};
-
-// Create a config object with the shared address and ABI
-const getAuctionHouseConfig = () => ({
-  get address() {
-    return getContractAddress();
-  },
-  abi: etsAuctionHouseConfig.abi,
-});
-
-export const auctionHouseConfig = getAuctionHouseConfig();
-
-export const fetchAuctionPaused = async (): Promise<boolean> => {
-  const data = await readContract(wagmiConfig, {
-    ...auctionHouseConfig,
-    functionName: "paused",
-  });
-  return data;
-};
-
-export const watchAuctionPaused = (onPaused: () => Promise<void>) => {
-  const unwatch = watchContractEvent(wagmiConfig, {
-    ...auctionHouseConfig,
-    eventName: "Paused",
-    onLogs: async () => {
-      await onPaused();
+  const watchAuctionPaused = useCallback(
+    (onPaused: () => Promise<void>) => {
+      if (!isValidNetwork || !auctionHouseConfig) return () => {};
+      return watchContractEvent(wagmiConfig, {
+        ...auctionHouseConfig,
+        eventName: "Paused",
+        onLogs: async () => {
+          await onPaused();
+        },
+      });
     },
-  });
+    [auctionHouseConfig, isValidNetwork],
+  );
 
-  return unwatch;
-};
-
-export const watchAuctionUnpaused = (onUnpaused: () => Promise<void>) => {
-  const unwatch = watchContractEvent(wagmiConfig, {
-    ...auctionHouseConfig,
-    eventName: "Unpaused",
-    onLogs: async () => {
-      await onUnpaused();
+  const watchAuctionUnpaused = useCallback(
+    (onUnpaused: () => Promise<void>) => {
+      if (!isValidNetwork || !auctionHouseConfig) return () => {};
+      return watchContractEvent(wagmiConfig, {
+        ...auctionHouseConfig,
+        eventName: "Unpaused",
+        onLogs: async () => {
+          await onUnpaused();
+        },
+      });
     },
-  });
+    [auctionHouseConfig, isValidNetwork],
+  );
 
-  return unwatch;
-};
-
-export const watchNewAuctionReleased = (onNewAuction: () => Promise<void>) => {
-  const unwatch = watchContractEvent(wagmiConfig, {
-    ...auctionHouseConfig,
-    eventName: "AuctionCreated",
-    onLogs: async () => {
-      await onNewAuction();
+  const watchNewAuctionReleased = useCallback(
+    (onNewAuction: () => Promise<void>) => {
+      if (!isValidNetwork || !auctionHouseConfig) return () => {};
+      return watchContractEvent(wagmiConfig, {
+        ...auctionHouseConfig,
+        eventName: "AuctionCreated",
+        onLogs: async () => {
+          await onNewAuction();
+        },
+      });
     },
-  });
+    [auctionHouseConfig, isValidNetwork],
+  );
 
-  return unwatch;
-};
-
-export const fetchBlockchainTime = async (): Promise<number> => {
-  try {
-    // Fetch the latest block
-    const block = await getBlock(wagmiConfig, {
-      blockTag: "latest",
-    });
-
-    if (!block) {
-      // If block is undefined, return 0
+  const fetchBlockchainTime = useCallback(async (): Promise<number> => {
+    if (!isValidNetwork) return 0;
+    try {
+      const block = await getBlock(wagmiConfig, {
+        blockTag: "latest",
+      });
+      return block ? Number(block.timestamp) : 0;
+    } catch (error) {
+      console.error("Failed to fetch blockchain time:", error);
       return 0;
     }
+  }, [isValidNetwork]);
 
-    return Number(block.timestamp);
-  } catch (error) {
-    console.error("Failed to fetch blockchain time:", error);
-    // Return 0 in case of any error during fetching
-    return 0;
-  }
-};
-
-export const fetchMaxAuctions = async (): Promise<number> => {
-  const data = await readContract(wagmiConfig, {
-    ...auctionHouseConfig,
-    functionName: "maxAuctions",
-  });
-  return Number(data);
-};
-
-export const fetchCurrentAuctionId = async (): Promise<number> => {
-  try {
-    console.info("Fetching current auction ID...");
-    console.info("Contract address:", auctionHouseConfig.address);
-
-    const data = await readContract(wagmiConfig, {
-      ...auctionHouseConfig,
-      functionName: "getTotalCount",
-    });
-
-    console.info("Fetched current auction ID:", Number(data));
-    return Number(data);
-  } catch (error) {
-    console.error("Error fetching current auction ID:", error);
-    throw error;
-  }
-};
-
-export const fetchAuction = async (auctionId: number): Promise<AuctionOnChain> => {
-  const data = await readContract(wagmiConfig, {
-    ...auctionHouseConfig,
-    functionName: "getAuction",
-    args: [BigInt(auctionId)],
-  });
-
-  return {
-    id: Number(data.auctionId),
-    tokenId: data.tokenId.toString(), // Convert tokenId to string if necessary
-    startTime: Number(data.startTime),
-    endTime: Number(data.endTime),
-    reservePrice: BigInt(data.reservePrice),
-    amount: BigInt(data.amount),
-    bidder: `0x${data.bidder.substring(2)}`, // Ensure the bidder address is in the correct format
-    auctioneer: `0x${data.auctioneer.substring(2)}`, // Ensure the auctioneer address is in the correct format
-    settled: data.settled,
-  };
-};
-
-export const fetchAuctionEnded = async (auctionId: number): Promise<boolean> => {
-  const data = await readContract(wagmiConfig, {
-    ...auctionHouseConfig,
-    functionName: "auctionEnded",
-    args: [BigInt(auctionId)],
-  });
-
-  return data;
-};
-
-export const fetchAuctionSettingsData = async (): Promise<AuctionSettings> => {
-  const query = `
-    query {
-      globalSettings: globalSettings(id: "globalSettings") {
-        maxAuctions
-        minIncrementBidPercentage
-        reservePrice
-        duration
-        timeBuffer
-      }
+  const fetchMaxAuctions = useCallback(async (): Promise<number> => {
+    if (!isValidNetwork || !auctionHouseConfig) return 0;
+    try {
+      const data = await readContract(wagmiConfig, {
+        ...auctionHouseConfig,
+        functionName: "maxAuctions",
+      });
+      return Number(data);
+    } catch (error) {
+      console.error("Error fetching max auctions:", error);
+      return 0;
     }
-  `;
+  }, [auctionHouseConfig, isValidNetwork]);
 
-  try {
-    // Assuming fetcher is correctly set up to return the GraphQL response
-    const response = await fetcher(query, {});
-    // Directly accessing globalSettings from response, as it's not nested under a 'data' property here
-    const settings = response.globalSettings;
+  const fetchCurrentAuctionId = useCallback(async (): Promise<number> => {
+    if (!isValidNetwork || !auctionHouseConfig) return 0;
+    try {
+      const data = await readContract(wagmiConfig, {
+        ...auctionHouseConfig,
+        functionName: "getTotalCount",
+      });
+      return Number(data);
+    } catch (error) {
+      console.error("Error fetching current auction ID:", error);
+      return 0;
+    }
+  }, [auctionHouseConfig, isValidNetwork]);
 
-    // Convert the string representations of BigInt to numbers
-    const convertedSettings = {
-      maxAuctions: Number(settings.maxAuctions),
-      minIncrementBidPercentage: Number(settings.minIncrementBidPercentage),
-      reservePrice: BigInt(settings.reservePrice),
-      duration: Number(settings.duration),
-      timeBuffer: Number(settings.timeBuffer),
-    };
+  const fetchAuction = useCallback(
+    async (auctionId: number): Promise<AuctionOnChain | null> => {
+      if (!isValidNetwork || !auctionHouseConfig) return null;
+      try {
+        const data = await readContract(wagmiConfig, {
+          ...auctionHouseConfig,
+          functionName: "getAuction",
+          args: [BigInt(auctionId)],
+        });
+        return {
+          id: Number(data.auctionId),
+          tokenId: data.tokenId.toString(),
+          startTime: Number(data.startTime),
+          endTime: Number(data.endTime),
+          reservePrice: BigInt(data.reservePrice),
+          amount: BigInt(data.amount),
+          bidder: `0x${data.bidder.substring(2)}`,
+          auctioneer: `0x${data.auctioneer.substring(2)}`,
+          settled: data.settled,
+        };
+      } catch (error) {
+        console.error("Error fetching auction:", error);
+        return null;
+      }
+    },
+    [auctionHouseConfig, isValidNetwork],
+  );
 
-    return convertedSettings;
-  } catch (error) {
-    console.error("Error fetching auction settings data:", error);
-    throw error;
-  }
-};
+  const fetchAuctionEnded = useCallback(
+    async (auctionId: number): Promise<boolean> => {
+      if (!isValidNetwork || !auctionHouseConfig) return false;
+      try {
+        const data = await readContract(wagmiConfig, {
+          ...auctionHouseConfig,
+          functionName: "auctionEnded",
+          args: [BigInt(auctionId)],
+        });
+        return data;
+      } catch (error) {
+        console.error("Error fetching auction ended status:", error);
+        return false;
+      }
+    },
+    [auctionHouseConfig, isValidNetwork],
+  );
 
-export const fetchAuctionsData = async ({
-  pageSize = 20,
-  skip = 0,
-  orderBy = "endTime",
-  filter = {},
-} = {}): Promise<FetchAuctionsResponse> => {
-  const query = `
-    query auctions($filter: Auction_filter, $first: Int!, $skip: Int!, $orderBy: String!) {
-      auctions: auctions(
-        first: $first,
-        skip: $skip,
-        orderBy: $orderBy,
-        orderDirection: desc,
-        where: $filter
-      ) {
-        id
-        tokenAuctionNumber
-        startTime
-        endTime
-        extended
-        settled
-        reservePrice
-        amount
-        bidder {
-          id
+  const fetchAuctionSettingsData = useCallback(async (): Promise<AuctionSettings | null> => {
+    if (!isValidNetwork) return null;
+    const query = `
+      query {
+        globalSettings: globalSettings(id: "globalSettings") {
+          maxAuctions
+          minIncrementBidPercentage
+          reservePrice
+          duration
+          timeBuffer
         }
-        bids {
+      }
+    `;
+    try {
+      const response = await fetcher(query, {});
+      const settings = response.globalSettings;
+      return {
+        maxAuctions: Number(settings.maxAuctions),
+        minIncrementBidPercentage: Number(settings.minIncrementBidPercentage),
+        reservePrice: BigInt(settings.reservePrice),
+        duration: Number(settings.duration),
+        timeBuffer: Number(settings.timeBuffer),
+      };
+    } catch (error) {
+      console.error("Error fetching auction settings data:", error);
+      return null;
+    }
+  }, [isValidNetwork]);
+
+  const fetchAuctionsData = useCallback(
+    async ({
+      pageSize = 20,
+      skip = 0,
+      orderBy = "endTime",
+      filter = {},
+    } = {}): Promise<FetchAuctionsResponse | null> => {
+      if (!isValidNetwork) return null;
+      const query = `
+      query auctions($filter: Auction_filter, $first: Int!, $skip: Int!, $orderBy: String!) {
+        auctions: auctions(
+          first: $first,
+          skip: $skip,
+          orderBy: $orderBy,
+          orderDirection: desc,
+          where: $filter
+        ) {
           id
-          blockTimestamp
+          tokenAuctionNumber
+          startTime
+          endTime
+          extended
+          settled
+          reservePrice
           amount
           bidder {
             id
           }
-        }
-        tag {
-          id
-          timestamp
-          machineName
-          display
-          owner {
+          bids {
             id
+            blockTimestamp
+            amount
+            bidder {
+              id
+            }
           }
-          relayer {
+          tag {
             id
-            name
-          }
-          creator {
-            id
+            timestamp
+            machineName
+            display
+            owner {
+              id
+            }
+            relayer {
+              id
+              name
+            }
+            creator {
+              id
+            }
           }
         }
       }
-    }
-  `;
+    `;
+      const variables = { filter, first: pageSize, skip, orderBy };
+      try {
+        const data: FetchAuctionsResponse = await fetcher(query, variables);
+        const transformedData = data.auctions.map((auction) => ({
+          id: Number(auction.id),
+          tokenAuctionNumber: Number(auction.tokenAuctionNumber),
+          startTime: Number(auction.startTime),
+          endTime: Number(auction.endTime),
+          extended: auction.extended,
+          ended: false,
+          settled: auction.settled,
+          reservePrice: BigInt(auction.reservePrice),
+          amount: BigInt(auction.amount),
+          amountDisplay: formatEtherWithDecimals(auction.amount, 4),
+          bidder: { id: auction.bidder.id },
+          bids: auction.bids.map((bid) => ({
+            id: bid.id,
+            blockTimestamp: Number(bid.blockTimestamp),
+            amount: BigInt(bid.amount),
+            amountDisplay: formatEtherWithDecimals(bid.amount, 4),
+            bidder: { id: bid.bidder.id },
+          })),
+          tag: {
+            id: auction.tag.id,
+            timestamp: Number(auction.tag.timestamp),
+            machineName: auction.tag.machineName,
+            display: auction.tag.display,
+            owner: { id: auction.tag.owner.id },
+            relayer: {
+              id: auction.tag.relayer.id,
+              name: auction.tag.relayer.name,
+            },
+            creator: { id: auction.tag.creator.id },
+          },
+        }));
+        return { auctions: transformedData };
+      } catch (error) {
+        console.error("Error fetching auctions data:", error);
+        return null;
+      }
+    },
+    [isValidNetwork],
+  );
 
-  const variables = {
-    filter,
-    first: pageSize,
-    skip,
-    orderBy,
+  return {
+    fetchAuctionPaused,
+    watchAuctionPaused,
+    watchAuctionUnpaused,
+    watchNewAuctionReleased,
+    fetchBlockchainTime,
+    fetchMaxAuctions,
+    fetchCurrentAuctionId,
+    fetchAuction,
+    fetchAuctionEnded,
+    fetchAuctionSettingsData,
+    fetchAuctionsData,
   };
-
-  try {
-    // Use the fetcher utility to make the GraphQL request
-    // Existing setup for querying
-    const data: FetchAuctionsResponse = await fetcher<FetchAuctionsResponse>(query, variables);
-
-    // Transform each auction in the fetched data
-    const transformedData = data.auctions.map((auction) => ({
-      id: Number(auction.id),
-      tokenAuctionNumber: Number(auction.tokenAuctionNumber),
-      startTime: Number(auction.startTime),
-      endTime: Number(auction.endTime),
-      extended: auction.extended,
-      ended: false,
-      settled: auction.settled,
-      reservePrice: BigInt(auction.reservePrice), // or just auction.settled if it's already a boolean
-      amount: BigInt(auction.amount),
-      amountDisplay: formatEtherWithDecimals(auction.amount, 4),
-      bidder: {
-        id: auction.bidder.id,
-      },
-      bids: auction.bids.map((bid) => ({
-        id: bid.id,
-        blockTimestamp: Number(bid.blockTimestamp),
-        amount: BigInt(bid.amount),
-        amountDisplay: formatEtherWithDecimals(bid.amount, 4),
-        bidder: {
-          id: bid.bidder.id,
-        },
-      })),
-      tag: {
-        id: auction.tag.id,
-        timestamp: Number(auction.tag.timestamp),
-        machineName: auction.tag.machineName,
-        display: auction.tag.display,
-        owner: {
-          id: auction.tag.owner.id,
-        },
-        relayer: {
-          id: auction.tag.relayer.id,
-          name: auction.tag.relayer.name,
-        },
-        creator: {
-          id: auction.tag.creator.id,
-        },
-      },
-    }));
-
-    return { auctions: transformedData };
-  } catch (error) {
-    console.error("Error fetching auctions data:", error);
-    throw error;
-  }
 };
