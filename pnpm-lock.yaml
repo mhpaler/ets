@@ -504,6 +504,9 @@ importers:
 
   packages/sdk-core:
     dependencies:
+      '@ethereum-tag-service/contracts':
+        specifier: workspace:*
+        version: link:../contracts
       viem:
         specifier: ^2.20.0
         version: 2.21.11(bufferutil@4.0.8)(typescript@5.6.2)(utf-8-validate@6.0.4)(zod@3.23.8)
