@@ -1,5 +1,5 @@
-import type { Address, PublicClient, WalletClient } from "viem";
-import { getConfig } from "../contracts/config";
+import { etsConfig } from "@ethereum-tag-service/contracts/contracts";
+import type { Hex, PublicClient, WalletClient } from "viem";
 import type { EtsReadFunction, EtsWriteFunction } from "../types";
 import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
@@ -8,33 +8,32 @@ import { validateConfig } from "../utils/validateConfig";
 export class EtsClient {
   private readonly publicClient: PublicClient;
   private readonly walletClient: WalletClient | undefined;
-  private readonly etsConfig: { address: Address; abi: any };
+  private readonly address: Hex;
+  private readonly abi: any;
 
   constructor({
     publicClient,
     walletClient,
-    address,
     chainId,
   }: {
     publicClient: PublicClient;
     walletClient?: WalletClient;
-    address?: Address;
     chainId?: number;
   }) {
+    validateConfig(chainId, publicClient, walletClient);
+
+    if (!chainId || !(chainId in etsConfig.address)) {
+      throw new Error(`[@ethereum-tag-service/sdk-core] ETS contract not configured for chain ${chainId}`);
+    }
+
     this.publicClient = publicClient;
     this.walletClient = walletClient;
-
-    validateConfig(chainId, publicClient, walletClient);
-    if (!address) throw new Error("Contract address is required");
-
-    const config = getConfig(chainId);
-    if (!config || config.etsConfig === undefined) throw new Error("Configuration could not be retrieved");
-
-    this.etsConfig = config.etsConfig;
+    this.address = etsConfig.address[chainId as keyof typeof etsConfig.address];
+    this.abi = etsConfig.abi;
   }
 
   private async readContract(functionName: EtsReadFunction, args: any[] = []): Promise<any> {
-    return handleContractRead(this.publicClient, this.etsConfig.address, this.etsConfig.abi, functionName, args);
+    return handleContractRead(this.publicClient, this.address, this.abi, functionName, args);
   }
 
   private async callContract(
@@ -44,21 +43,13 @@ export class EtsClient {
     if (!this.walletClient) {
       throw new Error("Wallet client is required to perform this action");
     }
-    return handleContractCall(
-      this.publicClient,
-      this.walletClient,
-      this.etsConfig.address,
-      this.etsConfig.abi,
-      functionName,
-      args,
-    );
+    return handleContractCall(this.publicClient, this.walletClient, this.address, this.abi, functionName, args);
   }
 
   // Read Functions
-  async accrued(address: Address): Promise<number> {
+  async accrued(address: Hex): Promise<number> {
     return this.readContract("accrued", [address]);
   }
-
   async platformPercentage(): Promise<number> {
     return this.readContract("platformPercentage", []);
   }
@@ -75,19 +66,19 @@ export class EtsClient {
     return this.readContract("taggingRecordExists", [taggingRecordId]);
   }
 
-  async etsAccessControls(): Promise<Address> {
+  async etsAccessControls(): Promise<Hex> {
     return this.readContract("etsAccessControls", []);
   }
 
-  async etsTarget(): Promise<Address> {
+  async etsTarget(): Promise<Hex> {
     return this.readContract("etsTarget", []);
   }
 
-  async etsToken(): Promise<Address> {
+  async etsToken(): Promise<Hex> {
     return this.readContract("etsToken", []);
   }
 
-  async totalDue(account: Address): Promise<number> {
+  async totalDue(account: Hex): Promise<number> {
     return this.readContract("totalDue", [account]);
   }
 
@@ -96,7 +87,7 @@ export class EtsClient {
     tagIds: number[],
     targetId: number,
     recordType: string,
-    tagger: Address,
+    tagger: Hex,
   ): Promise<{ transactionHash: string; status: number }> {
     return this.callContract("applyTagsWithCompositeKey", [tagIds, targetId, recordType, tagger]);
   }
@@ -109,7 +100,7 @@ export class EtsClient {
     tagIds: number[],
     targetId: number,
     recordType: string,
-    tagger: Address,
+    tagger: Hex,
   ): Promise<{ transactionHash: string; status: number }> {
     return this.callContract("applyTagsWithRawInput", [tagIds, targetId, recordType, tagger]);
   }

@@ -1,5 +1,5 @@
+import { etsTokenConfig } from "@ethereum-tag-service/contracts/contracts";
 import type { Hex, PublicClient, WalletClient } from "viem";
-import { getConfig } from "../contracts/config";
 import type { TokenReadFunction, TokenWriteFunction } from "../types";
 import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
@@ -8,34 +8,8 @@ import { validateConfig } from "../utils/validateConfig";
 export class TokenClient {
   private readonly publicClient: PublicClient;
   private readonly walletClient: WalletClient | undefined;
-  private readonly etsTokenConfig: { address: Hex; abi: any };
-
-  private async readContract(functionName: TokenReadFunction, args: any = []): Promise<any> {
-    return handleContractRead(
-      this.publicClient,
-      this.etsTokenConfig.address,
-      this.etsTokenConfig.abi,
-      functionName,
-      args,
-    );
-  }
-
-  private async callContract(
-    functionName: TokenWriteFunction,
-    args: any = [],
-  ): Promise<{ transactionHash: string; status: number }> {
-    if (!this.walletClient) {
-      throw new Error("Wallet client is required to perform this action");
-    }
-    return handleContractCall(
-      this.publicClient,
-      this.walletClient,
-      this.etsTokenConfig.address,
-      this.etsTokenConfig.abi,
-      functionName,
-      args,
-    );
-  }
+  private readonly address: Hex;
+  private readonly abi: any;
 
   constructor({
     chainId,
@@ -46,15 +20,30 @@ export class TokenClient {
     publicClient: PublicClient;
     walletClient?: WalletClient;
   }) {
-    this.publicClient = publicClient;
-    this.walletClient = walletClient;
-
     validateConfig(chainId, publicClient, walletClient);
 
-    const config = getConfig(chainId);
-    if (!config || config.etsTokenConfig === undefined) throw new Error("Configuration could not be retrieved");
+    if (!chainId || !(chainId in etsTokenConfig.address)) {
+      throw new Error(`[@ethereum-tag-service/sdk-core] Token contract not configured for chain ${chainId}`);
+    }
 
-    this.etsTokenConfig = config.etsTokenConfig;
+    this.publicClient = publicClient;
+    this.walletClient = walletClient;
+    this.address = etsTokenConfig.address[chainId as keyof typeof etsTokenConfig.address];
+    this.abi = etsTokenConfig.abi;
+  }
+
+  private async readContract(functionName: TokenReadFunction, args: any = []): Promise<any> {
+    return handleContractRead(this.publicClient, this.address, this.abi, functionName, args);
+  }
+
+  private async callContract(
+    functionName: TokenWriteFunction,
+    args: any = [],
+  ): Promise<{ transactionHash: string; status: number }> {
+    if (!this.walletClient) {
+      throw new Error("[@ethereum-tag-service/sdk-core] Wallet client is required to perform this action");
+    }
+    return handleContractCall(this.publicClient, this.walletClient, this.address, this.abi, functionName, args);
   }
 
   async existingTags(tags: string[]): Promise<string[]> {
@@ -66,7 +55,7 @@ export class TokenClient {
     return existingTags;
   }
 
-  async hasTags(address: `0x${string}` | undefined): Promise<boolean> {
+  async hasTags(address: Hex | undefined): Promise<boolean> {
     if (!address || !address.startsWith("0x")) {
       console.error("Invalid address");
       return false;

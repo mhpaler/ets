@@ -1,41 +1,38 @@
+import { etsAccessControlsConfig } from "@ethereum-tag-service/contracts/contracts";
 import type { Hex, PublicClient } from "viem";
-import { getConfig } from "../contracts/config";
 import type { AccessControlsReadFunction } from "../types";
 import { handleContractRead } from "../utils/handleContractRead";
 
 export class AccessControlsClient {
   private readonly publicClient: PublicClient;
-  private readonly etsAccessControlsConfig: { address: Hex; abi: any };
+  private readonly address: Hex;
+  private readonly abi: any;
 
   constructor({ publicClient, chainId }: { publicClient: PublicClient; chainId?: number }) {
-    this.publicClient = publicClient;
+    if (!publicClient) {
+      throw new Error("[@ethereum-tag-service/sdk-core] Public client is required for AccessControlsClient");
+    }
 
-    this.validateConfig(chainId, publicClient);
+    if (!chainId) {
+      throw new Error("[@ethereum-tag-service/sdk-core] Chain ID is required for AccessControlsClient");
+    }
 
-    const config = getConfig(chainId);
-    if (!config || config.etsAccessControlsConfig === undefined)
-      throw new Error("Configuration could not be retrieved");
-
-    this.etsAccessControlsConfig = config.etsAccessControlsConfig;
-  }
-
-  private validateConfig(chainId: number | undefined, publicClient: PublicClient) {
-    if (!publicClient) throw new Error("Public client is required");
-
-    if (publicClient.chain?.id !== chainId)
+    if (publicClient.chain?.id !== chainId) {
       throw new Error(
-        `Provided chain id (${chainId}) should match the public client chain id (${publicClient.chain?.id})`,
+        `[@ethereum-tag-service/sdk-core] Chain ID mismatch in AccessControlsClient: provided ${chainId}, but public client has ${publicClient.chain?.id}`,
       );
-  }
+    }
 
+    if (!etsAccessControlsConfig.address[chainId as keyof typeof etsAccessControlsConfig.address]) {
+      throw new Error(`[@ethereum-tag-service/sdk-core] AccessControls contract not configured for chain ${chainId}`);
+    }
+
+    this.publicClient = publicClient;
+    this.address = etsAccessControlsConfig.address[chainId as keyof typeof etsAccessControlsConfig.address];
+    this.abi = etsAccessControlsConfig.abi;
+  }
   private async readContract(functionName: AccessControlsReadFunction, args: any[] = []): Promise<any> {
-    return handleContractRead(
-      this.publicClient,
-      this.etsAccessControlsConfig.address,
-      this.etsAccessControlsConfig.abi,
-      functionName,
-      args,
-    );
+    return handleContractRead(this.publicClient, this.address, this.abi, functionName, args);
   }
 
   async hasRole(role: string, account: string): Promise<boolean> {
