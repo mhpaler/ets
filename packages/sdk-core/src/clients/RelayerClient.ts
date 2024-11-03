@@ -1,4 +1,4 @@
-import { etsAbi, etsRelayerV1Config } from "@ethereum-tag-service/contracts/contracts";
+import { etsConfig, etsRelayerV1Config } from "@ethereum-tag-service/contracts/contracts";
 import type { Address, Hex, PublicClient, WalletClient } from "viem";
 import type { RelayerReadFunction, RelayerWriteFunction } from "../types";
 import { handleContractCall } from "../utils/handleContractCall";
@@ -143,8 +143,8 @@ export class RelayerClient {
       });
 
       const taggingRecordId = await this.publicClient.readContract({
-        address: etsRelayerV1Config.address[this.chainId as keyof typeof etsRelayerV1Config.address],
-        abi: etsAbi,
+        address: etsConfig.address[this.chainId as keyof typeof etsConfig.address],
+        abi: etsConfig.abi,
         functionName: "computeTaggingRecordIdFromRawInput",
         args: [tagParams, this.address, this.walletClient.account.address],
       });
@@ -159,6 +159,7 @@ export class RelayerClient {
       throw error;
     }
   }
+
   async pause(): Promise<{ transactionHash: string; status: number }> {
     return this.callContract("pause");
   }

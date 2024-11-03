@@ -1,3 +1,4 @@
+import { getAlchemyRpcUrlById } from "@ethereum-tag-service/contracts/utils";
 import { AccessControlsClient } from "../clients/AccessControlsClient";
 import { AuctionHouseClient } from "../clients/AuctionHouseClient";
 import { CoreClient } from "../clients/CoreClient";
@@ -26,9 +27,9 @@ function initializeClients(config: ClientConfig) {
   }
 
   let transportUrl = chain.rpcUrls?.default?.http?.[0];
-  const alchemyUrl = chain.rpcUrls?.alchemy?.http;
-  if (alchemyUrl) {
-    transportUrl = `${alchemyUrl}/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
+
+  if (process.env.NEXT_PUBLIC_ALCHEMY_KEY) {
+    transportUrl = getAlchemyRpcUrlById(chainId.toString(), process.env.NEXT_PUBLIC_ALCHEMY_KEY);
   }
 
   const publicClient = createPublicClient({
