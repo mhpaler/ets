@@ -6,7 +6,11 @@ import { useState } from "react";
 
 const Ctags: NextPage = () => {
   const [pageIndex, setPageIndex] = useState(0);
-  const { tags = [], nextTags } = useCtags({
+  const {
+    tags = [],
+    nextTags,
+    isLoading,
+  } = useCtags({
     skip: pageIndex * 20,
     config: {
       revalidateOnFocus: false,
@@ -14,14 +18,21 @@ const Ctags: NextPage = () => {
       revalidateOnReconnect: false,
       refreshWhenOffline: false,
       refreshWhenHidden: false,
-      refreshInterval: 1500,
+      refreshInterval: 30000,
     },
   });
 
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="loading loading-spinner loading-md" />{" "}
+      </Layout>
+    );
+  }
   return (
     <Layout>
       <Tags
-        title="Tags"
+        //title="Tags"
         tags={tags}
         columns={["tag", "created", "owner", "relayer", "taggingRecords"]}
         rowLink={false}

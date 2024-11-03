@@ -32,6 +32,7 @@ const TanstackTable = <TData extends object>({
 }: TableProps<TData>) => {
   const { t } = useTranslation("common");
   const { isModalOpen } = useModal();
+  const router = useRouter();
 
   const table = useReactTable({
     data,
@@ -46,8 +47,6 @@ const TanstackTable = <TData extends object>({
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const router = useRouter();
-
   const nextPage = () => {
     setPageIndex?.(pageIndex + 1);
   };
@@ -56,7 +55,6 @@ const TanstackTable = <TData extends object>({
     setPageIndex?.(pageIndex - 1);
   };
 
-  // Create skeleton rows for loading state
   const loadingRows = useMemo(
     () =>
       [...Array(rowsPerPage)].map((_, rowIndex) => (
@@ -71,7 +69,6 @@ const TanstackTable = <TData extends object>({
     [rowsPerPage, columns.length],
   );
 
-  // Memoize the content rows
   const contentRows = useMemo(
     () =>
       table.getRowModel().rows.map((row, rowIndex) => (
@@ -96,25 +93,41 @@ const TanstackTable = <TData extends object>({
     [rowLink, isModalOpen, router, table.getRowModel],
   );
 
+  const tableContent =
+    loading && !data.length ? (
+      <table className="table bg-white">
+        <thead>
+          <tr>
+            {columns.map((_, index) => (
+              <th key={`loading-header-${index}`}>
+                <div className="h-6 bg-gray-200 rounded animate-pulse" />
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>{loadingRows}</tbody>
+      </table>
+    ) : (
+      <table className="table bg-white">
+        <thead>
+          {table.getHeaderGroups().map((headerGroup, index) => (
+            <tr key={`header-group-${headerGroup.id}-${index}`}>
+              {headerGroup.headers.map((header, index) => (
+                <th key={`header-${header.id}-${index}`}>
+                  {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+        <tbody>{loading ? loadingRows : contentRows}</tbody>
+      </table>
+    );
+
   return (
     <div className="col-span-12">
       {title && <h2 className="text-2xl font-bold pb-4">{title}</h2>}
-      <div className="overflow-x-auto border border-gray-200 rounded-lg">
-        <table className="table bg-white">
-          <thead>
-            {table.getHeaderGroups().map((headerGroup, index) => (
-              <tr key={`header-group-${headerGroup.id}-${index}`}>
-                {headerGroup.headers.map((header, index) => (
-                  <th key={`header-${header.id}-${index}`}>
-                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>{loading ? loadingRows : contentRows}</tbody>
-        </table>
-      </div>
+      <div className="overflow-x-auto border border-gray-200 rounded-lg">{tableContent}</div>
       {setPageIndex && (
         <div className="flex justify-between mt-2 py-2">
           <Button className="btn-sm" disabled={pageIndex === 0} onClick={prevPage}>

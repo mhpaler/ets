@@ -27,11 +27,13 @@ const AuctionActionsInner = ({ auction, buttonClasses }: AuctionActionsProps) =>
 
   // Memoize derived values with updated state transition logic
   const { transactionType, buttonLabel, finalButtonClasses } = useMemo(() => {
-    console.info("AuctionActions determining state for auction:", auction.id, {
-      startTime: auction.startTime,
-      ended: auction.ended,
-      settled: auction.settled,
-    });
+    if (process.env.NODE_ENV === "development") {
+      console.info("AuctionActions determining state for auction:", auction.id, {
+        startTime: auction.startTime,
+        ended: auction.ended,
+        settled: auction.settled,
+      });
+    }
     let transactionType: TransactionType;
     let buttonLabel: string;
 

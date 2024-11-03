@@ -73,7 +73,11 @@ export function useCtags({
         filter: filter,
       },
     ],
-    config,
+    {
+      ...config,
+      dedupingInterval: 5000,
+      revalidateIfStale: false,
+    },
   );
 
   const { data: nextTagsData } = useSWR(

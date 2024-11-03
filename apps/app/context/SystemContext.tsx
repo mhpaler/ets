@@ -31,15 +31,22 @@ export const SystemProvider: React.FC<Props> = ({ children }: { children: React.
   const [platformAddress, setPlatformAddress] = useState<string>("");
 
   const { chain, address } = useAccount();
-  const { accessControlsClient } = useAccessControlsClient({
-    chainId: chain?.id,
-    account: address,
-  });
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      console.info("SystemContext chain update: ", chain);
+    }
+  }, [chain]);
 
-  const { tokenClient, getOwnershipTermLength } = useTokenClient({
-    chainId: chain?.id,
-    account: address,
-  });
+  const clientConfig = useMemo(
+    () => ({
+      chainId: chain?.id,
+      account: address,
+    }),
+    [chain?.id, address],
+  );
+
+  const { accessControlsClient } = useAccessControlsClient(clientConfig);
+  const { tokenClient, getOwnershipTermLength } = useTokenClient(clientConfig);
 
   const { fetchBlockchainTime } = useAuctionHouseService();
   const blockchainTime = useCallback(() => Math.floor(Date.now() / 1000) - timeDifference, [timeDifference]);

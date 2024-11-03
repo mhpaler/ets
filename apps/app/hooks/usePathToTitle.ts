@@ -16,49 +16,44 @@ export const usePathToTitle = (segment: string) => {
   const pathSegments = router.asPath.split("/").filter(Boolean);
   const segmentIndex = pathSegments.indexOf(segment);
 
-  // State for the transformed label and loading status
   const [label, setLabel] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Determine if we need to fetch the tag display name
+  // Only fetch tag data if we're actually on a tag path
   const fetchTagDisplayName = segmentIndex === 2 && pathSegments[0] === "explore" && pathSegments[1] === "tags";
 
-  // Fetch tags using useCtags hook
-  const { tags, isLoading } = useCtags({
-    pageSize: 1,
-    skip: 0,
-    filter: { machineName: segment },
-  });
+  // Conditionally call useCtags only when needed
+  const { tags, isLoading } = fetchTagDisplayName
+    ? useCtags({
+        pageSize: 1,
+        skip: 0,
+        filter: { machineName: segment },
+      })
+    : { tags: null, isLoading: false };
 
   useEffect(() => {
     if (fetchTagDisplayName) {
       setLoading(true);
       if (tags && tags.length > 0) {
-        setLabel(tags[0].display); // Set label to the fetched tag display name
+        setLabel(tags[0].display);
       } else {
-        setLabel(segment); // Fall back to the original segment if no tags are found
+        setLabel(segment);
       }
       setLoading(false);
     } else {
-      // Always translate the first segment
+      // Handle non-tag paths as before
       if (segmentIndex === 0) {
         setLabel(t(segment));
       }
-
-      // Translate the second segment if the first segment is "explore"
       if (segmentIndex === 1 && pathSegments[0] === "explore") {
         setLabel(t(segment));
       }
-
-      // Playground
       if (segmentIndex === 1 && pathSegments[0] === "playground") {
         setLabel(t(segment));
       }
-      // Truncate the third segment if the first segment is "explore" and the second segment is not "tags"
       if (segmentIndex === 2 && pathSegments[0] === "explore" && pathSegments[1] !== "tags") {
         setLabel(Truncate(segment, 13, "middle"));
       }
-
       setLoading(false);
     }
   }, [segment, segmentIndex, pathSegments, t, fetchTagDisplayName, tags]);
