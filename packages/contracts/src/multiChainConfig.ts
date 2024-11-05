@@ -1,6 +1,6 @@
 // chainsConfig.ts
 
-import { type Chain, arbitrumSepolia, baseSepolia, localhost } from "viem/chains";
+import { type Chain, arbitrumSepolia, baseSepolia, hardhat } from "viem/chains";
 
 export type MultiChainConfig = { [chainId: string]: Chain } & {
   readonly [K in "421614" | "84532" | "31337"]: Chain;
@@ -9,7 +9,7 @@ export type MultiChainConfig = { [chainId: string]: Chain } & {
 export const chains: MultiChainConfig = {
   "421614": arbitrumSepolia,
   "84532": baseSepolia,
-  "31337": localhost,
+  "31337": hardhat,
 };
 
 export type SupportedChainId = keyof typeof chains;
