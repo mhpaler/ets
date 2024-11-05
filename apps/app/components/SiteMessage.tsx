@@ -46,9 +46,9 @@ const SiteMessage: React.FC = () => {
 
         {/* Right Section with Link and Button */}
         <div className="flex items-center space-x-4 ml-auto">
-          <Link className="link-primary font-medium text-sm" href="/about" passHref>
+          {/*           <Link className="link-primary font-medium text-sm" href="/about" passHref>
             Learn more
-          </Link>
+          </Link> */}
           <button className="btn btn-primary btn-outline btn-sm" onClick={handleDismiss}>
             Dismiss
           </button>

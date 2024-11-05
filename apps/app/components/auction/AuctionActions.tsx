@@ -27,13 +27,6 @@ const AuctionActionsInner = ({ auction, buttonClasses }: AuctionActionsProps) =>
 
   // Memoize derived values with updated state transition logic
   const { transactionType, buttonLabel, finalButtonClasses } = useMemo(() => {
-    if (process.env.NODE_ENV === "development") {
-      console.info("AuctionActions determining state for auction:", auction.id, {
-        startTime: auction.startTime,
-        ended: auction.ended,
-        settled: auction.settled,
-      });
-    }
     let transactionType: TransactionType;
     let buttonLabel: string;
 
@@ -62,7 +55,7 @@ const AuctionActionsInner = ({ auction, buttonClasses }: AuctionActionsProps) =>
       buttonLabel,
       finalButtonClasses: `${visibilityClass} ${extraClasses}`,
     };
-  }, [auction.id, auction.startTime, auction.ended, auction.settled, buttonClasses, t]);
+  }, [auction.startTime, auction.ended, auction.settled, buttonClasses, t]);
 
   if (!isConnected) {
     return <ConnectButtonETS className={finalButtonClasses} />;

@@ -16,6 +16,7 @@ const CreateTag: NextPage = () => {
   const { chain, isConnected, address } = useAccount();
   const [tags, setTags] = useState<TagInputType[]>([]);
   const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
+
   const { tagExists } = useTokenClient({
     chainId: chain?.id,
     account: address,

@@ -104,9 +104,6 @@ export const ConnectButtonETS: React.FC<ConnectButtonETSProps> = ({ className = 
           }
 
           if (isWrongNetwork) {
-            console.info("Wrong network detected");
-            console.info("Connected chain:", chain);
-            console.info("Expected chain:", expectedChain);
             return (
               <div className="flex space-x-2">
                 <button
