@@ -1,4 +1,5 @@
 import { Address, BigInt as GraphBigInt } from "@graphprotocol/graph-ts";
+import { log } from "@graphprotocol/graph-ts";
 import { updateCreatorTagStats } from "../entities/Creator";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
 import { updateOwnerTagStats } from "../entities/Owner";

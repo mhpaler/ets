@@ -30,7 +30,10 @@ export function ensureCreator(creatorAddress: Address, event: ethereum.Event): C
 
 export function updateCreatorTagStats(creatorAddress: Address, event: Transfer): void {
   const creator = ensureCreator(creatorAddress, event);
-  if (creator && event.params.from.toHexString() === ZERO_ADDRESS) {
+  const fromAddress = event.params.from;
+  const zeroAddress = Address.fromString(ZERO_ADDRESS);
+
+  if (fromAddress.equals(zeroAddress)) {
     creator.tagsCreated = creator.tagsCreated.plus(ONE);
     creator.save();
   }
