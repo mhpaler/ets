@@ -81,7 +81,10 @@ export function ensureRelayer(relayerAddress: Address, event: ethereum.Event): R
 
 export function updateRelayerTagStats(relayerAddress: Address, event: Transfer): void {
   const relayer = ensureRelayer(relayerAddress, event);
-  if (relayer && event.params.from.toHexString() === ZERO_ADDRESS) {
+  const fromAddress = event.params.from;
+  const zeroAddress = Address.fromString(ZERO_ADDRESS);
+
+  if (relayer && fromAddress.equals(zeroAddress)) {
     relayer.tagsPublished = relayer.tagsPublished.plus(ONE);
     relayer.save();
   }

@@ -7,17 +7,24 @@ import {
   networkNames,
 } from "@ethereum-tag-service/contracts/multiChainConfig";
 import { getAlchemyRpcUrlById } from "@ethereum-tag-service/contracts/utils";
+import { connectorsForWallets } from "@rainbow-me/rainbowkit";
+import { coinbaseWallet, injectedWallet, metaMaskWallet, rainbowWallet } from "@rainbow-me/rainbowkit/wallets";
 import type { Chain } from "viem/chains";
 import { http, type Config, createConfig } from "wagmi";
-import { injected } from "wagmi/connectors";
-
-export { availableChainIds, networkNames };
 
 const allChains = Object.values(chains) as [Chain, ...Chain[]];
-
+const connectors = connectorsForWallets(
+  [
+    {
+      groupName: "Suggested",
+      wallets: [metaMaskWallet, rainbowWallet, coinbaseWallet, injectedWallet],
+    },
+  ],
+  { appName: "ETS App", projectId: "YOUR_PROJECT_ID" },
+);
 const transports = allChains.reduce(
   (acc, chain) => {
-    if (chain.id === 31337 || chain.id === 1337) {
+    if (chain.id === 31337) {
       acc[chain.id] = http("http://127.0.0.1:8545"); // Use localhost URL for Hardhat
     } else {
       try {
@@ -33,7 +40,7 @@ const transports = allChains.reduce(
 
 export const wagmiConfig: Config = createConfig({
   chains: allChains,
-  connectors: [injected()],
+  connectors,
   transports,
 });
 
@@ -50,3 +57,5 @@ export const getChainByNetworkName = (networkName: string): Chain | undefined =>
   const chainId = Object.keys(networkNames).find((key) => networkNames[key as SupportedChainId] === networkName);
   return chainId ? chains[chainId as SupportedChainId] : undefined;
 };
+
+export { availableChainIds, networkNames };

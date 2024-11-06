@@ -1,4 +1,5 @@
-import { BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
+import { log } from "@graphprotocol/graph-ts";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
 import { Transfer } from "../generated/ETSToken/ETSToken";
 import { Platform } from "../generated/schema";
@@ -36,7 +37,10 @@ export function updateTargetCount(event: ethereum.Event): void {
 // Track CTAGs minted; see ETSToken.ts
 export function updatePlatformTagStats(event: Transfer): void {
   const platform = ensurePlatform(event);
-  if (platform && event.params.from.toHexString() === ZERO_ADDRESS) {
+  const fromAddress = event.params.from;
+  const zeroAddress = Address.fromString(ZERO_ADDRESS);
+
+  if (fromAddress.equals(zeroAddress)) {
     platform.tagsCount = platform.tagsCount.plus(ONE);
     platform.save();
   }

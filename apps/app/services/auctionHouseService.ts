@@ -15,7 +15,6 @@ type FetchAuctionsResponse = {
 export const useAuctionHouseService = () => {
   const { network } = useEnvironmentContext();
   const { chain } = getChainInfo(network);
-  //const wagmiConfig = useMemo(() => createWagmiConfig(chain), [chain]);
   const chainId = chain.id;
 
   const isValidNetwork = useMemo(() => network !== "none" && chainId !== undefined, [network, chainId]);

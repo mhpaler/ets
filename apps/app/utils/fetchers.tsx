@@ -22,7 +22,6 @@ function getSubgraphEndpointKey(network: NetworkName | "none"): keyof typeof sub
 
 export const fetcher = async <T = any>(query: string, variables: Variables): Promise<T> => {
   const network = getNetwork();
-  console.info(`Fetching data from ${network} network`);
 
   if (network === "none") {
     throw new Error("No network specified for the query");
@@ -30,6 +29,11 @@ export const fetcher = async <T = any>(query: string, variables: Variables): Pro
 
   const endpointKey = getSubgraphEndpointKey(network);
   const GRAPH_API_ENDPOINT: string = subgraphEndpoints[endpointKey];
+
+  if (process.env.NODE_ENV === "development") {
+    console.info(`Fetching data from ${network} network`);
+    console.info("Using endpoint:", GRAPH_API_ENDPOINT);
+  }
 
   if (!GRAPH_API_ENDPOINT) {
     throw new Error(`No GraphQL endpoint found for network: ${network}`);
