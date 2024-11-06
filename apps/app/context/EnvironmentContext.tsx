@@ -45,9 +45,9 @@ export const EnvironmentContextProvider: React.FC<EnvironmentContextProviderProp
       isProductionEnvironment = true;
     }
 
-    // Replace the existing subdomain detection logic with:
-    if (isStagingEnvironment) {
-      // For staging: check if there's anything before "stage.app.ets.xyz"
+    if (process.env.VERCEL_ENV === "preview" || hostname.includes("vercel.app")) {
+      detectedSubdomain = "arbitrumsepolia";
+    } else if (isStagingEnvironment) {
       if (hostnameParts.length > 4) {
         detectedSubdomain = hostnameParts[0].toLowerCase();
       }
