@@ -32,6 +32,11 @@ export function getEnvironmentAndNetwork(): { environment: ServerEnvironment; ne
     return { environment: "production", network: "none" };
   }
 
+  // Check for Vercel preview environment
+  if (process.env.VERCEL_ENV === "preview" || window.location.hostname.includes("vercel.app")) {
+    return { environment: "staging", network: "arbitrumsepolia" };
+  }
+
   const hostname = window.location.hostname;
   const network = getNetwork();
 
