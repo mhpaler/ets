@@ -1,3 +1,31 @@
+/**
+ * Environment Context Provider
+ *
+ * Provides environment and network information throughout the application using React Context.
+ * Leverages getEnvironmentAndNetwork() utility to determine current deployment environment
+ * and active network based on URL structure.
+ *
+ * Key Features:
+ * - Environment detection (localhost, staging, production)
+ * - Network detection via subdomain
+ * - Index page detection
+ * - Path validation for network-specific routes
+ *
+ * Usage:
+ * ```tsx
+ * // Wrap your app with the provider
+ * <EnvironmentContextProvider>
+ *   <App />
+ * </EnvironmentContextProvider>
+ *
+ * // Use the context in components
+ * const { network, isStaging, subdomain } = useEnvironmentContext();
+ * ```
+ *
+ * The context updates automatically when the route changes, ensuring
+ * environment-specific behavior remains consistent throughout the application.
+ */
+
 import type { EnvironmentContextType } from "@app/types/environment";
 import { getEnvironmentAndNetwork } from "@app/utils/environment";
 import { useRouter } from "next/router";
@@ -17,66 +45,24 @@ const defaultEnvironmentContextValue: EnvironmentContextType = {
 
 export const EnvironmentContext = createContext<EnvironmentContextType>(defaultEnvironmentContextValue);
 
-type EnvironmentContextProviderProps = {
-  children: React.ReactNode;
-};
-
-export const EnvironmentContextProvider: React.FC<EnvironmentContextProviderProps> = ({ children }) => {
+export const EnvironmentContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [contextValue, setContextValue] = useState<EnvironmentContextType>(defaultEnvironmentContextValue);
   const router = useRouter();
 
   useEffect(() => {
     const { environment, network } = getEnvironmentAndNetwork();
-    const hostname = window.location.hostname;
-    const hostnameParts = hostname.split(".");
-
-    let isLocalhostEnvironment = false;
-    let isStagingEnvironment = false;
-    let isProductionEnvironment = false;
-    let detectedSubdomain: string | null = null;
-    let isValidPathWithoutNetwork = false;
-
-    // Determine the environment
-    if (hostnameParts.includes("localhost") || hostname === "127.0.0.1") {
-      isLocalhostEnvironment = true;
-    } else if (hostname.includes("stage.app.ets.xyz")) {
-      isStagingEnvironment = true;
-    } else if (hostname.endsWith("app.ets.xyz")) {
-      isProductionEnvironment = true;
-    }
-
-    if (process.env.VERCEL_ENV === "preview" || hostname.includes("vercel.app")) {
-      detectedSubdomain = "arbitrumsepolia";
-    } else if (isStagingEnvironment) {
-      if (hostnameParts.length > 4) {
-        detectedSubdomain = hostnameParts[0].toLowerCase();
-      }
-    } else if (isProductionEnvironment) {
-      // For production: check if there's anything before "app.ets.xyz"
-      if (hostnameParts.length > 3) {
-        detectedSubdomain = hostnameParts[0].toLowerCase();
-      }
-    } else if (isLocalhostEnvironment && hostnameParts.length > 1) {
-      // Keep existing localhost logic
-      detectedSubdomain = hostnameParts[0].toLowerCase();
-    }
-
-    const isIndexPage = !detectedSubdomain && router.pathname === "/";
-
-    // Check if the current path is valid but without a network
-    // This logic now applies to all environments
-    if (!detectedSubdomain && router.pathname !== "/") {
-      isValidPathWithoutNetwork = true;
-    }
+    const subdomain = network === "none" ? null : network;
+    const isIndexPage = !subdomain && router.pathname === "/";
+    const isValidPathWithoutNetwork = !subdomain && router.pathname !== "/";
 
     setContextValue({
       serverEnvironment: environment,
       network,
       isIndexPage,
-      isLocalhost: isLocalhostEnvironment,
-      isStaging: isStagingEnvironment,
-      isProduction: isProductionEnvironment,
-      subdomain: detectedSubdomain,
+      isLocalhost: environment === "localhost",
+      isStaging: environment === "staging",
+      isProduction: environment === "production",
+      subdomain,
       isValidPathWithoutNetwork,
     });
   }, [router.pathname]);

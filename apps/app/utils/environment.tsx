@@ -2,6 +2,32 @@
 import type { ServerEnvironment } from "@app/types/environment";
 import { type NetworkName, networkNames } from "@ethereum-tag-service/contracts/multiChainConfig";
 
+/**
+ * Determines the active network for the application based on URL and environment.
+ *
+ * Hierarchical decision process:
+ * 1. Vercel Preview Detection
+ *    - Checks VERCEL_ENV or vercel.app hostname
+ *    - Returns "arbitrumsepolia" for consistent preview deployments
+ *
+ * 2. Subdomain Network Detection
+ *    - Extracts subdomain from hostname (e.g., "arbitrumsepolia" from "arbitrumsepolia.app.ets.xyz")
+ *    - Validates against networkNames list
+ *
+ * 3. Localhost Development
+ *    - Supports network-specific testing via subdomains (e.g., "arbitrumsepolia.localhost")
+ *    - Returns "none" for plain localhost
+ *
+ * 4. Default Fallback
+ *    - Returns "none" when no valid network is detected
+ *
+ * The returned network value drives:
+ * - GraphQL endpoint selection
+ * - Chain configuration
+ * - Network-specific features
+ *
+ * @returns {NetworkName | "none"} The detected network name or "none"
+ */
 export function getNetwork(): NetworkName | "none" {
   if (typeof window === "undefined") {
     return "none"; // Default for server-side rendering
@@ -32,6 +58,16 @@ export function getNetwork(): NetworkName | "none" {
   return "none"; // Default fallback when no valid network is detected
 }
 
+/**
+ * Environment Detection Utility
+ *
+ * getEnvironmentAndNetwork() determines both network and deployment environment:
+ *
+ * Environments:
+ * - localhost: Local development (*.localhost)
+ * - staging: Preview/staging deployments (*.stage.app.ets.xyz or *.vercel.app)
+ * - production: Production deployment (*.app.ets.xyz)
+ */
 export function getEnvironmentAndNetwork(): { environment: ServerEnvironment; network: NetworkName | "none" } {
   if (typeof window === "undefined") {
     return { environment: "production", network: "none" };
