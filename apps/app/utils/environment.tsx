@@ -7,6 +7,11 @@ export function getNetwork(): NetworkName | "none" {
     return "none"; // Default for server-side rendering
   }
 
+  // Check for Vercel preview environment first
+  if (process.env.VERCEL_ENV === "preview" || window.location.hostname.includes("vercel.app")) {
+    return "arbitrumsepolia";
+  }
+
   const hostname = window.location.hostname;
   const subdomain = hostname.split(".")[0].toLowerCase();
 
@@ -32,11 +37,6 @@ export function getEnvironmentAndNetwork(): { environment: ServerEnvironment; ne
     return { environment: "production", network: "none" };
   }
 
-  // Check for Vercel preview environment
-  if (process.env.VERCEL_ENV === "preview" || window.location.hostname.includes("vercel.app")) {
-    return { environment: "staging", network: "arbitrumsepolia" };
-  }
-
   const hostname = window.location.hostname;
   const network = getNetwork();
 
@@ -44,7 +44,7 @@ export function getEnvironmentAndNetwork(): { environment: ServerEnvironment; ne
 
   if (hostname === "localhost" || hostname.endsWith(".localhost")) {
     environment = "localhost";
-  } else if (hostname.includes("stage.app.ets.xyz")) {
+  } else if (hostname.includes("stage.app.ets.xyz") || hostname.includes("vercel.app")) {
     environment = "staging";
   } else {
     environment = "production";
@@ -52,8 +52,6 @@ export function getEnvironmentAndNetwork(): { environment: ServerEnvironment; ne
 
   return { environment, network };
 }
-
-// ... rest of the exports remain the same
 
 // Exports remain the same
 // biome-ignore lint/performance/noBarrelFile: <explanation>
