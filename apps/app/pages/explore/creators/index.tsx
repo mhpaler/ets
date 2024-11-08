@@ -29,24 +29,22 @@ const Creators: NextPage = () => {
   const columns = useMemo(
     () => [
       columnHelper.accessor("id", {
-        header: () => t("creator"),
+        header: () => t("creator") as string,
         cell: (info) => {
           const creator = info.row.original as CreatorType;
           return (
-            <>
-              <Link href={`/explore/creators/${creator.id}`} className="link link-primary">
-                <Address address={creator.id} ens={creator.ens} />
-              </Link>
-            </>
+            <Link href={`/explore/creators/${creator.id}`} className="link link-primary">
+              <Address address={creator.id} ens={creator.ens} />
+            </Link>
           );
         },
       }),
       columnHelper.accessor("firstSeen", {
-        header: t("first-seen"),
+        header: t("first-seen") as string,
         cell: (info) => timestampToString(Number.parseInt(info.getValue() as string)),
       }),
       columnHelper.accessor("tagsCreated", {
-        header: t("tags-created"),
+        header: t("tags-created") as string,
         cell: (info) => number(Number.parseInt(info.getValue() as string)),
       }),
       columnHelper.accessor(
@@ -58,7 +56,7 @@ const Creators: NextPage = () => {
         },
         {
           id: "totalRevenue",
-          header: t("total-revenue"),
+          header: t("total-revenue") as string,
           cell: (info) => `${toEth(info.getValue() as number, 8)} ${chain?.nativeCurrency.symbol}`,
         },
       ),
