@@ -1,8 +1,8 @@
-import { Address, BigInt as GraphBigInt, ethereum, log } from "@graphprotocol/graph-ts";
+import { Address, BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
 import { ensurePlatform, updateOwnerCount } from "../entities/Platform";
 import { ensureTag } from "../entities/Tag";
 import { Transfer } from "../generated/ETSToken/ETSToken";
-import { Owner, Platform } from "../generated/schema";
+import { Owner, Platform, Tag } from "../generated/schema";
 import { arrayDiff } from "../utils/arrayDiff";
 import { APPEND, CREATE, ONE, OWNER, REMOVE, ZERO, ZERO_ADDRESS } from "../utils/constants";
 import { getTaggingFee } from "../utils/getTaggingFee";
@@ -78,51 +78,53 @@ export function updateOwnerTagStats(event: Transfer): void {
   }
 }
 
+function updateOwnerRevenue(owner: Owner, tag: Tag, platform: Platform, ownerFee: GraphBigInt): void {
+  owner.ownedTagsAddedToTaggingRecords = owner.ownedTagsAddedToTaggingRecords.plus(ONE);
+
+  const ownerBytes = Address.fromString(tag.owner);
+  const platformBytes = Address.fromString(platform.address);
+
+  if (!ownerBytes.equals(platformBytes)) {
+    owner.ownedTagsTaggingFeeRevenue = owner.ownedTagsTaggingFeeRevenue.plus(ownerFee);
+  }
+  owner.save();
+}
+
 export function updateOwnerTaggingRecordStats(
   newTagIds: string[] | null,
   previousTagIds: string[] | null,
   action: GraphBigInt,
   event: ethereum.Event,
 ): void {
-  if (newTagIds && previousTagIds) {
-    const platform = ensurePlatform(null);
+  if (!newTagIds || !previousTagIds) return;
 
-    if (action === CREATE) {
-      for (let i = 0; i < newTagIds.length; i++) {
-        const tag = ensureTag(GraphBigInt.fromString(newTagIds[i]), event);
-        const owner = ensureOwner(Address.fromString(tag.owner), event);
-        owner.ownedTagsAddedToTaggingRecords = owner.ownedTagsAddedToTaggingRecords.plus(ONE);
-        if (tag.owner !== platform.address) {
-          const ownerFee = getTaggingFee(OWNER);
-          owner.ownedTagsTaggingFeeRevenue = owner.ownedTagsTaggingFeeRevenue.plus(ownerFee);
-        }
-        owner.save();
-      }
+  const platform = ensurePlatform(null);
+  const ownerFee = getTaggingFee(OWNER);
+
+  if (action === CREATE) {
+    for (let i = 0; i < newTagIds.length; i++) {
+      const tag = ensureTag(GraphBigInt.fromString(newTagIds[i]), event);
+      const owner = ensureOwner(Address.fromString(tag.owner), event);
+      updateOwnerRevenue(owner, tag, platform, ownerFee);
     }
+  }
 
-    if (action === APPEND) {
-      const appendedTagIds = arrayDiff(newTagIds, previousTagIds);
-      for (let i = 0; i < appendedTagIds.length; i++) {
-        const tag = ensureTag(GraphBigInt.fromString(appendedTagIds[i]), event);
-        const owner = ensureOwner(Address.fromString(tag.owner), event);
-        owner.ownedTagsAddedToTaggingRecords = owner.ownedTagsAddedToTaggingRecords.plus(ONE);
-        if (tag.owner !== platform.address) {
-          const ownerFee = getTaggingFee(OWNER);
-          owner.ownedTagsTaggingFeeRevenue = owner.ownedTagsTaggingFeeRevenue.plus(ownerFee);
-        }
-        owner.save();
-      }
+  if (action === APPEND) {
+    const appendedTagIds = arrayDiff(newTagIds, previousTagIds);
+    for (let i = 0; i < appendedTagIds.length; i++) {
+      const tag = ensureTag(GraphBigInt.fromString(appendedTagIds[i]), event);
+      const owner = ensureOwner(Address.fromString(tag.owner), event);
+      updateOwnerRevenue(owner, tag, platform, ownerFee);
     }
+  }
 
-    if (action === REMOVE) {
-      const removedTagIds = arrayDiff(previousTagIds, newTagIds);
-
-      for (let i = 0; i < removedTagIds.length; i++) {
-        const tag = ensureTag(GraphBigInt.fromString(removedTagIds[i]), event);
-        const owner = ensureOwner(Address.fromString(tag.owner), event);
-        owner.ownedTagsRemovedFromTaggingRecords = owner.ownedTagsRemovedFromTaggingRecords.plus(ONE);
-        owner.save();
-      }
+  if (action === REMOVE) {
+    const removedTagIds = arrayDiff(previousTagIds, newTagIds);
+    for (let i = 0; i < removedTagIds.length; i++) {
+      const tag = ensureTag(GraphBigInt.fromString(removedTagIds[i]), event);
+      const owner = ensureOwner(Address.fromString(tag.owner), event);
+      owner.ownedTagsRemovedFromTaggingRecords = owner.ownedTagsRemovedFromTaggingRecords.plus(ONE);
+      owner.save();
     }
   }
 }

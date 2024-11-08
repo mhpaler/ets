@@ -48,6 +48,28 @@ export function updateTagOwner(tagId: GraphBigInt, newOwner: Address, event: eth
   tag.save();
 }
 
+function updateTagRevenue(
+  tag: Tag,
+  platform: Platform,
+  platformFee: GraphBigInt,
+  relayerFee: GraphBigInt,
+  ownerFee: GraphBigInt,
+): void {
+  tag.tagAppliedInTaggingRecord = tag.tagAppliedInTaggingRecord.plus(ONE);
+  tag.protocolRevenue = tag.protocolRevenue.plus(platformFee);
+  tag.relayerRevenue = tag.relayerRevenue.plus(relayerFee);
+
+  const ownerBytes = Address.fromString(tag.owner);
+  const platformBytes = Address.fromString(platform.address);
+
+  if (!ownerBytes.equals(platformBytes)) {
+    tag.ownerRevenue = tag.ownerRevenue.plus(ownerFee);
+  } else {
+    tag.creatorRevenue = tag.creatorRevenue.plus(ownerFee);
+  }
+  tag.save();
+}
+
 export function updateCTAGTaggingRecordStats(
   newTagIds: string[] | null,
   previousTagIds: string[] | null,
@@ -63,15 +85,7 @@ export function updateCTAGTaggingRecordStats(
     if (action === CREATE) {
       for (let i = 0; i < newTagIds.length; i++) {
         const tag = ensureTag(GraphBigInt.fromString(newTagIds[i]), event);
-        tag.tagAppliedInTaggingRecord = tag.tagAppliedInTaggingRecord.plus(ONE);
-        tag.protocolRevenue = tag.protocolRevenue.plus(platformFee);
-        tag.relayerRevenue = tag.relayerRevenue.plus(relayerFee);
-        if (tag.owner !== platform.address) {
-          tag.ownerRevenue = tag.ownerRevenue.plus(ownerFee);
-        } else {
-          tag.creatorRevenue = tag.creatorRevenue.plus(ownerFee);
-        }
-        tag.save();
+        updateTagRevenue(tag, platform, platformFee, relayerFee, ownerFee);
       }
     }
 
@@ -79,15 +93,7 @@ export function updateCTAGTaggingRecordStats(
       const appendedTagIds = arrayDiff(newTagIds, previousTagIds);
       for (let i = 0; i < appendedTagIds.length; i++) {
         const tag = ensureTag(GraphBigInt.fromString(appendedTagIds[i]), event);
-        tag.tagAppliedInTaggingRecord = tag.tagAppliedInTaggingRecord.plus(ONE);
-        tag.protocolRevenue = tag.protocolRevenue.plus(platformFee);
-        tag.relayerRevenue = tag.relayerRevenue.plus(relayerFee);
-        if (tag.owner !== platform.address) {
-          tag.ownerRevenue = tag.ownerRevenue.plus(ownerFee);
-        } else {
-          tag.creatorRevenue = tag.creatorRevenue.plus(ownerFee);
-        }
-        tag.save();
+        updateTagRevenue(tag, platform, platformFee, relayerFee, ownerFee);
       }
     }
 

@@ -142,6 +142,9 @@ type Platform @entity {
   "Total count of tagging records on ETS."
   taggingRecordsCount: BigInt!
 
+  "Total count of CTAG auctions on ETS."
+  auctionsSettled: BigInt!
+
   "Total revenue generated from CTAG auctions."
   auctionRevenue: BigInt!
 
@@ -209,6 +212,9 @@ type Relayer @entity {
   "Total lifetime count of tags removed from tagging records."
   tagsRemoved: BigInt!
 
+  "Total number of published CTAGs auctioned."
+  publishedTagsAuctioned: BigInt!
+
   "Total revenue generated from CTAG auctions for tags published by Relayer."
   publishedTagsAuctionRevenue: BigInt!
 
@@ -272,6 +278,9 @@ type Creator @entity {
 
   "Total number of tags created removed from Tagging Records."
   createdTagsRemovedFromTaggingRecords: BigInt!
+
+  "Total number of created CTAGs auctioned."
+  createdTagsAuctioned: BigInt!
 
   "Total revenue generated from CTAG auctions for tags created by Creator."
   createdTagsAuctionRevenue: BigInt!
