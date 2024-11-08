@@ -73,3 +73,7 @@
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out forwards;
 }
+
+.auto-tooltip-width .lg\:tooltip:before {
+  max-width: fit-content;
+}

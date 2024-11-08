@@ -1,25 +1,33 @@
 import { URIIcon } from "@app/components/icons";
 import useTranslation from "next-translate/useTranslation";
+import Link from "next/link.js";
 import type React from "react";
 
 interface URIProps {
   value: string;
   className?: string;
+  hoverText?: string;
 }
 
-export const URI: React.FC<URIProps> = ({ value, className = "link link-primary" }) => {
+export const URI: React.FC<URIProps> = ({ value, className = "link link-primary", hoverText }) => {
   const { t } = useTranslation("common");
 
-  const openURI = (event: React.MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-    window.open(value, "_blank", "noopener,noreferrer");
-  };
-
-  return (
-    <button onClick={openURI} className={className}>
+  const linkContent = (
+    <>
       <URIIcon />
       <span className="sr-only">{t("Open URI")}</span>
-    </button>
+    </>
+  );
+
+  return hoverText ? (
+    <div className="lg:tooltip lg:tooltip-primary" data-tip={hoverText}>
+      <Link href={value} target="_blank" rel="noopener noreferrer" className={className}>
+        {linkContent}
+      </Link>
+    </div>
+  ) : (
+    <Link href={value} target="_blank" rel="noopener noreferrer" className={className}>
+      {linkContent}
+    </Link>
   );
 };

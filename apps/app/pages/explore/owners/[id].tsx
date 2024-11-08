@@ -59,17 +59,17 @@ const Owner: NextPage = () => {
               <div>
                 <Panel title={t("stats")}>
                   <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
-                    <div className="font-semibold">{t("tags-owned", { timeframe: t("current") })}</div>
+                    <div className="font-semibold">{t("tags-owned", { timeframe: "" })}</div>
                     <div className="text-right">
                       <div className="">{<FormattedNumber value={Number.parseInt(owner.tagsOwned)} />}</div>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
+                  {/*                   <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                     <div className="font-semibold">{t("tags-owned", { timeframe: t("lifetime") })}</div>
                     <div className="text-right">
                       <div className="">{<FormattedNumber value={Number.parseInt(owner.tagsOwnedLifeTime)} />}</div>
                     </div>
-                  </div>
+                  </div> */}
 
                   <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                     <div className="font-semibold">{t("owned-tags-in-tagging-records")}</div>

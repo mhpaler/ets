@@ -22,13 +22,9 @@ const Owners: NextPage = () => {
   const { owners, nextOwners } = useOwners({
     pageSize,
     skip: pageIndex * pageSize,
-    config: {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 0,
+    filter: {
+      id_not: "0x0000000000000000000000000000000000000000",
+      tagsOwned_gt: "0",
     },
   });
 

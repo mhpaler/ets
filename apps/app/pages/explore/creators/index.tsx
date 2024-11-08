@@ -32,11 +32,7 @@ const Creators: NextPage = () => {
         header: () => t("creator") as string,
         cell: (info) => {
           const creator = info.row.original as CreatorType;
-          return (
-            <Link href={`/explore/creators/${creator.id}`} className="link link-primary">
-              <Address address={creator.id} ens={creator.ens} />
-            </Link>
-          );
+          return <Address href={`/explore/creators/${creator.id}`} address={creator.id} ens={creator.ens} />;
         },
       }),
       columnHelper.accessor("firstSeen", {

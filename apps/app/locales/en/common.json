@@ -10,6 +10,7 @@
   "connect-wallet": "Connect Wallet",
   "contract": "Contract",
   "copy": "Copy",
+  "copy-address-to-clipboard": "Copy address to clipboard",
   "create": "Create",
   "create-relayer": "Create Relayer",
   "create-tag": "Create Tag",
@@ -135,6 +136,7 @@
   "upcoming": "Upcoming",
   "view-all": "View all {{subject}}",
   "view-all-bids": "View all bids",
+  "view-on-explorer": "View on explorer",
   "NAV": {
     "AUCTION": "Auction"
   },
