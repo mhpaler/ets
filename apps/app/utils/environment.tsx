@@ -38,13 +38,13 @@ export function getNetwork(): NetworkName | "none" {
   }
 
   console.info("Client Environment:", {
-    VERCEL_ENV: process.env.VERCEL_ENV,
+    VERCEL_ENV: process.env.NEXT_PUBLIC_VERCEL_ENV,
     hostname: window.location.hostname,
     isVercelApp: window.location.hostname.includes("vercel.app"),
   });
 
   // Check for Vercel preview environment first
-  if (process.env.VERCEL_ENV === "preview" || window.location.hostname.includes("vercel.app")) {
+  if (process.env.NEXT_PUBLIC_VERCEL_ENV === "preview" || window.location.hostname.includes("vercel.app")) {
     return "arbitrumsepolia";
   }
 

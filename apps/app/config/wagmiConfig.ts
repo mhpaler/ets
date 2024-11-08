@@ -33,11 +33,11 @@ console.info(
 );
 
 console.info("Environment:", {
-  VERCEL_ENV: process.env.VERCEL_ENV,
+  VERCEL_ENV: process.env.NEXT_PUBLIC_VERCEL_ENV,
   NODE_ENV: process.env.NODE_ENV,
 });
 
-const isVercelEnvironment = process.env.VERCEL_ENV || process.env.NODE_ENV === "production";
+const isVercelEnvironment = process.env.NEXT_PUBLIC_VERCEL_ENV || process.env.NODE_ENV === "production";
 const filteredChains = isVercelEnvironment
   ? (allChains.filter((chain) => chain.id !== 31337) as [Chain, ...Chain[]])
   : allChains;
