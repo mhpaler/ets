@@ -22,12 +22,24 @@ const connectors = connectorsForWallets(
   ],
   { appName: "ETS App", projectId: "YOUR_PROJECT_ID" },
 );
+console.info(
+  "Configuring Wagmi transports with chains:",
+  allChains.map((chain) => chain.id),
+);
+console.info("Environment:", {
+  VERCEL_ENV: process.env.VERCEL_ENV,
+  NODE_ENV: process.env.NODE_ENV,
+});
+
 const transports = allChains.reduce(
   (acc, chain) => {
+    console.info("Processing chain:", chain.id);
     if (chain.id === 31337) {
-      acc[chain.id] = http("http://127.0.0.1:8545"); // Use localhost URL for Hardhat
+      console.info("Setting up localhost transport for chain 31337");
+      acc[chain.id] = http("http://127.0.0.1:8545");
     } else {
       try {
+        console.info("Setting up Alchemy transport for chain:", chain.id);
         acc[chain.id] = http(getAlchemyRpcUrlById(chain.id.toString(), process.env.NEXT_PUBLIC_ALCHEMY_KEY || ""));
       } catch {
         console.warn(`Unsupported chain ID for Alchemy RPC: ${chain.id}`);
@@ -37,6 +49,8 @@ const transports = allChains.reduce(
   },
   {} as { [chainId: number]: ReturnType<typeof http> },
 );
+
+console.info("Final transport configuration:", Object.keys(transports));
 
 export const wagmiConfig: Config = createConfig({
   chains: allChains,
