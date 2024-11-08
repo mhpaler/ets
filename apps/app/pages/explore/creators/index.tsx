@@ -25,8 +25,7 @@ const Creators: NextPage = () => {
     skip: pageIndex * pageSize,
   });
 
-  const columnHelper = createColumnHelper();
-
+  const columnHelper = createColumnHelper<CreatorType>();
   const columns = useMemo(
     () => [
       columnHelper.accessor("id", {
