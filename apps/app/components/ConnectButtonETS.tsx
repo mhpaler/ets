@@ -1,3 +1,29 @@
+/**
+ * ConnectButtonETS
+ *
+ * A customized wallet connection button built on RainbowKit that handles:
+ * - Wallet connection/disconnection
+ * - Network switching
+ * - Account display
+ * - Compact/Full display modes
+ *
+ * Used throughout the app for wallet connectivity, with optional chain switching
+ * functionality for header placement.
+ *
+ * * @example Basic usage
+ * <ConnectButtonETS />
+ *
+ * @example Header usage with chain switcher
+ * <ConnectButtonETS
+ *   showChainSwitcher={true}
+ *   compact={isCompact}
+ *   className="btn-primary"
+ * />
+ *
+ * @example Compact mode for mobile
+ * <ConnectButtonETS compact={true} />
+ */
+
 import ChainModalETS from "@app/components/ChainModalETS";
 import { useEnvironmentContext } from "@app/context/EnvironmentContext";
 import { getChainInfo } from "@app/utils/getChainInfo";
@@ -8,11 +34,19 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAccount, useChainId, useDisconnect, useSwitchChain } from "wagmi";
 
 interface ConnectButtonETSProps {
+  /** Custom CSS classes to apply to the button */
   className?: string;
+  /** Enable compact mode for mobile/tight spaces */
   compact?: boolean;
+  /** Show the chain switcher button (typically used in header) */
+  showChainSwitcher?: boolean;
 }
 
-export const ConnectButtonETS: React.FC<ConnectButtonETSProps> = ({ className = "", compact = false }) => {
+export const ConnectButtonETS: React.FC<ConnectButtonETSProps> = ({
+  className = "",
+  compact = false,
+  showChainSwitcher = false,
+}) => {
   const { switchChain } = useSwitchChain();
   const { disconnect } = useDisconnect();
   const { network } = useEnvironmentContext();
@@ -69,33 +103,36 @@ export const ConnectButtonETS: React.FC<ConnectButtonETSProps> = ({ className = 
           if (!connected) {
             return (
               <div className="flex space-x-2">
-                <button
-                  className={`btn ${compact ? "btn-sm px-2" : ""} ${className}`}
-                  onClick={openChainModalETS}
-                  type="button"
-                >
-                  {expectedChain.iconPath && (
-                    <div
-                      style={{
-                        width: 16,
-                        height: 16,
-                        borderRadius: 999,
-                        overflow: "hidden",
-                        marginRight: compact ? 0 : 4,
-                      }}
-                    >
-                      {expectedChain.iconPath && (
-                        <Image
-                          src={expectedChain.iconPath}
-                          alt={expectedChain.displayName ?? "Chain icon"}
-                          width={16}
-                          height={16}
-                        />
-                      )}
-                    </div>
-                  )}
-                  {!compact && expectedChain.displayName}
-                </button>
+                {showChainSwitcher && (
+                  <button
+                    className={`btn ${compact ? "btn-sm px-2" : ""} ${className}`}
+                    onClick={openChainModalETS}
+                    type="button"
+                  >
+                    {expectedChain.iconPath && (
+                      <div
+                        style={{
+                          width: 16,
+                          height: 16,
+                          borderRadius: 999,
+                          overflow: "hidden",
+                          marginRight: compact ? 0 : 4,
+                        }}
+                      >
+                        {expectedChain.iconPath && (
+                          <Image
+                            src={expectedChain.iconPath}
+                            alt={expectedChain.displayName ?? "Chain icon"}
+                            width={16}
+                            height={16}
+                          />
+                        )}
+                      </div>
+                    )}
+                    {!compact && expectedChain.displayName}
+                  </button>
+                )}
+
                 <button className={`btn btn-primary ${className}`} onClick={handleConnectClick} type="button">
                   {compact ? "Connect" : "Connect Wallet"}
                 </button>
@@ -137,29 +174,32 @@ export const ConnectButtonETS: React.FC<ConnectButtonETSProps> = ({ className = 
 
           return (
             <div className="flex items-center gap-2">
-              <button
-                className={`btn ${compact ? "btn-sm px-2" : ""} ${className}`}
-                onClick={openChainModalETS}
-                type="button"
-              >
-                {chain.hasIcon && (
-                  <div
-                    style={{
-                      background: chain.iconBackground,
-                      width: 16,
-                      height: 16,
-                      borderRadius: 999,
-                      overflow: "hidden",
-                      marginRight: compact ? 0 : 4,
-                    }}
-                  >
-                    {chain.iconUrl && (
-                      <Image src={chain.iconUrl} alt={chain.name ?? "Chain icon"} width={16} height={16} />
-                    )}
-                  </div>
-                )}
-                {!compact && chain.name}
-              </button>
+              {showChainSwitcher && (
+                <button
+                  className={`btn ${compact ? "btn-sm px-2" : ""} ${className}`}
+                  onClick={openChainModalETS}
+                  type="button"
+                >
+                  {chain.hasIcon && (
+                    <div
+                      style={{
+                        background: chain.iconBackground,
+                        width: 16,
+                        height: 16,
+                        borderRadius: 999,
+                        overflow: "hidden",
+                        marginRight: compact ? 0 : 4,
+                      }}
+                    >
+                      {chain.iconUrl && (
+                        <Image src={chain.iconUrl} alt={chain.name ?? "Chain icon"} width={16} height={16} />
+                      )}
+                    </div>
+                  )}
+                  {!compact && chain.name}
+                </button>
+              )}
+
               <button
                 className={`btn ${className} ${compact ? "btn-sm px-2" : ""}`}
                 onClick={openAccountModal}
