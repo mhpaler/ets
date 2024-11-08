@@ -30,8 +30,18 @@ import { type NetworkName, networkNames } from "@ethereum-tag-service/contracts/
  */
 export function getNetwork(): NetworkName | "none" {
   if (typeof window === "undefined") {
-    return "none"; // Default for server-side rendering
+    console.info("SSR Environment:", {
+      VERCEL_ENV: process.env.VERCEL_ENV,
+      hostname: "server-side",
+    });
+    return "none";
   }
+
+  console.info("Client Environment:", {
+    VERCEL_ENV: process.env.VERCEL_ENV,
+    hostname: window.location.hostname,
+    isVercelApp: window.location.hostname.includes("vercel.app"),
+  });
 
   // Check for Vercel preview environment first
   if (process.env.VERCEL_ENV === "preview" || window.location.hostname.includes("vercel.app")) {

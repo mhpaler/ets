@@ -1,5 +1,3 @@
-// config/wagmiConfig.ts
-
 import {
   type SupportedChainId,
   availableChainIds,
@@ -22,19 +20,38 @@ const connectors = connectorsForWallets(
   ],
   { appName: "ETS App", projectId: "YOUR_PROJECT_ID" },
 );
+
+console.info("Imported chains configuration:", {
+  chains,
+  availableChainIds,
+  networkNames,
+});
+
 console.info(
   "Configuring Wagmi transports with chains:",
   allChains.map((chain) => chain.id),
 );
+
 console.info("Environment:", {
   VERCEL_ENV: process.env.VERCEL_ENV,
   NODE_ENV: process.env.NODE_ENV,
 });
 
-const transports = allChains.reduce(
+const isVercelEnvironment = process.env.VERCEL_ENV || process.env.NODE_ENV === "production";
+const filteredChains = isVercelEnvironment
+  ? (allChains.filter((chain) => chain.id !== 31337) as [Chain, ...Chain[]])
+  : allChains;
+
+const transports = filteredChains.reduce(
   (acc, chain) => {
-    console.info("Processing chain:", chain.id);
-    if (chain.id === 31337) {
+    console.info("Processing chain:", {
+      chainId: chain.id,
+      chainName: chain.name,
+      networkMatches: networkNames[chain.id as SupportedChainId],
+      isVercelEnvironment,
+    });
+
+    if (chain.id === 31337 && !isVercelEnvironment) {
       console.info("Setting up localhost transport for chain 31337");
       acc[chain.id] = http("http://127.0.0.1:8545");
     } else {
@@ -53,12 +70,12 @@ const transports = allChains.reduce(
 console.info("Final transport configuration:", Object.keys(transports));
 
 export const wagmiConfig: Config = createConfig({
-  chains: allChains,
+  chains: filteredChains,
   connectors,
   transports,
 });
 
-// Helper function to get the Alchemy RPC URL for a given chain
+// Helper functions remain unchanged
 export const getAlchemyRpcUrl = (chain: Chain): string => {
   if (chain.id === 31337) {
     return "http://127.0.0.1:8545";
@@ -66,7 +83,6 @@ export const getAlchemyRpcUrl = (chain: Chain): string => {
   return getAlchemyRpcUrlById(chain.id.toString(), process.env.NEXT_PUBLIC_ALCHEMY_KEY || "");
 };
 
-// Helper function to get chain by network name
 export const getChainByNetworkName = (networkName: string): Chain | undefined => {
   const chainId = Object.keys(networkNames).find((key) => networkNames[key as SupportedChainId] === networkName);
   return chainId ? chains[chainId as SupportedChainId] : undefined;
