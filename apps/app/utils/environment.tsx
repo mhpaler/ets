@@ -7,8 +7,9 @@ import { type NetworkName, networkNames } from "@ethereum-tag-service/contracts/
  *
  * Hierarchical decision process:
  * 1. Vercel Preview Detection
- *    - Checks VERCEL_ENV or vercel.app hostname
+ *    - Checks NEXT_PUBLIC_VERCEL_ENV or vercel.app hostname
  *    - Returns "arbitrumsepolia" for consistent preview deployments
+ *    - Provides debug output in preview environments
  *
  * 2. Subdomain Network Detection
  *    - Extracts subdomain from hostname (e.g., "arbitrumsepolia" from "arbitrumsepolia.app.ets.xyz")
@@ -29,19 +30,17 @@ import { type NetworkName, networkNames } from "@ethereum-tag-service/contracts/
  * @returns {NetworkName | "none"} The detected network name or "none"
  */
 export function getNetwork(): NetworkName | "none" {
-  if (typeof window === "undefined") {
-    console.info("SSR Environment:", {
-      VERCEL_ENV: process.env.VERCEL_ENV,
-      hostname: "server-side",
-    });
-    return "none";
-  }
+  if (typeof window === "undefined") return "none";
 
-  console.info("Client Environment:", {
-    VERCEL_ENV: process.env.NEXT_PUBLIC_VERCEL_ENV,
-    hostname: window.location.hostname,
-    isVercelApp: window.location.hostname.includes("vercel.app"),
-  });
+  const isPreviewEnvironment = process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
+
+  if (isPreviewEnvironment) {
+    console.info("Client Environment:", {
+      VERCEL_ENV: process.env.NEXT_PUBLIC_VERCEL_ENV,
+      hostname: window.location.hostname,
+      isVercelApp: window.location.hostname.includes("vercel.app"),
+    });
+  }
 
   // Check for Vercel preview environment first
   if (process.env.NEXT_PUBLIC_VERCEL_ENV === "preview" || window.location.hostname.includes("vercel.app")) {
