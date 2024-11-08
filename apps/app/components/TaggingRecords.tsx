@@ -3,6 +3,7 @@ import { useExplorerUrl } from "@app/hooks/useExplorerUrl";
 import { useTaggingRecords } from "@app/hooks/useTaggingRecords";
 import type { TaggingRecordType } from "@app/types/taggingrecord";
 import { createColumnHelper } from "@tanstack/react-table";
+import { id } from "ethers/lib/utils.js";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
@@ -19,76 +20,51 @@ type Props = {
   pageSize?: number;
   orderBy?: string;
   title?: string;
+  visibleColumns?: string[];
 };
 
-const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings.DEFAULT_PAGESIZE, orderBy, title }) => {
+const TaggingRecords: NextPage<Props> = ({
+  filter,
+  pageSize = globalSettings.DEFAULT_PAGESIZE,
+  orderBy,
+  title,
+  visibleColumns,
+}) => {
   const { t } = useTranslation("common");
   const getExplorerUrl = useExplorerUrl();
-
   const [pageIndex, setPageIndex] = useState(0);
-  const { taggingRecords, nextTaggingRecords } = useTaggingRecords({
+  const { taggingRecords, nextTaggingRecords, isLoading } = useTaggingRecords({
     filter: filter,
     pageSize: pageSize,
     skip: pageIndex * pageSize,
     orderBy: orderBy,
-    config: {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 1000,
-    },
   });
 
   const columnHelper = createColumnHelper();
-
-  const columns = useMemo<any[]>(
-    () => [
-      columnHelper.accessor("id", {
-        header: t("id"),
-        cell: (info) => (
-          <div className="flex items-center">
-            <Link
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-              href={`/explore/tagging-records/${info.getValue()}`}
-              className="link link-primary"
-            >
-              {Truncate(info.getValue(), 14, "middle")}
-            </Link>
-            <CopyAndPaste value={info.getValue()} />
-            <URI value={getExplorerUrl("tx", (info.row.original as TaggingRecordType).txnHash)} />
-          </div>
-        ),
-      }),
-      columnHelper.accessor("timestamp", {
-        header: t("created"),
-        cell: (info) => <TimeAgo date={info.getValue() * 1000} />,
-      }),
-      columnHelper.accessor("relayer.id", {
-        header: t("relayer"),
+  const ALL_COLUMNS = useMemo(
+    () => ({
+      tagger: columnHelper.accessor("tagger.id", {
+        header: t("tagger"),
         cell: (info) => {
-          const relayer = (info.row.original as TaggingRecordType).relayer;
+          const tagger = (info.row.original as TaggingRecordType).tagger;
           return (
-            <Link
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-              href={`/explore/relayers/${relayer.id}`}
-              className="link link-primary"
-            >
-              {relayer.name}
-            </Link>
+            <div className="flex items-center">
+              <Link
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                href={`/explore/taggers/${tagger.id}`}
+                className="link link-primary"
+              >
+                {Truncate(info.getValue(), 14, "middle")}
+              </Link>
+              <CopyAndPaste value={info.getValue()} />
+              <URI value={getExplorerUrl("address", tagger.id)} />
+            </div>
           );
         },
       }),
-      columnHelper.accessor("recordType", {
-        header: t("record-type"),
-        cell: (info) => info.getValue(),
-      }),
-      columnHelper.accessor("target.id", {
+      target: columnHelper.accessor("target.id", {
         header: t("target"),
         cell: (info) => (
           <div className="flex items-center">
@@ -105,7 +81,7 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings.DEF
           </div>
         ),
       }),
-      columnHelper.accessor("tags", {
+      tags: columnHelper.accessor("tags", {
         header: t("tags"),
         cell: (info) => (
           <div
@@ -127,15 +103,69 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings.DEF
           </div>
         ),
       }),
-    ],
-    [t, columnHelper.accessor, getExplorerUrl],
+      id: columnHelper.accessor("id", {
+        header: t("id"),
+        cell: (info) => {
+          const tag = info.row.original as TaggingRecordType;
+          return (
+            <div className="flex items-center">
+              <Link
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                href={`/explore/tagging-records/${tag.id}`}
+                className="link link-primary"
+              >
+                {Truncate(info.getValue(), 14, "middle")}
+              </Link>
+              <CopyAndPaste value={info.getValue()} />
+              <URI value={getExplorerUrl("tx", tag.txnHash)} />
+            </div>
+          );
+        },
+      }),
+      timestamp: columnHelper.accessor("timestamp", {
+        header: t("created"),
+        cell: (info) => <TimeAgo date={info.getValue() * 1000} />,
+      }),
+      relayer: columnHelper.accessor("relayer.id", {
+        header: t("relayer"),
+        cell: (info) => {
+          const relayer = (info.row.original as TaggingRecordType).relayer;
+          return (
+            <Link
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              href={`/explore/relayers/${relayer.id}`}
+              className="link link-primary"
+            >
+              {relayer.name}
+            </Link>
+          );
+        },
+      }),
+      recordType: columnHelper.accessor("recordType", {
+        header: t("record-type"),
+        cell: (info) => info.getValue(),
+      }),
+    }),
+    [t, getExplorerUrl, columnHelper.accessor],
   );
+
+  const columns = useMemo(() => {
+    if (!visibleColumns) {
+      const defaultColumns = ["timestamp", "target", "tags", "tagger", "relayer"];
+      return defaultColumns.map((columnKey) => ALL_COLUMNS[columnKey as keyof typeof ALL_COLUMNS]);
+    }
+    return visibleColumns.map((columnKey) => ALL_COLUMNS[columnKey as keyof typeof ALL_COLUMNS]);
+  }, [ALL_COLUMNS, visibleColumns]);
 
   return (
     <TanstackTable
       columns={columns}
       data={taggingRecords}
-      loading={!taggingRecords?.length}
+      loading={isLoading}
       rowsPerPage={pageSize}
       title={title}
       rowLink={(taggingRecord: any) => `/explore/tagging-records/${taggingRecord.id}`}
@@ -145,5 +175,4 @@ const TaggingRecords: NextPage<Props> = ({ filter, pageSize = globalSettings.DEF
     />
   );
 };
-
 export { TaggingRecords };

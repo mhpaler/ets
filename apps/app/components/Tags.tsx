@@ -4,8 +4,10 @@ import { TanstackTable } from "@app/components/TanstackTable";
 import { TimeAgo } from "@app/components/TimeAgo";
 import { URI } from "@app/components/URI";
 import { globalSettings } from "@app/config/globalSettings";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
 import { useExplorerUrl } from "@app/hooks/useExplorerUrl";
 import type { TagType } from "@app/types/tag";
+import { toEth } from "@app/utils";
 import { etsTokenConfig } from "@ethereum-tag-service/contracts/contracts";
 import { createColumnHelper } from "@tanstack/react-table";
 import useTranslation from "next-translate/useTranslation";
@@ -14,9 +16,10 @@ import type React from "react";
 import { useMemo } from "react";
 import { useChainId } from "wagmi";
 
-type ColumnKey = "tag" | "created" | "owner" | "creator" | "relayer" | "timestamp" | "taggingRecords";
+type ColumnKey = "tag" | "created" | "owner" | "creator" | "relayer" | "timestamp" | "taggingRecords" | "totalRevenue";
 
 type Props = {
+  loading: boolean;
   title?: string;
   pageSize?: number;
   tags: TagType[];
@@ -28,6 +31,7 @@ type Props = {
 };
 
 const Tags: React.FC<Props> = ({
+  loading,
   title,
   tags,
   pageSize = globalSettings.DEFAULT_PAGESIZE,
@@ -39,6 +43,7 @@ const Tags: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation("common");
   const chainId = useChainId();
+  const chain = useCurrentChain();
   const getExplorerUrl = useExplorerUrl();
   const etsTokenAddress = etsTokenConfig.address[chainId as keyof typeof etsTokenConfig.address];
   const columnHelper = createColumnHelper<TagType>();
@@ -94,9 +99,29 @@ const Tags: React.FC<Props> = ({
       }),
       taggingRecords: columnHelper.accessor("tagAppliedInTaggingRecord", {
         header: () => "Tagging Records",
+        id: "taggingRecords",
       }),
+      totalRevenue: columnHelper.accessor(
+        (row) => {
+          return (
+            Number(row.relayerRevenue) +
+            Number(row.ownerRevenue) +
+            Number(row.protocolRevenue) +
+            Number(row.creatorRevenue)
+          );
+        },
+        {
+          header: () => t("total-revenue"),
+          id: "totalRevenue",
+          cell: (info) => (
+            <span>
+              {toEth(info.getValue(), 8)} {chain?.nativeCurrency.symbol}
+            </span>
+          ),
+        },
+      ),
     }),
-    [columnHelper, t, etsTokenAddress, getExplorerUrl],
+    [columnHelper, t, etsTokenAddress, getExplorerUrl, chain?.nativeCurrency.symbol],
   );
 
   const selectedColumns = useMemo(
@@ -107,10 +132,10 @@ const Tags: React.FC<Props> = ({
   return (
     <div className="col-span-12">
       <TanstackTable
+        loading={loading}
         columns={selectedColumns}
         data={tags}
         hasNextPage={hasNextPage}
-        loading={!tags?.length}
         rowsPerPage={pageSize}
         title={title}
         pageIndex={pageIndex}

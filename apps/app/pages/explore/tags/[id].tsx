@@ -36,14 +36,6 @@ const Tag: NextPage = () => {
     pageSize: 1,
     skip: 0,
     filter: { machineName: id },
-    config: {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 0,
-    },
   });
 
   useEffect(() => {
@@ -54,7 +46,6 @@ const Tag: NextPage = () => {
   }, [isLoading, tags]);
 
   const tag: TagType | null = tags && tags.length > 0 ? tags[0] : null;
-
   const taggingRecordsFilter = { tags_: { machineName: id } };
 
   if (isLoading && !isNotFound) {
@@ -146,7 +137,7 @@ const Tag: NextPage = () => {
             <div className="font-semibold">{t("creator")}</div>
             <div className="flex space-x-1 justify-end">
               <div className="">
-                <Link href={`/creators/${safeTag.creator.id}`} className="link link-primary">
+                <Link href={`/explore/creators/${safeTag.creator.id}`} className="link link-primary">
                   <Address address={safeTag.creator.id} ens={safeTag.creator.ens} />
                 </Link>
               </div>
@@ -157,7 +148,7 @@ const Tag: NextPage = () => {
             <div className="font-semibold">{t("owner")}</div>
             <div className="flex space-x-1 justify-end">
               <div className="">
-                <Link href={`/owners/${safeTag.owner.id}`} className="link link-primary">
+                <Link href={`/explore/owners/${safeTag.owner.id}`} className="link link-primary">
                   <Address address={safeTag.owner.id} ens={safeTag.owner.ens} />
                 </Link>
               </div>

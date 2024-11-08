@@ -7,27 +7,30 @@ import { Truncate } from "@app/components/Truncate";
 import { URI } from "@app/components/URI";
 import TransactionFlowWrapper from "@app/components/transaction/TransactionFlowWrapper";
 import { RelayerProvider } from "@app/context/RelayerContext";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
 import { useExplorerUrl } from "@app/hooks/useExplorerUrl";
 import { useRelayers } from "@app/hooks/useRelayers";
 import Layout from "@app/layouts/default";
 import type { RelayerType } from "@app/types/relayer";
 import { TransactionType } from "@app/types/transaction";
+import { toEth } from "@app/utils";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { useAccount, useChainId } from "wagmi";
+import { useAccount } from "wagmi";
 
 const pageSize = 20;
 
 const Relayers: NextPage = () => {
   const { t } = useTranslation("common");
   const getExplorerUrl = useExplorerUrl();
-  const [pageIndex, setPageIndex] = useState(0);
   const { isConnected } = useAccount();
+  const chain = useCurrentChain();
   const [transactionId, setTransactionId] = useState<string>("");
+  const [pageIndex, setPageIndex] = useState(0);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -35,7 +38,11 @@ const Relayers: NextPage = () => {
     setTransactionId(uuidv4());
   }, []);
 
-  const { relayers = [], nextRelayers } = useRelayers({
+  const {
+    relayers = [],
+    nextRelayers,
+    isLoading,
+  } = useRelayers({
     pageSize,
     skip: pageIndex * pageSize,
     config: {
@@ -48,10 +55,15 @@ const Relayers: NextPage = () => {
     },
   });
 
-  console.info("relayers", relayers);
+  /*   if (isLoading) {
+    return (
+      <Layout>
+        <div className="loading loading-spinner loading-md" />{" "}
+      </Layout>
+    );
+  } */
 
   const columnHelper = createColumnHelper<RelayerType>();
-
   const columns = useMemo(
     () => [
       columnHelper.accessor("name", {
@@ -72,7 +84,7 @@ const Relayers: NextPage = () => {
         header: () => t("created"),
         cell: (info) => <TimeAgo date={info.getValue() * 1000} />,
       }),
-      columnHelper.accessor("owner", {
+      /*       columnHelper.accessor("owner", {
         header: () => t("owner"),
         cell: (info) => {
           const owner = info.getValue();
@@ -82,7 +94,7 @@ const Relayers: NextPage = () => {
             </Link>
           );
         },
-      }),
+      }), */
       columnHelper.accessor("taggingRecordsPublished", {
         header: () => t("tagging-records"),
         cell: (info) => info.getValue(),
@@ -91,35 +103,54 @@ const Relayers: NextPage = () => {
         header: () => t("tags"),
         cell: (info) => info.getValue(),
       }),
+      columnHelper.accessor(
+        (row) => {
+          return Number(row.publishedTagsAuctionRevenue) + Number(row.publishedTagsTaggingFeeRevenue);
+        },
+        {
+          header: () => t("total-revenue"),
+          id: "totalRevenue",
+          cell: (info) => (
+            <span>
+              {toEth(Number(info.getValue()), 8)} {chain?.nativeCurrency.symbol}
+            </span>
+          ),
+        },
+      ),
+
       columnHelper.accessor("pausedByOwner", {
         header: () => t("status"),
         cell: (info) => (info.getValue() ? t("disabled") : t("enabled")),
       }),
     ],
-    [t, columnHelper.accessor, getExplorerUrl],
+    [t, columnHelper.accessor, getExplorerUrl, chain?.nativeCurrency.symbol],
   );
 
   return (
     <Layout>
       <RelayerProvider>
-        <div className="col-span-12">
-          {isClient && !isConnected ? (
-            <ConnectButtonETS className="btn-outline" />
-          ) : (
-            <Modal id={"create-relayer"} label={t("create-relayer")} buttonClasses="btn-primary btn-outline">
-              <TransactionFlowWrapper id={transactionId} transactionType={TransactionType.AddRelayer} />
-            </Modal>
-          )}
-        </div>
-        <TanstackTable
-          columns={columns}
-          data={relayers}
-          loading={!relayers?.length}
-          rowsPerPage={pageSize}
-          hasNextPage={!!nextRelayers?.length}
-          pageIndex={pageIndex}
-          setPageIndex={setPageIndex}
-        />
+        {isClient && (
+          <>
+            <div className="col-span-12">
+              {!isConnected ? (
+                <ConnectButtonETS className="btn-outline" />
+              ) : (
+                <Modal id={"create-relayer"} label={t("create-relayer")} buttonClasses="btn-primary btn-outline">
+                  <TransactionFlowWrapper id={transactionId} transactionType={TransactionType.AddRelayer} />
+                </Modal>
+              )}
+            </div>
+
+            <TanstackTable
+              columns={columns}
+              data={relayers}
+              loading={isLoading}
+              pageIndex={pageIndex}
+              setPageIndex={setPageIndex}
+              hasNextPage={!!nextRelayers?.length}
+            />
+          </>
+        )}
       </RelayerProvider>
     </Layout>
   );

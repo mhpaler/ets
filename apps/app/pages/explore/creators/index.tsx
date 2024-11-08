@@ -23,14 +23,6 @@ const Creators: NextPage = () => {
   const { creators, nextCreators } = useCreators({
     pageSize,
     skip: pageIndex * pageSize,
-    config: {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 0,
-    },
   });
 
   const columnHelper = createColumnHelper();
@@ -58,10 +50,19 @@ const Creators: NextPage = () => {
         header: t("tags-created"),
         cell: (info) => number(Number.parseInt(info.getValue() as string)),
       }),
-      columnHelper.accessor("createdTagsAuctionRevenue", {
-        header: t("revenue"),
-        cell: (info) => `${toEth(Number.parseFloat(info.getValue() as string), 8)} ${chain?.nativeCurrency.symbol}`,
-      }),
+      columnHelper.accessor(
+        (row) => {
+          const creatorRow = row as CreatorType;
+          const taggingRevenue = Number.parseFloat(creatorRow.createdTagsTaggingFeeRevenue);
+          const auctionRevenue = Number.parseFloat(creatorRow.createdTagsAuctionRevenue);
+          return taggingRevenue + auctionRevenue;
+        },
+        {
+          id: "totalRevenue",
+          header: t("total-revenue"),
+          cell: (info) => `${toEth(info.getValue() as number, 8)} ${chain?.nativeCurrency.symbol}`,
+        },
+      ),
     ],
     [t, number, chain?.nativeCurrency.symbol, columnHelper.accessor],
   );

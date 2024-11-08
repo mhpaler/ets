@@ -22,28 +22,10 @@ const Creator: NextPage = () => {
     pageSize: 1,
     skip: 0,
     filter: { id },
-    config: {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 0,
-    },
   });
-
   const creator = creators ? creators[0] : null;
-
-  const { tags = [] } = useCtags({
+  const { tags = [], isLoading } = useCtags({
     filter: { creator_: { id } },
-    config: {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 1500,
-    },
   });
 
   return (
@@ -115,9 +97,10 @@ const Creator: NextPage = () => {
           <div>
             <Tags
               title={t("tags-created-by", { creator: Truncate(creator.id, 13, "middle") })}
+              loading={isLoading}
+              columns={["tag", "created", "taggingRecords", "totalRevenue"]}
               tags={tags}
               rowLink={false}
-              columns={["tag", "created", "taggingRecords"]}
             />
           </div>
         </div>

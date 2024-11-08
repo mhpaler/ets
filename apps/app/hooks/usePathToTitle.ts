@@ -52,7 +52,7 @@ export const usePathToTitle = (segment: string) => {
         setLabel(t(segment));
       }
       if (segmentIndex === 2 && pathSegments[0] === "explore" && pathSegments[1] !== "tags") {
-        setLabel(Truncate(segment, 13, "middle"));
+        setLabel(Truncate(segment, 14, "middle"));
       }
       setLoading(false);
     }

@@ -23,28 +23,12 @@ const Owner: NextPage = () => {
     pageSize: 1,
     skip: 0,
     filter: { id },
-    config: {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 0,
-    },
   });
 
   const owner = owners ? owners[0] : null;
 
-  const { tags = [] } = useCtags({
+  const { tags = [], isLoading } = useCtags({
     filter: { owner_: { id } },
-    config: {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 1500,
-    },
   });
 
   return (
@@ -114,7 +98,8 @@ const Owner: NextPage = () => {
               title={`${t("owner-tags")} ${Truncate(owner.id, 13, "middle")}`}
               tags={tags}
               rowLink={false}
-              columns={["tag", "created", "taggingRecords"]}
+              loading={isLoading}
+              columns={["tag", "created", "taggingRecords", "totalRevenue"]}
             />
           </div>
         </div>
