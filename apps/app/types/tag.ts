@@ -5,11 +5,11 @@ export type TagType = {
   premium?: boolean;
   reserved?: boolean;
   timestamp: number;
-  lastRenewalDate: number;
-  lastRenewedBy: string;
-  expirationDate: number;
-  lastRecycledDate: number;
-  lastRecycledBy: string;
+  lastRenewalDate?: number;
+  lastRenewedBy?: string;
+  expirationDate?: number;
+  lastRecycledDate?: number;
+  lastRecycledBy?: string;
   machineName: string;
   display: string;
   owner: {
