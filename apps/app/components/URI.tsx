@@ -21,12 +21,28 @@ export const URI: React.FC<URIProps> = ({ value, className = "link link-primary"
 
   return hoverText ? (
     <div className="lg:tooltip lg:tooltip-primary" data-tip={hoverText}>
-      <Link href={value} target="_blank" rel="noopener noreferrer" className={className}>
+      <Link
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+        href={value}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+      >
         {linkContent}
       </Link>
     </div>
   ) : (
-    <Link href={value} target="_blank" rel="noopener noreferrer" className={className}>
+    <Link
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
+      href={value}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={className}
+    >
       {linkContent}
     </Link>
   );

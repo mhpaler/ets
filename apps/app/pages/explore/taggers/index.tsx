@@ -7,7 +7,6 @@ import type { TaggerType } from "@app/types/tagger";
 import { type ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
-import Link from "next/link";
 import { useMemo, useState } from "react";
 
 const pageSize = 20;
@@ -37,13 +36,7 @@ const Taggers: NextPage = () => {
         header: () => t("tagger"),
         cell: (info) => {
           const tagger = info.row.original;
-          return (
-            <>
-              <Link href={`/explore/taggers/${tagger.id}`} className="link link-primary">
-                <Address address={tagger.id} ens={tagger.ens} />
-              </Link>
-            </>
-          );
+          return <Address href={`/explore/taggers/${tagger.id}`} address={tagger.id} ens={tagger.ens} />;
         },
       }),
       columnHelper.accessor("taggingRecordsCreated", {

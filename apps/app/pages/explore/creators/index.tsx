@@ -10,7 +10,6 @@ import { toEth } from "@app/utils";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
-import Link from "next/link";
 import { useMemo, useState } from "react";
 
 const pageSize = 20;

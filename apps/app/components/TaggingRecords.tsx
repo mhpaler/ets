@@ -1,19 +1,15 @@
 import { globalSettings } from "@app/config/globalSettings";
-import { useExplorerUrl } from "@app/hooks/useExplorerUrl";
 import { useTaggingRecords } from "@app/hooks/useTaggingRecords";
 import type { TaggingRecordType } from "@app/types/taggingrecord";
 import { createColumnHelper } from "@tanstack/react-table";
-import { id } from "ethers/lib/utils.js";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { CopyAndPaste } from "./CopyAndPaste";
+import Address from "./Address";
 import { Tag } from "./Tag";
 import { TanstackTable } from "./TanstackTable";
 import { TimeAgo } from "./TimeAgo";
-import { Truncate } from "./Truncate";
-import { URI } from "./URI";
 
 type Props = {
   filter?: any;
@@ -31,7 +27,6 @@ const TaggingRecords: NextPage<Props> = ({
   visibleColumns,
 }) => {
   const { t } = useTranslation("common");
-  const getExplorerUrl = useExplorerUrl();
   const [pageIndex, setPageIndex] = useState(0);
   const { taggingRecords, nextTaggingRecords, isLoading } = useTaggingRecords({
     filter: filter,
@@ -47,38 +42,19 @@ const TaggingRecords: NextPage<Props> = ({
         header: t("tagger"),
         cell: (info) => {
           const tagger = (info.row.original as TaggingRecordType).tagger;
-          return (
-            <div className="flex items-center">
-              <Link
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                href={`/explore/taggers/${tagger.id}`}
-                className="link link-primary"
-              >
-                {Truncate(info.getValue(), 14, "middle")}
-              </Link>
-              <CopyAndPaste value={info.getValue()} />
-              <URI value={getExplorerUrl("address", tagger.id)} />
-            </div>
-          );
+          return <Address href={`/explore/taggers/${tagger.id}`} address={tagger.id} ens={tagger.ens} />;
         },
       }),
       target: columnHelper.accessor("target.id", {
         header: t("target"),
         cell: (info) => (
-          <div className="flex items-center">
-            <Link
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-              href={`/explore/targets/${info.getValue()}`}
-              className="link link-primary"
-            >
-              {Truncate(info.getValue(), 14, "middle")}
-            </Link>
-            <CopyAndPaste value={info.getValue()} />
-          </div>
+          <Address
+            copy={false}
+            hoverText={false}
+            explorerLink={false}
+            href={`/explore/targets/${info.getValue()}`}
+            address={info.getValue()}
+          />
         ),
       }),
       tags: columnHelper.accessor("tags", {
@@ -106,21 +82,15 @@ const TaggingRecords: NextPage<Props> = ({
       id: columnHelper.accessor("id", {
         header: t("id"),
         cell: (info) => {
-          const tag = info.row.original as TaggingRecordType;
+          const taggingRecord = info.row.original as TaggingRecordType;
           return (
-            <div className="flex items-center">
-              <Link
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                href={`/explore/tagging-records/${tag.id}`}
-                className="link link-primary"
-              >
-                {Truncate(info.getValue(), 14, "middle")}
-              </Link>
-              <CopyAndPaste value={info.getValue()} />
-              <URI value={getExplorerUrl("tx", tag.txnHash)} />
-            </div>
+            <Address
+              copy={false}
+              hoverText={false}
+              explorerLink={false}
+              href={`/explore/tagging-records/${taggingRecord.id}`}
+              address={taggingRecord.id}
+            />
           );
         },
       }),
@@ -150,7 +120,7 @@ const TaggingRecords: NextPage<Props> = ({
         cell: (info) => info.getValue(),
       }),
     }),
-    [t, getExplorerUrl, columnHelper.accessor],
+    [t, columnHelper.accessor],
   );
 
   const columns = useMemo(() => {

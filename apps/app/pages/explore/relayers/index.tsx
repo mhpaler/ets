@@ -26,7 +26,6 @@ const pageSize = 20;
 
 const Relayers: NextPage = () => {
   const { t } = useTranslation("common");
-  const getExplorerUrl = useExplorerUrl();
   const { isConnected } = useAccount();
   const chain = useCurrentChain();
   const [transactionId, setTransactionId] = useState<string>("");
@@ -45,14 +44,6 @@ const Relayers: NextPage = () => {
   } = useRelayers({
     pageSize,
     skip: pageIndex * pageSize,
-    config: {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 1000,
-    },
   });
 
   /*   if (isLoading) {
@@ -71,12 +62,9 @@ const Relayers: NextPage = () => {
         cell: (info) => {
           const relayer = info.row.original as RelayerType;
           return (
-            <div className="flex items-center">
-              <Link href={`/explore/relayers/${relayer.id}`} className="link link-primary">
-                {info.getValue()}
-              </Link>
-              <URI value={getExplorerUrl("address", info.row.original.id)} />
-            </div>
+            <Link href={`/explore/relayers/${relayer.id}`} className="link link-primary">
+              {info.getValue()}
+            </Link>
           );
         },
       }),
@@ -123,7 +111,7 @@ const Relayers: NextPage = () => {
         cell: (info) => (info.getValue() ? t("disabled") : t("enabled")),
       }),
     ],
-    [t, columnHelper.accessor, getExplorerUrl, chain?.nativeCurrency.symbol],
+    [t, columnHelper.accessor, chain?.nativeCurrency.symbol],
   );
 
   return (

@@ -11,6 +11,7 @@ interface AddressProps {
   address?: string | Hex;
   ens?: string | null;
   truncateLength?: number;
+  hoverText?: boolean;
   href?: string;
   copy?: boolean;
   explorerLink?: boolean;
@@ -24,6 +25,7 @@ interface AddressProps {
  * @param {string | Hex} address - Ethereum address to display
  * @param {string | null} ens - ENS name if available
  * @param {number} truncateLength - Length to truncate address (default: 14)
+ * @param {boolean} hoverText - Show hover text on hover (default: true)
  * @param {string} href - Optional link destination for the address
  * @param {boolean} copy - Show copy button (default: true)
  * @param {boolean} explorerLink - Show explorer link (default: true)
@@ -59,6 +61,7 @@ const Address: React.FC<AddressProps> = ({
   address,
   ens,
   truncateLength = 14,
+  hoverText = true,
   href,
   copy = true,
   explorerLink = true,
@@ -67,18 +70,26 @@ const Address: React.FC<AddressProps> = ({
   const getExplorerUrl = useExplorerUrl();
   const displayText = ens || Truncate(address, truncateLength, "middle");
 
-  const addressDisplay = (
+  const addressDisplay = hoverText ? (
     <div className="auto-tooltip-width">
       <span className="lg:tooltip lg:tooltip-primary z-50" data-tip={address}>
         {displayText}
       </span>
     </div>
+  ) : (
+    <span>{displayText}</span>
   );
 
   return (
     <span className="inline-flex items-center gap-1">
       {href ? (
-        <Link href={href} className="link link-primary">
+        <Link
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+          href={href}
+          className="link link-primary"
+        >
           {addressDisplay}
         </Link>
       ) : (

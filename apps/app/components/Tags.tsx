@@ -2,19 +2,14 @@ import Address from "@app/components/Address";
 import { Tag } from "@app/components/Tag";
 import { TanstackTable } from "@app/components/TanstackTable";
 import { TimeAgo } from "@app/components/TimeAgo";
-import { URI } from "@app/components/URI";
 import { globalSettings } from "@app/config/globalSettings";
 import { useCurrentChain } from "@app/hooks/useCurrentChain";
-import { useExplorerUrl } from "@app/hooks/useExplorerUrl";
 import type { TagType } from "@app/types/tag";
 import { toEth } from "@app/utils";
-import { etsTokenConfig } from "@ethereum-tag-service/contracts/contracts";
 import { createColumnHelper } from "@tanstack/react-table";
 import useTranslation from "next-translate/useTranslation";
-import Link from "next/link";
 import type React from "react";
 import { useMemo } from "react";
-import { useChainId } from "wagmi";
 
 type ColumnKey = "tag" | "created" | "owner" | "creator" | "relayer" | "timestamp" | "taggingRecords" | "totalRevenue";
 
@@ -42,22 +37,13 @@ const Tags: React.FC<Props> = ({
   hasNextPage,
 }) => {
   const { t } = useTranslation("common");
-  const chainId = useChainId();
   const chain = useCurrentChain();
-  const getExplorerUrl = useExplorerUrl();
-  const etsTokenAddress = etsTokenConfig.address[chainId as keyof typeof etsTokenConfig.address];
   const columnHelper = createColumnHelper<TagType>();
-
   const columnConfigs = useMemo(
     () => ({
       tag: columnHelper.accessor("display", {
         header: () => "Tag",
-        cell: (info) => (
-          <div className="flex items-center">
-            <Tag tag={info.row.original} />
-            <URI value={getExplorerUrl("token", `${etsTokenAddress}/${info.row.original.id}`)} />
-          </div>
-        ),
+        cell: (info) => <Tag tag={info.row.original} />,
       }),
       created: columnHelper.accessor("timestamp", {
         header: () => "Created",
@@ -67,31 +53,19 @@ const Tags: React.FC<Props> = ({
         header: () => t("owner"),
         cell: (info) => {
           const owner = info.getValue();
-          return (
-            <Link href={`/explore/owners/${owner.id}`} className="link link-primary">
-              <Address address={owner.id} ens={owner.ens} />
-            </Link>
-          );
+          return <Address href="{`/explore/owners/${owner.id}`}" address={owner.id} ens={owner.ens} />;
         },
       }),
       creator: columnHelper.accessor("creator", {
         header: () => t("creator"),
         cell: (info) => {
           const creator = info.getValue();
-          return (
-            <Link href={`/explore/creators/${creator.id}`} className="link link-primary">
-              <Address address={creator.id} ens={creator.ens} />
-            </Link>
-          );
+          return <Address href={`/explore/creators/${creator.id}`} address={creator.id} ens={creator.ens} />;
         },
       }),
       relayer: columnHelper.accessor("relayer.id", {
         header: () => t("relayer"),
-        cell: (info) => (
-          <Link href={`/explore/relayers/${info.getValue()}`} className="link link-primary">
-            <Address address={info.getValue()} />
-          </Link>
-        ),
+        cell: (info) => <Address href={`/explore/relayers/${info.getValue()}`} address={info.getValue()} />,
       }),
       timestamp: columnHelper.accessor("timestamp", {
         header: () => "Created",
@@ -121,7 +95,7 @@ const Tags: React.FC<Props> = ({
         },
       ),
     }),
-    [columnHelper, t, etsTokenAddress, getExplorerUrl, chain?.nativeCurrency.symbol],
+    [columnHelper, t, chain?.nativeCurrency.symbol],
   );
 
   const selectedColumns = useMemo(

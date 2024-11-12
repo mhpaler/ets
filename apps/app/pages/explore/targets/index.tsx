@@ -1,3 +1,4 @@
+import Address from "@app/components/Address";
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { TanstackTable } from "@app/components/TanstackTable";
 import { TimeAgo } from "@app/components/TimeAgo";
@@ -19,14 +20,6 @@ const Targets: NextPage = () => {
   const { targets, nextTargets } = useTargets({
     pageSize,
     skip: pageIndex * pageSize,
-    config: {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 0,
-    },
   });
 
   const columnHelper = createColumnHelper();
@@ -38,12 +31,15 @@ const Targets: NextPage = () => {
         cell: (info) => {
           const target = info.row.original as any;
           return (
-            <div className="flex items-center">
-              <Link href={`/explore/targets/${target.id}`} className="link link-primary">
-                {Truncate(info.getValue(), 14, "middle")}
-              </Link>
-              <CopyAndPaste value={target.id} />
-            </div>
+            target.id && (
+              <Address
+                hoverText={false}
+                copy={false}
+                explorerLink={false}
+                address={target.id}
+                href={`/explore/targets/${target.id}`}
+              />
+            )
           );
         },
       }),
@@ -54,11 +50,11 @@ const Targets: NextPage = () => {
       columnHelper.accessor("targetURI", {
         header: t("URI"),
         cell: (info) => (
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center">
             <span className="block truncate max-w-[60ch]">{info.getValue()}</span>
-            <div className="flex-shrink-0 flex space-x-2">
+            <div className="flex-shrink-0 flex">
               <CopyAndPaste value={info.getValue()} />
-              <URI value={info.getValue()} />
+              <URI value={info.getValue()} hoverText={t("open-in-new-tab")} />
             </div>
           </div>
         ),

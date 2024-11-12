@@ -2,7 +2,7 @@ import { useEnvironmentContext } from "@app/context/EnvironmentContext";
 import { getChainInfo } from "@app/utils/getChainInfo";
 import { getExplorerUrl as getExplorerUrlUtil } from "@ethereum-tag-service/contracts/utils";
 import { useMemo } from "react";
-type ExplorerUrlType = "tx" | "address" | "token";
+type ExplorerUrlType = "tx" | "address" | "token" | "nft";
 
 export const useExplorerUrl = () => {
   const { network } = useEnvironmentContext();

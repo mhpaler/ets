@@ -14,17 +14,17 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
 import Address from "@app/components/Address";
-import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Panel } from "@app/components/Panel";
 import { TagGraphic } from "@app/components/TagGraphic";
 import { TaggingRecords } from "@app/components/TaggingRecords";
-import { Truncate } from "@app/components/Truncate";
+import { URI } from "@app/components/URI";
+import { useExplorerUrl } from "@app/hooks/useExplorerUrl";
 import type { TagType } from "@app/types/tag";
 
 const Tag: NextPage = () => {
   const { query } = useRouter();
-  const { ownershipTermLength } = useSystem();
   const { network } = useEnvironmentContext();
+  const getExplorerUrl = useExplorerUrl();
   const { displayName } = getChainInfo(network);
 
   const chain = useCurrentChain();
@@ -100,57 +100,58 @@ const Tag: NextPage = () => {
             <div className="font-semibold">{t("id")}</div>
             <div className="flex space-x-1">
               <div className="grid flex-grow md:grid-flow-col justify-end">
-                <div className=" ">{Truncate(safeTag.id)}</div>
+                <div className="truncate">{safeTag.id}</div>
+                <URI value={getExplorerUrl("nft", safeTag.id)} hoverText={t("view-on-explorer")} />
               </div>
-              <CopyAndPaste value={safeTag.id} />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
             <div className="font-semibold">{t("created")}</div>
-            <div className="text-right">
-              <div className="">{timestampToString(safeTag.timestamp)}</div>
-            </div>
+            <div className="text-right">{timestampToString(safeTag.timestamp)}</div>
           </div>
 
           <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
             <div className="font-semibold">{t("expires")}</div>
             <div className="text-right">
-              <div className="">{timestampToString(+safeTag.timestamp + ownershipTermLength)}</div>
+              {String(safeTag.expirationDate) === "0"
+                ? t("pending-auction")
+                : timestampToString(safeTag.expirationDate)}
             </div>
           </div>
 
           <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4 hover:bg-slate-100">
             <div className="font-semibold">{t("relayer")}</div>
-            <div className="flex col-span-3 space-x-1">
-              <div className="grid flex-grow grid-cols-1 md:grid-flow-col ">
-                <div className="overflow-hidden text-right text-ellipsis whitespace-nowrap">
-                  <Link href={`/explore/relayers/${safeTag.relayer.id}`} className="link link-primary">
-                    {safeTag.relayer.name}
-                  </Link>
-                </div>
-              </div>
+
+            <div className="text-right">
+              <Link href={`/explore/relayers/${safeTag.relayer.id}`} className="link link-primary">
+                {safeTag.relayer.name}
+              </Link>
             </div>
           </div>
 
           <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4 hover:bg-slate-100">
             <div className="font-semibold">{t("creator")}</div>
-            <div className="flex space-x-1 justify-end">
+            <div className="flex justify-end">
               <div className="">
-                <Link href={`/explore/creators/${safeTag.creator.id}`} className="link link-primary">
-                  <Address address={safeTag.creator.id} ens={safeTag.creator.ens} />
-                </Link>
+                <Address
+                  href={`/explore/creators/${safeTag.creator.id}`}
+                  address={safeTag.creator.id}
+                  ens={safeTag.creator.ens}
+                />
               </div>
             </div>
           </div>
 
           <div className="grid grid-flow-col grid-cols-2 px-6 py-4 space-x-4 hover:bg-slate-100">
             <div className="font-semibold">{t("owner")}</div>
-            <div className="flex space-x-1 justify-end">
+            <div className="flex justify-end">
               <div className="">
-                <Link href={`/explore/owners/${safeTag.owner.id}`} className="link link-primary">
-                  <Address address={safeTag.owner.id} ens={safeTag.owner.ens} />
-                </Link>
+                <Address
+                  href={`/explore/owners/${safeTag.owner.id}`}
+                  address={safeTag.owner.id}
+                  ens={safeTag.owner.ens}
+                />
               </div>
             </div>
           </div>
@@ -210,5 +211,4 @@ const Tag: NextPage = () => {
     </Layout>
   );
 };
-
 export default Tag;
