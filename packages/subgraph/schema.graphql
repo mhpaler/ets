@@ -66,6 +66,21 @@ type Tag @entity {
   "Creation date."
   timestamp: BigInt!
 
+  "Block timestamp of last renewal."
+  lastRenewalDate: BigInt!
+
+  "Address that triggered the renewal"
+  lastRenewedBy: String!
+
+  "Expriation timestamp calcuated from renewal date."
+  expirationDate: BigInt!
+
+  "Block timestamp of last recycle."
+  lastRecycledDate: BigInt!
+
+  "Address that triggered the recycle."
+  lastRecycledBy: String!
+
   "Flagged by ETS as Premium."
   premium: Boolean!
 
