@@ -22,8 +22,9 @@ export const formatEtherWithDecimals = (amount: bigint, decimals?: number): stri
  * @returns {string} Formatted date string.
  */
 export const timestampToString = (timestamp: number, language = "en-US") => {
-  console.info("Timestamp:", timestamp); // Debug log to check the input value
-
+  if (timestamp === 0) {
+    return "Invalid date"; // Handle invalid dates
+  }
   const date = new Date(timestamp * 1000);
   if (Number.isNaN(date.getTime())) {
     return "Invalid date"; // Handle invalid dates

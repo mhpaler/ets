@@ -3,7 +3,6 @@ import { AuctionProvider } from "@app/context/AuctionContext";
 import { useEnvironmentContext } from "@app/context/EnvironmentContext";
 import { useCtags } from "@app/hooks/useCtags";
 import { useCurrentChain } from "@app/hooks/useCurrentChain";
-import { useSystem } from "@app/hooks/useSystem";
 import Layout from "@app/layouts/default";
 import { timestampToString, toEth } from "@app/utils";
 import { getChainInfo } from "@app/utils/getChainInfo";
@@ -78,7 +77,7 @@ const Tag: NextPage = () => {
   if (safeTag.auctions && safeTag.auctions.length > 0) {
     const auction = safeTag.auctions[safeTag.auctions.length - 1];
     auctionBlock = (
-      <AuctionProvider auctionId={Number(auction.id)}>
+      <AuctionProvider auctionId={auction.id ? Number(auction.id) : 0}>
         <WithinTagAuctionDisplay />
       </AuctionProvider>
     );
@@ -116,7 +115,7 @@ const Tag: NextPage = () => {
             <div className="text-right">
               {String(safeTag.expirationDate) === "0"
                 ? t("pending-auction")
-                : timestampToString(safeTag.expirationDate)}
+                : timestampToString(safeTag.expirationDate ?? 0)}
             </div>
           </div>
 
