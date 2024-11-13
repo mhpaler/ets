@@ -39,7 +39,7 @@ const Creator: NextPage = () => {
                   <div className="grid grid-cols-2 px-6 py-4 space-x-4 md:grid-flow-col hover:bg-slate-100">
                     <div className="font-semibold">{t("id")}</div>
                     <div className="flex space-x-1 justify-end">
-                      <Address address={creator.id} ens={creator.ens} truncateLength={13} />
+                      <Address address={creator.id} ens={creator.ens} />
                     </div>
                   </div>
 
