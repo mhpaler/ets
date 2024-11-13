@@ -3,7 +3,7 @@ import React from "react";
 export function URIIcon({ className = "inline-flex w-5 h-5" }: { className?: string }) {
   return (
     <svg className={className} width="24" height="24" fill="none" viewBox="0 0 24 24">
-      <title>URI Icon</title>
+      <title>URI icon</title>
       <path
         stroke="currentColor"
         strokeLinecap="round"

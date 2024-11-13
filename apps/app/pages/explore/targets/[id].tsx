@@ -1,3 +1,4 @@
+import Address from "@app/components/Address";
 import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { Panel } from "@app/components/Panel";
 import { URI } from "@app/components/URI";
@@ -29,7 +30,9 @@ const Target: NextPage = () => {
               <Panel title={t("overview")}>
                 <div className="grid grid-cols-3 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                   <div className="font-semibold">{t("id")}</div>
-                  <div className=" col-span-2 text-left truncate">{targets?.[0].id}</div>
+                  <div className=" col-span-2 text-left">
+                    <Address address={targets?.[0].id} addressType="long-id" />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-3 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
@@ -42,9 +45,12 @@ const Target: NextPage = () => {
                 <div className="grid grid-cols-3 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                   <div className="font-semibold">{t("URI")}</div>
                   <div className="flex col-span-2 justify-start">
-                    <div className=" truncate">{targets?.[0].targetURI}</div>
-                    <CopyAndPaste value={targets?.[0].targetURI} />
-                    <URI value={targets?.[0].targetURI} hoverText={t("open-in-new-tab")} />
+                    <Address
+                      address={targets?.[0].targetURI}
+                      addressType="url"
+                      href={targets?.[0].targetURI}
+                      explorerLink={false}
+                    />
                   </div>
                 </div>
               </Panel>

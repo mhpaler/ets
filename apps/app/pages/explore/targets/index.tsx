@@ -1,15 +1,11 @@
 import Address from "@app/components/Address";
-import { CopyAndPaste } from "@app/components/CopyAndPaste";
 import { TanstackTable } from "@app/components/TanstackTable";
 import { TimeAgo } from "@app/components/TimeAgo";
-import { Truncate } from "@app/components/Truncate";
-import { URI } from "@app/components/URI";
 import { useTargets } from "@app/hooks/useTargets";
 import Layout from "@app/layouts/default";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
-import Link from "next/link";
 import { useMemo, useState } from "react";
 
 const pageSize = 20;
@@ -21,9 +17,7 @@ const Targets: NextPage = () => {
     pageSize,
     skip: pageIndex * pageSize,
   });
-
   const columnHelper = createColumnHelper();
-
   const columns = useMemo<any[]>(
     () => [
       columnHelper.accessor("id", {
@@ -31,15 +25,7 @@ const Targets: NextPage = () => {
         cell: (info) => {
           const target = info.row.original as any;
           return (
-            target.id && (
-              <Address
-                hoverText={false}
-                copy={false}
-                explorerLink={false}
-                address={target.id}
-                href={`/explore/targets/${target.id}`}
-              />
-            )
+            target.id && <Address address={target.id} addressType="long-id" href={`/explore/targets/${target.id}`} />
           );
         },
       }),
@@ -51,11 +37,7 @@ const Targets: NextPage = () => {
         header: t("URI"),
         cell: (info) => (
           <div className="flex items-center">
-            <span className="block truncate max-w-[60ch]">{info.getValue()}</span>
-            <div className="flex-shrink-0 flex">
-              <CopyAndPaste value={info.getValue()} />
-              <URI value={info.getValue()} hoverText={t("open-in-new-tab")} />
-            </div>
+            <Address address={info.getValue()} addressType="url" href={info.getValue()} explorerLink={false} />
           </div>
         ),
       }),

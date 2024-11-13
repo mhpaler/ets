@@ -77,3 +77,7 @@
 .auto-tooltip-width .lg\:tooltip:before {
   max-width: fit-content;
 }
+
+.fixed-tooltip-width .lg\:tooltip:before {
+  max-width: 22rem;
+}

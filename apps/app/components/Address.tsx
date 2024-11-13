@@ -9,8 +9,8 @@ import { URI } from "./URI";
 
 interface AddressProps {
   address?: string | Hex;
+  addressType?: "evm" | "long-id" | "url";
   ens?: string | null;
-  truncateLength?: number;
   hoverText?: boolean;
   href?: string;
   copy?: boolean;
@@ -23,8 +23,8 @@ interface AddressProps {
  *
  * @component
  * @param {string | Hex} address - Ethereum address to display
+ * @param {string} addressType - Type of address (default: "evm")
  * @param {string | null} ens - ENS name if available
- * @param {number} truncateLength - Length to truncate address (default: 14)
  * @param {boolean} hoverText - Show hover text on hover (default: true)
  * @param {string} href - Optional link destination for the address
  * @param {boolean} copy - Show copy button (default: true)
@@ -54,13 +54,12 @@ interface AddressProps {
  * * Custom truncation length
  * <Address
  *   address="0x123...abc"
- *   truncateLength={8}
  * />
  */
 const Address: React.FC<AddressProps> = ({
   address,
+  addressType = "evm",
   ens,
-  truncateLength = 14,
   hoverText = true,
   href,
   copy = true,
@@ -68,16 +67,22 @@ const Address: React.FC<AddressProps> = ({
 }) => {
   const { t } = useTranslation("common");
   const getExplorerUrl = useExplorerUrl();
-  const displayText = ens || Truncate(address, truncateLength, "middle");
-
+  const tooltipClass = addressType === "evm" ? "auto-tooltip-width" : "fixed-tooltip-width";
+  let truncateLength = 14; // default for EVM addresses
+  if (addressType === "url") {
+    truncateLength = 32;
+  } else if (addressType === "long-id") {
+    truncateLength = 18;
+  }
+  const displayText = ens || Truncate(address, truncateLength, addressType === "evm" ? "middle" : "end");
   const addressDisplay = hoverText ? (
-    <div className="auto-tooltip-width">
-      <span className="lg:tooltip lg:tooltip-primary z-50" data-tip={address}>
+    <div className={tooltipClass}>
+      <span className="lg:tooltip lg:tooltip-primary whitespace-normal break-words" data-tip={address}>
         {displayText}
       </span>
     </div>
   ) : (
-    <span>{displayText}</span>
+    <span>displayText</span>
   );
 
   return (

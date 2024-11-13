@@ -1,9 +1,14 @@
+import Address from "@app/components/Address";
+import { Panel } from "@app/components/Panel";
+import { TagGraphic } from "@app/components/TagGraphic";
+import { TaggingRecords } from "@app/components/TaggingRecords";
 import WithinTagAuctionDisplay from "@app/components/auction/WithinTagAuctionDisplay";
 import { AuctionProvider } from "@app/context/AuctionContext";
 import { useEnvironmentContext } from "@app/context/EnvironmentContext";
 import { useCtags } from "@app/hooks/useCtags";
 import { useCurrentChain } from "@app/hooks/useCurrentChain";
 import Layout from "@app/layouts/default";
+import type { TagType } from "@app/types/tag";
 import { timestampToString, toEth } from "@app/utils";
 import { getChainInfo } from "@app/utils/getChainInfo";
 import type { NextPage } from "next";
@@ -12,18 +17,9 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
-import Address from "@app/components/Address";
-import { Panel } from "@app/components/Panel";
-import { TagGraphic } from "@app/components/TagGraphic";
-import { TaggingRecords } from "@app/components/TaggingRecords";
-import { URI } from "@app/components/URI";
-import { useExplorerUrl } from "@app/hooks/useExplorerUrl";
-import type { TagType } from "@app/types/tag";
-
 const Tag: NextPage = () => {
   const { query } = useRouter();
   const { network } = useEnvironmentContext();
-  const getExplorerUrl = useExplorerUrl();
   const { displayName } = getChainInfo(network);
 
   const chain = useCurrentChain();
@@ -99,8 +95,7 @@ const Tag: NextPage = () => {
             <div className="font-semibold">{t("id")}</div>
             <div className="flex space-x-1">
               <div className="grid flex-grow md:grid-flow-col justify-end">
-                <div className="truncate">{safeTag.id}</div>
-                <URI value={getExplorerUrl("nft", safeTag.id)} hoverText={t("view-on-explorer")} />
+                <Address address={safeTag.id} addressType="long-id" />
               </div>
             </div>
           </div>
