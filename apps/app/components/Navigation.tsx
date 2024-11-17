@@ -36,9 +36,9 @@ export default function Navigation() {
             </div>
           </Link>
         </div>
-        <ul className="menu  font-normal text-slate-500 ml-0 pl-0">
+        <ul className="menu font-medium text-slate-600 ml-0 pl-0 [&_a:hover]:text-slate-900">
           <li>
-            <Link className={isActive("explore") ? "text-gray-950 bg-slate-100" : ""} href="/explore">
+            <Link className={isActive("explore") ? "text-slate-950 bg-slate-100" : ""} href="/explore">
               <span className="-mr-1.5">
                 <Globe size={24} />
               </span>

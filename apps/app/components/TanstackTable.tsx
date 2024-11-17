@@ -122,7 +122,7 @@ const TanstackTable = <TData extends object>({
   return (
     <div className="col-span-12">
       {title && <h2 className="text-2xl font-medium pb-4">{title}</h2>}
-      <div className="overflow-x-auto md:overflow-visible border border-gray-200 rounded-lg">
+      <div className="overflow-x-auto md:overflow-visible border border-slate-200 rounded-lg">
         {loading ? (
           <div className="transition-opacity duration-500 opacity-100">{tableContent}</div>
         ) : (
