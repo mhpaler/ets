@@ -3,7 +3,8 @@ import { Truncate } from "@app/components/Truncate";
 import { useExplorerUrl } from "@app/hooks/useExplorerUrl";
 import useTranslation from "next-translate/useTranslation";
 import Link from "next/link.js";
-import type React from "react";
+import { useMemo } from "react";
+import { memo } from "react";
 import type { Hex } from "viem";
 import { URI } from "./URI";
 
@@ -56,6 +57,19 @@ interface AddressProps {
  *   address="0x123...abc"
  * />
  */
+
+const TRUNCATE_LENGTHS = {
+  evm: 14,
+  "long-id": 18,
+  url: 22,
+} as const;
+
+const TOOLTIP_CLASSES = {
+  evm: "auto-tooltip-width",
+  "long-id": "fixed-tooltip-width",
+  url: "fixed-tooltip-width",
+} as const;
+
 const Address: React.FC<AddressProps> = ({
   address,
   addressType = "evm",
@@ -67,14 +81,11 @@ const Address: React.FC<AddressProps> = ({
 }) => {
   const { t } = useTranslation("common");
   const getExplorerUrl = useExplorerUrl();
-  const tooltipClass = addressType === "evm" ? "auto-tooltip-width" : "fixed-tooltip-width";
-  let truncateLength = 14; // default for EVM addresses
-  if (addressType === "url") {
-    truncateLength = 32;
-  } else if (addressType === "long-id") {
-    truncateLength = 18;
-  }
-  const displayText = ens || Truncate(address, truncateLength, addressType === "evm" ? "middle" : "end");
+  const tooltipClass = TOOLTIP_CLASSES[addressType];
+  const displayText = useMemo(
+    () => ens || Truncate(address, TRUNCATE_LENGTHS[addressType], addressType === "evm" ? "middle" : "end"),
+    [address, ens, addressType],
+  );
   const addressDisplay = hoverText ? (
     <div className={tooltipClass}>
       <span className="lg:tooltip lg:tooltip-primary whitespace-normal break-words" data-tip={address}>
@@ -82,7 +93,7 @@ const Address: React.FC<AddressProps> = ({
       </span>
     </div>
   ) : (
-    <span>displayText</span>
+    <span>{displayText}</span>
   );
 
   return (
@@ -105,5 +116,4 @@ const Address: React.FC<AddressProps> = ({
     </span>
   );
 };
-
-export default Address;
+export default memo(Address);

@@ -36,9 +36,9 @@ export default function Navigation() {
             </div>
           </Link>
         </div>
-        <ul className="menu font-normal text-gray-400 ml-0 pl-0">
+        <ul className="menu  font-normal text-slate-500 ml-0 pl-0">
           <li>
-            <Link className={isActive("explore") ? "text-gray-950 bg-gray-50" : ""} href="/explore">
+            <Link className={isActive("explore") ? "text-gray-950 bg-slate-100" : ""} href="/explore">
               <span className="-mr-1.5">
                 <Globe size={24} />
               </span>
@@ -47,7 +47,7 @@ export default function Navigation() {
             <ul>
               <li>
                 <Link
-                  className={isActive("tagging-records") ? "text-gray-950 bg-gray-50" : ""}
+                  className={isActive("tagging-records") ? "text-gray-950 bg-slate-100" : ""}
                   href="/explore/tagging-records"
                 >
                   <span className="-mr-1.5">
@@ -57,7 +57,7 @@ export default function Navigation() {
                 </Link>
               </li>
               <li>
-                <Link className={isActive("tags") ? "text-gray-950 bg-gray-50" : ""} href="/explore/tags">
+                <Link className={isActive("tags") ? "text-gray-950 bg-slate-100" : ""} href="/explore/tags">
                   <span className="-mr-1.5">
                     <Tag size={24} />
                   </span>
@@ -65,7 +65,7 @@ export default function Navigation() {
                 </Link>
               </li>
               <li>
-                <Link className={isActive("targets") ? "text-gray-950 bg-gray-50" : ""} href="/explore/targets">
+                <Link className={isActive("targets") ? "text-gray-950 bg-slate-100" : ""} href="/explore/targets">
                   <span className="-mr-1.5">
                     <Target size={24} />
                   </span>
@@ -73,7 +73,7 @@ export default function Navigation() {
                 </Link>
               </li>
               <li>
-                <Link className={isActive("relayers") ? "text-gray-950 bg-gray-50" : ""} href="/explore/relayers">
+                <Link className={isActive("relayers") ? "text-gray-950 bg-slate-100" : ""} href="/explore/relayers">
                   <span className="-mr-1.5">
                     <Relayer size={24} />
                   </span>
@@ -81,17 +81,17 @@ export default function Navigation() {
                 </Link>
               </li>
               <li>
-                <Link className={isActive("taggers") ? "text-gray-950 bg-gray-50" : ""} href="/explore/taggers">
+                <Link className={isActive("taggers") ? "text-gray-950 bg-slate-100" : ""} href="/explore/taggers">
                   {t("taggers")}
                 </Link>
               </li>
               <li>
-                <Link className={isActive("creators") ? "text-gray-950 bg-gray-50" : ""} href="/explore/creators">
+                <Link className={isActive("creators") ? "text-gray-950 bg-slate-100" : ""} href="/explore/creators">
                   {t("tag-creators")}
                 </Link>
               </li>
               <li>
-                <Link className={isActive("owners") ? "text-gray-950 bg-gray-50" : ""} href="/explore/owners">
+                <Link className={isActive("owners") ? "text-gray-950 bg-slate-100" : ""} href="/explore/owners">
                   {t("tag-owners")}
                 </Link>
               </li>
@@ -99,7 +99,7 @@ export default function Navigation() {
           </li>
 
           <li>
-            <Link className={isActive("auction") ? "text-gray-950 bg-gray-50" : ""} href="/auction">
+            <Link className={isActive("auction") ? "text-gray-950 bg-slate-100" : ""} href="/auction">
               <span className="-mr-1.5">
                 <AuctionIcon size={24} />
               </span>
@@ -108,7 +108,7 @@ export default function Navigation() {
           </li>
 
           <li>
-            <Link className={isActive("playground") ? "text-gray-950 bg-gray-50" : ""} href="/playground">
+            <Link className={isActive("playground") ? "text-gray-950 bg-slate-100" : ""} href="/playground">
               <span className="-mr-1.5">
                 <Playground size={24} />
               </span>

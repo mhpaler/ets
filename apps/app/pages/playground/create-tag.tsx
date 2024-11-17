@@ -35,7 +35,6 @@ const CreateTag: NextPage = () => {
     if (!isConnected) return t("connect-wallet");
     if (!tags.length) return t("please-enter-a-tag");
     if (!selectedRelayer) return t("please-select-a-relayer");
-    //if (!isCorrectNetwork) return t("connect");
     if (isCreatingTag) return t("creating-tags");
     return "";
   };

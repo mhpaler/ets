@@ -64,11 +64,10 @@ const TaggingRecords: NextPage<Props> = ({
             onKeyDown={(e) => {
               e.stopPropagation();
             }}
+            className="flex flex-wrap gap-2"
           >
             {(info.getValue() as any[]).map((tag: any, i: number) => (
-              <span key={i} className="mr-2 pb-2 inline-block">
-                <Tag tag={tag} />
-              </span>
+              <Tag key={i} tag={tag} />
             ))}
           </div>
         ),

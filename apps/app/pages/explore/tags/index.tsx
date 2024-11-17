@@ -27,7 +27,7 @@ const Ctags: NextPage = () => {
           tags={tags}
           loading={isLoading}
           columns={["tag", "created", "taggingRecords", "totalRevenue"]}
-          rowLink={false}
+          rowLink={true}
           pageIndex={pageIndex}
           setPageIndex={setPageIndex}
           hasNextPage={!!nextTags?.length}

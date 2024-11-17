@@ -104,19 +104,17 @@ const Tags: React.FC<Props> = ({
   );
 
   return (
-    <div className="col-span-12">
-      <TanstackTable
-        loading={loading}
-        columns={selectedColumns}
-        data={tags}
-        hasNextPage={hasNextPage}
-        rowsPerPage={pageSize}
-        title={title}
-        pageIndex={pageIndex}
-        setPageIndex={setPageIndex}
-        rowLink={typeof rowLink === "function" ? rowLink : rowLink ? (tag: TagType) => `/tag/${tag.id}` : undefined}
-      />
-    </div>
+    <TanstackTable
+      loading={loading}
+      columns={selectedColumns}
+      data={tags}
+      hasNextPage={hasNextPage}
+      rowsPerPage={pageSize}
+      title={title}
+      pageIndex={pageIndex}
+      setPageIndex={setPageIndex}
+      rowLink={typeof rowLink === "function" ? rowLink : rowLink ? (tag: TagType) => `/tag/${tag.id}` : undefined}
+    />
   );
 };
 

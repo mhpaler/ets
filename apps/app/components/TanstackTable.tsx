@@ -98,7 +98,7 @@ const TanstackTable = <TData extends object>({
               <tr
                 key={`table-row-${row.id}-${rowIndex}`}
                 className={`${
-                  rowLink && !isModalOpen ? "hover:bg-base-200 cursor-pointer" : ""
+                  rowLink && !isModalOpen ? "hover:bg-slate-50 cursor-pointer" : ""
                 } ${isDataReady ? "opacity-100 transition-opacity duration-700" : "opacity-0"}`}
                 onClick={() => rowLink && !isModalOpen && router.push(String(rowLink(row.original)))}
                 onKeyUp={(e) => {
