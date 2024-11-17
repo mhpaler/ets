@@ -2,21 +2,19 @@ import Address from "@app/components/Address";
 import { Tag } from "@app/components/Tag";
 import { TanstackTable } from "@app/components/TanstackTable";
 import { TimeAgo } from "@app/components/TimeAgo";
-import { URI } from "@app/components/URI";
 import { globalSettings } from "@app/config/globalSettings";
-import { useExplorerUrl } from "@app/hooks/useExplorerUrl";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
 import type { TagType } from "@app/types/tag";
-import { etsTokenConfig } from "@ethereum-tag-service/contracts/contracts";
+import { toEth } from "@app/utils";
 import { createColumnHelper } from "@tanstack/react-table";
 import useTranslation from "next-translate/useTranslation";
-import Link from "next/link";
 import type React from "react";
 import { useMemo } from "react";
-import { useChainId } from "wagmi";
 
-type ColumnKey = "tag" | "created" | "owner" | "creator" | "relayer" | "timestamp" | "taggingRecords";
+type ColumnKey = "tag" | "created" | "owner" | "creator" | "relayer" | "timestamp" | "taggingRecords" | "totalRevenue";
 
 type Props = {
+  loading: boolean;
   title?: string;
   pageSize?: number;
   tags: TagType[];
@@ -28,6 +26,7 @@ type Props = {
 };
 
 const Tags: React.FC<Props> = ({
+  loading,
   title,
   tags,
   pageSize = globalSettings.DEFAULT_PAGESIZE,
@@ -38,21 +37,13 @@ const Tags: React.FC<Props> = ({
   hasNextPage,
 }) => {
   const { t } = useTranslation("common");
-  const chainId = useChainId();
-  const getExplorerUrl = useExplorerUrl();
-  const etsTokenAddress = etsTokenConfig.address[chainId as keyof typeof etsTokenConfig.address];
+  const chain = useCurrentChain();
   const columnHelper = createColumnHelper<TagType>();
-
   const columnConfigs = useMemo(
     () => ({
       tag: columnHelper.accessor("display", {
         header: () => "Tag",
-        cell: (info) => (
-          <div className="flex items-center">
-            <Tag tag={info.row.original} />
-            <URI value={getExplorerUrl("token", `${etsTokenAddress}/${info.row.original.id}`)} />
-          </div>
-        ),
+        cell: (info) => <Tag tag={info.row.original} />,
       }),
       created: columnHelper.accessor("timestamp", {
         header: () => "Created",
@@ -62,31 +53,19 @@ const Tags: React.FC<Props> = ({
         header: () => t("owner"),
         cell: (info) => {
           const owner = info.getValue();
-          return (
-            <Link href={`/explore/owners/${owner.id}`} className="link link-primary">
-              <Address address={owner.id} ens={owner.ens} />
-            </Link>
-          );
+          return <Address href="{`/explore/owners/${owner.id}`}" address={owner.id} ens={owner.ens} />;
         },
       }),
       creator: columnHelper.accessor("creator", {
         header: () => t("creator"),
         cell: (info) => {
           const creator = info.getValue();
-          return (
-            <Link href={`/explore/creators/${creator.id}`} className="link link-primary">
-              <Address address={creator.id} ens={creator.ens} />
-            </Link>
-          );
+          return <Address href={`/explore/creators/${creator.id}`} address={creator.id} ens={creator.ens} />;
         },
       }),
       relayer: columnHelper.accessor("relayer.id", {
         header: () => t("relayer"),
-        cell: (info) => (
-          <Link href={`/explore/relayers/${info.getValue()}`} className="link link-primary">
-            <Address address={info.getValue()} />
-          </Link>
-        ),
+        cell: (info) => <Address href={`/explore/relayers/${info.getValue()}`} address={info.getValue()} />,
       }),
       timestamp: columnHelper.accessor("timestamp", {
         header: () => "Created",
@@ -94,9 +73,29 @@ const Tags: React.FC<Props> = ({
       }),
       taggingRecords: columnHelper.accessor("tagAppliedInTaggingRecord", {
         header: () => "Tagging Records",
+        id: "taggingRecords",
       }),
+      totalRevenue: columnHelper.accessor(
+        (row) => {
+          return (
+            Number(row.relayerRevenue) +
+            Number(row.ownerRevenue) +
+            Number(row.protocolRevenue) +
+            Number(row.creatorRevenue)
+          );
+        },
+        {
+          header: () => t("total-revenue"),
+          id: "totalRevenue",
+          cell: (info) => (
+            <span>
+              {toEth(info.getValue(), 8)} {chain?.nativeCurrency.symbol}
+            </span>
+          ),
+        },
+      ),
     }),
-    [columnHelper, t, etsTokenAddress, getExplorerUrl],
+    [columnHelper, t, chain?.nativeCurrency.symbol],
   );
 
   const selectedColumns = useMemo(
@@ -105,19 +104,17 @@ const Tags: React.FC<Props> = ({
   );
 
   return (
-    <div className="col-span-12">
-      <TanstackTable
-        columns={selectedColumns}
-        data={tags}
-        hasNextPage={hasNextPage}
-        loading={!tags?.length}
-        rowsPerPage={pageSize}
-        title={title}
-        pageIndex={pageIndex}
-        setPageIndex={setPageIndex}
-        rowLink={typeof rowLink === "function" ? rowLink : rowLink ? (tag: TagType) => `/tag/${tag.id}` : undefined}
-      />
-    </div>
+    <TanstackTable
+      loading={loading}
+      columns={selectedColumns}
+      data={tags}
+      hasNextPage={hasNextPage}
+      rowsPerPage={pageSize}
+      title={title}
+      pageIndex={pageIndex}
+      setPageIndex={setPageIndex}
+      rowLink={typeof rowLink === "function" ? rowLink : rowLink ? (tag: TagType) => `/tag/${tag.id}` : undefined}
+    />
   );
 };
 

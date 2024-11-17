@@ -23,7 +23,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           <div className="lg:p-5">
             <Header />
           </div>
-          <div className="grid grid-cols-12 grid-rows-[min-content] gap-y-12 lg:gap-x-12 p-4 max-w-[1200px] mx-auto">
+          <div className="grid grid-cols-12 grid-rows-[min-content] gap-y-4 lg:gap-x-12 p-4 max-w-[1200px] mx-auto">
             <PageInfo />
             {children}
           </div>

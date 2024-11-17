@@ -1,14 +1,14 @@
+import { globalSettings } from "@app/config/globalSettings";
 /**
  * @module SystemContext
  */
-
-import { globalSettings } from "@app/config/globalSettings";
-import { useAuctionHouseService } from "@app/services/auctionHouseService";
+import { wagmiConfig } from "@app/config/wagmiConfig";
 import type { System } from "@app/types/system";
 import { useAccessControlsClient, useTokenClient } from "@ethereum-tag-service/sdk-react-hooks";
 import type React from "react";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useAccount } from "wagmi";
+import { getBlock } from "wagmi/actions";
 
 // Define the default values and functions
 const defaultSystemContextValue: System = {
@@ -48,8 +48,20 @@ export const SystemProvider: React.FC<Props> = ({ children }: { children: React.
   const { accessControlsClient } = useAccessControlsClient(clientConfig);
   const { tokenClient, getOwnershipTermLength } = useTokenClient(clientConfig);
 
-  const { fetchBlockchainTime } = useAuctionHouseService();
+  const fetchBlockchainTime = useCallback(async (): Promise<number> => {
+    try {
+      const block = await getBlock(wagmiConfig, {
+        blockTag: "latest",
+      });
+      return block ? Number(block.timestamp) : 0;
+    } catch (error) {
+      console.error("Failed to fetch blockchain time:", error);
+      return 0;
+    }
+  }, []);
+
   const blockchainTime = useCallback(() => Math.floor(Date.now() / 1000) - timeDifference, [timeDifference]);
+
   const updateBlockchainTime = useCallback(async () => {
     try {
       const blockchainTimestamp = await fetchBlockchainTime();

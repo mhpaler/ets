@@ -6,7 +6,7 @@ import { fetcher } from "@app/utils/fetchers";
 import { getChainInfo } from "@app/utils/getChainInfo";
 import { etsAuctionHouseConfig } from "@ethereum-tag-service/contracts/contracts";
 import { useCallback, useMemo } from "react";
-import { getBlock, readContract, watchContractEvent } from "wagmi/actions";
+import { readContract, watchContractEvent } from "wagmi/actions";
 
 type FetchAuctionsResponse = {
   auctions: Auction[];
@@ -89,19 +89,6 @@ export const useAuctionHouseService = () => {
     },
     [auctionHouseConfig, isValidNetwork],
   );
-
-  const fetchBlockchainTime = useCallback(async (): Promise<number> => {
-    if (!isValidNetwork) return 0;
-    try {
-      const block = await getBlock(wagmiConfig, {
-        blockTag: "latest",
-      });
-      return block ? Number(block.timestamp) : 0;
-    } catch (error) {
-      console.error("Failed to fetch blockchain time:", error);
-      return 0;
-    }
-  }, [isValidNetwork]);
 
   const fetchMaxAuctions = useCallback(async (): Promise<number> => {
     if (!isValidNetwork || !auctionHouseConfig) return 0;
@@ -310,7 +297,6 @@ export const useAuctionHouseService = () => {
     watchAuctionPaused,
     watchAuctionUnpaused,
     watchNewAuctionReleased,
-    fetchBlockchainTime,
     fetchMaxAuctions,
     fetchCurrentAuctionId,
     fetchAuction,

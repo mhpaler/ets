@@ -1,5 +1,6 @@
 // utils.ts
 
+import { etsTokenAddress } from "./contracts";
 // Importing the chainsConfig types and objects to use in utility functions.
 import { type SupportedChain, type SupportedChainId, chains } from "./multiChainConfig";
 
@@ -27,10 +28,14 @@ export const getExplorerUrl = (
   // Fallback to Etherscan if the block explorer for the specific chain is unavailable.
   const baseUrl = chain.blockExplorers?.default?.url || "https://etherscan.io";
 
+  if (type === "nft" || type === "token") {
+    const contractAddress = etsTokenAddress[chainId as keyof typeof etsTokenAddress];
+    return `${baseUrl}/${type}/${contractAddress}/${hash}`;
+  }
+
   // Return the fully constructed block explorer URL.
   return `${baseUrl}/${type}/${hash}`;
 };
-
 /**
  * Generates the base Alchemy RPC URL for a given chain name.
  * @param chainName - The name of the chain (e.g., "arbitrumSepolia" or "baseSepolia").

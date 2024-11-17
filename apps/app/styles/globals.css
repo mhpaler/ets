@@ -34,16 +34,9 @@
   @apply font-semibold text-sm border-0 text-white p-0 hover:scale-100 !important;
 }
 
-/*
-.navbar {
-  padding-left: 0;
-  padding-right: 0;
+.menu li > *:not(ul):hover {
+  background-color: #e2e8f0 !important;
 }
-
-.navbar .menu {
-  padding: 0;
-}
-*/
 
 .menu :where(li ul) {
   margin-inline-start: 1.7rem;
@@ -72,4 +65,12 @@
 
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out forwards;
+}
+
+.auto-tooltip-width .lg\:tooltip:before {
+  max-width: fit-content;
+}
+
+.fixed-tooltip-width .lg\:tooltip:before {
+  max-width: 22rem;
 }

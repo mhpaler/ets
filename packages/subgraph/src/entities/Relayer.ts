@@ -1,13 +1,16 @@
 import { Address, BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
+import { ensureGlobalSettings } from "../entities/GlobalSettings";
 import { ensureTag } from "../entities/Tag";
 import { ETSAccessControls } from "../generated/ETSAccessControls/ETSAccessControls";
+import { AuctionSettled } from "../generated/ETSAuctionHouse/ETSAuctionHouse";
 import { Transfer } from "../generated/ETSToken/ETSToken";
-import { Relayer, Release } from "../generated/schema";
+import { Relayer, Release, Tag } from "../generated/schema";
 import { ETSRelayerV1 } from "../generated/templates/ETSRelayerV1/ETSRelayerV1";
 import { arrayDiff } from "../utils/arrayDiff";
-import { APPEND, CREATE, ONE, RELAYER, REMOVE, ZERO, ZERO_ADDRESS } from "../utils/constants";
+import { APPEND, CREATE, MODULO, ONE, RELAYER, REMOVE, ZERO, ZERO_ADDRESS } from "../utils/constants";
 import { getTaggingFee } from "../utils/getTaggingFee";
 import { logCritical } from "../utils/logCritical";
+import { ensureAuction } from "./Auction";
 
 export function ensureRelayer(relayerAddress: Address, event: ethereum.Event): Relayer {
   let relayer = Relayer.load(relayerAddress.toHex());
@@ -71,6 +74,7 @@ export function ensureRelayer(relayerAddress: Address, event: ethereum.Event): R
     relayer.taggingRecordTxns = ZERO;
     relayer.publishedTagsAddedToTaggingRecords = ZERO;
     relayer.publishedTagsRemovedFromTaggingRecords = ZERO;
+    relayer.publishedTagsAuctioned = ZERO;
     relayer.publishedTagsAuctionRevenue = ZERO;
     relayer.publishedTagsTaggingFeeRevenue = ZERO;
     relayer.save();
@@ -90,6 +94,19 @@ export function updateRelayerTagStats(relayerAddress: Address, event: Transfer):
   }
 }
 
+function updateRelayerRevenue(relayer: Relayer, tag: Tag, relayerFee: GraphBigInt): void {
+  relayer.taggingRecordTxns = relayer.taggingRecordTxns.plus(ONE);
+
+  const relayerBytes = Address.fromString(relayer.id);
+  const tagRelayerBytes = Address.fromString(tag.relayer);
+
+  if (relayerBytes.equals(tagRelayerBytes)) {
+    relayer.publishedTagsAddedToTaggingRecords = relayer.publishedTagsAddedToTaggingRecords.plus(ONE);
+    relayer.publishedTagsTaggingFeeRevenue = relayer.publishedTagsTaggingFeeRevenue.plus(relayerFee);
+  }
+  relayer.save();
+}
+
 export function updateRelayerTaggingRecordStats(
   relayerAddress: Address,
   newTagIds: string[] | null,
@@ -97,65 +114,55 @@ export function updateRelayerTaggingRecordStats(
   action: GraphBigInt,
   event: ethereum.Event,
 ): void {
-  const relayer = ensureRelayer(relayerAddress, event);
+  if (!newTagIds || !previousTagIds) return;
 
-  // Log relayer lifetime txn count, no matter the tagging action.
-  relayer.taggingRecordTxns = relayer.taggingRecordTxns.plus(ONE);
+  const relayer = ensureRelayer(relayerAddress, event);
+  const relayerFee = getTaggingFee(RELAYER);
 
   if (action === CREATE) {
-    // This relayer is hosting a new tagging record.
     relayer.taggingRecordsPublished = relayer.taggingRecordsPublished.plus(ONE);
-  }
+    relayer.tagsApplied = relayer.tagsApplied.plus(GraphBigInt.fromI32(newTagIds.length));
 
-  if (newTagIds && previousTagIds) {
-    if (action === CREATE) {
-      relayer.tagsApplied = relayer.tagsApplied.plus(GraphBigInt.fromI32(newTagIds.length));
-    }
-
-    // Log the relayers action count regardless of tag provenance.
-    if (action === APPEND) {
-      const appendedTagIds = arrayDiff(newTagIds, previousTagIds);
-      relayer.tagsApplied = relayer.tagsApplied.plus(GraphBigInt.fromI32(appendedTagIds.length));
-    }
-
-    if (action === REMOVE) {
-      const removedTagIds = arrayDiff(previousTagIds, newTagIds);
-      relayer.tagsRemoved = relayer.tagsRemoved.plus(GraphBigInt.fromI32(removedTagIds.length));
-    }
-
-    // Next go through each tag and if relayer is the original tag relayer, log those stats.
-    const relayerFee = getTaggingFee(RELAYER);
-
-    if (action === CREATE) {
-      for (let i = 0; i < newTagIds.length; i++) {
-        const tag = ensureTag(GraphBigInt.fromString(newTagIds[i]), event);
-        if (tag.relayer === relayerAddress.toHex()) {
-          relayer.publishedTagsAddedToTaggingRecords = relayer.publishedTagsAddedToTaggingRecords.plus(ONE);
-          relayer.publishedTagsTaggingFeeRevenue = relayer.publishedTagsTaggingFeeRevenue.plus(relayerFee);
-        }
-      }
-    }
-
-    if (action === APPEND) {
-      const appendedTagIds = arrayDiff(newTagIds, previousTagIds);
-      for (let i = 0; i < appendedTagIds.length; i++) {
-        const tag = ensureTag(GraphBigInt.fromString(appendedTagIds[i]), event);
-        if (tag.relayer === relayerAddress.toHex()) {
-          relayer.publishedTagsAddedToTaggingRecords = relayer.publishedTagsAddedToTaggingRecords.plus(ONE);
-          relayer.publishedTagsTaggingFeeRevenue = relayer.publishedTagsTaggingFeeRevenue.plus(relayerFee);
-        }
-      }
-    }
-
-    if (action === REMOVE) {
-      const removedTagIds = arrayDiff(previousTagIds, newTagIds);
-      for (let i = 0; i < removedTagIds.length; i++) {
-        const tag = ensureTag(GraphBigInt.fromString(removedTagIds[i]), event);
-        if (tag.relayer === relayerAddress.toHex()) {
-          relayer.publishedTagsRemovedFromTaggingRecords = relayer.publishedTagsRemovedFromTaggingRecords.plus(ONE);
-        }
-      }
+    for (let i = 0; i < newTagIds.length; i++) {
+      const tag = ensureTag(GraphBigInt.fromString(newTagIds[i]), event);
+      updateRelayerRevenue(relayer, tag, relayerFee);
     }
   }
-  relayer.save();
+
+  if (action === APPEND) {
+    const appendedTagIds = arrayDiff(newTagIds, previousTagIds);
+    relayer.tagsApplied = relayer.tagsApplied.plus(GraphBigInt.fromI32(appendedTagIds.length));
+
+    for (let i = 0; i < appendedTagIds.length; i++) {
+      const tag = ensureTag(GraphBigInt.fromString(appendedTagIds[i]), event);
+      updateRelayerRevenue(relayer, tag, relayerFee);
+    }
+  }
+
+  if (action === REMOVE) {
+    const removedTagIds = arrayDiff(previousTagIds, newTagIds);
+    relayer.tagsRemoved = relayer.tagsRemoved.plus(GraphBigInt.fromI32(removedTagIds.length));
+
+    for (let i = 0; i < removedTagIds.length; i++) {
+      const tag = ensureTag(GraphBigInt.fromString(removedTagIds[i]), event);
+      if (tag.relayer === relayer.id) {
+        relayer.publishedTagsRemovedFromTaggingRecords = relayer.publishedTagsRemovedFromTaggingRecords.plus(ONE);
+      }
+    }
+    relayer.save();
+  }
+}
+
+export function updateRelayerAuctionStats(auctionId: GraphBigInt, event: AuctionSettled): void {
+  const auction = ensureAuction(auctionId, event);
+  const tag = ensureTag(GraphBigInt.fromString(auction.tag), event);
+  const relayer = ensureRelayer(Address.fromString(tag.relayer), event);
+  if (relayer && event) {
+    // pull percentages from settings.
+    const settings = ensureGlobalSettings();
+    const relayerAuctionRevenue = auction.amount.times(settings.creatorPercentage).div(MODULO);
+    relayer.publishedTagsAuctionRevenue = relayer.publishedTagsAuctionRevenue.plus(relayerAuctionRevenue);
+    relayer.publishedTagsAuctioned = relayer.publishedTagsAuctioned.plus(ONE);
+    relayer.save();
+  }
 }

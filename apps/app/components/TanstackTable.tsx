@@ -5,7 +5,7 @@ import { useModal } from "@app/hooks/useModalContext";
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import useTranslation from "next-translate/useTranslation";
 import { useRouter } from "next/router";
-import React, { type ReactNode, useMemo } from "react";
+import React, { type ReactNode, useMemo, useState, useEffect } from "react";
 
 interface TableProps<TData> {
   columns: any[];
@@ -33,6 +33,15 @@ const TanstackTable = <TData extends object>({
   const { t } = useTranslation("common");
   const { isModalOpen } = useModal();
   const router = useRouter();
+  const [isDataReady, setIsDataReady] = useState(false);
+
+  useEffect(() => {
+    if (!loading) {
+      setIsDataReady(true);
+    } else {
+      setIsDataReady(false);
+    }
+  }, [loading]);
 
   const table = useReactTable({
     data,
@@ -58,7 +67,7 @@ const TanstackTable = <TData extends object>({
   const loadingRows = useMemo(
     () =>
       [...Array(rowsPerPage)].map((_, rowIndex) => (
-        <tr key={`loading-row-${rowIndex}`} className="opacity-0 animate-fadeIn">
+        <tr key={`loading-row-${rowIndex}`} className="opacity-50 animate-pulse">
           {[...Array(columns.length)].map((_, colIndex) => (
             <td key={`loading-cell-${rowIndex}-${colIndex}`}>
               <div className="w-full h-6 rounded bg-gray-200 animate-pulse" />
@@ -69,65 +78,59 @@ const TanstackTable = <TData extends object>({
     [rowsPerPage, columns.length],
   );
 
-  const contentRows = useMemo(
-    () =>
-      table.getRowModel().rows.map((row, rowIndex) => (
-        <tr
-          key={`table-row-${row.id}-${rowIndex}`}
-          className={`${rowLink && !isModalOpen ? "hover:bg-base-200 cursor-pointer" : ""} opacity-0 animate-fadeIn`}
-          onClick={() => rowLink && !isModalOpen && router.push(String(rowLink(row.original)))}
-          onKeyUp={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              rowLink && !isModalOpen && router.push(String(rowLink(row.original)));
-            }
-          }}
-          tabIndex={0}
-        >
-          {row.getVisibleCells().map((cell, cellIndex) => (
-            <td key={`table-cell-${cell.id}-${cellIndex}`}>
-              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-            </td>
-          ))}
-        </tr>
-      )),
-    [rowLink, isModalOpen, router, table.getRowModel],
-  );
-
-  const tableContent =
-    loading && !data.length ? (
-      <table className="table bg-white">
-        <thead>
-          <tr>
-            {columns.map((_, index) => (
-              <th key={`loading-header-${index}`}>
-                <div className="h-6 bg-gray-200 rounded animate-pulse" />
+  const tableContent = (
+    <table className="table bg-white">
+      <thead>
+        {table.getHeaderGroups().map((headerGroup, index) => (
+          <tr key={`header-group-${headerGroup.id}-${index}`}>
+            {headerGroup.headers.map((header, index) => (
+              <th key={`header-${header.id}-${index}`}>
+                {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
               </th>
             ))}
           </tr>
-        </thead>
-        <tbody>{loadingRows}</tbody>
-      </table>
-    ) : (
-      <table className="table bg-white">
-        <thead>
-          {table.getHeaderGroups().map((headerGroup, index) => (
-            <tr key={`header-group-${headerGroup.id}-${index}`}>
-              {headerGroup.headers.map((header, index) => (
-                <th key={`header-${header.id}-${index}`}>
-                  {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>{loading ? loadingRows : contentRows}</tbody>
-      </table>
-    );
+        ))}
+      </thead>
+      <tbody>
+        {loading
+          ? loadingRows
+          : table.getRowModel().rows.map((row, rowIndex) => (
+              <tr
+                key={`table-row-${row.id}-${rowIndex}`}
+                className={`${
+                  rowLink && !isModalOpen ? "hover:bg-slate-50 cursor-pointer" : ""
+                } ${isDataReady ? "opacity-100 transition-opacity duration-700" : "opacity-0"}`}
+                onClick={() => rowLink && !isModalOpen && router.push(String(rowLink(row.original)))}
+                onKeyUp={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    rowLink && !isModalOpen && router.push(String(rowLink(row.original)));
+                  }
+                }}
+                tabIndex={0}
+              >
+                {row.getVisibleCells().map((cell, cellIndex) => (
+                  <td key={`table-cell-${cell.id}-${cellIndex}`}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+      </tbody>
+    </table>
+  );
 
   return (
     <div className="col-span-12">
-      {title && <h2 className="text-2xl font-bold pb-4">{title}</h2>}
-      <div className="overflow-x-auto border border-gray-200 rounded-lg">{tableContent}</div>
+      {title && <h2 className="text-2xl font-medium pb-4">{title}</h2>}
+      <div className="overflow-x-auto md:overflow-visible border border-slate-200 rounded-lg">
+        {loading ? (
+          <div className="transition-opacity duration-500 opacity-100">{tableContent}</div>
+        ) : (
+          <div className={`transition-opacity duration-500 ${isDataReady ? "opacity-100" : "opacity-0"}`}>
+            {tableContent}
+          </div>
+        )}
+      </div>
       {setPageIndex && (
         <div className="flex justify-between mt-2 py-2">
           <Button className="btn-sm" disabled={pageIndex === 0} onClick={prevPage}>

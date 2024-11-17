@@ -1,5 +1,7 @@
 import { Address, BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts/index";
+import { ensureGlobalSettings } from "../entities/GlobalSettings";
 import { ensurePlatform } from "../entities/Platform";
+
 import { ETSToken } from "../generated/ETSToken/ETSToken";
 import { Platform, Release, Tag } from "../generated/schema";
 import { arrayDiff } from "../utils/arrayDiff";
@@ -28,6 +30,11 @@ export function ensureTag(id: GraphBigInt, event: ethereum.Event): Tag {
     tag.creator = getTagCall.value.creator.toHexString();
     tag.relayer = getTagCall.value.relayer.toHexString();
     tag.timestamp = event.block.timestamp;
+    tag.lastRenewalDate = ZERO;
+    tag.lastRenewedBy = "";
+    tag.expirationDate = ZERO;
+    tag.lastRecycledDate = ZERO;
+    tag.lastRecycledBy = "";
     tag.premium = getTagCall.value.premium;
     tag.reserved = getTagCall.value.reserved;
     tag.tagAppliedInTaggingRecord = ZERO;
@@ -48,6 +55,65 @@ export function updateTagOwner(tagId: GraphBigInt, newOwner: Address, event: eth
   tag.save();
 }
 
+/**
+ * Updates a tag's expiration date and renewal information
+ * @param tagId - The ID of the tag to update
+ * @param sender - Address that triggered the renewal
+ *
+ * The expiration date is calculated by adding the ownership term length (in days)
+ * converted to seconds to the last renewal timestamp.
+ * If the tag is owned by the platform, both the last renewal date
+ * and expiration date will be 0.
+ */
+export function updateTagExpiration(tagId: string, sender: Address): void {
+  const settings = ensureGlobalSettings();
+  const tag = Tag.load(tagId);
+  const release = Release.load("ETSRelease");
+
+  if (tag && release) {
+    const contract = ETSToken.bind(Address.fromString(release.etsToken));
+    const lastRenewed = contract.getLastRenewed(GraphBigInt.fromString(tagId));
+    const secondsInDay = GraphBigInt.fromI32(86400);
+    tag.lastRenewalDate = lastRenewed;
+    tag.lastRenewedBy = sender.toHexString();
+    tag.expirationDate = lastRenewed.equals(ZERO)
+      ? ZERO
+      : lastRenewed.plus(settings.ownershipTermLength.times(secondsInDay));
+    tag.save();
+  }
+}
+
+export function updateTagRecycle(tagId: string, caller: Address, event: ethereum.Event): void {
+  const tag = Tag.load(tagId);
+  if (tag) {
+    tag.lastRecycledDate = event.block.timestamp;
+    tag.lastRecycledBy = caller.toHexString();
+    tag.save();
+  }
+}
+
+function updateTagRevenue(
+  tag: Tag,
+  platform: Platform,
+  platformFee: GraphBigInt,
+  relayerFee: GraphBigInt,
+  ownerFee: GraphBigInt,
+): void {
+  tag.tagAppliedInTaggingRecord = tag.tagAppliedInTaggingRecord.plus(ONE);
+  tag.protocolRevenue = tag.protocolRevenue.plus(platformFee);
+  tag.relayerRevenue = tag.relayerRevenue.plus(relayerFee);
+
+  const ownerBytes = Address.fromString(tag.owner);
+  const platformBytes = Address.fromString(platform.address);
+
+  if (!ownerBytes.equals(platformBytes)) {
+    tag.ownerRevenue = tag.ownerRevenue.plus(ownerFee);
+  } else {
+    tag.creatorRevenue = tag.creatorRevenue.plus(ownerFee);
+  }
+  tag.save();
+}
+
 export function updateCTAGTaggingRecordStats(
   newTagIds: string[] | null,
   previousTagIds: string[] | null,
@@ -63,15 +129,7 @@ export function updateCTAGTaggingRecordStats(
     if (action === CREATE) {
       for (let i = 0; i < newTagIds.length; i++) {
         const tag = ensureTag(GraphBigInt.fromString(newTagIds[i]), event);
-        tag.tagAppliedInTaggingRecord = tag.tagAppliedInTaggingRecord.plus(ONE);
-        tag.protocolRevenue = tag.protocolRevenue.plus(platformFee);
-        tag.relayerRevenue = tag.relayerRevenue.plus(relayerFee);
-        if (tag.owner !== platform.address) {
-          tag.ownerRevenue = tag.ownerRevenue.plus(ownerFee);
-        } else {
-          tag.creatorRevenue = tag.creatorRevenue.plus(ownerFee);
-        }
-        tag.save();
+        updateTagRevenue(tag, platform, platformFee, relayerFee, ownerFee);
       }
     }
 
@@ -79,15 +137,7 @@ export function updateCTAGTaggingRecordStats(
       const appendedTagIds = arrayDiff(newTagIds, previousTagIds);
       for (let i = 0; i < appendedTagIds.length; i++) {
         const tag = ensureTag(GraphBigInt.fromString(appendedTagIds[i]), event);
-        tag.tagAppliedInTaggingRecord = tag.tagAppliedInTaggingRecord.plus(ONE);
-        tag.protocolRevenue = tag.protocolRevenue.plus(platformFee);
-        tag.relayerRevenue = tag.relayerRevenue.plus(relayerFee);
-        if (tag.owner !== platform.address) {
-          tag.ownerRevenue = tag.ownerRevenue.plus(ownerFee);
-        } else {
-          tag.creatorRevenue = tag.creatorRevenue.plus(ownerFee);
-        }
-        tag.save();
+        updateTagRevenue(tag, platform, platformFee, relayerFee, ownerFee);
       }
     }
 

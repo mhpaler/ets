@@ -42,6 +42,8 @@ export function useCtags({
           display
           machineName
           timestamp
+          lastRenewalDate
+          expirationDate
           premium
           reserved
           tagAppliedInTaggingRecord
