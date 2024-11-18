@@ -25,12 +25,12 @@ const TagInput: React.FC<TagInputProps> = ({ tags, handleDeleteTag, handleAddTag
   const [tagInput, setTagInput] = useState<string>("");
   const tagClassNames = {
     tags: "flex flex-wrap gap-1",
-    tag: "text-sm font-medium bg-slate-200 hover:bg-pink-200 hover:scale-105 transition-all duration-200 text-slate-900 inline-block pt-1 pb-1 pl-2 rounded-lg mt-2 mb-1 last:mr-0 mr-1",
+    tag: "text-sm font-medium inline-flex items-center py-1 pl-2 pr-0 rounded link-primary hover:scale-105 transition-all duration-300 bg-primary-content last:mr-0 mr-1 mb-2 flex items-center", // added flex and items-center to handle the button alignment
+    remove:
+      "ReactTags__remove leading-none min-h-0 h-4 w-4 btn btn-circle btn-xs hover:btn-primary border-transparent bg-transparent mx-1.5 [&>svg]:stroke-[3] [&>svg]:-mr-0.5 [&>svg]:fill-slate-900 [&:hover>svg]:fill-white [&>svg]:h-2 [&>svg]:w-2",
     tagInput: "input input-bordered w-full pr-10 pl-0",
     tagInputField: "input border-none w-full pr-10",
     selected: "flex flex-wrap gap-1",
-    remove:
-      "ReactTags__remove btn btn-xs hover:btn-primary border-transparent bg-transparent ml-1 mr-1 mb-0 [&>svg]:stroke-[3] [&>svg]:-mr-0.5 [&>svg]:fill-slate-900 [&:hover>svg]:fill-white [&>svg]:h-2 [&>svg]:w-2",
     suggestions: "dropdown dropdown-bottom",
     activeSuggestion: "bg-primary text-primary-content cursor-pointer",
     editTagInput: "input input-bordered w-full pr-10",
