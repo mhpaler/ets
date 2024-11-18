@@ -43,7 +43,7 @@ export function getNetwork(): NetworkName | "none" {
   }
 
   // Check for Vercel preview environment first
-  if (process.env.NEXT_PUBLIC_VERCEL_ENV === "preview" || window.location.hostname.includes("vercel.app")) {
+  if (isPreviewEnvironment && window.location.hostname.includes("vercel.app")) {
     return "arbitrumsepolia";
   }
 
