@@ -12,7 +12,7 @@ const Tag: React.FC<TagProps> = ({ tag }) => {
   return (
     <Link
       href={`/explore/tags/${tag.machineName}`}
-      className="text-sm font-medium inline-block py-1 px-2 rounded link-primary bg-primary-content last:mr-0 mr-1"
+      className="text-sm font-medium inline-block py-1 px-2 rounded link-primary hover:scale-105 transition-all duration-300 bg-primary-content last:mr-0 mr-1"
     >
       {tag.display}
     </Link>

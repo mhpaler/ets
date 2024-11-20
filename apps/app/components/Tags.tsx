@@ -113,7 +113,13 @@ const Tags: React.FC<Props> = ({
       title={title}
       pageIndex={pageIndex}
       setPageIndex={setPageIndex}
-      rowLink={typeof rowLink === "function" ? rowLink : rowLink ? (tag: TagType) => `/tag/${tag.id}` : undefined}
+      rowLink={
+        typeof rowLink === "function"
+          ? rowLink
+          : rowLink
+            ? (tag: TagType) => `/explore/tags/${tag.machineName}`
+            : undefined
+      }
     />
   );
 };
