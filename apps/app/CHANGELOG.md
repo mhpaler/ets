@@ -1,5 +1,17 @@
 # @ethereum-tag-service/app
 
+## 0.0.6
+
+### Patch Changes
+
+- [#401](https://github.com/ethereum-tag-service/ets/pull/401) [`d544088`](https://github.com/ethereum-tag-service/ets/commit/d544088664ac78424d290ee417c85dd9bf205749) Thanks [@mhpaler](https://github.com/mhpaler)! - Support multi-chains for ETS testnet.
+
+- Updated dependencies [[`d544088`](https://github.com/ethereum-tag-service/ets/commit/d544088664ac78424d290ee417c85dd9bf205749), [`b11d21e`](https://github.com/ethereum-tag-service/ets/commit/b11d21ea8ede9938442165da29550dfef405a658), [`465ffe6`](https://github.com/ethereum-tag-service/ets/commit/465ffe6a5d99a469e770d5118e231eccf3faa86f), [`465ffe6`](https://github.com/ethereum-tag-service/ets/commit/465ffe6a5d99a469e770d5118e231eccf3faa86f)]:
+  - @ethereum-tag-service/subgraph-endpoints@0.0.4
+  - @ethereum-tag-service/contracts@0.0.1
+  - @ethereum-tag-service/sdk-core@0.0.6
+  - @ethereum-tag-service/sdk-react-hooks@0.0.6
+
 ## 0.0.5
 
 ### Patch Changes
