@@ -5,6 +5,11 @@ export type TagType = {
   premium?: boolean;
   reserved?: boolean;
   timestamp: number;
+  lastRenewalDate?: number;
+  lastRenewedBy?: string;
+  expirationDate?: number;
+  lastRecycledDate?: number;
+  lastRecycledBy?: string;
   machineName: string;
   display: string;
   owner: {
@@ -29,5 +34,6 @@ export type TagType = {
 
 export interface TagInput {
   id: string;
-  text: string;
+  className: string;
+  [key: string]: string;
 }

@@ -23,28 +23,12 @@ const Owner: NextPage = () => {
     pageSize: 1,
     skip: 0,
     filter: { id },
-    config: {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 0,
-    },
   });
 
   const owner = owners ? owners[0] : null;
 
-  const { tags = [] } = useCtags({
+  const { tags = [], isLoading } = useCtags({
     filter: { owner_: { id } },
-    config: {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 1500,
-    },
   });
 
   return (
@@ -75,17 +59,17 @@ const Owner: NextPage = () => {
               <div>
                 <Panel title={t("stats")}>
                   <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
-                    <div className="font-semibold">{t("tags-owned", { timeframe: t("current") })}</div>
+                    <div className="font-semibold">{t("tags-owned", { timeframe: "" })}</div>
                     <div className="text-right">
                       <div className="">{<FormattedNumber value={Number.parseInt(owner.tagsOwned)} />}</div>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
+                  {/*                   <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                     <div className="font-semibold">{t("tags-owned", { timeframe: t("lifetime") })}</div>
                     <div className="text-right">
                       <div className="">{<FormattedNumber value={Number.parseInt(owner.tagsOwnedLifeTime)} />}</div>
                     </div>
-                  </div>
+                  </div> */}
 
                   <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                     <div className="font-semibold">{t("owned-tags-in-tagging-records")}</div>
@@ -114,7 +98,8 @@ const Owner: NextPage = () => {
               title={`${t("owner-tags")} ${Truncate(owner.id, 13, "middle")}`}
               tags={tags}
               rowLink={false}
-              columns={["tag", "created", "taggingRecords"]}
+              loading={isLoading}
+              columns={["tag", "created", "taggingRecords", "totalRevenue"]}
             />
           </div>
         </div>

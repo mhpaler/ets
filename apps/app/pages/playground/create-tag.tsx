@@ -1,5 +1,4 @@
 import TagInput from "@app/components/TagInput";
-import { availableChainIds } from "@app/config/wagmiConfig";
 import { useRelayers } from "@app/hooks/useRelayers";
 import useToast from "@app/hooks/useToast";
 import Layout from "@app/layouts/default";
@@ -17,6 +16,7 @@ const CreateTag: NextPage = () => {
   const { chain, isConnected, address } = useAccount();
   const [tags, setTags] = useState<TagInputType[]>([]);
   const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
+
   const { tagExists } = useTokenClient({
     chainId: chain?.id,
     account: address,
@@ -29,14 +29,12 @@ const CreateTag: NextPage = () => {
   });
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const { relayers } = useRelayers({});
-  const isCorrectNetwork = chain?.id && availableChainIds.includes(chain?.id as any);
-  const disabled = !tags.length || !selectedRelayer || !isCorrectNetwork || isCreatingTag;
+  const disabled = !tags.length || !selectedRelayer || isCreatingTag;
 
   const getTooltipMessage = () => {
     if (!isConnected) return t("connect-wallet");
     if (!tags.length) return t("please-enter-a-tag");
     if (!selectedRelayer) return t("please-select-a-relayer");
-    //if (!isCorrectNetwork) return t("connect");
     if (isCreatingTag) return t("creating-tags");
     return "";
   };

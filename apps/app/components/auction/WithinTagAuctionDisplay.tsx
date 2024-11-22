@@ -1,5 +1,4 @@
 import { useAuction } from "@app/hooks/useAuctionContext";
-import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useCurrentChain } from "@app/hooks/useCurrentChain";
 import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
@@ -38,9 +37,11 @@ const WithinTagAuctionDisplay = () => {
               <>
                 <div>{t("tag-owner")}</div>
                 <div className="font-semibold">
-                  <Link href={`/explore/owners/${auction.tag.owner.id}`} legacyBehavior>
-                    <Address address={auction.tag.owner.id} ens={auction.tag.owner.ens} truncateLength={14} />
-                  </Link>
+                  <Address
+                    href={`/explore/owners/${auction.tag.owner.id}`}
+                    address={auction.tag.owner.id}
+                    ens={auction.tag.owner.ens}
+                  />
                 </div>
               </>
             ) : (
@@ -48,7 +49,7 @@ const WithinTagAuctionDisplay = () => {
               <>
                 <div>{t("AUCTION.WINNER")}</div>
                 <div className="font-semibold">
-                  <Address address={auction.bidder.id} ens={auction.bidder.ens} truncateLength={14} />
+                  <Address address={auction.bidder.id} ens={auction.bidder.ens} />
                 </div>
               </>
             )

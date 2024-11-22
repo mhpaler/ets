@@ -2,7 +2,6 @@ import { Relayer, Tag, TaggingRecord, Target, Users } from "@app/components/icon
 import Layout from "@app/layouts/default";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
-import Link from "next/link";
 
 const Explore: NextPage = () => {
   const { t } = useTranslation("common");
@@ -61,7 +60,7 @@ const Explore: NextPage = () => {
             return (
               <a
                 key={index}
-                className="card card-compact border hover:bg-base-200 transition-all duration-200 text-gray-400 hover:text-gray-950 hover:-translate-y-1"
+                className="card card-compact border border-slate-200 hover:bg-base-200 transition-all duration-200 text-slate-700 hover:text-gray-950 hover:-translate-y-1"
                 href={`/explore/${card.slug}`}
               >
                 <figure className="bg-slate-100 rounded-lg col-span-3 m-4 py-8">

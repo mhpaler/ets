@@ -22,11 +22,6 @@ export interface TransactionManagerContextType {
     sdkFunction: (...args: any[]) => Promise<any>,
     sdkFunctionParams: any[],
   ) => Promise<void>;
-  //initiateTransaction: (
-  //  id: string,
-  //  type: TransactionType,
-  //  transactionDetails: SimulateContractParameters,
-  //) => Promise<void>;
 }
 
 // Define the default context value

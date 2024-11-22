@@ -2,9 +2,8 @@
   "name": "@ethereum-tag-service/monorepo",
   "author": "Ethereum Tag Service <team@ets.xyz>",
   "private": true,
-  "packageManager": "pnpm@8.11.0",
-  "keywords": ["ethereum", "react", "ets", "tag", "tagging", "workspaces", "yarn"],
-  "workspaces": ["apps/*", "packages/*", "examples/*"],
+  "packageManager": "pnpm@9.9.0",
+  "keywords": ["ethereum", "react", "ets", "tag", "tagging"],
   "scripts": {
     "build": "pnpm run clean && turbo run build --env-mode=loose",
     "changeset:build": "pnpm run --recursive --filter \"./packages/**\" --filter \"./apps/app\" build",
@@ -18,9 +17,7 @@
     "create-tagging-record:dev": "cd examples/create-tagging-record && pnpm run dev",
     "dev": "turbo run dev --env-mode=loose --filter=!./examples/*",
     "format": "biome format --write",
-    "graph:deploy-local": "cd packages/subgraph && pnpm run graph-deploy-local",
-    "graph:deploy-testnet-production": "cd packages/subgraph && pnpm run graph-deploy-testnet-production",
-    "graph:deploy-testnet-stage": "cd packages/subgraph && pnpm run graph-deploy-testnet-stage",
+    "graph:deploy": "cd packages/subgraph && pnpm run deploy",
     "graph:node-clean": "cd packages/subgraph && pnpm run clean-graph-node",
     "graph:node-start": "cd packages/subgraph && pnpm run start-graph-node",
     "graph:node-stop": "cd packages/subgraph && pnpm run remove-graph-node",
@@ -28,14 +25,12 @@
     "hardhat:clean": "cd packages/contracts && pnpm hardhat:clean",
     "hardhat:compile": "cd packages/contracts && pnpm run compile",
     "hardhat:deploy": "cd packages/contracts && pnpm run deploy",
-    "hardhat:deploy-testnet-production": "cd packages/contracts && pnpm run deploy-testnet-production",
-    "hardhat:deploy-testnet-stage": "cd packages/contracts && pnpm run deploy-testnet-stage",
     "hardhat:solhint": "cd packages/contracts && pnpm run solhint",
     "hardhat:start": "cd packages/contracts && pnpm run hardhat",
     "hardhat:test": "cd packages/contracts && pnpm run hardhat",
     "hardhat:watch": "cd packages/contracts && pnpm run watch",
     "lint": "biome check",
-    "lint:repo": "sherif -i ethers",
+    "lint:repo": "sherif -i ethers -i axios",
     "lint:unused": "pnpm clean && knip",
     "start-graph-node": "cd scripts && ./start-graph-node.sh",
     "test:build": "pnpm run --r --parallel test:build",
@@ -55,6 +50,7 @@
     "node-fetch": "2",
     "publint": "^0.2.10",
     "sherif": "^0.11.0",
+    "simple-git-hooks": "^2.11.1",
     "turbo": "^2.0.10",
     "typescript": "^5.4.5",
     "yaml": "2.4.5"
@@ -72,6 +68,9 @@
   "engines": {
     "npm": ">=7.0.0",
     "node": ">=14.0.0"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint"
   },
   "knip": {
     "ignore": ["**/hardhat.config.js", "packages/**/src/version.ts"],

@@ -35,7 +35,7 @@ const Stats = () => {
           <div className="stat-value">{stats?.relayerCountActive ? stats.relayerCountActive : null}</div>
         </div>
       </a>
-      <a href="/explore/tagging-records" className="hover:bg-base-200">
+      <a href="/explore/taggers" className="hover:bg-base-200">
         <div className="stat">
           <div className="stat-title">{t("taggers")}</div>
           <div className="stat-value">{stats?.taggerCount ? stats.taggerCount : null}</div>

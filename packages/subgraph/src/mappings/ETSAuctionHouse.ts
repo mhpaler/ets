@@ -20,14 +20,9 @@ import { ensureAuction, extendAuction, updateAuction } from "../entities/Auction
 import { ensureBid } from "../entities/Bid";
 import { updateCreatorAuctionStats } from "../entities/Creator";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
+import { updatePlatformAuctionStats } from "../entities/Platform";
+import { updateRelayerAuctionStats } from "../entities/Relayer";
 import { ensureRelease } from "../entities/Release";
-// import { updatePlatformTaggingRecordStats } from "../entities/Platform";
-// import { updateRelayerTaggingRecordStats } from "../entities/Relayer";
-// import { updateTaggerTaggingRecordStats } from "../entities/Tagger";
-// import { updateCreatorTaggingRecordStats } from "../entities/Creator";
-// import { updateOwnerTaggingRecordStats } from "../entities/Owner";
-// import { updateCTAGTaggingRecordStats } from "../entities/Tag";
-// import { ensureTaggingRecord, updateTaggingRecord } from "../entities/TaggingRecord";
 
 export function handleInitialized(event: Initialized): void {
   const settings = ensureRelease();
@@ -98,8 +93,9 @@ export function handleAuctionExtended(event: AuctionExtended): void {
 export function handleAuctionSettled(event: AuctionSettled): void {
   const auctionId = event.params.auctionId;
   updateAuction(auctionId, event);
-
   updateCreatorAuctionStats(auctionId, event);
+  updateRelayerAuctionStats(auctionId, event);
+  updatePlatformAuctionStats(auctionId, event);
 }
 
 export function handleAuctionProceedsWithdrawn(_event: AuctionProceedsWithdrawn): void {}

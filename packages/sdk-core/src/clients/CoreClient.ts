@@ -589,7 +589,7 @@ export class CoreClient {
     return this.tokenClient.computeTagIds(tags);
   }
 
-  public async hasTags(address: `0x${string}` | undefined): Promise<boolean> {
+  public async hasTags(address: Hex | undefined): Promise<boolean> {
     if (!this.tokenClient) throw new Error("TokenClient is not initialized.");
     return this.tokenClient.hasTags(address);
   }

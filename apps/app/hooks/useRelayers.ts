@@ -39,6 +39,7 @@ export function useRelayers({
           pausedByOwner
           lockedByProtocol
           publishedTagsAddedToTaggingRecords
+          publishedTagsAuctioned
           publishedTagsAuctionRevenue
           publishedTagsRemovedFromTaggingRecords
           publishedTagsTaggingFeeRevenue

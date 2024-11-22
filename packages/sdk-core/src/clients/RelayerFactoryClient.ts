@@ -1,5 +1,5 @@
+import { etsRelayerFactoryConfig } from "@ethereum-tag-service/contracts/contracts";
 import type { Hex, PublicClient, WalletClient } from "viem";
-import { getConfig } from "../contracts/config";
 import type { RelayerFactoryReadFunction, RelayerFactoryWriteFunction } from "../types";
 import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
@@ -8,7 +8,8 @@ import { validateConfig } from "../utils/validateConfig";
 export class RelayerFactoryClient {
   private readonly publicClient: PublicClient;
   private readonly walletClient: WalletClient | undefined;
-  private readonly etsRelayerFactoryConfig: { address: Hex; abi: any };
+  private readonly address: Hex;
+  private readonly abi: any;
 
   constructor({
     publicClient,
@@ -19,26 +20,20 @@ export class RelayerFactoryClient {
     walletClient?: WalletClient;
     chainId?: number;
   }) {
-    this.publicClient = publicClient;
-    this.walletClient = walletClient;
-
     validateConfig(chainId, publicClient, walletClient);
 
-    const config = getConfig(chainId);
-    if (!config || config.etsRelayerFactoryConfig === undefined)
-      throw new Error("Configuration could not be retrieved");
+    if (!chainId || !(chainId in etsRelayerFactoryConfig.address)) {
+      throw new Error(`[@ethereum-tag-service/sdk-core] RelayerFactory contract not configured for chain ${chainId}`);
+    }
 
-    this.etsRelayerFactoryConfig = config.etsRelayerFactoryConfig;
+    this.publicClient = publicClient;
+    this.walletClient = walletClient;
+    this.address = etsRelayerFactoryConfig.address[chainId as keyof typeof etsRelayerFactoryConfig.address];
+    this.abi = etsRelayerFactoryConfig.abi;
   }
 
   private async readContract(functionName: RelayerFactoryReadFunction, args: any[] = []): Promise<any> {
-    return handleContractRead(
-      this.publicClient,
-      this.etsRelayerFactoryConfig.address,
-      this.etsRelayerFactoryConfig.abi,
-      functionName,
-      args,
-    );
+    return handleContractRead(this.publicClient, this.address, this.abi, functionName, args);
   }
 
   private async callContract(
@@ -48,16 +43,8 @@ export class RelayerFactoryClient {
     if (!this.walletClient) {
       throw new Error("Wallet client is required to perform this action");
     }
-    return handleContractCall(
-      this.publicClient,
-      this.walletClient,
-      this.etsRelayerFactoryConfig.address,
-      this.etsRelayerFactoryConfig.abi,
-      functionName,
-      args,
-    );
+    return handleContractCall(this.publicClient, this.walletClient, this.address, this.abi, functionName, args);
   }
-
   async addRelayer(relayerName: string): Promise<{ transactionHash: string; status: number }> {
     return this.callContract("addRelayer", [relayerName]);
   }

@@ -1,3 +1,14 @@
+import { Button } from "@app/components/Button";
+import TransactionFormActions from "@app/components/transaction/shared/TransactionFormActions";
+import { useDebounce } from "@app/hooks/useDebounce";
+import { useModal } from "@app/hooks/useModalContext";
+import { useRelayerContext } from "@app/hooks/useRelayerContext";
+import { useRelayers } from "@app/hooks/useRelayers";
+import { useTransactionManager } from "@app/hooks/useTransactionManager";
+import { useAccessControlsClient, useTokenClient } from "@ethereum-tag-service/sdk-react-hooks";
+import { Dialog } from "@headlessui/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import useTranslation from "next-translate/useTranslation";
 /**
  * AddRelayerInput Component
  *
@@ -19,22 +30,9 @@
  */
 import type React from "react";
 import { useEffect, useState } from "react";
-
-import { useDebounce } from "@app/hooks/useDebounce";
-import { useModal } from "@app/hooks/useModalContext";
-import { useRelayerContext } from "@app/hooks/useRelayerContext";
-import { useRelayers } from "@app/hooks/useRelayers";
-import { useTransactionManager } from "@app/hooks/useTransactionManager";
-import { useAccessControlsClient, useTokenClient } from "@ethereum-tag-service/sdk-react-hooks";
-import { zodResolver } from "@hookform/resolvers/zod";
-import useTranslation from "next-translate/useTranslation";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { useAccount } from "wagmi";
 import { z } from "zod";
-
-import { Button } from "@app/components/Button";
-import TransactionFormActions from "@app/components/transaction/shared/TransactionFormActions";
-import { Dialog } from "@headlessui/react";
 
 interface AddRelayerInputProps {
   transactionId: string;
@@ -57,7 +55,7 @@ const AddRelayerInput: React.FC<AddRelayerInputProps> = ({ transactionId, goToNe
   });
 
   const [isFormDisabled, setIsFormDisabled] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<React.ReactNode | null>(null);
 
   // Define the schema for form validation using Zod.
   const AddRelayerSchema = z.object({
@@ -130,37 +128,44 @@ const AddRelayerInput: React.FC<AddRelayerInputProps> = ({ transactionId, goToNe
     const fetchData = async (): Promise<void> => {
       if (!address) {
         console.error("Address is undefined");
-        setError(t("ERROR.NO_ADDRESS"));
+        setError(<div>{t("ERROR.NO_ADDRESS")}</div>);
         return;
       }
 
       if (!tokenClient) {
         console.error("tokenClient not initialized");
-        setError(t("ERROR.TOKEN_CLIENT_NOT_INITIALIZED"));
-        return;
-      }
-
-      const tags = await hasTags(address);
-      if (!tags) {
-        setError(t("FORM.ADD_RELAYER.ERROR.NO_TAGS"));
+        setError(<div>{t("ERROR.TOKEN_CLIENT_NOT_INITIALIZED")}</div>);
         return;
       }
 
       if (!accessControlsClient) {
         console.error("accessControlsClient not initialized");
-        setError(t("ERROR.ACCESS_CONTROLS_CLIENT_NOT_INITIALIZED"));
+        setError(<div>{t("ERROR.ACCESS_CONTROLS_CLIENT_NOT_INITIALIZED")}</div>);
         return;
       }
 
       const hasRelayer = await isRelayerByOwner(address);
       if (hasRelayer) {
-        setError(t("FORM.ADD_RELAYER.ERROR.ALREADY_OWN_RELAYER"));
+        setError(<div>{t("FORM.ADD_RELAYER.ERROR.ALREADY_OWN_RELAYER")}</div>);
+        return;
+      }
+
+      const tags = await hasTags(address);
+      if (!tags) {
+        setError(
+          <div>
+            {t("FORM.ADD_RELAYER.ERROR.NO_TAGS")}
+            {" - please purchase one at the "}
+            <a href="/auction" className="link link-primary">
+              Auction
+            </a>
+          </div>,
+        );
         return;
       }
 
       setError(null); // Clear any existing errors if all checks pass
     };
-
     if (address && isConnected) {
       fetchData();
     }

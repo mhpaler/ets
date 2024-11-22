@@ -28,26 +28,10 @@ const Relayer: NextPage = () => {
     pageSize: 1,
     skip: 0,
     filter: { id },
-    config: {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 0,
-    },
   });
 
-  const { tags = [] } = useCtags({
+  const { tags = [], isLoading } = useCtags({
     filter: { relayer_: { id } },
-    config: {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 1500,
-    },
   });
 
   const relayer = relayers ? relayers[0] : null;
@@ -128,11 +112,18 @@ const Relayer: NextPage = () => {
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
-                      <div className="font-semibold">{t("lifetime-revenue")}</div>
+                      <div className="font-semibold">{t("tagging-revenue")}</div>
                       <div className="text-right">
                         <div className="">
-                          {toEth(relayer.publishedTagsAuctionRevenue + relayer.publishedTagsTaggingFeeRevenue, 8)}{" "}
-                          {chain?.nativeCurrency.symbol}
+                          {toEth(relayer.publishedTagsTaggingFeeRevenue, 8)} {chain?.nativeCurrency.symbol}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
+                      <div className="font-semibold">{t("auction-revenue")}</div>
+                      <div className="text-right">
+                        <div className="">
+                          {toEth(relayer.publishedTagsAuctionRevenue, 8)} {chain?.nativeCurrency.symbol}
                         </div>
                       </div>
                     </div>
@@ -147,14 +138,16 @@ const Relayer: NextPage = () => {
               title={t("relayer-tagging-records", {
                 relayer: relayer.name,
               })}
+              visibleColumns={["timestamp", "target", "tags", "tagger"]} // Add this line
             />
           </div>
           <div className="col-span-12">
             <Tags
+              loading={isLoading}
               title={t("relayer-tags", { relayer: relayer.name })}
               tags={tags}
               rowLink={false}
-              columns={["tag", "timestamp", "creator", "owner", "taggingRecords"]}
+              columns={["tag", "timestamp", "taggingRecords", "totalRevenue"]}
             />
           </div>
         </>

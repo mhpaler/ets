@@ -1,5 +1,5 @@
+import { etsTargetConfig } from "@ethereum-tag-service/contracts/contracts";
 import type { Hex, PublicClient, WalletClient } from "viem";
-import { getConfig } from "../contracts/config";
 import type { TargetReadFunction, TargetWriteFunction } from "../types";
 import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
@@ -8,7 +8,8 @@ import { validateConfig } from "../utils/validateConfig";
 export class TargetClient {
   private readonly publicClient: PublicClient;
   private readonly walletClient: WalletClient | undefined;
-  private readonly etsTargetConfig: { address: Hex; abi: any };
+  private readonly address: Hex;
+  private readonly abi: any;
 
   constructor({
     publicClient,
@@ -19,25 +20,20 @@ export class TargetClient {
     walletClient?: WalletClient;
     chainId?: number;
   }) {
-    this.publicClient = publicClient;
-    this.walletClient = walletClient;
-
-    const config = getConfig(chainId);
-    if (!config || config.etsTargetConfig === undefined) throw new Error("Configuration could not be retrieved");
-
     validateConfig(chainId, publicClient, walletClient);
 
-    this.etsTargetConfig = config.etsTargetConfig;
+    if (!chainId || !(chainId in etsTargetConfig.address)) {
+      throw new Error(`[@ethereum-tag-service/sdk-core] Target contract not configured for chain ${chainId}`);
+    }
+
+    this.publicClient = publicClient;
+    this.walletClient = walletClient;
+    this.address = etsTargetConfig.address[chainId as keyof typeof etsTargetConfig.address];
+    this.abi = etsTargetConfig.abi;
   }
 
   private async readContract(functionName: TargetReadFunction, args: any[] = []): Promise<any> {
-    return handleContractRead(
-      this.publicClient,
-      this.etsTargetConfig.address,
-      this.etsTargetConfig.abi,
-      functionName,
-      args,
-    );
+    return handleContractRead(this.publicClient, this.address, this.abi, functionName, args);
   }
 
   private async callContract(
@@ -47,16 +43,8 @@ export class TargetClient {
     if (!this.walletClient) {
       throw new Error("Wallet client is required to perform this action");
     }
-    return handleContractCall(
-      this.publicClient,
-      this.walletClient,
-      this.etsTargetConfig.address,
-      this.etsTargetConfig.abi,
-      functionName,
-      args,
-    );
+    return handleContractCall(this.publicClient, this.walletClient, this.address, this.abi, functionName, args);
   }
-
   async getTargetById(targetId: bigint): Promise<any> {
     return this.readContract("getTargetById", [targetId]);
   }

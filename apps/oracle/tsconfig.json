@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "target": "es2017",
-    "module": "es6",
+    "target": "es2022",
     "noEmit": true,
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -22,9 +22,20 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "allowSyntheticDefaultImports": true
   },
-  "include": ["./*.ts", "./*.tsx", "./src/**/*.ts", "./src/**/*.mjs", "./src/**/*.tsx"],
-  "exclude": ["node_modules", "**/*.spec.ts"],
-  "package": "module"
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  },
+  "include": [
+    "./*.ts",
+    "./*.tsx",
+    "./src/**/*.ts",
+    "./src/**/*.mts",
+    "./src/**/*.mjs",
+    "./src/**/*.tsx",
+  ],
+  "exclude": ["node_modules", "**/*.spec.ts"]
 }

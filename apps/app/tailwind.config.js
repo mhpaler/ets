@@ -1,10 +1,34 @@
 const daisyui = require("daisyui");
 const typography = require("@tailwindcss/typography");
+const colors = require("tailwindcss/colors");
 
 module.exports = {
   content: ["./layouts/**/*.{js,ts,jsx,tsx}", "./pages/**/*.{js,ts,jsx,tsx}", "./components/**/*.{js,ts,jsx,tsx}"],
 
   theme: {
+    colors: {
+      transparent: "transparent",
+      current: "currentColor",
+      black: colors.black,
+      white: colors.white,
+      gray: colors.slate,
+      pink: {
+        50: "#fdf2f8",
+        100: "#fce7f3",
+        200: "#fbcfe8",
+        300: "#f9a8d4",
+        400: "#f472b6",
+        500: "#db2777", // Your primary color
+        600: "#c42167",
+        700: "#ad1b58",
+        800: "#961648",
+        900: "#7e1239",
+        950: "#660f2f",
+      },
+      slate: colors.slate,
+      teal: colors.teal,
+      purple: colors.purple,
+    },
     extend: {
       fontFamily: {
         sans: ["Inter Variable", "sans-serif"],
@@ -34,11 +58,13 @@ module.exports = {
           secondary: "#fbcfe8",
           accent: "#a8a29e",
           neutral: "#0a071f",
-          "base-100": "#ffffff",
           info: "#00aeff",
           success: "#84e455",
           warning: "#feb100",
           error: "#da4148",
+          "base-100": "#ffffff", // white
+          "base-200": "#e2e8f0", // slate-200 color value
+          "base-300": "#cbd5e1", // slate-300
         },
       },
     ],
