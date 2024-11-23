@@ -77,11 +77,11 @@ const ChainModalETS: React.FC<ChainModalETSProps> = ({ show, onClose, asModal = 
 
       {serverEnvironment === "staging" && (
         <div className="space-y-2">
-          <p className="text-sm">Staging on Vercel</p>
+          <p className="text-sm">Staging</p>
           {renderChainLink("https://arbitrumsepolia.stage.app.ets.xyz", "arbitrumsepolia", "staging")}
           {renderChainLink("https://basesepolia.stage.app.ets.xyz", "basesepolia", "staging")}
 
-          <p className="text-sm mt-4">Production on Vercel</p>
+          <p className="text-sm mt-4">Production</p>
           {renderChainLink("https://arbitrumsepolia.app.ets.xyz", "arbitrumsepolia", "production")}
           {renderChainLink("https://basesepolia.app.ets.xyz", "basesepolia", "production")}
         </div>
@@ -89,7 +89,6 @@ const ChainModalETS: React.FC<ChainModalETSProps> = ({ show, onClose, asModal = 
 
       {serverEnvironment === "production" && (
         <div className="space-y-2">
-          <p className="text-sm">Production on Vercel</p>
           {renderChainLink("https://arbitrumsepolia.app.ets.xyz", "arbitrumsepolia", "production")}
           {renderChainLink("https://basesepolia.app.ets.xyz", "basesepolia", "production")}
         </div>
