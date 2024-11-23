@@ -33,8 +33,15 @@ jobs:
       - name: Install dependencies
         uses: ethereum-tag-service/actions/.github/actions/pnpm@main
 
+      - name: Verify npm authentication  # This will run third
+        run: |
+          npm config set "//registry.npmjs.org/:_authToken" "${NPM_TOKEN}"
+          npm whoami
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: PR or publish
-        uses: changesets/action@v1
+        uses: changesets/action@v1.4.5
         with:
           title: "chore: version packages"
           commit: "chore: version packages"
@@ -44,7 +51,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NETWORK: testnet_stage # TODO: Change to mainnet when time is right.
+          NETWORK: arbitrumSepolia # Any valid hardhat network option should work.
 #      - name: Publish prerelease
 #        if: steps.changesets.outputs.published != 'true'
 #        continue-on-error: true

@@ -5,15 +5,23 @@ export function validateConfig(
   publicClient: PublicClient,
   walletClient: WalletClient | undefined,
 ) {
-  if (!walletClient) throw new Error("Wallet client is required");
-  if (!publicClient) throw new Error("Public client is required");
-  if (publicClient.chain?.id !== chainId)
-    throw new Error(
-      `Provided chain id (${chainId}) should match the public client chain id (${publicClient.chain?.id})`,
-    );
+  if (!walletClient) {
+    throw new Error("[@ethereum-tag-service/sdk-core] Wallet client is required");
+  }
 
-  if (walletClient && walletClient.chain?.id !== chainId)
+  if (!publicClient) {
+    throw new Error("[@ethereum-tag-service/sdk-core] Public client is required");
+  }
+
+  if (publicClient.chain?.id !== chainId) {
     throw new Error(
-      `Provided chain id (${chainId}) should match the wallet client chain id (${walletClient.chain?.id})`,
+      `[@ethereum-tag-service/sdk-core] Chain ID mismatch: provided ${chainId}, but public client has ${publicClient.chain?.id}`,
     );
+  }
+
+  if (walletClient && walletClient.chain?.id !== chainId) {
+    throw new Error(
+      `[@ethereum-tag-service/sdk-core] Chain ID mismatch: provided ${chainId}, but wallet client has ${walletClient.chain?.id}`,
+    );
+  }
 }

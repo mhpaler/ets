@@ -35,7 +35,7 @@ const BidsTable: React.FC<AuctionProps> = ({ bids, limit }) => {
         <li key={index} className="text-sm flex justify-between items-center rounded-md m-4 py-2 px-3 bg-white">
           <div>
             <span className="font-semibold">
-              <Address address={bid.bidder.id} ens={bid.bidder.ens} truncateLength={12} />
+              <Address address={bid.bidder.id} ens={bid.bidder.ens} />
             </span>
             <span className="text-xs text-gray-500 block mt-1">{timestampToString(bid.blockTimestamp)}</span>
           </div>

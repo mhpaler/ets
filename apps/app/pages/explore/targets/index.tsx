@@ -1,14 +1,11 @@
-import { CopyAndPaste } from "@app/components/CopyAndPaste";
+import Address from "@app/components/Address";
 import { TanstackTable } from "@app/components/TanstackTable";
 import { TimeAgo } from "@app/components/TimeAgo";
-import { Truncate } from "@app/components/Truncate";
-import { URI } from "@app/components/URI";
 import { useTargets } from "@app/hooks/useTargets";
 import Layout from "@app/layouts/default";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
-import Link from "next/link";
 import { useMemo, useState } from "react";
 
 const pageSize = 20;
@@ -19,18 +16,8 @@ const Targets: NextPage = () => {
   const { targets, nextTargets } = useTargets({
     pageSize,
     skip: pageIndex * pageSize,
-    config: {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 0,
-    },
   });
-
   const columnHelper = createColumnHelper();
-
   const columns = useMemo<any[]>(
     () => [
       columnHelper.accessor("id", {
@@ -38,12 +25,7 @@ const Targets: NextPage = () => {
         cell: (info) => {
           const target = info.row.original as any;
           return (
-            <div className="flex items-center">
-              <Link href={`/explore/targets/${target.id}`} className="link link-primary">
-                {Truncate(info.getValue(), 14, "middle")}
-              </Link>
-              <CopyAndPaste value={target.id} />
-            </div>
+            target.id && <Address address={target.id} addressType="long-id" href={`/explore/targets/${target.id}`} />
           );
         },
       }),
@@ -54,12 +36,8 @@ const Targets: NextPage = () => {
       columnHelper.accessor("targetURI", {
         header: t("URI"),
         cell: (info) => (
-          <div className="flex items-center space-x-2">
-            <span className="block truncate max-w-[60ch]">{info.getValue()}</span>
-            <div className="flex-shrink-0 flex space-x-2">
-              <CopyAndPaste value={info.getValue()} />
-              <URI value={info.getValue()} />
-            </div>
+          <div className="flex items-center">
+            <Address address={info.getValue()} addressType="url" href={info.getValue()} explorerLink={false} />
           </div>
         ),
       }),

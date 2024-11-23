@@ -9,7 +9,6 @@ import { toEth } from "@app/utils";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
-import Link from "next/link";
 import { useMemo, useState } from "react";
 
 const pageSize = 20;
@@ -22,13 +21,9 @@ const Owners: NextPage = () => {
   const { owners, nextOwners } = useOwners({
     pageSize,
     skip: pageIndex * pageSize,
-    config: {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 0,
+    filter: {
+      id_not: "0x0000000000000000000000000000000000000000",
+      tagsOwned_gt: "0",
     },
   });
 
@@ -40,11 +35,7 @@ const Owners: NextPage = () => {
         header: t("owner"),
         cell: (info) => {
           const owner = info.row.original as any;
-          return (
-            <Link href={`/explore/owners/${owner.id}`} className="link link-primary">
-              <Address address={owner.id} ens={owner.ens} />
-            </Link>
-          );
+          return <Address href={`/explore/owners/${owner.id}`} address={owner.id} ens={owner.ens} />;
         },
       }),
       columnHelper.accessor("firstSeen", {

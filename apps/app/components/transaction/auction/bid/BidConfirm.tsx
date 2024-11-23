@@ -4,7 +4,6 @@ import type { TransactionType } from "@app/types/transaction";
 import { parseEther } from "viem";
 
 import { useAuction } from "@app/hooks/useAuctionContext";
-import { useCurrentChain } from "@app/hooks/useCurrentChain";
 import { useModal } from "@app/hooks/useModalContext";
 import { useTransactionManager } from "@app/hooks/useTransactionManager";
 import { useAuctionHouseClient } from "@ethereum-tag-service/sdk-react-hooks";
@@ -27,12 +26,12 @@ interface FormStepProps {
 
 const BidConfirm: React.FC<FormStepProps> = ({ transactionId, transactionType, goToStep }) => {
   const { t } = useTranslation("common");
-  const chain = useCurrentChain();
+  //const chain = useCurrentChain();
   const { closeModal } = useModal();
   const { initiateTransaction, removeTransaction, transactions } = useTransactionManager();
   const transaction = transactions[transactionId];
   const { dialogTitle } = useTransactionLabels(transactionId);
-  const { address } = useAccount();
+  const { address, chain } = useAccount();
   const { auction, bidFormData } = useAuction();
   const { createBid } = useAuctionHouseClient({
     chainId: chain?.id,

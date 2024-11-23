@@ -9,7 +9,6 @@ const withWebpack = (nextConfig = {}) => {
         test: /\.svg$/,
         use: ["@svgr/webpack"],
       });
-      // See https://www.rainbowkit.com/docs/installation#additional-build-tooling-setup
       config.resolve.fallback = { fs: false, net: false, tls: false };
       config.externals.push("pino-pretty", "lokijs", "encoding");
       return config;

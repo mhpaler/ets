@@ -59,20 +59,6 @@ export type FetchAuctionsResponse = {
   auctions: Auction[];
 };
 
-/**
- * Type definition for the auction house's state and functions.
- */
-export type AuctionHouse = {
-  auctionPaused: boolean;
-  maxAuctions: number | null;
-  minIncrementBidPercentage: number;
-  duration: number | null;
-  timeBuffer: number | 0;
-  maxAuctionId: number | null;
-  allAuctions: Auction[];
-  refreshAuctions: (updatedAuctions: Auction[]) => void; // Now expects a direct array of Auction objects
-};
-
 export type AuctionContextType = {
   auction: Auction | null;
   auctionEndTimeUI: number;
@@ -82,4 +68,23 @@ export type AuctionContextType = {
   endAuction: (auctionId: number) => void;
   settleAuction: (auctionId: number) => void;
   addBidToAuction: (auctionOnChain: AuctionOnChain, newBid: Bid) => void;
+};
+
+/**
+ * Type definition for the auction house state and functions.
+ * This type is used both for the context and general auction house state management.
+ */
+export type AuctionHouse = {
+  // State
+  auctionPaused: boolean;
+  maxAuctions: number | null;
+  minIncrementBidPercentage: number;
+  duration: number | null;
+  timeBuffer: number;
+  maxAuctionId: number;
+  allAuctions: Auction[];
+  isLoading: boolean;
+
+  // Functions
+  refreshAuctions: (updatedAuctions: Auction[]) => Promise<FetchAuctionsResponse | undefined>;
 };

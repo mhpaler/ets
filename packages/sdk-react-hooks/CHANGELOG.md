@@ -1,5 +1,12 @@
 # @ethereum-tag-service/sdk-react-hooks
 
+## 0.0.6
+
+### Patch Changes
+
+- Updated dependencies [[`d544088`](https://github.com/ethereum-tag-service/ets/commit/d544088664ac78424d290ee417c85dd9bf205749), [`b11d21e`](https://github.com/ethereum-tag-service/ets/commit/b11d21ea8ede9938442165da29550dfef405a658)]:
+  - @ethereum-tag-service/sdk-core@0.0.6
+
 ## 0.0.5
 
 ### Patch Changes

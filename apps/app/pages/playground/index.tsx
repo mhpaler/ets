@@ -30,7 +30,7 @@ const Playground: NextPage = () => {
             return (
               <a
                 key={index}
-                className="card card-compact border hover:bg-base-200 transition-all duration-200 text-gray-400 hover:text-gray-950 hover:-translate-y-1 max-w-[300px] w-full mx-auto"
+                className="card card-compact border border-slate-200 hover:bg-base-200 transition-all duration-200 text-slate-700 hover:text-gray-950 hover:-translate-y-1"
                 href={`/playground/${card.slug}`}
               >
                 <figure className="bg-slate-100 rounded-lg col-span-3 m-4 py-8">

@@ -13,4 +13,4 @@ fi
 pnpm clean-graph-node
 
 # Start Docker Compose
-docker-compose up
+docker compose up

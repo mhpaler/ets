@@ -20,15 +20,6 @@ const TaggingRecord: NextPage = () => {
     pageSize: 1,
     skip: 0,
     filter: { id },
-    orderBy: "timestamp",
-    config: {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 0,
-    },
   });
 
   const taggingRecord = taggingRecords?.[0];
@@ -42,7 +33,9 @@ const TaggingRecord: NextPage = () => {
               <Panel>
                 <div className="grid grid-cols-3 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                   <div className="font-semibold">{t("id")}</div>
-                  <div className="col-span-2 text-left truncate">{Truncate(taggingRecord.id, 80, "end")}</div>
+                  <div className="col-span-2 text-left">
+                    <Address address={taggingRecord.id} />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-3 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
@@ -63,12 +56,12 @@ const TaggingRecord: NextPage = () => {
 
                 <div className="grid grid-cols-3 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                   <div className="font-semibold">{t("tagger")}</div>
-                  <div className="flex space-x-1 col-span-2 justify-start">
-                    <div className="">
-                      <Link href={`/explore/taggers/${taggingRecord.tagger.id}`} className="link link-primary">
-                        <Address address={taggingRecord.tagger?.id} ens={taggingRecord.tagger?.ens} />
-                      </Link>
-                    </div>
+                  <div className="flex col-span-2 justify-start">
+                    <Address
+                      href={`/explore/taggers/${taggingRecord.tagger.id}`}
+                      address={taggingRecord.tagger?.id}
+                      ens={taggingRecord.tagger?.ens}
+                    />
                   </div>
                 </div>
 
@@ -79,20 +72,21 @@ const TaggingRecord: NextPage = () => {
                 <div className="grid grid-cols-3 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                   <div className="font-semibold">{t("target-id")}</div>
                   <div className="flex space-x-1 col-span-2 justify-start">
-                    <div className="truncate">
-                      <Link href={`/explore/targets/${taggingRecord.target.id}`} className="link link-primary">
-                        {Truncate(taggingRecord.target.id, 32, "end")}
-                      </Link>
-                    </div>
-                    <CopyAndPaste value={taggingRecord.target.id || ""} />
+                    <Address
+                      address={taggingRecord.target.id}
+                      addressType="long-id"
+                      href={`/explore/targets/${taggingRecord.target.id}`}
+                    />
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                   <div className="font-semibold">{t("target-uri")}</div>
-                  <div className="flex space-x-1 col-span-2 justify-start">
-                    <div className="truncate">{taggingRecord.target.targetURI}</div>
-                    <CopyAndPaste value={taggingRecord.target.targetURI || ""} />
-                    <URI value={taggingRecord.target.targetURI || ""} />
+                  <div className="flex col-span-2 justify-start">
+                    <Address
+                      addressType="url"
+                      address={taggingRecord.target.targetURI}
+                      href={taggingRecord.target.targetURI}
+                    />
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-4 px-6 py-4 md:grid-flow-col hover:bg-slate-100">

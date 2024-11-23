@@ -1,5 +1,13 @@
 # @ethereum-tag-service/subgraph-endpoints
 
+## 0.0.4
+
+### Patch Changes
+
+- [#401](https://github.com/ethereum-tag-service/ets/pull/401) [`d544088`](https://github.com/ethereum-tag-service/ets/commit/d544088664ac78424d290ee417c85dd9bf205749) Thanks [@mhpaler](https://github.com/mhpaler)! - Support multi-chains for ETS testnet.
+
+- [#394](https://github.com/ethereum-tag-service/ets/pull/394) [`465ffe6`](https://github.com/ethereum-tag-service/ets/commit/465ffe6a5d99a469e770d5118e231eccf3faa86f) Thanks [@mhpaler](https://github.com/mhpaler)! - Add new function getSubgraphEndpoint(chainId) to fetch endpoint by chainId. Add basic unit test.
+
 ## 0.0.3
 
 ### Patch Changes

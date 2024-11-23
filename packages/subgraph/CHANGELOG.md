@@ -1,5 +1,33 @@
 # @ethereum-tag-service/subgraph
 
+## 0.0.4
+
+### Patch Changes
+
+- [#401](https://github.com/ethereum-tag-service/ets/pull/401) [`d544088`](https://github.com/ethereum-tag-service/ets/commit/d544088664ac78424d290ee417c85dd9bf205749) Thanks [@mhpaler](https://github.com/mhpaler)! - Support multi-chains for ETS testnet.
+
+- [#396](https://github.com/ethereum-tag-service/ets/pull/396) [`b11d21e`](https://github.com/ethereum-tag-service/ets/commit/b11d21ea8ede9938442165da29550dfef405a658) Thanks [@mhpaler](https://github.com/mhpaler)! - @ethereum-tag-service/contracts: use hardhat chain instead of localhost for local development
+
+  Replace localhost chain (id: 1337) with hardhat chain (id: 31337) in multiChainConfig
+  to align with Hardhat's default chain ID and prevent network connection issues during
+  local development. This ensures consistent chain ID usage across the application.
+
+  @ethereum-tag-service/sdk-core fix: use local RPC for Hardhat development environment
+
+  Update clientFactory to use local RPC URL for chain ID 31337 (Hardhat) instead of
+  attempting to use Alchemy. This enables proper client initialization during local
+  development while maintaining Alchemy RPC usage for testnet and mainnet environments.
+
+  @ethereum-tag-service/subgraph feat(subgraph): upgrade and optimize subgraph implementation
+
+  - Upgrade specVersion to 0.0.4 and enable nonFatalErrors
+  - Improve address comparison using equals() instead of string conversion
+  - Update docker compose syntax for newer versions
+  - Add better error handling with GraphProtocol logging
+  - Optimize zero address checks in Creator, Platform, and Relayer entities
+
+- [#394](https://github.com/ethereum-tag-service/ets/pull/394) [`465ffe6`](https://github.com/ethereum-tag-service/ets/commit/465ffe6a5d99a469e770d5118e231eccf3faa86f) Thanks [@mhpaler](https://github.com/mhpaler)! - Modify subgraph deployment scripts to take target chain as an argument. See package.json for new scripts.
+
 ## 0.0.3
 
 ### Patch Changes

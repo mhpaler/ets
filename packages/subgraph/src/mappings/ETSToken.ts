@@ -5,6 +5,7 @@ import { updateOwnerTagStats } from "../entities/Owner";
 import { updatePlatformTagStats } from "../entities/Platform";
 import { updateRelayerTagStats } from "../entities/Relayer";
 import { ensureRelease } from "../entities/Release";
+import { updateTagExpiration, updateTagRecycle } from "../entities/Tag";
 import { ensureTag } from "../entities/Tag";
 import { updateTagOwner } from "../entities/Tag";
 import {
@@ -61,9 +62,15 @@ export function handlePremiumFlagSet(_event: PremiumFlagSet): void {}
 
 export function handleReservedFlagSet(_event: ReservedFlagSet): void {}
 
-export function handleTagRenewed(_event: TagRenewed): void {}
+export function handleTagRenewed(event: TagRenewed): void {
+  const tagEntity = ensureTag(event.params.tokenId, event);
+  updateTagExpiration(tagEntity.id, event.params.caller);
+}
 
-export function handleTagRecycled(_event: TagRecycled): void {}
+export function handleTagRecycled(event: TagRecycled): void {
+  const tagEntity = ensureTag(event.params.tokenId, event);
+  updateTagRecycle(tagEntity.id, event.params.caller, event);
+}
 
 export function handleTransfer(event: Transfer): void {
   const tagEntity = ensureTag(event.params.tokenId, event);

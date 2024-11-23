@@ -1,5 +1,5 @@
+import { etsAuctionHouseConfig } from "@ethereum-tag-service/contracts/contracts";
 import type { Hex, PublicClient, WalletClient } from "viem";
-import { getConfig } from "../contracts/config";
 import type { AuctionHouseReadFunction, AuctionHouseWriteFunction } from "../types";
 import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
@@ -8,7 +8,8 @@ import { validateConfig } from "../utils/validateConfig";
 export class AuctionHouseClient {
   private readonly publicClient: PublicClient;
   private readonly walletClient: WalletClient | undefined;
-  private readonly etsAuctionHouseConfig: { address: Hex; abi: any };
+  private readonly address: Hex;
+  private readonly abi: any;
 
   constructor({
     publicClient,
@@ -19,24 +20,19 @@ export class AuctionHouseClient {
     walletClient?: WalletClient;
     chainId?: number;
   }) {
-    this.publicClient = publicClient;
-    this.walletClient = walletClient;
     validateConfig(chainId, publicClient, walletClient);
 
-    const config = getConfig(chainId);
-    if (!config || config.etsAuctionHouseConfig === undefined) throw new Error("Configuration could not be retrieved");
+    if (!chainId || !(chainId in etsAuctionHouseConfig.address)) {
+      throw new Error(`[@ethereum-tag-service/sdk-core] AuctionHouse contract not configured for chain ${chainId}`);
+    }
 
-    this.etsAuctionHouseConfig = config.etsAuctionHouseConfig;
+    this.publicClient = publicClient;
+    this.walletClient = walletClient;
+    this.address = etsAuctionHouseConfig.address[chainId as keyof typeof etsAuctionHouseConfig.address];
+    this.abi = etsAuctionHouseConfig.abi;
   }
-
   private async readContract(functionName: AuctionHouseReadFunction, args: any[] = []): Promise<any> {
-    return handleContractRead(
-      this.publicClient,
-      this.etsAuctionHouseConfig.address,
-      this.etsAuctionHouseConfig.abi,
-      functionName,
-      args,
-    );
+    return handleContractRead(this.publicClient, this.address, this.abi, functionName, args);
   }
 
   private async callContract(
@@ -47,15 +43,7 @@ export class AuctionHouseClient {
     if (!this.walletClient) {
       throw new Error("Wallet client is required to perform this action");
     }
-    return handleContractCall(
-      this.publicClient,
-      this.walletClient,
-      this.etsAuctionHouseConfig.address,
-      this.etsAuctionHouseConfig.abi,
-      functionName,
-      args,
-      value,
-    );
+    return handleContractCall(this.publicClient, this.walletClient, this.address, this.abi, functionName, args, value);
   }
 
   // State-changing functions

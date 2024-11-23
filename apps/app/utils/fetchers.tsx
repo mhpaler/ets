@@ -1,35 +1,52 @@
+import { type NetworkName, getNetwork } from "@app/utils/environment";
 import subgraphEndpoints from "@ethereum-tag-service/subgraph-endpoints";
 import { gql, request } from "graphql-request";
 import type { PublicClient } from "viem";
 
-type Variables = Record<string, any>; // Define your custom variable types here if needed
+type Variables = Record<string, any>;
+
+function getSubgraphEndpointKey(network: NetworkName | "none"): keyof typeof subgraphEndpoints {
+  switch (network) {
+    case "arbitrumsepolia":
+      return "arbitrumSepolia";
+    case "basesepolia":
+      return "baseSepolia";
+    case "hardhat":
+      return "localhost";
+    case "none":
+      throw new Error("No network specified");
+    default:
+      throw new Error(`Unsupported network: ${network}`);
+  }
+}
 
 export const fetcher = async <T = any>(query: string, variables: Variables): Promise<T> => {
-  // Current ETS_ENVIRONMENTS are development/stage/production
-  const environment: string = process.env.NEXT_PUBLIC_ETS_ENVIRONMENT || "development";
+  const network = getNetwork();
 
-  console.info(`Fetching data from ${environment} environment`);
-  // Use the environment to select the appropriate endpoint
-  const GRAPH_API_ENDPOINT: string = subgraphEndpoints[environment];
+  if (network === "none") {
+    throw new Error("No network specified for the query");
+  }
+
+  const endpointKey = getSubgraphEndpointKey(network);
+  const GRAPH_API_ENDPOINT: string = subgraphEndpoints[endpointKey];
+
+  if (process.env.NODE_ENV === "development") {
+    console.info(`Fetching data from ${network} network`);
+    console.info("Using endpoint:", GRAPH_API_ENDPOINT);
+  }
+
+  if (!GRAPH_API_ENDPOINT) {
+    throw new Error(`No GraphQL endpoint found for network: ${network}`);
+  }
 
   try {
-    const data = await request(
-      GRAPH_API_ENDPOINT,
-      gql`
-        ${query}
-      `,
-      variables,
-    );
+    const data = await request(GRAPH_API_ENDPOINT, gql`${query}`, variables);
     return data;
   } catch (error) {
-    // Handle errors here if needed
-    console.error(error);
+    console.error("Error fetching data:", error);
     throw error;
   }
 };
-
-// Example usage:
-// const data = await fetcher<YourResponseType>(yourQuery, yourVariables);
 
 export async function fetchEnsName(client: PublicClient, address: string): Promise<string | null> {
   try {
@@ -39,3 +56,8 @@ export async function fetchEnsName(client: PublicClient, address: string): Promi
     return null;
   }
 }
+
+// If you still need a ContextAwareFetcher type and createContextAwareFetcher function:
+export type ContextAwareFetcher = typeof fetcher;
+
+export const createContextAwareFetcher = (): ContextAwareFetcher => fetcher;

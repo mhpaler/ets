@@ -1,18 +1,22 @@
-import { type Chain, arbitrumSepolia, hardhat } from "viem/chains";
+/**
+ * Configuration module for supported blockchain chains in the Ethereum Tag Service
+ */
 
-export const availableChainIds: SupportedChains[] = [
-  421614, // arbitrumSepolia
-  31337, // hardhat
-];
+import {
+  type SupportedChain,
+  type SupportedChainId,
+  availableChainIds,
+  chains,
+} from "@ethereum-tag-service/contracts/multiChainConfig";
 
-export const chainsList: { [key in SupportedChains]: Chain } = {
-  421614: arbitrumSepolia,
-  31337: hardhat,
-};
+// Re-export types and values for use in other modules
+export type { SupportedChainId, SupportedChain };
+export { availableChainIds };
 
-export type SupportedChains =
-  | 421614 // arbitrumSepolia
-  | 31337; // hardhat
-
+/**
+ * Returns chain configuration for a specific chain ID or defaults to first available chain
+ * @param chainId - Optional blockchain network ID
+ * @returns Chain configuration object containing network details
+ */
 export const chainsMap = (chainId?: number) =>
-  chainId ? chainsList[chainId as SupportedChains] : (Object.values(chainsList)[0] as Chain);
+  chainId ? chains[chainId.toString() as SupportedChainId] : Object.values(chains)[0];

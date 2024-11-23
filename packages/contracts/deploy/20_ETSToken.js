@@ -1,11 +1,11 @@
 const { upgrades } = require("hardhat");
-const { setup } = require("./setup.js");
+const { setup } = require("./utils/setup.js");
 const { verify } = require("./utils/verify.js");
 const { saveNetworkConfig } = require("./utils/config.js");
 
 module.exports = async ({ deployments }) => {
   const { save, log } = deployments;
-  [accounts, factories, initSettings] = await setup();
+  const { factories, initSettings } = await setup();
 
   const etsAccessControlsAddress = (await deployments.get("ETSAccessControls")).address;
 

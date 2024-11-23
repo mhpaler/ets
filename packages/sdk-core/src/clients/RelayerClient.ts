@@ -1,6 +1,5 @@
+import { etsConfig, etsRelayerV1Config } from "@ethereum-tag-service/contracts/contracts";
 import type { Address, Hex, PublicClient, WalletClient } from "viem";
-import { getConfig } from "../contracts/config";
-import { etsABI, etsRelayerV1ABI } from "../contracts/contracts";
 import type { RelayerReadFunction, RelayerWriteFunction } from "../types";
 import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
@@ -11,8 +10,8 @@ export class RelayerClient {
   private readonly chainId?: number;
   private readonly publicClient: PublicClient;
   private readonly walletClient?: WalletClient;
-  private readonly relayerConfig: { address?: Hex; abi: any };
-  private readonly etsConfig: { address?: Hex; abi: any };
+  private readonly address: Hex;
+  private readonly abi: any;
 
   constructor({
     chainId,
@@ -25,33 +24,25 @@ export class RelayerClient {
     walletClient?: WalletClient;
     relayerAddress?: Hex;
   }) {
+    validateConfig(chainId, publicClient, walletClient);
+
+    if (!chainId || !(chainId in etsRelayerV1Config.address)) {
+      throw new Error(`[@ethereum-tag-service/sdk-core] Relayer contract not configured for chain ${chainId}`);
+    }
+
+    if (!relayerAddress) {
+      throw new Error("[@ethereum-tag-service/sdk-core] Relayer address is required");
+    }
+
     this.chainId = chainId;
     this.publicClient = publicClient;
     this.walletClient = walletClient;
-
-    validateConfig(chainId, publicClient, walletClient);
-    if (!relayerAddress) throw new Error("Relayer address is required");
-
-    const config = getConfig(chainId, relayerAddress);
-    if (!config || config.etsRelayerV1Config === undefined || config.etsConfig === undefined)
-      throw new Error("Configuration could not be retrieved");
-
-    this.relayerConfig = config.etsRelayerV1Config;
-    this.etsConfig = config.etsConfig;
+    this.address = relayerAddress;
+    this.abi = etsRelayerV1Config.abi;
   }
 
   private async readContract(functionName: RelayerReadFunction, args: any = []): Promise<any> {
-    if (!this.relayerConfig.address) {
-      throw new Error("Relayer address is required");
-    }
-
-    return handleContractRead(
-      this.publicClient,
-      this.relayerConfig.address,
-      this.relayerConfig.abi,
-      functionName,
-      args,
-    );
+    return handleContractRead(this.publicClient, this.address, this.abi, functionName, args);
   }
 
   private async callContract(
@@ -59,33 +50,19 @@ export class RelayerClient {
     args: any = [],
   ): Promise<{ transactionHash: string; status: number }> {
     if (this.walletClient === undefined) {
-      throw new Error("Wallet client is required to perform this action");
+      throw new Error("[@ethereum-tag-service/sdk-core] Wallet client is required to perform this action");
     }
 
-    if (!this.relayerConfig.address) {
-      throw new Error("Relayer address is required");
-    }
-    return handleContractCall(
-      this.publicClient,
-      this.walletClient,
-      this.relayerConfig.address,
-      this.relayerConfig.abi,
-      functionName,
-      args,
-    );
+    return handleContractCall(this.publicClient, this.walletClient, this.address, this.abi, functionName, args);
   }
 
   async createTags(tags: string[]): Promise<{ transactionHash: string; status: number; createdTags: string[] }> {
-    if (this.walletClient === undefined) {
-      throw new Error("Wallet client is required to perform this action");
-    }
-
-    if (!this.relayerConfig.address) {
-      throw new Error("Relayer address is required");
+    if (!this.walletClient) {
+      throw new Error("[@ethereum-tag-service/sdk-core] Wallet client is required to perform this action");
     }
 
     const etsTokenClient = new TokenClient({
-      chainId: this.chainId ?? 0,
+      chainId: this.chainId,
       publicClient: this.publicClient,
       walletClient: this.walletClient,
     });
@@ -96,11 +73,11 @@ export class RelayerClient {
       const existingTags = await etsTokenClient.existingTags(tags);
       const tagsToMint = tags.filter((tag) => !existingTags.includes(tag));
 
-      if (tagsToMint.length > 0 && this.relayerConfig.address) {
+      if (tagsToMint.length > 0) {
         try {
           const { request } = await this.publicClient.simulateContract({
-            address: this.relayerConfig.address,
-            abi: this.relayerConfig.abi,
+            address: this.address,
+            abi: this.abi,
             functionName: "getOrCreateTagIds",
             args: [tagsToMint],
             account: this.walletClient.account,
@@ -120,7 +97,7 @@ export class RelayerClient {
             createdTags,
           };
         } catch (error) {
-          console.error("Error minting tags:", error);
+          console.error("[@ethereum-tag-service/sdk-core] Error minting tags:", error);
           throw error;
         }
       }
@@ -133,12 +110,11 @@ export class RelayerClient {
     tagIds: string[],
     targetId: string,
     recordType: string,
-  ): Promise<{ transactionHash: `0x${string}`; status: any; taggingRecordId: string }> {
-    if (this.relayerConfig.address === undefined) {
-      throw new Error("Relayer address is required");
-    }
+  ): Promise<{ transactionHash: Hex; status: any; taggingRecordId: string }> {
     if (this.walletClient === undefined || this.walletClient.account?.address === undefined) {
-      throw new Error("Wallet client with a valid account address is required to perform this action");
+      throw new Error(
+        "[@ethereum-tag-service/sdk-core] Wallet client with a valid account address is required to perform this action",
+      );
     }
 
     try {
@@ -152,8 +128,8 @@ export class RelayerClient {
       const [fee, _actualTagCount] = await this.computeTaggingFee(tagParams, 0);
 
       const { request } = await this.publicClient.simulateContract({
-        address: this.relayerConfig.address,
-        abi: etsRelayerV1ABI,
+        address: this.address,
+        abi: this.abi,
         functionName: "applyTags",
         args: [[tagParams]],
         value: fee,
@@ -166,15 +142,11 @@ export class RelayerClient {
         hash: transactionHash,
       });
 
-      if (this.etsConfig.address === undefined) {
-        throw new Error("Ets address is required");
-      }
-
       const taggingRecordId = await this.publicClient.readContract({
-        address: this.etsConfig.address,
-        abi: etsABI,
+        address: etsConfig.address[this.chainId as keyof typeof etsConfig.address],
+        abi: etsConfig.abi,
         functionName: "computeTaggingRecordIdFromRawInput",
-        args: [tagParams, this.relayerConfig.address, this.walletClient.account.address],
+        args: [tagParams, this.address, this.walletClient.account.address],
       });
 
       return {
@@ -183,7 +155,7 @@ export class RelayerClient {
         taggingRecordId: String(taggingRecordId),
       };
     } catch (error) {
-      console.error("Error creating tagging record:", error);
+      console.error("[@ethereum-tag-service/sdk-core] Error creating tagging record:", error);
       throw error;
     }
   }
@@ -250,7 +222,6 @@ export class RelayerClient {
     ]);
   }
 
-  // Additional utility and getter functions for the contract
   async owner(): Promise<Address> {
     return this.readContract("owner", []);
   }

@@ -1,3 +1,4 @@
+import { getAlchemyRpcUrlById } from "@ethereum-tag-service/contracts/utils";
 import { AccessControlsClient } from "../clients/AccessControlsClient";
 import { AuctionHouseClient } from "../clients/AuctionHouseClient";
 import { CoreClient } from "../clients/CoreClient";
@@ -11,17 +12,41 @@ import { chainsMap } from "../config/chainsConfig";
 
 import { http, type Hex, createPublicClient, createWalletClient, custom } from "viem";
 
-export const viemPublicClient = (chainId?: number): any => {
-  const chain = chainsMap(chainId);
-  let transportUrl = chain.rpcUrls?.default?.http?.[0];
-  const alchemyUrl = chain.rpcUrls?.alchemy?.http;
-  if (alchemyUrl) transportUrl = `${alchemyUrl}/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`;
+type ClientConfig = {
+  chainId: number;
+  account?: Hex;
+  customTransport?: boolean;
+};
 
-  return createPublicClient({
+function initializeClients(config: ClientConfig) {
+  const { chainId, account, customTransport = true } = config;
+
+  const chain = chainsMap(chainId);
+  if (!chain) {
+    throw new Error(`[@ethereum-tag-service/sdk-core] Unsupported chain ID ${chainId}`);
+  }
+
+  let transportUrl = chain.rpcUrls?.default?.http?.[0];
+
+  if (process.env.NEXT_PUBLIC_ALCHEMY_KEY && chainId !== 31337) {
+    transportUrl = getAlchemyRpcUrlById(chainId.toString(), process.env.NEXT_PUBLIC_ALCHEMY_KEY);
+  }
+
+  const publicClient = createPublicClient({
     chain,
     transport: http(transportUrl, { batch: true }),
   });
-};
+
+  const walletClient = customTransport
+    ? createWalletClient({
+        chain,
+        account,
+        transport: custom((window as any).ethereum),
+      })
+    : undefined;
+
+  return { publicClient, walletClient };
+}
 
 function createClient<T>(
   ClientType: new (args: any) => T,
@@ -31,34 +56,16 @@ function createClient<T>(
 ): T | undefined {
   if (!chainId) return undefined;
 
-  const chain = chainsMap(chainId);
-  if (!chain) {
-    console.error("Unsupported chain ID");
-    return undefined;
-  }
-
-  const publicClient = viemPublicClient(chainId);
-  if (!publicClient) {
-    console.error("Failed to create public client");
-    return undefined;
-  }
-
-  const walletClient = createWalletClient({
-    chain,
-    account,
-    transport: custom((window as any).ethereum),
-  });
-
   try {
-    const client = new ClientType({
+    const { publicClient, walletClient } = initializeClients({ chainId, account });
+    return new ClientType({
       chainId,
       publicClient,
       walletClient,
       relayerAddress,
     });
-    return client;
   } catch (error) {
-    console.error(`Error creating ${ClientType.name}:`, error);
+    console.error(`[@ethereum-tag-service/sdk-core] Error creating ${ClientType.name}:`, error);
     return undefined;
   }
 }
@@ -163,23 +170,20 @@ export function createCoreClient({
     targetClient?: boolean;
   };
 }): CoreClient | undefined {
-  const publicClient = viemPublicClient(chainId);
-  if (!publicClient) {
-    console.error("Failed to create public client");
+  if (!chainId) return undefined;
+
+  try {
+    const { publicClient, walletClient } = initializeClients({ chainId, account });
+
+    return new CoreClient({
+      chainId,
+      publicClient,
+      walletClient,
+      relayerAddress,
+      clients,
+    });
+  } catch (error) {
+    console.error("[@ethereum-tag-service/sdk-core] Failed to create core client:", error);
     return undefined;
   }
-
-  const walletClient = createWalletClient({
-    chain: chainsMap(chainId),
-    account,
-    transport: custom((window as any).ethereum),
-  });
-
-  return new CoreClient({
-    chainId,
-    publicClient,
-    walletClient,
-    relayerAddress,
-    clients,
-  });
 }

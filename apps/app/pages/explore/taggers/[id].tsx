@@ -22,14 +22,6 @@ const Tagger: NextPage = () => {
     pageSize: 1,
     skip: 0,
     filter: { id },
-    config: {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 0,
-    },
   });
 
   const tagger = taggers?.[0];
@@ -79,7 +71,11 @@ const Tagger: NextPage = () => {
         </div>
       </div>
       <div className="col-span-12">
-        <TaggingRecords filter={filter} title={t("tagging-records")} />
+        <TaggingRecords
+          filter={filter}
+          title={t("tagging-records")}
+          visibleColumns={["timestamp", "target", "tags", "relayer"]}
+        />
       </div>
     </Layout>
   );
