@@ -33,8 +33,15 @@ jobs:
       - name: Install dependencies
         uses: ethereum-tag-service/actions/.github/actions/pnpm@main
 
+      - name: Verify npm authentication  # This will run third
+        run: |
+          npm config set "//registry.npmjs.org/:_authToken" "${NPM_TOKEN}"
+          npm whoami
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: PR or publish
-        uses: changesets/action@v1
+        uses: changesets/action@v1.4.5
         with:
           title: "chore: version packages"
           commit: "chore: version packages"
