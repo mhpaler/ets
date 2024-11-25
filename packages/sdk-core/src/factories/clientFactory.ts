@@ -28,7 +28,7 @@ function initializeClients(config: ClientConfig) {
 
   let transportUrl = chain.rpcUrls?.default?.http?.[0];
 
-  if (process.env.NEXT_PUBLIC_ALCHEMY_KEY && chainId !== 31337) {
+  if (typeof process !== "undefined" && process.env.NEXT_PUBLIC_ALCHEMY_KEY && chainId !== 31337) {
     transportUrl = getAlchemyRpcUrlById(chainId.toString(), process.env.NEXT_PUBLIC_ALCHEMY_KEY);
   }
 
