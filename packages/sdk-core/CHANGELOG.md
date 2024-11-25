@@ -1,5 +1,11 @@
 # @ethereum-tag-service/sdk-core
 
+## 0.0.8
+
+### Patch Changes
+
+- [#408](https://github.com/ethereum-tag-service/ets/pull/408) [`a68f6a7`](https://github.com/ethereum-tag-service/ets/commit/a68f6a70a1616c1e75e5df6e2ee4e3c546620d82) Thanks [@mhpaler](https://github.com/mhpaler)! - Support local accounts in sdk-core
+
 ## 0.0.7
 
 ### Patch Changes
