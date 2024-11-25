@@ -45,7 +45,6 @@ jobs:
 
   release:
     name: Release
-    #needs: verify
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -66,10 +65,8 @@ jobs:
       - name: Publish
         uses: changesets/action@v1.4.9
         with:
-          createGithubReleases: ${{ github.ref == 'refs/heads/main' }}
+          createGithubReleases: false
           publish: pnpm changeset:publish
           version: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NETWORK: arbitrumSepolia
+          createBranch: false
+
