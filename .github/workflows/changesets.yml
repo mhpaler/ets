@@ -43,12 +43,13 @@ jobs:
       - name: Version and Publish
         id: publish
         run: |
-          pnpm changeset version
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
+          pnpm changeset version
           git add .
           git commit -m "chore: version packages" || echo "No changes to commit"
           pnpm changeset:publish
+          git push origin --tags
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
