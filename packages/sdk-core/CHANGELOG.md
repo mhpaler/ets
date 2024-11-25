@@ -1,5 +1,11 @@
 # @ethereum-tag-service/sdk-core
 
+## 0.0.7
+
+### Patch Changes
+
+- [#404](https://github.com/ethereum-tag-service/ets/pull/404) [`32cd824`](https://github.com/ethereum-tag-service/ets/commit/32cd82415e907e6d143281e2d9b5436d5a44fb1c) Thanks [@mhpaler](https://github.com/mhpaler)! - Remove dependency on .env var NEXT_PUBLIC_ALCHEMY_KEY
+
 ## 0.0.6
 
 ### Patch Changes
