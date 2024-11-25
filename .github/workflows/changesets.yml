@@ -68,9 +68,8 @@ jobs:
         with:
           createGithubReleases: false
           publish: pnpm changeset:publish
-          version: false
-          branch: main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NETWORK: arbitrumSepolia
+
