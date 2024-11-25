@@ -66,7 +66,7 @@ jobs:
       - name: Publish
         uses: changesets/action@v1.4.9
         with:
-          createGithubReleases: false
+          createGithubReleases: true
           publish: pnpm changeset:publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
