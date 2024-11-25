@@ -40,6 +40,7 @@ jobs:
           commit: 'chore: version packages'
           title: 'chore: version packages'
           version: pnpm changeset:version
+          branch: main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -68,5 +69,8 @@ jobs:
           createGithubReleases: false
           publish: pnpm changeset:publish
           version: false
-          createBranch: false
-
+          branch: main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NETWORK: arbitrumSepolia
