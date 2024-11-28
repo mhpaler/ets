@@ -3,7 +3,7 @@
 
 Core SDK for interacting with Ethereum Tag Service smart contracts.
 
-## Features
+## Features Test
 
 - Type-safe client factories for all ETS contracts
 - Built on viem for reliable Ethereum interactions
