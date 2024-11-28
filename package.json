@@ -70,7 +70,7 @@
     "node": ">=14.0.0"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm lint"
+    "pre-commit": "bun ./scripts/validateBranchAndPaths.ts && pnpm lint"
   },
   "knip": {
     "ignore": ["**/hardhat.config.js", "packages/**/src/version.ts"],
