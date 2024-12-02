@@ -40,9 +40,9 @@
     "@biomejs/biome": "^1.8.3",
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.27.7",
-    "@types/bun": "^1.1.1",
+    "@types/bun": "^1.1.14",
     "@types/node": "^20.12.7",
-    "bun": "^1.1.22",
+    "bun": "^1.1.37",
     "dotenv": "^16.3.1",
     "dotenv-cli": "^7.3.0",
     "glob": "^10.3.12",
@@ -70,7 +70,8 @@
     "node": ">=14.0.0"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm lint"
+    "post-checkout": "bun run ./scripts/validateUpstreamBranch.ts post-checkout",
+    "pre-commit": "bun run ./scripts/validateUpstreamBranch.ts pre-commit && pnpm lint"
   },
   "knip": {
     "ignore": ["**/hardhat.config.js", "packages/**/src/version.ts"],
