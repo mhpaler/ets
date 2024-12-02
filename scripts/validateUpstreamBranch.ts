@@ -1,5 +1,4 @@
 import { execSync } from "node:child_process";
-//import fs from "node:fs";
 
 function getCurrentBranch(): string {
   try {
@@ -38,6 +37,22 @@ function notifyCheckoutRules(): void {
 
 If you violate these rules, your commits will fail. Please ensure your branch upstream matches these requirements.
   `);
+}
+
+function setUpstream(branch: string, upstreamBranch: string): void {
+  try {
+    execSync(`git branch --set-upstream-to=origin/${upstreamBranch} ${branch}`);
+    console.log(`✅ Upstream for branch "${branch}" has been set to "origin/${upstreamBranch}".`);
+    console.log(`
+❓ Note: You can still set your upstream branch manually using:
+
+  git branch --set-upstream-to origin/<desired-upstream-branch>
+
+However, make sure you know what you're doing. CI/CD enforces strict upstream rules around pull requests.
+    `);
+  } catch {
+    console.error(`❌ Error: Unable to set upstream for branch "${branch}".`);
+  }
 }
 
 function validateCommitRestrictions(): void {
@@ -80,17 +95,25 @@ Please adjust your branch upstream or commit only valid changes.
     process.exit(1);
   }
 }
+
 function handlePostCheckout(): void {
   const branch = getCurrentBranch();
   const upstream = getUpstreamOf(branch);
 
-  if (upstream) {
-    console.log(`✅ The branch "${branch}" has upstream set to "${upstream}".`);
-  } else {
-    console.warn(`
+  if (!upstream) {
+    if (branch.startsWith("stage")) {
+      setUpstream(branch, "stage");
+    } else if (branch.startsWith("main")) {
+      setUpstream(branch, "main");
+    } else {
+      console.warn(`
 ⚠️ Warning: The branch "${branch}" does not have an upstream set.
 You will not be able to commit until the upstream is configured.
-    `);
+To set the upstream manually, use:
+
+  git branch --set-upstream-to origin/<desired-upstream-branch>
+      `);
+    }
   }
 
   notifyCheckoutRules();
