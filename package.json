@@ -32,6 +32,7 @@
     "lint": "biome check",
     "lint:repo": "sherif -i ethers -i axios",
     "lint:unused": "pnpm clean && knip",
+    "setup-fork": "bun ./scripts/setupFork.ts",
     "start-graph-node": "cd scripts && ./start-graph-node.sh",
     "test:build": "pnpm run --r --parallel test:build",
     "version:update": "bun ./scripts/updateVersion.ts"
