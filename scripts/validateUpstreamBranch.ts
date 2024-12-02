@@ -11,7 +11,7 @@ function getCurrentBranch(): string {
 
 function getUpstreamOf(branch: string): string | null {
   try {
-    return execSync(`git rev-parse --abbrev-ref ${branch}@{u}`, { encoding: "utf-8" }).trim();
+    return execSync(`git rev-parse --abbrev-ref ${branch}@{u} 2>/dev/null`, { encoding: "utf-8" }).trim();
   } catch {
     return null;
   }
@@ -31,7 +31,7 @@ function getChangedFiles(): string[] {
 
 function notifyCheckoutRules(): void {
   console.log(`
-🔔 **IMPORTANT: PR RULES**
+🔔 **IMPORTANT: ETS PR RULES**
 - Changes to files in '/apps/*' must be PR'ed at 'stage'.
 - Changes to files in '/packages/*' must be PR'ed at 'main'.
 
@@ -44,7 +44,7 @@ function setUpstream(branch: string, upstreamBranch: string): void {
     execSync(`git branch --set-upstream-to=origin/${upstreamBranch} ${branch}`);
     console.log(`✅ Upstream for branch "${branch}" has been set to "origin/${upstreamBranch}".`);
     console.log(`
-❓ Note: You can still set your upstream branch manually using:
+💡 Note: You can still set your upstream branch manually using:
 
   git branch --set-upstream-to origin/<desired-upstream-branch>
 
@@ -101,9 +101,15 @@ function handlePostCheckout(): void {
   const upstream = getUpstreamOf(branch);
 
   if (!upstream) {
-    if (branch.startsWith("stage")) {
+    // Get the branch we checked out from
+    const sourceRef = execSync("git name-rev --name-only HEAD@{1}", { encoding: "utf8" }).trim();
+
+    // Clean up the ref name to get just the branch name
+    const sourceBranch = sourceRef.replace(/^(remotes\/origin\/|heads\/)?/, "").split("~")[0];
+
+    if (sourceBranch === "stage") {
       setUpstream(branch, "stage");
-    } else if (branch.startsWith("main")) {
+    } else if (sourceBranch === "main") {
       setUpstream(branch, "main");
     } else {
       console.warn(`
