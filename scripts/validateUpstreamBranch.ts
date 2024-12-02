@@ -1,5 +1,4 @@
 import { execSync } from "node:child_process";
-//import fs from "node:fs";
 
 function getCurrentBranch(): string {
   try {
@@ -12,7 +11,7 @@ function getCurrentBranch(): string {
 
 function getUpstreamOf(branch: string): string | null {
   try {
-    return execSync(`git rev-parse --abbrev-ref ${branch}@{u}`, { encoding: "utf-8" }).trim();
+    return execSync(`git rev-parse --abbrev-ref ${branch}@{u} 2>/dev/null`, { encoding: "utf-8" }).trim();
   } catch {
     return null;
   }
@@ -32,12 +31,28 @@ function getChangedFiles(): string[] {
 
 function notifyCheckoutRules(): void {
   console.log(`
-🔔 **IMPORTANT: PR RULES**
+🔔 **IMPORTANT: ETS PR RULES**
 - Changes to files in '/apps/*' must be PR'ed at 'stage'.
 - Changes to files in '/packages/*' must be PR'ed at 'main'.
 
 If you violate these rules, your commits will fail. Please ensure your branch upstream matches these requirements.
   `);
+}
+
+function setUpstream(branch: string, upstreamBranch: string): void {
+  try {
+    execSync(`git branch --set-upstream-to=origin/${upstreamBranch} ${branch}`);
+    console.log(`✅ Upstream for branch "${branch}" has been set to "origin/${upstreamBranch}".`);
+    console.log(`
+💡 Note: You can still set your upstream branch manually using:
+
+  git branch --set-upstream-to origin/<desired-upstream-branch>
+
+However, make sure you know what you're doing. CI/CD enforces strict upstream rules around pull requests.
+    `);
+  } catch {
+    console.error(`❌ Error: Unable to set upstream for branch "${branch}".`);
+  }
 }
 
 function validateCommitRestrictions(): void {
@@ -80,17 +95,31 @@ Please adjust your branch upstream or commit only valid changes.
     process.exit(1);
   }
 }
+
 function handlePostCheckout(): void {
   const branch = getCurrentBranch();
   const upstream = getUpstreamOf(branch);
 
-  if (upstream) {
-    console.log(`✅ The branch "${branch}" has upstream set to "${upstream}".`);
-  } else {
-    console.warn(`
+  if (!upstream) {
+    // Get the branch we checked out from
+    const sourceRef = execSync("git name-rev --name-only HEAD@{1}", { encoding: "utf8" }).trim();
+
+    // Clean up the ref name to get just the branch name
+    const sourceBranch = sourceRef.replace(/^(remotes\/origin\/|heads\/)?/, "").split("~")[0];
+
+    if (sourceBranch === "stage") {
+      setUpstream(branch, "stage");
+    } else if (sourceBranch === "main") {
+      setUpstream(branch, "main");
+    } else {
+      console.warn(`
 ⚠️ Warning: The branch "${branch}" does not have an upstream set.
 You will not be able to commit until the upstream is configured.
-    `);
+To set the upstream manually, use:
+
+  git branch --set-upstream-to origin/<desired-upstream-branch>
+      `);
+    }
   }
 
   notifyCheckoutRules();
