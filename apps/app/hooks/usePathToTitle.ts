@@ -13,50 +13,35 @@ import { useEffect, useState } from "react";
 export const usePathToTitle = (segment: string) => {
   const router = useRouter();
   const { t } = useTranslation("common");
+  const [label, setLabel] = useState("");
+
   const pathSegments = router.asPath.split("/").filter(Boolean);
   const segmentIndex = pathSegments.indexOf(segment);
 
-  const [label, setLabel] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  // Only fetch tag data if we're actually on a tag path
-  const fetchTagDisplayName = segmentIndex === 2 && pathSegments[0] === "explore" && pathSegments[1] === "tags";
-
-  // Conditionally call useCtags only when needed
-  const { tags, isLoading } = fetchTagDisplayName
-    ? useCtags({
-        pageSize: 1,
-        skip: 0,
-        filter: { machineName: segment },
-      })
-    : { tags: null, isLoading: false };
+  const isTagPath = segmentIndex === 2 && pathSegments[0] === "explore" && pathSegments[1] === "tags";
+  const { tags, isLoading } = useCtags({
+    pageSize: 1,
+    skip: 0,
+    filter: { machineName: segment },
+  });
 
   useEffect(() => {
-    if (fetchTagDisplayName) {
-      setLoading(true);
-      if (tags && tags.length > 0) {
+    if (isTagPath) {
+      if (tags?.[0]?.display) {
         setLabel(tags[0].display);
       } else {
         setLabel(segment);
       }
-      setLoading(false);
-    } else {
-      // Handle non-tag paths as before
-      if (segmentIndex === 0) {
-        setLabel(t(segment));
-      }
-      if (segmentIndex === 1 && pathSegments[0] === "explore") {
-        setLabel(t(segment));
-      }
-      if (segmentIndex === 1 && pathSegments[0] === "playground") {
-        setLabel(t(segment));
-      }
-      if (segmentIndex === 2 && pathSegments[0] === "explore" && pathSegments[1] !== "tags") {
-        setLabel(Truncate(segment, 14, "middle"));
-      }
-      setLoading(false);
+    } else if (segmentIndex === 0) {
+      setLabel(t(segment));
+    } else if (segmentIndex === 1 && pathSegments[0] === "explore") {
+      setLabel(t(segment));
+    } else if (segmentIndex === 1 && pathSegments[0] === "playground") {
+      setLabel(t(segment));
+    } else if (segmentIndex === 2 && pathSegments[0] === "explore" && pathSegments[1] !== "tags") {
+      setLabel(Truncate(segment, 14, "middle"));
     }
-  }, [segment, segmentIndex, pathSegments, t, fetchTagDisplayName, tags]);
+  }, [segment, segmentIndex, pathSegments, t, isTagPath, tags]);
 
-  return { label, loading: isLoading || loading };
+  return { label, loading: isLoading };
 };
