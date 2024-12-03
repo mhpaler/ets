@@ -8,13 +8,37 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  validate-branch-rules:
+    name: Validate Branch Rules
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check branch rules
+        id: check-changes
+        run: |
+          if [[ $(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep '^apps/') ]] && [[ "${{ github.base_ref }}" != "stage" ]]; then
+            echo "Changes in /apps/* must target the stage branch"
+            exit 1
+          fi
+
+          if [[ $(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep '^packages/') ]] && [[ "${{ github.base_ref }}" != "main" ]]; then
+            echo "Changes in /packages/* must target the main branch"
+            exit 1
+          fi
+
   verify:
     name: Verify
+    needs: validate-branch-rules
     uses: ./.github/workflows/verify.yml
     secrets: inherit
 
   size:
     name: Size
+    needs: validate-branch-rules
+    if: github.base_ref == 'main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
