@@ -21,10 +21,16 @@ jobs:
         run: |
           CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
 
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
           HAS_APP_CHANGES=$(echo "$CHANGED_FILES" | grep '^apps/' || true)
           HAS_PACKAGE_CHANGES=$(echo "$CHANGED_FILES" | grep '^packages/' || true)
 
-          if [[ ! -z "$HAS_APP_CHANGES" ]] && [[ "${{ github.base_ref }}" != "stage" ]]; then
+          echo "App changes: '$HAS_APP_CHANGES'"
+          echo "Package changes: '$HAS_PACKAGE_CHANGES'"
+
+          if [[ -n "$HAS_APP_CHANGES" ]] && [[ "${{ github.base_ref }}" != "stage" ]]; then
             echo "Error: Changes detected in /apps/* directory"
             echo "Current target branch: ${{ github.base_ref }}"
             echo "Required target branch: stage"
@@ -32,13 +38,14 @@ jobs:
             exit 1
           fi
 
-          if [[ ! -z "$HAS_PACKAGE_CHANGES" ]] && [[ "${{ github.base_ref }}" != "main" ]]; then
+          if [[ -n "$HAS_PACKAGE_CHANGES" ]] && [[ "${{ github.base_ref }}" != "main" ]]; then
             echo "Error: Changes detected in /packages/* directory"
             echo "Current target branch: ${{ github.base_ref }}"
             echo "Required target branch: main"
             echo "Please update your PR to target the main branch for all changes to /packages/*"
             exit 1
           fi
+
 
   verify:
     name: Verify
