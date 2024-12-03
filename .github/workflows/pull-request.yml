@@ -56,9 +56,11 @@ jobs:
   size:
     name: Size
     needs: validate-branch-rules
-    if: github.base_ref == 'main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    if: |
+      github.base_ref == 'main' &&
+      contains(toJSON(github.event.pull_request.files.*.path), 'packages/')
 
     permissions:
       contents: read # Read access to clone the repository and read contents
