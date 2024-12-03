@@ -1,5 +1,14 @@
 import { execSync } from "node:child_process";
 
+function testGitHubSSHConnection(): boolean {
+  try {
+    execSync('ssh -T git@github.com 2>&1 | grep "successfully authenticated"', { stdio: "pipe" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function remoteExists(remoteName: string): boolean {
   try {
     execSync(`git remote get-url ${remoteName}`, { stdio: "ignore" });
@@ -11,6 +20,31 @@ function remoteExists(remoteName: string): boolean {
 
 function setupFork(): void {
   try {
+    // Check GitHub SSH connection first
+    if (!testGitHubSSHConnection()) {
+      console.log(`
+🔑 GitHub SSH authentication failed. Here's how to fix it:
+
+1. Check for existing SSH keys:
+   $ ls -la ~/.ssh
+
+2. Generate a new SSH key if needed:
+   $ ssh-keygen -t ed25519 -C "your_email@example.com"
+
+3. Start SSH agent and add your key:
+   $ eval "$(ssh-agent -s)"
+   $ ssh-add ~/.ssh/id_ed25519
+
+4. Add the key to GitHub:
+   - Copy your public key: $ cat ~/.ssh/id_ed25519.pub
+   - Go to GitHub.com → Settings → SSH Keys → New SSH Key
+   - Paste your key and save
+
+5. Try this setup again after completing these steps
+      `);
+      process.exit(1);
+    }
+
     // Check and add upstream remote if it doesn't exist
     if (!remoteExists("upstream")) {
       console.log("🔗 Adding upstream remote...");
