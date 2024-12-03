@@ -5,6 +5,8 @@
   "packageManager": "pnpm@9.9.0",
   "keywords": ["ethereum", "react", "ets", "tag", "tagging"],
   "scripts": {
+    "bun": "pnpm exec bun",
+    "biome": "pnpm exec biome",
     "build": "pnpm run clean && turbo run build --env-mode=loose",
     "changeset:build": "pnpm run --recursive --filter \"./packages/**\" --filter \"./apps/app\" build",
     "changeset:prepublish": "pnpm version:update && pnpm changeset:build && bun ./scripts/formatPackageJson.ts",
@@ -71,8 +73,8 @@
     "node": ">=14.0.0"
   },
   "simple-git-hooks": {
-    "post-checkout": "bun run ./scripts/validateUpstreamBranch.ts post-checkout",
-    "pre-commit": "bun run ./scripts/validateUpstreamBranch.ts pre-commit && pnpm lint"
+    "post-checkout": "pnpm bun run ./scripts/validateUpstreamBranch.ts post-checkout",
+    "pre-commit": "pnpm bun run ./scripts/validateUpstreamBranch.ts pre-commit && pnpm lint"
   },
   "knip": {
     "ignore": ["**/hardhat.config.js", "packages/**/src/version.ts"],
