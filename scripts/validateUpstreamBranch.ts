@@ -43,13 +43,6 @@ function setUpstream(branch: string, upstreamBranch: string): void {
   try {
     execSync(`git branch --set-upstream-to=origin/${upstreamBranch} ${branch}`);
     console.log(`✅ Upstream for branch "${branch}" has been set to "origin/${upstreamBranch}".`);
-    console.log(`
-💡 Note: You can still set your upstream branch manually using:
-
-  git branch --set-upstream-to origin/<desired-upstream-branch>
-
-However, make sure you know what you're doing. CI/CD enforces strict upstream rules around pull requests.
-    `);
   } catch {
     console.error(`❌ Error: Unable to set upstream for branch "${branch}".`);
   }
@@ -101,11 +94,8 @@ function handlePostCheckout(): void {
   const upstream = getUpstreamOf(branch);
 
   if (!upstream) {
-    // Get the branch we checked out from
-    const sourceRef = execSync("git name-rev --name-only HEAD@{1}", { encoding: "utf8" }).trim();
-
-    // Clean up the ref name to get just the branch name
-    const sourceBranch = sourceRef.replace(/^(remotes\/origin\/|heads\/)?/, "").split("~")[0];
+    const sourceRef = execSync("git rev-parse --symbolic-full-name @{-1}", { encoding: "utf8" }).trim();
+    const sourceBranch = sourceRef.replace("refs/heads/", "");
 
     if (sourceBranch === "stage") {
       setUpstream(branch, "stage");
