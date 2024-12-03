@@ -19,13 +19,24 @@ jobs:
       - name: Check branch rules
         id: check-changes
         run: |
-          if [[ $(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep '^apps/') ]] && [[ "${{ github.base_ref }}" != "stage" ]]; then
-            echo "Changes in /apps/* must target the stage branch"
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
+
+          HAS_APP_CHANGES=$(echo "$CHANGED_FILES" | grep '^apps/' || true)
+          HAS_PACKAGE_CHANGES=$(echo "$CHANGED_FILES" | grep '^packages/' || true)
+
+          if [[ ! -z "$HAS_APP_CHANGES" ]] && [[ "${{ github.base_ref }}" != "stage" ]]; then
+            echo "Error: Changes detected in /apps/* directory"
+            echo "Current target branch: ${{ github.base_ref }}"
+            echo "Required target branch: stage"
+            echo "Please update your PR to target the stage branch for all changes to /apps/*"
             exit 1
           fi
 
-          if [[ $(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep '^packages/') ]] && [[ "${{ github.base_ref }}" != "main" ]]; then
-            echo "Changes in /packages/* must target the main branch"
+          if [[ ! -z "$HAS_PACKAGE_CHANGES" ]] && [[ "${{ github.base_ref }}" != "main" ]]; then
+            echo "Error: Changes detected in /packages/* directory"
+            echo "Current target branch: ${{ github.base_ref }}"
+            echo "Required target branch: main"
+            echo "Please update your PR to target the main branch for all changes to /packages/*"
             exit 1
           fi
 
