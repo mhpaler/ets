@@ -1,4 +1,4 @@
-const { ethers, upgrades, artifacts } = require("hardhat");
+const { ethers, upgrades, artifacts, getNamedAccounts } = require("hardhat");
 const initSettings = {
   // Token
   TAG_MIN_STRING_LENGTH: 2,
@@ -20,16 +20,19 @@ const initSettings = {
 };
 
 async function getAccounts() {
-  const namedAccounts = await ethers.getNamedSigners();
-  const unnamedAccounts = await ethers.getUnnamedSigners();
+  const { ETSAdmin, ETSPlatform, ETSOracle } = await getNamedAccounts();
+  const ETSAdminSigner = await ethers.getSigner(ETSAdmin);
+  const ETSPlatformSigner = await ethers.getSigner(ETSPlatform);
+  const ETSOracleSigner = await ethers.getSigner(ETSOracle);
+  const signers = await ethers.getSigners();
   const accounts = {
-    ETSAdmin: namedAccounts.ETSAdmin,
-    ETSPlatform: namedAccounts.ETSPlatform,
-    ETSOracle: namedAccounts.ETSOracle,
-    Buyer: unnamedAccounts[0],
-    RandomOne: unnamedAccounts[1],
-    RandomTwo: unnamedAccounts[2],
-    Creator: unnamedAccounts[3],
+    ETSAdmin: ETSAdminSigner,
+    ETSPlatform: ETSPlatformSigner,
+    ETSOracle: ETSOracleSigner,
+    Buyer: signers[3],
+    RandomOne: signers[4],
+    RandomTwo: signers[5],
+    Creator: signers[6],
   };
   return accounts;
 }
