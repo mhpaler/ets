@@ -47,7 +47,7 @@ jobs:
           key: ${{ inputs.cache-key }}
 
       - name: Set PNPM path
-        run: echo "PATH=${{ needs.setup.outputs.pnpm_home }}/bin:$PATH" >> $GITHUB_ENV
+        run: echo "PATH=/home/runner/setup-pnpm/node_modules/.bin:$PATH" >> $GITHUB_ENV
 
       - name: Run Solhint
         run: |
@@ -67,7 +67,7 @@ jobs:
           key: ${{ inputs.cache-key }}
 
       - name: Set PNPM path
-        run: echo "PATH=${{ needs.setup.outputs.pnpm_home }}/bin:$PATH" >> $GITHUB_ENV
+        run: echo "PATH=/home/runner/setup-pnpm/node_modules/.bin:$PATH" >> $GITHUB_ENV
 
       - name: Run Tests
         run: |

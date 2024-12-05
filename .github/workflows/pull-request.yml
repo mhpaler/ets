@@ -68,7 +68,7 @@ jobs:
 
       - name: Get PNPM_HOME
         id: pnpm-path
-        run: echo "path=$(pnpm config get prefix)" >> $GITHUB_OUTPUT
+        run: echo "path=/home/runner/setup-pnpm/node_modules/.bin" >> $GITHUB_OUTPUT
 
       - name: Install dependencies
         run: pnpm install
