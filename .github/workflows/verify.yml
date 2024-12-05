@@ -18,6 +18,9 @@ jobs:
           path: ./*
           key: ${{ github.sha }}
 
+      - name: Set PNPM path
+        run: echo "PATH=${{ needs.setup.outputs.pnpm_home }}/bin:$PATH" >> $GITHUB_ENV
+
       - name: Lint repo
         run: pnpm lint:repo
 
@@ -34,6 +37,9 @@ jobs:
         with:
           path: ./*
           key: ${{ github.sha }}
+
+      - name: Set PNPM path
+        run: echo "PATH=${{ needs.setup.outputs.pnpm_home }}/bin:$PATH" >> $GITHUB_ENV
 
       - name: Build
         run: pnpm build

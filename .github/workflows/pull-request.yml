@@ -51,6 +51,8 @@ jobs:
     name: Setup
     needs: validate-branch-rules
     runs-on: ubuntu-latest
+    outputs:
+      pnpm_home: ${{ steps.pnpm-path.outputs.path }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
@@ -63,6 +65,10 @@ jobs:
         with:
           cache: pnpm
           node-version: 20.1.0
+
+      - name: Get PNPM_HOME
+        id: pnpm-path
+        run: echo "path=$(pnpm config get prefix)" >> $GITHUB_OUTPUT
 
       - name: Install dependencies
         run: pnpm install

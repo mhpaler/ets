@@ -46,6 +46,9 @@ jobs:
           path: ./*
           key: ${{ inputs.cache-key }}
 
+      - name: Set PNPM path
+        run: echo "PATH=${{ needs.setup.outputs.pnpm_home }}/bin:$PATH" >> $GITHUB_ENV
+
       - name: Run Solhint
         run: |
           cd packages/contracts/
@@ -62,6 +65,9 @@ jobs:
         with:
           path: ./*
           key: ${{ inputs.cache-key }}
+
+      - name: Set PNPM path
+        run: echo "PATH=${{ needs.setup.outputs.pnpm_home }}/bin:$PATH" >> $GITHUB_ENV
 
       - name: Run Tests
         run: |
