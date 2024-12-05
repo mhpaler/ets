@@ -1,0 +1,43 @@
+name: Sync Stage
+
+on:
+  workflow_run:
+    workflows: ["Changesets"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  sync:
+    name: Sync main to stage
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create Pull Request
+        id: create-pr
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: sync/main-to-stage
+          base: stage
+          title: 'chore: sync main to stage'
+          body: 'Automated PR to sync changes from main to stage'
+          labels: automated
+          delete-branch: true
+
+      - name: Auto-merge PR
+        if: steps.create-pr.outputs.pull-request-number
+        run: |
+          gh pr merge --auto --merge \
+            "sync/main-to-stage"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
