@@ -1,4 +1,5 @@
 name: Verify
+
 on:
   workflow_call:
   workflow_dispatch:
@@ -10,13 +11,12 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 8
-
     steps:
-      - name: Clone repository
-        uses: actions/checkout@v4
-
-      - name: Install dependencies
-        uses: ethereum-tag-service/actions/.github/actions/pnpm@main
+      - name: Restore workspace
+        uses: actions/cache@v3
+        with:
+          path: ./*
+          key: ${{ github.sha }}
 
       - name: Lint repo
         run: pnpm lint:repo
@@ -26,21 +26,19 @@ jobs:
 
   build:
     name: Build
-    needs: lint
     runs-on: ubuntu-latest
     timeout-minutes: 5
-
     steps:
-      - name: Clone repository
-        uses: actions/checkout@v4
-
-      - name: Install dependencies
-        uses: ethereum-tag-service/actions/.github/actions/pnpm@main
+      - name: Restore workspace
+        uses: actions/cache@v3
+        with:
+          path: ./*
+          key: ${{ github.sha }}
 
       - name: Build
         run: pnpm build
         env:
-          NETWORK: arbitrumSepolia # Any valid network option in hardhat.config.ts should work.
+          NETWORK: arbitrumSepolia
 
       - name: Publint
         run: pnpm test:build
@@ -51,4 +49,6 @@ jobs:
   test:
     name: Smart Contracts
     uses: ./.github/workflows/solidity-screener.yml
+    with:
+      cache-key: ${{ github.sha }}
     secrets: inherit

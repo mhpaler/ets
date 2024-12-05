@@ -12,7 +12,8 @@ jobs:
     name: Validate Branch Rules
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Clone repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -46,26 +47,10 @@ jobs:
             exit 1
           fi
 
-
-  verify:
-    name: Verify
-    needs: validate-branch-rules
-    uses: ./.github/workflows/verify.yml
-    secrets: inherit
-
-  size:
-    name: Size
+  setup:
+    name: Setup
     needs: validate-branch-rules
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    if: |
-      github.base_ref == 'main' &&
-      contains(toJSON(github.event.pull_request.files.*.path), 'packages/')
-
-    permissions:
-      contents: read # Read access to clone the repository and read contents
-      pull-requests: write # Write access to post comments on the pull request
-
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
@@ -73,11 +58,40 @@ jobs:
       - name: Install dependencies
         uses: ethereum-tag-service/actions/.github/actions/pnpm@main
 
+      - name: Cache workspace
+        uses: actions/cache@v3
+        with:
+          path: ./*
+          key: ${{ github.sha }}
+
+  verify:
+    name: Verify
+    needs: setup
+    uses: ./.github/workflows/verify.yml
+    secrets: inherit
+
+  size:
+    name: Size
+    needs: setup
+    if: |
+      github.base_ref == 'main' &&
+      contains(toJSON(github.event.pull_request.files.*.path), 'packages/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Restore workspace
+        uses: actions/cache@v3
+        with:
+          path: ./*
+          key: ${{ github.sha }}
+
       - name: Report build size
         uses: preactjs/compressed-size-action@v2
         with:
           pattern: "packages/**/dist/**"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
         env:
-          NETWORK: ${{ github.base_ref == 'main' && 'testnet_stage' || 'arbitrumSepolia' }}
-
+          NETWORK: arbitrumSepolia
