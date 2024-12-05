@@ -55,17 +55,24 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        uses: ethereum-tag-service/actions/.github/actions/pnpm@main
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
 
-      - name: Cache workspace and pnpm
+      - name: Set up node
+        uses: actions/setup-node@v4
+        with:
+          cache: pnpm
+          node-version: 20.1.0
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Cache workspace
         uses: actions/cache@v3
         with:
-          path: |
-            ./*
-            ~/.pnpm-store
-            /usr/local/bin/pnpm
+          path: ./*
           key: ${{ github.sha }}
+
 
   verify:
     name: Verify
