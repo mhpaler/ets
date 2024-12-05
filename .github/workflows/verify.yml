@@ -18,16 +18,16 @@ jobs:
           path: ./*
           key: ${{ github.sha }}
 
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.9.0
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20.1.0
           cache: 'pnpm'
-
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.9.0
 
       - name: Lint repo
         run: pnpm lint:repo
