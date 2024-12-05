@@ -58,10 +58,13 @@ jobs:
       - name: Install dependencies
         uses: ethereum-tag-service/actions/.github/actions/pnpm@main
 
-      - name: Cache workspace
+      - name: Cache workspace and pnpm
         uses: actions/cache@v3
         with:
-          path: ./*
+          path: |
+            ./*
+            ~/.pnpm-store
+            /usr/local/bin/pnpm
           key: ${{ github.sha }}
 
   verify:
