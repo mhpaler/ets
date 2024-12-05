@@ -1,3 +1,18 @@
+# Primary orchestrator workflow for pull request validation and testing
+#
+# Key responsibilities:
+# 1. Validates branch rules:
+#    - Changes to apps/* must target stage branch
+#    - Changes to packages/* must target main branch
+# 2. Sets up the development environment:
+#    - Installs Node.js and PNPM
+#    - Caches the workspace for downstream workflows
+# 3. Triggers verify.yml for code quality checks
+# 4. Analyzes size impact for package changes targeting main
+#
+# The workspace cache (keyed by github.sha) is consumed by:
+# - verify.yml
+# - solidity-screener.yml
 name: Pull Request
 on:
   pull_request:

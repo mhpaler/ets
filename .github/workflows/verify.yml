@@ -1,5 +1,17 @@
+# Reusable workflow for code verification, triggered by pull requests or manually
+#
+# Jobs sequence:
+# 1. Lint: Code style and quality checks
+#    - Restores cached workspace
+#    - Runs repository and code linting
+# 2. Build: Package compilation and validation
+#    - Builds all packages
+#    - Validates package exports
+#    - Checks for unused dependencies
+# 3. Test: Triggers solidity-screener.yml for smart contract validation
+#
+# Note: Each job requires proper PNPM setup to access the package manager
 name: Verify
-
 on:
   workflow_call:
   workflow_dispatch:
