@@ -20,8 +20,8 @@ importers:
         specifier: ^1.8.3
         version: 1.9.2
       '@changesets/changelog-github':
-        specifier: ^0.4.8
-        version: 0.4.8(encoding@0.1.13)
+        specifier: ^0.5.0
+        version: 0.5.0(encoding@0.1.13)
       '@changesets/cli':
         specifier: ^2.27.7
         version: 2.27.8
@@ -289,7 +289,7 @@ importers:
         version: 1.11.0(encoding@0.1.13)(ethers@5.5.3(bufferutil@4.0.8)(utf-8-validate@5.0.10))(web3-core-helpers@1.10.4)(web3-core@1.10.4(encoding@0.1.13))(web3-utils@1.10.4)(web3@1.10.4(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10))
       axios:
         specifier: ^1.6.0
-        version: 1.7.7(debug@4.3.7)
+        version: 1.7.7
       ethers:
         specifier: 5.5.3
         version: 5.5.3(bufferutil@4.0.8)(utf-8-validate@5.0.10)
@@ -392,19 +392,19 @@ importers:
         version: 0.15.5(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@nomiclabs/hardhat-truffle5':
         specifier: ^2.0.6
-        version: 2.0.7(@nomiclabs/hardhat-web3@2.0.0(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(web3@1.10.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)))(bufferutil@4.0.8)(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)(web3-core-helpers@1.10.4)(web3-core-promievent@1.10.4)(web3-eth-abi@1.10.4)(web3-utils@1.10.4)(web3@1.10.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+        version: 2.0.7(@nomiclabs/hardhat-web3@2.0.0(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(web3@1.10.4(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)))(bufferutil@4.0.8)(encoding@0.1.13)(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)(web3-core-helpers@1.10.4)(web3-core-promievent@1.10.4)(web3-eth-abi@1.10.4)(web3-utils@1.10.4)(web3@1.10.4(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10))
       '@nomiclabs/hardhat-web3':
         specifier: ^2.0.0
-        version: 2.0.0(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(web3@1.10.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+        version: 2.0.0(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(web3@1.10.4(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10))
       '@openzeppelin/hardhat-upgrades':
         specifier: ^2.4.1
-        version: 2.5.1(@nomicfoundation/hardhat-ethers@3.0.8(ethers@6.8.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10)))(@nomicfoundation/hardhat-verify@2.0.11(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10)))(bufferutil@4.0.8)(ethers@6.8.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
+        version: 2.5.1(@nomicfoundation/hardhat-ethers@3.0.8(ethers@6.8.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10)))(@nomicfoundation/hardhat-verify@2.0.11(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10)))(bufferutil@4.0.8)(encoding@0.1.13)(ethers@6.8.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
       '@openzeppelin/test-helpers':
         specifier: ^0.5.15
-        version: 0.5.16(bn.js@5.2.1)(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+        version: 0.5.16(bn.js@5.2.1)(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@sunodo/wagmi-plugin-hardhat-deploy':
         specifier: ^0.3.0
-        version: 0.3.0(abitype@1.0.6(typescript@5.6.2)(zod@3.23.8))(typescript@5.6.2)
+        version: 0.3.0(@wagmi/core@2.13.6(@tanstack/query-core@5.56.2)(@types/react@18.2.12)(immer@10.0.2)(react@18.2.0)(typescript@5.6.2)(viem@2.21.11(bufferutil@4.0.8)(typescript@5.6.2)(utf-8-validate@5.0.10)(zod@3.23.8)))(abitype@1.0.6(typescript@5.6.2)(zod@3.23.8))(typescript@5.6.2)(wagmi@2.12.13(@tanstack/query-core@5.56.2)(@tanstack/react-query@5.56.2(react@18.2.0))(@types/react@18.2.12)(bufferutil@4.0.8)(encoding@0.1.13)(immer@10.0.2)(react@18.2.0)(rollup@4.22.4)(typescript@5.6.2)(utf-8-validate@5.0.10)(viem@2.21.11(bufferutil@4.0.8)(typescript@5.6.2)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))
       '@typechain/ethers-v5':
         specifier: ^11.1.2
         version: 11.1.2(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(ethers@6.8.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typechain@8.3.2(typescript@5.6.2))(typescript@5.6.2)
@@ -428,7 +428,7 @@ importers:
         version: 2.1.16(bufferutil@4.0.8)(typescript@5.6.2)(utf-8-validate@5.0.10)
       axios:
         specifier: ^1.6.2
-        version: 1.7.7(debug@4.3.7)
+        version: 1.7.7
       chai:
         specifier: ^4.5.0
         version: 4.5.0
@@ -452,7 +452,7 @@ importers:
         version: 0.11.45(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       hardhat-ethernal:
         specifier: 3.1.0
-        version: 3.1.0(@firebase/app-types@0.7.0)(bufferutil@4.0.8)(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
+        version: 3.1.0(@firebase/app-types@0.7.0)(bufferutil@4.0.8)(encoding@0.1.13)(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
       hardhat-gas-reporter:
         specifier: ^2.2.1
         version: 2.2.1(bufferutil@4.0.8)(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(typescript@5.6.2)(utf-8-validate@5.0.10)(zod@3.23.8)
@@ -488,7 +488,7 @@ importers:
         version: 10.9.2(@types/node@20.16.5)(typescript@5.6.2)
       tsup:
         specifier: ^8.2.3
-        version: 8.3.0(typescript@5.6.2)
+        version: 8.3.0(jiti@1.21.6)(postcss@8.4.47)(typescript@5.6.2)(yaml@2.4.5)
       typechain:
         specifier: ^8.1.0
         version: 8.3.2(typescript@5.6.2)
@@ -562,7 +562,7 @@ importers:
         version: 20.16.5
       axios:
         specifier: ^1.6.2
-        version: 1.7.7(debug@4.3.7)
+        version: 1.7.7
       fs-extra:
         specifier: ^11.1.1
         version: 11.2.0
@@ -1524,8 +1524,8 @@ packages:
   '@changesets/changelog-git@0.2.0':
     resolution: {integrity: sha512-bHOx97iFI4OClIT35Lok3sJAwM31VbUM++gnMBV16fdbtBhgYu4dxsphBF/0AZZsyAHMrnM0yFcj5gZM1py6uQ==}
 
-  '@changesets/changelog-github@0.4.8':
-    resolution: {integrity: sha512-jR1DHibkMAb5v/8ym77E4AMNWZKB5NPzw5a5Wtqm1JepAuIF+hrKp2u04NKM14oBZhHglkCfrla9uq8ORnK/dw==}
+  '@changesets/changelog-github@0.5.0':
+    resolution: {integrity: sha512-zoeq2LJJVcPJcIotHRJEEA2qCqX0AQIeFE+L21L8sRLPVqDhSXY8ZWAt2sohtBpFZkBwu+LUwMSKRr2lMy3LJA==}
 
   '@changesets/cli@2.27.8':
     resolution: {integrity: sha512-gZNyh+LdSsI82wBSHLQ3QN5J30P4uHKJ4fXgoGwQxfXwYFTJzDdvIJasZn8rYQtmKhyQuiBj4SSnLuKlxKWq4w==}
@@ -1540,8 +1540,8 @@ packages:
   '@changesets/get-dependents-graph@2.1.2':
     resolution: {integrity: sha512-sgcHRkiBY9i4zWYBwlVyAjEM9sAzs4wYVwJUdnbDLnVG3QwAaia1Mk5P8M7kraTOZN+vBET7n8KyB0YXCbFRLQ==}
 
-  '@changesets/get-github-info@0.5.2':
-    resolution: {integrity: sha512-JppheLu7S114aEs157fOZDjFqUDpm7eHdq5E8SSR0gUBTEK0cNSHsrSR5a66xs0z3RWuo46QvA3vawp8BxDHvg==}
+  '@changesets/get-github-info@0.6.0':
+    resolution: {integrity: sha512-v/TSnFVXI8vzX9/w3DU2Ol+UlTZcu3m0kXTjTT4KlAdwSvwutcByYwyYn9hwerPWfPkT2JfpoX0KgvCEi8Q/SA==}
 
   '@changesets/get-release-plan@4.0.4':
     resolution: {integrity: sha512-SicG/S67JmPTrdcc9Vpu0wSQt7IiuN0dc8iR5VScnnTVPfIaLvKmEGRvIaF0kcn8u5ZqLbormZNTO77bCEvyWw==}
@@ -1569,9 +1569,6 @@ packages:
 
   '@changesets/types@4.1.0':
     resolution: {integrity: sha512-LDQvVDv5Kb50ny2s25Fhm3d9QSZimsoUGBsUioj6MC3qbMUCuC8GPIvk/M6IvXx3lYhAs0lwWUQLb+VIEUCECw==}
-
-  '@changesets/types@5.2.1':
-    resolution: {integrity: sha512-myLfHbVOqaq9UtUKqR/nZA/OY7xFjQMdfgfqeZIBK4d0hA6pgxArvdv8M+6NUzzBsjWLOtvApv8YHr4qM+Kpfg==}
 
   '@changesets/types@6.0.0':
     resolution: {integrity: sha512-b1UkfNulgKoWfqyHtzKS5fOZYSJO+77adgL7DLRDr+/7jhChN+QcHnbjiQVOz/U+Ts3PGNySq7diAItzDgugfQ==}
@@ -5366,6 +5363,9 @@ packages:
   bn.js@4.12.0:
     resolution: {integrity: sha512-c98Bf3tPniI+scsdk237ku1Dc3ujXQTSgyiPUDEOe7tRkhrqridvh8klBv0HCEso1OLOYcHuCv/cS6DNxKH+ZA==}
 
+  bn.js@4.12.1:
+    resolution: {integrity: sha512-k8TVBiPkPJT9uHLdOKfFpqcfprwBFOAAXXozRubr7R7PfIuKvQlzcI4M0pALeqXN09vdaMbUdUj+pass+uULAg==}
+
   bn.js@5.2.1:
     resolution: {integrity: sha512-eXRvHzWyYPBuB4NBy0cmYQjGitUrtqwbvlzP3G6VFnNRbsZQIxQ10PbKKHt8gZ/HW/D/747aDl+QkDqg3KQLMQ==}
 
@@ -5465,7 +5465,6 @@ packages:
 
   bun@1.1.37:
     resolution: {integrity: sha512-8jp2JhT5w+CzdrnDMwLPFK0lDZdPqo/SWih9gd7WIA0r+aC2LBnAMVCG6g31SNRPILkWLhtcXvuttb9vTH6qqg==}
-    cpu: [arm64, x64]
     os: [darwin, linux, win32]
     hasBin: true
 
@@ -9657,6 +9656,9 @@ packages:
 
   preact@10.24.0:
     resolution: {integrity: sha512-aK8Cf+jkfyuZ0ZZRG9FbYqwmEiGQ4y/PUO4SuTWoyWL244nZZh7bd5h2APd4rSNDYTBNghg1L+5iJN3Skxtbsw==}
+
+  preact@10.25.1:
+    resolution: {integrity: sha512-frxeZV2vhQSohQwJ7FvlqC40ze89+8friponWUFeVEkaCfhC6Eu4V0iND5C9CXz8JLndV07QRDeXzH1+Anz5Og==}
 
   prebuild-install@7.1.2:
     resolution: {integrity: sha512-UnNke3IQb6sgarcZIDU3gbMeTp/9SSU1DAIkil7PrqG1vZlBtY5msYccSKSHDqa3hNg436IXK+SNImReuA1wEQ==}
@@ -13954,10 +13956,10 @@ snapshots:
     dependencies:
       '@changesets/types': 6.0.0
 
-  '@changesets/changelog-github@0.4.8(encoding@0.1.13)':
+  '@changesets/changelog-github@0.5.0(encoding@0.1.13)':
     dependencies:
-      '@changesets/get-github-info': 0.5.2(encoding@0.1.13)
-      '@changesets/types': 5.2.1
+      '@changesets/get-github-info': 0.6.0(encoding@0.1.13)
+      '@changesets/types': 6.0.0
       dotenv: 8.6.0
     transitivePeerDependencies:
       - encoding
@@ -14016,7 +14018,7 @@ snapshots:
       picocolors: 1.1.0
       semver: 7.6.3
 
-  '@changesets/get-github-info@0.5.2(encoding@0.1.13)':
+  '@changesets/get-github-info@0.6.0(encoding@0.1.13)':
     dependencies:
       dataloader: 1.4.0
       node-fetch: 2.7.0(encoding@0.1.13)
@@ -14075,8 +14077,6 @@ snapshots:
 
   '@changesets/types@4.1.0': {}
 
-  '@changesets/types@5.2.1': {}
-
   '@changesets/types@6.0.0': {}
 
   '@changesets/write@0.3.2':
@@ -14120,7 +14120,7 @@ snapshots:
       eth-json-rpc-filters: 6.0.1
       eventemitter3: 5.0.1
       keccak: 3.0.4
-      preact: 10.24.0
+      preact: 10.25.1
       sha.js: 2.4.11
     transitivePeerDependencies:
       - supports-color
@@ -15038,14 +15038,14 @@ snapshots:
       idb: 7.0.1
       tslib: 2.7.0
 
-  '@firebase/auth-compat@0.2.19(@firebase/app-compat@0.1.33)(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@firebase/auth-compat@0.2.19(@firebase/app-compat@0.1.33)(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
       '@firebase/app-compat': 0.1.33
-      '@firebase/auth': 0.20.6(@firebase/app@0.7.32)(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@firebase/auth': 0.20.6(@firebase/app@0.7.32)(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@firebase/auth-types': 0.11.0(@firebase/app-types@0.7.0)(@firebase/util@1.6.3)
       '@firebase/component': 0.5.17
       '@firebase/util': 1.6.3
-      node-fetch: 2.6.7
+      node-fetch: 2.6.7(encoding@0.1.13)
       selenium-webdriver: 4.1.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       tslib: 2.7.0
     transitivePeerDependencies:
@@ -15065,13 +15065,13 @@ snapshots:
       '@firebase/app-types': 0.7.0
       '@firebase/util': 1.6.3
 
-  '@firebase/auth@0.20.6(@firebase/app@0.7.32)(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@firebase/auth@0.20.6(@firebase/app@0.7.32)(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
       '@firebase/app': 0.7.32
       '@firebase/component': 0.5.17
       '@firebase/logger': 0.3.3
       '@firebase/util': 1.6.3
-      node-fetch: 2.6.7
+      node-fetch: 2.6.7(encoding@0.1.13)
       selenium-webdriver: 4.1.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       tslib: 2.7.0
     transitivePeerDependencies:
@@ -15111,11 +15111,11 @@ snapshots:
     transitivePeerDependencies:
       - '@firebase/app-types'
 
-  '@firebase/firestore-compat@0.1.24(@firebase/app-compat@0.1.33)(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)':
+  '@firebase/firestore-compat@0.1.24(@firebase/app-compat@0.1.33)(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)(encoding@0.1.13)':
     dependencies:
       '@firebase/app-compat': 0.1.33
       '@firebase/component': 0.5.17
-      '@firebase/firestore': 3.4.15(@firebase/app@0.7.32)
+      '@firebase/firestore': 3.4.15(@firebase/app@0.7.32)(encoding@0.1.13)
       '@firebase/firestore-types': 2.5.0(@firebase/app-types@0.7.0)(@firebase/util@1.6.3)
       '@firebase/util': 1.6.3
       tslib: 2.7.0
@@ -15133,7 +15133,7 @@ snapshots:
       '@firebase/app-types': 0.7.0
       '@firebase/util': 1.6.3
 
-  '@firebase/firestore@3.4.15(@firebase/app@0.7.32)':
+  '@firebase/firestore@3.4.15(@firebase/app@0.7.32)(encoding@0.1.13)':
     dependencies:
       '@firebase/app': 0.7.32
       '@firebase/component': 0.5.17
@@ -15142,16 +15142,16 @@ snapshots:
       '@firebase/webchannel-wrapper': 0.6.2
       '@grpc/grpc-js': 1.11.3
       '@grpc/proto-loader': 0.6.13
-      node-fetch: 2.6.7
+      node-fetch: 2.6.7(encoding@0.1.13)
       tslib: 2.7.0
     transitivePeerDependencies:
       - encoding
 
-  '@firebase/functions-compat@0.2.4(@firebase/app-compat@0.1.33)(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)':
+  '@firebase/functions-compat@0.2.4(@firebase/app-compat@0.1.33)(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)(encoding@0.1.13)':
     dependencies:
       '@firebase/app-compat': 0.1.33
       '@firebase/component': 0.5.17
-      '@firebase/functions': 0.8.4(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)
+      '@firebase/functions': 0.8.4(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)(encoding@0.1.13)
       '@firebase/functions-types': 0.5.0
       '@firebase/util': 1.6.3
       tslib: 2.7.0
@@ -15162,7 +15162,7 @@ snapshots:
 
   '@firebase/functions-types@0.5.0': {}
 
-  '@firebase/functions@0.8.4(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)':
+  '@firebase/functions@0.8.4(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)(encoding@0.1.13)':
     dependencies:
       '@firebase/app': 0.7.32
       '@firebase/app-check-interop-types': 0.1.0
@@ -15170,7 +15170,7 @@ snapshots:
       '@firebase/component': 0.5.17
       '@firebase/messaging-interop-types': 0.1.0
       '@firebase/util': 1.6.3
-      node-fetch: 2.6.7
+      node-fetch: 2.6.7(encoding@0.1.13)
       tslib: 2.7.0
     transitivePeerDependencies:
       - '@firebase/app-types'
@@ -15272,11 +15272,11 @@ snapshots:
       '@firebase/util': 1.6.3
       tslib: 2.7.0
 
-  '@firebase/storage-compat@0.1.17(@firebase/app-compat@0.1.33)(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)':
+  '@firebase/storage-compat@0.1.17(@firebase/app-compat@0.1.33)(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)(encoding@0.1.13)':
     dependencies:
       '@firebase/app-compat': 0.1.33
       '@firebase/component': 0.5.17
-      '@firebase/storage': 0.9.9(@firebase/app@0.7.32)
+      '@firebase/storage': 0.9.9(@firebase/app@0.7.32)(encoding@0.1.13)
       '@firebase/storage-types': 0.6.0(@firebase/app-types@0.7.0)(@firebase/util@1.6.3)
       '@firebase/util': 1.6.3
       tslib: 2.7.0
@@ -15290,12 +15290,12 @@ snapshots:
       '@firebase/app-types': 0.7.0
       '@firebase/util': 1.6.3
 
-  '@firebase/storage@0.9.9(@firebase/app@0.7.32)':
+  '@firebase/storage@0.9.9(@firebase/app@0.7.32)(encoding@0.1.13)':
     dependencies:
       '@firebase/app': 0.7.32
       '@firebase/component': 0.5.17
       '@firebase/util': 1.6.3
-      node-fetch: 2.6.7
+      node-fetch: 2.6.7(encoding@0.1.13)
       tslib: 2.7.0
     transitivePeerDependencies:
       - encoding
@@ -16241,16 +16241,16 @@ snapshots:
       '@nomicfoundation/solidity-analyzer-linux-x64-musl': 0.1.2
       '@nomicfoundation/solidity-analyzer-win32-x64-msvc': 0.1.2
 
-  '@nomiclabs/hardhat-truffle5@2.0.7(@nomiclabs/hardhat-web3@2.0.0(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(web3@1.10.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)))(bufferutil@4.0.8)(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)(web3-core-helpers@1.10.4)(web3-core-promievent@1.10.4)(web3-eth-abi@1.10.4)(web3-utils@1.10.4)(web3@1.10.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))':
+  '@nomiclabs/hardhat-truffle5@2.0.7(@nomiclabs/hardhat-web3@2.0.0(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(web3@1.10.4(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)))(bufferutil@4.0.8)(encoding@0.1.13)(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)(web3-core-helpers@1.10.4)(web3-core-promievent@1.10.4)(web3-eth-abi@1.10.4)(web3-utils@1.10.4)(web3@1.10.4(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10))':
     dependencies:
-      '@nomiclabs/hardhat-web3': 2.0.0(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(web3@1.10.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))
-      '@nomiclabs/truffle-contract': 4.5.10(bufferutil@4.0.8)(utf-8-validate@5.0.10)(web3-core-helpers@1.10.4)(web3-core-promievent@1.10.4)(web3-eth-abi@1.10.4)(web3-utils@1.10.4)(web3@1.10.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+      '@nomiclabs/hardhat-web3': 2.0.0(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(web3@1.10.4(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10))
+      '@nomiclabs/truffle-contract': 4.5.10(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)(web3-core-helpers@1.10.4)(web3-core-promievent@1.10.4)(web3-eth-abi@1.10.4)(web3-utils@1.10.4)(web3@1.10.4(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10))
       '@types/chai': 4.3.19
       chai: 4.5.0
       ethereumjs-util: 7.1.5
       fs-extra: 7.0.1
       hardhat: 2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10)
-      web3: 1.10.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      web3: 1.10.4(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -16261,25 +16261,25 @@ snapshots:
       - web3-eth-abi
       - web3-utils
 
-  '@nomiclabs/hardhat-web3@2.0.0(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(web3@1.10.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))':
+  '@nomiclabs/hardhat-web3@2.0.0(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(web3@1.10.4(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10))':
     dependencies:
       '@types/bignumber.js': 5.0.0
       hardhat: 2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10)
-      web3: 1.10.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      web3: 1.10.4(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
 
-  '@nomiclabs/truffle-contract@4.5.10(bufferutil@4.0.8)(utf-8-validate@5.0.10)(web3-core-helpers@1.10.4)(web3-core-promievent@1.10.4)(web3-eth-abi@1.10.4)(web3-utils@1.10.4)(web3@1.10.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))':
+  '@nomiclabs/truffle-contract@4.5.10(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)(web3-core-helpers@1.10.4)(web3-core-promievent@1.10.4)(web3-eth-abi@1.10.4)(web3-utils@1.10.4)(web3@1.10.4(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10))':
     dependencies:
       '@ensdomains/ensjs': 2.1.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@truffle/blockchain-utils': 0.1.9
       '@truffle/contract-schema': 3.4.16
       '@truffle/debug-utils': 6.0.57
       '@truffle/error': 0.1.1
-      '@truffle/interface-adapter': 0.5.37(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@truffle/interface-adapter': 0.5.37(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       bignumber.js: 7.2.1
-      ethereum-ens: 0.8.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      ethereum-ens: 0.8.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       ethers: 4.0.49
       source-map-support: 0.5.21
-      web3: 1.10.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      web3: 1.10.4(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       web3-core-helpers: 1.10.4
       web3-core-promievent: 1.10.4
       web3-eth-abi: 1.10.4
@@ -16395,13 +16395,13 @@ snapshots:
 
   '@openzeppelin/contracts@4.9.6': {}
 
-  '@openzeppelin/defender-admin-client@1.54.6(bufferutil@4.0.8)(debug@4.3.7)(utf-8-validate@5.0.10)':
+  '@openzeppelin/defender-admin-client@1.54.6(bufferutil@4.0.8)(debug@4.3.7)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
-      '@openzeppelin/defender-base-client': 1.54.6(debug@4.3.7)
+      '@openzeppelin/defender-base-client': 1.54.6(debug@4.3.7)(encoding@0.1.13)
       axios: 1.7.7(debug@4.3.7)
       ethers: 5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       lodash: 4.17.21
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
     transitivePeerDependencies:
       - bufferutil
       - debug
@@ -16424,13 +16424,13 @@ snapshots:
       - web3-core-helpers
       - web3-utils
 
-  '@openzeppelin/defender-base-client@1.54.6(debug@4.3.7)':
+  '@openzeppelin/defender-base-client@1.54.6(debug@4.3.7)(encoding@0.1.13)':
     dependencies:
-      amazon-cognito-identity-js: 6.3.12
+      amazon-cognito-identity-js: 6.3.12(encoding@0.1.13)
       async-retry: 1.3.3
       axios: 1.7.7(debug@4.3.7)
       lodash: 4.17.21
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
     transitivePeerDependencies:
       - debug
       - encoding
@@ -16438,7 +16438,7 @@ snapshots:
   '@openzeppelin/defender-sdk-account-client@1.14.4(encoding@0.1.13)':
     dependencies:
       '@openzeppelin/defender-sdk-base-client': 1.14.4(encoding@0.1.13)
-      axios: 1.7.7(debug@4.3.7)
+      axios: 1.7.7
       lodash: 4.17.21
     transitivePeerDependencies:
       - debug
@@ -16447,7 +16447,7 @@ snapshots:
   '@openzeppelin/defender-sdk-action-client@1.14.4(encoding@0.1.13)':
     dependencies:
       '@openzeppelin/defender-sdk-base-client': 1.14.4(encoding@0.1.13)
-      axios: 1.7.7(debug@4.3.7)
+      axios: 1.7.7
       dotenv: 16.4.5
       glob: 11.0.0
       jszip: 3.10.1
@@ -16456,27 +16456,11 @@ snapshots:
       - debug
       - encoding
 
-  '@openzeppelin/defender-sdk-base-client@1.14.4':
-    dependencies:
-      amazon-cognito-identity-js: 6.3.12
-      async-retry: 1.3.3
-    transitivePeerDependencies:
-      - encoding
-
   '@openzeppelin/defender-sdk-base-client@1.14.4(encoding@0.1.13)':
     dependencies:
       amazon-cognito-identity-js: 6.3.12(encoding@0.1.13)
       async-retry: 1.3.3
     transitivePeerDependencies:
-      - encoding
-
-  '@openzeppelin/defender-sdk-deploy-client@1.14.4(debug@4.3.7)':
-    dependencies:
-      '@openzeppelin/defender-sdk-base-client': 1.14.4
-      axios: 1.7.7(debug@4.3.7)
-      lodash: 4.17.21
-    transitivePeerDependencies:
-      - debug
       - encoding
 
   '@openzeppelin/defender-sdk-deploy-client@1.14.4(debug@4.3.7)(encoding@0.1.13)':
@@ -16488,10 +16472,19 @@ snapshots:
       - debug
       - encoding
 
+  '@openzeppelin/defender-sdk-deploy-client@1.14.4(encoding@0.1.13)':
+    dependencies:
+      '@openzeppelin/defender-sdk-base-client': 1.14.4(encoding@0.1.13)
+      axios: 1.7.7
+      lodash: 4.17.21
+    transitivePeerDependencies:
+      - debug
+      - encoding
+
   '@openzeppelin/defender-sdk-key-value-store-client@1.14.4(encoding@0.1.13)':
     dependencies:
       '@openzeppelin/defender-sdk-base-client': 1.14.4(encoding@0.1.13)
-      axios: 1.7.7(debug@4.3.7)
+      axios: 1.7.7
       fs-extra: 11.2.0
       lodash: 4.17.21
     transitivePeerDependencies:
@@ -16501,7 +16494,7 @@ snapshots:
   '@openzeppelin/defender-sdk-monitor-client@1.14.4(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
       '@openzeppelin/defender-sdk-base-client': 1.14.4(encoding@0.1.13)
-      axios: 1.7.7(debug@4.3.7)
+      axios: 1.7.7
       ethers: 6.13.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       lodash: 4.17.21
     transitivePeerDependencies:
@@ -16513,7 +16506,7 @@ snapshots:
   '@openzeppelin/defender-sdk-network-client@1.14.4(encoding@0.1.13)':
     dependencies:
       '@openzeppelin/defender-sdk-base-client': 1.14.4(encoding@0.1.13)
-      axios: 1.7.7(debug@4.3.7)
+      axios: 1.7.7
       lodash: 4.17.21
     transitivePeerDependencies:
       - debug
@@ -16522,7 +16515,7 @@ snapshots:
   '@openzeppelin/defender-sdk-notification-channel-client@1.14.4(encoding@0.1.13)':
     dependencies:
       '@openzeppelin/defender-sdk-base-client': 1.14.4(encoding@0.1.13)
-      axios: 1.7.7(debug@4.3.7)
+      axios: 1.7.7
       lodash: 4.17.21
     transitivePeerDependencies:
       - debug
@@ -16531,7 +16524,7 @@ snapshots:
   '@openzeppelin/defender-sdk-proposal-client@1.14.4(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
       '@openzeppelin/defender-sdk-base-client': 1.14.4(encoding@0.1.13)
-      axios: 1.7.7(debug@4.3.7)
+      axios: 1.7.7
       ethers: 6.13.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       lodash: 4.17.21
     transitivePeerDependencies:
@@ -16543,7 +16536,7 @@ snapshots:
   '@openzeppelin/defender-sdk-relay-client@1.14.4(encoding@0.1.13)':
     dependencies:
       '@openzeppelin/defender-sdk-base-client': 1.14.4(encoding@0.1.13)
-      axios: 1.7.7(debug@4.3.7)
+      axios: 1.7.7
       lodash: 4.17.21
     transitivePeerDependencies:
       - debug
@@ -16553,7 +16546,7 @@ snapshots:
     dependencies:
       '@openzeppelin/defender-sdk-base-client': 1.14.4(encoding@0.1.13)
       amazon-cognito-identity-js: 6.3.12(encoding@0.1.13)
-      axios: 1.7.7(debug@4.3.7)
+      axios: 1.7.7
       ethers: 5.5.3(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       lodash: 4.17.21
       web3: 1.10.4(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
@@ -16575,7 +16568,7 @@ snapshots:
       '@ethersproject/strings': 5.7.0
       '@openzeppelin/defender-sdk-base-client': 1.14.4(encoding@0.1.13)
       amazon-cognito-identity-js: 6.3.12(encoding@0.1.13)
-      axios: 1.7.7(debug@4.3.7)
+      axios: 1.7.7
       ethers: 6.13.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       lodash: 4.17.21
       web3: 1.10.4(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
@@ -16593,7 +16586,7 @@ snapshots:
       '@openzeppelin/defender-sdk-account-client': 1.14.4(encoding@0.1.13)
       '@openzeppelin/defender-sdk-action-client': 1.14.4(encoding@0.1.13)
       '@openzeppelin/defender-sdk-base-client': 1.14.4(encoding@0.1.13)
-      '@openzeppelin/defender-sdk-deploy-client': 1.14.4(debug@4.3.7)(encoding@0.1.13)
+      '@openzeppelin/defender-sdk-deploy-client': 1.14.4(encoding@0.1.13)
       '@openzeppelin/defender-sdk-key-value-store-client': 1.14.4(encoding@0.1.13)
       '@openzeppelin/defender-sdk-monitor-client': 1.14.4(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@openzeppelin/defender-sdk-network-client': 1.14.4(encoding@0.1.13)
@@ -16611,13 +16604,13 @@ snapshots:
       - web3-core-helpers
       - web3-utils
 
-  '@openzeppelin/hardhat-upgrades@2.5.1(@nomicfoundation/hardhat-ethers@3.0.8(ethers@6.8.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10)))(@nomicfoundation/hardhat-verify@2.0.11(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10)))(bufferutil@4.0.8)(ethers@6.8.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)':
+  '@openzeppelin/hardhat-upgrades@2.5.1(@nomicfoundation/hardhat-ethers@3.0.8(ethers@6.8.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10)))(@nomicfoundation/hardhat-verify@2.0.11(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10)))(bufferutil@4.0.8)(encoding@0.1.13)(ethers@6.8.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)':
     dependencies:
       '@nomicfoundation/hardhat-ethers': 3.0.8(ethers@6.8.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))
-      '@openzeppelin/defender-admin-client': 1.54.6(bufferutil@4.0.8)(debug@4.3.7)(utf-8-validate@5.0.10)
-      '@openzeppelin/defender-base-client': 1.54.6(debug@4.3.7)
-      '@openzeppelin/defender-sdk-base-client': 1.14.4
-      '@openzeppelin/defender-sdk-deploy-client': 1.14.4(debug@4.3.7)
+      '@openzeppelin/defender-admin-client': 1.54.6(bufferutil@4.0.8)(debug@4.3.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
+      '@openzeppelin/defender-base-client': 1.54.6(debug@4.3.7)(encoding@0.1.13)
+      '@openzeppelin/defender-sdk-base-client': 1.14.4(encoding@0.1.13)
+      '@openzeppelin/defender-sdk-deploy-client': 1.14.4(debug@4.3.7)(encoding@0.1.13)
       '@openzeppelin/upgrades-core': 1.37.1
       chalk: 4.1.2
       debug: 4.3.7(supports-color@8.1.1)
@@ -16634,17 +16627,17 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@openzeppelin/test-helpers@0.5.16(bn.js@5.2.1)(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@openzeppelin/test-helpers@0.5.16(bn.js@5.2.1)(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
       '@openzeppelin/contract-loader': 0.6.3
-      '@truffle/contract': 4.6.31(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@truffle/contract': 4.6.31(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       ansi-colors: 3.2.4
       chai: 4.5.0
       chai-bn: 0.2.2(bn.js@5.2.1)(chai@4.5.0)
       ethjs-abi: 0.2.1
       lodash.flatten: 4.4.0
       semver: 5.7.2
-      web3: 1.10.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      web3: 1.10.4(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       web3-utils: 1.10.4
     transitivePeerDependencies:
       - bn.js
@@ -17337,7 +17330,7 @@ snapshots:
       '@sentry/types': 5.30.0
       '@sentry/utils': 5.30.0
       cookie: 0.4.2
-      https-proxy-agent: 5.0.1
+      https-proxy-agent: 5.0.1(supports-color@8.1.1)
       lru_map: 0.3.3
       tslib: 1.14.1
     transitivePeerDependencies:
@@ -17400,7 +17393,7 @@ snapshots:
     dependencies:
       adm-zip: 0.5.16
       archiver: 5.3.2
-      axios: 1.7.7(debug@4.3.7)
+      axios: 1.7.7
       fast-glob: 3.3.2
       https-proxy-agent: 5.0.1(supports-color@8.1.1)
       ignore: 5.3.2
@@ -17940,11 +17933,13 @@ snapshots:
       '@stablelib/random': 1.0.2
       '@stablelib/wipe': 1.0.1
 
-  '@sunodo/wagmi-plugin-hardhat-deploy@0.3.0(abitype@1.0.6(typescript@5.6.2)(zod@3.23.8))(typescript@5.6.2)':
+  '@sunodo/wagmi-plugin-hardhat-deploy@0.3.0(@wagmi/core@2.13.6(@tanstack/query-core@5.56.2)(@types/react@18.2.12)(immer@10.0.2)(react@18.2.0)(typescript@5.6.2)(viem@2.21.11(bufferutil@4.0.8)(typescript@5.6.2)(utf-8-validate@5.0.10)(zod@3.23.8)))(abitype@1.0.6(typescript@5.6.2)(zod@3.23.8))(typescript@5.6.2)(wagmi@2.12.13(@tanstack/query-core@5.56.2)(@tanstack/react-query@5.56.2(react@18.2.0))(@types/react@18.2.12)(bufferutil@4.0.8)(encoding@0.1.13)(immer@10.0.2)(react@18.2.0)(rollup@4.22.4)(typescript@5.6.2)(utf-8-validate@5.0.10)(viem@2.21.11(bufferutil@4.0.8)(typescript@5.6.2)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))':
     dependencies:
       abitype: 1.0.6(typescript@5.6.2)(zod@3.23.8)
     optionalDependencies:
+      '@wagmi/core': 2.13.6(@tanstack/query-core@5.56.2)(@types/react@18.2.12)(immer@10.0.2)(react@18.2.0)(typescript@5.6.2)(viem@2.21.11(bufferutil@4.0.8)(typescript@5.6.2)(utf-8-validate@5.0.10)(zod@3.23.8))
       typescript: 5.6.2
+      wagmi: 2.12.13(@tanstack/query-core@5.56.2)(@tanstack/react-query@5.56.2(react@18.2.0))(@types/react@18.2.12)(bufferutil@4.0.8)(encoding@0.1.13)(immer@10.0.2)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(rollup@4.22.4)(typescript@5.6.2)(utf-8-validate@5.0.10)(viem@2.21.11(bufferutil@4.0.8)(typescript@5.6.2)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8)
 
   '@svgr/babel-plugin-add-jsx-attribute@8.0.0(@babel/core@7.25.2)':
     dependencies:
@@ -18128,18 +18123,18 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@truffle/contract@4.6.31(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@truffle/contract@4.6.31(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
       '@ensdomains/ensjs': 2.1.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@truffle/blockchain-utils': 0.1.9
       '@truffle/contract-schema': 3.4.16
       '@truffle/debug-utils': 6.0.57
       '@truffle/error': 0.2.2
-      '@truffle/interface-adapter': 0.5.37(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@truffle/interface-adapter': 0.5.37(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       bignumber.js: 7.2.1
       debug: 4.3.7(supports-color@8.1.1)
       ethers: 4.0.49
-      web3: 1.10.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      web3: 1.10.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       web3-core-helpers: 1.10.0
       web3-core-promievent: 1.10.0
       web3-eth-abi: 1.10.0
@@ -18165,11 +18160,11 @@ snapshots:
 
   '@truffle/error@0.2.2': {}
 
-  '@truffle/interface-adapter@0.5.37(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@truffle/interface-adapter@0.5.37(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
       bn.js: 5.2.1
       ethers: 4.0.49
-      web3: 1.10.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      web3: 1.10.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -19261,12 +19256,6 @@ snapshots:
 
   aes-js@4.0.0-beta.5: {}
 
-  agent-base@6.0.2:
-    dependencies:
-      debug: 4.3.7(supports-color@8.1.1)
-    transitivePeerDependencies:
-      - supports-color
-
   agent-base@6.0.2(supports-color@8.1.1):
     dependencies:
       debug: 4.3.7(supports-color@8.1.1)
@@ -19295,16 +19284,6 @@ snapshots:
       fast-uri: 3.0.1
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
-
-  amazon-cognito-identity-js@6.3.12:
-    dependencies:
-      '@aws-crypto/sha256-js': 1.2.2
-      buffer: 4.9.2
-      fast-base64-decode: 1.0.0
-      isomorphic-unfetch: 3.1.0
-      js-cookie: 2.2.1
-    transitivePeerDependencies:
-      - encoding
 
   amazon-cognito-identity-js@6.3.12(encoding@0.1.13):
     dependencies:
@@ -19563,14 +19542,22 @@ snapshots:
 
   axios@0.27.2:
     dependencies:
-      follow-redirects: 1.15.9(debug@4.3.7)
+      follow-redirects: 1.15.9(debug@4.3.4)
       form-data: 4.0.0
     transitivePeerDependencies:
       - debug
 
   axios@1.7.3:
     dependencies:
-      follow-redirects: 1.15.9(debug@4.3.7)
+      follow-redirects: 1.15.9(debug@4.3.4)
+      form-data: 4.0.0
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+
+  axios@1.7.7:
+    dependencies:
+      follow-redirects: 1.15.9(debug@4.3.4)
       form-data: 4.0.0
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -19684,6 +19671,8 @@ snapshots:
   bn.js@4.11.6: {}
 
   bn.js@4.12.0: {}
+
+  bn.js@4.12.1: {}
 
   bn.js@5.2.1: {}
 
@@ -20380,21 +20369,9 @@ snapshots:
       fs-extra: 11.2.0
       picocolors: 1.1.0
 
-  cross-fetch@3.1.8:
-    dependencies:
-      node-fetch: 2.7.0
-    transitivePeerDependencies:
-      - encoding
-
   cross-fetch@3.1.8(encoding@0.1.13):
     dependencies:
       node-fetch: 2.7.0(encoding@0.1.13)
-    transitivePeerDependencies:
-      - encoding
-
-  cross-fetch@4.0.0:
-    dependencies:
-      node-fetch: 2.7.0
     transitivePeerDependencies:
       - encoding
 
@@ -21293,7 +21270,7 @@ snapshots:
 
   eth-lib@0.1.29(bufferutil@4.0.8)(utf-8-validate@5.0.10):
     dependencies:
-      bn.js: 4.12.0
+      bn.js: 4.12.1
       elliptic: 6.5.7
       nano-json-stream-parser: 0.1.2
       servify: 0.1.12
@@ -21306,7 +21283,7 @@ snapshots:
 
   eth-lib@0.2.8:
     dependencies:
-      bn.js: 4.12.0
+      bn.js: 4.12.1
       elliptic: 6.5.7
       xhr-request-promise: 0.1.3
 
@@ -21355,14 +21332,14 @@ snapshots:
       '@scure/bip32': 1.4.0
       '@scure/bip39': 1.3.0
 
-  ethereum-ens@0.8.0(bufferutil@4.0.8)(utf-8-validate@5.0.10):
+  ethereum-ens@0.8.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10):
     dependencies:
       bluebird: 3.7.2
       eth-ens-namehash: 2.0.8
       js-sha3: 0.5.7
       pako: 1.0.11
       underscore: 1.13.7
-      web3: 1.10.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      web3: 1.10.4(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -21806,7 +21783,7 @@ snapshots:
       locate-path: 7.2.0
       path-exists: 5.0.0
 
-  firebase@9.9.4(bufferutil@4.0.8)(utf-8-validate@5.0.10):
+  firebase@9.9.4(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10):
     dependencies:
       '@firebase/analytics': 0.8.0(@firebase/app@0.7.32)
       '@firebase/analytics-compat': 0.1.13(@firebase/app-compat@0.1.33)(@firebase/app@0.7.32)
@@ -21815,14 +21792,14 @@ snapshots:
       '@firebase/app-check-compat': 0.2.12(@firebase/app-compat@0.1.33)(@firebase/app@0.7.32)
       '@firebase/app-compat': 0.1.33
       '@firebase/app-types': 0.7.0
-      '@firebase/auth': 0.20.6(@firebase/app@0.7.32)(bufferutil@4.0.8)(utf-8-validate@5.0.10)
-      '@firebase/auth-compat': 0.2.19(@firebase/app-compat@0.1.33)(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@firebase/auth': 0.20.6(@firebase/app@0.7.32)(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
+      '@firebase/auth-compat': 0.2.19(@firebase/app-compat@0.1.33)(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@firebase/database': 0.13.6(@firebase/app-types@0.7.0)
       '@firebase/database-compat': 0.2.6(@firebase/app-types@0.7.0)
-      '@firebase/firestore': 3.4.15(@firebase/app@0.7.32)
-      '@firebase/firestore-compat': 0.1.24(@firebase/app-compat@0.1.33)(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)
-      '@firebase/functions': 0.8.4(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)
-      '@firebase/functions-compat': 0.2.4(@firebase/app-compat@0.1.33)(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)
+      '@firebase/firestore': 3.4.15(@firebase/app@0.7.32)(encoding@0.1.13)
+      '@firebase/firestore-compat': 0.1.24(@firebase/app-compat@0.1.33)(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)(encoding@0.1.13)
+      '@firebase/functions': 0.8.4(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)(encoding@0.1.13)
+      '@firebase/functions-compat': 0.2.4(@firebase/app-compat@0.1.33)(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)(encoding@0.1.13)
       '@firebase/installations': 0.5.12(@firebase/app@0.7.32)
       '@firebase/installations-compat': 0.1.12(@firebase/app-compat@0.1.33)(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)
       '@firebase/messaging': 0.9.16(@firebase/app@0.7.32)
@@ -21831,8 +21808,8 @@ snapshots:
       '@firebase/performance-compat': 0.1.12(@firebase/app-compat@0.1.33)(@firebase/app@0.7.32)
       '@firebase/remote-config': 0.3.11(@firebase/app@0.7.32)
       '@firebase/remote-config-compat': 0.1.12(@firebase/app-compat@0.1.33)(@firebase/app@0.7.32)
-      '@firebase/storage': 0.9.9(@firebase/app@0.7.32)
-      '@firebase/storage-compat': 0.1.17(@firebase/app-compat@0.1.33)(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)
+      '@firebase/storage': 0.9.9(@firebase/app@0.7.32)(encoding@0.1.13)
+      '@firebase/storage-compat': 0.1.17(@firebase/app-compat@0.1.33)(@firebase/app-types@0.7.0)(@firebase/app@0.7.32)(encoding@0.1.13)
       '@firebase/util': 1.6.3
     transitivePeerDependencies:
       - bufferutil
@@ -22359,11 +22336,11 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  hardhat-ethernal@3.1.0(@firebase/app-types@0.7.0)(bufferutil@4.0.8)(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10):
+  hardhat-ethernal@3.1.0(@firebase/app-types@0.7.0)(bufferutil@4.0.8)(encoding@0.1.13)(hardhat@2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10):
     dependencies:
       '@firebase/firestore-types': 2.2.0(@firebase/app-types@0.7.0)
       axios: 0.27.2
-      firebase: 9.9.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      firebase: 9.9.4(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
       hardhat: 2.22.11(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.6.2))(typescript@5.6.2)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - '@firebase/app-types'
@@ -22378,7 +22355,7 @@ snapshots:
       '@ethersproject/bytes': 5.7.0
       '@ethersproject/units': 5.7.0
       '@solidity-parser/parser': 0.18.0
-      axios: 1.7.7(debug@4.3.7)
+      axios: 1.7.7
       brotli-wasm: 2.0.1
       chalk: 4.1.2
       cli-table3: 0.6.5
@@ -22685,13 +22662,6 @@ snapshots:
     dependencies:
       quick-lru: 5.1.1
       resolve-alpn: 1.2.1
-
-  https-proxy-agent@5.0.1:
-    dependencies:
-      agent-base: 6.0.2
-      debug: 4.3.7(supports-color@8.1.1)
-    transitivePeerDependencies:
-      - supports-color
 
   https-proxy-agent@5.0.1(supports-color@8.1.1):
     dependencies:
@@ -23098,13 +23068,6 @@ snapshots:
   isexe@2.0.0: {}
 
   iso-url@1.2.1: {}
-
-  isomorphic-unfetch@3.1.0:
-    dependencies:
-      node-fetch: 2.7.0
-      unfetch: 4.2.0
-    transitivePeerDependencies:
-      - encoding
 
   isomorphic-unfetch@3.1.0(encoding@0.1.13):
     dependencies:
@@ -24491,13 +24454,11 @@ snapshots:
 
   node-fetch-native@1.6.4: {}
 
-  node-fetch@2.6.7:
+  node-fetch@2.6.7(encoding@0.1.13):
     dependencies:
       whatwg-url: 5.0.0
-
-  node-fetch@2.7.0:
-    dependencies:
-      whatwg-url: 5.0.0
+    optionalDependencies:
+      encoding: 0.1.13
 
   node-fetch@2.7.0(encoding@0.1.13):
     dependencies:
@@ -25059,10 +25020,6 @@ snapshots:
       postcss: 8.4.47
       ts-node: 10.9.2(@types/node@20.16.5)(typescript@5.7.2)
 
-  postcss-load-config@6.0.1:
-    dependencies:
-      lilconfig: 3.1.2
-
   postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.47)(yaml@2.4.5):
     dependencies:
       lilconfig: 3.1.2
@@ -25106,6 +25063,8 @@ snapshots:
       pretty-format: 3.8.0
 
   preact@10.24.0: {}
+
+  preact@10.25.1: {}
 
   prebuild-install@7.1.2:
     dependencies:
@@ -27003,32 +26962,6 @@ snapshots:
       - tsx
       - yaml
 
-  tsup@8.3.0(typescript@5.6.2):
-    dependencies:
-      bundle-require: 5.0.0(esbuild@0.23.1)
-      cac: 6.7.14
-      chokidar: 3.6.0
-      consola: 3.2.3
-      debug: 4.3.7(supports-color@8.1.1)
-      esbuild: 0.23.1
-      execa: 5.1.1
-      joycon: 3.1.1
-      picocolors: 1.1.0
-      postcss-load-config: 6.0.1
-      resolve-from: 5.0.0
-      rollup: 4.22.4
-      source-map: 0.8.0-beta.0
-      sucrase: 3.35.0
-      tinyglobby: 0.2.6
-      tree-kill: 1.2.2
-    optionalDependencies:
-      typescript: 5.6.2
-    transitivePeerDependencies:
-      - jiti
-      - supports-color
-      - tsx
-      - yaml
-
   tunnel-agent@0.6.0:
     dependencies:
       safe-buffer: 5.2.1
@@ -27746,24 +27679,13 @@ snapshots:
     dependencies:
       eventemitter3: 4.0.4
 
-  web3-core-requestmanager@1.10.0:
+  web3-core-requestmanager@1.10.0(encoding@0.1.13):
     dependencies:
       util: 0.12.5
       web3-core-helpers: 1.10.0
-      web3-providers-http: 1.10.0
+      web3-providers-http: 1.10.0(encoding@0.1.13)
       web3-providers-ipc: 1.10.0
       web3-providers-ws: 1.10.0
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
-
-  web3-core-requestmanager@1.10.4:
-    dependencies:
-      util: 0.12.5
-      web3-core-helpers: 1.10.4
-      web3-providers-http: 1.10.4
-      web3-providers-ipc: 1.10.4
-      web3-providers-ws: 1.10.4
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -27789,28 +27711,15 @@ snapshots:
       eventemitter3: 4.0.4
       web3-core-helpers: 1.10.4
 
-  web3-core@1.10.0:
+  web3-core@1.10.0(encoding@0.1.13):
     dependencies:
       '@types/bn.js': 5.1.6
       '@types/node': 12.20.55
       bignumber.js: 9.1.2
       web3-core-helpers: 1.10.0
       web3-core-method: 1.10.0
-      web3-core-requestmanager: 1.10.0
+      web3-core-requestmanager: 1.10.0(encoding@0.1.13)
       web3-utils: 1.10.0
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
-
-  web3-core@1.10.4:
-    dependencies:
-      '@types/bn.js': 5.1.6
-      '@types/node': 12.20.55
-      bignumber.js: 9.1.2
-      web3-core-helpers: 1.10.4
-      web3-core-method: 1.10.4
-      web3-core-requestmanager: 1.10.4
-      web3-utils: 1.10.4
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -27843,7 +27752,7 @@ snapshots:
       '@ethersproject/abi': 5.0.7
       web3-utils: 1.7.0
 
-  web3-eth-accounts@1.10.0:
+  web3-eth-accounts@1.10.0(encoding@0.1.13):
     dependencies:
       '@ethereumjs/common': 2.5.0
       '@ethereumjs/tx': 3.3.2
@@ -27851,26 +27760,10 @@ snapshots:
       ethereumjs-util: 7.1.5
       scrypt-js: 3.0.1
       uuid: 9.0.1
-      web3-core: 1.10.0
+      web3-core: 1.10.0(encoding@0.1.13)
       web3-core-helpers: 1.10.0
       web3-core-method: 1.10.0
       web3-utils: 1.10.0
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
-
-  web3-eth-accounts@1.10.4:
-    dependencies:
-      '@ethereumjs/common': 2.6.5
-      '@ethereumjs/tx': 3.5.2
-      '@ethereumjs/util': 8.1.0
-      eth-lib: 0.2.8
-      scrypt-js: 3.0.1
-      uuid: 9.0.1
-      web3-core: 1.10.4
-      web3-core-helpers: 1.10.4
-      web3-core-method: 1.10.4
-      web3-utils: 1.10.4
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -27891,30 +27784,16 @@ snapshots:
       - encoding
       - supports-color
 
-  web3-eth-contract@1.10.0:
+  web3-eth-contract@1.10.0(encoding@0.1.13):
     dependencies:
       '@types/bn.js': 5.1.6
-      web3-core: 1.10.0
+      web3-core: 1.10.0(encoding@0.1.13)
       web3-core-helpers: 1.10.0
       web3-core-method: 1.10.0
       web3-core-promievent: 1.10.0
       web3-core-subscriptions: 1.10.0
       web3-eth-abi: 1.10.0
       web3-utils: 1.10.0
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
-
-  web3-eth-contract@1.10.4:
-    dependencies:
-      '@types/bn.js': 5.1.6
-      web3-core: 1.10.4
-      web3-core-helpers: 1.10.4
-      web3-core-method: 1.10.4
-      web3-core-promievent: 1.10.4
-      web3-core-subscriptions: 1.10.4
-      web3-eth-abi: 1.10.4
-      web3-utils: 1.10.4
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -27933,30 +27812,16 @@ snapshots:
       - encoding
       - supports-color
 
-  web3-eth-ens@1.10.0:
+  web3-eth-ens@1.10.0(encoding@0.1.13):
     dependencies:
       content-hash: 2.5.2
       eth-ens-namehash: 2.0.8
-      web3-core: 1.10.0
+      web3-core: 1.10.0(encoding@0.1.13)
       web3-core-helpers: 1.10.0
       web3-core-promievent: 1.10.0
       web3-eth-abi: 1.10.0
-      web3-eth-contract: 1.10.0
+      web3-eth-contract: 1.10.0(encoding@0.1.13)
       web3-utils: 1.10.0
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
-
-  web3-eth-ens@1.10.4:
-    dependencies:
-      content-hash: 2.5.2
-      eth-ens-namehash: 2.0.8
-      web3-core: 1.10.4
-      web3-core-helpers: 1.10.4
-      web3-core-promievent: 1.10.4
-      web3-eth-abi: 1.10.4
-      web3-eth-contract: 1.10.4
-      web3-utils: 1.10.4
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -27985,26 +27850,14 @@ snapshots:
       bn.js: 5.2.1
       web3-utils: 1.10.4
 
-  web3-eth-personal@1.10.0:
+  web3-eth-personal@1.10.0(encoding@0.1.13):
     dependencies:
       '@types/node': 12.20.55
-      web3-core: 1.10.0
+      web3-core: 1.10.0(encoding@0.1.13)
       web3-core-helpers: 1.10.0
       web3-core-method: 1.10.0
-      web3-net: 1.10.0
+      web3-net: 1.10.0(encoding@0.1.13)
       web3-utils: 1.10.0
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
-
-  web3-eth-personal@1.10.4:
-    dependencies:
-      '@types/node': 12.20.55
-      web3-core: 1.10.4
-      web3-core-helpers: 1.10.4
-      web3-core-method: 1.10.4
-      web3-net: 1.10.4
-      web3-utils: 1.10.4
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -28021,38 +27874,20 @@ snapshots:
       - encoding
       - supports-color
 
-  web3-eth@1.10.0:
+  web3-eth@1.10.0(encoding@0.1.13):
     dependencies:
-      web3-core: 1.10.0
+      web3-core: 1.10.0(encoding@0.1.13)
       web3-core-helpers: 1.10.0
       web3-core-method: 1.10.0
       web3-core-subscriptions: 1.10.0
       web3-eth-abi: 1.10.0
-      web3-eth-accounts: 1.10.0
-      web3-eth-contract: 1.10.0
-      web3-eth-ens: 1.10.0
+      web3-eth-accounts: 1.10.0(encoding@0.1.13)
+      web3-eth-contract: 1.10.0(encoding@0.1.13)
+      web3-eth-ens: 1.10.0(encoding@0.1.13)
       web3-eth-iban: 1.10.0
-      web3-eth-personal: 1.10.0
-      web3-net: 1.10.0
+      web3-eth-personal: 1.10.0(encoding@0.1.13)
+      web3-net: 1.10.0(encoding@0.1.13)
       web3-utils: 1.10.0
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
-
-  web3-eth@1.10.4:
-    dependencies:
-      web3-core: 1.10.4
-      web3-core-helpers: 1.10.4
-      web3-core-method: 1.10.4
-      web3-core-subscriptions: 1.10.4
-      web3-eth-abi: 1.10.4
-      web3-eth-accounts: 1.10.4
-      web3-eth-contract: 1.10.4
-      web3-eth-ens: 1.10.4
-      web3-eth-iban: 1.10.4
-      web3-eth-personal: 1.10.4
-      web3-net: 1.10.4
-      web3-utils: 1.10.4
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -28075,20 +27910,11 @@ snapshots:
       - encoding
       - supports-color
 
-  web3-net@1.10.0:
+  web3-net@1.10.0(encoding@0.1.13):
     dependencies:
-      web3-core: 1.10.0
+      web3-core: 1.10.0(encoding@0.1.13)
       web3-core-method: 1.10.0
       web3-utils: 1.10.0
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
-
-  web3-net@1.10.4:
-    dependencies:
-      web3-core: 1.10.4
-      web3-core-method: 1.10.4
-      web3-utils: 1.10.4
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -28102,21 +27928,12 @@ snapshots:
       - encoding
       - supports-color
 
-  web3-providers-http@1.10.0:
+  web3-providers-http@1.10.0(encoding@0.1.13):
     dependencies:
       abortcontroller-polyfill: 1.7.5
-      cross-fetch: 3.1.8
+      cross-fetch: 3.1.8(encoding@0.1.13)
       es6-promise: 4.2.8
       web3-core-helpers: 1.10.0
-    transitivePeerDependencies:
-      - encoding
-
-  web3-providers-http@1.10.4:
-    dependencies:
-      abortcontroller-polyfill: 1.7.5
-      cross-fetch: 4.0.0
-      es6-promise: 4.2.8
-      web3-core-helpers: 1.10.4
     transitivePeerDependencies:
       - encoding
 
@@ -28155,22 +27972,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  web3-shh@1.10.0:
+  web3-shh@1.10.0(encoding@0.1.13):
     dependencies:
-      web3-core: 1.10.0
+      web3-core: 1.10.0(encoding@0.1.13)
       web3-core-method: 1.10.0
       web3-core-subscriptions: 1.10.0
-      web3-net: 1.10.0
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
-
-  web3-shh@1.10.4:
-    dependencies:
-      web3-core: 1.10.4
-      web3-core-method: 1.10.4
-      web3-core-subscriptions: 1.10.4
-      web3-net: 1.10.4
+      web3-net: 1.10.0(encoding@0.1.13)
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -28216,14 +28023,14 @@ snapshots:
       randombytes: 2.1.0
       utf8: 3.0.0
 
-  web3@1.10.0(bufferutil@4.0.8)(utf-8-validate@5.0.10):
+  web3@1.10.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10):
     dependencies:
       web3-bzz: 1.10.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
-      web3-core: 1.10.0
-      web3-eth: 1.10.0
-      web3-eth-personal: 1.10.0
-      web3-net: 1.10.0
-      web3-shh: 1.10.0
+      web3-core: 1.10.0(encoding@0.1.13)
+      web3-eth: 1.10.0(encoding@0.1.13)
+      web3-eth-personal: 1.10.0(encoding@0.1.13)
+      web3-net: 1.10.0(encoding@0.1.13)
+      web3-shh: 1.10.0(encoding@0.1.13)
       web3-utils: 1.10.0
     transitivePeerDependencies:
       - bufferutil
@@ -28239,21 +28046,6 @@ snapshots:
       web3-eth-personal: 1.10.4(encoding@0.1.13)
       web3-net: 1.10.4(encoding@0.1.13)
       web3-shh: 1.10.4(encoding@0.1.13)
-      web3-utils: 1.10.4
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - supports-color
-      - utf-8-validate
-
-  web3@1.10.4(bufferutil@4.0.8)(utf-8-validate@5.0.10):
-    dependencies:
-      web3-bzz: 1.10.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)
-      web3-core: 1.10.4
-      web3-eth: 1.10.4
-      web3-eth-personal: 1.10.4
-      web3-net: 1.10.4
-      web3-shh: 1.10.4
       web3-utils: 1.10.4
     transitivePeerDependencies:
       - bufferutil

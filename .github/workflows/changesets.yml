@@ -43,7 +43,7 @@ jobs:
         run: pnpm install
 
       - name: Create Version Pull Request
-        uses: changesets/action@v1
+        uses: changesets/action@v1.4.9
         with:
           commit: 'chore: version packages'
           title: 'chore: version packages'
@@ -82,7 +82,7 @@ jobs:
         run: pnpm install
 
       - name: Publish
-        uses: changesets/action@v1
+        uses: changesets/action@v1.4.9
         with:
           publish: pnpm changeset:publish
           createGithubReleases: ${{ github.ref == 'refs/heads/main' }}
