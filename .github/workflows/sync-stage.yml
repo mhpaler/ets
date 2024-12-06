@@ -25,9 +25,8 @@ jobs:
 
       - name: Ensure latest main
         run: |
-          git fetch origin main:main
-          git checkout main
-          git pull origin main
+          git fetch origin
+          git reset --hard origin/main
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
