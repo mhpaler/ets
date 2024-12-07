@@ -48,7 +48,6 @@ jobs:
           commit: 'chore: version packages'
           title: 'chore: version packages'
           version: pnpm changeset:version
-          squash-commits: true
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
