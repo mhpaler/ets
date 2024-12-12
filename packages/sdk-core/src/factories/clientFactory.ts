@@ -10,11 +10,11 @@ import { TargetClient } from "../clients/TargetClient";
 import { TokenClient } from "../clients/TokenClient";
 import { chainsMap } from "../config/chainsConfig";
 
-import { http, type Hex, createPublicClient, createWalletClient, custom } from "viem";
+import { http, type Account, type Hex, createPublicClient, createWalletClient, custom } from "viem";
 
 type ClientConfig = {
   chainId: number;
-  account?: Hex;
+  account?: Hex | Account;
   customTransport?: boolean;
 };
 
@@ -28,7 +28,7 @@ function initializeClients(config: ClientConfig) {
 
   let transportUrl = chain.rpcUrls?.default?.http?.[0];
 
-  if (process.env.NEXT_PUBLIC_ALCHEMY_KEY && chainId !== 31337) {
+  if (typeof process !== "undefined" && process.env.NEXT_PUBLIC_ALCHEMY_KEY && chainId !== 31337) {
     transportUrl = getAlchemyRpcUrlById(chainId.toString(), process.env.NEXT_PUBLIC_ALCHEMY_KEY);
   }
 
@@ -52,7 +52,7 @@ function createClient<T>(
   ClientType: new (args: any) => T,
   chainId: number | undefined,
   relayerAddress?: Hex,
-  account?: Hex,
+  account?: Account | Hex,
 ): T | undefined {
   if (!chainId) return undefined;
 
@@ -75,7 +75,7 @@ export function createTokenClient({
   account,
 }: {
   chainId: number | undefined;
-  account?: Hex;
+  account?: Account | Hex;
 }): TokenClient | undefined {
   return createClient<TokenClient>(TokenClient, chainId, undefined, account);
 }
@@ -87,7 +87,7 @@ export function createRelayerClient({
 }: {
   chainId: number | undefined;
   relayerAddress: Hex;
-  account?: Hex;
+  account?: Account | Hex;
 }): RelayerClient | undefined {
   return createClient<RelayerClient>(RelayerClient, chainId, relayerAddress, account);
 }
@@ -97,7 +97,7 @@ export function createAuctionHouseClient({
   account,
 }: {
   chainId: number | undefined;
-  account?: Hex;
+  account?: Account | Hex;
 }): AuctionHouseClient | undefined {
   return createClient<AuctionHouseClient>(AuctionHouseClient, chainId, undefined, account);
 }
@@ -107,7 +107,7 @@ export function createAccessControlsClient({
   account,
 }: {
   chainId: number | undefined;
-  account?: Hex;
+  account?: Account | Hex;
 }): AccessControlsClient | undefined {
   return createClient<AccessControlsClient>(AccessControlsClient, chainId, undefined, account);
 }
@@ -117,7 +117,7 @@ export function createRelayerFactoryClient({
   account,
 }: {
   chainId: number | undefined;
-  account?: Hex;
+  account?: Account | Hex;
 }): RelayerFactoryClient | undefined {
   return createClient<RelayerFactoryClient>(RelayerFactoryClient, chainId, undefined, account);
 }
@@ -127,7 +127,7 @@ export function createTargetClient({
   account,
 }: {
   chainId: number | undefined;
-  account?: Hex;
+  account?: Account | Hex;
 }): TargetClient | undefined {
   return createClient<TargetClient>(TargetClient, chainId, undefined, account);
 }
@@ -137,7 +137,7 @@ export function createEnrichTargetClient({
   account,
 }: {
   chainId: number | undefined;
-  account?: Hex;
+  account?: Account | Hex;
 }): EnrichTargetClient | undefined {
   return createClient<EnrichTargetClient>(EnrichTargetClient, chainId, undefined, account);
 }
@@ -147,7 +147,7 @@ export function createEtsClient({
   account,
 }: {
   chainId: number | undefined;
-  account?: Hex;
+  account?: Account | Hex;
 }): EtsClient | undefined {
   return createClient<EtsClient>(EtsClient, chainId, undefined, account);
 }
@@ -160,7 +160,7 @@ export function createCoreClient({
 }: {
   chainId: number | undefined;
   relayerAddress?: Hex;
-  account?: Hex;
+  account?: Account | Hex;
   clients?: {
     tokenClient?: boolean;
     relayerClient?: boolean;

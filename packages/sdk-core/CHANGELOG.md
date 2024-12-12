@@ -1,5 +1,30 @@
 # @ethereum-tag-service/sdk-core
 
+## 0.0.10
+
+### Patch Changes
+
+- Updated dependencies [[`7df289c`](https://github.com/ethereum-tag-service/ets/commit/7df289c25cadc9cc7cea9a3b56d13d7896f26c67)]:
+  - @ethereum-tag-service/contracts@0.0.2
+
+## 0.0.9
+
+### Patch Changes
+
+- [#415](https://github.com/ethereum-tag-service/ets/pull/415) [`7299be9e4203ac122cb69d942639c4d364810305`](https://github.com/ethereum-tag-service/ets/commit/7299be9e4203ac122cb69d942639c4d364810305) Thanks [@mhpaler](https://github.com/mhpaler)! - Add README to sdk-core
+
+## 0.0.8
+
+### Patch Changes
+
+- [#408](https://github.com/ethereum-tag-service/ets/pull/408) [`a68f6a7`](https://github.com/ethereum-tag-service/ets/commit/a68f6a70a1616c1e75e5df6e2ee4e3c546620d82) Thanks [@mhpaler](https://github.com/mhpaler)! - Support local accounts in sdk-core
+
+## 0.0.7
+
+### Patch Changes
+
+- [#404](https://github.com/ethereum-tag-service/ets/pull/404) [`32cd824`](https://github.com/ethereum-tag-service/ets/commit/32cd82415e907e6d143281e2d9b5436d5a44fb1c) Thanks [@mhpaler](https://github.com/mhpaler)! - Remove dependency on .env var NEXT_PUBLIC_ALCHEMY_KEY
+
 ## 0.0.6
 
 ### Patch Changes
