@@ -4,10 +4,3 @@
 
 @tailwind components;
 @tailwind utilities;
-
-:root {
-
-}
-
-:root.dark {
-}
