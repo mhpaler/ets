@@ -426,7 +426,7 @@ importers:
   examples/sdk-core/create-tagging-record-local-account:
     dependencies:
       '@ethereum-tag-service/sdk-core':
-        specifier: workspace:*
+        specifier: latest
         version: link:../../../packages/sdk-core
       viem:
         specifier: 2.21.11
@@ -5620,7 +5620,6 @@ packages:
 
   bun@1.1.38:
     resolution: {integrity: sha512-cr+UDFiEasyw0kKEbbD7kDewrI2vTo17JssVVjzBv/eNskeL2wikJ+4RNgUfoRqgthCjDZux7r6ELGgIGq6aWw==}
-    cpu: [arm64, x64]
     os: [darwin, linux, win32]
     hasBin: true
 
