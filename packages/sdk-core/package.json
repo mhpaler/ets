@@ -26,8 +26,8 @@
     "test:build": "publint --strict"
   },
   "dependencies": {
-    "viem": "^2.20.0",
-    "@ethereum-tag-service/contracts": "workspace:*"
+    "@ethereum-tag-service/contracts": "workspace:*",
+    "viem": "^2.21.11"
   },
   "devDependencies": {
     "@types/node": "^20.12.7",
