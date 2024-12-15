@@ -1,5 +1,5 @@
 {
-  "name": "example-sdk-core-read-contract",
+  "name": "@ethereum-tag-service/examples-sdk-core-read-contract",
   "private": true,
   "type": "module",
   "scripts": {
