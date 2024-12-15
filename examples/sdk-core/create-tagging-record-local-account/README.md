@@ -29,7 +29,7 @@ pnpm run dev
 
 ### Run on StackBlitz
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/ethereum-tag-service/ets/tree/main/sdk-core/create-tagging-record-local-account)
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/ethereum-tag-service/ets/tree/main/examples/sdk-core/create-tagging-record-local-account)
 
 Then...
 

@@ -13,4 +13,4 @@ pnpm run dev
 
 ## run on StackBlitz
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/ethereum-tag-service/ets/tree/main/sdk-core/read-contract)
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/ethereum-tag-service/ets/tree/main/examples/sdk-core/read-contract)
