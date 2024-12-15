@@ -272,7 +272,7 @@ importers:
         specifier: ^3.4.1
         version: 3.4.16(ts-node@10.9.2(@types/node@20.17.10)(typescript@5.7.2))
       typescript:
-        specifier: ^5.4.5
+        specifier: ^5.7.2
         version: 5.7.2
 
   apps/oracle:
@@ -321,7 +321,7 @@ importers:
         specifier: ^8.2.3
         version: 8.3.5(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.4.5)
       typescript:
-        specifier: ^5.4.5
+        specifier: ^5.7.2
         version: 5.7.2
 
   apps/site:
@@ -403,6 +403,8 @@ importers:
       vite:
         specifier: ^4.2.0
         version: 4.5.5(@types/node@22.10.2)
+
+  examples/sdk-core: {}
 
   examples/sdk-core/create-tag-local-account:
     dependencies:
@@ -611,7 +613,7 @@ importers:
         specifier: ^8.1.0
         version: 8.3.2(typescript@5.7.2)
       typescript:
-        specifier: ^5.4.5
+        specifier: ^5.7.2
         version: 5.7.2
       viem:
         specifier: 2.21.11
@@ -633,7 +635,7 @@ importers:
         specifier: ^8.2.3
         version: 8.3.5(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.4.5)
       typescript:
-        specifier: ^5.4.5
+        specifier: ^5.7.2
         version: 5.7.2
 
   packages/sdk-react-hooks:
@@ -655,7 +657,7 @@ importers:
         specifier: ^8.2.3
         version: 8.3.5(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.4.5)
       typescript:
-        specifier: ^5.4.5
+        specifier: ^5.7.2
         version: 5.7.2
 
   packages/subgraph:
@@ -700,7 +702,7 @@ importers:
         specifier: ^10.9.1
         version: 10.9.2(@types/node@22.10.2)(typescript@5.7.2)
       typescript:
-        specifier: ^5.4.5
+        specifier: ^5.7.2
         version: 5.7.2
 
   packages/subgraph-endpoints:
@@ -712,7 +714,7 @@ importers:
         specifier: ^8.2.3
         version: 8.3.5(jiti@2.4.1)(postcss@8.4.49)(typescript@5.7.2)(yaml@2.4.5)
       typescript:
-        specifier: ^5.4.5
+        specifier: ^5.7.2
         version: 5.7.2
 
   packages/tsconfig: {}

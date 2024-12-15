@@ -3,7 +3,13 @@
   "author": "Ethereum Tag Service <team@ets.xyz>",
   "private": true,
   "packageManager": "pnpm@9.9.0",
-  "keywords": ["ethereum", "react", "ets", "tag", "tagging"],
+  "keywords": [
+    "ethereum",
+    "react",
+    "ets",
+    "tag",
+    "tagging"
+  ],
   "scripts": {
     "bun": "pnpm exec bun",
     "biome": "pnpm exec biome",
@@ -77,11 +83,16 @@
   },
   "simple-git-hooks": {
     "post-checkout": "pnpm bun run ./scripts/validateUpstreamBranch.ts post-checkout",
-    "pre-commit": "pnpm bun run ./scripts/validateUpstreamBranch.ts pre-commit && pnpm lint"
+    "pre-commit": "pnpm bun run ./scripts/validateUpstreamBranch.ts pre-commit && pnpm lint && pnpm lint:repo"
   },
   "knip": {
-    "ignore": ["**/hardhat.config.js", "packages/**/src/version.ts"],
-    "ignoreDependencies": ["bun"],
+    "ignore": [
+      "**/hardhat.config.js",
+      "packages/**/src/version.ts"
+    ],
+    "ignoreDependencies": [
+      "bun"
+    ],
     "ignoreBinaries": [],
     "ignoreWorkspaces": [
       "examples/**",
@@ -94,24 +105,43 @@
     ],
     "workspaces": {
       ".": {
-        "entry": ["scripts/*.js", "scripts/*.*.ts"],
+        "entry": [
+          "scripts/*.js",
+          "scripts/*.*.ts"
+        ],
         "project": "scripts/**/*.ts"
       },
       "packages/sdk-core": {
-        "entry": ["src/index.ts!"],
-        "project": ["src/**/*.ts!"]
+        "entry": [
+          "src/index.ts!"
+        ],
+        "project": [
+          "src/**/*.ts!"
+        ]
       },
       "packages/sdk-react-hooks": {
-        "entry": ["src/**/*.ts!"],
-        "project": ["src/**/*.ts!"]
+        "entry": [
+          "src/**/*.ts!"
+        ],
+        "project": [
+          "src/**/*.ts!"
+        ]
       },
       "packages/subgraph-endpoints": {
-        "entry": ["src/**/*.ts!"],
-        "project": ["src/**/*.ts!"]
+        "entry": [
+          "src/**/*.ts!"
+        ],
+        "project": [
+          "src/**/*.ts!"
+        ]
       },
       "packages/subgraph": {
-        "entry": ["src/**/*.ts!"],
-        "project": ["src/**/*.ts!"]
+        "entry": [
+          "src/**/*.ts!"
+        ],
+        "project": [
+          "src/**/*.ts!"
+        ]
       }
     }
   }
