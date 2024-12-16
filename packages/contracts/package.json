@@ -3,7 +3,7 @@
   "author": "Ethereum Tag Service <team@ets.xyz>",
   "description": "Composable content tagging service for Web3",
   "license": "MIT",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publishConfig": {
     "access": "public"
   },
@@ -123,8 +123,8 @@
     "ts-node": "^10.9.1",
     "tsup": "^8.2.3",
     "typechain": "^8.1.0",
-    "typescript": "^5.4.5",
-    "viem": "^2.20.0"
+    "typescript": "^5.7.2",
+    "viem": "^2.21.11"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.2",
