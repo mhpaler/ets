@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check target branch
-        if: github.base_ref != 'stage'
+        if: github.base_ref != 'stage' && !(github.base_ref == 'main' && github.head_ref == 'stage')
         run: |
           echo "Error: All pull requests must target the 'stage' branch"
           echo "Current target branch: ${{ github.base_ref }}"
