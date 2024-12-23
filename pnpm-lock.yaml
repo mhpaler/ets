@@ -330,6 +330,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/brand
     devDependencies:
+      '@ethereum-tag-service/subgraph-endpoints':
+        specifier: workspace:*
+        version: link:../../packages/subgraph-endpoints
       '@types/react':
         specifier: 18.2.12
         version: 18.2.12
@@ -407,6 +410,8 @@ importers:
       vite:
         specifier: ^4.2.0
         version: 4.5.5(@types/node@22.10.2)
+
+  examples/sdk-core: {}
 
   examples/sdk-core/create-tag-local-account:
     dependencies:
@@ -14645,7 +14650,7 @@ snapshots:
   '@ethereum-tag-service/sdk-core@0.0.7(typescript@5.7.2)':
     dependencies:
       '@ethereum-tag-service/contracts': 0.0.1
-      viem: 2.21.11(bufferutil@4.0.8)(typescript@5.7.2)(utf-8-validate@5.0.10)(zod@3.24.1)
+      viem: 2.21.11(bufferutil@4.0.8)(typescript@5.7.2)(utf-8-validate@6.0.5)(zod@3.24.1)
     transitivePeerDependencies:
       - bufferutil
       - typescript

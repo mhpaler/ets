@@ -69,7 +69,7 @@ async function generateSidebarConfig(tree: FileEntry[]): Promise<Sidebar> {
 }
 
 async function main() {
-  const docsPath = join(process.cwd(), "apps/site/pages/docs");
+  const docsPath = join(process.cwd(), "pages/docs");
   const tree = await getDocumentationTree(docsPath);
   const sidebarConfig = await generateSidebarConfig(tree);
   await updateSidebarFile(sidebarConfig);
@@ -89,7 +89,7 @@ async function getDocumentationTree(path: string): Promise<FileEntry[]> {
 }
 
 async function updateSidebarFile(sidebarConfig: Sidebar) {
-  const sidebarPath = join(process.cwd(), "apps/site/sidebar.ts");
+  const sidebarPath = join(process.cwd(), "sidebar.ts");
   const content = `import type { Sidebar } from "vocs";\n\nexport const sidebar = ${JSON.stringify(sidebarConfig, null, 2)} as const satisfies Sidebar;\n`;
   await writeFile(sidebarPath, content);
 }

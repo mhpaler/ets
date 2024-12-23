@@ -55,14 +55,14 @@ Supported Chain IDs:
 
 ## Usage Examples
 
-```typescript
+```typescript twoslash
 import { getSubgraphEndpoint } from '@ethereum-tag-service/subgraph-endpoints';
 
 // Get endpoint for Arbitrum Sepolia
 const arbitrumSepoliaEndpoint = getSubgraphEndpoint(421614);
-// Returns: "https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia/version/latest"
+// @log: > "https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia/version/latest"
 
 // Get endpoint for local development
 const localEndpoint = getSubgraphEndpoint(31337);
-// Returns: "http://localhost:8000/subgraphs/name/ets-local"
+// @log: > "http://localhost:8000/subgraphs/name/ets-local"
 ```

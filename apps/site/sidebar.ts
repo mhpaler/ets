@@ -28,7 +28,7 @@ export const sidebar = {
         { text: "Getting Started", link: "/docs/contracts/getting-started" },
         { text: "Hardhat Tasks", link: "/docs/contracts/hardhat-tasks" },
         {
-          text: "Contract Reference",
+          text: "Technical Reference",
           collapsed: true,
           items: [
             { text: "Introduction", link: "/docs/contracts/reference/intro" },
@@ -91,6 +91,7 @@ export const sidebar = {
       collapsed: true,
       items: [
         { text: "Introduction", link: "/docs/api/intro" },
+        { text: "Subgraph Endpoints", link: "/docs/api/subgraph-endpoints" },
         { text: "Subgraph", link: "/docs/api/subgraph" },
       ],
     },
