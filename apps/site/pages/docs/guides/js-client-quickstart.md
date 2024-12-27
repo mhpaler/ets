@@ -1,12 +1,10 @@
 # JavaScript client quickstart
 
-This guide walks through adding a [Relayer](./key-concepts.md#relayer) to ETS (required), creating a [CTAG](./key-concepts.md#tag-ctag), creating & modifying a [Tagging Record](./key-concepts.md#tagging-record) with set of custom [Hardhat Tasks](https://hardhat.org/) that use [Ethers.js](https://docs.ethers.io/v5/) to interact with the protocol.
-
-If you are interested in contract-to-contract interaction, please see the [Contract-to-contract quickstart](./docs/contract-to-contract-quickstart.md).
+This guide walks through adding a [Relayer](../key-concepts.md#relayer) to ETS (required), creating a [CTAG](../key-concepts.md#tag-ctag), creating & modifying a [Tagging Record](../key-concepts.md#tagging-record) with set of custom [Hardhat Tasks](https://hardhat.org/) that use [Ethers.js](https://docs.ethers.io/v5/) to interact with the protocol.
 
 ## Setup
 
-Our Hardhat Tasks can execute directly on the our testnet or on [ETS deployed to local hardhat network](./docs/local-dev-quickstart.md). This guide covers running on our testnet. When running locally, all commands are the same except the `--network` flag is set to `localhost`.
+Our Hardhat Tasks can execute directly on the our testnet or on [ETS deployed to local hardhat network](local-dev-quickstart.md). This guide covers running on our testnet. When running locally, all commands are the same except the `--network` flag is set to `localhost`.
 
 For either method, you'll first need to clone the ETS repository and install ETS.
 
@@ -88,7 +86,7 @@ query Relayers {
 }
 ```
 
-View the [addRelayer](../packages/contracts/tasks/addRelayer.js) Hardhat Task or learn more about [Relayers](./key-concepts.md#relayer).
+View the [addRelayer](../contracts/hardhat-tasks.md#relayers) Hardhat Task or learn more about [Relayers](../key-concepts.md#relayer).
 
 ## Create CTAGs
 
@@ -150,11 +148,11 @@ query Tags {
 
 ```
 
-Have a look at the [createTags](../packages/contracts/tasks/createTags.js) Hardhat Task.
+Have a look at the [createTags](../contracts/hardhat-tasks.md#tags) Hardhat Task.
 
 ## Tagging Records
 
-Next, we'll focus on the core utility of ETS, namely tagging content. In this section, we'll create a new [Tagging Record](./key-concepts.md#tagging-record), append tags to it, remove tags from it and finally, do a wholesale replacement (overwrite) of tags.
+Next, we'll focus on the core utility of ETS, namely tagging content. In this section, we'll create a new [Tagging Record](../key-concepts.md#tagging-record), append tags to it, remove tags from it and finally, do a wholesale replacement (overwrite) of tags.
 
 ### Create a Tagging Record
 
@@ -236,7 +234,7 @@ So what just happened? On a conceptual level, a good way to think about ETS Tagg
 
 In this case, `account3` tagged the `Uniswap V3 LP NFT with ID 318669` with `"#Uniswap", "APE", "#WETH", "#APE/WETH"` from the `"Solana"` Relayer contract to create a `"bookmark"`.
 
-There's a lot going on behind the scenes. To get a handle on it, a good place to start is the [applyTags](../packages/contracts/tasks/applyTags.js) Hardhat Task which is well documented.
+There's a lot going on behind the scenes. To get a handle on it, a good place to start is the [applyTags](../contracts/hardhat-tasks.md#tagging-records) Hardhat Task which is well documented.
 
 A few things to note. If the tags applied ("#Uniswap", "#APE", "#WETH, "#APE/WETH") didn't exist in their tokenized form, new ones are minted just before the Tagging Record is recorded. For any new tags created, `account3` (the "Tagger") is recorded in the CTAG as the "Creator", and `Solana` is recorded as the Relayer.
 
@@ -274,7 +272,7 @@ query TaggingRecord {
 }
 ```
 
-In addition, for the [Target](./key-concepts.md#target), we have used the Etherscan link above. However, for the purposes of this demo, we used a Blink for the NFT URI.
+In addition, for the [Target](../key-concepts.md#target), we have used the Etherscan link above. However, for the purposes of this demo, we used a Blink for the NFT URI.
 
 If you are unfamiliar with [Blinks](https://w3c-ccg.github.io/blockchain-links/), they are a W3C RFC URI schema for blockchain based data. Blinks provide ETS a standardized way to know about the blockchain targets being tagged, especially during the indexing process.
 
@@ -295,9 +293,9 @@ started txn 0x70cf32caaad4ef89f892e6a304a325a5ae01135351b9bdca6a1ab543e8a133b9
 account3 charged for 4 tags
 ```
 
-Again there's a lot going on here, and to get a handle on things it would be best to have a look at the [applyTags Hardhat Task](../packages/contracts/tasks/applyTags.js) which is well documented.
+Again there's a lot going on here, and to get a handle on things it would be best to have a look at the [applyTags Hardhat Task](../contracts/hardhat-tasks.md#tagging-records) which is well documented.
 
-A few things to point out. First off, note that the only thing that changed between the two calls is the `--tags` argument. Had any of the other arguments changed, a new tagging record would have been created. This is because a tagging record id is a [composite key](./backend-api/ETS.md#computetaggingrecordidfromrawinput) made up of targetId+recordType+relayer+tagger.
+A few things to point out. First off, note that the only thing that changed between the two calls is the `--tags` argument. Had any of the other arguments changed, a new tagging record would have been created. This is because a tagging record id is a [composite key](../contracts/reference/ETS.md#computetaggingfeefromrawinput) made up of targetId+recordType+relayer+tagger.
 
 The other thing to note is even though five tags were passed in, "#Uniswap" already existed in the tagging record, and ETS respects that, therefore only four tag(s) were appended to the record.
 
@@ -320,7 +318,7 @@ account3 charged for 0 tags
 
 Even if tagging fees are enabled, as they are in this demo, ETS never charges to remove tags from a tagging record.
 
-Have a look at the [removeTags Hardhat Task](../packages/contracts/tasks/removeTags.js) for what's going on behind the scenes.
+Have a look at the [removeTags Hardhat Task](../contracts/hardhat-tasks.md#tagging-records) for what's going on behind the scenes.
 
 Again, note that had any of the arguments other than --tags changed, you'd likely get a "Tagging record not found". This makes Tagging Records tamper proof.
 
@@ -352,7 +350,7 @@ started txn 0x3af5ee4b95d1799db9f4e166af92bec2da0e76a46ee81c9e72f5b87789cfb667
 account3 charged for 3 tags
 ```
 
-Here's the [replaceTags Hardhat Task](../packages/contracts/tasks/replaceTags.js) for what's going on behind the scenes.
+Here's the [replaceTags Hardhat Task](../contracts/hardhat-tasks.md#tagging-records) for what's going on behind the scenes.
 
 After running this Task, the tagging record will have 3 tags, "#NFTsRock", "#Like", "#Tracking"
 

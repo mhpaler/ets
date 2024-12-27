@@ -1,0 +1,34 @@
+# availableChainIds
+
+An array of supported chain IDs.
+
+## Usage
+
+```ts twoslash
+import { availableChainIds } from '@ethereum-tag-service/contracts'
+
+console.log(availableChainIds)
+// @log: Output: ["421614", "84532", "31337"]
+```
+
+## Returns
+
+`SupportedChainId[]`
+
+Array of supported chain ID strings.
+
+## Examples
+
+```ts twoslash
+import { availableChainIds } from '@ethereum-tag-service/contracts'
+
+// Check if chain is supported
+const isSupported = availableChainIds.includes('421614')
+// @log: > true
+
+// Iterate over supported chains
+availableChainIds.forEach(chainId => {
+  console.log(chainId)
+})
+// @log: Output: ["421614", "84532", "31337"]
+```

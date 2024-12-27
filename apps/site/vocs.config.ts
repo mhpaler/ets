@@ -1,5 +1,6 @@
+import { ModuleKind, ModuleResolutionKind } from "typescript";
 import { defineConfig } from "vocs";
-import { sidebar } from "./sidebar";
+import { sidebar } from "./sidebar.js";
 
 export default defineConfig({
   rootDir: "./",
@@ -43,24 +44,24 @@ export default defineConfig({
       icon: "github",
       link: "https://github.com/ethereum-tag-service",
     },
-    /*     {
+    {
       icon: "discord",
       link: "https://discord.gg/xCUz9FRcXD",
     },
- */ {
+    {
       icon: "x",
       link: "https://x.com/etsxyz",
     },
   ],
 
-  /*   [
-    {
-      text: "Getting Started",
-      link: "/getting-started",
+  twoslash: {
+    compilerOptions: {
+      strict: true,
+      moduleResolution: ModuleResolutionKind.Node16,
+      module: ModuleKind.Node16,
+      paths: {
+        "@ethereum-tag-service/contracts/*": ["./node_modules/@ethereum-tag-service/contracts/dist/*"],
+      },
     },
-    {
-      text: "Example",
-      link: "/example",
-    },
-  ], */
+  },
 });

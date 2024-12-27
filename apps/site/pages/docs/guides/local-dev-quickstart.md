@@ -93,8 +93,6 @@ MNEMONIC_TESTNET=
 NEXT_PUBLIC_ALCHEMY_KEY=
 ```
 
-For more detailed rundown of the dev stack, please see our [Development Stack Overview (todo)](./dev-stack.md).
-
 ## Deployment
 
 ### Quickstart

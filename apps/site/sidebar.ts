@@ -25,8 +25,35 @@ export const sidebar = {
       collapsed: true,
       items: [
         { text: "Introduction", link: "/docs/contracts/intro" },
-        { text: "Getting Started", link: "/docs/contracts/getting-started" },
+        { text: "Concepts", link: "/docs/contracts/getting-started" },
         { text: "Hardhat Tasks", link: "/docs/contracts/hardhat-tasks" },
+        {
+          text: "Contracts Package",
+          collapsed: true,
+
+          items: [
+            { text: "Introduction", link: "/docs/contracts/package/intro" },
+            { text: "Contants", link: "/docs/contracts/package/constants" },
+            {
+              text: "Chain Configuration",
+              items: [
+                { text: "chains", link: "/docs/contracts/package/chains" },
+                { text: "networkNames", link: "/docs/contracts/package/networkNames" },
+                { text: "availableChainIds", link: "/docs/contracts/package/availableChainIds" },
+                { text: "availableNetworkNames", link: "/docs/contracts/package/availableNetworkNames" },
+              ],
+            },
+            {
+              text: "Utilities",
+              items: [
+                { text: "getChainById", link: "/docs/contracts/package/getChainById" },
+                { text: "getExplorerUrl", link: "/docs/contracts/package/getExplorerUrl" },
+                { text: "getAlchemyRpcUrl", link: "/docs/contracts/package/getAlchemyRpcUrl" },
+                { text: "getAlchemyRpcUrlById", link: "/docs/contracts/package/getAlchemyRpcUrlById" },
+              ],
+            },
+          ],
+        },
         {
           text: "Technical Reference",
           collapsed: true,
@@ -90,8 +117,15 @@ export const sidebar = {
       text: "GraphQL API",
       collapsed: true,
       items: [
-        { text: "Introduction", link: "/docs/api/intro" },
-        { text: "Subgraph Endpoints", link: "/docs/api/subgraph-endpoints" },
+        { text: "Overview", link: "/docs/api/intro" },
+        {
+          text: "Subgraph Endpoints",
+          items: [
+            { text: "Introduction", link: "/docs/api/subgraph-endpoints/intro" },
+            { text: "getSubgraphEndpoint", link: "/docs/api/subgraph-endpoints/getSubgraphEndpoint" },
+            { text: "subgraphEndpoints", link: "/docs/api/subgraph-endpoints/subgraphEndpoints" },
+          ],
+        },
         { text: "Subgraph", link: "/docs/api/subgraph" },
       ],
     },

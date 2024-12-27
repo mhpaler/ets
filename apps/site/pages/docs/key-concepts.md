@@ -1,6 +1,5 @@
 # Key Concepts [Actors and objects that are important to understand]
 
-In its simplest form, Ethereum Tag Service (ETS) is a composable web service (consumable by both front-end interfaces or via contract-to-contract interaction) that takes as input one or more tag strings and a target URI and combines those into a “tagging record” that is recorded, along with cryptographically ensured provenance and attribution, onto the blockchain.
 
 - [Tag (CTAG)](#tag-ctag)
 - [Target](#target)
@@ -116,7 +115,7 @@ function computeTargetId(string memory _targetURI) public pure returns (uint256)
 
 ## Tagging Record
 
-![Tagging Record](./assets/tagging-record.png)
+![Tagging Record](../concepts/tagging-record.png)
 
 Data structure, stored on-chain, that stores one or more Tag Ids connected to a Target Id by a given Tagger + Relayer combination. Also included is a Record Type flag that gives Relayer (or potentially a Tagger) a means to provide context to the Tagging Record.
 
@@ -154,7 +153,7 @@ Only Relayers (via a Relayer contract) may call ETS Core to record Tagging Recor
 
 Tagging records may be updated to have Tag Ids added or removed. Tag Ids are the only element of a tagging record that may be changed and these updates may only be carried out by the original Tagger address via the original Relayer contract.
 
-ETS Core has the option to charge a per-tag micro-fee to add tags to a Tagging Record. When a per-tag fee is charged, proceeds are broken up an distributed to the original CTAG Creator and original CTAG Relayer according to preset percentages governed by ETS. See [ETS.setTaggingFee](./backend-api/ETS.md#settaggingfee) & [ETS.setPercentages](./backend-api/ETS.md#setpercentages)
+ETS Core has the option to charge a per-tag micro-fee to add tags to a Tagging Record. When a per-tag fee is charged, proceeds are broken up an distributed to the original CTAG Creator and original CTAG Relayer according to preset percentages governed by ETS. See [ETS.setTaggingFee](./contracts/reference/ETS.md#settaggingfee) & [ETS.setPercentages](./contracts/reference/ETS.md#setpercentages)
 
 ## Relayer
 
