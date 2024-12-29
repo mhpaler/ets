@@ -1,6 +1,6 @@
 # @ethereum-tag-service/contracts
 
-A comprehensive Typescript package providing utilities, constants and configurations for building applications on the Ethereum Tag Service (ETS) protocol.
+A Typescript package providing utilities, constants and configurations for building applications on the Ethereum Tag Service (ETS) protocol.
 
 ## Installation
 

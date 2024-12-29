@@ -42,7 +42,7 @@ export default defineConfig({
   socials: [
     {
       icon: "github",
-      link: "https://github.com/ethereum-tag-service",
+      link: "https://github.com/ethereum-tag-service/ets",
     },
     {
       icon: "discord",

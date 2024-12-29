@@ -28,8 +28,6 @@ const TAGS_QUERY = gql`
       display
       machineName
       timestamp
-      premium
-      reserved
       creator {
         id
       }

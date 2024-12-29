@@ -20,8 +20,6 @@ const graphqlQuery = {
         display
         machineName
         timestamp
-        premium
-        reserved
         creator {
           id
         }

@@ -24,13 +24,6 @@ The subgraph endpoint URL for the specified chain.
 - **Type:** `number`
 - **Description:** Numerical identifier for the blockchain network
 
-Supported chain IDs:
-
-- `31337` (localhost)
-- `1337` (localhost)
-- `421614` (arbitrumSepolia)
-- `84532` (baseSepolia)
-
 ## Examples
 
 ```ts twoslash

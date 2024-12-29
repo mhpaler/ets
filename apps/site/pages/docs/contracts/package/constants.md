@@ -51,8 +51,4 @@ const { address, abi } = etsConfig
 
 ## Supported Networks
 
-Contract deployments are available on:
-
-- Arbitrum Sepolia (Chain ID: 421614)
-- Base Sepolia (Chain ID: 84532)
-- Local Hardhat Network (Chain ID: 31337)
+See [chains](/docs/contracts/package/chains) for a list of supported networks.

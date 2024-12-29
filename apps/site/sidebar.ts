@@ -5,9 +5,7 @@ export const sidebar = {
     {
       text: "Introduction",
       items: [
-        { text: "Why ETS?", link: "/docs/intro" },
         { text: "Getting Started", link: "/docs/getting-started" },
-        { text: "Installation", link: "/docs/installation" },
         { text: "Key Concepts", link: "/docs/key-concepts" },
         { text: "Roadmap", link: "/docs/roadmap" },
         { text: "FAQ", link: "/docs/faq" },
@@ -32,7 +30,7 @@ export const sidebar = {
           collapsed: true,
 
           items: [
-            { text: "Introduction", link: "/docs/contracts/package/intro" },
+            { text: "Installation", link: "/docs/contracts/package/installation" },
             { text: "Contants", link: "/docs/contracts/package/constants" },
             {
               text: "Chain Configuration",
@@ -118,15 +116,15 @@ export const sidebar = {
       collapsed: true,
       items: [
         { text: "Overview", link: "/docs/api/intro" },
+        { text: "Query Examples", link: "/docs/api/examples" },
         {
           text: "Subgraph Endpoints",
           items: [
-            { text: "Introduction", link: "/docs/api/subgraph-endpoints/intro" },
+            { text: "Installation", link: "/docs/api/subgraph-endpoints/installation" },
             { text: "getSubgraphEndpoint", link: "/docs/api/subgraph-endpoints/getSubgraphEndpoint" },
             { text: "subgraphEndpoints", link: "/docs/api/subgraph-endpoints/subgraphEndpoints" },
           ],
         },
-        { text: "Subgraph", link: "/docs/api/subgraph" },
       ],
     },
     {

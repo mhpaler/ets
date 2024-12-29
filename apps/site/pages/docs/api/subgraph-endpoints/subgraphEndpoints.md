@@ -24,12 +24,6 @@ An object containing network names mapped to their endpoint URLs.
 - **Type:** `string`
 - **Description:** Network identifier keys
 
-Available networks:
-
-- `localhost`
-- `arbitrumSepolia`
-- `baseSepolia`
-
 ## Examples
 
 ```ts twoslash
