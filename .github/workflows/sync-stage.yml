@@ -20,6 +20,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: stage
 
       - name: Configure Git
         run: |
@@ -28,7 +29,6 @@ jobs:
 
       - name: Sync main to stage
         run: |
-          git fetch origin main:main stage:stage
-          git checkout stage
+          git fetch origin main
           git merge origin/main
           git push origin stage
