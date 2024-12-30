@@ -1,17 +1,13 @@
 name: Sync Stage
 
 on:
-  workflow_run:
-    workflows: ["Changesets"]
-    types:
-      - completed
+  push:
     branches:
       - main
 
 jobs:
   sync:
     name: Sync main to stage
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
