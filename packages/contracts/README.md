@@ -1,12 +1,14 @@
 # Ethereum Tag Service Contracts
 
-Ethereum Tag Service (ETS) is an EVM-based content tagging service running on the Polygon Blockchain. ETS provides composable tagging infrastructure through smart contract interactions.
+Ethereum Tag Service (ETS) is an experimental tagging service running on several EVM testnets.
+
+ETS allows developers to integrate tokenized tags into their applications. These tags can be owned, traded, and used across different platforms, fostering a universal and interconnected tagging system.
 
 ## Core Features
 
 - Fully composable tags and tagging data
 - Contract-to-contract interaction support
-- Publisher and Relayer interfaces for custom implementations
+- Relayer interfaces for custom implementations
 
 ## Installation
 
@@ -38,7 +40,7 @@ contract MyRelayer is IETSRelayer {
 
 Key Relayer capabilities:
 
-- Apply, replace, and remove tags
+- Apply, replace, and remove tags in tagging record
 - Create new tags
 - Compute tagging fees
 - Ownership and pause controls
