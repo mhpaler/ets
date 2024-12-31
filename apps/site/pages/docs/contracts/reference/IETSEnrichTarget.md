@@ -1,71 +1,38 @@
-# ETSEnrichTarget
+# IETSEnrichTarget
 
 ## Overview
 
 #### License: MIT
 
 ```solidity
-contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable, UUPSUpgradeable
+interface IETSEnrichTarget
 ```
 
 
-## Constants info
+## Events info
 
-### NAME (0xa3f4df7e)
+### RequestEnrichTarget
 
 ```solidity
-string constant NAME = "ETSEnrichTarget"
+event RequestEnrichTarget(uint256 targetId)
 ```
 
+emitted when Target enrichment is requested via requestEnrichTarget().
 
-## State variables info
 
-### etsAccessControls (0x8299f9f9)
 
-```solidity
-contract IETSAccessControls etsAccessControls
-```
+Parameters:
 
-ETS access controls smart contract.
-### etsTarget (0x56c63489)
-
-```solidity
-contract IETSTarget etsTarget
-```
-
-ETS access controls smart contract.
-## Modifiers info
-
-### onlyAdmin
-
-```solidity
-modifier onlyAdmin()
-```
-
+| Name     | Type    | Description              |
+| :------- | :------ | :----------------------- |
+| targetId | uint256 | Target record to enrich. |
 
 ## Functions info
-
-### constructor
-
-```solidity
-constructor()
-```
-
-oz-upgrades-unsafe-allow: constructor
-### initialize (0x485cc955)
-
-```solidity
-function initialize(
-    IETSAccessControls _etsAccessControls,
-    IETSTarget _etsTarget
-) public initializer
-```
-
 
 ### requestEnrichTarget (0x6a34db1c)
 
 ```solidity
-function requestEnrichTarget(uint256 _targetId) public
+function requestEnrichTarget(uint256 _targetId) external
 ```
 
 Request enrichment for a Target using the hybrid ETS Enrich Target API.
@@ -85,7 +52,7 @@ function fulfillEnrichTarget(
     uint256 _targetId,
     string calldata _ipfsHash,
     uint256 _httpStatus
-) public
+) external
 ```
 
 Updates Target record with additional metadata stored behind IPFS hash.

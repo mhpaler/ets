@@ -1,93 +1,101 @@
-# ETSTarget
+# IETSTarget
 
 ## Overview
 
 #### License: MIT
 
 ```solidity
-contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers
+interface IETSTarget
 ```
 
 
-## Constants info
+## Structs info
 
-### NAME (0xa3f4df7e)
+### Target
 
 ```solidity
-string constant NAME = "ETSTarget"
+struct Target {
+	string targetURI;
+	address createdBy;
+	uint256 enriched;
+	uint256 httpStatus;
+	string ipfsHash;
+}
 ```
 
 
-## State variables info
+## Events info
 
-### etsAccessControls (0x8299f9f9)
+### AccessControlsSet
 
 ```solidity
-contract IETSAccessControls etsAccessControls
+event AccessControlsSet(address etsAccessControls)
 ```
 
-
-### etsEnrichTarget (0x1b8278e2)
-
-```solidity
-contract IETSEnrichTarget etsEnrichTarget
-```
-
-
-### targets (0x0a39ce02)
-
-```solidity
-mapping(uint256 => struct IETSTarget.Target) targets
-```
-
-Map of targetId to Target struct.
-## Modifiers info
-
-### onlyAdmin
-
-```solidity
-modifier onlyAdmin()
-```
-
-
-## Functions info
-
-### constructor
-
-```solidity
-constructor()
-```
-
-oz-upgrades-unsafe-allow: constructor
-### initialize (0xc4d66de8)
-
-```solidity
-function initialize(address _etsAccessControls) public initializer
-```
-
-
-### setAccessControls (0xcd15832f)
-
-```solidity
-function setAccessControls(IETSAccessControls _accessControls) public onlyAdmin
-```
-
-Sets ETSAccessControls on the ETSTarget contract so functions can be
-restricted to ETS platform only. Note Caller of this function must be deployer
-or pre-set as admin of new contract.
+emitted when the ETSAccessControls is set.
 
 
 
 Parameters:
 
-| Name            | Type                        | Description                            |
-| :-------------- | :-------------------------- | :------------------------------------- |
-| _accessControls | contract IETSAccessControls | Address of ETSAccessControls contract. |
+| Name              | Type    | Description                                   |
+| :---------------- | :------ | :-------------------------------------------- |
+| etsAccessControls | address | contract address ETSAccessControls is set to. |
+
+### EnrichTargetSet
+
+```solidity
+event EnrichTargetSet(address etsEnrichTarget)
+```
+
+emitted when the ETSEnrichTarget API address is set.
+
+
+
+Parameters:
+
+| Name            | Type    | Description                                 |
+| :-------------- | :------ | :------------------------------------------ |
+| etsEnrichTarget | address | contract address ETSEnrichTarget is set to. |
+
+### TargetCreated
+
+```solidity
+event TargetCreated(uint256 targetId)
+```
+
+emitted when a new Target is created.
+
+
+
+Parameters:
+
+| Name     | Type    | Description              |
+| :------- | :------ | :----------------------- |
+| targetId | uint256 | Unique Id of new Target. |
+
+### TargetUpdated
+
+```solidity
+event TargetUpdated(uint256 targetId)
+```
+
+emitted when an existing Target is updated.
+
+
+
+Parameters:
+
+| Name     | Type    | Description                 |
+| :------- | :------ | :-------------------------- |
+| targetId | uint256 | Id of Target being updated. |
+
+## Functions info
 
 ### setEnrichTarget (0xf0496c86)
 
 ```solidity
-function setEnrichTarget(address _etsEnrichTarget) public onlyAdmin
+function setEnrichTarget(address _etsEnrichTarget) external
 ```
 
 Sets ETSEnrichTarget contract address so that Target metadata enrichment
@@ -104,7 +112,9 @@ Parameters:
 ### getOrCreateTargetId (0xcf99c815)
 
 ```solidity
-function getOrCreateTargetId(string memory _targetURI) public returns (uint256)
+function getOrCreateTargetId(
+    string memory _targetURI
+) external returns (uint256)
 ```
 
 Get ETS targetId from URI.
@@ -132,7 +142,7 @@ Return values:
 ```solidity
 function createTarget(
     string memory _targetURI
-) public returns (uint256 targetId)
+) external returns (uint256 targetId)
 ```
 
 Create a Target record and return it's targetId.
@@ -190,7 +200,7 @@ Return values:
 ```solidity
 function computeTargetId(
     string memory _targetURI
-) public pure returns (uint256)
+) external view returns (uint256 targetId)
 ```
 
 Function to deterministically compute & return a targetId.
@@ -218,7 +228,9 @@ Return values:
 ### targetExistsByURI (0x0c48789c)
 
 ```solidity
-function targetExistsByURI(string memory _targetURI) public view returns (bool)
+function targetExistsByURI(
+    string memory _targetURI
+) external view returns (bool)
 ```
 
 Check that a Target record exists for a given URI string.
@@ -241,7 +253,7 @@ Return values:
 ### targetExistsById (0xcd7c68e2)
 
 ```solidity
-function targetExistsById(uint256 _targetId) public view returns (bool)
+function targetExistsById(uint256 _targetId) external view returns (bool)
 ```
 
 Check that a Target record exists for a given computed targetId.
@@ -266,7 +278,7 @@ Return values:
 ```solidity
 function getTargetByURI(
     string memory _targetURI
-) public view returns (IETSTarget.Target memory)
+) external view returns (IETSTarget.Target memory)
 ```
 
 Retrieve a Target record for a given URI string.
@@ -293,7 +305,7 @@ Return values:
 ```solidity
 function getTargetById(
     uint256 _targetId
-) public view returns (IETSTarget.Target memory)
+) external view returns (IETSTarget.Target memory)
 ```
 
 Retrieve a Target record for a computed targetId.

@@ -1,197 +1,169 @@
-# ETS
+# IETS
 
 ## Overview
 
 #### License: MIT
 
 ```solidity
-contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable
+interface IETS
 ```
 
-## Constants info
+## Data Structures
 
-### NAME (0xa3f4df7e)
+### TaggingRecordRawInput
+
+Raw client input data structure for creating tagging records. This structure represents the basic input data needed from clients to create or modify tagging records in ETS.
 
 ```solidity
-string constant NAME = "ETS Core"
+struct TaggingRecordRawInput {
+    string targetURI;
+    string[] tagStrings;
+    string recordType;
+}
 ```
 
-Public constants
+#### Fields
 
-### MODULO (0xa8586f7b)
+| Name       | Type      | Description                                                |
+| :--------- | :-------- | :--------------------------------------------------------- |
+| targetURI  | string    | Unique resource identifier string, eg. \"<https://google.com\>" |
+| tagStrings | string[]  | Array of hashtag strings, eg. [\"#Love\", \"#Blue\"]        |
+| recordType | string    | Arbitrary identifier for type of tagging record            |
+
+### TaggingRecord
+
+The fundamental data structure of ETS that reflects \"who tagged what, where and why\". Every Tagging record has a unique Id computed from the hashed composite of targetId, recordType, tagger and relayer addresses cast as a uint256.
 
 ```solidity
-uint256 constant MODULO = 100
+struct TaggingRecord {
+    uint256[] tagIds;
+    uint256 targetId;
+    string recordType;
+    address relayer;
+    address tagger;
+}
 ```
 
-## State variables info
+#### Fields
 
-### etsAccessControls (0x8299f9f9)
+| Name       | Type      | Description                                                    |
+| :--------- | :-------- | :------------------------------------------------------------- |
+| tagIds     | uint256[] | Ids of CTAG token(s)                                          |
+| targetId   | uint256   | Id of target being tagged                                     |
+| recordType | string    | Arbitrary identifier for type of tagging record               |
+| relayer    | address   | Address of Relayer contract that wrote tagging record         |
+| tagger     | address   | Address of wallet that initiated tagging record via relayer   |
+
+### TaggingAction
+
+Action types available for modifying tags in a tagging record. These actions determine how new tags will be applied to existing tagging records.
 
 ```solidity
-contract IETSAccessControls etsAccessControls
+enum TaggingAction {
+    APPEND,
+    REPLACE,
+    REMOVE
+}
 ```
 
-ETS access controls contract.
+#### Fields
 
-### etsToken (0x46ca0f4d)
+| Name    | Value | Description                                     |
+| :------ | :---- | :---------------------------------------------- |
+| APPEND  | 0     | Add new tags to an existing tagging record      |
+| REPLACE | 1     | Overwrite all existing tags with new tag set    |
+| REMOVE  | 2     | Remove specified tags from the tagging record   |
+
+## Events info
+
+### AccessControlsSet
 
 ```solidity
-contract IETSToken etsToken
+event AccessControlsSet(address newAccessControls)
 ```
 
-CTAG erc-721 token contract.
+emitted when the ETS Access Controls is set.
 
-### etsTarget (0x56c63489)
+Parameters:
+
+| Name              | Type    | Description                                 |
+| :---------------- | :------ | :------------------------------------------ |
+| newAccessControls | address | contract address access controls is set to. |
+
+### TaggingFeeSet
 
 ```solidity
-contract IETSTarget etsTarget
+event TaggingFeeSet(uint256 newTaggingFee)
 ```
 
-ETS Targets contract.
+emitted when ETS tagging fee is set.
 
-### taggingFee (0xfe52656f)
+Parameters:
+
+| Name          | Type    | Description      |
+| :------------ | :------ | :--------------- |
+| newTaggingFee | uint256 | new tagging fee. |
+
+### PercentagesSet
 
 ```solidity
-uint256 taggingFee
+event PercentagesSet(uint256 platformPercentage, uint256 relayerPercentage)
 ```
 
-Fee in MATIC Collected by ETS for tagging.
+emitted when participant distribution percentages are set.
 
-### platformPercentage (0x1f741897)
+Parameters:
+
+| Name               | Type    | Description                                                                                     |
+| :----------------- | :------ | :---------------------------------------------------------------------------------------------- |
+| platformPercentage | uint256 | percentage of tagging fee allocated to ETS.                                                     |
+| relayerPercentage  | uint256 | percentage of tagging fee allocated to relayer of record for CTAG being used in tagging record. |
+
+### TaggingRecordCreated
 
 ```solidity
-uint256 platformPercentage
+event TaggingRecordCreated(uint256 taggingRecordId)
 ```
 
-Percentage of tagging fee allocated to ETS.
+emitted when a new tagging record is recorded within ETS.
 
-### relayerPercentage (0x2a1e1ee1)
+Parameters:
+
+| Name            | Type    | Description                          |
+| :-------------- | :------ | :----------------------------------- |
+| taggingRecordId | uint256 | Unique identifier of tagging record. |
+
+### TaggingRecordUpdated
 
 ```solidity
-uint256 relayerPercentage
+event TaggingRecordUpdated(uint256 taggingRecordId, IETS.TaggingAction action)
 ```
 
-Percentage of tagging fee allocated to Relayer.
+emitted when a tagging record is updated.
 
-### accrued (0xb148440f)
+Parameters:
+
+| Name            | Type                    | Description                                   |
+| :-------------- | :---------------------- | :-------------------------------------------- |
+| taggingRecordId | uint256                 | tagging record being updated.                 |
+| action          | enum IETS.TaggingAction | Type of update applied as TaggingAction enum. |
+
+### FundsWithdrawn
 
 ```solidity
-mapping(address => uint256) accrued
+event FundsWithdrawn(address indexed who, uint256 amount)
 ```
 
-Map for holding amount accrued to participant address wallets.
+emitted when ETS participant draws down funds accrued to their contract or wallet.
 
-### paid (0xa340cf79)
+Parameters:
 
-```solidity
-mapping(address => uint256) paid
-```
-
-Map for holding lifetime amount drawn down from accrued by participants.
-
-### taggingRecords (0x74716c81)
-
-```solidity
-mapping(uint256 => struct IETS.TaggingRecord) taggingRecords
-```
-
-Map of tagging id to tagging record.
-
-## Modifiers info
-
-### onlyAdmin
-
-```solidity
-modifier onlyAdmin()
-```
-
-When applied to a method, only allows execution when the sender has the admin role.
-
-### onlyRelayer
-
-```solidity
-modifier onlyRelayer()
-```
-
-### onlyOriginalRelayerOrTagger
-
-```solidity
-modifier onlyOriginalRelayerOrTagger(uint256 _taggingRecordId)
-```
-
-Require that caller is original relayer or tagger.
+| Name   | Type    | Description                                   |
+| :----- | :------ | :-------------------------------------------- |
+| who    | address | contract or wallet address being drawn down.  |
+| amount | uint256 | amount being drawn down.                      |
 
 ## Functions info
-
-### constructor
-
-```solidity
-constructor()
-```
-
-oz-upgrades-unsafe-allow: constructor
-
-### initialize (0x728cdbca)
-
-```solidity
-function initialize(
-    IETSAccessControls _etsAccessControls,
-    IETSToken _etsToken,
-    IETSTarget _etsTarget,
-    uint256 _taggingFee,
-    uint256 _platformPercentage,
-    uint256 _relayerPercentage
-) public initializer
-```
-
-### setAccessControls (0xcd15832f)
-
-```solidity
-function setAccessControls(IETSAccessControls _accessControls) public onlyAdmin
-```
-
-Sets ETSAccessControls on the ETSTarget contract so functions can be
-restricted to ETS platform only. Note Caller of this function must be deployer
-or pre-set as admin of new contract.
-
-Parameters:
-
-| Name            | Type                        | Description                            |
-| :-------------- | :-------------------------- | :------------------------------------- |
-| _accessControls | contract IETSAccessControls | Address of ETSAccessControls contract. |
-
-### setTaggingFee (0x962ed232)
-
-```solidity
-function setTaggingFee(uint256 _fee) public onlyAdmin
-```
-
-Sets the fee required to tag an NFT asset.
-
-Parameters:
-
-| Name | Type    | Description              |
-| :--- | :------ | :----------------------- |
-| _fee | uint256 | Value of the fee in WEI. |
-
-### setPercentages (0xbd2ec8c5)
-
-```solidity
-function setPercentages(
-    uint256 _platformPercentage,
-    uint256 _relayerPercentage
-) public onlyAdmin
-```
-
-Admin functionality for updating the percentages.
-
-Parameters:
-
-| Name                | Type    | Description               |
-| :------------------ | :------ | :------------------------ |
-| _platformPercentage | uint256 | percentage for platform.  |
-| _relayerPercentage  | uint256 | percentage for relayer.   |
 
 ### createTaggingRecord (0xc38f3037)
 
@@ -201,7 +173,7 @@ function createTaggingRecord(
     uint256 _targetId,
     string calldata _recordType,
     address _tagger
-) public payable nonReentrant onlyRelayer
+) external payable
 ```
 
 Create a new tagging record.
@@ -226,7 +198,7 @@ Parameters:
 function getOrCreateTagId(
     string calldata _tag,
     address payable _creator
-) public payable onlyRelayer returns (uint256 tokenId)
+) external payable returns (uint256 tokenId)
 ```
 
 Get or create CTAG token from tag string.
@@ -255,7 +227,7 @@ Return values:
 function createTag(
     string calldata _tag,
     address payable _creator
-) public payable nonReentrant onlyRelayer returns (uint256 _tokenId)
+) external payable returns (uint256 tokenId)
 ```
 
 Create CTAG token from tag string.
@@ -283,7 +255,7 @@ Return values:
 function applyTagsWithRawInput(
     IETS.TaggingRecordRawInput calldata _rawInput,
     address payable _tagger
-) public payable
+) external payable
 ```
 
 Apply one or more tags to a targetURI using tagging record raw client input data.
@@ -304,11 +276,11 @@ Parameters:
 
 ```solidity
 function applyTagsWithCompositeKey(
-    uint256[] memory _tagIds,
+    uint256[] calldata _tagIds,
     uint256 _targetId,
-    string calldata _recordType,
+    string memory _recordType,
     address payable _tagger
-) public payable
+) external payable
 ```
 
 Apply one or more tags to a targetId using using tagging record composite key.
@@ -331,7 +303,7 @@ Parameters:
 function replaceTagsWithRawInput(
     IETS.TaggingRecordRawInput calldata _rawInput,
     address payable _tagger
-) public payable
+) external payable
 ```
 
 Replace entire tag set in tagging record using raw data for record lookup.
@@ -353,7 +325,7 @@ function replaceTagsWithCompositeKey(
     uint256 _targetId,
     string memory _recordType,
     address payable _tagger
-) public payable
+) external payable
 ```
 
 Replace entire tag set in tagging record using composite key for record lookup.
@@ -376,7 +348,7 @@ Parameters:
 function removeTagsWithRawInput(
     IETS.TaggingRecordRawInput calldata _rawInput,
     address _tagger
-) public
+) external
 ```
 
 Remove one or more tags from a tagging record using raw data for record lookup.
@@ -396,7 +368,7 @@ function removeTagsWithCompositeKey(
     uint256 _targetId,
     string memory _recordType,
     address payable _tagger
-) public
+) external
 ```
 
 Remove one or more tags from a tagging record using composite key for record lookup.
@@ -415,8 +387,8 @@ Parameters:
 ```solidity
 function appendTags(
     uint256 _taggingRecordId,
-    uint256[] memory _tagIds
-) public payable nonReentrant onlyOriginalRelayerOrTagger(_taggingRecordId)
+    uint256[] calldata _tagIds
+) external payable
 ```
 
 Append one or more tags to a tagging record.
@@ -433,8 +405,8 @@ Parameters:
 ```solidity
 function replaceTags(
     uint256 _taggingRecordId,
-    uint256[] memory _tagIds
-) public payable nonReentrant onlyOriginalRelayerOrTagger(_taggingRecordId)
+    uint256[] calldata _tagIds
+) external payable
 ```
 
 Replaces tags in tagging record.
@@ -454,8 +426,8 @@ Parameters:
 ```solidity
 function removeTags(
     uint256 _taggingRecordId,
-    uint256[] memory _tagIds
-) public nonReentrant onlyOriginalRelayerOrTagger(_taggingRecordId)
+    uint256[] calldata _tagIds
+) external
 ```
 
 Remove one or more tags from a tagging record.
@@ -470,7 +442,7 @@ Parameters:
 ### drawDown (0xc2062005)
 
 ```solidity
-function drawDown(address payable _account) external nonReentrant
+function drawDown(address payable _account) external
 ```
 
 Function for withdrawing funds from an accrual account. Can be called by the account owner
@@ -486,10 +458,10 @@ Parameters:
 
 ```solidity
 function computeTaggingRecordIdFromRawInput(
-    IETS.TaggingRecordRawInput memory _rawInput,
+    IETS.TaggingRecordRawInput calldata _rawInput,
     address _relayer,
     address _tagger
-) public view returns (uint256 taggingRecordId)
+) external view returns (uint256 taggingRecordId)
 ```
 
 Compute a taggingRecordId from raw input.
@@ -516,7 +488,7 @@ function computeTaggingRecordIdFromCompositeKey(
     string memory _recordType,
     address _relayer,
     address _tagger
-) public pure returns (uint256 taggingRecordId)
+) external pure returns (uint256 taggingRecordId)
 ```
 
 Compute & return a taggingRecordId.
@@ -543,11 +515,11 @@ Return values:
 
 ```solidity
 function computeTaggingFeeFromRawInput(
-    IETS.TaggingRecordRawInput calldata _rawInput,
+    IETS.TaggingRecordRawInput memory _rawInput,
     address _relayer,
     address _tagger,
     IETS.TaggingAction _action
-) public view returns (uint256 fee, uint256 tagCount)
+) external view returns (uint256 fee, uint256 tagCount)
 ```
 
 Compute tagging fee for raw input and desired action.
@@ -578,7 +550,7 @@ function computeTaggingFeeFromCompositeKey(
     address _relayer,
     address _tagger,
     IETS.TaggingAction _action
-) public view returns (uint256 fee, uint256 tagCount)
+) external view returns (uint256 fee, uint256 tagCount)
 ```
 
 Compute tagging fee for CTAGs, tagging record composite key and desired action.
@@ -606,7 +578,7 @@ function computeTaggingFee(
     uint256 _taggingRecordId,
     uint256[] memory _tagIds,
     IETS.TaggingAction _action
-) public view returns (uint256 fee, uint256 tagCount)
+) external view returns (uint256 fee, uint256 tagCount)
 ```
 
 Compute tagging fee for CTAGs, tagging record id and desired action.
@@ -640,7 +612,7 @@ function getTaggingRecordFromRawInput(
     address _relayer,
     address _tagger
 )
-    public
+    external
     view
     returns (
         uint256[] memory tagIds,
@@ -680,7 +652,7 @@ function getTaggingRecordFromCompositeKey(
     address _relayer,
     address _tagger
 )
-    public
+    external
     view
     returns (
         uint256[] memory tagIds,
@@ -718,7 +690,7 @@ Return values:
 function getTaggingRecordFromId(
     uint256 _id
 )
-    public
+    external
     view
     returns (
         uint256[] memory tagIds,
@@ -754,7 +726,7 @@ function taggingRecordExistsByRawInput(
     IETS.TaggingRecordRawInput memory _rawInput,
     address _relayer,
     address _tagger
-) public view returns (bool)
+) external view returns (bool)
 ```
 
 Check that a tagging record exists for given raw input.
@@ -781,7 +753,7 @@ function taggingRecordExistsByCompositeKey(
     string memory _recordType,
     address _relayer,
     address _tagger
-) public view returns (bool)
+) external view returns (bool)
 ```
 
 Check that a tagging record exists by it's componsite key parts.
@@ -806,7 +778,7 @@ Return values:
 ```solidity
 function taggingRecordExists(
     uint256 _taggingRecordId
-) public view returns (bool)
+) external view returns (bool)
 ```
 
 Check that a tagging record exsits by it's Id.
@@ -826,7 +798,7 @@ Return values:
 ### totalDue (0x0ad2f0c3)
 
 ```solidity
-function totalDue(address _account) public view returns (uint256 _due)
+function totalDue(address _account) external view returns (uint256 _due)
 ```
 
 Function to check how much MATIC has been accrued by an address factoring in amount paid out.
@@ -842,3 +814,17 @@ Return values:
 | Name | Type    | Description                            |
 | :--- | :------ | :------------------------------------- |
 | _due | uint256 | Amount of WEI in MATIC due to account. |
+
+### taggingFee (0xfe52656f)
+
+```solidity
+function taggingFee() external view returns (uint256)
+```
+
+Function to retrieve the ETS platform tagging fee.
+
+Return values:
+
+| Name | Type    | Description  |
+| :--- | :------ | :----------- |
+| [0]  | uint256 | tagging fee. |
