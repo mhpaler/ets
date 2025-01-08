@@ -4,37 +4,33 @@ const endpoint = getSubgraphEndpoint(421614);
 
 const graphqlQuery = {
   query: `
-    query tags(
-      $first: Int!,
-      $skip: Int!,
-      $orderBy: Tag_orderBy!,
-      $orderDirection: OrderDirection
-    ) {
-      tags(
-        first: $first
-        skip: $skip
-        orderBy: $orderBy
-        orderDirection: $orderDirection
-      ) {
-        id
-        display
-        machineName
-        timestamp
-        creator {
-          id
-        }
-        owner {
-          id
-        }
-      }
+    {
+  taggingRecords(
+    first: 1
+    skip: 0
+    orderBy: timestamp
+    orderDirection: desc
+    where: {id: "80903853133999221435814377604232091751415136525898835875800777163543136099110"}
+  ) {
+    recordType
+    timestamp
+    relayer {
+      name
     }
+    tagger {
+      id
+    }
+    tags {
+      display
+      machineName
+    }
+    target {
+      targetURI
+      targetType
+    }
+  }
+}
   `,
-  variables: {
-    first: 5,
-    skip: 0,
-    orderBy: "timestamp",
-    orderDirection: "desc",
-  },
 };
 
 const response = await fetch(endpoint, {
@@ -46,4 +42,6 @@ const response = await fetch(endpoint, {
 });
 
 const { data } = await response.json();
+
+console.info(JSON.stringify(data, null, 2));
 export const tags = data.tags;

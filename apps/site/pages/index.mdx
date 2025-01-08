@@ -76,9 +76,10 @@ import { HomePage } from 'vocs/components'
 <article className="vocs_Content max-w-3xl mt-[-80px] mx-auto">
 
 #
-# Barebones Example
+# Barebones Examples
 
-```ts [Create a Tagging Record]
+### Create Tagging Record using `sdk-core`
+```ts twoslash
 // 1. Import modules
 import { createRelayerClient } from "@ethereum-tag-service/sdk-core";
 import { privateKeyToAccount } from "viem/accounts";
@@ -103,18 +104,102 @@ client?.createTaggingRecord(
 .then((result) => console.log("Tagging record created:", result))
 .catch((error) => console.error("Error creating tagging record:", error));
 
+// @log: Output:
+// @log: Tagging record created: {
+// @log:   transactionHash: '0x0b36f4d57ff8f2ab6f82e6f1ffc7c9c02ecdc1c5ed8da68c09a79f31b9917e00',
+// @log:   status: 'success',
+// @log:   taggingRecordId: '80903853133999221435814377604232091751415136525898835875800777163543136099110'
+// @log: }
+```
 
-// Tagging record created: {
-//  transactionHash: '0x0b36f4d57ff8f2ab6f82e6f1ffc7c9c02ecdc1c5ed8da68c09a79f31b9917e00',
-//  status: 'success',
-//  taggingRecordId: '80903853133999221435814377604232091751415136525898835875800777163543136099110'
-// }
+### Surface Tagging Record using `ETS API`
+
+```typescript twoslash
+import { getSubgraphEndpoint } from "@ethereum-tag-service/subgraph-endpoints";
+
+// Arbitrum Sepolia
+const endpoint = getSubgraphEndpoint(421614);
+
+const graphqlQuery = {
+  query: `
+    {
+  taggingRecords(
+    first: 1
+    skip: 0
+    orderBy: timestamp
+    orderDirection: desc
+    where: {id: "80903853133999221435814377604232091751415136525898835875800777163543136099110"}
+  ) {
+    recordType
+    timestamp
+    relayer {
+      name
+    }
+    tagger {
+      id
+    }
+    tags {
+      display
+      machineName
+    }
+    target {
+      targetURI
+      targetType
+    }
+  }
+}
+  `,
+};
+
+const response = await fetch(endpoint, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(graphqlQuery),
+});
+
+const { data } = await response.json();
+console.info(JSON.stringify(data, null, 2));
+
+// @log: Output:
+// @log: {
+// @log:   "taggingRecords": [
+// @log:     {
+// @log:       "recordType": "Demo",
+// @log:       "timestamp": "1724717433",
+// @log:       "relayer": {
+// @log:         "name": "ETSRelayer"
+// @log:       },
+// @log:       "tagger": {
+// @log:         "id": "0x07bd3b64f9f51fe1d5c79f81dfc0460fff305b0e"
+// @log:       },
+// @log:       "tags": [
+// @log:         {
+// @log:           "display": "#unicorn",
+// @log:           "machineName": "unicorn"
+// @log:         },
+// @log:         {
+// @log:           "display": "#rainbow",
+// @log:           "machineName": "rainbow"
+// @log:         },
+// @log:         {
+// @log:           "display": "#og",
+// @log:           "machineName": "og"
+// @log:         },
+// @log:         {
+// @log:           "display": "#uniswap",
+// @log:           "machineName": "uniswap"
+// @log:         }
+// @log:       ],
+// @log:       "target": {
+// @log:         "targetURI": "https://uniswap.org",
+// @log:         "targetType": "UNKNOWN"
+// @log:       }
+// @log:     }
+// @log:   ]
+// @log: }
 ```
 
 <div className="flex justify-center space-x-4 my-4">
-  <a href="https://stackblitz.com/github/ethereum-tag-service/examples/tree/main/sdk-core/simple_create-tagging-record" target="_blank">
-    <img src="https://developer.stackblitz.com/img/open_in_stackblitz.svg" alt="Open in StackBlitz" className="h-8 w-auto object-contain" />
-  </a>
   <a href="https://github.com/ethereum-tag-service/examples/tree/main/sdk-core/simple_create-tagging-record" target="_blank">
     <img src="/view-in-github.svg" alt="Open in ETS Github" className="h-8 w-auto object-contain" />
   </a>
@@ -124,30 +209,30 @@ client?.createTaggingRecord(
 
 </div>
 
-# Features
+## Features
 
 ETS is a community-owned tagging infrastructure for the Ethereum Ecosystem and beyond. It provides a set of tools to create, manage, and query tagging records on an EVM blockchain.
 
-## Tagging infrastructure
+### Tagging infrastructure
 - Developer focused architecture with composable modules
 - Typescript SDKs for vanilla javascript and React that leverage [Viem](https://viem.sh/) for interacting with ETS smart contracts
 - Decentralized subgraph API on The Graph
-
-## Community Ownership
 - Tagging records stored on-chain ensuring data tag graph attribution and immutability
-- Tag strings tokenized as [ERC-721](https://ethereum.org/en/glossary/#erc-721) NFTs
-- Per-tag fees for tagging records that is distrubuted to creators, owners and relayers
-- Relayer model for apps to create tagging records and benefit economically
-- Fully on-chain tag auction modeled after [Nouns DAO](https://nouns.wtf/) to ensure fair and limited tag distribution
 
-# Community
+### Community Ownership
+- Tag strings tokenized as [ERC-721](https://ethereum.org/en/glossary/#erc-721) NFTs
+- Per-tag fees for tagging records distrubuted to creators, owners and relayers
+- Relayer model for apps to create tagging records and benefit economically
+- Fully on-chain tag auction modeled after [Nouns DAO](https://nouns.wtf/) to ensure fair and controlled tag distribution
+
+## Community & Support
 Check out the following places for more ETS-related content:
 
 - Follow [@etsxyz](https://x.com/etsxyz), [@mhpaler](https://x.com/mhpaler), [@viiiiiiiiiiiid](https://x.com/viiiiiiiiiiiid), [@0x_Sero](https://x.com/@0x_Sero), [@0xZach](https://x.com/@0xZach) on X
 - Read and subscribe to the [ETS blog](https://blog.ets.xyz)
 - Join the [discussion on GitHub](https://github.com/orgs/ethereum-tag-service/discussions)
 
-# Support
+## Open Source
 
 Help support future development and make ETS a sustainable open-source project:
 

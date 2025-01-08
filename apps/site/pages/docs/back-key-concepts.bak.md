@@ -1,6 +1,5 @@
 # Key Concepts [Actors and objects that are important to understand]
 
-
 - [Tag (CTAG)](#tag-ctag)
 - [Target](#target)
 - [Tagging Record](#tagging-record)
@@ -48,7 +47,7 @@ New CTAG tokens are transferred to ETS upon minting to be held for safekeeping. 
 
 ## Target
 
-Data structure, stored on-chain, that references/points to a URI. While a URI of any structure can be input as a Target (eg: "https://google.com", "), our indexing system, as much as possible, will restrict our interpretation & classification of URIs to the more technical parameters defined by the IETF in [RFC3986](https://www.rfc-editor.org/rfc/rfc3986). For newer protocols, such as blockchains we will lean on newer emerging URI standards such as the [Blink](https://w3c-ccg.github.io/blockchain-links) and [BIP-122](https://github.com/bitcoin/bips/blob/master/bip-0122.mediawiki)
+Data structure, stored on-chain, that references/points to a URI. While a URI of any structure can be input as a Target (eg: "<https://google.com>", "), our indexing system, as much as possible, will restrict our interpretation & classification of URIs to the more technical parameters defined by the IETF in [RFC3986](https://www.rfc-editor.org/rfc/rfc3986). For newer protocols, such as blockchains we will lean on newer emerging URI standards such as the [Blink](https://w3c-ccg.github.io/blockchain-links) and [BIP-122](https://github.com/bitcoin/bips/blob/master/bip-0122.mediawiki)
 
 ### URI examples
 

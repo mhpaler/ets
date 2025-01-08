@@ -5,8 +5,9 @@ export const sidebar = {
     {
       text: "Introduction",
       items: [
-        { text: "Getting Started", link: "/docs/getting-started" },
         { text: "Key Concepts", link: "/docs/key-concepts" },
+        { text: "Tokenomics", link: "/docs/tokenomics" },
+        { text: "Getting Started", link: "/docs/getting-started" },
         { text: "Roadmap", link: "/docs/roadmap" },
         { text: "FAQ", link: "/docs/faq" },
       ],
