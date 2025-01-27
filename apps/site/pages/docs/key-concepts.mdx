@@ -1,68 +1,54 @@
-# Key Concepts
-
-**Ethereum Tag Service (ETS)** is a decentralized protocol for tagging digital content. By turning tags into NFTs and storing tagging records on-chain, ETS ensures tags are unique, permanent, and verifiable, while empowering users to create, own, and monetize them.
-
-## Core Components & Actors
-
 <style>
   {`
-    .vocs_H3 img,
-    .vocs_H3 .vocs_Anchor {
+    .vocs_H2 img,
+    .vocs_H2 .vocs_Anchor {
       display: inline-block;
       vertical-align: middle;
     }
   `}
 </style>
 
-### Tag (CTAG) ![Tag Icon](/icons/tag.svg)
+# Key Concepts [Components & Actors of the ETS Protocol.]
+
+## Tag (CTAG) ![Tag Icon](/icons/tag.svg)
 
 - **What it is:** A unique ERC-721 NFT representing a tag. Tags are case-insensitive, e.g., `#Punks`, `#punks`, and `#PUNKS` resolve to the same CTAG.
 - **Why it matters:** CTAGs ensure ownership and attribution, capturing the creator and relayer of each tag.
 - **Tokenomics:** Tags can be minted automatically during tagging or independently. Auctioned tags distribute proceeds among the relayer, creator, and the protocol.
 
-### Target ![Target Icon](/icons/target.svg)
+## Target ![Target Icon](/icons/target.svg)
 
 - **What it is:** A data structure pointing to a URI, enabling tagging of digital content such as web pages or blockchain assets.
 - **Why it matters:** Targets standardize how tagged content is referenced and ensure compatibility across applications.
 
-### Tagging Record ![Tagging Record Icon](/icons/tagging-record.svg)
+## Tagging Record ![Tagging Record Icon](/icons/tagging-record.svg)
 
 - **What it is:** A blockchain-based record linking CTAGs to Targets. Includes details like who tagged the content, the platform (Relayer), and the context (Record Type).
 - **Why it matters:** Provides a verifiable history of tagging actions, enabling decentralized attribution and value capture.
 - **Tokenomics:** ETS core charges micro-fees for tagging, with proceeds distributed to stakeholders.
 
-### Relayer ![Relayer Icon](/icons/relayer.svg)
+## Relayer ![Relayer Icon](/icons/relayer.svg)
 
 - **What it is:** Third-party applications or platforms that integrate with ETS to create tagging records.
 - **Why it matters:** Relayers ensure tagging records are linked to their originating platforms, adding provenance.
 - **Tokenomics:** Relayers share in the revenue generated from tag fees and auctions.
 
-### Tagger ![Tagger Icon](/icons/users.svg)
+## Tagger ![Tagger Icon](/icons/users.svg)
 
 - **What it is:** The user or machine initiating a tagging action via a relayer.
 - **Why it matters:** Taggers drive the protocol by adding value through content association.
 
-### Creator ![Creator Icon](/icons/users.svg)
+## Creator ![Creator Icon](/icons/users.svg)
 
 - **What it is:** The entity minting a CTAG. Creators can be users or relayers.
 - **Why it matters:** Creators gain attribution and a share of future revenue tied to their tags.
 
-### Auctioneer ![Auction Icon](/icons/auction.svg)
+## Auctioneer ![Auction Icon](/icons/auction.svg)
 
 - **What it is:** The entity managing CTAG auctions, starting with ETS itself.
 - **Why it matters:** Auctions incentivize early adopters and fairly distribute valuable tags.
 
-### Owner ![Owner Icon](/icons/users.svg)
+## Owner ![Owner Icon](/icons/users.svg)
 
 - **What it is:** The purchaser of a CTAG via auctions or secondary markets.
 - **Why it matters:** Owners acquire control and potential revenue from tags.
-
-
-## Why ETS Stands Out
-
-- **Decentralized:** No central authority controls tags or records.
-- **Immutable:** Permanent records provide transparent attribution.
-- **Composable:** Tags and tagging data can integrate seamlessly into other systems.
-- **Monetizable:** Tags capture and distribute value via NFTs.
-
----

@@ -1,0 +1,73 @@
+import ModalImage from '../../../components/ModalImage';
+import Icon from '../../../components/Icon';
+import { Callout } from 'vocs/components';
+
+# CTAG Auction <Icon src="/icons/auction.svg" size={36} alt="Auction Icon" /> [Fair Distribution of Tag Namespaces]
+
+## What
+The **ETS Auction** is a continuous English-style auction mechanism for distributing CTAGs. A fixed number of CTAGs is always up for auction, and when each auction ends, a new one automatically begins. Each auction runs for a fixed duration but may be extended in the final moments by new bids.
+
+
+## Why
+The auction system enables ETS to:
+- Distribute CTAGs fairly to the community
+- Control the rate of CTAG distribution
+- Establish market for CTAGs
+- Generate revenue for protocol participants
+- Prevent namespace squatting
+- Create an engaging community dynamic
+
+## How
+Auctions are managed through the [ETSAuctionHouse.sol contract](https://github.com/ethereum-tag-service/ets/blob/main/packages/contracts/contracts/ETSAuctionHouse.sol). The design of the auction is inspired by the Nouns DAO auction.
+
+### Default Auction Settings
+
+| Parameter | Variable | Value | Description |
+|-----------|----------|-------|-------------|
+| Max Concurrent Auctions | `maxAuctions` | 3 | Number of simultaneous auctions |
+| Duration | `duration` | 24 hours | Length of each auction |
+| Time Buffer | `timeBuffer` | 15 minutes | Extension period for late bids |
+| Min Bid Increment | `minBidIncrementPercentage` | 5% | Minimum increase over previous bid |
+| Reserve Price | `reservePrice` | 0.1 ETH | Minimum first bid amount |
+
+<Callout type="info">Settings are subject to change during testnet phase, and will be governed by community vote after launch.</Callout>
+
+### Auction Structure
+```solidity
+struct Auction {
+    uint256 auctionId;        // Incremented auction number
+    uint256 tokenId;          // CTAG being auctioned
+    uint256 amount;           // Current highest bid
+    uint256 startTime;        // Auction start time
+    uint256 endTime;          // Scheduled end time
+    uint256 reservePrice;     // Minimum first bid
+    address payable bidder;   // Current highest bidder
+    address payable auctioneer; // Defaults to ETS
+    bool settled;             // Whether auction is settled
+}
+```
+
+### Bidding
+- Auction begins with first bid
+- First bid must meet reserve price
+- Subsequent bids must increase by minimum percentage
+- Late bids extend auction by time buffer
+- Bids must be in native currency (ETH)
+
+> **Note**
+> The auction extension mechanism ("time buffer") prevents last-second sniping by adding time when late bids are placed.
+
+### Settling an Auction
+- Auction must be ended to settle
+- Any address can settle auction
+- Winning bidder receives CTAG
+- Proceeds distributed to:
+  - Platform treasury
+  - Tag creator
+  - Originating relayer
+
+### Next Auction Release Mechanics
+- [ETS Auction Oracle](/docs/concepts/oracle) detects `AuctionSettled` event
+- CTAG with the highest use count in Tagging Records is selected
+- If case where CTAGS have the same use count, the older CTAG is selected
+- Next CTAG released for auction via on-chain transaction

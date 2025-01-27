@@ -1,3 +1,159 @@
-# Get started
+import { Callout } from 'vocs/components';
 
-Hello world!
+# Getting started [Build ETS-enabled React apps with minimal boilerplate.]
+
+## Installation
+
+The **ETS SDK React Hooks** library requires both `@ethereum-tag-service/sdk-core` and `viem` as peer dependencies, meaning you'll need to have them installed in your project.
+
+If you're starting a new project:
+
+:::code-group
+
+```bash [npm]
+npm install @ethereum-tag-service/sdk-react-hooks @ethereum-tag-service/sdk-core viem
+```
+
+```bash [pnpm]
+pnpm add @ethereum-tag-service/sdk-react-hooks @ethereum-tag-service/sdk-core viem
+```
+
+```bash [yarn]
+yarn add @ethereum-tag-service/sdk-react-hooks @ethereum-tag-service/sdk-core viem
+```
+
+```bash [bun]
+bun add @ethereum-tag-service/sdk-react-hooks @ethereum-tag-service/sdk-core viem
+```
+:::
+
+If your project already includes `@ethereum-tag-service/sdk-core` and `viem`:
+
+:::code-group
+```bash [npm]
+npm install @ethereum-tag-service/sdk-react-hooks
+```
+
+```bash [pnpm]
+pnpm add @ethereum-tag-service/sdk-react-hooks
+```
+
+```bash [yarn]
+yarn add @ethereum-tag-service/sdk-react-hooks
+```
+
+```bash [bun]
+bun add @ethereum-tag-service/sdk-react-hooks
+```
+:::
+
+## Usage
+
+The library provides the following hooks, one for each **sdk-core** client:
+
+- **useTokenClient**
+- **useRelayerClient**
+- **useAuctionHouseClient**
+- **useAccessControlsClient**
+- **useRelayerFactoryClient**
+- **useTargetClient**
+- **useEnrichTargetClient**
+- **useEtsClient**
+- **useCoreClient**
+
+### Initialization
+
+To initialize a hook you must provide:
+
+- `chainId`: The network identifier (e.g. 421614 for Arbitrum Sepolia)
+- `account`: A hex address from your connected wallet
+
+```tsx twoslash
+import { useTokenClient } from '@ethereum-tag-service/sdk-react-hooks'
+
+const { tagExists } = useTokenClient({
+  chainId: 421614, // Arbitrum Sepolia // [!code focus:1]
+  account: '0x...' // From your wallet connector // [!code focus:1]
+})
+```
+
+Note: **useRelayerClient** additionally requires a `relayerAddress` parameter.
+```tsx twoslash
+import { useRelayerClient } from '@ethereum-tag-service/sdk-react-hooks'
+
+const { applyTags } = useRelayerClient({
+  chainId: 421614,
+  relayerAddress: '0x...', // [!code focus:1]
+  account: '0x...'
+})
+```
+[Learn more](#todo) about relayers.
+
+## Examples
+
+Once you've initialized a hook, you can destructure any of its built-in methods to interact with the ETS smart contracts.
+
+<Callout type="tip">Note: Working code examples, like those below, are available in the [examples](https://github.com/ethereum-tag-service/ets/tree/stage/examples) section of the repo.</Callout>
+
+### Simple read example
+
+Each hook provides access to its client's complete set of methods. Here's how you might use the Token client in a React component:
+
+```tsx twoslash
+import React from 'react';
+import { useTokenClient } from '@ethereum-tag-service/sdk-react-hooks'
+
+function TagExplorer() {
+  const { existingTags, tagExists, computeTagId } = useTokenClient({
+    chainId: 421614,
+    account: "0x1234567890123456789012345678901234567890"
+  })
+
+  const checkTags = async () => {
+    // Check multiple tags at once
+    const tagsToCheck = ["#rainbow", "#ethereum"]
+    const existing = await existingTags(tagsToCheck)
+    console.log("Existing tags:", existing)
+
+    // Check a single tag
+    const hasTag = await tagExists("#rainbow")
+    console.log("Has #rainbow tag:", hasTag)
+
+    // Get the numeric ID for a tag
+    const tagId = await computeTagId("#rainbow")
+    console.log("Tag ID:", tagId)
+  }
+
+  return (
+    <button onClick={checkTags}>Check Tags</button>
+  )
+}
+```
+
+### Simple create tagging record
+
+```tsx twoslash
+import React from 'react'
+import { useRelayerClient } from '@ethereum-tag-service/sdk-react-hooks'
+
+function TagCreator() {
+  const { createTaggingRecord } = useRelayerClient({
+    chainId: 421614,
+    relayerAddress: "0xa01c9cb373c5e29934b92e5afa6a78e3d590340b",
+    account: '0x...' // From your wallet connector
+  })
+
+  const createRecord = async () => {
+    const tags = ["#rainbow", "#unicorn", "#og", "#uniswap"]
+    const targetUrl = "https://uniswap.org"
+    const recordType = "Demo"
+
+    const recordId = await createTaggingRecord(tags, targetUrl, recordType)
+    console.log("Created record:", recordId)
+  }
+
+  return (
+    <button onClick={createRecord}>Create Tagging Record</button>
+  )
+}
+```

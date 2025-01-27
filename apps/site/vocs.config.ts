@@ -5,7 +5,8 @@ import { sidebar } from "./sidebar.js";
 export default defineConfig({
   rootDir: "./",
   title: "Ethereum Tag Service",
-  description: "Build reliable Ethereum apps & libraries with lightweight, composable, & type-safe modules from viem.",
+  description:
+    "Tokenize hashtag strings as non-fungible tokens (NFTs), link them with online media and surface this data for use in networks, platforms and applications.",
   ogImageUrl: {
     "/": "/ets-symbol.svg",
     "/docs": "https://vocs.dev/api/og?logo=%logo&title=%title&description=%description",
@@ -21,20 +22,15 @@ export default defineConfig({
   },
   topNav: [
     { text: "Docs", link: "/docs/getting-started", match: "/docs" },
-    { text: "Examples", link: "https://github.com/ethereum-tag-service/examples/tree/main" },
+    { text: "Playground", link: "https://arbitrumsepolia.app.ets.xyz/playground/create-tagging-record" },
     { text: "Explorer", link: "https://app.ets.xyz" },
 
     {
       text: "more",
       items: [
-        {
-          text: "LINK 1",
-          link: "https://github.com/wevm/vocs/blob/main/src/CHANGELOG.md",
-        },
-        {
-          text: "LINK 2",
-          link: "https://github.com/wevm/vocs/blob/main/.github/CONTRIBUTING.md",
-        },
+        { text: "Roadmap", link: "/docs/roadmap" },
+        { text: "FAQ", link: "/docs/faq" },
+        { text: "Sample code", link: "https://github.com/ethereum-tag-service/ets/tree/stage/examples" },
       ],
     },
   ],
@@ -61,6 +57,13 @@ export default defineConfig({
       module: ModuleKind.Node16,
       paths: {
         "@ethereum-tag-service/contracts/*": ["./node_modules/@ethereum-tag-service/contracts/dist/*"],
+      },
+    },
+  },
+  vite: {
+    resolve: {
+      alias: {
+        "@": "/apps/site",
       },
     },
   },

@@ -4,3 +4,9 @@
 
 @tailwind components;
 @tailwind utilities;
+
+.vocs_H1 img,
+.vocs_H1 .vocs_Anchor {
+  display: inline-block;
+  vertical-align: middle;
+}

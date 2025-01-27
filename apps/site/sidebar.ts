@@ -5,7 +5,23 @@ export const sidebar = {
     {
       text: "Introduction",
       items: [
-        { text: "Key Concepts", link: "/docs/key-concepts" },
+        {
+          text: "Key Concepts",
+          collapsed: true,
+          items: [
+            { text: "Overview", link: "/docs/concepts/overview" },
+            { text: "CTAG", link: "/docs/concepts/ctag" },
+            { text: "Target", link: "/docs/concepts/target" },
+            { text: "Tagging Record", link: "/docs/concepts/tagging-record" },
+            { text: "Relayer", link: "/docs/concepts/relayer" },
+            { text: "Tagger", link: "/docs/concepts/tagger" },
+            { text: "Creator", link: "/docs/concepts/creator" },
+            { text: "Owner", link: "/docs/concepts/owner" },
+            { text: "Auction", link: "/docs/concepts/auction" },
+            { text: "Oracle", link: "/docs/concepts/oracle" },
+          ],
+        },
+
         { text: "Tokenomics", link: "/docs/tokenomics" },
         { text: "Getting Started", link: "/docs/getting-started" },
         { text: "Roadmap", link: "/docs/roadmap" },
@@ -20,11 +36,41 @@ export const sidebar = {
       ],
     },
     {
-      text: "Smart Contracts",
+      text: "SDK Core",
       collapsed: true,
       items: [
-        { text: "Introduction", link: "/docs/contracts/intro" },
-        { text: "Concepts", link: "/docs/contracts/getting-started" },
+        { text: "Introduction", link: "/docs/sdk-core/intro" },
+        { text: "Getting Started", link: "/docs/sdk-core/getting-started" },
+      ],
+    },
+    {
+      text: "SDK React Hooks",
+      collapsed: true,
+      items: [
+        { text: "Introduction", link: "/docs/sdk-react-hooks/intro" },
+        { text: "Getting Started", link: "/docs/sdk-react-hooks/getting-started" },
+      ],
+    },
+    {
+      text: "API",
+      collapsed: true,
+      items: [
+        { text: "Introduction", link: "/docs/api/intro" },
+        { text: "Query Examples", link: "/docs/api/examples" },
+        {
+          text: "Subgraph Endpoints",
+          items: [
+            { text: "Installation", link: "/docs/api/subgraph-endpoints/installation" },
+            { text: "getSubgraphEndpoint", link: "/docs/api/subgraph-endpoints/getSubgraphEndpoint" },
+            { text: "subgraphEndpoints", link: "/docs/api/subgraph-endpoints/subgraphEndpoints" },
+          ],
+        },
+      ],
+    },
+    {
+      text: "Contracts",
+      collapsed: true,
+      items: [
         { text: "Hardhat Tasks", link: "/docs/contracts/hardhat-tasks" },
         {
           text: "Contracts Package",
@@ -91,48 +137,6 @@ export const sidebar = {
             },
           ],
         },
-      ],
-    },
-    {
-      text: "Applications",
-      collapsed: true,
-      items: [
-        {
-          text: "Explorer",
-          items: [{ text: "Transaction Configuration", link: "/docs/apps/explorer/transactionConfig" }],
-        },
-      ],
-    },
-    {
-      text: "GraphQL API",
-      collapsed: true,
-      items: [
-        { text: "Overview", link: "/docs/api/intro" },
-        { text: "Query Examples", link: "/docs/api/examples" },
-        {
-          text: "Subgraph Endpoints",
-          items: [
-            { text: "Installation", link: "/docs/api/subgraph-endpoints/installation" },
-            { text: "getSubgraphEndpoint", link: "/docs/api/subgraph-endpoints/getSubgraphEndpoint" },
-            { text: "subgraphEndpoints", link: "/docs/api/subgraph-endpoints/subgraphEndpoints" },
-          ],
-        },
-      ],
-    },
-    {
-      text: "SDK Core",
-      collapsed: true,
-      items: [
-        { text: "Introduction", link: "/docs/sdk-core/intro" },
-        { text: "Getting Started", link: "/docs/sdk-core/getting-started" },
-      ],
-    },
-    {
-      text: "SDK React Hooks",
-      collapsed: true,
-      items: [
-        { text: "Introduction", link: "/docs/sdk-react-hooks/intro" },
-        { text: "Getting Started", link: "/docs/sdk-react-hooks/getting-started" },
       ],
     },
   ],

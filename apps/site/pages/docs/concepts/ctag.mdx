@@ -1,0 +1,123 @@
+import { Callout } from 'vocs/components';
+import Icon from '../../../components/Icon';
+
+# CTAG <Icon src="/icons/tag.svg" size={36} alt="Tag Icon" /> [Building Blocks for a Universal Tag Graph]
+
+## What
+A unique ERC-721 NFT representing a tag namespace used within ETS. Each CTAG stores a tag string and origin attribution data including a "Relayer" address and a "Creator" address.
+
+## Why
+CTAGs enable ETS to:
+- Ensure unique ownership of tag namespaces
+- Track tag creation and usage history
+- Distribute fees to tag owners, creators and relayers
+- Enable composable tagging across protocols
+- Maintain clear provenance of tagging actions
+
+## How
+CTAGs are deterministically generated from input tag strings through the [ETSToken contract](https://github.com/ethereum-tag-service/ets/blob/main/packages/contracts/contracts/ETSToken.sol).
+
+
+### 1. Tag String Validation
+The tokenization process begins with validating the input tag string to ensure it adheres to ETS standards. This includes:
+- **Starting Character:** Must begin with `#`.
+- **Allowed Characters:** Supports any [Unicode](https://home.unicode.org/) character.
+- **Prohibited Characters:**
+    - Spaces (0x20).
+    - Additional `#` characters after the first position.
+- **Length Requirements:** Must fall within `tagMinStringLength` and `tagMaxStringLength`.
+
+| Input                | Valid/Invalid | Reason                                      | Machine Name       |
+|---------------------|---------------|---------------------------------------------|--------------------|
+| `#example`         | ✅ Valid      | Starts with `#`, no spaces, no extra `#`.   | `#example`          |
+| `#Example123`      | ✅ Valid      | Case-insensitive, alphanumeric allowed.     | `#example123`       |
+| `#示例`             | ✅ Valid      | Contains valid Chinese characters.          | `#示例`             |
+| `#🚀Launch`         | ✅ Valid      | Emoji and alphanumeric characters allowed.  | `#🚀launch`         |
+| `#🔥`               | ✅ Valid      | Single emoji after `#` is valid.            | `#🔥`               |
+| `#💡GoodIdea`       | ✅ Valid      | Emoji combined with alphanumeric is valid.  | `#💡goodidea`       |
+| `#Bad_Idea`       | ✅ Valid      | Underscores are fine.                         | `#bad_idea`       |
+| `#مرحبا`           | ✅ Valid      | Arabic script is valid.                     | `#مرحبا`           |
+| `#こんにちは`        | ✅ Valid      | Japanese Hiragana/Katakana are valid.       | `#こんにちは`        |
+| `#12345`           | ✅ Valid      | Numeric-only tags after `#` are valid.      | `#12345`           |
+| `example`          | ❌ Invalid    | Missing `#` at the start.                   | N/A                |
+| `#example tag`     | ❌ Invalid    | Contains a space.                           | N/A                |
+| `#example#tag`     | ❌ Invalid    | Contains an extra `#` after the first char. | N/A                |
+| `#`                | ❌ Invalid    | Length is less than `tagMinStringLength`.   | N/A                |
+| `#🔥 🚀`            | ❌ Invalid    | Contains a space between emojis.            | N/A                |
+| `#测试#tag`         | ❌ Invalid    | Contains an extra `#` after the first char. | N/A                |
+
+
+### 2. CTAG Data Structure
+```solidity
+struct Tag {
+    address relayer;      // Address of Relayer that facilitates CTAG creation
+    address creator;      // Address that initiated CTAG creation
+    string display;       // Display version of tag string
+    bool premium;         // Flag for premium/higher value tags
+    bool reserved;        // Flag to restrict from auction release
+}
+```
+
+<Callout type="info">The `premium` and `reserved` flags are not in active use and are slated to be removed.</Callout>
+
+### 3. ID Generation
+
+CTAGs are identified by a unique ID computed from the lowercased tag string:
+
+```solidity
+tagId = uint256(keccak256(bytes(lowercased_tag)));
+```
+
+This means once `#Punks` is minted, all future inputs like `#Punks`, `#punks`, and `#PUNKS` will refer to the CTAG with the machine name `#punks`.
+
+### 4. Creating CTAGs
+
+- Only authorized Relayers can create CTAGs via ETS core
+- Each unique tag string can only be minted once
+- New CTAGs are initially owned by the ETS platform
+- Creation emits a TagCreated event with attribution data
+
+### 5. Ownership
+- Upon creation, CTAGs are transferred to ETS for safekeeping.
+- CTAGs are released for purchase based on a schedule defined in the [ETS Auction](/docs/concepts/auction).
+- CTAGs, once purchased, have a renewable ownership term defined by `ownershipTermLength`
+- Terms can be renewed by any address
+- Expired CTAGs can be recycled back to ETS by any address
+- Recycled CTAGs become available for new auctions
+
+### 6. Tag Reuse and Composability
+Once a CTAG is minted, any future use of the same tag string when creating Tagging Records will reference the existing CTAG. This ensures:
+  - Consistent tag reuse across the protocol.
+  - Clear attribution and provenance of tag origination.
+  - Audit trail for tagging actions.
+  - Monetization through fees and auctions.
+
+## **Tokenomics**
+
+CTAGs generate revenue through two channels:
+
+1. **Per-Tag Fee in Tagging Records**
+   - ETS charges a micro-fee for each CTAG used in a [tagging record](/docs/concepts/tagging-record).
+   - Fee distribution:
+     - **Relayer**: For originating the CTAG.
+     - **Owner**: As a return on their investment in the tag.
+     - **Protocol**: To fund ongoing operations and development.
+
+<Callout type="info">Until the tag has been purchased at auction, the Creator receives the Owner share of the tagging fee.</Callout>
+
+2. **Auction Proceeds**
+   - When a CTAG is sold at auction, proceeds are distributed among:
+     - **Relayer**: For originating the CTAG.
+     - **Creator**: For their initial contribution to the tag ecosystem.
+     - **Protocol**: To support the protocol and incentivize adoption.
+
+#### **Revenue Distribution Table**
+The revenue distribution for fees and auction proceeds is governed by ETS-defined percentages.
+
+| Revenue Source    | Relayer | Creator | Owner | Platform |
+|-------------------|---------|---------|-------|----------|
+| **Tagging Fees**| 30%     | --      | 50%   | 20%      |
+| **CTAG Auction**  | 20%     | 40%     | --    | 40%      |
+| **CTAG Resale**   | --      | --      | 100%  | --       |
+
+*(Note: Percentages are preliminary and subject to change.)*
