@@ -1,18 +1,19 @@
 import { Callout } from 'vocs/components';
 import Icon from '../../../components/Icon';
 
-# CTAG <Icon src="/icons/tag.svg" size={36} alt="Tag Icon" /> [Building Blocks for a Universal Tag Graph]
+# CTAG <Icon src="/icons/tag.svg" size={36} alt="Tag Icon" /> [Building blocks of a universal tagging system]
 
 ## What
-A unique ERC-721 NFT representing a tag namespace used within ETS. Each CTAG stores a tag string and origin attribution data including a "Relayer" address and a "Creator" address.
+A unique ERC-721 NFT representing a tag namespace used within ETS.
 
 ## Why
 CTAGs enable ETS to:
-- Ensure unique ownership of tag namespaces
-- Track tag creation and usage history
-- Distribute fees to tag owners, creators and relayers
-- Enable composable tagging across protocols
-- Maintain clear provenance of tagging actions
+- Guarantee each tag string resolves to one definitive token
+- Create permanent ownership rights for tag namespaces
+- Build complete historical records of tag usage
+- Drive value through protocol-wide fee distribution
+- Enable consistent tag reuse across all applications
+- Record immutable attribution for all tag actions
 
 ## How
 CTAGs are deterministically generated from input tag strings through the [ETSToken contract](https://github.com/ethereum-tag-service/ets/blob/main/packages/contracts/contracts/ETSToken.sol).
@@ -27,7 +28,7 @@ The tokenization process begins with validating the input tag string to ensure i
     - Additional `#` characters after the first position.
 - **Length Requirements:** Must fall within `tagMinStringLength` and `tagMaxStringLength`.
 
-| Input                | Valid/Invalid | Reason                                      | Machine Name       |
+| Input                | Valid/Invalid | Reason                                      | Namespace       |
 |---------------------|---------------|---------------------------------------------|--------------------|
 | `#example`         | ✅ Valid      | Starts with `#`, no spaces, no extra `#`.   | `#example`          |
 | `#Example123`      | ✅ Valid      | Case-insensitive, alphanumeric allowed.     | `#example123`       |
@@ -50,15 +51,13 @@ The tokenization process begins with validating the input tag string to ensure i
 ### 2. CTAG Data Structure
 ```solidity
 struct Tag {
-    address relayer;      // Address of Relayer that facilitates CTAG creation
-    address creator;      // Address that initiated CTAG creation
-    string display;       // Display version of tag string
-    bool premium;         // Flag for premium/higher value tags
-    bool reserved;        // Flag to restrict from auction release
+    address relayer;   // Address of Relayer that facilitates CTAG creation
+    address creator;   // Address that initiated CTAG creation
+    string display;    // Display version of tag string
+    bool premium;      // (deprecated)
+    bool reserved;     // (deprecated)
 }
 ```
-
-<Callout type="info">The `premium` and `reserved` flags are not in active use and are slated to be removed.</Callout>
 
 ### 3. ID Generation
 
@@ -68,24 +67,76 @@ CTAGs are identified by a unique ID computed from the lowercased tag string:
 tagId = uint256(keccak256(bytes(lowercased_tag)));
 ```
 
-This means once `#Punks` is minted, all future inputs like `#Punks`, `#punks`, and `#PUNKS` will refer to the CTAG with the machine name `#punks`.
+This means once `#Punks` is minted, all future inputs like `#PuNkS`, `#punks`, and `#PUNKS` will point to the CTAG with the namespace `#punks`. This ensures a single NFT for each unique tag namespace.
 
 ### 4. Creating CTAGs
 
-- Only authorized Relayers can create CTAGs via ETS core
-- Each unique tag string can only be minted once
-- New CTAGs are initially owned by the ETS platform
-- Creation emits a TagCreated event with attribution data
+All tag creation in ETS happens through [Relayers](/docs/concepts/relayer), which provide the interface between users and the protocol:
 
-### 5. Ownership
-- Upon creation, CTAGs are transferred to ETS for safekeeping.
-- CTAGs are released for purchase based on a schedule defined in the [ETS Auction](/docs/concepts/auction).
-- CTAGs, once purchased, have a renewable ownership term defined by `ownershipTermLength`
-- Terms can be renewed by any address
-- Expired CTAGs can be recycled back to ETS by any address
-- Recycled CTAGs become available for new auctions
+1. **Direct Tag Creation**
+- Users submit tag strings via Relayer interface
+- Relayer validates and forwards to ETS core
+- Creator attribution recorded on-chain
+- New CTAGs held by ETS platform
+- Enters auction queue based on usage, with active tags released first
 
-### 6. Tag Reuse and Composability
+2. **Creation Through Tagging**
+- Users submit tagging actions via Relayer
+- ETS core checks if tag exists
+- If tag is new, core automatically mints CTAG
+- Tagger recorded as Creator
+- New CTAG associated with [Target](/docs/concepts/target) in [Tagging Record](/docs/concepts/tagging-record)
+
+<Callout type="info">
+Relayers are the gateway for all protocol interactions, ensuring consistent validation, fee handling, and attribution tracking. Users cannot interact directly with ETS core contracts.
+</Callout>
+
+### 5. Purchasing CTAGs
+
+CTAGs are distributed through a continuous English auction system (see [ETS Auction](/docs/concepts/auction)):
+
+1. **Initial Holding**
+   - Upon creation, CTAGs are held by ETS platform
+   - Tags accumulate usage metrics while held
+   - Most-used tags prioritized for auction release
+
+2. **Auction Release**
+   - Tags released through ETSAuctionHouse contract
+   - Multiple concurrent auctions possible (default: 3)
+   - 24-hour auction duration with anti-snipe buffer
+   - Minimum bid increment of 5%
+   - Reserve price in native currency (ETH/MATIC)
+
+3. **Bidding Process**
+   - First bid starts auction timer
+   - Late bids extend auction by 15 minutes
+   - Highest bidder wins ownership rights
+   - Previous bidders automatically refunded
+
+4. **Settlement & Transfer**
+   - Any address can settle ended auctions
+   - Winner receives CTAG ownership
+   - Proceeds split between platform/creator/relayer
+   - New ownership term begins
+
+<Callout type="info">
+The auction mechanism ensures fair market pricing while rewarding early tag creation and platform participation through revenue sharing.
+</Callout>
+
+### 6. Ownership and Term Length
+
+Ownership terms are managed through the [ETSToken contract](https://github.com/ethereum-tag-service/ets/blob/main/packages/contracts/contracts/ETSToken.sol), creating a renewable ownership model that ensures active stewardship of CTAGs.
+
+- Ownership term length is defined by `ownershipTermLength` protocol parameter
+- Any address can renew a tag via `renewTag()`
+- Term clock starts at transfer or last renewal timestamp
+- Expired tags can be recycled by any address via `recycleTag()`
+- Recycling transfers tag back to platform address
+- Platform-held tags have no active term clock
+- Term expiry checked via `tagOwnershipTermExpired()`
+- Recycled tags become available for new auctions
+
+### 7. Tag Reuse and Composability
 Once a CTAG is minted, any future use of the same tag string when creating Tagging Records will reference the existing CTAG. This ensures:
   - Consistent tag reuse across the protocol.
   - Clear attribution and provenance of tag origination.

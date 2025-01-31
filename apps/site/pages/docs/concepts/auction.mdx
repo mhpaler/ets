@@ -2,23 +2,23 @@ import ModalImage from '../../../components/ModalImage';
 import Icon from '../../../components/Icon';
 import { Callout } from 'vocs/components';
 
-# CTAG Auction <Icon src="/icons/auction.svg" size={36} alt="Auction Icon" /> [Fair Distribution of Tag Namespaces]
+# CTAG Auction <Icon src="/icons/auction.svg" size={36} alt="Auction Icon" /> [Fair and limited distribution of tag namespaces]
 
 ## What
 The **ETS Auction** is a continuous English-style auction mechanism for distributing CTAGs. A fixed number of CTAGs is always up for auction, and when each auction ends, a new one automatically begins. Each auction runs for a fixed duration but may be extended in the final moments by new bids.
 
-
 ## Why
 The auction system enables ETS to:
 - Distribute CTAGs fairly to the community
-- Control the rate of CTAG distribution
+- Control the rate of CTAG distribution through max number of concurrent auctions
 - Establish market for CTAGs
 - Generate revenue for protocol participants
 - Prevent namespace squatting
 - Create an engaging community dynamic
 
 ## How
-Auctions are managed through the [ETSAuctionHouse.sol contract](https://github.com/ethereum-tag-service/ets/blob/main/packages/contracts/contracts/ETSAuctionHouse.sol). The design of the auction is inspired by the Nouns DAO auction.
+
+Auctions are managed through the [ETSAuctionHouse.sol contract](https://github.com/ethereum-tag-service/ets/blob/main/packages/contracts/contracts/ETSAuctionHouse.sol). The design of the auction is inspired by the [Nouns DAO](https://nouns.wtf/) auction.
 
 ### Default Auction Settings
 
@@ -33,6 +33,7 @@ Auctions are managed through the [ETSAuctionHouse.sol contract](https://github.c
 <Callout type="info">Settings are subject to change during testnet phase, and will be governed by community vote after launch.</Callout>
 
 ### Auction Structure
+
 ```solidity
 struct Auction {
     uint256 auctionId;        // Incremented auction number
@@ -66,8 +67,40 @@ struct Auction {
   - Tag creator
   - Originating relayer
 
-### Next Auction Release Mechanics
-- [ETS Auction Oracle](/docs/concepts/oracle) detects `AuctionSettled` event
-- CTAG with the highest use count in Tagging Records is selected
-- If case where CTAGS have the same use count, the older CTAG is selected
-- Next CTAG released for auction via on-chain transaction
+### Auction Oracle
+
+<ModalImage
+  src="/concepts/auction.png"
+  alt="Tagging Record Creation"
+/>
+
+The [ETS Auction Oracle](/docs/concepts/oracle) is an off-chain process that monitors the ETS Auction House and selects the next CTAG to be released for auction. The Oracle is responsible for:
+
+- Detecting `RequestCreateAuction` event, which is emitted when an auction is settled
+- Selecting CTAG with the highest use count (eg. used in most Tagging Records)
+- If CTAGS have the same use count, the oldest CTAG is selected
+- "Releasing" next CTAG for auction via on-chain transaction
+
+### Revenue Distribution Model
+
+When an auction is settled, the proceeds are automatically distributed between three key participants:
+
+| Participant | Variable | Default&nbsp;% | Description |
+|------------|----------|-----------|-------------|
+| Tag Creator | `creatorPercentage` | 40 | Rewarded to the original creator of the CTAG |
+| Relayer | `relayerPercentage` | 30 | Rewarded to the relayer that supported the creation of the CTAG |
+| Platform Treasury | `platformPercentage` | 30 | Allocated to ETS protocol treasury |
+
+The distribution works as follows:
+
+1. The total auction amount is split according to the percentage allocations
+2. Each participant's share is tracked in an `accrued` balance
+3. Participants can withdraw their accrued balance at any time using the `drawDown()` function
+4. The system maintains a record of lifetime earnings through the `paid` mapping
+
+This model incentivizes:
+- Tag creators to submit high-quality tags that get used frequently
+- Relayers to support tag and tagging record creation
+- Sustainable protocol revenue for ongoing development
+
+The percentage splits are governed by the community and can be adjusted through the admin functions `setProceedPercentages()`.

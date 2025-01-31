@@ -3,7 +3,7 @@ import Icon from '../../../components/Icon';
 import { Callout } from 'vocs/components';
 
 
-# Tagging Record <Icon src="/icons/tagging-record.svg" size={36} alt="Tagging Record Icon" />
+# Tagging Record <Icon src="/icons/tagging-record.svg" size={36} alt="Tagging Record Icon" /> [Linking people, places, & things across Web3]
 
 ## What
 A **Tagging Record** is the fundamental data structure of ETS that captures the relationship between tags (CTAGs), targets (URIs), and participants (Relayers and Taggers). Each record has a unique ID computed from its composite elements.
@@ -19,7 +19,7 @@ Tagging Records enable ETS to:
 
 ## How
 
-Tagging Records are created and managed through the [ETS core contract](https://github.com/ethereum-tag-service/ets/blob/main/packages/contracts/contracts/ETS.sol) through authorized ETS Relayer contracts. These Relayers interact with the ETS core contract which manages record creation, modification, and fee distribution to ensure all tagging actions follow protocol rules.
+Tagging Records are created and managed through the [ETS core contract](https://github.com/ethereum-tag-service/ets/blob/main/packages/contracts/contracts/ETS.sol) through authorized [Relayers](/docs/concepts/relayer). These Relayers (contracts themselves) interact with the ETS core contract which manages record creation, modification, and fee distribution to ensure all tagging actions follow protocol rules.
 
 <ModalImage
   src="/concepts/create-tagging-record.png"

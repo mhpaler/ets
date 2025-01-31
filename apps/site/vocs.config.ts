@@ -48,6 +48,10 @@ export default defineConfig({
       icon: "x",
       link: "https://x.com/etsxyz",
     },
+    {
+      icon: "warpcast",
+      link: "https://warpcast.com/ets",
+    },
   ],
 
   twoslash: {

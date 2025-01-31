@@ -56,9 +56,9 @@ export const sidebar = {
       collapsed: true,
       items: [
         { text: "Introduction", link: "/docs/api/intro" },
-        { text: "Query Examples", link: "/docs/api/examples" },
+        { text: "Examples", link: "/docs/api/examples" },
         {
-          text: "Subgraph Endpoints",
+          text: "Subgraph Endpoints Package",
           items: [
             { text: "Installation", link: "/docs/api/subgraph-endpoints/installation" },
             { text: "getSubgraphEndpoint", link: "/docs/api/subgraph-endpoints/getSubgraphEndpoint" },
