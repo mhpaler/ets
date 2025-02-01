@@ -53,11 +53,10 @@ export default defineConfig({
       link: "https://warpcast.com/ets",
     },
   ],
-
+  /*
   twoslash: {
     compilerOptions: {
       strict: true,
-      noImplicitAny: false,
       moduleResolution: ModuleResolutionKind.Node16,
       module: ModuleKind.Node16,
       paths: {
@@ -68,6 +67,7 @@ export default defineConfig({
       },
     },
   },
+  */
   vite: {
     resolve: {
       alias: {
