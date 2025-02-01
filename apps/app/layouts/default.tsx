@@ -1,4 +1,3 @@
-import Footer from "@app/components/Footer";
 import Header from "@app/components/Header";
 import Navigation from "@app/components/Navigation";
 import PageInfo from "@app/components/PageInfo";
@@ -23,7 +22,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           <div className="lg:p-5">
             <Header />
           </div>
-          <div className="grid grid-cols-12 grid-rows-[min-content] gap-y-4 lg:gap-x-12 p-4 max-w-[1200px] mx-auto">
+          <div className="grid grid-cols-12 grid-rows-[min-content] gap-y-4 lg:gap-x-12 p-4 pb-10 max-w-[1200px] mx-auto">
             <PageInfo />
             {children}
           </div>
@@ -33,7 +32,6 @@ export default function Layout({ children }: { children: ReactNode }) {
           <Navigation />
         </div>
       </div>
-      <Footer />
     </>
   );
 }

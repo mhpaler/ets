@@ -31,7 +31,7 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter Variable", "sans-serif"],
+        sans: ["system-ui", "sans-serif"],
       },
       keyframes: {
         slideIn: {
