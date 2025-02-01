@@ -3,12 +3,8 @@
   "compilerOptions": {
     "noEmit": true,
     "declaration": false,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitAny": true,
-    "strict": true
+    "composite": false,
+    "emitDeclarationOnly": false
   },
   "exclude": ["node_modules", "dist", "build"]
 }
