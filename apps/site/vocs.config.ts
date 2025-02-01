@@ -1,4 +1,4 @@
-//import { ModuleKind, ModuleResolutionKind } from "typescript";
+import { ModuleKind, ModuleResolutionKind } from "typescript";
 import { defineConfig } from "vocs";
 import { sidebar } from "./sidebar.js";
 
@@ -53,21 +53,18 @@ export default defineConfig({
       link: "https://warpcast.com/ets",
     },
   ],
-  /*
   twoslash: {
     compilerOptions: {
-      strict: true,
       moduleResolution: ModuleResolutionKind.Node16,
       module: ModuleKind.Node16,
-      paths: {
-        "@ethereum-tag-service/contracts/*": ["./node_modules/@ethereum-tag-service/contracts/dist/*"],
-        "@ethereum-tag-service/sdk-core": ["./node_modules/@ethereum-tag-service/sdk-core"],
-        "@ethereum-tag-service/sdk-react-hooks": ["./node_modules/@ethereum-tag-service/sdk-react-hooks"],
-        "@ethereum-tag-service/subgraph-endpoints": ["./node_modules/@ethereum-tag-service/subgraph-endpoints"],
-      },
+      //paths: {
+      //  "@ethereum-tag-service/contracts/*": ["./node_modules/@ethereum-tag-service/contracts/dist/*"],
+      //  "@ethereum-tag-service/sdk-core": ["./node_modules/@ethereum-tag-service/sdk-core"],
+      //  "@ethereum-tag-service/sdk-react-hooks": ["./node_modules/@ethereum-tag-service/sdk-react-hooks"],
+      //  "@ethereum-tag-service/subgraph-endpoints": ["./node_modules/@ethereum-tag-service/subgraph-endpoints"],
+      //},
     },
   },
-  */
 
   vite: {
     resolve: {
