@@ -1,4 +1,4 @@
-import { ModuleKind, ModuleResolutionKind } from "typescript";
+//import { ModuleKind, ModuleResolutionKind } from "typescript";
 import { defineConfig } from "vocs";
 import { sidebar } from "./sidebar.js";
 
@@ -68,6 +68,7 @@ export default defineConfig({
     },
   },
   */
+
   vite: {
     resolve: {
       alias: {

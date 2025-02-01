@@ -3,9 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "tsc -p tsconfig.build.json && vocs build",
     "dev": "vocs -c dev",
-    "build": "DEBUG=vocs:twoslash* vocs build",
-    "preview": "vocs preview"
+    "preview": "vocs preview",
+    "clean": "rm -rf .next dist"
   },
   "dependencies": {
     "@ethereum-tag-service/brand": "workspace:*"

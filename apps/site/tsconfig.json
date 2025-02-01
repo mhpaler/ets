@@ -3,12 +3,21 @@
     "jsx": "react-jsx",
     "target": "ES2020",
     "lib": ["ES2020", "DOM"],
-    "module": "Node16",
-    "moduleResolution": "node16",
+    "module": "ESNext",
+    "moduleResolution": "Node",
     "skipLibCheck": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
     "paths": {
-      "@ethereum-tag-service/contracts/*": ["./node_modules/@ethereum-tag-service/contracts/dist/*"]
-    }
+      "@ethereum-tag-service/contracts/*": ["../../packages/contracts/dist/*"],
+      "@ethereum-tag-service/sdk-core/*": ["../../packages/sdk-core/dist/*"],
+      "@ethereum-tag-service/sdk-react-hooks/*": ["../../packages/sdk-react-hooks/dist/*"],
+      "@ethereum-tag-service/subgraph-endpoints/*": ["../../packages/subgraph-endpoints/dist/*"]
+    },
+    "allowSyntheticDefaultImports": true,
+    "strict": false
   },
-  "include": ["**/*.ts", "**/*.tsx"]
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules", "dist", "build"]
 }
