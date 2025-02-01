@@ -57,10 +57,14 @@ export default defineConfig({
   twoslash: {
     compilerOptions: {
       strict: true,
+      noImplicitAny: false,
       moduleResolution: ModuleResolutionKind.Node16,
       module: ModuleKind.Node16,
       paths: {
         "@ethereum-tag-service/contracts/*": ["./node_modules/@ethereum-tag-service/contracts/dist/*"],
+        "@ethereum-tag-service/sdk-core": ["./node_modules/@ethereum-tag-service/sdk-core"],
+        "@ethereum-tag-service/sdk-react-hooks": ["./node_modules/@ethereum-tag-service/sdk-react-hooks"],
+        "@ethereum-tag-service/subgraph-endpoints": ["./node_modules/@ethereum-tag-service/subgraph-endpoints"],
       },
     },
   },
