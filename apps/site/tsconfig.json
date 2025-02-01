@@ -17,5 +17,5 @@
       "@ethereum-tag-service/subgraph-endpoints/*": ["../../packages/subgraph-endpoints/dist/*"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx"]
+  "include": ["pages/**/*.mdx", "components/**/*.ts", "components/**/*.tsx"]
 }
