@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vocs -c dev",
-    "build": "DEBUG=vocs* vocs build",
+    "build": "DEBUG=vocs:twoslash* vocs build",
     "preview": "vocs preview"
   },
   "dependencies": {
