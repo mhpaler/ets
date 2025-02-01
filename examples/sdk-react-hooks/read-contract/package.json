@@ -4,9 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "dev": "vite"
   },
   "dependencies": {
     "@ethereum-tag-service/sdk-react-hooks": "^0.0.13",
