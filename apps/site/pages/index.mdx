@@ -80,6 +80,10 @@ import { HomePage } from 'vocs/components'
 
 ### Create Tagging Record using `sdk-core`
 ```ts twoslash
+// @moduleResolution: node
+// @baseUrl: .
+// @paths: { "@ethereum-tag-service/*": ["./node_modules/@ethereum-tag-service/*"] }
+
 // 1. Import modules
 import { createRelayerClient } from "@ethereum-tag-service/sdk-core";
 import { privateKeyToAccount } from "viem/accounts";
