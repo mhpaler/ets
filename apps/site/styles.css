@@ -5,11 +5,34 @@
 @tailwind components;
 @tailwind utilities;
 
-.vocs_DocsLayout_gutterTop {
-  display: none;
+.vocs_H1 img,
+.vocs_H1 .vocs_Anchor {
+  display: inline-block;
+  vertical-align: middle;
 }
 
-.vocs_DocsLayout_content_withTopNav {
-  margin-top: 0;
-  padding-top: 0;
+/* Add our new transitions */
+.vocs_Section {
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.vocs_Section[data-active="true"] {
+  max-height: 500px;
+}
+
+.vocs_Section[data-active="false"] {
+  max-height: 0;
+}
+
+.vocs_Section > div {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.vocs_Section[data-active="false"] > div {
+  opacity: 0;
+}
+
+.vocs_Section[data-active="true"] > div {
+  opacity: 1;
 }

@@ -1,0 +1,208 @@
+import { Callout } from 'vocs/components';
+
+# Getting started
+
+## Installation
+
+**ETS SDK Core** uses the popular [viem](https://viem.sh/) library as its Ethereum interface. Viem is specified as a peer dependency, meaning you'll need to have it installed in your project to use the SDK.
+
+If you're starting a new project:
+
+:::code-group
+
+```bash [npm]
+npm install @ethereum-tag-service/sdk-core viem
+```
+
+```bash [pnpm]
+pnpm add @ethereum-tag-service/sdk-core viem
+```
+
+```bash [yarn]
+yarn add @ethereum-tag-service/sdk-core viem
+```
+
+```bash [bun]
+bun add @ethereum-tag-service/sdk-core viem
+```
+
+:::
+
+If your project already includes viem:
+
+:::code-group
+
+```bash [npm]
+npm install @ethereum-tag-service/sdk-core
+```
+
+```bash [pnpm]
+pnpm add @ethereum-tag-service/sdk-core
+```
+
+```bash [yarn]
+yarn add @ethereum-tag-service/sdk-core
+```
+
+```bash [bun]
+bun add @ethereum-tag-service/sdk-core
+```
+
+:::
+
+<Callout type="tip">The SDK requires viem version ^2.21.11 or higher. Your package manager will automatically verify version compatibility during installation.</Callout>
+
+## Usage
+
+### Client initialization
+
+All `sdk-core` clients require a `chainId` parameter and optionally an `account` parameter. The `account` parameter can be provided in one of two forms depending on your use case:
+
+1. A **hex address** (type Hex) obtained from a third-party wallet like MetaMask via your wallet connector. See [viem JSON-RPC Account](https://viem.sh/docs/accounts/jsonRpc) for more information:
+
+```typescript twoslash
+import { createTokenClient } from '@ethereum-tag-service/sdk-core'
+
+// Read-only client without account
+const tokenClient = createTokenClient({
+  chainId: 421614 // Arbitrum Sepolia // [!code focus:1]
+})
+
+// Client with MetaMask account
+const tokenClientWithWallet = createTokenClient({
+  chainId: 421614,
+  account: '0x...' // Hex address from MetaMask // [!code focus:1]
+})
+
+```
+
+2. A viem **[local account](https://viem.sh/docs/accounts/local)**:
+```typescript twoslash
+import { createTokenClient } from '@ethereum-tag-service/sdk-core'
+import { privateKeyToAccount } from 'viem/accounts'
+
+// Create viem account
+const account = privateKeyToAccount('0x...')
+
+// Client with private key account
+const tokenClient = createTokenClient({
+  chainId: 421614,
+  account // viem account object // [!code focus:1]
+})
+
+```
+
+### Relayer Client
+
+The **Relayer Client** additionally requires a `relayerAddress` parameter:
+```typescript twoslash
+import { createRelayerClient } from '@ethereum-tag-service/sdk-core'
+
+const relayerClient = createRelayerClient({
+  chainId: 421614,
+  relayerAddress: '0x...', // Any relayer address // [!code focus:1]
+  account: '0x...' // Optional account parameter
+})
+
+```
+Learn more about Relayers.
+
+### Core client
+
+The **Core Client** (`createCoreClient`) provides direct access to all methods from the initialized clients. You don't need to destructure the individual clients. You can call methods directly on the CoreClient instance.
+
+```typescript twoslash
+import { createCoreClient } from '@ethereum-tag-service/sdk-core'
+
+const coreClient = createCoreClient({
+  chainId: 421614,
+  relayerAddress: '0x...',
+  account: '0x...',
+  clients: {
+    tokenClient: true,
+    relayerClient: true,
+    auctionHouseClient: true
+  }
+})
+
+// Direct method access
+await coreClient?.tagExists('#rainbow')
+await coreClient?.applyTags(['#rainbow'], 'https://example.com', 'Demo')
+await coreClient?.getAuction(1n)
+
+```
+
+## Available clients
+
+The SDK provides the following client initialization methods:
+
+- createTokenClient
+- createAccessControlsClient
+- createAuctionHouseClient
+- createRelayerFactoryClient
+- createTargetClient
+- createEnrichTargetClient
+- createEtsClient
+- createRelayerClient
+- createCoreClient
+
+## Examples
+
+Once you have a client initialized, you can use it to interact directly with the ETS protocol smart contracts.
+
+<Callout type="tip">Working code examples, including the following, are available in the [examples](https://github.com/ethereum-tag-service/ets/tree/stage/examples) section of the repo.</Callout>
+
+### Simple read contract example
+
+Implement the [tagExistsByString](/docs/contracts/reference/ETSToken#tagexistsbystring-0xf6ba042a) method in the **TokenClient** to check if a CTAG exists.
+
+```typescript twoslash
+import { createTokenClient } from "@ethereum-tag-service/sdk-core";
+
+// Arbitrum Sepolia
+const chainId = 421614;
+
+// Create a token client to read from Arbitrum Sepolia.
+const client = createTokenClient({ chainId });
+
+// See if tag #rainbow exists on ETS.
+const tag = "#rainbow";
+const tagExists = await client?.tagExistsByString(tag);
+
+console.log(tagExists); // true or false
+
+// @log: > true
+```
+
+### Simple create tagging record
+
+Implement the `createTaggingRecord` method in the **RelayerClient** to create a tagging record on ETS.
+
+
+```ts twoslash
+
+import { createRelayerClient } from "@ethereum-tag-service/sdk-core";
+
+// Initialize RelayerClient on Arbitrum Sepolia
+const client = createRelayerClient({
+  chainId: 421614,
+  relayerAddress: "0xa01c9cb373c5e29934b92e5afa6a78e3d590340b",
+  account: '0x...' // Hex address from MetaMask or other signing wallet.
+});
+
+// Create a Tagging Record
+client?.createTaggingRecord(
+  ["#rainbow", "#unicorn", "#og", "#uniswap"],
+  "https://uniswap.org",
+  "Demo"
+)
+.then((result) => console.log("Tagging record created:", result))
+.catch((error) => console.error("Error creating tagging record:", error));
+
+// @log: >
+// @log: Tagging record created: {
+// @log:   transactionHash: '0x0b36f4d57ff8f2ab6f82e6f1ffc7c9c02ecdc1c5ed8da68c09a79f31b9917e00',
+// @log:   status: 'success',
+// @log:   taggingRecordId: '80903853133999221435814377604232091751415136525898835875800777163543136099110'
+// @log: }
+```

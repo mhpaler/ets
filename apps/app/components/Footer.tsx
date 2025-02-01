@@ -19,11 +19,10 @@ const Footer = () => {
           </a>
         </div>
         <div className="mt-4 md:mt-0 md:order-1">
-          <p className="text-center text-sm">&copy; 2021-{new Date().getUTCFullYear()} Ethereum Tag Service</p>
+          <p className="text-center text-sm">© 2021-{new Date().getUTCFullYear()} Ethereum Tag Service</p>
         </div>
       </div>
     </footer>
   );
 };
-
 export default Footer;

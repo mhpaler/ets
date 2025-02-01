@@ -1,0 +1,102 @@
+import ModalImage from '../../../components/ModalImage';
+import Icon from '../../../components/Icon';
+import { Callout } from 'vocs/components';
+
+# Relayer <Icon src="/icons/relayer.svg" size={36} alt="Relayer Icon" /> [Bridging your application and ETS core]
+
+## What
+A **Relayer** is the interface between applications and the ETS core.
+
+<ModalImage
+  src="/concepts/create-tagging-record.png"
+  alt="Tagging Record Creation"
+/>
+## Why
+Relayers enable ETS to:
+- Provide a uniform, simple tagging interface for applications
+- Ensure protocol-compliant tag and tagging record creation
+- Ensure the application facilitating the tagging process is credited for its role
+- Extend ETS functionality without modifying ETS core
+
+## How
+Relayers are deployed as upgradeable beacon proxies through the ETS governed [ETSRelayerFactory.sol](https://github.com/ethereum-tag-service/ets/blob/main/packages/contracts/contracts/ETSRelayerFactory.sol), pointing to [ETSRelayerV1.sol](https://github.com/ethereum-tag-service/ets/blob/main/packages/contracts/contracts/relayers/ETSRelayerV1.sol). This pattern ensures all Relayers can be upgraded **simultaneously** while maintaining their unique state and configuration.
+
+
+### 1. Creating a Relayer
+- Deployer must own at least one CTAG token
+- Relayer name must be unique and 2-32 characters
+- Only one Relayer allowed per owner address
+- Deployer becomes Relayer admin and owner
+
+<Callout type="info">We have provided a simple interface for deploying a Relayer on the [Relayers page](https://arbitrumsepolia.app.ets.xyz/explore/relayers) of the ETS Explorer for each chain.</Callout>
+
+### 2. Core Functions
+#### 2.1. CTAG & Tagging Record Management
+- `getOrCreateTagIds()` - Create new or fetch existing CTAGs
+- `applyTags()` - Create or append to tagging records
+- `replaceTags()` - Overwrite tags in existing records
+- `removeTags()` - Remove tags from records
+
+#### 2.2. Raw Input Structure
+```solidity
+struct TaggingRecordRawInput {
+    string targetURI;     // URI to be tagged
+    string[] tagStrings;  // Array of tag strings
+    string recordType;    // Type of tagging record
+}
+```
+This raw input structure allows applications to interact with ETS core using simple strings rather than pre-computed IDs. See [IETS.TaggingRecordRawInput](/docs/contracts/reference/IETS#taggingrecordrawinput) and [SDK Core createTaggingRecord()](/docs/sdk-core/getting-started#simple-create-tagging-record).
+
+
+### 3. Tagging Fees
+ETS charges a protocol-defined fee for each CTAG used in tagging operations. These fees incentivize tag creation, maintain protocol economics, and reward participants in the ETS ecosystem.
+
+
+<Callout type="info">Tagging fees are one part of the ETS tokenomics model. Learn more about [ETS Tokenomics](/docs/tokenomics).</Callout>
+
+
+#### 3.1 Fee Handling
+The Relayer provides a helper function `computeTaggingFee()` that allows applications to calculate **exact fees** before transactions, preventing failures. This is especially important when handling multiple tags or complex operations like APPEND and REPLACE actions.
+
+The fee calculation considers:
+- Number of new tags being added
+- Type of action being performed (new record, append, replace)
+- Current protocol-defined fee rate
+
+This design ensures transparent, predictable fee handling while maintaining protocol economics. The Relayer's role in fee management is crucial for both proper protocol operation and good UX in applications using ETS.
+
+```solidity
+// Direct contract interaction
+function computeTaggingFee(
+    IETS.TaggingRecordRawInput calldata _rawInput,
+    IETS.TaggingAction _action
+) external view returns (uint256 fee, uint256 tagCount);
+```
+
+```typescript
+// Using ETS SDK
+const [fee, tagCount] = await relayer.computeTaggingFee(
+    {
+        targetURI: "https://example.com",
+        tagStrings: ["#Example", "#Test"],
+        recordType: "bookmark"
+    },
+    TaggingAction.APPEND
+);
+
+// Apply tags with computed fee
+await relayer.applyTags([rawInput], { value: fee });
+
+```
+
+<Callout type="info">While this example shows explicit fee calculation for illustration, the ETS SDK's `createTaggingRecord()` function performs the fee calculation and tagging action in one function.</Callout>
+
+## Future Extensions
+The Relayer's upgradeable design makes it our primary focus for expanding ETS functionality. As detailed in our [roadmap](/docs/roadmap), planned extensions include:
+
+- Dynamic fee structures based on market conditions
+- Relayer-sponsored tagging fees for improved UX
+- Pluggable access controls for custom restrictions
+- Cross-chain tagging capabilities
+
+These features will be implemented through Relayer upgrades, allowing applications to access new functionality without changes to ETS core contracts.

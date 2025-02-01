@@ -1,0 +1,76 @@
+import Icon from '../../../components/Icon';
+import { Callout } from 'vocs/components';
+
+# Owner <Icon src="/icons/users.svg" size={36} alt="Owner Icon" /> [CTAG namespace controllers]
+
+## What
+An **Owner** is the address that holds a CTAG after winning it through the ETS auction system or acquiring it through secondary markets. Owners have full control over their CTAGs and receive revenue from tagging fees.
+
+## Why
+Owners enable ETS to:
+- Create a sustainable market for tag namespaces
+- Generate ongoing revenue from tag usage
+- Incentivize long-term protocol engagement
+- Maintain active tag stewardship
+- Drive protocol value through tag utility
+
+## How
+
+Owners participate in the protocol through CTAG acquisition and management.
+
+### 1. Acquisition Methods
+- Win CTAG through [ETS auction system](/docs/concepts/auction)
+- Purchase from secondary markets
+- Receive through direct transfer
+- Hold until term expiration
+
+### 2. Revenue Streams
+
+Owners earn revenue through tagging fees:
+- 50% of all tagging fees for owned CTAGs
+- Fees collected per tag usage in Tagging Records
+- Fees held in ETS core accrual account
+- Available for withdrawal via `drawDown()`
+- Revenue continues until term expiration
+
+<Callout type="info">
+The `drawDown()` function allows owners to withdraw their accumulated fees from the ETS core contract. The contract tracks earnings using an accrual system that maintains a record of both earned (`accrued`) and withdrawn (`paid`) amounts.
+</Callout>
+
+### 3. Ownership Rights
+
+```solidity
+struct Tag {
+    address relayer;      // Original relayer address
+    address creator;      // Original creator address
+    string display;       // Tag string representation
+    bool premium;         // Premium flag (deprecated)
+    bool reserved;        // Reserved flag (deprecated)
+}
+```
+
+### 4. Revenue Distribution
+
+| Revenue Source | Owner Share | When Received |
+|---------------|-------------|---------------|
+| Tagging Fees  | 50%         | Per usage     |
+| Resale        | 100%        | Upon sale     |
+
+### 5. Term Management
+
+Ownership terms are managed through the [ETSToken contract](https://github.com/ethereum-tag-service/ets/blob/main/packages/contracts/contracts/ETSToken.sol), creating a renewable ownership model that ensures active stewardship of CTAGs.
+
+- Terms defined by `ownershipTermLength` protocol parameter
+- Any address can renew a tag via `renewTag()`
+- Term clock starts at transfer or last renewal timestamp
+- Expired tags can be recycled by any address via `recycleTag()`
+- Recycling transfers tag back to platform address
+- Platform-held tags have no active term clock
+- Term expiry checked via `tagOwnershipTermExpired()`
+- Recycled tags become available for new auctions
+
+<Callout type="info">
+The term system uses block timestamps to track ownership periods. When tags are held by the platform (pre-auction or post-recycle), the term clock is reset to zero until transferred to a new owner.
+</Callout>
+
+
