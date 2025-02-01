@@ -8,13 +8,13 @@
     "preview": "vocs preview"
   },
   "dependencies": {
-    "@ethereum-tag-service/brand": "workspace:*"
-  },
-  "devDependencies": {
+    "@ethereum-tag-service/brand": "workspace:*",
     "@ethereum-tag-service/contracts": "workspace:*",
     "@ethereum-tag-service/sdk-core": "workspace:*",
     "@ethereum-tag-service/sdk-react-hooks": "workspace:*",
-    "@ethereum-tag-service/subgraph-endpoints": "workspace:*",
+    "@ethereum-tag-service/subgraph-endpoints": "workspace:*"
+  },
+  "devDependencies": {
     "@types/react": "latest",
     "react": "18.2.0",
     "react-dom": "18.2.0",
