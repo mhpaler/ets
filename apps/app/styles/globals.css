@@ -48,7 +48,6 @@
   @apply bg-slate-100 text-slate-900 !important;
 }
 
-
 .menu :where(li ul) {
   margin-inline-start: 1.7rem;
 }
