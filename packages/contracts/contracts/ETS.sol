@@ -103,6 +103,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         uint256 _platformPercentage,
         uint256 _relayerPercentage
     ) public initializer {
+        __ReentrancyGuard_init();
         etsAccessControls = _etsAccessControls;
         etsToken = _etsToken;
         etsTarget = _etsTarget;
