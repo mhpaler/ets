@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "NODE_OPTIONS=\"--max-old-space-size=8192\" tsc -p tsconfig.build.json && vocs build",
+    "build": "NODE_OPTIONS=\"--max-old-space-size=8192\" tsc -p tsconfig.build.json && vocs build && pwd && find . -type f",
     "dev": "vocs -c dev",
     "preview": "vocs preview",
     "clean": "rm -rf .next dist"
