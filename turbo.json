@@ -3,7 +3,7 @@
   "globalDependencies": [".env"],
   "tasks": {
     "build": {
-      "outputs": ["dist/**", ".next/**"],
+      "outputs": ["dist/**", ".next/**", "apps/site/**"],
       "dependsOn": ["^build"]
     },
     "dev": {
