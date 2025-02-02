@@ -369,7 +369,7 @@ importers:
         specifier: ^3.8.0
         version: 3.12.8(@types/react@18.2.12)(graphql@16.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@ethereum-tag-service/subgraph-endpoints':
-        specifier: ^0.0.5
+        specifier: latest
         version: link:../../../packages/subgraph-endpoints
       graphql:
         specifier: ^16.8.0
@@ -385,7 +385,7 @@ importers:
   examples/api/fetch:
     dependencies:
       '@ethereum-tag-service/subgraph-endpoints':
-        specifier: ^0.0.5
+        specifier: latest
         version: link:../../../packages/subgraph-endpoints
     devDependencies:
       typescript:
@@ -400,7 +400,7 @@ importers:
   examples/sdk-core/create-tag-local-account:
     dependencies:
       '@ethereum-tag-service/sdk-core':
-        specifier: workspace:*
+        specifier: latest
         version: link:../../../packages/sdk-core
       viem:
         specifier: 2.21.11
@@ -438,7 +438,7 @@ importers:
   examples/sdk-core/read-contract:
     dependencies:
       '@ethereum-tag-service/sdk-core':
-        specifier: ^0.0.14
+        specifier: latest
         version: link:../../../packages/sdk-core
     devDependencies:
       typescript:
@@ -453,8 +453,11 @@ importers:
   examples/sdk-react-hooks/create-tag:
     dependencies:
       '@ethereum-tag-service/sdk-react-hooks':
-        specifier: workspace:*
+        specifier: latest
         version: link:../../../packages/sdk-react-hooks
+      '@ethereum-tag-service/subgraph-endpoints':
+        specifier: latest
+        version: link:../../../packages/subgraph-endpoints
       '@rainbow-me/rainbowkit':
         specifier: ^2.1.1
         version: 2.2.3(@tanstack/react-query@5.66.0(react@18.2.0))(@types/react@18.2.12)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(viem@2.21.11(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@6.0.5)(zod@3.24.1))(wagmi@2.14.9(@tanstack/query-core@5.66.0)(@tanstack/react-query@5.66.0(react@18.2.0))(@types/react@18.2.12)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.2.0)(typescript@5.7.3)(utf-8-validate@6.0.5)(viem@2.21.11(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@6.0.5)(zod@3.24.1))(zod@3.24.1))
@@ -484,8 +487,11 @@ importers:
   examples/sdk-react-hooks/create-tagging-record:
     dependencies:
       '@ethereum-tag-service/sdk-react-hooks':
-        specifier: workspace:*
+        specifier: latest
         version: link:../../../packages/sdk-react-hooks
+      '@ethereum-tag-service/subgraph-endpoints':
+        specifier: latest
+        version: link:../../../packages/subgraph-endpoints
       '@rainbow-me/rainbowkit':
         specifier: ^2.1.1
         version: 2.2.3(@tanstack/react-query@5.66.0(react@18.2.0))(@types/react@18.2.12)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(viem@2.21.11(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@6.0.5)(zod@3.24.1))(wagmi@2.14.9(@tanstack/query-core@5.66.0)(@tanstack/react-query@5.66.0(react@18.2.0))(@types/react@18.2.12)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.2.0)(typescript@5.7.3)(utf-8-validate@6.0.5)(viem@2.21.11(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@6.0.5)(zod@3.24.1))(zod@3.24.1))
@@ -515,7 +521,7 @@ importers:
   examples/sdk-react-hooks/read-contract:
     dependencies:
       '@ethereum-tag-service/sdk-react-hooks':
-        specifier: ^0.0.14
+        specifier: latest
         version: link:../../../packages/sdk-react-hooks
       react:
         specifier: ^18.3.1
@@ -5696,7 +5702,6 @@ packages:
 
   bun@1.2.2:
     resolution: {integrity: sha512-RUc8uVVTw8WoASUzXaEQJR1s7mnwoHm3P871qBUIqSaoOpuwcU+bSVX151/xoqDwnyv38SjOX7yQ3oO0IeT73g==}
-    cpu: [arm64, x64, aarch64]
     os: [darwin, linux, win32]
     hasBin: true
 
@@ -21632,7 +21637,7 @@ snapshots:
 
   dns-over-http-resolver@1.2.3(node-fetch@2.7.0(encoding@0.1.13)):
     dependencies:
-      debug: 4.3.4(supports-color@8.1.1)
+      debug: 4.4.0(supports-color@8.1.1)
       native-fetch: 3.0.0(node-fetch@2.7.0(encoding@0.1.13))
       receptacle: 1.3.2
     transitivePeerDependencies:

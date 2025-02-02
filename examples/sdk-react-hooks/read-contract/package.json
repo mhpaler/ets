@@ -7,7 +7,7 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@ethereum-tag-service/sdk-react-hooks": "^0.0.14",
+    "@ethereum-tag-service/sdk-react-hooks": "latest",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
