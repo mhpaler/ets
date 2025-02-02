@@ -1,0 +1,42 @@
+import { Callout } from 'vocs/components';
+import Icon from '../../../components/Icon';
+import ModalImage from '../../../components/ModalImage';
+
+# ETS Oracle <Icon src="/icons/oracle.svg" size={36} alt="Oracle Icon" /> [Bridging on-chain and off-chain processes]
+
+## What
+The **ETS Oracle** facilitates off-chain processes that support the Ethereum Tag Service.
+
+## Why
+The Oracle enables ETS to:
+- Automate CTAG selection and release for auction
+- Collect and store metadata about tagged content
+- Enhance protocol functionality through off-chain computation
+- Bridge between blockchain events and external data
+
+## How
+The Oracle leverages [OpenZeppelin Defender](https://www.openzeppelin.com/defender) for event monitoring and secure transaction execution.
+
+<Callout type="info">While currently using OpenZeppelin Defender, ETS plans to progressively adopt more decentralized infrastructure solutions.</Callout>
+
+### Auction Oracle
+
+<ModalImage
+  src="/concepts/auction.png"
+  alt="Tagging Record Creation"
+/>
+
+The Auction Oracle is responsible for:
+
+1. Monitoring blockchain for CTAG auction settlement events
+2. Selecting next CTAG to release based on usage metrics pulled from the [ETS API](/docs/api/intro)
+4. Releasing selected CTAG through on-chain transaction. See [ETSAuctionHouse.fulfillRequestCreateAuction](/docs/contracts/reference/ETSAuctionHouse#fulfillrequestcreateauction-0x279a0147).
+
+### Future Capabilities
+As outlined in our [roadmap](/docs/roadmap), the Oracle will expand to:
+- Enrich Target records with metadata
+- Update Token information from external sources
+- Support dynamic fee calculations
+- Enable cross-chain functionality
+
+

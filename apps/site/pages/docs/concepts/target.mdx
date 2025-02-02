@@ -1,0 +1,65 @@
+import { Callout } from 'vocs/components';
+import Icon from '../../../components/Icon';
+
+
+# Target <Icon src="/icons/target.svg" size={36} alt="Target Icon" /> [Permanent references in an ephemeral web]
+
+## What
+A Target is an on-chain data structure that references a URI (Uniform Resource Identifier). Each Target has a unique targetId computed from the URI string using keccak256 hashing.
+
+## Why
+Targets enable ETS to:
+- Create permanent on-chain references to any web resource
+- Support tagging of both on-chain and off-chain content
+- Track metadata about resources through enrichment
+- Enable composable tagging across different platforms and protocols
+
+## How
+Targets are created and managed through the [ETSTarget contract](https://github.com/ethereum-tag-service/ets/blob/main/packages/contracts/contracts/ETSTarget.sol).
+
+### 1. Validation Rules
+- Target URIs must not be empty strings
+- Each unique URI can only be registered once
+- URIs can be of any length and content format
+
+<Callout type="info">URLs (like https://ets.xyz) are a subset of URIs. URIs can identify any resource including blockchain addresses, IPFS content, and ENS names. See [RFC3986](https://www.rfc-editor.org/rfc/rfc3986) for the complete URI specification.</Callout>
+
+### 2. Data Structure
+```solidity
+struct Target {
+    string targetURI;     // Original URI string
+    address createdBy;    // Creator address
+    uint256 enriched;     // Last enrichment timestamp
+    uint256 httpStatus;   // HTTP status code
+    string ipfsHash;      // IPFS hash if pinned
+}
+```
+
+### 3. Computing Target IDs
+
+```solidity twoslash
+bytes32 targetId = keccak256(bytes(_targetURI));
+return uint256(targetId);
+
+// input: "https://app.uniswap.com"
+// output: 115792089237316195423570985008687907853269984665640564039457584007913129639936
+
+```
+
+### 4. Creating a Target
+- Call `getOrCreateTargetId()` with a URI to get existing or create new Target
+- Call `createTarget()` directly to create a new Target (reverts if exists)
+- Target creation emits a `TargetCreated` event with the targetId
+
+### 5. Accessing a Target
+- Compute Target ID by URI using `computeTargetId()`
+- Query Target by URI using `getTargetByURI()`
+- Query Target by ID using `getTargetById()`
+- Check existence using `targetExistsByURI()` or `targetExistsById()`
+
+### 6. Enriching a Target
+- Call `requestEnrichTarget()` which emits a `RequestEnrichTarget` event
+- Off-chain service collects metadata and stores on IPFS
+- Target is updated on-chain with IPFS hash and HTTP status via `fulfillEnrichTarget()`
+
+
