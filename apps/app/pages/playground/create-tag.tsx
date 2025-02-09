@@ -62,7 +62,7 @@ const CreateTag: NextPage = () => {
             {tags.map((tag, index) => (
               <span key={index}>
                 <a
-                  href={`/explore/tags/${tag.text.startsWith("#") ? tag.text.slice(1) : tag.text}`}
+                  href={`/explore/ctags/${tag.text.startsWith("#") ? tag.text.slice(1) : tag.text}`}
                   className="link link-primary"
                   style={{ textDecoration: "underline" }}
                 >

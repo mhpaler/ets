@@ -39,13 +39,16 @@ export default function Navigation() {
         </div>
         <ul className="menu globalMenu font-medium text-slate-500 ml-0 pl-0 pt-8">
           <li>
-            <Link className={isActive("explore") ? "text-slate-800 bg-slate-100" : ""} href="/explore">
+            <Link
+              className={`menu-dropdown-toggle ${isActive("explore") ? "text-slate-800 bg-slate-100 menu-dropdown-show" : ""}`}
+              href="/explore"
+            >
               <span className="-mr-1.5">
                 <Globe size={24} />
               </span>
               {t("explore")}
             </Link>
-            <ul>
+            <ul className={`menu-dropdown ${isActive("explore") ? "menu-dropdown-show" : ""}`}>
               <li>
                 <Link
                   className={isActive("tagging-records") ? "text-slate-800 bg-slate-100" : ""}
@@ -58,7 +61,7 @@ export default function Navigation() {
                 </Link>
               </li>
               <li>
-                <Link className={isActive("tags") ? "text-slate-800 bg-slate-100" : ""} href="/explore/tags">
+                <Link className={isActive("ctags") ? "text-slate-800 bg-slate-100" : ""} href="/explore/ctags">
                   <span className="-mr-1.5">
                     <Tag size={24} />
                   </span>

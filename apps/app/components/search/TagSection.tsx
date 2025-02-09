@@ -10,7 +10,7 @@ const TagSection: FC<{ results: SearchResult[] }> = ({ results }) => (
       {results.map((result) => (
         <div key={result.id} className="flex items-center gap-2 px-4 py-2 hover:bg-slate-50">
           <Link
-            href={`/explore/tags/${result.name}`}
+            href={`/explore/ctags/${result.name}`}
             className="text-sm font-medium inline-block py-1 px-2 rounded link-primary hover:scale-105 transition-all duration-300 bg-primary-content last:mr-0 mr-1"
           >
             {result.display}
