@@ -1,4 +1,4 @@
-import { AuctionIcon, Relayer, Tag, TaggingRecord, Target, Users } from "@app/components/icons";
+import { AuctionIcon, Playground, Relayer, Tag, TaggingRecord, Target, Users } from "@app/components/icons";
 import Layout from "@app/layouts/default";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
@@ -43,15 +43,20 @@ const Explore: NextPage = () => {
     },
     {
       slug: "auction",
-      titleKey: "auctions",
+      titleKey: "auction",
       Icon: AuctionIcon,
+    },
+    {
+      slug: "playground",
+      titleKey: "playground",
+      Icon: Playground,
     },
   ];
 
   return (
     <Layout>
-      <div className="col-span-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-[800px]">
+      <div className="col-span-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {cardsData.map((card, index) => {
             const IconComponent = card.Icon;
             return (
@@ -67,7 +72,7 @@ const Explore: NextPage = () => {
         <div role="alert" className="alert shadow-sm mt-10 mb-10 flex items-center justify-between">
           <div>
             <div className="text-sm">
-              Learn how ETS works by exploring our <strong>key concepts</strong> in the{" "}
+              Learn more about ETS <strong>key concepts</strong> in the{" "}
               <a
                 href="https://ets.xyz/docs/concepts/overview"
                 className="text-primary hover:underline"
