@@ -23,7 +23,7 @@ const Stats = () => {
           <div className="stat-value">{stats?.taggingRecordsCount ? stats.taggingRecordsCount : null}</div>
         </div>
       </a>
-      <a href="/explore/tags" className="hover:bg-base-200">
+      <a href="/explore/ctags" className="hover:bg-base-200">
         <div className="stat">
           <div className="stat-title">{t("tags")}</div>
           <div className="stat-value">{stats?.tagsCount ? stats.tagsCount : null}</div>

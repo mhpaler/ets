@@ -199,7 +199,7 @@ const AuctionPage: NextPage = () => {
             columns={activeColumns}
             data={filteredData.activeAuctions}
             loading={!filteredData.activeAuctions.length}
-            rowLink={(auction) => `/explore/tags/${auction.tag.machineName}`}
+            rowLink={(auction) => `/explore/ctags/${auction.tag.machineName}`}
           />
         </div>
 
@@ -209,7 +209,7 @@ const AuctionPage: NextPage = () => {
             columns={upcomingColumns}
             data={filteredData.upcomingTags}
             loading={!filteredData.upcomingTags.length}
-            rowLink={(tag) => `/explore/tags/${tag.machineName}`}
+            rowLink={(tag) => `/explore/ctags/${tag.machineName}`}
           />
         </div>
 
@@ -219,7 +219,7 @@ const AuctionPage: NextPage = () => {
             columns={settledColumns}
             data={filteredData.settledAuctions}
             loading={!filteredData.settledAuctions.length}
-            rowLink={(auction) => `/explore/tags/${auction.tag.machineName}`}
+            rowLink={(auction) => `/explore/ctags/${auction.tag.machineName}`}
           />
         </div>
       </div>
