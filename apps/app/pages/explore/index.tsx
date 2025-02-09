@@ -1,4 +1,4 @@
-import { Relayer, Tag, TaggingRecord, Target, Users } from "@app/components/icons";
+import { AuctionIcon, Playground, Relayer, Tag, TaggingRecord, Target, Users } from "@app/components/icons";
 import Layout from "@app/layouts/default";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
@@ -9,72 +9,88 @@ const Explore: NextPage = () => {
     {
       slug: "tagging-records",
       titleKey: "tagging-records",
-      descriptionKey: "description-tagging-records",
       Icon: TaggingRecord,
     },
     {
-      slug: "tags",
-      titleKey: "tags",
-      descriptionKey: "description-tags",
+      slug: "ctags",
+      titleKey: "CTAGs",
       Icon: Tag,
     },
     {
       slug: "targets",
       titleKey: "targets",
-      descriptionKey: "description-targets",
       Icon: Target,
     },
     {
       slug: "relayers",
       titleKey: "relayers",
-      descriptionKey: "description-relayers",
       Icon: Relayer,
     },
     {
       slug: "taggers",
       titleKey: "taggers",
-      descriptionKey: "description-taggers",
       Icon: Users,
     },
     {
       slug: "creators",
-      titleKey: "tag-creators",
-      descriptionKey: "description-creators",
+      titleKey: "creators",
       Icon: Users,
     },
     {
       slug: "owners",
-      titleKey: "tag-owners",
-      descriptionKey: "description-owners",
+      titleKey: "owners",
       Icon: Users,
     },
-    // Add more objects for the other cards
+    {
+      slug: "auction",
+      titleKey: "auction",
+      Icon: AuctionIcon,
+    },
+    {
+      slug: "playground",
+      titleKey: "playground",
+      Icon: Playground,
+    },
   ];
 
   return (
     <Layout>
-      <div className="container mx-auto col-span-12">
-        <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="col-span-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {cardsData.map((card, index) => {
             const IconComponent = card.Icon;
             return (
-              <a
-                key={index}
-                className="card card-compact border border-slate-200 hover:bg-base-200 transition-all duration-200 text-slate-700 hover:text-gray-950 hover:-translate-y-1"
-                href={`/explore/${card.slug}`}
-              >
-                <figure className="bg-slate-100 rounded-lg col-span-3 m-4 py-8">
-                  <div className="border-base-content bg-white rounded-full border border-opacity-5 shadow-lg p-3">
-                    <IconComponent size={24} />
-                  </div>
-                </figure>
-                <div className="card-body">
-                  <h2 className="card-title">{t(card.titleKey)}</h2>
-                  <p className="text-xs opacity-60">{t(card.descriptionKey)}</p>
+              <a key={index} href={`/explore/${card.slug}`} className="block">
+                <div className="flex flex-col items-center justify-center p-6 border rounded-lg hover:shadow-lg transition-shadow">
+                  <IconComponent size={48} />
+                  <span className="mt-4 text-lg font-semibold">{t(card.titleKey)}</span>
                 </div>
               </a>
             );
           })}
+        </div>
+        <div role="alert" className="alert shadow-sm mt-10 mb-10 flex items-center justify-between">
+          <div>
+            <div className="text-sm">
+              Learn more about ETS <strong>key concepts</strong> in the{" "}
+              <a
+                href="https://ets.xyz/docs/concepts/overview"
+                className="text-primary hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                documentation
+              </a>
+            </div>
+          </div>
+          <a
+            href="https://ets.xyz/docs/concepts/overview"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-sm btn-primary btn-outline"
+          >
+            View docs
+          </a>
         </div>
       </div>
     </Layout>

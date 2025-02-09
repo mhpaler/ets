@@ -93,7 +93,7 @@
   "stats": "Statistics",
   "status": "Status",
   "switch-to-mumbai-network": "Switch to Mumbai network.",
-  "tag": "Tag",
+  "tag": "CTAG",
   "tag-already-exists": "This tag already exists. Please enter a different tag.",
   "tag-count": {
     "0": "{{count, number}} tags",
@@ -113,7 +113,7 @@
   "tagged-count": "{{count, number}} tagged",
   "tagger": "Tagger",
   "taggers": "Taggers",
-  "tags": "Tags",
+  "tags": "CTAGs",
   "tags-created": "Tags created",
   "tags-created-by": "Tags created by {{ creator }}",
   "tags-owned": "Tags owned {{ timeframe }}",

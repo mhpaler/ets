@@ -1,38 +1,60 @@
-import { BreadcrumbItem } from "@app/components/BreadcrumbItem";
-import PageTitle from "@app/components/PageTitle";
-import { useRouter } from "next/router";
-import Breadcrumbs from "nextjs-breadcrumbs2";
+import { usePageNavigation } from "@app/hooks/usePageNavigation";
+import Link from "next/link";
 
 /**
- * PageInfo component that renders breadcrumbs and page title based on the current route.
+ * PageInfo component that renders the page navigation elements
  *
- * @returns {JSX.Element} - The PageInfo component.
+ * Displays:
+ * - Breadcrumb trail with clickable links and dividers
+ * - Page title with proper formatting based on section
+ *
+ * Uses usePageNavigation hook for all navigation state management
  */
 export default function PageInfo() {
-  const router = useRouter();
-  const pathSegments = router.pathname.split("/").filter(Boolean);
+  const { title, breadcrumbs, isLoading } = usePageNavigation();
 
-  // Only start showing breadcrumbs on sub page of a section eg. /explore/tags
-  const showBreadcrumbs = pathSegments.length > 1;
+  if (isLoading) {
+    return null;
+  }
+
+  const showBreadcrumbs = breadcrumbs.length > 1;
 
   return (
     <>
       {showBreadcrumbs && (
         <div className="col-span-12 hidden lg:block">
-          <Breadcrumbs
-            omitRootLabel
-            transformLabel={(label) => {
-              return <BreadcrumbItem breadcrumb={label} />;
-            }}
-            containerClassName={"breadcrumbs"}
-            inactiveItemClassName={"text-sm font-medium link-primary"}
-            activeItemClassName={"text-sm font-medium opacity-50 pointer-events-none"}
-            listClassName={"flex items-center space-x-2 breadcrumbs text-sm"}
-            useDefaultStyle={false}
-          />
+          <nav aria-label="breadcrumbs">
+            <ol className="flex items-center breadcrumbs text-sm">
+              {breadcrumbs.map((crumb, index) => {
+                const path = `/${breadcrumbs
+                  .slice(0, index + 1)
+                  .join("/")
+                  .toLowerCase()}`;
+
+                return (
+                  <li key={`${crumb}-${index}`}>
+                    <span className="flex items-center">
+                      {index > 0 && <span className="text-slate-400 mx-4">›</span>}
+                      {index === breadcrumbs.length - 1 ? (
+                        <span className="text-sm font-medium opacity-50 pointer-events-none">{crumb}</span>
+                      ) : (
+                        <Link href={path} className="text-sm font-medium link-primary">
+                          {crumb}
+                        </Link>
+                      )}
+                    </span>
+                  </li>
+                );
+              })}{" "}
+            </ol>
+          </nav>
         </div>
       )}
-      <PageTitle />
+      {title && (
+        <div className="col-span-12">
+          <h1 className="text-2xl font-medium">{title}</h1>
+        </div>
+      )}
     </>
   );
 }

@@ -1,8 +1,25 @@
 const NavFooter = () => {
   return (
     <footer className="p-4 lg:p-5">
-      <div className="flex flex-col items-center gap-4">
-        <div className="flex justify-center space-x-5">
+      <div className="flex justify-left gap-4 mb-8">
+        <a
+          role="button"
+          rel="noreferrer"
+          target="_blank"
+          href="https://ets.xyz/docs/faq#what-is-ets"
+          className="link-primary text-sm"
+        >
+          What?
+        </a>
+        <a role="button" rel="noreferrer" target="_blank" href="https://ets.xyz" className="link-primary text-sm">
+          Docs
+        </a>
+        <a role="button" rel="noreferrer" target="_blank" href="https://blog.ets.xyz" className="link-primary text-sm">
+          Blog
+        </a>
+      </div>
+      <div className="flex flex-col items-left gap-4">
+        <div className="flex space-x-5 mb-4">
           <a
             href="https://github.com/ethereum-tag-service/ets"
             className="text-slate-600 hover:text-slate-800"
@@ -91,7 +108,7 @@ const NavFooter = () => {
           </a>
         </div>
         <div>
-          <p className="text-center text-xs text-slate-600">
+          <p className="text-left text-xs text-slate-600">
             &copy; 2021-{new Date().getUTCFullYear()} Ethereum Tag Service
           </p>
         </div>

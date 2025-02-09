@@ -58,7 +58,7 @@ const Tag: NextPage = () => {
       <Layout>
         <div className="col-span-12 flex items-center h-64">
           <h2 className="text-2xl text-gray-700">
-            Tag <span className="font-bold">#{id}</span> not found on <span className="font-bold">{displayName}</span>{" "}
+            CTAG <span className="font-bold">#{id}</span> not found on <span className="font-bold">{displayName}</span>{" "}
             chain.
           </h2>
         </div>
