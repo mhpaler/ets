@@ -30,10 +30,8 @@ export default function Navigation() {
                   d="M0 50 50 0H0v50zm100 50V50l-50 50h50zM50 0l50 50V0H50zM19.9 84.9c0 2.8-2.2 5-5 5s-5-2.2-5-5 2.2-5 5-5 5 2.3 5 5z"
                 />
               </svg>
-              <span className="hidden md:inline-flex ml-2.5 text-xl font-medium text-slate-900 tracking-tight">
-                Ethereum Tag Service
-              </span>
-              <h1 className="sr-only">Ethereum Tag Service</h1>
+              <span className="hidden md:inline-flex ml-2.5 text-3xl font-medium text-slate-900">ETS</span>
+              <h1 className="sr-only">ETS</h1>
             </div>
           </Link>
         </div>
@@ -130,26 +128,6 @@ export default function Navigation() {
           </li>
         </ul>
         <hr />
-        <div className="flex justify-center gap-2 pt-8">
-          <a
-            role="button"
-            rel="noreferrer"
-            target="_blank"
-            href="https://ets.xyz"
-            className="btn btn-primary btn-xs btn-outline"
-          >
-            Documentation
-          </a>
-          <a
-            role="button"
-            rel="noreferrer"
-            target="_blank"
-            href="https://blog.ets.xyz"
-            className="btn btn-primary btn-xs btn-outline"
-          >
-            Blog
-          </a>
-        </div>
         <NavFooter />
       </nav>
     </>
