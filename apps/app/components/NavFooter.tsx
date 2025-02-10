@@ -37,7 +37,7 @@ const NavFooter = () => {
             </svg>
           </a>
           <a
-            href="https://discord.gg/xCUz9FRcXD"
+            href="https://discord.gg/dDWenbVEEQ"
             className="text-slate-600 hover:text-slate-800"
             target="_blank"
             rel="noopener noreferrer"
