@@ -5,6 +5,7 @@ export const sidebar = {
     {
       text: "Introduction",
       items: [
+        { text: "Getting Started", link: "/docs/getting-started" },
         {
           text: "Key Concepts",
           collapsed: true,
@@ -21,11 +22,9 @@ export const sidebar = {
             { text: "Oracle", link: "/docs/concepts/oracle" },
           ],
         },
-
-        { text: "Tokenomics", link: "/docs/tokenomics" },
-        { text: "Getting Started", link: "/docs/getting-started" },
-        { text: "Roadmap", link: "/docs/roadmap" },
         { text: "FAQ", link: "/docs/faq" },
+        { text: "Tokenomics", link: "/docs/tokenomics" },
+        { text: "Roadmap", link: "/docs/roadmap" },
       ],
     },
     {
