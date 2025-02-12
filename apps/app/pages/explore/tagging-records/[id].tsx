@@ -34,7 +34,7 @@ const TaggingRecord: NextPage = () => {
                 <div className="grid grid-cols-3 px-6 py-4 md:grid-flow-col hover:bg-slate-100">
                   <div className="font-semibold">{t("id")}</div>
                   <div className="col-span-2 text-left">
-                    <Address address={taggingRecord.id} />
+                    <Address address={taggingRecord.txnHash} type="txn" />
                   </div>
                 </div>
 
@@ -73,9 +73,9 @@ const TaggingRecord: NextPage = () => {
                   <div className="font-semibold">{t("target-id")}</div>
                   <div className="flex space-x-1 col-span-2 justify-start">
                     <Address
-                      address={taggingRecord.target.id}
-                      addressType="long-id"
+                      address={`${taggingRecord.target.id}`}
                       href={`/explore/targets/${taggingRecord.target.id}`}
+                      explorerLink={false}
                     />
                   </div>
                 </div>
@@ -83,9 +83,10 @@ const TaggingRecord: NextPage = () => {
                   <div className="font-semibold">{t("target-uri")}</div>
                   <div className="flex col-span-2 justify-start">
                     <Address
-                      addressType="url"
+                      type="url"
                       address={taggingRecord.target.targetURI}
                       href={taggingRecord.target.targetURI}
+                      explorerLink={false}
                     />
                   </div>
                 </div>
@@ -107,5 +108,4 @@ const TaggingRecord: NextPage = () => {
     </Layout>
   );
 };
-
 export default TaggingRecord;
