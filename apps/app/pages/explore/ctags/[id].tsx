@@ -95,7 +95,7 @@ const Tag: NextPage = () => {
             <div className="font-semibold">{t("id")}</div>
             <div className="flex space-x-1">
               <div className="grid flex-grow md:grid-flow-col justify-end">
-                <Address address={safeTag.id} addressType="long-id" />
+                <Address address={safeTag.id} type="nft" />
               </div>
             </div>
           </div>

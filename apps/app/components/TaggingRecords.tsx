@@ -48,7 +48,7 @@ const TaggingRecords: NextPage<Props> = ({
       target: columnHelper.accessor("target.id", {
         header: t("target"),
         cell: (info) => (
-          <Address href={`/explore/targets/${info.getValue()}`} address={info.getValue()} addressType="long-id" />
+          <Address href={`/explore/targets/${info.getValue()}`} address={info.getValue()} explorerLink={false} />
         ),
       }),
       tags: columnHelper.accessor("tags", {

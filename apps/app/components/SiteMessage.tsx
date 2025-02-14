@@ -38,7 +38,8 @@ const SiteMessage: React.FC = () => {
           <Image src={iconPath} alt={`${chainName} icon`} width={24} height={24} className="mr-3" />
           <div>
             <h3 className="text-lg">
-              Welcome to <span className="font-bold">ETS</span> on <span className="font-bold">{displayName}</span>
+              Welcome to the <span className="font-semibold">ETS Explorer</span> on{" "}
+              <span className="font-semibold">{displayName}</span>
             </h3>
             <div className="text-sm">{t("testnet-warning")}</div>
           </div>

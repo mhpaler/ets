@@ -71,7 +71,8 @@ const Home: NextPage = () => {
                 d="M0 50 50 0H0v50zm100 50V50l-50 50h50zM50 0l50 50V0H50zM19.9 84.9c0 2.8-2.2 5-5 5s-5-2.2-5-5 2.2-5 5-5 5 2.3 5 5z"
               />
             </svg>
-            <span className="inline-flex ml-2.5 text-xl font-medium text-slate-900">Ethereum Tag Service</span>
+            <span className="hidden md:inline-flex ml-2.5 text-3xl font-medium text-slate-900">ETS</span>
+            <span className="ml-2 font-thin">explorer</span>
           </div>
 
           <ChainModalETS show={true} onClose={() => {}} asModal={false} />
