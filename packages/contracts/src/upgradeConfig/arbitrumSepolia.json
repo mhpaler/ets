@@ -2,15 +2,35 @@
   "contracts": {
     "ETSAccessControls": {
       "address": "0x945f8d0534E6e774Db73A3843568B8c5be2167C0",
-      "implementation": "0xeBd659C9EfDB17ab65c2692dc23AC9A716eEf191",
+      "implementation": "0xF8DeB0dAaE3c7ADeE1dCd88E4D5bAB4a31Ec4b14",
       "deploymentBlock": 34044460,
-      "upgradeBlock": null
+      "upgradeBlock": null,
+      "upgradeHistory": [
+        {
+          "block": 34044460,
+          "implementation": "0xeBd659C9EfDB17ab65c2692dc23AC9A716eEf191"
+        },
+        {
+          "block": 124208965,
+          "implementation": "0xF8DeB0dAaE3c7ADeE1dCd88E4D5bAB4a31Ec4b14"
+        }
+      ]
     },
     "ETSToken": {
       "address": "0x428fcc3Ac338d8a691eAD046DC9B83B042AEF636",
-      "implementation": "0xb2ed2ccBEA697976c4015c0a978705b0B0cF72F3",
+      "implementation": "0xbaAEE7a941c9634fddEfad4354D3CB7d17a6e2e1",
       "deploymentBlock": 34044478,
-      "upgradeBlock": null
+      "upgradeBlock": null,
+      "upgradeHistory": [
+        {
+          "block": 34044478,
+          "implementation": "0xb2ed2ccBEA697976c4015c0a978705b0B0cF72F3"
+        },
+        {
+          "block": 124413710,
+          "implementation": "0xbaAEE7a941c9634fddEfad4354D3CB7d17a6e2e1"
+        }
+      ]
     },
     "WMATIC": {
       "address": "0x0E143c23bf2Cc54b3f00D6701C4Ed09e2182Fe26",
@@ -38,9 +58,19 @@
     },
     "ETS": {
       "address": "0x4763975ee6675C50381e7044524C2a25D5fD5774",
-      "implementation": "0xbFC3A550Fc6c260B5B788755Aecd3c4822b7b52f",
+      "implementation": "0x8a3971e2EC3D0F0431eFEfBd9d2d341fdFc6e8Ab",
       "deploymentBlock": 34044547,
-      "upgradeBlock": null
+      "upgradeBlock": null,
+      "upgradeHistory": [
+        {
+          "block": 34044547,
+          "implementation": "0xbFC3A550Fc6c260B5B788755Aecd3c4822b7b52f"
+        },
+        {
+          "block": 124413606,
+          "implementation": "0x8a3971e2EC3D0F0431eFEfBd9d2d341fdFc6e8Ab"
+        }
+      ]
     },
     "ETSRelayerV1": {
       "address": "0x2F6a3f4289c2415358a5748567404240264D5fc6",

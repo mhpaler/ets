@@ -103,6 +103,8 @@ export const sidebar = {
           collapsed: true,
           items: [
             { text: "Introduction", link: "/docs/contracts/reference/intro" },
+            { text: "Deployment & Upgrade", link: "/docs/contracts/reference/deployment" },
+
             {
               text: "Core Contracts",
               items: [
