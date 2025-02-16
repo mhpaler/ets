@@ -63,6 +63,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// Public constants
 
     string public constant NAME = "ETS Core";
+    string public constant VERSION = "0.0.2";
     uint256 public constant MODULO = 100;
 
     /// Modifiers
@@ -186,7 +187,10 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     }
 
     /// @inheritdoc IETS
-    function applyTagsWithRawInput(TaggingRecordRawInput calldata _rawInput, address payable _tagger) public payable {
+    function applyTagsWithRawInput(
+        TaggingRecordRawInput calldata _rawInput,
+        address payable _tagger
+    ) public payable onlyRelayer {
         // Derive tagIds for the tagStrings.
         uint256 tagCount = _rawInput.tagStrings.length;
         require(tagCount > 0, "No tags supplied");

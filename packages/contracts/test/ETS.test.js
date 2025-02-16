@@ -57,6 +57,9 @@ describe("ETS Core tests", () => {
   });
 
   describe("Valid setup", async () => {
+    it("should have correct version", async () => {
+      expect(await contracts.ETS.VERSION()).to.be.equal("0.0.2");
+    });
     it("should have Access controls set to ETSAccessControls contract", async () => {
       expect(await contracts.ETS.etsAccessControls()).to.be.equal(await contracts.ETSAccessControls.getAddress());
     });
@@ -346,6 +349,17 @@ describe("ETS Core tests", () => {
   });
 
   describe("Creating new tagging records", async () => {
+    it("should revert when non-relayer calls applyTagsWithRawInput", async () => {
+      const rawInput = {
+        targetURI: "https://google.com",
+        tagStrings: ["#love"],
+        recordType: "bookmark",
+      };
+      await expect(
+        contracts.ETS.connect(accounts.RandomOne).applyTagsWithRawInput(rawInput, accounts.RandomOne.address),
+      ).to.be.revertedWith("Caller not Relayer");
+    });
+
     it("should revert when caller is not an enabled Relayer", async () => {
       await expect(
         contracts.ETS.connect(accounts.RandomOne).applyTagsWithCompositeKey(

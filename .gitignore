@@ -39,9 +39,11 @@ packages/contracts*/*.txt
 packages/contracts*/cache*
 packages/contracts*/artifacts/
 packages/contracts*/deployments/localhost/
+**/deployments/**/solcInputs/*.json
 packages/contracts*/typechain-types
 packages/contracts*/export/chainConfig/localhost.json
 packages/contracts*/export/upgradeConfig/localhost.json
+
 #packages/contracts*/.openzeppelin/
 packages/contracts/docs
 
