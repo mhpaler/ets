@@ -1,7 +1,8 @@
 const path = require("node:path");
 
-task("deploy-all", "Deploys all contracts")
+task("deployETS", "Deploys ETS contracts")
   .addOptionalParam("export", "Path to export deployment information", "")
+  .addParam("tags", "Deployment tags to run")
   .setAction(async (taskArgs, hre) => {
     const { network, config } = hre;
 
@@ -31,9 +32,9 @@ task("deploy-all", "Deploys all contracts")
       exportPath = path.join("src", "chainConfig", `${network.name}.json`);
     }
 
-    // Run deployments
+    // Run deployments with specified tags
     await hre.run("deploy", {
-      tags: "deployAll",
+      tags: taskArgs.tags,
       export: exportPath,
     });
 

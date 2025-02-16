@@ -1,0 +1,157 @@
+import { Callout } from 'vocs/components';
+
+# ETS Contract Deployment & Upgrade Guide
+
+## Overview
+
+The Ethereum Tag Service (ETS) uses a robust deployment and upgrade system built on hardhat-deploy and OpenZeppelin's UUPS proxy pattern. This system manages deployments, tracks implementation versions, and handles upgrades across multiple networks while maintaining a complete history of all contract changes.
+
+## Deploying Contracts
+
+First-time deployment of ETS contracts to a new blockchain:
+
+```bash
+hardhat deployETS --network <network-name>
+```
+
+This deploys the complete ETS contract suite in the correct order:
+
+1. ETSAccessControls
+2. ETSToken
+3. ETSAuctionHouse
+4. ETSTarget
+5. ETSEnrichTarget
+6. ETS
+7. ETSRelayerBeacon
+8. ETSRelayer
+
+The deployment information is automatically saved to `src/upgradeConfig/<network-name>.json`.
+
+## Upgrading Contracts
+
+Contracts can be upgraded individually or all at once.
+
+### Upgrade All Contracts
+
+```bash
+hardhat deployETS --network <network-name> --tags upgradeAll
+```
+
+<Callout type="tip">The `upgradeAll` tag is safe to run at any time - it automatically skips contracts that haven't changed, only upgrading implementations with new versions.</Callout>
+
+### Upgrade Individual Contracts
+
+```bash
+hardhat deployETS --network <network-name> --tags upgradeETSAccessControls
+hardhat deployETS --network <network-name> --tags upgradeETSToken
+hardhat deployETS --network <network-name> --tags upgradeETS
+```
+
+Each upgrade:
+
+- Verifies implementation changes
+- Updates the proxy to point to new implementation
+- Records upgrade history in network configuration
+- Maintains version tracking
+
+## Technical Summary
+
+### Deployment Stack Structure
+
+```text
+/deploy
+├── core/                     # Initial deployment scripts
+│   ├── 10_ETSAccessControls.js
+│   ├── 20_ETSToken.js
+│   ├── 25_ETSAuctionHouse.js
+│   ├── 30_ETSTarget.js
+│   └── 40_ETSEnrichTarget.js
+│
+├── upgrade/                  # Contract upgrade scripts
+│   ├── ETSAccessControls.js
+│   ├── ETSToken.js
+│   └── ETS.js
+│
+└── utils/                   # Shared utilities
+    ├── config.js           # Configuration management
+    ├── setup.js           # Deployment environment setup
+    ├── upgrade.js         # Centralized upgrade logic
+    └── verify.js          # Contract verification
+```
+
+The deployment stack is organized into three main directories:
+
+1. **core/** - Contains numbered deployment scripts that handle first-time contract deployments. The numbering ensures correct deployment order and dependencies.
+
+2. **upgrade/** - Houses individual contract upgrade scripts. Each script uses the shared upgrade utility while maintaining contract-specific upgrade logic.
+
+3. **utils/** - Provides shared utilities used across both deployments and upgrades:
+   - `config.js`: Manages network configurations and upgrade history
+   - `setup.js`: Handles deployment environment initialization
+   - `upgrade.js`: Centralizes upgrade logic and version management
+   - `verify.js`: Handles contract verification on block explorers
+
+### Key Components
+
+1. **Deployment Scripts** (`deploy/*.js`)
+   - Numbered deployment sequence (10_, 20_, etc.)
+   - Individual upgrade scripts (110_, 120_, etc.)
+   - Uses tags for selective deployment/upgrade
+
+2. **Upgrade Utility** (`deploy/utils/upgrade.js`)
+   - Centralized upgrade logic
+   - Handles version checking
+   - Manages implementation address tracking
+   - Controls contract verification
+
+3. **Configuration Management** (`deploy/utils/config.js`)
+   - Tracks deployments and upgrades
+   - Maintains implementation history
+   - Network-specific configuration files
+
+4. **Contract Structure**
+   - UUPS upgradeable pattern
+   - Version tracking in contracts
+   - Access control hierarchy
+
+### Deployment Flow
+
+1. Initial deployment creates proxy and implementation contracts
+2. Proxy addresses remain constant
+3. Upgrades deploy new implementations
+4. Configuration tracks all changes
+
+### Configuration Format
+
+```json
+{
+  "contracts": {
+    "ContractName": {
+      "address": "proxyAddress",
+      "implementation": "currentImplementationAddress",
+      "deploymentBlock": "initialDeploymentBlock",
+      "upgradeHistory": [
+        {
+          "block": "blockNumber",
+          "implementation": "implementationAddress"
+        }
+      ]
+    }
+  }
+}
+```
+
+### Version Control
+
+- Each upgradeable contract includes a VERSION constant
+- Version changes trigger implementation updates
+- Upgrade history maintains complete audit trail
+
+### Network Support
+
+- Supports local development (hardhat, localhost)
+- Test networks (arbitrumSepolia)
+- Production networks
+- Network-specific configuration files
+
+This deployment stack ensures consistent, trackable contract deployments and upgrades while maintaining a complete history of all contract changes across any supported network.

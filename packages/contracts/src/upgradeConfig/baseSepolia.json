@@ -2,15 +2,35 @@
   "contracts": {
     "ETSAccessControls": {
       "address": "0x00521E4827C6683043eAAdC519368aCCd609D8A9",
-      "implementation": "0xE58497d48018CB780b6FcC7662B93E2ca8Fe8E36",
+      "implementation": "0x945f8d0534E6e774Db73A3843568B8c5be2167C0",
       "deploymentBlock": 14645382,
-      "upgradeBlock": null
+      "upgradeBlock": null,
+      "upgradeHistory": [
+        {
+          "block": 14645382,
+          "implementation": "0xE58497d48018CB780b6FcC7662B93E2ca8Fe8E36"
+        },
+        {
+          "block": 21987165,
+          "implementation": "0x945f8d0534E6e774Db73A3843568B8c5be2167C0"
+        }
+      ]
     },
     "ETSToken": {
       "address": "0x0300c9f3FE108bf683D03005B6B66EA1db74007A",
-      "implementation": "0x3114437a09aD234bCAd807Bd907036005D8E8248",
+      "implementation": "0x0E143c23bf2Cc54b3f00D6701C4Ed09e2182Fe26",
       "deploymentBlock": 14645400,
-      "upgradeBlock": null
+      "upgradeBlock": null,
+      "upgradeHistory": [
+        {
+          "block": 14645400,
+          "implementation": "0x3114437a09aD234bCAd807Bd907036005D8E8248"
+        },
+        {
+          "block": 21987180,
+          "implementation": "0x0E143c23bf2Cc54b3f00D6701C4Ed09e2182Fe26"
+        }
+      ]
     },
     "WMATIC": {
       "address": "0x4920349247b4651026153F4A56fd08009B3528d4",
@@ -38,9 +58,19 @@
     },
     "ETS": {
       "address": "0xE889910350641731de1199991Ab5aA121ad12c41",
-      "implementation": "0xd1664b1A90b989e3329a4C289F0a929fb67092a1",
+      "implementation": "0xDc7517059CE953bb4D3b84e675eE1f94d3aF698E",
       "deploymentBlock": 14645613,
-      "upgradeBlock": null
+      "upgradeBlock": null,
+      "upgradeHistory": [
+        {
+          "block": 14645613,
+          "implementation": "0xd1664b1A90b989e3329a4C289F0a929fb67092a1"
+        },
+        {
+          "block": 21987148,
+          "implementation": "0xDc7517059CE953bb4D3b84e675eE1f94d3aF698E"
+        }
+      ]
     },
     "ETSRelayerV1": {
       "address": "0x2d9Fa220c1537002402CA93E5909Ef9026BB7624",
