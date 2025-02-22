@@ -223,6 +223,7 @@ describe("ETS Core tests", () => {
           targetId,
           "bookmark",
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
           {
             value: taggingFee * BigInt(2),
           },
@@ -356,7 +357,11 @@ describe("ETS Core tests", () => {
         recordType: "bookmark",
       };
       await expect(
-        contracts.ETS.connect(accounts.RandomOne).applyTagsWithRawInput(rawInput, accounts.RandomOne.address),
+        contracts.ETS.connect(accounts.RandomOne).applyTagsWithRawInput(
+          rawInput,
+          accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
+        ),
       ).to.be.revertedWith("Caller not Relayer");
     });
 
@@ -367,6 +372,7 @@ describe("ETS Core tests", () => {
           12345,
           "bookmark",
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
         ),
       ).to.be.revertedWith("Caller not Relayer");
     });
@@ -378,6 +384,7 @@ describe("ETS Core tests", () => {
           targetId,
           "bookmark",
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
         ),
       ).to.be.revertedWith("No tags supplied");
     });
@@ -389,6 +396,7 @@ describe("ETS Core tests", () => {
           targetId,
           "reallyReallyreallyReallyreallyReallyreallyReallyreallyReallyLongRecordType",
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
           {
             value: taggingFee,
           },
@@ -403,6 +411,7 @@ describe("ETS Core tests", () => {
           targetId,
           "bookmark",
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
           {
             value: taggingFee,
           },
@@ -417,6 +426,7 @@ describe("ETS Core tests", () => {
         targetId,
         "bookmark",
         accounts.RandomOne.address,
+        accounts.ETSPlatform.address,
         {
           value: taggingFee,
         },
@@ -432,6 +442,7 @@ describe("ETS Core tests", () => {
         targetId,
         "bookmark",
         accounts.RandomOne.address,
+        accounts.ETSPlatform.address,
       );
       await expect(tx).to.emit(contracts.ETS, "TaggingRecordCreated");
     });
@@ -443,6 +454,7 @@ describe("ETS Core tests", () => {
         targetId,
         "bookmark",
         accounts.RandomOne.address,
+        accounts.ETSPlatform.address,
         {
           value: taggingFee * BigInt(3),
         },
@@ -467,6 +479,7 @@ describe("ETS Core tests", () => {
         targetId,
         "bookmark",
         accounts.RandomOne.address,
+        accounts.ETSPlatform.address,
         {
           value: taggingFee,
         },
@@ -490,9 +503,14 @@ describe("ETS Core tests", () => {
           recordType: "bookmark",
         };
         await expect(
-          contracts.ETS.connect(accounts.ETSPlatform).applyTagsWithRawInput(rawInput, accounts.RandomOne.address, {
-            value: taggingFee,
-          }),
+          contracts.ETS.connect(accounts.ETSPlatform).applyTagsWithRawInput(
+            rawInput,
+            accounts.RandomOne.address,
+            accounts.ETSPlatform.address,
+            {
+              value: taggingFee,
+            },
+          ),
         ).to.be.revertedWith("wrong fee supplied");
       });
 
@@ -505,6 +523,7 @@ describe("ETS Core tests", () => {
         const tx = await contracts.ETS.connect(accounts.ETSPlatform).applyTagsWithRawInput(
           rawInput,
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
           {
             value: taggingFee * BigInt(2),
           },
@@ -526,6 +545,7 @@ describe("ETS Core tests", () => {
         const _tx = await contracts.ETS.connect(accounts.ETSPlatform).applyTagsWithRawInput(
           rawInput,
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
           {
             value: taggingFee * BigInt(2),
           },
@@ -546,6 +566,7 @@ describe("ETS Core tests", () => {
         const _tx = await contracts.ETS.connect(accounts.ETSPlatform).applyTagsWithRawInput(
           rawInput,
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
           {
             value: taggingFee * BigInt(2),
           },
@@ -566,6 +587,7 @@ describe("ETS Core tests", () => {
             targetId,
             "bookmark",
             accounts.RandomOne.address,
+            accounts.ETSPlatform.address,
             {
               value: taggingFee,
             },
@@ -579,6 +601,7 @@ describe("ETS Core tests", () => {
           targetId,
           "bookmark",
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
           {
             value: taggingFee * BigInt(2),
           },
@@ -597,6 +620,7 @@ describe("ETS Core tests", () => {
           targetId,
           "bookmark",
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
           {
             value: taggingFee * BigInt(2),
           },
@@ -615,6 +639,7 @@ describe("ETS Core tests", () => {
           targetId,
           "bookmark",
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
           {
             value: taggingFee,
           },
@@ -630,9 +655,14 @@ describe("ETS Core tests", () => {
         // we supply 1x.
         const tagsToAppend = [etsTag1, etsTag2, userTag1];
         await expect(
-          contracts.ETS.connect(accounts.ETSPlatform).appendTags(taggingRecordId, tagsToAppend, {
-            value: taggingFee,
-          }),
+          contracts.ETS.connect(accounts.ETSPlatform).appendTags(
+            taggingRecordId,
+            tagsToAppend,
+            accounts.RandomOne.address,
+            {
+              value: taggingFee,
+            },
+          ),
         ).to.be.revertedWith("wrong fee supplied");
       });
 
@@ -640,9 +670,14 @@ describe("ETS Core tests", () => {
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
         expect(taggingRecord.tagIds.length).to.be.equal(1);
         const tagsToAppend = [etsTag1, etsTag2, userTag1];
-        const tx = await contracts.ETS.connect(accounts.ETSPlatform).appendTags(taggingRecordId, tagsToAppend, {
-          value: taggingFee * BigInt(2),
-        });
+        const tx = await contracts.ETS.connect(accounts.ETSPlatform).appendTags(
+          taggingRecordId,
+          tagsToAppend,
+          accounts.RandomOne.address,
+          {
+            value: taggingFee * BigInt(2),
+          },
+        );
         //await expect(tx).to.emit(contracts.ETS, "TaggingRecordCreated");
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
@@ -652,32 +687,30 @@ describe("ETS Core tests", () => {
       it("can be performed by original tagger", async () => {
         // accounts.RandomOne is original tagger.
         const tagsToAppend = [etsTag1, etsTag2, userTag1];
-        const tx = await contracts.ETS.connect(accounts.RandomOne).appendTags(taggingRecordId, tagsToAppend, {
-          value: taggingFee * BigInt(2),
-        });
+        const tx = await contracts.ETS.connect(accounts.ETSPlatform).appendTags(
+          taggingRecordId,
+          tagsToAppend,
+          accounts.RandomOne.address,
+          {
+            value: taggingFee * BigInt(2),
+          },
+        );
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
         expect(taggingRecord.tagIds.length).to.be.equal(3);
       });
 
-      it("can be performed by original relayer", async () => {
-        // accounts.ETSPlatform is original relayer.
-        const tagsToAppend = [etsTag1, etsTag2, userTag1];
-        const tx = await contracts.ETS.connect(accounts.ETSPlatform).appendTags(taggingRecordId, tagsToAppend, {
-          value: taggingFee * BigInt(2),
-        });
-        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
-        taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(3);
-      });
-
-      it("can only be performed by original relayer or tagger", async () => {
-        // accounts.RandomTwo is neither original relayer or tagger.
+      it("must be performed by the original tagger", async () => {
         const tagsToAppend = [etsTag1, etsTag2, userTag1];
         await expect(
-          contracts.ETS.connect(accounts.RandomTwo).appendTags(taggingRecordId, tagsToAppend, {
-            value: taggingFee * BigInt(2),
-          }),
+          contracts.ETS.connect(accounts.ETSPlatform).appendTags(
+            taggingRecordId,
+            tagsToAppend,
+            accounts.RandomTwo.address, // different tagger
+            {
+              value: taggingFee * BigInt(2),
+            },
+          ),
         ).to.be.revertedWith("Not authorized");
       });
     });
@@ -691,6 +724,7 @@ describe("ETS Core tests", () => {
         targetId,
         "bookmark",
         accounts.RandomOne.address,
+        accounts.ETSPlatform.address,
         {
           value: taggingFee * BigInt(4),
         },
@@ -712,7 +746,11 @@ describe("ETS Core tests", () => {
           recordType: "discovery",
         };
         await expect(
-          contracts.ETS.connect(accounts.ETSPlatform).removeTagsWithRawInput(rawInput, accounts.RandomOne.address),
+          contracts.ETS.connect(accounts.ETSPlatform).removeTagsWithRawInput(
+            rawInput,
+            accounts.RandomOne.address,
+            accounts.ETSPlatform.address,
+          ),
         ).to.be.revertedWith("Not authorized");
       });
 
@@ -723,7 +761,11 @@ describe("ETS Core tests", () => {
           recordType: "bookmark",
         };
         await expect(
-          contracts.ETS.connect(accounts.ETSPlatform).removeTagsWithRawInput(rawInput, accounts.RandomOne.address),
+          contracts.ETS.connect(accounts.ETSPlatform).removeTagsWithRawInput(
+            rawInput,
+            accounts.RandomOne.address,
+            accounts.ETSPlatform.address,
+          ),
         ).to.be.revertedWith("No tags supplied");
       });
       it("should emit TaggingRecordUpdated", async () => {
@@ -735,6 +777,7 @@ describe("ETS Core tests", () => {
         const tx = await contracts.ETS.connect(accounts.ETSPlatform).removeTagsWithRawInput(
           rawInput,
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
         );
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 2);
       });
@@ -748,6 +791,7 @@ describe("ETS Core tests", () => {
         const tx = await contracts.ETS.connect(accounts.ETSPlatform).removeTagsWithRawInput(
           rawInput,
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
         );
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
       });
@@ -761,6 +805,7 @@ describe("ETS Core tests", () => {
         const tx = await contracts.ETS.connect(accounts.ETSPlatform).removeTagsWithRawInput(
           rawInput,
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
         );
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
         const taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
@@ -776,7 +821,11 @@ describe("ETS Core tests", () => {
           tagStrings: [tagstring1, tagstring2],
           recordType: "bookmark",
         };
-        await contracts.ETS.connect(accounts.ETSPlatform).removeTagsWithRawInput(rawInput, accounts.RandomOne.address);
+        await contracts.ETS.connect(accounts.ETSPlatform).removeTagsWithRawInput(
+          rawInput,
+          accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
+        );
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
         expect(taggingRecord.tagIds.length).to.be.equal(2);
       });
@@ -790,7 +839,11 @@ describe("ETS Core tests", () => {
           tagStrings: [tagstring4, tagstring2],
           recordType: "bookmark",
         };
-        await contracts.ETS.connect(accounts.ETSPlatform).removeTagsWithRawInput(rawInput, accounts.RandomOne.address);
+        await contracts.ETS.connect(accounts.ETSPlatform).removeTagsWithRawInput(
+          rawInput,
+          accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
+        );
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
         remainingTags = [tagstring1, tagstring3];
         for (let i = 0; i < taggingRecord.tagIds; i++) {
@@ -807,7 +860,11 @@ describe("ETS Core tests", () => {
         };
 
         await expect(
-          contracts.ETS.connect(accounts.ETSPlatform).removeTagsWithRawInput(rawInput, accounts.RandomOne.address),
+          contracts.ETS.connect(accounts.ETSPlatform).removeTagsWithRawInput(
+            rawInput,
+            accounts.RandomOne.address,
+            accounts.ETSPlatform.address,
+          ),
         ).to.not.be.reverted;
       });
 
@@ -820,6 +877,7 @@ describe("ETS Core tests", () => {
         let tx = await contracts.ETS.connect(accounts.ETSPlatform).removeTagsWithRawInput(
           rawInput,
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
         );
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
 
@@ -827,6 +885,7 @@ describe("ETS Core tests", () => {
         tx = await contracts.ETS.connect(accounts.ETSPlatform).removeTagsWithRawInput(
           rawInput,
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
         );
         await expect(tx).to.not.emit(contracts.ETS, "TaggingRecordUpdated");
       });
@@ -840,6 +899,7 @@ describe("ETS Core tests", () => {
             targetId,
             "discovery",
             accounts.RandomOne.address,
+            accounts.ETSPlatform.address,
           ),
         ).to.be.revertedWith("Not authorized");
       });
@@ -851,6 +911,7 @@ describe("ETS Core tests", () => {
             targetId,
             "bookmark",
             accounts.RandomOne.address,
+            accounts.ETSPlatform.address,
           ),
         ).to.be.revertedWith("No tags supplied");
       });
@@ -860,6 +921,7 @@ describe("ETS Core tests", () => {
           targetId,
           "bookmark",
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
         );
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 2);
       });
@@ -870,6 +932,7 @@ describe("ETS Core tests", () => {
           targetId,
           "bookmark",
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
         );
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
       });
@@ -880,6 +943,7 @@ describe("ETS Core tests", () => {
           targetId,
           "bookmark",
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
         );
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
       });
@@ -894,6 +958,7 @@ describe("ETS Core tests", () => {
           targetId,
           "bookmark",
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
         );
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
         expect(taggingRecord.tagIds.length).to.be.equal(2);
@@ -909,6 +974,7 @@ describe("ETS Core tests", () => {
           targetId,
           "bookmark",
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
         );
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
         remainingTags = [etsTag1, etsTag3];
@@ -926,6 +992,7 @@ describe("ETS Core tests", () => {
             targetId,
             "bookmark",
             accounts.RandomOne.address,
+            accounts.ETSPlatform.address,
           ),
         ).to.not.be.reverted;
       });
@@ -937,6 +1004,7 @@ describe("ETS Core tests", () => {
           targetId,
           "bookmark",
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
         );
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
 
@@ -946,6 +1014,7 @@ describe("ETS Core tests", () => {
           targetId,
           "bookmark",
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
         );
         await expect(tx).to.not.emit(contracts.ETS, "TaggingRecordUpdated");
       });
@@ -958,6 +1027,7 @@ describe("ETS Core tests", () => {
         const tx = await contracts.ETS.connect(accounts.ETSPlatform).removeTags(
           taggingRecordId,
           [userTag1], // Remove userTag1
+          accounts.RandomOne.address,
         );
         //await expect(tx).to.emit(contracts.ETS, "TaggingRecordCreated");
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
@@ -967,32 +1037,22 @@ describe("ETS Core tests", () => {
 
       it("can be performed by original tagger", async () => {
         // accounts.RandomOne is original tagger.
-        const tx = await contracts.ETS.connect(accounts.RandomOne).removeTags(
-          taggingRecordId,
-          [userTag1], // Remove userTag1
-        );
-        await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
-        taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(3);
-      });
-
-      it("can be performed by original relayer", async () => {
-        // accounts.RandomOne is original tagger.
         const tx = await contracts.ETS.connect(accounts.ETSPlatform).removeTags(
           taggingRecordId,
           [userTag1], // Remove userTag1
+          accounts.RandomOne.address,
         );
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
         expect(taggingRecord.tagIds.length).to.be.equal(3);
       });
 
-      it("will revert if not original relayer or tagger", async () => {
-        // accounts.RandomTwo is neither original relayer or tagger.
+      it("must be performed by original tagger", async () => {
         await expect(
-          contracts.ETS.connect(accounts.RandomTwo).removeTags(
+          contracts.ETS.connect(accounts.ETSPlatform).removeTags(
             taggingRecordId,
-            [userTag1], // Remove userTag1
+            [userTag1],
+            accounts.RandomTwo.address, // Different tagger
           ),
         ).to.be.revertedWith("Not authorized");
       });
@@ -1007,6 +1067,7 @@ describe("ETS Core tests", () => {
         targetId,
         "bookmark",
         accounts.RandomOne.address,
+        accounts.ETSPlatform.address,
         {
           value: taggingFee,
         },
@@ -1033,6 +1094,7 @@ describe("ETS Core tests", () => {
           contracts.ETS.connect(accounts.ETSPlatform).replaceTagsWithRawInput(
             replacementRawInput,
             accounts.RandomOne.address,
+            accounts.ETSPlatform.address,
             {
               value: taggingFee,
             },
@@ -1050,6 +1112,7 @@ describe("ETS Core tests", () => {
           contracts.ETS.connect(accounts.ETSPlatform).replaceTagsWithRawInput(
             replacementRawInput,
             accounts.RandomOne.address,
+            accounts.ETSPlatform.address,
           ),
         ).to.be.revertedWith("No tags supplied");
       });
@@ -1063,6 +1126,7 @@ describe("ETS Core tests", () => {
         const tx = await contracts.ETS.connect(accounts.ETSPlatform).replaceTagsWithRawInput(
           replacementRawInput,
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
           {
             value: taggingFee * BigInt(2),
           },
@@ -1082,6 +1146,7 @@ describe("ETS Core tests", () => {
         tx = await contracts.ETS.connect(accounts.ETSPlatform).replaceTagsWithRawInput(
           replacementRawInput,
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
           {
             value: taggingFee * BigInt(3),
           },
@@ -1106,6 +1171,7 @@ describe("ETS Core tests", () => {
         tx = await contracts.ETS.connect(accounts.ETSPlatform).replaceTagsWithRawInput(
           replacementRawInput,
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
         );
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
         expect(taggingRecord.tagIds.length).to.be.equal(1);
@@ -1123,6 +1189,7 @@ describe("ETS Core tests", () => {
             targetId,
             "bookmark",
             accounts.RandomOne.address,
+            accounts.ETSPlatform.address,
             {
               value: taggingFee,
             },
@@ -1136,6 +1203,7 @@ describe("ETS Core tests", () => {
           targetId,
           "bookmark",
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
           {
             value: taggingFee * BigInt(2),
           },
@@ -1154,6 +1222,7 @@ describe("ETS Core tests", () => {
           targetId,
           "bookmark",
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
           {
             value: taggingFee * BigInt(3),
           },
@@ -1172,6 +1241,7 @@ describe("ETS Core tests", () => {
           targetId,
           "bookmark",
           accounts.RandomOne.address,
+          accounts.ETSPlatform.address,
         );
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
         expect(taggingRecord.tagIds.length).to.be.equal(1);
@@ -1184,9 +1254,14 @@ describe("ETS Core tests", () => {
         // we supply 1x.
         const replacementTags = [etsTag1, etsTag2, userTag1];
         await expect(
-          contracts.ETS.connect(accounts.ETSPlatform).replaceTags(taggingRecordId, replacementTags, {
-            value: taggingFee,
-          }),
+          contracts.ETS.connect(accounts.ETSPlatform).replaceTags(
+            taggingRecordId,
+            replacementTags,
+            accounts.RandomOne.address,
+            {
+              value: taggingFee,
+            },
+          ),
         ).to.be.revertedWith("wrong fee supplied");
       });
 
@@ -1194,9 +1269,14 @@ describe("ETS Core tests", () => {
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
         expect(taggingRecord.tagIds.length).to.be.equal(1);
         const replacementTags = [etsTag2, userTag1];
-        const tx = await contracts.ETS.connect(accounts.ETSPlatform).replaceTags(taggingRecordId, replacementTags, {
-          value: taggingFee * BigInt(2),
-        });
+        const tx = await contracts.ETS.connect(accounts.ETSPlatform).replaceTags(
+          taggingRecordId,
+          replacementTags,
+          accounts.RandomOne.address,
+          {
+            value: taggingFee * BigInt(2),
+          },
+        );
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
         expect(taggingRecord.tagIds.length).to.be.equal(2);
@@ -1205,33 +1285,47 @@ describe("ETS Core tests", () => {
       it("can be performed by original tagger", async () => {
         // accounts.RandomOne is original tagger.
         const replacementTags = [etsTag1, etsTag2, userTag1];
-        const tx = await contracts.ETS.connect(accounts.RandomOne).replaceTags(taggingRecordId, replacementTags, {
-          value: taggingFee * BigInt(2),
-        });
+        const tx = await contracts.ETS.connect(accounts.ETSPlatform).replaceTags(
+          taggingRecordId,
+          replacementTags,
+          accounts.RandomOne.address,
+          {
+            value: taggingFee * BigInt(2),
+          },
+        );
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
         expect(taggingRecord.tagIds.length).to.be.equal(3);
+      });
+
+      it("must be performed by original tagger", async () => {
+        const replacementTags = [etsTag1, etsTag2, userTag1];
+        await expect(
+          contracts.ETS.connect(accounts.ETSPlatform).replaceTags(
+            taggingRecordId,
+            replacementTags,
+            accounts.RandomTwo.address, // Different tagger
+            {
+              value: taggingFee * BigInt(2),
+            },
+          ),
+        ).to.be.revertedWith("Not authorized");
       });
 
       it("can be performed by original relayer", async () => {
         // accounts.ETSPlatform is original relayer.
         const replacementTags = [etsTag1, etsTag2, userTag1];
-        const tx = await contracts.ETS.connect(accounts.ETSPlatform).replaceTags(taggingRecordId, replacementTags, {
-          value: taggingFee * BigInt(2),
-        });
+        const tx = await contracts.ETS.connect(accounts.ETSPlatform).replaceTags(
+          taggingRecordId,
+          replacementTags,
+          accounts.RandomOne.address,
+          {
+            value: taggingFee * BigInt(2),
+          },
+        );
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
         expect(taggingRecord.tagIds.length).to.be.equal(3);
-      });
-
-      it("can only be performed by original relayer or tagger", async () => {
-        // accounts.RandomTwo is neither original relayer or tagger.
-        const replacementTags = [etsTag1, etsTag2, userTag1];
-        await expect(
-          contracts.ETS.connect(accounts.RandomTwo).replaceTags(taggingRecordId, replacementTags, {
-            value: taggingFee * BigInt(2),
-          }),
-        ).to.be.revertedWith("Not authorized");
       });
     });
   });
@@ -1297,9 +1391,14 @@ describe("ETS Core tests", () => {
       };
 
       // RandomOne is tagger, ETSPlatform is relayer.
-      await contracts.ETS.connect(accounts.ETSPlatform).applyTagsWithRawInput(tagParams, accounts.RandomOne.address, {
-        value: taggingFee * BigInt(2),
-      });
+      await contracts.ETS.connect(accounts.ETSPlatform).applyTagsWithRawInput(
+        tagParams,
+        accounts.RandomOne.address,
+        accounts.ETSPlatform.address,
+        {
+          value: taggingFee * BigInt(2),
+        },
+      );
 
       // Store tagging record Id for use in tests.
       taggingRecordId = await contracts.ETS.computeTaggingRecordIdFromCompositeKey(
@@ -1357,6 +1456,7 @@ describe("ETS Core tests", () => {
       await contracts.ETS.connect(accounts.ETSPlatform).applyTagsWithRawInput(
         taggingRecordInputParams,
         accounts.RandomTwo.address,
+        accounts.ETSPlatform.address,
         {
           value: taggingFee * BigInt(2),
         },
@@ -1401,9 +1501,14 @@ describe("ETS Core tests", () => {
         enrich: false,
       };
 
-      await contracts.ETS.connect(accounts.ETSPlatform).applyTagsWithRawInput(rawInput, accounts.RandomTwo.address, {
-        value: taggingFee,
-      });
+      await contracts.ETS.connect(accounts.ETSPlatform).applyTagsWithRawInput(
+        rawInput,
+        accounts.RandomTwo.address,
+        accounts.ETSPlatform.address,
+        {
+          value: taggingFee,
+        },
+      );
       // Check that tagging fee for one tag is divided up and distributed correctly.
       // Platform accrued.
       platformPostTagAccrued = await contracts.ETS.accrued(accounts.ETSPlatform.address);
@@ -1435,9 +1540,14 @@ describe("ETS Core tests", () => {
       };
 
       // RandomTwo is tagger, ETSRelayer is relayer.
-      await contracts.ETS.connect(accounts.ETSPlatform).applyTagsWithRawInput(rawInput, accounts.RandomTwo.address, {
-        value: taggingFee,
-      });
+      await contracts.ETS.connect(accounts.ETSPlatform).applyTagsWithRawInput(
+        rawInput,
+        accounts.RandomTwo.address,
+        accounts.ETSPlatform.address,
+        {
+          value: taggingFee,
+        },
+      );
       // Check that tagging fee for one tag is divided up and distributed correctly.
       // Platform accrued.
       platformPostTagAccrued = await contracts.ETS.accrued(accounts.ETSPlatform.address);
@@ -1470,9 +1580,14 @@ describe("ETS Core tests", () => {
       };
 
       // RandomTwo is tagger, ETSRelayer is relayer.
-      await contracts.ETS.connect(accounts.ETSPlatform).applyTagsWithRawInput(rawInput, accounts.RandomTwo.address, {
-        value: taggingFee,
-      });
+      await contracts.ETS.connect(accounts.ETSPlatform).applyTagsWithRawInput(
+        rawInput,
+        accounts.RandomTwo.address,
+        accounts.ETSPlatform.address,
+        {
+          value: taggingFee,
+        },
+      );
       // Check that tagging fee for one tag is divided up and distributed correctly.
       // Platform accrued.
       platformPostTagAccrued = await contracts.ETS.accrued(accounts.ETSPlatform.address);

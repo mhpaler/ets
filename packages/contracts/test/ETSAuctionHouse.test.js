@@ -557,8 +557,8 @@ describe("ETS Auction House Tests", () => {
       // RandomTwo sets up as a relayer (they own a tag already from overall test setup):
       await contracts.ETSRelayerFactory.connect(accounts.RandomTwo).addRelayer("RandomTwo Relayer");
       relayerAddress = await contracts.ETSAccessControls.getRelayerAddressFromName("RandomTwo Relayer");
-      etsRelayerV1ABI = require("../abi/contracts/relayers/ETSRelayerV1.sol/ETSRelayerV1.json");
-      randomTwoRelayer = new ethers.Contract(relayerAddress, etsRelayerV1ABI, accounts.RandomTwo);
+      etsRelayerABI = require("../abi/contracts/relayers/ETSRelayer.sol/ETSRelayer.json");
+      randomTwoRelayer = new ethers.Contract(relayerAddress, etsRelayerABI, accounts.RandomTwo);
 
       relayerPreAuctionAccrued = await contracts.ETSAuctionHouse.accrued(relayerAddress);
       creatorPreAuctionAccrued = await contracts.ETSAuctionHouse.accrued(accounts.Creator.address);
