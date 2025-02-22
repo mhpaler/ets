@@ -99,27 +99,49 @@ interface IETSRelayer {
     function getCreator() external view returns (address payable);
 
     /**
-     * @notice Apply one or more tags to a targetURI using tagging record raw client input data.
+     * @notice Apply tags to target URIs. Creates new tagging records using this relayer.
      *
-     * @param _rawInput Raw client input data formed as TaggingRecordRawInput struct.
+     * @param _rawInput Array of tagging record inputs containing target URIs and tag strings
      */
     function applyTags(IETS.TaggingRecordRawInput[] calldata _rawInput) external payable;
 
     /**
-     * @notice Replace entire tag set in tagging record using raw data for record lookup.
+     * @notice Apply tags to target URIs. Creates new tagging records or modifies existing ones using specified relayer.
      *
-     * If supplied tag strings don't have CTAGs, new ones are minted.
+     * @param _rawInput Array of tagging record inputs containing target URIs and tag strings
+     * @param _relayer Address of relayer to use. For new records must be this relayer, for modifications can be any relayer
+     */
+    function applyTagsViaRelayer(IETS.TaggingRecordRawInput[] calldata _rawInput, address _relayer) external payable;
+
+    /**
+     * @notice Replace tags on target URIs using this relayer
      *
-     * @param _rawInput Raw client input data formed as TaggingRecordRawInput struct.
+     * @param _rawInput Array of tagging record inputs containing target URIs and tag strings
      */
     function replaceTags(IETS.TaggingRecordRawInput[] calldata _rawInput) external payable;
 
     /**
-     * @notice Remove one or more tags from a tagging record using raw data for record lookup.
+     * @notice Replace tags on target URIs using specified relayer
      *
-     * @param _rawInput Raw client input data formed as TaggingRecordRawInput struct.
+     * @param _rawInput Array of tagging record inputs containing target URIs and tag strings
+     * @param _relayer Address of relayer to use. For new records must be this relayer, for modifications can be any relayer
+     */
+    function replaceTagsViaRelayer(IETS.TaggingRecordRawInput[] calldata _rawInput, address _relayer) external payable;
+
+    /**
+     * @notice Remove tags from target URIs using this relayer
+     *
+     * @param _rawInput Array of tagging record inputs containing target URIs and tag strings
      */
     function removeTags(IETS.TaggingRecordRawInput[] calldata _rawInput) external payable;
+
+    /**
+     * @notice Remove tags from target URIs using specified relayer
+     *
+     * @param _rawInput Array of tagging record inputs containing target URIs and tag strings
+     * @param _relayer Address of relayer to use. For new records must be this relayer, for modifications can be any relayer
+     */
+    function removeTagsViaRelayer(IETS.TaggingRecordRawInput[] calldata _rawInput, address _relayer) external payable;
 
     /**
      * @notice Get or create CTAG tokens from tag strings.

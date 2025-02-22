@@ -14,13 +14,13 @@ import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/O
 import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
 /**
- * @title ETSRelayerV2test.sol
+ * @title ETSRelayerUpgradeTest.sol
  * @author Ethereum Tag Service <team@ets.xyz>
  *
  * @notice Test only contract for testing upgrading the implementation contract for the ETSRelayer proxy beacon.
- * In the test suite, ETSRelayerV1.sol is replaced with this contract using the update() function in ETSRelayerBeacon.
+ * In the test suite, ETSRelayer.sol is replaced with this contract using the update() function in ETSRelayerBeacon.
  */
-contract ETSRelayerV2test is
+contract ETSRelayerUpgradeTest is
     IETSRelayer,
     Initializable,
     ERC165Upgradeable,
@@ -41,7 +41,7 @@ contract ETSRelayerV2test is
 
     // Public constants
     string public constant NAME = "ETS Relayer";
-    string public constant VERSION = "0.2-Beta";
+    string public constant VERSION = "UPGRADE TEST";
     bytes4 public constant IID_IETSRELAYER = type(IETSRelayer).interfaceId;
 
     // Public variables
@@ -100,46 +100,22 @@ contract ETSRelayerV2test is
 
     // ============ PUBLIC INTERFACE ============
 
-    /// @inheritdoc IETSRelayer
-    function applyTags(IETS.TaggingRecordRawInput[] calldata _rawInput) public payable whenNotPaused {
-        uint256 taggingFee = ets.taggingFee();
-        for (uint256 i; i < _rawInput.length; ++i) {
-            _applyTags(_rawInput[i], payable(msg.sender), taggingFee);
-        }
-    }
-
-    /// @inheritdoc IETSRelayer
-    function replaceTags(IETS.TaggingRecordRawInput[] calldata _rawInput) public payable whenNotPaused {
-        uint256 taggingFee = ets.taggingFee();
-        for (uint256 i; i < _rawInput.length; ++i) {
-            _replaceTags(_rawInput[i], payable(msg.sender), taggingFee);
-        }
-    }
-
-    /// @inheritdoc IETSRelayer
-    function removeTags(IETS.TaggingRecordRawInput[] calldata _rawInput) public payable whenNotPaused {
-        for (uint256 i; i < _rawInput.length; ++i) {
-            _removeTags(_rawInput[i], payable(msg.sender));
-        }
-    }
+    function applyTags(IETS.TaggingRecordRawInput[] calldata) public payable whenNotPaused {}
+    function applyTagsViaRelayer(IETS.TaggingRecordRawInput[] calldata, address) public payable whenNotPaused {}
+    function replaceTags(IETS.TaggingRecordRawInput[] calldata) public payable whenNotPaused {}
+    function replaceTagsViaRelayer(IETS.TaggingRecordRawInput[] calldata, address) public payable whenNotPaused {}
+    function removeTags(IETS.TaggingRecordRawInput[] calldata) public payable whenNotPaused {}
+    function removeTagsViaRelayer(IETS.TaggingRecordRawInput[] calldata, address) public payable whenNotPaused {}
 
     /// @inheritdoc IETSRelayer
     function getOrCreateTagIds(
         string[] calldata _tags
-    ) public payable whenNotPaused returns (uint256[] memory _tagIds) {
-        // First let's derive tagIds for the tagStrings.
-        uint256[] memory tagIds = new uint256[](_tags.length);
-        for (uint256 i; i < _tags.length; ++i) {
-            // for new CTAGs msg.sender is logged as "creator" and this contract is "relayer"
-            tagIds[i] = ets.getOrCreateTagId(_tags[i], payable(msg.sender));
-        }
-        return tagIds;
-    }
+    ) public payable whenNotPaused returns (uint256[] memory _tagIds) {}
 
     // ============ PUBLIC VIEW FUNCTIONS ============
 
     function version() external view virtual returns (string memory) {
-        return "0.2-Beta";
+        return VERSION;
     }
 
     /// @inheritdoc ERC165Upgradeable
@@ -178,56 +154,6 @@ contract ETSRelayerV2test is
     }
 
     // ============ INTERNAL FUNCTIONS ============
-
-    function _applyTags(
-        IETS.TaggingRecordRawInput calldata _rawInput,
-        address payable _tagger,
-        uint256 _taggingFee
-    ) internal {
-        uint256 valueToSendForTagging = 0;
-        if (_taggingFee > 0) {
-            // This is either a new tagging record or an existing record that's being appended to.
-            // Either way, we need to assess the tagging fees.
-            uint256 actualTagCount = 0;
-            (valueToSendForTagging, actualTagCount) = ets.computeTaggingFeeFromRawInput(
-                _rawInput,
-                address(this),
-                _tagger,
-                IETS.TaggingAction.APPEND
-            );
-            require(address(this).balance >= valueToSendForTagging, "Insufficient funds");
-        }
-
-        // Call the core applyTagsWithRawInput() function to record new or append to exsiting tagging record.
-        ets.applyTagsWithRawInput{ value: valueToSendForTagging }(_rawInput, _tagger);
-    }
-
-    function _replaceTags(
-        IETS.TaggingRecordRawInput calldata _rawInput,
-        address payable _tagger,
-        uint256 _taggingFee
-    ) internal {
-        uint256 valueToSendForTagging = 0;
-        if (_taggingFee > 0) {
-            // This is either a new tagging record or an existing record that's being appended to.
-            // Either way, we need to assess the tagging fees.
-            uint256 actualTagCount = 0;
-            (valueToSendForTagging, actualTagCount) = ets.computeTaggingFeeFromRawInput(
-                _rawInput,
-                address(this),
-                _tagger,
-                IETS.TaggingAction.REPLACE
-            );
-            require(address(this).balance >= valueToSendForTagging, "Insufficient funds");
-        }
-
-        // Finally, call the core replaceTags() function to update the tagging record.
-        ets.replaceTagsWithRawInput{ value: valueToSendForTagging }(_rawInput, _tagger);
-    }
-
-    function _removeTags(IETS.TaggingRecordRawInput calldata _rawInput, address payable _tagger) internal {
-        ets.removeTagsWithRawInput(_rawInput, _tagger);
-    }
 
     function newFunction() public view virtual returns (bool) {
         return true;
