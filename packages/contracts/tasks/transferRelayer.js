@@ -25,27 +25,27 @@ task("transferRelayer", "Transfers relayer to a new owner")
     );
 
     // Check that caller is using a valid relayer.
-    let etsRelayerV1;
+    let etsRelayer;
     const relayerAddress = await etsAccessControls.getRelayerAddressFromName(taskArgs.relayer);
     if ((await etsAccessControls.isRelayerByAddress(relayerAddress)) === false) {
       console.info(`"${taskArgs.relayer}" is not a relayer`);
       return;
     }
 
-    if (accounts[taskArgs.signer].address !== (await etsRelayerV1.getOwner())) {
+    if (accounts[taskArgs.signer].address !== (await etsRelayer.getOwner())) {
       console.info(`${taskArgs.signer} is not the owner of "${taskArgs.relayer}" relayer contract`);
       return;
     }
 
-    if (!(await etsRelayerV1.paused())) {
+    if (!(await etsRelayer.paused())) {
       console.info("Relayer must be paused before transferring");
       return;
     }
 
-    const tx = await etsRelayerV1.changeOwner(taskArgs.to);
+    const tx = await etsRelayer.changeOwner(taskArgs.to);
     await tx.wait();
 
-    if ((await etsRelayerV1.getOwner()) === taskArgs.to) {
+    if ((await etsRelayer.getOwner()) === taskArgs.to) {
       console.info(`Relayer transferred to ${taskArgs.to}`);
     }
   });

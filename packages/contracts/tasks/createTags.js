@@ -32,13 +32,13 @@ task("createTags", "Create CTAGs")
     const etsToken = new hre.ethers.Contract(ETSTokenAddress, ETSTokenABI, accounts[taskArgs.signer]);
 
     // Check that caller is using a valid relayer.
-    let etsRelayerV1;
+    let etsRelayer;
     const relayerAddress = await etsAccessControls.getRelayerAddressFromName(taskArgs.relayer);
     if ((await etsAccessControls.isRelayer(relayerAddress)) === false) {
       console.info(`"${taskArgs.relayer}" is not a relayer`);
       return;
     }
-    etsRelayerV1 = new ethers.Contract(relayerAddress, ETSRelayerV1ABI, accounts[taskArgs.signer]);
+    etsRelayer = new ethers.Contract(relayerAddress, ETSRelayerV1ABI, accounts[taskArgs.signer]);
 
     const tags = taskArgs.tags.replace(/\s+/g, "").split(","); // remove spaces & split on comma
     const tagsToMint = [];
@@ -54,7 +54,7 @@ task("createTags", "Create CTAGs")
 
     if (tagsToMint.length > 0) {
       console.info(`Minting CTAGs "${tagsToMint.toString()}"`);
-      const tx = await etsRelayerV1.getOrCreateTagIds(tagsToMint);
+      const tx = await etsRelayer.getOrCreateTagIds(tagsToMint);
       await tx.wait();
 
       for (let i = 0; i < tagsToMint.length; i++) {
