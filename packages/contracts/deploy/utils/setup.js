@@ -36,14 +36,14 @@ async function setup() {
   };
 
   const factories = {
-    WMATIC: await ethers.getContractFactory("WMATIC"),
+    WETH: await ethers.getContractFactory("WETH"),
     ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
     ETSToken: await ethers.getContractFactory("ETSToken"),
     ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
     ETSTarget: await ethers.getContractFactory("ETSTarget"),
     ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
     ETS: await ethers.getContractFactory("ETS"),
-    ETSRelayerV1: await ethers.getContractFactory("ETSRelayerV1"),
+    ETSRelayer: await ethers.getContractFactory("ETSRelayer"),
     ETSRelayerFactory: await ethers.getContractFactory("ETSRelayerFactory"),
   };
 
