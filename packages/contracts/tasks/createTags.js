@@ -20,7 +20,7 @@ task("createTags", "Create CTAGs")
     const ETSTokenAddress = networkConfig.contracts.ETSToken.address;
     const ETSAccessControlsABI = networkConfig.contracts.ETSAccessControls.abi;
     const ETSAccessControlsAddress = networkConfig.contracts.ETSAccessControls.address;
-    const ETSRelayerV1ABI = networkConfig.contracts.ETSRelayerV1.abi;
+    const ETSRelayerABI = networkConfig.contracts.ETSRelayer.abi;
 
     // Contract instances
     const etsAccessControls = new hre.ethers.Contract(
@@ -38,7 +38,7 @@ task("createTags", "Create CTAGs")
       console.info(`"${taskArgs.relayer}" is not a relayer`);
       return;
     }
-    etsRelayer = new ethers.Contract(relayerAddress, ETSRelayerV1ABI, accounts[taskArgs.signer]);
+    etsRelayer = new ethers.Contract(relayerAddress, ETSRelayerABI, accounts[taskArgs.signer]);
 
     const tags = taskArgs.tags.replace(/\s+/g, "").split(","); // remove spaces & split on comma
     const tagsToMint = [];

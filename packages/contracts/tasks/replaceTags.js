@@ -23,7 +23,7 @@ task(
     const etsAccessControlsAddress = networkConfig.contracts.ETSAccessControls.address;
     const etsABI = networkConfig.contracts.ETS.abi;
     const etsAddress = networkConfig.contracts.ETS.address;
-    const etsRelayerABI = networkConfig.contracts.ETSRelayerV1.abi;
+    const etsRelayerABI = networkConfig.contracts.ETSRelayer.abi;
 
     // Contract instances
     const etsAccessControls = new hre.ethers.Contract(

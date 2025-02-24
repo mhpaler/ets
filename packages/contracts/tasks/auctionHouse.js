@@ -414,13 +414,13 @@ const setup = async () => {
   const ETSAuctionHouseAddress = networkConfig.contracts.ETSAuctionHouse.address;
   const ETSTokenABI = networkConfig.contracts.ETSToken.abi;
   const ETSTokenAddress = networkConfig.contracts.ETSToken.address;
-  const ETSRelayerV1ABI = networkConfig.contracts.ETSRelayerV1.abi;
+  const ETSRelayerABI = networkConfig.contracts.ETSRelayer.abi;
 
   const etsAccessControls = new hre.ethers.Contract(ETSAccessControlsAddress, ETSAccessControlsABI, accounts.account0);
   const etsAuctionHouse = new hre.ethers.Contract(ETSAuctionHouseAddress, ETSAuctionHouseABI, accounts.account0);
   const etsToken = new hre.ethers.Contract(ETSTokenAddress, ETSTokenABI, accounts.account0);
   const relayerAddress = await etsAccessControls.getRelayerAddressFromName("ETSRelayer");
-  const etsRelayer = new hre.ethers.Contract(relayerAddress, ETSRelayerV1ABI, accounts.account0);
+  const etsRelayer = new hre.ethers.Contract(relayerAddress, ETSRelayerABI, accounts.account0);
 
   return {
     accounts,

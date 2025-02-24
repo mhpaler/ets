@@ -17,7 +17,7 @@ task("togglePauseRelayerByOwner", "Pauses/Unpauses a Relayer contract by owner")
     // ABIs and Contract addresses from network configuration
     const ETSAccessControlsABI = networkConfig.contracts.ETSAccessControls.abi;
     const ETSAccessControlsAddress = networkConfig.contracts.ETSAccessControls.address;
-    const ETSRelayerV1ABI = networkConfig.contracts.ETSRelayerV1.abi;
+    const ETSRelayerABI = networkConfig.contracts.ETSRelayer.abi;
 
     // Contract instances
     const etsAccessControls = new hre.ethers.Contract(
@@ -33,7 +33,7 @@ task("togglePauseRelayerByOwner", "Pauses/Unpauses a Relayer contract by owner")
       console.info(`"${taskArgs.relayer}" is not a relayer`);
       return;
     }
-    etsRelayer = new ethers.Contract(relayerAddress, ETSRelayerV1ABI, accounts[taskArgs.signer]);
+    etsRelayer = new ethers.Contract(relayerAddress, ETSRelayerABI, accounts[taskArgs.signer]);
 
     if (accounts[taskArgs.signer].address !== (await etsRelayer.getOwner())) {
       console.info(`${taskArgs.signer} is not the owner of "${taskArgs.relayer}" relayer contract`);
