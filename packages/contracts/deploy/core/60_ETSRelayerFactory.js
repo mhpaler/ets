@@ -13,13 +13,13 @@ module.exports = async ({ deployments }) => {
 
   // Deploy the relayer logic contract.
   // We deploy with proxy with no arguments because factory will supply them.
-  const relayerV1 = await factories.ETSRelayerV1.deploy();
-  await relayerV1.waitForDeployment();
-  relayerV1Address = await relayerV1.getAddress();
+  const etsRelayer = await factories.ETSRelayer.deploy();
+  await etsRelayer.waitForDeployment();
+  etsRelayerAddress = await etsRelayer.getAddress();
 
   // Deploy relayer factory, which will deploy the above implementation as upgradable proxies.
   const relayerFactory = await factories.ETSRelayerFactory.deploy(
-    relayerV1Address,
+    etsRelayerAddress,
     etsAccessControlsAddress,
     etsAddress,
     etsTokenAddress,
@@ -30,9 +30,9 @@ module.exports = async ({ deployments }) => {
 
   if (process.env.VERIFY_ON_DEPLOY === "true") {
     // Verify & Update network configuration file.
-    await verify("ETSRelayerV1", relayerV1, relayerV1Address, []);
+    await verify("ETSRelayer", etsRelayer, etsRelayerAddress, []);
     await verify("ETSRelayerFactory", relayerFactory, relayerFactoryAddress, [
-      relayerV1Address,
+      etsRelayerAddress,
       etsAccessControlsAddress,
       etsAddress,
       etsTokenAddress,
@@ -40,7 +40,7 @@ module.exports = async ({ deployments }) => {
     ]);
   }
 
-  await saveNetworkConfig("ETSRelayerV1", relayerV1, null, false);
+  await saveNetworkConfig("ETSRelayer", etsRelayer, etsRelayerAddress, false);
   await saveNetworkConfig("ETSRelayerFactory", relayerFactory, null, false);
 
   // Add to deployments.
@@ -51,15 +51,15 @@ module.exports = async ({ deployments }) => {
   };
   await save("ETSRelayerFactory", proxyDeployments);
 
-  artifact = await deployments.getExtendedArtifact("ETSRelayerV1");
+  artifact = await deployments.getExtendedArtifact("ETSRelayer");
   proxyDeployments = {
-    address: relayerV1Address,
+    address: etsRelayerAddress,
     ...artifact,
   };
-  await save("ETSRelayerV1", proxyDeployments);
+  await save("ETSRelayer", proxyDeployments);
 
   log("====================================================");
-  log(`ETSRelayerV1 deployed to -> ${relayerV1Address}`);
+  log(`ETSRelayer deployed to -> ${etsRelayerAddress}`);
   log(`ETSRelayerFactory deployed to -> ${relayerFactoryAddress}`);
   log("====================================================");
 };

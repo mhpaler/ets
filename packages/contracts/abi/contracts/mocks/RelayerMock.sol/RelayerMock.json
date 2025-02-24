@@ -1,36 +1,5 @@
 [
   {
-    "inputs": [
-      {
-        "internalType": "contract IETS",
-        "name": "_ets",
-        "type": "address"
-      },
-      {
-        "internalType": "contract IETSToken",
-        "name": "_etsToken",
-        "type": "address"
-      },
-      {
-        "internalType": "contract IETSTarget",
-        "name": "_etsTarget",
-        "type": "address"
-      },
-      {
-        "internalType": "address payable",
-        "name": "_creator",
-        "type": "address"
-      },
-      {
-        "internalType": "address payable",
-        "name": "_owner",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
@@ -148,11 +117,81 @@
           }
         ],
         "internalType": "struct IETS.TaggingRecordRawInput[]",
-        "name": "_rawParts",
+        "name": "_rawInput",
         "type": "tuple[]"
       }
     ],
     "name": "applyTags",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "targetURI",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "tagStrings",
+            "type": "string[]"
+          },
+          {
+            "internalType": "string",
+            "name": "recordType",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IETS.TaggingRecordRawInput[]",
+        "name": "_rawInput",
+        "type": "tuple[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_relayer",
+        "type": "address"
+      }
+    ],
+    "name": "applyTags",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "targetURI",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "tagStrings",
+            "type": "string[]"
+          },
+          {
+            "internalType": "string",
+            "name": "recordType",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IETS.TaggingRecordRawInput[]",
+        "name": "_rawInput",
+        "type": "tuple[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_relayer",
+        "type": "address"
+      }
+    ],
+    "name": "applyTagsViaRelayer",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
@@ -393,11 +432,81 @@
           }
         ],
         "internalType": "struct IETS.TaggingRecordRawInput[]",
-        "name": "_rawParts",
+        "name": "_rawInput",
         "type": "tuple[]"
       }
     ],
     "name": "removeTags",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "targetURI",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "tagStrings",
+            "type": "string[]"
+          },
+          {
+            "internalType": "string",
+            "name": "recordType",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IETS.TaggingRecordRawInput[]",
+        "name": "_rawInput",
+        "type": "tuple[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_relayer",
+        "type": "address"
+      }
+    ],
+    "name": "removeTags",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "targetURI",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "tagStrings",
+            "type": "string[]"
+          },
+          {
+            "internalType": "string",
+            "name": "recordType",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IETS.TaggingRecordRawInput[]",
+        "name": "_rawInput",
+        "type": "tuple[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_relayer",
+        "type": "address"
+      }
+    ],
+    "name": "removeTagsViaRelayer",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
@@ -430,11 +539,81 @@
           }
         ],
         "internalType": "struct IETS.TaggingRecordRawInput[]",
-        "name": "_rawParts",
+        "name": "_rawInput",
         "type": "tuple[]"
       }
     ],
     "name": "replaceTags",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "targetURI",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "tagStrings",
+            "type": "string[]"
+          },
+          {
+            "internalType": "string",
+            "name": "recordType",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IETS.TaggingRecordRawInput[]",
+        "name": "_rawInput",
+        "type": "tuple[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_relayer",
+        "type": "address"
+      }
+    ],
+    "name": "replaceTags",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "targetURI",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "tagStrings",
+            "type": "string[]"
+          },
+          {
+            "internalType": "string",
+            "name": "recordType",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IETS.TaggingRecordRawInput[]",
+        "name": "_rawInput",
+        "type": "tuple[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_relayer",
+        "type": "address"
+      }
+    ],
+    "name": "replaceTagsViaRelayer",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"

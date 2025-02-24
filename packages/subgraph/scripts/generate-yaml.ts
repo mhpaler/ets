@@ -1,4 +1,5 @@
-import { promises as fs } from "node:fs";
+import * as fs from "node:fs";
+import * as fsPromises from "node:fs/promises";
 import * as path from "node:path";
 import * as Handlebars from "handlebars";
 
@@ -35,6 +36,7 @@ const OPENZEPPELIN_ABIS: OpenzeppelinAbis = {
 
 // Helper functions
 const getNetworkConfig = (target: DeploymentTarget): NetworkConfig => {
+  console.log("🔍 Generating network config for target:", target);
   const baseConfig: Omit<NetworkConfig, "name"> = {
     configPath: `./../contracts/src/chainConfig/${target}.json`,
     upgradesConfigPath: `./../contracts/src/upgradeConfig/${target}.json`,
@@ -44,7 +46,7 @@ const getNetworkConfig = (target: DeploymentTarget): NetworkConfig => {
       "ETSAuctionHouse",
       "ETSEnrichTarget",
       "ETSRelayerFactory",
-      "ETSRelayerV1",
+      "ETSRelayer",
       "ETSTarget",
       "ETSToken",
     ].reduce(
@@ -94,23 +96,33 @@ export async function main(providedTarget?: string): Promise<void> {
   const networkConfig: NetworkConfig = getNetworkConfig(target);
 
   try {
-    const configContent = await fs.readFile(networkConfig.configPath, "utf8");
+    const configContent = await fsPromises.readFile(networkConfig.configPath, "utf8");
     networkConfig.config = JSON.parse(configContent);
-    const upgradesConfigContent = await fs.readFile(networkConfig.upgradesConfigPath, "utf8");
+    const upgradesConfigContent = await fsPromises.readFile(networkConfig.upgradesConfigPath, "utf8");
     networkConfig.upgradesConfig = JSON.parse(upgradesConfigContent);
+
+    // Adjust all contract deployment blocks to start 10 blocks earlier
+    for (const contractName of Object.keys(networkConfig.upgradesConfig.contracts)) {
+      if (networkConfig.upgradesConfig.contracts[contractName].deploymentBlock) {
+        networkConfig.upgradesConfig.contracts[contractName].deploymentBlock -= 10;
+      }
+    }
   } catch (err) {
     console.error(`Error loading files for network ${target}:`, (err as Error).message);
     process.exit(1);
   }
 
   const templatePath = path.join(__dirname, "../templates/subgraph.yaml.mustache");
-  const templateContent = await fs.readFile(templatePath, "utf8");
+  const templateContent = await fsPromises.readFile(templatePath, "utf8");
   const template = Handlebars.compile(templateContent);
+
+  // Add debug logging here
+  console.log("Network Config:", JSON.stringify(networkConfig.upgradesConfig, null, 2));
 
   const result = template({ ...networkConfig, openzeppelin: OPENZEPPELIN_ABIS });
 
   const outputPath = path.join(__dirname, "../subgraph.yaml");
-  await fs.writeFile(outputPath, result);
+  await fsPromises.writeFile(outputPath, result);
   console.info(`${target} configuration file written to ${outputPath}`);
 }
 

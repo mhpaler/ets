@@ -45,7 +45,7 @@ async function getArtifacts() {
     ETSEnrichTarget: artifacts.readArtifactSync("ETSEnrichTarget"),
     ETSAuctionHouse: artifacts.readArtifactSync("ETSAuctionHouse"),
     ETS: artifacts.readArtifactSync("ETS"),
-    ETSRelayerV1: artifacts.readArtifactSync("ETSRelayerV1"),
+    ETSRelayer: artifacts.readArtifactSync("ETSRelayer"),
     ETSRelayerFactory: artifacts.readArtifactSync("ETSRelayerFactory"),
 
     /// .sol test contracts.
@@ -67,18 +67,18 @@ async function getFactories() {
     ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
     ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
     ETS: await ethers.getContractFactory("ETS"),
-    ETSRelayerV1: await ethers.getContractFactory("ETSRelayerV1"),
+    ETSRelayer: await ethers.getContractFactory("ETSRelayer"),
     ETSRelayerFactory: await ethers.getContractFactory("ETSRelayerFactory"),
 
     /// .sol test contracts.
-    WMATIC: await ethers.getContractFactory("WMATIC"),
+    WETH: await ethers.getContractFactory("WETH"),
     ETSAccessControlsUpgrade: await ethers.getContractFactory("ETSAccessControlsUpgrade"),
     ETSAuctionHouseUpgrade: await ethers.getContractFactory("ETSAuctionHouseUpgrade"),
     ETSTokenUpgrade: await ethers.getContractFactory("ETSTokenUpgrade"),
     ETSEnrichTargetUpgrade: await ethers.getContractFactory("ETSEnrichTargetUpgrade"),
     ETSTargetUpgrade: await ethers.getContractFactory("ETSTargetUpgrade"),
     ETSUpgrade: await ethers.getContractFactory("ETSUpgrade"),
-    ETSRelayerV2test: await ethers.getContractFactory("ETSRelayerV2test"),
+    ETSRelayerUpgradeTest: await ethers.getContractFactory("ETSRelayerUpgradeTest"),
   };
   return allFactories;
 }
@@ -95,9 +95,9 @@ async function setup() {
 
   // ============ DEPLOY CONTRACTS ============
 
-  const WMATIC = await factories.WMATIC.deploy();
-  await WMATIC.waitForDeployment();
-  const WMATICAddress = await WMATIC.getAddress();
+  const WETH = await factories.WETH.deploy();
+  await WETH.waitForDeployment();
+  const WETHAddress = await WETH.getAddress();
 
   const ETSAccessControls = await upgrades.deployProxy(factories.ETSAccessControls, [accounts.ETSPlatform.address], {
     kind: "uups",
@@ -123,7 +123,7 @@ async function setup() {
     [
       ETSTokenAddress,
       ETSAccessControlsAddress,
-      WMATICAddress,
+      WETHAddress,
       initSettings.MAX_AUCTIONS,
       initSettings.TIME_BUFFER,
       ethers.parseUnits(initSettings.RESERVE_PRICE, "ether"),
@@ -170,7 +170,7 @@ async function setup() {
 
   // Deploy the relayer logic contract.
   // We deploy with proxy with no arguments because factory will supply them.
-  const ETSRelayerImplementation = await factories.ETSRelayerV1.deploy();
+  const ETSRelayerImplementation = await factories.ETSRelayer.deploy();
   await ETSRelayerImplementation.waitForDeployment();
   const ETSRelayerImplementationAddress = await ETSRelayerImplementation.getAddress();
 
@@ -186,7 +186,7 @@ async function setup() {
   const ETSRelayerFactoryAddress = await ETSRelayerFactory.getAddress();
 
   const contracts = {
-    WMATIC: WMATIC,
+    WETH: WETH,
     ETSAccessControls: ETSAccessControls,
     ETSToken: ETSToken,
     ETSAuctionHouse: ETSAuctionHouse,
@@ -235,8 +235,14 @@ async function setup() {
   // Add a relayer proxy for use in tests. Note: ETSPlatform not required to own CTAG to add relayer.
   await ETSRelayerFactory.connect(accounts.ETSPlatform).addRelayer("ETSRelayer");
   relayerAddress = await ETSAccessControls.getRelayerAddressFromName("ETSRelayer");
-  etsRelayerV1ABI = require("../abi/contracts/relayers/ETSRelayerV1.sol/ETSRelayerV1.json");
-  contracts.ETSRelayer = new ethers.Contract(relayerAddress, etsRelayerV1ABI, accounts.RandomOne);
+  etsRelayerABI = require("../abi/contracts/relayers/ETSRelayer.sol/ETSRelayer.json");
+  contracts.ETSRelayer = new ethers.Contract(relayerAddress, etsRelayerABI, accounts.RandomOne);
+
+  // Add a second relayer for testing
+  await ETSRelayerFactory.connect(accounts.ETSPlatform).addRelayer("SecondTestRelayer");
+  const secondRelayerAddress = await ETSAccessControls.getRelayerAddressFromName("SecondTestRelayer");
+  contracts.secondRelayer = new ethers.Contract(secondRelayerAddress, etsRelayerABI, accounts.RandomTwo);
+
   return [accounts, contracts, initSettings];
 }
 

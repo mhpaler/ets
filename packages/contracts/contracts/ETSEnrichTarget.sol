@@ -49,6 +49,7 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
     // Public constants
 
     string public constant NAME = "ETSEnrichTarget";
+    string public constant VERSION = "0.0.1";
 
     // Modifiers
 

@@ -1,7 +1,5 @@
 import { Address, BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
-import { log } from "@graphprotocol/graph-ts";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
-import { ensureTag } from "../entities/Tag";
 import { AuctionSettled } from "../generated/ETSAuctionHouse/ETSAuctionHouse";
 import { Transfer } from "../generated/ETSToken/ETSToken";
 import { GlobalSettings, Platform } from "../generated/schema";
@@ -12,7 +10,7 @@ export function ensurePlatform(event: ethereum.Event | null): Platform {
   let platform = Platform.load("ETSPlatform");
   if (platform === null) {
     platform = new Platform("ETSPlatform");
-    platform.address = ZERO.toHexString();
+    platform.address = ZERO_ADDRESS;
     if (event) {
       platform.firstSeen = event.block.timestamp;
     }

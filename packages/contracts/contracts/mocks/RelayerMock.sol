@@ -9,7 +9,7 @@ import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { Pausable } from "@openzeppelin/contracts/security/Pausable.sol";
 
-contract RelayerMock is ERC165, IETSRelayer, Ownable, Pausable {
+abstract contract RelayerMock is ERC165, IETSRelayer, Ownable, Pausable {
     /// @notice Address and interface for ETS Core.
     IETS public ets;
 
@@ -58,11 +58,17 @@ contract RelayerMock is ERC165, IETSRelayer, Ownable, Pausable {
 
     // ============ PUBLIC INTERFACE ============
 
-    function applyTags(IETS.TaggingRecordRawInput[] calldata _rawParts) public payable {}
+    function applyTags(IETS.TaggingRecordRawInput[] calldata _rawInput, address _relayer) external payable {
+        // Mock implementation
+    }
 
-    function removeTags(IETS.TaggingRecordRawInput[] calldata _rawParts) public payable {}
+    function replaceTags(IETS.TaggingRecordRawInput[] calldata _rawInput, address _relayer) external payable {
+        // Mock implementation
+    }
 
-    function replaceTags(IETS.TaggingRecordRawInput[] calldata _rawParts) public payable {}
+    function removeTags(IETS.TaggingRecordRawInput[] calldata _rawInput, address _relayer) external payable {
+        // Mock implementation
+    }
 
     function getOrCreateTagIds(string[] calldata _tags) public payable returns (uint256[] memory _tagIds) {}
 

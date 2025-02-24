@@ -1,4 +1,5 @@
 import { Bytes, BigInt as GraphBigInt, store } from "@graphprotocol/graph-ts";
+import { log } from "@graphprotocol/graph-ts";
 import { ensureAdministrator } from "../entities/Administrator";
 import { ensurePlatform } from "../entities/Platform";
 import { updateRelayerCount } from "../entities/Platform";
@@ -14,7 +15,7 @@ import {
   RoleRevoked,
   Upgraded,
 } from "../generated/ETSAccessControls/ETSAccessControls";
-import { ETSRelayerV1 } from "../generated/templates";
+import { ETSRelayer } from "../generated/templates";
 
 import { ADDED, PAUSED, UNPAUSED } from "../utils/constants";
 
@@ -41,7 +42,7 @@ export function handlePlatformSet(event: PlatformSet): void {
 
 export function handleRelayerAdded(event: RelayerAdded): void {
   ensureRelayer(event.params.relayer, event);
-  ETSRelayerV1.create(event.params.relayer);
+  ETSRelayer.create(event.params.relayer);
   updateRelayerCount(ADDED, event);
 }
 

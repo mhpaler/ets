@@ -140,9 +140,9 @@ describe("ETSRelayerFactory Tests", () => {
     beforeEach("Setup active relayer tests", async () => {
       await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap");
       relayerAddress = await contracts.ETSAccessControls.getRelayerAddressFromName("Uniswap");
-      etsRelayerV1ABI = require("../abi/contracts/relayers/ETSRelayerV1.sol/ETSRelayerV1.json");
+      etsRelayerABI = require("../abi/contracts/relayers/ETSRelayer.sol/ETSRelayer.json");
       // Connect with owner account
-      uniswapRelayer = new ethers.Contract(relayerAddress, etsRelayerV1ABI, accounts.RandomOne);
+      uniswapRelayer = new ethers.Contract(relayerAddress, etsRelayerABI, accounts.RandomOne);
     });
 
     it("can be looked up by address", async () => {
@@ -177,7 +177,7 @@ describe("ETSRelayerFactory Tests", () => {
 
     it("cannot be paused by non-owner or non-relayer admin", async () => {
       // Try pausing as non-owner (eg. RandomTwo)
-      uniswapRelayer = new ethers.Contract(relayerAddress, etsRelayerV1ABI, accounts.RandomTwo);
+      uniswapRelayer = new ethers.Contract(relayerAddress, etsRelayerABI, accounts.RandomTwo);
       await expect(uniswapRelayer.pause()).to.be.revertedWith("Caller not relayer admin");
     });
 

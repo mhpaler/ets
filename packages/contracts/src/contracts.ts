@@ -4,8 +4,8 @@
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xE889910350641731de1199991Ab5aA121ad12c41)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x4763975ee6675C50381e7044524C2a25D5fD5774)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x5Cc5Dc14e1538db983Fc5FD34B27A42a598903E7)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x76cF4C272856B7e198DaED726C36186A98caF19E)
  */
 export const etsAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -167,6 +167,13 @@ export const etsAbi = [
   },
   {
     type: "function",
+    inputs: [],
+    name: "VERSION",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     inputs: [{ name: "", internalType: "address", type: "address" }],
     name: "accrued",
     outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
@@ -177,6 +184,7 @@ export const etsAbi = [
     inputs: [
       { name: "_taggingRecordId", internalType: "uint256", type: "uint256" },
       { name: "_tagIds", internalType: "uint256[]", type: "uint256[]" },
+      { name: "_tagger", internalType: "address", type: "address" },
     ],
     name: "appendTags",
     outputs: [],
@@ -189,6 +197,7 @@ export const etsAbi = [
       { name: "_targetId", internalType: "uint256", type: "uint256" },
       { name: "_recordType", internalType: "string", type: "string" },
       { name: "_tagger", internalType: "address payable", type: "address" },
+      { name: "_relayer", internalType: "address", type: "address" },
     ],
     name: "applyTagsWithCompositeKey",
     outputs: [],
@@ -208,6 +217,7 @@ export const etsAbi = [
         ],
       },
       { name: "_tagger", internalType: "address payable", type: "address" },
+      { name: "_relayer", internalType: "address", type: "address" },
     ],
     name: "applyTagsWithRawInput",
     outputs: [],
@@ -494,6 +504,7 @@ export const etsAbi = [
     inputs: [
       { name: "_taggingRecordId", internalType: "uint256", type: "uint256" },
       { name: "_tagIds", internalType: "uint256[]", type: "uint256[]" },
+      { name: "_tagger", internalType: "address", type: "address" },
     ],
     name: "removeTags",
     outputs: [],
@@ -506,6 +517,7 @@ export const etsAbi = [
       { name: "_targetId", internalType: "uint256", type: "uint256" },
       { name: "_recordType", internalType: "string", type: "string" },
       { name: "_tagger", internalType: "address payable", type: "address" },
+      { name: "_relayer", internalType: "address", type: "address" },
     ],
     name: "removeTagsWithCompositeKey",
     outputs: [],
@@ -525,6 +537,7 @@ export const etsAbi = [
         ],
       },
       { name: "_tagger", internalType: "address", type: "address" },
+      { name: "_relayer", internalType: "address", type: "address" },
     ],
     name: "removeTagsWithRawInput",
     outputs: [],
@@ -535,6 +548,7 @@ export const etsAbi = [
     inputs: [
       { name: "_taggingRecordId", internalType: "uint256", type: "uint256" },
       { name: "_tagIds", internalType: "uint256[]", type: "uint256[]" },
+      { name: "_tagger", internalType: "address", type: "address" },
     ],
     name: "replaceTags",
     outputs: [],
@@ -547,6 +561,7 @@ export const etsAbi = [
       { name: "_targetId", internalType: "uint256", type: "uint256" },
       { name: "_recordType", internalType: "string", type: "string" },
       { name: "_tagger", internalType: "address payable", type: "address" },
+      { name: "_relayer", internalType: "address", type: "address" },
     ],
     name: "replaceTagsWithCompositeKey",
     outputs: [],
@@ -566,6 +581,7 @@ export const etsAbi = [
         ],
       },
       { name: "_tagger", internalType: "address payable", type: "address" },
+      { name: "_relayer", internalType: "address", type: "address" },
     ],
     name: "replaceTagsWithRawInput",
     outputs: [],
@@ -687,19 +703,19 @@ export const etsAbi = [
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xE889910350641731de1199991Ab5aA121ad12c41)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x4763975ee6675C50381e7044524C2a25D5fD5774)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x5Cc5Dc14e1538db983Fc5FD34B27A42a598903E7)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x76cF4C272856B7e198DaED726C36186A98caF19E)
  */
 export const etsAddress = {
-  31337: "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
-  84532: "0xE889910350641731de1199991Ab5aA121ad12c41",
-  421614: "0x4763975ee6675C50381e7044524C2a25D5fD5774",
+  31337: "0x49fd2BE640DB2910c2fAb69bB8531Ab6E76127ff",
+  84532: "0x5Cc5Dc14e1538db983Fc5FD34B27A42a598903E7",
+  421614: "0x76cF4C272856B7e198DaED726C36186A98caF19E",
 } as const;
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xE889910350641731de1199991Ab5aA121ad12c41)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x4763975ee6675C50381e7044524C2a25D5fD5774)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x5Cc5Dc14e1538db983Fc5FD34B27A42a598903E7)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x76cF4C272856B7e198DaED726C36186A98caF19E)
  */
 export const etsConfig = { address: etsAddress, abi: etsAbi } as const;
 
@@ -709,8 +725,8 @@ export const etsConfig = { address: etsAddress, abi: etsAbi } as const;
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x00521E4827C6683043eAAdC519368aCCd609D8A9)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x945f8d0534E6e774Db73A3843568B8c5be2167C0)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x0fc811716E400415Be9857F357B174835B1EBb58)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x025B5bfb6eAc1E6f7156ca0228016Be2f9130166)
  */
 export const etsAccessControlsAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -917,6 +933,13 @@ export const etsAccessControlsAbi = [
     inputs: [],
     name: "SMART_CONTRACT_ROLE",
     outputs: [{ name: "", internalType: "bytes32", type: "bytes32" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "VERSION",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
     stateMutability: "view",
   },
   {
@@ -1193,19 +1216,19 @@ export const etsAccessControlsAbi = [
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x00521E4827C6683043eAAdC519368aCCd609D8A9)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x945f8d0534E6e774Db73A3843568B8c5be2167C0)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x0fc811716E400415Be9857F357B174835B1EBb58)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x025B5bfb6eAc1E6f7156ca0228016Be2f9130166)
  */
 export const etsAccessControlsAddress = {
-  31337: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-  84532: "0x00521E4827C6683043eAAdC519368aCCd609D8A9",
-  421614: "0x945f8d0534E6e774Db73A3843568B8c5be2167C0",
+  31337: "0x46b142DD1E924FAb83eCc3c08e4D46E82f005e0E",
+  84532: "0x0fc811716E400415Be9857F357B174835B1EBb58",
+  421614: "0x025B5bfb6eAc1E6f7156ca0228016Be2f9130166",
 } as const;
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x00521E4827C6683043eAAdC519368aCCd609D8A9)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x945f8d0534E6e774Db73A3843568B8c5be2167C0)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x0fc811716E400415Be9857F357B174835B1EBb58)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x025B5bfb6eAc1E6f7156ca0228016Be2f9130166)
  */
 export const etsAccessControlsConfig = {
   address: etsAccessControlsAddress,
@@ -1218,8 +1241,8 @@ export const etsAccessControlsConfig = {
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x1e49622AfF007569fdc99e5989E267d55218b066)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x79A3098b1cc02b5FB675Ce7A97f51d8DdDEeA450)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x945D2C0228dC1Cc872040494Df185629e764b54c)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xcbBFB1B7FAf2011c5C3984C8D20759e74C90fdef)
  */
 export const etsAuctionHouseAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -1505,6 +1528,13 @@ export const etsAuctionHouseAbi = [
   },
   {
     type: "function",
+    inputs: [],
+    name: "VERSION",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     inputs: [{ name: "", internalType: "address", type: "address" }],
     name: "accrued",
     outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
@@ -1724,7 +1754,7 @@ export const etsAuctionHouseAbi = [
         internalType: "contract IETSAccessControls",
         type: "address",
       },
-      { name: "_wmatic", internalType: "address", type: "address" },
+      { name: "_weth", internalType: "address", type: "address" },
       { name: "_maxAuctions", internalType: "uint256", type: "uint256" },
       { name: "_timeBuffer", internalType: "uint256", type: "uint256" },
       { name: "_reservePrice", internalType: "uint256", type: "uint256" },
@@ -1910,7 +1940,7 @@ export const etsAuctionHouseAbi = [
   {
     type: "function",
     inputs: [],
-    name: "wmatic",
+    name: "weth",
     outputs: [{ name: "", internalType: "address", type: "address" }],
     stateMutability: "view",
   },
@@ -1919,19 +1949,19 @@ export const etsAuctionHouseAbi = [
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x1e49622AfF007569fdc99e5989E267d55218b066)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x79A3098b1cc02b5FB675Ce7A97f51d8DdDEeA450)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x945D2C0228dC1Cc872040494Df185629e764b54c)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xcbBFB1B7FAf2011c5C3984C8D20759e74C90fdef)
  */
 export const etsAuctionHouseAddress = {
-  31337: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
-  84532: "0x1e49622AfF007569fdc99e5989E267d55218b066",
-  421614: "0x79A3098b1cc02b5FB675Ce7A97f51d8DdDEeA450",
+  31337: "0x367761085BF3C12e5DA2Df99AC6E1a824612b8fb",
+  84532: "0x945D2C0228dC1Cc872040494Df185629e764b54c",
+  421614: "0xcbBFB1B7FAf2011c5C3984C8D20759e74C90fdef",
 } as const;
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x1e49622AfF007569fdc99e5989E267d55218b066)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x79A3098b1cc02b5FB675Ce7A97f51d8DdDEeA450)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x945D2C0228dC1Cc872040494Df185629e764b54c)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xcbBFB1B7FAf2011c5C3984C8D20759e74C90fdef)
  */
 export const etsAuctionHouseConfig = {
   address: etsAuctionHouseAddress,
@@ -1944,8 +1974,8 @@ export const etsAuctionHouseConfig = {
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x20236Ecfcd2e5D85ec344CD93677d84Ff43ee849)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xA6714AFEa909B7e04F9E9f67612373DaB99C6D19)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xBb7bb89Dc2388C73eFacF50d9917406C38e27b6e)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x52cCc0c0129bFB12A79E5Cf4a8525Cd724344BB4)
  */
 export const etsEnrichTargetAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -2017,6 +2047,13 @@ export const etsEnrichTargetAbi = [
     type: "function",
     inputs: [],
     name: "NAME",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "VERSION",
     outputs: [{ name: "", internalType: "string", type: "string" }],
     stateMutability: "view",
   },
@@ -2104,19 +2141,19 @@ export const etsEnrichTargetAbi = [
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x20236Ecfcd2e5D85ec344CD93677d84Ff43ee849)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xA6714AFEa909B7e04F9E9f67612373DaB99C6D19)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xBb7bb89Dc2388C73eFacF50d9917406C38e27b6e)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x52cCc0c0129bFB12A79E5Cf4a8525Cd724344BB4)
  */
 export const etsEnrichTargetAddress = {
-  31337: "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
-  84532: "0x20236Ecfcd2e5D85ec344CD93677d84Ff43ee849",
-  421614: "0xA6714AFEa909B7e04F9E9f67612373DaB99C6D19",
+  31337: "0x7A9Ec1d04904907De0ED7b6839CcdD59c3716AC9",
+  84532: "0xBb7bb89Dc2388C73eFacF50d9917406C38e27b6e",
+  421614: "0x52cCc0c0129bFB12A79E5Cf4a8525Cd724344BB4",
 } as const;
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x20236Ecfcd2e5D85ec344CD93677d84Ff43ee849)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xA6714AFEa909B7e04F9E9f67612373DaB99C6D19)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xBb7bb89Dc2388C73eFacF50d9917406C38e27b6e)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x52cCc0c0129bFB12A79E5Cf4a8525Cd724344BB4)
  */
 export const etsEnrichTargetConfig = {
   address: etsEnrichTargetAddress,
@@ -2124,133 +2161,15 @@ export const etsEnrichTargetConfig = {
 } as const;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ETSRelayerFactory
+// ETSRelayer
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x42594Ae3479F5EEeDbb2509D7aFCC64bd305490D)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x10e47F2565CA8dC003e29bc6467688206788caC9)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x34b5E2B38E9A5F938bc6De795b5Fb69982a4D73e)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x70cD4eDB009F430BF77F11386cDD70eE66e7489C)
  */
-export const etsRelayerFactoryAbi = [
-  {
-    type: "constructor",
-    inputs: [
-      { name: "_etsRelayerLogic", internalType: "address", type: "address" },
-      {
-        name: "_etsAccessControls",
-        internalType: "contract IETSAccessControls",
-        type: "address",
-      },
-      { name: "_ets", internalType: "contract IETS", type: "address" },
-      {
-        name: "_etsToken",
-        internalType: "contract IETSToken",
-        type: "address",
-      },
-      {
-        name: "_etsTarget",
-        internalType: "contract IETSTarget",
-        type: "address",
-      },
-    ],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    inputs: [],
-    name: "NAME",
-    outputs: [{ name: "", internalType: "string", type: "string" }],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    inputs: [{ name: "_relayerName", internalType: "string", type: "string" }],
-    name: "addRelayer",
-    outputs: [{ name: "relayer", internalType: "address", type: "address" }],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    inputs: [],
-    name: "ets",
-    outputs: [{ name: "", internalType: "contract IETS", type: "address" }],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    inputs: [],
-    name: "etsAccessControls",
-    outputs: [
-      {
-        name: "",
-        internalType: "contract IETSAccessControls",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    inputs: [],
-    name: "etsTarget",
-    outputs: [{ name: "", internalType: "contract IETSTarget", type: "address" }],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    inputs: [],
-    name: "etsToken",
-    outputs: [{ name: "", internalType: "contract IETSToken", type: "address" }],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    inputs: [],
-    name: "getBeacon",
-    outputs: [{ name: "", internalType: "address", type: "address" }],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    inputs: [],
-    name: "getImplementation",
-    outputs: [{ name: "", internalType: "address", type: "address" }],
-    stateMutability: "view",
-  },
-] as const;
-
-/**
- * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x42594Ae3479F5EEeDbb2509D7aFCC64bd305490D)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x10e47F2565CA8dC003e29bc6467688206788caC9)
- */
-export const etsRelayerFactoryAddress = {
-  31337: "0x9A676e781A523b5d0C0e43731313A708CB607508",
-  84532: "0x42594Ae3479F5EEeDbb2509D7aFCC64bd305490D",
-  421614: "0x10e47F2565CA8dC003e29bc6467688206788caC9",
-} as const;
-
-/**
- * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x42594Ae3479F5EEeDbb2509D7aFCC64bd305490D)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x10e47F2565CA8dC003e29bc6467688206788caC9)
- */
-export const etsRelayerFactoryConfig = {
-  address: etsRelayerFactoryAddress,
-  abi: etsRelayerFactoryAbi,
-} as const;
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ETSRelayerV1
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2d9Fa220c1537002402CA93E5909Ef9026BB7624)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x2F6a3f4289c2415358a5748567404240264D5fc6)
- */
-export const etsRelayerV1Abi = [
+export const etsRelayerAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
   {
     type: "event",
@@ -2366,6 +2285,25 @@ export const etsRelayerV1Abi = [
       },
     ],
     name: "applyTags",
+    outputs: [],
+    stateMutability: "payable",
+  },
+  {
+    type: "function",
+    inputs: [
+      {
+        name: "_rawInput",
+        internalType: "struct IETS.TaggingRecordRawInput[]",
+        type: "tuple[]",
+        components: [
+          { name: "targetURI", internalType: "string", type: "string" },
+          { name: "tagStrings", internalType: "string[]", type: "string[]" },
+          { name: "recordType", internalType: "string", type: "string" },
+        ],
+      },
+      { name: "_relayer", internalType: "address", type: "address" },
+    ],
+    name: "applyTagsViaRelayer",
     outputs: [],
     stateMutability: "payable",
   },
@@ -2560,6 +2498,25 @@ export const etsRelayerV1Abi = [
   },
   {
     type: "function",
+    inputs: [
+      {
+        name: "_rawInput",
+        internalType: "struct IETS.TaggingRecordRawInput[]",
+        type: "tuple[]",
+        components: [
+          { name: "targetURI", internalType: "string", type: "string" },
+          { name: "tagStrings", internalType: "string[]", type: "string[]" },
+          { name: "recordType", internalType: "string", type: "string" },
+        ],
+      },
+      { name: "_relayer", internalType: "address", type: "address" },
+    ],
+    name: "removeTagsViaRelayer",
+    outputs: [],
+    stateMutability: "payable",
+  },
+  {
+    type: "function",
     inputs: [],
     name: "renounceOwnership",
     outputs: [],
@@ -2580,6 +2537,25 @@ export const etsRelayerV1Abi = [
       },
     ],
     name: "replaceTags",
+    outputs: [],
+    stateMutability: "payable",
+  },
+  {
+    type: "function",
+    inputs: [
+      {
+        name: "_rawInput",
+        internalType: "struct IETS.TaggingRecordRawInput[]",
+        type: "tuple[]",
+        components: [
+          { name: "targetURI", internalType: "string", type: "string" },
+          { name: "tagStrings", internalType: "string[]", type: "string[]" },
+          { name: "recordType", internalType: "string", type: "string" },
+        ],
+      },
+      { name: "_relayer", internalType: "address", type: "address" },
+    ],
+    name: "replaceTagsViaRelayer",
     outputs: [],
     stateMutability: "payable",
   },
@@ -2616,23 +2592,141 @@ export const etsRelayerV1Abi = [
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2d9Fa220c1537002402CA93E5909Ef9026BB7624)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x2F6a3f4289c2415358a5748567404240264D5fc6)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x34b5E2B38E9A5F938bc6De795b5Fb69982a4D73e)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x70cD4eDB009F430BF77F11386cDD70eE66e7489C)
  */
-export const etsRelayerV1Address = {
-  31337: "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
-  84532: "0x2d9Fa220c1537002402CA93E5909Ef9026BB7624",
-  421614: "0x2F6a3f4289c2415358a5748567404240264D5fc6",
+export const etsRelayerAddress = {
+  31337: "0x4631BCAbD6dF18D94796344963cB60d44a4136b6",
+  84532: "0x34b5E2B38E9A5F938bc6De795b5Fb69982a4D73e",
+  421614: "0x70cD4eDB009F430BF77F11386cDD70eE66e7489C",
 } as const;
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2d9Fa220c1537002402CA93E5909Ef9026BB7624)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x2F6a3f4289c2415358a5748567404240264D5fc6)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x34b5E2B38E9A5F938bc6De795b5Fb69982a4D73e)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x70cD4eDB009F430BF77F11386cDD70eE66e7489C)
  */
-export const etsRelayerV1Config = {
-  address: etsRelayerV1Address,
-  abi: etsRelayerV1Abi,
+export const etsRelayerConfig = {
+  address: etsRelayerAddress,
+  abi: etsRelayerAbi,
+} as const;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ETSRelayerFactory
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * -
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xDBd870535210f98E226Ad2462F5763817507a828)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xDa1691abD34F579BE96F20636Fe5800F4fb9C0f8)
+ */
+export const etsRelayerFactoryAbi = [
+  {
+    type: "constructor",
+    inputs: [
+      { name: "_etsRelayerLogic", internalType: "address", type: "address" },
+      {
+        name: "_etsAccessControls",
+        internalType: "contract IETSAccessControls",
+        type: "address",
+      },
+      { name: "_ets", internalType: "contract IETS", type: "address" },
+      {
+        name: "_etsToken",
+        internalType: "contract IETSToken",
+        type: "address",
+      },
+      {
+        name: "_etsTarget",
+        internalType: "contract IETSTarget",
+        type: "address",
+      },
+    ],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "NAME",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "_relayerName", internalType: "string", type: "string" }],
+    name: "addRelayer",
+    outputs: [{ name: "relayer", internalType: "address", type: "address" }],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "ets",
+    outputs: [{ name: "", internalType: "contract IETS", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "etsAccessControls",
+    outputs: [
+      {
+        name: "",
+        internalType: "contract IETSAccessControls",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "etsTarget",
+    outputs: [{ name: "", internalType: "contract IETSTarget", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "etsToken",
+    outputs: [{ name: "", internalType: "contract IETSToken", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "getBeacon",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "getImplementation",
+    outputs: [{ name: "", internalType: "address", type: "address" }],
+    stateMutability: "view",
+  },
+] as const;
+
+/**
+ * -
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xDBd870535210f98E226Ad2462F5763817507a828)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xDa1691abD34F579BE96F20636Fe5800F4fb9C0f8)
+ */
+export const etsRelayerFactoryAddress = {
+  31337: "0x86A2EE8FAf9A840F7a2c64CA3d51209F9A02081D",
+  84532: "0xDBd870535210f98E226Ad2462F5763817507a828",
+  421614: "0xDa1691abD34F579BE96F20636Fe5800F4fb9C0f8",
+} as const;
+
+/**
+ * -
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xDBd870535210f98E226Ad2462F5763817507a828)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xDa1691abD34F579BE96F20636Fe5800F4fb9C0f8)
+ */
+export const etsRelayerFactoryConfig = {
+  address: etsRelayerFactoryAddress,
+  abi: etsRelayerFactoryAbi,
 } as const;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2641,8 +2735,8 @@ export const etsRelayerV1Config = {
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xbFC3A550Fc6c260B5B788755Aecd3c4822b7b52f)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x907fF76D79e9744c203D4580C07B7b61304CA8a7)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x9EC822cB62B1EBba70446EB7FeBeFae2458CB19c)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xe146267C08996aBFD583A12D70A5643d462A36B1)
  */
 export const etsTargetAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -2753,6 +2847,13 @@ export const etsTargetAbi = [
     type: "function",
     inputs: [],
     name: "NAME",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "VERSION",
     outputs: [{ name: "", internalType: "string", type: "string" }],
     stateMutability: "view",
   },
@@ -2932,19 +3033,19 @@ export const etsTargetAbi = [
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xbFC3A550Fc6c260B5B788755Aecd3c4822b7b52f)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x907fF76D79e9744c203D4580C07B7b61304CA8a7)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x9EC822cB62B1EBba70446EB7FeBeFae2458CB19c)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xe146267C08996aBFD583A12D70A5643d462A36B1)
  */
 export const etsTargetAddress = {
-  31337: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
-  84532: "0xbFC3A550Fc6c260B5B788755Aecd3c4822b7b52f",
-  421614: "0x907fF76D79e9744c203D4580C07B7b61304CA8a7",
+  31337: "0x4C2F7092C2aE51D986bEFEe378e50BD4dB99C901",
+  84532: "0x9EC822cB62B1EBba70446EB7FeBeFae2458CB19c",
+  421614: "0xe146267C08996aBFD583A12D70A5643d462A36B1",
 } as const;
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xbFC3A550Fc6c260B5B788755Aecd3c4822b7b52f)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x907fF76D79e9744c203D4580C07B7b61304CA8a7)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x9EC822cB62B1EBba70446EB7FeBeFae2458CB19c)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xe146267C08996aBFD583A12D70A5643d462A36B1)
  */
 export const etsTargetConfig = {
   address: etsTargetAddress,
@@ -2957,8 +3058,8 @@ export const etsTargetConfig = {
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x0300c9f3FE108bf683D03005B6B66EA1db74007A)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x428fcc3Ac338d8a691eAD046DC9B83B042AEF636)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x72C3B6df276e082e352Ab1d23CBb329475ed93A8)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xb1A00565161C04edBB7826a7eda9D7166dffa676)
  */
 export const etsTokenAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -3241,6 +3342,13 @@ export const etsTokenAbi = [
     type: "function",
     inputs: [],
     name: "NAME",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [],
+    name: "VERSION",
     outputs: [{ name: "", internalType: "string", type: "string" }],
     stateMutability: "view",
   },
@@ -3734,19 +3842,19 @@ export const etsTokenAbi = [
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x0300c9f3FE108bf683D03005B6B66EA1db74007A)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x428fcc3Ac338d8a691eAD046DC9B83B042AEF636)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x72C3B6df276e082e352Ab1d23CBb329475ed93A8)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xb1A00565161C04edBB7826a7eda9D7166dffa676)
  */
 export const etsTokenAddress = {
-  31337: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-  84532: "0x0300c9f3FE108bf683D03005B6B66EA1db74007A",
-  421614: "0x428fcc3Ac338d8a691eAD046DC9B83B042AEF636",
+  31337: "0xC9a43158891282A2B1475592D5719c001986Aaec",
+  84532: "0x72C3B6df276e082e352Ab1d23CBb329475ed93A8",
+  421614: "0xb1A00565161C04edBB7826a7eda9D7166dffa676",
 } as const;
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x0300c9f3FE108bf683D03005B6B66EA1db74007A)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x428fcc3Ac338d8a691eAD046DC9B83B042AEF636)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x72C3B6df276e082e352Ab1d23CBb329475ed93A8)
+ * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xb1A00565161C04edBB7826a7eda9D7166dffa676)
  */
 export const etsTokenConfig = {
   address: etsTokenAddress,
