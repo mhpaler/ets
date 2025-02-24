@@ -2,13 +2,13 @@ import { Address, BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-t
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
 import { ensurePlatform } from "../entities/Platform";
 
+import { log } from "@graphprotocol/graph-ts";
 import { ETSToken } from "../generated/ETSToken/ETSToken";
 import { Platform, Release, Tag } from "../generated/schema";
 import { arrayDiff } from "../utils/arrayDiff";
 import { APPEND, CREATE, ONE, OWNER, PLATFORM, RELAYER, REMOVE, ZERO } from "../utils/constants";
 import { getTaggingFee } from "../utils/getTaggingFee";
 import { toLowerCase } from "../utils/helpers";
-import { logCritical } from "../utils/logCritical";
 
 export function ensureTag(id: GraphBigInt, event: ethereum.Event): Tag {
   let tag = Tag.load(id.toString());
@@ -17,12 +17,13 @@ export function ensureTag(id: GraphBigInt, event: ethereum.Event): Tag {
 
   if (tag === null && release && platform && event) {
     tag = new Tag(id.toString());
-
     const contract = ETSToken.bind(Address.fromString(release.etsToken));
     const getTagCall = contract.try_getTagById(id);
+
     if (getTagCall.reverted) {
-      logCritical("getTagCall reverted for {}", [id.toString()]);
+      log.warning("getTagCall reverted for {}", [id.toString()]);
     }
+
     const lowerTag: string = toLowerCase(getTagCall.value.display);
     tag.machineName = lowerTag.substring(1, lowerTag.length);
     tag.display = getTagCall.value.display;

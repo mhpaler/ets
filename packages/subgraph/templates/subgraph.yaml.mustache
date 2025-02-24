@@ -13,7 +13,7 @@ dataSources:
       startBlock: {{upgradesConfig.contracts.ETSAccessControls.deploymentBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/ETSAccessControls.ts
       entities:
@@ -28,8 +28,8 @@ dataSources:
           file: {{openzeppelin.Initializable}}
         - name: ETSAccessControls
           file: {{abis.ETSAccessControls}}
-        - name: ETSRelayerV1
-          file: {{abis.ETSRelayerV1}}
+        - name: ETSRelayer
+          file: {{abis.ETSRelayer}}
       eventHandlers:
         - event: Initialized(uint8)
           handler: handleInitialized
@@ -54,7 +54,7 @@ dataSources:
       startBlock: {{upgradesConfig.contracts.ETSToken.deploymentBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/ETSToken.ts
       entities:
@@ -102,7 +102,7 @@ dataSources:
       startBlock: {{upgradesConfig.contracts.ETSTarget.deploymentBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/ETSTarget.ts
       entities:
@@ -136,7 +136,7 @@ dataSources:
       startBlock: {{upgradesConfig.contracts.ETS.deploymentBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/ETS.ts
       entities:
@@ -180,7 +180,7 @@ dataSources:
       startBlock: {{upgradesConfig.contracts.ETSAuctionHouse.deploymentBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/ETSAuctionHouse.ts
       entities:
@@ -223,21 +223,21 @@ dataSources:
           handler: handleAuctionProceedsWithdrawn
 
 templates:
-  - name: ETSRelayerV1
+  - name: ETSRelayer
     kind: ethereum/contract
     network: {{name}}
     source:
-      abi: ETSRelayerV1
+      abi: ETSRelayer
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
-      file: ./src/mappings/ETSRelayerV1.ts
+      file: ./src/mappings/ETSRelayer.ts
       entities:
         - Relayer
       abis:
-        - name: ETSRelayerV1
-          file: {{abis.ETSRelayerV1}}
+        - name: ETSRelayer
+          file: {{abis.ETSRelayer}}
         - name: Ownable
           file: {{openzeppelin.Ownable}}
         - name: Pausable
