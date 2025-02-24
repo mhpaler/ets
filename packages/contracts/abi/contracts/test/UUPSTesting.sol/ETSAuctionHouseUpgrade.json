@@ -317,6 +317,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "VERSION",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -796,7 +809,7 @@
       },
       {
         "internalType": "address",
-        "name": "_wmatic",
+        "name": "_weth",
         "type": "address"
       },
       {
@@ -1151,7 +1164,7 @@
   },
   {
     "inputs": [],
-    "name": "wmatic",
+    "name": "weth",
     "outputs": [
       {
         "internalType": "address",
