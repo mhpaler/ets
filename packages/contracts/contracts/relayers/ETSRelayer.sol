@@ -29,7 +29,7 @@ import { ERC165Upgradeable } from "@openzeppelin/contracts-upgradeable/utils/int
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
-contract ETSRelayerV1 is
+contract ETSRelayer is
     IETSRelayer,
     Initializable,
     ERC165Upgradeable,
@@ -53,7 +53,7 @@ contract ETSRelayerV1 is
 
     // Public constants
     string public constant NAME = "ETS Relayer";
-    string public constant VERSION = "0.1-Beta";
+    string public constant VERSION = "0.1.1";
     bytes4 public constant IID_IETSRELAYER = type(IETSRelayer).interfaceId;
 
     // Public variables
@@ -128,24 +128,47 @@ contract ETSRelayerV1 is
 
     /// @inheritdoc IETSRelayer
     function applyTags(IETS.TaggingRecordRawInput[] calldata _rawInput) public payable whenNotPaused {
+        applyTagsViaRelayer(_rawInput, address(this));
+    }
+
+    /// @inheritdoc IETSRelayer
+    function applyTagsViaRelayer(
+        IETS.TaggingRecordRawInput[] calldata _rawInput,
+        address _relayer
+    ) public payable whenNotPaused {
         uint256 taggingFee = ets.taggingFee();
         for (uint256 i; i < _rawInput.length; ++i) {
-            _applyTags(_rawInput[i], payable(msg.sender), taggingFee);
+            _applyTags(_rawInput[i], payable(msg.sender), _relayer, taggingFee);
         }
     }
 
     /// @inheritdoc IETSRelayer
     function replaceTags(IETS.TaggingRecordRawInput[] calldata _rawInput) public payable whenNotPaused {
+        replaceTagsViaRelayer(_rawInput, address(this));
+    }
+
+    /// @inheritdoc IETSRelayer
+    function replaceTagsViaRelayer(
+        IETS.TaggingRecordRawInput[] calldata _rawInput,
+        address _relayer
+    ) public payable whenNotPaused {
         uint256 taggingFee = ets.taggingFee();
         for (uint256 i; i < _rawInput.length; ++i) {
-            _replaceTags(_rawInput[i], payable(msg.sender), taggingFee);
+            _replaceTags(_rawInput[i], payable(msg.sender), _relayer, taggingFee);
         }
     }
 
     /// @inheritdoc IETSRelayer
     function removeTags(IETS.TaggingRecordRawInput[] calldata _rawInput) public payable whenNotPaused {
+        removeTagsViaRelayer(_rawInput, address(this));
+    }
+
+    function removeTagsViaRelayer(
+        IETS.TaggingRecordRawInput[] calldata _rawInput,
+        address _relayer
+    ) public payable whenNotPaused {
         for (uint256 i; i < _rawInput.length; ++i) {
-            _removeTags(_rawInput[i], payable(msg.sender));
+            _removeTags(_rawInput[i], payable(msg.sender), _relayer);
         }
     }
 
@@ -212,6 +235,7 @@ contract ETSRelayerV1 is
     function _applyTags(
         IETS.TaggingRecordRawInput calldata _rawInput,
         address payable _tagger,
+        address _relayer,
         uint256 _taggingFee
     ) internal {
         uint256 valueToSendForTagging = 0;
@@ -221,7 +245,7 @@ contract ETSRelayerV1 is
             uint256 actualTagCount = 0;
             (valueToSendForTagging, actualTagCount) = ets.computeTaggingFeeFromRawInput(
                 _rawInput,
-                address(this),
+                _relayer,
                 _tagger,
                 IETS.TaggingAction.APPEND
             );
@@ -229,12 +253,13 @@ contract ETSRelayerV1 is
         }
 
         // Call the core applyTagsWithRawInput() function to record new or append to exsiting tagging record.
-        ets.applyTagsWithRawInput{ value: valueToSendForTagging }(_rawInput, _tagger);
+        ets.applyTagsWithRawInput{ value: valueToSendForTagging }(_rawInput, _tagger, _relayer);
     }
 
     function _replaceTags(
         IETS.TaggingRecordRawInput calldata _rawInput,
         address payable _tagger,
+        address _relayer,
         uint256 _taggingFee
     ) internal {
         uint256 valueToSendForTagging = 0;
@@ -244,7 +269,7 @@ contract ETSRelayerV1 is
             uint256 actualTagCount = 0;
             (valueToSendForTagging, actualTagCount) = ets.computeTaggingFeeFromRawInput(
                 _rawInput,
-                address(this),
+                _relayer,
                 _tagger,
                 IETS.TaggingAction.REPLACE
             );
@@ -252,11 +277,15 @@ contract ETSRelayerV1 is
         }
 
         // Finally, call the core replaceTags() function to update the tagging record.
-        ets.replaceTagsWithRawInput{ value: valueToSendForTagging }(_rawInput, _tagger);
+        ets.replaceTagsWithRawInput{ value: valueToSendForTagging }(_rawInput, _tagger, _relayer);
     }
 
-    function _removeTags(IETS.TaggingRecordRawInput calldata _rawInput, address payable _tagger) internal {
-        ets.removeTagsWithRawInput(_rawInput, _tagger);
+    function _removeTags(
+        IETS.TaggingRecordRawInput calldata _rawInput,
+        address payable _tagger,
+        address _relayer
+    ) internal {
+        ets.removeTagsWithRawInput(_rawInput, _tagger, _relayer);
     }
 
     /* solhint-disable */

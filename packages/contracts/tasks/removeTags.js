@@ -33,7 +33,6 @@ task(
     const ets = new hre.ethers.Contract(etsAddress, etsABI, accounts[taskArgs.signer]);
 
     // Check that Relayer that caller (signer) is using exists.
-    let etsRelayerV1;
     const relayerAddress = await etsAccessControls.getRelayerAddressFromName(taskArgs.relayer);
     if ((await etsAccessControls.isRelayer(relayerAddress)) === false) {
       console.info(`"${taskArgs.relayer}" is not a relayer`);
@@ -73,7 +72,10 @@ task(
     const { 0: fee, 1: actualTagCount } = result;
     taggingFee = fee;
 
-    const tx = await etsRelayerV1.removeTags([tagParams], {
+    const etsRelayerABI = networkConfig.contracts.ETSRelayer.abi;
+    const etsRelayer = new hre.ethers.Contract(relayerAddress, etsRelayerABI, accounts[taskArgs.signer]);
+
+    const tx = await etsRelayer.removeTags([tagParams], {
       value: taggingFee,
       //gasPrice: ethers.utils.parseUnits("10", "gwei"), // do we need this?
       //gasLimit: 5000000, // do we need this?

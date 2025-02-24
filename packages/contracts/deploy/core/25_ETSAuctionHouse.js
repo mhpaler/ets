@@ -1,21 +1,21 @@
 const { ethers, upgrades } = require("hardhat");
-const { setup } = require("./utils/setup.js");
-const { verify } = require("./utils/verify.js");
-const { saveNetworkConfig } = require("./utils/config.js");
+const { setup } = require("../utils/setup.js");
+const { verify } = require("../utils/verify.js");
+const { saveNetworkConfig } = require("../utils/config.js");
 
 module.exports = async ({ deployments }) => {
   const { save, log } = deployments;
   const { factories, initSettings } = await setup();
 
-  const wmatic = await factories.WMATIC.deploy();
+  const wmatic = await factories.WETH.deploy();
   await wmatic.waitForDeployment();
-  await saveNetworkConfig("WMATIC", wmatic, null, false);
+  await saveNetworkConfig("WETH", wmatic, null, false);
   const wmaticAddress = await wmatic.getAddress();
   const etsAccessControlsAddress = (await deployments.get("ETSAccessControls")).address;
   const etsTokenAddress = (await deployments.get("ETSToken")).address;
 
   log("====================================================");
-  log(`WMATIC deployed to -> ${wmaticAddress}`);
+  log(`WETH deployed to -> ${wmaticAddress}`);
   log("====================================================");
 
   // Deploy ETS core using OpenZeppelin upgrades plugin.

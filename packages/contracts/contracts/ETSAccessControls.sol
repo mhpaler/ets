@@ -28,6 +28,7 @@ import { ERC165CheckerUpgradeable } from "@openzeppelin/contracts-upgradeable/ut
 contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAccessControls, UUPSUpgradeable {
     /// Public constants
     string public constant NAME = "ETS access controls";
+    string public constant VERSION = "0.0.1";
     bytes32 public constant RELAYER_ROLE = keccak256("RELAYER_ROLE");
     bytes32 public constant RELAYER_FACTORY_ROLE = keccak256("RELAYER_FACTORY_ROLE");
     bytes32 public constant RELAYER_ADMIN_ROLE = keccak256("RELAYER_ADMIN_ROLE");

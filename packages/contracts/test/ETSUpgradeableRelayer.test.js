@@ -6,6 +6,7 @@ describe("Upgrades tests", () => {
   beforeEach("Setup test", async () => {
     factories = await getFactories();
     [accounts, contracts, initSettings] = await setup();
+    ETSRelayerUpgradeTestFactory = await ethers.getContractFactory("ETSRelayerUpgradeTest");
 
     // Create two tags and transfer them to RandomOne so that user can add a relayer in tests.
     const tag = "#LOVE";
@@ -34,33 +35,33 @@ describe("Upgrades tests", () => {
     relayer2Address = await contracts.ETSAccessControls.getRelayerAddressFromName("Relayer 2");
 
     etsRelayerBeaconABI = require("../abi/contracts/relayers/ETSRelayerBeacon.sol/ETSRelayerBeacon.json");
-    etsRelayerV1ABI = require("../abi/contracts/relayers/ETSRelayerV1.sol/ETSRelayerV1.json");
-    etsRelayerV2testABI = require("../abi/contracts/test/ETSRelayerV2test.sol/ETSRelayerV2test.json");
+    etsRelayerABI = require("../abi/contracts/relayers/ETSRelayer.sol/ETSRelayer.json");
+    etsRelayerUpgradeTestABI = require("../abi/contracts/test/ETSRelayerUpgradeTest.sol/ETSRelayerUpgradeTest.json");
   });
 
   describe("ETSRelayer", () => {
     it("is upgradeable", async () => {
-      relayer1v1 = new ethers.Contract(relayer1Address, etsRelayerV1ABI, accounts.Buyer);
-      relayer2v1 = new ethers.Contract(relayer2Address, etsRelayerV1ABI, accounts.Creator);
+      relayer1v1 = new ethers.Contract(relayer1Address, etsRelayerABI, accounts.Buyer);
+      relayer2v1 = new ethers.Contract(relayer2Address, etsRelayerABI, accounts.Creator);
 
-      expect(await relayer1v1.version()).to.be.equal("0.1-Beta");
-      expect(await relayer2v1.version()).to.be.equal("0.1-Beta");
+      expect(await relayer1v1.version()).to.be.equal("0.1.1");
+      expect(await relayer2v1.version()).to.be.equal("0.1.1");
 
       // Connect to the beacon contract by platform
       etsRelayerBeacon = new ethers.Contract(beaconAddress, etsRelayerBeaconABI, accounts.ETSAdmin);
 
       // Deploy v2 relayer, and update beacon with address.
-      const ETSRelayerV2test = await factories.ETSRelayerV2test.deploy();
-      await etsRelayerBeacon.update(await ETSRelayerV2test.getAddress());
-      expect(await etsRelayerBeacon.implementation()).to.be.equal(await ETSRelayerV2test.getAddress());
+      const ETSRelayerUpgradeTest = await ETSRelayerUpgradeTestFactory.deploy();
+      await etsRelayerBeacon.update(await ETSRelayerUpgradeTest.getAddress());
+      expect(await etsRelayerBeacon.implementation()).to.be.equal(await ETSRelayerUpgradeTest.getAddress());
 
       // Reload relayers, note addresses (of proxies) haven't changed, only the API has.
-      relayer1v2 = new ethers.Contract(relayer1Address, etsRelayerV2testABI, accounts.Buyer);
-      relayer2v2 = new ethers.Contract(relayer2Address, etsRelayerV2testABI, accounts.Creator);
+      relayer1v2 = new ethers.Contract(relayer1Address, etsRelayerUpgradeTestABI, accounts.Buyer);
+      relayer2v2 = new ethers.Contract(relayer2Address, etsRelayerUpgradeTestABI, accounts.Creator);
 
       // Expect version bump.
-      expect(await relayer1v2.version()).to.be.equal("0.2-Beta");
-      expect(await relayer2v1.version()).to.be.equal("0.2-Beta");
+      expect(await relayer1v2.version()).to.be.equal("UPGRADE TEST");
+      expect(await relayer2v1.version()).to.be.equal("UPGRADE TEST");
 
       // Expect new function present.
       expect(await relayer1v2.newFunction()).to.be.equal(true);
@@ -72,8 +73,8 @@ describe("Upgrades tests", () => {
       etsRelayerBeacon = new ethers.Contract(beaconAddress, etsRelayerBeaconABI, accounts.RandomTwo);
 
       // Deploy v2 relayer, and try to update beacon with address.
-      const ETSRelayerV2test = await factories.ETSRelayerV2test.deploy();
-      await expect(etsRelayerBeacon.update(await ETSRelayerV2test.getAddress())).to.be.revertedWith(
+      const ETSRelayerUpgradeTest = await factories.ETSRelayerUpgradeTest.deploy();
+      await expect(etsRelayerBeacon.update(await ETSRelayerUpgradeTest.getAddress())).to.be.revertedWith(
         "Ownable: caller is not the owner",
       );
     });

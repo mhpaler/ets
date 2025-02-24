@@ -1,5 +1,5 @@
 const { ethers, network } = require("hardhat");
-const { setup } = require("./utils/setup.js");
+const { setup } = require("../utils/setup.js");
 
 module.exports = async ({ deployments }) => {
   console.info("============ STARTING POST-DEPLOYMENT CONFIGURATION ============");
@@ -107,4 +107,4 @@ module.exports = async ({ deployments }) => {
 };
 
 module.exports.dependencies = ["ETSRelayerFactory"];
-module.exports.tags = ["deployAll"];
+module.exports.tags = ["deployAll", "postDeployment"];

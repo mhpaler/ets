@@ -171,12 +171,18 @@ interface IETS {
      * Like it's sister function applyTagsWithCompositeKey, records new ETS Tagging Record or appends tags to an
      * existing record if found to already exist. This function differs in that it creates new ETS target records
      * and CTAG tokens for novel targetURIs and hastag strings respectively. This function can only be called by
-     * Relayer contracts.
+     * Relayer contracts. If this is a new tagging record, ETS will use msg.sender, if it's an existing tagging
+     * record, ETS will use _relayer parameter.
      *
      * @param _rawInput Raw client input data formed as TaggingRecordRawInput struct.
      * @param _tagger Address that calls Relayer to tag a targetURI.
+     * @param _relayer Address of Relayer contract that facilitated tagging record
      */
-    function applyTagsWithRawInput(TaggingRecordRawInput calldata _rawInput, address payable _tagger) external payable;
+    function applyTagsWithRawInput(
+        TaggingRecordRawInput calldata _rawInput,
+        address payable _tagger,
+        address _relayer
+    ) external payable;
 
     /**
      * @notice Apply one or more tags to a targetId using using tagging record composite key.
@@ -188,12 +194,14 @@ interface IETS {
      * @param _targetId targetId of the URI being tagged. See ETSTarget.sol
      * @param _recordType Arbitrary identifier for type of tagging record.
      * @param _tagger Address of that calls Relayer to create tagging record.
+     * @param _relayer Address of Relayer contract that facilitated tagging record.
      */
     function applyTagsWithCompositeKey(
         uint256[] calldata _tagIds,
         uint256 _targetId,
         string memory _recordType,
-        address payable _tagger
+        address payable _tagger,
+        address _relayer
     ) external payable;
 
     /**
@@ -203,10 +211,12 @@ interface IETS {
      *
      * @param _rawInput Raw client input data formed as TaggingRecordRawInput struct.
      * @param _tagger Address that calls Relayer to tag a targetURI.
+     * @param _relayer Address of Relayer contract that facilitated tagging record.
      */
     function replaceTagsWithRawInput(
         TaggingRecordRawInput calldata _rawInput,
-        address payable _tagger
+        address payable _tagger,
+        address _relayer
     ) external payable;
 
     /**
@@ -219,12 +229,14 @@ interface IETS {
      * @param _targetId targetId of the URI being tagged. See ETSTarget.sol
      * @param _recordType Arbitrary identifier for type of tagging record.
      * @param _tagger Address of that calls Relayer to create tagging record.
+     * @param _relayer Address of Relayer contract that facilitated tagging record.
      */
     function replaceTagsWithCompositeKey(
         uint256[] calldata _tagIds,
         uint256 _targetId,
         string memory _recordType,
-        address payable _tagger
+        address payable _tagger,
+        address _relayer
     ) external payable;
 
     /**
@@ -232,8 +244,13 @@ interface IETS {
      *
      * @param _rawInput Raw client input data formed as TaggingRecordRawInput struct.
      * @param _tagger Address that calls Relayer to tag a targetURI.
+     * @param _relayer Address of Relayer contract that facilitated tagging record.
      */
-    function removeTagsWithRawInput(TaggingRecordRawInput calldata _rawInput, address _tagger) external;
+    function removeTagsWithRawInput(
+        TaggingRecordRawInput calldata _rawInput,
+        address _tagger,
+        address _relayer
+    ) external;
 
     /**
      * @notice Remove one or more tags from a tagging record using composite key for record lookup.
@@ -242,12 +259,14 @@ interface IETS {
      * @param _targetId targetId of the URI being tagged. See ETSTarget.sol
      * @param _recordType Arbitrary identifier for type of tagging record.
      * @param _tagger Address of that calls Relayer to create tagging record.
+     * @param _relayer Address of Relayer contract that facilitated tagging record.
      */
     function removeTagsWithCompositeKey(
         uint256[] calldata _tagIds,
         uint256 _targetId,
         string memory _recordType,
-        address payable _tagger
+        address payable _tagger,
+        address _relayer
     ) external;
 
     /**
@@ -255,8 +274,9 @@ interface IETS {
      *
      * @param _taggingRecordId tagging record being updated.
      * @param _tagIds Array of CTAG token Ids.
+     * @param _tagger Address of that calls Relayer to tag a targetURI.
      */
-    function appendTags(uint256 _taggingRecordId, uint256[] calldata _tagIds) external payable;
+    function appendTags(uint256 _taggingRecordId, uint256[] calldata _tagIds, address _tagger) external payable;
 
     /**
      * @notice Replaces tags in tagging record.
@@ -266,16 +286,18 @@ interface IETS {
      *
      * @param _taggingRecordId tagging record being updated.
      * @param _tagIds Array of CTAG token Ids.
+     * @param _tagger Address of that calls Relayer to tag a targetURI.
      */
-    function replaceTags(uint256 _taggingRecordId, uint256[] calldata _tagIds) external payable;
+    function replaceTags(uint256 _taggingRecordId, uint256[] calldata _tagIds, address _tagger) external payable;
 
     /**
      * @notice Remove one or more tags from a tagging record.
      *
      * @param _taggingRecordId tagging record being updated.
      * @param _tagIds Array of CTAG token Ids.
+     * @param _tagger Address of that calls Relayer to tag a targetURI.
      */
-    function removeTags(uint256 _taggingRecordId, uint256[] calldata _tagIds) external;
+    function removeTags(uint256 _taggingRecordId, uint256[] calldata _tagIds, address _tagger) external;
 
     /**
      * @notice Function for withdrawing funds from an accrual account. Can be called by the account owner

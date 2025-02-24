@@ -3,7 +3,7 @@
   "chainId": "421614",
   "contracts": {
     "ETS": {
-      "address": "0x4763975ee6675C50381e7044524C2a25D5fD5774",
+      "address": "0x76cF4C272856B7e198DaED726C36186A98caF19E",
       "abi": [
         {
           "inputs": [],
@@ -191,6 +191,19 @@
           "type": "function"
         },
         {
+          "inputs": [],
+          "name": "VERSION",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
           "inputs": [
             {
               "internalType": "address",
@@ -220,6 +233,11 @@
               "internalType": "uint256[]",
               "name": "_tagIds",
               "type": "uint256[]"
+            },
+            {
+              "internalType": "address",
+              "name": "_tagger",
+              "type": "address"
             }
           ],
           "name": "appendTags",
@@ -247,6 +265,11 @@
             {
               "internalType": "address payable",
               "name": "_tagger",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "_relayer",
               "type": "address"
             }
           ],
@@ -282,6 +305,11 @@
             {
               "internalType": "address payable",
               "name": "_tagger",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "_relayer",
               "type": "address"
             }
           ],
@@ -903,6 +931,11 @@
               "internalType": "uint256[]",
               "name": "_tagIds",
               "type": "uint256[]"
+            },
+            {
+              "internalType": "address",
+              "name": "_tagger",
+              "type": "address"
             }
           ],
           "name": "removeTags",
@@ -930,6 +963,11 @@
             {
               "internalType": "address payable",
               "name": "_tagger",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "_relayer",
               "type": "address"
             }
           ],
@@ -966,6 +1004,11 @@
               "internalType": "address",
               "name": "_tagger",
               "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "_relayer",
+              "type": "address"
             }
           ],
           "name": "removeTagsWithRawInput",
@@ -984,6 +1027,11 @@
               "internalType": "uint256[]",
               "name": "_tagIds",
               "type": "uint256[]"
+            },
+            {
+              "internalType": "address",
+              "name": "_tagger",
+              "type": "address"
             }
           ],
           "name": "replaceTags",
@@ -1011,6 +1059,11 @@
             {
               "internalType": "address payable",
               "name": "_tagger",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "_relayer",
               "type": "address"
             }
           ],
@@ -1046,6 +1099,11 @@
             {
               "internalType": "address payable",
               "name": "_tagger",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "_relayer",
               "type": "address"
             }
           ],
@@ -1297,7 +1355,7 @@
       ]
     },
     "ETSAccessControls": {
-      "address": "0x945f8d0534E6e774Db73A3843568B8c5be2167C0",
+      "address": "0x025B5bfb6eAc1E6f7156ca0228016Be2f9130166",
       "abi": [
         {
           "inputs": [],
@@ -1568,6 +1626,19 @@
               "internalType": "bytes32",
               "name": "",
               "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "VERSION",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
             }
           ],
           "stateMutability": "view",
@@ -2202,7 +2273,7 @@
       ]
     },
     "ETSAuctionHouse": {
-      "address": "0x79A3098b1cc02b5FB675Ce7A97f51d8DdDEeA450",
+      "address": "0xcbBFB1B7FAf2011c5C3984C8D20759e74C90fdef",
       "abi": [
         {
           "inputs": [],
@@ -2516,6 +2587,19 @@
         {
           "inputs": [],
           "name": "NAME",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "VERSION",
           "outputs": [
             {
               "internalType": "string",
@@ -3006,7 +3090,7 @@
             },
             {
               "internalType": "address",
-              "name": "_wmatic",
+              "name": "_weth",
               "type": "address"
             },
             {
@@ -3348,7 +3432,7 @@
         },
         {
           "inputs": [],
-          "name": "wmatic",
+          "name": "weth",
           "outputs": [
             {
               "internalType": "address",
@@ -3366,7 +3450,7 @@
       ]
     },
     "ETSEnrichTarget": {
-      "address": "0xA6714AFEa909B7e04F9E9f67612373DaB99C6D19",
+      "address": "0x52cCc0c0129bFB12A79E5Cf4a8525Cd724344BB4",
       "abi": [
         {
           "inputs": [],
@@ -3447,6 +3531,19 @@
         {
           "inputs": [],
           "name": "NAME",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "VERSION",
           "outputs": [
             {
               "internalType": "string",
@@ -3583,154 +3680,8 @@
         }
       ]
     },
-    "ETSRelayerFactory": {
-      "address": "0x10e47F2565CA8dC003e29bc6467688206788caC9",
-      "abi": [
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_etsRelayerLogic",
-              "type": "address"
-            },
-            {
-              "internalType": "contract IETSAccessControls",
-              "name": "_etsAccessControls",
-              "type": "address"
-            },
-            {
-              "internalType": "contract IETS",
-              "name": "_ets",
-              "type": "address"
-            },
-            {
-              "internalType": "contract IETSToken",
-              "name": "_etsToken",
-              "type": "address"
-            },
-            {
-              "internalType": "contract IETSTarget",
-              "name": "_etsTarget",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "constructor"
-        },
-        {
-          "inputs": [],
-          "name": "NAME",
-          "outputs": [
-            {
-              "internalType": "string",
-              "name": "",
-              "type": "string"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "_relayerName",
-              "type": "string"
-            }
-          ],
-          "name": "addRelayer",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "relayer",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "ets",
-          "outputs": [
-            {
-              "internalType": "contract IETS",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "etsAccessControls",
-          "outputs": [
-            {
-              "internalType": "contract IETSAccessControls",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "etsTarget",
-          "outputs": [
-            {
-              "internalType": "contract IETSTarget",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "etsToken",
-          "outputs": [
-            {
-              "internalType": "contract IETSToken",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "getBeacon",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "getImplementation",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        }
-      ]
-    },
-    "ETSRelayerV1": {
-      "address": "0x2F6a3f4289c2415358a5748567404240264D5fc6",
+    "ETSRelayer": {
+      "address": "0x70cD4eDB009F430BF77F11386cDD70eE66e7489C",
       "abi": [
         {
           "inputs": [],
@@ -3890,6 +3841,41 @@
             }
           ],
           "name": "applyTags",
+          "outputs": [],
+          "stateMutability": "payable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "targetURI",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string[]",
+                  "name": "tagStrings",
+                  "type": "string[]"
+                },
+                {
+                  "internalType": "string",
+                  "name": "recordType",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct IETS.TaggingRecordRawInput[]",
+              "name": "_rawInput",
+              "type": "tuple[]"
+            },
+            {
+              "internalType": "address",
+              "name": "_relayer",
+              "type": "address"
+            }
+          ],
+          "name": "applyTagsViaRelayer",
           "outputs": [],
           "stateMutability": "payable",
           "type": "function"
@@ -4222,6 +4208,41 @@
           "type": "function"
         },
         {
+          "inputs": [
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "targetURI",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string[]",
+                  "name": "tagStrings",
+                  "type": "string[]"
+                },
+                {
+                  "internalType": "string",
+                  "name": "recordType",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct IETS.TaggingRecordRawInput[]",
+              "name": "_rawInput",
+              "type": "tuple[]"
+            },
+            {
+              "internalType": "address",
+              "name": "_relayer",
+              "type": "address"
+            }
+          ],
+          "name": "removeTagsViaRelayer",
+          "outputs": [],
+          "stateMutability": "payable",
+          "type": "function"
+        },
+        {
           "inputs": [],
           "name": "renounceOwnership",
           "outputs": [],
@@ -4254,6 +4275,41 @@
             }
           ],
           "name": "replaceTags",
+          "outputs": [],
+          "stateMutability": "payable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "targetURI",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string[]",
+                  "name": "tagStrings",
+                  "type": "string[]"
+                },
+                {
+                  "internalType": "string",
+                  "name": "recordType",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct IETS.TaggingRecordRawInput[]",
+              "name": "_rawInput",
+              "type": "tuple[]"
+            },
+            {
+              "internalType": "address",
+              "name": "_relayer",
+              "type": "address"
+            }
+          ],
+          "name": "replaceTagsViaRelayer",
           "outputs": [],
           "stateMutability": "payable",
           "type": "function"
@@ -4316,8 +4372,154 @@
         }
       ]
     },
+    "ETSRelayerFactory": {
+      "address": "0xDa1691abD34F579BE96F20636Fe5800F4fb9C0f8",
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_etsRelayerLogic",
+              "type": "address"
+            },
+            {
+              "internalType": "contract IETSAccessControls",
+              "name": "_etsAccessControls",
+              "type": "address"
+            },
+            {
+              "internalType": "contract IETS",
+              "name": "_ets",
+              "type": "address"
+            },
+            {
+              "internalType": "contract IETSToken",
+              "name": "_etsToken",
+              "type": "address"
+            },
+            {
+              "internalType": "contract IETSTarget",
+              "name": "_etsTarget",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "inputs": [],
+          "name": "NAME",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "_relayerName",
+              "type": "string"
+            }
+          ],
+          "name": "addRelayer",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "relayer",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "ets",
+          "outputs": [
+            {
+              "internalType": "contract IETS",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "etsAccessControls",
+          "outputs": [
+            {
+              "internalType": "contract IETSAccessControls",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "etsTarget",
+          "outputs": [
+            {
+              "internalType": "contract IETSTarget",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "etsToken",
+          "outputs": [
+            {
+              "internalType": "contract IETSToken",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getBeacon",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getImplementation",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        }
+      ]
+    },
     "ETSTarget": {
-      "address": "0x907fF76D79e9744c203D4580C07B7b61304CA8a7",
+      "address": "0xe146267C08996aBFD583A12D70A5643d462A36B1",
       "abi": [
         {
           "inputs": [],
@@ -4437,6 +4639,19 @@
         {
           "inputs": [],
           "name": "NAME",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "VERSION",
           "outputs": [
             {
               "internalType": "string",
@@ -4824,7 +5039,7 @@
       ]
     },
     "ETSToken": {
-      "address": "0x428fcc3Ac338d8a691eAD046DC9B83B042AEF636",
+      "address": "0xb1A00565161C04edBB7826a7eda9D7166dffa676",
       "abi": [
         {
           "inputs": [],
@@ -5153,6 +5368,19 @@
         {
           "inputs": [],
           "name": "NAME",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "VERSION",
           "outputs": [
             {
               "internalType": "string",
