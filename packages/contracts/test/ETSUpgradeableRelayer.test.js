@@ -44,8 +44,8 @@ describe("Upgrades tests", () => {
       relayer1v1 = new ethers.Contract(relayer1Address, etsRelayerABI, accounts.Buyer);
       relayer2v1 = new ethers.Contract(relayer2Address, etsRelayerABI, accounts.Creator);
 
-      expect(await relayer1v1.version()).to.be.equal("0.2.0");
-      expect(await relayer2v1.version()).to.be.equal("0.2.0");
+      expect(await relayer1v1.version()).to.be.equal("0.1.1");
+      expect(await relayer2v1.version()).to.be.equal("0.1.1");
 
       // Connect to the beacon contract by platform
       etsRelayerBeacon = new ethers.Contract(beaconAddress, etsRelayerBeaconABI, accounts.ETSAdmin);

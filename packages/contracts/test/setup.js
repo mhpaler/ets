@@ -71,7 +71,7 @@ async function getFactories() {
     ETSRelayerFactory: await ethers.getContractFactory("ETSRelayerFactory"),
 
     /// .sol test contracts.
-    WMATIC: await ethers.getContractFactory("WMATIC"),
+    WETH: await ethers.getContractFactory("WETH"),
     ETSAccessControlsUpgrade: await ethers.getContractFactory("ETSAccessControlsUpgrade"),
     ETSAuctionHouseUpgrade: await ethers.getContractFactory("ETSAuctionHouseUpgrade"),
     ETSTokenUpgrade: await ethers.getContractFactory("ETSTokenUpgrade"),
@@ -95,9 +95,9 @@ async function setup() {
 
   // ============ DEPLOY CONTRACTS ============
 
-  const WMATIC = await factories.WMATIC.deploy();
-  await WMATIC.waitForDeployment();
-  const WMATICAddress = await WMATIC.getAddress();
+  const WETH = await factories.WETH.deploy();
+  await WETH.waitForDeployment();
+  const WETHAddress = await WETH.getAddress();
 
   const ETSAccessControls = await upgrades.deployProxy(factories.ETSAccessControls, [accounts.ETSPlatform.address], {
     kind: "uups",
@@ -123,7 +123,7 @@ async function setup() {
     [
       ETSTokenAddress,
       ETSAccessControlsAddress,
-      WMATICAddress,
+      WETHAddress,
       initSettings.MAX_AUCTIONS,
       initSettings.TIME_BUFFER,
       ethers.parseUnits(initSettings.RESERVE_PRICE, "ether"),
@@ -186,7 +186,7 @@ async function setup() {
   const ETSRelayerFactoryAddress = await ETSRelayerFactory.getAddress();
 
   const contracts = {
-    WMATIC: WMATIC,
+    WETH: WETH,
     ETSAccessControls: ETSAccessControls,
     ETSToken: ETSToken,
     ETSAuctionHouse: ETSAuctionHouse,

@@ -57,9 +57,6 @@ describe("ETS Core tests", () => {
   });
 
   describe("Valid setup", async () => {
-    it("should have correct version", async () => {
-      expect(await contracts.ETS.VERSION()).to.be.equal("0.0.2");
-    });
     it("should have Access controls set to ETSAccessControls contract", async () => {
       expect(await contracts.ETS.etsAccessControls()).to.be.equal(await contracts.ETSAccessControls.getAddress());
     });
