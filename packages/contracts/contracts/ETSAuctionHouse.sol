@@ -24,7 +24,7 @@
 
 pragma solidity ^0.8.6;
 
-import { IWMATIC } from "./interfaces/IWMATIC.sol";
+import { IWETH } from "./interfaces/IWETH.sol";
 import { IETSToken } from "./interfaces/IETSToken.sol";
 import { IETSAuctionHouse } from "./interfaces/IETSAuctionHouse.sol";
 import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
@@ -59,6 +59,8 @@ contract ETSAuctionHouse is
     /// Public constants
 
     string public constant NAME = "ETS Auction House";
+    string public constant VERSION = "0.0.1";
+
     uint256 public constant MODULO = 100;
 
     /// Public variables
@@ -82,8 +84,8 @@ contract ETSAuctionHouse is
     // Mapping from auctionId to the corresponding auction for each token
     //mapping(uint256 => mapping(uint256 => Auction)) public auctionIdToAuction;
 
-    /// @dev The address of the WMATIC contract
-    address public wmatic;
+    /// @dev The address of the WETH contract
+    address public weth;
 
     /// @dev The minimum amount of time left in an auction after a new bid is created
     uint256 public timeBuffer;
@@ -150,7 +152,7 @@ contract ETSAuctionHouse is
     function initialize(
         IETSToken _etsToken,
         IETSAccessControls _etsAccessControls,
-        address _wmatic,
+        address _weth,
         uint256 _maxAuctions,
         uint256 _timeBuffer,
         uint256 _reservePrice,
@@ -166,7 +168,7 @@ contract ETSAuctionHouse is
 
         etsToken = _etsToken;
         etsAccessControls = _etsAccessControls;
-        wmatic = _wmatic;
+        weth = _weth;
 
         activeAuctions.reset();
         auctionId.reset();
@@ -395,8 +397,8 @@ contract ETSAuctionHouse is
 
     function _safeTransferETHWithFallback(address to, uint256 amount) internal {
         if (!_safeTransferETH(to, amount)) {
-            IWMATIC(wmatic).deposit{ value: amount }();
-            IERC20Upgradeable(wmatic).transfer(to, amount);
+            IWETH(weth).deposit{ value: amount }();
+            IERC20Upgradeable(weth).transfer(to, amount);
         }
     }
 

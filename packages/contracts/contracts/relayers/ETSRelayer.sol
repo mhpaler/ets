@@ -53,7 +53,7 @@ contract ETSRelayer is
 
     // Public constants
     string public constant NAME = "ETS Relayer";
-    string public constant VERSION = "0.2.0";
+    string public constant VERSION = "0.1.1";
     bytes4 public constant IID_IETSRELAYER = type(IETSRelayer).interfaceId;
 
     // Public variables

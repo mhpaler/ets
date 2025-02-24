@@ -63,7 +63,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// Public constants
 
     string public constant NAME = "ETS Core";
-    string public constant VERSION = "0.0.2";
+    string public constant VERSION = "0.0.1";
     uint256 public constant MODULO = 100;
 
     /// Modifiers

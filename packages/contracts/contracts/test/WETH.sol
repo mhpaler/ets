@@ -4,9 +4,9 @@
 // Source: https://github.com/gnosis/canonical-weth/blob/0dd1ea3e295eef916d0c6223ec63141137d22d67/contracts/WETH9.sol
 pragma solidity ^0.8.10;
 
-contract WMATIC {
-    string public name = "Wrapped Matic";
-    string public symbol = "WMATIC";
+contract WETH {
+    string public name = "Wrapped ETH";
+    string public symbol = "WETH";
     uint8 public decimals = 18;
 
     event Approval(address indexed src, address indexed guy, uint256 wad);
