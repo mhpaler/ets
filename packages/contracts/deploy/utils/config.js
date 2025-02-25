@@ -7,9 +7,10 @@ function getConfigPath() {
 }
 
 async function saveNetworkConfig(contractName, deployment, implementation, isUpgrade = false) {
-  const txHash = deployment.deploymentTransaction?.hash || deployment.deployTransaction?.hash;
+  const txn = await ethers.provider.getTransaction(deployment.deploymentTransaction().hash);
+  const block = txn.blockNumber;
+  console.info("Deployment Block:", block);
   const address = deployment.address || (await deployment.getAddress());
-  const block = await getBlockNumber(txHash);
 
   const configPath = getConfigPath();
   let config = { contracts: {} };
@@ -64,15 +65,6 @@ async function saveNetworkConfig(contractName, deployment, implementation, isUpg
   }
 
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
-}
-
-async function getBlockNumber(txHash) {
-  if (!txHash) {
-    const block = await ethers.provider.getBlock("latest");
-    return block.number;
-  }
-  const receipt = await ethers.provider.getTransactionReceipt(txHash);
-  return receipt?.blockNumber || (await ethers.provider.getBlock("latest")).number;
 }
 
 module.exports = {

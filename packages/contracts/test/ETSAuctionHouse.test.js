@@ -60,7 +60,7 @@ describe("ETS Auction House Tests", () => {
       const tx = contracts.ETSAuctionHouse.initialize(
         await contracts.ETSToken.getAddress(),
         await contracts.ETSAccessControls.getAddress(),
-        await contracts.WMATIC.getAddress(),
+        await contracts.WETH.getAddress(),
         initSettings.MAX_AUCTIONS,
         initSettings.TIME_BUFFER,
         initSettings.RESERVE_PRICE,
@@ -373,7 +373,7 @@ describe("ETS Auction House Tests", () => {
       expect(RandomOnePostRefundBalance === RandomOnePostBidBalance + bid1);
     });
 
-    it("should cap the maximum bid griefing cost at 30K gas + the cost to wrap and transfer WMATIC", async () => {
+    it("should cap the maximum bid griefing cost at 30K gas + the cost to wrap and transfer WETH", async () => {
       const maliciousBidder = await (
         await (await ethers.getContractFactory("MaliciousBidder")).deploy()
       ).waitForDeployment();
@@ -392,7 +392,7 @@ describe("ETS Auction House Tests", () => {
       const result = await tx.wait();
 
       expect(Number(result.gasUsed)) < Number(200_000);
-      expect(await contracts.WMATIC.balanceOf(await maliciousBidder.getAddress())) === initSettings.RESERVE_PRICE;
+      expect(await contracts.WETH.balanceOf(await maliciousBidder.getAddress())) === initSettings.RESERVE_PRICE;
     });
 
     it("should emit an `AuctionExtended` event if the auction end time is within the time buffer", async () => {
@@ -557,8 +557,8 @@ describe("ETS Auction House Tests", () => {
       // RandomTwo sets up as a relayer (they own a tag already from overall test setup):
       await contracts.ETSRelayerFactory.connect(accounts.RandomTwo).addRelayer("RandomTwo Relayer");
       relayerAddress = await contracts.ETSAccessControls.getRelayerAddressFromName("RandomTwo Relayer");
-      etsRelayerV1ABI = require("../abi/contracts/relayers/ETSRelayerV1.sol/ETSRelayerV1.json");
-      randomTwoRelayer = new ethers.Contract(relayerAddress, etsRelayerV1ABI, accounts.RandomTwo);
+      etsRelayerABI = require("../abi/contracts/relayers/ETSRelayer.sol/ETSRelayer.json");
+      randomTwoRelayer = new ethers.Contract(relayerAddress, etsRelayerABI, accounts.RandomTwo);
 
       relayerPreAuctionAccrued = await contracts.ETSAuctionHouse.accrued(relayerAddress);
       creatorPreAuctionAccrued = await contracts.ETSAuctionHouse.accrued(accounts.Creator.address);

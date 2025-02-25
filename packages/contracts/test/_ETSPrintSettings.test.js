@@ -19,7 +19,7 @@ describe("============= ETS TEST SUITE SETTINGS =============", () => {
     console.info("RandomTwo:", accounts.RandomTwo.address);
     console.info("Creator:", accounts.Creator.address);
     console.info("======================== CONTRACTS ============================");
-    console.info("WMATIC:", contracts.WMATIC.address);
+    console.info("WETH:", contracts.WETH.address);
     console.info("ETSAccessControls:", contracts.ETSAccessControls.address);
     console.info("ETSToken:", contracts.ETSToken.address);
     console.info("ETSAuctionHouse:", contracts.ETSAuctionHouse.address);

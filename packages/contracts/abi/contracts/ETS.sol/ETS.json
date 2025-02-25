@@ -227,6 +227,11 @@
         "internalType": "uint256[]",
         "name": "_tagIds",
         "type": "uint256[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_tagger",
+        "type": "address"
       }
     ],
     "name": "appendTags",
@@ -254,6 +259,11 @@
       {
         "internalType": "address payable",
         "name": "_tagger",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_relayer",
         "type": "address"
       }
     ],
@@ -289,6 +299,11 @@
       {
         "internalType": "address payable",
         "name": "_tagger",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_relayer",
         "type": "address"
       }
     ],
@@ -910,6 +925,11 @@
         "internalType": "uint256[]",
         "name": "_tagIds",
         "type": "uint256[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_tagger",
+        "type": "address"
       }
     ],
     "name": "removeTags",
@@ -937,6 +957,11 @@
       {
         "internalType": "address payable",
         "name": "_tagger",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_relayer",
         "type": "address"
       }
     ],
@@ -973,6 +998,11 @@
         "internalType": "address",
         "name": "_tagger",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_relayer",
+        "type": "address"
       }
     ],
     "name": "removeTagsWithRawInput",
@@ -991,6 +1021,11 @@
         "internalType": "uint256[]",
         "name": "_tagIds",
         "type": "uint256[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_tagger",
+        "type": "address"
       }
     ],
     "name": "replaceTags",
@@ -1018,6 +1053,11 @@
       {
         "internalType": "address payable",
         "name": "_tagger",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_relayer",
         "type": "address"
       }
     ],
@@ -1053,6 +1093,11 @@
       {
         "internalType": "address payable",
         "name": "_tagger",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_relayer",
         "type": "address"
       }
     ],

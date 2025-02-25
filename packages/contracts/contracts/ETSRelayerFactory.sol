@@ -12,7 +12,7 @@
  *  ╚══════╝   ╚═╝   ╚══════╝
  *
  * @notice Factory contract for deploying upgradeable beacon proxy contract instances.
- * @dev see ETSRelayerBeacon.sol & ETSRelayerV1.sol
+ * @dev see ETSRelayerBeacon.sol & ETSRelayer.sol
  */
 
 pragma solidity ^0.8.10;
@@ -22,8 +22,7 @@ import { IETSTarget } from "./interfaces/IETSTarget.sol";
 import { IETSToken } from "./interfaces/IETSToken.sol";
 import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
 import { ETSRelayerBeacon } from "./relayers/ETSRelayerBeacon.sol";
-import { ETSRelayerV1 } from "./relayers/ETSRelayerV1.sol";
-
+import { ETSRelayer } from "./relayers/ETSRelayer.sol";
 import { Context } from "@openzeppelin/contracts/utils/Context.sol";
 import { BeaconProxy } from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 
@@ -56,7 +55,7 @@ contract ETSRelayerFactory is Context {
 
     /// Public constants
 
-    string public constant NAME = "ETS Relayer Factory V1";
+    string public constant NAME = "ETS Relayer Factory";
 
     constructor(
         address _etsRelayerLogic,
@@ -74,14 +73,14 @@ contract ETSRelayerFactory is Context {
 
     function addRelayer(string calldata _relayerName) external onlyValidName(_relayerName) returns (address relayer) {
         if (!etsAccessControls.isRelayerAdmin(_msgSender())) {
-            require(etsToken.balanceOf(_msgSender()) > 0,"Must own CTAG");
+            require(etsToken.balanceOf(_msgSender()) > 0, "Must own CTAG");
             require(!etsAccessControls.isRelayerByOwner(_msgSender()), "Sender owns relayer");
         }
 
         BeaconProxy relayerProxy = new BeaconProxy(
             address(etsRelayerBeacon),
             abi.encodeWithSelector(
-                ETSRelayerV1(payable(address(0))).initialize.selector,
+                ETSRelayer(payable(address(0))).initialize.selector,
                 _relayerName,
                 ets,
                 etsToken,

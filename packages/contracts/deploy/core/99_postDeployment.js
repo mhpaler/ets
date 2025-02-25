@@ -107,4 +107,4 @@ module.exports = async ({ deployments }) => {
 };
 
 module.exports.dependencies = ["ETSRelayerFactory"];
-module.exports.tags = ["deployAll"];
+module.exports.tags = ["deployAll", "postDeployment"];
