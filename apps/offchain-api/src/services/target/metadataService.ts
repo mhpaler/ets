@@ -3,21 +3,21 @@ import { unfurl } from "unfurl.js";
 import { logger } from "../../utils/logger";
 import { arweaveService } from "../shared/arweaveService";
 
-export class MetadataService {
-  /**
-   * Extract metadata from a URL
-   * @param url The URL to extract metadata from
-   */
-  public async extractMetadata(url: string): Promise<any> {
-    try {
-      logger.info(`Extracting metadata from URL: ${url}`);
+// Base interface for all metadata extractors
+interface MetadataExtractor {
+  extract(url: string): Promise<any>;
+}
 
-      // Use unfurl.js to extract rich metadata
+// HTML metadata extractor using unfurl.js
+class HtmlMetadataExtractor implements MetadataExtractor {
+  async extract(url: string): Promise<any> {
+    try {
+      logger.info(`Extracting HTML metadata from: ${url}`);
       const result = await unfurl(url);
 
-      // Format the metadata
-      const metadata = {
+      return {
         url,
+        contentType: "text/html",
         title: result.title || "",
         description: result.description || "",
         favicon: result.favicon || "",
@@ -25,6 +25,120 @@ export class MetadataService {
         twitter: result.twitter_card || {},
         extractedAt: new Date().toISOString(),
       };
+    } catch (error) {
+      logger.error(`Failed to extract HTML metadata from ${url}:`, error);
+      return {
+        url,
+        contentType: "text/html",
+        error: error instanceof Error ? error.message : "Unknown error",
+        extractedAt: new Date().toISOString(),
+      };
+    }
+  }
+}
+
+// Image metadata extractor
+class ImageMetadataExtractor implements MetadataExtractor {
+  async extract(url: string): Promise<any> {
+    try {
+      logger.info(`Extracting image metadata from: ${url}`);
+
+      // For now, we're just extracting basic information
+      // Later we could use image processing libraries to get dimensions, etc.
+      return {
+        url,
+        contentType: "image",
+        title: this.extractFilenameFromUrl(url),
+        isImage: true,
+        extractedAt: new Date().toISOString(),
+      };
+    } catch (error) {
+      logger.error(`Failed to extract image metadata from ${url}:`, error);
+      return {
+        url,
+        contentType: "image",
+        error: error instanceof Error ? error.message : "Unknown error",
+        extractedAt: new Date().toISOString(),
+      };
+    }
+  }
+
+  private extractFilenameFromUrl(url: string): string {
+    try {
+      const urlObj = new URL(url);
+      const pathname = urlObj.pathname;
+      const filename = pathname.split("/").pop() || "";
+      // Remove query parameters if present
+      return filename.split("?")[0];
+    } catch {
+      return "Unknown Image";
+    }
+  }
+}
+
+// Generic fallback extractor for unsupported content types
+class GenericMetadataExtractor implements MetadataExtractor {
+  async extract(url: string): Promise<any> {
+    logger.info(`Using generic metadata extraction for: ${url}`);
+    return {
+      url,
+      contentType: "unknown",
+      title: url,
+      extractedAt: new Date().toISOString(),
+    };
+  }
+}
+
+export class MetadataService {
+  /**
+   * Detect the content type of a URL
+   * @param url The URL to check
+   */
+  private async detectContentType(url: string): Promise<string> {
+    try {
+      logger.info(`Detecting content type for: ${url}`);
+      const response = await axios.head(url);
+      const contentType = response.headers["content-type"] || "";
+      logger.info(`Detected content type for ${url}: ${contentType}`);
+      return contentType.toLowerCase();
+    } catch (error) {
+      logger.error(`Failed to detect content type for ${url}:`, error);
+      // Default to HTML if we can't detect
+      return "text/html";
+    }
+  }
+
+  /**
+   * Get the appropriate metadata extractor for a content type
+   * @param contentType The detected content type
+   */
+  private getMetadataExtractor(contentType: string): MetadataExtractor {
+    if (contentType.includes("text/html") || contentType.includes("application/xhtml+xml")) {
+      return new HtmlMetadataExtractor();
+    }
+    if (contentType.startsWith("image/")) {
+      return new ImageMetadataExtractor();
+    }
+    // Use the generic extractor as a fallback
+    return new GenericMetadataExtractor();
+  }
+
+  /**
+   * Extract metadata from a URL based on its content type
+   * @param url The URL to extract metadata from
+   */
+  public async extractMetadata(url: string): Promise<any> {
+    try {
+      logger.info(`Starting metadata extraction for URL: ${url}`);
+
+      // Detect the content type
+      const contentType = await this.detectContentType(url);
+
+      // Get the appropriate extractor
+      const extractor = this.getMetadataExtractor(contentType);
+
+      // Extract the metadata
+      const metadata = await extractor.extract(url);
 
       logger.info(`Metadata extracted successfully from ${url}`);
       return metadata;

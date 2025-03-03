@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import Arweave from "arweave";
 import { config } from "../../config";
+import { getMockMetadataForContentType } from "../../mocks/mockMetadata";
 import { logger } from "../../utils/logger";
 
 export class ArweaveService {
@@ -95,7 +96,7 @@ export class ArweaveService {
 
   /**
    * Upload data to Arweave and return the transaction ID (hash)
-   * If in mock mode, returns a deterministic mock transaction ID
+   * If in mock mode, returns a deterministic mock transaction ID with content type awareness
    */
   public async uploadData(
     data: string | Buffer,
@@ -103,9 +104,8 @@ export class ArweaveService {
     tags: { name: string; value: string }[] = [],
   ): Promise<string> {
     // Create a hash of the data to generate a deterministic mock ID
-    // This is useful for testing as the same content will generate the same ID
-    const hashData = (data: string | Buffer): string => {
-      const str = typeof data === "string" ? data : data.toString("utf-8");
+    const hashData = (input: string | Buffer): string => {
+      const str = typeof input === "string" ? input : input.toString("utf-8");
       let hash = 0;
       for (let i = 0; i < str.length; i++) {
         const char = str.charCodeAt(i);
@@ -116,16 +116,58 @@ export class ArweaveService {
     };
 
     if (this.isMock) {
-      // Generate a deterministic mock ID based on content and timestamp
+      // Use a local copy of data that we can modify
+      let processedData = data;
+
+      // Extract content type from tags or use the provided contentType
+      let dataContentType = contentType;
+      const contentTypeTag = tags.find((tag) => tag.name === "Content-Type");
+      if (contentTypeTag) {
+        dataContentType = contentTypeTag.value;
+      }
+
+      // Generate mock ID that includes content type info
       const timestamp = Date.now().toString(16);
-      const contentHash = hashData(data);
-      const mockTxId = `MOCK_${contentHash}_${timestamp}`;
+      const contentHash = hashData(processedData);
+      const contentTypeCode = dataContentType.replace(/[^a-z0-9]/gi, "_").substring(0, 5);
+      const mockTxId = `MOCK_${contentTypeCode}_${contentHash}_${timestamp}`;
+
+      // For metadata uploads, if this is JSON data, we can enhance it with mock data
+      // based on the content type mentioned in the data
+      if (contentType === "application/json" && typeof processedData === "string") {
+        try {
+          const jsonData = JSON.parse(processedData);
+          // If this is target metadata and has a content type
+          if (tags.some((tag) => tag.name === "Type" && tag.value === "target-metadata") && jsonData.contentType) {
+            // Log the metadata content type for debugging
+            logger.debug(`[MOCK] Metadata content type: ${jsonData.contentType}`);
+
+            // Enhance with mock data if needed
+            // This is mostly for development/testing to provide richer mock data
+            if (process.env.ENHANCE_MOCK_METADATA === "true") {
+              const mockEnhancements = getMockMetadataForContentType(jsonData.contentType);
+              // We only add missing fields, don't override existing ones
+              for (const [key, value] of Object.entries(mockEnhancements)) {
+                if (jsonData[key] === undefined || jsonData[key] === "") {
+                  jsonData[key] = value;
+                }
+              }
+              // Create enhanced version without modifying the original parameter
+              processedData = JSON.stringify(jsonData, null, 2);
+              logger.debug("[MOCK] Enhanced metadata with mock data");
+            }
+          }
+        } catch (e) {
+          // If JSON parsing fails, just continue with original data
+          logger.debug("Not valid JSON or couldn't enhance mock data:", e);
+        }
+      }
 
       // Log tags for debugging
       const tagString = tags.map((t) => `${t.name}: ${t.value}`).join(", ");
 
       logger.info(`[MOCK] Uploaded data to Arweave with transaction ID: ${mockTxId}`);
-      logger.info(`[MOCK] Content type: ${contentType}`);
+      logger.info(`[MOCK] Content type: ${dataContentType}`);
       logger.info(`[MOCK] Tags: ${tagString}`);
 
       return mockTxId;

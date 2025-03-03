@@ -1,15 +1,14 @@
-import { ethers } from "ethers";
+import { createTargetClient } from "@ethereum-tag-service/sdk-core";
 import type { NextFunction, Request, Response } from "express";
-import { config } from "../config";
-import { createSigner } from "../services/shared/signerService";
 import { metadataService } from "../services/target/metadataService";
 import { AppError } from "../utils/errorHandler";
 import { logger } from "../utils/logger";
 
 /**
- * Enrich a target with metadata
+ * Process a target URL and return enrichment data
+ * This endpoint doesn't make any blockchain transactions
  */
-export const enrichTarget = async (req: Request, res: Response, next: NextFunction) => {
+export const processTarget = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { chainId, targetId } = req.body;
 
@@ -17,28 +16,30 @@ export const enrichTarget = async (req: Request, res: Response, next: NextFuncti
       return next(new AppError("Target ID is required", 400));
     }
 
-    logger.info(`Enriching target ${targetId} on chain ${chainId}`);
+    logger.info(`Processing target ${targetId} on chain ${chainId}`);
 
-    // Get a signer for this chain
-    const signer = await createSigner(chainId);
+    // Create SDK Core client for Target contract (read-only)
+    const targetClient = createTargetClient({ chainId });
 
-    // Get the target contract
-    const targetAddress =
-      config.contracts.etsTarget.address[chainId as keyof typeof config.contracts.etsTarget.address];
-    const targetContract = new ethers.Contract(targetAddress, config.contracts.etsTarget.abi, signer);
+    if (!targetClient) {
+      return next(new AppError(`Failed to create client for chain ${chainId}`, 500));
+    }
 
-    // Get the enrich target contract
-    const enrichTargetAddress =
-      config.contracts.etsEnrichTarget.address[chainId as keyof typeof config.contracts.etsEnrichTarget.address];
-    const enrichTargetContract = new ethers.Contract(enrichTargetAddress, config.contracts.etsEnrichTarget.abi, signer);
+    // First check if the target exists
+    logger.info(`Checking if target ${targetId} exists`);
+    const targetExists = await targetClient.targetExistsById(targetId);
 
-    // Get the target information
+    if (!targetExists) {
+      return next(new AppError("Invalid targetId", 400));
+    }
+
+    // Get the target information from the blockchain
     logger.info(`Fetching target details for ID ${targetId}`);
-    const target = await targetContract.getTargetById(targetId);
+    const target = await targetClient.getTargetById(targetId);
     const targetUrl = target.targetURI;
 
     if (!targetUrl) {
-      return next(new AppError("Target URL is empty or invalid", 400));
+      return next(new AppError("Target URL is empty", 400));
     }
 
     logger.info(`Processing target URL: ${targetUrl}`);
@@ -49,135 +50,19 @@ export const enrichTarget = async (req: Request, res: Response, next: NextFuncti
     logger.info(`Metadata stored on Arweave with transaction ID: ${txId}`);
     logger.info(`HTTP status for ${targetUrl}: ${httpStatus}`);
 
-    // Call the fulfillEnrichTarget function to update the on-chain data
-    const tx = await enrichTargetContract.fulfillEnrichTarget(
-      targetId,
-      txId, // Arweave transaction ID as the IPFS hash replacement
-      httpStatus,
-    );
-
-    logger.info(`Transaction submitted: ${tx.hash}`);
-    const receipt = await tx.wait();
-    logger.info(`Transaction confirmed in block ${receipt.blockNumber}`);
-
+    // Return only the data needed by the oracle
     res.status(200).json({
       success: true,
-      message: "Target enriched successfully",
+      message: "Target processed successfully",
       data: {
-        chainId,
         targetId,
-        arweaveTxId: txId,
-        arweaveUrl: `${config.arweave.gateway}/${txId}`,
+        txId, // Arweave transaction ID
         httpStatus,
-        transactionHash: receipt.transactionHash,
-        metadata: metadata,
+        metadata, // Optional, for debugging/verification
       },
     });
   } catch (error) {
-    logger.error("Error in enrichTarget:", error);
-    next(new AppError(`Failed to enrich target: ${error instanceof Error ? error.message : "Unknown error"}`, 500));
+    logger.error("Error in processTarget:", error);
+    next(new AppError(`Failed to process target: ${error instanceof Error ? error.message : "Unknown error"}`, 500));
   }
 };
-
-/**
- * Handle target webhook events
- * Primarily for handling RequestEnrichTarget events
- */
-export const handleTargetWebhook = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { chainId, eventName, eventData } = req.body;
-
-    logger.info(`Handling target webhook for event ${eventName} on chain ${chainId}`);
-
-    if (eventName === "RequestEnrichTarget") {
-      const targetId = eventData?.targetId;
-
-      if (!targetId) {
-        return next(new AppError("Target ID is required in event data", 400));
-      }
-
-      // Immediately acknowledge receipt of the webhook
-      res.status(202).json({
-        success: true,
-        message: "Target webhook received and being processed",
-        data: {
-          event: eventName,
-          chainId,
-          targetId,
-          status: "processing",
-        },
-      });
-
-      // Process the enrichment asynchronously
-      // This allows the webhook to return quickly while processing continues
-      enrichTargetAsync(chainId, targetId).catch((error) => {
-        logger.error(`Async enrichment failed for target ${targetId}:`, error);
-      });
-    } else {
-      res.status(400).json({
-        success: false,
-        message: `Unsupported event: ${eventName}`,
-      });
-    }
-  } catch (error) {
-    logger.error("Error in handleTargetWebhook:", error);
-    next(new AppError("Failed to handle target webhook", 500));
-  }
-};
-
-/**
- * Process target enrichment asynchronously
- * This is called after the webhook has already responded
- */
-async function enrichTargetAsync(chainId: number, targetId: string): Promise<void> {
-  try {
-    logger.info(`Starting async enrichment for target ${targetId} on chain ${chainId}`);
-
-    // Get a signer for this chain
-    const signer = await createSigner(chainId);
-
-    // Get the target contract
-    const targetAddress =
-      config.contracts.etsTarget.address[chainId as keyof typeof config.contracts.etsTarget.address];
-    const targetContract = new ethers.Contract(targetAddress, config.contracts.etsTarget.abi, signer);
-
-    // Get the enrich target contract
-    const enrichTargetAddress =
-      config.contracts.etsEnrichTarget.address[chainId as keyof typeof config.contracts.etsEnrichTarget.address];
-    const enrichTargetContract = new ethers.Contract(enrichTargetAddress, config.contracts.etsEnrichTarget.abi, signer);
-
-    // Get the target information
-    logger.info(`Fetching target details for ID ${targetId}`);
-    const target = await targetContract.getTargetById(targetId);
-    const targetUrl = target.targetURI;
-
-    if (!targetUrl) {
-      logger.error(`Target URL is empty for target ID ${targetId}`);
-      return;
-    }
-
-    logger.info(`Processing target URL: ${targetUrl}`);
-
-    // Process the target URL - extract metadata and upload to Arweave
-    const { txId, httpStatus } = await metadataService.processTargetUrl(targetId, targetUrl);
-
-    logger.info(`Metadata stored on Arweave with transaction ID: ${txId}`);
-    logger.info(`HTTP status for ${targetUrl}: ${httpStatus}`);
-
-    // Call the fulfillEnrichTarget function to update the on-chain data
-    const tx = await enrichTargetContract.fulfillEnrichTarget(
-      targetId,
-      txId, // Arweave transaction ID as the IPFS hash replacement
-      httpStatus,
-    );
-
-    logger.info(`Transaction submitted: ${tx.hash}`);
-    const receipt = await tx.wait();
-    logger.info(`Transaction confirmed in block ${receipt.blockNumber}`);
-
-    logger.info(`Async enrichment completed for target ${targetId}`);
-  } catch (error) {
-    logger.error(`Error in async enrichment for target ${targetId}:`, error);
-    throw error; // Re-throw to be caught by the caller
-  }
-}
