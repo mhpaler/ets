@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import Arweave from "arweave";
+import axios from "axios";
 import { config } from "../../config";
 import { getMockMetadataForContentType } from "../../mocks/mockMetadata";
 import { logger } from "../../utils/logger";
@@ -14,10 +15,17 @@ export class ArweaveService {
     console.info("ArweaveService initializing with mockArweave:", config.arweave.mockArweave);
     this.isMock = config.arweave.mockArweave;
 
+    // Parse the gateway URL
+    const gatewayUrl = new URL(config.arweave.gateway);
+
+    // Check if we're connecting to a local ArLocal instance
+    const isArLocal = gatewayUrl.hostname === "localhost" || gatewayUrl.hostname === "127.0.0.1";
+
+    // Initialize Arweave with the gateway settings
     this.arweave = Arweave.init({
-      host: new URL(config.arweave.gateway).hostname,
-      port: 443,
-      protocol: "https",
+      host: gatewayUrl.hostname,
+      port: gatewayUrl.port ? Number.parseInt(gatewayUrl.port) : 443,
+      protocol: gatewayUrl.protocol.replace(":", ""),
     });
 
     if (this.isMock) {
@@ -38,10 +46,16 @@ export class ArweaveService {
       this.loadRealKey();
     }
 
+    // Better logging for different modes
     if (this.isMock) {
-      logger.warn("ArweaveService initialized in MOCK mode. No actual Arweave transactions will be created.");
+      logger.warn("💡 ArweaveService initialized in MOCK mode. No actual Arweave transactions will be created.");
+    } else if (isArLocal) {
+      logger.warn("🧪 ArweaveService initialized in ARLOCAL TESTING mode!");
+      logger.warn(`📌 Connected to LOCAL Arweave instance at: ${config.arweave.gateway}`);
+      logger.warn("📌 This is NOT the production Arweave network - data will be stored locally only");
     } else {
-      logger.info("ArweaveService initialized in PRODUCTION mode. Real Arweave transactions will be created.");
+      logger.warn("⚠️ ArweaveService initialized in PRODUCTION mode. Real Arweave transactions will be created!");
+      logger.warn(`📌 Connected to REAL Arweave network at: ${config.arweave.gateway}`);
     }
   }
 
@@ -174,7 +188,11 @@ export class ArweaveService {
     }
 
     try {
-      // The rest of the real Arweave upload logic remains the same
+      // More detailed logging for debugging
+      logger.info(`Creating Arweave transaction with content type: ${contentType}`);
+      logger.info(`Transaction data size: ${typeof data === "string" ? data.length : data.byteLength} bytes`);
+
+      // Create transaction
       let tx: any;
 
       if (typeof data === "string") {
@@ -185,10 +203,12 @@ export class ArweaveService {
 
       // Add content type
       tx.addTag("Content-Type", contentType);
+      logger.info("Added Content-Type tag");
 
       // Add custom tags
       for (const tag of tags) {
         tx.addTag(tag.name, tag.value);
+        logger.info(`Added tag: ${tag.name}=${tag.value}`);
       }
 
       // Always add ETS tags for easy identification
@@ -196,7 +216,9 @@ export class ArweaveService {
       tx.addTag("App-Version", "1.0.0");
 
       // Sign the transaction
+      logger.info("Signing transaction...");
       await this.arweave.transactions.sign(tx, this.jwk);
+      logger.info("Transaction signed successfully");
 
       // Calculate the cost in AR
       const winston = tx.reward;
@@ -204,7 +226,9 @@ export class ArweaveService {
       logger.info(`Transaction cost: ${ar} AR`);
 
       // Submit the transaction
+      logger.info("Submitting transaction to Arweave...");
       const response = await this.arweave.transactions.post(tx);
+      logger.info(`Transaction submission response status: ${response.status} ${response.statusText}`);
 
       if (response.status !== 200) {
         throw new Error(`Failed to submit transaction: ${response.statusText}`);
@@ -213,9 +237,64 @@ export class ArweaveService {
       logger.info(`Data uploaded to Arweave with transaction ID: ${tx.id}`);
       return tx.id;
     } catch (error) {
+      // More detailed error logging
       logger.error("Failed to upload data to Arweave:", error);
+      if (error instanceof Error) {
+        logger.error(`Error details: ${error.message}`);
+        if (error.stack) {
+          logger.error(`Stack trace: ${error.stack}`);
+        }
+      }
       throw new Error("Failed to upload data to Arweave");
     }
+  }
+
+  /**
+   * Upload data to Arweave, verify it's accessible, then return the transaction ID
+   */
+  public async uploadDataAndVerify(
+    data: string | Buffer,
+    contentType = "application/json",
+    tags: { name: string; value: string }[] = [],
+    maxRetries = 5,
+    retryDelay = 500,
+  ): Promise<string> {
+    // First upload the data as before
+    const txId = await this.uploadData(data, contentType, tags);
+
+    // Now verify it's accessible via the gateway
+    logger.info(`Verifying transaction ${txId} is accessible via gateway...`);
+
+    let accessible = false;
+    let attempts = 0;
+
+    while (!accessible && attempts < maxRetries) {
+      attempts++;
+      try {
+        // Small delay between attempts
+        await new Promise((resolve) => setTimeout(resolve, retryDelay));
+
+        // Try to fetch the data from the gateway
+        const url = this.getTransactionUrl(txId);
+        const response = await axios.get(url, { timeout: 3000 });
+
+        if (response.status === 200) {
+          logger.info(`Transaction ${txId} verified accessible after ${attempts} attempt(s)`);
+          accessible = true;
+        }
+      } catch (error) {
+        logger.info(`Attempt ${attempts}/${maxRetries} to verify transaction ${txId}: not yet accessible`);
+
+        if (attempts === maxRetries) {
+          logger.warn(
+            `Could not verify transaction ${txId} is accessible after ${maxRetries} attempts. Proceeding anyway.`,
+          );
+        }
+        logger.error("Verification error details:", error instanceof Error ? error.message : String(error));
+      }
+    }
+
+    return txId;
   }
 
   /**
@@ -232,7 +311,7 @@ export class ArweaveService {
       { name: "Type", value: "target-metadata" },
     ];
 
-    return this.uploadData(data, "application/json", tags);
+    return this.uploadDataAndVerify(data, "application/json", tags);
   }
 
   /**

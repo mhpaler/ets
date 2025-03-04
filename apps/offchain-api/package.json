@@ -7,7 +7,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "test": "jest",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts",
+    "mint-ar": "ts-node-dev --transpile-only scripts/mint-ar-local.ts"
   },
   "dependencies": {
     "@ethereum-tag-service/contracts": "workspace:*",

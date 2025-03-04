@@ -164,7 +164,7 @@ export class MetadataService {
     targetId: string,
     targetUrl: string,
   ): Promise<{
-    txId: string;
+    txId: string | null; // Now can be null when scraping fails
     httpStatus: number;
     metadata: any;
   }> {
@@ -185,7 +185,15 @@ export class MetadataService {
       // Extract metadata
       const metadata = await this.extractMetadata(targetUrl);
 
-      // Upload to Arweave
+      // Check if metadata contains an error (scraping failed)
+      if (metadata.error) {
+        logger.warn(`Skipping Arweave upload due to scraping failure: ${metadata.error}`);
+        // Set appropriate error status code
+        httpStatus = 422; // Unprocessable Entity - good code for "could connect but couldn't process"
+        return { txId: null, httpStatus, metadata };
+      }
+
+      // Only upload to Arweave if scraping succeeded
       const txId = await arweaveService.uploadTargetMetadata(targetId, metadata);
 
       return { txId, httpStatus, metadata };

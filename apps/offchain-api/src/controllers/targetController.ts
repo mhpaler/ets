@@ -25,21 +25,13 @@ export const processTarget = async (req: Request, res: Response, next: NextFunct
       return next(new AppError(`Failed to create client for chain ${chainId}`, 500));
     }
 
-    // First check if the target exists
-    logger.info(`Checking if target ${targetId} exists`);
-    const targetExists = await targetClient.targetExistsById(targetId);
-
-    if (!targetExists) {
-      return next(new AppError("Invalid targetId", 400));
-    }
-
     // Get the target information from the blockchain
     logger.info(`Fetching target details for ID ${targetId}`);
     const target = await targetClient.getTargetById(targetId);
     const targetUrl = target.targetURI;
 
     if (!targetUrl) {
-      return next(new AppError("Target URL is empty", 400));
+      return next(new AppError("Target URL is empty or invalid", 400));
     }
 
     logger.info(`Processing target URL: ${targetUrl}`);
@@ -47,18 +39,23 @@ export const processTarget = async (req: Request, res: Response, next: NextFunct
     // Process the target URL - extract metadata and upload to Arweave
     const { txId, httpStatus, metadata } = await metadataService.processTargetUrl(targetId, targetUrl);
 
-    logger.info(`Metadata stored on Arweave with transaction ID: ${txId}`);
+    if (txId) {
+      logger.info(`Metadata stored on Arweave with transaction ID: ${txId}`);
+    } else {
+      logger.warn(`Metadata extraction failed with status ${httpStatus}. Arweave upload skipped.`);
+    }
+
     logger.info(`HTTP status for ${targetUrl}: ${httpStatus}`);
 
     // Return only the data needed by the oracle
     res.status(200).json({
       success: true,
-      message: "Target processed successfully",
+      message: txId ? "Target processed successfully" : "Target processing failed but captured error",
       data: {
         targetId,
-        txId, // Arweave transaction ID
+        txId, // Will be null for scraping failures
         httpStatus,
-        metadata, // Optional, for debugging/verification
+        metadata, // Including error metadata for debugging
       },
     });
   } catch (error) {
