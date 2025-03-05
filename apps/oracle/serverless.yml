@@ -27,11 +27,11 @@ resources:
   contracts:
     ets-auction-house-arbitrum-sepolia:
       name: ETSAuctionHouse-ArbitrumSepolia
-      address: '0x79A3098b1cc02b5FB675Ce7A97f51d8DdDEeA450'
+      address: '0xcbBFB1B7FAf2011c5C3984C8D20759e74C90fdef'
       network: arbitrum-sepolia
     ets-auction-house-base-sepolia:
       name: ETSAuctionHouse-BaseSepolia
-      address: '0x1e49622AfF007569fdc99e5989E267d55218b066'
+      address: '0x945D2C0228dC1Cc872040494Df185629e764b54c'
       network: base-sepolia
   relayers:
     ets-auction-oracle-base-sepolia:
@@ -60,7 +60,7 @@ resources:
       type: BLOCK
       network: base-sepolia
       addresses:
-        - '0x1e49622AfF007569fdc99e5989E267d55218b066'
+        - '0x945D2C0228dC1Cc872040494Df185629e764b54c'
       skip-abi-validation: false
       paused: false
       action-trigger: ${self:resources.actions.release-next-auction-multi}
@@ -105,7 +105,7 @@ resources:
       type: BLOCK
       network: arbitrum-sepolia
       addresses:
-        - '0x79A3098b1cc02b5FB675Ce7A97f51d8DdDEeA450'
+        - '0xcbBFB1B7FAf2011c5C3984C8D20759e74C90fdef'
       skip-abi-validation: false
       paused: false
       action-trigger: ${self:resources.actions.release-next-auction-multi}
