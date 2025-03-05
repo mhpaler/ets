@@ -15,17 +15,17 @@ export class ArweaveService {
     console.info("ArweaveService initializing with mockArweave:", config.arweave.mockArweave);
     this.isMock = config.arweave.mockArweave;
 
-    // Parse the gateway URL
-    const gatewayUrl = new URL(config.arweave.gateway);
+    // Check if we're using local Arweave
+    const isArLocal = config.arweave.gateway.includes("localhost") || config.arweave.gateway.includes("127.0.0.1");
 
-    // Check if we're connecting to a local ArLocal instance
-    const isArLocal = gatewayUrl.hostname === "localhost" || gatewayUrl.hostname === "127.0.0.1";
+    if (!this.isMock && isArLocal) {
+      this.checkArLocalRunning();
+    }
 
-    // Initialize Arweave with the gateway settings
     this.arweave = Arweave.init({
-      host: gatewayUrl.hostname,
-      port: gatewayUrl.port ? Number.parseInt(gatewayUrl.port) : 443,
-      protocol: gatewayUrl.protocol.replace(":", ""),
+      host: new URL(config.arweave.gateway).hostname,
+      port: isArLocal ? 1984 : 443,
+      protocol: isArLocal ? "http" : "https",
     });
 
     if (this.isMock) {
@@ -325,6 +325,49 @@ export class ArweaveService {
     }
     return `${config.arweave.gateway}/${txId}`;
   }
-}
 
+  private async checkArLocalRunning() {
+    try {
+      // Use the built-in http module to avoid adding axios as a dependency here
+      const http = await import("node:http");
+
+      await new Promise((resolve, reject) => {
+        const req = http.get(`${config.arweave.gateway}/info`, (res) => {
+          if (res.statusCode === 200) {
+            resolve(void 0);
+          } else {
+            reject(new Error(`ArLocal responded with status code ${res.statusCode}`));
+          }
+          // Consume response data to free up memory
+          res.resume();
+        });
+
+        req.on("error", (err) => {
+          reject(err);
+        });
+
+        // Set a timeout of 2 seconds
+        req.setTimeout(2000, () => {
+          req.destroy();
+          reject(new Error("Request timed out"));
+        });
+      });
+
+      logger.info("ArLocal is running and accessible.");
+    } catch (error: unknown) {
+      logger.error("⚠️ ArLocal is not running or not accessible!");
+      logger.error(`Error details: ${error instanceof Error ? error.message : String(error)}`);
+      logger.error("");
+      logger.error("To fix this, you have three options:");
+      logger.error("1. Start ArLocal in another terminal with: npx arlocal");
+      logger.error("2. Set MOCK_ARWEAVE=true in your .env.local to use mock mode");
+      logger.error("3. Point to a real Arweave gateway by setting ARWEAVE_GATEWAY=https://arweave.net");
+      logger.error("");
+
+      // Ask if we should fall back to mock mode instead of exiting
+      logger.warn("Falling back to MOCK mode for Arweave operations.");
+      this.isMock = true;
+    }
+  }
+}
 export const arweaveService = new ArweaveService();
