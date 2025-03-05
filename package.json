@@ -89,6 +89,7 @@
       "apps/app",
       "apps/site",
       "apps/oracle",
+      "apps/offchain-api",
       "packages/brand",
       "packages/contracts",
       "packages/tsconfig"
@@ -113,6 +114,11 @@
       "packages/subgraph": {
         "entry": ["src/**/*.ts!"],
         "project": ["src/**/*.ts!"]
+      },
+      "apps/offchain-api": {
+        "entry": ["src/index.ts!", "scripts/mint-ar-local.ts"],
+        "project": ["src/**/*.ts!"],
+        "excludeEntryComponents": false
       }
     }
   }
