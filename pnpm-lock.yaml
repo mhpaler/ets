@@ -17,6 +17,10 @@ overrides:
 importers:
 
   .:
+    dependencies:
+      turbo:
+        specifier: ^2.0.10
+        version: 2.4.0
     devDependencies:
       '@biomejs/biome':
         specifier: ^1.8.3
@@ -60,9 +64,6 @@ importers:
       simple-git-hooks:
         specifier: ^2.11.1
         version: 2.11.1
-      turbo:
-        specifier: ^2.0.10
-        version: 2.4.0
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
