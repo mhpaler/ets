@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "tsc",
+    "build": "rm -rf dist && tsc --project tsconfig.build.json",
     "start": "node dist/index.js",
-    "test": "jest",
+    "test": "jest --config jest.config.js",
     "lint": "eslint . --ext .ts",
     "mint-ar": "ts-node-dev --transpile-only scripts/mint-ar-local.ts",
     "test:watch": "jest --watch"
