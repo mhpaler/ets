@@ -3,15 +3,16 @@ import type { Contract, ContractFactory } from "ethers";
 import { artifacts, ethers, getNamedAccounts, network, upgrades } from "hardhat";
 import type { Artifact } from "hardhat/types";
 import type {
+  AirnodeRrpV0Proxy,
   ETS,
   ETSAccessControls,
   ETSAuctionHouse,
   ETSEnrichTarget,
+  ETSRelayer,
   ETSRelayerFactory,
-  ETSRelayerV1,
   ETSTarget,
   ETSToken,
-  WMATIC,
+  WETH,
 } from "../typechain-types";
 
 interface InitSettings {

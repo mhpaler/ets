@@ -2,15 +2,16 @@ import type { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers"
 import type { ContractFactory } from "ethers";
 import type { Artifact } from "hardhat/types";
 import type {
+  AirnodeRrpV0Proxy,
   ETS,
   ETSAccessControls,
   ETSAuctionHouse,
   ETSEnrichTarget,
+  ETSRelayer,
   ETSRelayerFactory,
-  ETSRelayerV1,
   ETSTarget,
   ETSToken,
-  WMATIC,
+  WETH,
 } from "../typechain-types";
 
 export interface InitSettings {
@@ -41,7 +42,7 @@ export interface Accounts {
 }
 
 export interface Contracts {
-  WMATIC: WMATIC;
+  AirnodeRrpV0Proxy: AirnodeRrpV0Proxy;
   ETSAccessControls: ETSAccessControls;
   ETSToken: ETSToken;
   ETSAuctionHouse: ETSAuctionHouse;
@@ -49,18 +50,20 @@ export interface Contracts {
   ETSEnrichTarget: ETSEnrichTarget;
   ETS: ETS;
   ETSRelayerFactory: ETSRelayerFactory;
-  ETSRelayerImplementation: ETSRelayerV1;
-  ETSRelayer?: ETSRelayerV1;
+  ETSRelayerImplementation: ETSRelayer;
+  ETSRelayer?: ETSRelayer;
+  WETH: WETH;
 }
 
 export interface Artifacts {
+  AirnodeRrpV0Proxy: Artifact;
   ETSAccessControls: Artifact;
   ETSToken: Artifact;
   ETSTarget: Artifact;
   ETSEnrichTarget: Artifact;
   ETSAuctionHouse: Artifact;
   ETS: Artifact;
-  ETSRelayerV1: Artifact;
+  ETSRelayer: Artifact;
   ETSRelayerFactory: Artifact;
   ETSAccessControlsUpgrade: Artifact;
   ETSTokenUpgrade: Artifact;
@@ -68,18 +71,19 @@ export interface Artifacts {
   ETSEnrichTargetUpgrade: Artifact;
   ETSTargetUpgrade: Artifact;
   ETSUpgrade: Artifact;
+  WETH: Artifact;
 }
 
 export interface Factories {
+  AirnodeRrpV0Proxy: ContractFactory;
   ETSAccessControls: ContractFactory;
   ETSToken: ContractFactory;
   ETSTarget: ContractFactory;
   ETSEnrichTarget: ContractFactory;
   ETSAuctionHouse: ContractFactory;
   ETS: ContractFactory;
-  ETSRelayerV1: ContractFactory;
+  ETSRelayer: ContractFactory;
   ETSRelayerFactory: ContractFactory;
-  WMATIC: ContractFactory;
   ETSAccessControlsUpgrade: ContractFactory;
   ETSAuctionHouseUpgrade: ContractFactory;
   ETSTokenUpgrade: ContractFactory;
@@ -87,6 +91,7 @@ export interface Factories {
   ETSTargetUpgrade: ContractFactory;
   ETSUpgrade: ContractFactory;
   ETSRelayerV2test: ContractFactory;
+  WETH: ContractFactory;
 }
 
 export type SetupResult = {
