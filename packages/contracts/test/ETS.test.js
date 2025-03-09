@@ -6,7 +6,7 @@ let targetURI;
 let targetId;
 let taggingRecordId;
 
-describe.only("ETS Core tests", () => {
+describe("ETS Core tests", () => {
   beforeEach("Setup test", async () => {
     [accounts, contracts, initSettings] = await setup();
 
