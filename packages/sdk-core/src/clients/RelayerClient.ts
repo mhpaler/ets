@@ -1,4 +1,4 @@
-import { etsConfig, etsRelayerV1Config } from "@ethereum-tag-service/contracts/contracts";
+import { etsConfig, etsRelayerConfig } from "@ethereum-tag-service/contracts/contracts";
 import type { Address, Hex, PublicClient, WalletClient } from "viem";
 import type { RelayerReadFunction, RelayerWriteFunction } from "../types";
 import { handleContractCall } from "../utils/handleContractCall";
@@ -26,7 +26,7 @@ export class RelayerClient {
   }) {
     validateConfig(chainId, publicClient, walletClient);
 
-    if (!chainId || !(chainId in etsRelayerV1Config.address)) {
+    if (!chainId || !(chainId in etsRelayerConfig.address)) {
       throw new Error(`[@ethereum-tag-service/sdk-core] Relayer contract not configured for chain ${chainId}`);
     }
 
@@ -38,7 +38,7 @@ export class RelayerClient {
     this.publicClient = publicClient;
     this.walletClient = walletClient;
     this.address = relayerAddress;
-    this.abi = etsRelayerV1Config.abi;
+    this.abi = etsRelayerConfig.abi;
   }
 
   private async readContract(functionName: RelayerReadFunction, args: any = []): Promise<any> {

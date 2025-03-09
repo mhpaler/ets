@@ -1,0 +1,66 @@
+import Icon from '../../../components/Icon';
+import { Callout } from 'vocs/components';
+
+# Creator <Icon src="/icons/users.svg" size={36} alt="Creator Icon" /> [Tag namespace originators]
+
+## What
+A Creator is the address (user or contract) that first introduces a tag string to the ETS protocol through an authorized Relayer. Each CTAG permanently records its Creator, ensuring proper attribution and revenue distribution.
+
+## Why
+Creators enable ETS to:
+- Expand the protocol's tag namespace
+- Establish clear provenance of tag origination
+- Drive organic tag ecosystem growth
+- Distribute auction and fee revenue fairly
+- Incentivize early protocol adoption
+
+## How
+
+Creators participate in the protocol through authorized ETS Relayers which handle tag validation and creation.
+
+### 1. Tag Creation Process
+- Submit tag string through Relayer
+- Tag validated against protocol rules
+- CTAG minted with Creator attribution
+- Token initially held by platform
+- Creator recorded in CTAG metadata
+
+### 2. Revenue Streams
+
+Creators earn revenue through two channels:
+
+1. **Pre-Auction Tagging Fees**
+   - Receive Owner's share (50%) of tagging fees
+   - Fees collected until CTAG sold at auction
+   - Distributed automatically per usage
+
+2. **Auction Proceeds**
+   - Receive 40% of final auction price
+   - One-time payment upon auction settlement
+   - Automatic distribution to Creator's address
+
+### 3. Creator Attribution
+
+```solidity
+struct Tag {
+    address relayer;      // Relayer facilitating creation
+    address creator;      // Creator's permanent address
+    string display;       // Original tag string
+    bool premium;         // Premium flag (deprecated)
+    bool reserved;        // Reserved flag (deprecated)
+}
+```
+
+### 4. Revenue Distribution
+
+| Revenue Source    | Creator Share | When Received |
+|------------------|---------------|---------------|
+| Tagging Fees     | 50%          | Pre-auction   |
+| Auction Sale     | 40%          | Upon settlement|
+
+### 5. Integration Patterns
+
+Creators can submit tags through:
+
+1. Application UIs using `RelayerClient`
+2. Direct smart contract calls to `ETSRelayerV1`

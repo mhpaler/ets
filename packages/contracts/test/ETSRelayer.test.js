@@ -14,8 +14,8 @@ describe("ETS Relayer Tests", () => {
     // Add a new relayer via RelayerFactory
     //await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("ETS Test Relayer");
     //relayerAddress = await contracts.ETSAccessControls.getRelayerAddressFromName("ETS Test Relayer");
-    //etsRelayerV1ABI = require("../abi/contracts/relayers/ETSRelayerV1.sol/ETSRelayerV1.json");
-    //contracts.ETSRelayer = new ethers.Contract(relayerAddress, etsRelayerV1ABI);
+    //etsRelayerABI = require("../abi/contracts/relayers/ETSRelayer.sol/ETSRelayer.json");
+    //contracts.ETSRelayer = new ethers.Contract(relayerAddress, etsRelayerABI);
 
     taggingFee = await contracts.ETS.taggingFee();
     targetURI = "https://google.com";
@@ -122,7 +122,7 @@ describe("ETS Relayer Tests", () => {
         await contracts.ETSRelayer.getAddress(),
       );
       await expect(contracts.ETSRelayer.connect(accounts.RandomOne).removeTags(taggingRecords)).to.be.revertedWith(
-        "Not authorized",
+        "Caller not Relayer",
       );
     });
 
@@ -443,6 +443,90 @@ describe("ETS Relayer Tests", () => {
         expect(_actualTagCount === 0);
         expect(fee === 0);
       });
+    });
+  });
+
+  describe("Cross-relayer operations", () => {
+    beforeEach(async () => {
+      // Create initial tagging record using first relayer
+      await contracts.ETSRelayer.connect(accounts.RandomOne).applyTags(taggingRecords, {
+        value: taggingFee * BigInt(2),
+      });
+    });
+
+    it("attributes new tagging records to calling relayer regardless of relayer parameter", async () => {
+      const newRecord = {
+        targetURI: "https://newsite.com",
+        tagStrings: ["#newtag1"],
+        recordType: "bookmark",
+        enrich: false,
+      };
+
+      // Create record through secondRelayer but try to attribute it to firstRelayer
+      await contracts.secondRelayer
+        .connect(accounts.RandomOne)
+        .applyTagsViaRelayer([newRecord], await contracts.ETSRelayer.getAddress(), {
+          value: taggingFee,
+        });
+
+      // Verify the record was created with secondRelayer as the relayer
+      const taggingRecordId = await contracts.ETS.computeTaggingRecordIdFromRawInput(
+        newRecord,
+        await contracts.secondRelayer.getAddress(),
+        accounts.RandomOne.address,
+      );
+
+      const record = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
+      expect(record.relayer).to.equal(await contracts.secondRelayer.getAddress());
+    });
+
+    it("allows tagger to add tags to their record through second relayer", async () => {
+      const appendRecord = {
+        targetURI: targetURI,
+        tagStrings: ["#newtag1"],
+        recordType: "bookmark",
+        enrich: false,
+      };
+
+      const tx = await contracts.secondRelayer
+        .connect(accounts.RandomOne)
+        .applyTagsViaRelayer([appendRecord], await contracts.ETSRelayer.getAddress(), {
+          value: taggingFee,
+        });
+
+      await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
+    });
+
+    it("allows tagger to replace tags through second relayer", async () => {
+      const replaceRecord = {
+        targetURI: targetURI,
+        tagStrings: ["#replacedtag"],
+        recordType: "bookmark",
+        enrich: false,
+      };
+
+      const tx = await contracts.secondRelayer
+        .connect(accounts.RandomOne)
+        .replaceTagsViaRelayer([replaceRecord], await contracts.ETSRelayer.getAddress(), {
+          value: taggingFee,
+        });
+
+      await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
+    });
+
+    it("allows tagger to remove tags through second relayer", async () => {
+      const removeRecord = {
+        targetURI: targetURI,
+        tagStrings: ["#love"],
+        recordType: "bookmark",
+        enrich: false,
+      };
+
+      const tx = await contracts.secondRelayer
+        .connect(accounts.RandomOne)
+        .removeTagsViaRelayer([removeRecord], await contracts.ETSRelayer.getAddress());
+
+      await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
     });
   });
 });

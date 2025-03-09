@@ -1,5 +1,31 @@
 # @ethereum-tag-service/contracts
 
+## 0.0.7
+
+### Patch Changes
+
+- [#508](https://github.com/ethereum-tag-service/ets/pull/508) [`f896c72`](https://github.com/ethereum-tag-service/ets/commit/f896c72eb60e3df072829a20f732fb1c0ed2bf0e) Thanks [@mhpaler](https://github.com/mhpaler)! - Add onlyRelayer Modifier to applyTagsWithRawInput() for Early Validation. Add VERSION constant to upgradeable contracts.
+
+- [#508](https://github.com/ethereum-tag-service/ets/pull/508) [`f896c72`](https://github.com/ethereum-tag-service/ets/commit/f896c72eb60e3df072829a20f732fb1c0ed2bf0e) Thanks [@mhpaler](https://github.com/mhpaler)! - Update contracts to support cross-relayer tagging record editing. Update subgraph and sdk-core to align.
+
+## 0.0.6
+
+### Patch Changes
+
+- [#495](https://github.com/ethereum-tag-service/ets/pull/495) [`9e561c8`](https://github.com/ethereum-tag-service/ets/commit/9e561c8b195ff63e6acf14a9a06672fb21d62bf4) Thanks [@mhpaler](https://github.com/mhpaler)! - Update hardhat, fix tests, add new docs generator
+
+## 0.0.5
+
+### Patch Changes
+
+- [#491](https://github.com/ethereum-tag-service/ets/pull/491) [`392f4d9`](https://github.com/ethereum-tag-service/ets/commit/392f4d9dca1b7f6d191c6051d20ca8c2ff29f324) Thanks [@mhpaler](https://github.com/mhpaler)! - Update README
+
+## 0.0.4
+
+### Patch Changes
+
+- [#485](https://github.com/ethereum-tag-service/ets/pull/485) [`f491609`](https://github.com/ethereum-tag-service/ets/commit/f491609cb03e756eb4d5b567f30e1d98f11fc64c) Thanks [@mhpaler](https://github.com/mhpaler)! - Remove /src, include /contracts in package
+
 ## 0.0.3
 
 ### Patch Changes

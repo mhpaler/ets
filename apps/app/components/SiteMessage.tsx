@@ -38,7 +38,8 @@ const SiteMessage: React.FC = () => {
           <Image src={iconPath} alt={`${chainName} icon`} width={24} height={24} className="mr-3" />
           <div>
             <h3 className="text-lg">
-              Welcome to <span className="font-bold">ETS</span> on <span className="font-bold">{displayName}</span>
+              Welcome to the <span className="font-semibold">ETS Explorer</span> on{" "}
+              <span className="font-semibold">{displayName}</span>
             </h3>
             <div className="text-sm">{t("testnet-warning")}</div>
           </div>
@@ -46,9 +47,15 @@ const SiteMessage: React.FC = () => {
 
         {/* Right Section with Link and Button */}
         <div className="flex items-center space-x-4 ml-auto">
-          {/*           <Link className="link-primary font-medium text-sm" href="/about" passHref>
+          <Link
+            className="link-primary font-medium text-sm"
+            target="_blank"
+            href="https://ets.xyz/docs/roadmap"
+            passHref
+            rel="noreferrer"
+          >
             Learn more
-          </Link> */}
+          </Link>
           <button className="btn btn-primary btn-outline btn-sm" onClick={handleDismiss}>
             Dismiss
           </button>

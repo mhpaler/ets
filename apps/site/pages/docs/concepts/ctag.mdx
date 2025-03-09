@@ -1,0 +1,177 @@
+import { Callout } from 'vocs/components';
+import Icon from '../../../components/Icon';
+
+# CTAG <Icon src="/icons/tag.svg" size={36} alt="Tag Icon" /> [Building blocks of a universal tagging system]
+
+## What
+Short for "composable tag", it's an ERC-721 NFT representing a tag namespace used within ETS.
+
+## Why
+CTAGs enable ETS to:
+- Guarantee each tag string resolves to a single, definitive token
+- Create permanent ownership rights for tag namespaces
+- Build complete historical records of tag usage
+- Drive value through protocol-wide fee distribution
+- Enable consistent tag reuse across all applications
+- Record immutable attribution for all tag actions
+
+## How
+CTAGs are deterministically generated from input tag strings through the [ETSToken contract](https://github.com/ethereum-tag-service/ets/blob/main/packages/contracts/contracts/ETSToken.sol).
+
+<Callout type="tip">
+All the CTAG details explained below can be visualized in real-time for any tag through the ETS Explorer. For example, check out [#unicorn](https://arbitrumsepolia.app.ets.xyz/explore/tags/unicorn)
+</Callout>
+
+### 1. Tag String Validation
+The tokenization process begins with validating the input tag string to ensure it adheres to ETS standards. This includes:
+- **Starting Character:** Must begin with `#`.
+- **Allowed Characters:** Supports any [Unicode](https://home.unicode.org/) character.
+- **Prohibited Characters:**
+    - Spaces (0x20).
+    - Additional `#` characters after the first position.
+- **Length Requirements:** Must fall within `tagMinStringLength` and `tagMaxStringLength`.
+
+| Input                | Valid/Invalid | Reason                                      | Namespace       |
+|---------------------|---------------|---------------------------------------------|--------------------|
+| `#example`         | ✅ Valid      | Starts with `#`, no spaces, no extra `#`.   | `#example`          |
+| `#Example123`      | ✅ Valid      | Case-insensitive, alphanumeric allowed.     | `#example123`       |
+| `#示例`             | ✅ Valid      | Contains valid Chinese characters.          | `#示例`             |
+| `#🚀Launch`         | ✅ Valid      | Emoji and alphanumeric characters allowed.  | `#🚀launch`         |
+| `#🔥`               | ✅ Valid      | Single emoji after `#` is valid.            | `#🔥`               |
+| `#💡GoodIdea`       | ✅ Valid      | Emoji combined with alphanumeric is valid.  | `#💡goodidea`       |
+| `#Bad_Idea`       | ✅ Valid      | Underscores are fine.                         | `#bad_idea`       |
+| `#مرحبا`           | ✅ Valid      | Arabic script is valid.                     | `#مرحبا`           |
+| `#こんにちは`        | ✅ Valid      | Japanese Hiragana/Katakana are valid.       | `#こんにちは`        |
+| `#12345`           | ✅ Valid      | Numeric-only tags after `#` are valid.      | `#12345`           |
+| `example`          | ❌ Invalid    | Missing `#` at the start.                   | N/A                |
+| `#example tag`     | ❌ Invalid    | Contains a space.                           | N/A                |
+| `#example#tag`     | ❌ Invalid    | Contains an extra `#` after the first char. | N/A                |
+| `#`                | ❌ Invalid    | Length is less than `tagMinStringLength`.   | N/A                |
+| `#🔥 🚀`            | ❌ Invalid    | Contains a space between emojis.            | N/A                |
+| `#测试#tag`         | ❌ Invalid    | Contains an extra `#` after the first char. | N/A                |
+
+
+### 2. CTAG Data Structure
+```solidity
+struct Tag {
+    address relayer;   // Address of Relayer that facilitates CTAG creation
+    address creator;   // Address that initiated CTAG creation
+    string display;    // Display version of tag string
+    bool premium;      // (deprecated)
+    bool reserved;     // (deprecated)
+}
+```
+
+### 3. ID Generation
+
+CTAGs are identified by a unique ID computed from the lowercased tag string:
+
+```solidity
+tagId = uint256(keccak256(bytes(lowercased_tag)));
+```
+
+This means once `#Punks` is minted, all future inputs like `#PuNkS`, `#punks`, and `#PUNKS` will point to the CTAG with the namespace `#punks`. This ensures a single NFT for each unique tag namespace.
+
+### 4. Creating CTAGs
+
+All tag creation in ETS happens through [Relayers](/docs/concepts/relayer), which provide the interface between users and the protocol:
+
+1. **Direct Tag Creation**
+- Users submit tag strings via Relayer interface
+- Relayer validates and forwards to ETS core
+- Creator attribution recorded on-chain
+- New CTAGs held by ETS platform
+- Enters auction queue based on usage, with active tags released first
+
+2. **Creation Through Tagging**
+- Users submit tagging actions via Relayer
+- ETS core checks if tag exists
+- If tag is new, core automatically mints CTAG
+- Tagger recorded as Creator
+- New CTAG associated with [Target](/docs/concepts/target) in [Tagging Record](/docs/concepts/tagging-record)
+
+<Callout type="info">
+Relayers are the gateway for all protocol interactions, ensuring consistent validation, fee handling, and attribution tracking. Users cannot interact directly with ETS core contracts.
+</Callout>
+
+### 5. Purchasing CTAGs
+
+CTAGs are distributed through a continuous English auction system (see [ETS Auction](/docs/concepts/auction)):
+
+1. **Initial Holding**
+   - Upon creation, CTAGs are held by ETS platform
+   - Tags accumulate usage metrics while held
+   - Most-used tags prioritized for auction release
+
+2. **Auction Release**
+   - Tags released through ETSAuctionHouse contract
+   - Multiple concurrent auctions possible (default: 3)
+   - 24-hour auction duration with anti-snipe buffer
+   - Minimum bid increment of 5%
+   - Reserve price in native currency (ETH/MATIC)
+
+3. **Bidding Process**
+   - First bid starts auction timer
+   - Late bids extend auction by 15 minutes
+   - Highest bidder wins ownership rights
+   - Previous bidders automatically refunded
+
+4. **Settlement & Transfer**
+   - Any address can settle ended auctions
+   - Winner receives CTAG ownership
+   - Proceeds split between platform/creator/relayer
+   - New ownership term begins
+
+<Callout type="info">
+The auction mechanism ensures fair market pricing while rewarding early tag creation and platform participation through revenue sharing.
+</Callout>
+
+### 6. Ownership and Term Length
+
+Ownership terms are managed through the [ETSToken contract](https://github.com/ethereum-tag-service/ets/blob/main/packages/contracts/contracts/ETSToken.sol), creating a renewable ownership model that ensures active stewardship of CTAGs.
+
+- Ownership term length is defined by `ownershipTermLength` protocol parameter
+- Any address can renew a tag via `renewTag()`
+- Term clock starts at transfer or last renewal timestamp
+- Expired tags can be recycled by any address via `recycleTag()`
+- Recycling transfers tag back to platform address
+- Platform-held tags have no active term clock
+- Term expiry checked via `tagOwnershipTermExpired()`
+- Recycled tags become available for new auctions
+
+### 7. Tag Reuse and Composability
+Once a CTAG is minted, any future use of the same tag string when creating Tagging Records will reference the existing CTAG. This ensures:
+  - Consistent tag reuse across the protocol.
+  - Clear attribution and provenance of tag origination.
+  - Audit trail for tagging actions.
+  - Monetization through fees and auctions.
+
+## **Tokenomics**
+
+CTAGs generate revenue through two channels:
+
+1. **Per-Tag Fee in Tagging Records**
+   - ETS charges a micro-fee for each CTAG used in a [tagging record](/docs/concepts/tagging-record).
+   - Fee distribution:
+     - **Relayer**: For originating the CTAG.
+     - **Owner**: As a return on their investment in the tag.
+     - **Protocol**: To fund ongoing operations and development.
+
+<Callout type="info">Until the tag has been purchased at auction, the Creator receives the Owner share of the tagging fee.</Callout>
+
+2. **Auction Proceeds**
+   - When a CTAG is sold at auction, proceeds are distributed among:
+     - **Relayer**: For originating the CTAG.
+     - **Creator**: For their initial contribution to the tag ecosystem.
+     - **Protocol**: To support the protocol and incentivize adoption.
+
+#### **Revenue Distribution Table**
+The revenue distribution for fees and auction proceeds is governed by ETS-defined percentages.
+
+| Revenue Source    | Relayer | Creator | Owner | Platform |
+|-------------------|---------|---------|-------|----------|
+| **Tagging Fees**| 30%     | --      | 50%   | 20%      |
+| **CTAG Auction**  | 20%     | 40%     | --    | 40%      |
+| **CTAG Resale**   | --      | --      | 100%  | --       |
+
+*(Note: Percentages are preliminary and subject to change.)*

@@ -3,15 +3,24 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "NODE_OPTIONS=\"--max-old-space-size=8192\" tsc -p tsconfig.build.json && vocs build && pwd && find . -type f",
     "dev": "vocs -c dev",
-    "build": "vocs build",
-    "preview": "vocs preview"
+    "preview": "vocs preview",
+    "clean": "rm -rf .next dist"
+  },
+  "dependencies": {
+    "@ethereum-tag-service/brand": "workspace:*"
   },
   "devDependencies": {
+    "@types/react": "latest",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "typescript": "latest",
-    "@types/react": "latest",
-    "vocs": "1.0.0-alpha.54"
+    "viem": "2.21.11",
+    "vocs": "1.0.0-alpha.54",
+    "@ethereum-tag-service/contracts": "workspace:*",
+    "@ethereum-tag-service/sdk-core": "workspace:*",
+    "@ethereum-tag-service/sdk-react-hooks": "workspace:*",
+    "@ethereum-tag-service/subgraph-endpoints": "workspace:*"
   }
 }

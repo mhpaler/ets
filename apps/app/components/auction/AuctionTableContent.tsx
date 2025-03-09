@@ -58,17 +58,17 @@ const AuctionTableContent: FC<AuctionTableContentProps> = ({ type, columns }) =>
     case "active":
       data = activeAuctions;
       loading = !activeAuctions.length;
-      rowLink = (auction) => `/explore/tags/${auction.tag.machineName}`;
+      rowLink = (auction) => `/explore/ctags/${auction.tag.machineName}`;
       break;
     case "upcoming":
       data = upcomingTags;
       loading = !upcomingTags.length;
-      rowLink = (tag) => `/explore/tags/${tag.machineName}`;
+      rowLink = (tag) => `/explore/ctags/${tag.machineName}`;
       break;
     case "settled":
       data = settledAuctions;
       loading = !settledAuctions.length;
-      rowLink = (auction) => `/explore/tags/${auction.tag.machineName}`;
+      rowLink = (auction) => `/explore/ctags/${auction.tag.machineName}`;
       break;
   }
 

@@ -1,0 +1,21 @@
+# ETS SDK Core [A TypeScript library for interacting with ETS smart contracts]
+
+**ETS SDK Core** (@ethereum-tag-service/sdk-core) is a TypeScript library that provides a comprehensive suite of clients for interacting with the Ethereum Tag Service smart contracts.
+
+The library leverages [viem](https://viem.sh/) for type-safe Ethereum interactions and has built-in support for multiple chains and flexible transport options including JSON-RPC and HTTP providers.
+
+For React applications, we provide [@ethereum-tag-service/sdk-react-hooks](/docs/sdk-react-hooks/intro.mdx), a companion library that wraps the **ETS SDK Core** functionality in React hooks for seamless integration with React applications.
+
+## Clients
+
+**ETS SDK Core** provides the following clients, each of which maps to a [corresponding contract](https://github.com/ethereum-tag-service/ets/tree/stage/packages/contracts/contracts) and provides methods for interacting with that contract:
+
+- **ETSToken Client** - Core NFT token operations
+- **ETSRelayer Client** - Tagging record creation and management
+- **ETSAuctionHouse Client** - Auction functionality
+- **ETSAccessControls Client** - Permission management
+- **ETSRelayerFactory Client** - Relayer deployment
+- **ETSTarget Client** - Target content management
+- **ETSEnrichTarget Client** - Content enrichment
+- **ETS Client** - Core ETS protocol operations
+- **ETSCore Client** - Combined client access

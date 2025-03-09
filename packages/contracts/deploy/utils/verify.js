@@ -33,8 +33,6 @@ async function verify(name, deployment, implementation, args) {
   } else {
     try {
       console.info(`Verifying ${name}`);
-      console.info("implementation", implementation);
-      console.info("deployment", deployment.address);
       await run("verify:verify", {
         network: networkName,
         address: implementation,

@@ -1,0 +1,62 @@
+import Icon from '../../../components/Icon';
+import { Callout } from 'vocs/components';
+
+# Tagger <Icon src="/icons/users.svg" size={36} alt="Tagger Icon" /> [Content curators of the tag graph]
+
+## What
+A **Tagger** is any address (user or smart contract) that initiates tagging actions through an ETS Relayer. Taggers are the primary actors who associate CTAGs with content by creating and modifying Tagging Records.
+
+## Why
+Taggers enable ETS to:
+- Build meaningful connections between content and tags
+- Create value through content curation
+- Drive protocol usage and tag adoption
+- Generate tagging fees for CTAG owners
+- Establish provenance of content associations
+
+## How
+
+Taggers interact with the protocol through authorized ETS Relayers, which handle tag creation, fee calculation, and record management.
+
+### Actions Available to Taggers
+
+1. **Apply Tags**
+   - Add new tags to content via `applyTags()`
+   - Create new tagging records
+   - Append tags to existing records
+   - Pay required tagging fees
+
+2. **Replace Tags**
+   - Overwrite existing tag sets via `replaceTags()`
+   - Update entire tag collections
+   - Pay fees only for new tags added
+
+3. **Remove Tags**
+   - Remove specific tags via `removeTags()`
+   - Modify existing tagging records
+   - No fees required for removal
+
+### Tagging Fees
+
+When applying or replacing tags, Taggers must pay fees that are:
+- Calculated per CTAG used
+- Based on protocol-governed rates
+- Distributed to tag owners and relayers
+- Only charged for new tags added
+
+<Callout type="info">
+Removing tags from content is free to encourage content maintenance and accuracy.
+</Callout>
+
+### Record Ownership
+
+- Taggers own the tagging records they create
+- Only the original tagger can modify their records
+- All tagging actions are permanently recorded on-chain
+- Each record maintains clear attribution to its tagger
+
+### Integration Patterns
+
+Taggers typically interact with ETS through:
+1. Application UIs built on RelayerClient
+2. Direct smart contract integration with ETSRelayerV1

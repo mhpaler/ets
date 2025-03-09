@@ -49,6 +49,7 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
     // Public constants
 
     string public constant NAME = "ETSTarget";
+    string public constant VERSION = "0.0.1";
 
     /// @dev Map of targetId to Target struct.
     mapping(uint256 => Target) public targets;

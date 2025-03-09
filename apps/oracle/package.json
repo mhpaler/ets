@@ -4,7 +4,7 @@
   "scripts": {
     "build": "pnpm run clean && dotenv -e ../../.env -- tsup",
     "clean": "rm -rf dist",
-    "dev:defender": "pnpm run build:defender && dotenv -e ../../.env node dist/defender/actions/release-next-auction/index.js",
+    "dev:defender": "pnpm run build && dotenv -e ../../.env node dist/defender/actions/release-next-auction/index.js",
     "deploy": "pnpm run build && dotenv -e ../../.env serverless deploy",
     "dev": "pnpm run build && dotenv -e ../../.env -- node dist/localhost/index.js"
   },

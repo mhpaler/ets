@@ -25,7 +25,7 @@ const Targets: NextPage = () => {
         cell: (info) => {
           const target = info.row.original as any;
           return (
-            target.id && <Address address={target.id} addressType="long-id" href={`/explore/targets/${target.id}`} />
+            target.id && <Address address={target.id} href={`/explore/targets/${target.id}`} explorerLink={false} />
           );
         },
       }),
@@ -37,7 +37,7 @@ const Targets: NextPage = () => {
         header: t("URI"),
         cell: (info) => (
           <div className="flex items-center">
-            <Address address={info.getValue()} addressType="url" href={info.getValue()} explorerLink={false} />
+            <Address address={info.getValue()} type="url" href={info.getValue()} explorerLink={false} />
           </div>
         ),
       }),

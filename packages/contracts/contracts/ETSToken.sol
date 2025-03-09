@@ -50,6 +50,7 @@ contract ETSToken is
 
     // Public constants
     string public constant NAME = "CTAG Token";
+    string public constant VERSION = "0.0.1";
 
     // Public variables
     uint256 public tagMinStringLength;

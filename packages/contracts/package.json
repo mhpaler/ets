@@ -3,7 +3,7 @@
   "author": "Ethereum Tag Service <team@ets.xyz>",
   "description": "Composable content tagging service for Web3",
   "license": "MIT",
-  "version": "0.0.3",
+  "version": "0.0.7",
   "publishConfig": {
     "access": "public"
   },
@@ -57,7 +57,7 @@
   "main": "./dist/multiChainConfig.js",
   "module": "./dist/multiChainConfig.mjs",
   "types": "./dist/multiChainConfig.d.ts",
-  "files": ["dist", "src"],
+  "files": ["dist", "contracts"],
   "scripts": {
     "build": "pnpm build:package",
     "build:contracts": "pnpm compile",
@@ -65,7 +65,9 @@
     "clean": "rm -rf dist",
     "compile": "hardhat clean && hardhat compile",
     "coverage": "hardhat coverage",
-    "deploy": "hardhat deploy-all",
+    "deploy-all": "hardhat deployETS --tags deployAll",
+    "deploy-upgrade": "hardhat deployETS --tags upgradeAll",
+    "deploy": "hardhat deployETS",
     "hardhat": "hardhat node --no-deploy",
     "hardhat:clean": "hardhat clean",
     "prepublishOnly": "pnpm build",
@@ -92,6 +94,7 @@
     "@nomiclabs/hardhat-web3": "^2.0.0",
     "@openzeppelin/hardhat-upgrades": "^2.4.1",
     "@openzeppelin/test-helpers": "^0.5.15",
+    "@solarity/hardhat-markup": "^1.0.8",
     "@sunodo/wagmi-plugin-hardhat-deploy": "^0.3.0",
     "@typechain/ethers-v5": "^11.1.2",
     "@typechain/ethers-v6": "^0.5.1",

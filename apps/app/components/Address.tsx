@@ -10,7 +10,7 @@ import { URI } from "./URI";
 
 interface AddressProps {
   address?: string | Hex;
-  addressType?: "evm" | "long-id" | "url";
+  type?: "address" | "nft" | "txn" | "url";
   ens?: string | null;
   hoverText?: boolean;
   href?: string;
@@ -18,61 +18,9 @@ interface AddressProps {
   explorerLink?: boolean;
 }
 
-/**
- * Address component displays Ethereum addresses with optional ENS names, copy functionality,
- * and blockchain explorer links.
- *
- * @component
- * @param {string | Hex} address - Ethereum address to display
- * @param {string} addressType - Type of address (default: "evm")
- * @param {string | null} ens - ENS name if available
- * @param {boolean} hoverText - Show hover text on hover (default: true)
- * @param {string} href - Optional link destination for the address
- * @param {boolean} copy - Show copy button (default: true)
- * @param {boolean} explorerLink - Show explorer link (default: true)
- *
- * @example
- * * Basic usage with all features
- * <Address address="0x123...abc" ens="vitalik.eth" />
- *
- * @example
- * * As a clickable link to a profile page
- * <Address
- *   address="0x123...abc"
- *   ens="vitalik.eth"
- *   href="/profile/0x123...abc"
- * />
- *
- * @example
- * * Minimal display without copy or explorer link
- * <Address
- *   address="0x123...abc"
- *   copy={false}
- *   explorerLink={false}
- * />
- *
- * @example
- * * Custom truncation length
- * <Address
- *   address="0x123...abc"
- * />
- */
-
-const TRUNCATE_LENGTHS = {
-  evm: 14,
-  "long-id": 18,
-  url: 22,
-} as const;
-
-const TOOLTIP_CLASSES = {
-  evm: "auto-tooltip-width",
-  "long-id": "fixed-tooltip-width",
-  url: "fixed-tooltip-width",
-} as const;
-
 const Address: React.FC<AddressProps> = ({
   address,
-  addressType = "evm",
+  type = "address",
   ens,
   hoverText = true,
   href,
@@ -80,14 +28,16 @@ const Address: React.FC<AddressProps> = ({
   explorerLink = true,
 }) => {
   const { t } = useTranslation("common");
-  const getExplorerUrl = useExplorerUrl();
-  const tooltipClass = TOOLTIP_CLASSES[addressType];
+  const { getNftUrl, getAddressUrl, getTxnUrl } = useExplorerUrl();
+
   const displayText = useMemo(
-    () => ens || Truncate(address, TRUNCATE_LENGTHS[addressType], addressType === "evm" ? "middle" : "end"),
-    [address, ens, addressType],
+    () =>
+      ens || Truncate(address, type === "url" ? 32 : type === "nft" ? 18 : 14, type === "address" ? "middle" : "end"),
+    [address, ens, type],
   );
+
   const addressDisplay = hoverText ? (
-    <div className={tooltipClass}>
+    <div className="fixed-tooltip-width">
       <span className="lg:tooltip lg:tooltip-primary whitespace-normal break-words" data-tip={address}>
         {displayText}
       </span>
@@ -98,7 +48,11 @@ const Address: React.FC<AddressProps> = ({
 
   return (
     <span className="inline-flex items-center gap-1">
-      {href ? (
+      {type === "url" ? (
+        <a href={href} target="_blank" rel="noopener noreferrer" className="link link-primary">
+          {addressDisplay}
+        </a>
+      ) : href ? (
         <Link
           onClick={(e) => {
             e.stopPropagation();
@@ -112,8 +66,14 @@ const Address: React.FC<AddressProps> = ({
         addressDisplay
       )}
       {address && copy && <CopyAndPaste value={address.toString()} />}
-      {explorerLink && <URI value={getExplorerUrl("address", address)} hoverText={t("view-on-explorer")} />}
+      {explorerLink && (
+        <URI
+          value={type === "nft" ? getNftUrl(address) : type === "txn" ? getTxnUrl(address) : getAddressUrl(address)}
+          hoverText={t("view-on-explorer")}
+        />
+      )}
     </span>
   );
 };
+
 export default memo(Address);

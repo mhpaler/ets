@@ -1,11 +1,12 @@
 import { Address, BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
+import { log } from "@graphprotocol/graph-ts";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
 import { ensureTag } from "../entities/Tag";
 import { ETSAccessControls } from "../generated/ETSAccessControls/ETSAccessControls";
 import { AuctionSettled } from "../generated/ETSAuctionHouse/ETSAuctionHouse";
 import { Transfer } from "../generated/ETSToken/ETSToken";
 import { Relayer, Release, Tag } from "../generated/schema";
-import { ETSRelayerV1 } from "../generated/templates/ETSRelayerV1/ETSRelayerV1";
+import { ETSRelayer } from "../generated/templates/ETSRelayer/ETSRelayer";
 import { arrayDiff } from "../utils/arrayDiff";
 import { APPEND, CREATE, MODULO, ONE, RELAYER, REMOVE, ZERO, ZERO_ADDRESS } from "../utils/constants";
 import { getTaggingFee } from "../utils/getTaggingFee";
@@ -37,7 +38,7 @@ export function ensureRelayer(relayerAddress: Address, event: ethereum.Event): R
 
     if (isRelayerAdminCall.value === false) {
       // This is a RelayerFactory contract. Let's fetch some onchain values.
-      const relayerContract = ETSRelayerV1.bind(relayerAddress);
+      const relayerContract = ETSRelayer.bind(relayerAddress);
       const getOwnerCall = relayerContract.try_getOwner();
       if (getOwnerCall.reverted) {
         logCritical("getOwnerCall reverted for {}", [relayerAddress.toString()]);

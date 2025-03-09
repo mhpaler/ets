@@ -117,7 +117,7 @@ const Tags: React.FC<Props> = ({
         typeof rowLink === "function"
           ? rowLink
           : rowLink
-            ? (tag: TagType) => `/explore/tags/${tag.machineName}`
+            ? (tag: TagType) => `/explore/ctags/${tag.machineName}`
             : undefined
       }
     />

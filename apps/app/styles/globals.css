@@ -34,8 +34,18 @@
   @apply font-semibold text-sm border-0 text-white p-0 hover:scale-100 !important;
 }
 
-.menu li > *:not(ul):hover {
-  background-color: #e2e8f0 !important;
+.globalMenu li > *:not(ul) {
+  transition: background-color 0.3s ease-in-out;
+}
+.globalMenu li > *:not(ul):hover,
+.globalMenu li > *:not(ul):active,
+.globalMenu li > *:not(ul):focus {
+  @apply bg-slate-100 text-slate-900 !important;
+}
+
+/* Handle the pressed state */
+.globalMenu li > *:not(ul):active:hover {
+  @apply bg-slate-100 text-slate-900 !important;
 }
 
 .menu :where(li ul) {
@@ -47,7 +57,7 @@
 }
 
 .auctions .tab {
-  @apply text-gray-400 text-2xl font-medium mb-1;
+  @apply text-gray-400;
 }
 
 .auctions .tab:checked {

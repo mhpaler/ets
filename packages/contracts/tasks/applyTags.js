@@ -23,7 +23,7 @@ task(
     const etsAccessControlsAddress = networkConfig.contracts.ETSAccessControls.address;
     const etsABI = networkConfig.contracts.ETS.abi;
     const etsAddress = networkConfig.contracts.ETS.address;
-    const etsRelayerV1ABI = networkConfig.contracts.ETSRelayerV1.abi;
+    const etsRelayerABI = networkConfig.contracts.ETSRelayer.abi;
 
     // Contract instances
     const etsAccessControls = new ethers.Contract(
@@ -39,7 +39,7 @@ task(
       console.info(`"${taskArgs.relayer}" is not a relayer`);
       return;
     }
-    const etsRelayerV1 = new ethers.Contract(relayerAddress, etsRelayerV1ABI, accounts[taskArgs.signer]);
+    const etsRelayer = new ethers.Contract(relayerAddress, etsRelayerABI, accounts[taskArgs.signer]);
 
     const tags = taskArgs.tags.replace(/\s+/g, "").split(","); // remove spaces & split on comma
     const targetURI = taskArgs.uri;
@@ -61,12 +61,12 @@ task(
 
     // Calculate tagging fees
     let taggingFee = 0;
-    const result = await etsRelayerV1.computeTaggingFee(tagParams, 0);
+    const result = await etsRelayer.computeTaggingFee(tagParams, 0);
 
     const { 0: fee, 1: actualTagCount } = result;
     taggingFee = fee;
 
-    const tx = await etsRelayerV1.applyTags([tagParams], {
+    const tx = await etsRelayer.applyTags([tagParams], {
       value: taggingFee,
       // gasPrice: ethers.utils.parseUnits("10", "gwei"), // do we need this?
       // gasLimit: 5000000, // do we need this?

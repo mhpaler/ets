@@ -1,0 +1,115 @@
+# Roadmap [A spotlight on the future of ETS]
+
+**ETS is an open-source project that relies 100% on contributions from the community and ecosystem grants.**
+
+Longer term, ETS will run on a central, keystone chain where all CTAGs will reside. Tagging records will utilize them from any EVM-compatible chain via cross-chain transactions.
+
+Until then, our strategy involves **deploying the ETS stack on various testnets** in order to attract attention from developers and ecosystem grant programs. These instances are merely clones and won't possess any true cross-chain functionality.
+
+As an experimental, early-phase protocol, there are many areas where contributions can make a real difference. Instead of a strict, timeline-based roadmap, we've outlined key areas of work where contributors can get involved:
+
+## Key Areas for Improvement
+
+| Roadmap Item | Strategic Categories |
+|--------------|---------------------|
+| [Dynamic Tagging Fees](#1-dynamic-tagging-fees) | Economics & Scalability |
+| [Relayer Sponsorship & Account Abstraction](#2-relayer-sponsorship--account-abstraction) | User Experience & Adoption |
+| [Pluggable Relayer Access Controls](#3-pluggable-relayer-access-controls) | Security & Governance |
+| [Dynamic Metadata for Tags](#4-dynamic-metadata-for-tags) | Data Architecture & Interoperability |
+| [Metadata for Targets](#5-metadata-for-targets) | Data Architecture & Enrichment |
+| [Cross-Chain Functionality](#6-cross-chain-functionality) | Infrastructure & Scalability |
+| [Security Audits and Testing](#7-security-audits-and-testing) | Security & Quality Assurance |
+| [Documentation and Community Support](#8-documentation-and-community-support) | Community & Education |
+
+
+### 1. Dynamic Tagging Fees
+Help us design and implement a system where tagging fees dynamically adjust based on market conditions. This could involve factors like demand, tag uniqueness, or network conditions, with recalibrations handled by smart contracts and supported by oracles.
+
+**Tech Stack Involved:**
+- **Smart Contracts**: Implement logic for dynamic fee calculations.
+- **Oracles**: Provide external data for market conditions.
+- **GraphQL API**: Expose tagging fee details to the front end.
+- **Front-End Data Explorer**: Display fee history and market metrics.
+
+---
+
+### 2. Relayer Sponsorship & Account Abstraction
+Develop features that allow relayers to sponsor tagging fees, making the platform more accessible for users. Additionally, create functionality to enable taggers to pre-purchase bulk tagging records, streamlining the tagging process with a single signature for multiple transactions.
+
+**Tech Stack Involved:**
+- **Smart Contracts**: Modify contracts to handle relayer-sponsored fees and bulk pre-purchase logic.
+- **Relayer Contracts**: Implement sponsorship mechanics and limits.
+- **Apps**: Design UI for taggers to pre-purchase tagging credits.
+- **GraphQL API**: Provide APIs for sponsorship and transaction tracking.
+
+---
+
+### 3. Pluggable Relayer Access Controls
+Build a modular system that allows relayers to define custom access controls for who can use their services. Examples include requiring taggers to have an ENS name or a specific Gitcoin score, with the flexibility to develop and deploy new restriction modules.
+
+**Tech Stack Involved:**
+- **Smart Contracts**: Develop a modular interface for restriction plugins.
+- **Relayer Contracts**: Integrate and enforce restriction modules.
+- **Apps**: Allow relayers to configure restriction settings.
+- **GraphQL API**: Expose restriction configurations and enforcement logs.
+
+---
+
+### 4. Dynamic Metadata for Tags
+Enhance tag tokens by adding dynamic metadata. This will ensure tags carry or reference rich tagging data, stored immutably on IPFS or Ceramic, while supporting dynamic updates through authorized mechanisms.
+
+**Tech Stack Involved:**
+- **Smart Contracts**: Enable dynamic metadata updates and links.
+- **Off-Chain Oracles**: Synchronize metadata changes from IPFS or Ceramic.
+- **IPFS/Ceramic**: Store metadata immutably and support updates.
+- **GraphQL API**: Expose token metadata to applications.
+- **Front-End Data Explorer**: Display tag metadata dynamically.
+
+---
+
+### 5. Metadata for Targets
+Expand target records to include more robust metadata beyond just URLs. Use off-chain oracles and decentralized storage solutions like IPFS or Ceramic to store and update this metadata, making tagging records more informative and useful.
+
+**Tech Stack Involved:**
+- **Smart Contracts**: Add metadata fields and references to target records.
+- **IPFS/Ceramic**: Store and update target metadata.
+- **Oracles**: Gather metadata from external sources for updates.
+- **GraphQL API**: Expose metadata fields for targets.
+- **Front-End Data Explorer**: Display detailed target metadata.
+
+---
+
+### 6. Cross-Chain Functionality
+Enable ETS to function seamlessly across EVM-compatible chains. Design mechanisms for utilizing CTAGs from the keystone chain in cross-chain transactions, ensuring interoperability and scalability.
+
+**Tech Stack Involved:**
+- **Smart Contracts**: Implement cross-chain messaging and bridging.
+- **GraphQL API**: Query cross-chain CTAG and tagging data.
+- **Relayer Contracts**: Handle cross-chain tagging requests.
+- **Apps**: Build tools to visualize and manage cross-chain tags.
+
+---
+
+### 7. Security Audits and Testing
+Contribute to the ongoing development and testing of the protocol, including identifying vulnerabilities and conducting security audits for smart contracts and the broader tech stack.
+
+**Tech Stack Involved:**
+- **Smart Contracts**: Comprehensive audits and testing frameworks (e.g., Hardhat, Foundry).
+- **GraphQL API**: Validate API responses and security.
+- **Front-End Data Explorer**: Test and secure front-end interactions.
+- **Apps**: Security hardening for user-facing tools.
+
+---
+
+### 8. Documentation and Community Support
+Improve ETS documentation to make it more developer-friendly and accessible. Engage with the community by building tutorials, examples, and tools to help new contributors onboard and participate.
+
+**Tech Stack Involved:**
+- **Documentation Tools**: Improve and maintain this docsite.
+- **GraphQL API**: Provide API documentation and examples.
+- **Front-End Data Explorer**: Create tutorials and guides for using the explorer.
+- **Community Platforms**: Enhance engagement on forums, GitHub, and other channels.
+
+---
+
+These areas represent the current focus of ETS development and are open for contributions from developers, researchers, and enthusiasts who want to help build the future of decentralized tagging. If you're interested in contributing, check out our GitHub repository for issues and tasks, or join the discussion on our community channels!
