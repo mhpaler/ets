@@ -35,6 +35,15 @@ const OPENZEPPELIN_ABIS: OpenzeppelinAbis = {
 };
 
 // Helper functions
+// Define contract paths mapping for special cases
+const CONTRACT_PATHS: Record<string, string> = {
+  ETSRelayer: "./../contracts/abi/contracts/relayers/ETSRelayer.sol/ETSRelayer.json",
+  // Add any other special cases here
+};
+
+// Default path pattern for standard contracts
+const DEFAULT_ABI_PATH = "./../contracts/abi/contracts/{contract}.sol/{contract}.json";
+
 const getNetworkConfig = (target: DeploymentTarget): NetworkConfig => {
   console.log("🔍 Generating network config for target:", target);
   const baseConfig: Omit<NetworkConfig, "name"> = {
@@ -51,7 +60,8 @@ const getNetworkConfig = (target: DeploymentTarget): NetworkConfig => {
       "ETSToken",
     ].reduce(
       (acc, contract) => {
-        acc[contract] = `./../contracts/deployments/${target}/${contract}.json`;
+        // Use special path if defined, otherwise use default pattern
+        acc[contract] = CONTRACT_PATHS[contract] || DEFAULT_ABI_PATH.replace(/{contract}/g, contract);
         return acc;
       },
       {} as Record<string, string>,
@@ -98,13 +108,16 @@ export async function main(providedTarget?: string): Promise<void> {
   try {
     const configContent = await fsPromises.readFile(networkConfig.configPath, "utf8");
     networkConfig.config = JSON.parse(configContent);
+
     const upgradesConfigContent = await fsPromises.readFile(networkConfig.upgradesConfigPath, "utf8");
     networkConfig.upgradesConfig = JSON.parse(upgradesConfigContent);
 
-    // Adjust all contract deployment blocks to start 10 blocks earlier
+    // Adjust all contract deployment blocks to start 10 blocks earlier, but never below 1
     for (const contractName of Object.keys(networkConfig.upgradesConfig.contracts)) {
-      if (networkConfig.upgradesConfig.contracts[contractName].deploymentBlock) {
-        networkConfig.upgradesConfig.contracts[contractName].deploymentBlock -= 10;
+      if (networkConfig.upgradesConfig.contracts[contractName].deploymentBlock !== undefined) {
+        const currentBlock = networkConfig.upgradesConfig.contracts[contractName].deploymentBlock;
+        // Use Math.max to ensure we never go below 1
+        networkConfig.upgradesConfig.contracts[contractName].deploymentBlock = Math.max(1, currentBlock - 10);
       }
     }
   } catch (err) {
@@ -118,14 +131,16 @@ export async function main(providedTarget?: string): Promise<void> {
 
   // Add debug logging here
   console.log("Network Config:", JSON.stringify(networkConfig.upgradesConfig, null, 2));
-
+  console.log("🔧 Using the following ABI paths:");
+  for (const [contract, path] of Object.entries(networkConfig.abis)) {
+    console.log(`  - ${contract}: ${path}`);
+  }
   const result = template({ ...networkConfig, openzeppelin: OPENZEPPELIN_ABIS });
 
   const outputPath = path.join(__dirname, "../subgraph.yaml");
   await fsPromises.writeFile(outputPath, result);
   console.info(`${target} configuration file written to ${outputPath}`);
 }
-
 // Run the main function if this file is being executed directly
 if (require.main === module) {
   main().catch((error) => {

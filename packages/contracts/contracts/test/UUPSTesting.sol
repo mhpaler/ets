@@ -15,7 +15,7 @@ contract ETSAccessControlsUpgrade is ETSAccessControls {
     }
 }
 
-abstract contract ETSEnrichTargetUpgrade is ETSEnrichTarget {
+contract ETSEnrichTargetUpgrade is ETSEnrichTarget {
     // Extend existing contract with new function.
     function upgradeTest() public pure returns (bool) {
         return true;
