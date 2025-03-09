@@ -3,7 +3,7 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256",
         "name": "targetId",
         "type": "uint256"
@@ -15,19 +15,14 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_targetId",
-        "type": "uint256"
+        "internalType": "bytes32",
+        "name": "requestId",
+        "type": "bytes32"
       },
       {
-        "internalType": "string",
-        "name": "_ipfsHash",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_httpStatus",
-        "type": "uint256"
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
       }
     ],
     "name": "fulfillEnrichTarget",
@@ -44,6 +39,29 @@
       }
     ],
     "name": "requestEnrichTarget",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_airnode",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_endpointId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "_sponsorWallet",
+        "type": "address"
+      }
+    ],
+    "name": "setAirnodeRequestParameters",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

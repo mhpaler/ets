@@ -10,3 +10,4 @@ exports.miningSettings = require("./miningSettings");
 exports.togglePauseRelayerByOwner = require("./togglePauseRelayerByOwner");
 exports.testdata = require("./createTestData");
 exports.deployETS = require("./deployETS");
+exports.enrichTarget = require("./enrichTarget");

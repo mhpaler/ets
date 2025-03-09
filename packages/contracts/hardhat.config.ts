@@ -130,6 +130,15 @@ const config: HardhatUserConfig = {
         },
       },
       {
+        version: "0.8.9",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 1000,
+          },
+        },
+      },
+      {
         version: "0.8.12",
         settings: {
           optimizer: {
@@ -139,6 +148,12 @@ const config: HardhatUserConfig = {
         },
       },
     ],
+    // Add overrides at this level (parallel to compilers)
+    overrides: {
+      "@api3/airnode-protocol/contracts/rrp/AirnodeRrpV0.sol": {
+        version: "0.8.9",
+      },
+    },
   },
   //  ethernal: {
   //    disableSync: false,

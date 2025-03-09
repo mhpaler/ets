@@ -13,7 +13,12 @@
     "url": "git+https://github.com/ethereum-tag-service/ets.git",
     "directory": "packages/contracts"
   },
-  "keywords": ["ets", "composable", "nft", "tagging"],
+  "keywords": [
+    "ets",
+    "composable",
+    "nft",
+    "tagging"
+  ],
   "bugs": {
     "url": "https://github.com/orgs/ethereum-tag-service/discussions"
   },
@@ -57,7 +62,10 @@
   "main": "./dist/multiChainConfig.js",
   "module": "./dist/multiChainConfig.mjs",
   "types": "./dist/multiChainConfig.d.ts",
-  "files": ["dist", "contracts"],
+  "files": [
+    "dist",
+    "contracts"
+  ],
   "scripts": {
     "build": "pnpm build:package",
     "build:contracts": "pnpm compile",
@@ -130,6 +138,8 @@
     "viem": "^2.21.11"
   },
   "dependencies": {
+    "@api3/airnode-admin": "^0.15.0",
+    "@api3/airnode-protocol": "^0.15.0",
     "@openzeppelin/contracts": "^4.9.2",
     "@openzeppelin/contracts-upgradeable": "^4.9.2"
   }

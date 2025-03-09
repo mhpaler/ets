@@ -32,27 +32,24 @@
 
 pragma solidity ^0.8.10;
 
+/// @title IETSEnrichTarget
+/// @notice Interface for the ETSEnrichTarget contract
 interface IETSEnrichTarget {
-    /**
-     * @dev emitted when Target enrichment is requested via requestEnrichTarget().
-     *
-     * @param targetId Target record to enrich.
-     */
-    event RequestEnrichTarget(uint256 targetId);
+    /// @notice Event emitted when an enrichment is requested
+    event RequestEnrichTarget(uint256 indexed targetId);
 
-    /**
-     * @notice Request enrichment for a Target using the hybrid ETS Enrich Target API.
-     *
-     * @param _targetId Id of Target being enriched.
-     */
+    /// @notice Request to enrich a target
+    /// @param _targetId The target ID to enrich
     function requestEnrichTarget(uint256 _targetId) external;
 
-    /**
-     * @notice Updates Target record with additional metadata stored behind IPFS hash.
-     *
-     * @param _targetId Id of Target being enriched & updated.
-     * @param _ipfsHash IPFS hash with metadata related to the Target.
-     * @param _httpStatus HTTP response code from off-chain ETS Enrich Target API.
-     */
-    function fulfillEnrichTarget(uint256 _targetId, string calldata _ipfsHash, uint256 _httpStatus) external;
+    /// @notice Callback function for Airnode to fulfill an enrichment request
+    /// @param requestId The request ID from Airnode
+    /// @param data The encoded response data
+    function fulfillEnrichTarget(bytes32 requestId, bytes calldata data) external;
+
+    /// @notice Set the Airnode request parameters
+    /// @param _airnode The Airnode address
+    /// @param _endpointId The endpoint ID
+    /// @param _sponsorWallet The sponsor wallet address
+    function setAirnodeRequestParameters(address _airnode, bytes32 _endpointId, address _sponsorWallet) external;
 }

@@ -36,6 +36,7 @@ async function setup() {
   };
 
   const factories = {
+    AirnodeRrpV0Proxy: await ethers.getContractFactory("AirnodeRrpV0Proxy"),
     WETH: await ethers.getContractFactory("WETH"),
     ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
     ETSToken: await ethers.getContractFactory("ETSToken"),

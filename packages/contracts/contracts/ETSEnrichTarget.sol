@@ -1,35 +1,4 @@
 // SPDX-License-Identifier: MIT
-
-/**
- * @title ETSEnrichTarget
- * @author Ethereum Tag Service <team@ets.xyz>
- *
- *  ███████╗████████╗███████╗
- *  ██╔════╝╚══██╔══╝██╔════╝
- *  █████╗     ██║   ███████╗
- *  ██╔══╝     ██║   ╚════██║
- *  ███████╗   ██║   ███████║
- *  ╚══════╝   ╚═╝   ╚══════╝
- *
- * @notice Contract that handles the enrichment of Target metadata using off-chain APIs.
- *
- * In order to keep the on-chain recording of new Target records lightweight and inexpensive,
- * the createTarget() function (ETSTarget.sol) requires only a URI string (targetURI).
- *
- * To augment this, we are developing a hybrid onchain/off-chain Enrich Target flow for the purpose of
- * collecting additional metadata about a Target and saving it back on-chain.
- *
- * The flow begins with the requestEnrichTarget() function (see below) which takes a targetId as an
- * argument. If the Target exists, the function emits the targetId via the RequestEnrichTarget event.
- *
- * An OpenZeppelin Defender Sentinel is listening for this event, and when detected, passes the
- * targetId to an ETS off-chain service we call the Enrich Target API, which extracts the Target URI,
- * collects metadata about the URI and saves it in json format to IPFS. The IPFS entpoint is posted
- * back on-chain via fulfillEnrichTarget() thus updating the Target data struct.
- *
- * Future implementation should utilize ChainLink in place of OpenZeppelin for better decentralization.
- */
-
 pragma solidity ^0.8.10;
 
 import { IETSTarget } from "./interfaces/IETSTarget.sol";
@@ -38,23 +7,43 @@ import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
 import { ContextUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import { RrpRequesterV0 } from "@api3/airnode-protocol/contracts/rrp/requesters/RrpRequesterV0.sol";
+import { IAirnodeRrpV0 } from "@api3/airnode-protocol/contracts/rrp/interfaces/IAirnodeRrpV0.sol";
 
 contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable, UUPSUpgradeable {
     /// @dev ETS access controls smart contract.
     IETSAccessControls public etsAccessControls;
 
-    /// @dev ETS access controls smart contract.
+    /// @dev ETS target smart contract.
     IETSTarget public etsTarget;
 
-    // Public constants
+    // Airnode parameters
+    address public airnode;
+    bytes32 public endpointId;
+    address public sponsorWallet;
 
+    // Airnode RRP contract
+    IAirnodeRrpV0 public airnodeRrp;
+
+    // Track request IDs to target IDs
+    mapping(bytes32 => uint256) public requestIdToTargetId;
+
+    // Public constants
     string public constant NAME = "ETSEnrichTarget";
-    string public constant VERSION = "0.0.1";
+    string public constant VERSION = "0.0.2";
+
+    // Events
+    event RequestedEnrichTarget(bytes32 indexed requestId, uint256 indexed targetId);
+    event EnrichmentFulfilled(bytes32 indexed requestId, uint256 indexed targetId, string ipfsHash, uint256 httpStatus);
 
     // Modifiers
-
     modifier onlyAdmin() {
         require(etsAccessControls.isAdmin(_msgSender()), "Access denied");
+        _;
+    }
+
+    modifier onlyAirnodeRrp() {
+        require(msg.sender == address(airnodeRrp), "Caller is not the AirnodeRrpV0 contract");
         _;
     }
 
@@ -65,30 +54,78 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
         _disableInitializers();
     }
 
-    function initialize(IETSAccessControls _etsAccessControls, IETSTarget _etsTarget) public initializer {
+    function initialize(
+        IETSAccessControls _etsAccessControls,
+        IETSTarget _etsTarget,
+        IAirnodeRrpV0 _airnodeRrp
+    ) public initializer {
         // Initialize access controls & ETS
         etsAccessControls = _etsAccessControls;
         etsTarget = _etsTarget;
+        airnodeRrp = _airnodeRrp;
     }
 
     // solhint-disable-next-line
     function _authorizeUpgrade(address) internal override onlyAdmin {}
+
+    // ============ OWNER INTERFACE ============
+
+    function setAirnodeRequestParameters(
+        address _airnode,
+        bytes32 _endpointId,
+        address _sponsorWallet
+    ) external onlyAdmin {
+        airnode = _airnode;
+        endpointId = _endpointId;
+        sponsorWallet = _sponsorWallet;
+    }
 
     // ============ PUBLIC INTERFACE ============
 
     /// @inheritdoc IETSEnrichTarget
     function requestEnrichTarget(uint256 _targetId) public {
         require(etsTarget.targetExistsById(_targetId) == true, "Invalid target");
-        // require(!etsTarget.isTargetEnsured(_targetId), "Already ensured");
-        emit RequestEnrichTarget(_targetId);
+        require(airnode != address(0), "Airnode not set");
+        require(sponsorWallet != address(0), "Sponsor wallet not set");
+
+        // Encode request parameters
+        bytes memory parameters = abi.encode(block.chainid, _targetId);
+
+        // Make the Airnode request
+        bytes32 requestId = airnodeRrp.makeFullRequest(
+            airnode,
+            endpointId,
+            address(this),
+            sponsorWallet,
+            address(this),
+            this.fulfillEnrichTarget.selector,
+            parameters
+        );
+
+        // Store the mapping between requestId and targetId
+        requestIdToTargetId[requestId] = _targetId;
+
+        emit RequestedEnrichTarget(requestId, _targetId);
     }
 
-    // ============ OWNER INTERFACE ============
+    /// @notice Function called by Airnode with the enriched data
+    /// @param requestId The request ID that was returned when making the request
+    /// @param data The data returned by the Airnode (encoded ipfsHash and httpStatus)
+    function fulfillEnrichTarget(bytes32 requestId, bytes calldata data) external onlyAirnodeRrp {
+        // Get the target ID associated with this request
+        uint256 targetId = requestIdToTargetId[requestId];
+        require(targetId != 0, "Unknown request ID");
 
-    /// @inheritdoc IETSEnrichTarget
-    function fulfillEnrichTarget(uint256 _targetId, string calldata _ipfsHash, uint256 _httpStatus) public {
-        require(etsAccessControls.getPlatformAddress() == msg.sender, "only platform may enrich target");
-        IETSTarget.Target memory target = etsTarget.getTargetById(_targetId);
-        etsTarget.updateTarget(_targetId, target.targetURI, block.timestamp, _httpStatus, _ipfsHash);
+        // Clean up mapping
+        delete requestIdToTargetId[requestId];
+
+        // Decode the response - expects encoded tuple of (string, uint256)
+        (string memory ipfsHash, uint256 httpStatus) = abi.decode(data, (string, uint256));
+
+        // Update the target with enriched data
+        IETSTarget.Target memory target = etsTarget.getTargetById(targetId);
+        etsTarget.updateTarget(targetId, target.targetURI, block.timestamp, httpStatus, ipfsHash);
+
+        emit EnrichmentFulfilled(requestId, targetId, ipfsHash, httpStatus);
     }
 }

@@ -1,33 +1,26 @@
 {
-  "name": "@ethereum-tag-service/oracle",
-  "private": true,
+  "name": "ets-oracle",
+  "version": "0.1.0",
+  "description": "ETS Airnode Oracle",
+  "main": "index.js",
   "scripts": {
-    "build": "pnpm run clean && dotenv -e ../../.env -- tsup",
-    "clean": "rm -rf dist",
-    "dev:defender": "pnpm run build && dotenv -e ../../.env node dist/defender/actions/release-next-auction/index.js",
-    "deploy": "pnpm run build && dotenv -e ../../.env serverless deploy",
-    "dev": "pnpm run build && dotenv -e ../../.env -- node dist/localhost/index.js"
+    "deploy-local": "ts-node scripts/deploy-local.ts",
+    "deploy-production": "ts-node scripts/deploy-production.ts",
+    "start-local": "ts-node scripts/start-local.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@ethereum-tag-service/contracts": "workspace:*",
-    "@ethereum-tag-service/subgraph-endpoints": "workspace:*",
-    "@openzeppelin/defender-sdk-action-client": "^1.14.3",
-    "@openzeppelin/defender-sdk-relay-signer-client": "1.11.0",
-    "axios": "^1.6.0",
-    "ethers": "5.5.3"
+    "@api3/airnode-admin": "^0.15.0",
+    "@api3/airnode-deployer": "^0.15.0",
+    "@api3/airnode-node": "^0.15.0",
+    "dotenv": "^16.3.1",
+    "ethers": "^5.7.2"
   },
   "devDependencies": {
-    "@openzeppelin/defender-as-code": "^2.6.0",
-    "@types/node": "^20.12.7",
-    "builtin-modules": "^3.1.0",
-    "dotenv": "^16.3.1",
-    "dotenv-cli": "^7.3.0",
-    "serverless": "^3.38.0",
+    "@types/node": "^22.13.9",
     "ts-node": "^10.9.1",
-    "tsup": "^8.2.3",
-    "typescript": "^5.4.5"
+    "typescript": "^5.8.2"
   }
 }
