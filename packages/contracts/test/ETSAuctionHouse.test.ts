@@ -1,6 +1,12 @@
-const { setup } = require("./setup.js");
-const { ethers } = require("hardhat");
-const { expect, assert } = require("chai");
+import { assert, expect } from "chai";
+import type { Contract } from "ethers";
+import { ethers, upgrades } from "hardhat";
+import type { ETSRelayer } from "../typechain-types/contracts/relayers/ETSRelayer";
+import type { MaliciousBidder } from "../typechain-types/contracts/test/MaliciousBidder";
+
+import { setup } from "./setup"; // No .js extension
+import type { Accounts, Contracts, InitSettings } from "./setup";
+import { getFactories } from "./setup";
 
 // Auction settings
 // initSettings.TIME_BUFFER = 10 * 60; // 10 minutes
@@ -12,27 +18,37 @@ const { expect, assert } = require("chai");
 // PLATFORM_PERCENTAGE = 40;
 
 describe("ETS Auction House Tests", () => {
-  // we create a setup function that can be called by every test and setup variable for easy to read tests
+  let accounts: Accounts;
+  let contracts: Contracts;
+  let initSettings: InitSettings;
+
+  const etsOwnedTag = "#LOVE";
+  const etsOwnedTag2 = "#HATE";
+  const userOwnedTag = "#Incredible";
+
+  let etsOwnedTagId: bigint;
+  let etsOwnedTagId2: bigint;
+  let userOwnedTagId: bigint;
+
   beforeEach("Setup test", async () => {
-    [accounts, contracts, initSettings] = await setup();
+    const result = await setup();
+    ({ accounts, contracts, initSettings } = result);
 
     await contracts.ETSAuctionHouse.connect(accounts.ETSAdmin).unpause();
     // Mint a tag by random user. ETS is Relayer, retained by platform.
-    etsOwnedTag = "#LOVE";
+
     await contracts.ETS.connect(accounts.ETSPlatform).createTag(etsOwnedTag, accounts.RandomTwo.address);
     etsOwnedTagId = await contracts.ETSToken.computeTagId(etsOwnedTag);
-    etsOwnedTagId = etsOwnedTagId.toString();
+    //etsOwnedTagId = etsOwnedTagId.toString();
 
-    etsOwnedTag2 = "#HATE";
     await contracts.ETS.connect(accounts.ETSPlatform).createTag(etsOwnedTag2, accounts.RandomTwo.address);
     etsOwnedTagId2 = await contracts.ETSToken.computeTagId(etsOwnedTag2);
-    etsOwnedTagId2 = etsOwnedTagId2.toString();
+    //etsOwnedTagId2 = etsOwnedTagId2.toString();
 
     // Mint a tag and transfer away from platform.
-    userOwnedTag = "#Incredible";
     await contracts.ETS.connect(accounts.ETSPlatform).createTag(userOwnedTag, accounts.RandomTwo.address);
     userOwnedTagId = await contracts.ETSToken.computeTagId(userOwnedTag);
-    userOwnedTagId = userOwnedTagId.toString();
+    //userOwnedTagId = userOwnedTagId.toString();
 
     await contracts.ETSToken.connect(accounts.ETSPlatform).transferFrom(
       accounts.ETSPlatform.address,
@@ -231,13 +247,14 @@ describe("ETS Auction House Tests", () => {
       assert((await contracts.ETSToken.ownerOf(etsOwnedTagId)) === accounts.RandomTwo.address);
 
       // expire token
-      lastRenewed = await contracts.ETSToken.getLastRenewed(etsOwnedTagId);
+      const lastRenewed = await contracts.ETSToken.getLastRenewed(etsOwnedTagId);
 
       // Advance current time by 30 days more than ownershipTermLength (2 years).
-      const thirtyDays = 30 * 24 * 60 * 60;
-      let advanceTime = lastRenewed + ((await contracts.ETSToken.ownershipTermLength()) + BigInt(thirtyDays));
-      advanceTime = Number(advanceTime.toString());
-      await ethers.provider.send("evm_increaseTime", [advanceTime]);
+      const thirtyDays = BigInt(30 * 24 * 60 * 60);
+      const advanceTime = lastRenewed + ((await contracts.ETSToken.ownershipTermLength()) + thirtyDays);
+
+      // Convert to Number before passing to evm_increaseTime
+      await ethers.provider.send("evm_increaseTime", [Number(advanceTime)]);
       await ethers.provider.send("evm_mine");
 
       expect((await contracts.ETSToken.tagOwnershipTermExpired(etsOwnedTagId)) === true);
@@ -256,7 +273,7 @@ describe("ETS Auction House Tests", () => {
         .withArgs(etsOwnedTagId, accounts.RandomOne.address);
 
       // Recycling tag resets last transfer time to zero.
-      lastRenewed = await contracts.ETSToken.getLastRenewed(etsOwnedTagId);
+      const lastRenewed = await contracts.ETSToken.getLastRenewed(etsOwnedTagId);
 
       assert(Number(lastRenewed) === 0);
       // platform now once again owns the token
@@ -294,7 +311,7 @@ describe("ETS Auction House Tests", () => {
     });
 
     it("should revert if bid doesn't meet reserve price", async () => {
-      const less_than_reserve = initSettings.RESERVE_PRICE - initSettings.RESERVE_PRICE / 2;
+      const less_than_reserve = BigInt(initSettings.RESERVE_PRICE) - BigInt(initSettings.RESERVE_PRICE) / BigInt(2);
       const bid = ethers.parseUnits(less_than_reserve.toString(), "ether");
       // First bid.
       await expect(
@@ -374,27 +391,33 @@ describe("ETS Auction House Tests", () => {
     });
 
     it("should cap the maximum bid griefing cost at 30K gas + the cost to wrap and transfer WETH", async () => {
-      const maliciousBidder = await (
+      const maliciousBidder = (await (
         await (await ethers.getContractFactory("MaliciousBidder")).deploy()
-      ).waitForDeployment();
+      ).waitForDeployment()) as unknown as {
+        bid: (auctionHouse: string, auctionId: number, options?: { value?: bigint }) => Promise<any>;
+        connect: (signer: any) => any;
+        getAddress: () => Promise<string>;
+      };
+
       const maliciousBid = await maliciousBidder
         .connect(accounts.RandomOne)
         .bid(await contracts.ETSAuctionHouse.getAddress(), 1, {
-          value: ethers.parseUnits(initSettings.RESERVE_PRICE, "ether"),
+          value: ethers.parseUnits(initSettings.RESERVE_PRICE.toString(), "ether"),
         });
       await maliciousBid.wait();
 
-      const bid = ethers.parseUnits((initSettings.RESERVE_PRICE * 4).toString(), "ether");
+      const bid = ethers.parseUnits((Number(initSettings.RESERVE_PRICE) * 4).toString(), "ether");
       const tx = await contracts.ETSAuctionHouse.connect(accounts.RandomTwo).createBid(1, {
         value: bid,
         gasLimit: 1_000_000,
       });
       const result = await tx.wait();
 
-      expect(Number(result.gasUsed)) < Number(200_000);
-      expect(await contracts.WETH.balanceOf(await maliciousBidder.getAddress())) === initSettings.RESERVE_PRICE;
+      expect(result !== null && Number(result.gasUsed)).to.be.lessThan(200_000);
+      expect(await contracts.WETH.balanceOf(await maliciousBidder.getAddress())).to.equal(
+        ethers.parseUnits(initSettings.RESERVE_PRICE.toString(), "ether"),
+      );
     });
-
     it("should emit an `AuctionExtended` event if the auction end time is within the time buffer", async () => {
       // RandomOne Bids
       // const randomOneBid = initSettings.RESERVE_PRICE * 2;
@@ -553,12 +576,32 @@ describe("ETS Auction House Tests", () => {
   });
 
   describe("Auction Proceeds", async () => {
+    // Declare these variables at the describe level so they're available in all tests
+    let relayerAddress: string;
+    let randomTwoRelayer: ETSRelayer;
+    let relayerPreAuctionAccrued: bigint;
+    let creatorPreAuctionAccrued: bigint;
+    let platformPreAuctionAccrued: bigint;
+    let relayerPostAuctionAccrued: bigint;
+    let creatorPostAuctionAccrued: bigint;
+    let platformPostAuctionAccrued: bigint;
+    let tagString: string;
+    let tagId: bigint;
+    let auction: any;
+    let creatorAccrued: bigint;
+    let relayerAccrued: bigint;
+    let platformAccrued: bigint;
+
     beforeEach(async () => {
       // RandomTwo sets up as a relayer (they own a tag already from overall test setup):
       await contracts.ETSRelayerFactory.connect(accounts.RandomTwo).addRelayer("RandomTwo Relayer");
       relayerAddress = await contracts.ETSAccessControls.getRelayerAddressFromName("RandomTwo Relayer");
-      etsRelayerABI = require("../abi/contracts/relayers/ETSRelayer.sol/ETSRelayer.json");
-      randomTwoRelayer = new ethers.Contract(relayerAddress, etsRelayerABI, accounts.RandomTwo);
+      const etsRelayerABI = require("../abi/contracts/relayers/ETSRelayer.sol/ETSRelayer.json");
+      randomTwoRelayer = new ethers.Contract(
+        relayerAddress,
+        etsRelayerABI,
+        accounts.RandomTwo,
+      ) as unknown as ETSRelayer;
 
       relayerPreAuctionAccrued = await contracts.ETSAuctionHouse.accrued(relayerAddress);
       creatorPreAuctionAccrued = await contracts.ETSAuctionHouse.accrued(accounts.Creator.address);

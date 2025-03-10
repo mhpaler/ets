@@ -51,8 +51,9 @@ export interface Contracts {
   ETS: ETS;
   ETSRelayerFactory: ETSRelayerFactory;
   ETSRelayerImplementation: ETSRelayer;
-  ETSRelayer?: ETSRelayer;
+  ETSRelayer: ETSRelayer;
   WETH: WETH;
+  secondRelayer: ETSRelayer;
 }
 
 export interface Artifacts {

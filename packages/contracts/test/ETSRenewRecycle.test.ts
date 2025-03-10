@@ -1,11 +1,15 @@
-const { setup } = require("./setup.js");
-const { ethers } = require("hardhat");
-const { expect, assert } = require("chai");
+import { assert, expect } from "chai";
+import { ethers } from "hardhat";
+import { setup } from "./setup";
+import type { Accounts, Contracts } from "./setup";
 
 describe("CTAG ownership lifecycle tests", () => {
-  // we create a setup function that can be called by every test and setup variable for easy to read tests
+  let accounts: Accounts;
+  let contracts: Contracts;
+
   beforeEach("Setup test", async () => {
-    [accounts, contracts, initSettings] = await setup();
+    const result = await setup();
+    ({ accounts, contracts } = result);
   });
 
   describe("Validate setup", async () => {
@@ -15,7 +19,7 @@ describe("CTAG ownership lifecycle tests", () => {
     });
 
     it("should have default configs", async () => {
-      expect(await contracts.ETSToken.ownershipTermLength()).to.be.equal("730");
+      expect(await contracts.ETSToken.ownershipTermLength()).to.be.equal(BigInt(730));
     });
   });
 
@@ -34,8 +38,11 @@ describe("CTAG ownership lifecycle tests", () => {
   });
 
   describe("Renewing a tag", async () => {
-    let lastRenewed;
-    let tokenId;
+    let lastRenewed: bigint;
+    let tokenId: bigint;
+    let blockNum: number;
+    let block: any;
+    let timestamp: number;
 
     beforeEach(async () => {
       const tag = "#BlockRocket";
@@ -47,7 +54,7 @@ describe("CTAG ownership lifecycle tests", () => {
 
     it("for newly minted tag should have last renewed be zero", async () => {
       lastRenewed = await contracts.ETSToken.getLastRenewed(tokenId);
-      assert(Number(lastRenewed.toString()) === 0);
+      assert(Number(lastRenewed) === 0);
     });
 
     it("will occur only when token is transferred away from platform", async () => {
@@ -59,11 +66,13 @@ describe("CTAG ownership lifecycle tests", () => {
       lastRenewed = await contracts.ETSToken.getLastRenewed(tokenId);
       const blockNum = await ethers.provider.getBlockNumber();
       const block = await ethers.provider.getBlock(blockNum);
+      if (!block) {
+        throw new Error(`Block ${blockNum} not found`);
+      }
       const timestamp = block.timestamp;
       // Verify current block timestamp and last renewTime are equal.
       expect(timestamp).to.be.equal(lastRenewed);
     });
-
     it("is reset when transferred back to platform", async () => {
       // Transfer tag away from platform.
       await contracts.ETSToken.connect(accounts.ETSPlatform).transferFrom(
@@ -89,7 +98,7 @@ describe("CTAG ownership lifecycle tests", () => {
     });
 
     it("will fail if token does not exist", async () => {
-      await expect(contracts.ETSToken.connect(accounts.RandomTwo).renewTag(Number(2))).to.be.revertedWith(
+      await expect(contracts.ETSToken.connect(accounts.RandomTwo).renewTag(BigInt(2))).to.be.revertedWith(
         "ETS: CTAG not found",
       );
     });
@@ -108,7 +117,7 @@ describe("CTAG ownership lifecycle tests", () => {
       const thirtyDays = 30 * 24 * 60 * 60;
       const advanceTime = lastRenewed + ((await contracts.ETSToken.ownershipTermLength()) - BigInt(thirtyDays));
 
-      const advanceTimeNumber = Number(advanceTime.toString());
+      const advanceTimeNumber = Number(advanceTime);
 
       await ethers.provider.send("evm_increaseTime", [advanceTimeNumber]);
       await ethers.provider.send("evm_mine");
@@ -126,7 +135,7 @@ describe("CTAG ownership lifecycle tests", () => {
       const newRenewTime = await contracts.ETSToken.getLastRenewed(tokenId);
 
       expect(newRenewTime).to.be.equal(timestamp);
-      // Check that newRenewTime is equal to lastRenewed + 1year + 1microsecond.
+      // Check that newRenewTime is equal to lastRenewed + advanceTime + 1 or lastRenewed + advanceTime
       expect(newRenewTime).to.be.equal(
         Number(lastRenewed) + Number(advanceTime) + 1 || Number(lastRenewed) + Number(advanceTime),
       );
@@ -146,7 +155,7 @@ describe("CTAG ownership lifecycle tests", () => {
       const thirtyDays = 30 * 24 * 60 * 60;
       const advanceTime = lastRenewed + ((await contracts.ETSToken.ownershipTermLength()) + BigInt(thirtyDays));
 
-      const advanceTimeNumber = Number(advanceTime.toString());
+      const advanceTimeNumber = Number(advanceTime);
 
       await ethers.provider.send("evm_increaseTime", [advanceTimeNumber]);
       await ethers.provider.send("evm_mine");
@@ -164,7 +173,7 @@ describe("CTAG ownership lifecycle tests", () => {
       const newRenewTime = await contracts.ETSToken.getLastRenewed(tokenId);
 
       expect(newRenewTime).to.be.equal(timestamp);
-      // Check that newRenewTime is equal to lastRenewed + 1year + 1microsecond.
+      // Check that newRenewTime is equal to lastRenewed + advanceTime + 1 or lastRenewed + advanceTime
       expect(newRenewTime).to.be.equal(
         Number(lastRenewed) + Number(advanceTime) + 1 || Number(lastRenewed) + Number(advanceTime),
       );
@@ -172,8 +181,8 @@ describe("CTAG ownership lifecycle tests", () => {
   });
 
   describe("Recycling a tag", async () => {
-    let lastRenewed;
-    let tokenId;
+    let lastRenewed: bigint;
+    let tokenId: bigint;
 
     beforeEach(async () => {
       const tag = "#BlockRocket";
@@ -191,7 +200,7 @@ describe("CTAG ownership lifecycle tests", () => {
     });
 
     it("will fail if token does not exist", async () => {
-      await expect(contracts.ETSToken.connect(accounts.RandomTwo).recycleTag(Number(2))).to.be.revertedWith(
+      await expect(contracts.ETSToken.connect(accounts.RandomTwo).recycleTag(BigInt(2))).to.be.revertedWith(
         "ETS: CTAG not found",
       );
     });
@@ -221,9 +230,9 @@ describe("CTAG ownership lifecycle tests", () => {
 
       // Advance current time by 30 days more than ownershipTermLength (2 years).
       const thirtyDays = 30 * 24 * 60 * 60;
-      let advanceTime = lastRenewed + ((await contracts.ETSToken.ownershipTermLength()) + BigInt(thirtyDays));
-      advanceTime = Number(advanceTime.toString());
-      await ethers.provider.send("evm_increaseTime", [advanceTime]);
+      const advanceTime = lastRenewed + ((await contracts.ETSToken.ownershipTermLength()) + BigInt(thirtyDays));
+      const advanceTimeNumber = Number(advanceTime);
+      await ethers.provider.send("evm_increaseTime", [advanceTimeNumber]);
       await ethers.provider.send("evm_mine");
 
       // Now attempt to recycle tag as accountRandomOne address.
@@ -242,15 +251,15 @@ describe("CTAG ownership lifecycle tests", () => {
     });
 
     it("will increase platform balance and decrease owner balance", async () => {
-      expect((await contracts.ETSToken.balanceOf(accounts.ETSPlatform.address)).toString()).to.be.equal("0");
-      expect((await contracts.ETSToken.balanceOf(accounts.RandomTwo.address)).toString()).to.be.equal("1");
+      expect(await contracts.ETSToken.balanceOf(accounts.ETSPlatform.address)).to.be.equal(0);
+      expect(await contracts.ETSToken.balanceOf(accounts.RandomTwo.address)).to.be.equal(1);
 
       // Advance current time by 30 days more than ownershipTermLength (2 years).
       lastRenewed = await contracts.ETSToken.getLastRenewed(tokenId);
       const thirtyDays = 30 * 24 * 60 * 60;
-      let advanceTime = lastRenewed + ((await contracts.ETSToken.ownershipTermLength()) + BigInt(thirtyDays));
-      advanceTime = Number(advanceTime.toString());
-      await ethers.provider.send("evm_increaseTime", [advanceTime]);
+      const advanceTime = lastRenewed + ((await contracts.ETSToken.ownershipTermLength()) + BigInt(thirtyDays));
+      const advanceTimeNumber = Number(advanceTime);
+      await ethers.provider.send("evm_increaseTime", [advanceTimeNumber]);
       await ethers.provider.send("evm_mine");
 
       // Recycle the tag as accounts.RandomOne.
@@ -259,8 +268,8 @@ describe("CTAG ownership lifecycle tests", () => {
         .withArgs(tokenId, accounts.RandomOne.address);
 
       // Flip balances.
-      expect((await contracts.ETSToken.balanceOf(accounts.ETSPlatform.address)).toString()).to.be.equal("1");
-      expect((await contracts.ETSToken.balanceOf(accounts.RandomTwo.address)).toString()).to.be.equal("0");
+      expect(await contracts.ETSToken.balanceOf(accounts.ETSPlatform.address)).to.be.equal(1);
+      expect(await contracts.ETSToken.balanceOf(accounts.RandomTwo.address)).to.be.equal(0);
     });
   });
 });

@@ -1,29 +1,16 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { setup } from "./setup";
-import type { Accounts, Contracts, InitSettings } from "./setup";
+import { setup } from "./setup"; // No .js extension
+import type { Accounts, Contracts } from "./setup";
 
-// biome-ignore lint/suspicious/noFocusedTests: <explanation>
-describe.only("ETSAccessControls Tests", () => {
+describe("ETSAccessControls Tests", () => {
   let accounts: Accounts;
   let contracts: Contracts;
-  let initSettings: InitSettings;
 
   beforeEach("Setup test", async () => {
-    [accounts, contracts, initSettings] = await setup();
-
-    console.info(initSettings);
-
-    // ETSRelayer is deployed globally for all tests,
-    // so let's deploy a mock for testing access controls.
-    //RelayerMock = await ethers.getContractFactory("RelayerMock", accounts.RandomOne);
-    //relayerMock = await RelayerMock.deploy(
-    //  await contracts.ETS.getAddress(),
-    //  contracts.ETSToken.address,
-    //  await contracts.ETSTarget.getAddress(),
-    //  accounts.RandomOne.address, // creator
-    //  accounts.RandomTwo.address, // transfer to (new owner)
-    //);
+    // Using object destructuring as requested
+    const result = await setup();
+    ({ accounts, contracts } = result);
   });
 
   describe("Valid setup/initialization", async () => {

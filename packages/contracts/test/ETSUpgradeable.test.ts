@@ -1,87 +1,126 @@
-const { setup, getFactories, getArtifacts } = require("./setup.js");
 const { expectEvent } = require("@openzeppelin/test-helpers");
-const { upgrades } = require("hardhat");
-const { assert } = require("chai");
+import { assert } from "chai";
+import { upgrades } from "hardhat";
+import { getArtifacts, getFactories, setup } from "./setup";
+import type { Artifacts, Contracts, Factories } from "./setup";
 
-let artifacts;
-let factories;
+// Define interfaces for the upgraded contracts with the new methods
+interface ETSAccessControlsUpgraded {
+  upgradeTest(): Promise<boolean>;
+}
+
+interface ETSEnrichTargetUpgraded {
+  upgradeTest(): Promise<boolean>;
+}
+
+interface ETSTargetUpgraded {
+  upgradeTest(): Promise<boolean>;
+}
+
+interface ETSTokenUpgraded {
+  upgradeTest(): Promise<boolean>;
+}
+
+interface ETSUpgraded {
+  upgradeTest(): Promise<boolean>;
+}
 
 describe("Upgrades tests", () => {
+  let contracts: Contracts;
+  let artifacts: Artifacts;
+  let factories: Factories;
+
   beforeEach("Setup test", async () => {
     artifacts = await getArtifacts();
     factories = await getFactories();
-    [accounts, contracts, initSettings] = await setup();
+    const result = await setup();
+    ({ contracts } = result);
   });
 
   describe("ETSAccessControl", async () => {
     it("is upgradeable", async () => {
       // Upgrade the proxy.
-      contracts.ETSAccessControls = await upgrades.upgradeProxy(
+      const upgradedContract = await upgrades.upgradeProxy(
         await contracts.ETSAccessControls.getAddress(),
         factories.ETSAccessControlsUpgrade,
       );
 
-      const upgradeTxn = await contracts.ETSAccessControls.deployTransaction.hash;
+      // Replace the contract in our contracts object
+      contracts.ETSAccessControls = upgradedContract as any;
+
+      const upgradeTxn = (upgradedContract as any).deployTransaction.hash;
       await expectEvent.inTransaction(upgradeTxn, artifacts.ETSAccessControlsUpgrade, "Upgraded");
       // Upgraded contract has new function upgradeTest()
-      assert((await contracts.ETSAccessControls.upgradeTest()) === true);
+      assert((await (upgradedContract as unknown as ETSAccessControlsUpgraded).upgradeTest()) === true);
     });
   });
 
   describe("ETSEnrichTarget", () => {
     it("is upgradeable", async () => {
       // Upgrade the proxy.
-      contracts.ETSEnrichTarget = await upgrades.upgradeProxy(
+      const upgradedContract = await upgrades.upgradeProxy(
         await contracts.ETSEnrichTarget.getAddress(),
         factories.ETSEnrichTargetUpgrade,
       );
 
-      const upgradeTxn = contracts.ETSEnrichTarget.deployTransaction.hash;
+      // Replace the contract in our contracts object
+      contracts.ETSEnrichTarget = upgradedContract as any;
+
+      const upgradeTxn = (upgradedContract as any).deployTransaction.hash;
       await expectEvent.inTransaction(upgradeTxn, artifacts.ETSEnrichTargetUpgrade, "Upgraded");
       // Upgraded contract has new function upgradeTest()
-      assert((await contracts.ETSEnrichTarget.upgradeTest()) === true);
+      assert((await (upgradedContract as unknown as ETSEnrichTargetUpgraded).upgradeTest()) === true);
     });
   });
 
   describe("ETSTarget", () => {
     it("is upgradeable", async () => {
       // Upgrade the proxy.
-      contracts.ETSTarget = await upgrades.upgradeProxy(
+      const upgradedContract = await upgrades.upgradeProxy(
         await contracts.ETSTarget.getAddress(),
         factories.ETSTargetUpgrade,
       );
 
-      const upgradeTxn = contracts.ETSTarget.deployTransaction.hash;
+      // Replace the contract in our contracts object
+      contracts.ETSTarget = upgradedContract as any;
+
+      const upgradeTxn = (upgradedContract as any).deployTransaction.hash;
       await expectEvent.inTransaction(upgradeTxn, artifacts.ETSTargetUpgrade, "Upgraded");
       // Upgraded contract has new function upgradeTest()
-      assert((await contracts.ETSTarget.upgradeTest()) === true);
+      assert((await (upgradedContract as unknown as ETSTargetUpgraded).upgradeTest()) === true);
     });
   });
 
   describe("ETSToken", () => {
     it("is upgradeable", async () => {
       // Upgrade the proxy.
-      contracts.ETSToken = await upgrades.upgradeProxy(
+      const upgradedContract = await upgrades.upgradeProxy(
         await contracts.ETSToken.getAddress(),
         factories.ETSTokenUpgrade,
       );
 
-      const upgradeTxn = contracts.ETSToken.deployTransaction.hash;
+      // Replace the contract in our contracts object
+      contracts.ETSToken = upgradedContract as any;
+
+      const upgradeTxn = (upgradedContract as any).deployTransaction.hash;
       await expectEvent.inTransaction(upgradeTxn, artifacts.ETSTokenUpgrade, "Upgraded");
       // Upgraded contract has new function upgradeTest()
-      assert((await contracts.ETSToken.upgradeTest()) === true);
+      assert((await (upgradedContract as unknown as ETSTokenUpgraded).upgradeTest()) === true);
     });
   });
 
   describe("ETS", () => {
     it("is upgradeable", async () => {
       // Upgrade the proxy.
-      contracts.ETS = await upgrades.upgradeProxy(await contracts.ETS.getAddress(), factories.ETSUpgrade);
+      const upgradedContract = await upgrades.upgradeProxy(await contracts.ETS.getAddress(), factories.ETSUpgrade);
 
-      const upgradeTxn = contracts.ETS.deployTransaction.hash;
+      // Replace the contract in our contracts object
+      contracts.ETS = upgradedContract as any;
+
+      const upgradeTxn = (upgradedContract as any).deployTransaction.hash;
       await expectEvent.inTransaction(upgradeTxn, artifacts.ETSUpgrade, "Upgraded");
       // Upgraded contract has new function upgradeTest()
-      assert((await contracts.ETS.upgradeTest()) === true);
+      assert((await (upgradedContract as unknown as ETSUpgraded).upgradeTest()) === true);
     });
   });
 

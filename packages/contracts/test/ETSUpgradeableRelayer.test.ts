@@ -1,11 +1,38 @@
-const { setup, getFactories } = require("./setup.js");
+import { expect } from "chai";
+import type { Contract, ContractFactory } from "ethers";
+import { ethers } from "hardhat";
+import { getFactories, setup } from "./setup";
+import type { Accounts, Contracts, Factories } from "./setup";
 
-let factories;
+// Define interfaces for the relayer contracts
+interface ETSRelayerUpgraded {
+  version(): Promise<string>;
+  newFunction(): Promise<boolean>;
+}
 
 describe("Upgrades tests", () => {
+  let accounts: Accounts;
+  let contracts: Contracts;
+  let factories: Factories;
+  let ETSRelayerUpgradeTestFactory: ContractFactory;
+  let tokenId: bigint;
+  let tokenId2: bigint;
+  let beaconAddress: string;
+  let relayer1Address: string;
+  let relayer2Address: string;
+  let etsRelayerBeaconABI: any;
+  let etsRelayerABI: any;
+  let etsRelayerUpgradeTestABI: any;
+  let etsRelayerBeacon: Contract;
+  let relayer1v1: Contract;
+  let relayer1v2: Contract;
+  let relayer2v1: Contract;
+  let relayer2v2: Contract;
+
   beforeEach("Setup test", async () => {
     factories = await getFactories();
-    [accounts, contracts, initSettings] = await setup();
+    const result = await setup();
+    ({ accounts, contracts } = result);
     ETSRelayerUpgradeTestFactory = await ethers.getContractFactory("ETSRelayerUpgradeTest");
 
     // Create two tags and transfer them to RandomOne so that user can add a relayer in tests.
@@ -64,8 +91,8 @@ describe("Upgrades tests", () => {
       expect(await relayer2v1.version()).to.be.equal("UPGRADE TEST");
 
       // Expect new function present.
-      expect(await relayer1v2.newFunction()).to.be.equal(true);
-      expect(await relayer2v2.newFunction()).to.be.equal(true);
+      expect(await (relayer1v2 as unknown as ETSRelayerUpgraded).newFunction()).to.be.equal(true);
+      expect(await (relayer2v2 as unknown as ETSRelayerUpgraded).newFunction()).to.be.equal(true);
     });
 
     it("is only upgradeable by owner", async () => {

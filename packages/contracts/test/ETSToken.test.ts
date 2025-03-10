@@ -1,13 +1,15 @@
-const { setup, getFactories } = require("./setup.js");
-const { ethers, upgrades } = require("hardhat");
-const { expect, assert } = require("chai");
-
-//let accounts, factories, contracts.ETSAccessControls, ETSLifeCycleControls, contracts.ETSToken;
+import { assert, expect } from "chai";
+import { ethers, upgrades } from "hardhat";
+import { getFactories, setup } from "./setup";
+import type { Accounts, Contracts } from "./setup";
 
 describe("ETSToken Core Tests", () => {
-  // we create a setup function that can be called by every test and setup variable for easy to read tests
+  let accounts: Accounts;
+  let contracts: Contracts;
+
   beforeEach("Setup test", async () => {
-    [accounts, contracts, initSettings] = await setup();
+    const result = await setup();
+    ({ accounts, contracts } = result);
   });
 
   describe("Valid setup", async () => {
@@ -67,7 +69,6 @@ describe("ETSToken Core Tests", () => {
 
     it("can set premium flag on CTAG", async () => {
       await contracts.ETS.connect(accounts.ETSPlatform).createTag(tag, accounts.RandomTwo.address);
-      //await contracts.ETS.connect(accounts.ETSPlatform).createTag(tag, accounts.RandomTwo.address);
       const tokenId = await contracts.ETSToken.computeTagId(tag);
       let ctag = await contracts.ETSToken.getTagById(tokenId);
       expect(ctag.premium).to.be.false;
@@ -107,7 +108,7 @@ describe("ETSToken Core Tests", () => {
     });
 
     it("should revert if caller is not set as admin in contract being set.", async () => {
-      factories = await getFactories();
+      const factories = await getFactories();
       const ETSAccessControlsNew = await upgrades.deployProxy(
         factories.ETSAccessControls,
         [accounts.ETSPlatform.address],
@@ -121,7 +122,7 @@ describe("ETSToken Core Tests", () => {
     });
 
     it("should emit AccessControlsSet", async () => {
-      factories = await getFactories();
+      const factories = await getFactories();
       const ETSAccessControlsNew = await upgrades.deployProxy(
         factories.ETSAccessControls,
         [accounts.ETSPlatform.address],
@@ -217,7 +218,7 @@ describe("ETSToken Core Tests", () => {
         const displayVersion = "#TagWithCapitals";
         await contracts.ETS.connect(accounts.ETSPlatform).createTag(displayVersion, accounts.RandomTwo.address);
         const tagData = await contracts.ETSToken.getTagByString(displayVersion);
-        expect(tagData.display.toString()).to.be.equal(displayVersion);
+        expect(tagData.display).to.be.equal(displayVersion);
       });
 
       it("should flag CTAG as premium & reserved if it's on the premium list", async () => {

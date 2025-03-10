@@ -1,10 +1,24 @@
-const { setup } = require("./setup.js");
-const { ethers } = require("hardhat");
-const { expect } = require("chai");
+import { expect } from "chai";
+import type { Contract } from "ethers";
+import { ethers } from "hardhat";
+import type { ETSRelayer } from "../typechain-types";
+import { setup } from "./setup";
+import type { Accounts, Contracts } from "./setup";
 
 describe("ETSRelayerFactory Tests", () => {
+  let accounts: Accounts;
+  let contracts: Contracts;
+
+  // Variables that will be initialized in beforeEach
+  let tokenId: bigint;
+  let tokenId2: bigint;
+  let relayerAddress: string;
+  let etsRelayerABI: any;
+  let uniswapRelayer: ETSRelayer;
+
   beforeEach("Setup test", async () => {
-    [accounts, contracts, initSettings] = await setup();
+    const result = await setup();
+    ({ accounts, contracts } = result);
 
     // Create two tags and transfer them to RandomOne so that user can add a relayer in tests.
     const tag = "#LOVE";
@@ -131,7 +145,7 @@ describe("ETSRelayerFactory Tests", () => {
 
     it("are not paused when added", async () => {
       const _tx = await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap");
-      const relayerAddress = contracts.ETSAccessControls.getRelayerAddressFromName("Uniswap");
+      const relayerAddress = await contracts.ETSAccessControls.getRelayerAddressFromName("Uniswap");
       expect(await contracts.ETSAccessControls.isRelayerAndNotPaused(relayerAddress)).to.be.equal(true);
     });
   });
@@ -141,8 +155,9 @@ describe("ETSRelayerFactory Tests", () => {
       await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap");
       relayerAddress = await contracts.ETSAccessControls.getRelayerAddressFromName("Uniswap");
       etsRelayerABI = require("../abi/contracts/relayers/ETSRelayer.sol/ETSRelayer.json");
-      // Connect with owner account
-      uniswapRelayer = new ethers.Contract(relayerAddress, etsRelayerABI, accounts.RandomOne);
+
+      // Connect with owner account and use typechain type
+      uniswapRelayer = new ethers.Contract(relayerAddress, etsRelayerABI, accounts.RandomOne) as unknown as ETSRelayer;
     });
 
     it("can be looked up by address", async () => {
@@ -177,8 +192,8 @@ describe("ETSRelayerFactory Tests", () => {
 
     it("cannot be paused by non-owner or non-relayer admin", async () => {
       // Try pausing as non-owner (eg. RandomTwo)
-      uniswapRelayer = new ethers.Contract(relayerAddress, etsRelayerABI, accounts.RandomTwo);
-      await expect(uniswapRelayer.pause()).to.be.revertedWith("Caller not relayer admin");
+      const nonOwnerRelayer = new ethers.Contract(relayerAddress, etsRelayerABI, accounts.RandomTwo);
+      await expect(nonOwnerRelayer.pause()).to.be.revertedWith("Caller not relayer admin");
     });
 
     it("can be paused & unpaused by Owner", async () => {
@@ -186,13 +201,9 @@ describe("ETSRelayerFactory Tests", () => {
       expect(await uniswapRelayer.isPaused()).to.be.equal(false);
 
       // Now pause as the owner
-      expect(await uniswapRelayer.pause())
-        .to.emit(relayerAddress, "Paused")
-        .withArgs(accounts.RandomOne.address);
+      await expect(uniswapRelayer.pause()).to.emit(uniswapRelayer, "Paused").withArgs(accounts.RandomOne.address);
 
-      expect(await uniswapRelayer.unpause())
-        .to.emit(relayerAddress, "Unpaused")
-        .withArgs(accounts.RandomOne.address);
+      await expect(uniswapRelayer.unpause()).to.emit(uniswapRelayer, "Unpaused").withArgs(accounts.RandomOne.address);
     });
 
     it("can be paused & unpaused by Platform (Relayer Admin)", async () => {
@@ -200,12 +211,12 @@ describe("ETSRelayerFactory Tests", () => {
       expect(await uniswapRelayer.isPaused()).to.be.equal(false);
 
       // Now pause as the owner
-      expect(await uniswapRelayer.connect(accounts.ETSPlatform).pause())
-        .to.emit(relayerAddress, "Paused")
+      await expect(uniswapRelayer.connect(accounts.ETSPlatform).pause())
+        .to.emit(uniswapRelayer, "Paused")
         .withArgs(accounts.ETSPlatform.address);
 
-      expect(await uniswapRelayer.connect(accounts.ETSPlatform).unpause())
-        .to.emit(relayerAddress, "Unpaused")
+      await expect(uniswapRelayer.connect(accounts.ETSPlatform).unpause())
+        .to.emit(uniswapRelayer, "Unpaused")
         .withArgs(accounts.ETSPlatform.address);
     });
 
@@ -215,13 +226,13 @@ describe("ETSRelayerFactory Tests", () => {
       await expect(contracts.ETSAccessControls.connect(accounts.RandomOne).toggleRelayerLock(relayerAddress)).to.be
         .reverted;
 
-      expect(await contracts.ETSAccessControls.toggleRelayerLock(relayerAddress))
-        .to.emit(relayerAddress, "RelayerLockToggled")
+      await expect(contracts.ETSAccessControls.toggleRelayerLock(relayerAddress))
+        .to.emit(contracts.ETSAccessControls, "RelayerLockToggled")
         .withArgs(relayerAddress);
 
       expect(await contracts.ETSAccessControls.isRelayerLocked(relayerAddress)).to.be.equal(true);
-      expect(await contracts.ETSAccessControls.toggleRelayerLock(relayerAddress))
-        .to.emit(relayerAddress, "RelayerLockToggled")
+      await expect(contracts.ETSAccessControls.toggleRelayerLock(relayerAddress))
+        .to.emit(contracts.ETSAccessControls, "RelayerLockToggled")
         .withArgs(relayerAddress);
     });
 
@@ -249,9 +260,7 @@ describe("ETSRelayerFactory Tests", () => {
 
     it("cannot be unpaused by owner if locked by platform", async () => {
       // Pause as the owner
-      expect(await uniswapRelayer.pause())
-        .to.emit(relayerAddress, "Paused")
-        .withArgs(accounts.RandomOne.address);
+      await expect(uniswapRelayer.pause()).to.emit(uniswapRelayer, "Paused").withArgs(accounts.RandomOne.address);
 
       // Verify that it's paused.
       expect(await uniswapRelayer.paused()).to.be.equal(true);
@@ -268,8 +277,8 @@ describe("ETSRelayerFactory Tests", () => {
       await expect(uniswapRelayer.changeOwner(accounts.RandomTwo.address)).to.be.revertedWith("Pausable: not paused");
       await uniswapRelayer.pause();
       // Attempt to transfer ownership.
-      expect(await uniswapRelayer.changeOwner(accounts.RandomTwo.address))
-        .to.emit(relayerAddress, "RelayerOwnerChanged")
+      await expect(uniswapRelayer.changeOwner(accounts.RandomTwo.address))
+        .to.emit(uniswapRelayer, "RelayerOwnerChanged")
         .withArgs(relayerAddress);
     });
 
