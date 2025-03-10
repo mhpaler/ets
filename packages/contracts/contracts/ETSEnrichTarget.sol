@@ -33,8 +33,9 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
     string public constant VERSION = "0.0.2";
 
     // Events
-    event RequestedEnrichTarget(bytes32 indexed requestId, uint256 indexed targetId);
+    event RequestEnrichTarget(uint256 indexed targetId);
     event EnrichmentFulfilled(bytes32 indexed requestId, uint256 indexed targetId, string ipfsHash, uint256 httpStatus);
+    event AirnodeRrpUpdated(address indexed airnodeRrp);
 
     // Modifiers
     modifier onlyAdmin() {
@@ -69,6 +70,15 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
     function _authorizeUpgrade(address) internal override onlyAdmin {}
 
     // ============ OWNER INTERFACE ============
+    /**
+     * @notice Allows admin to update the Airnode RRP implementation address
+     * @param _airnodeRrp New Airnode RRP contract address
+     */
+    function setAirnodeRrp(IAirnodeRrpV0 _airnodeRrp) external onlyAdmin {
+        require(address(_airnodeRrp) != address(0), "Address cannot be zero");
+        airnodeRrp = _airnodeRrp;
+        emit AirnodeRrpUpdated(address(_airnodeRrp));
+    }
 
     function setAirnodeRequestParameters(
         address _airnode,
@@ -83,7 +93,7 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
     // ============ PUBLIC INTERFACE ============
 
     /// @inheritdoc IETSEnrichTarget
-    function requestEnrichTarget(uint256 _targetId) public {
+    function requestEnrichTarget(uint256 _targetId) external {
         require(etsTarget.targetExistsById(_targetId) == true, "Invalid target");
         require(airnode != address(0), "Airnode not set");
         require(sponsorWallet != address(0), "Sponsor wallet not set");
@@ -105,7 +115,7 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
         // Store the mapping between requestId and targetId
         requestIdToTargetId[requestId] = _targetId;
 
-        emit RequestedEnrichTarget(requestId, _targetId);
+        emit RequestEnrichTarget(_targetId);
     }
 
     /// @notice Function called by Airnode with the enriched data

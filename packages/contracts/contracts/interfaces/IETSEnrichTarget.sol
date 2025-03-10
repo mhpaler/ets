@@ -29,15 +29,13 @@
  *
  * Future implementation should utilize ChainLink in place of OpenZeppelin for better decentralization.
  */
+import { IAirnodeRrpV0 } from "@api3/airnode-protocol/contracts/rrp/interfaces/IAirnodeRrpV0.sol";
 
 pragma solidity ^0.8.10;
 
 /// @title IETSEnrichTarget
 /// @notice Interface for the ETSEnrichTarget contract
 interface IETSEnrichTarget {
-    /// @notice Event emitted when an enrichment is requested
-    event RequestEnrichTarget(uint256 indexed targetId);
-
     /// @notice Request to enrich a target
     /// @param _targetId The target ID to enrich
     function requestEnrichTarget(uint256 _targetId) external;
@@ -46,6 +44,10 @@ interface IETSEnrichTarget {
     /// @param requestId The request ID from Airnode
     /// @param data The encoded response data
     function fulfillEnrichTarget(bytes32 requestId, bytes calldata data) external;
+
+    /// @notice Updates the Airnode RRP contract address
+    /// @param _airnodeRrp The new Airnode RRP contract address
+    function setAirnodeRrp(IAirnodeRrpV0 _airnodeRrp) external;
 
     /// @notice Set the Airnode request parameters
     /// @param _airnode The Airnode address

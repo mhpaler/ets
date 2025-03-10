@@ -24,6 +24,19 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "airnodeRrp",
+        "type": "address"
+      }
+    ],
+    "name": "AirnodeRrpUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "beacon",
         "type": "address"
       }
@@ -86,25 +99,6 @@
       }
     ],
     "name": "RequestEnrichTarget",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "requestId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "targetId",
-        "type": "uint256"
-      }
-    ],
-    "name": "RequestedEnrichTarget",
     "type": "event"
   },
   {
@@ -316,6 +310,19 @@
       }
     ],
     "name": "setAirnodeRequestParameters",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IAirnodeRrpV0",
+        "name": "_airnodeRrp",
+        "type": "address"
+      }
+    ],
+    "name": "setAirnodeRrp",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
