@@ -1,4 +1,4 @@
-import { BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
+import type { BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
 import { updateTargetCount } from "../entities/Platform";
 import { ETSTarget } from "../generated/ETSTarget/ETSTarget";
 import { Target } from "../generated/schema";

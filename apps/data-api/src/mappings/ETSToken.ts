@@ -8,7 +8,7 @@ import { ensureRelease } from "../entities/Release";
 import { updateTagExpiration, updateTagRecycle } from "../entities/Tag";
 import { ensureTag } from "../entities/Tag";
 import { updateTagOwner } from "../entities/Tag";
-import {
+import type {
   AccessControlsSet,
   ETSCoreSet,
   Initialized,

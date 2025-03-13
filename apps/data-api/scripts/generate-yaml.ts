@@ -26,29 +26,29 @@ interface OpenzeppelinAbis {
 const VALID_TARGETS: DeploymentTarget[] = ["localhost", "arbitrumSepolia", "baseSepolia"];
 
 const OPENZEPPELIN_ABIS: OpenzeppelinAbis = {
-  Ownable: "./../contracts/abi/@openzeppelin/contracts/access/Ownable.sol/Ownable.json",
-  Pausable: "./../contracts/abi/@openzeppelin/contracts/security/Pausable.sol/Pausable.json",
+  Ownable: "./../../packages/contracts/abi/@openzeppelin/contracts/access/Ownable.sol/Ownable.json",
+  Pausable: "./../../packages/contracts/abi/@openzeppelin/contracts/security/Pausable.sol/Pausable.json",
   UUPSUpgradeable:
-    "./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol/UUPSUpgradeable.json",
+    "./../../packages/contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol/UUPSUpgradeable.json",
   Initializable:
-    "./../contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol/Initializable.json",
+    "./../../packages/contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol/Initializable.json",
 };
 
 // Helper functions
 // Define contract paths mapping for special cases
 const CONTRACT_PATHS: Record<string, string> = {
-  ETSRelayer: "./../contracts/abi/contracts/relayers/ETSRelayer.sol/ETSRelayer.json",
+  ETSRelayer: "./../../packages/contracts/abi/contracts/relayers/ETSRelayer.sol/ETSRelayer.json",
   // Add any other special cases here
 };
 
 // Default path pattern for standard contracts
-const DEFAULT_ABI_PATH = "./../contracts/abi/contracts/{contract}.sol/{contract}.json";
+const DEFAULT_ABI_PATH = "./../../packages/contracts/abi/contracts/{contract}.sol/{contract}.json";
 
 const getNetworkConfig = (target: DeploymentTarget): NetworkConfig => {
   console.log("🔍 Generating network config for target:", target);
   const baseConfig: Omit<NetworkConfig, "name"> = {
-    configPath: `./../contracts/src/chainConfig/${target}.json`,
-    upgradesConfigPath: `./../contracts/src/upgradeConfig/${target}.json`,
+    configPath: `./../../packages/contracts/src/chainConfig/${target}.json`,
+    upgradesConfigPath: `./../../packages/contracts/src/upgradeConfig/${target}.json`,
     abis: [
       "ETS",
       "ETSAccessControls",

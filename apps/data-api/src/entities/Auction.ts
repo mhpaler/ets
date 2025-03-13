@@ -1,4 +1,4 @@
-import { BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
+import type { BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
 import { ETSAuctionHouse } from "../generated/ETSAuctionHouse/ETSAuctionHouse";
 import { Auction } from "../generated/schema";
 

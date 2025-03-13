@@ -21,10 +21,10 @@
     "create-tagging-record:dev": "cd examples/create-tagging-record && pnpm run dev",
     "dev": "turbo run dev --env-mode=loose --filter=!./examples/*",
     "format": "biome format --write",
-    "graph:deploy": "cd packages/subgraph && pnpm run deploy",
-    "graph:node-clean": "cd packages/subgraph && pnpm run clean-graph-node",
-    "graph:node-start": "cd packages/subgraph && pnpm run start-graph-node",
-    "graph:node-stop": "cd packages/subgraph && pnpm run remove-graph-node",
+    "graph:deploy": "cd apps/data-api && pnpm run deploy",
+    "graph:node-clean": "cd apps/data-api && pnpm run clean-graph-node",
+    "graph:node-start": "cd apps/data-api && pnpm run start-graph-node",
+    "graph:node-stop": "cd apps/data-api && pnpm run remove-graph-node",
     "hardhat:build": "cd packages/contracts && pnpm run build",
     "hardhat:clean": "cd packages/contracts && pnpm hardhat:clean",
     "hardhat:compile": "cd packages/contracts && pnpm run compile",
@@ -107,11 +107,11 @@
         "entry": ["src/**/*.ts!"],
         "project": ["src/**/*.ts!"]
       },
-      "packages/subgraph-endpoints": {
+      "apps/data-api-endpoints": {
         "entry": ["src/**/*.ts!"],
         "project": ["src/**/*.ts!"]
       },
-      "packages/subgraph": {
+      "apps/data-api": {
         "entry": ["src/**/*.ts!"],
         "project": ["src/**/*.ts!"]
       },

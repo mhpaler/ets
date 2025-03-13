@@ -1,7 +1,7 @@
 import { BigInt as GraphBigInt } from "@graphprotocol/graph-ts";
 import { ensureRelease } from "../entities/Release";
 import { ensureTarget } from "../entities/Target";
-import {
+import type {
   AccessControlsSet,
   EnrichTargetSet,
   Initialized,

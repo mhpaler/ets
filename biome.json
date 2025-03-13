@@ -62,7 +62,7 @@
   },
   "overrides": [
     {
-      "include": ["./packages/subgraph/src/**/*.ts"],
+      "include": ["./apps/data-api/src/**/*.ts"],
       "linter": {
         "rules": {
           "style": {

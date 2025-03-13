@@ -312,11 +312,11 @@ echo -e "\033[1;36m=== ETS Local Stack Logs ===\033[0m\n"
 # Use proper escaping for ANSI color codes
 tail -f logs/*.log | grep --line-buffered "" |
   sed -e $'s/.*hardhat.log.*/\033[0;36m[HARDHAT]\033[0m &/' \
-      -e $'s/.*graph-node.log.*/\033[0;33m[GRAPH]\033[0m &/' \
+      -e $'s/.*graph-node.log.*/\033[0;33m[SUBGRAPH]\033[0m &/' \
       -e $'s/.*contracts-deploy.log.*/\033[0;32m[CONTRACTS]\033[0m &/' \
       -e $'s/.*subgraph-deploy.log.*/\033[0;34m[SUBGRAPH-DEPLOY]\033[0m &/' \
       -e $'s/.*arlocal.log.*/\033[1;34m[ARLOCAL]\033[0m &/' \
-      -e $'s/.*offchain-api.log.*/\033[0;32m[API]\033[0m &/' \
+      -e $'s/.*offchain-api.log.*/\033[0;32m[OFFCHAIN-API]\033[0m &/' \
       -e $'s/.*oracle.log.*/\033[0;35m[ORACLE]\033[0m &/' \
       -e $'s/.*explorer.log.*/\033[0;33m[EXPLORER]\033[0m &/'
 EOF
@@ -361,7 +361,7 @@ colorize_output() {
   if [ "$USE_SEPARATE_LOG_TERMINAL" != "true" ]; then
     # Use sed to prefix each line with the service name and color
     tail -f "$log_file" | sed -e "s/^/${color}[${service_name}]${NC} /" &
-    echo $! >> "$SCRIPT_DIR/tail_pids.txt"
+    echo $! >> "$ROOT_DIR/logs/tail_pids.txt"
   fi
 }
 
@@ -373,7 +373,8 @@ start_hardhat() {
   # Start hardhat in background, redirect output to log file
   pnpm hardhat > "$ROOT_DIR/logs/hardhat.log" 2>&1 &
   HARDHAT_PID=$!
-  echo $HARDHAT_PID >> "$SCRIPT_DIR/service_pids.txt"
+  echo $HARDHAT_PID >> "$ROOT_DIR/logs/service_pids.txt"
+
 
   # Set up colored output for this service
   colorize_output "HARDHAT" "${CYAN}"
@@ -401,10 +402,10 @@ deploy_contracts() {
 
 start_graph_node() {
   log "Starting Graph Node..."
-  cd "$ROOT_DIR/packages/subgraph"
+  cd "$ROOT_DIR/apps/data-api"
 
   # First clean any existing data
-  pnpm clean-graph-node
+  pnpm run clean-graph-node
 
   # Modified approach to capture Docker container logs
   if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
@@ -416,7 +417,7 @@ start_graph_node() {
   fi
 
   GRAPH_PID=$!
-  echo $GRAPH_PID >> "$SCRIPT_DIR/service_pids.txt"
+  echo $GRAPH_PID >> "$ROOT_DIR/logs/service_pids.txt"
 
   # Set up colored output for this service
   colorize_output "GRAPH" "${YELLOW}"
@@ -430,7 +431,7 @@ start_graph_node() {
 # Deploy subgraph
 deploy_subgraph() {
   log "Deploying subgraph..."
-  cd "$ROOT_DIR/packages/subgraph"
+  cd "$ROOT_DIR/apps/data-api"
 
   # Deploy with a single command - it handles YAML generation and codegen internally
   pnpm run deploy --target localhost > "$ROOT_DIR/logs/subgraph-deploy.log" 2>&1
@@ -486,7 +487,7 @@ start_arlocal() {
   fi
 
   ARLOCAL_PID=$!
-  echo $ARLOCAL_PID >> "$SCRIPT_DIR/service_pids.txt"
+  echo $ARLOCAL_PID >> "$ROOT_DIR/logs/service_pids.txt"
 
   # Set up colored output for this service
   colorize_output "ARLOCAL" "${LIGHT_GREEN}"
@@ -516,7 +517,7 @@ start_offchain_api() {
   fi
 
   API_PID=$!
-  echo $API_PID >> "$SCRIPT_DIR/service_pids.txt"
+  echo $API_PID >> "$ROOT_DIR/logs/service_pids.txt"
 
   # Set up colored output for this service
   colorize_output "API" "${GREEN}"
@@ -566,7 +567,7 @@ start_oracle() {
   log "Capturing Airnode container logs..."
   docker logs -f "$CONTAINER_ID" >> "$ROOT_DIR/logs/oracle.log" 2>&1 &
   LOGS_PID=$!
-  echo $LOGS_PID >> "$SCRIPT_DIR/service_pids.txt"
+  echo $LOGS_PID >> "$ROOT_DIR/logs/service_pids.txt"
 
   # Set up colored output for both log files
   colorize_output "ORACLE" "${PURPLE}"
@@ -588,7 +589,7 @@ start_explorer() {
   fi
 
   EXPLORER_PID=$!
-  echo $EXPLORER_PID >> "$SCRIPT_DIR/service_pids.txt"
+  echo $EXPLORER_PID >> "$ROOT_DIR/logs/service_pids.txt"
 
   # Set up colored output for this service
   colorize_output "EXPLORER" "${BLUE}"
@@ -600,8 +601,8 @@ start_explorer() {
 
 
 # Initialize PID tracking files
-rm -f "$SCRIPT_DIR/service_pids.txt" "$SCRIPT_DIR/tail_pids.txt"
-touch "$SCRIPT_DIR/service_pids.txt" "$SCRIPT_DIR/tail_pids.txt"
+rm -f "$ROOT_DIR/logs/service_pids.txt" "$ROOT_DIR/logs/tail_pids.txt"
+touch "$ROOT_DIR/logs/service_pids.txt" "$ROOT_DIR/logs/tail_pids.txt"
 
 print_banner
 check_docker
@@ -624,7 +625,7 @@ open_logs_terminal
 log "Setting up log rotation..."
 check_logs_size &
 LOG_ROTATION_PID=$!
-echo $LOG_ROTATION_PID >> "$SCRIPT_DIR/service_pids.txt"
+echo $LOG_ROTATION_PID >> "$ROOT_DIR/logs/service_pids.txt"
 success "Log rotation set up with PID: $LOG_ROTATION_PID"
 
 # Start all services in the correct order
@@ -645,15 +646,15 @@ log "Log files are available in the $ROOT_DIR/logs directory"
 cleanup() {
   log "Cleaning up..."
   # Kill all service processes
-  if [ -f "$SCRIPT_DIR/service_pids.txt" ]; then
-    for pid in $(cat "$SCRIPT_DIR/service_pids.txt"); do
+  if [ -f "$ROOT_DIR/logs/service_pids.txt" ]; then
+    for pid in $(cat "$ROOT_DIR/logs/service_pids.txt"); do
       kill $pid 2>/dev/null || true
     done
   fi
 
   # Kill all tail processes
-  if [ -f "$SCRIPT_DIR/tail_pids.txt" ]; then
-    for pid in $(cat "$SCRIPT_DIR/tail_pids.txt"); do
+  if [ -f "$ROOT_DIR/logs/tail_pids.txt" ]; then
+    for pid in $(cat "$ROOT_DIR/logs/tail_pids.txt"); do
       kill $pid 2>/dev/null || true
     done
   fi
@@ -662,7 +663,7 @@ cleanup() {
   docker stop $(docker ps -q --filter "name=graph-node") 2>/dev/null || true
   docker stop $(docker ps -q --filter "name=airnode") 2>/dev/null || true
 
-  rm -f "$SCRIPT_DIR/service_pids.txt" "$SCRIPT_DIR/tail_pids.txt"
+  rm -f "$ROOT_DIR/logs/service_pids.txt" "$ROOT_DIR/logs/tail_pids.txt"
   success "All services stopped"
 }
 

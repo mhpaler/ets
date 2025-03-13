@@ -6,7 +6,7 @@ import { updateRelayerCount } from "../entities/Platform";
 import { ensureRelayer } from "../entities/Relayer";
 import { ensureRelayerAdmin } from "../entities/RelayerAdmin";
 import { ensureRelease } from "../entities/Release";
-import {
+import type {
   Initialized,
   PlatformSet,
   RelayerAdded,

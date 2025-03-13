@@ -1,4 +1,4 @@
-import { Address, ethereum } from "@graphprotocol/graph-ts";
+import type { Address, ethereum } from "@graphprotocol/graph-ts";
 import { Administrator } from "../generated/schema";
 
 export function ensureAdministrator(address: Address, event: ethereum.Event): Administrator {

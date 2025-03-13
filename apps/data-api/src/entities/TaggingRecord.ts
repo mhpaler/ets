@@ -1,4 +1,4 @@
-import { BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
+import type { BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
 import { ensureRelayer } from "../entities/Relayer";
 import { ensureTag } from "../entities/Tag";
 import { ensureTagger } from "../entities/Tagger";

@@ -1,8 +1,8 @@
-import { Address, BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigInt as GraphBigInt, type ethereum } from "@graphprotocol/graph-ts";
 import { ensurePlatform, updateOwnerCount } from "../entities/Platform";
 import { ensureTag } from "../entities/Tag";
-import { Transfer } from "../generated/ETSToken/ETSToken";
-import { Owner, Platform, Tag } from "../generated/schema";
+import type { Transfer } from "../generated/ETSToken/ETSToken";
+import { Owner, Platform, type Tag } from "../generated/schema";
 import { arrayDiff } from "../utils/arrayDiff";
 import { APPEND, CREATE, ONE, OWNER, REMOVE, ZERO, ZERO_ADDRESS } from "../utils/constants";
 import { getTaggingFee } from "../utils/getTaggingFee";

@@ -1,4 +1,4 @@
-import { BigInt as GraphBigInt } from "@graphprotocol/graph-ts";
+import type { BigInt as GraphBigInt } from "@graphprotocol/graph-ts";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
 import { MODULO, OWNER, PLATFORM, RELAYER, ZERO } from "../utils/constants";
 
