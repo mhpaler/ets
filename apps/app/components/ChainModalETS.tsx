@@ -61,9 +61,9 @@ const ChainModalETS: React.FC<ChainModalETSProps> = ({ show, onClose, asModal = 
       {serverEnvironment === "localhost" && (
         <div className="space-y-2">
           <p className="text-sm">Environment: Localhost</p>
-          {renderChainLink("http://arbitrumsepolia.localhost:3000", "arbitrumsepolia", "localhost")}
-          {renderChainLink("http://basesepolia.localhost:3000", "basesepolia", "localhost")}
-          {renderChainLink("http://hardhat.localhost:3000", "hardhat", "localhost")}
+          {renderChainLink("http://arbitrumsepolia.localhost:3001", "arbitrumsepolia", "localhost")}
+          {renderChainLink("http://basesepolia.localhost:3001", "basesepolia", "localhost")}
+          {renderChainLink("http://hardhat.localhost:3001", "hardhat", "localhost")}
 
           <p className="text-sm mt-4">Environment: Staging on Vercel</p>
           {renderChainLink("https://arbitrumsepolia.stage.app.ets.xyz", "arbitrumsepolia", "staging")}

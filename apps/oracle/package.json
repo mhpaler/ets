@@ -2,14 +2,18 @@
   "name": "ets-oracle",
   "version": "0.1.0",
   "description": "ETS Airnode Oracle",
+  "author": "Ethereum Tag Service <team@ets.xyz>",
   "main": "index.js",
   "scripts": {
-    "deploy-local": "ts-node scripts/deploy-local.ts",
+    "start-local-oracle": "ts-node scripts/start-local-oracle.ts",
+    "setup-wallet": "ts-node scripts/setup-oracle-wallet.ts",
+    "configure-contract": "ts-node scripts/configure-contract.ts",
+    "start-local-container": "ts-node scripts/start-local-airnode-container.ts",
     "deploy-production": "ts-node scripts/deploy-production.ts",
-    "start-local": "ts-node scripts/start-local.ts"
+    "stop-airnode": "cd .. && docker-compose down",
+    "logs-airnode": "docker logs -f airnode-airnode-1",
+    "clean": "rm -rf config/local/sponsor.json docker-compose.yml"
   },
-  "keywords": [],
-  "author": "",
   "license": "ISC",
   "dependencies": {
     "@api3/airnode-admin": "^0.15.0",

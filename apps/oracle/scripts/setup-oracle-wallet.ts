@@ -1,13 +1,33 @@
+/**
+ * Oracle Wallet Setup Script
+ *
+ * This script sets up the wallet infrastructure needed for the Airnode oracle:
+ * 1. Connects to the local Ethereum provider (Hardhat node)
+ * 2. Derives sponsor and Airnode wallet addresses from mnemonics
+ * 3. Funds the sponsor wallet with ETH from a local development account
+ * 4. Saves the sponsor wallet information to a configuration file
+ *
+ * Prerequisites:
+ * - Hardhat node must be running
+ * - Local development account must have sufficient ETH
+ *
+ * Outputs:
+ * - Creates/updates config/local/sponsor.json with wallet information
+ *
+ * Runtime: This script runs quickly (a few seconds)
+ */
 import { promises as fs } from "node:fs";
 import * as path from "node:path";
 import { deriveSponsorWalletAddress } from "@api3/airnode-admin";
 import * as dotenv from "dotenv";
 import { ethers } from "ethers";
 
-// Load environment variables
+// Load environment variables at the top level
 dotenv.config();
 
-async function main() {
+// Export the main function
+export async function setupOracleWallet() {
+  // Existing implementation code here
   // Connect to the Ethereum provider
   const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL || "http://localhost:8545");
 
@@ -109,12 +129,12 @@ async function main() {
   }
 }
 
-main()
-  .then((result) => {
-    console.log("Setup completed successfully!", result);
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.error("Error setting up sponsor wallet:", error);
-    process.exit(1);
-  });
+// For command-line usage
+if (require.main === module) {
+  setupOracleWallet()
+    .then(() => console.log("Oracle wallet setup completed"))
+    .catch((error) => {
+      console.error("Error setting up oracle wallet:", error);
+      process.exit(1);
+    });
+}

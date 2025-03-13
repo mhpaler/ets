@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "clean": "rm -rf .next",
-    "dev": "pnpm run clean && dotenv -e ../../.env -- sh -c 'next dev -p 3000'",
+    "dev": "pnpm run clean && dotenv -e ../../.env -- sh -c 'next dev -p 3001'",
     "build": "dotenv -e ../../.env -- sh -c 'next build'",
     "start": "next start"
   },

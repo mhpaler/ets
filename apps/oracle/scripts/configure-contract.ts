@@ -1,3 +1,23 @@
+/**
+ * Oracle Contract Configuration Script
+ *
+ * This script configures the ETSEnrichTarget contract to work with Airnode:
+ * 1. Connects to the Ethereum provider (Hardhat node)
+ * 2. Loads sponsor wallet information from sponsor.json
+ * 3. Gets contract addresses from deployment artifacts
+ * 4. Sets up request parameters on the ETSEnrichTarget contract
+ * 5. Associates the sponsor wallet with the Airnode
+ *
+ * Prerequisites:
+ * - Hardhat node must be running
+ * - ETSEnrichTarget contract must be deployed
+ * - setup-oracle-wallet.ts must have been executed first
+ *
+ * Inputs:
+ * - Reads wallet information from config/local/sponsor.json
+ *
+ * Runtime: This script runs quickly (a few seconds)
+ */
 import { promises as fs } from "node:fs";
 import * as path from "node:path";
 import * as dotenv from "dotenv";
@@ -11,7 +31,9 @@ const enrichTargetAbi = [
   "function setAirnodeRequestParameters(address _airnode, bytes32 _endpointId, address _sponsorWallet) external",
 ];
 
-async function main() {
+// Export the main function
+export async function configureContract() {
+  // Existing implementation code here
   try {
     // Connect to the Ethereum provider
     const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL || "http://localhost:8545");
@@ -70,12 +92,12 @@ async function main() {
   }
 }
 
-main()
-  .then((_result) => {
-    console.log("Contract configuration completed successfully!");
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.error("Error during contract configuration:", error);
-    process.exit(1);
-  });
+// For command-line usage
+if (require.main === module) {
+  configureContract()
+    .then(() => console.log("Contract configuration completed"))
+    .catch((error) => {
+      console.error("Error configuring contract:", error);
+      process.exit(1);
+    });
+}
