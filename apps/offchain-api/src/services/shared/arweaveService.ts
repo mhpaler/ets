@@ -12,7 +12,7 @@ export class ArweaveService {
 
   constructor() {
     // Log the mock setting
-    console.info("ArweaveService initializing with mockArweave:", config.arweave.mockArweave);
+    logger.info({ mockArweave: config.arweave.mockArweave }, "ArweaveService initializing");
     this.isMock = config.arweave.mockArweave;
 
     // Check if we're using local Arweave
@@ -29,7 +29,7 @@ export class ArweaveService {
     });
 
     if (this.isMock) {
-      console.info("Using mock Arweave key");
+      logger.info("Using mock Arweave key");
       this.jwk = {
         kty: "RSA",
         n: "mock-dev-only",
@@ -41,7 +41,7 @@ export class ArweaveService {
         dq: "mock-key",
         qi: "mock-key",
       };
-      console.info("Mock Arweave key set");
+      logger.info("Mock Arweave key set");
     } else {
       this.loadRealKey();
     }
@@ -51,11 +51,11 @@ export class ArweaveService {
       logger.warn("💡 ArweaveService initialized in MOCK mode. No actual Arweave transactions will be created.");
     } else if (isArLocal) {
       logger.warn("🧪 ArweaveService initialized in ARLOCAL TESTING mode!");
-      logger.warn(`📌 Connected to LOCAL Arweave instance at: ${config.arweave.gateway}`);
+      logger.warn({ gateway: config.arweave.gateway }, "Connected to LOCAL Arweave instance");
       logger.warn("📌 This is NOT the production Arweave network - data will be stored locally only");
     } else {
       logger.warn("⚠️ ArweaveService initialized in PRODUCTION mode. Real Arweave transactions will be created!");
-      logger.warn(`📌 Connected to REAL Arweave network at: ${config.arweave.gateway}`);
+      logger.warn({ gateway: config.arweave.gateway }, "Connected to REAL Arweave network");
     }
   }
 
@@ -64,12 +64,18 @@ export class ArweaveService {
    */
   private loadRealKey(): void {
     try {
-      console.info("Attempting to load Arweave key from:", config.arweave.keyfilePath);
+      logger.info({ keyfilePath: config.arweave.keyfilePath }, "Attempting to load Arweave key");
       const rawKey = fs.readFileSync(config.arweave.keyfilePath, "utf-8");
       this.jwk = JSON.parse(rawKey);
-      console.info("Arweave JWK loaded successfully");
+      logger.info("Arweave JWK loaded successfully");
     } catch (error) {
-      console.error(`Failed to load Arweave JWK from ${config.arweave.keyfilePath}:`, error);
+      logger.error(
+        {
+          keyfilePath: config.arweave.keyfilePath,
+          error: error instanceof Error ? { message: error.message, stack: error.stack } : String(error),
+        },
+        "Failed to load Arweave JWK",
+      );
       throw new Error("Failed to load Arweave JWK");
     }
   }
@@ -85,7 +91,12 @@ export class ArweaveService {
     try {
       return await this.arweave.wallets.jwkToAddress(this.jwk);
     } catch (error) {
-      logger.error("Failed to get wallet address:", error);
+      logger.error(
+        {
+          error: error instanceof Error ? { message: error.message, stack: error.stack } : String(error),
+        },
+        "Failed to get wallet address",
+      );
       throw new Error("Failed to get Arweave wallet address");
     }
   }
@@ -103,7 +114,12 @@ export class ArweaveService {
       const winstonBalance = await this.arweave.wallets.getBalance(address);
       return this.arweave.ar.winstonToAr(winstonBalance);
     } catch (error) {
-      logger.error("Failed to get wallet balance:", error);
+      logger.error(
+        {
+          error: error instanceof Error ? { message: error.message, stack: error.stack } : String(error),
+        },
+        "Failed to get wallet balance",
+      );
       throw new Error("Failed to get Arweave wallet balance");
     }
   }
@@ -154,7 +170,7 @@ export class ArweaveService {
           // If this is target metadata and has a content type
           if (tags.some((tag) => tag.name === "Type" && tag.value === "target-metadata") && jsonData.contentType) {
             // Log the metadata content type for debugging
-            logger.debug(`[MOCK] Metadata content type: ${jsonData.contentType}`);
+            logger.debug({ contentType: jsonData.contentType }, "Metadata content type for mock data");
 
             // Enhance with mock data if needed
             // This is mostly for development/testing to provide richer mock data
@@ -168,29 +184,38 @@ export class ArweaveService {
               }
               // Create enhanced version without modifying the original parameter
               processedData = JSON.stringify(jsonData, null, 2);
-              logger.debug("[MOCK] Enhanced metadata with mock data");
+              logger.debug("Enhanced metadata with mock data");
             }
           }
         } catch (e) {
           // If JSON parsing fails, just continue with original data
-          logger.debug("Not valid JSON or couldn't enhance mock data:", e);
+          logger.debug({ error: e }, "Not valid JSON or couldn't enhance mock data");
         }
       }
 
       // Log tags for debugging
-      const tagString = tags.map((t) => `${t.name}: ${t.value}`).join(", ");
-
-      logger.info(`[MOCK] Uploaded data to Arweave with transaction ID: ${mockTxId}`);
-      logger.info(`[MOCK] Content type: ${dataContentType}`);
-      logger.info(`[MOCK] Tags: ${tagString}`);
+      logger.info(
+        {
+          txId: mockTxId,
+          contentType: dataContentType,
+          tags,
+        },
+        "Mock data uploaded to Arweave",
+      );
 
       return mockTxId;
     }
 
     try {
       // More detailed logging for debugging
-      logger.info(`Creating Arweave transaction with content type: ${contentType}`);
-      logger.info(`Transaction data size: ${typeof data === "string" ? data.length : data.byteLength} bytes`);
+      logger.info(
+        {
+          contentType,
+          dataSize: typeof data === "string" ? data.length : data.byteLength,
+          tagsCount: tags.length,
+        },
+        "Creating Arweave transaction",
+      );
 
       // Create transaction
       let tx: any;
@@ -208,7 +233,7 @@ export class ArweaveService {
       // Add custom tags
       for (const tag of tags) {
         tx.addTag(tag.name, tag.value);
-        logger.info(`Added tag: ${tag.name}=${tag.value}`);
+        logger.info({ tag }, "Added tag");
       }
 
       // Always add ETS tags for easy identification
@@ -223,28 +248,54 @@ export class ArweaveService {
       // Calculate the cost in AR
       const winston = tx.reward;
       const ar = this.arweave.ar.winstonToAr(winston);
-      logger.info(`Transaction cost: ${ar} AR`);
+      logger.info({ cost: ar }, "Transaction cost in AR");
 
       // Submit the transaction
       logger.info("Submitting transaction to Arweave...");
       const response = await this.arweave.transactions.post(tx);
-      logger.info(`Transaction submission response status: ${response.status} ${response.statusText}`);
+
+      logger.info(
+        {
+          response: {
+            status: response.status,
+            statusText: response.statusText,
+            data: response.data,
+          },
+        },
+        "Transaction submission response",
+      );
 
       if (response.status !== 200) {
         throw new Error(`Failed to submit transaction: ${response.statusText}`);
       }
 
-      logger.info(`Data uploaded to Arweave with transaction ID: ${tx.id}`);
+      logger.info({ txId: tx.id }, "Data uploaded to Arweave");
       return tx.id;
     } catch (error) {
-      // More detailed error logging
-      logger.error("Failed to upload data to Arweave:", error);
-      if (error instanceof Error) {
-        logger.error(`Error details: ${error.message}`);
-        if (error.stack) {
-          logger.error(`Stack trace: ${error.stack}`);
-        }
-      }
+      // More detailed error logging with proper object serialization
+      logger.error(
+        {
+          error,
+          errorDetails:
+            error instanceof Error
+              ? {
+                  message: error.message,
+                  stack: error.stack,
+                  name: error.name,
+                  // If error contains a response object (like from axios)
+                  response: (error as any).response
+                    ? {
+                        status: (error as any).response.status,
+                        statusText: (error as any).response.statusText,
+                        data: (error as any).response.data,
+                      }
+                    : undefined,
+                }
+              : String(error),
+        },
+        "Failed to upload data to Arweave",
+      );
+
       throw new Error("Failed to upload data to Arweave");
     }
   }
@@ -263,7 +314,7 @@ export class ArweaveService {
     const txId = await this.uploadData(data, contentType, tags);
 
     // Now verify it's accessible via the gateway
-    logger.info(`Verifying transaction ${txId} is accessible via gateway...`);
+    logger.info({ txId }, "Verifying transaction is accessible via gateway");
 
     let accessible = false;
     let attempts = 0;
@@ -279,18 +330,22 @@ export class ArweaveService {
         const response = await axios.get(url, { timeout: 3000 });
 
         if (response.status === 200) {
-          logger.info(`Transaction ${txId} verified accessible after ${attempts} attempt(s)`);
+          logger.info({ txId, attempts }, "Transaction verified accessible");
           accessible = true;
         }
       } catch (error) {
-        logger.info(`Attempt ${attempts}/${maxRetries} to verify transaction ${txId}: not yet accessible`);
+        logger.info({ txId, attempts, maxRetries }, "Transaction not yet accessible");
 
         if (attempts === maxRetries) {
-          logger.warn(
-            `Could not verify transaction ${txId} is accessible after ${maxRetries} attempts. Proceeding anyway.`,
-          );
+          logger.warn({ txId, attempts, maxRetries }, "Could not verify transaction is accessible. Proceeding anyway.");
         }
-        logger.error("Verification error details:", error instanceof Error ? error.message : String(error));
+
+        logger.error(
+          {
+            error: error instanceof Error ? { message: error.message, stack: error.stack } : String(error),
+          },
+          "Verification error details",
+        );
       }
     }
 
@@ -311,6 +366,7 @@ export class ArweaveService {
       { name: "Type", value: "target-metadata" },
     ];
 
+    logger.info({ targetId }, "Uploading target metadata to Arweave");
     return this.uploadDataAndVerify(data, "application/json", tags);
   }
 
@@ -328,6 +384,8 @@ export class ArweaveService {
 
   private async checkArLocalRunning() {
     try {
+      logger.info({ gateway: config.arweave.gateway }, "Checking if ArLocal is running");
+
       // Use the built-in http module to avoid adding axios as a dependency here
       const http = await import("node:http");
 
@@ -353,19 +411,24 @@ export class ArweaveService {
         });
       });
 
-      logger.info("ArLocal is running and accessible.");
+      logger.info({ gateway: config.arweave.gateway }, "ArLocal is running and accessible");
     } catch (error: unknown) {
-      logger.error("⚠️ ArLocal is not running or not accessible!");
-      logger.error(`Error details: ${error instanceof Error ? error.message : String(error)}`);
-      logger.error("");
-      logger.error("To fix this, you have three options:");
-      logger.error("1. Start ArLocal in another terminal with: npx arlocal");
-      logger.error("2. Set MOCK_ARWEAVE=true in your .env.local to use mock mode");
-      logger.error("3. Point to a real Arweave gateway by setting ARWEAVE_GATEWAY=https://arweave.net");
-      logger.error("");
+      logger.error(
+        {
+          gateway: config.arweave.gateway,
+          error: error instanceof Error ? { message: error.message, stack: error.stack } : String(error),
+        },
+        "⚠️ ArLocal is not running or not accessible!",
+      );
 
-      // Ask if we should fall back to mock mode instead of exiting
-      logger.warn("Falling back to MOCK mode for Arweave operations.");
+      // Log instructions as separate entries for better readability
+      logger.error("To fix this, you have three options:");
+      logger.error({ solution: 1 }, "Start ArLocal in another terminal with: npx arlocal");
+      logger.error({ solution: 2 }, "Set MOCK_ARWEAVE=true in your .env.local to use mock mode");
+      logger.error({ solution: 3 }, "Point to a real Arweave gateway by setting ARWEAVE_GATEWAY=https://arweave.net");
+
+      // Falling back to mock mode
+      logger.warn("Falling back to MOCK mode for Arweave operations");
       this.isMock = true;
     }
   }

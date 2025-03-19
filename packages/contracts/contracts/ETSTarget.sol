@@ -121,7 +121,7 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
             createdBy: msg.sender,
             enriched: 0,
             httpStatus: 0,
-            ipfsHash: ""
+            arweaveTxId: ""
         });
         emit TargetCreated(_targetId);
         return _targetId;
@@ -133,13 +133,13 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
         string calldata _targetURI,
         uint256 _enriched,
         uint256 _httpStatus,
-        string calldata _ipfsHash
+        string calldata _arweaveTxId
     ) external returns (bool success) {
         require(msg.sender == address(etsEnrichTarget), "Access denied");
         targets[_targetId].targetURI = _targetURI;
         targets[_targetId].enriched = _enriched;
         targets[_targetId].httpStatus = _httpStatus;
-        targets[_targetId].ipfsHash = _ipfsHash;
+        targets[_targetId].arweaveTxId = _arweaveTxId;
 
         emit TargetUpdated(_targetId);
         return true;

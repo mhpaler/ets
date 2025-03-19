@@ -1,5 +1,5 @@
 import { BigInt as GraphBigInt } from "@graphprotocol/graph-ts";
-import type {
+import {
   AuctionBid,
   AuctionCreated,
   AuctionDurationSet,

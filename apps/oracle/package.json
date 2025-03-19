@@ -6,10 +6,7 @@
   "main": "index.js",
   "scripts": {
     "start-local-oracle": "ts-node scripts/start-local-oracle.ts",
-    "setup-wallet": "ts-node scripts/setup-oracle-wallet.ts",
-    "configure-contract": "ts-node scripts/configure-contract.ts",
-    "start-local-container": "ts-node scripts/start-local-airnode-container.ts",
-    "deploy-production": "ts-node scripts/deploy-production.ts",
+    "verify-local-oracle": "ts-node scripts/60-verify-local-oracle.ts",
     "stop-airnode": "cd .. && docker-compose down",
     "logs-airnode": "docker logs -f airnode-airnode-1",
     "clean": "rm -rf config/local/sponsor.json docker-compose.yml"
@@ -19,11 +16,14 @@
     "@api3/airnode-admin": "^0.15.0",
     "@api3/airnode-deployer": "^0.15.0",
     "@api3/airnode-node": "^0.15.0",
+    "@api3/airnode-protocol": "0.15.0",
     "dotenv": "^16.3.1",
     "ethers": "^5.7.2"
   },
   "devDependencies": {
+    "@api3/airnode-validator": "^0.15.0",
     "@types/node": "^22.13.9",
+    "handlebars": "^4.7.7",
     "ts-node": "^10.9.1",
     "typescript": "^5.8.2"
   }

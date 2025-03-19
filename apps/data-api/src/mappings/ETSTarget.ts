@@ -1,7 +1,7 @@
 import { BigInt as GraphBigInt } from "@graphprotocol/graph-ts";
 import { ensureRelease } from "../entities/Release";
-import { ensureTarget } from "../entities/Target";
-import type {
+import { ensureTarget, updateTarget } from "../entities/Target";
+import {
   AccessControlsSet,
   EnrichTargetSet,
   Initialized,
@@ -24,7 +24,10 @@ export function handleAccessControlsSet(_event: AccessControlsSet): void {}
 
 export function handleEnrichTargetSet(_event: EnrichTargetSet): void {}
 
-export function handleTargetUpdated(_event: TargetUpdated): void {}
+export function handleTargetUpdated(_event: TargetUpdated): void {
+  const targetId = _event.params.targetId;
+  updateTarget(targetId, _event);
+}
 
 export function handleTargetCreated(event: TargetCreated): void {
   ensureTarget(event.params.targetId, event);

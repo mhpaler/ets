@@ -5,17 +5,29 @@
  * This script orchestrates the complete setup of the ETS Oracle service:
  *
  * Workflow:
- * 1. Setup Oracle Wallet (setup-oracle-wallet.ts)
- *    - Creates and funds the sponsor wallet
- *    - Saves wallet configuration
+ * 1. Generate Airnode Credentials (10-generate-airnode-credentials.ts)
+ *    - Creates Airnode wallet from mnemonic
+ *    - Derives xpub and address
+ *    - Saves credentials to JSON file
  *
- * 2. Configure Contract (configure-contract.ts)
- *    - Configures the ETSEnrichTarget contract with Airnode parameters
- *    - Associates the sponsor wallet with Airnode
+ * 2. Generate Airnode Config (20-generate-config.ts)
+ *    - Creates config.json with contract addresses and endpoints
+ *    - Creates secrets.env with mnemonic
  *
- * 3. Start Airnode Container (start-local-airnode-container.ts)
+ * 3. Setup Sponsorship (30-setup-sponsorship.ts)
+ *    - Derives sponsor wallet address
+ *    - Funds sponsor wallet with ETH
+ *    - Establishes sponsorship relationship
+ *    - Saves sponsorship info to JSON file
+ *
+ * 4. Configure Requester (40-configure-requester.ts)
+ *    - Configures ETSEnrichTarget with Airnode parameters
+ *    - Sets up endpoint ID and sponsor wallet
+ *
+ * 5. Start Airnode Container (50-start-airnode-container.ts)
  *    - Creates Docker configuration
  *    - Starts the Airnode container
+ *    - Verifies container is running
  *
  * Prerequisites:
  * - Hardhat node must be running locally (http://localhost:8545)
@@ -23,7 +35,7 @@
  * - Docker must be installed and running
  *
  * Usage:
- * - Run directly: `pnpm start-local` from the apps/oracle directory
+ * - Run directly: `pnpm start-local-oracle` from the apps/oracle directory
  * - From stack script: Called by start-local-stack.sh
  *
  * Integration:
@@ -31,31 +43,43 @@
  * enabling content enrichment and metadata verification.
  */
 
-import { configureContract } from "./configure-contract";
-import { setupOracleWallet } from "./setup-oracle-wallet";
-import { startLocalAirnodeContainer } from "./start-local-airnode-container";
+import { generateAirnodeCredentials } from "./10-generate-airnode-credentials";
+import { generateConfig } from "./20-generate-config";
+import { setupSponsorship } from "./30-setup-sponsorship";
+import { configureRequester } from "./40-configure-requester";
+import { startAirnodeContainer } from "./50-start-airnode-container";
 
 export async function startLocalOracle() {
   try {
-    console.log("Setting up oracle wallet...");
-    await setupOracleWallet();
+    console.log("=== ETS Oracle Setup ===");
+    console.log("Step 1/5: Generating Airnode credentials...");
+    await generateAirnodeCredentials();
 
-    console.log("Configuring contracts...");
-    await configureContract();
+    console.log("\nStep 2/5: Generating Airnode configuration...");
+    await generateConfig();
 
-    console.log("Starting local Airnode container...");
-    await startLocalAirnodeContainer();
+    console.log("\nStep 3/5: Setting up sponsorship...");
+    await setupSponsorship();
 
-    console.log("Oracle setup completed successfully!");
+    console.log("\nStep 4/5: Configuring requester contract...");
+    await configureRequester();
+
+    console.log("\nStep 5/5: Starting Airnode container...");
+    await startAirnodeContainer();
+
+    console.log("\n✅ Oracle setup completed successfully!");
+    console.log("The Airnode is now running and listening for requests from the ETSEnrichTarget contract.");
+    console.log("You can view the container logs with: docker logs -f oracle-airnode-1");
+    console.log("To test the oracle, use the enrichTarget task in the contracts package.");
   } catch (error) {
-    console.error("Oracle setup failed:", error);
+    console.error("\n❌ Oracle setup failed:", error);
     throw error;
   }
 }
 
 if (require.main === module) {
   startLocalOracle()
-    .then(() => console.log("Oracle is now running"))
+    .then(() => console.log("\nOracle is now running and ready to process requests"))
     .catch((error) => {
       console.error("Error:", error);
       process.exit(1);

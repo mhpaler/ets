@@ -3713,7 +3713,7 @@
                 },
                 {
                   "internalType": "string",
-                  "name": "ipfsHash",
+                  "name": "arweaveTxId",
                   "type": "string"
                 }
               ],
@@ -3759,7 +3759,7 @@
                 },
                 {
                   "internalType": "string",
-                  "name": "ipfsHash",
+                  "name": "arweaveTxId",
                   "type": "string"
                 }
               ],
@@ -3893,7 +3893,7 @@
             },
             {
               "internalType": "string",
-              "name": "ipfsHash",
+              "name": "arweaveTxId",
               "type": "string"
             }
           ],
@@ -3924,7 +3924,7 @@
             },
             {
               "internalType": "string",
-              "name": "_ipfsHash",
+              "name": "_arweaveTxId",
               "type": "string"
             }
           ],
@@ -5106,6 +5106,11 @@
             },
             {
               "internalType": "address",
+              "name": "_sponsorAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
               "name": "_sponsorWallet",
               "type": "address"
             }
@@ -5126,6 +5131,19 @@
           "name": "setAirnodeRrp",
           "outputs": [],
           "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "sponsorAddress",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
           "type": "function"
         },
         {

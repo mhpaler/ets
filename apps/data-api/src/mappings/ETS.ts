@@ -8,7 +8,7 @@ import { ensureRelease } from "../entities/Release";
 import { updateCTAGTaggingRecordStats } from "../entities/Tag";
 import { updateTaggerTaggingRecordStats } from "../entities/Tagger";
 import { ensureTaggingRecord, updateTaggingRecord } from "../entities/TaggingRecord";
-import type {
+import {
   AccessControlsSet,
   FundsWithdrawn,
   Initialized,

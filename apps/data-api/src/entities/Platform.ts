@@ -1,8 +1,8 @@
-import { Address, BigInt as GraphBigInt, type ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
-import type { AuctionSettled } from "../generated/ETSAuctionHouse/ETSAuctionHouse";
-import type { Transfer } from "../generated/ETSToken/ETSToken";
-import { type GlobalSettings, Platform } from "../generated/schema";
+import { AuctionSettled } from "../generated/ETSAuctionHouse/ETSAuctionHouse";
+import { Transfer } from "../generated/ETSToken/ETSToken";
+import { GlobalSettings, Platform } from "../generated/schema";
 import { ADDED, MODULO, ONE, PAUSED, UNPAUSED, ZERO, ZERO_ADDRESS } from "../utils/constants";
 import { ensureAuction } from "./Auction";
 

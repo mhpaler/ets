@@ -305,6 +305,11 @@
       },
       {
         "internalType": "address",
+        "name": "_sponsorAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "_sponsorWallet",
         "type": "address"
       }
@@ -325,6 +330,19 @@
     "name": "setAirnodeRrp",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "sponsorAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {

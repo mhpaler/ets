@@ -39,8 +39,8 @@ type Target @entity {
   "HTTP Status code returned from ETSEnrichTargetAPI for targetURI."
   httpStatus: BigInt!
 
-  "IPFS pointer to metadata json extracted for targetURI by ETSEnrichTargetAPI."
-  metadataURI: String!
+  "Arweave TransactionId containing metadata json extracted for targetURI by ETSEnrichTargetAPI."
+  arweaveTxId: String!
 }
 
 #rename to tag

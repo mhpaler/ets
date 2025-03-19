@@ -11,12 +11,12 @@
         "requesterEndpointAuthorizations": {}
       },
       "contracts": {
-        "AirnodeRrp": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318"
+        "AirnodeRrp": "{{airnodeRrpAddress}}"
       },
-      "id": "31337",
+      "id": "{{chainId}}",
       "providers": {
         "local": {
-          "url": "http://host.docker.internal:8545"
+          "url": "{{rpcUrl}}"
         }
       },
       "type": "evm",
@@ -36,7 +36,7 @@
     }
   ],
   "nodeSettings": {
-    "airnodeWalletMnemonic": "${AIRNODE_WALLET_MNEMONIC}",
+    "airnodeWalletMnemonic": "{{airnodeWalletMnemonicVar}}",
     "heartbeat": {
       "enabled": false
     },
@@ -55,20 +55,20 @@
       "type": "local"
     },
     "logFormat": "plain",
-    "logLevel": "INFO",
+    "logLevel": "{{logLevel}}",
     "nodeVersion": "0.15.0",
     "stage": "dev"
   },
   "triggers": {
     "rrp": [
       {
-        "endpointId": "0x5d09ceade33f5e4e5627a6400eaf9ad5fbbecc6c16ce3802f784b480c06b867d",
+        "endpointId": "{{enrichTargetEndpointId}}",
         "oisTitle": "ETS API",
         "endpointName": "enrichTarget",
         "cacheResponses": false
       },
       {
-        "endpointId": "0xf898508c530f6658d4c4ca0098911d4b32d7e990c23500efe4d4aa3764bd0b49",
+        "endpointId": "{{nextAuctionEndpointId}}",
         "oisTitle": "ETS API",
         "endpointName": "nextAuction",
         "cacheResponses": false
@@ -76,12 +76,12 @@
     ],
     "http": [
       {
-        "endpointId": "0x5d09ceade33f5e4e5627a6400eaf9ad5fbbecc6c16ce3802f784b480c06b867d",
+        "endpointId": "{{enrichTargetEndpointId}}",
         "oisTitle": "ETS API",
         "endpointName": "enrichTarget"
       },
       {
-        "endpointId": "0xf898508c530f6658d4c4ca0098911d4b32d7e990c23500efe4d4aa3764bd0b49",
+        "endpointId": "{{nextAuctionEndpointId}}",
         "oisTitle": "ETS API",
         "endpointName": "nextAuction"
       }
@@ -96,7 +96,7 @@
       "apiSpecifications": {
         "servers": [
           {
-            "url": "http://host.docker.internal:4000"
+            "url": "{{apiUrl}}"
           }
         ],
         "paths": {

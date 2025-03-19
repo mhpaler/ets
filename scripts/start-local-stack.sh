@@ -41,13 +41,13 @@ error() {
 print_banner() {
   echo ""
   echo ""
-  echo -e "${CYAN}███████╗████████╗███████╗${NC}"
-  echo -e "${CYAN}██╔════╝╚══██╔══╝██╔════╝${NC}"
-  echo -e "${CYAN}█████╗     ██║   ███████╗${NC}"
-  echo -e "${CYAN}██╔══╝     ██║   ╚════██║${NC}"
-  echo -e "${CYAN}███████╗   ██║   ███████║${NC}"
-  echo -e "${CYAN}╚══════╝   ╚═╝   ╚══════╝${NC}"
-  echo -e "${YELLOW}Universal Tagging System${NC}"
+  echo -e "  ${CYAN}███████╗████████╗███████╗${NC}"
+  echo -e "  ${CYAN}██╔════╝╚══██╔══╝██╔════╝${NC}"
+  echo -e "  ${CYAN}█████╗     ██║   ███████╗${NC}"
+  echo -e "  ${CYAN}██╔══╝     ██║   ╚════██║${NC}"
+  echo -e "  ${CYAN}███████╗   ██║   ███████║${NC}"
+  echo -e "  ${CYAN}╚══════╝   ╚═╝   ╚══════╝${NC}"
+  echo -e "  ${YELLOW}Universal Tagging System${NC}"
   echo ""
   echo ""
   echo -e "${GREEN}Starting local development stack...${NC}"
@@ -365,6 +365,11 @@ colorize_output() {
   fi
 }
 
+display_service_url() {
+  local service_name=$1
+  local url=$2
+  echo -e "\n${ORANGE}${service_name} is running at ${LIGHT_BLUE}${url}${NC}\n"
+}
 
 # Start Hardhat node
 start_hardhat() {
@@ -381,6 +386,8 @@ start_hardhat() {
 
   # Wait for node to be ready (adjust sleep time as needed)
   sleep 5
+
+  display_service_url "Hardhat node" "http://localhost:8545/"
   success "Hardhat node started with PID: $HARDHAT_PID"
 }
 
@@ -439,12 +446,24 @@ deploy_subgraph() {
 
   if [ $EXIT_CODE -eq 0 ]; then
     success "Subgraph deployed successfully"
+
+    # Extract the subgraph URL from the log file
+    SUBGRAPH_URL=$(grep -o "http://localhost:8000/subgraphs/name/[^ ]*" "$ROOT_DIR/logs/subgraph-deploy.log" | head -1)
+
+    if [ -n "$SUBGRAPH_URL" ]; then
+      # Display the subgraph URL
+      display_service_url "Subgraph endpoint" "$SUBGRAPH_URL"
+    else
+      # Fallback if URL not found in logs
+      display_service_url "Subgraph endpoint" "http://localhost:8000/subgraphs/name/ets-local"
+    fi
   else
     error "Subgraph deployment failed. Check logs/subgraph-deploy.log for details"
     cat "$ROOT_DIR/logs/subgraph-deploy.log"
     exit 1
   fi
 }
+
 
 
 # Add function to start arlocal
@@ -500,7 +519,29 @@ start_arlocal() {
     exit 1
   fi
 
+ # Add this line to display the ArLocal server URL to the screen
+  display_service_url "ArLocal server" "http://localhost:1984/"
   success "ArLocal started with PID: $ARLOCAL_PID"
+}
+
+# Add after start_arlocal function
+fund_arlocal_wallet() {
+  log "Funding ArLocal wallet with test tokens..."
+  cd "$ROOT_DIR/apps/offchain-api"
+
+  if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
+    pnpm run mint-ar > "$ROOT_DIR/logs/arlocal-funding.log" 2>&1
+  else
+    pnpm run mint-ar | tee "$ROOT_DIR/logs/arlocal-funding.log"
+  fi
+
+  if [ ${PIPESTATUS[0]} -eq 0 ]; then
+    success "ArLocal wallet funded successfully"
+  else
+    error "Failed to fund ArLocal wallet. Check logs/arlocal-funding.log for details"
+    cat "$ROOT_DIR/logs/arlocal-funding.log"
+    exit 1
+  fi
 }
 
 
@@ -530,6 +571,7 @@ start_offchain_api() {
     exit 1
   fi
 
+  display_service_url "Offchain API" "http://localhost:4000/"
   success "Offchain API started with PID: $API_PID"
 }
 
@@ -571,6 +613,7 @@ start_oracle() {
 
   # Set up colored output for both log files
   colorize_output "ORACLE" "${PURPLE}"
+  display_service_url "Airnode Oracle" "http://localhost:8080/"
   success "Airnode oracle started successfully with container ID: $CONTAINER_ID"
 }
 
@@ -595,9 +638,35 @@ start_explorer() {
   colorize_output "EXPLORER" "${BLUE}"
 
   sleep 3
-  success "Explorer UI started with PID: $EXPLORER_PID on http://localhost:3001"
+  display_service_url "ETS Explorer UI" "http://localhost:3001/"
+  success "Explorer UI started with PID: $EXPLORER_PID"
 }
 
+# Populate initial data
+populate_data() {
+  log "Populating initial data..."
+  cd "$ROOT_DIR/packages/contracts"
+
+  # Run the first command and wait for it to complete
+  log "Applying initial tags to the ETS repository URL..."
+  hardhat applyTags --relayer "ETSRelayer" --signer "account3" --tags "#UniversalTags" --uri "https://github.com/ethereum-tag-service/ets" --record-type "bookmark" --network localhost >> "$ROOT_DIR/logs/hardhat.log" 2>&1
+
+  if [ $? -ne 0 ]; then
+    error "Failed to apply initial tags. Check logs/hardhat.log for details"
+    return 1
+  fi
+
+  # Run the second command after the first one completes
+  log "Creating test tagging records..."
+  hardhat testdata --action createTaggingRecords --qty 4 --signers 4 --network localhost >> "$ROOT_DIR/logs/hardhat.log" 2>&1
+
+  if [ $? -ne 0 ]; then
+    error "Failed to create test tagging records. Check logs/hardhat.log for details"
+    return 1
+  fi
+
+  success "Initial data populated successfully"
+}
 
 
 # Initialize PID tracking files
@@ -634,9 +703,13 @@ deploy_contracts
 start_graph_node
 deploy_subgraph
 start_arlocal
+fund_arlocal_wallet
 start_offchain_api
 start_oracle
 start_explorer
+populate_data
+
+# 66970359841036948517769269395685321134451577895751556947483004888163188906780
 
 success "All services started successfully!"
 log "Services are logging with different colors"

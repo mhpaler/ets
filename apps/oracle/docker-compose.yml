@@ -2,9 +2,9 @@
 services:
   airnode:
     image: api3/airnode-client:0.15.0
-    environment:
-      - AIRNODE_WALLET_MNEMONIC=test test test test test test test test test test test junk
     volumes:
       - ./config/local:/app/config
+    ports:
+      - "8090:3000"  # HTTP Gateway
     restart: always
     

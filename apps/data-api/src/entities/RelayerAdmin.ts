@@ -1,4 +1,4 @@
-import type { Address, ethereum } from "@graphprotocol/graph-ts";
+import { Address, ethereum } from "@graphprotocol/graph-ts";
 import { RelayerAdmin } from "../generated/schema";
 
 export function ensureRelayerAdmin(address: Address, event: ethereum.Event): RelayerAdmin {

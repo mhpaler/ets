@@ -1,4 +1,4 @@
-import { Address, BigInt as GraphBigInt, type ethereum } from "@graphprotocol/graph-ts/index";
+import { Address, BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts/index";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
 import { ensurePlatform } from "../entities/Platform";
 

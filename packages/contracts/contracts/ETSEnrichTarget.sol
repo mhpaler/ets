@@ -7,6 +7,7 @@ import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
 import { ContextUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import { StringsUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 import { RrpRequesterV0 } from "@api3/airnode-protocol/contracts/rrp/requesters/RrpRequesterV0.sol";
 import { IAirnodeRrpV0 } from "@api3/airnode-protocol/contracts/rrp/interfaces/IAirnodeRrpV0.sol";
 
@@ -20,6 +21,7 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
     // Airnode parameters
     address public airnode;
     bytes32 public endpointId;
+    address public sponsorAddress;
     address public sponsorWallet;
 
     // Airnode RRP contract
@@ -83,10 +85,12 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
     function setAirnodeRequestParameters(
         address _airnode,
         bytes32 _endpointId,
+        address _sponsorAddress,
         address _sponsorWallet
     ) external onlyAdmin {
         airnode = _airnode;
         endpointId = _endpointId;
+        sponsorAddress = _sponsorAddress;
         sponsorWallet = _sponsorWallet;
     }
 
@@ -98,14 +102,25 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
         require(airnode != address(0), "Airnode not set");
         require(sponsorWallet != address(0), "Sponsor wallet not set");
 
-        // Encode request parameters
-        bytes memory parameters = abi.encode(block.chainid, _targetId);
+        // Convert uint256 to string using the Strings library
+        string memory targetIdStr = StringsUpgradeable.toString(_targetId);
+        string memory chainIdStr = StringsUpgradeable.toString(block.chainid);
+
+        // Encode parameters according to Airnode ABI specifications
+        // Header: "1SS" - version 1, two string parameters
+        bytes memory parameters = abi.encode(
+            bytes32("1SS"), // Header: version 1, two string parameters
+            bytes32("chainId"),
+            chainIdStr, // First parameter: chainId (string)
+            bytes32("targetId"),
+            targetIdStr // Second parameter: targetId (string)
+        );
 
         // Make the Airnode request
         bytes32 requestId = airnodeRrp.makeFullRequest(
             airnode,
             endpointId,
-            address(this),
+            sponsorAddress,
             sponsorWallet,
             address(this),
             this.fulfillEnrichTarget.selector,
@@ -130,12 +145,12 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
         delete requestIdToTargetId[requestId];
 
         // Decode the response - expects encoded tuple of (string, uint256)
-        (string memory ipfsHash, uint256 httpStatus) = abi.decode(data, (string, uint256));
+        (string memory arweaveTxId, uint256 httpStatus) = abi.decode(data, (string, uint256));
 
         // Update the target with enriched data
         IETSTarget.Target memory target = etsTarget.getTargetById(targetId);
-        etsTarget.updateTarget(targetId, target.targetURI, block.timestamp, httpStatus, ipfsHash);
+        etsTarget.updateTarget(targetId, target.targetURI, block.timestamp, httpStatus, arweaveTxId);
 
-        emit EnrichmentFulfilled(requestId, targetId, ipfsHash, httpStatus);
+        emit EnrichmentFulfilled(requestId, targetId, arweaveTxId, httpStatus);
     }
 }

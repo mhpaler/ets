@@ -1,11 +1,11 @@
-import { Address, BigInt as GraphBigInt, type ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
 import { ensurePlatform, updateCreatorCount } from "../entities/Platform";
 import { ensureTag } from "../entities/Tag";
-import type { AuctionSettled } from "../generated/ETSAuctionHouse/ETSAuctionHouse";
-import type { Transfer } from "../generated/ETSToken/ETSToken";
+import { AuctionSettled } from "../generated/ETSAuctionHouse/ETSAuctionHouse";
+import { Transfer } from "../generated/ETSToken/ETSToken";
 import { Creator } from "../generated/schema";
-import type { Platform, Tag } from "../generated/schema";
+import { Platform, Tag } from "../generated/schema";
 import { arrayDiff } from "../utils/arrayDiff";
 import { APPEND, CREATE, MODULO, ONE, OWNER, REMOVE, ZERO, ZERO_ADDRESS } from "../utils/constants";
 import { getTaggingFee } from "../utils/getTaggingFee";

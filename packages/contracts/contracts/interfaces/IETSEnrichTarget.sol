@@ -52,6 +52,12 @@ interface IETSEnrichTarget {
     /// @notice Set the Airnode request parameters
     /// @param _airnode The Airnode address
     /// @param _endpointId The endpoint ID
+    /// @param _sponsorAddress The sponsor address
     /// @param _sponsorWallet The sponsor wallet address
-    function setAirnodeRequestParameters(address _airnode, bytes32 _endpointId, address _sponsorWallet) external;
+    function setAirnodeRequestParameters(
+        address _airnode,
+        bytes32 _endpointId,
+        address _sponsorAddress,
+        address _sponsorWallet
+    ) external;
 }

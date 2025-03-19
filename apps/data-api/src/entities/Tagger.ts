@@ -1,4 +1,4 @@
-import { type Address, BigInt as GraphBigInt, type ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
 import { updateTaggerCount } from "../entities/Platform";
 import { Tagger } from "../generated/schema";

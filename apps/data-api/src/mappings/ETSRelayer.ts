@@ -1,11 +1,11 @@
 import { ensureRelayer } from "../entities/Relayer";
 import {
   ETSRelayer,
-  type OwnershipTransferred,
-  type Paused,
-  type RelayerOwnerChanged,
-  type RelayerPauseToggledByOwner,
-  type Unpaused,
+  OwnershipTransferred,
+  Paused,
+  RelayerOwnerChanged,
+  RelayerPauseToggledByOwner,
+  Unpaused,
 } from "../generated/templates/ETSRelayer/ETSRelayer";
 import { logCritical } from "../utils/logCritical";
 

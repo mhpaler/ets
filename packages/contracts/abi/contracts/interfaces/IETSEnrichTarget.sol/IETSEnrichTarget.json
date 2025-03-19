@@ -44,6 +44,11 @@
       },
       {
         "internalType": "address",
+        "name": "_sponsorAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "_sponsorWallet",
         "type": "address"
       }

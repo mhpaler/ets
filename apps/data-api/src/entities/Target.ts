@@ -1,4 +1,4 @@
-import type { BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
+import { BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
 import { updateTargetCount } from "../entities/Platform";
 import { ETSTarget } from "../generated/ETSTarget/ETSTarget";
 import { Target } from "../generated/schema";
@@ -21,12 +21,33 @@ export function ensureTarget(targetId: GraphBigInt, event: ethereum.Event): Targ
     target.targetURI = targetCall.value.targetURI;
     target.enriched = targetCall.value.enriched;
     target.httpStatus = targetCall.value.httpStatus;
-    target.metadataURI = targetCall.value.ipfsHash;
+    target.arweaveTxId = targetCall.value.arweaveTxId;
     target.targetType = getTargetType(target.targetURI);
     target.targetTypeKeywords = getTargetTypeKeywords(target.targetURI);
     target.save();
 
     updateTargetCount(event);
+  }
+  return target as Target;
+}
+
+export function updateTarget(targetId: GraphBigInt, event: ethereum.Event): Target {
+  const target = ensureTarget(targetId, event);
+  if (target && event) {
+    const contract = ETSTarget.bind(event.address);
+    const targetCall = contract.try_getTargetById(targetId);
+
+    if (targetCall.reverted) {
+      logCritical("getTargetById() reverted for {}", [targetId.toString()]);
+    }
+
+    // Update the target properties with the latest values from the contract
+    target.targetURI = targetCall.value.targetURI;
+    target.enriched = targetCall.value.enriched;
+    target.httpStatus = targetCall.value.httpStatus;
+    target.arweaveTxId = targetCall.value.arweaveTxId;
+
+    target.save();
   }
   return target as Target;
 }

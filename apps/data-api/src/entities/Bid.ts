@@ -1,5 +1,5 @@
-import type { BigInt as GraphBigInt } from "@graphprotocol/graph-ts";
-import type { AuctionBid } from "../generated/ETSAuctionHouse/ETSAuctionHouse";
+import { BigInt as GraphBigInt } from "@graphprotocol/graph-ts";
+import { AuctionBid } from "../generated/ETSAuctionHouse/ETSAuctionHouse";
 import { Bid } from "../generated/schema";
 import { logCritical } from "../utils/logCritical";
 import { updateAuction } from "./Auction";
