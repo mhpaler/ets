@@ -9,7 +9,8 @@
       "./packages/contracts/typechain-types/*",
       "./packages/contracts/deployments/*",
       "./packages/contracts/export/*",
-      "./packages/sdk-core/src/index.ts"
+      "./packages/sdk-core/src/index.ts",
+      "./apps/data-api/src/generated/**"
     ]
   },
   "formatter": {

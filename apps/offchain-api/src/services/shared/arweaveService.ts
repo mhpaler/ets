@@ -359,15 +359,33 @@ export class ArweaveService {
    * @returns Transaction ID (hash)
    */
   public async uploadTargetMetadata(targetId: string, metadata: any): Promise<string> {
-    const data = JSON.stringify(metadata);
+    // Step 1: Create a draft transaction to estimate cost
+    const draftData = JSON.stringify(metadata);
+    const draftTx = await this.arweave.createTransaction(
+      {
+        data: draftData,
+      },
+      this.jwk,
+    );
+
+    // Get the estimated cost
+    const estimatedWinston = draftTx.reward;
+    const estimatedAr = this.arweave.ar.winstonToAr(estimatedWinston);
+
+    // Step 2: Add the cost to the metadata
+    metadata.arweaveTxCost = estimatedAr;
+    metadata.arweaveTxCostTimestamp = Date.now();
+
+    // Step 3: Create the actual data with the cost included
+    const finalData = JSON.stringify(metadata);
     const tags = [
       { name: "Target-ID", value: targetId },
       { name: "Content-Type", value: "application/json" },
       { name: "Type", value: "target-metadata" },
     ];
 
-    logger.info({ targetId }, "Uploading target metadata to Arweave");
-    return this.uploadDataAndVerify(data, "application/json", tags);
+    logger.info({ targetId, estimatedArCost: estimatedAr }, "Uploading target metadata with cost to Arweave");
+    return this.uploadDataAndVerify(finalData, "application/json", tags);
   }
 
   /**

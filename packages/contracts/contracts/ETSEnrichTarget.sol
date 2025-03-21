@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: MIT
+
+/* solhint-disable no-console */
 pragma solidity ^0.8.10;
 
 import { IETSTarget } from "./interfaces/IETSTarget.sol";
@@ -11,6 +13,7 @@ import { StringsUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/St
 import { RrpRequesterV0 } from "@api3/airnode-protocol/contracts/rrp/requesters/RrpRequesterV0.sol";
 import { IAirnodeRrpV0 } from "@api3/airnode-protocol/contracts/rrp/interfaces/IAirnodeRrpV0.sol";
 
+import "hardhat/console.sol";
 contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable, UUPSUpgradeable {
     /// @dev ETS access controls smart contract.
     IETSAccessControls public etsAccessControls;
@@ -97,6 +100,7 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
     // ============ PUBLIC INTERFACE ============
 
     /// @inheritdoc IETSEnrichTarget
+    // Add debug logging to requestEnrichTarget
     function requestEnrichTarget(uint256 _targetId) external {
         require(etsTarget.targetExistsById(_targetId) == true, "Invalid target");
         require(airnode != address(0), "Airnode not set");
@@ -136,6 +140,7 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
     /// @notice Function called by Airnode with the enriched data
     /// @param requestId The request ID that was returned when making the request
     /// @param data The data returned by the Airnode (encoded ipfsHash and httpStatus)
+    // Add debug logging to fulfillEnrichTarget
     function fulfillEnrichTarget(bytes32 requestId, bytes calldata data) external onlyAirnodeRrp {
         // Get the target ID associated with this request
         uint256 targetId = requestIdToTargetId[requestId];
@@ -150,7 +155,6 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
         // Update the target with enriched data
         IETSTarget.Target memory target = etsTarget.getTargetById(targetId);
         etsTarget.updateTarget(targetId, target.targetURI, block.timestamp, httpStatus, arweaveTxId);
-
         emit EnrichmentFulfilled(requestId, targetId, arweaveTxId, httpStatus);
     }
 }

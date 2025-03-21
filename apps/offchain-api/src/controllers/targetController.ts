@@ -1,5 +1,4 @@
 import { createTargetClient } from "@ethereum-tag-service/sdk-core";
-import { ethers } from "ethers";
 import type { NextFunction, Request, Response } from "express";
 import { metadataService } from "../services/target/metadataService";
 import { AppError } from "../utils/errorHandler";
@@ -11,14 +10,14 @@ import { logger } from "../utils/logger";
  */
 export const processTarget = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { chainId, targetId, returnType = "bytes" } = req.body;
+    const { chainId, targetId, returnType = "airnode" } = req.body;
 
     if (!targetId) {
       return next(new AppError("Target ID is required", 400));
     }
 
-    if (returnType !== "bytes" && returnType !== "json") {
-      return next(new AppError("returnType must be either 'bytes' or 'json'", 400));
+    if (returnType !== "airnode" && returnType !== "json") {
+      return next(new AppError("returnType must be either 'airnode' or 'json'", 400));
     }
 
     logger.info(`Processing target ${targetId} on chain ${chainId} with returnType: ${returnType}`);
@@ -69,17 +68,11 @@ export const processTarget = async (req: Request, res: Response, next: NextFunct
         data: responseData,
       });
     } else {
-      // Return ABI-encoded bytes (for Airnode)
-      // Encode as (string, uint256) tuple that can be decoded in the smart contract
-      const encodedData = ethers.utils.defaultAbiCoder.encode(["string", "uint256"], [txId || "", httpStatus]);
-
-      logger.info(`Returning ABI-encoded data: ${encodedData}`);
-
-      // Return the encoded data as the raw response
+      // return in format expected by Airnode
       res.status(200).json({
         success: true,
-        message: "Data encoded for on-chain consumption",
-        rawValue: encodedData,
+        txId: txId || "",
+        httpStatus: httpStatus.toString(),
       });
     }
   } catch (error) {

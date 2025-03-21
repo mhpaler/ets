@@ -253,3 +253,16 @@ templates:
           handler: handlePausedByOwner
         - event: Unpaused(address)
           handler: handleUnpausedByOwner
+  - name: TargetMetadata
+    kind: file/arweave
+    mapping:
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/mappings/TargetMetadata.ts
+      handler: handleTargetMetadata
+      entities:
+        - TargetMetadata
+        - Target
+      abis:
+        - name: TargetMetadata
+          file: {{abis.ETSRelayer}}

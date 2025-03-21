@@ -141,11 +141,11 @@
           "reservedParameters": [
             {
               "name": "_type",
-              "fixed": "bytes"
+              "fixed": "string,uint256"
             },
             {
               "name": "_path",
-              "fixed": "rawValue"
+              "fixed": "txId,httpStatus"
             }
           ],
           "parameters": [
@@ -175,11 +175,11 @@
           "reservedParameters": [
             {
               "name": "_type",
-              "fixed": "bytes"
+              "fixed": "bool,string,string"
             },
             {
               "name": "_path",
-              "fixed": "rawValue"
+              "fixed": "hasEligibleTag,tagId,tagDisplay"
             }
           ],
           "parameters": [

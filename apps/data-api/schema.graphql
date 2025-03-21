@@ -41,6 +41,86 @@ type Target @entity {
 
   "Arweave TransactionId containing metadata json extracted for targetURI by ETSEnrichTargetAPI."
   arweaveTxId: String!
+
+  # New relationships
+  currentMetadata: TargetMetadata # Points to the most recent metadata
+  metadataHistory: [TargetMetadata!]! @derivedFrom(field: "target") # All metadata records
+}
+
+# Base Metadata entity
+type TargetMetadata @entity {
+  id: ID! # The arweaveTxId
+  target: Target!
+  rawData: String! # Store the entire JSON as a string
+  timestamp: BigInt!
+  contentType: String
+}
+
+# This helps us look up targets by Arweave TX ID
+type ArweaveTargetMapping @entity {
+  id: ID! # The arweaveTxId
+  target: Target!
+}
+
+# HTML specific metadata
+type HtmlMetadata @entity {
+  id: ID! # Same as parent Metadata id
+
+  # HTML specific fields
+  title: String
+  description: String
+  favicon: String
+
+  # OpenGraph data
+  ogTitle: String
+  ogDescription: String
+  ogImage: String
+  ogSiteName: String
+  ogUrl: String
+  ogType: String
+
+  # Twitter data
+  twitterTitle: String
+  twitterDescription: String
+  twitterImage: String
+  twitterCard: String
+
+  # Structured data as JSON string (for Schema.org, etc.)
+  structuredData: String
+
+  # Raw JSON for OpenGraph and Twitter data (allows accessing fields we don't explicitly model)
+  openGraphJson: String
+  twitterJson: String
+}
+
+# Image specific metadata
+type ImageMetadata @entity {
+  id: ID! # Same as parent Metadata id
+
+  # Image dimensions
+  width: Int
+  height: Int
+
+  # Image technical details
+  fileSize: Int
+  fileType: String
+  mimeType: String
+  colorSpace: String
+
+  # Optional metadata
+  exifData: String # JSON string with EXIF data if available
+}
+
+# Create a record of metadata updates for auditing/history
+type MetadataUpdateEvent @entity {
+  id: ID! # Transaction hash + log index
+  target: Target!
+  metadata: TargetMetadata!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: String!
+  logIndex: BigInt!
+  previousArweaveTxId: String # For tracking changes
 }
 
 #rename to tag

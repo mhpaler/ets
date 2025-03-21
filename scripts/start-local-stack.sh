@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -e
 
 USE_SEPARATE_LOG_TERMINAL=true  # Set to false if you want logs in the main terminal
@@ -21,6 +22,9 @@ ORANGE='\033[0;33m'
 LIGHT_GREEN='\033[1;32m'
 LIGHT_BLUE='\033[1;34m'
 NC='\033[0m' # No Color
+
+# Add this array at the top of the script, after the color definitions
+declare -a SERVICE_URLS
 
 log() {
   echo -e "${BLUE}[$(date +"%T")]${NC} - $1"
@@ -368,7 +372,22 @@ colorize_output() {
 display_service_url() {
   local service_name=$1
   local url=$2
-  echo -e "\n${ORANGE}${service_name} is running at ${LIGHT_BLUE}${url}${NC}\n"
+  # Instead of displaying, add to our collection
+  SERVICE_URLS+=("${service_name}:${url}")
+}
+
+# Add a new function to display all collected URLs at the end
+display_all_services() {
+  echo ""
+  echo -e "${ORANGE}=== ETS Local Stack Services ===${NC}"
+  echo ""
+  for service_info in "${SERVICE_URLS[@]}"; do
+    # Split the service info by colon
+    service_name="${service_info%%:*}"
+    url="${service_info#*:}"
+    echo -e "${LIGHT_GREEN}${service_name}${NC} is running at ${LIGHT_BLUE}${url}${NC}"
+  done
+  echo ""
 }
 
 # Start Hardhat node
@@ -709,6 +728,7 @@ start_oracle
 start_explorer
 populate_data
 
+display_all_services
 # 66970359841036948517769269395685321134451577895751556947483004888163188906780
 
 success "All services started successfully!"

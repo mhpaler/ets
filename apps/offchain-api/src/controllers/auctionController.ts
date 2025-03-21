@@ -10,7 +10,7 @@ import { logger } from "../utils/logger";
  */
 export const getNextAuction = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { chainId } = req.body;
+    const { chainId, returnType = "airnode" } = req.body;
 
     if (!chainId) {
       return next(new AppError("Chain ID is required", 400));
@@ -37,26 +37,30 @@ export const getNextAuction = async (req: Request, res: Response, next: NextFunc
     // Find the next tag to auction using the TagService
     const nextTag = await tagService.findNextCTAG(platformAddress, chainId);
 
-    if (!nextTag) {
+    // Prepare the response data
+    const hasEligibleTag = !!nextTag;
+    const tagId = nextTag?.tagId || "";
+    const tagDisplay = nextTag?.tagDisplay || "";
+
+    if (returnType === "json") {
+      // Return JSON response (for testing and readability)
       return res.status(200).json({
         success: true,
-        message: "No eligible tags found for auction",
+        message: hasEligibleTag ? "Found next tag for auction" : "No eligible tags found for auction",
         data: {
           chainId,
-          hasEligibleTag: false,
+          hasEligibleTag,
+          ...(hasEligibleTag && { tagId, tagDisplay }),
         },
       });
     }
 
-    res.status(200).json({
+    // Return in format expected by Airnode
+    return res.status(200).json({
       success: true,
-      message: "Found next tag for auction",
-      data: {
-        chainId,
-        hasEligibleTag: true,
-        tagId: nextTag.tagId,
-        tagDisplay: nextTag.tagDisplay,
-      },
+      hasEligibleTag: hasEligibleTag.toString(), // Convert boolean to string
+      tagId: tagId,
+      tagDisplay: tagDisplay,
     });
   } catch (error) {
     logger.error("Error in getNextAuction:", error);
@@ -65,7 +69,6 @@ export const getNextAuction = async (req: Request, res: Response, next: NextFunc
     );
   }
 };
-
 /**
  * Handle auction event webhooks
  * Primarily for handling RequestCreateAuction events

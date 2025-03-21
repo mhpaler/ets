@@ -1,4 +1,4 @@
-import { BigInt as GraphBigInt } from "@graphprotocol/graph-ts";
+import { DataSourceContext, DataSourceTemplate, BigInt as GraphBigInt, log } from "@graphprotocol/graph-ts";
 import { ensureRelease } from "../entities/Release";
 import { ensureTarget, updateTarget } from "../entities/Target";
 import {
@@ -26,7 +26,23 @@ export function handleEnrichTargetSet(_event: EnrichTargetSet): void {}
 
 export function handleTargetUpdated(_event: TargetUpdated): void {
   const targetId = _event.params.targetId;
-  updateTarget(targetId, _event);
+  const target = updateTarget(targetId, _event);
+  // If the target has an Arweave TX ID, create a file data source
+  if (target.arweaveTxId && target.arweaveTxId.length > 0) {
+    // Set currentMetadata right here, when we know the target and arweaveTxId are valid
+    target.currentMetadata = target.arweaveTxId;
+    target.save();
+    log.info("Updated Target.currentMetadata to: {}", [target.arweaveTxId]);
+
+    // Then create the file data source.
+    // Create context with target ID
+    const context = new DataSourceContext();
+    context.setString("targetId", targetId.toString());
+    context.setBigInt("timestamp", _event.block.timestamp);
+
+    // Create with context
+    DataSourceTemplate.createWithContext("TargetMetadata", [target.arweaveTxId], context);
+  }
 }
 
 export function handleTargetCreated(event: TargetCreated): void {

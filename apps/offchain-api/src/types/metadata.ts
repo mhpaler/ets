@@ -6,6 +6,7 @@ export interface BaseMetadata {
   contentType: string;
   extractedAt: string;
   error?: string;
+  schemaVersion: string; // e.g., "1.0", "1.1", etc.
 }
 
 /**
