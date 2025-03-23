@@ -9,6 +9,7 @@
       "./packages/contracts/typechain-types/*",
       "./packages/contracts/deployments/*",
       "./packages/contracts/export/*",
+      "./packages/contracts/src/contracts.ts",
       "./packages/sdk-core/src/index.ts",
       "./apps/data-api/src/generated/**"
     ]

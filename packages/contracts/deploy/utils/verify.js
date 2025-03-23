@@ -1,4 +1,4 @@
-const { network, ethernal, run } = require("hardhat");
+const { network, run } = require("hardhat");
 const networkName = network.name;
 const chainId = network.config.chainId;
 
@@ -14,40 +14,47 @@ const chainId = network.config.chainId;
  * by passing the deployed contract address in as the implementation argument.
  */
 async function verify(name, deployment, implementation, args) {
-  // If we are on hardhat local chain and ethernal is enabled.
+  // Skip verification for local development network
   if (chainId === 31337) {
-    if (ethernal && process.env.ETHERNAL_DISABLED === "false") {
-      console.info(`Verifying ${name} on Ethernal`);
-      try {
-        await ethernal.push({
-          name: name,
-          // Ethernal always takes the deployment address.
-          address: deployment.address,
-        });
-      } catch (err) {
-        console.info("Verification failed", { name, chainId: chainId, address: deployment.address, args, err });
-      }
-    } else {
-      console.info("Ethernal verification disabled. See repo README.md for enabling Ethernal.");
-    }
-  } else {
-    try {
-      console.info(`Verifying ${name}`);
-      await run("verify:verify", {
-        network: networkName,
-        address: implementation,
-        constructorArguments: args,
-      });
-    } catch (err) {
-      console.info("Verification failed", {
-        name,
-        address: deployment.address,
-        chainId: chainId,
-        implementation,
-        args,
-        err,
-      });
-    }
+    console.info(`Skipping verification for ${name} on local network`);
+    return;
+  }
+
+  // Determine the address to verify
+  let addressToVerify;
+
+  // If implementation is a string (direct address), use that
+  if (typeof implementation === "string") {
+    addressToVerify = implementation;
+  }
+  // If it's an array (for proxy contracts), use it as args and get address from deployment
+  else if (Array.isArray(implementation)) {
+    const constructorArgs = implementation;
+    addressToVerify = deployment.address;
+    return verify(name, deployment, addressToVerify, constructorArgs);
+  }
+  // Otherwise use implementation as is
+  else {
+    addressToVerify = implementation;
+  }
+
+  // Verify on block explorer for non-local networks
+  try {
+    console.info(`Verifying ${name} at address ${addressToVerify}`);
+    await run("verify:verify", {
+      network: networkName,
+      address: addressToVerify,
+      constructorArguments: args || [],
+    });
+  } catch (err) {
+    console.info("Verification failed", {
+      name,
+      address: deployment?.address,
+      verificationAddress: addressToVerify,
+      chainId: chainId,
+      args: args || [],
+      err,
+    });
   }
 }
 
