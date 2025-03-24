@@ -1,6 +1,20 @@
-# ETS Codebase Guidelines for Claude
+# ETS Context Enhancement for Claude
+
+This document contains sections to enhance Claude's context understanding and retrieval for the ETS project.
+
+## Working Branch Notebook
+
+The **Working Branch Notebook** is a feature branch-specific document that maintains detailed notes about the current work in progress. This helps maintain continuity between sessions and provides comprehensive context about the ongoing implementation.
+
+Current branch notebook:
+- **Branch**: `513-airnode-oracle`
+- **Notebook**: [ORACLE-DEPLOYMENT.md](/Users/User/Sites/ets/ORACLE-DEPLOYMENT.md)
+- **Purpose**: Tracks Oracle implementation progress, deployment steps, and environment configuration details
+
+When switching to work on a different feature branch, updating this reference in CLAUDE.md provides immediate context for future sessions.
 
 ## Build & Test Commands
+
 - Build: `pnpm build`
 - Lint: `pnpm lint` (uses Biome)
 - Format: `pnpm format`
@@ -9,6 +23,7 @@
 - Start local stack: `./scripts/start-local-stack.sh`
 
 ## Code Style
+
 - **Formatting**: Double quotes, trailing commas, 2-space indentation (4 for Solidity)
 - **Imports**: Organized with Biome, no barrel exports (`index.ts` exports)
 - **TypeScript**: Strict mode enabled, prefer explicit types over `any`
@@ -18,22 +33,92 @@
 - **State Management**: React context for global state
 - **Testing**: Unit tests for business logic, contract interactions
 
+## Coding Pattern Preferences
+
+– Always prefer simple solutions
+– Avoid duplication of code whenever possible, which means checking for other areas of the codebase that might already have similar code and functionality
+– Write code that takes into account the different environments: dev, test, and prod
+– You are careful to only make changes that are requested or you are confident are well understood and related to the change being requested
+– When fixing an issue or bug, do not introduce a new pattern or technology without first exhausting all options for the existing implementation. And if you finally do this, make sure to remove the old implementation afterwards so we don't have duplicate logic.
+– Keep the codebase very clean and organized
+– Avoid writing scripts in files if possible, especially if the script is likely only to be run once
+– Avoid having files over 200–300 lines of code. Refactor at that point.
+– Mocking data is only needed for tests, never mock data for dev or prod
+– Never add stubbing or fake data patterns to code that affects the dev or prod environments
+– Never overwrite my .env file without first asking and confirming
+– Always use console.info instead of console.log for logging
+– Prefer for...of loops over forEach() methods (as recommended by Biome under the rule complexity/noForEach)
+
+## Project Status & Roadmap
+
+- **Current Phase**: Testnet deployment with staging/production separation
+- **Active Branches**:
+  - `stage`: Main integration branch for next release features
+  - `513-airnode-oracle`: Oracle implementation branch
+- **Upcoming Milestones**:
+  - Complete staging/production environment separation ✓
+  - Oracle deployment to staging environment
+  - Subgraph deployment for staging environment
+
+## Current Work Streams
+
+- **Environment Separation**: Implemented SDK support for separate staging/production deployments on same testnets ✓
+- **Oracle Integration**: Deploying API3 Airnode for oracle functionality
+- **Contract Upgrades**: Preparing for future contract upgrades
+
+## Environment-Aware SDK Usage
+
+The SDK now supports environment-specific contract deployments on the same network:
+
+```typescript
+// In sdk-core
+import { createEtsClient, Environment } from "@ethereum-tag-service/sdk-core";
+
+// Specify environment for client creation
+const client = createEtsClient({ 
+  chainId: 421614, 
+  account,
+  environment: "staging" // "production" | "staging" | "localhost" 
+});
+
+// In React applications
+import { useEtsClient } from "@ethereum-tag-service/sdk-react-hooks";
+
+// Pass environment to hook
+const { platformPercentage, taggingFee } = useEtsClient({ 
+  chainId, 
+  account, 
+  environment: "staging" 
+});
+```
+
+By default, if no environment is specified, the SDK uses "production" environment.
+
 ## Architecture
+
 The ETS monorepo follows a modular architecture with specialized components:
 
 ### Core Components
+
 - **Smart Contracts** (`packages/contracts`): Solidity contracts implementing the ETS protocol
   - Core contracts: ETS, ETSToken, ETSTarget, ETSRelayer, ETSAuctionHouse
   - Manages tags, tagging records, relayers, auctions
+  - Currently in testnet phase, running on Arbitrum Sepolia and Base Sepolia
+  - Hardhat for local development and testing
 
 - **SDK Core** (`packages/sdk-core`): TypeScript library for contract interactions
   - Type-safe client factories (TokenClient, RelayerClient, etc.)
   - Built on viem for Ethereum interactions
+  - Public npm package: `@ethereum-tag-service/sdk-core`
 
 - **React Hooks** (`packages/sdk-react-hooks`): React bindings for SDK
   - Simplifies SDK integration in React applications
+  - Public npm package: `@ethereum-tag-service/sdk-react-hooks`
+
+- **Subgraph Endpoints**
 
 ### Applications
+
 - **Explorer App** (`apps/app`): Next.js frontend for visualizing ETS data
   - Displays tags, auctions, tagging records
   - User interface for protocol interactions
@@ -50,6 +135,7 @@ The ETS monorepo follows a modular architecture with specialized components:
 - **Oracle** (`apps/oracle`): API3 Airnode integration for decentralized data
 
 ### Key Concepts
+
 - **CTAG**: Composable tag NFT that can be owned and traded
 - **Target**: On-chain or off-chain entity that can be tagged
 - **Tagging Record**: Association between tag and target
@@ -57,3 +143,107 @@ The ETS monorepo follows a modular architecture with specialized components:
 - **Auction**: Mechanism for distributing CTAGs
 
 All components work together through well-defined interfaces with strict typing.
+
+## Project Structure Quick Reference
+
+- `/packages/contracts/`: Smart contract code, deployment scripts, and tests
+- `/packages/sdk-core/`: Core TypeScript library for contract interactions
+- `/packages/sdk-react-hooks/`: React bindings for the SDK
+- `/apps/app/`: Next.js frontend application
+- `/apps/data-api/`: Graph Node and subgraph for data indexing
+- `/apps/offchain-api/`: Node.js service for off-chain operations
+- `/apps/oracle/`: API3 Airnode integration for oracle functionality
+
+## Key Environment Variables
+
+```
+# Root .env (used as fallback)
+MNEMONIC=                  # Primary mnemonic for deployment
+MNEMONIC_STAGING=          # Staging-specific mnemonic
+REPORT_GAS=true            # Enable gas reporting during tests
+COINMARKETCAP_API_KEY=     # For gas reporting in USD
+
+# Network-specific settings
+ARBITRUM_SEPOLIA_URL=      # Main Arbitrum Sepolia RPC endpoint
+BASE_SEPOLIA_URL=          # Main Base Sepolia RPC endpoint
+ARBITRUM_SEPOLIA_API_KEY=  # Block explorer API key
+BASE_SEPOLIA_API_KEY=      # Block explorer API key
+
+# Oracle settings
+AIRNODE_MNEMONIC=          # Oracle wallet mnemonic
+```
+
+## Codebase Exploration Commands
+
+```bash
+# Find contract source files
+find packages/contracts/contracts -name "*.sol"
+
+# List all deployment scripts
+ls -la packages/contracts/deploy/core/
+
+# View contract ABI
+cat packages/contracts/abi/contracts/ETS.sol/ETS.json | jq .abi
+
+# Check deployment addresses
+cat packages/contracts/deployments/arbitrumSepolia/ETS.json | jq .address
+
+# View test files
+find packages/contracts/test -name "*.test.ts"
+```
+
+## Contract Addresses Reference
+
+### Production
+- **Arbitrum Sepolia**:
+  - ETS: `0x...`
+  - ETSToken: `0x...`
+  - ETSTarget: `0x...`
+  
+- **Base Sepolia**:
+  - ETS: `0x...`
+  - ETSToken: `0x...`
+  - ETSTarget: `0x...`
+
+### Staging
+- **Arbitrum Sepolia**:
+  - ETS: `0x...`
+  - ETSToken: `0x...`
+  - ETSTarget: `0x...`
+  
+- **Base Sepolia**:
+  - ETS: `0x...`
+  - ETSToken: `0x...`
+  - ETSTarget: `0x...`
+
+## Git Workflow
+
+- **Branch Naming**: `<issue-number>-<brief-description>`
+- **Commit Style**: Concise present-tense summaries
+- **PR Process**: Create PR against `stage` branch, include testing steps
+- **Release Flow**: `stage` → `main` for production releases
+
+## Development Workflow
+
+1. **Setup Local Environment**:
+   ```bash
+   ./scripts/start-local-stack.sh
+   ```
+
+2. **Deploying to Staging**:
+   ```bash
+   cd packages/contracts
+   pnpm deploy:staging
+   ```
+
+3. **Running Tests**:
+   ```bash
+   cd packages/contracts
+   pnpm hardhat:test
+   ```
+
+4. **Starting Oracle**:
+   ```bash
+   cd apps/oracle
+   pnpm start:local
+   ```

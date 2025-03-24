@@ -46,7 +46,7 @@ This document tracks our progress on creating separate environments (staging and
 
 ### 4. Frontend Configuration
 
-- [ ] Update SDK to support environment selection
+- [x] Update SDK to support environment selection
 - [ ] Create staging-specific environment variables
 - [ ] Implement environment switching mechanism
 - [ ] Test full integration with staging backends
@@ -139,37 +139,93 @@ MNEMONIC_MAINNET=<mainnet-mnemonic>
 
 ## Critical Issues to Resolve
 
-### Contract Exports Problem
+### ✅ Contract Exports Problem (RESOLVED)
 
 **Issue:** The auto-generated `src/contracts.ts` export uses chainIds as keys, but our staging and production environments share the same chainIds (84532, 421614), making it impossible to distinguish between environments.
 
 **Impact:** The current export mechanism can't be used to access both production and staging contracts since they would overwrite each other in the exports.
 
-**Possible Solutions:**
+**Implemented Solution:**
 
-1. Create a custom export function that considers both chainId and environment
-2. Modify the wagmi plugin to make it environment-aware
-3. Have applications directly import specific environment chain configs
-4. Refactor the SDK to include environment as a configuration parameter
-5. **Generate environment-specific export files** (e.g., `contracts-staging.ts`, `contracts-production.ts`), and dynamically import the correct one based on the environment
+We created a custom wagmi plugin (`hardhat-deploy-env-aware.ts`) that:
+1. Detects environments from network names (e.g., "arbitrumSepoliaStaging" → "staging")
+2. Generates a unified `contracts.ts` with both chainId-only keys (for backward compatibility) and environment-specific keys
+3. Creates address map entries in the format `{chainId}_{environment}` (e.g., "421614_staging")
 
-**Implementation Notes for Solution #5:**
+Then we updated the SDK to use these environment-specific keys:
+1. Added environment types and utilities to SDK Core
+2. Updated all client classes to accept an environment parameter
+3. Made client address resolution environment-aware
+4. Updated React hooks to support environment parameter
 
-- Environment is currently determined from the URL in web applications
-- Other services would need a mechanism to determine environment (env vars, config files)
-- Could modify build process to generate export files for all environments:
-  - `contracts-production.ts`
-  - `contracts-staging.ts`
-  - `contracts-localhost.ts`
-- Applications would need to dynamically select the proper export file based on environment
-- Local development environment (localhost) must be included in the environment matrix
-- Could provide fallback mechanism for environment resolution:
-  1. Check explicit environment parameter
-  2. Infer from URL/hostname
-  3. Check environment variables
-  4. Default to "localhost" for development
+**Implementation Details:**
 
-**Timeline:** This issue must be resolved before staging contracts can be fully integrated with the application stack.
+- **Environment Types:** We defined a standard `Environment` type with values: "production", "staging", "localhost"
+- **Default Behavior:** All components default to "production" environment for backward compatibility
+- **Address Resolution:** Added a `getAddressForEnvironment()` utility that tries environment-specific keys first, then falls back to chainId-only keys
+- **React Integration:** All React hooks now accept an optional environment parameter
+
+**Status:** ✓ Implemented and Ready for Testing
+
+### Environment-Aware Contract Generation
+
+The custom plugin generates contract exports in this format:
+
+```typescript
+export const etsConfig = {
+  address: {
+    // Standard chainId keys (backward compatibility)
+    "421614": "0xProductionAddress...",
+    "84532": "0xProductionAddress...",
+    
+    // Environment-specific keys
+    "421614_production": "0xProductionAddress...",
+    "421614_staging": "0xStagingAddress...",
+    "84532_production": "0xProductionAddress...",
+    "84532_staging": "0xStagingAddress...",
+    "31337_localhost": "0xLocalhostAddress...",
+  },
+  abi: [...],
+}
+```
+
+### SDK Client Pattern
+
+All SDK clients now follow this pattern:
+
+```typescript
+// Client construction
+const client = createEtsClient({ 
+  chainId: 421614, 
+  account,
+  environment: "staging" // Optional, defaults to "production"
+});
+
+// Address resolution
+const contractAddress = getAddressForEnvironment(
+  etsConfig.address, 
+  chainId, 
+  environment
+);
+```
+
+### React Hooks Usage
+
+All React hooks accept an optional environment parameter:
+
+```tsx
+// Using with explicit environment
+const { accrued, taggingFee } = useEtsClient({ 
+  chainId, 
+  account, 
+  environment: "staging" 
+});
+
+// Using with default environment (production)
+const { accrued, taggingFee } = useEtsClient({ chainId, account });
+```
+
+**Timeline:** ✓ Resolved - Solution implemented and ready for application integration
 
 ## Environment-Aware Contracts Implementation Plan
 
