@@ -1,42 +1,42 @@
-import { type NetworkName, getNetwork } from "@app/utils/environment";
-import subgraphEndpoints from "@ethereum-tag-service/subgraph-endpoints";
+import { getEnvironmentAndNetwork, type NetworkName } from "@app/utils/environment";
+import type { ServerEnvironment } from "@app/types/environment";
+import { getSubgraphEndpoint } from "@ethereum-tag-service/subgraph-endpoints";
 import { gql, request } from "graphql-request";
 import type { PublicClient } from "viem";
+import { getChainInfo } from "./getChainInfo";
 
 type Variables = Record<string, any>;
 
-function getSubgraphEndpointKey(network: NetworkName | "none"): keyof typeof subgraphEndpoints {
-  switch (network) {
-    case "arbitrumsepolia":
-      return "arbitrumSepolia";
-    case "basesepolia":
-      return "baseSepolia";
-    case "hardhat":
-      return "localhost";
-    case "none":
-      throw new Error("No network specified");
-    default:
-      throw new Error(`Unsupported network: ${network}`);
+function getChainIdForNetwork(network: NetworkName | "none"): number {
+  if (network === "none") {
+    throw new Error("No network specified");
   }
+  
+  const { chain } = getChainInfo(network);
+  return chain.id;
 }
 
 export const fetcher = async <T = any>(query: string, variables: Variables): Promise<T> => {
-  const network = getNetwork();
+  // Get current environment and network from URL
+  const { environment, network } = getEnvironmentAndNetwork();
 
   if (network === "none") {
     throw new Error("No network specified for the query");
   }
 
-  const endpointKey = getSubgraphEndpointKey(network);
-  const GRAPH_API_ENDPOINT: string = subgraphEndpoints[endpointKey];
+  // Convert network name to chain ID
+  const chainId = getChainIdForNetwork(network);
+  
+  // Get the environment-aware subgraph endpoint
+  const GRAPH_API_ENDPOINT = getSubgraphEndpoint(chainId, environment as ServerEnvironment);
 
   if (process.env.NODE_ENV === "development") {
-    console.info(`Fetching data from ${network} network`);
+    console.info(`Fetching data from ${network} network in ${environment} environment`);
     console.info("Using endpoint:", GRAPH_API_ENDPOINT);
   }
 
   if (!GRAPH_API_ENDPOINT) {
-    throw new Error(`No GraphQL endpoint found for network: ${network}`);
+    throw new Error(`No GraphQL endpoint found for network: ${network} and environment: ${environment}`);
   }
 
   try {
