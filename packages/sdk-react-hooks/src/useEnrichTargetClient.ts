@@ -1,14 +1,22 @@
-import { type EnrichTargetClient, createEnrichTargetClient } from "@ethereum-tag-service/sdk-core";
+import { type EnrichTargetClient, type Environment, createEnrichTargetClient, DEFAULT_ENVIRONMENT } from "@ethereum-tag-service/sdk-core";
 import { useEffect, useState } from "react";
 
-export const useEnrichTargetClient = ({ chainId, account }: { chainId?: number; account?: `0x${string}` }) => {
+export const useEnrichTargetClient = ({ 
+  chainId, 
+  account,
+  environment = DEFAULT_ENVIRONMENT
+}: { 
+  chainId?: number; 
+  account?: `0x${string}`;
+  environment?: Environment;
+}) => {
   const [tokenClient, setEnrichTargetClient] = useState<EnrichTargetClient>();
 
   useEffect(() => {
     if (!chainId || !account) return;
-    const client = createEnrichTargetClient({ chainId, account: account });
+    const client = createEnrichTargetClient({ chainId, account: account, environment });
     setEnrichTargetClient(client);
-  }, [chainId, account]);
+  }, [chainId, account, environment]);
 
   const requestEnrichTarget = async (targetId: number) => {
     if (!tokenClient) throw new Error("EnrichTargetClient is not initialized.");

@@ -1,14 +1,22 @@
-import { type AuctionHouseClient, createAuctionHouseClient } from "@ethereum-tag-service/sdk-core";
+import { type AuctionHouseClient, type Environment, createAuctionHouseClient, DEFAULT_ENVIRONMENT } from "@ethereum-tag-service/sdk-core";
 import { useEffect, useState } from "react";
 
-export const useAuctionHouseClient = ({ chainId, account }: { chainId?: number; account?: `0x${string}` }) => {
+export const useAuctionHouseClient = ({ 
+  chainId, 
+  account,
+  environment = DEFAULT_ENVIRONMENT
+}: { 
+  chainId?: number; 
+  account?: `0x${string}`;
+  environment?: Environment;
+}) => {
   const [auctionHouseClient, setAuctionHouseClient] = useState<AuctionHouseClient>();
 
   useEffect(() => {
     if (!chainId || !account) return;
-    const client = createAuctionHouseClient({ chainId, account: account });
+    const client = createAuctionHouseClient({ chainId, account: account, environment });
     setAuctionHouseClient(client);
-  }, [chainId, account]);
+  }, [chainId, account, environment]);
 
   const createBid = async (auctionId: bigint, value?: bigint) => {
     if (!auctionHouseClient) throw new Error("Auction House client not initialized");
