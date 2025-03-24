@@ -1,6 +1,7 @@
 import { etsTokenConfig } from "@ethereum-tag-service/contracts/contracts";
 import type { Hex, PublicClient, WalletClient } from "viem";
 import type { TokenReadFunction, TokenWriteFunction } from "../types";
+import { DEFAULT_ENVIRONMENT, getAddressForEnvironment, type Environment } from "../utils/environment";
 import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
 import { validateConfig } from "../utils/validateConfig";
@@ -10,25 +11,40 @@ export class TokenClient {
   private readonly walletClient: WalletClient | undefined;
   private readonly address: Hex;
   private readonly abi: any;
+  private readonly chainId?: number;
+  private readonly environment: Environment;
 
   constructor({
     chainId,
     publicClient,
     walletClient,
+    environment = DEFAULT_ENVIRONMENT,
   }: {
     chainId?: number;
     publicClient: PublicClient;
     walletClient?: WalletClient;
+    environment?: Environment;
   }) {
     validateConfig(chainId, publicClient, walletClient);
 
-    if (!chainId || !(chainId in etsTokenConfig.address)) {
-      throw new Error(`[@ethereum-tag-service/sdk-core] Token contract not configured for chain ${chainId}`);
+    if (!chainId) {
+      throw new Error("[@ethereum-tag-service/sdk-core] chainId is required for Token client");
+    }
+
+    // Get the contract address for the specified chain and environment
+    const contractAddress = getAddressForEnvironment(etsTokenConfig.address, chainId, environment);
+    
+    if (!contractAddress) {
+      throw new Error(
+        `[@ethereum-tag-service/sdk-core] Token contract not configured for chain ${chainId} and environment ${environment}`
+      );
     }
 
     this.publicClient = publicClient;
     this.walletClient = walletClient;
-    this.address = etsTokenConfig.address[chainId as keyof typeof etsTokenConfig.address];
+    this.chainId = chainId;
+    this.environment = environment;
+    this.address = contractAddress as Hex;
     this.abi = etsTokenConfig.abi;
   }
 
