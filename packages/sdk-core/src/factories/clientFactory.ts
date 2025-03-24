@@ -9,6 +9,7 @@ import { RelayerFactoryClient } from "../clients/RelayerFactoryClient";
 import { TargetClient } from "../clients/TargetClient";
 import { TokenClient } from "../clients/TokenClient";
 import { chainsMap } from "../config/chainsConfig";
+import { DEFAULT_ENVIRONMENT, type Environment } from "../utils/environment";
 
 import { http, type Account, type Hex, createPublicClient, createWalletClient, custom } from "viem";
 
@@ -16,6 +17,7 @@ type ClientConfig = {
   chainId: number;
   account?: Hex | Account;
   customTransport?: boolean;
+  environment?: Environment;
 };
 
 function initializeClients(config: ClientConfig) {
@@ -55,16 +57,18 @@ function createClient<T>(
   chainId: number | undefined,
   relayerAddress?: Hex,
   account?: Account | Hex,
+  environment: Environment = DEFAULT_ENVIRONMENT,
 ): T | undefined {
   if (!chainId) return undefined;
 
   try {
-    const { publicClient, walletClient } = initializeClients({ chainId, account });
+    const { publicClient, walletClient } = initializeClients({ chainId, account, environment });
     return new ClientType({
       chainId,
       publicClient,
       walletClient,
       relayerAddress,
+      environment,
     });
   } catch (error) {
     console.error(`[@ethereum-tag-service/sdk-core] Error creating ${ClientType.name}:`, error);
@@ -147,11 +151,13 @@ export function createEnrichTargetClient({
 export function createEtsClient({
   chainId,
   account,
+  environment = DEFAULT_ENVIRONMENT,
 }: {
   chainId: number | undefined;
   account?: Account | Hex;
+  environment?: Environment;
 }): EtsClient | undefined {
-  return createClient<EtsClient>(EtsClient, chainId, undefined, account);
+  return createClient<EtsClient>(EtsClient, chainId, undefined, account, environment);
 }
 
 export function createCoreClient({
