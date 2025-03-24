@@ -11,18 +11,18 @@ const subgraphEndpoints: Record<string, SubgraphEndpointMapping | string> = {
   localhost: "http://localhost:8000/subgraphs/name/ets-local",
   arbitrumSepolia: "https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia/version/latest",
   baseSepolia: "https://api.studio.thegraph.com/query/87165/ets-base-sepolia/version/latest",
-  
+
   // New environment-aware format
   arbitrumSepolia_env: {
     production: "https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia/version/latest",
     staging: "https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia-staging/version/latest",
-    localhost: "http://localhost:8000/subgraphs/name/ets-local"
+    localhost: "http://localhost:8000/subgraphs/name/ets-local",
   },
   baseSepolia_env: {
     production: "https://api.studio.thegraph.com/query/87165/ets-base-sepolia/version/latest",
     staging: "https://api.studio.thegraph.com/query/87165/ets-base-sepolia-staging/version/latest",
-    localhost: "http://localhost:8000/subgraphs/name/ets-local"
-  }
+    localhost: "http://localhost:8000/subgraphs/name/ets-local",
+  },
 };
 
 const chainIdToNetwork: Record<number, string> = {
@@ -43,19 +43,19 @@ export function getSubgraphEndpoint(chainId: number, environment: Environment = 
   if (!network) {
     throw new Error(`No subgraph endpoint found for chainId: ${chainId}`);
   }
-  
+
   // Special case for localhost
   if (network === "localhost") {
     return subgraphEndpoints.localhost as string;
   }
-  
+
   // Use environment-aware endpoints if available
   const envKey = `${network}_env`;
   if (subgraphEndpoints[envKey]) {
     const envMapping = subgraphEndpoints[envKey] as SubgraphEndpointMapping;
     return envMapping[environment];
   }
-  
+
   // Fallback to legacy format for backward compatibility
   return subgraphEndpoints[network] as string;
 }

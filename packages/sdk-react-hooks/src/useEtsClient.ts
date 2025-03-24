@@ -1,12 +1,12 @@
-import { type EtsClient, type Environment, createEtsClient, DEFAULT_ENVIRONMENT } from "@ethereum-tag-service/sdk-core";
+import { DEFAULT_ENVIRONMENT, type Environment, type EtsClient, createEtsClient } from "@ethereum-tag-service/sdk-core";
 import { useContext, useEffect, useState } from "react";
 
-export const useEtsClient = ({ 
-  chainId, 
+export const useEtsClient = ({
+  chainId,
   account,
-  environment = DEFAULT_ENVIRONMENT 
-}: { 
-  chainId?: number; 
+  environment = DEFAULT_ENVIRONMENT,
+}: {
+  chainId?: number;
   account?: `0x${string}`;
   environment?: Environment;
 }) => {

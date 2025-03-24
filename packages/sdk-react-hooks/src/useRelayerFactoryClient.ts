@@ -1,12 +1,17 @@
-import { type RelayerFactoryClient, type Environment, createRelayerFactoryClient, DEFAULT_ENVIRONMENT } from "@ethereum-tag-service/sdk-core";
+import {
+  DEFAULT_ENVIRONMENT,
+  type Environment,
+  type RelayerFactoryClient,
+  createRelayerFactoryClient,
+} from "@ethereum-tag-service/sdk-core";
 import { useContext, useEffect, useState } from "react";
 
-export const useRelayerFactoryClient = ({ 
-  chainId, 
+export const useRelayerFactoryClient = ({
+  chainId,
   account,
-  environment = DEFAULT_ENVIRONMENT
-}: { 
-  chainId?: number; 
+  environment = DEFAULT_ENVIRONMENT,
+}: {
+  chainId?: number;
   account?: `0x${string}`;
   environment?: Environment;
 }) => {

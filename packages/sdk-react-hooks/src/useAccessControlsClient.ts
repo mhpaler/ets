@@ -1,12 +1,17 @@
-import { type AccessControlsClient, type Environment, createAccessControlsClient, DEFAULT_ENVIRONMENT } from "@ethereum-tag-service/sdk-core";
+import {
+  type AccessControlsClient,
+  DEFAULT_ENVIRONMENT,
+  type Environment,
+  createAccessControlsClient,
+} from "@ethereum-tag-service/sdk-core";
 import { useContext, useEffect, useState } from "react";
 
-export const useAccessControlsClient = ({ 
-  chainId, 
+export const useAccessControlsClient = ({
+  chainId,
   account,
-  environment = DEFAULT_ENVIRONMENT
-}: { 
-  chainId?: number; 
+  environment = DEFAULT_ENVIRONMENT,
+}: {
+  chainId?: number;
   account?: `0x${string}`;
   environment?: Environment;
 }) => {

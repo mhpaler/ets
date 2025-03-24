@@ -1,12 +1,17 @@
-import { type TargetClient, type Environment, createTargetClient, DEFAULT_ENVIRONMENT } from "@ethereum-tag-service/sdk-core";
+import {
+  DEFAULT_ENVIRONMENT,
+  type Environment,
+  type TargetClient,
+  createTargetClient,
+} from "@ethereum-tag-service/sdk-core";
 import { useEffect, useState } from "react";
 
-export const useTargetClient = ({ 
-  chainId, 
+export const useTargetClient = ({
+  chainId,
   account,
-  environment = DEFAULT_ENVIRONMENT 
-}: { 
-  chainId?: number; 
+  environment = DEFAULT_ENVIRONMENT,
+}: {
+  chainId?: number;
   account?: `0x${string}`;
   environment?: Environment;
 }) => {

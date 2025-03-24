@@ -1,12 +1,17 @@
-import { type TokenClient, type Environment, createTokenClient, DEFAULT_ENVIRONMENT } from "@ethereum-tag-service/sdk-core";
+import {
+  DEFAULT_ENVIRONMENT,
+  type Environment,
+  type TokenClient,
+  createTokenClient,
+} from "@ethereum-tag-service/sdk-core";
 import { useEffect, useState } from "react";
 
-export const useTokenClient = ({ 
-  chainId, 
+export const useTokenClient = ({
+  chainId,
   account,
-  environment = DEFAULT_ENVIRONMENT
-}: { 
-  chainId?: number; 
+  environment = DEFAULT_ENVIRONMENT,
+}: {
+  chainId?: number;
   account?: `0x${string}`;
   environment?: Environment;
 }) => {

@@ -13,8 +13,14 @@ module.exports = async ({ deployments }) => {
 
   const airnodeRrpAddress = await airnodeRrp.getAddress();
 
+  // Create a deployment-like object for verification
+  const deploymentObj = {
+    address: airnodeRrpAddress,
+    deploymentTransaction: () => ({ hash: airnodeRrp.deploymentTransaction().hash }),
+  };
+
   if (process.env.VERIFY_ON_DEPLOY === "true") {
-    await verify("AirnodeRrpV0Proxy", airnodeRrpAddress, []);
+    await verify("AirnodeRrpV0Proxy", deploymentObj, airnodeRrpAddress, []);
   }
 
   await saveNetworkConfig("AirnodeRrpV0Proxy", airnodeRrp, null, false);

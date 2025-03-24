@@ -1,12 +1,17 @@
-import { type EnrichTargetClient, type Environment, createEnrichTargetClient, DEFAULT_ENVIRONMENT } from "@ethereum-tag-service/sdk-core";
+import {
+  DEFAULT_ENVIRONMENT,
+  type EnrichTargetClient,
+  type Environment,
+  createEnrichTargetClient,
+} from "@ethereum-tag-service/sdk-core";
 import { useEffect, useState } from "react";
 
-export const useEnrichTargetClient = ({ 
-  chainId, 
+export const useEnrichTargetClient = ({
+  chainId,
   account,
-  environment = DEFAULT_ENVIRONMENT
-}: { 
-  chainId?: number; 
+  environment = DEFAULT_ENVIRONMENT,
+}: {
+  chainId?: number;
   account?: `0x${string}`;
   environment?: Environment;
 }) => {

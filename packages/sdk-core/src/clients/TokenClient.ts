@@ -1,7 +1,7 @@
 import { etsTokenConfig } from "@ethereum-tag-service/contracts/contracts";
 import type { Hex, PublicClient, WalletClient } from "viem";
 import type { TokenReadFunction, TokenWriteFunction } from "../types";
-import { DEFAULT_ENVIRONMENT, getAddressForEnvironment, type Environment } from "../utils/environment";
+import { DEFAULT_ENVIRONMENT, type Environment, getAddressForEnvironment } from "../utils/environment";
 import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
 import { validateConfig } from "../utils/validateConfig";
@@ -33,10 +33,10 @@ export class TokenClient {
 
     // Get the contract address for the specified chain and environment
     const contractAddress = getAddressForEnvironment(etsTokenConfig.address, chainId, environment);
-    
+
     if (!contractAddress) {
       throw new Error(
-        `[@ethereum-tag-service/sdk-core] Token contract not configured for chain ${chainId} and environment ${environment}`
+        `[@ethereum-tag-service/sdk-core] Token contract not configured for chain ${chainId} and environment ${environment}`,
       );
     }
 
