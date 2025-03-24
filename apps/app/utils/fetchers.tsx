@@ -1,5 +1,5 @@
-import { getEnvironmentAndNetwork, type NetworkName } from "@app/utils/environment";
 import type { ServerEnvironment } from "@app/types/environment";
+import { type NetworkName, getEnvironmentAndNetwork } from "@app/utils/environment";
 import { getSubgraphEndpoint } from "@ethereum-tag-service/subgraph-endpoints";
 import { gql, request } from "graphql-request";
 import type { PublicClient } from "viem";
@@ -11,7 +11,7 @@ function getChainIdForNetwork(network: NetworkName | "none"): number {
   if (network === "none") {
     throw new Error("No network specified");
   }
-  
+
   const { chain } = getChainInfo(network);
   return chain.id;
 }
@@ -26,7 +26,7 @@ export const fetcher = async <T = any>(query: string, variables: Variables): Pro
 
   // Convert network name to chain ID
   const chainId = getChainIdForNetwork(network);
-  
+
   // Get the environment-aware subgraph endpoint
   const GRAPH_API_ENDPOINT = getSubgraphEndpoint(chainId, environment as ServerEnvironment);
 

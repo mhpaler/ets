@@ -1,4 +1,6 @@
 import type { Address, Hex, PublicClient, WalletClient } from "viem";
+// Removed Environment import until we implement it in all clients
+// import type { Environment } from "../utils/environment";
 import { AccessControlsClient } from "./AccessControlsClient";
 import { AuctionHouseClient } from "./AuctionHouseClient";
 import { EnrichTargetClient } from "./EnrichTargetClient";
@@ -6,7 +8,6 @@ import { RelayerClient } from "./RelayerClient";
 import { RelayerFactoryClient } from "./RelayerFactoryClient";
 import { TargetClient } from "./TargetClient";
 import { TokenClient } from "./TokenClient";
-import type { Environment } from "../utils/environment";
 
 interface CoreClientOptions {
   chainId?: number;
@@ -22,7 +23,8 @@ interface CoreClientOptions {
     targetClient?: boolean;
     tokenClient?: boolean;
   };
-  environment?: Environment;
+  // Removed environment property until we implement it in all clients
+  // environment?: Environment;
 }
 
 export class CoreClient {
@@ -39,7 +41,8 @@ export class CoreClient {
   }
 
   private initializeClients(): void {
-    const { chainId, publicClient, walletClient, clients, relayerAddress, environment } = this.options;
+    const { chainId, publicClient, walletClient, clients, relayerAddress } = this.options;
+    // Removed environment for now until we implement it in all clients
 
     const clientSettings = {
       accessControlsClient: true,
@@ -56,7 +59,6 @@ export class CoreClient {
       this.accessControlsClient = new AccessControlsClient({
         publicClient,
         chainId,
-        environment,
       });
     }
     if (clientSettings.auctionHouseClient) {
@@ -64,7 +66,6 @@ export class CoreClient {
         publicClient,
         walletClient,
         chainId,
-        environment,
       });
     }
     if (clientSettings.enrichTargetClient) {
@@ -72,7 +73,6 @@ export class CoreClient {
         publicClient,
         walletClient,
         chainId,
-        environment,
       });
     }
     if (clientSettings.relayerClient) {
@@ -81,7 +81,6 @@ export class CoreClient {
         walletClient,
         chainId,
         relayerAddress,
-        environment,
       });
     }
     if (clientSettings.relayerFactoryClient) {
@@ -89,7 +88,6 @@ export class CoreClient {
         publicClient,
         walletClient,
         chainId,
-        environment,
       });
     }
     if (clientSettings.targetClient) {
@@ -97,7 +95,6 @@ export class CoreClient {
         publicClient,
         walletClient,
         chainId,
-        environment,
       });
     }
     if (clientSettings.tokenClient) {
@@ -105,7 +102,6 @@ export class CoreClient {
         publicClient,
         walletClient,
         chainId,
-        environment,
       });
     }
   }

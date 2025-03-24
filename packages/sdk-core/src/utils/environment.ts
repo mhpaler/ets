@@ -88,5 +88,11 @@ export function getAddressForEnvironment<T extends Record<string | number, strin
   // Look for:
   // 1. Environment-specific key (e.g., "421614_staging")
   // 2. ChainId-only key (for backward compatibility)
-  return addresses[envKey as keyof T] || addresses[chainId as keyof T];
+  const address = addresses[envKey as keyof T] || addresses[chainId as keyof T];
+
+  if (!address) {
+    throw new Error(`No address found for chain ID ${chainId} and environment ${environment}`);
+  }
+
+  return address;
 }

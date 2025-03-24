@@ -179,7 +179,7 @@ export function createCoreClient({
   relayerAddress,
   account,
   clients,
-  environment = DEFAULT_ENVIRONMENT,
+  environment = DEFAULT_ENVIRONMENT, // Keep this for future implementation
 }: {
   chainId: number | undefined;
   relayerAddress?: Hex;
@@ -192,20 +192,22 @@ export function createCoreClient({
     relayerFactoryClient?: boolean;
     targetClient?: boolean;
   };
-  environment?: Environment;
+  environment?: Environment; // Keep this for future implementation
 }): CoreClient | undefined {
   if (!chainId) return undefined;
 
   try {
+    // Still pass environment to initializeClients
     const { publicClient, walletClient } = initializeClients({ chainId, account, environment });
 
+    // But don't pass it to CoreClient because it doesn't support it yet
     return new CoreClient({
       chainId,
       publicClient,
       walletClient,
       relayerAddress,
       clients,
-      environment,
+      // environment, // Removed until we implement it in all clients
     });
   } catch (error) {
     console.error("[@ethereum-tag-service/sdk-core] Failed to create core client:", error);
