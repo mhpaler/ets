@@ -107,7 +107,7 @@
         "entry": ["src/**/*.ts!"],
         "project": ["src/**/*.ts!"]
       },
-      "apps/data-api-endpoints": {
+      "packages/subgraph-endpoints": {
         "entry": ["src/**/*.ts!"],
         "project": ["src/**/*.ts!"]
       },

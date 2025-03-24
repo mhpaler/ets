@@ -57,12 +57,14 @@ When switching to work on a different feature branch, updating this reference in
   - `513-airnode-oracle`: Oracle implementation branch
 - **Upcoming Milestones**:
   - Complete staging/production environment separation ✓
+  - Subgraph deployment for staging environment ✓
   - Oracle deployment to staging environment
-  - Subgraph deployment for staging environment
+  - Application environment switcher implementation
 
 ## Current Work Streams
 
 - **Environment Separation**: Implemented SDK support for separate staging/production deployments on same testnets ✓
+- **Subgraph Environment Support**: Deployed separate subgraphs for staging/production ✓
 - **Oracle Integration**: Deploying API3 Airnode for oracle functionality
 - **Contract Upgrades**: Preparing for future contract upgrades
 
@@ -216,21 +218,79 @@ find packages/contracts/test -name "*.test.ts"
   - ETSToken: `0x...`
   - ETSTarget: `0x...`
 
-## Git Workflow
+## Workflow & Change Management
+
+### Version Management with Changesets
+
+The project uses [changesets](https://github.com/changesets/changesets) to manage package versions, changelogs, and publishing:
+
+```bash
+# Create a new changeset (run from the package directory or root)
+pnpm changeset
+
+# This opens an interactive CLI to:
+# 1. Select packages to include in the changeset
+# 2. Choose version bump types (major, minor, patch)
+# 3. Write a summary of changes
+
+# After creating a changeset, commit the generated file
+git add .changeset/*.md
+git commit -m "Add changeset for [brief description]"
+
+# When ready to version and publish:
+pnpm changeset version  # Updates versions and changelogs
+pnpm changeset publish  # Publishes to npm
+```
+
+- **Never manually edit** version numbers in package.json files
+- Each significant change should have a corresponding changeset
+- Changesets get committed to the repository until ready for release
+- For environment-specific packages, use appropriate version bump types:
+  - **Major**: Breaking API changes
+  - **Minor**: New features, backward compatible
+  - **Patch**: Bug fixes, documentation updates
+
+### Subgraph Deployment
+
+- **Local Development**:
+  ```bash
+  cd apps/data-api
+  pnpm deploy --config localhost
+  ```
+
+- **Production Deployment**:
+  ```bash
+  cd apps/data-api
+  pnpm deploy --config arbitrumSepolia
+  pnpm deploy --config baseSepolia
+  ```
+
+- **Staging Deployment**:
+  ```bash
+  cd apps/data-api
+  pnpm deploy:staging:all  # Deploys to all staging subgraphs
+  # Or deploy individually:
+  pnpm deploy:staging:arbitrum
+  pnpm deploy:staging:base
+  ```
+
+- **Important**: New subgraphs must first be created manually in [The Graph Studio](https://thegraph.com/studio/) UI before deploying
+
+### Git Workflow
 
 - **Branch Naming**: `<issue-number>-<brief-description>`
 - **Commit Style**: Concise present-tense summaries
 - **PR Process**: Create PR against `stage` branch, include testing steps
 - **Release Flow**: `stage` → `main` for production releases
 
-## Development Workflow
+### Development Workflow
 
 1. **Setup Local Environment**:
    ```bash
    ./scripts/start-local-stack.sh
    ```
 
-2. **Deploying to Staging**:
+2. **Deploying Contracts to Staging**:
    ```bash
    cd packages/contracts
    pnpm deploy:staging

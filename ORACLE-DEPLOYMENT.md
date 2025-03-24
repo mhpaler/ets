@@ -38,11 +38,11 @@ This document tracks our progress on creating separate environments (staging and
 
 ### 3. Subgraph Environment Separation
 
-- [ ] Create staging subgraph deployments
-  - [ ] Update subgraph.yaml templates for staging
-  - [ ] Configure with staging contract addresses
-- [ ] Deploy subgraphs to staging endpoints
-- [ ] Add environment-specific queries to SDK
+- [x] Create staging subgraph deployments
+  - [x] Update subgraph.yaml templates for staging
+  - [x] Configure with staging contract addresses
+- [x] Deploy subgraphs to staging endpoints
+- [x] Add environment-specific queries to SDK
 
 ### 4. Frontend Configuration
 
@@ -119,14 +119,16 @@ MNEMONIC_MAINNET=<mainnet-mnemonic>
 
 ### Production
 
-- Subgraph: (existing URL)
+- Subgraph Arbitrum Sepolia: https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia/version/latest
+- Subgraph Base Sepolia: https://api.studio.thegraph.com/query/87165/ets-base-sepolia/version/latest
 - Offchain API: (existing URL)
 - Explorer UI: (existing URL)
 - Oracle: (existing URL)
 
 ### Staging
 
-- Subgraph: (to be created)
+- Subgraph Arbitrum Sepolia: https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia-staging/version/latest
+- Subgraph Base Sepolia: https://api.studio.thegraph.com/query/87165/ets-base-sepolia-staging/version/latest
 - Offchain API: (to be created)
 - Explorer UI: (to be created)
 - Oracle: (to be created)

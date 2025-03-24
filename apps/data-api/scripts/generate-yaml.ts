@@ -5,6 +5,7 @@ import * as Handlebars from "handlebars";
 
 // Define types
 type DeploymentTarget = "localhost" | "arbitrumSepolia" | "baseSepolia";
+type Environment = "production" | "staging" | "localhost";
 
 interface NetworkConfig {
   name: string;
@@ -13,6 +14,7 @@ interface NetworkConfig {
   abis: Record<string, string>;
   config?: any;
   upgradesConfig?: any;
+  environment: Environment;
 }
 
 interface OpenzeppelinAbis {
@@ -44,9 +46,13 @@ const CONTRACT_PATHS: Record<string, string> = {
 // Default path pattern for standard contracts
 const DEFAULT_ABI_PATH = "./../../packages/contracts/abi/contracts/{contract}.sol/{contract}.json";
 
-const getNetworkConfig = (target: DeploymentTarget): NetworkConfig => {
-  console.log("🔍 Generating network config for target:", target);
-  const baseConfig: Omit<NetworkConfig, "name"> = {
+const getNetworkConfig = (target: DeploymentTarget, envParam: Environment = "production"): NetworkConfig => {
+  console.log(`🔍 Generating network config for target: ${target}, environment: ${envParam}`);
+
+  // For localhost, we have a special configuration
+  const environment = target === "localhost" ? "localhost" : envParam;
+
+  const baseConfig: Omit<NetworkConfig, "name" | "environment"> = {
     configPath: `./../../packages/contracts/src/chainConfig/${target}.json`,
     upgradesConfigPath: `./../../packages/contracts/src/upgradeConfig/${target}.json`,
     abis: [
@@ -74,7 +80,11 @@ const getNetworkConfig = (target: DeploymentTarget): NetworkConfig => {
     baseSepolia: { name: "base-sepolia" },
   };
 
-  return { ...baseConfig, ...targetConfigs[target] };
+  return {
+    ...baseConfig,
+    ...targetConfigs[target],
+    environment,
+  };
 };
 
 const validateTarget: (target: string | undefined) => asserts target is DeploymentTarget = (target) => {
@@ -88,9 +98,23 @@ const validateTarget: (target: string | undefined) => asserts target is Deployme
   }
 };
 
+// Add a validate function for environment
+const validateEnvironment: (env: string | undefined) => asserts env is Environment = (env) => {
+  const validEnvironments: Environment[] = ["production", "staging", "localhost"];
+  if (!env) {
+    throw new Error(
+      `Error: You must provide an environment in the form --environment [env]. Possible environments are: ${validEnvironments.join(", ")}`,
+    );
+  }
+  if (!validEnvironments.includes(env as Environment)) {
+    throw new Error(`Error: Invalid environment "${env}". Possible environments are: ${validEnvironments.join(", ")}`);
+  }
+};
+
 // Main function
-export async function main(providedTarget?: string): Promise<void> {
+export async function main(providedTarget?: string, providedEnvironment?: string): Promise<void> {
   let target: DeploymentTarget;
+  let environment: Environment = "production"; // Default to production
 
   if (providedTarget) {
     validateTarget(providedTarget);
@@ -103,7 +127,26 @@ export async function main(providedTarget?: string): Promise<void> {
     target = cmdTarget;
   }
 
-  const networkConfig: NetworkConfig = getNetworkConfig(target);
+  // Handle environment parameter
+  if (providedEnvironment) {
+    validateEnvironment(providedEnvironment);
+    environment = providedEnvironment;
+  } else {
+    const args: string[] = process.argv.slice(2);
+    const envIndex: number = args.indexOf("--environment");
+    if (envIndex !== -1) {
+      const cmdEnv = args[envIndex + 1];
+      validateEnvironment(cmdEnv);
+      environment = cmdEnv;
+    }
+  }
+
+  // Special case for localhost
+  if (target === "localhost") {
+    environment = "localhost";
+  }
+
+  const networkConfig: NetworkConfig = getNetworkConfig(target, environment);
 
   try {
     const configContent = await fsPromises.readFile(networkConfig.configPath, "utf8");
@@ -139,7 +182,14 @@ export async function main(providedTarget?: string): Promise<void> {
 
   const outputPath = path.join(__dirname, "../subgraph.yaml");
   await fsPromises.writeFile(outputPath, result);
-  console.info(`${target} configuration file written to ${outputPath}`);
+  console.info(`${target} configuration for ${environment} environment written to ${outputPath}`);
+
+  // Log configuration info for reference
+  console.info(`Environment: ${environment}`);
+  console.info(`Network: ${networkConfig.name}`);
+  console.info(
+    `Studio Name: ${environment === "production" ? `ets-${networkConfig.name}` : `ets-${networkConfig.name}-${environment}`}`,
+  );
 }
 // Run the main function if this file is being executed directly
 if (require.main === module) {

@@ -460,7 +460,8 @@ deploy_subgraph() {
   cd "$ROOT_DIR/apps/data-api"
 
   # Deploy with a single command - it handles YAML generation and codegen internally
-  pnpm run deploy --target localhost > "$ROOT_DIR/logs/subgraph-deploy.log" 2>&1
+  # Using --config for environment-aware subgraph deployment
+  pnpm run deploy --config localhost > "$ROOT_DIR/logs/subgraph-deploy.log" 2>&1
   local EXIT_CODE=$?
 
   if [ $EXIT_CODE -eq 0 ]; then
