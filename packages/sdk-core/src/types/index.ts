@@ -1,3 +1,13 @@
+import type { Environment } from "../utils/environment";
+
+/**
+ * Common client configuration interface with environment support
+ */
+export interface ClientConfig {
+  chainId?: number;
+  environment?: Environment;
+}
+
 export type AccessControlsReadFunction =
   | "hasRole"
   | "isAdmin"
