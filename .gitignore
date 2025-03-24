@@ -30,6 +30,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
+# Vocs build files
+**/vocs.config.ts.timestamp-*
+
 node_modules
 packages/**/data
 packages/*/dist
