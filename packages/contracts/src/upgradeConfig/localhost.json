@@ -3,10 +3,10 @@
     "ETSAccessControls": {
       "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
       "implementation": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "deploymentBlock": 8,
+      "deploymentBlock": 3,
       "upgradeHistory": [
         {
-          "block": 8,
+          "block": 3,
           "implementation": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
         }
       ]
@@ -14,16 +14,49 @@
     "ETSToken": {
       "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
       "implementation": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      "deploymentBlock": 10,
+      "deploymentBlock": 5,
       "upgradeHistory": [
         {
-          "block": 10,
+          "block": 5,
           "implementation": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
         }
       ]
     },
     "WETH": {
       "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+      "implementation": null,
+      "deploymentBlock": 6,
+      "upgradeHistory": [
+        {
+          "block": 6,
+          "implementation": null
+        }
+      ]
+    },
+    "ETSAuctionHouse": {
+      "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+      "implementation": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+      "deploymentBlock": 8,
+      "upgradeHistory": [
+        {
+          "block": 8,
+          "implementation": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"
+        }
+      ]
+    },
+    "ETSTarget": {
+      "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+      "implementation": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+      "deploymentBlock": 10,
+      "upgradeHistory": [
+        {
+          "block": 10,
+          "implementation": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"
+        }
+      ]
+    },
+    "AirnodeRrpV0Proxy": {
+      "address": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
       "implementation": null,
       "deploymentBlock": 11,
       "upgradeHistory": [
@@ -33,46 +66,13 @@
         }
       ]
     },
-    "ETSAuctionHouse": {
-      "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
-      "implementation": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+    "ETSEnrichTarget": {
+      "address": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
+      "implementation": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
       "deploymentBlock": 13,
       "upgradeHistory": [
         {
           "block": 13,
-          "implementation": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"
-        }
-      ]
-    },
-    "ETSTarget": {
-      "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
-      "implementation": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
-      "deploymentBlock": 15,
-      "upgradeHistory": [
-        {
-          "block": 15,
-          "implementation": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"
-        }
-      ]
-    },
-    "AirnodeRrpV0Proxy": {
-      "address": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
-      "implementation": null,
-      "deploymentBlock": 16,
-      "upgradeHistory": [
-        {
-          "block": 16,
-          "implementation": null
-        }
-      ]
-    },
-    "ETSEnrichTarget": {
-      "address": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
-      "implementation": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
-      "deploymentBlock": 18,
-      "upgradeHistory": [
-        {
-          "block": 18,
           "implementation": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788"
         }
       ]
@@ -80,10 +80,10 @@
     "ETS": {
       "address": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
       "implementation": "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
-      "deploymentBlock": 20,
+      "deploymentBlock": 15,
       "upgradeHistory": [
         {
-          "block": 20,
+          "block": 15,
           "implementation": "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0"
         }
       ]
@@ -91,10 +91,10 @@
     "ETSRelayer": {
       "address": "0x9A676e781A523b5d0C0e43731313A708CB607508",
       "implementation": "0x9A676e781A523b5d0C0e43731313A708CB607508",
-      "deploymentBlock": 21,
+      "deploymentBlock": 16,
       "upgradeHistory": [
         {
-          "block": 21,
+          "block": 16,
           "implementation": "0x9A676e781A523b5d0C0e43731313A708CB607508"
         }
       ]
@@ -102,10 +102,10 @@
     "ETSRelayerFactory": {
       "address": "0x0B306BF915C4d645ff596e518fAf3F9669b97016",
       "implementation": null,
-      "deploymentBlock": 22,
+      "deploymentBlock": 17,
       "upgradeHistory": [
         {
-          "block": 22,
+          "block": 17,
           "implementation": null
         }
       ]

@@ -44,8 +44,9 @@ export function getSubgraphEndpoint(chainId: number, environment: Environment = 
     throw new Error(`No subgraph endpoint found for chainId: ${chainId}`);
   }
 
-  // Special case for localhost
-  if (network === "localhost") {
+  // Special case for localhost - always use local subgraph regardless of network
+  if (environment === "localhost") {
+    console.info(`Subgraph: Using localhost endpoint for chainId ${chainId}`);
     return subgraphEndpoints.localhost as string;
   }
 
@@ -53,11 +54,16 @@ export function getSubgraphEndpoint(chainId: number, environment: Environment = 
   const envKey = `${network}_env`;
   if (subgraphEndpoints[envKey]) {
     const envMapping = subgraphEndpoints[envKey] as SubgraphEndpointMapping;
-    return envMapping[environment];
+    const endpoint = envMapping[environment];
+    
+    console.info(`Subgraph: Using ${environment} endpoint for ${network} (chainId ${chainId}): ${endpoint}`);
+    return endpoint;
   }
 
   // Fallback to legacy format for backward compatibility
-  return subgraphEndpoints[network] as string;
+  const endpoint = subgraphEndpoints[network] as string;
+  console.info(`Subgraph: Using legacy endpoint for ${network} (chainId ${chainId}): ${endpoint}`);
+  return endpoint;
 }
 
 // Export the raw endpoints for advanced usage

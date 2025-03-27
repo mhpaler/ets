@@ -30,9 +30,32 @@ export const fetcher = async <T = any>(query: string, variables: Variables): Pro
   // Get the environment-aware subgraph endpoint
   const GRAPH_API_ENDPOINT = getSubgraphEndpoint(chainId, environment as ServerEnvironment);
 
-  if (process.env.NODE_ENV === "development") {
-    console.info(`Fetching data from ${network} network in ${environment} environment`);
-    console.info("Using endpoint:", GRAPH_API_ENDPOINT);
+  // Enhanced logging for all environments
+  // This provides crucial detail for network/environment switching
+  console.info(`GraphQL Query: ${network} network in ${environment} environment`);
+  console.info("GraphQL Endpoint:", GRAPH_API_ENDPOINT);
+
+  // Show comprehensive details in development and localhost
+  // This helps debug environment switching issues
+  if (
+    process.env.NODE_ENV === "development" ||
+    (typeof window !== "undefined" && window.location.hostname.includes("localhost"))
+  ) {
+    console.info("GraphQL Query Details:", {
+      query: `${query.substring(0, 80)}...`, // Show abbreviated query
+      variables,
+      network,
+      chainId,
+      environment,
+      hostname: typeof window !== "undefined" ? window.location.hostname : "server-side",
+      endpoint: GRAPH_API_ENDPOINT,
+      endpointType:
+        environment === "localhost"
+          ? "Local Graph Node"
+          : environment === "staging"
+            ? "Staging Subgraph"
+            : "Production Subgraph",
+    });
   }
 
   if (!GRAPH_API_ENDPOINT) {

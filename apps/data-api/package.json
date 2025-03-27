@@ -11,7 +11,14 @@
     "deploy:staging:arbitrum": "ts-node scripts/deploy.ts --config arbitrumSepolia-staging",
     "deploy:staging:base": "ts-node scripts/deploy.ts --config baseSepolia-staging",
     "deploy:staging:all": "pnpm deploy:staging:arbitrum && pnpm deploy:staging:base",
+    "deploy:production:arbitrum": "ts-node scripts/deploy.ts --config arbitrumSepolia",
+    "deploy:production:base": "ts-node scripts/deploy.ts --config baseSepolia",
+    "deploy:production:all": "pnpm deploy:production:arbitrum && pnpm deploy:production:base",
     "generate-yaml": "ts-node scripts/generate-yaml.ts",
+    "generate-yaml:staging:arbitrum": "ts-node scripts/generate-yaml.ts --target arbitrumSepolia --environment staging",
+    "generate-yaml:staging:base": "ts-node scripts/generate-yaml.ts --target baseSepolia --environment staging",
+    "generate-yaml:production:arbitrum": "ts-node scripts/generate-yaml.ts --target arbitrumSepolia --environment production",
+    "generate-yaml:production:base": "ts-node scripts/generate-yaml.ts --target baseSepolia --environment production",
     "start-graph-node": "cd scripts && ./start-graph-node.sh"
   },
   "devDependencies": {

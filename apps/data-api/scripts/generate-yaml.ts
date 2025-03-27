@@ -52,9 +52,17 @@ const getNetworkConfig = (target: DeploymentTarget, envParam: Environment = "pro
   // For localhost, we have a special configuration
   const environment = target === "localhost" ? "localhost" : envParam;
 
+  // Determine the appropriate config file name based on environment
+  // For staging, use targetStaging.json, for production or localhost use target.json
+  const configFileName = environment === "staging" && target !== "localhost" 
+    ? `${target}Staging.json` 
+    : `${target}.json`;
+
+  console.log(`📄 Using config file: ${configFileName}`);
+
   const baseConfig: Omit<NetworkConfig, "name" | "environment"> = {
-    configPath: `./../../packages/contracts/src/chainConfig/${target}.json`,
-    upgradesConfigPath: `./../../packages/contracts/src/upgradeConfig/${target}.json`,
+    configPath: `./../../packages/contracts/src/chainConfig/${configFileName}`,
+    upgradesConfigPath: `./../../packages/contracts/src/upgradeConfig/${configFileName}`,
     abis: [
       "ETS",
       "ETSAccessControls",
