@@ -54,9 +54,8 @@ const getNetworkConfig = (target: DeploymentTarget, envParam: Environment = "pro
 
   // Determine the appropriate config file name based on environment
   // For staging, use targetStaging.json, for production or localhost use target.json
-  const configFileName = environment === "staging" && target !== "localhost" 
-    ? `${target}Staging.json` 
-    : `${target}.json`;
+  const configFileName =
+    environment === "staging" && target !== "localhost" ? `${target}Staging.json` : `${target}.json`;
 
   console.log(`📄 Using config file: ${configFileName}`);
 

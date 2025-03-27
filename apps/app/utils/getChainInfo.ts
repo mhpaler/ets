@@ -38,16 +38,14 @@ export function getChainInfo(network?: NetworkName | "none"): {
   } else {
     // Handle staging network variants by normalizing to base network names
     const normalizedNetwork = network.replace(/staging$/, "");
-    
+
     // Log the network normalization for staging variants
     if (normalizedNetwork !== network) {
       console.info(`Normalized staging network: ${network} → ${normalizedNetwork}`);
     }
-    
+
     // Find the chain ID using the normalized network name
-    chainId = Object.entries(networkNames).find(
-      ([, name]) => name === normalizedNetwork
-    )?.[0] as SupportedChainId;
+    chainId = Object.entries(networkNames).find(([, name]) => name === normalizedNetwork)?.[0] as SupportedChainId;
 
     if (!chainId) {
       console.warn(`Unknown network: ${network} (normalized: ${normalizedNetwork}), falling back to Arbitrum Sepolia`);

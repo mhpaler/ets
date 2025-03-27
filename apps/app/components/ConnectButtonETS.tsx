@@ -50,22 +50,22 @@ export const ConnectButtonETS: React.FC<ConnectButtonETSProps> = ({
   const { switchChain } = useSwitchChain();
   const { disconnect } = useDisconnect();
   const { network, serverEnvironment } = useEnvironmentContext();
-  
+
   // Log more information about environment context for debugging
   useEffect(() => {
-    console.info("ConnectButtonETS Environment:", { 
-      network, 
+    console.info("ConnectButtonETS Environment:", {
+      network,
       serverEnvironment,
-      location: typeof window !== 'undefined' ? window.location.href : 'server-side'
+      location: typeof window !== "undefined" ? window.location.href : "server-side",
     });
   }, [network, serverEnvironment]);
-  
+
   const expectedChain = useMemo(() => {
     const chainInfo = getChainInfo(network);
-    console.info("ConnectButtonETS Chain Info:", { 
-      network, 
+    console.info("ConnectButtonETS Chain Info:", {
+      network,
       resolvedChainId: chainInfo.chain.id,
-      displayName: chainInfo.displayName
+      displayName: chainInfo.displayName,
     });
     return chainInfo;
   }, [network]);

@@ -55,7 +55,7 @@ export function getSubgraphEndpoint(chainId: number, environment: Environment = 
   if (subgraphEndpoints[envKey]) {
     const envMapping = subgraphEndpoints[envKey] as SubgraphEndpointMapping;
     const endpoint = envMapping[environment];
-    
+
     console.info(`Subgraph: Using ${environment} endpoint for ${network} (chainId ${chainId}): ${endpoint}`);
     return endpoint;
   }

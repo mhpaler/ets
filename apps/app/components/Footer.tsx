@@ -5,70 +5,77 @@ import { useState } from "react";
 function EnvironmentDebugPanel() {
   const { network, serverEnvironment } = useEnvironmentContext();
   const [showDebug, setShowDebug] = useState(false);
-  
+
   // Only show on localhost or staging environments
-  const isOnLocalhost = typeof window !== 'undefined' && (
-    window.location.hostname === 'localhost' || 
-    window.location.hostname.endsWith('.localhost')
-  );
-  
-  const isStaging = typeof window !== 'undefined' && (
-    window.location.hostname.includes('stage.app.ets.xyz') ||
-    window.location.hostname.includes('vercel.app')
-  );
-  
+  const isOnLocalhost =
+    typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" || window.location.hostname.endsWith(".localhost"));
+
+  const isStaging =
+    typeof window !== "undefined" &&
+    (window.location.hostname.includes("stage.app.ets.xyz") || window.location.hostname.includes("vercel.app"));
+
   // Don't show in production
   if (!isOnLocalhost && !isStaging) {
     return null;
   }
-  
+
   const toggleDebug = () => setShowDebug(!showDebug);
-  
+
   // Calculate SDK contract key and mapped network
-  const chainId = network === 'hardhat' ? '31337' : 
-                 network === 'arbitrumsepolia' || network === 'arbitrumsepoliastaging' ? '421614' : 
-                 network === 'basesepolia' || network === 'basesepoliastaging' ? '84532' : 'unknown';
-                 
+  const chainId =
+    network === "hardhat"
+      ? "31337"
+      : network === "arbitrumsepolia" || network === "arbitrumsepoliastaging"
+        ? "421614"
+        : network === "basesepolia" || network === "basesepoliastaging"
+          ? "84532"
+          : "unknown";
+
   const sdkContractKey = `${chainId}_${serverEnvironment}`;
-  
-  const mappedNetwork = serverEnvironment === 'staging' ? 
-                      network === 'arbitrumsepolia' ? 'arbitrumsepoliastaging' :
-                      network === 'basesepolia' ? 'basesepoliastaging' : network
-                      : network;
-  
+
+  const mappedNetwork =
+    serverEnvironment === "staging"
+      ? network === "arbitrumsepolia"
+        ? "arbitrumsepoliastaging"
+        : network === "basesepolia"
+          ? "basesepoliastaging"
+          : network
+      : network;
+
   return (
     <div className="fixed bottom-2 right-2 z-50">
-      <button 
+      <button
         onClick={toggleDebug}
         className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-2 rounded text-xs"
       >
         {showDebug ? "Hide Debug" : "Show Debug"}
       </button>
-      
+
       {showDebug && (
         <div className="mt-2 p-3 border border-gray-300 rounded-md bg-gray-100 text-xs font-mono shadow-lg max-w-xs">
           <h3 className="font-bold mb-2">Environment Debug</h3>
           <div className="grid grid-cols-2 gap-1">
             <div className="font-semibold">Hostname:</div>
-            <div>{typeof window !== 'undefined' ? window.location.hostname : 'server-side'}</div>
-            
+            <div>{typeof window !== "undefined" ? window.location.hostname : "server-side"}</div>
+
             <div className="font-semibold">Current Network:</div>
             <div className="text-blue-600">{network}</div>
-            
+
             <div className="font-semibold">Environment:</div>
             <div className="text-green-600">{serverEnvironment}</div>
-            
+
             <div className="font-semibold">Chain ID:</div>
             <div>{chainId}</div>
-                  
+
             <div className="font-semibold">SDK Contract Key:</div>
             <div className="text-red-600">{sdkContractKey}</div>
-            
+
             <div className="font-semibold">Mapped Network:</div>
             <div className="text-purple-600">{mappedNetwork}</div>
-            
+
             <div className="font-semibold">URL:</div>
-            <div className="truncate">{typeof window !== 'undefined' ? window.location.href : ''}</div>
+            <div className="truncate">{typeof window !== "undefined" ? window.location.href : ""}</div>
           </div>
         </div>
       )}
@@ -100,7 +107,7 @@ const Footer = () => {
           <p className="text-center text-sm">© 2021-{new Date().getUTCFullYear()} Ethereum Tag Service</p>
         </div>
       </div>
-      
+
       {/* Environment debug panel - only visible in development */}
       <EnvironmentDebugPanel />
     </footer>

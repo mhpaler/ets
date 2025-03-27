@@ -37,7 +37,7 @@ export function getEnvironmentKey(chainId: number, environment: Environment): st
  */
 export function detectEnvironment(explicitEnvironment?: Environment): Environment {
   console.info("SDK Core - detectEnvironment called", { explicitEnvironment });
-  
+
   // If explicitly provided, use that
   if (explicitEnvironment) {
     console.info("SDK Core - Using explicit environment:", explicitEnvironment);
@@ -47,10 +47,10 @@ export function detectEnvironment(explicitEnvironment?: Environment): Environmen
   // For browser environments
   if (typeof window !== "undefined") {
     const hostname = window.location.hostname;
-    
-    console.info("SDK Core - Browser environment detection:", { 
-      hostname, 
-      url: window.location.href
+
+    console.info("SDK Core - Browser environment detection:", {
+      hostname,
+      url: window.location.href,
     });
 
     // Check for staging subdomain or domain pattern
@@ -70,10 +70,10 @@ export function detectEnvironment(explicitEnvironment?: Environment): Environmen
   if (typeof process !== "undefined" && process.env) {
     const etsEnv = process.env.ETS_ENVIRONMENT;
     const nodeEnv = process.env.NODE_ENV;
-    
-    console.info("SDK Core - Node environment detection:", { 
-      etsEnv, 
-      nodeEnv 
+
+    console.info("SDK Core - Node environment detection:", {
+      etsEnv,
+      nodeEnv,
     });
 
     if (etsEnv === "staging") {
@@ -113,9 +113,9 @@ export function getAddressForEnvironment<T extends Record<string | number, strin
     environment,
     envKey,
     hasEnvironmentKey: !!addresses[envKey as keyof T],
-    hasChainIdKey: !!addresses[chainId as keyof T]
+    hasChainIdKey: !!addresses[chainId as keyof T],
   });
-  
+
   // Look for:
   // 1. Environment-specific key (e.g., "421614_staging")
   // 2. ChainId-only key (for backward compatibility)
@@ -124,14 +124,14 @@ export function getAddressForEnvironment<T extends Record<string | number, strin
   if (!address) {
     throw new Error(`No address found for chain ID ${chainId} and environment ${environment}`);
   }
-  
+
   // Log the resolved address
   console.info("SDK Core - Resolved Address:", {
     chainId,
     environment,
     envKey,
     address,
-    fromEnvKey: !!addresses[envKey as keyof T]
+    fromEnvKey: !!addresses[envKey as keyof T],
   });
 
   return address;
