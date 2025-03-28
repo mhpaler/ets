@@ -10,7 +10,14 @@
     "verify-local-oracle": "ts-node scripts/60-verify-local-oracle.ts",
     "stop-airnode": "cd .. && docker-compose down",
     "logs-airnode": "docker logs -f airnode-airnode-1",
-    "clean": "rm -rf config/local/sponsor.json docker-compose.yml"
+    "clean": "rm -rf config/local/sponsor.json docker-compose.yml",
+    "deploy-staging-oracle": "ts-node scripts/deploy-staging-oracle.ts",
+    "verify-staging-oracle": "ts-node scripts/60-verify-staging-oracle.ts",
+    "remove-staging-oracle": "ts-node scripts/remove-staging-oracle.ts",
+    "generate-staging-credentials": "ts-node scripts/10-generate-staging-credentials.ts",
+    "generate-staging-config": "ts-node scripts/20-generate-staging-config.ts",
+    "setup-staging-sponsorship": "ts-node scripts/30-setup-staging-sponsorship.ts",
+    "configure-staging-requester": "ts-node scripts/40-configure-staging-requester.ts"
   },
   "license": "ISC",
   "dependencies": {
