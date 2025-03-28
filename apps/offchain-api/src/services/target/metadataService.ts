@@ -12,7 +12,7 @@ interface MetadataExtractor {
 class HtmlMetadataExtractor implements MetadataExtractor {
   async extract(url: string): Promise<any> {
     try {
-      logger.info(`Extracting HTML metadata from: ${url}`);
+      logger.info({ url }, "Extracting HTML metadata");
       const result = await unfurl(url);
 
       return {
@@ -26,7 +26,14 @@ class HtmlMetadataExtractor implements MetadataExtractor {
         extractedAt: new Date().toISOString(),
       };
     } catch (error) {
-      logger.error(`Failed to extract HTML metadata from ${url}:`, error);
+      logger.error(
+        {
+          url,
+          error: error instanceof Error ? { message: error.message, stack: error.stack } : String(error),
+        },
+        "Failed to extract HTML metadata",
+      );
+
       return {
         url,
         contentType: "text/html",
@@ -41,7 +48,7 @@ class HtmlMetadataExtractor implements MetadataExtractor {
 class ImageMetadataExtractor implements MetadataExtractor {
   async extract(url: string): Promise<any> {
     try {
-      logger.info(`Extracting image metadata from: ${url}`);
+      logger.info({ url }, "Extracting image metadata");
 
       // For now, we're just extracting basic information
       // Later we could use image processing libraries to get dimensions, etc.
@@ -53,7 +60,14 @@ class ImageMetadataExtractor implements MetadataExtractor {
         extractedAt: new Date().toISOString(),
       };
     } catch (error) {
-      logger.error(`Failed to extract image metadata from ${url}:`, error);
+      logger.error(
+        {
+          url,
+          error: error instanceof Error ? { message: error.message, stack: error.stack } : String(error),
+        },
+        "Failed to extract image metadata",
+      );
+
       return {
         url,
         contentType: "image",
@@ -79,7 +93,7 @@ class ImageMetadataExtractor implements MetadataExtractor {
 // Generic fallback extractor for unsupported content types
 class GenericMetadataExtractor implements MetadataExtractor {
   async extract(url: string): Promise<any> {
-    logger.info(`Using generic metadata extraction for: ${url}`);
+    logger.info({ url }, "Using generic metadata extraction");
     return {
       url,
       contentType: "unknown",
@@ -96,13 +110,20 @@ export class MetadataService {
    */
   private async detectContentType(url: string): Promise<string> {
     try {
-      logger.info(`Detecting content type for: ${url}`);
+      logger.info({ url }, "Detecting content type");
       const response = await axios.head(url);
       const contentType = response.headers["content-type"] || "";
-      logger.info(`Detected content type for ${url}: ${contentType}`);
+      logger.info({ url, contentType }, "Detected content type");
       return contentType.toLowerCase();
     } catch (error) {
-      logger.error(`Failed to detect content type for ${url}:`, error);
+      logger.error(
+        {
+          url,
+          error: error instanceof Error ? { message: error.message, stack: error.stack } : String(error),
+        },
+        "Failed to detect content type",
+      );
+
       // Default to HTML if we can't detect
       return "text/html";
     }
@@ -129,7 +150,7 @@ export class MetadataService {
    */
   public async extractMetadata(url: string): Promise<any> {
     try {
-      logger.info(`Starting metadata extraction for URL: ${url}`);
+      logger.info({ url }, "Starting metadata extraction");
 
       // Detect the content type
       const contentType = await this.detectContentType(url);
@@ -140,10 +161,16 @@ export class MetadataService {
       // Extract the metadata
       const metadata = await extractor.extract(url);
 
-      logger.info(`Metadata extracted successfully from ${url}`);
+      logger.info({ url }, "Metadata extracted successfully");
       return metadata;
     } catch (error) {
-      logger.error(`Failed to extract metadata from ${url}:`, error);
+      logger.error(
+        {
+          url,
+          error: error instanceof Error ? { message: error.message, stack: error.stack } : String(error),
+        },
+        "Failed to extract metadata",
+      );
 
       // Return minimal metadata with error information
       return {
@@ -187,7 +214,15 @@ export class MetadataService {
 
       // Check if metadata contains an error (scraping failed)
       if (metadata.error) {
-        logger.warn(`Skipping Arweave upload due to scraping failure: ${metadata.error}`);
+        logger.warn(
+          {
+            targetId,
+            targetUrl,
+            error: metadata.error,
+          },
+          "Skipping Arweave upload due to scraping failure",
+        );
+
         // Set appropriate error status code
         httpStatus = 422; // Unprocessable Entity - good code for "could connect but couldn't process"
         return { txId: null, httpStatus, metadata };
@@ -198,7 +233,22 @@ export class MetadataService {
 
       return { txId, httpStatus, metadata };
     } catch (error) {
-      logger.error(`Failed to process target URL ${targetUrl}:`, error);
+      logger.error(
+        {
+          targetId,
+          targetUrl,
+          error:
+            error instanceof Error
+              ? {
+                  message: error.message,
+                  stack: error.stack,
+                  name: error.name,
+                }
+              : String(error),
+        },
+        "Failed to process target URL",
+      );
+
       throw new Error(`Failed to process target URL: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   }

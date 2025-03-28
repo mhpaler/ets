@@ -6,17 +6,21 @@ import { logger } from "../utils/logger";
 
 /**
  * Process a target URL and return enrichment data
- * This endpoint doesn't make any blockchain transactions
+ * This endpoint supports both JSON and ABI-encoded bytes responses
  */
 export const processTarget = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { chainId, targetId } = req.body;
+    const { chainId, targetId, returnType = "airnode" } = req.body;
 
     if (!targetId) {
       return next(new AppError("Target ID is required", 400));
     }
 
-    logger.info(`Processing target ${targetId} on chain ${chainId}`);
+    if (returnType !== "airnode" && returnType !== "json") {
+      return next(new AppError("returnType must be either 'airnode' or 'json'", 400));
+    }
+
+    logger.info(`Processing target ${targetId} on chain ${chainId} with returnType: ${returnType}`);
 
     // Create SDK Core client for Target contract (read-only)
     const targetClient = createTargetClient({ chainId });
@@ -47,17 +51,30 @@ export const processTarget = async (req: Request, res: Response, next: NextFunct
 
     logger.info(`HTTP status for ${targetUrl}: ${httpStatus}`);
 
-    // Return only the data needed by the oracle
-    res.status(200).json({
-      success: true,
-      message: txId ? "Target processed successfully" : "Target processing failed but captured error",
-      data: {
-        targetId,
-        txId, // Will be null for scraping failures
-        httpStatus,
-        metadata, // Including error metadata for debugging
-      },
-    });
+    // Prepare the response data
+    const responseData = {
+      targetId,
+      txId: txId || "", // Use empty string instead of null for ABI encoding
+      httpStatus,
+      metadata, // Including error metadata for debugging
+    };
+
+    // Return the response in the requested format
+    if (returnType === "json") {
+      // Return JSON response (for testing and readability)
+      res.status(200).json({
+        success: true,
+        message: txId ? "Target processed successfully" : "Target processing failed but captured error",
+        data: responseData,
+      });
+    } else {
+      // return in format expected by Airnode
+      res.status(200).json({
+        success: true,
+        txId: txId || "",
+        httpStatus: httpStatus.toString(),
+      });
+    }
   } catch (error) {
     logger.error("Error in processTarget:", error);
     next(new AppError(`Failed to process target: ${error instanceof Error ? error.message : "Unknown error"}`, 500));

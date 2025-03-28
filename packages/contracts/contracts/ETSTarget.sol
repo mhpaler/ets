@@ -32,6 +32,8 @@
  * resource. The effect of that is that different Target IDs in ETS can similarly point to the same resource.
  */
 
+/* solhint-disable no-console */
+
 pragma solidity ^0.8.10;
 
 import { IETSTarget } from "./interfaces/IETSTarget.sol";
@@ -40,7 +42,7 @@ import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
 import { StringHelpers } from "./utils/StringHelpers.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-
+import "hardhat/console.sol";
 contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
     IETSAccessControls public etsAccessControls;
 
@@ -121,7 +123,7 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
             createdBy: msg.sender,
             enriched: 0,
             httpStatus: 0,
-            ipfsHash: ""
+            arweaveTxId: ""
         });
         emit TargetCreated(_targetId);
         return _targetId;
@@ -133,13 +135,28 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
         string calldata _targetURI,
         uint256 _enriched,
         uint256 _httpStatus,
-        string calldata _ipfsHash
+        string calldata _arweaveTxId
     ) external returns (bool success) {
         require(msg.sender == address(etsEnrichTarget), "Access denied");
+
+        // Debug logging
+        console.log("=== ETSTarget.updateTarget ===");
+        console.log("Target ID:", _targetId);
+        console.log("Target URI:", _targetURI);
+        console.log("Enriched timestamp:", _enriched);
+        console.log("HTTP Status:", _httpStatus);
+        console.log("Arweave TxId (before storage):", _arweaveTxId);
+        console.log("Arweave TxId byte length:", bytes(_arweaveTxId).length);
+
         targets[_targetId].targetURI = _targetURI;
         targets[_targetId].enriched = _enriched;
         targets[_targetId].httpStatus = _httpStatus;
-        targets[_targetId].ipfsHash = _ipfsHash;
+        targets[_targetId].arweaveTxId = _arweaveTxId;
+
+        // Verify stored values
+        console.log("Stored Arweave TxId:", targets[_targetId].arweaveTxId);
+        console.log("Stored HTTP Status:", targets[_targetId].httpStatus);
+        console.log("==========================");
 
         emit TargetUpdated(_targetId);
         return true;
@@ -173,6 +190,15 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
 
     /// @inheritdoc IETSTarget
     function getTargetById(uint256 _targetId) public view returns (Target memory) {
+        console.log("=== ETSTarget.getTargetById ===");
+        console.log("Target ID:", _targetId);
+        console.log("Target URI:", targets[_targetId].targetURI);
+        console.log("Created By:", targets[_targetId].createdBy);
+        console.log("Enriched:", targets[_targetId].enriched);
+        console.log("HTTP Status:", targets[_targetId].httpStatus);
+        console.log("Arweave TxId:", targets[_targetId].arweaveTxId);
+        console.log("============================");
+
         return targets[_targetId];
     }
 }

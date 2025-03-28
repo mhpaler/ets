@@ -1,0 +1,200 @@
+{
+  "chains": [
+    {
+      "authorizers": {
+        "requesterEndpointAuthorizers": [],
+        "crossChainRequesterAuthorizers": [],
+        "requesterAuthorizersWithErc721": [],
+        "crossChainRequesterAuthorizersWithErc721": []
+      },
+      "authorizations": {
+        "requesterEndpointAuthorizations": {}
+      },
+      "contracts": {
+        "AirnodeRrp": "{{airnodeRrpAddress}}"
+      },
+      "id": "{{chainId}}",
+      "providers": {
+        "local": {
+          "url": "{{rpcUrl}}"
+        }
+      },
+      "type": "evm",
+      "maxConcurrency": 100,
+      "options": {
+        "fulfillmentGasLimit": 500000,
+        "gasPriceOracle": [
+          {
+            "gasPriceStrategy": "constantGasPrice",
+            "gasPrice": {
+              "value": 10,
+              "unit": "gwei"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "nodeSettings": {
+    "airnodeWalletMnemonic": "{{airnodeWalletMnemonicVar}}",
+    "heartbeat": {
+      "enabled": false
+    },
+    "httpGateway": {
+      "enabled": true,
+      "corsOrigins": ["*"],
+      "maxConcurrency": 20
+    },
+    "httpSignedDataGateway": {
+      "enabled": false
+    },
+    "oevGateway": {
+      "enabled": false
+    },
+    "cloudProvider": {
+      "type": "local"
+    },
+    "logFormat": "plain",
+    "logLevel": "{{logLevel}}",
+    "nodeVersion": "0.15.0",
+    "stage": "dev"
+  },
+  "triggers": {
+    "rrp": [
+      {
+        "endpointId": "{{enrichTargetEndpointId}}",
+        "oisTitle": "ETS API",
+        "endpointName": "enrichTarget",
+        "cacheResponses": false
+      },
+      {
+        "endpointId": "{{nextAuctionEndpointId}}",
+        "oisTitle": "ETS API",
+        "endpointName": "nextAuction",
+        "cacheResponses": false
+      }
+    ],
+    "http": [
+      {
+        "endpointId": "{{enrichTargetEndpointId}}",
+        "oisTitle": "ETS API",
+        "endpointName": "enrichTarget"
+      },
+      {
+        "endpointId": "{{nextAuctionEndpointId}}",
+        "oisTitle": "ETS API",
+        "endpointName": "nextAuction"
+      }
+    ],
+    "httpSignedData": []
+  },
+  "ois": [
+    {
+      "oisFormat": "2.3.2",
+      "title": "ETS API",
+      "version": "1.0.0",
+      "apiSpecifications": {
+        "servers": [
+          {
+            "url": "{{apiUrl}}"
+          }
+        ],
+        "paths": {
+          "/api/target/enrich": {
+            "post": {
+              "parameters": [
+                {
+                  "in": "query",
+                  "name": "chainId"
+                },
+                {
+                  "in": "query",
+                  "name": "targetId"
+                }
+              ]
+            }
+          },
+          "/api/auction/next": {
+            "post": {
+              "parameters": [
+                {
+                  "in": "query",
+                  "name": "chainId"
+                }
+              ]
+            }
+          }
+        },
+        "components": {
+          "securitySchemes": {}
+        },
+        "security": {}
+      },
+      "endpoints": [
+        {
+          "name": "enrichTarget",
+          "operation": {
+            "method": "post",
+            "path": "/api/target/enrich"
+          },
+          "fixedOperationParameters": [],
+          "reservedParameters": [
+            {
+              "name": "_type",
+              "fixed": "string,uint256"
+            },
+            {
+              "name": "_path",
+              "fixed": "txId,httpStatus"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "chainId",
+              "operationParameter": {
+                "in": "query",
+                "name": "chainId"
+              }
+            },
+            {
+              "name": "targetId",
+              "operationParameter": {
+                "in": "query",
+                "name": "targetId"
+              }
+            }
+          ]
+        },
+        {
+          "name": "nextAuction",
+          "operation": {
+            "method": "post",
+            "path": "/api/auction/next"
+          },
+          "fixedOperationParameters": [],
+          "reservedParameters": [
+            {
+              "name": "_type",
+              "fixed": "bool,string,string"
+            },
+            {
+              "name": "_path",
+              "fixed": "hasEligibleTag,tagId,tagDisplay"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "chainId",
+              "operationParameter": {
+                "in": "query",
+                "name": "chainId"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "templates": [],
+  "apiCredentials": []
+}

@@ -10,11 +10,21 @@ module.exports = async ({ deployments }) => {
   const etsAccessControlsAddress = (await deployments.get("ETSAccessControls")).address;
   const etsTargetAddress = (await deployments.get("ETSTarget")).address;
 
-  // Deploy ETSEnrichTarget
+  // Get the AirnodeRrpV0 address - use whichever name is consistently saved in 35_AirnodeRrp.js
+  const airnodeRrpAddress = (await deployments.get("AirnodeRrpV0Proxy")).address;
+  log(`Using AirnodeRrpV0 at address: ${airnodeRrpAddress}`);
+
+  // Deploy ETSEnrichTarget with composition pattern
+  // Note: No constructorArgs needed anymore - we pass airnodeRrpAddress to initialize instead
   const deployment = await upgrades.deployProxy(
     factories.ETSEnrichTarget,
-    [etsAccessControlsAddress, etsTargetAddress],
-    { kind: "uups", pollingInterval: 3000, timeout: 0 },
+    [etsAccessControlsAddress, etsTargetAddress, airnodeRrpAddress], // Include airnodeRrpAddress in initialize params
+    {
+      kind: "uups",
+      pollingInterval: 3000,
+      timeout: 0,
+      // constructorArgs removed since we're using composition now
+    },
   );
   await deployment.waitForDeployment();
 
@@ -22,7 +32,7 @@ module.exports = async ({ deployments }) => {
   const implementationAddress = await upgrades.erc1967.getImplementationAddress(deploymentAddress);
 
   if (process.env.VERIFY_ON_DEPLOY === "true") {
-    // Verify & Update network configuration file.
+    // Verify & Update network configuration file - no constructor args
     await verify("ETSEnrichTarget", deployment, implementationAddress, []);
   }
 
@@ -41,5 +51,6 @@ module.exports = async ({ deployments }) => {
   log(`ETSEnrichTarget implementation deployed to -> ${implementationAddress}`);
   log("====================================================");
 };
+
 module.exports.tags = ["ETSEnrichTarget"];
-module.exports.dependencies = ["ETSTarget"];
+module.exports.dependencies = ["ETSTarget", "AirnodeRrpV0Proxy"]; // Ensure dependency name matches 35_AirnodeRrp.js

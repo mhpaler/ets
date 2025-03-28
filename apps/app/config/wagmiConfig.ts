@@ -116,8 +116,48 @@ export const getAlchemyRpcUrl = (chain: Chain): string => {
 };
 
 export const getChainByNetworkName = (networkName: string): Chain | undefined => {
-  const chainId = Object.keys(networkNames).find((key) => networkNames[key as SupportedChainId] === networkName);
-  return chainId ? chains[chainId as SupportedChainId] : undefined;
+  // Debug network name mapping
+  console.info("getChainByNetworkName called with:", { networkName });
+
+  // For basesepolia and arbitrumsepolia staging variants, manually resolve to the correct chain
+  if (networkName === "basesepoliastaging") {
+    console.info("Directly mapped basesepoliastaging to Base Sepolia chain (84532)");
+    return chains["84532"];
+  }
+
+  if (networkName === "arbitrumsepoliastaging") {
+    console.info("Directly mapped arbitrumsepoliastaging to Arbitrum Sepolia chain (421614)");
+    return chains["421614"];
+  }
+
+  // Handle staging variants of network names (they still map to the same chain IDs)
+  const normalizedNetworkName = networkName.replace(/staging$/i, "");
+
+  // When mapping network names to chains, we need to use the base network names
+  // since both production and staging environments use the same underlying chains
+  if (normalizedNetworkName !== networkName) {
+    console.info(`Normalized staging network name: ${networkName} → ${normalizedNetworkName}`);
+  }
+
+  // Look up the chain ID using the normalized network name
+  const chainId = Object.keys(networkNames).find(
+    (key) => networkNames[key as SupportedChainId] === normalizedNetworkName,
+  );
+
+  if (!chainId) {
+    console.warn(`No chain found for network name: ${networkName}`);
+    return undefined;
+  }
+
+  // Log the resolved chain
+  console.info("getChainByNetworkName result:", {
+    networkName,
+    normalizedNetworkName,
+    chainId,
+    chainName: chains[chainId as SupportedChainId]?.name,
+  });
+
+  return chains[chainId as SupportedChainId];
 };
 
 export { availableChainIds, networkNames };

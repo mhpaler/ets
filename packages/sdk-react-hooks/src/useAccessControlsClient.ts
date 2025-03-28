@@ -1,15 +1,28 @@
-import { type AccessControlsClient, createAccessControlsClient } from "@ethereum-tag-service/sdk-core";
+import {
+  type AccessControlsClient,
+  DEFAULT_ENVIRONMENT,
+  type Environment,
+  createAccessControlsClient,
+} from "@ethereum-tag-service/sdk-core";
 import { useContext, useEffect, useState } from "react";
 
-export const useAccessControlsClient = ({ chainId, account }: { chainId?: number; account?: `0x${string}` }) => {
+export const useAccessControlsClient = ({
+  chainId,
+  account,
+  environment = DEFAULT_ENVIRONMENT,
+}: {
+  chainId?: number;
+  account?: `0x${string}`;
+  environment?: Environment;
+}) => {
   const [accessControlsClient, setAccessControlsClient] = useState<AccessControlsClient>();
 
   useEffect(() => {
     if (!chainId || !account) return;
 
-    const client = createAccessControlsClient({ chainId, account });
+    const client = createAccessControlsClient({ chainId, account, environment });
     setAccessControlsClient(client);
-  }, [chainId, account]);
+  }, [chainId, account, environment]);
 
   const hasRole = async (role: string, account: string): Promise<boolean> => {
     if (!accessControlsClient) throw new Error("Access Controls client not initialized");

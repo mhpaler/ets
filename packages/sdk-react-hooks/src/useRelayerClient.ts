@@ -1,22 +1,29 @@
-import { type RelayerClient, createRelayerClient } from "@ethereum-tag-service/sdk-core";
+import {
+  DEFAULT_ENVIRONMENT,
+  type Environment,
+  type RelayerClient,
+  createRelayerClient,
+} from "@ethereum-tag-service/sdk-core";
 import { useEffect, useState } from "react";
 
 export const useRelayerClient = ({
   relayerAddress,
   chainId,
   account,
+  environment = DEFAULT_ENVIRONMENT,
 }: {
   relayerAddress?: `0x${string}`;
   chainId?: number;
   account?: `0x${string}`;
+  environment?: Environment;
 }) => {
   const [relayerClient, setRelayerClient] = useState<RelayerClient>();
 
   useEffect(() => {
     if (!chainId || !account || !relayerAddress) return;
-    const client = createRelayerClient({ chainId, account, relayerAddress });
+    const client = createRelayerClient({ chainId, account, relayerAddress, environment });
     setRelayerClient(client);
-  }, [chainId, account, relayerAddress]);
+  }, [chainId, account, relayerAddress, environment]);
 
   const createTags = async (
     tags: string[],

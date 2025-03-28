@@ -1,14 +1,22 @@
-import { type EtsClient, createEtsClient } from "@ethereum-tag-service/sdk-core";
+import { DEFAULT_ENVIRONMENT, type Environment, type EtsClient, createEtsClient } from "@ethereum-tag-service/sdk-core";
 import { useContext, useEffect, useState } from "react";
 
-export const useEtsClient = ({ chainId, account }: { chainId?: number; account?: `0x${string}` }) => {
+export const useEtsClient = ({
+  chainId,
+  account,
+  environment = DEFAULT_ENVIRONMENT,
+}: {
+  chainId?: number;
+  account?: `0x${string}`;
+  environment?: Environment;
+}) => {
   const [tokenClient, setEtsClient] = useState<EtsClient>();
 
   useEffect(() => {
     if (!chainId || !account) return;
-    const client = createEtsClient({ chainId, account: account });
+    const client = createEtsClient({ chainId, account: account, environment });
     setEtsClient(client);
-  }, [chainId, account]);
+  }, [chainId, account, environment]);
 
   const accrued = async (address: `0x${string}`) => {
     try {

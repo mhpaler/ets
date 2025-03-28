@@ -64,7 +64,7 @@ cp .env.example .env.local
 ```
 # API Configuration
 
-PORT=3000
+PORT=4000
 NODE_ENV=development
 
 # RPC URLs
@@ -132,7 +132,7 @@ Start the development server:
 pnpm dev
 ```
 
-The API will be available at <http://localhost:3000> with automatic reloading on code changes.
+The API will be available at <http://localhost:4000> with automatic reloading on code changes.
 
 ## API Documentation
 
@@ -170,7 +170,7 @@ Processes a target URL, extracts metadata, and stores it on Arweave.
 **Example Request:**
 
 ```bash
-curl -X POST http://localhost:3000/api/target/enrich \
+curl -X POST http://localhost:4000/api/target/enrich \
   -H "Content-Type: application/json" \
   -d '{"chainId": 31337, "targetId": "123"}'
 ```
@@ -212,7 +212,7 @@ Returns the next CTAG (tokenized Tag NFT) that should be released for auction.
 **Example Request:**
 
 ```bash
-curl -X POST http://localhost:3000/auction/next \
+curl -X POST http://localhost:4000/auction/next \
   -H "Content-Type: application/json" \
   -d '{"chainId": 31337}'
 ```
@@ -274,7 +274,7 @@ Handles auction event webhooks (primarily for RequestCreateAuction events).
 **Example Request:**
 
 ```bash
-curl -X POST http://localhost:3000/auction/webhook \
+curl -X POST http://localhost:4000/auction/webhook \
   -H "Content-Type: application/json" \
   -d '{"chainId": 31337, "eventName": "RequestCreateAuction"}'
 ```

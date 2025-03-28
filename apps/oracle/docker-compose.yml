@@ -1,0 +1,10 @@
+
+services:
+  airnode:
+    image: api3/airnode-client:0.15.0
+    volumes:
+      - ./config/local:/app/config
+    ports:
+      - "8090:3000"  # HTTP Gateway
+    restart: always
+    

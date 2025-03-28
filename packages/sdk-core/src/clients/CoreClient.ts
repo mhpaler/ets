@@ -1,4 +1,6 @@
 import type { Address, Hex, PublicClient, WalletClient } from "viem";
+// Removed Environment import until we implement it in all clients
+// import type { Environment } from "../utils/environment";
 import { AccessControlsClient } from "./AccessControlsClient";
 import { AuctionHouseClient } from "./AuctionHouseClient";
 import { EnrichTargetClient } from "./EnrichTargetClient";
@@ -21,6 +23,8 @@ interface CoreClientOptions {
     targetClient?: boolean;
     tokenClient?: boolean;
   };
+  // Removed environment property until we implement it in all clients
+  // environment?: Environment;
 }
 
 export class CoreClient {
@@ -38,6 +42,7 @@ export class CoreClient {
 
   private initializeClients(): void {
     const { chainId, publicClient, walletClient, clients, relayerAddress } = this.options;
+    // Removed environment for now until we implement it in all clients
 
     const clientSettings = {
       accessControlsClient: true,

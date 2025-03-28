@@ -9,7 +9,9 @@
       "./packages/contracts/typechain-types/*",
       "./packages/contracts/deployments/*",
       "./packages/contracts/export/*",
-      "./packages/sdk-core/src/index.ts"
+      "./packages/contracts/src/contracts.ts",
+      "./packages/sdk-core/src/index.ts",
+      "./apps/data-api/src/generated/**"
     ]
   },
   "formatter": {
@@ -62,7 +64,7 @@
   },
   "overrides": [
     {
-      "include": ["./packages/subgraph/src/**/*.ts"],
+      "include": ["./apps/data-api/src/**/*.ts"],
       "linter": {
         "rules": {
           "style": {

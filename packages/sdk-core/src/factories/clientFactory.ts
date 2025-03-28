@@ -9,6 +9,7 @@ import { RelayerFactoryClient } from "../clients/RelayerFactoryClient";
 import { TargetClient } from "../clients/TargetClient";
 import { TokenClient } from "../clients/TokenClient";
 import { chainsMap } from "../config/chainsConfig";
+import { DEFAULT_ENVIRONMENT, type Environment } from "../utils/environment";
 
 import { http, type Account, type Hex, createPublicClient, createWalletClient, custom } from "viem";
 
@@ -16,6 +17,7 @@ type ClientConfig = {
   chainId: number;
   account?: Hex | Account;
   customTransport?: boolean;
+  environment?: Environment;
 };
 
 function initializeClients(config: ClientConfig) {
@@ -55,16 +57,18 @@ function createClient<T>(
   chainId: number | undefined,
   relayerAddress?: Hex,
   account?: Account | Hex,
+  environment: Environment = DEFAULT_ENVIRONMENT,
 ): T | undefined {
   if (!chainId) return undefined;
 
   try {
-    const { publicClient, walletClient } = initializeClients({ chainId, account });
+    const { publicClient, walletClient } = initializeClients({ chainId, account, environment });
     return new ClientType({
       chainId,
       publicClient,
       walletClient,
       relayerAddress,
+      environment,
     });
   } catch (error) {
     console.error(`[@ethereum-tag-service/sdk-core] Error creating ${ClientType.name}:`, error);
@@ -75,83 +79,99 @@ function createClient<T>(
 export function createTokenClient({
   chainId,
   account,
+  environment = DEFAULT_ENVIRONMENT,
 }: {
   chainId: number | undefined;
   account?: Account | Hex;
+  environment?: Environment;
 }): TokenClient | undefined {
-  return createClient<TokenClient>(TokenClient, chainId, undefined, account);
+  return createClient<TokenClient>(TokenClient, chainId, undefined, account, environment);
 }
 
 export function createRelayerClient({
   chainId,
   relayerAddress,
   account,
+  environment = DEFAULT_ENVIRONMENT,
 }: {
   chainId: number | undefined;
   relayerAddress: Hex;
   account?: Account | Hex;
+  environment?: Environment;
 }): RelayerClient | undefined {
-  return createClient<RelayerClient>(RelayerClient, chainId, relayerAddress, account);
+  return createClient<RelayerClient>(RelayerClient, chainId, relayerAddress, account, environment);
 }
 
 export function createAuctionHouseClient({
   chainId,
   account,
+  environment = DEFAULT_ENVIRONMENT,
 }: {
   chainId: number | undefined;
   account?: Account | Hex;
+  environment?: Environment;
 }): AuctionHouseClient | undefined {
-  return createClient<AuctionHouseClient>(AuctionHouseClient, chainId, undefined, account);
+  return createClient<AuctionHouseClient>(AuctionHouseClient, chainId, undefined, account, environment);
 }
 
 export function createAccessControlsClient({
   chainId,
   account,
+  environment = DEFAULT_ENVIRONMENT,
 }: {
   chainId: number | undefined;
   account?: Account | Hex;
+  environment?: Environment;
 }): AccessControlsClient | undefined {
-  return createClient<AccessControlsClient>(AccessControlsClient, chainId, undefined, account);
+  return createClient<AccessControlsClient>(AccessControlsClient, chainId, undefined, account, environment);
 }
 
 export function createRelayerFactoryClient({
   chainId,
   account,
+  environment = DEFAULT_ENVIRONMENT,
 }: {
   chainId: number | undefined;
   account?: Account | Hex;
+  environment?: Environment;
 }): RelayerFactoryClient | undefined {
-  return createClient<RelayerFactoryClient>(RelayerFactoryClient, chainId, undefined, account);
+  return createClient<RelayerFactoryClient>(RelayerFactoryClient, chainId, undefined, account, environment);
 }
 
 export function createTargetClient({
   chainId,
   account,
+  environment = DEFAULT_ENVIRONMENT,
 }: {
   chainId: number | undefined;
   account?: Account | Hex;
+  environment?: Environment;
 }): TargetClient | undefined {
-  return createClient<TargetClient>(TargetClient, chainId, undefined, account);
+  return createClient<TargetClient>(TargetClient, chainId, undefined, account, environment);
 }
 
 export function createEnrichTargetClient({
   chainId,
   account,
+  environment = DEFAULT_ENVIRONMENT,
 }: {
   chainId: number | undefined;
   account?: Account | Hex;
+  environment?: Environment;
 }): EnrichTargetClient | undefined {
-  return createClient<EnrichTargetClient>(EnrichTargetClient, chainId, undefined, account);
+  return createClient<EnrichTargetClient>(EnrichTargetClient, chainId, undefined, account, environment);
 }
 
 export function createEtsClient({
   chainId,
   account,
+  environment = DEFAULT_ENVIRONMENT,
 }: {
   chainId: number | undefined;
   account?: Account | Hex;
+  environment?: Environment;
 }): EtsClient | undefined {
-  return createClient<EtsClient>(EtsClient, chainId, undefined, account);
+  return createClient<EtsClient>(EtsClient, chainId, undefined, account, environment);
 }
 
 export function createCoreClient({
@@ -159,6 +179,7 @@ export function createCoreClient({
   relayerAddress,
   account,
   clients,
+  environment = DEFAULT_ENVIRONMENT, // Keep this for future implementation
 }: {
   chainId: number | undefined;
   relayerAddress?: Hex;
@@ -171,18 +192,22 @@ export function createCoreClient({
     relayerFactoryClient?: boolean;
     targetClient?: boolean;
   };
+  environment?: Environment; // Keep this for future implementation
 }): CoreClient | undefined {
   if (!chainId) return undefined;
 
   try {
-    const { publicClient, walletClient } = initializeClients({ chainId, account });
+    // Still pass environment to initializeClients
+    const { publicClient, walletClient } = initializeClients({ chainId, account, environment });
 
+    // But don't pass it to CoreClient because it doesn't support it yet
     return new CoreClient({
       chainId,
       publicClient,
       walletClient,
       relayerAddress,
       clients,
+      // environment, // Removed until we implement it in all clients
     });
   } catch (error) {
     console.error("[@ethereum-tag-service/sdk-core] Failed to create core client:", error);
