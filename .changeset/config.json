@@ -11,6 +11,9 @@
     "@ethereum-tag-service/app",
     "@ethereum-tag-service/site",
     "@ethereum-tag-service/data-api",
-    "@ethereum-tag-service/examples-*"
+    "@ethereum-tag-service/offchain-api",
+    "ets-oracle",
+    "@ethereum-tag-service/examples-*",
+    "@ethereum-tag-service/*-api"
   ]
 }

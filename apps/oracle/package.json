@@ -1,6 +1,7 @@
 {
   "name": "ets-oracle",
-  "version": "0.1.0",
+  "version": "0.0.1",
+  "private": true,
   "description": "ETS Airnode Oracle",
   "author": "Ethereum Tag Service <team@ets.xyz>",
   "main": "index.js",
