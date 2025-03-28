@@ -61,6 +61,7 @@ describe("ETS Enrich Target tests", () => {
           accounts.RandomOne.address,
           ethers.hexlify(ethers.randomBytes(32)),
           accounts.RandomOne.address,
+          accounts.RandomOne.address,
         ),
       ).to.be.reverted;
     });
@@ -68,16 +69,19 @@ describe("ETS Enrich Target tests", () => {
     it("should succeed when called by administrator", async () => {
       const airnode = accounts.RandomOne.address;
       const endpointId = ethers.hexlify(ethers.randomBytes(32));
+      const sponsorAddress = accounts.RandomOne.address;
       const sponsorWallet = accounts.RandomTwo.address;
 
       await contracts.ETSEnrichTarget.connect(accounts.ETSPlatform).setAirnodeRequestParameters(
         airnode,
         endpointId,
+        sponsorAddress,
         sponsorWallet,
       );
 
       expect(await contracts.ETSEnrichTarget.airnode()).to.equal(airnode);
       expect(await contracts.ETSEnrichTarget.endpointId()).to.equal(endpointId);
+      expect(await contracts.ETSEnrichTarget.sponsorAddress()).to.equal(sponsorAddress);
       expect(await contracts.ETSEnrichTarget.sponsorWallet()).to.equal(sponsorWallet);
     });
   });
@@ -87,11 +91,13 @@ describe("ETS Enrich Target tests", () => {
       // Set up Airnode parameters
       const airnode = accounts.RandomOne.address;
       const endpointId = ethers.hexlify(ethers.randomBytes(32));
+      const sponsorAddress = accounts.RandomOne.address;
       const sponsorWallet = accounts.RandomTwo.address;
 
       await contracts.ETSEnrichTarget.connect(accounts.ETSPlatform).setAirnodeRequestParameters(
         airnode,
         endpointId,
+        sponsorAddress,
         sponsorWallet,
       );
     });
@@ -118,11 +124,13 @@ describe("ETS Enrich Target tests", () => {
       // Setup Airnode parameters
       const airnode = accounts.RandomOne.address;
       const endpointId = ethers.hexlify(ethers.randomBytes(32));
+      const sponsorAddress = accounts.RandomOne.address;
       const sponsorWallet = accounts.RandomTwo.address;
 
       await contracts.ETSEnrichTarget.connect(accounts.ETSPlatform).setAirnodeRequestParameters(
         airnode,
         endpointId,
+        sponsorAddress,
         sponsorWallet,
       );
 
@@ -159,7 +167,7 @@ describe("ETS Enrich Target tests", () => {
 
       // Check that target was updated
       const target = await contracts.ETSTarget.getTargetById(targetId);
-      expect(target.ipfsHash).to.equal(ipfsHash);
+      expect(target.arweaveTxId).to.equal(ipfsHash);
       expect(target.httpStatus).to.equal(httpStatus);
       expect(target.enriched).to.not.equal(0n);
     });
@@ -170,11 +178,13 @@ describe("ETS Enrich Target tests", () => {
       // Set up Airnode parameters first
       const airnode = accounts.RandomOne.address;
       const endpointId = ethers.hexlify(ethers.randomBytes(32));
+      const sponsorAddress = accounts.RandomOne.address;
       const sponsorWallet = accounts.RandomTwo.address;
 
       await contracts.ETSEnrichTarget.connect(accounts.ETSPlatform).setAirnodeRequestParameters(
         airnode,
         endpointId,
+        sponsorAddress,
         sponsorWallet,
       );
 
@@ -182,7 +192,7 @@ describe("ETS Enrich Target tests", () => {
       const targetBefore = await contracts.ETSTarget.getTargetById(targetId);
       expect(targetBefore.enriched).to.equal(0n);
       expect(targetBefore.httpStatus).to.equal(0n);
-      expect(targetBefore.ipfsHash).to.equal("");
+      expect(targetBefore.arweaveTxId).to.equal("");
 
       // Step 1: Make the enrichment request
       await contracts.ETSEnrichTarget.connect(accounts.RandomOne).requestEnrichTarget(targetId);
@@ -201,7 +211,7 @@ describe("ETS Enrich Target tests", () => {
 
       // Step 3: Verify target was updated
       const targetAfter = await contracts.ETSTarget.getTargetById(targetId);
-      expect(targetAfter.ipfsHash).to.equal(ipfsHash);
+      expect(targetAfter.arweaveTxId).to.equal(ipfsHash);
       expect(targetAfter.httpStatus).to.equal(httpStatus);
       expect(targetAfter.enriched).to.not.equal(0n); // The timestamp will be set to block.timestamp
     });
