@@ -116,8 +116,8 @@ docker run --rm \\
       console.log("\nDeployment info saved to:", path.join(configDir, "deployment-info.json"));
 
       return deploymentInfo;
-    } 
-    
+    }
+
     console.log("\n⚠️ No receipt.json file found. Please run the Docker command above to deploy.");
 
     // Return placeholder info
