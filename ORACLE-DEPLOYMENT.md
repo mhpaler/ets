@@ -229,7 +229,7 @@ MNEMONIC_MAINNET=<mainnet-mnemonic>
 
 - Subgraph Arbitrum Sepolia: https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia-staging/version/latest
 - Subgraph Base Sepolia: https://api.studio.thegraph.com/query/87165/ets-base-sepolia-staging/version/latest
-- Offchain API: (to be created)
+- Offchain API: https://ets-offchain-api.onrender.com
 - Explorer UI: (to be created)
 - Oracle: (configured for contract integration)
   - Airnode Address: 0x62676653F23c313a235e179eb19CbA308A45728c
@@ -1370,3 +1370,33 @@ The Oracle deployment includes monitoring with AWS CloudWatch:
    - Function execution logs
    - API Gateway access logs
    - Error tracking with structured JSON
+
+## Testing the Offchain API
+
+The offchain API is hosted on render.com at the following URL:
+
+```
+https://ets-offchain-api.onrender.com
+```
+
+### Testing the Next Auction Endpoint
+
+Use the following curl commands to test the API:
+
+```bash
+# Get next auction in JSON format (for debugging)
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"chainId": 421614, "returnType": "json"}' \
+  https://ets-offchain-api.onrender.com/api/auction/next
+
+# Get next auction in Airnode format (what the Oracle uses)
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"chainId": 421614}' \
+  https://ets-offchain-api.onrender.com/api/auction/next
+```
+
+The endpoint expects a JSON body with:
+- Required: `chainId` (number) - The blockchain network ID
+- Optional: `returnType` (string) - Set to "json" for a more detailed response or omit for the Airnode-compatible format
