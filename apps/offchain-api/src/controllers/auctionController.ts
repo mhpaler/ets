@@ -3,22 +3,22 @@ import type { NextFunction, Request, Response } from "express";
 import { config } from "../config";
 import { tagService } from "../services/auction/tagService";
 import { AppError } from "../utils/errorHandler";
-import { logger, getEnvironmentLogger } from "../utils/logger";
+import { getEnvironmentLogger, logger } from "../utils/logger";
 
 /**
  * Get the next tag to be auctioned
  */
 export const getNextAuction = async (req: Request, res: Response, next: NextFunction) => {
+  // Determine environment based on staging parameter outside try/catch for error handling
+  const { chainId, returnType = "airnode", staging = false } = req.body;
+  const environment = staging ? "staging" : "production";
+  const envLogger = getEnvironmentLogger(environment);
+  
   try {
-    const { chainId, returnType = "airnode", staging = false } = req.body;
-
     if (!chainId) {
       return next(new AppError("Chain ID is required", 400));
     }
 
-    // Determine environment based on staging parameter
-    const environment = staging ? "staging" : "production";
-    const envLogger = getEnvironmentLogger(environment);
     envLogger.info(`Getting next CTAG for auction on chain ${chainId}`);
 
     // Validate chainId is supported
@@ -27,9 +27,9 @@ export const getNextAuction = async (req: Request, res: Response, next: NextFunc
     }
 
     // Create an AccessControls client using the sdk-core with environment parameter
-    const accessControlsClient = createAccessControlsClient({ 
-      chainId, 
-      environment 
+    const accessControlsClient = createAccessControlsClient({
+      chainId,
+      environment,
     });
 
     if (!accessControlsClient) {
@@ -80,12 +80,12 @@ export const getNextAuction = async (req: Request, res: Response, next: NextFunc
  * Primarily for handling RequestCreateAuction events
  */
 export const handleAuctionWebhook = async (req: Request, res: Response, next: NextFunction) => {
+  // Determine environment based on staging parameter outside try/catch for error handling
+  const { chainId, eventName, staging = false } = req.body;
+  const environment = staging ? "staging" : "production";
+  const envLogger = getEnvironmentLogger(environment);
+  
   try {
-    const { chainId, eventName, staging = false } = req.body;
-    
-    // Determine environment based on staging parameter
-    const environment = staging ? "staging" : "production";
-    const envLogger = getEnvironmentLogger(environment);
     envLogger.info(`Handling auction webhook for event ${eventName} on chain ${chainId}`);
 
     if (eventName === "RequestCreateAuction") {

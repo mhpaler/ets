@@ -2,16 +2,19 @@ import { createTargetClient } from "@ethereum-tag-service/sdk-core";
 import type { NextFunction, Request, Response } from "express";
 import { metadataService } from "../services/target/metadataService";
 import { AppError } from "../utils/errorHandler";
-import { logger, getEnvironmentLogger } from "../utils/logger";
+import { getEnvironmentLogger, logger } from "../utils/logger";
 
 /**
  * Process a target URL and return enrichment data
  * This endpoint supports both JSON and ABI-encoded bytes responses
  */
 export const processTarget = async (req: Request, res: Response, next: NextFunction) => {
+  // Determine environment based on staging parameter outside try/catch for error handling
+  const { chainId, targetId, returnType = "airnode", staging = false } = req.body;
+  const environment = staging ? "staging" : "production";
+  const envLogger = getEnvironmentLogger(environment);
+  
   try {
-    const { chainId, targetId, returnType = "airnode", staging = false } = req.body;
-
     if (!targetId) {
       return next(new AppError("Target ID is required", 400));
     }
@@ -20,9 +23,6 @@ export const processTarget = async (req: Request, res: Response, next: NextFunct
       return next(new AppError("returnType must be either 'airnode' or 'json'", 400));
     }
 
-    // Determine environment based on staging parameter
-    const environment = staging ? "staging" : "production";
-    const envLogger = getEnvironmentLogger(environment);
     envLogger.info(`Processing target ${targetId} on chain ${chainId} with returnType: ${returnType}`);
 
     // Create SDK Core client for Target contract (read-only) with environment parameter
