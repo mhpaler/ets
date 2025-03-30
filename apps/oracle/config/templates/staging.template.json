@@ -27,6 +27,13 @@
           {
             "gasPriceStrategy": "providerRecommendedGasPrice",
             "recommendedGasPriceMultiplier": 1.2
+          },
+          {
+            "gasPriceStrategy": "constantGasPrice",
+            "gasPrice": {
+              "value": 30,
+              "unit": "gwei"
+            }
           }
         ]
       }
@@ -42,8 +49,7 @@
     "httpGateway": {
       "enabled": true,
       "corsOrigins": ["*"],
-      "maxConcurrency": 20,
-      "apiKey": "{{httpGatewayApiKey}}"
+      "maxConcurrency": 20
     },
     "httpSignedDataGateway": {
       "enabled": false

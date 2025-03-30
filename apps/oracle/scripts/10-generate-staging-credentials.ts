@@ -13,8 +13,8 @@ import * as path from "node:path";
 import { deriveAirnodeAddress, deriveAirnodeXpub, generateMnemonic, verifyAirnodeXpub } from "@api3/airnode-admin";
 import * as dotenv from "dotenv";
 
-// Load environment variables
-dotenv.config();
+// Load environment variables from .env.staging
+dotenv.config({ path: path.join(__dirname, "../.env.staging") });
 
 export async function generateStagingCredentials() {
   try {
@@ -25,7 +25,7 @@ export async function generateStagingCredentials() {
     await fs.mkdir(configDir, { recursive: true });
 
     // Check if we should use an existing mnemonic from environment
-    let mnemonic = process.env.MNEMONIC_AIRNODE_STAGING;
+    let mnemonic = process.env.AIRNODE_MNEMONIC;
     let isNewMnemonic = false;
 
     if (!mnemonic) {
@@ -34,14 +34,9 @@ export async function generateStagingCredentials() {
       mnemonic = generateMnemonic();
       isNewMnemonic = true;
 
-      // Save to .env.staging for future use
-      const envPath = path.join(__dirname, "../.env.staging");
-      await fs.writeFile(
-        envPath,
-        `# Generated Staging Airnode mnemonic - keep this secure!\nMNEMONIC_AIRNODE_STAGING="${mnemonic}"\n`,
-        { flag: "a" }, // Append to file if it exists
-      );
-      console.log(`Staging mnemonic saved to ${envPath}`);
+      // Don't need to save to .env.staging since we're already reading from it
+      // Just log that we generated a new mnemonic
+      console.log("Generated new Airnode mnemonic - please store it securely");
     } else {
       console.log("Using staging mnemonic from environment variables");
     }

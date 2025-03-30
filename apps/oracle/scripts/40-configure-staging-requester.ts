@@ -17,8 +17,8 @@ import * as dotenv from "dotenv";
 import { ethers } from "ethers";
 import type { SponsorshipInfo } from "../types/airnode";
 
-// Load environment variables
-dotenv.config();
+// Load environment variables from .env.staging
+dotenv.config({ path: path.join(__dirname, "../.env.staging") });
 
 // ETSEnrichTarget ABI - just the function we need
 const etsEnrichTargetAbi = [
@@ -48,17 +48,17 @@ export async function configureStagingRequester() {
     const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
     console.log(`Connected to Arbitrum Sepolia provider at: ${rpcUrl}`);
 
-    // Get admin private key from environment
-    const privateKey = process.env.ETS_ADMIN_PRIVATE_KEY_STAGING;
+    // Get sponsor private key from environment
+    const privateKey = process.env.SPONSOR_PK;
     if (!privateKey) {
       throw new Error(
-        "ETS_ADMIN_PRIVATE_KEY_STAGING environment variable is not set. " +
+        "SPONSOR_PK environment variable is not set. " +
           "This is required for configuring the staging requester contract.",
       );
     }
 
     const wallet = new ethers.Wallet(privateKey, provider);
-    console.log(`Using admin wallet: ${wallet.address}`);
+    console.log(`Using sponsor wallet: ${wallet.address}`);
 
     // Create ETSEnrichTarget contract instance for staging
     const etsEnrichTarget = new ethers.Contract(sponsorshipInfo.requesterAddress, etsEnrichTargetAbi, wallet);

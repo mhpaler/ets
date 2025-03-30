@@ -1,15 +1,15 @@
 /**
- * Remove Staging Oracle from AWS
+ * Remove Staging Airnode from AWS
  *
- * This script removes the Airnode deployment from AWS:
- * 1. Finds the latest deployment receipt
- * 2. Uses the airnode-deployer to remove the deployment
- * 3. Updates the deployment-info.json to reflect removal
+ * This script handles the removal of the Airnode from AWS for the staging environment:
+ * 1. Checks for AWS credentials
+ * 2. Uses the Airnode deployer Docker container to remove the deployment
+ * 3. Cleans up deployment files and updates status
  *
- * Use this script when you need to:
- * - Redeploy a new version of the oracle
- * - Clean up resources to avoid AWS charges
- * - Troubleshoot deployment issues
+ * Prerequisites:
+ * - AWS credentials must be configured
+ * - Receipt file must exist from a previous deployment
+ * - Docker must be installed and running
  */
 
 import { exec as execCallback } from "node:child_process";
@@ -21,12 +21,12 @@ import * as dotenv from "dotenv";
 // Convert exec to promise-based version
 const exec = util.promisify(execCallback);
 
-// Load environment variables
-dotenv.config();
+// Load environment variables from .env.staging
+dotenv.config({ path: path.join(__dirname, "../.env.staging") });
 
-async function removeOracle() {
+export async function removeStagingOracle() {
   try {
-    console.log("Removing Staging Oracle from AWS...");
+    console.log("Preparing to remove Staging Airnode from AWS...");
 
     // Check for AWS credentials
     if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
@@ -35,80 +35,105 @@ async function removeOracle() {
       throw new Error("AWS credentials not found");
     }
 
+    // Check if Docker is installed
+    try {
+      await exec("docker --version");
+      console.log("Docker is available");
+    } catch (_error) {
+      throw new Error("Docker is required for Airnode removal but not available. Please install Docker and try again.");
+    }
+
     const configDir = path.join(__dirname, "../config/staging");
-    const receiptDir = path.join(configDir, "receipts");
 
-    // Check if the receipts directory exists
-    try {
-      await fs.access(receiptDir);
-    } catch (_error) {
-      console.error(`Receipts directory not found at ${receiptDir}`);
-      throw new Error("Oracle may not be deployed yet");
+    // Check if receipt.json exists
+    const hasReceipt = await fs
+      .access(path.join(configDir, "receipt.json"))
+      .then(() => true)
+      .catch(() => false);
+
+    if (!hasReceipt) {
+      console.log("⚠️ No receipt.json file found in the staging directory.");
+      console.log("This may indicate that either:");
+      console.log("1. The Airnode was never successfully deployed");
+      console.log("2. The deployment was done manually and the receipt file is elsewhere");
+      console.log("3. The receipt file was accidentally deleted");
+
+      // Look in receipts directory as fallback
+      const receiptDir = path.join(configDir, "receipts");
+      try {
+        const files = await fs.readdir(receiptDir);
+        const receiptFiles = files.filter((file) => file.startsWith("receipt-"));
+
+        if (receiptFiles.length > 0) {
+          // Sort by timestamp descending
+          receiptFiles.sort((a, b) => {
+            const aTime = Number.parseInt(a.replace("receipt-", "").replace(".json", ""));
+            const bTime = Number.parseInt(b.replace("receipt-", "").replace(".json", ""));
+            return bTime - aTime;
+          });
+
+          const latestReceiptFile = path.join(receiptDir, receiptFiles[0]);
+          console.log(`Found a receipt file in the receipts directory: ${latestReceiptFile}`);
+          console.log("Copying to the main directory as receipt.json...");
+          await fs.copyFile(latestReceiptFile, path.join(configDir, "receipt.json"));
+          console.log("Receipt file copied successfully.");
+        } else {
+          console.log("No receipt files found in the receipts directory either.");
+        }
+      } catch (error) {
+        console.log("No receipts directory or error accessing it:", error);
+      }
     }
 
-    // Find the most recent receipt file
-    const files = await fs.readdir(receiptDir);
-    const receiptFiles = files.filter((file) => file.startsWith("receipt-")).sort();
+    // Create aws.env file as required by the Docker-based deployer
+    const awsEnvContent = `AWS_ACCESS_KEY_ID=${process.env.AWS_ACCESS_KEY_ID}
+AWS_SECRET_ACCESS_KEY=${process.env.AWS_SECRET_ACCESS_KEY}`;
+    const awsEnvPath = path.join(configDir, "aws.env");
+    await fs.writeFile(awsEnvPath, awsEnvContent);
+    console.log("Created aws.env file for removal");
 
-    if (receiptFiles.length === 0) {
-      throw new Error("No deployment receipt found");
-    }
+    // Get current user ID and group ID for Docker volume permissions
+    const { stdout: idOutput } = await exec("id -u && id -g");
+    const [userId, groupId] = idOutput.trim().split("\n");
 
-    const latestReceiptFile = receiptFiles[receiptFiles.length - 1];
-    const latestReceiptPath = path.join(receiptDir, latestReceiptFile);
+    console.log("\n⚠️ Due to Terraform state file issues, we need to remove using Docker directly.");
+    console.log("All configuration files have been prepared. Please run the following command manually:");
+    console.log("\n============== COPY AND RUN THIS COMMAND ==============");
+    console.log(`cd "${configDir}" && \\
+docker run --rm --platform linux/amd64 \\
+  -e USER_ID=${userId} -e GROUP_ID=${groupId} \\
+  -v "$(pwd):/app/config" \\
+  api3/airnode-deployer:latest remove`);
+    console.log("=======================================================");
 
-    console.log(`Using latest receipt file: ${latestReceiptFile}`);
+    console.log("\nAfter running this command, the Airnode should be removed from AWS.");
+    console.log("Check the output of the command for any errors or warnings.");
 
-    // Check if the airnode deployer is available
-    try {
-      await exec("npx @api3/airnode-deployer --version");
-      console.log("Airnode deployer is available");
-    } catch (_error) {
-      console.log("Installing Airnode deployer...");
-      await exec("npm install -g @api3/airnode-deployer");
-    }
+    // Create a removal-info.json file with manual removal details
+    const removalInfo = {
+      removalMethod: "manual",
+      removalInstructionsTimestamp: new Date().toISOString(),
+      environment: "staging",
+      status: "pending_manual_removal",
+    };
 
-    // Remove the deployment
-    console.log(`Removing deployment from AWS using receipt: ${latestReceiptPath}`);
-    const removeCommand = `npx @api3/airnode-deployer remove --receipt ${latestReceiptPath}`;
+    await fs.writeFile(path.join(configDir, "removal-info.json"), JSON.stringify(removalInfo, null, 2));
 
-    const { stdout, stderr } = await exec(removeCommand);
-
-    if (stderr) {
-      console.warn("Removal warnings:", stderr);
-    }
-
-    console.log("Removal output:", stdout);
-    console.log("\n✅ Oracle removal completed successfully!");
-
-    // Update deployment-info to reflect removed status
-    const deploymentInfoPath = path.join(configDir, "deployment-info.json");
-    try {
-      const deploymentInfo = JSON.parse(await fs.readFile(deploymentInfoPath, "utf8"));
-      deploymentInfo.status = "removed";
-      deploymentInfo.removalTimestamp = new Date().toISOString();
-      await fs.writeFile(deploymentInfoPath, JSON.stringify(deploymentInfo, null, 2));
-      console.log("Updated deployment info to reflect removal");
-    } catch (error) {
-      console.warn("Could not update deployment info file:", error);
-    }
-
+    console.log("\nRemoval instructions have been provided.");
+    console.log("Removal info saved to:", path.join(configDir, "removal-info.json"));
     return true;
   } catch (error) {
-    console.error("Error removing Oracle:", error);
+    console.error("Error preparing Airnode removal:", error);
     throw error;
   }
 }
 
 // For command-line usage
 if (require.main === module) {
-  removeOracle()
-    .then(() => {
-      console.log("Oracle removal completed successfully");
-      process.exit(0);
-    })
+  removeStagingOracle()
+    .then(() => console.log("Airnode AWS removal completed"))
     .catch((error) => {
-      console.error("Error in Oracle removal:", error);
+      console.error("Error in Airnode AWS removal:", error);
       process.exit(1);
     });
 }

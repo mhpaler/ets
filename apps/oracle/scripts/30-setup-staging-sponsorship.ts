@@ -19,8 +19,8 @@ import * as dotenv from "dotenv";
 import { ethers } from "ethers";
 import type { AirnodeCredentials, SponsorshipInfo } from "../types/airnode";
 
-// Load environment variables
-dotenv.config();
+// Load environment variables from .env.staging
+dotenv.config({ path: path.join(__dirname, "../.env.staging") });
 
 export async function setupStagingSponsorship() {
   try {
@@ -61,12 +61,10 @@ export async function setupStagingSponsorship() {
     const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
     console.log(`Connected to Arbitrum Sepolia provider at: ${rpcUrl}`);
 
-    // Get admin private key from environment
-    const privateKey = process.env.ETS_ADMIN_PRIVATE_KEY_STAGING;
+    // Get sponsor private key from environment
+    const privateKey = process.env.SPONSOR_PK;
     if (!privateKey) {
-      throw new Error(
-        "ETS_ADMIN_PRIVATE_KEY_STAGING environment variable is not set. " + "This is required for the sponsor wallet.",
-      );
+      throw new Error("SPONSOR_PK environment variable is not set. " + "This is required for the sponsor wallet.");
     }
 
     const wallet = new ethers.Wallet(privateKey, provider);
@@ -127,12 +125,12 @@ export async function setupStagingSponsorship() {
     if (balance.lt(fundAmount)) {
       console.log(`Funding sponsor wallet with ${ethers.utils.formatEther(fundAmount)} ETH...`);
 
-      // Check if the admin wallet has enough funds
-      const adminBalance = await wallet.getBalance();
-      if (adminBalance.lt(fundAmount.add(ethers.utils.parseEther("0.01")))) {
+      // Check if the sponsor wallet has enough funds
+      const sponsorBalance = await wallet.getBalance();
+      if (sponsorBalance.lt(fundAmount.add(ethers.utils.parseEther("0.01")))) {
         throw new Error(
-          `Admin wallet has insufficient funds: ${ethers.utils.formatEther(adminBalance)} ETH. ` +
-            `Please ensure the admin wallet has at least ${ethers.utils.formatEther(fundAmount.add(ethers.utils.parseEther("0.01")))} ETH.`,
+          `Sponsor wallet has insufficient funds: ${ethers.utils.formatEther(sponsorBalance)} ETH. ` +
+            `Please ensure the sponsor wallet has at least ${ethers.utils.formatEther(fundAmount.add(ethers.utils.parseEther("0.01")))} ETH.`,
         );
       }
 

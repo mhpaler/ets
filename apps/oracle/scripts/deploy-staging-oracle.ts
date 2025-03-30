@@ -18,15 +18,68 @@
  * - Staging API must be deployed and accessible
  */
 
+import { promises as fs } from "node:fs";
+import * as path from "node:path";
+import * as dotenv from "dotenv";
+
+// Load environment variables from .env.staging
+dotenv.config({ path: path.join(__dirname, "../.env.staging") });
+
 import { generateStagingCredentials } from "./10-generate-staging-credentials";
 import { generateStagingConfig } from "./20-generate-staging-config";
 import { setupStagingSponsorship } from "./30-setup-staging-sponsorship";
 import { configureStagingRequester } from "./40-configure-staging-requester";
 import { deployStagingAirnode } from "./50-deploy-staging-airnode";
 
+async function cleanupPreviousDeployment() {
+  console.log("Cleaning up any previous deployment artifacts...");
+  try {
+    const configDir = path.join(__dirname, "../config/staging");
+
+    // Check if there's any receipt.json file in the config directory
+    const hasReceipt = await fs
+      .access(path.join(configDir, "receipt.json"))
+      .then(() => true)
+      .catch(() => false);
+
+    if (hasReceipt) {
+      console.log("Found existing receipt.json, removing it...");
+      await fs.unlink(path.join(configDir, "receipt.json"));
+    }
+
+    // Check for Terraform state files
+    const hasTfState = await fs
+      .access(path.join(configDir, "default.tfstate"))
+      .then(() => true)
+      .catch(() => false);
+
+    if (hasTfState) {
+      console.log("Found existing Terraform state file, removing it...");
+      await fs.unlink(path.join(configDir, "default.tfstate"));
+    }
+
+    // Check for any other terraform files
+    const files = await fs.readdir(configDir);
+    for (const file of files) {
+      if (file.startsWith("terraform.") || file.endsWith(".tfstate") || file.endsWith(".tfstate.backup")) {
+        console.log(`Removing Terraform file: ${file}`);
+        await fs.unlink(path.join(configDir, file));
+      }
+    }
+
+    console.log("Cleanup completed successfully");
+  } catch (error) {
+    console.warn("Warning during cleanup:", error);
+    // Continue with deployment even if cleanup had issues
+  }
+}
+
 export async function deployStagingOracle() {
   try {
     console.log("=== ETS Staging Oracle Deployment ===");
+
+    // Clean up any previous deployment artifacts first
+    await cleanupPreviousDeployment();
 
     console.log("\nStep 1/5: Generating Airnode credentials for staging...");
     const credentials = await generateStagingCredentials();

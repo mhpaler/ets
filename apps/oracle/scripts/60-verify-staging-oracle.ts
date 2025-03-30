@@ -13,8 +13,8 @@ import * as path from "node:path";
 import * as dotenv from "dotenv";
 import { ethers } from "ethers";
 
-// Load environment variables
-dotenv.config();
+// Load environment variables from .env.staging
+dotenv.config({ path: path.join(__dirname, "../.env.staging") });
 
 // ETSEnrichTarget ABI - just what we need
 const etsEnrichTargetAbi = [
@@ -155,10 +155,10 @@ async function verifyOracleHealth() {
 
     // Make a test request if requested
     if (process.env.MAKE_TEST_REQUEST === "true") {
-      // Get admin private key
-      const privateKey = process.env.ETS_ADMIN_PRIVATE_KEY_STAGING;
+      // Get sponsor private key
+      const privateKey = process.env.SPONSOR_PK;
       if (!privateKey) {
-        console.warn("ETS_ADMIN_PRIVATE_KEY_STAGING not set. Skipping test request.");
+        console.warn("SPONSOR_PK not set. Skipping test request.");
       } else {
         const wallet = new ethers.Wallet(privateKey, provider);
         await makeTestRequest(etsEnrichTarget, wallet);

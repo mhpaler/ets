@@ -18,8 +18,8 @@ import * as dotenv from "dotenv";
 import Handlebars from "handlebars";
 import type { AirnodeCredentials } from "../types/airnode";
 
-// Load environment variables
-dotenv.config();
+// Load environment variables from .env.staging
+dotenv.config({ path: path.join(__dirname, "../.env.staging") });
 
 export async function generateStagingConfig() {
   try {
@@ -126,12 +126,9 @@ export async function generateStagingConfig() {
     await fs.writeFile(configPath, configData);
 
     // Create secrets.env file with the required environment variables
+    // Only include what's needed according to Airnode docs
     const secretsContent = `
-AIRNODE_WALLET_MNEMONIC=${process.env.AIRNODE_STAGING_MNEMONIC || credentials.mnemonic}
-HTTP_GATEWAY_API_KEY=${process.env.HTTP_GATEWAY_API_KEY || generateRandomApiKey()}
-HEARTBEAT_API_KEY=${process.env.HEARTBEAT_API_KEY || generateRandomApiKey()}
-AWS_ACCESS_KEY_ID=${process.env.AWS_ACCESS_KEY_ID || ""}
-AWS_SECRET_ACCESS_KEY=${process.env.AWS_SECRET_ACCESS_KEY || ""}
+AIRNODE_WALLET_MNEMONIC=${process.env.AIRNODE_MNEMONIC || ""}
     `.trim();
 
     const secretsPath = path.join(configDir, "secrets.env");
@@ -147,8 +144,9 @@ AWS_SECRET_ACCESS_KEY=${process.env.AWS_SECRET_ACCESS_KEY || ""}
 }
 
 // Helper function to generate random API keys
-function generateRandomApiKey() {
-  return `${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`;
+/* function generateRandomApiKey() {
+  // Generate a longer key (at least 30 characters)
+  return `${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`;
 }
 
 // For command-line usage
@@ -159,4 +157,4 @@ if (require.main === module) {
       console.error("Error in Staging Airnode config generation:", error);
       process.exit(1);
     });
-}
+} */
