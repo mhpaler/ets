@@ -24,6 +24,7 @@ class HtmlMetadataExtractor implements MetadataExtractor {
         openGraph: result.open_graph || {},
         twitter: result.twitter_card || {},
         extractedAt: new Date().toISOString(),
+        schemaVersion: "1.0",
       };
     } catch (error) {
       logger.error(
@@ -39,6 +40,7 @@ class HtmlMetadataExtractor implements MetadataExtractor {
         contentType: "text/html",
         error: error instanceof Error ? error.message : "Unknown error",
         extractedAt: new Date().toISOString(),
+        schemaVersion: "1.0",
       };
     }
   }
@@ -58,6 +60,7 @@ class ImageMetadataExtractor implements MetadataExtractor {
         title: this.extractFilenameFromUrl(url),
         isImage: true,
         extractedAt: new Date().toISOString(),
+        schemaVersion: "1.0",
       };
     } catch (error) {
       logger.error(
@@ -73,6 +76,7 @@ class ImageMetadataExtractor implements MetadataExtractor {
         contentType: "image",
         error: error instanceof Error ? error.message : "Unknown error",
         extractedAt: new Date().toISOString(),
+        schemaVersion: "1.0",
       };
     }
   }
@@ -99,6 +103,7 @@ class GenericMetadataExtractor implements MetadataExtractor {
       contentType: "unknown",
       title: url,
       extractedAt: new Date().toISOString(),
+      schemaVersion: "1.0",
     };
   }
 }
@@ -177,6 +182,7 @@ export class MetadataService {
         url,
         error: error instanceof Error ? error.message : "Unknown error",
         extractedAt: new Date().toISOString(),
+        schemaVersion: "1.0",
       };
     }
   }
