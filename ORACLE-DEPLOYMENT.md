@@ -70,6 +70,11 @@ We've made significant progress on environment separation:
   - [x] Update scripts to handle Docker container deployment
   - [x] Create separate aws.env file for Docker deployment
 - [ ] Test oracle integration with staging contracts
+- [ ] Update offchain API to be environment-aware
+  - [ ] Add optional `staging` boolean parameter to all endpoints
+  - [ ] Modify controllers to use environment-specific SDK clients
+  - [ ] Update subgraph queries to use environment-specific endpoints
+  - [ ] Add environment-specific configuration settings
 
 ### 3. Subgraph Environment Separation
 
@@ -1379,24 +1384,72 @@ The offchain API is hosted on render.com at the following URL:
 https://ets-offchain-api.onrender.com
 ```
 
-### Testing the Next Auction Endpoint
+### Offchain API Environment Awareness Plan
 
-Use the following curl commands to test the API:
+To support our environment separation strategy, the offchain API needs to be updated to be environment-aware. This will allow the API to return data from either the staging or production environments based on a request parameter.
+
+#### Implementation Plan
+
+1. **Add Environment Parameter**:
+   - Add an optional `staging` boolean parameter to all API endpoints
+   - Default value is `false` (production environment)
+   - When `staging=true`, the API will query staging contracts and subgraphs
+
+2. **Environment-Aware SDK Usage**:
+   - Modify API controllers to pass the environment parameter to SDK clients
+   - Update SDK client creation to include the appropriate environment:
+   ```typescript
+   const environment = req.body.staging ? "staging" : "production";
+   const client = createEtsClient({ 
+     chainId, 
+     account,
+     environment 
+   });
+   ```
+
+3. **Subgraph Query Updates**:
+   - Update subgraph query functions to use environment-specific endpoints
+   - Create environment-specific fetch utilities
+
+4. **Configuration Updates**:
+   - Add staging environment URLs to the API configuration
+   - Create environment-specific logger contexts for better debugging
+
+5. **Deployment Updates**:
+   - Update deployment scripts to include environment variables for both environments
+   - Ensure the same API instance can serve both environments
+
+#### Testing Strategy
+
+After implementation, the API can be tested with these commands:
 
 ```bash
-# Get next auction in JSON format (for debugging)
+# Get next auction from production environment (default)
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"chainId": 421614, "returnType": "json"}' \
   https://ets-offchain-api.onrender.com/api/auction/next
 
-# Get next auction in Airnode format (what the Oracle uses)
+# Get next auction from staging environment
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"chainId": 421614, "returnType": "json", "staging": true}' \
+  https://ets-offchain-api.onrender.com/api/auction/next
+
+# Get next auction in Airnode format from production
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"chainId": 421614}' \
+  https://ets-offchain-api.onrender.com/api/auction/next
+
+# Get next auction in Airnode format from staging
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"chainId": 421614, "staging": true}' \
   https://ets-offchain-api.onrender.com/api/auction/next
 ```
 
 The endpoint expects a JSON body with:
 - Required: `chainId` (number) - The blockchain network ID
 - Optional: `returnType` (string) - Set to "json" for a more detailed response or omit for the Airnode-compatible format
+- Optional: `staging` (boolean) - Set to `true` to query staging environment, defaults to `false` for production
