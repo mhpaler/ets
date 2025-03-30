@@ -19,6 +19,7 @@ export const mockHtmlMetadata: HtmlMetadata = {
     image: "https://example.com/image.jpg",
   },
   extractedAt: new Date().toISOString(),
+  schemaVersion: "1.0",
 };
 
 export const mockImageMetadata: ImageMetadata = {
@@ -32,6 +33,7 @@ export const mockImageMetadata: ImageMetadata = {
   },
   fileSize: 102400, // 100 KB
   extractedAt: new Date().toISOString(),
+  schemaVersion: "1.0",
 };
 
 export const mockPdfMetadata: GenericMetadata = {
@@ -39,6 +41,7 @@ export const mockPdfMetadata: GenericMetadata = {
   contentType: "application/pdf",
   title: "Example PDF Document",
   extractedAt: new Date().toISOString(),
+  schemaVersion: "1.0",
 };
 
 export const mockErrorMetadata: HtmlMetadata = {
@@ -46,6 +49,7 @@ export const mockErrorMetadata: HtmlMetadata = {
   contentType: "text/html",
   error: "Failed to fetch content: 404 Not Found",
   extractedAt: new Date().toISOString(),
+  schemaVersion: "1.0",
 };
 
 // Helper function to get mock metadata by content type
@@ -64,5 +68,6 @@ export function getMockMetadataForContentType(contentType: string): any {
     ...mockPdfMetadata,
     contentType,
     title: `Mock ${contentType} file`,
+    schemaVersion: "1.0",
   };
 }
