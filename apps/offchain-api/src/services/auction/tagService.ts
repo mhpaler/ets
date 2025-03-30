@@ -26,13 +26,24 @@ export class TagService {
       const endpoint = getSubgraphEndpoint(chainId, environment as any);
       logger.info(`Using subgraph endpoint for chainId ${chainId} (environment: ${environment}): ${endpoint}`);
       logger.info("Platform address:", platformAddress);
+      logger.info("Platform address value check:", { 
+        value: platformAddress, 
+        type: typeof platformAddress, 
+        length: platformAddress?.length, 
+        isEmpty: !platformAddress 
+      });
 
+      // Process the platform address
+      const normalizedAddress = platformAddress ? platformAddress.toLowerCase() : "";
+      logger.info("Normalized address for query:", normalizedAddress);
+      
+      // Construct GraphQL query
       const query: string = `
         query {
           tags(
             orderBy: tagAppliedInTaggingRecord,
             orderDirection: desc,
-            where: { owner_: { id: "${platformAddress.toLowerCase()}" } }
+            where: { owner_: { id: "${normalizedAddress}" } }
           ) {
             id
             display
