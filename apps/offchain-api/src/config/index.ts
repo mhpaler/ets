@@ -54,4 +54,22 @@ export const config = {
     baseSepolia: process.env.BASE_SEPOLIA_RPC_URL,
     arbitrumSepolia: process.env.ARBITRUM_SEPOLIA_RPC_URL,
   },
+  
+  // Environment-specific configurations
+  environments: {
+    // Production settings
+    production: {
+      subgraphEndpoints: {
+        arbitrumSepolia: "https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia/version/latest",
+        baseSepolia: "https://api.studio.thegraph.com/query/87165/ets-base-sepolia/version/latest",
+      },
+    },
+    // Staging settings
+    staging: {
+      subgraphEndpoints: {
+        arbitrumSepolia: "https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia-staging/version/latest",
+        baseSepolia: "https://api.studio.thegraph.com/query/87165/ets-base-sepolia-staging/version/latest",
+      },
+    },
+  },
 };

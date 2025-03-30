@@ -21,10 +21,10 @@ export class TagService {
   /**
    * Fetch tags from the subgraph that are owned by the platform address
    */
-  private async fetchTags(platformAddress: string, chainId: number): Promise<Tag[]> {
+  private async fetchTags(platformAddress: string, chainId: number, environment: string = "production"): Promise<Tag[]> {
     try {
-      const endpoint = getSubgraphEndpoint(chainId);
-      logger.info(`Using subgraph endpoint for chainId ${chainId}: ${endpoint}`);
+      const endpoint = getSubgraphEndpoint(chainId, environment as any);
+      logger.info(`Using subgraph endpoint for chainId ${chainId} (environment: ${environment}): ${endpoint}`);
       logger.info("Platform address:", platformAddress);
 
       const query: string = `
@@ -104,15 +104,17 @@ export class TagService {
    * Find the next CTAG that should be auctioned
    * @param platformAddress The platform address that owns the tags
    * @param chainId The chain ID to query
+   * @param environment The environment (production, staging, localhost)
    * @returns The tag ID of the next tag to auction, or null if no eligible tags are found
    */
   public async findNextCTAG(
     platformAddress: string,
     chainId: number,
+    environment: string = "production"
   ): Promise<{ tagId: string; tagDisplay: string } | null> {
-    logger.info(`Finding next CTAG for platform address ${platformAddress} on chain ${chainId}`);
+    logger.info(`Finding next CTAG for platform address ${platformAddress} on chain ${chainId} (environment: ${environment})`);
     try {
-      const tags = await this.fetchTags(platformAddress, chainId);
+      const tags = await this.fetchTags(platformAddress, chainId, environment);
       const eligibleTags = this.filterEligibleTags(tags);
 
       if (eligibleTags.length === 0) {
