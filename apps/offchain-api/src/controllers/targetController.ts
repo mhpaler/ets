@@ -13,7 +13,7 @@ export const processTarget = async (req: Request, res: Response, next: NextFunct
   const { chainId, targetId, returnType = "airnode", staging = false } = req.body;
   const environment = staging ? "staging" : "production";
   const envLogger = getEnvironmentLogger(environment);
-  
+
   try {
     if (!targetId) {
       return next(new AppError("Target ID is required", 400));

@@ -13,7 +13,7 @@ export const getNextAuction = async (req: Request, res: Response, next: NextFunc
   const { chainId, returnType = "airnode", staging = false } = req.body;
   const environment = staging ? "staging" : "production";
   const envLogger = getEnvironmentLogger(environment);
-  
+
   try {
     if (!chainId) {
       return next(new AppError("Chain ID is required", 400));
@@ -26,6 +26,32 @@ export const getNextAuction = async (req: Request, res: Response, next: NextFunc
       return next(new AppError(`Chain ID ${chainId} is not supported`, 400));
     }
 
+    // Log contract address information for both environments
+    try {
+      // Create clients for both environments to log addresses
+      const prodClient = createAccessControlsClient({
+        chainId,
+        environment: "production",
+      });
+      
+      const stagingClient = createAccessControlsClient({
+        chainId,
+        environment: "staging",
+      });
+      
+      // Get contract addresses from clients
+      const prodAddress = prodClient ? await prodClient.getAddress() : "N/A";
+      const stagingAddress = stagingClient ? await stagingClient.getAddress() : "N/A";
+      
+      envLogger.info(`AccessControls contract addresses for chain ${chainId}:`, {
+        production: prodAddress,
+        staging: stagingAddress,
+        requestedEnvironment: environment
+      });
+    } catch (error) {
+      envLogger.warn("Failed to log contract addresses:", error);
+    }
+    
     // Create an AccessControls client using the sdk-core with environment parameter
     const accessControlsClient = createAccessControlsClient({
       chainId,
@@ -37,8 +63,37 @@ export const getNextAuction = async (req: Request, res: Response, next: NextFunc
     }
 
     // Get the platform address using the client
-    const platformAddress = await accessControlsClient.getPlatformAddress();
-    envLogger.info(`Platform address for chain ${chainId}: ${platformAddress}`);
+    let platformAddress = await accessControlsClient.getPlatformAddress();
+    envLogger.info(`Platform address for chain ${chainId}: "${platformAddress}"`);
+    
+    // Additional debug for platform address
+    envLogger.info(`Platform address type: ${typeof platformAddress}, length: ${platformAddress?.length}, empty check: ${!platformAddress}`);
+    
+    // Validate platform address - this is critical for the query
+    if (!platformAddress) {
+      envLogger.warn(`No platform address found for chain ${chainId} in ${environment} environment`);
+      return next(new AppError(`Platform address not found for chain ${chainId} in ${environment} environment`, 500));
+    }
+    
+    // Ensure platform address is properly formatted
+    if (typeof platformAddress === 'string') {
+      // Normalize to lowercase
+      platformAddress = platformAddress.toLowerCase();
+      
+      // Check for 0x prefix
+      if (!platformAddress.startsWith('0x')) {
+        platformAddress = `0x${platformAddress}`;
+        envLogger.info(`Fixed platform address format: "${platformAddress}"`);
+      }
+      
+      // Validate address length (should be 42 characters for standard Ethereum address)
+      if (platformAddress.length !== 42) {
+        envLogger.warn(`Platform address has unusual length: ${platformAddress.length} chars`);
+      }
+    } else {
+      envLogger.error(`Platform address is not a string: ${typeof platformAddress}`);
+      return next(new AppError(`Invalid platform address format for chain ${chainId}`, 500));
+    }
 
     // Find the next tag to auction using the TagService
     const nextTag = await tagService.findNextCTAG(platformAddress, chainId, environment);
@@ -84,7 +139,7 @@ export const handleAuctionWebhook = async (req: Request, res: Response, next: Ne
   const { chainId, eventName, staging = false } = req.body;
   const environment = staging ? "staging" : "production";
   const envLogger = getEnvironmentLogger(environment);
-  
+
   try {
     envLogger.info(`Handling auction webhook for event ${eventName} on chain ${chainId}`);
 

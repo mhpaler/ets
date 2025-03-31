@@ -8,6 +8,14 @@ export class AccessControlsClient {
   private readonly address: Hex;
   private readonly abi: any;
 
+  /**
+   * Get the contract address
+   * @returns The contract address
+   */
+  getAddress(): Hex {
+    return this.address;
+  }
+
   constructor({ publicClient, chainId }: { publicClient: PublicClient; chainId?: number }) {
     if (!publicClient) {
       throw new Error("[@ethereum-tag-service/sdk-core] Public client is required for AccessControlsClient");
