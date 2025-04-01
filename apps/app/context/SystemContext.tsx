@@ -4,6 +4,7 @@ import { globalSettings } from "@app/config/globalSettings";
  */
 import { wagmiConfig } from "@app/config/wagmiConfig";
 import type { System } from "@app/types/system";
+import type { Environment } from "@ethereum-tag-service/sdk-core";
 import { useAccessControlsClient, useTokenClient } from "@ethereum-tag-service/sdk-react-hooks";
 import type React from "react";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
@@ -37,12 +38,31 @@ export const SystemProvider: React.FC<Props> = ({ children }: { children: React.
     }
   }, [chain]);
 
+  // Get current environment from the URL
+  const getEnvironment = useCallback((): Environment => {
+    if (typeof window !== "undefined") {
+      const hostname = window.location.hostname;
+      if (hostname.includes("stage.app.ets.xyz") || hostname.includes("vercel.app")) {
+        return "staging";
+      }
+      if (hostname === "localhost" || hostname.endsWith(".localhost")) {
+        const subdomain = hostname.split(".")[0].toLowerCase();
+        if (subdomain === "arbitrumsepolia" || subdomain === "basesepolia") {
+          return "staging";
+        }
+        return "localhost";
+      }
+    }
+    return "production";
+  }, []);
+
   const clientConfig = useMemo(
     () => ({
       chainId: chain?.id,
       account: address,
+      environment: getEnvironment(),
     }),
-    [chain?.id, address],
+    [chain?.id, address, getEnvironment],
   );
 
   const { accessControlsClient } = useAccessControlsClient(clientConfig);
@@ -78,8 +98,26 @@ export const SystemProvider: React.FC<Props> = ({ children }: { children: React.
       if (tokenClient && accessControlsClient) {
         const termLength = await getOwnershipTermLength();
         setOwnershipTermLength(Number(termLength));
+
+        // Fetch platform address from the accessControlsClient instead of hardcoded value
+        try {
+          const platformAddr = await accessControlsClient.getPlatformAddress();
+          if (platformAddr) {
+            console.info("Got platform address from AccessControlsClient:", platformAddr);
+            setPlatformAddress(platformAddr.toLowerCase());
+          } else {
+            console.warn("AccessControlsClient returned empty platform address, falling back to hardcoded value");
+            setPlatformAddress(globalSettings.PLATFORM_ADDRESS);
+          }
+        } catch (addrError) {
+          console.error("Failed to get platform address from AccessControlsClient:", addrError);
+          setPlatformAddress(globalSettings.PLATFORM_ADDRESS);
+        }
+      } else {
+        // Fall back to hardcoded value if clients aren't available
+        console.info("Using fallback platform address from globalSettings");
+        setPlatformAddress(globalSettings.PLATFORM_ADDRESS);
       }
-      setPlatformAddress(globalSettings.PLATFORM_ADDRESS);
     } catch (error) {
       console.error("System: Failed to initialize system data:", error);
     }
