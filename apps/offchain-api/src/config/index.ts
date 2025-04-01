@@ -24,9 +24,16 @@ export const isChainSupported = (chainId: number): boolean => {
   return availableChainIds.includes(chainId.toString() as SupportedChainId);
 };
 
+// Determine the environment
+const nodeEnv = process.env.NODE_ENV || "development";
+const etsEnv = process.env.ETS_ENVIRONMENT || (nodeEnv === "production" ? "production" : "staging");
+
+console.info("Environment config:", { nodeEnv, etsEnv });
+
 export const config = {
   port: process.env.PORT || 4000,
-  environment: process.env.NODE_ENV || "development",
+  environment: nodeEnv,
+  etsEnvironment: etsEnv,
 
   // Chain configuration
   chains: {
@@ -53,5 +60,23 @@ export const config = {
   rpcUrls: {
     baseSepolia: process.env.BASE_SEPOLIA_RPC_URL,
     arbitrumSepolia: process.env.ARBITRUM_SEPOLIA_RPC_URL,
+  },
+
+  // Environment-specific configurations
+  environments: {
+    // Production settings
+    production: {
+      subgraphEndpoints: {
+        arbitrumSepolia: "https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia/version/latest",
+        baseSepolia: "https://api.studio.thegraph.com/query/87165/ets-base-sepolia/version/latest",
+      },
+    },
+    // Staging settings
+    staging: {
+      subgraphEndpoints: {
+        arbitrumSepolia: "https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia-staging/version/latest",
+        baseSepolia: "https://api.studio.thegraph.com/query/87165/ets-base-sepolia-staging/version/latest",
+      },
+    },
   },
 };

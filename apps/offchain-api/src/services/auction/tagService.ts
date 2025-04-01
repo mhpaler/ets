@@ -21,18 +21,54 @@ export class TagService {
   /**
    * Fetch tags from the subgraph that are owned by the platform address
    */
-  private async fetchTags(platformAddress: string, chainId: number): Promise<Tag[]> {
+  private async fetchTags(platformAddress: string, chainId: number, environment = "production"): Promise<Tag[]> {
     try {
-      const endpoint = getSubgraphEndpoint(chainId);
-      logger.info(`Using subgraph endpoint for chainId ${chainId}: ${endpoint}`);
-      logger.info("Platform address:", platformAddress);
+      const endpoint = getSubgraphEndpoint(chainId, environment as any);
+      logger.info(`Using subgraph endpoint for chainId ${chainId} (environment: ${environment}): ${endpoint}`);
+      logger.info(`Platform address: "${platformAddress}" (${environment})`);
+      logger.info(
+        "Platform address value check:",
+        JSON.stringify({
+          value: platformAddress,
+          type: typeof platformAddress,
+          length: platformAddress?.length,
+          isEmpty: !platformAddress,
+        }),
+      );
 
+      // Process the platform address
+      const normalizedAddress = platformAddress ? platformAddress.toLowerCase() : "";
+      logger.info(`Normalized address for query: "${normalizedAddress}"`);
+
+      // Compare with platform address from other environment (for debugging)
+      try {
+        const otherEnv = environment === "production" ? "staging" : "production";
+        const { createAccessControlsClient } = require("@ethereum-tag-service/sdk-core");
+
+        const otherEnvClient = createAccessControlsClient({
+          chainId,
+          environment: otherEnv,
+        });
+
+        if (otherEnvClient) {
+          const otherPlatformAddress = await otherEnvClient.getPlatformAddress();
+          logger.info(`Comparison - ${otherEnv} environment platform address: "${otherPlatformAddress}"`);
+
+          if (normalizedAddress === otherPlatformAddress?.toLowerCase()) {
+            logger.warn(`Platform addresses are identical between ${environment} and ${otherEnv} environments`);
+          }
+        }
+      } catch (error) {
+        logger.warn(`Error comparing platform addresses between environments: ${error}`);
+      }
+
+      // Construct GraphQL query
       const query: string = `
         query {
           tags(
             orderBy: tagAppliedInTaggingRecord,
             orderDirection: desc,
-            where: { owner_: { id: "${platformAddress.toLowerCase()}" } }
+            where: { owner_: { id: "${normalizedAddress}" } }
           ) {
             id
             display
@@ -104,15 +140,33 @@ export class TagService {
    * Find the next CTAG that should be auctioned
    * @param platformAddress The platform address that owns the tags
    * @param chainId The chain ID to query
+   * @param environment The environment (production, staging, localhost)
    * @returns The tag ID of the next tag to auction, or null if no eligible tags are found
    */
   public async findNextCTAG(
     platformAddress: string,
     chainId: number,
+    environment = "production",
   ): Promise<{ tagId: string; tagDisplay: string } | null> {
-    logger.info(`Finding next CTAG for platform address ${platformAddress} on chain ${chainId}`);
+    logger.info(
+      `Finding next CTAG for platform address ${platformAddress} on chain ${chainId} (environment: ${environment})`,
+    );
+
+    // Validate platform address
+    if (!platformAddress) {
+      logger.error(`Invalid platform address provided for chain ${chainId} (${environment}): ${platformAddress}`);
+      throw new AppError(`Platform address is required for chain ${chainId}`, 500);
+    }
+
     try {
-      const tags = await this.fetchTags(platformAddress, chainId);
+      // Verify the environment is valid and use a local variable
+      let envToUse = environment;
+      if (envToUse !== "production" && envToUse !== "staging" && envToUse !== "localhost") {
+        logger.warn(`Unsupported environment "${envToUse}", defaulting to "production"`);
+        envToUse = "production";
+      }
+
+      const tags = await this.fetchTags(platformAddress, chainId, envToUse);
       const eligibleTags = this.filterEligibleTags(tags);
 
       if (eligibleTags.length === 0) {

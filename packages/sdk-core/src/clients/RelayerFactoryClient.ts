@@ -1,6 +1,7 @@
 import { etsRelayerFactoryConfig } from "@ethereum-tag-service/contracts/contracts";
 import type { Hex, PublicClient, WalletClient } from "viem";
 import type { RelayerFactoryReadFunction, RelayerFactoryWriteFunction } from "../types";
+import { DEFAULT_ENVIRONMENT, type Environment, getAddressForEnvironment } from "../utils/environment";
 import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
 import { validateConfig } from "../utils/validateConfig";
@@ -10,26 +11,39 @@ export class RelayerFactoryClient {
   private readonly walletClient: WalletClient | undefined;
   private readonly address: Hex;
   private readonly abi: any;
+  private readonly environment: Environment;
 
   constructor({
     publicClient,
     walletClient,
     chainId,
+    environment = DEFAULT_ENVIRONMENT,
   }: {
     publicClient: PublicClient;
     walletClient?: WalletClient;
     chainId?: number;
+    environment?: Environment;
   }) {
     validateConfig(chainId, publicClient, walletClient);
 
-    if (!chainId || !(chainId in etsRelayerFactoryConfig.address)) {
-      throw new Error(`[@ethereum-tag-service/sdk-core] RelayerFactory contract not configured for chain ${chainId}`);
+    if (!chainId) {
+      throw new Error("[@ethereum-tag-service/sdk-core] Chain ID is required for RelayerFactory client");
+    }
+
+    // Get the contract address for the specified chain and environment
+    const contractAddress = getAddressForEnvironment(etsRelayerFactoryConfig.address, chainId, environment);
+
+    if (!contractAddress) {
+      throw new Error(
+        `[@ethereum-tag-service/sdk-core] RelayerFactory contract not configured for chain ${chainId} and environment ${environment}`,
+      );
     }
 
     this.publicClient = publicClient;
     this.walletClient = walletClient;
-    this.address = etsRelayerFactoryConfig.address[chainId as keyof typeof etsRelayerFactoryConfig.address];
+    this.address = contractAddress as Hex;
     this.abi = etsRelayerFactoryConfig.abi;
+    this.environment = environment;
   }
 
   private async readContract(functionName: RelayerFactoryReadFunction, args: any[] = []): Promise<any> {

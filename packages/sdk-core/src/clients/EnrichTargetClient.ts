@@ -1,6 +1,7 @@
 import { etsEnrichTargetConfig } from "@ethereum-tag-service/contracts/contracts";
 import type { Hex, PublicClient, WalletClient } from "viem";
 import type { EnrichTargetReadFunction, EnrichTargetWriteFunction } from "../types";
+import { DEFAULT_ENVIRONMENT, type Environment, getAddressForEnvironment } from "../utils/environment";
 import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
 import { validateConfig } from "../utils/validateConfig";
@@ -10,26 +11,39 @@ export class EnrichTargetClient {
   private readonly walletClient: WalletClient | undefined;
   private readonly address: Hex;
   private readonly abi: any;
+  private readonly environment: Environment;
 
   constructor({
     publicClient,
     walletClient,
     chainId,
+    environment = DEFAULT_ENVIRONMENT,
   }: {
     publicClient: PublicClient;
     walletClient?: WalletClient;
     chainId?: number;
+    environment?: Environment;
   }) {
     validateConfig(chainId, publicClient, walletClient);
 
-    if (!chainId || !(chainId in etsEnrichTargetConfig.address)) {
-      throw new Error(`[@ethereum-tag-service/sdk-core] EnrichTarget contract not configured for chain ${chainId}`);
+    if (!chainId) {
+      throw new Error("[@ethereum-tag-service/sdk-core] Chain ID is required for EnrichTarget client");
+    }
+
+    // Get the contract address for the specified chain and environment
+    const contractAddress = getAddressForEnvironment(etsEnrichTargetConfig.address, chainId, environment);
+
+    if (!contractAddress) {
+      throw new Error(
+        `[@ethereum-tag-service/sdk-core] EnrichTarget contract not configured for chain ${chainId} and environment ${environment}`,
+      );
     }
 
     this.publicClient = publicClient;
     this.walletClient = walletClient;
-    this.address = etsEnrichTargetConfig.address[chainId as keyof typeof etsEnrichTargetConfig.address];
+    this.address = contractAddress as Hex;
     this.abi = etsEnrichTargetConfig.abi;
+    this.environment = environment;
   }
 
   private async readContract(functionName: EnrichTargetReadFunction, args: any[] = []): Promise<any> {

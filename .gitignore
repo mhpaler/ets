@@ -84,5 +84,6 @@ apps/app/artifacts/**/*.dbg.json
 apps/app/src/contracts.ts
 
 apps/oracle/.env
+apps/oracle/.env.*
 apps/oracle/.defender
 apps/oracle/src/contracts.ts

@@ -276,6 +276,86 @@ Then we updated the SDK to use these environment-specific keys:
 
 **Status:** ✓ Implemented and Ready for Testing
 
+### ✅ SDK Client Environment Implementation (RESOLVED)
+
+**Issue:** We discovered that several SDK clients were not properly using the environment parameter when retrieving contract addresses. Specifically:
+1. `AccessControlsClient`
+2. `AuctionHouseClient`
+3. `EnrichTargetClient`
+4. `RelayerFactoryClient`
+
+These clients were directly accessing contract addresses using just chainId, ignoring the environment parameter. This caused environmental issues in the offchain API where calls to `getPlatformAddress()` were returning the production platform address even when the staging environment was specified.
+
+**Impact:** This caused confusion in the offchain-api where the same platform address was being used in both environments, but the staging environment did not have any tags owned by this address. It also meant that our environment separation was incomplete.
+
+**Implemented Solution:**
+1. Updated all SDK client constructors to accept and store an environment parameter
+2. Modified all clients to use the `getAddressForEnvironment()` utility function to retrieve the correct address for the specified environment
+3. Added validation to ensure contract addresses are properly resolved for the specified environment
+4. Ensured that all SDK clients consistently use the same pattern for environment-aware address resolution
+
+**Implementation Details:**
+- Updated constructors to follow this pattern:
+```typescript
+constructor({
+  publicClient,
+  chainId,
+  environment = DEFAULT_ENVIRONMENT,
+}: {
+  publicClient: PublicClient;
+  chainId?: number;
+  environment?: Environment;
+}) {
+  // ...
+  const contractAddress = getAddressForEnvironment(
+    etsAccessControlsConfig.address, 
+    chainId, 
+    environment
+  );
+  this.address = contractAddress as Hex;
+  this.environment = environment;
+}
+```
+
+**Status:** ✓ Implemented and deployed to stage branch
+
+### ✅ Offchain API Environment Separation (RESOLVED)
+
+**Issue:** The offchain API needed to support both staging and production environments to complete our environment separation strategy.
+
+**Impact:** Without environment-aware API endpoints, the oracle and frontend components would not be able to work correctly with both environments.
+
+**Implemented Solution:**
+1. Added a `staging` boolean parameter to all API endpoints
+2. Modified controllers to create environment-specific SDK clients based on this parameter
+3. Updated service layer to pass environment parameter to SDK and subgraph endpoints
+4. Added environment-specific logging for better troubleshooting
+5. Fixed platform address resolution issues that were causing staging environment to not return any tags
+
+**Implementation Details:**
+- API endpoints now accept a `staging` parameter in request body
+- Environment-specific logging via `getEnvironmentLogger()` utility
+- Enhanced error handling and validation for different environments
+- Added debugging to track platform addresses and contract addresses per environment
+
+**Testing the Offchain API:**
+
+You can test both environments with curl:
+
+```bash
+# Production environment (default)
+curl -X POST https://ets-api.onrender.com/api/auction/next \
+  -H "Content-Type: application/json" \
+  -d '{"chainId": 421614, "returnType": "json"}'
+
+# Staging environment
+curl -X POST https://ets-api.onrender.com/api/auction/next \
+  -H "Content-Type: application/json" \
+  -d '{"chainId": 421614, "returnType": "json", "staging": true}'
+```
+
+**Status:** ✓ Implemented and deployed to stage branch
+
 ### Environment-Aware Contract Generation
 
 The custom plugin generates contract exports in this format:

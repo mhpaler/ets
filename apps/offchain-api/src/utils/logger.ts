@@ -17,3 +17,12 @@ export const logger = pino(
   },
   transport,
 );
+
+/**
+ * Get a logger with environment context
+ * @param environment The environment (production, staging)
+ * @returns A logger with environment context
+ */
+export function getEnvironmentLogger(environment: string) {
+  return logger.child({ environment });
+}
