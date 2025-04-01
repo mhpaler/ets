@@ -1,12 +1,14 @@
 import { etsAccessControlsConfig } from "@ethereum-tag-service/contracts/contracts";
 import type { Hex, PublicClient } from "viem";
 import type { AccessControlsReadFunction } from "../types";
+import { DEFAULT_ENVIRONMENT, type Environment, getAddressForEnvironment } from "../utils/environment";
 import { handleContractRead } from "../utils/handleContractRead";
 
 export class AccessControlsClient {
   private readonly publicClient: PublicClient;
   private readonly address: Hex;
   private readonly abi: any;
+  private readonly environment: Environment;
 
   /**
    * Get the contract address
@@ -16,7 +18,15 @@ export class AccessControlsClient {
     return this.address;
   }
 
-  constructor({ publicClient, chainId }: { publicClient: PublicClient; chainId?: number }) {
+  constructor({
+    publicClient,
+    chainId,
+    environment = DEFAULT_ENVIRONMENT,
+  }: {
+    publicClient: PublicClient;
+    chainId?: number;
+    environment?: Environment;
+  }) {
     if (!publicClient) {
       throw new Error("[@ethereum-tag-service/sdk-core] Public client is required for AccessControlsClient");
     }
@@ -31,13 +41,19 @@ export class AccessControlsClient {
       );
     }
 
-    if (!etsAccessControlsConfig.address[chainId as keyof typeof etsAccessControlsConfig.address]) {
-      throw new Error(`[@ethereum-tag-service/sdk-core] AccessControls contract not configured for chain ${chainId}`);
+    // Get the contract address for the specified chain and environment
+    const contractAddress = getAddressForEnvironment(etsAccessControlsConfig.address, chainId, environment);
+
+    if (!contractAddress) {
+      throw new Error(
+        `[@ethereum-tag-service/sdk-core] AccessControls contract not configured for chain ${chainId} and environment ${environment}`,
+      );
     }
 
     this.publicClient = publicClient;
-    this.address = etsAccessControlsConfig.address[chainId as keyof typeof etsAccessControlsConfig.address];
+    this.address = contractAddress as Hex;
     this.abi = etsAccessControlsConfig.abi;
+    this.environment = environment;
   }
   private async readContract(functionName: AccessControlsReadFunction, args: any[] = []): Promise<any> {
     return handleContractRead(this.publicClient, this.address, this.abi, functionName, args);

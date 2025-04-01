@@ -1,6 +1,7 @@
 import { etsAuctionHouseConfig } from "@ethereum-tag-service/contracts/contracts";
 import type { Hex, PublicClient, WalletClient } from "viem";
 import type { AuctionHouseReadFunction, AuctionHouseWriteFunction } from "../types";
+import { DEFAULT_ENVIRONMENT, type Environment, getAddressForEnvironment } from "../utils/environment";
 import { handleContractCall } from "../utils/handleContractCall";
 import { handleContractRead } from "../utils/handleContractRead";
 import { validateConfig } from "../utils/validateConfig";
@@ -10,26 +11,39 @@ export class AuctionHouseClient {
   private readonly walletClient: WalletClient | undefined;
   private readonly address: Hex;
   private readonly abi: any;
+  private readonly environment: Environment;
 
   constructor({
     publicClient,
     walletClient,
     chainId,
+    environment = DEFAULT_ENVIRONMENT,
   }: {
     publicClient: PublicClient;
     walletClient?: WalletClient;
     chainId?: number;
+    environment?: Environment;
   }) {
     validateConfig(chainId, publicClient, walletClient);
 
-    if (!chainId || !(chainId in etsAuctionHouseConfig.address)) {
-      throw new Error(`[@ethereum-tag-service/sdk-core] AuctionHouse contract not configured for chain ${chainId}`);
+    if (!chainId) {
+      throw new Error("[@ethereum-tag-service/sdk-core] Chain ID is required for AuctionHouse client");
+    }
+
+    // Get the contract address for the specified chain and environment
+    const contractAddress = getAddressForEnvironment(etsAuctionHouseConfig.address, chainId, environment);
+
+    if (!contractAddress) {
+      throw new Error(
+        `[@ethereum-tag-service/sdk-core] AuctionHouse contract not configured for chain ${chainId} and environment ${environment}`,
+      );
     }
 
     this.publicClient = publicClient;
     this.walletClient = walletClient;
-    this.address = etsAuctionHouseConfig.address[chainId as keyof typeof etsAuctionHouseConfig.address];
+    this.address = contractAddress as Hex;
     this.abi = etsAuctionHouseConfig.abi;
+    this.environment = environment;
   }
   private async readContract(functionName: AuctionHouseReadFunction, args: any[] = []): Promise<any> {
     return handleContractRead(this.publicClient, this.address, this.abi, functionName, args);
