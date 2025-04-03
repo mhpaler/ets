@@ -29,17 +29,17 @@ export async function configureStagingRequester() {
   try {
     console.log("Configuring Staging ETSEnrichTarget contract with Airnode parameters...");
 
-    // Read sponsorship info from the staging directory
+    // Read configuration details from the staging directory
     const configDir = path.join(__dirname, "../config/staging");
-    const sponsorshipPath = path.join(configDir, "sponsorship-info.json");
+    const configDetailsPath = path.join(configDir, "configuration-details.json");
 
-    let sponsorshipInfo: SponsorshipInfo;
+    let configDetails: any;
     try {
-      const sponsorshipData = await fs.readFile(sponsorshipPath, "utf8");
-      sponsorshipInfo = JSON.parse(sponsorshipData);
-      console.log("Read staging sponsorship information");
+      const configData = await fs.readFile(configDetailsPath, "utf8");
+      configDetails = JSON.parse(configData);
+      console.log("Read staging configuration details");
     } catch (error) {
-      console.error("Error reading staging sponsorship info. Please run setup-staging-sponsorship first.");
+      console.error("Error reading configuration details. Please run setup-staging-sponsorship first.");
       throw error;
     }
 
@@ -61,20 +61,20 @@ export async function configureStagingRequester() {
     console.log(`Using sponsor wallet: ${wallet.address}`);
 
     // Create ETSEnrichTarget contract instance for staging
-    const etsEnrichTarget = new ethers.Contract(sponsorshipInfo.requesterAddress, etsEnrichTargetAbi, wallet);
+    const etsEnrichTarget = new ethers.Contract(configDetails.requesterAddress, etsEnrichTargetAbi, wallet);
 
     console.log("Setting Airnode request parameters for staging...");
-    console.log(`Airnode address: ${sponsorshipInfo.airnodeAddress}`);
-    console.log(`Endpoint ID: ${sponsorshipInfo.endpointId}`);
-    console.log(`Sponsor address: ${sponsorshipInfo.sponsorAddress}`);
-    console.log(`Sponsor wallet address: ${sponsorshipInfo.sponsorWalletAddress}`);
+    console.log(`Airnode address: ${configDetails.airnodeAddress}`);
+    console.log(`Endpoint ID: ${configDetails.endpointId}`);
+    console.log(`Sponsor address: ${configDetails.sponsorAddress}`);
+    console.log(`Sponsor wallet address: ${configDetails.sponsorWalletAddress}`);
 
     // Call setAirnodeRequestParameters with proper gas settings for testnet
     const tx = await etsEnrichTarget.setAirnodeRequestParameters(
-      sponsorshipInfo.airnodeAddress,
-      sponsorshipInfo.endpointId,
-      sponsorshipInfo.sponsorAddress,
-      sponsorshipInfo.sponsorWalletAddress,
+      configDetails.airnodeAddress,
+      configDetails.endpointId,
+      configDetails.sponsorAddress,
+      configDetails.sponsorWalletAddress,
       {
         gasLimit: 300000, // Higher gas limit for testnet
         gasPrice: ethers.utils.parseUnits("1.5", "gwei"), // Adjust gas price for testnet
@@ -85,23 +85,16 @@ export async function configureStagingRequester() {
     await tx.wait();
     console.log("Staging ETSEnrichTarget contract configured successfully!");
 
-    // Save the configuration details
-    const configDetails = {
-      success: true,
-      transaction: tx.hash,
-      requesterAddress: sponsorshipInfo.requesterAddress,
-      airnodeAddress: sponsorshipInfo.airnodeAddress,
-      endpointId: sponsorshipInfo.endpointId,
-      sponsorAddress: sponsorshipInfo.sponsorAddress,
-      sponsorWalletAddress: sponsorshipInfo.sponsorWalletAddress,
-      timestamp: new Date().toISOString(),
-      environment: "staging",
-    };
+    // Update the configuration details with requester configuration info
+    configDetails.requesterConfigSuccess = true;
+    configDetails.requesterConfigTimestamp = new Date().toISOString();
+    configDetails.requesterConfigTx = tx.hash;
+    configDetails.deploymentStatus = "ready_for_deployment";
+    configDetails.buildSteps.requesterConfig = true;
 
-    // Save to a configuration-details.json file
-    const configDetailsPath = path.join(configDir, "configuration-details.json");
+    // Save updated configuration details
     await fs.writeFile(configDetailsPath, JSON.stringify(configDetails, null, 2));
-    console.log(`Configuration details saved to ${configDetailsPath}`);
+    console.log(`Updated configuration details saved to ${configDetailsPath}`);
 
     return configDetails;
   } catch (error) {

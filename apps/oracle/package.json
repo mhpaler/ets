@@ -11,19 +11,18 @@
     "stop-airnode": "cd .. && docker-compose down",
     "logs-airnode": "docker logs -f airnode-airnode-1",
     "clean": "rm -rf config/local/sponsor.json docker-compose.yml",
-
     "deploy:staging": "ts-node scripts/deploy-staging-oracle.ts",
     "verify:staging": "ts-node scripts/60-verify-staging-oracle.ts",
     "test:staging": "ts-node scripts/test-staging-oracle.ts",
     "remove:staging": "ts-node scripts/remove-staging-oracle.ts",
-
+    "remove:staging:dry-run": "ts-node scripts/remove-staging-oracle.ts --dry-run",
+    "remove:staging:force": "cd config/staging && docker run --rm -e USER_ID=$(id -u) -e GROUP_ID=$(id -g) -v \"$(pwd):/app/config\" api3/airnode-deployer:latest remove",
     "start-local-oracle": "ts-node scripts/start-local-oracle.ts",
     "verify-local-oracle": "ts-node scripts/60-verify-local-oracle.ts",
     "deploy-staging-oracle": "ts-node scripts/deploy-staging-oracle.ts",
     "verify-staging-oracle": "ts-node scripts/60-verify-staging-oracle.ts",
     "test-staging-oracle": "ts-node scripts/test-staging-oracle.ts",
     "remove-staging-oracle": "ts-node scripts/remove-staging-oracle.ts",
-
     "generate-staging-credentials": "ts-node scripts/10-generate-staging-credentials.ts",
     "generate-staging-config": "ts-node scripts/20-generate-staging-config.ts",
     "setup-staging-sponsorship": "ts-node scripts/30-setup-staging-sponsorship.ts",
@@ -42,6 +41,7 @@
   "devDependencies": {
     "@api3/airnode-validator": "^0.15.0",
     "@types/node": "^22.13.9",
+    "@types/readline-sync": "^1.4.8",
     "handlebars": "^4.7.7",
     "readline-sync": "^1.4.10",
     "ts-node": "^10.9.1",

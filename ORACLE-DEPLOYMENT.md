@@ -64,6 +64,7 @@ We've made significant progress on environment separation:
   - [x] Add verification and monitoring capabilities
   - [x] Generate Airnode credentials for staging
   - [x] Configure ETSEnrichTarget contract with Airnode parameters
+  - [x] Create interactive Oracle removal script with automatic deployment ID detection
 - [x] Update oracle scripts to support environment flags
 - [x] Resolve AWS deployment configuration issues
   - [x] Switch to Docker-based deployment approach as recommended in documentation
@@ -247,6 +248,21 @@ MNEMONIC_MAINNET=<mainnet-mnemonic>
 - Future consideration: separate mnemonics for staging and production
 
 ## Critical Issues to Resolve
+
+### ✅ Airnode Heartbeat Monitoring (RESOLVED)
+
+**Issue:** The Airnode heartbeat functionality was causing deployment issues when enabled.
+
+**Impact:** The deployment would fail as the heartbeat required additional configuration that wasn't necessary for our initial setup.
+
+**Implemented Solution:**
+1. Disabled the heartbeat functionality in the Airnode configuration template
+2. Removed unnecessary heartbeat API keys from the secrets.env file
+3. Updated deployment scripts to reflect these changes
+
+**Future Enhancement:** 
+- [ ] Re-enable heartbeat monitoring with proper configuration after successful initial deployment
+- [ ] Set up CloudWatch alarms as an alternative monitoring solution
 
 ### ✅ Contract Exports Problem (RESOLVED)
 
@@ -739,6 +755,7 @@ export const SystemProvider = ({ children }: { children: React.ReactNode }) => {
   - [x] CloudWatchLogsFullAccess
   - [x] IAMFullAccess
   - [x] AmazonS3FullAccess
+  - [x] AmazonEventBridgeFullAccess (required for EventBridge rules creation)
 - [x] Set up CloudWatch for monitoring and logging
 
 ### 3. Docker-Based Deployment Process
@@ -792,6 +809,16 @@ This requires the receipt.json file to be present in the config directory.
 ### 8. Troubleshooting Common Issues
 
 - **S3 Bucket Permissions**: Ensure the IAM user has S3FullAccess
+- **IAM Permission Issues**: Ensure the IAM user has all necessary permissions
+  - AmazonAPIGatewayAdministrator
+  - AWSLambda_FullAccess
+  - CloudWatchLogsFullAccess
+  - IAMFullAccess
+  - AmazonS3FullAccess
+  - AmazonEventBridgeFullAccess (required for EventBridge rules creation)
+- **Lambda Concurrency Limits**: AWS Lambda has account-level concurrency limits
+  - Error: "decreases account's UnreservedConcurrentExecution below its minimum value of [10]"
+  - Solution: Set `disableConcurrencyReservations: true` in your config template
 - **Terraform State File Issues**: This is a significant persistent issue
   - Error: "Can't update an Airnode with missing files: default.tfstate"
   - Potential causes: Previous failed deployments, incomplete cleanup, permission issues
@@ -1419,16 +1446,19 @@ To deploy the staging Oracle to AWS, follow these steps:
 
 5. **Maintenance**:
    ```bash
-   # Step 1: To remove the deployment, run the preparation script
+   # To remove the deployment, run the interactive removal script
    pnpm run remove:staging
    
-   # Step 2: Run the Docker removal command that was displayed
-   # The command will look like this:
-   cd /Users/User/Sites/ets/apps/oracle/config/staging && \
-   docker run --rm --platform linux/amd64 \
-     -e USER_ID=$(id -u) -e GROUP_ID=$(id -g) \
-     -v "$(pwd):/app/config" \
-     api3/airnode-deployer:latest remove
+   # The script will:
+   # 1. Automatically detect the deployment ID from the receipt file
+   # 2. Ask for confirmation before proceeding with removal
+   # 3. Execute the Docker removal command for you
+   # 4. Back up the receipt file with a timestamp
+   # 5. Create a removal-info.json file with all removal details
+   
+   # If no receipt file is found, the script will offer to:
+   # 1. Run a force removal command without a deployment ID
+   # 2. OR display the manual command for you to run later
    
    # For logs and monitoring
    # Use the AWS CloudWatch console to view logs under:
@@ -1463,6 +1493,35 @@ The offchain API is hosted on render.com at the following URL:
 ```
 https://ets-offchain-api.onrender.com
 ```
+
+### Testing the Oracle HTTP Gateway
+
+The Oracle HTTP Gateway can be tested using the following curl command format:
+
+```bash
+curl -X POST \
+  "<gateway-url>/<uuid>/<endpoint-id>" \
+  -H "Content-Type: application/json" \
+  -d '{"parameters": {"chainId": "421614", "returnType": "json", "staging": true}}'
+```
+
+Where:
+- `<gateway-url>` is the base URL from the deployment (e.g., https://m80dh2q76h.execute-api.us-east-1.amazonaws.com/v1)
+- `<uuid>` is the unique identifier for the gateway (e.g., 9ee65fb5-b84b-cb4b-4b53-3fe3c0a7b8e0)
+- `<endpoint-id>` is the hash of the endpoint you want to call (e.g., 0xf898508c530f6658d4c4ca0098911d4b32d7e990c23500efe4d4aa3764bd0b49)
+
+Example for nextAuction endpoint:
+```bash
+curl -X POST \
+  "https://m80dh2q76h.execute-api.us-east-1.amazonaws.com/v1/9ee65fb5-b84b-cb4b-4b53-3fe3c0a7b8e0/0xf898508c530f6658d4c4ca0098911d4b32d7e990c23500efe4d4aa3764bd0b49" \
+  -H "Content-Type: application/json" \
+  -d '{"parameters": {"chainId": "421614", "returnType": "json", "staging": true}}'
+```
+
+The response will include:
+- `rawValue`: The direct API response
+- `encodedValue`: The encoded bytes that would be sent on-chain
+- `values`: An array of extracted values after conversion
 
 ### Offchain API Environment Awareness Plan
 

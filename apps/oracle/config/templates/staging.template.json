@@ -42,9 +42,7 @@
   "nodeSettings": {
     "airnodeWalletMnemonic": "{{airnodeWalletMnemonicVar}}",
     "heartbeat": {
-      "enabled": true,
-      "apiKey": "{{heartbeatApiKey}}",
-      "url": "{{heartbeatUrl}}"
+      "enabled": false
     },
     "httpGateway": {
       "enabled": true,
@@ -60,7 +58,7 @@
     "cloudProvider": {
       "type": "aws",
       "region": "{{awsRegion}}",
-      "disableConcurrencyReservations": false
+      "disableConcurrencyReservations": true
     },
     "logFormat": "json",
     "logLevel": "{{logLevel}}",

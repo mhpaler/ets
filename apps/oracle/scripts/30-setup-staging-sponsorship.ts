@@ -185,8 +185,9 @@ export async function setupStagingSponsorship() {
     }
     console.log(`Using endpoint ID: ${endpointId}`);
 
-    // Save sponsorship info to a file
-    const sponsorshipInfo: SponsorshipInfo = {
+    // Save configuration details to a file (including sponsorship info)
+    const configDetails = {
+      // Sponsorship information
       sponsorAddress,
       sponsorWalletAddress,
       airnodeAddress: credentials.airnodeAddress,
@@ -194,13 +195,25 @@ export async function setupStagingSponsorship() {
       endpointId,
       requesterAddress,
       environment: "staging",
+
+      // Build process tracking
+      sponsorshipTimestamp: new Date().toISOString(),
+      sponsorshipSuccess: true,
+      deploymentStatus: "pending_configuration", // Will be updated in subsequent steps
+      buildSteps: {
+        credentials: true,
+        config: true,
+        sponsorship: true,
+        requesterConfig: false,
+        deployment: false,
+      },
     };
 
-    const sponsorshipPath = path.join(configDir, "sponsorship-info.json");
-    await fs.writeFile(sponsorshipPath, JSON.stringify(sponsorshipInfo, null, 2));
-    console.log(`Sponsorship information saved to ${sponsorshipPath}`);
+    const configDetailsPath = path.join(configDir, "configuration-details.json");
+    await fs.writeFile(configDetailsPath, JSON.stringify(configDetails, null, 2));
+    console.log(`Configuration details saved to ${configDetailsPath}`);
 
-    return sponsorshipInfo;
+    return configDetails;
   } catch (error) {
     console.error("Error setting up sponsorship for staging:", error);
     throw error;

@@ -52,8 +52,9 @@ export async function generateStagingConfig() {
     // Add AWS specific variables
     templateData.awsRegion = process.env.AWS_REGION || "us-east-1";
     templateData.httpGatewayApiKey = "${HTTP_GATEWAY_API_KEY}";
-    templateData.heartbeatApiKey = "${HEARTBEAT_API_KEY}";
-    templateData.heartbeatUrl = process.env.HEARTBEAT_URL || "";
+    // TODO: Heartbeat is disabled in template, these variables no longer needed
+    // templateData.heartbeatApiKey = "${HEARTBEAT_API_KEY}";
+    // templateData.heartbeatUrl = process.env.HEARTBEAT_URL || "";
 
     // Read AirnodeRrpV0 contract address for staging
     try {
@@ -95,7 +96,7 @@ export async function generateStagingConfig() {
     // Set staging-specific values
     templateData.chainId = "421614"; // Arbitrum Sepolia chain ID
     templateData.rpcUrl = process.env.ARBITRUM_SEPOLIA_URL || "https://sepolia-rollup.arbitrum.io/rpc";
-    templateData.stagingApiUrl = process.env.STAGING_API_URL || "https://api-staging.ets.xyz"; // Staging API endpoint
+    templateData.stagingApiUrl = process.env.STAGING_API_URL || "https://ets-offchain-api.onrender.com"; // Staging API endpoint
 
     // Generate endpoint IDs using the official Airnode utility
     const oisTitle = "ETS API";
@@ -126,9 +127,10 @@ export async function generateStagingConfig() {
     await fs.writeFile(configPath, configData);
 
     // Create secrets.env file with the required environment variables
-    // Only include what's needed according to Airnode docs
+    // Only include what's needed - HTTP Gateway API Key and mnemonic
     const secretsContent = `
-AIRNODE_WALLET_MNEMONIC=${process.env.AIRNODE_MNEMONIC || ""}
+AIRNODE_WALLET_MNEMONIC=${process.env.AIRNODE_MNEMONIC || credentials.mnemonic}
+HTTP_GATEWAY_API_KEY=${process.env.HTTP_GATEWAY_API_KEY || generateRandomApiKey()}
     `.trim();
 
     const secretsPath = path.join(configDir, "secrets.env");
@@ -144,7 +146,7 @@ AIRNODE_WALLET_MNEMONIC=${process.env.AIRNODE_MNEMONIC || ""}
 }
 
 // Helper function to generate random API keys
-/* function generateRandomApiKey() {
+function generateRandomApiKey() {
   // Generate a longer key (at least 30 characters)
   return `${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`;
 }
@@ -157,4 +159,4 @@ if (require.main === module) {
       console.error("Error in Staging Airnode config generation:", error);
       process.exit(1);
     });
-} */
+}
