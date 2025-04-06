@@ -737,6 +737,32 @@ export const SystemProvider = ({ children }: { children: React.ReactNode }) => {
 3. Document deployment procedures for each environment
 4. Include troubleshooting guides for common environment issues
 
+## Quick-Start Guide
+
+### Deploying Staging Oracle
+1. `cd apps/oracle`
+2. `pnpm run deploy:staging` 
+3. Follow the interactive prompts
+4. Verify with `pnpm run verify:staging`
+
+### Pre-Deployment Checklist
+- [ ] Ensure AWS credentials are configured (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+- [ ] Verify environment variables in .env.staging
+- [ ] Check for existing Airnode deployments
+- [ ] Ensure ETSEnrichTarget contract is deployed and configured properly
+
+### Post-Deployment Verification
+- [ ] Confirm HTTP Gateway responds to health checks
+- [ ] Verify contract configuration is correct
+- [ ] Test a sample request to the Airnode
+- [ ] Check that logs appear in CloudWatch
+
+### Monitoring Your Airnode
+- **CloudWatch Logs**: Filter for log group containing your Airnode address
+- **API Gateway**: Check for recent requests in the AWS Console
+- **Lambda Metrics**: Review invocation count and errors
+- **Health Check**: Periodically query your HTTP Gateway health endpoint
+
 ## Airnode Oracle Deployment to AWS (Staging Environment)
 
 ### 1. Prerequisites
