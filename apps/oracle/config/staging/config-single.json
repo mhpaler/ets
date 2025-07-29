@@ -1,7 +1,46 @@
 {
-  "chains": {{{chains}}},
+  "chains": [
+    {
+      "authorizers": {
+        "requesterEndpointAuthorizers": [],
+        "crossChainRequesterAuthorizers": [],
+        "requesterAuthorizersWithErc721": [],
+        "crossChainRequesterAuthorizersWithErc721": []
+      },
+      "authorizations": {
+        "requesterEndpointAuthorizations": {}
+      },
+      "contracts": {
+        "AirnodeRrp": "0x89C20aDAaadaBd7f320E53b08403817e5BD75621"
+      },
+      "id": "421614",
+      "providers": {
+        "arbitrumSepolia": {
+          "url": "https://arb-sepolia.g.alchemy.com/v2/TjjzoNYlIqWqZxcoufe60bhVbARhkxYX"
+        }
+      },
+      "type": "evm",
+      "maxConcurrency": 100,
+      "options": {
+        "fulfillmentGasLimit": 500000,
+        "gasPriceOracle": [
+          {
+            "gasPriceStrategy": "providerRecommendedGasPrice",
+            "recommendedGasPriceMultiplier": 1.2
+          },
+          {
+            "gasPriceStrategy": "constantGasPrice",
+            "gasPrice": {
+              "value": 30,
+              "unit": "gwei"
+            }
+          }
+        ]
+      }
+    }
+  ],
   "nodeSettings": {
-    "airnodeWalletMnemonic": "{{airnodeWalletMnemonicVar}}",
+    "airnodeWalletMnemonic": "${AIRNODE_WALLET_MNEMONIC}",
     "heartbeat": {
       "enabled": false
     },
@@ -18,24 +57,24 @@
     },
     "cloudProvider": {
       "type": "aws",
-      "region": "{{awsRegion}}",
+      "region": "us-east-1",
       "disableConcurrencyReservations": true
     },
     "logFormat": "json",
-    "logLevel": "{{logLevel}}",
+    "logLevel": "INFO",
     "nodeVersion": "0.15.0",
     "stage": "staging"
   },
   "triggers": {
     "rrp": [
       {
-        "endpointId": "{{enrichTargetEndpointId}}",
+        "endpointId": "0x5d09ceade33f5e4e5627a6400eaf9ad5fbbecc6c16ce3802f784b480c06b867d",
         "oisTitle": "ETS API",
         "endpointName": "enrichTarget",
         "cacheResponses": false
       },
       {
-        "endpointId": "{{nextAuctionEndpointId}}",
+        "endpointId": "0xf898508c530f6658d4c4ca0098911d4b32d7e990c23500efe4d4aa3764bd0b49",
         "oisTitle": "ETS API",
         "endpointName": "nextAuction",
         "cacheResponses": false
@@ -43,12 +82,12 @@
     ],
     "http": [
       {
-        "endpointId": "{{enrichTargetEndpointId}}",
+        "endpointId": "0x5d09ceade33f5e4e5627a6400eaf9ad5fbbecc6c16ce3802f784b480c06b867d",
         "oisTitle": "ETS API",
         "endpointName": "enrichTarget"
       },
       {
-        "endpointId": "{{nextAuctionEndpointId}}",
+        "endpointId": "0xf898508c530f6658d4c4ca0098911d4b32d7e990c23500efe4d4aa3764bd0b49",
         "oisTitle": "ETS API",
         "endpointName": "nextAuction"
       }
@@ -63,7 +102,7 @@
       "apiSpecifications": {
         "servers": [
           {
-            "url": "{{stagingApiUrl}}"
+            "url": "https://ets-offchain-api.onrender.com"
           }
         ],
         "paths": {

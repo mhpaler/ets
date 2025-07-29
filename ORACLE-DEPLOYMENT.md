@@ -9,7 +9,7 @@ We've made significant progress on environment separation:
 1. **Contracts**: Successfully deployed and verified all contracts to staging environments on Arbitrum Sepolia and Base Sepolia
 2. **Subgraphs**: Deployed separate subgraphs for both production and staging environments
 3. **SDK**: Implemented environment-aware SDK with support for "production", "staging", and "localhost" environments
-4. **Oracle**: 
+4. **Oracle**:
    - Created comprehensive deployment infrastructure for staging Oracle with:
      - Environment-specific configuration templates
      - Deployment scripts for AWS
@@ -225,17 +225,17 @@ MNEMONIC_MAINNET=<mainnet-mnemonic>
 
 ### Production
 
-- Subgraph Arbitrum Sepolia: https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia/version/latest
-- Subgraph Base Sepolia: https://api.studio.thegraph.com/query/87165/ets-base-sepolia/version/latest
+- Subgraph Arbitrum Sepolia: <https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia/version/latest>
+- Subgraph Base Sepolia: <https://api.studio.thegraph.com/query/87165/ets-base-sepolia/version/latest>
 - Offchain API: (existing URL)
 - Explorer UI: (existing URL)
 - Oracle: (existing URL)
 
 ### Staging
 
-- Subgraph Arbitrum Sepolia: https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia-staging/version/latest
-- Subgraph Base Sepolia: https://api.studio.thegraph.com/query/87165/ets-base-sepolia-staging/version/latest
-- Offchain API: https://ets-offchain-api.onrender.com
+- Subgraph Arbitrum Sepolia: <https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia-staging/version/latest>
+- Subgraph Base Sepolia: <https://api.studio.thegraph.com/query/87165/ets-base-sepolia-staging/version/latest>
+- Offchain API: <https://ets-offchain-api.onrender.com>
 - Explorer UI: (to be created)
 - Oracle: (configured for contract integration)
   - Airnode Address: 0x62676653F23c313a235e179eb19CbA308A45728c
@@ -256,11 +256,13 @@ MNEMONIC_MAINNET=<mainnet-mnemonic>
 **Impact:** The deployment would fail as the heartbeat required additional configuration that wasn't necessary for our initial setup.
 
 **Implemented Solution:**
+
 1. Disabled the heartbeat functionality in the Airnode configuration template
 2. Removed unnecessary heartbeat API keys from the secrets.env file
 3. Updated deployment scripts to reflect these changes
 
-**Future Enhancement:** 
+**Future Enhancement:**
+
 - [ ] Re-enable heartbeat monitoring with proper configuration after successful initial deployment
 - [ ] Set up CloudWatch alarms as an alternative monitoring solution
 
@@ -273,11 +275,13 @@ MNEMONIC_MAINNET=<mainnet-mnemonic>
 **Implemented Solution:**
 
 We created a custom wagmi plugin (`hardhat-deploy-env-aware.ts`) that:
+
 1. Detects environments from network names (e.g., "arbitrumSepoliaStaging" → "staging")
 2. Generates a unified `contracts.ts` with both chainId-only keys (for backward compatibility) and environment-specific keys
 3. Creates address map entries in the format `{chainId}_{environment}` (e.g., "421614_staging")
 
 Then we updated the SDK to use these environment-specific keys:
+
 1. Added environment types and utilities to SDK Core
 2. Updated all client classes to accept an environment parameter
 3. Made client address resolution environment-aware
@@ -295,6 +299,7 @@ Then we updated the SDK to use these environment-specific keys:
 ### ✅ SDK Client Environment Implementation (RESOLVED)
 
 **Issue:** We discovered that several SDK clients were not properly using the environment parameter when retrieving contract addresses. Specifically:
+
 1. `AccessControlsClient`
 2. `AuctionHouseClient`
 3. `EnrichTargetClient`
@@ -305,13 +310,16 @@ These clients were directly accessing contract addresses using just chainId, ign
 **Impact:** This caused confusion in the offchain-api where the same platform address was being used in both environments, but the staging environment did not have any tags owned by this address. It also meant that our environment separation was incomplete.
 
 **Implemented Solution:**
+
 1. Updated all SDK client constructors to accept and store an environment parameter
 2. Modified all clients to use the `getAddressForEnvironment()` utility function to retrieve the correct address for the specified environment
 3. Added validation to ensure contract addresses are properly resolved for the specified environment
 4. Ensured that all SDK clients consistently use the same pattern for environment-aware address resolution
 
 **Implementation Details:**
+
 - Updated constructors to follow this pattern:
+
 ```typescript
 constructor({
   publicClient,
@@ -324,8 +332,8 @@ constructor({
 }) {
   // ...
   const contractAddress = getAddressForEnvironment(
-    etsAccessControlsConfig.address, 
-    chainId, 
+    etsAccessControlsConfig.address,
+    chainId,
     environment
   );
   this.address = contractAddress as Hex;
@@ -342,6 +350,7 @@ constructor({
 **Impact:** Without environment-aware API endpoints, the oracle and frontend components would not be able to work correctly with both environments.
 
 **Implemented Solution:**
+
 1. Added a `staging` boolean parameter to all API endpoints
 2. Modified controllers to create environment-specific SDK clients based on this parameter
 3. Updated service layer to pass environment parameter to SDK and subgraph endpoints
@@ -349,6 +358,7 @@ constructor({
 5. Fixed platform address resolution issues that were causing staging environment to not return any tags
 
 **Implementation Details:**
+
 - API endpoints now accept a `staging` parameter in request body
 - Environment-specific logging via `getEnvironmentLogger()` utility
 - Enhanced error handling and validation for different environments
@@ -360,12 +370,12 @@ You can test both environments with curl:
 
 ```bash
 # Production environment (default)
-curl -X POST https://ets-api.onrender.com/api/auction/next \
+curl -X POST https://ets-offchain-api.onrender.com/api/auction/next \
   -H "Content-Type: application/json" \
   -d '{"chainId": 421614, "returnType": "json"}'
 
 # Staging environment
-curl -X POST https://ets-api.onrender.com/api/auction/next \
+curl -X POST https://ets-offchain-api.onrender.com/api/auction/next \
   -H "Content-Type: application/json" \
   -d '{"chainId": 421614, "returnType": "json", "staging": true}'
 ```
@@ -382,7 +392,7 @@ export const etsConfig = {
     // Standard chainId keys (backward compatibility)
     "421614": "0xProductionAddress...",
     "84532": "0xProductionAddress...",
-    
+
     // Environment-specific keys
     "421614_production": "0xProductionAddress...",
     "421614_staging": "0xStagingAddress...",
@@ -400,16 +410,16 @@ All SDK clients now follow this pattern:
 
 ```typescript
 // Client construction
-const client = createEtsClient({ 
-  chainId: 421614, 
+const client = createEtsClient({
+  chainId: 421614,
   account,
   environment: "staging" // Optional, defaults to "production"
 });
 
 // Address resolution
 const contractAddress = getAddressForEnvironment(
-  etsConfig.address, 
-  chainId, 
+  etsConfig.address,
+  chainId,
   environment
 );
 ```
@@ -420,10 +430,10 @@ All React hooks accept an optional environment parameter:
 
 ```tsx
 // Using with explicit environment
-const { accrued, taggingFee } = useEtsClient({ 
-  chainId, 
-  account, 
-  environment: "staging" 
+const { accrued, taggingFee } = useEtsClient({
+  chainId,
+  account,
+  environment: "staging"
 });
 
 // Using with default environment (production)
@@ -740,24 +750,28 @@ export const SystemProvider = ({ children }: { children: React.ReactNode }) => {
 ## Quick-Start Guide
 
 ### Deploying Staging Oracle
+
 1. `cd apps/oracle`
-2. `pnpm run deploy:staging` 
+2. `pnpm run deploy:staging`
 3. Follow the interactive prompts
 4. Verify with `pnpm run verify:staging`
 
 ### Pre-Deployment Checklist
+
 - [ ] Ensure AWS credentials are configured (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
 - [ ] Verify environment variables in .env.staging
 - [ ] Check for existing Airnode deployments
 - [ ] Ensure ETSEnrichTarget contract is deployed and configured properly
 
 ### Post-Deployment Verification
+
 - [ ] Confirm HTTP Gateway responds to health checks
 - [ ] Verify contract configuration is correct
 - [ ] Test a sample request to the Airnode
 - [ ] Check that logs appear in CloudWatch
 
 ### Monitoring Your Airnode
+
 - **CloudWatch Logs**: Filter for log group containing your Airnode address
 - **API Gateway**: Check for recent requests in the AWS Console
 - **Lambda Metrics**: Review invocation count and errors
@@ -767,7 +781,7 @@ export const SystemProvider = ({ children }: { children: React.ReactNode }) => {
 
 ### 1. Prerequisites
 
-- AWS Account with appropriate permissions 
+- AWS Account with appropriate permissions
 - Docker installed for running the Airnode deployer
 - Staging contract addresses for ETSEnrichTarget and AirnodeRrpV0/AirnodeRrpV0Proxy
 - Environment variables for staging deployment in .env.staging
@@ -797,6 +811,7 @@ docker run -it --rm \
 ```
 
 This approach offers several advantages:
+
 - More consistent deployment environment
 - Avoids issues with local Terraform plugin installation
 - Better alignment with official API3 documentation and support
@@ -805,6 +820,7 @@ This approach offers several advantages:
 ### 4. Required Files Structure
 
 Our deployment requires three key files in the config directory:
+
 1. `config.json` - The main Airnode configuration file (generated from template)
 2. `secrets.env` - Environment variables including mnemonic and API keys
 3. `aws.env` - AWS credentials for deployment
@@ -812,6 +828,7 @@ Our deployment requires three key files in the config directory:
 ### 5. Deployment Command Flow
 
 The updated process follows these steps:
+
 1. Generate credentials (mnemonic, addresses, xpub)
 2. Create config.json from template with appropriate values
 3. Generate secrets.env with environment variables
@@ -879,7 +896,7 @@ We've successfully completed these critical components:
    - Ready to request data when the Oracle is available
 
 4. **AWS Deployment**: Attempted with multiple approaches
-   - Encountered persistent Terraform state file issues 
+   - Encountered persistent Terraform state file issues
    - AWS IAM permissions appear to be correct
    - Docker-based deployment attempted with same issues
    - Alternative approaches documented for future implementation
@@ -888,18 +905,21 @@ This means that the on-chain components are ready for Oracle integration, which 
 
 ### 10. Conclusion and Next Steps
 
-The Oracle integration for the ETS project is partially complete, with the most critical blockchain components successfully implemented. 
+The Oracle integration for the ETS project is partially complete, with the most critical blockchain components successfully implemented.
 
 **What Works:**
+
 - Oracle credentials generation and management
 - Smart contract integration and configuration
 - Sponsorship relationship establishment
 
 **What Needs Resolution:**
+
 - Airnode deployment to either AWS or an alternative hosting service
 - HTTP Gateway endpoint availability
 
 **Recommended Next Steps:**
+
 1. Try direct AWS console deployment using the Airnode Lambda package
 2. Consider a containerized approach on EC2 or another hosting service
 3. Focus testing on the contract integration mechanisms once a live endpoint is available
@@ -945,7 +965,7 @@ export async function generateStagingConfig() {
 
     // Add Airnode variables
     templateData.airnodeWalletMnemonicVar = "${AIRNODE_WALLET_MNEMONIC}";
-    
+
     // Add AWS specific variables
     templateData.awsRegion = process.env.AWS_REGION || "us-east-1";
     templateData.httpGatewayApiKey = "${HTTP_GATEWAY_API_KEY}";
@@ -1110,7 +1130,7 @@ export async function deployStagingAirnode() {
 
     // Execute deployment
     const { stdout, stderr } = await exec(deployCommand);
-    
+
     if (stderr) {
       console.warn("Deployment warnings:", stderr);
     }
@@ -1120,7 +1140,7 @@ export async function deployStagingAirnode() {
     // Check for successful deployment by looking for the latest receipt file
     const files = await fs.readdir(receiptDir);
     const receiptFiles = files.filter(file => file.startsWith("receipt-")).sort();
-    
+
     if (receiptFiles.length === 0) {
       throw new Error("No deployment receipt found, deployment may have failed");
     }
@@ -1134,7 +1154,7 @@ export async function deployStagingAirnode() {
     console.log(`- Stage: ${receiptData.deployment.stage}`);
     console.log(`- Region: ${receiptData.deployment.region}`);
     console.log(`- HTTP Gateway URL: ${receiptData.deployment.httpGatewayUrl}`);
-    
+
     // Create a deployment-info.json file with critical information
     const deploymentInfo = {
       airnodeAddress: receiptData.airnodeWallet.airnodeAddress,
@@ -1192,12 +1212,12 @@ async function verifyOracleHealth() {
     // Check HTTP Gateway response
     console.log("Testing HTTP Gateway connectivity...");
     const httpGatewayUrl = deploymentInfo.httpGatewayUrl;
-    
+
     const gatewayResponse = await fetch(`${httpGatewayUrl}/health`);
     if (!gatewayResponse.ok) {
       throw new Error(`HTTP Gateway health check failed: ${gatewayResponse.statusText}`);
     }
-    
+
     const healthData = await gatewayResponse.json();
     console.log("Gateway health check response:", healthData);
 
@@ -1213,7 +1233,7 @@ async function verifyOracleHealth() {
       "../../../packages/contracts/deployments/arbitrumSepoliaStaging/ETSEnrichTarget.json"
     );
     const etsEnrichTargetData = JSON.parse(await fs.readFile(etsEnrichTargetPath, "utf8"));
-    
+
     // Create contract instance
     const etsEnrichTarget = new ethers.Contract(
       etsEnrichTargetData.address,
@@ -1294,26 +1314,26 @@ async function removeOracle() {
     // Find the most recent receipt file
     const files = await fs.readdir(receiptDir);
     const receiptFiles = files.filter(file => file.startsWith("receipt-")).sort();
-    
+
     if (receiptFiles.length === 0) {
       throw new Error("No deployment receipt found");
     }
 
     const latestReceiptPath = path.join(receiptDir, receiptFiles[receiptFiles.length - 1]);
-    
+
     // Remove the deployment
     console.log(`Removing deployment using receipt: ${latestReceiptPath}`);
     const removeCommand = `npx @api3/airnode-deployer remove --receipt ${latestReceiptPath}`;
 
     const { stdout, stderr } = await exec(removeCommand);
-    
+
     if (stderr) {
       console.warn("Removal warnings:", stderr);
     }
 
     console.log("Removal output:", stdout);
     console.log("\n✅ Oracle removal completed successfully!");
-    
+
     // Update deployment-info to reflect removed status
     const deploymentInfoPath = path.join(configDir, "deployment-info.json");
     try {
@@ -1423,6 +1443,7 @@ This comprehensive staging environment Oracle deployment plan will allow smooth 
 To deploy the staging Oracle to AWS, follow these steps:
 
 1. **Preparation**:
+
    ```bash
    # Copy the example environment file and fill in required values
    cp apps/oracle/.env.staging.example apps/oracle/.env.staging
@@ -1431,27 +1452,29 @@ To deploy the staging Oracle to AWS, follow these steps:
    ```
 
 2. **Docker Requirements**:
+
    ```bash
    # Ensure Docker is installed and running
    docker --version
-   
+
    # The deployment will use the official Airnode deployer Docker image
    # No need to install Terraform or other tools locally
    ```
 
 3. **Deployment**:
+
    ```bash
    # Step 1: Run the preparation script
    cd apps/oracle
    pnpm run deploy:staging
-   
+
    # This will:
    # 1. Generate credentials if needed
    # 2. Create config files
    # 3. Set up sponsorship relationships
    # 4. Configure requester contracts
    # 5. Output Docker command for manual AWS deployment
-   
+
    # Step 2: Run the Docker command that was displayed
    # The command will look like this:
    cd /Users/User/Sites/ets/apps/oracle/config/staging && \
@@ -1462,30 +1485,32 @@ To deploy the staging Oracle to AWS, follow these steps:
    ```
 
 4. **Verification**:
+
    ```bash
    # Run the verification script to ensure everything works
    pnpm run verify:staging
-   
+
    # Run the test script to perform a real Oracle request
    pnpm run test:staging
    ```
 
 5. **Maintenance**:
+
    ```bash
    # To remove the deployment, run the interactive removal script
    pnpm run remove:staging
-   
+
    # The script will:
    # 1. Automatically detect the deployment ID from the receipt file
    # 2. Ask for confirmation before proceeding with removal
    # 3. Execute the Docker removal command for you
    # 4. Back up the receipt file with a timestamp
    # 5. Create a removal-info.json file with all removal details
-   
+
    # If no receipt file is found, the script will offer to:
    # 1. Run a force removal command without a deployment ID
    # 2. OR display the manual command for you to run later
-   
+
    # For logs and monitoring
    # Use the AWS CloudWatch console to view logs under:
    # - Lambda functions with names containing the Airnode address
@@ -1532,11 +1557,13 @@ curl -X POST \
 ```
 
 Where:
-- `<gateway-url>` is the base URL from the deployment (e.g., https://m80dh2q76h.execute-api.us-east-1.amazonaws.com/v1)
+
+- `<gateway-url>` is the base URL from the deployment (e.g., <https://m80dh2q76h.execute-api.us-east-1.amazonaws.com/v1>)
 - `<uuid>` is the unique identifier for the gateway (e.g., 9ee65fb5-b84b-cb4b-4b53-3fe3c0a7b8e0)
 - `<endpoint-id>` is the hash of the endpoint you want to call (e.g., 0xf898508c530f6658d4c4ca0098911d4b32d7e990c23500efe4d4aa3764bd0b49)
 
 Example for nextAuction endpoint:
+
 ```bash
 curl -X POST \
   "https://m80dh2q76h.execute-api.us-east-1.amazonaws.com/v1/9ee65fb5-b84b-cb4b-4b53-3fe3c0a7b8e0/0xf898508c530f6658d4c4ca0098911d4b32d7e990c23500efe4d4aa3764bd0b49" \
@@ -1545,6 +1572,7 @@ curl -X POST \
 ```
 
 The response will include:
+
 - `rawValue`: The direct API response
 - `encodedValue`: The encoded bytes that would be sent on-chain
 - `values`: An array of extracted values after conversion
@@ -1563,12 +1591,13 @@ To support our environment separation strategy, the offchain API needs to be upd
 2. **Environment-Aware SDK Usage**:
    - Modify API controllers to pass the environment parameter to SDK clients
    - Update SDK client creation to include the appropriate environment:
+
    ```typescript
    const environment = req.body.staging ? "staging" : "production";
-   const client = createEtsClient({ 
-     chainId, 
+   const client = createEtsClient({
+     chainId,
      account,
-     environment 
+     environment
    });
    ```
 
@@ -1615,6 +1644,7 @@ curl -X POST \
 ```
 
 The endpoint expects a JSON body with:
+
 - Required: `chainId` (number) - The blockchain network ID
 - Optional: `returnType` (string) - Set to "json" for a more detailed response or omit for the Airnode-compatible format
 - Optional: `staging` (boolean) - Set to `true` to query staging environment, defaults to `false` for production

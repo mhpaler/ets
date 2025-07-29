@@ -133,7 +133,8 @@ async function testStagingOracle() {
 
     // Wait for the Oracle callback
     try {
-      const { metadata } = await metadataPromise;
+      const result = await metadataPromise as any;
+      const { metadata } = result;
       console.log("\n✅ Target metadata updated successfully!");
       console.log("Target Metadata:");
       console.log(`- Arweave TX: ${metadata.arweaveTxId}`);

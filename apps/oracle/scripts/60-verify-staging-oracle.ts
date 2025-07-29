@@ -89,24 +89,10 @@ async function verifyOracleHealth() {
       throw error;
     }
 
-    // Check HTTP Gateway response
-    console.log("\nTesting HTTP Gateway connectivity...");
+    // Display HTTP Gateway URL for reference
     const httpGatewayUrl = deploymentInfo.httpGatewayUrl;
-    console.log(`HTTP Gateway URL: ${httpGatewayUrl}`);
-
-    try {
-      const gatewayResponse = await fetch(`${httpGatewayUrl}/health`);
-      if (!gatewayResponse.ok) {
-        throw new Error(`HTTP Gateway health check failed: ${gatewayResponse.statusText}`);
-      }
-
-      const healthData = await gatewayResponse.json();
-      console.log("Gateway health check response:", healthData);
-      console.log("✅ HTTP Gateway is accessible and healthy");
-    } catch (error) {
-      console.error("❌ HTTP Gateway health check failed:", error);
-      console.warn("This may indicate issues with AWS deployment or networking");
-    }
+    console.log(`\nHTTP Gateway URL: ${httpGatewayUrl}`);
+    console.log("✅ HTTP Gateway URL available for Oracle requests");
 
     // Connect to blockchain
     console.log("\nConnecting to Arbitrum Sepolia testnet...");

@@ -2,13 +2,13 @@
  * Staging Airnode Configuration Generator
  *
  * This script generates the Airnode configuration file (config.json) for the staging environment:
- * 1. Reads contract addresses from staging deployment artifacts
+ * 1. Reads contract addresses from staging deployment artifacts for all supported chains
  * 2. Reads airnodeAddress from previously generated credentials
  * 3. Generates endpoint IDs using deriveEndpointId
  * 4. Creates the final config.json using the staging template
  *
  * The generated config.json is used by the Airnode container to connect
- * to the blockchain and serve API requests in the staging environment.
+ * to multiple blockchains and serve API requests in the staging environment.
  */
 
 import { promises as fs } from "node:fs";
@@ -17,13 +17,19 @@ import { deriveEndpointId } from "@api3/airnode-admin";
 import * as dotenv from "dotenv";
 import Handlebars from "handlebars";
 import type { AirnodeCredentials } from "../types/airnode";
+import { 
+  ORACLE_CHAIN_CONFIGS, 
+  getSupportedOracleChainIds,
+  getContractDeploymentPath,
+  getChainRpcUrl
+} from "../utils/chainConfig";
 
 // Load environment variables from .env.staging
 dotenv.config({ path: path.join(__dirname, "../.env.staging") });
 
 export async function generateStagingConfig() {
   try {
-    console.log("Generating Staging Airnode configuration...");
+    console.log("Generating Multi-Chain Staging Airnode configuration...");
 
     // Create config directory if it doesn't exist
     const configDir = path.join(__dirname, "../config/staging");
@@ -52,50 +58,115 @@ export async function generateStagingConfig() {
     // Add AWS specific variables
     templateData.awsRegion = process.env.AWS_REGION || "us-east-1";
     templateData.httpGatewayApiKey = "${HTTP_GATEWAY_API_KEY}";
-    // TODO: Heartbeat is disabled in template, these variables no longer needed
-    // templateData.heartbeatApiKey = "${HEARTBEAT_API_KEY}";
-    // templateData.heartbeatUrl = process.env.HEARTBEAT_URL || "";
 
-    // Read AirnodeRrpV0 contract address for staging
-    try {
-      const airnodeRrpPath = path.join(
-        __dirname,
-        "../../../packages/contracts/deployments/arbitrumSepoliaStaging/AirnodeRrpV0Proxy.json",
-      );
+    // Generate chain configurations for all supported chains
+    const chainIds = getSupportedOracleChainIds();
+    const chainConfigs = [];
 
+    for (const chainId of chainIds) {
+      console.log(`Configuring chain: ${ORACLE_CHAIN_CONFIGS[chainId].name} (${chainId})`);
+      const deploymentPath = getContractDeploymentPath(chainId);
+      const rpcUrl = getChainRpcUrl(chainId);
+      const providerName = ORACLE_CHAIN_CONFIGS[chainId].providerName;
+      
       try {
-        const airnodeRrpData = JSON.parse(await fs.readFile(airnodeRrpPath, "utf8"));
-        templateData.airnodeRrpAddress = airnodeRrpData.address;
-        console.log(`Found AirnodeRrpV0Proxy contract at: ${templateData.airnodeRrpAddress}`);
-      } catch (_error) {
-        console.error("Error: Could not find AirnodeRrpV0Proxy deployment file for staging.");
-        console.error("Please ensure the contracts are deployed to staging environment before running this script.");
-        throw new Error("AirnodeRrpV0Proxy staging deployment not found");
-      }
+        // Read AirnodeRrpV0 contract address for this chain
+        const airnodeRrpPath = path.join(
+          __dirname,
+          `../../../packages/contracts/deployments/${deploymentPath}/AirnodeRrpV0Proxy.json`,
+        );
 
-      // Read ETSEnrichTarget contract address for staging
-      const etsEnrichTargetPath = path.join(
-        __dirname,
-        "../../../packages/contracts/deployments/arbitrumSepoliaStaging/ETSEnrichTarget.json",
-      );
+        let airnodeRrpAddress: string;
+        try {
+          const airnodeRrpData = JSON.parse(await fs.readFile(airnodeRrpPath, "utf8"));
+          airnodeRrpAddress = airnodeRrpData.address;
+          console.log(`Found AirnodeRrpV0Proxy contract at: ${airnodeRrpAddress} on ${chainId}`);
+        } catch (_error) {
+          console.error(`Error: Could not find AirnodeRrpV0Proxy deployment file for chain ${chainId}.`);
+          console.error(`Please ensure the contracts are deployed to ${deploymentPath} before running this script.`);
+          throw new Error(`AirnodeRrpV0Proxy deployment not found for chain ${chainId}`);
+        }
 
-      try {
-        const etsEnrichTargetData = JSON.parse(await fs.readFile(etsEnrichTargetPath, "utf8"));
-        templateData.etsEnrichTargetAddress = etsEnrichTargetData.address;
-        console.log(`Found Staging ETSEnrichTarget contract at: ${templateData.etsEnrichTargetAddress}`);
-      } catch (_error) {
-        console.error("Error: Could not find ETSEnrichTarget deployment file for staging.");
-        console.error("Please ensure the contract is deployed to staging environment before running this script.");
-        throw new Error("ETSEnrichTarget staging deployment not found");
+        // Read ETSEnrichTarget contract address for this chain
+        const etsEnrichTargetPath = path.join(
+          __dirname,
+          `../../../packages/contracts/deployments/${deploymentPath}/ETSEnrichTarget.json`,
+        );
+
+        let etsEnrichTargetAddress: string;
+        try {
+          const etsEnrichTargetData = JSON.parse(await fs.readFile(etsEnrichTargetPath, "utf8"));
+          etsEnrichTargetAddress = etsEnrichTargetData.address;
+          console.log(`Found ETSEnrichTarget contract at: ${etsEnrichTargetAddress} on ${chainId}`);
+        } catch (_error) {
+          console.error(`Error: Could not find ETSEnrichTarget deployment file for chain ${chainId}.`);
+          console.error(`Please ensure the contract is deployed to ${deploymentPath} before running this script.`);
+          throw new Error(`ETSEnrichTarget deployment not found for chain ${chainId}`);
+        }
+
+        // Create chain configuration
+        const chainConfig = {
+          authorizers: {
+            requesterEndpointAuthorizers: [],
+            crossChainRequesterAuthorizers: [],
+            requesterAuthorizersWithErc721: [],
+            crossChainRequesterAuthorizersWithErc721: []
+          },
+          authorizations: {
+            requesterEndpointAuthorizations: {}
+          },
+          contracts: {
+            AirnodeRrp: airnodeRrpAddress
+          },
+          id: chainId,
+          providers: {
+            [providerName]: {
+              url: rpcUrl
+            }
+          },
+          type: "evm",
+          maxConcurrency: 100,
+          options: {
+            fulfillmentGasLimit: 500000,
+            gasPriceOracle: [
+              {
+                gasPriceStrategy: "providerRecommendedGasPrice",
+                recommendedGasPriceMultiplier: 1.2
+              },
+              {
+                gasPriceStrategy: "constantGasPrice",
+                gasPrice: {
+                  value: 30,
+                  unit: "gwei"
+                }
+              }
+            ]
+          }
+        };
+
+        // Add to chain configurations
+        chainConfigs.push(chainConfig);
+
+        // Save chain-specific configuration details for later use
+        const configDetailsPath = path.join(configDir, `configuration-details-${ORACLE_CHAIN_CONFIGS[chainId].networkName}.json`);
+        await fs.writeFile(configDetailsPath, JSON.stringify({
+          chainId,
+          networkName: ORACLE_CHAIN_CONFIGS[chainId].networkName,
+          airnodeRrpAddress,
+          etsEnrichTargetAddress,
+          deploymentPath
+        }, null, 2));
+        
+      } catch (error) {
+        console.error(`Error configuring chain ${chainId}:`, error);
+        throw error;
       }
-    } catch (error) {
-      console.error(`Error reading staging deployment artifacts: ${error}`);
-      throw error;
     }
 
-    // Set staging-specific values
-    templateData.chainId = "421614"; // Arbitrum Sepolia chain ID
-    templateData.rpcUrl = process.env.ARBITRUM_SEPOLIA_URL || "https://sepolia-rollup.arbitrum.io/rpc";
+    // Add chains data to template
+    templateData.chains = JSON.stringify(chainConfigs);
+    
+    // Set API URL for all chains
     templateData.stagingApiUrl = process.env.STAGING_API_URL || "https://ets-offchain-api.onrender.com"; // Staging API endpoint
 
     // Generate endpoint IDs using the official Airnode utility
@@ -136,8 +207,27 @@ HTTP_GATEWAY_API_KEY=${process.env.HTTP_GATEWAY_API_KEY || generateRandomApiKey(
     const secretsPath = path.join(configDir, "secrets.env");
     await fs.writeFile(secretsPath, secretsContent);
 
-    console.log(`Airnode staging config generated at: ${configPath}`);
+    console.log(`Airnode multi-chain staging config generated at: ${configPath}`);
     console.log(`Airnode staging secrets generated at: ${secretsPath}`);
+    
+    // Create a master configuration details file
+    const masterConfigDetails = {
+      timeGenerated: new Date().toISOString(),
+      apiUrl: templateData.stagingApiUrl,
+      enrichTargetEndpointId: templateData.enrichTargetEndpointId,
+      nextAuctionEndpointId: templateData.nextAuctionEndpointId,
+      chains: chainIds.map(chainId => ({
+        chainId,
+        name: ORACLE_CHAIN_CONFIGS[chainId].name,
+        networkName: ORACLE_CHAIN_CONFIGS[chainId].networkName,
+        rpcUrl: getChainRpcUrl(chainId)
+      }))
+    };
+    
+    const masterConfigPath = path.join(configDir, "configuration-details.json");
+    await fs.writeFile(masterConfigPath, JSON.stringify(masterConfigDetails, null, 2));
+    console.log(`Master configuration details saved to: ${masterConfigPath}`);
+    
     return true;
   } catch (error) {
     console.error("Error generating staging config:", error);
@@ -154,9 +244,9 @@ function generateRandomApiKey() {
 // For command-line usage
 if (require.main === module) {
   generateStagingConfig()
-    .then(() => console.log("Staging Airnode config generation completed"))
+    .then(() => console.log("Multi-chain staging Airnode config generation completed"))
     .catch((error) => {
-      console.error("Error in Staging Airnode config generation:", error);
+      console.error("Error in staging Airnode config generation:", error);
       process.exit(1);
     });
 }

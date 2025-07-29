@@ -37,13 +37,23 @@ export async function deployStagingAirnode() {
       throw new Error("AWS credentials not found");
     }
 
-    // Check if Docker is installed
+    // Double-check if Docker is installed and running
     try {
       await exec("docker --version");
       console.log("Docker is available");
-    } catch (_error) {
+      
+      try {
+        await exec("docker ps");
+        console.log("Docker is running");
+      } catch (_error) {
+        throw new Error(
+          "Docker is installed but not running. Please start Docker and try again.",
+        );
+      }
+    } catch (error) {
+      console.error("Error checking Docker:", error);
       throw new Error(
-        "Docker is required for Airnode deployment but not available. Please install Docker and try again.",
+        "Docker is required for Airnode deployment. Please ensure Docker is installed and running.",
       );
     }
 
@@ -112,6 +122,30 @@ AWS_SECRET_ACCESS_KEY=${process.env.AWS_SECRET_ACCESS_KEY}`;
         // Save to a file for future reference
         await fs.writeFile(path.join(configDir, "gateway-url.txt"), detectedHttpGatewayUrl);
         // HTTP Gateway URL detected and saved (silently)
+      }
+
+      // Create deployment-info.json file for verification script
+      try {
+        // Read receipt.json to get deployment details
+        const receiptPath = path.join(configDir, "receipt.json");
+        const receiptData = JSON.parse(await fs.readFile(receiptPath, "utf8"));
+        
+        const deploymentInfo = {
+          airnodeAddress: receiptData.airnodeWallet?.airnodeAddress || "",
+          httpGatewayUrl: detectedHttpGatewayUrl,
+          deploymentTimestamp: receiptData.deployment?.timestamp || new Date().toISOString(),
+          environment: "staging",
+          deploymentId: receiptData.deployment?.deploymentId || ""
+        };
+
+        await fs.writeFile(
+          path.join(configDir, "deployment-info.json"),
+          JSON.stringify(deploymentInfo, null, 2)
+        );
+        
+        console.log("✅ Created deployment-info.json for verification");
+      } catch (error) {
+        console.warn("⚠️ Could not create deployment-info.json:", error);
       }
 
       if (stderr) {

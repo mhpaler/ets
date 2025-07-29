@@ -13,7 +13,7 @@
  *
  * Prerequisites:
  * - AWS credentials must be configured
- * - Staging contracts must be deployed to Arbitrum Sepolia
+ * - Staging contracts must be deployed to Arbitrum Sepolia and Base Sepolia
  * - Admin wallet with ETH for transactions must be available
  * - Staging API must be deployed and accessible
  */
@@ -37,6 +37,31 @@ import { generateStagingConfig } from "./20-generate-staging-config";
 import { setupStagingSponsorship } from "./30-setup-staging-sponsorship";
 import { configureStagingRequester } from "./40-configure-staging-requester";
 import { deployStagingAirnode } from "./50-deploy-staging-airnode";
+
+/**
+ * Check if Docker is installed and running
+ * @returns Object containing docker status information
+ */
+async function checkDockerStatus(): Promise<{ installed: boolean; running: boolean }> {
+  let installed = false;
+  let running = false;
+
+  try {
+    await exec("docker --version");
+    installed = true;
+
+    try {
+      await exec("docker ps");
+      running = true;
+    } catch (_error) {
+      // Docker is installed but not running
+    }
+  } catch (_error) {
+    // Docker is not installed
+  }
+
+  return { installed, running };
+}
 
 /**
  * Checks for existing Airnode deployments on AWS
@@ -270,6 +295,24 @@ async function cleanupPreviousDeployment() {
 export async function deployStagingOracle() {
   try {
     console.log("=== ETS Staging Oracle Deployment ===");
+    console.log("Deploying Oracle to AWS staging environment...");
+    
+    // Check Docker status at the very beginning
+    const dockerStatus = await checkDockerStatus();
+
+    if (!dockerStatus.installed) {
+      console.error("⚠️ Docker is not installed. This is required for Airnode deployment.");
+      console.error("Please install Docker and try again.");
+      process.exit(1);
+    } 
+    
+    if (!dockerStatus.running) {
+      console.error("⚠️ Docker is installed but not running. This is required for Airnode deployment.");
+      console.error("Please start Docker and try again.");
+      process.exit(1);
+    }
+    
+    console.log("✅ Docker is installed and running.");
 
     // Check for existing Airnode deployments first
     await checkForExistingAirnode();
@@ -277,11 +320,13 @@ export async function deployStagingOracle() {
     // Clean up any previous deployment artifacts
     await cleanupPreviousDeployment();
 
-    console.log("\nStep 1/5: Generating Airnode credentials for staging...");
+    console.log("\nStep 1/2: Generating Airnode credentials for staging...");
     const credentials = await generateStagingCredentials();
 
-    console.log("\nStep 2/5: Generating Staging Airnode configuration...");
+    console.log("\nStep 2/2: Generating Multi-Chain Staging Airnode configuration...");
     await generateStagingConfig();
+
+    console.log("\n✅ Multi-Chain configuration generation completed successfully!");
 
     console.log("\nStep 3/5: Setting up sponsorship for staging environment...");
     const sponsorship = await setupStagingSponsorship();
@@ -302,7 +347,7 @@ export async function deployStagingOracle() {
       deployment,
     };
   } catch (error) {
-    console.error("\n❌ Staging Oracle deployment failed:", error);
+    console.error("\n❌ Staging Oracle configuration generation failed:", error);
     throw error;
   }
 }
