@@ -96,6 +96,7 @@ apps/oracle/config/local/configuration-details.json
 apps/oracle/config/local/gateway-url.txt
 apps/oracle/config/local/secrets.env
 apps/oracle/config/local/test-command.txt
+apps/oracle/config/local/receipt.json
 
 apps/oracle/config/staging/airnode-credentials.json
 apps/oracle/config/staging/aws.env
@@ -104,6 +105,7 @@ apps/oracle/config/staging/configuration-details.json
 apps/oracle/config/staging/gateway-url.txt
 apps/oracle/config/staging/secrets.env
 apps/oracle/config/staging/test-command.txt
+apps/oracle/config/staging/receipt.json
 apps/oracle/config/staging/history/
 
 apps/oracle/config/production/airnode-credentials.json
@@ -113,6 +115,7 @@ apps/oracle/config/production/configuration-details.json
 apps/oracle/config/production/gateway-url.txt
 apps/oracle/config/production/secrets.env
 apps/oracle/config/production/test-command.txt
+apps/oracle/config/production/receipt.json
 apps/oracle/config/production/history/
 
 # Arweave keyfiles (sensitive)
