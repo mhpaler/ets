@@ -211,7 +211,11 @@ AWS_SECRET_ACCESS_KEY=${process.env.AWS_SECRET_ACCESS_KEY}`;
             };
 
             // Save updated configuration details
-            await fs.writeFile(configDetailsPath, JSON.stringify(configDetails, null, 2));
+            if (isDryRun) {
+              console.log("🔍 DRY RUN: Would save updated configuration details");
+            } else {
+              await fs.writeFile(configDetailsPath, JSON.stringify(configDetails, null, 2));
+            }
           } catch (_error) {
             console.warn("Could not read/update configuration-details.json, creating new file...");
 
@@ -228,10 +232,14 @@ AWS_SECRET_ACCESS_KEY=${process.env.AWS_SECRET_ACCESS_KEY}`;
               },
             };
 
-            await fs.writeFile(
-              path.join(configDir, "configuration-details.json"),
-              JSON.stringify(configDetails, null, 2),
-            );
+            if (isDryRun) {
+              console.log("🔍 DRY RUN: Would create new configuration-details.json");
+            } else {
+              await fs.writeFile(
+                path.join(configDir, "configuration-details.json"),
+                JSON.stringify(configDetails, null, 2),
+              );
+            }
           }
 
           // Check if a receipt.json exists and rename it, saving to history directory
@@ -246,26 +254,36 @@ AWS_SECRET_ACCESS_KEY=${process.env.AWS_SECRET_ACCESS_KEY}`;
             const timestamp = new Date().getTime();
             const backupPath = path.join(historyDir, `receipt-force-removed-${timestamp}.json`);
 
-            try {
-              // Ensure history directory exists
-              await fs.mkdir(historyDir, { recursive: true });
-
-              console.log(`\nBacking up receipt.json to ${backupPath}...`);
-              await fs.copyFile(receiptPath, backupPath);
-              await fs.unlink(receiptPath);
-
-              // Update configuration details with the backup path
+            if (isDryRun) {
+              console.log(`\n🔍 DRY RUN: Would back up receipt.json to ${backupPath}`);
+              console.log("🔍 DRY RUN: Would remove original receipt.json");
+              
+              // In dry run, just simulate the backup path update
               if (configDetails) {
                 configDetails.receiptBackupFile = `history/receipts/receipt-force-removed-${timestamp}.json`;
-                await fs.writeFile(
-                  path.join(configDir, "configuration-details.json"),
-                  JSON.stringify(configDetails, null, 2),
-                );
               }
+            } else {
+              try {
+                // Ensure history directory exists
+                await fs.mkdir(historyDir, { recursive: true });
 
-              console.log("Receipt backup complete and original removed");
-            } catch (backupError) {
-              console.warn("Could not back up receipt file:", backupError);
+                console.log(`\nBacking up receipt.json to ${backupPath}...`);
+                await fs.copyFile(receiptPath, backupPath);
+                await fs.unlink(receiptPath);
+
+                // Update configuration details with the backup path
+                if (configDetails) {
+                  configDetails.receiptBackupFile = `history/receipts/receipt-force-removed-${timestamp}.json`;
+                  await fs.writeFile(
+                    path.join(configDir, "configuration-details.json"),
+                    JSON.stringify(configDetails, null, 2),
+                  );
+                }
+
+                console.log("Receipt backup complete and original removed");
+              } catch (backupError) {
+                console.warn("Could not back up receipt file:", backupError);
+              }
             }
           }
 
@@ -418,8 +436,12 @@ docker run --rm \\
         };
 
         // Save updated configuration details
-        await fs.writeFile(configDetailsPath, JSON.stringify(configDetails, null, 2));
-        console.log(`Updated configuration details with removal info at: ${configDetailsPath}`);
+        if (isDryRun) {
+          console.log(`🔍 DRY RUN: Would update configuration details at: ${configDetailsPath}`);
+        } else {
+          await fs.writeFile(configDetailsPath, JSON.stringify(configDetails, null, 2));
+          console.log(`Updated configuration details with removal info at: ${configDetailsPath}`);
+        }
       } catch (_error) {
         console.warn("Could not read/update configuration-details.json, creating new file...");
 
@@ -437,8 +459,12 @@ docker run --rm \\
           },
         };
 
-        await fs.writeFile(path.join(configDir, "configuration-details.json"), JSON.stringify(configDetails, null, 2));
-        console.log("Created new configuration-details.json with removal information");
+        if (isDryRun) {
+          console.log("🔍 DRY RUN: Would create new configuration-details.json with removal information");
+        } else {
+          await fs.writeFile(path.join(configDir, "configuration-details.json"), JSON.stringify(configDetails, null, 2));
+          console.log("Created new configuration-details.json with removal information");
+        }
       }
 
       // Rename the receipt file and save directly to history directory
@@ -447,26 +473,36 @@ docker run --rm \\
       const timestamp = new Date().getTime();
       const backupPath = path.join(historyDir, `receipt-removed-${timestamp}.json`);
 
-      try {
-        // Ensure history directory exists
-        await fs.mkdir(historyDir, { recursive: true });
-
-        console.log(`\nBacking up receipt.json to ${backupPath}...`);
-        await fs.copyFile(receiptPath, backupPath);
-        await fs.unlink(receiptPath);
-
-        // Update configuration details with the backup path
+      if (isDryRun) {
+        console.log(`\n🔍 DRY RUN: Would back up receipt.json to ${backupPath}`);
+        console.log("🔍 DRY RUN: Would remove original receipt.json");
+        
+        // In dry run, just simulate the backup path update
         if (configDetails) {
           configDetails.receiptBackupFile = `history/receipts/receipt-removed-${timestamp}.json`;
-          await fs.writeFile(
-            path.join(configDir, "configuration-details.json"),
-            JSON.stringify(configDetails, null, 2),
-          );
         }
+      } else {
+        try {
+          // Ensure history directory exists
+          await fs.mkdir(historyDir, { recursive: true });
 
-        console.log("Receipt backup complete and original removed");
-      } catch (backupError) {
-        console.warn("Could not back up receipt file:", backupError);
+          console.log(`\nBacking up receipt.json to ${backupPath}...`);
+          await fs.copyFile(receiptPath, backupPath);
+          await fs.unlink(receiptPath);
+
+          // Update configuration details with the backup path
+          if (configDetails) {
+            configDetails.receiptBackupFile = `history/receipts/receipt-removed-${timestamp}.json`;
+            await fs.writeFile(
+              path.join(configDir, "configuration-details.json"),
+              JSON.stringify(configDetails, null, 2),
+            );
+          }
+
+          console.log("Receipt backup complete and original removed");
+        } catch (backupError) {
+          console.warn("Could not back up receipt file:", backupError);
+        }
       }
 
       console.log("\n✅ Airnode removal completed successfully!");

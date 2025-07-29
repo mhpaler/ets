@@ -114,3 +114,6 @@ apps/oracle/config/production/gateway-url.txt
 apps/oracle/config/production/secrets.env
 apps/oracle/config/production/test-command.txt
 apps/oracle/config/production/history/
+
+# Arweave keyfiles (sensitive)
+apps/offchain-api/arweave-keyfile.json
