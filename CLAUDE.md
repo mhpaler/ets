@@ -22,6 +22,16 @@ When switching to work on a different feature branch, updating this reference in
 - Test single contract: `cd packages/contracts && npx hardhat test test/ETS.test.ts`
 - Start local stack: `./scripts/start-local-stack.sh`
 
+## Git Commits via Claude Code
+
+When committing via Claude Code, always source nvm first to use the correct Node.js version for pre-commit hooks:
+
+```bash
+source ~/.nvm/nvm.sh && nvm use 20.1.0 && git commit -m "message"
+```
+
+This ensures pre-commit hooks (Biome linting) work correctly with the ARM64 architecture.
+
 ## Code Style
 
 - **Formatting**: Double quotes, trailing commas, 2-space indentation (4 for Solidity)
