@@ -29,22 +29,22 @@ interface OracleTestResult {
 }
 
 async function makeHttpGatewayRequest(
-  gatewayUrl: string, 
-  endpointId: string, 
-  parameters: Record<string, any>
+  gatewayUrl: string,
+  endpointId: string,
+  parameters: Record<string, any>,
 ): Promise<{ response: any; responseTime: number }> {
   const startTime = Date.now();
-  
+
   const response = await fetch(`${gatewayUrl}/${endpointId}`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({ parameters }),
   });
 
   const responseTime = Date.now() - startTime;
-  
+
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
   }
@@ -55,37 +55,37 @@ async function makeHttpGatewayRequest(
 
 async function testNextAuctionEndpoint(gatewayUrl: string): Promise<OracleTestResult> {
   const endpointId = "0xf898508c530f6658d4c4ca0098911d4b32d7e990c23500efe4d4aa3764bd0b49";
-  
+
   try {
     console.log("\n📞 Testing nextAuction endpoint...");
-    
+
     const { response, responseTime } = await makeHttpGatewayRequest(gatewayUrl, endpointId, {
-      chainId: "421614"
+      chainId: "421614",
     });
 
     // Validate response structure
-    if (!response.rawValue || typeof response.rawValue.success === 'undefined') {
+    if (!response.rawValue || typeof response.rawValue.success === "undefined") {
       throw new Error("Invalid response structure");
     }
 
     const { rawValue } = response;
-    
+
     console.log(`✅ Success! Response time: ${responseTime}ms`);
     console.log(`- Success: ${rawValue.success}`);
     console.log(`- Has Eligible Tag: ${rawValue.hasEligibleTag}`);
-    console.log(`- Tag Display: ${rawValue.tagDisplay || 'N/A'}`);
-    
+    console.log(`- Tag Display: ${rawValue.tagDisplay || "N/A"}`);
+
     return {
-      endpoint: 'nextAuction',
+      endpoint: "nextAuction",
       success: true,
       response: rawValue,
       responseTime,
     };
   } catch (error) {
     console.log(`❌ Failed: ${error instanceof Error ? error.message : String(error)}`);
-    
+
     return {
-      endpoint: 'nextAuction',
+      endpoint: "nextAuction",
       success: false,
       error: error instanceof Error ? error.message : String(error),
     };
@@ -95,43 +95,43 @@ async function testNextAuctionEndpoint(gatewayUrl: string): Promise<OracleTestRe
 async function testEnrichTargetEndpoint(gatewayUrl: string): Promise<OracleTestResult> {
   const endpointId = "0x5d09ceade33f5e4e5627a6400eaf9ad5fbbecc6c16ce3802f784b480c06b867d";
   const testTargetId = "80371362703188808349777448140190310083809086108901048823185682177394706595976";
-  
+
   try {
     console.log("\n📞 Testing enrichTarget endpoint...");
     console.log(`- Using target ID: ${testTargetId}`);
-    
+
     const { response, responseTime } = await makeHttpGatewayRequest(gatewayUrl, endpointId, {
       chainId: "421614",
-      targetId: testTargetId
+      targetId: testTargetId,
     });
 
     // Validate response structure
-    if (!response.rawValue || typeof response.rawValue.success === 'undefined') {
+    if (!response.rawValue || typeof response.rawValue.success === "undefined") {
       throw new Error("Invalid response structure");
     }
 
     const { rawValue } = response;
-    
+
     console.log(`✅ Success! Response time: ${responseTime}ms`);
     console.log(`- Success: ${rawValue.success}`);
     console.log(`- HTTP Status: ${rawValue.httpStatus}`);
     console.log(`- Arweave TX ID: ${rawValue.txId}`);
-    
+
     if (rawValue.txId) {
       console.log(`- View on Arweave: https://arweave.net/${rawValue.txId}`);
     }
-    
+
     return {
-      endpoint: 'enrichTarget',
+      endpoint: "enrichTarget",
       success: true,
       response: rawValue,
       responseTime,
     };
   } catch (error) {
     console.log(`❌ Failed: ${error instanceof Error ? error.message : String(error)}`);
-    
+
     return {
-      endpoint: 'enrichTarget',
+      endpoint: "enrichTarget",
       success: false,
       error: error instanceof Error ? error.message : String(error),
     };
@@ -145,12 +145,12 @@ async function testStagingOracle() {
     // Load deployment info
     const configDir = path.join(__dirname, "../config/staging");
     const deploymentInfoPath = path.join(configDir, "deployment-info.json");
-    
+
     let deploymentInfo: DeploymentInfo;
     try {
       const deploymentData = await fs.readFile(deploymentInfoPath, "utf8");
       deploymentInfo = JSON.parse(deploymentData);
-    } catch (error) {
+    } catch (_error) {
       throw new Error("Could not load deployment-info.json. Has the Oracle been deployed?");
     }
 
@@ -163,38 +163,36 @@ async function testStagingOracle() {
 
     // Test both endpoints
     const results: OracleTestResult[] = [];
-    
+
     results.push(await testNextAuctionEndpoint(deploymentInfo.httpGatewayUrl));
     results.push(await testEnrichTargetEndpoint(deploymentInfo.httpGatewayUrl));
 
     // Summary
     console.log("\n📊 Test Results Summary:");
-    console.log("=" .repeat(50));
-    
-    const successCount = results.filter(r => r.success).length;
+    console.log("=".repeat(50));
+
+    const successCount = results.filter((r) => r.success).length;
     const totalTests = results.length;
-    
+
     for (const result of results) {
       const status = result.success ? "✅ PASS" : "❌ FAIL";
       const timing = result.responseTime ? `(${result.responseTime}ms)` : "";
       console.log(`${status} ${result.endpoint} ${timing}`);
-      
+
       if (!result.success && result.error) {
         console.log(`     Error: ${result.error}`);
       }
     }
-    
+
     console.log("-".repeat(50));
     console.log(`${successCount}/${totalTests} tests passed`);
-    
+
     if (successCount === totalTests) {
       console.log("\n🎉 All Oracle endpoints are working correctly!");
       return true;
-    } else {
-      console.log(`\n⚠️ ${totalTests - successCount} test(s) failed. Check the errors above.`);
-      return false;
     }
-
+    console.log(`\n⚠️ ${totalTests - successCount} test(s) failed. Check the errors above.`);
+    return false;
   } catch (error) {
     console.error("Error testing Oracle:", error);
     throw error;
