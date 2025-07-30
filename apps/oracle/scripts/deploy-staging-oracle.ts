@@ -296,7 +296,7 @@ export async function deployStagingOracle() {
   try {
     console.log("=== ETS Staging Oracle Deployment ===");
     console.log("Deploying Oracle to AWS staging environment...");
-    
+
     // Check Docker status at the very beginning
     const dockerStatus = await checkDockerStatus();
 
@@ -304,14 +304,14 @@ export async function deployStagingOracle() {
       console.error("⚠️ Docker is not installed. This is required for Airnode deployment.");
       console.error("Please install Docker and try again.");
       process.exit(1);
-    } 
-    
+    }
+
     if (!dockerStatus.running) {
       console.error("⚠️ Docker is installed but not running. This is required for Airnode deployment.");
       console.error("Please start Docker and try again.");
       process.exit(1);
     }
-    
+
     console.log("✅ Docker is installed and running.");
 
     // Check for existing Airnode deployments first

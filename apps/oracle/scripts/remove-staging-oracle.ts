@@ -257,7 +257,7 @@ AWS_SECRET_ACCESS_KEY=${process.env.AWS_SECRET_ACCESS_KEY}`;
             if (isDryRun) {
               console.log(`\n🔍 DRY RUN: Would back up receipt.json to ${backupPath}`);
               console.log("🔍 DRY RUN: Would remove original receipt.json");
-              
+
               // In dry run, just simulate the backup path update
               if (configDetails) {
                 configDetails.receiptBackupFile = `history/receipts/receipt-force-removed-${timestamp}.json`;
@@ -462,7 +462,10 @@ docker run --rm \\
         if (isDryRun) {
           console.log("🔍 DRY RUN: Would create new configuration-details.json with removal information");
         } else {
-          await fs.writeFile(path.join(configDir, "configuration-details.json"), JSON.stringify(configDetails, null, 2));
+          await fs.writeFile(
+            path.join(configDir, "configuration-details.json"),
+            JSON.stringify(configDetails, null, 2),
+          );
           console.log("Created new configuration-details.json with removal information");
         }
       }
@@ -476,7 +479,7 @@ docker run --rm \\
       if (isDryRun) {
         console.log(`\n🔍 DRY RUN: Would back up receipt.json to ${backupPath}`);
         console.log("🔍 DRY RUN: Would remove original receipt.json");
-        
+
         // In dry run, just simulate the backup path update
         if (configDetails) {
           configDetails.receiptBackupFile = `history/receipts/receipt-removed-${timestamp}.json`;

@@ -17,11 +17,11 @@ import { deriveEndpointId } from "@api3/airnode-admin";
 import * as dotenv from "dotenv";
 import Handlebars from "handlebars";
 import type { AirnodeCredentials } from "../types/airnode";
-import { 
-  ORACLE_CHAIN_CONFIGS, 
-  getSupportedOracleChainIds,
+import {
+  ORACLE_CHAIN_CONFIGS,
+  getChainRpcUrl,
   getContractDeploymentPath,
-  getChainRpcUrl
+  getSupportedOracleChainIds,
 } from "../utils/chainConfig";
 
 // Load environment variables from .env.staging
@@ -68,7 +68,7 @@ export async function generateStagingConfig() {
       const deploymentPath = getContractDeploymentPath(chainId);
       const rpcUrl = getChainRpcUrl(chainId);
       const providerName = ORACLE_CHAIN_CONFIGS[chainId].providerName;
-      
+
       try {
         // Read AirnodeRrpV0 contract address for this chain
         const airnodeRrpPath = path.join(
@@ -110,19 +110,19 @@ export async function generateStagingConfig() {
             requesterEndpointAuthorizers: [],
             crossChainRequesterAuthorizers: [],
             requesterAuthorizersWithErc721: [],
-            crossChainRequesterAuthorizersWithErc721: []
+            crossChainRequesterAuthorizersWithErc721: [],
           },
           authorizations: {
-            requesterEndpointAuthorizations: {}
+            requesterEndpointAuthorizations: {},
           },
           contracts: {
-            AirnodeRrp: airnodeRrpAddress
+            AirnodeRrp: airnodeRrpAddress,
           },
           id: chainId,
           providers: {
             [providerName]: {
-              url: rpcUrl
-            }
+              url: rpcUrl,
+            },
           },
           type: "evm",
           maxConcurrency: 100,
@@ -131,32 +131,41 @@ export async function generateStagingConfig() {
             gasPriceOracle: [
               {
                 gasPriceStrategy: "providerRecommendedGasPrice",
-                recommendedGasPriceMultiplier: 1.2
+                recommendedGasPriceMultiplier: 1.2,
               },
               {
                 gasPriceStrategy: "constantGasPrice",
                 gasPrice: {
                   value: 30,
-                  unit: "gwei"
-                }
-              }
-            ]
-          }
+                  unit: "gwei",
+                },
+              },
+            ],
+          },
         };
 
         // Add to chain configurations
         chainConfigs.push(chainConfig);
 
         // Save chain-specific configuration details for later use
-        const configDetailsPath = path.join(configDir, `configuration-details-${ORACLE_CHAIN_CONFIGS[chainId].networkName}.json`);
-        await fs.writeFile(configDetailsPath, JSON.stringify({
-          chainId,
-          networkName: ORACLE_CHAIN_CONFIGS[chainId].networkName,
-          airnodeRrpAddress,
-          etsEnrichTargetAddress,
-          deploymentPath
-        }, null, 2));
-        
+        const configDetailsPath = path.join(
+          configDir,
+          `configuration-details-${ORACLE_CHAIN_CONFIGS[chainId].networkName}.json`,
+        );
+        await fs.writeFile(
+          configDetailsPath,
+          JSON.stringify(
+            {
+              chainId,
+              networkName: ORACLE_CHAIN_CONFIGS[chainId].networkName,
+              airnodeRrpAddress,
+              etsEnrichTargetAddress,
+              deploymentPath,
+            },
+            null,
+            2,
+          ),
+        );
       } catch (error) {
         console.error(`Error configuring chain ${chainId}:`, error);
         throw error;
@@ -165,7 +174,7 @@ export async function generateStagingConfig() {
 
     // Add chains data to template
     templateData.chains = JSON.stringify(chainConfigs);
-    
+
     // Set API URL for all chains
     templateData.stagingApiUrl = process.env.STAGING_API_URL || "https://ets-offchain-api.onrender.com"; // Staging API endpoint
 
@@ -209,25 +218,25 @@ HTTP_GATEWAY_API_KEY=${process.env.HTTP_GATEWAY_API_KEY || generateRandomApiKey(
 
     console.log(`Airnode multi-chain staging config generated at: ${configPath}`);
     console.log(`Airnode staging secrets generated at: ${secretsPath}`);
-    
+
     // Create a master configuration details file
     const masterConfigDetails = {
       timeGenerated: new Date().toISOString(),
       apiUrl: templateData.stagingApiUrl,
       enrichTargetEndpointId: templateData.enrichTargetEndpointId,
       nextAuctionEndpointId: templateData.nextAuctionEndpointId,
-      chains: chainIds.map(chainId => ({
+      chains: chainIds.map((chainId) => ({
         chainId,
         name: ORACLE_CHAIN_CONFIGS[chainId].name,
         networkName: ORACLE_CHAIN_CONFIGS[chainId].networkName,
-        rpcUrl: getChainRpcUrl(chainId)
-      }))
+        rpcUrl: getChainRpcUrl(chainId),
+      })),
     };
-    
+
     const masterConfigPath = path.join(configDir, "configuration-details.json");
     await fs.writeFile(masterConfigPath, JSON.stringify(masterConfigDetails, null, 2));
     console.log(`Master configuration details saved to: ${masterConfigPath}`);
-    
+
     return true;
   } catch (error) {
     console.error("Error generating staging config:", error);
