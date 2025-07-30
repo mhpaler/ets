@@ -1,0 +1,7 @@
+{
+  "chainId": "421614",
+  "networkName": "arbitrumsepolia",
+  "airnodeRrpAddress": "0x89C20aDAaadaBd7f320E53b08403817e5BD75621",
+  "etsEnrichTargetAddress": "0x466D77c6EBEfD773d525ebEC71A96E7aB4813421",
+  "deploymentPath": "arbitrumSepoliaStaging"
+}

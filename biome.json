@@ -11,7 +11,10 @@
       "./packages/contracts/export/*",
       "./packages/contracts/src/contracts.ts",
       "./packages/sdk-core/src/index.ts",
-      "./apps/data-api/src/generated/**"
+      "./apps/data-api/src/generated/**",
+      "./apps/oracle/config/templates/*",
+      "./apps/oracle/config/staging/*",
+      "./apps/oracle/config/production/*"
     ]
   },
   "formatter": {

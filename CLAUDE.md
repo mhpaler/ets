@@ -22,6 +22,16 @@ When switching to work on a different feature branch, updating this reference in
 - Test single contract: `cd packages/contracts && npx hardhat test test/ETS.test.ts`
 - Start local stack: `./scripts/start-local-stack.sh`
 
+## Git Commits via Claude Code
+
+When committing via Claude Code, always source nvm first to use the correct Node.js version for pre-commit hooks:
+
+```bash
+source ~/.nvm/nvm.sh && nvm use 20.1.0 && git commit -m "message"
+```
+
+This ensures pre-commit hooks (Biome linting) work correctly with the ARM64 architecture.
+
 ## Code Style
 
 - **Formatting**: Double quotes, trailing commas, 2-space indentation (4 for Solidity)
@@ -217,6 +227,22 @@ find packages/contracts/test -name "*.test.ts"
   - ETS: `0x...`
   - ETSToken: `0x...`
   - ETSTarget: `0x...`
+
+## Ongoing Projects
+
+### White Paper Development
+The team is working on creating a comprehensive white paper for ETS that will:
+- Explain the vision and purpose of the Ethereum Tag Service
+- Detail the technical architecture and components
+- Cover the tokenomics and incentive mechanisms
+- Outline the roadmap and future developments
+
+Key documentation sources for white paper content:
+- `/apps/site/pages/docs/why-ets.mdx`: Vision and purpose
+- `/apps/site/pages/docs/concepts/overview.mdx`: Key concepts overview
+- `/apps/site/pages/docs/concepts/ctag.mdx`: CTAG implementation details
+- `/apps/site/pages/docs/tokenomics.mdx`: Economic model and revenue sharing
+- `/apps/site/pages/docs/roadmap.mdx`: Future development plans
 
 ## Workflow & Change Management
 

@@ -14,6 +14,12 @@ export interface AirnodeCredentials {
 
   /** Whether the mnemonic was newly generated or loaded from environment */
   isNewMnemonic: boolean;
+
+  /** The mnemonic seed phrase (stored for deployment) */
+  mnemonic?: string;
+
+  /** The environment (staging or production) */
+  environment?: string;
 }
 
 /**
@@ -37,4 +43,7 @@ export interface SponsorshipInfo {
 
   /** The address of the requester contract */
   requesterAddress: string;
+
+  /** The environment (staging or production) */
+  environment?: string;
 }

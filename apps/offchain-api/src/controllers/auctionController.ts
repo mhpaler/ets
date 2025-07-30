@@ -33,25 +33,25 @@ export const getNextAuction = async (req: Request, res: Response, next: NextFunc
         chainId,
         environment: "production",
       });
-      
+
       const stagingClient = createAccessControlsClient({
         chainId,
         environment: "staging",
       });
-      
+
       // Get contract addresses from clients
       const prodAddress = prodClient ? await prodClient.getAddress() : "N/A";
       const stagingAddress = stagingClient ? await stagingClient.getAddress() : "N/A";
-      
+
       envLogger.info(`AccessControls contract addresses for chain ${chainId}:`, {
         production: prodAddress,
         staging: stagingAddress,
-        requestedEnvironment: environment
+        requestedEnvironment: environment,
       });
     } catch (error) {
       envLogger.warn("Failed to log contract addresses:", error);
     }
-    
+
     // Create an AccessControls client using the sdk-core with environment parameter
     const accessControlsClient = createAccessControlsClient({
       chainId,
@@ -65,27 +65,29 @@ export const getNextAuction = async (req: Request, res: Response, next: NextFunc
     // Get the platform address using the client
     let platformAddress = await accessControlsClient.getPlatformAddress();
     envLogger.info(`Platform address for chain ${chainId}: "${platformAddress}"`);
-    
+
     // Additional debug for platform address
-    envLogger.info(`Platform address type: ${typeof platformAddress}, length: ${platformAddress?.length}, empty check: ${!platformAddress}`);
-    
+    envLogger.info(
+      `Platform address type: ${typeof platformAddress}, length: ${platformAddress?.length}, empty check: ${!platformAddress}`,
+    );
+
     // Validate platform address - this is critical for the query
     if (!platformAddress) {
       envLogger.warn(`No platform address found for chain ${chainId} in ${environment} environment`);
       return next(new AppError(`Platform address not found for chain ${chainId} in ${environment} environment`, 500));
     }
-    
+
     // Ensure platform address is properly formatted
-    if (typeof platformAddress === 'string') {
+    if (typeof platformAddress === "string") {
       // Normalize to lowercase
       platformAddress = platformAddress.toLowerCase();
-      
+
       // Check for 0x prefix
-      if (!platformAddress.startsWith('0x')) {
+      if (!platformAddress.startsWith("0x")) {
         platformAddress = `0x${platformAddress}`;
         envLogger.info(`Fixed platform address format: "${platformAddress}"`);
       }
-      
+
       // Validate address length (should be 42 characters for standard Ethereum address)
       if (platformAddress.length !== 42) {
         envLogger.warn(`Platform address has unusual length: ${platformAddress.length} chars`);

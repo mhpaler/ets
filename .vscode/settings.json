@@ -30,5 +30,8 @@
   "css.lint.unknownAtRules": "ignore",
   "emmet.includeLanguages": {
     "postcss": "css"
+  },
+  "files.associations": {
+    "*.template.json": "handlebars"
   }
 }
