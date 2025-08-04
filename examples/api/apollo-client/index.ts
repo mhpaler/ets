@@ -1,8 +1,8 @@
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 import { getSubgraphEndpoint } from "@ethereum-tag-service/subgraph-endpoints";
 
-// Get the correct endpoint for Arbitrum Sepolia testnet
-const endpoint = getSubgraphEndpoint(421614);
+// Get the correct endpoint for Base Sepolia testnet
+const endpoint = getSubgraphEndpoint(84532);
 
 // Initialize Apollo Client
 const client = new ApolloClient({
@@ -10,43 +10,48 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-// Query for tags
-const TAGS_QUERY = gql`
-  query tags(
-    $first: Int!,
-    $skip: Int!,
-    $orderBy: Tag_orderBy!,
-    $orderDirection: OrderDirection
-  ) {
-    tags(
-      first: $first
-      skip: $skip
-      orderBy: $orderBy
-      orderDirection: $orderDirection
+// Query for latest tagging record
+const LATEST_TAGGING_RECORD_QUERY = gql`
+  query latestTaggingRecord {
+    taggingRecords(
+      first: 1
+      skip: 0
+      orderBy: timestamp
+      orderDirection: desc
     ) {
       id
-      display
-      machineName
+      recordType
       timestamp
-      creator {
+      relayer {
+        name
+      }
+      tagger {
         id
       }
-      owner {
-        id
+      tags {
+        display
+        machineName
+      }
+      target {
+        targetURI
+        targetType
       }
     }
   }
 `;
 
-// Fetch tags
+// Fetch latest tagging record
 const { data } = await client.query({
-  query: TAGS_QUERY,
-  variables: {
-    first: 5,
-    skip: 0,
-    orderBy: "timestamp",
-    orderDirection: "desc",
-  },
+  query: LATEST_TAGGING_RECORD_QUERY,
 });
 
-export const tags = data.tags;
+export const taggingInfo = data.taggingRecords.length > 0 ? {
+  tags: data.taggingRecords[0].tags,
+  targetURI: data.taggingRecords[0].target.targetURI,
+  recordId: data.taggingRecords[0].id,
+} : {
+  tags: [],
+  targetURI: null,
+  recordId: null,
+  message: "No tagging records found"
+};

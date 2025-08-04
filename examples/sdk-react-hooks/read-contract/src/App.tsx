@@ -1,44 +1,39 @@
 import { useTokenClient } from "@ethereum-tag-service/sdk-react-hooks";
 import { useState } from "react";
+import type { Environment } from "@ethereum-tag-service/sdk-core";
 
-// Define chain options with explorer URLs
-const CHAIN_OPTIONS = {
-  ARBITRUM_SEPOLIA: {
-    name: "Arbitrum Sepolia",
-    id: 421614,
-    exploreUrl: "https://arbitrumsepolia.app.ets.xyz/explore/ctags",
+// Environment options
+const ENVIRONMENT_OPTIONS = {
+  staging: {
+    name: "Staging",
+    description: "Test environment for development",
   },
-  BASE_SEPOLIA: {
-    name: "Base Sepolia",
-    id: 84532,
-    exploreUrl: "https://basesepolia.app.ets.xyz/explore/ctags",
+  production: {
+    name: "Production",
+    description: "Live production environment",
   },
-};
+} as const;
+
+const EXPLORE_BASE_URL = "https://app.ets.xyz/explore/ctags";
 
 function App() {
   const [tagInput, setTagInput] = useState<string>("");
   const [results, setResults] = useState<string[]>([]);
   const [checkedTags, setCheckedTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [selectedChainId, setSelectedChainId] = useState<number>(CHAIN_OPTIONS.ARBITRUM_SEPOLIA.id);
-
-  // Get the current chain explorer URL
-  const getCurrentChainExploreUrl = () => {
-    return selectedChainId === CHAIN_OPTIONS.ARBITRUM_SEPOLIA.id
-      ? CHAIN_OPTIONS.ARBITRUM_SEPOLIA.exploreUrl
-      : CHAIN_OPTIONS.BASE_SEPOLIA.exploreUrl;
-  };
+  const [selectedEnvironment, setSelectedEnvironment] = useState<Environment>("production");
 
   // Get tag-specific URL (for direct linking to specific tags)
   const getTagExploreUrl = (tag: string) => {
     // Remove # and encode the tag for URL
     const encodedTag = encodeURIComponent(tag.replace("#", ""));
-    return `${getCurrentChainExploreUrl()}/${encodedTag}`;
+    return `${EXPLORE_BASE_URL}/${encodedTag}`;
   };
 
   const { existingTags } = useTokenClient({
-    chainId: selectedChainId,
+    chainId: 84532, // Base Sepolia
     account: "0x1234567890123456789012345678901234567890",
+    environment: selectedEnvironment,
   });
 
   const checkTags = async () => {
@@ -68,9 +63,6 @@ function App() {
     setTagInput(e.target.value);
   };
 
-  const handleChainChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedChainId(Number(e.target.value));
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,44 +74,33 @@ function App() {
       <h1>ETS Tag Checker</h1>
 
       <div style={{ marginBottom: "20px" }}>
-        <h3>Select Network:</h3>
+        <h3>Environment Selection</h3>
+        <div style={{ marginBottom: "15px" }}>
+          {Object.entries(ENVIRONMENT_OPTIONS).map(([env, config]) => (
+            <label key={env} style={{ display: "block", margin: "8px 0" }}>
+              <input
+                type="radio"
+                name="environment"
+                value={env}
+                checked={selectedEnvironment === env}
+                onChange={(e) => setSelectedEnvironment(e.target.value as Environment)}
+                style={{ marginRight: "8px" }}
+              />
+              <strong>{config.name}</strong> - {config.description}
+            </label>
+          ))}
+        </div>
         <div style={{ display: "flex", gap: "15px", alignItems: "center" }}>
-          <label style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
-            <input
-              type="radio"
-              name="chainId"
-              value={CHAIN_OPTIONS.ARBITRUM_SEPOLIA.id}
-              checked={selectedChainId === CHAIN_OPTIONS.ARBITRUM_SEPOLIA.id}
-              onChange={handleChainChange}
-              style={{ marginRight: "5px" }}
-            />
-            {CHAIN_OPTIONS.ARBITRUM_SEPOLIA.name}
-          </label>
-
-          <label style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
-            <input
-              type="radio"
-              name="chainId"
-              value={CHAIN_OPTIONS.BASE_SEPOLIA.id}
-              checked={selectedChainId === CHAIN_OPTIONS.BASE_SEPOLIA.id}
-              onChange={handleChainChange}
-              style={{ marginRight: "5px" }}
-            />
-            {CHAIN_OPTIONS.BASE_SEPOLIA.name}
-          </label>
-
-          {/* Link to explore all tags on the selected network */}
           <a
-            href={getCurrentChainExploreUrl()}
+            href={EXPLORE_BASE_URL}
             target="_blank"
             rel="noopener noreferrer"
             style={{
-              marginLeft: "15px",
               color: "#4285F4",
               textDecoration: "none",
             }}
           >
-            Explore all tags on this network →
+            Explore all tags →
           </a>
         </div>
       </div>
@@ -165,10 +146,7 @@ function App() {
             }}
           >
             <p>
-              Network:{" "}
-              {selectedChainId === CHAIN_OPTIONS.ARBITRUM_SEPOLIA.id
-                ? CHAIN_OPTIONS.ARBITRUM_SEPOLIA.name
-                : CHAIN_OPTIONS.BASE_SEPOLIA.name}
+              Environment: {ENVIRONMENT_OPTIONS[selectedEnvironment as keyof typeof ENVIRONMENT_OPTIONS].name}
             </p>
             {checkedTags.map((tag) => (
               <div
@@ -205,25 +183,10 @@ function App() {
 
       <div style={{ marginTop: "30px", padding: "15px", backgroundColor: "#f9f9f9", borderRadius: "5px" }}>
         <h3>Explore ETS Tags</h3>
-        <p>Check out tag collections on different networks:</p>
+        <p>Check out the complete tag collection in the selected environment:</p>
         <div style={{ display: "flex", gap: "15px", marginTop: "10px" }}>
           <a
-            href={CHAIN_OPTIONS.ARBITRUM_SEPOLIA.exploreUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              padding: "8px 15px",
-              backgroundColor: "#E2ECFF",
-              color: "#4285F4",
-              borderRadius: "4px",
-              textDecoration: "none",
-              fontWeight: "bold",
-            }}
-          >
-            {CHAIN_OPTIONS.ARBITRUM_SEPOLIA.name} Tags
-          </a>
-          <a
-            href={CHAIN_OPTIONS.BASE_SEPOLIA.exploreUrl}
+            href={EXPLORE_BASE_URL}
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -235,7 +198,7 @@ function App() {
               fontWeight: "bold",
             }}
           >
-            {CHAIN_OPTIONS.BASE_SEPOLIA.name} Tags
+{ENVIRONMENT_OPTIONS[selectedEnvironment as keyof typeof ENVIRONMENT_OPTIONS].name} Tags
           </a>
         </div>
       </div>

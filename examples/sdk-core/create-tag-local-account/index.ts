@@ -1,7 +1,7 @@
 import { createRelayerClient } from "@ethereum-tag-service/sdk-core";
 import { http, createPublicClient } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
-import { arbitrumSepolia } from "viem/chains";
+import { baseSepolia } from "viem/chains";
 
 // Generate private key and Tagger account only once
 const privateKey = generatePrivateKey();
@@ -10,7 +10,7 @@ const accountAddress = account.address;
 
 // Initialize publicClient only once
 const publicClient = createPublicClient({
-  chain: arbitrumSepolia,
+  chain: baseSepolia,
   transport: http(),
 });
 
@@ -21,13 +21,13 @@ export async function runDemo(): Promise<{ result: string; link?: string }> {
 
   if (accountBalance === 0n) {
     return {
-      result: `Send .0001 Arbitrum Sepolia ETH to the following address: ${accountAddress} then click 'Run Demo' again.`,
+      result: `Send .0001 Base Sepolia ETH to the following address: ${accountAddress} then click 'Run Demo' again.`,
     };
   }
 
   const relayerClient = createRelayerClient({
-    chainId: arbitrumSepolia.id,
-    relayerAddress: "0xa01c9cb373c5e29934b92e5afa6a78e3d590340b",
+    chainId: baseSepolia.id,
+    relayerAddress: "0x34b5E2B38E9A5F938bc6De795b5Fb69982a4D73e",
     account,
   });
 
@@ -42,7 +42,7 @@ export async function runDemo(): Promise<{ result: string; link?: string }> {
       "examples",
     );
 
-    const link = `https://arbitrumsepolia.app.ets.xyz/explore/tagging-records/${taggingRecord.taggingRecordId}`;
+    const link = `https://app.ets.xyz/explore/tagging-records/${taggingRecord.taggingRecordId}`;
 
     return {
       result: `Tagging record created: ${JSON.stringify(taggingRecord, null, 2)}`,

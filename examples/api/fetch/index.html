@@ -12,12 +12,20 @@
   <script type="module">
     import { taggingInfo } from './index.ts';
 
-    const content = `
-      <h2>Tags in tagging record ID: ${taggingInfo.recordId}</h2>
+    const content = taggingInfo.message ? `
+      <h2>No Data Found</h2>
+      <p>${taggingInfo.message}</p>
+    ` : `
+      <h2>Latest Tagging Record</h2>
+      <div style="margin-bottom: 20px;">
+        <strong>Record ID:</strong> ${taggingInfo.recordId}<br/>
+        <strong>Target URI:</strong> <a href="${taggingInfo.targetURI}" target="_blank" rel="noopener noreferrer">${taggingInfo.targetURI}</a>
+      </div>
+      <h3>Tags:</h3>
       ${taggingInfo.tags.map(tag => `
-        <div style="margin-bottom: 16px;">
+        <div style="margin-bottom: 16px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
           <strong>${tag.display}</strong><br/>
-          Machine Name: ${tag.machineName}
+          <small>Machine Name: ${tag.machineName}</small>
         </div>
       `).join('')}
     `;

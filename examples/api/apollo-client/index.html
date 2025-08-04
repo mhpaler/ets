@@ -10,17 +10,27 @@
   <h1>ETS Examples: GraphQL API Query using Apollo Client</h1>
   <div id="app">Loading...(takes a few seconds)</div>
   <script type="module">
-    import { tags } from './index.ts';
-    const tagsHtml = tags.map(tag => `
-      <div style="margin-bottom: 16px;">
-        <strong>${tag.display}</strong><br/>
-        Created: ${new Date(tag.timestamp * 1000).toLocaleDateString()}<br/>
-        Creator: ${tag.creator.id}<br/>
-        Owner: ${tag.owner.id}
+    import { taggingInfo } from './index.ts';
+    
+    const content = taggingInfo.message ? `
+      <h2>No Data Found</h2>
+      <p>${taggingInfo.message}</p>
+    ` : `
+      <h2>Latest Tagging Record</h2>
+      <div style="margin-bottom: 20px;">
+        <strong>Record ID:</strong> ${taggingInfo.recordId}<br/>
+        <strong>Target URI:</strong> <a href="${taggingInfo.targetURI}" target="_blank" rel="noopener noreferrer">${taggingInfo.targetURI}</a>
       </div>
-    `).join('');
+      <h3>Tags:</h3>
+      ${taggingInfo.tags.map(tag => `
+        <div style="margin-bottom: 16px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+          <strong>${tag.display}</strong><br/>
+          <small>Machine Name: ${tag.machineName}</small>
+        </div>
+      `).join('')}
+    `;
 
-    document.querySelector('#app').innerHTML = tagsHtml;
+    document.querySelector('#app').innerHTML = content;
   </script>
 </body>
 
