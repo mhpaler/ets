@@ -9,7 +9,7 @@ The ETS Off-Chain API is a Node.js service that provides off-chain processing ca
 - **Target URL Processing**: Extracts metadata from any URL (webpages, images, PDFs, etc.)
 - **Permanent Storage**: Stores metadata on Arweave for decentralized, permanent storage
 - **Integration with ETS Contracts**: Communicates with ETS smart contracts across multiple chains
-- **Multi-Chain Support**: Works with multiple EVM chains including Arbitrum Sepolia and Base Sepolia
+- **Base Chain Support**: Works with Base Sepolia testnet and Base mainnet
 - **CTAG Auction Management**: Determines the next eligible CTAG (tokenized Tag NFT) for auction based on usage metrics
 
 ### Architecture
@@ -70,11 +70,8 @@ NODE_ENV=development
 # RPC URLs
 
 BASE_SEPOLIA_RPC_URL=<https://sepolia.base.org>
-ARBITRUM_SEPOLIA_RPC_URL=<https://sepolia-rollup.arbitrum.io/rpc>
 
 # Fallback RPC URLs
-
-ARBITRUM_SEPOLIA_FALLBACK_RPC_URLS=<https://arbitrum-sepolia.publicnode.com,https://sepolia-rollup.arbitrum.io/rpc>
 BASE_SEPOLIA_FALLBACK_RPC_URLS=<https://base-sepolia.blockpi.network/v1/rpc/public,https://base-sepolia.publicnode.com>
 
 # Wallet - This is a development key, don't use in production

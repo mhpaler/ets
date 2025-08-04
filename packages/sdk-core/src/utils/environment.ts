@@ -14,7 +14,7 @@ export const DEFAULT_ENVIRONMENT: Environment = "production";
 
 /**
  * Generates an environment-specific key for contract address lookup
- * @param chainId - The chain ID (e.g., 421614 for Arbitrum Sepolia)
+ * @param chainId - The chain ID (e.g., 84532 for Base Sepolia)
  * @param environment - The environment (production, staging, localhost)
  * @returns A string key in the format "chainId_environment"
  */
@@ -117,7 +117,7 @@ export function getAddressForEnvironment<T extends Record<string | number, strin
   });
 
   // Look for:
-  // 1. Environment-specific key (e.g., "421614_staging")
+  // 1. Environment-specific key (e.g., "84532_staging")
   // 2. ChainId-only key (for backward compatibility)
   const address = addresses[envKey as keyof T] || addresses[chainId as keyof T];
 

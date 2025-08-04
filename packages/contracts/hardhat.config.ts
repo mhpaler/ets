@@ -68,15 +68,6 @@ const config: HardhatUserConfig = {
       gas: 2100000,
       gasPrice: 8000000000,
     },
-    arbitrumSepolia: {
-      url: `https://arb-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_TESTNET}`,
-      chainId: 421614, // Arbitrum Sepolia
-      accounts: {
-        mnemonic: mnemonic.testnet_production,
-      },
-      gas: 2100000,
-      gasPrice: 8000000000,
-    },
     // STAGING TESTNET NETWORKS
     baseSepoliaStaging: {
       url: `https://base-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_TESTNET}`,
@@ -87,27 +78,10 @@ const config: HardhatUserConfig = {
       gas: 2100000,
       gasPrice: 8000000000,
     },
-    arbitrumSepoliaStaging: {
-      url: `https://arb-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_TESTNET}`,
-      chainId: 421614, // Arbitrum Sepolia
-      accounts: {
-        mnemonic: mnemonic.testnet_staging,
-      },
-      gas: 2100000,
-      gasPrice: 8000000000,
-    },
     // MAINNET NETWORKS FOR FUTURE USE
     base: {
       url: `https://base-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_MAINNET}`,
       chainId: 8453,
-      accounts: {
-        mnemonic: mnemonic.mainnet,
-      },
-      gasPrice: 1000000000, // Adjust based on current network conditions
-    },
-    arbitrum: {
-      url: `https://arb-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_MAINNET}`,
-      chainId: 42161,
       accounts: {
         mnemonic: mnemonic.mainnet,
       },
@@ -127,12 +101,9 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: {
       // Production networks
-      arbitrum: process.env.ARBISCAN_API_KEY ? process.env.ARBISCAN_API_KEY : "",
       base: process.env.BASESCAN_API_KEY ? process.env.BASESCAN_API_KEY : "",
       // Testnet networks - using same API keys for both production and staging
-      arbitrumSepolia: process.env.ARBISCAN_API_KEY ? process.env.ARBISCAN_API_KEY : "",
       baseSepolia: process.env.BASESCAN_API_KEY ? process.env.BASESCAN_API_KEY : "",
-      arbitrumSepoliaStaging: process.env.ARBISCAN_API_KEY ? process.env.ARBISCAN_API_KEY : "",
       baseSepoliaStaging: process.env.BASESCAN_API_KEY ? process.env.BASESCAN_API_KEY : "",
     },
   },

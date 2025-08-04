@@ -6,7 +6,6 @@ import "@app/styles/tags.css";
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import nProgress from "nprogress";
 import "@rainbow-me/rainbowkit/styles.css";
-import ChainModalETS from "@app/components/ChainModalETS";
 import { SWR_CONFIG } from "@app/config/swrConfig";
 import { getChainByNetworkName, wagmiConfig } from "@app/config/wagmiConfig";
 import { AuctionHouseProvider } from "@app/context/AuctionHouseContext";
@@ -26,16 +25,12 @@ Router.events.on("routeChangeError", nProgress.done);
 Router.events.on("routeChangeComplete", nProgress.done);
 
 function WagmiConfigWrapper({ children }: { children: React.ReactNode }) {
-  const { network, isValidPathWithoutNetwork } = useEnvironmentContext();
+  const { network } = useEnvironmentContext();
   const [mounted, setMounted] = useState(false);
-  const [showNetworkModal, setShowNetworkModal] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    if (isValidPathWithoutNetwork) {
-      setShowNetworkModal(true);
-    }
-  }, [isValidPathWithoutNetwork]);
+  }, []);
 
   const initialChain = getChainByNetworkName(network);
 
@@ -43,10 +38,7 @@ function WagmiConfigWrapper({ children }: { children: React.ReactNode }) {
 
   return (
     <WagmiProvider config={wagmiConfig}>
-      <RainbowKitProvider initialChain={initialChain}>
-        {showNetworkModal && <ChainModalETS show={showNetworkModal} onClose={() => setShowNetworkModal(false)} />}
-        {children}
-      </RainbowKitProvider>
+      <RainbowKitProvider initialChain={initialChain}>{children}</RainbowKitProvider>
     </WagmiProvider>
   );
 }

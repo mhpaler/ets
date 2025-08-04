@@ -3,7 +3,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x89C20aDAaadaBd7f320E53b08403817e5BD75621)
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x89C20aDAaadaBd7f320E53b08403817e5BD75621)
  * -
  */
@@ -513,18 +513,18 @@ export const airnodeRrpV0ProxyAbi = [
 ] as const
 
 /**
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x89C20aDAaadaBd7f320E53b08403817e5BD75621)
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x89C20aDAaadaBd7f320E53b08403817e5BD75621)
  * -
  */
 export const airnodeRrpV0ProxyAddress = {
-  '421614_staging': '0x89C20aDAaadaBd7f320E53b08403817e5BD75621',
+  31337: '0x8A791620dd6260079BF849Dc5567aDC3F2FdC318',
   '84532_staging': '0x89C20aDAaadaBd7f320E53b08403817e5BD75621',
   '31337_localhost': '0x8A791620dd6260079BF849Dc5567aDC3F2FdC318',
 } as const
 
 /**
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x89C20aDAaadaBd7f320E53b08403817e5BD75621)
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x89C20aDAaadaBd7f320E53b08403817e5BD75621)
  * -
  */
@@ -538,10 +538,8 @@ export const airnodeRrpV0ProxyConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x5Cc5Dc14e1538db983Fc5FD34B27A42a598903E7)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x76cF4C272856B7e198DaED726C36186A98caF19E)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x76cF4C272856B7e198DaED726C36186A98caF19E)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x36f564ec1c7E9f9c7A6EE66e9d4f4BdD01749727)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x5Cc5Dc14e1538db983Fc5FD34B27A42a598903E7)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x36f564ec1c7E9f9c7A6EE66e9d4f4BdD01749727)
  * -
@@ -1257,29 +1255,23 @@ export const etsAbi = [
 ] as const
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x5Cc5Dc14e1538db983Fc5FD34B27A42a598903E7)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x76cF4C272856B7e198DaED726C36186A98caF19E)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x76cF4C272856B7e198DaED726C36186A98caF19E)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x36f564ec1c7E9f9c7A6EE66e9d4f4BdD01749727)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x5Cc5Dc14e1538db983Fc5FD34B27A42a598903E7)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x36f564ec1c7E9f9c7A6EE66e9d4f4BdD01749727)
  * -
  */
 export const etsAddress = {
+  31337: '0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82',
   84532: '0x5Cc5Dc14e1538db983Fc5FD34B27A42a598903E7',
-  421614: '0x76cF4C272856B7e198DaED726C36186A98caF19E',
-  '421614_production': '0x76cF4C272856B7e198DaED726C36186A98caF19E',
-  '421614_staging': '0x36f564ec1c7E9f9c7A6EE66e9d4f4BdD01749727',
   '84532_production': '0x5Cc5Dc14e1538db983Fc5FD34B27A42a598903E7',
   '84532_staging': '0x36f564ec1c7E9f9c7A6EE66e9d4f4BdD01749727',
   '31337_localhost': '0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82',
 } as const
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x5Cc5Dc14e1538db983Fc5FD34B27A42a598903E7)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x76cF4C272856B7e198DaED726C36186A98caF19E)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x76cF4C272856B7e198DaED726C36186A98caF19E)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x36f564ec1c7E9f9c7A6EE66e9d4f4BdD01749727)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x5Cc5Dc14e1538db983Fc5FD34B27A42a598903E7)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x36f564ec1c7E9f9c7A6EE66e9d4f4BdD01749727)
  * -
@@ -1291,10 +1283,8 @@ export const etsConfig = { address: etsAddress, abi: etsAbi } as const
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x0fc811716E400415Be9857F357B174835B1EBb58)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x025B5bfb6eAc1E6f7156ca0228016Be2f9130166)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x025B5bfb6eAc1E6f7156ca0228016Be2f9130166)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x944cdA63A16DC5Be8269f937805f2f6c689CC312)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x0fc811716E400415Be9857F357B174835B1EBb58)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x944cdA63A16DC5Be8269f937805f2f6c689CC312)
  * -
@@ -1796,29 +1786,23 @@ export const etsAccessControlsAbi = [
 ] as const
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x0fc811716E400415Be9857F357B174835B1EBb58)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x025B5bfb6eAc1E6f7156ca0228016Be2f9130166)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x025B5bfb6eAc1E6f7156ca0228016Be2f9130166)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x944cdA63A16DC5Be8269f937805f2f6c689CC312)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x0fc811716E400415Be9857F357B174835B1EBb58)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x944cdA63A16DC5Be8269f937805f2f6c689CC312)
  * -
  */
 export const etsAccessControlsAddress = {
+  31337: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
   84532: '0x0fc811716E400415Be9857F357B174835B1EBb58',
-  421614: '0x025B5bfb6eAc1E6f7156ca0228016Be2f9130166',
-  '421614_production': '0x025B5bfb6eAc1E6f7156ca0228016Be2f9130166',
-  '421614_staging': '0x944cdA63A16DC5Be8269f937805f2f6c689CC312',
   '84532_production': '0x0fc811716E400415Be9857F357B174835B1EBb58',
   '84532_staging': '0x944cdA63A16DC5Be8269f937805f2f6c689CC312',
   '31337_localhost': '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
 } as const
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x0fc811716E400415Be9857F357B174835B1EBb58)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x025B5bfb6eAc1E6f7156ca0228016Be2f9130166)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x025B5bfb6eAc1E6f7156ca0228016Be2f9130166)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x944cdA63A16DC5Be8269f937805f2f6c689CC312)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x0fc811716E400415Be9857F357B174835B1EBb58)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x944cdA63A16DC5Be8269f937805f2f6c689CC312)
  * -
@@ -1833,10 +1817,8 @@ export const etsAccessControlsConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x945D2C0228dC1Cc872040494Df185629e764b54c)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xcbBFB1B7FAf2011c5C3984C8D20759e74C90fdef)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xcbBFB1B7FAf2011c5C3984C8D20759e74C90fdef)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x4474A50bC12778E1b0eb87ad28b80b4EC28e8d99)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x945D2C0228dC1Cc872040494Df185629e764b54c)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x4474A50bC12778E1b0eb87ad28b80b4EC28e8d99)
  * -
@@ -2557,29 +2539,23 @@ export const etsAuctionHouseAbi = [
 ] as const
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x945D2C0228dC1Cc872040494Df185629e764b54c)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xcbBFB1B7FAf2011c5C3984C8D20759e74C90fdef)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xcbBFB1B7FAf2011c5C3984C8D20759e74C90fdef)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x4474A50bC12778E1b0eb87ad28b80b4EC28e8d99)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x945D2C0228dC1Cc872040494Df185629e764b54c)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x4474A50bC12778E1b0eb87ad28b80b4EC28e8d99)
  * -
  */
 export const etsAuctionHouseAddress = {
+  31337: '0x0165878A594ca255338adfa4d48449f69242Eb8F',
   84532: '0x945D2C0228dC1Cc872040494Df185629e764b54c',
-  421614: '0xcbBFB1B7FAf2011c5C3984C8D20759e74C90fdef',
-  '421614_production': '0xcbBFB1B7FAf2011c5C3984C8D20759e74C90fdef',
-  '421614_staging': '0x4474A50bC12778E1b0eb87ad28b80b4EC28e8d99',
   '84532_production': '0x945D2C0228dC1Cc872040494Df185629e764b54c',
   '84532_staging': '0x4474A50bC12778E1b0eb87ad28b80b4EC28e8d99',
   '31337_localhost': '0x0165878A594ca255338adfa4d48449f69242Eb8F',
 } as const
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x945D2C0228dC1Cc872040494Df185629e764b54c)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xcbBFB1B7FAf2011c5C3984C8D20759e74C90fdef)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xcbBFB1B7FAf2011c5C3984C8D20759e74C90fdef)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x4474A50bC12778E1b0eb87ad28b80b4EC28e8d99)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x945D2C0228dC1Cc872040494Df185629e764b54c)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x4474A50bC12778E1b0eb87ad28b80b4EC28e8d99)
  * -
@@ -2594,10 +2570,8 @@ export const etsAuctionHouseConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xBb7bb89Dc2388C73eFacF50d9917406C38e27b6e)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x52cCc0c0129bFB12A79E5Cf4a8525Cd724344BB4)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x52cCc0c0129bFB12A79E5Cf4a8525Cd724344BB4)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x466D77c6EBEfD773d525ebEC71A96E7aB4813421)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xBb7bb89Dc2388C73eFacF50d9917406C38e27b6e)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x466D77c6EBEfD773d525ebEC71A96E7aB4813421)
  * -
@@ -2771,29 +2745,23 @@ export const etsEnrichTargetAbi = [
 ] as const
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xBb7bb89Dc2388C73eFacF50d9917406C38e27b6e)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x52cCc0c0129bFB12A79E5Cf4a8525Cd724344BB4)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x52cCc0c0129bFB12A79E5Cf4a8525Cd724344BB4)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x466D77c6EBEfD773d525ebEC71A96E7aB4813421)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xBb7bb89Dc2388C73eFacF50d9917406C38e27b6e)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x466D77c6EBEfD773d525ebEC71A96E7aB4813421)
  * -
  */
 export const etsEnrichTargetAddress = {
+  31337: '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e',
   84532: '0xBb7bb89Dc2388C73eFacF50d9917406C38e27b6e',
-  421614: '0x52cCc0c0129bFB12A79E5Cf4a8525Cd724344BB4',
-  '421614_production': '0x52cCc0c0129bFB12A79E5Cf4a8525Cd724344BB4',
-  '421614_staging': '0x466D77c6EBEfD773d525ebEC71A96E7aB4813421',
   '84532_production': '0xBb7bb89Dc2388C73eFacF50d9917406C38e27b6e',
   '84532_staging': '0x466D77c6EBEfD773d525ebEC71A96E7aB4813421',
   '31337_localhost': '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e',
 } as const
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xBb7bb89Dc2388C73eFacF50d9917406C38e27b6e)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x52cCc0c0129bFB12A79E5Cf4a8525Cd724344BB4)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x52cCc0c0129bFB12A79E5Cf4a8525Cd724344BB4)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x466D77c6EBEfD773d525ebEC71A96E7aB4813421)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xBb7bb89Dc2388C73eFacF50d9917406C38e27b6e)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x466D77c6EBEfD773d525ebEC71A96E7aB4813421)
  * -
@@ -2808,10 +2776,8 @@ export const etsEnrichTargetConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x34b5E2B38E9A5F938bc6De795b5Fb69982a4D73e)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x70cD4eDB009F430BF77F11386cDD70eE66e7489C)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x70cD4eDB009F430BF77F11386cDD70eE66e7489C)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xC95d5e2C20bc5A2CaE433d973FEF33a7816f3C13)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x34b5E2B38E9A5F938bc6De795b5Fb69982a4D73e)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xC95d5e2C20bc5A2CaE433d973FEF33a7816f3C13)
  * -
@@ -3246,29 +3212,23 @@ export const etsRelayerAbi = [
 ] as const
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x34b5E2B38E9A5F938bc6De795b5Fb69982a4D73e)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x70cD4eDB009F430BF77F11386cDD70eE66e7489C)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x70cD4eDB009F430BF77F11386cDD70eE66e7489C)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xC95d5e2C20bc5A2CaE433d973FEF33a7816f3C13)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x34b5E2B38E9A5F938bc6De795b5Fb69982a4D73e)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xC95d5e2C20bc5A2CaE433d973FEF33a7816f3C13)
  * -
  */
 export const etsRelayerAddress = {
+  31337: '0x9A676e781A523b5d0C0e43731313A708CB607508',
   84532: '0x34b5E2B38E9A5F938bc6De795b5Fb69982a4D73e',
-  421614: '0x70cD4eDB009F430BF77F11386cDD70eE66e7489C',
-  '421614_production': '0x70cD4eDB009F430BF77F11386cDD70eE66e7489C',
-  '421614_staging': '0xC95d5e2C20bc5A2CaE433d973FEF33a7816f3C13',
   '84532_production': '0x34b5E2B38E9A5F938bc6De795b5Fb69982a4D73e',
   '84532_staging': '0xC95d5e2C20bc5A2CaE433d973FEF33a7816f3C13',
   '31337_localhost': '0x9A676e781A523b5d0C0e43731313A708CB607508',
 } as const
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x34b5E2B38E9A5F938bc6De795b5Fb69982a4D73e)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x70cD4eDB009F430BF77F11386cDD70eE66e7489C)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x70cD4eDB009F430BF77F11386cDD70eE66e7489C)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xC95d5e2C20bc5A2CaE433d973FEF33a7816f3C13)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x34b5E2B38E9A5F938bc6De795b5Fb69982a4D73e)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xC95d5e2C20bc5A2CaE433d973FEF33a7816f3C13)
  * -
@@ -3283,10 +3243,8 @@ export const etsRelayerConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xDBd870535210f98E226Ad2462F5763817507a828)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xDa1691abD34F579BE96F20636Fe5800F4fb9C0f8)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xDa1691abD34F579BE96F20636Fe5800F4fb9C0f8)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x5A0E401050AB29D0bC5a4C3A1A922d0a9917eC0c)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xDBd870535210f98E226Ad2462F5763817507a828)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x5A0E401050AB29D0bC5a4C3A1A922d0a9917eC0c)
  * -
@@ -3384,29 +3342,23 @@ export const etsRelayerFactoryAbi = [
 ] as const
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xDBd870535210f98E226Ad2462F5763817507a828)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xDa1691abD34F579BE96F20636Fe5800F4fb9C0f8)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xDa1691abD34F579BE96F20636Fe5800F4fb9C0f8)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x5A0E401050AB29D0bC5a4C3A1A922d0a9917eC0c)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xDBd870535210f98E226Ad2462F5763817507a828)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x5A0E401050AB29D0bC5a4C3A1A922d0a9917eC0c)
  * -
  */
 export const etsRelayerFactoryAddress = {
+  31337: '0x0B306BF915C4d645ff596e518fAf3F9669b97016',
   84532: '0xDBd870535210f98E226Ad2462F5763817507a828',
-  421614: '0xDa1691abD34F579BE96F20636Fe5800F4fb9C0f8',
-  '421614_production': '0xDa1691abD34F579BE96F20636Fe5800F4fb9C0f8',
-  '421614_staging': '0x5A0E401050AB29D0bC5a4C3A1A922d0a9917eC0c',
   '84532_production': '0xDBd870535210f98E226Ad2462F5763817507a828',
   '84532_staging': '0x5A0E401050AB29D0bC5a4C3A1A922d0a9917eC0c',
   '31337_localhost': '0x0B306BF915C4d645ff596e518fAf3F9669b97016',
 } as const
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xDBd870535210f98E226Ad2462F5763817507a828)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xDa1691abD34F579BE96F20636Fe5800F4fb9C0f8)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xDa1691abD34F579BE96F20636Fe5800F4fb9C0f8)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x5A0E401050AB29D0bC5a4C3A1A922d0a9917eC0c)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xDBd870535210f98E226Ad2462F5763817507a828)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x5A0E401050AB29D0bC5a4C3A1A922d0a9917eC0c)
  * -
@@ -3421,10 +3373,8 @@ export const etsRelayerFactoryConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x9EC822cB62B1EBba70446EB7FeBeFae2458CB19c)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xe146267C08996aBFD583A12D70A5643d462A36B1)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xe146267C08996aBFD583A12D70A5643d462A36B1)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x92eFe8B32085Cebea4Ff863cF1B0e3cCbb8890f2)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x9EC822cB62B1EBba70446EB7FeBeFae2458CB19c)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x92eFe8B32085Cebea4Ff863cF1B0e3cCbb8890f2)
  * -
@@ -3733,29 +3683,23 @@ export const etsTargetAbi = [
 ] as const
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x9EC822cB62B1EBba70446EB7FeBeFae2458CB19c)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xe146267C08996aBFD583A12D70A5643d462A36B1)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xe146267C08996aBFD583A12D70A5643d462A36B1)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x92eFe8B32085Cebea4Ff863cF1B0e3cCbb8890f2)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x9EC822cB62B1EBba70446EB7FeBeFae2458CB19c)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x92eFe8B32085Cebea4Ff863cF1B0e3cCbb8890f2)
  * -
  */
 export const etsTargetAddress = {
+  31337: '0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6',
   84532: '0x9EC822cB62B1EBba70446EB7FeBeFae2458CB19c',
-  421614: '0xe146267C08996aBFD583A12D70A5643d462A36B1',
-  '421614_production': '0xe146267C08996aBFD583A12D70A5643d462A36B1',
-  '421614_staging': '0x92eFe8B32085Cebea4Ff863cF1B0e3cCbb8890f2',
   '84532_production': '0x9EC822cB62B1EBba70446EB7FeBeFae2458CB19c',
   '84532_staging': '0x92eFe8B32085Cebea4Ff863cF1B0e3cCbb8890f2',
   '31337_localhost': '0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6',
 } as const
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x9EC822cB62B1EBba70446EB7FeBeFae2458CB19c)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xe146267C08996aBFD583A12D70A5643d462A36B1)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xe146267C08996aBFD583A12D70A5643d462A36B1)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x92eFe8B32085Cebea4Ff863cF1B0e3cCbb8890f2)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x9EC822cB62B1EBba70446EB7FeBeFae2458CB19c)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x92eFe8B32085Cebea4Ff863cF1B0e3cCbb8890f2)
  * -
@@ -3770,10 +3714,8 @@ export const etsTargetConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x72C3B6df276e082e352Ab1d23CBb329475ed93A8)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xb1A00565161C04edBB7826a7eda9D7166dffa676)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xb1A00565161C04edBB7826a7eda9D7166dffa676)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x2F341353f562D53E76e018A0d529BF5cEf8bd4a9)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x72C3B6df276e082e352Ab1d23CBb329475ed93A8)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2F341353f562D53E76e018A0d529BF5cEf8bd4a9)
  * -
@@ -4568,29 +4510,23 @@ export const etsTokenAbi = [
 ] as const
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x72C3B6df276e082e352Ab1d23CBb329475ed93A8)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xb1A00565161C04edBB7826a7eda9D7166dffa676)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xb1A00565161C04edBB7826a7eda9D7166dffa676)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x2F341353f562D53E76e018A0d529BF5cEf8bd4a9)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x72C3B6df276e082e352Ab1d23CBb329475ed93A8)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2F341353f562D53E76e018A0d529BF5cEf8bd4a9)
  * -
  */
 export const etsTokenAddress = {
+  31337: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9',
   84532: '0x72C3B6df276e082e352Ab1d23CBb329475ed93A8',
-  421614: '0xb1A00565161C04edBB7826a7eda9D7166dffa676',
-  '421614_production': '0xb1A00565161C04edBB7826a7eda9D7166dffa676',
-  '421614_staging': '0x2F341353f562D53E76e018A0d529BF5cEf8bd4a9',
   '84532_production': '0x72C3B6df276e082e352Ab1d23CBb329475ed93A8',
   '84532_staging': '0x2F341353f562D53E76e018A0d529BF5cEf8bd4a9',
   '31337_localhost': '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9',
 } as const
 
 /**
+ * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x72C3B6df276e082e352Ab1d23CBb329475ed93A8)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xb1A00565161C04edBB7826a7eda9D7166dffa676)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xb1A00565161C04edBB7826a7eda9D7166dffa676)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x2F341353f562D53E76e018A0d529BF5cEf8bd4a9)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x72C3B6df276e082e352Ab1d23CBb329475ed93A8)
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2F341353f562D53E76e018A0d529BF5cEf8bd4a9)
  * -

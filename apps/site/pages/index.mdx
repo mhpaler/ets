@@ -83,14 +83,14 @@ import { HomePage } from 'vocs/components'
 /// 1. Import modules
 import { createRelayerClient } from "@ethereum-tag-service/sdk-core";
 import { privateKeyToAccount } from "viem/accounts";
-import { arbitrumSepolia } from "viem/chains";
+import { baseSepolia } from "viem/chains";
 
 // 2. Initialize account
 const account = privateKeyToAccount("0x..."); // Your private key here
 
 // 3. Initialize RelayerClient
 const client = createRelayerClient({
-  chainId: arbitrumSepolia.id,
+  chainId: baseSepolia.id,
   relayerAddress: "0xa01c9cb373c5e29934b92e5afa6a78e3d590340b",
   account
 });
@@ -117,8 +117,8 @@ client?.createTaggingRecord(
 ```typescript twoslash
 import { getSubgraphEndpoint } from "@ethereum-tag-service/subgraph-endpoints";
 
-// Arbitrum Sepolia
-const endpoint = getSubgraphEndpoint(421614);
+// Base Sepolia
+const endpoint = getSubgraphEndpoint(84532);
 
 const graphqlQuery = {
   query: `

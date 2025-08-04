@@ -25,7 +25,7 @@ import { createCoreClient, createTokenClient } from '@ethereum-tag-service/sdk-c
 
 // Initialize the core client with all sub-clients
 const coreClient = createCoreClient({
-  chainId: 42161, // Arbitrum One
+  chainId: 8453, // Base
   account: '0x...',
   clients: {
     tokenClient: true,
@@ -35,7 +35,7 @@ const coreClient = createCoreClient({
 
 // Or create individual clients
 const tokenClient = createTokenClient({
-  chainId: 42161,
+  chainId: 8453,
   account: '0x...'
 })
 ```

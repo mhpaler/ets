@@ -125,11 +125,6 @@ export const getChainByNetworkName = (networkName: string): Chain | undefined =>
     return chains["84532"];
   }
 
-  if (networkName === "arbitrumsepoliastaging") {
-    console.info("Directly mapped arbitrumsepoliastaging to Arbitrum Sepolia chain (421614)");
-    return chains["421614"];
-  }
-
   // Handle staging variants of network names (they still map to the same chain IDs)
   const normalizedNetworkName = networkName.replace(/staging$/i, "");
 

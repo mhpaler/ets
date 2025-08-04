@@ -4,7 +4,7 @@ import * as path from "node:path";
 import * as Handlebars from "handlebars";
 
 // Define types
-type DeploymentTarget = "localhost" | "arbitrumSepolia" | "baseSepolia";
+type DeploymentTarget = "localhost" | "baseSepolia";
 type Environment = "production" | "staging" | "localhost";
 
 interface NetworkConfig {
@@ -25,7 +25,7 @@ interface OpenzeppelinAbis {
 }
 
 // Constants
-const VALID_TARGETS: DeploymentTarget[] = ["localhost", "arbitrumSepolia", "baseSepolia"];
+const VALID_TARGETS: DeploymentTarget[] = ["localhost", "baseSepolia"];
 
 const OPENZEPPELIN_ABIS: OpenzeppelinAbis = {
   Ownable: "./../../packages/contracts/abi/@openzeppelin/contracts/access/Ownable.sol/Ownable.json",
@@ -83,7 +83,6 @@ const getNetworkConfig = (target: DeploymentTarget, envParam: Environment = "pro
 
   const targetConfigs: Record<DeploymentTarget, { name: string }> = {
     localhost: { name: "mainnet" },
-    arbitrumSepolia: { name: "arbitrum-sepolia" },
     baseSepolia: { name: "base-sepolia" },
   };
 

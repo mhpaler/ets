@@ -34,6 +34,6 @@ pnpm run dev
 Then...
 
 1. Click "Run Demo" to generate a new wallet address
-2. Fund that address with a small amount (0.0001) of Arbitrum Sepolia ETH
+2. Fund that address with a small amount (0.00001) of Base Sepolia ETH
 3. Click "Run Demo" again to create your tagging record
 4. View your new tagging record in the ETS Explorer

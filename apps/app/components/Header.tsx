@@ -57,7 +57,7 @@ export default function Header() {
 
         {/* Right aligned elements */}
         <div className="flex-shrink-0">
-          <ConnectButtonETS className="btn-primary btn-outline btn-sm" compact={isCompact} showChainSwitcher={true} />
+          <ConnectButtonETS className="btn-primary btn-outline btn-sm" compact={isCompact} />
         </div>
       </header>
     </>

@@ -65,14 +65,14 @@ The library provides the following hooks, one for each **sdk-core** client:
 
 To initialize a hook you must provide:
 
-- `chainId`: The network identifier (e.g. 421614 for Arbitrum Sepolia)
+- `chainId`: The network identifier (e.g. 84532 for Base Sepolia)
 - `account`: A hex address from your connected wallet
 
 ```tsx twoslash
 import { useTokenClient } from '@ethereum-tag-service/sdk-react-hooks'
 
 const { tagExists } = useTokenClient({
-  chainId: 421614, // Arbitrum Sepolia // [!code focus:1]
+  chainId: 84532, // Base Sepolia // [!code focus:1]
   account: '0x...' // From your wallet connector // [!code focus:1]
 })
 ```
@@ -82,7 +82,7 @@ Note: **useRelayerClient** additionally requires a `relayerAddress` parameter.
 import { useRelayerClient } from '@ethereum-tag-service/sdk-react-hooks'
 
 const { applyTags } = useRelayerClient({
-  chainId: 421614,
+  chainId: 84532,
   relayerAddress: '0x...', // [!code focus:1]
   account: '0x...'
 })
@@ -105,7 +105,7 @@ import { useTokenClient } from '@ethereum-tag-service/sdk-react-hooks'
 
 function TagExplorer() {
   const { existingTags, tagExists, computeTagId } = useTokenClient({
-    chainId: 421614,
+    chainId: 84532,
     account: "0x1234567890123456789012345678901234567890"
   })
 
@@ -138,7 +138,7 @@ import { useRelayerClient } from '@ethereum-tag-service/sdk-react-hooks'
 
 function TagCreator() {
   const { createTaggingRecord } = useRelayerClient({
-    chainId: 421614,
+    chainId: 84532,
     relayerAddress: "0xa01c9cb373c5e29934b92e5afa6a78e3d590340b",
     account: '0x...' // From your wallet connector
   })

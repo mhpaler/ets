@@ -4,7 +4,7 @@ import * as minimist from "minimist";
 
 import { main as generateYaml } from "./generate-yaml"; // Use import to import the main function
 
-type DeploymentTarget = "localhost" | "arbitrumSepolia" | "baseSepolia";
+type DeploymentTarget = "localhost" | "baseSepolia";
 type Environment = "production" | "staging" | "localhost";
 
 interface DeploymentConfig {
@@ -29,12 +29,6 @@ const deploymentConfigs: Record<string, DeploymentConfig> = {
     isLocal: true,
     environment: "localhost",
   },
-  arbitrumSepolia: {
-    target: "arbitrumSepolia",
-    studioName: "ets-arbitrum-sepolia",
-    isLocal: false,
-    environment: "production",
-  },
   baseSepolia: {
     target: "baseSepolia",
     studioName: "ets-base-sepolia",
@@ -43,12 +37,6 @@ const deploymentConfigs: Record<string, DeploymentConfig> = {
   },
 
   // Staging environments
-  "arbitrumSepolia-staging": {
-    target: "arbitrumSepolia",
-    studioName: "ets-arbitrum-sepolia-staging",
-    isLocal: false,
-    environment: "staging",
-  },
   "baseSepolia-staging": {
     target: "baseSepolia",
     studioName: "ets-base-sepolia-staging",
