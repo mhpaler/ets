@@ -1,4 +1,5 @@
 import TagInput from "@app/components/TagInput";
+import { useEnvironmentContext } from "@app/context/EnvironmentContext";
 import { useRelayers } from "@app/hooks/useRelayers";
 import useToast from "@app/hooks/useToast";
 import Layout from "@app/layouts/default";
@@ -14,18 +15,21 @@ const CreateTag: NextPage = () => {
   const { t } = useTranslation("common");
   const { showToast, ToastComponent } = useToast();
   const { chain, isConnected, address } = useAccount();
+  const { serverEnvironment } = useEnvironmentContext();
   const [tags, setTags] = useState<TagInputType[]>([]);
   const [selectedRelayer, setSelectedRelayer] = useState<any | null>(null);
 
   const { tagExists } = useTokenClient({
     chainId: chain?.id,
     account: address,
+    environment: serverEnvironment,
   });
 
   const { createTags } = useRelayerClient({
     relayerAddress: selectedRelayer?.id,
     account: address,
     chainId: chain?.id,
+    environment: serverEnvironment,
   });
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const { relayers } = useRelayers({});

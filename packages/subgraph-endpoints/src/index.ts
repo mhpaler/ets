@@ -9,15 +9,9 @@ interface SubgraphEndpointMapping {
 const subgraphEndpoints: Record<string, SubgraphEndpointMapping | string> = {
   // Legacy format (for backward compatibility)
   localhost: "http://localhost:8000/subgraphs/name/ets-local",
-  arbitrumSepolia: "https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia/version/latest",
   baseSepolia: "https://api.studio.thegraph.com/query/87165/ets-base-sepolia/version/latest",
 
   // New environment-aware format
-  arbitrumSepolia_env: {
-    production: "https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia/version/latest",
-    staging: "https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia-staging/version/latest",
-    localhost: "http://localhost:8000/subgraphs/name/ets-local",
-  },
   baseSepolia_env: {
     production: "https://api.studio.thegraph.com/query/87165/ets-base-sepolia/version/latest",
     staging: "https://api.studio.thegraph.com/query/87165/ets-base-sepolia-staging/version/latest",
@@ -28,7 +22,6 @@ const subgraphEndpoints: Record<string, SubgraphEndpointMapping | string> = {
 const chainIdToNetwork: Record<number, string> = {
   31337: "localhost",
   1337: "localhost",
-  421614: "arbitrumSepolia",
   84532: "baseSepolia",
 };
 

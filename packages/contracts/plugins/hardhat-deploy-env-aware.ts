@@ -136,9 +136,8 @@ const plugin = (config: EnvAwareDeployOptions): Plugin => {
 
             // Add both chainId-only (for backward compatibility)
             // and chainId+environment entries
-            if (environment === "production") {
-              // Only set the plain chainId for production to avoid overwriting
-              // production addresses with staging ones
+            if (environment === "production" || environment === "localhost") {
+              // Set the plain chainId for production and localhost to ensure backward compatibility
               addresses[chainId] = address;
             }
 

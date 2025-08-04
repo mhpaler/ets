@@ -24,7 +24,6 @@
  * <ConnectButtonETS compact={true} />
  */
 
-import ChainModalETS from "@app/components/ChainModalETS";
 import { useEnvironmentContext } from "@app/context/EnvironmentContext";
 import { getChainInfo } from "@app/utils/getChainInfo";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
@@ -38,14 +37,11 @@ interface ConnectButtonETSProps {
   className?: string;
   /** Enable compact mode for mobile/tight spaces */
   compact?: boolean;
-  /** Show the chain switcher button (typically used in header) */
-  showChainSwitcher?: boolean;
 }
 
 export const ConnectButtonETS: React.FC<ConnectButtonETSProps> = ({
   className = "",
   compact = false,
-  showChainSwitcher = false,
 }) => {
   const { switchChain } = useSwitchChain();
   const { disconnect } = useDisconnect();
@@ -71,7 +67,6 @@ export const ConnectButtonETS: React.FC<ConnectButtonETSProps> = ({
   }, [network]);
   const chainId = useChainId();
   const { isConnected, isReconnecting } = useAccount();
-  const [showChainModal, setShowChainModal] = useState(false);
   const [showUnsupportedModal, setShowUnsupportedModal] = useState(false);
 
   const handleSwitchNetwork = useCallback(() => {
@@ -94,12 +89,6 @@ export const ConnectButtonETS: React.FC<ConnectButtonETSProps> = ({
     }
   }, [chainId, isConnected, isReconnecting, expectedChain, handleSwitchNetwork]);
 
-  const openChainModalETS = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation();
-    setShowChainModal(true);
-  }, []);
-
-  const closeChainModalETS = useCallback(() => setShowChainModal(false), []);
 
   return (
     <>
@@ -120,41 +109,9 @@ export const ConnectButtonETS: React.FC<ConnectButtonETSProps> = ({
 
           if (!connected) {
             return (
-              <div className="flex space-x-2">
-                {showChainSwitcher && (
-                  <button
-                    className={`btn ${compact ? "btn-sm px-2" : ""} ${className}`}
-                    onClick={openChainModalETS}
-                    type="button"
-                  >
-                    {expectedChain.iconPath && (
-                      <div
-                        style={{
-                          width: 16,
-                          height: 16,
-                          borderRadius: 999,
-                          overflow: "hidden",
-                          marginRight: compact ? 0 : 4,
-                        }}
-                      >
-                        {expectedChain.iconPath && (
-                          <Image
-                            src={expectedChain.iconPath}
-                            alt={expectedChain.displayName ?? "Chain icon"}
-                            width={16}
-                            height={16}
-                          />
-                        )}
-                      </div>
-                    )}
-                    {!compact && expectedChain.displayName}
-                  </button>
-                )}
-
-                <button className={`btn btn-primary ${className}`} onClick={handleConnectClick} type="button">
-                  {compact ? "Connect" : "Connect Wallet"}
-                </button>
-              </div>
+              <button className={`btn btn-primary ${className}`} onClick={handleConnectClick} type="button">
+                {compact ? "Connect" : "Connect Wallet"}
+              </button>
             );
           }
 
@@ -191,57 +148,28 @@ export const ConnectButtonETS: React.FC<ConnectButtonETSProps> = ({
           }
 
           return (
-            <div className="flex items-center gap-2">
-              {showChainSwitcher && (
-                <button
-                  className={`btn ${compact ? "btn-sm px-2" : ""} ${className}`}
-                  onClick={openChainModalETS}
-                  type="button"
-                >
-                  {chain.hasIcon && (
-                    <div
-                      style={{
-                        background: chain.iconBackground,
-                        width: 16,
-                        height: 16,
-                        borderRadius: 999,
-                        overflow: "hidden",
-                        marginRight: compact ? 0 : 4,
-                      }}
-                    >
-                      {chain.iconUrl && (
-                        <Image src={chain.iconUrl} alt={chain.name ?? "Chain icon"} width={16} height={16} />
-                      )}
-                    </div>
-                  )}
-                  {!compact && chain.name}
-                </button>
-              )}
-
-              <button
-                className={`btn ${className} ${compact ? "btn-sm px-2" : ""}`}
-                onClick={openAccountModal}
-                type="button"
-              >
-                {compact ? (
-                  <div className="avatar">
-                    <div className="w-6 rounded-full">
-                      <img src={`https://avatar.vercel.sh/${account.address}.svg`} alt="User avatar" />
-                    </div>
+            <button
+              className={`btn ${className} ${compact ? "btn-sm px-2" : ""}`}
+              onClick={openAccountModal}
+              type="button"
+            >
+              {compact ? (
+                <div className="avatar">
+                  <div className="w-6 rounded-full">
+                    <img src={`https://avatar.vercel.sh/${account.address}.svg`} alt="User avatar" />
                   </div>
-                ) : (
-                  <>
-                    {account.displayName}
-                    {account.displayBalance ? ` (${account.displayBalance})` : ""}
-                  </>
-                )}
-              </button>
-            </div>
+                </div>
+              ) : (
+                <>
+                  {account.displayName}
+                  {account.displayBalance ? ` (${account.displayBalance})` : ""}
+                </>
+              )}
+            </button>
           );
         }}
       </ConnectButton.Custom>
 
-      <ChainModalETS show={showChainModal} onClose={closeChainModalETS} />
 
       {showUnsupportedModal && (
         <div className="modal modal-open">

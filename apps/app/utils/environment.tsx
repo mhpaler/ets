@@ -2,12 +2,10 @@
 import type { ServerEnvironment } from "@app/types/environment";
 import { networkNames } from "@ethereum-tag-service/contracts/multiChainConfig";
 
-// We declare our own NetworkName type to include staging network variants
+// Base-only network types
 type NetworkNameInternal =
-  | "arbitrumsepolia"
   | "basesepolia"
   | "hardhat"
-  | "arbitrumsepoliastaging" // Added for staging environment mapping
   | "basesepoliastaging" // Added for staging environment mapping
   | "none"; // Special case for no network
 
@@ -17,16 +15,16 @@ type NetworkNameInternal =
  * Hierarchical decision process:
  * 1. Vercel Preview Detection
  *    - Checks NEXT_PUBLIC_VERCEL_ENV or vercel.app hostname
- *    - Returns "arbitrumsepolia" for consistent preview deployments
+ *    - Returns "basesepolia" for consistent preview deployments
  *    - Provides debug output in preview environments
  *
- * 2. Subdomain Network Detection
- *    - Extracts subdomain from hostname (e.g., "arbitrumsepolia" from "arbitrumsepolia.app.ets.xyz")
- *    - Validates against networkNames list
+ * 2. Subdomain Environment Detection  
+ *    - Extracts subdomain from hostname (e.g., "staging" from "staging.localhost")
+ *    - Maps to appropriate network and environment combination
  *
  * 3. Localhost Development
- *    - Supports network-specific testing via subdomains (e.g., "arbitrumsepolia.localhost")
- *    - Returns "none" for plain localhost
+ *    - Supports environment-specific testing via subdomains (e.g., "staging.localhost", "production.localhost")
+ *    - Returns "hardhat" for plain localhost, "basesepolia" for environment subdomains
  *
  * 4. Default Fallback
  *    - Returns "none" when no valid network is detected
@@ -69,37 +67,33 @@ export function getNetwork(): NetworkNameInternal {
 
   // Check for Vercel preview environment first
   if (isPreviewEnvironment && window.location.hostname.includes("vercel.app")) {
-    console.info("getNetwork: Detected Vercel preview, returning arbitrumsepolia");
-    return "arbitrumsepolia";
+    console.info("getNetwork: Detected Vercel preview, returning basesepolia");
+    return "basesepolia";
   }
 
-  // Special case for base localhost environment
+  // Special case for localhost environment (Base-only with environment subdomains)
   if (hostname === "localhost" || hostname.endsWith(".localhost")) {
     if (subdomain === "localhost") {
-      // Plain localhost with no subdomain
-      console.info("getNetwork: Detected plain localhost, returning 'none'");
-      return "none";
-    }
-
-    // CRITICAL FIX FOR LOCALHOST SUBDOMAIN DETECTION
-    // Explicitly check for specific subdomains without relying on network name validation
-
-    // Handle hardhat.localhost
-    if (subdomain === "hardhat") {
-      console.info("getNetwork: Detected hardhat network on localhost");
+      // Plain localhost defaults to hardhat local chain
+      console.info("getNetwork: Detected plain localhost, returning 'hardhat'");
       return "hardhat";
     }
 
-    // Handle arbitrumsepolia.localhost - Always return arbitrumsepolia
-    if (subdomain === "arbitrumsepolia") {
-      console.info("getNetwork: Detected arbitrumsepolia network on localhost (will map to staging variant)");
-      return "arbitrumsepolia";
+    // Handle environment-based subdomains for Base Sepolia
+    if (subdomain === "staging") {
+      console.info("getNetwork: Detected staging environment on localhost, returning 'basesepolia'");
+      return "basesepolia"; // Will map to staging environment
     }
 
-    // Handle basesepolia.localhost - Always return basesepolia
-    if (subdomain === "basesepolia") {
-      console.info("getNetwork: Detected basesepolia network on localhost (will map to staging variant)");
-      return "basesepolia";
+    if (subdomain === "production") {
+      console.info("getNetwork: Detected production environment on localhost, returning 'basesepolia'");
+      return "basesepolia"; // Will map to production environment
+    }
+
+    // Handle hardhat.localhost (explicit)
+    if (subdomain === "hardhat") {
+      console.info("getNetwork: Detected hardhat network on localhost");
+      return "hardhat";
     }
 
     // For any other subdomain, check if it's a valid network name
@@ -135,13 +129,13 @@ export function getNetwork(): NetworkNameInternal {
  * - production: Production deployment (*.app.ets.xyz)
  *
  * Special cases for local development:
- * - hardhat.localhost:3001 => Uses "localhost" environment
- * - arbitrumsepolia.localhost:3001 => Uses "staging" environment
- * - basesepolia.localhost:3001 => Uses "staging" environment
+ * - localhost:3001 => Uses "localhost" environment (31337_localhost)
+ * - staging.localhost:3001 => Uses "staging" environment (84532_staging)
+ * - production.localhost:3001 => Uses "production" environment (84532_production)
  */
 /**
  * Maps a standard network name to its staging variant if needed
- * @param network The network name (e.g., "arbitrumsepolia")
+ * @param network The network name (e.g., "basesepolia")
  * @param environment The environment ("staging", "production", "localhost")
  * @returns The appropriate network name for the environment
  */
@@ -149,11 +143,11 @@ export function getNetwork(): NetworkNameInternal {
  * Maps a network name to its environment-specific variant.
  *
  * This is critical for contract address resolution since:
- * - Production uses "arbitrumSepolia" network names
- * - Staging uses "arbitrumSepoliaStaging" network names
+ * - Production uses "baseSepolia" network names  
+ * - Staging uses "baseSepoliaStaging" network names
+ * - Localhost uses "hardhat" network names
  *
- * The mapping ensures the SDK can find the correct contract addresses
- * by translating user-facing network names to internal network names.
+ * The mapping ensures the SDK can find the correct contract addresses.
  */
 function mapNetworkForEnvironment(network: NetworkNameInternal, environment: ServerEnvironment): NetworkNameInternal {
   if (typeof window === "undefined") return network;
@@ -181,30 +175,17 @@ function mapNetworkForEnvironment(network: NetworkNameInternal, environment: Ser
     return network;
   }
 
-  // CRITICAL FIX FOR LOCALHOST SUBDOMAINS:
-  // When running on localhost, explicitly check the subdomain to determine the correct network
+  // Base-only localhost subdomain handling
   if (hostname.endsWith(".localhost") && environment === "staging") {
     // If we're on basesepolia.localhost, explicitly return basesepoliastaging
     if (subdomain === "basesepolia") {
       console.info("Forcing network mapping based on subdomain: basesepolia → basesepoliastaging");
       return "basesepoliastaging" as NetworkName;
     }
-
-    // If we're on arbitrumsepolia.localhost, explicitly return arbitrumsepoliastaging
-    if (subdomain === "arbitrumsepolia") {
-      console.info("Forcing network mapping based on subdomain: arbitrumsepolia → arbitrumsepoliastaging");
-      return "arbitrumsepoliastaging" as NetworkName;
-    }
   }
 
-  // For staging environment, map both networks to their staging variants
+  // For staging environment, map to Base staging variant
   if (environment === "staging") {
-    // Always map to the correct staging variant based on the network
-    if (network === "arbitrumsepolia") {
-      console.info("Mapping network: arbitrumsepolia → arbitrumsepoliastaging (Arbitrum Sepolia)");
-      return "arbitrumsepoliastaging" as NetworkName;
-    }
-
     if (network === "basesepolia") {
       console.info("Mapping network: basesepolia → basesepoliastaging (Base Sepolia)");
       return "basesepoliastaging" as NetworkName;
@@ -215,7 +196,7 @@ function mapNetworkForEnvironment(network: NetworkNameInternal, environment: Ser
   }
 
   // If the network is already a staging variant, don't change it
-  if (network === "arbitrumsepoliastaging" || network === "basesepoliastaging") {
+  if (network === "basesepoliastaging") {
     console.info(`Network ${network} is already a staging variant, no mapping needed`);
     return network;
   }
@@ -243,44 +224,44 @@ export function getEnvironmentAndNetwork(): { environment: ServerEnvironment; ne
   let environment: ServerEnvironment;
 
   if (hostname === "localhost" || hostname.endsWith(".localhost")) {
-    // For localhost development, we need special handling based on subdomain:
+    // For localhost development, map subdomains to environments:
 
     const subdomain = hostname.split(".")[0].toLowerCase();
 
-    if (subdomain === "hardhat") {
-      // When using hardhat subdomain on localhost, always use localhost environment
-      environment = "localhost";
-
-      console.info("Environment Detection (hardhat.localhost):", {
-        hostname,
-        network: detectedNetwork,
-        environment: "localhost",
-        subdomain,
-        mappedNetwork: "hardhat", // Network doesn't change
-        fullURL: window.location.href,
-      });
-    } else if (detectedNetwork === "arbitrumsepolia" || detectedNetwork === "basesepolia") {
-      // For real testnet subdomains on localhost, use staging environment
-      // This ensures we get staging contract addresses via the SDK
+    if (subdomain === "staging") {
+      // staging.localhost:3001 -> Base Sepolia staging contracts
       environment = "staging";
 
-      console.info("Environment Detection (testnet.localhost):", {
+      console.info("Environment Detection (staging.localhost):", {
         hostname,
         network: detectedNetwork,
         environment: "staging",
         subdomain,
-        // The network name will be mapped to staging variant
+        contractKey: "84532_staging",
+        fullURL: window.location.href,
+      });
+    } else if (subdomain === "production") {
+      // production.localhost:3001 -> Base Sepolia production contracts  
+      environment = "production";
+
+      console.info("Environment Detection (production.localhost):", {
+        hostname,
+        network: detectedNetwork,
+        environment: "production", 
+        subdomain,
+        contractKey: "84532_production",
         fullURL: window.location.href,
       });
     } else {
-      // Default localhost case (for plain localhost without subdomain or unknown subdomain)
+      // localhost:3001 or hardhat.localhost:3001 -> local hardhat contracts
       environment = "localhost";
 
-      console.info("Environment Detection (plain localhost):", {
+      console.info("Environment Detection (localhost/hardhat):", {
         hostname,
         network: detectedNetwork,
         environment: "localhost",
         subdomain,
+        contractKey: "31337_localhost",
         fullURL: window.location.href,
       });
     }
@@ -327,21 +308,17 @@ export function getEnvironmentAndNetwork(): { environment: ServerEnvironment; ne
     sdkContractKey: `${
       mappedNetwork === "hardhat"
         ? "31337"
-        : (mappedNetwork === "arbitrumsepolia" || mappedNetwork === "arbitrumsepoliastaging")
-          ? "421614"
-          : mappedNetwork === "basesepolia" || mappedNetwork === "basesepoliastaging"
-            ? "84532"
+        : mappedNetwork === "basesepolia" || mappedNetwork === "basesepoliastaging"
+          ? "84532"
             : "unknown"
     }_${environment}`,
 
     chainId:
       mappedNetwork === "hardhat"
         ? 31337
-        : mappedNetwork === "arbitrumsepolia" || mappedNetwork === "arbitrumsepoliastaging"
-          ? 421614
-          : mappedNetwork === "basesepolia" || mappedNetwork === "basesepoliastaging"
-            ? 84532
-            : 0,
+        : mappedNetwork === "basesepolia" || mappedNetwork === "basesepoliastaging"
+          ? 84532
+          : 0,
 
     isStaging: environment === "staging",
     isLocalhost: environment === "localhost",

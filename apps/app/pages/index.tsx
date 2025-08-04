@@ -1,4 +1,3 @@
-import ChainModalETS from "@app/components/ChainModalETS";
 import SiteMessage from "@app/components/SiteMessage";
 import { Stats } from "@app/components/Stats";
 import { TaggingRecords } from "@app/components/TaggingRecords";
@@ -75,7 +74,6 @@ const Home: NextPage = () => {
             <span className="ml-2 font-thin">explorer</span>
           </div>
 
-          <ChainModalETS show={true} onClose={() => {}} asModal={false} />
         </main>
       </div>
     );
