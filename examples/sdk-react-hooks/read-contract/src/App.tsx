@@ -1,6 +1,6 @@
+import type { Environment } from "@ethereum-tag-service/sdk-core";
 import { useTokenClient } from "@ethereum-tag-service/sdk-react-hooks";
 import { useState } from "react";
-import type { Environment } from "@ethereum-tag-service/sdk-core";
 
 // Environment options
 const ENVIRONMENT_OPTIONS = {
@@ -62,7 +62,6 @@ function App() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTagInput(e.target.value);
   };
-
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -145,9 +144,7 @@ function App() {
               borderRadius: "5px",
             }}
           >
-            <p>
-              Environment: {ENVIRONMENT_OPTIONS[selectedEnvironment as keyof typeof ENVIRONMENT_OPTIONS].name}
-            </p>
+            <p>Environment: {ENVIRONMENT_OPTIONS[selectedEnvironment as keyof typeof ENVIRONMENT_OPTIONS].name}</p>
             {checkedTags.map((tag) => (
               <div
                 key={tag}
@@ -198,7 +195,7 @@ function App() {
               fontWeight: "bold",
             }}
           >
-{ENVIRONMENT_OPTIONS[selectedEnvironment as keyof typeof ENVIRONMENT_OPTIONS].name} Tags
+            {ENVIRONMENT_OPTIONS[selectedEnvironment as keyof typeof ENVIRONMENT_OPTIONS].name} Tags
           </a>
         </div>
       </div>

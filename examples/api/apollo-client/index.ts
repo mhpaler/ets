@@ -45,13 +45,16 @@ const { data } = await client.query({
   query: LATEST_TAGGING_RECORD_QUERY,
 });
 
-export const taggingInfo = data.taggingRecords.length > 0 ? {
-  tags: data.taggingRecords[0].tags,
-  targetURI: data.taggingRecords[0].target.targetURI,
-  recordId: data.taggingRecords[0].id,
-} : {
-  tags: [],
-  targetURI: null,
-  recordId: null,
-  message: "No tagging records found"
-};
+export const taggingInfo =
+  data.taggingRecords.length > 0
+    ? {
+        tags: data.taggingRecords[0].tags,
+        targetURI: data.taggingRecords[0].target.targetURI,
+        recordId: data.taggingRecords[0].id,
+      }
+    : {
+        tags: [],
+        targetURI: null,
+        recordId: null,
+        message: "No tagging records found",
+      };
