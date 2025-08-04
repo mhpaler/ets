@@ -16,9 +16,9 @@ cd ets
 pnpm install
 ```
 
-Next, make sure you have a [Metamask wallet](https://blog.thirdweb.com/guides/create-a-metamask-wallet/), the secret recovery phrase for that wallet, and some [Arbitrum Sepolia ETH](https://faucet.quicknode.com/arbitrum/sepolia/) in one or more of the first 6 accounts.
+Next, make sure you have a [Metamask wallet](https://blog.thirdweb.com/guides/create-a-metamask-wallet/), the secret recovery phrase for that wallet, and some [Base Sepolia ETH](https://www.alchemy.com/faucets/base-sepolia) in one or more of the first 6 accounts.
 
-Finally, from the root of ETS, make a copy of `example.env`, save as `.env` and add your secret recovery phrase to `MNEMONIC_TESTNET` and a free [Alchemy API](https://www.alchemy.com/) key for Arbitrum Sepolia to `ALCHEMY_TESTNET`.
+Finally, from the root of ETS, make a copy of `example.env`, save as `.env` and add your secret recovery phrase to `MNEMONIC_TESTNET` and a free [Alchemy API](https://www.alchemy.com/) key for Base Sepolia to `ALCHEMY_TESTNET`.
 
 Note: All commands are issued from within the contracts package.
 
@@ -31,7 +31,7 @@ cd packages/contracts
 Before interacting with ETS testnet, you'll want to confirm that the accounts and test ETH amounts match that of your Metamask wallet. For example:
 
 ```zsh
-$ hardhat accounts --network arbitrumSepolia
+$ hardhat accounts --network baseSepolia
 
 account0: 0x93A5f58566D436Cae0711ED4d2815B85A26924e6 Balance: 1.653168035626479011
 account1: 0xE9FBC1a1925F6f117211C59b89A55b576182e1e9 Balance: 0.438160535492833465
@@ -44,7 +44,7 @@ account5: 0xdF0eB27bCc26E639137899d63B5221DABd2355f2 Balance: 0.0
 ## Create a Relayer
 
 ```zsh
-$ hardhat addRelayer --name "Solana" --signer "account2" --network arbitrumSepolia
+$ hardhat addRelayer --name "Solana" --signer "account2" --network baseSepolia
 
 started txn 0x10d14f87fbab80b7f372256f1a1164c4d5283335b48168cd90ea262a4cb1d0ec
 New relayer contract deployed at 0xd928bfb9e429713d78bddbbe509f2c1d528e0608 by account2
@@ -55,11 +55,11 @@ This command calls the ETSRelayerFactory and deploys an instance of ETSRelayerFa
 Note that the signer `"account2"` becomes the Relayer Owner and that Relayer names can not be duplicated. For example, if we issue the same command:
 
 ```zsh
-$ hardhat addRelayer --name "Solana" --signer "account2" --network arbitrumSepolia
+$ hardhat addRelayer --name "Solana" --signer "account2" --network baseSepolia
 Relayer name exists
 ```
 
-You can check that the Relayer was created with the correct credentials by running the following command in our [Arbitrum Sepolia subgraph](https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia/version/latest/).
+You can check that the Relayer was created with the correct credentials by running the following command in our [Base Sepolia subgraph](https://api.studio.thegraph.com/query/87165/ets-base-sepolia/version/latest/).
 
 ```graphql
 query Relayers {

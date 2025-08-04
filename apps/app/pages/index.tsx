@@ -73,7 +73,6 @@ const Home: NextPage = () => {
             <span className="hidden md:inline-flex ml-2.5 text-3xl font-medium text-slate-900">ETS</span>
             <span className="ml-2 font-thin">explorer</span>
           </div>
-
         </main>
       </div>
     );

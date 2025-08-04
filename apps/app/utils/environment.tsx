@@ -18,7 +18,7 @@ type NetworkNameInternal =
  *    - Returns "basesepolia" for consistent preview deployments
  *    - Provides debug output in preview environments
  *
- * 2. Subdomain Environment Detection  
+ * 2. Subdomain Environment Detection
  *    - Extracts subdomain from hostname (e.g., "staging" from "staging.localhost")
  *    - Maps to appropriate network and environment combination
  *
@@ -143,7 +143,7 @@ export function getNetwork(): NetworkNameInternal {
  * Maps a network name to its environment-specific variant.
  *
  * This is critical for contract address resolution since:
- * - Production uses "baseSepolia" network names  
+ * - Production uses "baseSepolia" network names
  * - Staging uses "baseSepoliaStaging" network names
  * - Localhost uses "hardhat" network names
  *
@@ -241,13 +241,13 @@ export function getEnvironmentAndNetwork(): { environment: ServerEnvironment; ne
         fullURL: window.location.href,
       });
     } else if (subdomain === "production") {
-      // production.localhost:3001 -> Base Sepolia production contracts  
+      // production.localhost:3001 -> Base Sepolia production contracts
       environment = "production";
 
       console.info("Environment Detection (production.localhost):", {
         hostname,
         network: detectedNetwork,
-        environment: "production", 
+        environment: "production",
         subdomain,
         contractKey: "84532_production",
         fullURL: window.location.href,
@@ -310,7 +310,7 @@ export function getEnvironmentAndNetwork(): { environment: ServerEnvironment; ne
         ? "31337"
         : mappedNetwork === "basesepolia" || mappedNetwork === "basesepoliastaging"
           ? "84532"
-            : "unknown"
+          : "unknown"
     }_${environment}`,
 
     chainId:

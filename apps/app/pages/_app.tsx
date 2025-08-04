@@ -25,7 +25,7 @@ Router.events.on("routeChangeError", nProgress.done);
 Router.events.on("routeChangeComplete", nProgress.done);
 
 function WagmiConfigWrapper({ children }: { children: React.ReactNode }) {
-  const { network, isValidPathWithoutNetwork } = useEnvironmentContext();
+  const { network } = useEnvironmentContext();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -38,9 +38,7 @@ function WagmiConfigWrapper({ children }: { children: React.ReactNode }) {
 
   return (
     <WagmiProvider config={wagmiConfig}>
-      <RainbowKitProvider initialChain={initialChain}>
-        {children}
-      </RainbowKitProvider>
+      <RainbowKitProvider initialChain={initialChain}>{children}</RainbowKitProvider>
     </WagmiProvider>
   );
 }

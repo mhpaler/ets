@@ -125,7 +125,6 @@ export const getChainByNetworkName = (networkName: string): Chain | undefined =>
     return chains["84532"];
   }
 
-
   // Handle staging variants of network names (they still map to the same chain IDs)
   const normalizedNetworkName = networkName.replace(/staging$/i, "");
 

@@ -39,10 +39,7 @@ interface ConnectButtonETSProps {
   compact?: boolean;
 }
 
-export const ConnectButtonETS: React.FC<ConnectButtonETSProps> = ({
-  className = "",
-  compact = false,
-}) => {
+export const ConnectButtonETS: React.FC<ConnectButtonETSProps> = ({ className = "", compact = false }) => {
   const { switchChain } = useSwitchChain();
   const { disconnect } = useDisconnect();
   const { network, serverEnvironment } = useEnvironmentContext();
@@ -88,7 +85,6 @@ export const ConnectButtonETS: React.FC<ConnectButtonETSProps> = ({
       handleSwitchNetwork();
     }
   }, [chainId, isConnected, isReconnecting, expectedChain, handleSwitchNetwork]);
-
 
   return (
     <>
@@ -169,7 +165,6 @@ export const ConnectButtonETS: React.FC<ConnectButtonETSProps> = ({
           );
         }}
       </ConnectButton.Custom>
-
 
       {showUnsupportedModal && (
         <div className="modal modal-open">
