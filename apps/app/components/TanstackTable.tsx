@@ -3,9 +3,9 @@ import { Button } from "@app/components/Button";
 import { globalSettings } from "@app/config/globalSettings";
 import { useModal } from "@app/hooks/useModalContext";
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import useTranslation from "next-translate/useTranslation";
 import { useRouter } from "next/router";
-import React, { type ReactNode, useMemo, useState, useEffect } from "react";
+import useTranslation from "next-translate/useTranslation";
+import React, { type ReactNode, useEffect, useMemo, useState } from "react";
 
 interface TableProps<TData> {
   columns: any[];

@@ -1,7 +1,7 @@
 import { useEnsNames } from "@app/hooks/useEnsNames";
 import type { CreatorType, FetchCreatorsResponse } from "@app/types/creator";
-import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
+import useSWR from "swr";
 
 export function useCreators({
   pageSize = 20,

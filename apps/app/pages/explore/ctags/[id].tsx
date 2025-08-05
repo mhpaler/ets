@@ -1,8 +1,8 @@
 import Address from "@app/components/Address";
+import WithinTagAuctionDisplay from "@app/components/auction/WithinTagAuctionDisplay";
 import { Panel } from "@app/components/Panel";
 import { TagGraphic } from "@app/components/TagGraphic";
 import { TaggingRecords } from "@app/components/TaggingRecords";
-import WithinTagAuctionDisplay from "@app/components/auction/WithinTagAuctionDisplay";
 import { AuctionProvider } from "@app/context/AuctionContext";
 import { useEnvironmentContext } from "@app/context/EnvironmentContext";
 import { useCtags } from "@app/hooks/useCtags";
@@ -12,9 +12,9 @@ import type { TagType } from "@app/types/tag";
 import { timestampToString, toEth } from "@app/utils";
 import { getChainInfo } from "@app/utils/getChainInfo";
 import type { NextPage } from "next";
-import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import useTranslation from "next-translate/useTranslation";
 import { useEffect, useState } from "react";
 
 const Tag: NextPage = () => {

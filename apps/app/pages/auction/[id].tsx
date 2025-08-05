@@ -1,9 +1,8 @@
+import AuctionDisplay from "@app/components/auction/AuctionDisplay";
+import { AuctionProvider } from "@app/context/AuctionContext";
 import Layout from "@app/layouts/default";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
-
-import AuctionDisplay from "@app/components/auction/AuctionDisplay";
-import { AuctionProvider } from "@app/context/AuctionContext";
 
 interface AuctionPageProps {
   initialAuctionId?: number;

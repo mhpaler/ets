@@ -1,6 +1,6 @@
+import BidsTable from "@app/components/auction/BidsTable";
 import { Button } from "@app/components/Button";
 import { Modal } from "@app/components/Modal";
-import BidsTable from "@app/components/auction/BidsTable";
 import { useModal } from "@app/hooks/useModalContext";
 import type { Auction } from "@app/types/auction";
 import useTranslation from "next-translate/useTranslation";

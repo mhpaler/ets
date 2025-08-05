@@ -1,7 +1,7 @@
 import type { AuctionSettings } from "@app/types/auction";
 import { useEffect } from "react";
-import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
+import useSWR from "swr";
 
 export function useAuctionSettings({ config = {} }: { config?: SWRConfiguration }) {
   const { data, mutate, error } = useSWR(

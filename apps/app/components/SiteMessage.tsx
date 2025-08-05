@@ -1,8 +1,8 @@
 import { useEnvironmentContext } from "@app/context/EnvironmentContext";
 import { getChainInfo } from "@app/utils/getChainInfo";
-import useTranslation from "next-translate/useTranslation";
 import Image from "next/image";
 import Link from "next/link.js";
+import useTranslation from "next-translate/useTranslation";
 import { useEffect, useState } from "react";
 
 const SiteMessage: React.FC = () => {

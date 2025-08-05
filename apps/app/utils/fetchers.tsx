@@ -1,5 +1,5 @@
 import type { ServerEnvironment } from "@app/types/environment";
-import { type NetworkName, getEnvironmentAndNetwork } from "@app/utils/environment";
+import { getEnvironmentAndNetwork, type NetworkName } from "@app/utils/environment";
 import { getSubgraphEndpoint } from "@ethereum-tag-service/subgraph-endpoints";
 import { gql, request } from "graphql-request";
 import type { PublicClient } from "viem";

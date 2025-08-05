@@ -8,9 +8,9 @@ import { useTaggingRecords } from "@app/hooks/useTaggingRecords";
 import Layout from "@app/layouts/default";
 import { timestampToString } from "@app/utils";
 import type { NextPage } from "next";
-import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import useTranslation from "next-translate/useTranslation";
 
 const TaggingRecord: NextPage = () => {
   const { query } = useRouter();

@@ -1,9 +1,9 @@
 import Address from "@app/components/Address";
+import AuctionActions from "@app/components/auction/AuctionActions";
+import AuctionTimer from "@app/components/auction/AuctionTimer";
 import { Tag } from "@app/components/Tag";
 import { TanstackTable } from "@app/components/TanstackTable";
 import { TimeAgo } from "@app/components/TimeAgo";
-import AuctionActions from "@app/components/auction/AuctionActions";
-import AuctionTimer from "@app/components/auction/AuctionTimer";
 import { AuctionProvider } from "@app/context/AuctionContext";
 import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useCtags } from "@app/hooks/useCtags";
@@ -14,8 +14,8 @@ import type { TagType } from "@app/types/tag";
 import { toEth } from "@app/utils";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { NextPage } from "next";
-import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
+import useTranslation from "next-translate/useTranslation";
 import { memo, useMemo, useState } from "react";
 
 // Memoized child components

@@ -1,12 +1,11 @@
-import { useAuction } from "@app/hooks/useAuctionContext";
-import { useCurrentChain } from "@app/hooks/useCurrentChain";
-import useTranslation from "next-translate/useTranslation";
-import Link from "next/link";
-
 import AuctionActions from "@app/components/auction/AuctionActions";
 import AuctionBids from "@app/components/auction/AuctionBids";
 import AuctionSummary from "@app/components/auction/AuctionSummary";
 import AuctionTimer from "@app/components/auction/AuctionTimer";
+import { useAuction } from "@app/hooks/useAuctionContext";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
+import Link from "next/link";
+import useTranslation from "next-translate/useTranslation";
 
 import Address from "../Address";
 
