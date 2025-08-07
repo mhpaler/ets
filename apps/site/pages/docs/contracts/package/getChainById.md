@@ -7,7 +7,7 @@ Retrieves an ETS supported Viem Chain configuration object by its ID.
 ```ts twoslash
 import { getChainById } from '@ethereum-tag-service/contracts/utils'
 
-const chain = getChainById('421614')
+const chain = getChainById('84532')
 // @log: Output: Returns Viem chain object for Arbitrum Sepolia
 ```
 
@@ -30,7 +30,7 @@ The corresponding Chain object from the chains configuration.
 import { getChainById } from '@ethereum-tag-service/contracts/utils'
 
 // Get Arbitrum Sepolia chain config
-const arbitrumChain = getChainById('421614')
+const baseChain = getChainById('84532')
 
 // Get Base Sepolia chain config
 const baseChain = getChainById('84532')

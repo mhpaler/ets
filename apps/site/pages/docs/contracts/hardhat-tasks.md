@@ -9,7 +9,7 @@ Prints a listing of named accounts for the chain and mnemonic in `hardhat.config
 Note: `account0` is ETSAdmin(Deployer) & `account1` is ETSPlatform.
 
 ```bash
-hardhat accounts --network [localhost|arbitrumSepolia]
+hardhat accounts --network [localhost|baseSepolia]
 ```
 
 output:
@@ -35,7 +35,7 @@ account10: 0x310e0299FfE527461341F63F3171fb2882De9E92 Balance: 0.0
 Adds a new relayer to ETS. Signer must own a tag. Only one relayer is permitted per tag owner. Relayer name must unique to ETS. `account1` (ETSPlatform) may create unlimited relayers.
 
 ```bash
-hardhat addRelayer --name "My Relayer" --signer "account3" --network [localhost|arbitrumSepolia]
+hardhat addRelayer --name "My Relayer" --signer "account3" --network [localhost|baseSepolia]
 ```
 
 **`togglePauseRelayerByOwner`**
@@ -43,7 +43,7 @@ hardhat addRelayer --name "My Relayer" --signer "account3" --network [localhost|
 Toggle switch to pauses/unpause a Relayer, `--signer` must be Relayer owner.
 
 ```bash
-hardhat togglePauseRelayerByOwner --relayer "ETSRelayer" --signer "account1" --network [localhost|arbitrumSepolia]
+hardhat togglePauseRelayerByOwner --relayer "ETSRelayer" --signer "account1" --network [localhost|baseSepolia]
 ```
 
 **`transferRelayer`**
@@ -51,7 +51,7 @@ hardhat togglePauseRelayerByOwner --relayer "ETSRelayer" --signer "account1" --n
 Transfer Relayer to a new owner, `--signer` must be Relayer owner.
 
 ```bash
-hardhat transferRelayer --relayer "ETSRelayer" --signer "account1" --to "0x70997970C51812dc3A010C7d01b50e0d17dc79C8" --network [localhost|arbitrumSepolia]
+hardhat transferRelayer --relayer "ETSRelayer" --signer "account1" --to "0x70997970C51812dc3A010C7d01b50e0d17dc79C8" --network [localhost|baseSepolia]
 ```
 
 ## Tags
@@ -61,7 +61,7 @@ hardhat transferRelayer --relayer "ETSRelayer" --signer "account1" --to "0x70997
 Create one or more CTAGs. Required flags are `--tags` followed by one or more tags separated by commas, `--relayer` followed by Relayer name, and a `--signer` (which becomes "Creator").
 
 ```bash
-hardhat createTags --relayer "ETSRelayer" --signer "account3" --tags "#USDC, #Solana" --network [localhost|arbitrumSepolia]
+hardhat createTags --relayer "ETSRelayer" --signer "account3" --tags "#USDC, #Solana" --network [localhost|baseSepolia]
 ```
 
 ## Tagging Records
@@ -74,10 +74,10 @@ Tagging record id (unique identifier) is a compound key composed of `relayer+uri
 
 ```bash
 # Create a new tagging record
-hardhat applyTags --relayer "Uniswap" --uri "https://solana.com/" --tags "#Solana,#Web" --record-type "discovery" --signer "account5" --network [localhost|arbitrumSepolia]
+hardhat applyTags --relayer "Uniswap" --uri "https://solana.com/" --tags "#Solana,#Web" --record-type "discovery" --signer "account5" --network [localhost|baseSepolia]
 
 # Append #Infrastructure the tagging record we just created
-hardhat applyTags --relayer "Uniswap" --uri "https://solana.com/" --tags "#Infrastructure" --record-type "discovery" --signer "account5" --network [localhost|arbitrumSepolia]
+hardhat applyTags --relayer "Uniswap" --uri "https://solana.com/" --tags "#Infrastructure" --record-type "discovery" --signer "account5" --network [localhost|baseSepolia]
 ```
 
 **`removeTags`**
@@ -86,7 +86,7 @@ Remove one or more tags from an existing Tagging Record.
 
 ```bash
 # Remove #Solana from the tagging record created previously
-hardhat removeTags --relayer "Uniswap" --uri "https://solana.com/" --tags "#Solana" --record-type "discovery" --signer "account5" --network [localhost|arbitrumSepolia]
+hardhat removeTags --relayer "Uniswap" --uri "https://solana.com/" --tags "#Solana" --record-type "discovery" --signer "account5" --network [localhost|baseSepolia]
 ```
 
 **`replaceTags`**
@@ -114,7 +114,7 @@ The only other required flag is the `--network` flag. This is simply the network
 
 display global auction settings
 
-`hardhat auctionhouse --action settings --network [localhost|arbitrumSepolia]`
+`hardhat auctionhouse --action settings --network [localhost|baseSepolia]`
 
 output:
 
@@ -136,7 +136,7 @@ output:
 Toggle switch to pause/unpause the auction.
 
 ```bash
-hardhat auctionhouse --action togglepause --network [localhost|arbitrumSepolia]
+hardhat auctionhouse --action togglepause --network [localhost|baseSepolia]
 ```
 
 **`--action setreserve`**
@@ -145,7 +145,7 @@ Sets the reserve price in ETH/POL for auctions.
 
 ```bash
 # Set minimum first bid to 0.1 POL
-hardhat auctionhouse --action setreserve --value 0.1 --network [localhost|arbitrumSepolia]
+hardhat auctionhouse --action setreserve --value 0.1 --network [localhost|baseSepolia]
 ```
 
 **`--action setduration`**
@@ -154,7 +154,7 @@ Sets the duration of the auction in seconds.
 
 ```bash
 # set auction to one minute
-hardhat auctionhouse --action setduration --value 60 --network [localhost|arbitrumSepolia]
+hardhat auctionhouse --action setduration --value 60 --network [localhost|baseSepolia]
 ```
 
 **`--action settimebuffer`**
@@ -163,7 +163,7 @@ hardhat auctionhouse --action setduration --value 60 --network [localhost|arbitr
 
 ```bash
 # set auction timebuffer to one minute
-hardhat auctionhouse --action settimebuffer --value 60 --network [localhost|arbitrumSepolia]
+hardhat auctionhouse --action settimebuffer --value 60 --network [localhost|baseSepolia]
 ```
 
 **`--action setmaxauctions`**
@@ -172,14 +172,14 @@ Set maximum number of active auctions that can be running at once in the Auction
 
 ```bash
 # Set max concurrent auctions to 3
-hardhat auctionhouse --action setmaxauctions --value 3 --network [localhost|arbitrumSepolia]
+hardhat auctionhouse --action setmaxauctions --value 3 --network [localhost|baseSepolia]
 ```
 
 **`--action showcurrent`**
 
 Shows details about the current open/active auction if any exist.
 
-`hardhat auctionhouse --action showcurrent --network [localhost|arbitrumSepolia]`
+`hardhat auctionhouse --action showcurrent --network [localhost|baseSepolia]`
 
 output:
 
@@ -226,7 +226,7 @@ Current Auction:  {
 Returns the status of a specific auction as identified by `--tag [tagstring]` or `--id [auction id]`.
 
 ```bash
-hardhat auctionhouse --action status --tag [hastag] --id [auctionId] --output object --network [localhost|arbitrumSepolia]
+hardhat auctionhouse --action status --tag [hastag] --id [auctionId] --output object --network [localhost|baseSepolia]
 ```
 
 output:
@@ -253,7 +253,7 @@ Current Auction:  {
 Trigger release of next auction using the auction Oracle. Requires an open auction slot (no active or unsettled auctions). This is basically a utility/dev task that triggers the RequestCreateAuction event from the ETSAuctionHouse smart contract.
 
 ```bash
-hardhat auctionhouse --action nextauction --network [localhost|arbitrumSepolia]
+hardhat auctionhouse --action nextauction --network [localhost|baseSepolia]
 ```
 
 **`--action auction`**
@@ -261,7 +261,7 @@ hardhat auctionhouse --action nextauction --network [localhost|arbitrumSepolia]
 Create an auction for a given tag. Requires open auction slot and tag exists and is owned by ETS.
 
 ```bash
-hardhat auctionhouse --action auction --tag "#way" --network [localhost|arbitrumSepolia]
+hardhat auctionhouse --action auction --tag "#way" --network [localhost|baseSepolia]
 ```
 
 **`--action bid`**
@@ -270,7 +270,7 @@ Bid on an active auction.
 
 ```bash
 # account3 bids 0.2POL on auction 3
-hardhat auctionhouse --action bid --id "3" --signer account3 --bid 0.2 --network [localhost|arbitrumSepolia]
+hardhat auctionhouse --action bid --id "3" --signer account3 --bid 0.2 --network [localhost|baseSepolia]
 ```
 
 **`--action settleauction`**
@@ -281,7 +281,7 @@ By default, ETSPlatform (account2) is the signer. You can optionally supply a di
 
 ```bash
 # Settle latest ended auction
-hardhat auctionhouse --action settleauction --network [localhost|arbitrumSepolia]
+hardhat auctionhouse --action settleauction --network [localhost|baseSepolia]
 ```
 
 ## Test Data
@@ -299,7 +299,7 @@ The following test data commands are meant to rapidly populate a blockchain with
 Create random CTAGs from random accounts. `--qty` sets how many tags to create, eg 10. `--signers` sets number of different signers (Tag Creators) starting from `account2` (see `hardhat accounts`).
 
 ```bash
-hardhat testdata --action createTag --qty 5 --signers 4 --network [localhost|arbitrumSepolia]
+hardhat testdata --action createTag --qty 5 --signers 4 --network [localhost|baseSepolia]
 ```
 
 **`--action createTaggingRecords`**
@@ -307,7 +307,7 @@ hardhat testdata --action createTag --qty 5 --signers 4 --network [localhost|arb
 Create tagging records. `--qty` sets how many tagging records to create, `--signers` sets number of different signers (Taggers) starting from `account2`.
 
 ```bash
-hardhat testdata --action createTaggingRecords --qty 4 --signers 5 --network [localhost|arbitrumSepolia]
+hardhat testdata --action createTaggingRecords --qty 4 --signers 5 --network [localhost|baseSepolia]
 ```
 
 **`--action createAuctions`**
@@ -315,5 +315,5 @@ hardhat testdata --action createTaggingRecords --qty 4 --signers 5 --network [lo
 Creates auctions. This command will release a tag for auction, bid on it a random number of times (up to 10) from a random bidder selected from the number of signers given in `--signers`. The auction will end, be settled, and the next auction will be released and bid on and so on for the number of auctions given by `--qty`. Requires tags are created before calling this command.
 
 ```bash
-hardhat testdata --action createAuctions --qty 3 --signers 3 --network [localhost|arbitrumSepolia]
+hardhat testdata --action createAuctions --qty 3 --signers 3 --network [localhost|baseSepolia]
 ```

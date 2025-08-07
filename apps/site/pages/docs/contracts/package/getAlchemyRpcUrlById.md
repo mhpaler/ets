@@ -7,8 +7,8 @@ Retrieves the complete Alchemy RPC URL for a given chain ID.
 ```ts twoslash
 import { getAlchemyRpcUrlById } from '@ethereum-tag-service/contracts/utils'
 
-const url = getAlchemyRpcUrlById('421614', 'your-api-key')
-// @log: Output: "https://arb-sepolia.g.alchemy.com/v2/your-api-key"
+const url = getAlchemyRpcUrlById('84532', 'your-api-key')
+// @log: Output: "https://base-sepolia.g.alchemy.com/v2/your-api-key"
 ```
 
 ## Returns
@@ -35,8 +35,8 @@ A string representing the complete Alchemy RPC URL with API key.
 import { getAlchemyRpcUrlById } from '@ethereum-tag-service/contracts/utils'
 
 // Get complete Arbitrum Sepolia RPC URL
-const arbitrumUrl = getAlchemyRpcUrlById('421614', 'YOUR_API_KEY')
-// @log: Output: https://arb-sepolia.g.alchemy.com/v2/YOUR_API_KEY
+const baseUrl = getAlchemyRpcUrlById('84532', 'YOUR_API_KEY')
+// @log: Output: https://base-sepolia.g.alchemy.com/v2/YOUR_API_KEY
 
 // Get complete Base Sepolia RPC URL
 const baseUrl = getAlchemyRpcUrlById('84532', 'YOUR_API_KEY')

@@ -5,7 +5,7 @@ import { Callout } from 'vocs/components';
 An array of supported chain IDs.
 
 <Callout type="tip">
-For the most up-to-date list of ETS supported chain IDs, see the [multichainConfig.ts](https://github.com/ethereum-tag-service/ets/blob/main/packages/contracts/src/multiChainConfig.ts) page.
+For the most up-to-date list of ETS supported chain IDs, see the [chainConfig directory](https://github.com/ethereum-tag-service/ets/tree/main/packages/contracts/src/chainConfig) in the contracts package.
 </Callout>
 
 ## Usage
@@ -14,7 +14,7 @@ For the most up-to-date list of ETS supported chain IDs, see the [multichainConf
 import { availableChainIds } from '@ethereum-tag-service/contracts'
 
 console.log(availableChainIds)
-// @log: Output: ["421614", "84532", "31337"]
+// @log: Output: ["84532", "31337"]
 ```
 
 ## Returns
@@ -29,12 +29,12 @@ Array of supported chain ID strings.
 import { availableChainIds } from '@ethereum-tag-service/contracts'
 
 // Check if chain is supported
-const isSupported = availableChainIds.includes('421614')
+const isSupported = availableChainIds.includes('84532')
 // @log: > true
 
 // Iterate over supported chains
 availableChainIds.forEach(chainId => {
   console.log(chainId)
 })
-// @log: Output: ["421614", "84532", "31337"]
+// @log: Output: ["84532", "31337"]
 ```

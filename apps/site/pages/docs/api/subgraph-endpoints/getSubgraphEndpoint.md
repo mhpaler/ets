@@ -7,8 +7,8 @@ Returns the appropriate subgraph endpoint URL for a given chain ID. This method 
 ```ts twoslash
 import { getSubgraphEndpoint } from '@ethereum-tag-service/subgraph-endpoints'
 
-const endpoint = getSubgraphEndpoint(421614)
-// @log: Output: "https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia/version/latest"
+const endpoint = getSubgraphEndpoint(84532)
+// @log: Output: "https://api.studio.thegraph.com/query/87165/ets-base-sepolia/version/latest"
 ```
 
 ## Returns
@@ -33,9 +33,9 @@ import { getSubgraphEndpoint } from '@ethereum-tag-service/subgraph-endpoints'
 const localEndpoint = getSubgraphEndpoint(31337) // [!code focus]
 // @log: Output: "http://localhost:8000/subgraphs/name/ets-local"
 
-// Arbitrum Sepolia
-const arbitrumEndpoint = getSubgraphEndpoint(421614) // [!code focus]
-// @log: Output: "https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia/version/latest"
+// Base Sepolia
+const baseEndpoint = getSubgraphEndpoint(84532) // [!code focus]
+// @log: Output: "https://api.studio.thegraph.com/query/87165/ets-base-sepolia/version/latest"
 ```
 
 ## Throws
