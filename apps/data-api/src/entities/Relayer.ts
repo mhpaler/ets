@@ -1,5 +1,4 @@
-import { Address, BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
-import { log } from "@graphprotocol/graph-ts";
+import { Address, BigInt as GraphBigInt, ethereum, log } from "@graphprotocol/graph-ts";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
 import { ensureTag } from "../entities/Tag";
 import { ETSAccessControls } from "../generated/ETSAccessControls/ETSAccessControls";

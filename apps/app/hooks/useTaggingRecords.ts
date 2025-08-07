@@ -1,6 +1,6 @@
 import type { TaggingRecordType } from "@app/types/taggingrecord";
-import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
+import useSWR from "swr";
 import { usePublicClient } from "wagmi";
 import { useEnsNames } from "./useEnsNames";
 

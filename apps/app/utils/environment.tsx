@@ -331,10 +331,10 @@ export function getEnvironmentAndNetwork(): { environment: ServerEnvironment; ne
   return { environment, network: mappedNetwork };
 }
 
+export type { SupportedChain, SupportedChainId } from "@ethereum-tag-service/contracts/multiChainConfig";
 // Export the internal NetworkName type for use in the app
 // biome-ignore lint/performance/noBarrelFile: <explanation>
-export { networkNames, availableNetworkNames } from "@ethereum-tag-service/contracts/multiChainConfig";
-export type { SupportedChainId, SupportedChain } from "@ethereum-tag-service/contracts/multiChainConfig";
+export { availableNetworkNames, networkNames } from "@ethereum-tag-service/contracts/multiChainConfig";
 
 // Export our internal NetworkName type that includes staging variants
 export type NetworkName = NetworkNameInternal;

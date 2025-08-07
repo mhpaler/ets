@@ -22,15 +22,33 @@ When switching to work on a different feature branch, updating this reference in
 - Test single contract: `cd packages/contracts && npx hardhat test test/ETS.test.ts`
 - Start local stack: `./scripts/start-local-stack.sh`
 
-## Git Commits via Claude Code
+## Environment Configuration for Claude Code
 
-When committing via Claude Code, always source nvm first to use the correct Node.js version for pre-commit hooks:
+Claude Code should always use the project's Node.js and pnpm versions to ensure compatibility:
+
+**Required Environment Setup:**
+- **Node.js**: v20.19.4 (as specified in .nvmrc)
+- **pnpm**: v10.14.0 (as specified in package.json packageManager field)
+
+**PATH Configuration:**
+All Claude Code commands should use this PATH prefix to ensure correct Node.js and pnpm versions:
 
 ```bash
-source ~/.nvm/nvm.sh && nvm use 20.1.0 && git commit -m "message"
+PATH="/Users/User/.nvm/versions/node/v20.19.4/bin:$PATH"
 ```
 
-This ensures pre-commit hooks (Biome linting) work correctly with the ARM64 architecture.
+**Git Commits:**
+When committing via Claude Code, use the correct environment:
+
+```bash
+PATH="/Users/User/.nvm/versions/node/v20.19.4/bin:$PATH" git commit -m "message"
+```
+
+This ensures:
+- Pre-commit hooks (Biome linting) work correctly
+- pnpm commands use the correct version (10.14.0)
+- Node.js version matches project requirements (v20.15.0)
+- Dependency compatibility is maintained
 
 ## Code Style
 
@@ -42,6 +60,54 @@ This ensures pre-commit hooks (Biome linting) work correctly with the ARM64 arch
 - **Components**: Functional React components with TypeScript interfaces
 - **State Management**: React context for global state
 - **Testing**: Unit tests for business logic, contract interactions
+
+### Debug Logging Strategy
+
+**We use a hybrid approach with automatic console stripping and explicit debug utilities:**
+
+#### Automatic Console Stripping (Next.js SWC)
+- `console.log`, `console.info`, `console.warn`, `console.debug` → **Stripped in production**
+- `console.error` → **Preserved in production** (for critical errors)
+- Uses Next.js SWC compiler for optimal performance
+- Configured in `apps/app/next.config.js`
+
+#### When to Use Each Approach:
+
+**1. Debug Utility (`debug.*`) - For explicit development-only debugging:**
+```typescript
+import { debug } from "@app/utils";
+
+// ✅ Temporary debugging during feature development
+debug.info("User authentication state:", { user, isLoggedIn });
+debug.warn("Performance issue detected:", performanceData);
+debug.log("Component re-render:", { props, state });
+```
+
+**2. Direct Console - For production-ready logging:**
+```typescript
+// ✅ Critical errors (always shows in production)
+console.error("Failed to load user data:", error);
+console.error("Payment processing failed:", paymentError);
+
+// ✅ Production monitoring (stripped automatically)
+console.info("User signup completed:", { userId, timestamp });
+```
+
+**Testing Console Stripping:**
+```bash
+# Automated test
+cd apps/app && pnpm test:console-stripping
+
+# Manual verification
+NODE_ENV=development pnpm dev    # Shows all console messages
+NODE_ENV=production pnpm build && pnpm start  # Strips non-error messages
+```
+
+**Benefits:**
+- Developer-friendly: Full console logging in development
+- Production-clean: Automatic stripping of debug statements
+- Performance optimized: Uses fast SWC compiler
+- Error preservation: Critical errors always visible
 
 ## Coding Pattern Preferences
 

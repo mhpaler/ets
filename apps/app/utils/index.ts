@@ -120,3 +120,6 @@ export const makeScannerLink = (data: string, baseUrl?: string, route = "tx") =>
  * @returns {any} The value to be used in the JSON stringification: BigInt values are returned as strings, other values are unchanged.
  */
 export const bigIntReplacer = (value: any) => (typeof value === "bigint" ? value.toString() : value);
+
+// Export debug utility
+export { debug } from "./debug";

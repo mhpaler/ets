@@ -33,5 +33,6 @@
   },
   "files.associations": {
     "*.template.json": "handlebars"
-  }
+  },
+  "biome.lsp.bin": "./node_modules/.bin/biome"
 }

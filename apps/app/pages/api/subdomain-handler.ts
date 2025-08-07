@@ -1,5 +1,5 @@
-import { chains } from "@ethereum-tag-service/contracts/multiChainConfig";
 import type { SupportedChainId } from "@ethereum-tag-service/contracts/multiChainConfig";
+import { chains } from "@ethereum-tag-service/contracts/multiChainConfig";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {

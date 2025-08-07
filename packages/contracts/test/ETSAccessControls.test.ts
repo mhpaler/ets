@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { setup } from "./setup"; // No .js extension
 import type { Accounts, Contracts } from "./setup";
+import { setup } from "./setup"; // No .js extension
 
 describe("ETSAccessControls Tests", () => {
   let accounts: Accounts;

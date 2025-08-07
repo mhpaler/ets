@@ -1,3 +1,11 @@
+import { Alert } from "@app/components/icons";
+import TransactionFormActions from "@app/components/transaction/shared/TransactionFormActions";
+import { useAuction } from "@app/hooks/useAuctionContext";
+import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
+import { useCurrentChain } from "@app/hooks/useCurrentChain";
+import { useModal } from "@app/hooks/useModalContext";
+import { useTransactionManager } from "@app/hooks/useTransactionManager";
+import { Dialog } from "@headlessui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formatEther } from "ethers/lib/utils";
 import useTranslation from "next-translate/useTranslation";
@@ -5,16 +13,6 @@ import type React from "react";
 import { useEffect, useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-
-import { useAuction } from "@app/hooks/useAuctionContext";
-import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
-import { useCurrentChain } from "@app/hooks/useCurrentChain";
-import { useModal } from "@app/hooks/useModalContext";
-import { useTransactionManager } from "@app/hooks/useTransactionManager";
-
-import { Alert } from "@app/components/icons";
-import TransactionFormActions from "@app/components/transaction/shared/TransactionFormActions";
-import { Dialog } from "@headlessui/react";
 
 interface BidInputProps {
   transactionId: string;

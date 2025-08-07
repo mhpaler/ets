@@ -10,11 +10,7 @@ import TagSection from "./TagSection";
 const isTagResult = (result: SearchResult): result is TagResult =>
   result.type === "tags" && typeof result.display === "string";
 
-const SearchIcon = ({
-  size = 4,
-}: {
-  size?: number;
-}) => (
+const SearchIcon = ({ size = 4 }: { size?: number }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 16 16"

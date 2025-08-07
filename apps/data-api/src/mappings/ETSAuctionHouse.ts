@@ -1,4 +1,11 @@
 import { BigInt as GraphBigInt } from "@graphprotocol/graph-ts";
+import { ensureAuction, extendAuction, updateAuction } from "../entities/Auction";
+import { ensureBid } from "../entities/Bid";
+import { updateCreatorAuctionStats } from "../entities/Creator";
+import { ensureGlobalSettings } from "../entities/GlobalSettings";
+import { updatePlatformAuctionStats } from "../entities/Platform";
+import { updateRelayerAuctionStats } from "../entities/Relayer";
+import { ensureRelease } from "../entities/Release";
 import {
   AuctionBid,
   AuctionCreated,
@@ -15,14 +22,6 @@ import {
   RequestCreateAuction,
   Upgraded,
 } from "../generated/ETSAuctionHouse/ETSAuctionHouse";
-
-import { ensureAuction, extendAuction, updateAuction } from "../entities/Auction";
-import { ensureBid } from "../entities/Bid";
-import { updateCreatorAuctionStats } from "../entities/Creator";
-import { ensureGlobalSettings } from "../entities/GlobalSettings";
-import { updatePlatformAuctionStats } from "../entities/Platform";
-import { updateRelayerAuctionStats } from "../entities/Relayer";
-import { ensureRelease } from "../entities/Release";
 
 export function handleInitialized(event: Initialized): void {
   const settings = ensureRelease();

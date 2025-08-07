@@ -2,13 +2,13 @@
 export { Alert } from "./Alert";
 export { AuctionIcon } from "./AuctionIcon";
 export { CheckCircle } from "./CheckCircle";
-export { CreateTagIcon } from "./CreateTagIcon";
 export { CreateTaggingRecordIcon } from "./CreateTaggingRecordIcon";
+export { CreateTagIcon } from "./CreateTagIcon";
 export { Crowd } from "./Crowd";
 export { Globe } from "./Globe";
-export { QuestionMark } from "./QuestionMark";
 export { OutlinkIcon } from "./OutlinkIcon";
 export { Playground } from "./Playground";
+export { QuestionMark } from "./QuestionMark";
 export { Relayer } from "./Relayer";
 export { Tag } from "./Tag";
 export { TaggingRecord } from "./TaggingRecord";

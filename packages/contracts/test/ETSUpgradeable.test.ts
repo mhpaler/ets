@@ -1,8 +1,9 @@
 const { expectEvent } = require("@openzeppelin/test-helpers");
+
 import { assert } from "chai";
 import { upgrades } from "hardhat";
-import { getArtifacts, getFactories, setup } from "./setup";
 import type { Artifacts, Contracts, Factories } from "./setup";
+import { getArtifacts, getFactories, setup } from "./setup";
 
 // Define interfaces for the upgraded contracts with the new methods
 interface ETSAccessControlsUpgraded {

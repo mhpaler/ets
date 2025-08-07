@@ -1,5 +1,5 @@
-import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
+import useSWR from "swr";
 
 export function useStats({ config = {} }: { config?: SWRConfiguration }) {
   const { data, mutate, error } = useSWR(

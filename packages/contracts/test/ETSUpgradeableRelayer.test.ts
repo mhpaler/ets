@@ -1,8 +1,8 @@
 import { expect } from "chai";
 import type { Contract, ContractFactory } from "ethers";
 import { ethers } from "hardhat";
-import { getFactories, setup } from "./setup";
 import type { Accounts, Contracts, Factories } from "./setup";
+import { getFactories, setup } from "./setup";
 
 // Define interfaces for the relayer contracts
 interface ETSRelayerUpgraded {

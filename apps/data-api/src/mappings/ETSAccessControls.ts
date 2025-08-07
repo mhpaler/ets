@@ -1,8 +1,6 @@
-import { Bytes, BigInt as GraphBigInt, store } from "@graphprotocol/graph-ts";
-import { log } from "@graphprotocol/graph-ts";
+import { Bytes, BigInt as GraphBigInt, log, store } from "@graphprotocol/graph-ts";
 import { ensureAdministrator } from "../entities/Administrator";
-import { ensurePlatform } from "../entities/Platform";
-import { updateRelayerCount } from "../entities/Platform";
+import { ensurePlatform, updateRelayerCount } from "../entities/Platform";
 import { ensureRelayer } from "../entities/Relayer";
 import { ensureRelayerAdmin } from "../entities/RelayerAdmin";
 import { ensureRelease } from "../entities/Release";

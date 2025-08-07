@@ -1,8 +1,8 @@
 import { mine } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { getFactories, setup } from "./setup";
 import type { Accounts, Contracts } from "./setup";
+import { getFactories, setup } from "./setup";
 
 describe("ETS Enrich Target tests", () => {
   let accounts: Accounts;

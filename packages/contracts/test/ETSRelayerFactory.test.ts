@@ -2,8 +2,8 @@ import { expect } from "chai";
 import type { Contract } from "ethers";
 import { ethers } from "hardhat";
 import type { ETSRelayer } from "../typechain-types";
-import { setup } from "./setup";
 import type { Accounts, Contracts } from "./setup";
+import { setup } from "./setup";
 
 describe("ETSRelayerFactory Tests", () => {
   let accounts: Accounts;

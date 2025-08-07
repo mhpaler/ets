@@ -3,8 +3,7 @@ import { Truncate } from "@app/components/Truncate";
 import { useExplorerUrl } from "@app/hooks/useExplorerUrl";
 import useTranslation from "next-translate/useTranslation";
 import Link from "next/link.js";
-import { useMemo } from "react";
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import type { Hex } from "viem";
 import { URI } from "./URI";
 

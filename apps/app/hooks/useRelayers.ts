@@ -1,7 +1,7 @@
 import { useEnsNames } from "@app/hooks/useEnsNames";
 import type { RawRelayerType, RelayerType } from "@app/types/relayer";
-import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
+import useSWR from "swr";
 
 type FetchRelayersResponse = {
   relayers: RawRelayerType[];
