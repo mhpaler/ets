@@ -113,7 +113,7 @@ export function getNetwork(): NetworkNameInternal {
     return "basesepolia";
   }
 
-  // Handle staging app URL (staging.app.ets.xyz) 
+  // Handle staging app URL (staging.app.ets.xyz)
   if (hostname === "staging.app.ets.xyz") {
     console.info("getNetwork: Detected staging app URL, returning 'basesepolia'");
     return "basesepolia";

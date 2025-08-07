@@ -22,7 +22,7 @@ export default defineConfig({
   },
   topNav: [
     { text: "Docs", link: "/docs/getting-started", match: "/docs" },
-    { text: "Playground", link: "https://arbitrumsepolia.app.ets.xyz/playground/create-tagging-record" },
+    { text: "Playground", link: "https://app.ets.xyz/playground/create-tagging-record" },
     { text: "Explorer", link: "https://app.ets.xyz" },
 
     {
