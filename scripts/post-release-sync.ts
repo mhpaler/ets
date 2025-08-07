@@ -197,7 +197,13 @@ async function syncPostRelease(): Promise<void> {
       }
     }
 
-    // Step 6: Push synchronized stage to both remotes
+    // Step 6: Build the project to ensure everything is compiled
+    execCommand(
+      "PATH=\"/Users/User/.nvm/versions/node/v20.15.0/bin:$PATH\" pnpm build",
+      "Building project after synchronization",
+    );
+
+    // Step 7: Push synchronized stage to both remotes
     execCommand(
       `git push ${CONFIG.originRemote} ${CONFIG.stageBranch}`,
       `Pushing synchronized ${CONFIG.stageBranch} to origin`,
@@ -208,7 +214,7 @@ async function syncPostRelease(): Promise<void> {
       `Pushing synchronized ${CONFIG.stageBranch} to upstream`,
     );
 
-    // Step 7: Return to original branch if needed
+    // Step 8: Return to original branch if needed
     if (originalBranch !== currentBranch) {
       execCommand(`git checkout ${originalBranch}`, `Returning to original branch: ${originalBranch}`);
 
@@ -220,7 +226,7 @@ async function syncPostRelease(): Promise<void> {
       }
     }
 
-    // Step 8: Show final status
+    // Step 9: Show final status
     console.log("\n🎉 Post-release synchronization completed successfully!");
     console.log("\n📊 Final status:");
 
