@@ -7,8 +7,8 @@ Generates the base Alchemy RPC URL for a given chain Id.
 ```ts twoslash
 import { getAlchemyRpcUrl } from '@ethereum-tag-service/contracts/utils'
 
-const url = getAlchemyRpcUrl('421614')
-// @log: Output: "https://arb-sepolia.g.alchemy.com/v2/"
+const url = getAlchemyRpcUrl('84532')
+// @log: Output: "https://base-sepolia.g.alchemy.com/v2/"
 ```
 
 ## Returns
@@ -22,11 +22,11 @@ A string representing the Alchemy RPC URL for the specified chain.
 ### chainId
 
 - **Type:** `string`
-- **Description:** The chain ID (e.g., "421614" for Arbitrum Sepolia)
+- **Description:** The chain ID (e.g., "84532" for Arbitrum Sepolia)
 
 ## Supported Chain IDs
 
-- `"421614"`: arb-sepolia
+- `"84532"`: base-sepolia
 - `"84532"`: base-sepolia
 
 ## Examples
@@ -35,8 +35,8 @@ A string representing the Alchemy RPC URL for the specified chain.
 import { getAlchemyRpcUrl } from '@ethereum-tag-service/contracts/utils'
 
 // Get Arbitrum Sepolia RPC URL
-const arbitrumUrl = getAlchemyRpcUrl('421614')
-// @log: Output: https://arb-sepolia.g.alchemy.com/v2/
+const baseUrl = getAlchemyRpcUrl('84532')
+// @log: Output: https://base-sepolia.g.alchemy.com/v2/
 
 // Get Base Sepolia RPC URL
 const baseUrl = getAlchemyRpcUrl('84532')

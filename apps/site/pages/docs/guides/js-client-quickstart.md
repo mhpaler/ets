@@ -93,7 +93,7 @@ View the [addRelayer](https://github.com/ethereum-tag-service/ets/blob/main/pack
 Next, we'll create two CTAGs using the Relayer contract deployed in the previous step, and sign the transaction with a different account (`account3`).
 
 ```zsh
-$ hardhat createTags --relayer "Solana" --signer "account3" --tags "#Phantom, #FamilySol" --network arbitrumSepolia
+$ hardhat createTags --relayer "Solana" --signer "account3" --tags "#Phantom, #FamilySol" --network baseSepolia
 
 Minting CTAGs "#Phantom,#FamilySol"
 "#Phantom" minted by account3 with id 2534166372342226846419692081870028406351230466705393079417605661637489732040
@@ -164,7 +164,7 @@ $ hardhat applyTags --relayer "Solana" \
 --tags "#Uniswap, #APE, #WETH, #APE/WETH" \
 --uri "blink:ethereum:mainnet:0xC36442b4a4522E871399CD717aBDD847Ab11FE88:318669" \
 --record-type "bookmark" \
---network arbitrumSepolia
+--network baseSepolia
 
 started txn 0xdbc7809ed849167e19798930202151259123dfb5b089054230f2a13aad1b9f53
 New tagging record created with 4 tag(s) and id: 108496552797381919177769037368004847463135908918745565862845053892120713010827
@@ -286,7 +286,7 @@ $ hardhat applyTags --relayer "Solana" \
 --tags "#Uniswap, #NFT, #Ethereum, #ERC-20, #Solana" \
 --uri "blink:ethereum:mainnet:0xC36442b4a4522E871399CD717aBDD847Ab11FE88:318669" \
 --record-type "bookmark" \
---network arbitrumSepolia
+--network baseSepolia
 
 started txn 0x70cf32caaad4ef89f892e6a304a325a5ae01135351b9bdca6a1ab543e8a133b9
 4 tag(s) appended to 108496552797381919177769037368004847463135908918745565862845053892120713010827
@@ -309,7 +309,7 @@ $ hardhat removeTags --relayer "Solana" \
 --tags "#ERC-20, #Solana" \
 --uri "blink:ethereum:mainnet:0xC36442b4a4522E871399CD717aBDD847Ab11FE88:318669" \
 --record-type "bookmark" \
---network arbitrumSepolia
+--network baseSepolia
 
 started txn 0x46c6174132fc0ae2aa859b7856cff60c6fa0b54be72691abd0a951beb65fec94
 2 tag(s) removed from 108496552797381919177769037368004847463135908918745565862845053892120713010827
@@ -328,7 +328,7 @@ $ hardhat removeTags --relayer "Solana" \
 --tags "#ERC-20, #Solana" \
 --uri "blink:ethereum:mainnet:0xC36442b4a4522E871399CD717aBDD847Ab11FE88:318669" \
 --record-type "bookmark" \
---network arbitrumSepolia
+--network baseSepolia
 
 Tagging record not found
 ```
@@ -343,7 +343,7 @@ $ hardhat replaceTags --relayer "Solana" \
 --tags "#NFTsRock, #Like, #Tracking" \
 --uri "blink:ethereum:mainnet:0xC36442b4a4522E871399CD717aBDD847Ab11FE88:318669" \
 --record-type "bookmark" \
---network arbitrumSepolia
+--network baseSepolia
 
 started txn 0x3af5ee4b95d1799db9f4e166af92bec2da0e76a46ee81c9e72f5b87789cfb667
 3 tag(s) replaced in 108496552797381919177769037368004847463135908918745565862845053892120713010827
