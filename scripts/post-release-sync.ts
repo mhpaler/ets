@@ -138,15 +138,9 @@ async function syncPostRelease(): Promise<void> {
 
   try {
     // Step 1: Fetch all remotes
-    execCommand(
-      `git fetch ${CONFIG.upstreamRemote}`,
-      "Fetching latest changes from upstream",
-    );
-    
-    execCommand(
-      `git fetch ${CONFIG.originRemote}`,
-      "Fetching latest changes from origin", 
-    );
+    execCommand(`git fetch ${CONFIG.upstreamRemote}`, "Fetching latest changes from upstream");
+
+    execCommand(`git fetch ${CONFIG.originRemote}`, "Fetching latest changes from origin");
 
     // Step 2: Switch to main and sync with upstream
     if (currentBranch !== CONFIG.mainBranch) {
