@@ -199,7 +199,7 @@ async function syncPostRelease(): Promise<void> {
 
     // Step 6: Build the project to ensure everything is compiled
     execCommand(
-      "PATH=\"/Users/User/.nvm/versions/node/v20.15.0/bin:$PATH\" pnpm build",
+      'PATH="/Users/User/.nvm/versions/node/v20.15.0/bin:$PATH" pnpm build',
       "Building project after synchronization",
     );
 
