@@ -2,7 +2,7 @@
   "name": "@ethereum-tag-service/monorepo",
   "author": "Ethereum Tag Service <team@ets.xyz>",
   "private": true,
-  "packageManager": "pnpm@9.9.0",
+  "packageManager": "pnpm@10.14.0",
   "keywords": ["ethereum", "react", "ets", "tag", "tagging"],
   "scripts": {
     "bun": "pnpm exec bun",
