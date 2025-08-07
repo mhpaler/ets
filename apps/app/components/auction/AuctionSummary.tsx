@@ -2,8 +2,8 @@ import Address from "@app/components/Address";
 import { AuctionIcon, Trophy } from "@app/components/icons";
 import type { Auction } from "@app/types/auction";
 import { timestampToString } from "@app/utils";
-import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
+import Link from "next/link";
 import type React from "react";
 
 interface Props {

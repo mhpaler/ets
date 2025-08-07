@@ -1,6 +1,6 @@
 import { Truncate } from "@app/components/Truncate";
-import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
+import { useRouter } from "next/router";
 
 const getTitleSegments = (router: ReturnType<typeof useRouter>, t: (key: string) => string): string[] => {
   const pathSegments = router.pathname.split("/").slice(1);

@@ -1,4 +1,4 @@
-import { CreateTaggingRecordIcon, CreateTagIcon } from "@app/components/icons";
+import { CreateTagIcon, CreateTaggingRecordIcon } from "@app/components/icons";
 import Layout from "@app/layouts/default";
 import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";

@@ -1,9 +1,9 @@
-import { CheckCircle, Wallet } from "@app/components/icons";
 import { Tag } from "@app/components/Tag";
-import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels"; // Adjust the import path as necessary
+import { CheckCircle, Wallet } from "@app/components/icons";
 import TransactionConfirmActions from "@app/components/transaction/shared/TransactionConfirmActions";
 import { TransactionError } from "@app/components/transaction/shared/TransactionError";
 import { TransactionLink } from "@app/components/transaction/shared/TransactionLink";
+import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels"; // Adjust the import path as necessary
 import { useAuction } from "@app/hooks/useAuctionContext";
 import { useModal } from "@app/hooks/useModalContext";
 import { useTransactionManager } from "@app/hooks/useTransactionManager";

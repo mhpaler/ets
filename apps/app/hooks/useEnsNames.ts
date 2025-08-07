@@ -1,6 +1,6 @@
 import { fetchEnsName } from "@app/utils/fetchers";
 import { useQueries } from "@tanstack/react-query";
-import { createPublicClient, http } from "viem";
+import { http, createPublicClient } from "viem";
 import { mainnet } from "viem/chains";
 
 export function useEnsNames(addresses: string[]) {

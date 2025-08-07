@@ -5,9 +5,7 @@ import { updateOwnerTagStats } from "../entities/Owner";
 import { updatePlatformTagStats } from "../entities/Platform";
 import { updateRelayerTagStats } from "../entities/Relayer";
 import { ensureRelease } from "../entities/Release";
-import { updateTagExpiration, updateTagRecycle } from "../entities/Tag";
-import { ensureTag } from "../entities/Tag";
-import { updateTagOwner } from "../entities/Tag";
+import { ensureTag, updateTagExpiration, updateTagOwner, updateTagRecycle } from "../entities/Tag";
 import {
   AccessControlsSet,
   ETSCoreSet,

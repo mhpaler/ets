@@ -34,7 +34,7 @@
       "suspicious": {
         "noArrayIndexKey": "off",
         "noConfusingVoidType": "off",
-        "noConsole": "off",
+        "noConsole": "warn",
         "noExplicitAny": "off"
       }
     }

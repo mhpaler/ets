@@ -1,6 +1,6 @@
 import { URIIcon } from "@app/components/icons";
-import Link from "next/link.js";
 import useTranslation from "next-translate/useTranslation";
+import Link from "next/link.js";
 import type React from "react";
 
 interface URIProps {

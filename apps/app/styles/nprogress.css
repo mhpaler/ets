@@ -12,9 +12,7 @@
 /* Fancy blur effect */
 #nprogress .peg {
   @apply block absolute right-0 w-[100px] h-full opacity-100;
-  box-shadow:
-    0 0 10px var(--primary-color),
-    0 0 5px var(--primary-color);
+  box-shadow: 0 0 10px var(--primary-color), 0 0 5px var(--primary-color);
   -webkit-transform: rotate(3deg) translate(0px, -4px);
   -ms-transform: rotate(3deg) translate(0px, -4px);
   transform: rotate(3deg) translate(0px, -4px);

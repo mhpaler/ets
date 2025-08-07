@@ -1,10 +1,10 @@
 // getChainInfo.ts
 
 import {
-  chains,
   type NetworkName,
-  networkNames,
   type SupportedChainId,
+  chains,
+  networkNames,
 } from "@ethereum-tag-service/contracts/multiChainConfig";
 import type { Chain } from "wagmi/chains";
 

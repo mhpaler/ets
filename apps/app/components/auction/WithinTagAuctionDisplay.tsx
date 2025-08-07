@@ -4,8 +4,8 @@ import AuctionSummary from "@app/components/auction/AuctionSummary";
 import AuctionTimer from "@app/components/auction/AuctionTimer";
 import { useAuction } from "@app/hooks/useAuctionContext";
 import { useCurrentChain } from "@app/hooks/useCurrentChain";
-import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
+import Link from "next/link";
 
 import Address from "../Address";
 

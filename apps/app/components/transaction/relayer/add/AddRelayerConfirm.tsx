@@ -1,8 +1,8 @@
 import { CheckCircle, Wallet } from "@app/components/icons";
-import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels";
 import TransactionConfirmActions from "@app/components/transaction/shared/TransactionConfirmActions";
 import { TransactionError } from "@app/components/transaction/shared/TransactionError";
 import { TransactionLink } from "@app/components/transaction/shared/TransactionLink";
+import { useTransactionLabels } from "@app/components/transaction/shared/hooks/useTransactionLabels";
 import { useModal } from "@app/hooks/useModalContext";
 import { useRelayerContext } from "@app/hooks/useRelayerContext";
 import { useTransactionManager } from "@app/hooks/useTransactionManager";

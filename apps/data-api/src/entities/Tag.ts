@@ -1,8 +1,7 @@
+import { log } from "@graphprotocol/graph-ts";
 import { Address, BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts/index";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
 import { ensurePlatform } from "../entities/Platform";
-
-import { log } from "@graphprotocol/graph-ts";
 import { ETSToken } from "../generated/ETSToken/ETSToken";
 import { Platform, Release, Tag } from "../generated/schema";
 import { arrayDiff } from "../utils/arrayDiff";

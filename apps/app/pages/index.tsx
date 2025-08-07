@@ -1,7 +1,8 @@
-import { AuctionIcon, Playground, Relayer, Tag, TaggingRecord, Target, Users } from "@app/components/icons";
+import { ConsoleTestComponent } from "@app/components/ConsoleTestComponent";
 import SiteMessage from "@app/components/SiteMessage";
 import { Stats } from "@app/components/Stats";
 import { TaggingRecords } from "@app/components/TaggingRecords";
+import { AuctionIcon, Playground, Relayer, Tag, TaggingRecord, Target, Users } from "@app/components/icons";
 import { useEnvironmentContext } from "@app/context/EnvironmentContext";
 import Layout from "@app/layouts/default";
 import type { NextPage } from "next";
@@ -86,6 +87,14 @@ const Home: NextPage = () => {
       <div className="col-span-12 mb-8">
         <Stats />
       </div>
+
+      {/* Console Test Component - only show in development */}
+      {process.env.NODE_ENV === "development" && (
+        <div className="col-span-12 mb-8">
+          <ConsoleTestComponent />
+        </div>
+      )}
+
       <TaggingRecords title={t("latest-tagging-records")} />
 
       <div className="col-span-12 mt-8">

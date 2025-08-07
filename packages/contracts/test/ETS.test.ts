@@ -1,8 +1,7 @@
 import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
-import { setup } from "./setup"; // No .js extension
 import type { Accounts, Contracts, InitSettings } from "./setup";
-import { getFactories } from "./setup";
+import { getFactories, setup } from "./setup";
 
 describe("ETS Core tests", () => {
   let accounts: Accounts;

@@ -1,7 +1,7 @@
 import { AuctionIcon, Globe, Playground, Relayer, Tag, TaggingRecord, Target, Users } from "@app/components/icons";
+import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import useTranslation from "next-translate/useTranslation";
 import NavFooter from "./NavFooter";
 
 export default function Navigation() {

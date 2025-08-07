@@ -3,10 +3,9 @@ import { ETSAuctionHouse } from "../generated/ETSAuctionHouse/ETSAuctionHouse";
 import { Auction } from "../generated/schema";
 
 import { ZERO } from "../utils/constants";
+import { logCritical } from "../utils/logCritical";
 import { ensureOwner } from "./Owner";
 import { ensureTag } from "./Tag";
-
-import { logCritical } from "../utils/logCritical";
 
 export function ensureAuction(auctionId: GraphBigInt, event: ethereum.Event): Auction {
   let auction = Auction.load(auctionId.toString());

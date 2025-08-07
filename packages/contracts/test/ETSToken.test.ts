@@ -1,7 +1,7 @@
 import { assert, expect } from "chai";
 import { ethers, upgrades } from "hardhat";
-import { getFactories, setup } from "./setup";
 import type { Accounts, Contracts } from "./setup";
+import { getFactories, setup } from "./setup";
 
 describe("ETSToken Core Tests", () => {
   let accounts: Accounts;

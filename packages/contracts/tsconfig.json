@@ -12,13 +12,7 @@
     "declaration": true,
     "resolveJsonModule": true
   },
-  "include": [
-    "src/**/*",
-    "hardhat.config.ts",
-    "scripts/**/*.ts",
-    "test/**/*.ts",
-    "tasks/**/*.ts"
-  ],
+  "include": ["src/**/*", "hardhat.config.ts", "scripts/**/*.ts", "test/**/*.ts", "tasks/**/*.ts"],
   "exclude": ["node_modules", "dist"],
   "files": ["hardhat.config.ts"]
 }

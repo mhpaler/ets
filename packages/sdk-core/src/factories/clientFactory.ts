@@ -1,4 +1,5 @@
 import { getAlchemyRpcUrlById } from "@ethereum-tag-service/contracts/utils";
+import { http, type Account, type Hex, createPublicClient, createWalletClient, custom } from "viem";
 import { AccessControlsClient } from "../clients/AccessControlsClient";
 import { AuctionHouseClient } from "../clients/AuctionHouseClient";
 import { CoreClient } from "../clients/CoreClient";
@@ -10,8 +11,6 @@ import { TargetClient } from "../clients/TargetClient";
 import { TokenClient } from "../clients/TokenClient";
 import { chainsMap } from "../config/chainsConfig";
 import { DEFAULT_ENVIRONMENT, type Environment } from "../utils/environment";
-
-import { http, type Account, type Hex, createPublicClient, createWalletClient, custom } from "viem";
 
 type ClientConfig = {
   chainId: number;

@@ -1,7 +1,7 @@
 import { assert, expect } from "chai";
 import { ethers } from "hardhat";
-import { setup } from "./setup";
 import type { Accounts, Contracts } from "./setup";
+import { setup } from "./setup";
 
 describe("CTAG ownership lifecycle tests", () => {
   let accounts: Accounts;

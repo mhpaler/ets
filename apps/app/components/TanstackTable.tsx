@@ -3,8 +3,8 @@ import { Button } from "@app/components/Button";
 import { globalSettings } from "@app/config/globalSettings";
 import { useModal } from "@app/hooks/useModalContext";
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
+import { useRouter } from "next/router";
 import React, { type ReactNode, useEffect, useMemo, useState } from "react";
 
 interface TableProps<TData> {

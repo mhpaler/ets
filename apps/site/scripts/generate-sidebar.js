@@ -1,5 +1,6 @@
 import { readdir, writeFile } from "node:fs/promises";
 import { basename, extname, join } from "node:path";
+
 function formatTitle(filename) {
   // Remove extension and convert kebab-case to Title Case
   return basename(filename, extname(filename))

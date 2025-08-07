@@ -16,16 +16,16 @@
  * - Preview/Production: Uses only production chains with Alchemy RPC
  */
 import {
+  type SupportedChainId,
   availableChainIds,
   chains,
   networkNames,
-  type SupportedChainId,
 } from "@ethereum-tag-service/contracts/multiChainConfig";
 import { getAlchemyRpcUrlById } from "@ethereum-tag-service/contracts/utils";
 import { connectorsForWallets } from "@rainbow-me/rainbowkit";
 import { coinbaseWallet, injectedWallet, metaMaskWallet, rainbowWallet } from "@rainbow-me/rainbowkit/wallets";
 import type { Chain } from "viem/chains";
-import { type Config, createConfig, http } from "wagmi";
+import { http, type Config, createConfig } from "wagmi";
 
 const allChains = Object.values(chains) as [Chain, ...Chain[]];
 

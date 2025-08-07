@@ -9,8 +9,8 @@ import { useCurrentChain } from "@app/hooks/useCurrentChain";
 import Layout from "@app/layouts/default";
 import { timestampToString, toEth } from "@app/utils";
 import type { NextPage } from "next";
-import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
+import { useRouter } from "next/router";
 
 const Creator: NextPage = () => {
   const { query } = useRouter();

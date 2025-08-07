@@ -1,5 +1,5 @@
-import { setup } from "./setup";
 import type { Accounts, Contracts, InitSettings } from "./setup";
+import { setup } from "./setup";
 
 describe("============= ETS TEST SUITE SETTINGS =============", () => {
   // we create a setup function that can be called by every test and setup variable for easy to read tests

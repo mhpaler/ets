@@ -1,7 +1,7 @@
 import { Truncate } from "@app/components/Truncate";
 import type { PageNavigationState } from "@app/types/navigation";
-import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
+import { useRouter } from "next/router";
 import { useMemo } from "react";
 import { useCtags } from "./useCtags";
 
