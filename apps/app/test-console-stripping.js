@@ -12,9 +12,9 @@
  * 3. Reports whether console stripping worked
  */
 
-const fs = require("fs");
-const path = require("path");
-const { execSync } = require("child_process");
+const fs = require("node:fs");
+const path = require("node:path");
+const { execSync } = require("node:child_process");
 
 console.log("🔍 Testing console statement stripping in production build...\n");
 

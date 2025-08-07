@@ -58,6 +58,7 @@ packages/contracts/docs
 packages/subgraph/subgraph.yaml
 packages/subgraph/src/generated/*
 packages/subgraph/abi/*
+apps/data-api/src/generated/*
 
 # Frontend Files
 

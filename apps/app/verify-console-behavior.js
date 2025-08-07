@@ -7,8 +7,8 @@
  * that console statements are visible in development but stripped in production
  */
 
-const fs = require("fs");
-const path = require("path");
+const fs = require("node:fs");
+const path = require("node:path");
 
 console.log("🧪 Manual Console Stripping Verification Guide\n");
 

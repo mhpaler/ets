@@ -19,7 +19,7 @@ const withWebpack = (nextConfig = {}) => {
       // Strip console statements in production builds
       if (!dev) {
         // Apply custom Terser options to remove console statements
-        if (config.optimization && config.optimization.minimizer) {
+        if (config.optimization?.minimizer) {
           const TerserPlugin = require("terser-webpack-plugin");
 
           // Replace all existing minimizers with our custom configuration

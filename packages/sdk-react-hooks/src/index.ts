@@ -1,4 +1,3 @@
-// biome-ignore lint/performance/noBarrelFile: <explanation>
 export { useAccessControlsClient } from "./useAccessControlsClient";
 export { useAuctionHouseClient } from "./useAuctionHouseClient";
 export { useEnrichTargetClient } from "./useEnrichTargetClient";
