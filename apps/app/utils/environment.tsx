@@ -107,6 +107,18 @@ export function getNetwork(): NetworkNameInternal {
     return "none";
   }
 
+  // Handle production app URL (app.ets.xyz)
+  if (hostname === "app.ets.xyz") {
+    console.info("getNetwork: Detected production app URL, returning 'basesepolia'");
+    return "basesepolia";
+  }
+
+  // Handle staging app URL (staging.app.ets.xyz)
+  if (hostname === "staging.app.ets.xyz") {
+    console.info("getNetwork: Detected staging app URL, returning 'basesepolia'");
+    return "basesepolia";
+  }
+
   // For non-localhost domains, check if the subdomain matches a valid network name
   if (validNetworks.includes(subdomain as NetworkName)) {
     console.info(`getNetwork: Detected valid network subdomain: ${subdomain}`);
@@ -265,7 +277,7 @@ export function getEnvironmentAndNetwork(): { environment: ServerEnvironment; ne
         fullURL: window.location.href,
       });
     }
-  } else if (hostname.includes("stage.app.ets.xyz") || hostname.includes("vercel.app")) {
+  } else if (hostname.includes("staging.app.ets.xyz") || hostname.includes("vercel.app")) {
     environment = "staging";
 
     // Debug logging

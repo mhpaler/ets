@@ -36,6 +36,8 @@
     "lint": "biome check --fix",
     "lint:repo": "sherif --ignore-rule multiple-dependency-versions",
     "lint:unused": "pnpm clean && knip",
+    "post-release-sync": "bun ./scripts/post-release-sync.ts",
+    "post-release-sync:dry": "bun ./scripts/post-release-sync.ts --dry-run",
     "setup-fork": "bun ./scripts/setupFork.ts",
     "start-graph-node": "cd scripts && ./start-graph-node.sh",
     "test:build": "pnpm run --r --parallel test:build",
