@@ -1,4 +1,4 @@
-import ChainModalETS from "@app/components/ChainModalETS";
+import { ConsoleTestComponent } from "@app/components/ConsoleTestComponent";
 import SiteMessage from "@app/components/SiteMessage";
 import { Stats } from "@app/components/Stats";
 import { TaggingRecords } from "@app/components/TaggingRecords";
@@ -74,8 +74,6 @@ const Home: NextPage = () => {
             <span className="hidden md:inline-flex ml-2.5 text-3xl font-medium text-slate-900">ETS</span>
             <span className="ml-2 font-thin">explorer</span>
           </div>
-
-          <ChainModalETS show={true} onClose={() => {}} asModal={false} />
         </main>
       </div>
     );
@@ -89,6 +87,14 @@ const Home: NextPage = () => {
       <div className="col-span-12 mb-8">
         <Stats />
       </div>
+
+      {/* Console Test Component - only show in development */}
+      {process.env.NODE_ENV === "development" && (
+        <div className="col-span-12 mb-8">
+          <ConsoleTestComponent />
+        </div>
+      )}
+
       <TaggingRecords title={t("latest-tagging-records")} />
 
       <div className="col-span-12 mt-8">

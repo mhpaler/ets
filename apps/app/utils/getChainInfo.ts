@@ -16,7 +16,6 @@ type ChainMetadata = {
 
 // Create a map of additional chain metadata
 const chainMetadata: Record<SupportedChainId, ChainMetadata> = {
-  "421614": { displayName: "Arbitrum Sepolia", iconFileName: "arbitrum.svg" },
   "84532": { displayName: "Base Sepolia", iconFileName: "base.svg" },
   "31337": { displayName: "Hardhat", iconFileName: "hardhat.svg" },
 };
@@ -29,14 +28,29 @@ export function getChainInfo(network?: NetworkName | "none"): {
 } {
   let chainId: SupportedChainId;
 
+  // Debug what network is being requested
+  console.info("getChainInfo called with network:", network);
+
   if (!network || network === "none") {
-    console.warn(`Unknown or unspecified network: ${network}, falling back to Arbitrum Sepolia`);
-    chainId = "421614"; // Default to Arbitrum Sepolia
+    console.warn(`Unknown or unspecified network: ${network}, falling back to Base Sepolia`);
+    chainId = "84532"; // Default to Base Sepolia
   } else {
-    chainId = Object.entries(networkNames).find(([, name]) => name === network)?.[0] as SupportedChainId;
+    // Handle staging network variants by normalizing to base network names
+    const normalizedNetwork = network.replace(/staging$/, "");
+
+    // Log the network normalization for staging variants
+    if (normalizedNetwork !== network) {
+      console.info(`Normalized staging network: ${network} → ${normalizedNetwork}`);
+    }
+
+    // Find the chain ID using the normalized network name
+    chainId = Object.entries(networkNames).find(([, name]) => name === normalizedNetwork)?.[0] as SupportedChainId;
+
     if (!chainId) {
-      console.warn(`Unknown network: ${network}, falling back to Arbitrum Sepolia`);
-      chainId = "421614"; // Default to Arbitrum Sepolia
+      console.warn(`Unknown network: ${network} (normalized: ${normalizedNetwork}), falling back to Base Sepolia`);
+      chainId = "84532"; // Default to Base Sepolia
+    } else {
+      console.info(`Resolved network ${network} to chain ID ${chainId}`);
     }
   }
 

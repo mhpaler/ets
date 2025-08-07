@@ -1,6 +1,6 @@
 import type { TagType } from "@app/types/tag";
-import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
+import useSWR from "swr";
 import { useEnsNames } from "./useEnsNames";
 
 type FetchTagsResponse = {

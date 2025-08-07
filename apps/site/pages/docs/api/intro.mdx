@@ -9,7 +9,6 @@ The links below provide ETS API endpoints as well as playgrounds for testing que
 
 Network | URL
 --- | ---
-Arbitrum&nbsp;Sepolia | https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia/version/latest
 Base Sepolia | https://api.studio.thegraph.com/query/87165/ets-base-sepolia/version/latest
 localhost | http://localhost:8000/subgraphs/name/ets-local
 
@@ -26,8 +25,8 @@ Visit the [examples section](https://github.com/ethereum-tag-service/ets/tree/ma
   ```typescript [Fetch]
 import { getSubgraphEndpoint } from "@ethereum-tag-service/subgraph-endpoints";
 
-// Arbitrum Sepolia testnet
-const endpoint = getSubgraphEndpoint(421614);
+// Base Sepolia testnet
+const endpoint = getSubgraphEndpoint(84532);
 
 const graphqlQuery = {
   query: `
@@ -81,8 +80,8 @@ console.log(data);
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 import { getSubgraphEndpoint } from "@ethereum-tag-service/subgraph-endpoints";
 
-// Arbitrum Sepolia testnet
-const endpoint = getSubgraphEndpoint(421614);
+// Base Sepolia testnet
+const endpoint = getSubgraphEndpoint(84532);
 
 // Initialize Apollo Client
 const client = new ApolloClient({

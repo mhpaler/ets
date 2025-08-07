@@ -3,8 +3,8 @@ import { useSystem } from "@app/hooks/useSystem";
 import type { Auction } from "@app/types/auction";
 import { formatEtherWithDecimals } from "@app/utils";
 import { useCallback, useMemo } from "react";
-import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
+import useSWR from "swr";
 
 type FetchAuctionsResponse = {
   auctions: Auction[];

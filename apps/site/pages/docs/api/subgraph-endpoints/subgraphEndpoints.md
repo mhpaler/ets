@@ -7,8 +7,8 @@ A constant object that provides a mapping of network names to their correspondin
 ```ts twoslash
 import subgraphEndpoints from '@ethereum-tag-service/subgraph-endpoints'
 
-const endpoint = subgraphEndpoints.arbitrumSepolia
-// @log: Output: "https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia/version/latest"
+const endpoint = subgraphEndpoints.baseSepolia
+// @log: Output: "https://api.studio.thegraph.com/query/87165/ets-base-sepolia/version/latest"
 ```
 
 ## Returns
@@ -33,8 +33,8 @@ import subgraphEndpoints from '@ethereum-tag-service/subgraph-endpoints'
 const localEndpoint = subgraphEndpoints.localhost // [!code focus]
 // @log: Output: "http://localhost:8000/subgraphs/name/ets-local"
 
-// Access Arbitrum Sepolia endpoint
-const arbitrumEndpoint = subgraphEndpoints.arbitrumSepolia // [!code focus]
-// @log: Output: "https://api.studio.thegraph.com/query/87165/ets-arbitrum-sepolia/version/latest"
+// Access Base Sepolia endpoint
+const baseEndpoint = subgraphEndpoints.baseSepolia // [!code focus]
+// @log: Output: "https://api.studio.thegraph.com/query/87165/ets-base-sepolia/version/latest"
 
 ```

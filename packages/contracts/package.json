@@ -68,6 +68,10 @@
     "deploy-all": "hardhat deployETS --tags deployAll",
     "deploy-upgrade": "hardhat deployETS --tags upgradeAll",
     "deploy": "hardhat deployETS",
+    "deploy-production": "hardhat deployETS --tags deployAll --network baseSepolia",
+    "deploy-staging": "hardhat deployETS --tags deployAll --network baseSepoliaStaging",
+    "verify-production": "hardhat verify --network baseSepolia",
+    "verify-staging": "hardhat verify --network baseSepoliaStaging",
     "hardhat": "hardhat node --no-deploy",
     "hardhat:clean": "hardhat clean",
     "prepublishOnly": "pnpm build",
@@ -111,7 +115,6 @@
     "hardhat": "^2.19.0",
     "hardhat-abi-exporter": "^2.4.0",
     "hardhat-deploy": "^0.11.43",
-    "hardhat-ethernal": "3.1.0",
     "hardhat-gas-reporter": "^2.2.1",
     "lodash.merge": "^4.6.2",
     "node-watch": "^0.7.2",
@@ -130,6 +133,8 @@
     "viem": "^2.21.11"
   },
   "dependencies": {
+    "@api3/airnode-admin": "^0.15.0",
+    "@api3/airnode-protocol": "^0.15.0",
     "@openzeppelin/contracts": "^4.9.2",
     "@openzeppelin/contracts-upgradeable": "^4.9.2"
   }

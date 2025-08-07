@@ -1,18 +1,16 @@
+import { TagGraphic } from "@app/components/TagGraphic";
+import { Truncate } from "@app/components/Truncate";
+import AuctionActions from "@app/components/auction/AuctionActions";
+import AuctionBids from "@app/components/auction/AuctionBids";
+import AuctionDebug from "@app/components/auction/AuctionDebug";
+import AuctionNavigation from "@app/components/auction/AuctionNavigation";
+import AuctionSummary from "@app/components/auction/AuctionSummary";
+import AuctionTimer from "@app/components/auction/AuctionTimer";
 import { useAuction } from "@app/hooks/useAuctionContext";
 import { useAuctionHouse } from "@app/hooks/useAuctionHouse";
 import { useCurrentChain } from "@app/hooks/useCurrentChain";
 import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
-
-import { TagGraphic } from "@app/components/TagGraphic";
-import { Truncate } from "@app/components/Truncate";
-import AuctionActions from "@app/components/auction/AuctionActions";
-import AuctionBids from "@app/components/auction/AuctionBids";
-import AuctionNavigation from "@app/components/auction/AuctionNavigation";
-import AuctionSummary from "@app/components/auction/AuctionSummary";
-import AuctionTimer from "@app/components/auction/AuctionTimer";
-
-import AuctionDebug from "@app/components/auction/AuctionDebug";
 
 const AuctionDisplay = () => {
   const { t } = useTranslation("common");

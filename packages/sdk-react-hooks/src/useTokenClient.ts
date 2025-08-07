@@ -1,14 +1,27 @@
-import { type TokenClient, createTokenClient } from "@ethereum-tag-service/sdk-core";
+import {
+  DEFAULT_ENVIRONMENT,
+  type Environment,
+  type TokenClient,
+  createTokenClient,
+} from "@ethereum-tag-service/sdk-core";
 import { useEffect, useState } from "react";
 
-export const useTokenClient = ({ chainId, account }: { chainId?: number; account?: `0x${string}` }) => {
+export const useTokenClient = ({
+  chainId,
+  account,
+  environment = DEFAULT_ENVIRONMENT,
+}: {
+  chainId?: number;
+  account?: `0x${string}`;
+  environment?: Environment;
+}) => {
   const [tokenClient, setTokenClient] = useState<TokenClient>();
 
   useEffect(() => {
     if (!chainId || !account) return;
-    const client = createTokenClient({ chainId, account: account });
+    const client = createTokenClient({ chainId, account: account, environment });
     setTokenClient(client);
-  }, [chainId, account]);
+  }, [chainId, account, environment]);
 
   const computeTagId = async (tag: string): Promise<bigint> => {
     if (!tokenClient) throw new Error("Token client not initialized");

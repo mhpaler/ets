@@ -2,8 +2,8 @@ import type { CreatorType } from "@app/types/creator";
 import type { OwnerType } from "@app/types/owners";
 import type { RelayerType } from "@app/types/relayer";
 import type { TaggerType } from "@app/types/tagger";
-import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
+import useSWR from "swr";
 import { useEnsNames } from "./useEnsNames";
 
 export function useAddressEntities(address: string | null, config: SWRConfiguration = {}) {

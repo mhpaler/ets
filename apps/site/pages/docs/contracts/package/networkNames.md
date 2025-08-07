@@ -7,9 +7,9 @@ A mapping of chain IDs to their corresponding network name strings.
 ```ts twoslash
 import { networkNames } from '@ethereum-tag-service/contracts'
 
-const name = networkNames['421614']
+const name = networkNames['84532']
 console.log(name)
-// @log: Output: "arbitrumsepolia"
+// @log: Output: "basesepolia"
 ```
 
 ## Returns
@@ -24,7 +24,7 @@ An object mapping chain IDs to network names.
 
 - **Type:** `SupportedChainId`
 - **Values:**
-  - `"421614"`: "arbitrumsepolia"
+  - `"84532"`: "basesepolia"
   - `"84532"`: "basesepolia"
   - `"31337"`: "hardhat"
 
@@ -34,9 +34,9 @@ An object mapping chain IDs to network names.
 import { networkNames } from '@ethereum-tag-service/contracts'
 
 // Get network name for Arbitrum Sepolia
-const arbitrumName = networkNames['421614']
-console.log(arbitrumName)
-// @log: Output: "arbitrumsepolia"
+const baseName = networkNames['84532']
+console.log(baseName)
+// @log: Output: "basesepolia"
 
 // Get network name for Base Sepolia
 const baseName = networkNames['84532']

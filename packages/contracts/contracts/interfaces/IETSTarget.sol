@@ -42,14 +42,14 @@ interface IETSTarget {
      * @param createdBy Address of IETSTargetTagger implementation that created Target
      * @param enriched block timestamp when Target was last enriched. Defaults to 0
      * @param httpStatus https status of last response from ETSEnrichTarget API eg. "404", "200". defaults to 0
-     * @param ipfsHash ipfsHash of additional metadata for Target collected by ETSEnrichTarget API
+     * @param arweaveTxId Arweave transaction ID of additional metadata for Target collected by ETSEnrichTarget API
      */
     struct Target {
         string targetURI;
         address createdBy;
         uint256 enriched;
         uint256 httpStatus;
-        string ipfsHash;
+        string arweaveTxId;
     }
 
     /**
@@ -114,7 +114,7 @@ interface IETSTarget {
      * @param _targetURI Unique resource identifier Target points to.
      * @param _enriched block timestamp when Target was last enriched
      * @param _httpStatus https status of last response from ETSEnrichTarget API eg. "404", "200". defaults to 0
-     * @param _ipfsHash ipfsHash of additional metadata for Target collected by ETSEnrichTarget API
+     * @param _arweaveTxId Arweave transaction ID of additional metadata for Target collected by ETSEnrichTarget API
 
      * @return success true when Target is successfully updated.
      */
@@ -123,7 +123,7 @@ interface IETSTarget {
         string calldata _targetURI,
         uint256 _enriched,
         uint256 _httpStatus,
-        string calldata _ipfsHash
+        string calldata _arweaveTxId
     ) external returns (bool success);
 
     /**

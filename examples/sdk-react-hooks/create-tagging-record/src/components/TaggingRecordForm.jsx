@@ -1,5 +1,5 @@
 import { useRelayerClient } from "@ethereum-tag-service/sdk-react-hooks";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useAccount, useChainId } from "wagmi";
 import { useRelayers } from "../hooks/useRelayers";
 
@@ -114,11 +114,11 @@ function TaggingRecordForm() {
         <p>
           Your tagging record will be soon viewable at this link:{" "}
           <a
-            href={`https://arbitrumsepolia.app.ets.xyz/explore/tagging-records/${createdRecordId}`}
+            href={`https://app.ets.xyz/explore/tagging-records/${createdRecordId}`}
             target="_blank"
             rel="noopener noreferrer"
           >
-            https://stage.app.ets.xyz/explore/tagging-records/{createdRecordId}
+            https://app.ets.xyz/explore/tagging-records/{createdRecordId}
           </a>
         </p>
       )}

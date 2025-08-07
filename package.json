@@ -2,13 +2,13 @@
   "name": "@ethereum-tag-service/monorepo",
   "author": "Ethereum Tag Service <team@ets.xyz>",
   "private": true,
-  "packageManager": "pnpm@9.9.0",
+  "packageManager": "pnpm@10.14.0",
   "keywords": ["ethereum", "react", "ets", "tag", "tagging"],
   "scripts": {
     "bun": "pnpm exec bun",
     "biome": "pnpm exec biome",
     "build": "pnpm run clean && turbo run build --filter=@ethereum-tag-service/site --filter=@ethereum-tag-service/app --env-mode=loose",
-    "build_old": "pnpm run clean && turbo run build --env-mode=loose",
+    "build:offchain-api": "NODE_ENV=development pnpm install && pnpm turbo run build --filter=@ethereum-tag-service/offchain-api^... && cd apps/offchain-api && NODE_ENV=development pnpm build",
     "changeset:build": "pnpm run --recursive --filter \"./packages/**\" build",
     "changeset:prepublish": "pnpm version:update && pnpm changeset:build && bun ./scripts/formatPackageJson.ts",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish",
@@ -21,10 +21,10 @@
     "create-tagging-record:dev": "cd examples/create-tagging-record && pnpm run dev",
     "dev": "turbo run dev --env-mode=loose --filter=!./examples/*",
     "format": "biome format --write",
-    "graph:deploy": "cd packages/subgraph && pnpm run deploy",
-    "graph:node-clean": "cd packages/subgraph && pnpm run clean-graph-node",
-    "graph:node-start": "cd packages/subgraph && pnpm run start-graph-node",
-    "graph:node-stop": "cd packages/subgraph && pnpm run remove-graph-node",
+    "graph:deploy": "cd apps/data-api && pnpm run deploy",
+    "graph:node-clean": "cd apps/data-api && pnpm run clean-graph-node",
+    "graph:node-start": "cd apps/data-api && pnpm run start-graph-node",
+    "graph:node-stop": "cd apps/data-api && pnpm run remove-graph-node",
     "hardhat:build": "cd packages/contracts && pnpm run build",
     "hardhat:clean": "cd packages/contracts && pnpm hardhat:clean",
     "hardhat:compile": "cd packages/contracts && pnpm run compile",
@@ -56,6 +56,7 @@
     "publint": "^0.2.10",
     "sherif": "^0.11.0",
     "simple-git-hooks": "^2.11.1",
+    "terser-webpack-plugin": "^5.3.14",
     "turbo": "^2.0.10",
     "typescript": "^5.7.2",
     "yaml": "2.4.5"
@@ -64,13 +65,38 @@
     "overrides": {
       "@types/react": "18.2.12",
       "@types/react-dom": "18.2.5",
-      "@wagmi/core": "^2.6.5",
+      "@wagmi/core": "^2.18.1",
       "i18next": "^23.14.0",
-      "@rainbow-me/rainbowkit": "^2.1.1",
+      "@rainbow-me/rainbowkit": "^2.2.8",
       "next-auth": "^4.21.0",
-      "viem": "2.21.11",
-      "abitype": "1.0.5"
-    }
+      "viem": "^2.33.2",
+      "abitype": "1.0.5",
+      "@vanilla-extract/sprinkles": "^1.6.5",
+      "@vanilla-extract/css": "^1.14.0",
+      "@vanilla-extract/dynamic": "^2.1.2"
+    },
+    "ignoredBuiltDependencies": [
+      "@apollo/protobufjs",
+      "@biomejs/biome",
+      "aws-crt",
+      "bufferutil",
+      "bun",
+      "es5-ext",
+      "esbuild",
+      "keccak",
+      "next-translate-plugin",
+      "node-hid",
+      "oxc-resolver",
+      "protobufjs",
+      "secp256k1",
+      "simple-git-hooks",
+      "unrs-resolver",
+      "usb",
+      "utf-8-validate",
+      "web3",
+      "web3-bzz",
+      "web3-shh"
+    ]
   },
   "engines": {
     "npm": ">=7.0.0",
@@ -89,6 +115,7 @@
       "apps/app",
       "apps/site",
       "apps/oracle",
+      "apps/offchain-api",
       "packages/brand",
       "packages/contracts",
       "packages/tsconfig"
@@ -110,9 +137,14 @@
         "entry": ["src/**/*.ts!"],
         "project": ["src/**/*.ts!"]
       },
-      "packages/subgraph": {
+      "apps/data-api": {
         "entry": ["src/**/*.ts!"],
         "project": ["src/**/*.ts!"]
+      },
+      "apps/offchain-api": {
+        "entry": ["src/index.ts!", "scripts/mint-ar-local.ts"],
+        "project": ["src/**/*.ts!"],
+        "excludeEntryComponents": false
       }
     }
   }

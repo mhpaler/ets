@@ -1,18 +1,16 @@
-import { useCtags } from "@app/hooks/useCtags";
-import { useOwners } from "@app/hooks/useOwners";
-import type { NextPage } from "next";
-import { useRouter } from "next/router";
-
 import Address from "@app/components/Address";
 import { FormattedNumber } from "@app/components/FormattedNumber";
 import { Panel } from "@app/components/Panel";
 import { Tags } from "@app/components/Tags";
 import { Truncate } from "@app/components/Truncate";
+import { useCtags } from "@app/hooks/useCtags";
 import { useCurrentChain } from "@app/hooks/useCurrentChain";
+import { useOwners } from "@app/hooks/useOwners";
 import Layout from "@app/layouts/default";
-import { timestampToString } from "@app/utils";
-import { toEth } from "@app/utils";
+import { timestampToString, toEth } from "@app/utils";
+import type { NextPage } from "next";
 import useTranslation from "next-translate/useTranslation";
+import { useRouter } from "next/router";
 
 const Owner: NextPage = () => {
   const { query } = useRouter();

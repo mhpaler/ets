@@ -142,7 +142,7 @@
           },
           {
             "internalType": "string",
-            "name": "ipfsHash",
+            "name": "arweaveTxId",
             "type": "string"
           }
         ],
@@ -188,7 +188,7 @@
           },
           {
             "internalType": "string",
-            "name": "ipfsHash",
+            "name": "arweaveTxId",
             "type": "string"
           }
         ],
@@ -275,7 +275,7 @@
       },
       {
         "internalType": "string",
-        "name": "_ipfsHash",
+        "name": "_arweaveTxId",
         "type": "string"
       }
     ],

@@ -5,6 +5,8 @@
 /.pnp
 .pnp.js
 
+logs
+
 # misc
 .DS_Store
 *.pem
@@ -20,6 +22,8 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+.env.staging
+.env.staging.local
 
 # Vercel
 .vercel
@@ -27,6 +31,9 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# Vocs build files
+**/vocs.config.ts.timestamp-*
 
 node_modules
 packages/**/data
@@ -51,6 +58,7 @@ packages/contracts/docs
 packages/subgraph/subgraph.yaml
 packages/subgraph/src/generated/*
 packages/subgraph/abi/*
+apps/data-api/src/generated/*
 
 # Frontend Files
 
@@ -77,5 +85,42 @@ apps/app/artifacts/**/*.dbg.json
 apps/app/src/contracts.ts
 
 apps/oracle/.env
+apps/oracle/.env.*
 apps/oracle/.defender
 apps/oracle/src/contracts.ts
+
+# Oracle deployment files
+apps/oracle/config/local/airnode-credentials.json
+apps/oracle/config/local/aws.env
+apps/oracle/config/local/config.json
+apps/oracle/config/local/configuration-details.json
+apps/oracle/config/local/deployment-info.json
+apps/oracle/config/local/gateway-url.txt
+apps/oracle/config/local/secrets.env
+apps/oracle/config/local/test-command.txt
+apps/oracle/config/local/receipt.json
+
+apps/oracle/config/staging/airnode-credentials.json
+apps/oracle/config/staging/aws.env
+apps/oracle/config/staging/config.json
+apps/oracle/config/staging/configuration-details.json
+apps/oracle/config/staging/deployment-info.json
+apps/oracle/config/staging/gateway-url.txt
+apps/oracle/config/staging/secrets.env
+apps/oracle/config/staging/test-command.txt
+apps/oracle/config/staging/receipt.json
+apps/oracle/config/staging/history/
+
+apps/oracle/config/production/airnode-credentials.json
+apps/oracle/config/production/aws.env
+apps/oracle/config/production/config.json
+apps/oracle/config/production/configuration-details.json
+apps/oracle/config/production/deployment-info.json
+apps/oracle/config/production/gateway-url.txt
+apps/oracle/config/production/secrets.env
+apps/oracle/config/production/test-command.txt
+apps/oracle/config/production/receipt.json
+apps/oracle/config/production/history/
+
+# Arweave keyfiles (sensitive)
+apps/offchain-api/arweave-keyfile.json

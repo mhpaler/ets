@@ -17,15 +17,15 @@ import {
 } from '@ethereum-tag-service/contracts/contracts'
 
 // Core Protocol
-etsAddress['421614']
+etsAddress['84532']
 // @log: Output: "0x4763975ee6675C50381e7044524C2a25D5fD5774"
 
 // Access Controls
-etsAccessControlsAddress['421614']
+etsAccessControlsAddress['84532']
 // @log: Output: "0x945f8d0534E6e774Db73A3843568B8c5be2167C0"
 
 // Auction House
-etsAuctionHouseAddress['421614']
+etsAuctionHouseAddress['84532']
 // @log: Output: "0x79A3098b1cc02b5FB675Ce7A97f51d8DdDEeA450"
 ```
 

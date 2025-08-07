@@ -1,25 +1,70 @@
 const { ethers } = require("ethers");
 const _randomWords = require("random-words");
 
-task("auctionhouse", "Create and interact with an auction")
-  .addOptionalParam("settings", "List of current settings", true, types.boolean)
+task("auctionhouse", "Create, manage, and interact with tag auctions on the ETS platform")
+  .addOptionalParam("settings", "Show current auction settings when true", true, types.boolean)
   .addOptionalParam(
     "action",
-    "Options include: showactive, createauction, createbid, settleauction, togglepause, increasemax, setreserve",
+    "The operation to perform. Options include:\n" +
+      "  - examples: Show usage examples\n" +
+      "  - showactive: Display all active auctions\n" +
+      "  - showlast: Show the most recent auction\n" +
+      "  - status: Show status of a specific auction (requires --tag or --id)\n" +
+      "  - nextauction: Create the next auction using ETS Oracle\n" +
+      "  - auction: Create a new auction for a specific tag\n" +
+      "  - bid: Place a bid on an auction\n" +
+      "  - settleauction: Settle an existing auction\n" +
+      "  - togglepause: Pause/unpause the auction house\n" +
+      "  - setreserve: Set the reserve price (use with --value)\n" +
+      "  - setduration: Set auction duration in seconds (use with --value)\n" +
+      "  - settimebuffer: Set auction time buffer in seconds (use with --value)\n" +
+      "  - setmaxauctions: Set maximum concurrent auctions (use with --value)",
     "",
     types.string,
   )
-  .addOptionalParam("tag", "specify tag to be acted on", "", types.string)
-  .addOptionalParam("id", "auction id", "", types.string)
-  .addOptionalParam("bid", 'bid amount in ETH/MATIC. eg. "0.1"', "", types.string)
-  .addOptionalParam("value", "Value to pass to setting.", "", types.string)
+  .addOptionalParam("tag", "The tag name to act on (for auction, bid, status actions)", "", types.string)
+  .addOptionalParam("id", "The auction ID to act on (for bid, settleauction, status actions)", "", types.string)
+  .addOptionalParam("bid", 'Bid amount in ETH/MATIC (e.g., "0.1") for bid action', "", types.string)
+  .addOptionalParam("value", "Value to set for configuration actions (setreserve, setduration, etc.)", "", types.string)
   .addOptionalParam(
     "signer",
-    'Named wallet accounts. options are "account0", "account1", "account2", "account3", "account4", "account5". Defaults to "account0"',
+    'Wallet account to use for transactions. Options: "account0" through "account5"',
     "account0",
+    types.string,
   )
-  .addOptionalParam("output", "The format for outputting auction details", "standard", types.string)
+  .addOptionalParam(
+    "output",
+    'Format for displaying auction details: "standard", "object", or "return"',
+    "standard",
+    types.string,
+  )
+
   .setAction(async (taskArgs, hre) => {
+    const noSettingsActions = ["examples", "help"];
+
+    // Show detailed help if no parameters or just default settings are provided
+    if (!taskArgs.action) {
+      await hre.run("auctionhouse:help");
+      return;
+    }
+
+    // Show settings by default if requested, or if no action is specified,
+    // or if action is not in the noSettingsActions list
+    if (
+      taskArgs.settings === true ||
+      (!taskArgs.action && taskArgs.settings !== false) ||
+      (taskArgs.action && !noSettingsActions.includes(taskArgs.action) && taskArgs.settings !== false)
+    ) {
+      await hre.run("auctionhouse:settings", { output: taskArgs.output });
+    }
+
+    // Add this check for examples action
+    if (taskArgs.action === "examples") {
+      // Call the examples subtask internally
+      await hre.run("auctionhouse:examples");
+      return;
+    }
+
     if (taskArgs.action === "togglepause") {
       await hre.run("auctionhouse:togglepause");
     }
@@ -77,6 +122,57 @@ task("auctionhouse", "Create and interact with an auction")
       await hre.run("auctionhouse:settleauction", { id: taskArgs.id, signer: taskArgs.signer });
     }
   });
+
+// Add this subtask for detailed help
+subtask("auctionhouse:help", "Show detailed help for the auctionhouse task").setAction(async () => {
+  console.info("\n=== ETS Auction House Task Help ===\n");
+  console.info("This task allows you to interact with the ETS Auction House contract.\n");
+
+  console.info("PARAMETER COMBINATIONS BY ACTION:");
+  console.info("  settings        : No additional parameters needed");
+  console.info("  showlast        : [--output format]");
+  console.info("  status          : --tag <tagname> OR --id <auction-id> [--output format]");
+  console.info("  nextauction     : No additional parameters needed");
+  console.info("  auction         : --tag <tagname>");
+  console.info("  bid             : (--tag <tagname> OR --id <auction-id>) --bid <amount> [--signer account]");
+  console.info("  settleauction   : --id <auction-id> [--signer account]");
+  console.info("  togglepause     : No additional parameters needed");
+  console.info("  setreserve      : --value <price>");
+  console.info("  setduration     : --value <seconds>");
+  console.info("  settimebuffer   : --value <seconds>");
+  console.info("  setmaxauctions  : --value <count>\n");
+
+  console.info("For detailed examples, run: npx hardhat auctionhouse:examples");
+});
+
+// Add another subtask for examples
+subtask("auctionhouse:examples", "Show usage examples for the auctionhouse task").setAction(async () => {
+  console.info("\n=== ETS Auction House Usage Examples ===\n");
+  console.info("View current auction settings:");
+  console.info("  npx hardhat auctionhouse --action settings\n");
+
+  console.info("View status of an auction by tag:");
+  console.info("  npx hardhat auctionhouse --action status --tag mytagname\n");
+
+  console.info("View status of an auction by ID:");
+  console.info("  npx hardhat auctionhouse --action status --id 123\n");
+
+  console.info("Create an auction for a tag:");
+  console.info("  npx hardhat auctionhouse --action auction --tag mytagname\n");
+
+  console.info("Place a bid on an auction:");
+  console.info("  npx hardhat auctionhouse --action bid --tag mytagname --bid 0.5 --signer account1");
+  console.info("  npx hardhat auctionhouse --action bid --id 123 --bid 0.5 --signer account1\n");
+
+  console.info("Settle an auction:");
+  console.info("  npx hardhat auctionhouse --action settleauction --id 123\n");
+
+  console.info("Change reserve price:");
+  console.info("  npx hardhat auctionhouse --action setreserve --value 0.1\n");
+
+  console.info("Toggle pause state:");
+  console.info("  npx hardhat auctionhouse --action togglepause\n");
+});
 
 subtask("auctionhouse:settings", "List auction settings")
   .addOptionalParam("output", "The format for outputting auction details", "standard", types.string)

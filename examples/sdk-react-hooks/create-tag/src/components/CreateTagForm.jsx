@@ -1,5 +1,5 @@
 import { useRelayerClient, useTokenClient } from "@ethereum-tag-service/sdk-react-hooks";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useAccount, useChainId } from "wagmi";
 import { useRelayers } from "../hooks/useRelayers";
 
@@ -124,7 +124,7 @@ function CreateTagForm() {
             {createdTags.map((tag, index) => (
               <li key={index}>
                 <a
-                  href={`https://arbitrumsepolia.app.ets.xyz/explore/tags/${tag.text.slice(1)}`}
+                  href={`https://app.ets.xyz/explore/ctags/${tag.text.slice(1)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

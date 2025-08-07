@@ -1,11 +1,544 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// AirnodeRrpV0Proxy
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * -
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x89C20aDAaadaBd7f320E53b08403817e5BD75621)
+ * -
+ */
+export const airnodeRrpV0ProxyAbi = [
+  { type: "constructor", inputs: [], stateMutability: "nonpayable" },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "templateId",
+        internalType: "bytes32",
+        type: "bytes32",
+        indexed: true,
+      },
+      {
+        name: "airnode",
+        internalType: "address",
+        type: "address",
+        indexed: false,
+      },
+      {
+        name: "endpointId",
+        internalType: "bytes32",
+        type: "bytes32",
+        indexed: false,
+      },
+      {
+        name: "parameters",
+        internalType: "bytes",
+        type: "bytes",
+        indexed: false,
+      },
+    ],
+    name: "CreatedTemplate",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "airnode",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "requestId",
+        internalType: "bytes32",
+        type: "bytes32",
+        indexed: true,
+      },
+      {
+        name: "errorMessage",
+        internalType: "string",
+        type: "string",
+        indexed: false,
+      },
+    ],
+    name: "FailedRequest",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "airnode",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "requestId",
+        internalType: "bytes32",
+        type: "bytes32",
+        indexed: true,
+      },
+      { name: "data", internalType: "bytes", type: "bytes", indexed: false },
+    ],
+    name: "FulfilledRequest",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "airnode",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "sponsor",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "withdrawalRequestId",
+        internalType: "bytes32",
+        type: "bytes32",
+        indexed: true,
+      },
+      {
+        name: "sponsorWallet",
+        internalType: "address",
+        type: "address",
+        indexed: false,
+      },
+      {
+        name: "amount",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: false,
+      },
+    ],
+    name: "FulfilledWithdrawal",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "airnode",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "requestId",
+        internalType: "bytes32",
+        type: "bytes32",
+        indexed: true,
+      },
+      {
+        name: "requesterRequestCount",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: false,
+      },
+      {
+        name: "chainId",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: false,
+      },
+      {
+        name: "requester",
+        internalType: "address",
+        type: "address",
+        indexed: false,
+      },
+      {
+        name: "endpointId",
+        internalType: "bytes32",
+        type: "bytes32",
+        indexed: false,
+      },
+      {
+        name: "sponsor",
+        internalType: "address",
+        type: "address",
+        indexed: false,
+      },
+      {
+        name: "sponsorWallet",
+        internalType: "address",
+        type: "address",
+        indexed: false,
+      },
+      {
+        name: "fulfillAddress",
+        internalType: "address",
+        type: "address",
+        indexed: false,
+      },
+      {
+        name: "fulfillFunctionId",
+        internalType: "bytes4",
+        type: "bytes4",
+        indexed: false,
+      },
+      {
+        name: "parameters",
+        internalType: "bytes",
+        type: "bytes",
+        indexed: false,
+      },
+    ],
+    name: "MadeFullRequest",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "airnode",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "requestId",
+        internalType: "bytes32",
+        type: "bytes32",
+        indexed: true,
+      },
+      {
+        name: "requesterRequestCount",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: false,
+      },
+      {
+        name: "chainId",
+        internalType: "uint256",
+        type: "uint256",
+        indexed: false,
+      },
+      {
+        name: "requester",
+        internalType: "address",
+        type: "address",
+        indexed: false,
+      },
+      {
+        name: "templateId",
+        internalType: "bytes32",
+        type: "bytes32",
+        indexed: false,
+      },
+      {
+        name: "sponsor",
+        internalType: "address",
+        type: "address",
+        indexed: false,
+      },
+      {
+        name: "sponsorWallet",
+        internalType: "address",
+        type: "address",
+        indexed: false,
+      },
+      {
+        name: "fulfillAddress",
+        internalType: "address",
+        type: "address",
+        indexed: false,
+      },
+      {
+        name: "fulfillFunctionId",
+        internalType: "bytes4",
+        type: "bytes4",
+        indexed: false,
+      },
+      {
+        name: "parameters",
+        internalType: "bytes",
+        type: "bytes",
+        indexed: false,
+      },
+    ],
+    name: "MadeTemplateRequest",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "airnode",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "sponsor",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "withdrawalRequestId",
+        internalType: "bytes32",
+        type: "bytes32",
+        indexed: true,
+      },
+      {
+        name: "sponsorWallet",
+        internalType: "address",
+        type: "address",
+        indexed: false,
+      },
+    ],
+    name: "RequestedWithdrawal",
+  },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "sponsor",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "requester",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "sponsorshipStatus",
+        internalType: "bool",
+        type: "bool",
+        indexed: false,
+      },
+    ],
+    name: "SetSponsorshipStatus",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "authorizers", internalType: "address[]", type: "address[]" },
+      { name: "airnode", internalType: "address", type: "address" },
+      { name: "requestId", internalType: "bytes32", type: "bytes32" },
+      { name: "endpointId", internalType: "bytes32", type: "bytes32" },
+      { name: "sponsor", internalType: "address", type: "address" },
+      { name: "requester", internalType: "address", type: "address" },
+    ],
+    name: "checkAuthorizationStatus",
+    outputs: [{ name: "status", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "authorizers", internalType: "address[]", type: "address[]" },
+      { name: "airnode", internalType: "address", type: "address" },
+      { name: "requestIds", internalType: "bytes32[]", type: "bytes32[]" },
+      { name: "endpointIds", internalType: "bytes32[]", type: "bytes32[]" },
+      { name: "sponsors", internalType: "address[]", type: "address[]" },
+      { name: "requesters", internalType: "address[]", type: "address[]" },
+    ],
+    name: "checkAuthorizationStatuses",
+    outputs: [{ name: "statuses", internalType: "bool[]", type: "bool[]" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "airnode", internalType: "address", type: "address" },
+      { name: "endpointId", internalType: "bytes32", type: "bytes32" },
+      { name: "parameters", internalType: "bytes", type: "bytes" },
+    ],
+    name: "createTemplate",
+    outputs: [{ name: "templateId", internalType: "bytes32", type: "bytes32" }],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "requestId", internalType: "bytes32", type: "bytes32" },
+      { name: "airnode", internalType: "address", type: "address" },
+      { name: "fulfillAddress", internalType: "address", type: "address" },
+      { name: "fulfillFunctionId", internalType: "bytes4", type: "bytes4" },
+      { name: "errorMessage", internalType: "string", type: "string" },
+    ],
+    name: "fail",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "requestId", internalType: "bytes32", type: "bytes32" },
+      { name: "airnode", internalType: "address", type: "address" },
+      { name: "fulfillAddress", internalType: "address", type: "address" },
+      { name: "fulfillFunctionId", internalType: "bytes4", type: "bytes4" },
+      { name: "data", internalType: "bytes", type: "bytes" },
+      { name: "signature", internalType: "bytes", type: "bytes" },
+    ],
+    name: "fulfill",
+    outputs: [
+      { name: "callSuccess", internalType: "bool", type: "bool" },
+      { name: "callData", internalType: "bytes", type: "bytes" },
+    ],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "withdrawalRequestId", internalType: "bytes32", type: "bytes32" },
+      { name: "airnode", internalType: "address", type: "address" },
+      { name: "sponsor", internalType: "address", type: "address" },
+    ],
+    name: "fulfillWithdrawal",
+    outputs: [],
+    stateMutability: "payable",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "templateIds", internalType: "bytes32[]", type: "bytes32[]" }],
+    name: "getTemplates",
+    outputs: [
+      { name: "airnodes", internalType: "address[]", type: "address[]" },
+      { name: "endpointIds", internalType: "bytes32[]", type: "bytes32[]" },
+      { name: "parameters", internalType: "bytes[]", type: "bytes[]" },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "airnode", internalType: "address", type: "address" },
+      { name: "endpointId", internalType: "bytes32", type: "bytes32" },
+      { name: "sponsor", internalType: "address", type: "address" },
+      { name: "sponsorWallet", internalType: "address", type: "address" },
+      { name: "fulfillAddress", internalType: "address", type: "address" },
+      { name: "fulfillFunctionId", internalType: "bytes4", type: "bytes4" },
+      { name: "parameters", internalType: "bytes", type: "bytes" },
+    ],
+    name: "makeFullRequest",
+    outputs: [{ name: "requestId", internalType: "bytes32", type: "bytes32" }],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "templateId", internalType: "bytes32", type: "bytes32" },
+      { name: "sponsor", internalType: "address", type: "address" },
+      { name: "sponsorWallet", internalType: "address", type: "address" },
+      { name: "fulfillAddress", internalType: "address", type: "address" },
+      { name: "fulfillFunctionId", internalType: "bytes4", type: "bytes4" },
+      { name: "parameters", internalType: "bytes", type: "bytes" },
+    ],
+    name: "makeTemplateRequest",
+    outputs: [{ name: "requestId", internalType: "bytes32", type: "bytes32" }],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "requestId", internalType: "bytes32", type: "bytes32" }],
+    name: "requestIsAwaitingFulfillment",
+    outputs: [{ name: "isAwaitingFulfillment", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "airnode", internalType: "address", type: "address" },
+      { name: "sponsorWallet", internalType: "address", type: "address" },
+    ],
+    name: "requestWithdrawal",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "", internalType: "address", type: "address" }],
+    name: "requesterToRequestCountPlusOne",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "requester", internalType: "address", type: "address" },
+      { name: "sponsorshipStatus", internalType: "bool", type: "bool" },
+    ],
+    name: "setSponsorshipStatus",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    inputs: [
+      { name: "", internalType: "address", type: "address" },
+      { name: "", internalType: "address", type: "address" },
+    ],
+    name: "sponsorToRequesterToSponsorshipStatus",
+    outputs: [{ name: "", internalType: "bool", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "", internalType: "address", type: "address" }],
+    name: "sponsorToWithdrawalRequestCount",
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    inputs: [{ name: "", internalType: "bytes32", type: "bytes32" }],
+    name: "templates",
+    outputs: [
+      { name: "airnode", internalType: "address", type: "address" },
+      { name: "endpointId", internalType: "bytes32", type: "bytes32" },
+      { name: "parameters", internalType: "bytes", type: "bytes" },
+    ],
+    stateMutability: "view",
+  },
+] as const;
+
+/**
+ * -
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x89C20aDAaadaBd7f320E53b08403817e5BD75621)
+ * -
+ */
+export const airnodeRrpV0ProxyAddress = {
+  31337: "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
+  "84532_staging": "0x89C20aDAaadaBd7f320E53b08403817e5BD75621",
+  "31337_localhost": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
+} as const;
+
+/**
+ * -
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x89C20aDAaadaBd7f320E53b08403817e5BD75621)
+ * -
+ */
+export const airnodeRrpV0ProxyConfig = {
+  address: airnodeRrpV0ProxyAddress,
+  abi: airnodeRrpV0ProxyAbi,
+} as const;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ETS
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x5Cc5Dc14e1538db983Fc5FD34B27A42a598903E7)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x76cF4C272856B7e198DaED726C36186A98caF19E)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x5Cc5Dc14e1538db983Fc5FD34B27A42a598903E7)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x36f564ec1c7E9f9c7A6EE66e9d4f4BdD01749727)
+ * -
  */
 export const etsAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -704,18 +1237,24 @@ export const etsAbi = [
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x5Cc5Dc14e1538db983Fc5FD34B27A42a598903E7)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x76cF4C272856B7e198DaED726C36186A98caF19E)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x5Cc5Dc14e1538db983Fc5FD34B27A42a598903E7)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x36f564ec1c7E9f9c7A6EE66e9d4f4BdD01749727)
+ * -
  */
 export const etsAddress = {
-  31337: "0x49fd2BE640DB2910c2fAb69bB8531Ab6E76127ff",
+  31337: "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
   84532: "0x5Cc5Dc14e1538db983Fc5FD34B27A42a598903E7",
-  421614: "0x76cF4C272856B7e198DaED726C36186A98caF19E",
+  "84532_production": "0x5Cc5Dc14e1538db983Fc5FD34B27A42a598903E7",
+  "84532_staging": "0x36f564ec1c7E9f9c7A6EE66e9d4f4BdD01749727",
+  "31337_localhost": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
 } as const;
 
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x5Cc5Dc14e1538db983Fc5FD34B27A42a598903E7)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x76cF4C272856B7e198DaED726C36186A98caF19E)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x5Cc5Dc14e1538db983Fc5FD34B27A42a598903E7)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x36f564ec1c7E9f9c7A6EE66e9d4f4BdD01749727)
+ * -
  */
 export const etsConfig = { address: etsAddress, abi: etsAbi } as const;
 
@@ -726,7 +1265,9 @@ export const etsConfig = { address: etsAddress, abi: etsAbi } as const;
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x0fc811716E400415Be9857F357B174835B1EBb58)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x025B5bfb6eAc1E6f7156ca0228016Be2f9130166)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x0fc811716E400415Be9857F357B174835B1EBb58)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x944cdA63A16DC5Be8269f937805f2f6c689CC312)
+ * -
  */
 export const etsAccessControlsAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -1217,18 +1758,24 @@ export const etsAccessControlsAbi = [
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x0fc811716E400415Be9857F357B174835B1EBb58)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x025B5bfb6eAc1E6f7156ca0228016Be2f9130166)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x0fc811716E400415Be9857F357B174835B1EBb58)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x944cdA63A16DC5Be8269f937805f2f6c689CC312)
+ * -
  */
 export const etsAccessControlsAddress = {
-  31337: "0x46b142DD1E924FAb83eCc3c08e4D46E82f005e0E",
+  31337: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
   84532: "0x0fc811716E400415Be9857F357B174835B1EBb58",
-  421614: "0x025B5bfb6eAc1E6f7156ca0228016Be2f9130166",
+  "84532_production": "0x0fc811716E400415Be9857F357B174835B1EBb58",
+  "84532_staging": "0x944cdA63A16DC5Be8269f937805f2f6c689CC312",
+  "31337_localhost": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
 } as const;
 
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x0fc811716E400415Be9857F357B174835B1EBb58)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x025B5bfb6eAc1E6f7156ca0228016Be2f9130166)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x0fc811716E400415Be9857F357B174835B1EBb58)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x944cdA63A16DC5Be8269f937805f2f6c689CC312)
+ * -
  */
 export const etsAccessControlsConfig = {
   address: etsAccessControlsAddress,
@@ -1242,7 +1789,9 @@ export const etsAccessControlsConfig = {
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x945D2C0228dC1Cc872040494Df185629e764b54c)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xcbBFB1B7FAf2011c5C3984C8D20759e74C90fdef)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x945D2C0228dC1Cc872040494Df185629e764b54c)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x4474A50bC12778E1b0eb87ad28b80b4EC28e8d99)
+ * -
  */
 export const etsAuctionHouseAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -1950,18 +2499,24 @@ export const etsAuctionHouseAbi = [
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x945D2C0228dC1Cc872040494Df185629e764b54c)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xcbBFB1B7FAf2011c5C3984C8D20759e74C90fdef)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x945D2C0228dC1Cc872040494Df185629e764b54c)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x4474A50bC12778E1b0eb87ad28b80b4EC28e8d99)
+ * -
  */
 export const etsAuctionHouseAddress = {
-  31337: "0x367761085BF3C12e5DA2Df99AC6E1a824612b8fb",
+  31337: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
   84532: "0x945D2C0228dC1Cc872040494Df185629e764b54c",
-  421614: "0xcbBFB1B7FAf2011c5C3984C8D20759e74C90fdef",
+  "84532_production": "0x945D2C0228dC1Cc872040494Df185629e764b54c",
+  "84532_staging": "0x4474A50bC12778E1b0eb87ad28b80b4EC28e8d99",
+  "31337_localhost": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
 } as const;
 
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x945D2C0228dC1Cc872040494Df185629e764b54c)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xcbBFB1B7FAf2011c5C3984C8D20759e74C90fdef)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x945D2C0228dC1Cc872040494Df185629e764b54c)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x4474A50bC12778E1b0eb87ad28b80b4EC28e8d99)
+ * -
  */
 export const etsAuctionHouseConfig = {
   address: etsAuctionHouseAddress,
@@ -1975,7 +2530,9 @@ export const etsAuctionHouseConfig = {
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xBb7bb89Dc2388C73eFacF50d9917406C38e27b6e)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x52cCc0c0129bFB12A79E5Cf4a8525Cd724344BB4)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xBb7bb89Dc2388C73eFacF50d9917406C38e27b6e)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x466D77c6EBEfD773d525ebEC71A96E7aB4813421)
+ * -
  */
 export const etsEnrichTargetAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -2142,18 +2699,24 @@ export const etsEnrichTargetAbi = [
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xBb7bb89Dc2388C73eFacF50d9917406C38e27b6e)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x52cCc0c0129bFB12A79E5Cf4a8525Cd724344BB4)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xBb7bb89Dc2388C73eFacF50d9917406C38e27b6e)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x466D77c6EBEfD773d525ebEC71A96E7aB4813421)
+ * -
  */
 export const etsEnrichTargetAddress = {
-  31337: "0x7A9Ec1d04904907De0ED7b6839CcdD59c3716AC9",
+  31337: "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
   84532: "0xBb7bb89Dc2388C73eFacF50d9917406C38e27b6e",
-  421614: "0x52cCc0c0129bFB12A79E5Cf4a8525Cd724344BB4",
+  "84532_production": "0xBb7bb89Dc2388C73eFacF50d9917406C38e27b6e",
+  "84532_staging": "0x466D77c6EBEfD773d525ebEC71A96E7aB4813421",
+  "31337_localhost": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
 } as const;
 
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xBb7bb89Dc2388C73eFacF50d9917406C38e27b6e)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x52cCc0c0129bFB12A79E5Cf4a8525Cd724344BB4)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xBb7bb89Dc2388C73eFacF50d9917406C38e27b6e)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x466D77c6EBEfD773d525ebEC71A96E7aB4813421)
+ * -
  */
 export const etsEnrichTargetConfig = {
   address: etsEnrichTargetAddress,
@@ -2167,7 +2730,9 @@ export const etsEnrichTargetConfig = {
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x34b5E2B38E9A5F938bc6De795b5Fb69982a4D73e)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x70cD4eDB009F430BF77F11386cDD70eE66e7489C)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x34b5E2B38E9A5F938bc6De795b5Fb69982a4D73e)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xC95d5e2C20bc5A2CaE433d973FEF33a7816f3C13)
+ * -
  */
 export const etsRelayerAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -2593,18 +3158,24 @@ export const etsRelayerAbi = [
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x34b5E2B38E9A5F938bc6De795b5Fb69982a4D73e)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x70cD4eDB009F430BF77F11386cDD70eE66e7489C)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x34b5E2B38E9A5F938bc6De795b5Fb69982a4D73e)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xC95d5e2C20bc5A2CaE433d973FEF33a7816f3C13)
+ * -
  */
 export const etsRelayerAddress = {
-  31337: "0x4631BCAbD6dF18D94796344963cB60d44a4136b6",
+  31337: "0x9A676e781A523b5d0C0e43731313A708CB607508",
   84532: "0x34b5E2B38E9A5F938bc6De795b5Fb69982a4D73e",
-  421614: "0x70cD4eDB009F430BF77F11386cDD70eE66e7489C",
+  "84532_production": "0x34b5E2B38E9A5F938bc6De795b5Fb69982a4D73e",
+  "84532_staging": "0xC95d5e2C20bc5A2CaE433d973FEF33a7816f3C13",
+  "31337_localhost": "0x9A676e781A523b5d0C0e43731313A708CB607508",
 } as const;
 
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x34b5E2B38E9A5F938bc6De795b5Fb69982a4D73e)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x70cD4eDB009F430BF77F11386cDD70eE66e7489C)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x34b5E2B38E9A5F938bc6De795b5Fb69982a4D73e)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xC95d5e2C20bc5A2CaE433d973FEF33a7816f3C13)
+ * -
  */
 export const etsRelayerConfig = {
   address: etsRelayerAddress,
@@ -2618,7 +3189,9 @@ export const etsRelayerConfig = {
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xDBd870535210f98E226Ad2462F5763817507a828)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xDa1691abD34F579BE96F20636Fe5800F4fb9C0f8)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xDBd870535210f98E226Ad2462F5763817507a828)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x5A0E401050AB29D0bC5a4C3A1A922d0a9917eC0c)
+ * -
  */
 export const etsRelayerFactoryAbi = [
   {
@@ -2711,18 +3284,24 @@ export const etsRelayerFactoryAbi = [
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xDBd870535210f98E226Ad2462F5763817507a828)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xDa1691abD34F579BE96F20636Fe5800F4fb9C0f8)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xDBd870535210f98E226Ad2462F5763817507a828)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x5A0E401050AB29D0bC5a4C3A1A922d0a9917eC0c)
+ * -
  */
 export const etsRelayerFactoryAddress = {
-  31337: "0x86A2EE8FAf9A840F7a2c64CA3d51209F9A02081D",
+  31337: "0x0B306BF915C4d645ff596e518fAf3F9669b97016",
   84532: "0xDBd870535210f98E226Ad2462F5763817507a828",
-  421614: "0xDa1691abD34F579BE96F20636Fe5800F4fb9C0f8",
+  "84532_production": "0xDBd870535210f98E226Ad2462F5763817507a828",
+  "84532_staging": "0x5A0E401050AB29D0bC5a4C3A1A922d0a9917eC0c",
+  "31337_localhost": "0x0B306BF915C4d645ff596e518fAf3F9669b97016",
 } as const;
 
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xDBd870535210f98E226Ad2462F5763817507a828)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xDa1691abD34F579BE96F20636Fe5800F4fb9C0f8)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xDBd870535210f98E226Ad2462F5763817507a828)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x5A0E401050AB29D0bC5a4C3A1A922d0a9917eC0c)
+ * -
  */
 export const etsRelayerFactoryConfig = {
   address: etsRelayerFactoryAddress,
@@ -2736,7 +3315,9 @@ export const etsRelayerFactoryConfig = {
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x9EC822cB62B1EBba70446EB7FeBeFae2458CB19c)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xe146267C08996aBFD583A12D70A5643d462A36B1)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x9EC822cB62B1EBba70446EB7FeBeFae2458CB19c)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x92eFe8B32085Cebea4Ff863cF1B0e3cCbb8890f2)
+ * -
  */
 export const etsTargetAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -3034,18 +3615,24 @@ export const etsTargetAbi = [
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x9EC822cB62B1EBba70446EB7FeBeFae2458CB19c)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xe146267C08996aBFD583A12D70A5643d462A36B1)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x9EC822cB62B1EBba70446EB7FeBeFae2458CB19c)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x92eFe8B32085Cebea4Ff863cF1B0e3cCbb8890f2)
+ * -
  */
 export const etsTargetAddress = {
-  31337: "0x4C2F7092C2aE51D986bEFEe378e50BD4dB99C901",
+  31337: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
   84532: "0x9EC822cB62B1EBba70446EB7FeBeFae2458CB19c",
-  421614: "0xe146267C08996aBFD583A12D70A5643d462A36B1",
+  "84532_production": "0x9EC822cB62B1EBba70446EB7FeBeFae2458CB19c",
+  "84532_staging": "0x92eFe8B32085Cebea4Ff863cF1B0e3cCbb8890f2",
+  "31337_localhost": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
 } as const;
 
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x9EC822cB62B1EBba70446EB7FeBeFae2458CB19c)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xe146267C08996aBFD583A12D70A5643d462A36B1)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x9EC822cB62B1EBba70446EB7FeBeFae2458CB19c)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x92eFe8B32085Cebea4Ff863cF1B0e3cCbb8890f2)
+ * -
  */
 export const etsTargetConfig = {
   address: etsTargetAddress,
@@ -3059,7 +3646,9 @@ export const etsTargetConfig = {
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x72C3B6df276e082e352Ab1d23CBb329475ed93A8)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xb1A00565161C04edBB7826a7eda9D7166dffa676)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x72C3B6df276e082e352Ab1d23CBb329475ed93A8)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2F341353f562D53E76e018A0d529BF5cEf8bd4a9)
+ * -
  */
 export const etsTokenAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -3843,18 +4432,24 @@ export const etsTokenAbi = [
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x72C3B6df276e082e352Ab1d23CBb329475ed93A8)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xb1A00565161C04edBB7826a7eda9D7166dffa676)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x72C3B6df276e082e352Ab1d23CBb329475ed93A8)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2F341353f562D53E76e018A0d529BF5cEf8bd4a9)
+ * -
  */
 export const etsTokenAddress = {
-  31337: "0xC9a43158891282A2B1475592D5719c001986Aaec",
+  31337: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
   84532: "0x72C3B6df276e082e352Ab1d23CBb329475ed93A8",
-  421614: "0xb1A00565161C04edBB7826a7eda9D7166dffa676",
+  "84532_production": "0x72C3B6df276e082e352Ab1d23CBb329475ed93A8",
+  "84532_staging": "0x2F341353f562D53E76e018A0d529BF5cEf8bd4a9",
+  "31337_localhost": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
 } as const;
 
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x72C3B6df276e082e352Ab1d23CBb329475ed93A8)
- * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0xb1A00565161C04edBB7826a7eda9D7166dffa676)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x72C3B6df276e082e352Ab1d23CBb329475ed93A8)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2F341353f562D53E76e018A0d529BF5cEf8bd4a9)
+ * -
  */
 export const etsTokenConfig = {
   address: etsTokenAddress,

@@ -1,0 +1,18 @@
+{
+  "chainId": "84532",
+  "chainName": "Base Sepolia",
+  "networkName": "basesepolia",
+  "environment": "staging",
+  "deploymentStatus": "config_generated",
+  "configGenerationTimestamp": "2025-04-24T04:59:29.238Z",
+  "airnodeAddress": "0x62676653F23c313a235e179eb19CbA308A45728c",
+  "requesterAddress": "0x466D77c6EBEfD773d525ebEC71A96E7aB4813421",
+  "endpointId": "0x5d09ceade33f5e4e5627a6400eaf9ad5fbbecc6c16ce3802f784b480c06b867d",
+  "buildSteps": {
+    "credentialsGenerated": true,
+    "configGenerated": true,
+    "sponsorshipSetup": false,
+    "requesterConfig": false,
+    "airnodeDeployed": false
+  }
+}
