@@ -1,21 +1,7 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
-    "ignore": [
-      "CHANGELOG.md",
-      "print-env.js",
-      "pnpm-lock.yaml",
-      "tsconfig.json",
-      "./packages/contracts/typechain-types/*",
-      "./packages/contracts/deployments/*",
-      "./packages/contracts/export/*",
-      "./packages/contracts/src/contracts.ts",
-      "./packages/sdk-core/src/index.ts",
-      "./apps/data-api/src/generated/**",
-      "./apps/oracle/config/templates/*",
-      "./apps/oracle/config/staging/*",
-      "./apps/oracle/config/production/*"
-    ]
+    "ignoreUnknown": false
   },
   "formatter": {
     "enabled": true,
@@ -25,7 +11,6 @@
     "lineWidth": 120
   },
   "linter": {
-    "ignore": ["packages/brand"],
     "enabled": true,
     "rules": {
       "recommended": true,
@@ -44,12 +29,12 @@
       },
       "style": {
         "noNonNullAssertion": "off",
-        "useShorthandArrayType": "error"
+        "useConsistentArrayType": "error"
       },
       "suspicious": {
         "noArrayIndexKey": "off",
         "noConfusingVoidType": "off",
-        "noConsoleLog": "error",
+        "noConsole": "off",
         "noExplicitAny": "off"
       }
     }
@@ -62,12 +47,9 @@
       "indentStyle": "space"
     }
   },
-  "organizeImports": {
-    "enabled": true
-  },
   "overrides": [
     {
-      "include": ["./apps/data-api/src/**/*.ts"],
+      "include": ["apps/data-api/src/**/*.ts"],
       "linter": {
         "rules": {
           "style": {
@@ -77,17 +59,17 @@
       }
     },
     {
-      "include": ["./scripts/**/*.ts"],
+      "include": ["scripts/**/*.ts"],
       "linter": {
         "rules": {
           "suspicious": {
-            "noConsoleLog": "off"
+            "noConsole": "off"
           }
         }
       }
     },
     {
-      "include": ["./packages/contracts/contracts/**"],
+      "include": ["packages/contracts/contracts/**"],
       "formatter": {
         "indentWidth": 4,
         "indentStyle": "space"

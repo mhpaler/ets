@@ -1,0 +1,17 @@
+# Dockerfile for ArLocal - isolated environment
+FROM node:16-alpine
+
+# Install git and python (required by arlocal dependencies)
+RUN apk add --no-cache git python3 make g++
+
+# Install ArLocal globally
+RUN npm install -g arlocal@1.1.66
+
+# Create working directory
+WORKDIR /arlocal
+
+# Expose ArLocal port
+EXPOSE 1984
+
+# Run ArLocal
+CMD ["arlocal"]
