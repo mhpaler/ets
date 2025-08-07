@@ -265,7 +265,7 @@ export function getEnvironmentAndNetwork(): { environment: ServerEnvironment; ne
         fullURL: window.location.href,
       });
     }
-  } else if (hostname.includes("stage.app.ets.xyz") || hostname.includes("vercel.app")) {
+  } else if (hostname.includes("staging.app.ets.xyz") || hostname.includes("vercel.app")) {
     environment = "staging";
 
     // Debug logging
