@@ -1,0 +1,47 @@
+name: 🐛 Bug Report
+description: Something's broken and we need to fix it!
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report! 🙏
+        
+        Don't worry about making it perfect - we just need enough info to reproduce the issue.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Tell us what went wrong (in your own words)
+      placeholder: "I clicked the thing, but instead of doing the thing, it did the other thing..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      description: What should have happened instead?
+      placeholder: "I expected it to do the thing, not the other thing!"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How can we reproduce this?
+      description: Step-by-step instructions (if you can remember them)
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. Scroll down to '...'
+        4. See error (or cry a little)
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Any other context?
+      description: Browser, screenshots, error messages, or just general venting
+      placeholder: "Chrome on Mac, here's a screenshot, also my cat walked on my keyboard..."
