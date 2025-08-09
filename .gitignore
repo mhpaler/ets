@@ -124,3 +124,6 @@ apps/oracle/config/production/history/
 
 # Arweave keyfiles (sensitive)
 apps/offchain-api/arweave-keyfile.json
+
+# Research directory
+research/

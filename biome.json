@@ -5,7 +5,8 @@
     "ignore": [
       "apps/data-api/src/generated/**",
       "packages/subgraph/src/generated/**",
-      "apps/oracle/config/templates/**"
+      "apps/oracle/config/templates/**",
+      "research/**"
     ]
   },
   "formatter": {
