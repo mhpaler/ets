@@ -7,9 +7,10 @@ This document contains sections to enhance Claude's context understanding and re
 The **Working Branch Notebook** is a feature branch-specific document that maintains detailed notes about the current work in progress. This helps maintain continuity between sessions and provides comprehensive context about the ongoing implementation.
 
 Current branch notebook:
-- **Branch**: `513-airnode-oracle`
-- **Notebook**: [ORACLE-DEPLOYMENT.md](/Users/User/Sites/ets/ORACLE-DEPLOYMENT.md)
-- **Purpose**: Tracks Oracle implementation progress, deployment steps, and environment configuration details
+- **Branch**: `main` (transitioning to TAG Coins project)
+- **Notebook**: [TAG-COINS-IMPLEMENTATION.md](/Users/User/Sites/ets/TAG-COINS-IMPLEMENTATION.md)
+- **Purpose**: Tracks TAG Coins refactor progress, including vision document, implementation plan, and development milestones
+- **Previous**: Oracle implementation on `513-airnode-oracle` branch completed
 
 When switching to work on a different feature branch, updating this reference in CLAUDE.md provides immediate context for future sessions.
 
@@ -127,25 +128,50 @@ NODE_ENV=production pnpm build && pnpm start  # Strips non-error messages
 
 ## Project Status & Roadmap
 
-- **Current Phase**: Testnet deployment with staging/production separation
+- **Current Phase**: Major architecture refactor - CTAG NFTs to TAG Coins (ERC-20 on Zora)
 - **Active Branches**:
-  - `stage`: Main integration branch for next release features
-  - `513-airnode-oracle`: Oracle implementation branch
-- **Upcoming Milestones**:
-  - Complete staging/production environment separation ✓
+  - `main`: Primary development branch for TAG Coins implementation
+  - `stage`: Integration branch for next release features
+- **Completed Milestones**:
+  - Environment separation (staging/production) ✓
   - Subgraph deployment for staging environment ✓
-  - Oracle deployment to staging environment
-  - Application environment switcher implementation
+  - Oracle deployment to staging environment ✓
+- **Upcoming Milestones**:
+  - TAG Coins vision document and implementation plan ✓
+  - ETS Core contract modifications for TagCreated events
+  - Off-chain mint service development
+  - Zora integration and EOA security infrastructure
 
 ## Current Work Streams
 
-- **Environment Separation**: Implemented SDK support for separate staging/production deployments on same testnets ✓
-- **Subgraph Environment Support**: Deployed separate subgraphs for staging/production ✓
-- **Oracle Integration**: Deploying API3 Airnode for oracle functionality
-- **Contract Upgrades**: Preparing for future contract upgrades
+- **Major Refactor**: Transitioning from CTAG NFT system to TAG Coins (ERC-20) on Zora platform
+- **Architecture Evolution**: Maintaining ETS as source of truth while leveraging Zora for coin creation and trading
+- **Economic Model Enhancement**: Improved liquidity, accessibility, and community participation through fungible tokens
+- **Infrastructure Development**: Event-driven architecture for seamless tag creation to coin minting
+
+## Active Project: TAG Coins Implementation
+
+### Vision
+Transform ETS from CTAG NFT system to ERC-20 "TAG coins" on Zora platform while preserving ETS as the canonical tag registry and source of truth.
+
+### Key Components
+1. **ETS Core**: Maintains tag uniqueness, emits TagCreated events
+2. **Off-Chain Service**: Processes events, mints coins on Zora using ETS EOA
+3. **Zora Platform**: Hosts ERC-20 TAG coins with trading infrastructure
+4. **Distribution Layer**: Manages creator allocations and fee distributions
+
+### Implementation Phases
+- **Phase 1**: Foundation (MVP) - Event system, off-chain service, EOA security
+- **Phase 2**: Economic Integration - Fee distributions, referral automation
+- **Phase 3**: Advanced Features - Enhanced monitoring, bulk operations
+- **Phase 4**: Community Features - Governance, advanced distributions
+
+### Key Benefits
+- Enhanced liquidity through fungible tokens
+- Improved accessibility and community participation
+- Maintained integrity of tag registry system
+- New economic opportunities for creators and communities
 
 ## Release Management
 
 - **Recommended Workflow**: Run Automated Script (scripts/post-release-sync.ts) after every release to ensure proper synchronization and environment updates
-
-(rest of the content remains the same...)
