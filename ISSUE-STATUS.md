@@ -1,0 +1,100 @@
+# TAG Coins Implementation - Issue Status Tracker
+
+## Working Pattern
+1. We work on **one issue at a time** 
+2. The epic branch (`528-tag-coins-epic`) holds all work
+3. When an issue is complete, we update GitHub and move to next priority
+4. **Update ISSUE-STATUS.md to reflect new current issue**
+5. Use sub-branches only if we need to experiment/prototype
+
+---
+
+## Current Sprint: Phase 1 MVP
+
+### 🎯 Active Issue
+**#531**: Develop off-chain event processing service for TAG coin creation
+- **Status**: 🔄 IN PROGRESS - Sub-issue #531.2 [95% complete]
+- **Branch**: 528-tag-coins-epic  
+- **Started**: 2025-08-11
+- **Active Sub-Issue**: #531.2 Private Key Handling
+- **Current Focus**: 🎯 Add funded Base Sepolia private key to .env.local
+- **Blocking**: Need testnet EOA with ~0.01 ETH for gas
+- **Time to Resume**: ~5 minutes once private key added
+- **Session Updated**: 2025-08-11 (stepping away procedure completed)
+
+### 📋 Priority Queue
+1. **#531.1**: Build TAG coin metadata system ⚡ CRITICAL
+   - Blocking createCoin() - Zora requires proper metadata URI
+2. **#531.2**: Implement secure private key handling ⚡ CRITICAL
+   - Blocking production deployment and testing
+3. **#529**: Add TagCreated Event to ETS Core
+   - 🔜 NEXT UP (after #531 sub-issues complete)
+4. **#532**: Implement secure EOA management for Zora coin creation
+   - 🔄 PARTIALLY COVERED by #531.2
+5. **#533**: Build creator allocation and distribution system
+
+### ✅ Completed Issues
+
+**#530**: Research Zora integration and establish ETS <> Zora mapping strategy ✅
+- Completed: 2025-08-11
+- Deliverable: [ZORA-INTEGRATION-SPEC.md](./ZORA-INTEGRATION-SPEC.md)
+- Key decisions: Unified "ETS" symbol, Zora addresses as IDs, canonical metadata
+
+### ✅ Completed Decisions/Work
+- Symbol strategy decision → Unified "ETS" symbol for all TAG coins
+- ETS Creator coin symbol → "$ETS" or "ETSX" (TBD)
+- Architecture approach → Use Zora coin addresses as tag identifiers
+- Economic model → Tag creators as payoutRecipient, relayers as referrers
+
+---
+
+## Notes
+- **GitHub Issues**: #528 (epic), #529-533 (Phase 1 sub-issues)
+- **Documentation**: See CLAUDE-IMPLEMENTATION.md for full plan
+- **Research**: See research/ folder for Zora integration findings
+
+## Current Work: #531 (Off-chain Event Processing Service)
+
+### ✅ Completed Core Architecture
+- [x] Design service architecture (apps/oracle + apps/offchain-api pattern)
+- [x] Refactor to use official @zoralabs/coins-sdk
+- [x] Switch from ethers.js to Viem for modern blockchain client
+- [x] Build ZoraService with createCoin integration
+- [x] Create TagCoinController with validation and error handling
+- [x] Create comprehensive test script for validation
+- [x] Implement unified "ETS" symbol strategy
+
+### 🔄 Sub-Issues In Progress
+
+**#531.1: Build TAG Coin Metadata System** ✅ COMPLETED
+- [x] Design image generation process for TAG coins (placeholder images)
+- [x] Build metadata creation pipeline (name, description, image, attributes)
+- [x] Implement mock metadata system with deterministic URIs
+- [x] Use Zora-compatible metadata validation
+- [x] Create separate metadata API endpoint (/api/metadata/generate)
+- [x] Handle Unicode/emoji tags in image generation (placeholder strategy)
+- [x] Integrate with ZoraService via HTTP API
+- [x] Dependencies installed (@zoralabs/coins-sdk, viem)
+- [x] API authentication middleware implemented
+- [x] Environment configuration ready (.env.local)
+- [ ] FUTURE: Implement IPFS upload for production metadata storage
+
+**#531.2: Implement Secure Private Key Handling** 🔄 IN PROGRESS [95%]
+- [x] Environment-based key configuration in .env.local
+- [x] ZoraService private key integration with Viem
+- [x] Base Sepolia testnet configuration (chainId: 84532)
+- [x] API authentication middleware implemented
+- [x] Test scripts ready for execution
+- [ ] 🎯 CURRENT: Add funded Base Sepolia private key to .env.local
+- [ ] Execute test-zora-coin-creation.ts script
+- [ ] FUTURE: HSM/AWS KMS for production
+- [ ] FUTURE: ENS subdomain integration
+- [ ] FUTURE: Emergency key rotation
+
+### 🏗️ Still TODO - Core Service Features
+- [ ] Implement event listener with reorg protection
+- [ ] Queue-based processing system (Redis/SQS)
+- [ ] Idempotency controls
+- [ ] Error handling and retry logic
+- [ ] Database for state management
+- [ ] Health check endpoints

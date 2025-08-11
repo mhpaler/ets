@@ -7,10 +7,12 @@ This document contains sections to enhance Claude's context understanding and re
 The **Working Branch Notebook** is a feature branch-specific document that maintains detailed notes about the current work in progress. This helps maintain continuity between sessions and provides comprehensive context about the ongoing implementation.
 
 Current branch notebook:
-- **Branch**: `main` (transitioning to TAG Coins project)
-- **Notebook**: [TAG-COINS-IMPLEMENTATION.md](/Users/User/Sites/ets/TAG-COINS-IMPLEMENTATION.md)
-- **Purpose**: Tracks TAG Coins refactor progress, including vision document, implementation plan, and development milestones
-- **Previous**: Oracle implementation on `513-airnode-oracle` branch completed
+- **Branch**: `528-tag-coins-epic` (TAG Coins implementation)
+- **Active Sub-Issue**: #531.2 Private Key Handling [95% complete] 
+- **Notebook**: [SESSION-STATUS.md](/Users/User/Sites/ets/SESSION-STATUS.md) - Current session handoff info
+- **Issue Tracker**: [ISSUE-STATUS.md](/Users/User/Sites/ets/ISSUE-STATUS.md) - Tracks current focus and priority queue
+- **Purpose**: Core TAG Coins off-chain service implementation - READY FOR TESTNET
+- **Session Updated**: 2025-08-11 (stepping away procedure completed)
 
 When switching to work on a different feature branch, updating this reference in CLAUDE.md provides immediate context for future sessions.
 

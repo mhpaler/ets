@@ -57,10 +57,44 @@ event TagCreated(
 - Dead letter queue for problematic events
 
 #### Zora Integration
-- Authenticate with ETS EOA
-- Call Zora CreateCoin function
-- Set payout recipient and referrals
+- Authenticate with ETS EOA (unified creator for all TAG coins)
+- Call Zora `deploy()` function for Content Coins
+- Set tag creator address as payoutRecipient (gets 10M directly)
+- Set relayer as platformReferrer (for revenue sharing)
+- **Generate canonical metadata** while preserving original format
 - Verify transaction success
+
+#### Tag Metadata Strategy (Canonical + Preserved)
+**Zora Coin Metadata** (Professional/Canonical):
+```javascript
+{
+  // Handle Unicode/emoji gracefully - only title case ASCII
+  name: /^[a-zA-Z0-9_]+$/.test(withoutHash) 
+    ? toTitleCase(withoutHash)  // "Bitcoin"
+    : withoutHash,              // "🔥" (preserve Unicode)
+  
+  // Generate trading-compatible symbols  
+  symbol: /^[a-zA-Z0-9_]+$/.test(withoutHash) && withoutHash.length <= 11
+    ? withoutHash.toUpperCase() // "BITCOIN"
+    : `TAG${machineNameHash.slice(2,8).toUpperCase()}`, // "TAG1A2B3C"
+  
+  description: `TAG coin for #${withoutHash} - Created via ETS`,
+  attributes: [
+    {"trait_type": "Original Format", "value": originalInput}, // "#BiTCoiN" or "#🔥"
+    {"trait_type": "Creator", "value": creatorAddress},
+    {"trait_type": "Machine Name", "value": machineName}
+  ],
+  external_url: `https://ets.xyz/tags/${machineName}`
+}
+
+// Note: Special handling needed for Unicode/emoji tags from ETS validation table
+// See TAG-METADATA-DECISION.md for full Unicode support requirements
+```
+
+**ETS Storage** (Original Preserved):
+- Store original creator input for UI display
+- Link to Zora coin via deterministic address
+- Show both formats in ETS interface
 
 **Technology Stack**:
 - Node.js/TypeScript runtime
@@ -74,7 +108,30 @@ event TagCreated(
 - Configuration management
 - Health check endpoints
 
-### 1.3 EOA Security Infrastructure
+### 1.3 Fee Collection & Distribution
+
+**Objective**: Implement fee collection for TAG coin creation
+
+**Fee Structure**:
+- **TAG Creation Fee**: 0.001 ETH (flat fee for MVP)
+- **Covers**: Zora gas costs (~$2-10) + operational margin
+- **Collection**: Via existing ETS fee collection mechanisms
+- **Usage**: Fund off-chain service operations and Zora transactions
+
+**Technical Implementation**:
+```solidity
+contract ETS {
+    uint256 public constant TAG_CREATION_FEE = 0.001 ether;
+    
+    function createTagWithCoin(string memory tagString) external payable {
+        require(msg.value >= TAG_CREATION_FEE, "Insufficient fee");
+        uint256 tagId = _createTag(tagString);
+        emit TagCreated(tagId, tagString, msg.sender, address(relayer), block.timestamp);
+    }
+}
+```
+
+### 1.4 EOA Security Infrastructure
 
 **Objective**: Secure management of ETS EOA for coin creation
 

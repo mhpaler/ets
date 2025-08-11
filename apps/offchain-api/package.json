@@ -17,6 +17,7 @@
     "@ethereum-tag-service/contracts": "workspace:*",
     "@ethereum-tag-service/sdk-core": "workspace:*",
     "@ethereum-tag-service/subgraph-endpoints": "workspace:*",
+    "@zoralabs/coins-sdk": "latest",
     "arweave": "^1.14.0",
     "axios": "^1.6.2",
     "cors": "^2.8.5",
@@ -26,7 +27,8 @@
     "helmet": "^7.1.0",
     "pino": "^8.16.2",
     "pino-pretty": "^10.2.3",
-    "unfurl.js": "^6.3.2"
+    "unfurl.js": "^6.3.2",
+    "viem": "^2.33.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
