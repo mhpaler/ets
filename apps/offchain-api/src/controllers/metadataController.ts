@@ -36,27 +36,10 @@ export class MetadataController {
       const result = await this.metadataService.generateMetadata(request);
 
       if (result.success) {
-        // Validate the generated metadata
-        if (result.metadata) {
-          const validation = this.metadataService.validateMetadata(result.metadata);
-          if (!validation.valid) {
-            logger.warn("Generated metadata failed validation", {
-              tagString: request.tagString,
-              errors: validation.errors,
-            });
-
-            res.status(500).json({
-              success: false,
-              error: "Generated metadata failed validation",
-              validationErrors: validation.errors,
-            });
-            return;
-          }
-        }
-
         res.status(200).json({
           success: true,
           metadataUri: result.metadataUri,
+          createMetadataParameters: result.createMetadataParameters,
           metadata: result.metadata,
           message: "Metadata generated successfully",
         });
@@ -133,13 +116,10 @@ export class MetadataController {
 
       logger.info("Metadata validation requested");
 
-      const validation = this.metadataService.validateMetadata(metadata);
-
-      res.status(200).json({
-        success: true,
-        valid: validation.valid,
-        errors: validation.errors,
-        message: validation.valid ? "Metadata is valid" : "Metadata validation failed",
+      // TODO: Implement validation using Zora's validateMetadataJSON
+      res.status(501).json({
+        success: false,
+        message: "Validation endpoint not implemented - use Zora SDK validateMetadataJSON directly",
       });
     } catch (error) {
       logger.error("Error in validateMetadata controller", {

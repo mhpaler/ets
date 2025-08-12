@@ -71,7 +71,16 @@ export class ZoraService {
    */
   private async generateMetadata(
     eventData: TagCreatedEventData,
-  ): Promise<{ success: boolean; metadataUri?: string; error?: string }> {
+  ): Promise<{
+    success: boolean;
+    metadataUri?: string;
+    createMetadataParameters?: {
+      name: string;
+      symbol: string;
+      uri: `ipfs://${string}`;
+    };
+    error?: string;
+  }> {
     try {
       const request: TagMetadataRequest = {
         tagString: eventData.tagString,
@@ -146,12 +155,17 @@ export class ZoraService {
         throw new Error(`Metadata generation failed: ${metadataResult.error}`);
       }
 
+      // Use metadata parameters from Zora builder if available, otherwise fallback to manual construction
+      const name = metadataResult.createMetadataParameters?.name || this.toCanonicalName(eventData.tagString.slice(1));
+      const symbol = metadataResult.createMetadataParameters?.symbol || "ETS";
+      const uri = metadataResult.createMetadataParameters?.uri || metadataResult.metadataUri;
+
       // Create coin using Zora SDK
       const result = await createCoin(
         {
-          name: this.toCanonicalName(eventData.tagString.slice(1)),
-          symbol: "ETS",
-          uri: metadataResult.metadataUri as ValidMetadataURI,
+          name,
+          symbol,
+          uri: uri as ValidMetadataURI,
           payoutRecipient: eventData.creator as Address,
           platformReferrer: eventData.relayer as Address,
           chainId: this.chainId,

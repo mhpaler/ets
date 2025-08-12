@@ -1,3 +1,10 @@
+import {
+  createMetadataBuilder,
+  createZoraUploaderForCreator,
+  validateImageMimeType,
+  getURLFromUploadResult,
+  setApiKey,
+} from "@zoralabs/coins-sdk";
 import { logger } from "../../utils/logger";
 
 export interface TagMetadataRequest {
@@ -10,79 +17,59 @@ export interface TagMetadataRequest {
 export interface TagMetadataResponse {
   success: boolean;
   metadataUri?: string;
-  metadata?: TagMetadataJson;
+  createMetadataParameters?: {
+    name: string;
+    symbol: string;
+    uri: `ipfs://${string}`;
+  };
+  metadata?: any;
   error?: string;
-}
-
-export interface TagMetadataJson {
-  version: string;
-  name: string;
-  description: string;
-  image: string;
-  animation_url?: string;
-  external_url: string;
-  attributes: Array<{
-    trait_type: string;
-    value: string;
-  }>;
 }
 
 export class TagMetadataService {
   private readonly mockMode: boolean;
-  private readonly baseImageUrl: string;
-  private readonly baseMetadataUrl: string;
+  private readonly stagingMode: boolean;
 
   constructor(
     mockMode = true,
-    baseImageUrl = "https://ets.xyz/images/tags",
-    baseMetadataUrl = "https://ets.xyz/metadata/tags",
+    stagingMode = false,
   ) {
     this.mockMode = mockMode;
-    this.baseImageUrl = baseImageUrl;
-    this.baseMetadataUrl = baseMetadataUrl;
+    this.stagingMode = stagingMode;
+    
+    // Set Zora API key for IPFS uploads
+    if (!mockMode) {
+      const zoraApiKey = process.env.ZORA_API_KEY;
+      if (!zoraApiKey || zoraApiKey === 'your_zora_api_key_here') {
+        logger.warn("Zora API key not configured - real IPFS uploads will fail", {
+          hasKey: !!zoraApiKey,
+          isPlaceholder: zoraApiKey === 'your_zora_api_key_here'
+        });
+      } else {
+        setApiKey(zoraApiKey);
+        logger.info("Zora API key configured for IPFS uploads");
+      }
+    }
   }
 
   /**
-   * Generate complete metadata for a TAG coin
+   * Generate complete metadata for a TAG coin using Zora metadata builder
    */
   public async generateMetadata(request: TagMetadataRequest): Promise<TagMetadataResponse> {
     try {
-      logger.info("Generating TAG metadata", {
+      logger.info("Generating TAG metadata with Zora builder", {
         tagString: request.tagString,
         mockMode: this.mockMode,
+        stagingMode: this.stagingMode,
       });
-
-      // Generate the metadata JSON
-      const metadata = await this.buildMetadataJson(request);
 
       if (this.mockMode) {
-        // In mock mode, return the metadata with a mock URI
-        const metadataUri = await this.createMockMetadataUri(request, metadata);
-
-        logger.info("Generated mock metadata", {
-          tagString: request.tagString,
-          metadataUri,
-        });
-
-        return {
-          success: true,
-          metadataUri,
-          metadata,
-        };
+        // In mock mode, return fake metadata without actual uploads
+        return await this.generateMockMetadata(request);
       }
-      // In production mode, upload to IPFS and return real URI
-      const metadataUri = await this.uploadToIPFS(metadata);
 
-      logger.info("Generated production metadata", {
-        tagString: request.tagString,
-        metadataUri,
-      });
-
-      return {
-        success: true,
-        metadataUri,
-        metadata,
-      };
+      // Use Zora metadata builder for real IPFS uploads
+      return await this.generateRealMetadata(request);
     } catch (error) {
       logger.error("Failed to generate TAG metadata", {
         tagString: request.tagString,
@@ -97,57 +84,71 @@ export class TagMetadataService {
   }
 
   /**
-   * Build the metadata JSON structure
+   * Generate mock metadata for testing (no actual uploads)
    */
-  private async buildMetadataJson(request: TagMetadataRequest): Promise<TagMetadataJson> {
+  private async generateMockMetadata(request: TagMetadataRequest): Promise<TagMetadataResponse> {
     const canonicalName = this.toCanonicalName(request.tagString);
-    const imageUrl = await this.generateImageUrl(request);
+    const mockImageUri = this.createMockImageUrl(request);
+    const mockMetadataUri = this.createMockMetadataUri(request);
+
+    const mockMetadata = {
+      name: `TAG: ${canonicalName}`,
+      symbol: "ETS",
+      description: `TAG coin for ${request.tagString} - Created via ETS`,
+      image: mockImageUri,
+      properties: this.buildETSProperties(request),
+    };
+
+    logger.info("Generated mock metadata", {
+      tagString: request.tagString,
+      metadataUri: mockMetadataUri,
+    });
 
     return {
-      version: "zora-20210101",
-      name: `TAG: ${canonicalName}`,
-      description: `TAG coin for ${request.tagString} - Created via ETS`,
-      image: imageUrl,
-      external_url: `https://ets.xyz/tags/${request.machineName}`,
-      attributes: [
-        {
-          trait_type: "Original Format",
-          value: request.tagString,
-        },
-        {
-          trait_type: "Creator",
-          value: request.creator,
-        },
-        {
-          trait_type: "Machine Name",
-          value: request.machineName,
-        },
-        {
-          trait_type: "Created Via",
-          value: "ETS",
-        },
-        {
-          trait_type: "Symbol",
-          value: "ETS",
-        },
-        {
-          trait_type: "Tag Type",
-          value: this.getTagType(request.tagString),
-        },
-      ],
+      success: true,
+      metadataUri: mockMetadataUri,
+      metadata: mockMetadata,
+      createMetadataParameters: {
+        name: mockMetadata.name,
+        symbol: mockMetadata.symbol,
+        uri: mockMetadataUri as `ipfs://${string}`,
+      },
     };
   }
 
   /**
-   * Generate image URL for the tag
+   * Generate real metadata using Zora metadata builder with IPFS uploads
    */
-  private async generateImageUrl(request: TagMetadataRequest): Promise<string> {
-    if (this.mockMode) {
-      // Return mock image URL
-      return this.createMockImageUrl(request);
-    }
-    // TODO: Implement actual image generation and IPFS upload
-    return await this.generateAndUploadImage(request);
+  private async generateRealMetadata(request: TagMetadataRequest): Promise<TagMetadataResponse> {
+    const canonicalName = this.toCanonicalName(request.tagString);
+    const imageFile = await this.generateImageFile(request);
+    
+    // Create uploader for the creator's address
+    const uploader = createZoraUploaderForCreator(request.creator as `0x${string}`);
+    
+    // Build metadata with Zora builder
+    const builder = createMetadataBuilder()
+      .withName(`TAG: ${canonicalName}`)
+      .withSymbol("ETS")
+      .withDescription(`TAG coin for ${request.tagString} - Created via ETS`)
+      .withImage(imageFile)
+      .withProperties(this.buildETSProperties(request));
+    
+    // Upload to IPFS via Zora's infrastructure
+    const result = await builder.upload(uploader);
+    
+    logger.info("Generated real metadata via Zora", {
+      tagString: request.tagString,
+      metadataUri: result.url,
+      stagingMode: this.stagingMode,
+    });
+    
+    return {
+      success: true,
+      metadataUri: result.url,
+      metadata: result.metadata,
+      createMetadataParameters: result.createMetadataParameters,
+    };
   }
 
   /**
@@ -165,35 +166,71 @@ export class TagMetadataService {
   /**
    * Create mock metadata URI for testing
    */
-  private async createMockMetadataUri(request: TagMetadataRequest, _metadata: TagMetadataJson): Promise<string> {
-    // Generate deterministic mock metadata URI
+  private createMockMetadataUri(request: TagMetadataRequest): string {
+    // Generate deterministic mock IPFS URI
     const hash = this.simpleHash(request.tagString + request.creator);
-    return `${this.baseMetadataUrl}/mock/${hash}.json`;
+    return `ipfs://QmMock${hash}`;
   }
 
   /**
-   * Upload metadata to IPFS (production implementation)
+   * Build ETS-specific properties for the metadata
    */
-  private async uploadToIPFS(metadata: TagMetadataJson): Promise<string> {
-    // TODO: Implement actual IPFS upload
-    logger.warn("IPFS upload not yet implemented, using mock URI");
-    const hash = this.simpleHash(JSON.stringify(metadata));
-    return `ipfs://QmMockHash${hash}`;
+  private buildETSProperties(request: TagMetadataRequest): Record<string, string> {
+    return {
+      category: "tag",
+      platform: "ETS",
+      creator: request.creator,
+      relayer: request.relayer,
+      original_tag: request.tagString,
+      machine_name: request.machineName,
+      tag_type: this.getTagType(request.tagString),
+      created_timestamp: new Date().toISOString(),
+      symbol: "ETS",
+    };
   }
 
   /**
-   * Generate and upload image (production implementation)
+   * Generate image file for the tag (placeholder implementation)
+   * TODO: Replace with actual image generation
    */
-  private async generateAndUploadImage(request: TagMetadataRequest): Promise<string> {
-    // TODO: Implement actual image generation
-    // This would:
-    // 1. Generate SVG or PNG image for the tag
-    // 2. Handle Unicode/emoji rendering
-    // 3. Upload to IPFS
-    // 4. Return IPFS URL
+  private async generateImageFile(request: TagMetadataRequest): Promise<File> {
+    // For now, create a simple SVG as placeholder
+    const svgContent = this.generatePlaceholderSVG(request);
+    const blob = new Blob([svgContent], { type: "image/svg+xml" });
+    
+    // Create File object that Zora builder expects
+    const fileName = `tag-${request.machineName}.svg`;
+    return new File([blob], fileName, { type: "image/svg+xml" });
+  }
 
-    logger.warn("Image generation not yet implemented, using mock URL");
-    return this.createMockImageUrl(request);
+  /**
+   * Generate placeholder SVG image for tag
+   * TODO: Replace with proper image generation system
+   */
+  private generatePlaceholderSVG(request: TagMetadataRequest): string {
+    const cleanTag = request.tagString.replace("#", "");
+    const color = this.getTagColor(request.tagString);
+    
+    return `<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg">
+      <rect width="400" height="400" fill="${color}"/>
+      <text x="200" y="200" text-anchor="middle" dominant-baseline="middle" 
+            font-family="Arial, sans-serif" font-size="48" fill="white">
+        ${cleanTag}
+      </text>
+      <text x="200" y="350" text-anchor="middle" dominant-baseline="middle" 
+            font-family="Arial, sans-serif" font-size="16" fill="white" opacity="0.8">
+        ETS TAG Coin
+      </text>
+    </svg>`;
+  }
+  
+  /**
+   * Get color for tag based on content
+   */
+  private getTagColor(tagString: string): string {
+    const colors = ['#0066CC', '#FF6B35', '#7209B7', '#2F9B69', '#C1666B'];
+    const hash = this.simpleHash(tagString);
+    return colors[Number.parseInt(hash.slice(0, 2), 16) % colors.length];
   }
 
   /**
@@ -250,38 +287,6 @@ export class TagMetadataService {
       hash = hash & hash; // Convert to 32bit integer
     }
     return Math.abs(hash).toString(16).padStart(8, "0");
-  }
-
-  /**
-   * Validate metadata against Zora schema
-   */
-  public validateMetadata(metadata: TagMetadataJson): { valid: boolean; errors: string[] } {
-    const errors: string[] = [];
-
-    // Required fields
-    if (!metadata.version) errors.push("version is required");
-    if (!metadata.name) errors.push("name is required");
-    if (!metadata.image) errors.push("image is required");
-
-    // Version format
-    if (metadata.version && !metadata.version.match(/^[a-z]+-\d{8}$/)) {
-      errors.push('version must be in format "name-YYYYMMDD"');
-    }
-
-    // Attributes structure
-    if (metadata.attributes) {
-      metadata.attributes.forEach((attr, index) => {
-        if (!attr.trait_type) errors.push(`attributes[${index}].trait_type is required`);
-        if (attr.value === undefined || attr.value === null) {
-          errors.push(`attributes[${index}].value is required`);
-        }
-      });
-    }
-
-    return {
-      valid: errors.length === 0,
-      errors,
-    };
   }
 }
 
