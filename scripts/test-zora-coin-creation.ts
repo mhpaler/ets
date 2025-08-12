@@ -18,25 +18,25 @@ const testCases: Omit<TagCreatedEventData, "tagId" | "timestamp">[] = [
     tagString: "#bitcoin",
     machineName: "bitcoin",
     creator: "0x742d35Cc6636Cc24e5EdFB9b8D54Af0Fa7b1185A", // Example creator
-    relayer: "0x8ba1f109551bD432803012645Hac136c", // Example relayer
+    relayer: "0x742d35Cc6636Cc24e5EdFB9b8D54Af0Fa7b1185B", // Example relayer
   },
   {
     tagString: "#🚀",
     machineName: "🚀",
     creator: "0x742d35Cc6636Cc24e5EdFB9b8D54Af0Fa7b1185A",
-    relayer: "0x8ba1f109551bD432803012645Hac136c",
+    relayer: "0x742d35Cc6636Cc24e5EdFB9b8D54Af0Fa7b1185B",
   },
   {
     tagString: "#artificial-intelligence",
     machineName: "artificial-intelligence",
     creator: "0x742d35Cc6636Cc24e5EdFB9b8D54Af0Fa7b1185A",
-    relayer: "0x8ba1f109551bD432803012645Hac136c",
+    relayer: "0x742d35Cc6636Cc24e5EdFB9b8D54Af0Fa7b1185B",
   },
   {
     tagString: "#DeFi",
     machineName: "defi",
     creator: "0x742d35Cc6636Cc24e5EdFB9b8D54Af0Fa7b1185A",
-    relayer: "0x8ba1f109551bD432803012645Hac136c",
+    relayer: "0x742d35Cc6636Cc24e5EdFB9b8D54Af0Fa7b1185B",
   },
 ];
 
@@ -44,14 +44,15 @@ class ZoraTestRunner {
   private zoraService: ZoraService;
 
   constructor() {
-    const privateKey = process.env.TEST_PRIVATE_KEY as `0x${string}`;
+    const privateKey = process.env.ETS_EOA_PRIVATE_KEY || process.env.TEST_PRIVATE_KEY;
     if (!privateKey) {
-      throw new Error("TEST_PRIVATE_KEY environment variable required");
+      throw new Error("ETS_EOA_PRIVATE_KEY or TEST_PRIVATE_KEY environment variable required");
     }
 
     // Use Base Sepolia testnet
     const chainId = 84532;
-    this.zoraService = new ZoraService(privateKey, chainId);
+    const metadataApiUrl = "http://localhost:4000/api/metadata";
+    this.zoraService = new ZoraService(privateKey as `0x${string}`, chainId, metadataApiUrl);
   }
 
   /**
@@ -82,7 +83,7 @@ class ZoraTestRunner {
       );
 
       // Test parameter generation
-      const params = this.zoraService.createCoinParams(eventData);
+      const params = await this.zoraService.createCoinParams(eventData);
       console.log(
         "🔧 Generated coin parameters:",
         JSON.stringify(
@@ -91,7 +92,7 @@ class ZoraTestRunner {
             symbol: params.symbol,
             recipient: params.recipient,
             referrer: params.referrer,
-            metadataAttributes: params.metadata.attributes.length,
+            metadataUri: params.metadataUri,
           },
           null,
           2,
@@ -111,10 +112,9 @@ class ZoraTestRunner {
       this.validateParameters(params);
 
       if (!exists) {
-        console.log("🚀 Ready for coin creation (not executing for safety)");
-        // Uncomment to actually create coins:
-        // const result = await this.zoraService.createCoin(eventData);
-        // console.log('📊 Creation result:', result);
+        console.log("🚀 Creating coin on Base Sepolia...");
+        const result = await this.zoraService.createCoin(eventData);
+        console.log('📊 Creation result:', result);
       }
 
       console.log("✅ Test completed successfully");
@@ -151,12 +151,8 @@ class ZoraTestRunner {
       throw new Error("Invalid referrer address");
     }
 
-    if (!params.metadata.description || params.metadata.description.length === 0) {
-      throw new Error("Description cannot be empty");
-    }
-
-    if (!params.metadata.attributes || !Array.isArray(params.metadata.attributes)) {
-      throw new Error("Attributes must be an array");
+    if (!params.metadataUri || params.metadataUri.length === 0) {
+      throw new Error("Metadata URI cannot be empty");
     }
 
     console.log("   ✅ All parameters valid");

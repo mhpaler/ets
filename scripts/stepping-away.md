@@ -98,10 +98,26 @@ git commit -m "WIP: [Issue #.Sub] - [Brief status]
 ## Recovery Process
 
 ### When Resuming:
-1. **Read SESSION-STATUS.md** first
-2. **Check ISSUE-STATUS.md** for current focus
-3. **Review git commits** since last session
-4. **Follow "Immediate Next Steps"** from session status
+**Use the `resumework` command** for instant context recovery:
+
+```
+resumework
+```
+
+This triggers Claude to:
+1. **Read SESSION-STATUS.md** first (highest priority context)
+2. **Check ISSUE-STATUS.md** for current focus  
+3. **Review git status** for any changes since stepping away
+4. **Immediately proceed** with "Immediate Next Steps" from session status
+
+See [resume-work.md](./resume-work.md) for full details.
+
+### Manual Recovery (Fallback):
+If `resumework` isn't available:
+1. Read SESSION-STATUS.md first
+2. Check ISSUE-STATUS.md for current focus
+3. Review git commits since last session  
+4. Follow "Immediate Next Steps" from session status
 
 This process ensures you (or another Claude session) can pick up exactly where you left off with minimal context loss.
 

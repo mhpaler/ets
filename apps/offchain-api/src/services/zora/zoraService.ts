@@ -1,4 +1,4 @@
-import { createCoin, createCoinsClient } from "@zoralabs/coins-sdk";
+import { createCoin, DeployCurrency, type ValidMetadataURI } from "@zoralabs/coins-sdk";
 import axios from "axios";
 import { http, type Address, createPublicClient, createWalletClient } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
@@ -32,7 +32,6 @@ export interface ZoraCoinCreationResult {
 export class ZoraService {
   private readonly walletClient: any;
   private readonly publicClient: any;
-  private readonly coinsClient: any;
   private readonly account: any;
   private readonly chainId: number;
   private readonly metadataApiUrl: string;
@@ -47,8 +46,9 @@ export class ZoraService {
     this.chainId = chainId;
     this.metadataApiUrl = metadataApiUrl;
 
-    // Create account from private key
-    this.account = privateKeyToAccount(privateKey);
+    // Create account from private key (ensure 0x prefix)
+    const formattedKey = privateKey.startsWith("0x") ? privateKey : `0x${privateKey}`;
+    this.account = privateKeyToAccount(formattedKey as `0x${string}`);
 
     // Create clients
     this.publicClient = createPublicClient({
@@ -62,11 +62,8 @@ export class ZoraService {
       transport: http(),
     });
 
-    // Create Zora coins client
-    this.coinsClient = createCoinsClient({
-      chainId,
-      publicClient: this.publicClient,
-    });
+    // Note: The @zoralabs/coins-sdk doesn't have a client instance
+    // We'll use the static functions directly with our walletClient
   }
 
   /**
@@ -150,16 +147,19 @@ export class ZoraService {
       }
 
       // Create coin using Zora SDK
-      const result = await createCoin({
-        walletClient: this.walletClient,
-        publicClient: this.publicClient,
-        name: this.toCanonicalName(eventData.tagString.slice(1)),
-        symbol: "ETS",
-        uri: metadataResult.metadataUri,
-        payoutRecipient: eventData.creator as Address,
-        platformReferrer: eventData.relayer as Address,
-        chainId: this.chainId,
-      });
+      const result = await createCoin(
+        {
+          name: this.toCanonicalName(eventData.tagString.slice(1)),
+          symbol: "ETS",
+          uri: metadataResult.metadataUri as ValidMetadataURI,
+          payoutRecipient: eventData.creator as Address,
+          platformReferrer: eventData.relayer as Address,
+          chainId: this.chainId,
+          currency: this.chainId === 84532 ? DeployCurrency.ETH : DeployCurrency.ZORA, // ETH on testnet, ZORA on mainnet
+        },
+        this.walletClient,
+        this.publicClient,
+      );
 
       logger.info("Successfully created TAG coin", {
         tagString: eventData.tagString,
