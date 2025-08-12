@@ -1,4 +1,4 @@
-import { createCoin, DeployCurrency, type ValidMetadataURI } from "@zoralabs/coins-sdk";
+import { DeployCurrency, type ValidMetadataURI, createCoin } from "@zoralabs/coins-sdk";
 import axios from "axios";
 import { http, type Address, createPublicClient, createWalletClient } from "viem";
 import { privateKeyToAccount } from "viem/accounts";

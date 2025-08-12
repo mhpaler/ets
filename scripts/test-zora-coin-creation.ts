@@ -114,7 +114,7 @@ class ZoraTestRunner {
       if (!exists) {
         console.log("🚀 Creating coin on Base Sepolia...");
         const result = await this.zoraService.createCoin(eventData);
-        console.log('📊 Creation result:', result);
+        console.log("📊 Creation result:", result);
       }
 
       console.log("✅ Test completed successfully");
