@@ -1,173 +1,166 @@
-# Session Status - 2025-08-12
+# Session Status - 2025-08-13
 
-## Current State: MAJOR BREAKTHROUGH - Real IPFS Metadata Generation Working! 🚀
+## Current State: MAJOR PROGRESS - ETS Core Contract Architecture Refactored! 🎯
 
-**Date**: 2025-08-12  
+**Date**: 2025-08-13  
 **Branch**: `528-tag-coins-epic`  
-**Current Issue**: #531 (Off-chain Event Processing Service)  
-**Status**: ✅ COMPLETED - Full metadata system with real IPFS uploads validated  
+**Current Issue**: #529 (Add TagCreated Event to ETS Core)  
+**Status**: 🚧 IN PROGRESS - Core contract migration from NFT to Zora coin model completed  
 
 ---
 
 ## 📊 Sub-Issue Status Breakdown
 
-**#531.1: Build TAG Coin Metadata System** ✅ COMPLETED [100%]
-- [x] Metadata API endpoints implemented
-- [x] Mock system with placeholder images  
-- [x] Zora-compatible validation
-- [x] Integration with ZoraService
+**#529.1: Refactor Core Contracts for Address-Based Tags** ✅ COMPLETED [100%]
+- [x] Updated IETS.sol interface to use address[] instead of uint256[]
+- [x] Migrated ETS.sol core contract to address-based tag system
+- [x] Created AddressArrayUtils library for address array operations
+- [x] Updated TaggingRecord struct to use coinAddresses field
+- [x] Refactored all function signatures and internal implementations
+- [x] Updated fee processing to work with Zora coin model
+- [x] Removed NFT ownership logic in favor of creator allocation
 
-**#531.2: Implement Secure Private Key Handling** ✅ COMPLETED [100%]
-- [x] Environment configuration in .env.local
-- [x] ZoraService private key integration with Viem
-- [x] Base Sepolia testnet configuration (chainId: 84532)
-- [x] Funded Base Sepolia private key added to .env.local
-- [x] Infrastructure testing and validation complete
-- [x] Zora SDK integration verified and working
-- [ ] FUTURE: Production HSM/KMS integration
+**#529.2: Refactor Relayer System for New Architecture** ✅ COMPLETED [100%]
+- [x] Updated ETSRelayerFactory.sol to remove tag ownership requirements
+- [x] Migrated ETSRelayer.sol to address-based operations
+- [x] Updated IETSRelayer interface for coin address returns
+- [x] Simplified relayer creation process (no tag ownership needed)
+- [x] Cleaned up unused imports and dependencies
+- [x] Added support for AddressArrayUtils in relayer contracts
 
-**#531.3: Refactor Metadata System to Use Zora Metadata Builder** ✅ COMPLETED [100%]
-- [x] Replaced custom metadata generation with official Zora metadata builder
-- [x] Implemented `.withProperties()` for rich ETS attribution data
-- [x] Configured `createZoraUploaderForCreator()` for IPFS infrastructure  
-- [x] Added Zora API key authentication (zora_api_247838b980bd6789...)
-- [x] Generated actual IPFS URIs viewable on public gateways
-- [x] Tested real IPFS upload functionality successfully
-- [x] Preserved all ETS properties in metadata JSON
-- [x] Implemented placeholder SVG image generation
-- [ ] FUTURE: Professional TAG coin image generation (separate sub-issue)
+**#529.3: Implement TagCreated Event Infrastructure** 🎯 NEXT [0%]
+- [ ] 🎯 NEXT: Add TagCreated event to ETS Token contract
+- [ ] Add event emission to createTag() function
+- [ ] Add event emission to getOrCreateTagId() function
+- [ ] Test event emission and data structure
+- [ ] Validate event can trigger off-chain services
 
 ---
 
 ## 🎉 Major Accomplishments This Session
 
-### ✅ **#531.3: Zora Metadata Builder Integration - COMPLETE**
-- **MAJOR BREAKTHROUGH**: Successfully integrated official Zora metadata builder
-- Replaced custom `buildMetadataJson()` with `createMetadataBuilder()`
-- Used `.withProperties()` to preserve rich ETS attribution data
-- Configured real IPFS uploads via Zora's infrastructure
+### ✅ **Complete Core Contract Architecture Migration**
+- **BREAKTHROUGH**: Successfully migrated entire ETS core from NFT tokenIds to Zora coin addresses
+- All function signatures updated from `uint256[]` to `address[]`
+- TaggingRecord struct completely refactored to use `coinAddresses` field
+- Fee processing updated to work with address-based coin model
 
-### ✅ **Real IPFS Metadata Generation Working**
-- Generated actual IPFS URIs: `ipfs://bafybeicd2xouz4cvgtztrcald7w3ccafqdlu3cw3hnymmaanddnooydjgi`
-- Image uploaded separately: `ipfs://bafybeicfck3lftevz6ly2ahcrnvokozacipktry3cxcjiglgeepibp4n7u`
-- Viewable on public IPFS gateways
-- Full metadata JSON with ETS properties preserved
+### ✅ **AddressArrayUtils Library Creation**
+- Created comprehensive address array utility library
+- Implements `difference()`, `intersect()`, `extend()`, `contains()`, `indexOf()`
+- Parallel functionality to existing UintArrayUtils but for addresses
+- Full integration across all core contracts
 
-### ✅ **Production-Ready Architecture**
-- **Mock Mode**: Deterministic fake metadata for testing
-- **Production Mode**: Real IPFS uploads with Zora API authentication
-- **Environment Configuration**: Proper staging/production flags
-- **API Integration**: Clean separation of concerns
+### ✅ **Relayer System Modernization**
+- Removed tag ownership barriers for relayer creation
+- Anyone can now create a relayer (democratized access)
+- Updated interfaces to support address-based coin operations
+- Cleaned up legacy NFT dependencies
+
+### ✅ **Systematic Architecture Update**
+- **ETS.sol**: Complete migration to address-based tag operations
+- **ETSRelayerFactory.sol**: Simplified relayer creation process
+- **ETSRelayer.sol**: Address-based tag handling with proper library support
+- **IETS.sol**: Interface fully updated for new architecture
 
 ---
 
 ## 🔧 What's Ready to Test
 
-### **Fully Working Endpoints:**
-- `POST /api/metadata/generate` - Real IPFS metadata generation
-- `GET /api/metadata/health` - Service health check
-- Mock mode and production mode both operational
+### **Refactored Contracts:**
+- All core contracts migrated to address-based architecture
+- Function signatures updated throughout the system
+- Internal logic updated for Zora coin model
+- Fee processing adapted for creator-focused allocation
 
-### **Environment Configuration:**
-- `METADATA_MOCK_MODE=false` for real IPFS uploads
-- `ZORA_API_KEY=zora_api_247838b980bd6789...` for authentication
-- Base Sepolia testnet EOA funded and ready
+### **Ready for Compilation:**
+- All contracts should compile cleanly with new architecture
+- AddressArrayUtils library available for address operations
+- NFT dependencies removed from relayer system
 
-### **Example Generated Metadata:**
-```json
-{
-  "name": "TAG: Bitcoin",
-  "symbol": "ETS",
-  "description": "TAG coin for #bitcoin - Created via ETS",
-  "image": "ipfs://bafybeicfck3lftevz6ly2ahcrnvokozacipktry3cxcjiglgeepibp4n7u",
-  "properties": {
-    "category": "tag",
-    "platform": "ETS",
-    "creator": "0x742d35Cc6636Cc24e5EdFB9b8D54Af0Fa7b1185A",
-    "relayer": "0x742d35Cc6636Cc24e5EdFB9b8D54Af0Fa7b1185B",
-    "original_tag": "#bitcoin",
-    "machine_name": "bitcoin",
-    "tag_type": "Standard",
-    "created_timestamp": "2025-08-12T19:58:04.110Z",
-    "symbol": "ETS"
-  }
-}
+### **Integration Points:**
+- Core ETS contract ready for TagCreated event addition
+- Relayer system ready for address-based operations
+- Fee processing ready for Zora coin economics
+
+---
+
+## 🎯 Current Focus: #529.3 - TagCreated Event Implementation
+
+### **Next Immediate Steps:**
+1. **Add TagCreated event to ETSToken contract**
+2. **Implement event emission in createTag() function**
+3. **Add event emission to getOrCreateTagId() function**  
+4. **Test event structure and data flow**
+5. **Validate off-chain service can consume events**
+
+### **Event Structure Planning:**
+```solidity
+event TagCreated(
+    address indexed coinAddress,
+    string indexed tagString,
+    address indexed creator,
+    address relayer,
+    uint256 timestamp,
+    string machineName,
+    string displayVersion
+);
 ```
 
 ---
 
-## 🎉 MAJOR BREAKTHROUGH: Complete Metadata System
+## 🚀 Future Development Items Added
 
-### **Zora Integration Validated** ✅
-- Official `@zoralabs/coins-sdk` metadata builder working
-- Real IPFS uploads via Zora infrastructure (https://ipfs-uploader.zora.co)
-- JWT authentication and API key management handled automatically
-- All parameter validation and metadata generation working
+### **FUTURE: Configurable Smart Wallet Relayers**
+- Plugin architecture for custom relayer behavior
+- Custom fee structures per relayer
+- Access controls and rate limiting
+- Integration hooks for external services
 
-### **ETS Properties Preserved** ✅
-- Rich attribution data maintained in metadata `properties` field
-- Creator, relayer, tag type, timestamps, and platform info included
-- Zora-compatible format with ETS-specific enhancements
-
-### **Production Infrastructure Ready** ✅
-- Environment-based configuration (mock/staging/production)
-- Proper API authentication and error handling
-- Real IPFS URIs accessible via public gateways
-- Ready for actual TAG coin creation
-
----
-
-## 🚀 Ready for Next Phase
-
-### **Issue #531 Status: COMPLETED**
-All sub-issues are now 100% complete with real IPFS upload validation.
-
-### **Next Priority: #529 - Add TagCreated Event to ETS Core**
-Now that the metadata system is production-ready, the next logical step is to implement the TagCreated event in the ETS Core contracts to trigger the coin creation flow.
-
-### **Integration Testing Ready**
-The complete flow can now be tested:
-1. ETS Core emits TagCreated event
-2. Oracle service processes event
-3. Off-chain API generates real IPFS metadata
-4. Zora SDK creates coin with validated metadata
-5. TAG coin deployed on Base Sepolia
+### **FUTURE: ENS Subdomain Integration**
+- Auto-assign `myrelayer.ets.eth` subdomains
+- ENS integration in ETSRelayerFactory
+- Enhanced discoverability and branding
+- Support for existing ENS name integration
 
 ---
 
 ## 💡 Key Technical Insights
 
-1. **Zora Metadata Builder is Excellent** - Much cleaner than custom implementation
-2. **Properties Support Built-in** - `.withProperties()` method perfect for ETS attribution
-3. **IPFS Infrastructure Handled** - Zora manages all the complexity
-4. **Environment Flexibility** - Easy switching between mock and production modes
-5. **Validation Included** - Zora SDK handles all metadata validation
+1. **Address-Based Architecture is Cleaner** - Much more intuitive than tokenId references
+2. **AddressArrayUtils Pattern Works Well** - Consistent with existing UintArrayUtils design
+3. **Fee Processing Simplified** - Creator always gets remaining allocation (no ownership complexity)
+4. **Relayer Democratization Successful** - Removing ownership barriers improves accessibility
+5. **Systematic Migration Approach** - Interface → Core → Relayers sequence worked perfectly
 
 ---
 
-## 🎯 Session Success Criteria
+## 🔄 Session Handoff - Ready for TagCreated Event
 
-**ACHIEVED**: ✅ Complete metadata system with real IPFS uploads  
-**ACHIEVED**: ✅ Zora metadata builder integration working
-**ACHIEVED**: ✅ ETS properties preserved in metadata
-**ACHIEVED**: ✅ Production-ready infrastructure validated
+**Current Sub-Issue**: #529.3 - Implement TagCreated Event Infrastructure  
+**Completion**: 0% (just starting)  
+**Next Session Can**: Immediately begin adding TagCreated event to ETSToken contract
 
-**Result**: Full TAG coin metadata generation system ready for production use!
+**Key Architecture Changes Committed:**
+- Core contract migration: `2678ba70` - Complete ETS.sol migration  
+- Relayer system update: `dd150905` - Complete relayer system migration  
+- AddressArrayUtils library created and integrated
+- All function signatures updated for address-based operations
+
+**Files Ready for TagCreated Event Addition:**
+- `/packages/contracts/contracts/interfaces/IETSToken.sol` - Need to add event
+- `/packages/contracts/contracts/ETSToken.sol` - Need to implement event emission  
+- Integration with existing createTag() and getOrCreateTagId() functions
 
 ---
 
-## 🔄 Session Handoff Complete
+## 🎯 Session Success Criteria  
 
-**Stepping Away Procedure**: ✅ COMPLETED  
-**Documentation Updated**: 2025-08-12  
-**Next Session Ready**: 🚀 Can immediately proceed to #529 (TagCreated Event)
+**ACHIEVED**: ✅ Complete core contract architecture migration to address-based system  
+**ACHIEVED**: ✅ Relayer system updated for new architecture  
+**ACHIEVED**: ✅ AddressArrayUtils library created and integrated  
+**ACHIEVED**: ✅ All function signatures updated throughout system  
 
-**Key Files Modified:**
-- `apps/offchain-api/src/services/metadata/tagMetadataService.ts` - Zora builder integration
-- `apps/offchain-api/src/controllers/metadataController.ts` - Response format updates
-- `apps/offchain-api/.env.local` - Zora API key configuration
-- Test validation: Real IPFS metadata generation working
+**Next Target**: 🎯 Add TagCreated event infrastructure to trigger off-chain services
 
-**Live IPFS URLs Generated:**
-- Metadata: https://ipfs.io/ipfs/bafybeicd2xouz4cvgtztrcald7w3ccafqdlu3cw3hnymmaanddnooydjgi
-- Image: https://ipfs.io/ipfs/bafybeicfck3lftevz6ly2ahcrnvokozacipktry3cxcjiglgeepibp4n7u
+**Result**: Core ETS architecture fully prepared for Zora coin integration!

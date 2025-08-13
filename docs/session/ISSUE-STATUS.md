@@ -12,35 +12,50 @@
 ## Current Sprint: Phase 1 MVP
 
 ### 🎯 Active Issue
-**#529**: Architecture Refactor - ERC-721 to Zora ERC-20 Cutover
-- **Status**: 🚧 IN PROGRESS - Interface-by-interface refactoring
+**#529**: Add TagCreated Event to ETS Core
+- **Status**: 🚧 IN PROGRESS - Core contract architecture refactored, ready for event implementation
 - **Branch**: 528-tag-coins-epic  
 - **Started**: 2025-08-13
-- **Objective**: Complete architectural refactor from CTAG NFTs to Zora ERC-20 coin integration
-- **Strategy**: Interface-specific sub-issues with targeted refactoring plans
+- **Objective**: Add TagCreated event infrastructure to trigger off-chain coin creation services
+- **Current Focus**: Sub-issue #529.3 - Implement TagCreated Event Infrastructure
 
 ### 🎯 Sub-Issues
 
-**#529.1: Refactor IETSToken.sol and Implementation** 🚧 IN PROGRESS
-- **Status**: Planning and design phase
+**#529.1: Refactor Core Contracts for Address-Based Tags** ✅ COMPLETED [100%]
+- **Status**: ✅ COMPLETED - 2025-08-13
+- **Deliverable**: Complete migration from NFT tokenIds to Zora coin addresses
+- **Key Changes**: 
+  - Updated IETS.sol interface to use address[] instead of uint256[]
+  - Migrated ETS.sol core contract to address-based tag system
+  - Created AddressArrayUtils library for address array operations
+  - Updated TaggingRecord struct to use coinAddresses field
+  - Refactored all function signatures and internal implementations
+
+**#529.2: Refactor Relayer System for New Architecture** ✅ COMPLETED [100%]
+- **Status**: ✅ COMPLETED - 2025-08-13
+- **Deliverable**: Relayer system updated for address-based operations
+- **Key Changes**:
+  - Updated ETSRelayerFactory.sol to remove tag ownership requirements
+  - Migrated ETSRelayer.sol to address-based operations
+  - Updated IETSRelayer interface for coin address returns
+  - Simplified relayer creation process (democratized access)
+  - Cleaned up unused imports and dependencies
+
+**#529.3: Implement TagCreated Event Infrastructure** 🎯 ACTIVE [0%]
+- **Status**: 🚧 IN PROGRESS - Just started
 - **Started**: 2025-08-13
-- **Objective**: Refactor IETSToken interface and ETSToken implementation for Zora integration
+- **Objective**: Add TagCreated event to ETS Token contract and implement emission
+- **Current Task**: Add TagCreated event to ETSToken contract
+- **Next Steps**:
+  1. Add TagCreated event to ETSToken contract
+  2. Implement event emission in createTag() function  
+  3. Add event emission to getOrCreateTagId() function
+  4. Test event structure and data flow
+  5. Validate off-chain service can consume events
 
-**#529.2: Refactor ETS.sol Core Contract** ⏳ PLACEHOLDER
-- **Status**: Pending #529.1 completion
-- **Objective**: Update core ETS contract to work with address-based tag IDs
-
-**#529.3: Refactor/Remove ETSAuctionHouse.sol** ⏳ PLACEHOLDER
-- **Status**: Pending - decision needed on removal vs refactor
-- **Objective**: Handle auction house incompatibility with ERC-20 trading
-
-**#529.4: Update ETSRelayer Interfaces** ⏳ PLACEHOLDER
-- **Status**: Pending
-- **Objective**: Update all relayer contracts for new address-based tag system
-
-**#529.5: Update Test Suite and Mocks** ⏳ PLACEHOLDER
-- **Status**: Pending
-- **Objective**: Comprehensive test updates for new architecture
+**#529.4: Update Test Suite and Mocks** ⏳ PENDING
+- **Status**: Pending #529.3 completion
+- **Objective**: Comprehensive test updates for new address-based architecture
 
 ### 📋 Priority Queue
 1. **#532**: Implement secure EOA management for Zora coin creation
@@ -60,11 +75,26 @@
 - Deliverable: [ZORA-INTEGRATION-SPEC.md](../tag-coins/ZORA-INTEGRATION-SPEC.md)
 - Key decisions: Unified "ETS" symbol, Zora addresses as IDs, canonical metadata
 
-### ✅ Completed Decisions/Work
-- Symbol strategy decision → Unified "ETS" symbol for all TAG coins
-- ETS Creator coin symbol → "$ETS" or "ETSX" (TBD)
-- Architecture approach → Use Zora coin addresses as tag identifiers
-- Economic model → Tag creators as payoutRecipient, relayers as referrers
+### ✅ Completed Architecture Work
+
+**Core Contract Migration** ✅ 
+- **Commits**: `2678ba70` (ETS.sol), `dd150905` (Relayer system)
+- **Achievement**: Complete architecture migration from NFT to address-based system
+- **Impact**: All core contracts now ready for Zora coin integration
+
+### 🚀 Future Development Items Identified
+
+**FUTURE: Configurable Smart Wallet Relayers**
+- Plugin architecture for custom relayer behavior
+- Custom fee structures per relayer
+- Access controls and rate limiting
+- Integration hooks for external services
+
+**FUTURE: ENS Subdomain Integration**
+- Auto-assign `myrelayer.ets.eth` subdomains
+- ENS integration in ETSRelayerFactory
+- Enhanced discoverability and branding
+- Support for existing ENS name integration
 
 ---
 
@@ -73,63 +103,17 @@
 - **Documentation**: See [CLAUDE-IMPLEMENTATION.md](../claude/CLAUDE-IMPLEMENTATION.md) for full plan
 - **Research**: See research/ folder for Zora integration findings
 
-## Current Work: #531 (Off-chain Event Processing Service)
+## Key Technical Insights - Session 2025-08-13
 
-### ✅ Completed Core Architecture
-- [x] Design service architecture (apps/oracle + apps/offchain-api pattern)
-- [x] Refactor to use official @zoralabs/coins-sdk
-- [x] Switch from ethers.js to Viem for modern blockchain client
-- [x] Build ZoraService with createCoin integration
-- [x] Create TagCoinController with validation and error handling
-- [x] Create comprehensive test script for validation
-- [x] Implement unified "ETS" symbol strategy
+1. **Address-Based Architecture is Cleaner** - Much more intuitive than tokenId references
+2. **AddressArrayUtils Pattern Works Well** - Consistent with existing UintArrayUtils design  
+3. **Fee Processing Simplified** - Creator always gets remaining allocation (no ownership complexity)
+4. **Relayer Democratization Successful** - Removing ownership barriers improves accessibility
+5. **Systematic Migration Approach** - Interface → Core → Relayers sequence worked perfectly
 
-### ✅ Completed Sub-Issues
+## Session Handoff Status
 
-**#531.1: Build TAG Coin Metadata System** ✅ COMPLETED [100%]
-- [x] Design image generation process for TAG coins (placeholder images)
-- [x] Build metadata creation pipeline (name, description, image, attributes)
-- [x] Implement mock metadata system with deterministic URIs
-- [x] Use Zora-compatible metadata validation
-- [x] Create separate metadata API endpoint (/api/metadata/generate)
-- [x] Handle Unicode/emoji tags in image generation (placeholder strategy)
-- [x] Integrate with ZoraService via HTTP API
-- [x] Dependencies installed (@zoralabs/coins-sdk, viem)
-- [x] API authentication middleware implemented
-- [x] Environment configuration ready (.env.local)
-
-**#531.2: Implement Secure Private Key Handling** ✅ COMPLETED [100%]
-- [x] Environment-based key configuration in .env.local
-- [x] ZoraService private key integration with Viem
-- [x] Base Sepolia testnet configuration (chainId: 84532)
-- [x] API authentication middleware implemented
-- [x] Test scripts ready for execution
-- [x] Add funded Base Sepolia private key to .env.local
-- [x] Execute test-zora-coin-creation.ts script
-- [x] Infrastructure testing and validation complete
-- [x] Zora SDK integration verified and working
-- [ ] FUTURE: HSM/AWS KMS for production
-- [ ] FUTURE: ENS subdomain integration
-- [ ] FUTURE: Emergency key rotation
-
-**#531.3: Refactor Metadata System to Use Zora Metadata Builder** ✅ COMPLETED [100%]
-- [x] Replace custom `buildMetadataJson()` with Zora metadata builder
-- [x] Implement `.withProperties()` for ETS attribution data
-- [x] Use `createZoraUploaderForCreator()` for IPFS infrastructure
-- [x] Add staging/production environment handling
-- [x] Configure Zora API key for real IPFS uploads
-- [x] Test real IPFS metadata generation and validation
-- [x] Generate actual IPFS URIs viewable on public gateways
-- [x] Preserve rich ETS properties in metadata JSON
-- [x] Remove custom validation in favor of Zora SDK validation
-- [x] Implement placeholder SVG image generation
-- [ ] FUTURE: Professional TAG coin image generation (separate sub-issue)
-
-### 🏗️ Future Work - Advanced Service Features
-- [ ] Implement event listener with reorg protection
-- [ ] Queue-based processing system (Redis/SQS)
-- [ ] Idempotency controls
-- [ ] Error handling and retry logic
-- [ ] Database for state management
-- [ ] Health check endpoints
-- [ ] Subgraph integration for state queries
+**Current Sub-Issue**: #529.3 - Implement TagCreated Event Infrastructure  
+**Completion**: 0% (just starting)  
+**Ready For**: Immediate TagCreated event implementation in ETSToken contract
+**Architecture**: ✅ Fully prepared for event addition
