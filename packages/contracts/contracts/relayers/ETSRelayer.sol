@@ -21,7 +21,7 @@ import { IETSToken } from "../interfaces/IETSToken.sol";
 import { IETSTarget } from "../interfaces/IETSTarget.sol";
 import { IETSRelayer } from "./interfaces/IETSRelayer.sol";
 import { IETSAccessControls } from "../interfaces/IETSAccessControls.sol";
-import { UintArrayUtils } from "../libraries/UintArrayUtils.sol";
+import { AddressArrayUtils } from "../libraries/AddressArrayUtils.sol";
 
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
@@ -37,7 +37,7 @@ contract ETSRelayer is
     PausableUpgradeable,
     ReentrancyGuardUpgradeable
 {
-    using UintArrayUtils for uint256[];
+    using AddressArrayUtils for address[];
 
     /// @dev Address and interface for ETS Core.
     IETS public ets;
@@ -111,7 +111,6 @@ contract ETSRelayer is
     function unpause() public onlyRelayerAdmin {
         // Check that relayer is not paused by platform.
         require(!etsAccessControls.isRelayerLocked(address(this)), "Unpausing not permitted");
-        require(etsToken.balanceOf(owner()) > 0, "Owner must hold CTAG");
         _unpause();
         emit RelayerPauseToggledByOwner(address(this));
     }
@@ -175,14 +174,14 @@ contract ETSRelayer is
     /// @inheritdoc IETSRelayer
     function getOrCreateTagIds(
         string[] calldata _tags
-    ) public payable whenNotPaused returns (uint256[] memory _tagIds) {
-        // First let's derive tagIds for the tagStrings.
-        uint256[] memory tagIds = new uint256[](_tags.length);
+    ) public payable whenNotPaused returns (address[] memory _coinAddresses) {
+        // First let's derive coin addresses for the tagStrings.
+        address[] memory coinAddresses = new address[](_tags.length);
         for (uint256 i; i < _tags.length; ++i) {
-            // for new CTAGs msg.sender is logged as "creator" and this contract is "relayer"
-            tagIds[i] = ets.getOrCreateTagId(_tags[i], payable(msg.sender));
+            // for new TAG coins msg.sender is logged as "creator" and this contract is "relayer"
+            coinAddresses[i] = ets.getOrCreateTagId(_tags[i], payable(msg.sender));
         }
-        return tagIds;
+        return coinAddresses;
     }
 
     // ============ PUBLIC VIEW FUNCTIONS ============

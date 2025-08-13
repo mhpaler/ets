@@ -73,7 +73,6 @@ contract ETSRelayerFactory is Context {
 
     function addRelayer(string calldata _relayerName) external onlyValidName(_relayerName) returns (address relayer) {
         if (!etsAccessControls.isRelayerAdmin(_msgSender())) {
-            require(etsToken.balanceOf(_msgSender()) > 0, "Must own CTAG");
             require(!etsAccessControls.isRelayerByOwner(_msgSender()), "Sender owns relayer");
         }
 

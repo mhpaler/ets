@@ -144,17 +144,17 @@ interface IETSRelayer {
     function removeTagsViaRelayer(IETS.TaggingRecordRawInput[] calldata _rawInput, address _relayer) external payable;
 
     /**
-     * @notice Get or create CTAG tokens from tag strings.
+     * @notice Get or create TAG coins from tag strings.
      *
-     * Combo function that accepts a tag strings and returns corresponding CTAG token Id if it exists,
-     * or if it doesn't exist, creates a new CTAG and then returns corresponding Id.
+     * Combo function that accepts tag strings and returns corresponding Zora coin address if it exists,
+     * or if it doesn't exist, creates a new TAG coin and then returns corresponding address.
      *
      * Only ETS Publisher contracts may call this function.
      *
      * @param _tags Array of tag strings.
-     * @return _tagIds Array of Id of CTAG Ids.
+     * @return _coinAddresses Array of Zora ERC-20 coin addresses representing TAG tokens.
      */
-    function getOrCreateTagIds(string[] calldata _tags) external payable returns (uint256[] memory _tagIds);
+    function getOrCreateTagIds(string[] calldata _tags) external payable returns (address[] memory _coinAddresses);
 
     /**
      * @notice Compute tagging fee for raw input and desired action.
