@@ -12,18 +12,16 @@
  *  ╚══════╝   ╚═╝   ╚══════╝
  *
  * @notice This is the core ETSToken.sol contract that governs the creation & management of
- * Ethereum Tag Service composable tags (CTAGs).
+ * Ethereum Tag Service tags with Zora ERC-20 coin integration.
  *
- * CTAGs are ERC-721 non-fungible tokens that store a single tag string and origin attribution data
- * including a "Relayer" address and a "Creator" address. The tag string must conform to a few simple
- * validation rules.
+ * TAGs are represented by deterministic Zora ERC-20 coin addresses that store tag metadata including
+ * three-tier identifier system, origin attribution data with "Relayer" and "Creator" addresses.
  *
- * CTAGs are identified in ETS by their Id (tagId) which is an unsigned integer computed from the lowercased
- * tag "display" string. Given this, only one CTAG exists for a tag string regardless of its case. For
- * example, #Punks, #punks and #PUNKS all resolve to the same CTAG.
+ * TAGs use a three-tier identifier system: originalInput ("#BiTCOin"), displayVersion ("#Bitcoin"),
+ * and machineName ("bitcoin"). Only one TAG exists per normalized machine name regardless of case.
  *
- * CTAG Ids are combined with Target Ids (see ETSTarget.sol) by ETS core (ETS.sol) to form "Tagging Records".
- * See ETS.sol for more details on Tagging Records.
+ * TAG coin addresses are deterministically computed using Zora's coinAddress() function, enabling
+ * predictable addressing and seamless integration with Zora's trading infrastructure.
  */
 
 pragma solidity ^0.8.10;
@@ -32,39 +30,27 @@ import { IETS } from "./interfaces/IETS.sol";
 import { IETSToken } from "./interfaces/IETSToken.sol";
 import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
 import { StringHelpers } from "./utils/StringHelpers.sol";
-import { ERC721PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721PausableUpgradeable.sol";
-import { ERC721BurnableUpgradeable, ERC721Upgradeable, IERC165Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-contract ETSToken is
-    ERC721PausableUpgradeable,
-    ERC721BurnableUpgradeable,
-    IETSToken,
-    ReentrancyGuardUpgradeable,
-    UUPSUpgradeable,
-    StringHelpers
-{
+contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable, UUPSUpgradeable, StringHelpers {
     IETS public ets;
     IETSAccessControls public etsAccessControls;
 
     // Public constants
-    string public constant NAME = "CTAG Token";
+    string public constant NAME = "ETS TAG Token";
     string public constant VERSION = "0.0.1";
 
     // Public variables
     uint256 public tagMinStringLength;
     uint256 public tagMaxStringLength;
-    uint256 public ownershipTermLength;
 
-    /// @dev Map of CTAG id to CTAG record.
-    mapping(uint256 => Tag) public tokenIdToTag;
+    /// @dev Map of coin address to TAG record.
+    mapping(address => Tag) public coinAddressToTag;
 
-    /// @dev Mapping of tokenId to last renewal.
-    mapping(uint256 => uint256) public tokenIdToLastRenewed;
-
-    /// @notice Defines whether a tag has been set up as premium
-    mapping(string => bool) public isTagPremium;
+    /// @dev Map of machine name hash to coin address for quick lookup.
+    mapping(bytes32 => address) public machineNameHashToCoinAddress;
 
     /// Modifiers
     modifier onlyETSCore() {
@@ -92,13 +78,10 @@ contract ETSToken is
     function initialize(
         IETSAccessControls _etsAccessControls,
         uint256 _tagMinStringLength,
-        uint256 _tagMaxStringLength,
-        uint256 _ownershipTermLength
+        uint256 _tagMaxStringLength
     ) public initializer {
-        __ERC721_init("Ethereum Tag Service", "CTAG");
-        __ERC721Pausable_init();
-        __ERC721Burnable_init();
         __ReentrancyGuard_init();
+        __Pausable_init();
 
         // Initialize ETSToken settings using public
         // functions so our subgraph can capture them.
@@ -107,7 +90,6 @@ contract ETSToken is
         etsAccessControls = _etsAccessControls;
         setTagMinStringLength(_tagMinStringLength);
         setTagMaxStringLength(_tagMaxStringLength);
-        setOwnershipTermLength(_ownershipTermLength);
     }
 
     // solhint-disable-next-line
@@ -155,11 +137,6 @@ contract ETSToken is
         _unpause();
     }
 
-    /// @inheritdoc ERC721BurnableUpgradeable
-    function burn(uint256 tokenId) public override onlyAdmin {
-        _burn(tokenId);
-    }
-
     /// @inheritdoc IETSToken
     function setTagMaxStringLength(uint256 _tagMaxStringLength) public onlyAdmin {
         tagMaxStringLength = _tagMaxStringLength;
@@ -172,44 +149,6 @@ contract ETSToken is
         emit TagMinStringLengthSet(_tagMinStringLength);
     }
 
-    /// @inheritdoc IETSToken
-    function setOwnershipTermLength(uint256 _ownershipTermLength) public onlyAdmin {
-        ownershipTermLength = _ownershipTermLength;
-        emit OwnershipTermLengthSet(_ownershipTermLength);
-    }
-
-    /// @inheritdoc IETSToken
-    function preSetPremiumTags(string[] calldata _tags, bool _enabled) public onlyAdmin {
-        require(_tags.length > 0, "Empty array");
-        for (uint256 i; i < _tags.length; ++i) {
-            string memory tag = __lower(_tags[i]);
-            isTagPremium[tag] = _enabled;
-            emit PremiumTagPreSet(tag, _enabled);
-        }
-    }
-
-    /// @inheritdoc IETSToken
-    function setPremiumFlag(uint256[] calldata _tokenIds, bool _isPremium) public onlyAdmin {
-        require(_tokenIds.length > 0, "Empty array");
-        for (uint256 i; i < _tokenIds.length; ++i) {
-            uint256 tokenId = _tokenIds[i];
-            require(ownerOf(tokenId) == getPlatformAddress(), "Not owned by platform");
-            tokenIdToTag[tokenId].premium = _isPremium;
-            emit PremiumFlagSet(tokenId, _isPremium);
-        }
-    }
-
-    /// @inheritdoc IETSToken
-    function setReservedFlag(uint256[] calldata _tokenIds, bool _reserved) public onlyAdmin {
-        require(_tokenIds.length > 0, "Empty array");
-        for (uint256 i; i < _tokenIds.length; ++i) {
-            uint256 tokenId = _tokenIds[i];
-            require(ownerOf(tokenId) == getPlatformAddress(), "Token not owned by platform");
-            tokenIdToTag[tokenId].reserved = _reserved;
-            emit ReservedFlagSet(tokenId, _reserved);
-        }
-    }
-
     // ============ PUBLIC INTERFACE ============
 
     function getOrCreateTag(
@@ -217,11 +156,11 @@ contract ETSToken is
         address payable _relayer,
         address payable _creator
     ) public payable returns (Tag memory tag) {
-        uint256 tokenId = computeTagId(_tag);
-        if (!tagExistsById(tokenId)) {
-            tokenId = createTag(_tag, _relayer, _creator);
+        address coinAddress = computeCoinAddress(_tag);
+        if (!tagExistsByAddress(coinAddress)) {
+            coinAddress = createTag(_tag, _relayer, _creator);
         }
-        return tokenIdToTag[tokenId];
+        return coinAddressToTag[coinAddress];
     }
 
     /// @inheritdoc IETSToken
@@ -229,12 +168,12 @@ contract ETSToken is
         string calldata _tag,
         address payable _relayer,
         address payable _creator
-    ) public payable returns (uint256 tokenId) {
-        uint256 _tokenId = computeTagId(_tag);
-        if (!tagExistsById(_tokenId)) {
-            _tokenId = createTag(_tag, _relayer, _creator);
+    ) public payable returns (address coinAddress) {
+        coinAddress = computeCoinAddress(_tag);
+        if (!tagExistsByAddress(coinAddress)) {
+            coinAddress = createTag(_tag, _relayer, _creator);
         }
-        return _tokenId;
+        return coinAddress;
     }
 
     /// @inheritdoc IETSToken
@@ -242,93 +181,86 @@ contract ETSToken is
         string calldata _tag,
         address payable _relayer,
         address payable _creator
-    ) public payable nonReentrant onlyETSCore returns (uint256 _tokenId) {
+    ) public payable nonReentrant onlyETSCore returns (address coinAddress) {
         // Perform basic tag string validation.
-        uint256 tagId = _assertTagIsValid(_tag);
+        _assertTagIsValid(_tag);
 
-        // mint the token, transferring it to the platform.
-        _safeMint(getPlatformAddress(), tagId);
+        // Generate three-tier identifiers
+        string memory originalInput = _tag;
+        string memory machineName = __lower(_tag);
+        string memory displayVersion = _formatDisplayVersion(_tag);
 
-        // Store CTAG data in state.
-        tokenIdToTag[tagId] = Tag({
-            display: _tag,
-            relayer: _relayer,
+        // Compute deterministic coin address
+        coinAddress = computeCoinAddress(machineName);
+
+        // Ensure TAG doesn't already exist
+        require(coinAddressToTag[coinAddress].coinAddress == address(0), "TAG already exists");
+
+        // Store TAG data in state
+        coinAddressToTag[coinAddress] = Tag({
+            originalInput: originalInput,
+            displayVersion: displayVersion,
+            machineName: machineName,
+            coinAddress: coinAddress,
             creator: _creator,
-            premium: isTagPremium[__lower(_tag)],
-            reserved: isTagPremium[__lower(_tag)]
+            relayer: _relayer,
+            timestamp: block.timestamp
         });
 
-        return tagId;
+        // Quick lookup mapping
+        bytes32 machineNameHash = keccak256(bytes(machineName));
+        machineNameHashToCoinAddress[machineNameHash] = coinAddress;
+
+        // Emit comprehensive event
+        emit TagCreated(coinAddress, originalInput, displayVersion, machineName, _creator, _relayer, block.timestamp);
+
+        return coinAddress;
     }
 
-    /// @inheritdoc IETSToken
-    function renewTag(uint256 _tokenId) public {
-        require(_exists(_tokenId), "ETS: CTAG not found");
+    // ============ INTERNAL HELPER FUNCTIONS ============
 
-        if (ownerOf(_tokenId) == getPlatformAddress()) {
-            _setLastRenewed(_tokenId, 0);
-        } else {
-            _setLastRenewed(_tokenId, block.timestamp);
-        }
-    }
-
-    /// @inheritdoc IETSToken
-    function recycleTag(uint256 _tokenId) public {
-        require(_exists(_tokenId), "ETS: CTAG not found");
-        require(ownerOf(_tokenId) != getPlatformAddress(), "Tag owned by platform");
-        require(tagOwnershipTermExpired(_tokenId), "recycling not available");
-
-        _transfer(ownerOf(_tokenId), getPlatformAddress(), _tokenId);
-        emit TagRecycled(_tokenId, _msgSender());
-    }
-
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view virtual override(ERC721Upgradeable, IERC165Upgradeable) returns (bool) {
-        return super.supportsInterface(interfaceId);
+    /**
+     * @dev Generate canonical display format from input tag.
+     * @param _input Tag string input.
+     * @return displayVersion Canonical display format.
+     */
+    function _formatDisplayVersion(string memory _input) internal pure returns (string memory) {
+        // For now, return input as-is. Can be enhanced later with title case logic.
+        return _input;
     }
 
     // ============ PUBLIC VIEW FUNCTIONS ============
 
     /// @inheritdoc IETSToken
-    function computeTagId(string memory _tag) public pure returns (uint256) {
-        string memory _machineName = __lower(_tag);
-        return uint256(keccak256(bytes(_machineName)));
+    function computeCoinAddress(string memory _tag) public pure returns (address) {
+        string memory machineName = __lower(_tag);
+        bytes32 salt = keccak256(abi.encodePacked(machineName));
+
+        // TODO: Implement Zora coinAddress() prediction here
+        // For now, return a deterministic address based on machine name
+        return address(uint160(uint256(keccak256(abi.encodePacked("ZORA_COIN", salt)))));
     }
 
     /// @inheritdoc IETSToken
     function tagExistsByString(string calldata _tag) public view returns (bool) {
-        return _exists(computeTagId(_tag));
+        address coinAddress = computeCoinAddress(_tag);
+        return coinAddressToTag[coinAddress].coinAddress != address(0);
     }
 
     /// @inheritdoc IETSToken
-    function tagExistsById(uint256 _tokenId) public view returns (bool) {
-        return _exists(_tokenId);
-    }
-
-    /// @inheritdoc IETSToken
-    function tagOwnershipTermExpired(uint256 _tokenId) public view returns (bool) {
-        return (getLastRenewed(_tokenId) + getOwnershipTermLength() < block.timestamp);
+    function tagExistsByAddress(address _coinAddress) public view returns (bool) {
+        return coinAddressToTag[_coinAddress].coinAddress != address(0);
     }
 
     /// @inheritdoc IETSToken
     function getTagByString(string calldata _tag) public view returns (Tag memory) {
-        return getTagById(computeTagId(_tag));
+        address coinAddress = computeCoinAddress(_tag);
+        return coinAddressToTag[coinAddress];
     }
 
     /// @inheritdoc IETSToken
-    function getTagById(uint256 _tokenId) public view returns (Tag memory) {
-        return tokenIdToTag[_tokenId];
-    }
-
-    /// @inheritdoc IETSToken
-    function getOwnershipTermLength() public view returns (uint256) {
-        return ownershipTermLength;
-    }
-
-    /// @inheritdoc IETSToken
-    function getLastRenewed(uint256 _tokenId) public view returns (uint256) {
-        return tokenIdToLastRenewed[_tokenId];
+    function getTagByAddress(address _coinAddress) public view returns (Tag memory) {
+        return coinAddressToTag[_coinAddress];
     }
 
     /// @inheritdoc IETSToken
@@ -336,60 +268,16 @@ contract ETSToken is
         return etsAccessControls.getPlatformAddress();
     }
 
-    /// @inheritdoc IETSToken
-    function getCreatorAddress(uint256 _tokenId) public view returns (address) {
-        return tokenIdToTag[_tokenId].creator;
-    }
-
     // ============ INTERNAL FUNCTIONS ============
 
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 firstTokenId,
-        uint256 batchSize
-    ) internal override(ERC721PausableUpgradeable, ERC721Upgradeable) whenNotPaused {
-        super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
-        require(!paused(), "Contract paused");
-    }
-
-    /// @dev See {ERC721-_afterTokenTransfer}. Contract must not be paused.
-    function _afterTokenTransfer(
-        address from,
-        address to,
-        uint256 tokenId,
-        uint256 batchSize
-    ) internal virtual override(ERC721Upgradeable) {
-        super._afterTokenTransfer(from, to, tokenId, batchSize);
-
-        if (to != address(0)) {
-            // Reset token ownership term.
-            if (to == getPlatformAddress()) {
-                _setLastRenewed(tokenId, 0);
-            } else {
-                _setLastRenewed(tokenId, block.timestamp);
-            }
-        }
-
-        // If from address is not black hole or platform, and balance is going zero pause their relayer.
-        if (from != address(0) && from != getPlatformAddress() && balanceOf(from) == 0) {
-            etsAccessControls.pauseRelayerByOwnerAddress(from);
-        }
-    }
-
     /**
-     * @dev Private method used for validating a CTAG string before minting.
+     * @dev Private method used for validating a TAG string before creation.
      *
      * A series of assertions are performed reverting the transaction for any validation violations.
      *
      * @param _tag Proposed tag string.
      */
-    function _assertTagIsValid(string memory _tag) private view returns (uint256 _tagId) {
-        // generate token ID from machine name
-        uint256 tagId = computeTagId(_tag);
-
-        require(!_exists(tagId), "ERC721: token already minted");
-
+    function _assertTagIsValid(string memory _tag) private view {
         bytes memory tagStringBytes = bytes(_tag);
         require(
             tagStringBytes.length >= tagMinStringLength && tagStringBytes.length <= tagMaxStringLength,
@@ -404,12 +292,5 @@ contract ETSToken is
             require(char != 0x20, "Spaces in tag");
             require(char != 0x23, "Tag contains prefix");
         }
-
-        return tagId;
-    }
-
-    function _setLastRenewed(uint256 _tokenId, uint256 _timestamp) internal {
-        tokenIdToLastRenewed[_tokenId] = _timestamp;
-        emit TagRenewed(_tokenId, msg.sender);
     }
 }

@@ -40,7 +40,6 @@ async function setup() {
     WETH: await ethers.getContractFactory("WETH"),
     ETSAccessControls: await ethers.getContractFactory("ETSAccessControls"),
     ETSToken: await ethers.getContractFactory("ETSToken"),
-    ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
     ETSTarget: await ethers.getContractFactory("ETSTarget"),
     ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
     ETS: await ethers.getContractFactory("ETS"),

@@ -42,4 +42,4 @@ module.exports = async ({ deployments }) => {
   log("====================================================");
 };
 module.exports.tags = ["ETSTarget"];
-module.exports.dependencies = ["ETSAuctionHouse"];
+module.exports.dependencies = ["ETSAccessControls"];

@@ -27,7 +27,6 @@ describe("============= ETS TEST SUITE SETTINGS =============", () => {
     console.info("WETH:", await contracts.WETH.getAddress());
     console.info("ETSAccessControls:", await contracts.ETSAccessControls.getAddress());
     console.info("ETSToken:", await contracts.ETSToken.getAddress());
-    console.info("ETSAuctionHouse:", await contracts.ETSAuctionHouse.getAddress());
     console.info("ETSTarget:", await contracts.ETSTarget.getAddress());
     console.info("ETSEnrichTarget:", await contracts.ETSEnrichTarget.getAddress());
     console.info("ETS:", await contracts.ETS.getAddress());

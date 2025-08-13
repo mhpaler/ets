@@ -6,7 +6,6 @@ import type {
   AirnodeRrpV0Proxy,
   ETS,
   ETSAccessControls,
-  ETSAuctionHouse,
   ETSEnrichTarget,
   ETSRelayer,
   ETSRelayerFactory,
@@ -93,13 +92,11 @@ interface Artifacts {
   ETSToken: Artifact;
   ETSTarget: Artifact;
   ETSEnrichTarget: Artifact;
-  ETSAuctionHouse: Artifact;
   ETS: Artifact;
   ETSRelayer: Artifact;
   ETSRelayerFactory: Artifact;
   ETSAccessControlsUpgrade: Artifact;
   ETSTokenUpgrade: Artifact;
-  ETSAuctionHouseUpgrade: Artifact;
   ETSEnrichTargetUpgrade: Artifact;
   ETSTargetUpgrade: Artifact;
   ETSUpgrade: Artifact;
@@ -112,7 +109,6 @@ async function getArtifacts(): Promise<Artifacts> {
     ETSToken: artifacts.readArtifactSync("ETSToken"),
     ETSTarget: artifacts.readArtifactSync("ETSTarget"),
     ETSEnrichTarget: artifacts.readArtifactSync("ETSEnrichTarget"),
-    ETSAuctionHouse: artifacts.readArtifactSync("ETSAuctionHouse"),
     ETS: artifacts.readArtifactSync("ETS"),
     ETSRelayer: artifacts.readArtifactSync("ETSRelayer"),
     ETSRelayerFactory: artifacts.readArtifactSync("ETSRelayerFactory"),
@@ -122,7 +118,6 @@ async function getArtifacts(): Promise<Artifacts> {
     /// .sol test contracts.
     ETSAccessControlsUpgrade: artifacts.readArtifactSync("ETSAccessControlsUpgrade"),
     ETSTokenUpgrade: artifacts.readArtifactSync("ETSTokenUpgrade"),
-    ETSAuctionHouseUpgrade: artifacts.readArtifactSync("ETSAuctionHouseUpgrade"),
     ETSEnrichTargetUpgrade: artifacts.readArtifactSync("ETSEnrichTargetUpgrade"),
     ETSTargetUpgrade: artifacts.readArtifactSync("ETSTargetUpgrade"),
     ETSUpgrade: artifacts.readArtifactSync("ETSUpgrade"),
@@ -136,13 +131,11 @@ interface Factories {
   ETSToken: ContractFactory;
   ETSTarget: ContractFactory;
   ETSEnrichTarget: ContractFactory;
-  ETSAuctionHouse: ContractFactory;
   ETS: ContractFactory;
   ETSRelayer: ContractFactory;
   ETSRelayerFactory: ContractFactory;
   WETH: ContractFactory;
   ETSAccessControlsUpgrade: ContractFactory;
-  ETSAuctionHouseUpgrade: ContractFactory;
   ETSTokenUpgrade: ContractFactory;
   ETSEnrichTargetUpgrade: ContractFactory;
   ETSTargetUpgrade: ContractFactory;
@@ -157,7 +150,6 @@ async function getFactories(): Promise<Factories> {
     ETSToken: await ethers.getContractFactory("ETSToken"),
     ETSTarget: await ethers.getContractFactory("ETSTarget"),
     ETSEnrichTarget: await ethers.getContractFactory("ETSEnrichTarget"),
-    ETSAuctionHouse: await ethers.getContractFactory("ETSAuctionHouse"),
     ETS: await ethers.getContractFactory("ETS"),
     ETSRelayer: await ethers.getContractFactory("ETSRelayer"),
     ETSRelayerFactory: await ethers.getContractFactory("ETSRelayerFactory"),
@@ -166,7 +158,6 @@ async function getFactories(): Promise<Factories> {
 
     /// .sol test contracts.
     ETSAccessControlsUpgrade: await ethers.getContractFactory("ETSAccessControlsUpgrade"),
-    ETSAuctionHouseUpgrade: await ethers.getContractFactory("ETSAuctionHouseUpgrade"),
     ETSTokenUpgrade: await ethers.getContractFactory("ETSTokenUpgrade"),
     ETSEnrichTargetUpgrade: await ethers.getContractFactory("ETSEnrichTargetUpgrade"),
     ETSTargetUpgrade: await ethers.getContractFactory("ETSTargetUpgrade"),
@@ -190,7 +181,7 @@ async function setup(): Promise<SetupResult> {
 
   const WETH = await factories.WETH.deploy();
   await WETH.waitForDeployment();
-  const WETHAddress = await WETH.getAddress();
+  const _WETHAddress = await WETH.getAddress();
 
   const ETSAccessControls = (await upgrades.deployProxy(factories.ETSAccessControls, [accounts.ETSPlatform.address], {
     kind: "uups",
@@ -211,25 +202,6 @@ async function setup(): Promise<SetupResult> {
   )) as unknown as ETSToken;
   await ETSToken.waitForDeployment();
   const ETSTokenAddress = await ETSToken.getAddress();
-
-  const ETSAuctionHouse = (await upgrades.deployProxy(
-    factories.ETSAuctionHouse,
-    [
-      ETSTokenAddress,
-      ETSAccessControlsAddress,
-      WETHAddress,
-      initSettings.MAX_AUCTIONS,
-      initSettings.TIME_BUFFER,
-      ethers.parseUnits(initSettings.RESERVE_PRICE, "ether"),
-      initSettings.MIN_INCREMENT_BID_PERCENTAGE,
-      initSettings.DURATION,
-      initSettings.RELAYER_PERCENTAGE,
-      initSettings.PLATFORM_PERCENTAGE,
-    ],
-    { kind: "uups" },
-  )) as unknown as ETSAuctionHouse;
-  await ETSAuctionHouse.waitForDeployment();
-  const ETSAuctionHouseAddress = await ETSAuctionHouse.getAddress();
 
   const ETSTarget = (await upgrades.deployProxy(factories.ETSTarget, [ETSAccessControlsAddress], {
     kind: "uups",
@@ -284,7 +256,6 @@ async function setup(): Promise<SetupResult> {
     WETH: WETH as WETH,
     ETSAccessControls: ETSAccessControls as unknown as ETSAccessControls,
     ETSToken: ETSToken as unknown as ETSToken,
-    ETSAuctionHouse: ETSAuctionHouse as unknown as ETSAuctionHouse,
     ETSTarget: ETSTarget as unknown as ETSTarget,
     ETSEnrichTarget: ETSEnrichTarget as unknown as ETSEnrichTarget,
     ETS: ETS as unknown as ETS,
@@ -316,7 +287,6 @@ async function setup(): Promise<SetupResult> {
   await ETSAccessControls.grantRole(await ETSAccessControls.SMART_CONTRACT_ROLE(), accounts.ETSAdmin.address);
 
   await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(ETSEnrichTargetAddress);
-  await ETSToken.connect(accounts.ETSPlatform).setApprovalForAll(ETSAuctionHouseAddress, true);
   await ETSToken.connect(accounts.ETSPlatform).setETSCore(ETSAddress);
   await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_FACTORY_ROLE(), ETSRelayerFactoryAddress);
 

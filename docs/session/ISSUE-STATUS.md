@@ -12,20 +12,40 @@
 ## Current Sprint: Phase 1 MVP
 
 ### 🎯 Active Issue
-**#531**: Develop off-chain event processing service for TAG coin creation
-- **Status**: ✅ COMPLETED - Full metadata system with real IPFS uploads working
+**#529**: Architecture Refactor - ERC-721 to Zora ERC-20 Cutover
+- **Status**: 🚧 IN PROGRESS - Interface-by-interface refactoring
 - **Branch**: 528-tag-coins-epic  
-- **Started**: 2025-08-11
-- **Completed**: 2025-08-12
-- **Final Status**: All sub-issues complete, real IPFS uploads validated with Zora API
-- **Session Updated**: 2025-08-12 (MAJOR: Zora metadata builder integration complete)
+- **Started**: 2025-08-13
+- **Objective**: Complete architectural refactor from CTAG NFTs to Zora ERC-20 coin integration
+- **Strategy**: Interface-specific sub-issues with targeted refactoring plans
+
+### 🎯 Sub-Issues
+
+**#529.1: Refactor IETSToken.sol and Implementation** 🚧 IN PROGRESS
+- **Status**: Planning and design phase
+- **Started**: 2025-08-13
+- **Objective**: Refactor IETSToken interface and ETSToken implementation for Zora integration
+
+**#529.2: Refactor ETS.sol Core Contract** ⏳ PLACEHOLDER
+- **Status**: Pending #529.1 completion
+- **Objective**: Update core ETS contract to work with address-based tag IDs
+
+**#529.3: Refactor/Remove ETSAuctionHouse.sol** ⏳ PLACEHOLDER
+- **Status**: Pending - decision needed on removal vs refactor
+- **Objective**: Handle auction house incompatibility with ERC-20 trading
+
+**#529.4: Update ETSRelayer Interfaces** ⏳ PLACEHOLDER
+- **Status**: Pending
+- **Objective**: Update all relayer contracts for new address-based tag system
+
+**#529.5: Update Test Suite and Mocks** ⏳ PLACEHOLDER
+- **Status**: Pending
+- **Objective**: Comprehensive test updates for new architecture
 
 ### 📋 Priority Queue
-1. **#529**: Add TagCreated Event to ETS Core
-   - 🔜 NEXT UP (after #531 fully complete)
-2. **#532**: Implement secure EOA management for Zora coin creation
+1. **#532**: Implement secure EOA management for Zora coin creation
    - 🔄 PARTIALLY COVERED by #531.2
-3. **#533**: Build creator allocation and distribution system
+2. **#533**: Build creator allocation and distribution system
 
 ### ✅ Completed Issues
 

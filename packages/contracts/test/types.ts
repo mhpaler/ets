@@ -5,7 +5,6 @@ import type {
   AirnodeRrpV0Proxy,
   ETS,
   ETSAccessControls,
-  ETSAuctionHouse,
   ETSEnrichTarget,
   ETSRelayer,
   ETSRelayerFactory,
@@ -45,7 +44,6 @@ export interface Contracts {
   AirnodeRrpV0Proxy: AirnodeRrpV0Proxy;
   ETSAccessControls: ETSAccessControls;
   ETSToken: ETSToken;
-  ETSAuctionHouse: ETSAuctionHouse;
   ETSTarget: ETSTarget;
   ETSEnrichTarget: ETSEnrichTarget;
   ETS: ETS;
@@ -62,13 +60,11 @@ export interface Artifacts {
   ETSToken: Artifact;
   ETSTarget: Artifact;
   ETSEnrichTarget: Artifact;
-  ETSAuctionHouse: Artifact;
   ETS: Artifact;
   ETSRelayer: Artifact;
   ETSRelayerFactory: Artifact;
   ETSAccessControlsUpgrade: Artifact;
   ETSTokenUpgrade: Artifact;
-  ETSAuctionHouseUpgrade: Artifact;
   ETSEnrichTargetUpgrade: Artifact;
   ETSTargetUpgrade: Artifact;
   ETSUpgrade: Artifact;
@@ -81,12 +77,10 @@ export interface Factories {
   ETSToken: ContractFactory;
   ETSTarget: ContractFactory;
   ETSEnrichTarget: ContractFactory;
-  ETSAuctionHouse: ContractFactory;
   ETS: ContractFactory;
   ETSRelayer: ContractFactory;
   ETSRelayerFactory: ContractFactory;
   ETSAccessControlsUpgrade: ContractFactory;
-  ETSAuctionHouseUpgrade: ContractFactory;
   ETSTokenUpgrade: ContractFactory;
   ETSEnrichTargetUpgrade: ContractFactory;
   ETSTargetUpgrade: ContractFactory;
