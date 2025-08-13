@@ -41,14 +41,14 @@ interface IETS {
      * Given this design, a tagger who tags the same URI with the same tags and recordType via two different relayers
      * would produce two TaggingRecords in ETS.
      *
-     * @param tagIds Ids of CTAG token(s).
+     * @param coinAddresses Addresses of Zora ERC-20 coin(s) representing TAG tokens.
      * @param targetId Id of target being tagged.
      * @param recordType Arbitrary identifier for type of tagging record.
      * @param relayer Address of Relayer contract that wrote tagging record.
      * @param tagger Address of wallet that initiated tagging record via relayer.
      */
     struct TaggingRecord {
-        uint256[] tagIds;
+        address[] coinAddresses;
         uint256 targetId;
         string recordType;
         address relayer;
@@ -121,49 +121,49 @@ interface IETS {
      * Requirements:
      *
      *   - Caller must be relayer contract.
-     *   - CTAG(s) and TargetId must exist.
+     *   - TAG coin(s) and TargetId must exist.
      *
-     * @param _tagIds Array of CTAG token Ids.
+     * @param _coinAddresses Array of Zora ERC-20 coin addresses representing TAG tokens.
      * @param _targetId targetId of the URI being tagged. See ETSTarget.sol
      * @param _recordType Arbitrary identifier for type of tagging record.
      * @param _tagger Address calling Relayer contract to create tagging record.
      */
     function createTaggingRecord(
-        uint256[] memory _tagIds,
+        address[] memory _coinAddresses,
         uint256 _targetId,
         string calldata _recordType,
         address _tagger
     ) external payable;
 
     /**
-     * @notice Get or create CTAG token from tag string.
+     * @notice Get or create TAG coin from tag string.
      *
-     * Combo function that accepts a tag string and returns corresponding CTAG token Id if it exists,
-     * or if it doesn't exist, creates a new CTAG and then returns corresponding Id.
+     * Combo function that accepts a tag string and returns corresponding TAG coin address if it exists,
+     * or if it doesn't exist, creates a new TAG and then returns corresponding address.
      *
      * Only ETS Relayer contracts may call this function.
      *
      * @param _tag Tag string.
-     * @param _creator Address credited with creating CTAG.
-     * @return tokenId Id of CTAG token.
+     * @param _creator Address credited with creating TAG.
+     * @return coinAddress Address of Zora ERC-20 coin representing TAG token.
      */
     function getOrCreateTagId(
         string calldata _tag,
         address payable _creator
-    ) external payable returns (uint256 tokenId);
+    ) external payable returns (address coinAddress);
 
     /**
-     * @notice Create CTAG token from tag string.
+     * @notice Create TAG coin from tag string.
      *
      * Reverts if tag exists or is invalid.
      *
      * Only ETS Relayer contracts may call this function.
      *
      * @param _tag Tag string.
-     * @param _creator Address credited with creating CTAG.
-     * @return tokenId Id of CTAG token.
+     * @param _creator Address credited with creating TAG.
+     * @return coinAddress Address of Zora ERC-20 coin representing TAG token.
      */
-    function createTag(string calldata _tag, address payable _creator) external payable returns (uint256 tokenId);
+    function createTag(string calldata _tag, address payable _creator) external payable returns (address coinAddress);
 
     /**
      * @notice Apply one or more tags to a targetURI using tagging record raw client input data.
@@ -187,17 +187,17 @@ interface IETS {
     /**
      * @notice Apply one or more tags to a targetId using using tagging record composite key.
      *
-     * Records new ETS Tagging Record to the blockchain or appends tags if Tagging Record already exists. CTAGs and
+     * Records new ETS Tagging Record to the blockchain or appends tags if Tagging Record already exists. TAG coins and
      * targetId are created if they don't exist. Caller must be Relayer contract.
      *
-     * @param _tagIds Array of CTAG token Ids.
+     * @param _coinAddresses Array of Zora ERC-20 coin addresses representing TAG tokens.
      * @param _targetId targetId of the URI being tagged. See ETSTarget.sol
      * @param _recordType Arbitrary identifier for type of tagging record.
      * @param _tagger Address of that calls Relayer to create tagging record.
      * @param _relayer Address of Relayer contract that facilitated tagging record.
      */
     function applyTagsWithCompositeKey(
-        uint256[] calldata _tagIds,
+        address[] calldata _coinAddresses,
         uint256 _targetId,
         string memory _recordType,
         address payable _tagger,
@@ -225,14 +225,14 @@ interface IETS {
      * This function overwrites the tags in a tagging record with the supplied tags, only
      * charging for the new tags in the replacement set.
      *
-     * @param _tagIds Array of CTAG token Ids.
+     * @param _coinAddresses Array of Zora ERC-20 coin addresses representing TAG tokens.
      * @param _targetId targetId of the URI being tagged. See ETSTarget.sol
      * @param _recordType Arbitrary identifier for type of tagging record.
      * @param _tagger Address of that calls Relayer to create tagging record.
      * @param _relayer Address of Relayer contract that facilitated tagging record.
      */
     function replaceTagsWithCompositeKey(
-        uint256[] calldata _tagIds,
+        address[] calldata _coinAddresses,
         uint256 _targetId,
         string memory _recordType,
         address payable _tagger,
@@ -255,14 +255,14 @@ interface IETS {
     /**
      * @notice Remove one or more tags from a tagging record using composite key for record lookup.
      *
-     * @param _tagIds Array of CTAG token Ids.
+     * @param _coinAddresses Array of Zora ERC-20 coin addresses representing TAG tokens.
      * @param _targetId targetId of the URI being tagged. See ETSTarget.sol
      * @param _recordType Arbitrary identifier for type of tagging record.
      * @param _tagger Address of that calls Relayer to create tagging record.
      * @param _relayer Address of Relayer contract that facilitated tagging record.
      */
     function removeTagsWithCompositeKey(
-        uint256[] calldata _tagIds,
+        address[] calldata _coinAddresses,
         uint256 _targetId,
         string memory _recordType,
         address payable _tagger,
@@ -273,10 +273,10 @@ interface IETS {
      * @notice Append one or more tags to a tagging record.
      *
      * @param _taggingRecordId tagging record being updated.
-     * @param _tagIds Array of CTAG token Ids.
+     * @param _coinAddresses Array of Zora ERC-20 coin addresses representing TAG tokens.
      * @param _tagger Address of that calls Relayer to tag a targetURI.
      */
-    function appendTags(uint256 _taggingRecordId, uint256[] calldata _tagIds, address _tagger) external payable;
+    function appendTags(uint256 _taggingRecordId, address[] calldata _coinAddresses, address _tagger) external payable;
 
     /**
      * @notice Replaces tags in tagging record.
@@ -285,19 +285,19 @@ interface IETS {
      * charging for the new tags in the replacement set.
      *
      * @param _taggingRecordId tagging record being updated.
-     * @param _tagIds Array of CTAG token Ids.
+     * @param _coinAddresses Array of Zora ERC-20 coin addresses representing TAG tokens.
      * @param _tagger Address of that calls Relayer to tag a targetURI.
      */
-    function replaceTags(uint256 _taggingRecordId, uint256[] calldata _tagIds, address _tagger) external payable;
+    function replaceTags(uint256 _taggingRecordId, address[] calldata _coinAddresses, address _tagger) external payable;
 
     /**
      * @notice Remove one or more tags from a tagging record.
      *
      * @param _taggingRecordId tagging record being updated.
-     * @param _tagIds Array of CTAG token Ids.
+     * @param _coinAddresses Array of Zora ERC-20 coin addresses representing TAG tokens.
      * @param _tagger Address of that calls Relayer to tag a targetURI.
      */
-    function removeTags(uint256 _taggingRecordId, uint256[] calldata _tagIds, address _tagger) external;
+    function removeTags(uint256 _taggingRecordId, address[] calldata _coinAddresses, address _tagger) external;
 
     /**
      * @notice Function for withdrawing funds from an accrual account. Can be called by the account owner
@@ -363,9 +363,9 @@ interface IETS {
     ) external view returns (uint256 fee, uint256 tagCount);
 
     /**
-     * @notice Compute tagging fee for CTAGs, tagging record composite key and desired action.
+     * @notice Compute tagging fee for TAG coins, tagging record composite key and desired action.
      *
-     * @param _tagIds Array of CTAG token Ids.
+     * @param _coinAddresses Array of Zora ERC-20 coin addresses representing TAG tokens.
      * @param _relayer Address of tagging record Relayer contract.
      * @param _tagger Address interacting with Relayer to tag content ("Tagger").
      * @param _action Integer representing action to be performed according to enum TaggingAction.
@@ -374,7 +374,7 @@ interface IETS {
      * @return tagCount Number of new tags being added to tagging record.
      */
     function computeTaggingFeeFromCompositeKey(
-        uint256[] memory _tagIds,
+        address[] memory _coinAddresses,
         uint256 _targetId,
         string calldata _recordType,
         address _relayer,
@@ -383,7 +383,7 @@ interface IETS {
     ) external view returns (uint256 fee, uint256 tagCount);
 
     /**
-     * @notice Compute tagging fee for CTAGs, tagging record id and desired action.
+     * @notice Compute tagging fee for TAG coins, tagging record id and desired action.
      *
      * If the global, service wide tagging fee is set (see ETS.taggingFee() & ETS.setTaggingFee()) ETS charges a per tag for all
      * new tags applied to a tagging record. This applies to both new tagging records and modified tagging records.
@@ -392,7 +392,7 @@ interface IETS {
      * (append or replace) determining the number of new tags being added and multiplying by the ETS per tag fee.
      *
      * @param _taggingRecordId Id of tagging record.
-     * @param _tagIds Array of CTAG token Ids.
+     * @param _coinAddresses Array of Zora ERC-20 coin addresses representing TAG tokens.
      * @param _action Integer representing action to be performed according to enum TaggingAction.
      *
      * @return fee Calculated tagging fee in ETH/Matic
@@ -400,7 +400,7 @@ interface IETS {
      */
     function computeTaggingFee(
         uint256 _taggingRecordId,
-        uint256[] memory _tagIds,
+        address[] memory _coinAddresses,
         TaggingAction _action
     ) external view returns (uint256 fee, uint256 tagCount);
 
@@ -411,7 +411,7 @@ interface IETS {
      * @param _relayer Address of tagging record Relayer contract.
      * @param _tagger Address interacting with Relayer to tag content ("Tagger").
      *
-     * @return tagIds CTAG token ids.
+     * @return coinAddresses Zora ERC-20 coin addresses representing TAG tokens.
      * @return targetId TargetId that was tagged.
      * @return recordType Type of tagging record.
      * @return relayer Address of tagging record Relayer contract.
@@ -424,7 +424,7 @@ interface IETS {
     )
         external
         view
-        returns (uint256[] memory tagIds, uint256 targetId, string memory recordType, address relayer, address tagger);
+        returns (address[] memory coinAddresses, uint256 targetId, string memory recordType, address relayer, address tagger);
 
     /**
      * @notice Retrieve a tagging record from composite key parts.
@@ -434,7 +434,7 @@ interface IETS {
      * @param _relayer Address of Relayer contract that wrote tagging record.
      * @param _tagger Address of wallet that initiated tagging record via relayer.
      *
-     * @return tagIds CTAG token ids.
+     * @return coinAddresses Zora ERC-20 coin addresses representing TAG tokens.
      * @return targetId TargetId that was tagged.
      * @return recordType Type of tagging record.
      * @return relayer Address of tagging record Relayer contract.
@@ -448,14 +448,14 @@ interface IETS {
     )
         external
         view
-        returns (uint256[] memory tagIds, uint256 targetId, string memory recordType, address relayer, address tagger);
+        returns (address[] memory coinAddresses, uint256 targetId, string memory recordType, address relayer, address tagger);
 
     /**
      * @notice Retrieve a tagging record from Id.
      *
      * @param _id taggingRecordId.
      *
-     * @return tagIds CTAG token ids.
+     * @return coinAddresses Zora ERC-20 coin addresses representing TAG tokens.
      * @return targetId TargetId that was tagged.
      * @return recordType Type of tagging record.
      * @return relayer Address of tagging record Relayer contract.
@@ -466,7 +466,7 @@ interface IETS {
     )
         external
         view
-        returns (uint256[] memory tagIds, uint256 targetId, string memory recordType, address relayer, address tagger);
+        returns (address[] memory coinAddresses, uint256 targetId, string memory recordType, address relayer, address tagger);
 
     /**
      * @notice Check that a tagging record exists for given raw input.
