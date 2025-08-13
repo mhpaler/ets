@@ -88,7 +88,7 @@ event TagCreated(
 }
 
 // Note: Special handling needed for Unicode/emoji tags from ETS validation table
-// See TAG-METADATA-DECISION.md for full Unicode support requirements
+// See ../tag-coins/TAG-METADATA-DECISION.md for full Unicode support requirements
 ```
 
 **ETS Storage** (Original Preserved):

@@ -69,9 +69,7 @@ export class ZoraService {
   /**
    * Generate metadata via metadata API
    */
-  private async generateMetadata(
-    eventData: TagCreatedEventData,
-  ): Promise<{
+  private async generateMetadata(eventData: TagCreatedEventData): Promise<{
     success: boolean;
     metadataUri?: string;
     createMetadataParameters?: {

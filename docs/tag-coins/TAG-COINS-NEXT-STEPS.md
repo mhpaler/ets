@@ -45,10 +45,10 @@
 
 ### ✅ **Documentation Created:**
 
-- `ECONOMIC-DECISIONS.md` - Complete economic model
-- `TAG-METADATA-DECISION.md` - Metadata strategy + symbol solution
-- `ZORA-RESEARCH.md` - Technical research findings
-- `CLAUDE-IMPLEMENTATION.md` - Updated with all decisions
+- [`ECONOMIC-DECISIONS.md`](./ECONOMIC-DECISIONS.md) - Complete economic model
+- [`TAG-METADATA-DECISION.md`](./TAG-METADATA-DECISION.md) - Metadata strategy + symbol solution
+- `ZORA-RESEARCH.md` - Technical research findings (in research/ folder)
+- [`CLAUDE-IMPLEMENTATION.md`](../claude/CLAUDE-IMPLEMENTATION.md) - Updated with all decisions
 - GitHub issues ready for development team
 
 ---

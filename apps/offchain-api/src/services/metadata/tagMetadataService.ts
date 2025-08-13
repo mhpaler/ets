@@ -1,9 +1,9 @@
 import {
   createMetadataBuilder,
   createZoraUploaderForCreator,
-  validateImageMimeType,
   getURLFromUploadResult,
   setApiKey,
+  validateImageMimeType,
 } from "@zoralabs/coins-sdk";
 import { logger } from "../../utils/logger";
 
@@ -30,20 +30,17 @@ export class TagMetadataService {
   private readonly mockMode: boolean;
   private readonly stagingMode: boolean;
 
-  constructor(
-    mockMode = true,
-    stagingMode = false,
-  ) {
+  constructor(mockMode = true, stagingMode = false) {
     this.mockMode = mockMode;
     this.stagingMode = stagingMode;
-    
+
     // Set Zora API key for IPFS uploads
     if (!mockMode) {
       const zoraApiKey = process.env.ZORA_API_KEY;
-      if (!zoraApiKey || zoraApiKey === 'your_zora_api_key_here') {
+      if (!zoraApiKey || zoraApiKey === "your_zora_api_key_here") {
         logger.warn("Zora API key not configured - real IPFS uploads will fail", {
           hasKey: !!zoraApiKey,
-          isPlaceholder: zoraApiKey === 'your_zora_api_key_here'
+          isPlaceholder: zoraApiKey === "your_zora_api_key_here",
         });
       } else {
         setApiKey(zoraApiKey);
@@ -122,10 +119,10 @@ export class TagMetadataService {
   private async generateRealMetadata(request: TagMetadataRequest): Promise<TagMetadataResponse> {
     const canonicalName = this.toCanonicalName(request.tagString);
     const imageFile = await this.generateImageFile(request);
-    
+
     // Create uploader for the creator's address
     const uploader = createZoraUploaderForCreator(request.creator as `0x${string}`);
-    
+
     // Build metadata with Zora builder
     const builder = createMetadataBuilder()
       .withName(`TAG: ${canonicalName}`)
@@ -133,16 +130,16 @@ export class TagMetadataService {
       .withDescription(`TAG coin for ${request.tagString} - Created via ETS`)
       .withImage(imageFile)
       .withProperties(this.buildETSProperties(request));
-    
+
     // Upload to IPFS via Zora's infrastructure
     const result = await builder.upload(uploader);
-    
+
     logger.info("Generated real metadata via Zora", {
       tagString: request.tagString,
       metadataUri: result.url,
       stagingMode: this.stagingMode,
     });
-    
+
     return {
       success: true,
       metadataUri: result.url,
@@ -197,7 +194,7 @@ export class TagMetadataService {
     // For now, create a simple SVG as placeholder
     const svgContent = this.generatePlaceholderSVG(request);
     const blob = new Blob([svgContent], { type: "image/svg+xml" });
-    
+
     // Create File object that Zora builder expects
     const fileName = `tag-${request.machineName}.svg`;
     return new File([blob], fileName, { type: "image/svg+xml" });
@@ -210,7 +207,7 @@ export class TagMetadataService {
   private generatePlaceholderSVG(request: TagMetadataRequest): string {
     const cleanTag = request.tagString.replace("#", "");
     const color = this.getTagColor(request.tagString);
-    
+
     return `<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg">
       <rect width="400" height="400" fill="${color}"/>
       <text x="200" y="200" text-anchor="middle" dominant-baseline="middle" 
@@ -223,12 +220,12 @@ export class TagMetadataService {
       </text>
     </svg>`;
   }
-  
+
   /**
    * Get color for tag based on content
    */
   private getTagColor(tagString: string): string {
-    const colors = ['#0066CC', '#FF6B35', '#7209B7', '#2F9B69', '#C1666B'];
+    const colors = ["#0066CC", "#FF6B35", "#7209B7", "#2F9B69", "#C1666B"];
     const hash = this.simpleHash(tagString);
     return colors[Number.parseInt(hash.slice(0, 2), 16) % colors.length];
   }

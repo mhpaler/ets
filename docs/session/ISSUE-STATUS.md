@@ -37,7 +37,7 @@
 
 **#530**: Research Zora integration and establish ETS <> Zora mapping strategy ✅
 - Completed: 2025-08-11
-- Deliverable: [ZORA-INTEGRATION-SPEC.md](./ZORA-INTEGRATION-SPEC.md)
+- Deliverable: [ZORA-INTEGRATION-SPEC.md](../tag-coins/ZORA-INTEGRATION-SPEC.md)
 - Key decisions: Unified "ETS" symbol, Zora addresses as IDs, canonical metadata
 
 ### ✅ Completed Decisions/Work
@@ -50,7 +50,7 @@
 
 ## Notes
 - **GitHub Issues**: #528 (epic), #529-533 (Phase 1 sub-issues)
-- **Documentation**: See CLAUDE-IMPLEMENTATION.md for full plan
+- **Documentation**: See [CLAUDE-IMPLEMENTATION.md](../claude/CLAUDE-IMPLEMENTATION.md) for full plan
 - **Research**: See research/ folder for Zora integration findings
 
 ## Current Work: #531 (Off-chain Event Processing Service)
