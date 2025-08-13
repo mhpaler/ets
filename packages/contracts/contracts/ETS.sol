@@ -23,6 +23,7 @@ import { IETSToken } from "./interfaces/IETSToken.sol";
 import { IETSTarget } from "./interfaces/IETSTarget.sol";
 import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
 import { UintArrayUtils } from "./libraries/UintArrayUtils.sol";
+import { AddressArrayUtils } from "./libraries/AddressArrayUtils.sol";
 import { ContextUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
@@ -30,6 +31,7 @@ import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/
 
 contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
     using UintArrayUtils for uint256[];
+    using AddressArrayUtils for address[];
 
     // Public variables
 
@@ -144,27 +146,27 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     /// @inheritdoc IETS
     function createTaggingRecord(
-        uint256[] memory _tagIds,
+        address[] memory _coinAddresses,
         uint256 _targetId,
         string calldata _recordType,
         address _tagger
     ) public payable nonReentrant onlyRelayer {
-        uint256 tagCount = _tagIds.length;
+        uint256 tagCount = _coinAddresses.length;
         require(tagCount > 0, "No tags supplied");
         for (uint256 i; i < tagCount; ++i) {
-            require(etsToken.tagExistsById(_tagIds[i]), "Invalid tagId");
+            require(etsToken.tagExistsByAddress(_coinAddresses[i]), "Invalid coin address");
         }
         require(bytes(_recordType).length >= 3 && bytes(_recordType).length < 31, "Record type too long");
         require(etsTarget.targetExistsById(_targetId), "Invalid targetId");
-        _processTaggingFees(_tagIds);
-        _createTaggingRecord(_tagIds, _targetId, _recordType, _msgSender(), _tagger);
+        _processTaggingFees(_coinAddresses);
+        _createTaggingRecord(_coinAddresses, _targetId, _recordType, _msgSender(), _tagger);
     }
 
     /// @inheritdoc IETS
     function getOrCreateTagId(
         string calldata _tag,
         address payable _creator
-    ) public payable onlyRelayer returns (uint256 tokenId) {
+    ) public payable onlyRelayer returns (address coinAddress) {
         return etsToken.getOrCreateTagId(_tag, payable(_msgSender()), _creator);
     }
 
@@ -172,7 +174,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     function createTag(
         string calldata _tag,
         address payable _creator
-    ) public payable nonReentrant onlyRelayer returns (uint256 _tokenId) {
+    ) public payable nonReentrant onlyRelayer returns (address coinAddress) {
         return etsToken.createTag(_tag, payable(_msgSender()), _creator);
     }
 
@@ -182,43 +184,43 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address payable _tagger,
         address _relayer
     ) public payable onlyRelayer {
-        // Derive tagIds for the tagStrings.
+        // Derive coin addresses for the tagStrings.
         uint256 tagCount = _rawInput.tagStrings.length;
         require(tagCount > 0, "No tags supplied");
 
-        uint256[] memory tagIds = new uint256[](tagCount);
+        address[] memory coinAddresses = new address[](tagCount);
         for (uint256 i; i < tagCount; ++i) {
-            tagIds[i] = getOrCreateTagId(_rawInput.tagStrings[i], _tagger);
+            coinAddresses[i] = getOrCreateTagId(_rawInput.tagStrings[i], _tagger);
         }
 
         uint256 taggingRecordId = computeTaggingRecordIdFromRawInput(_rawInput, _relayer, _tagger);
 
         if (taggingRecordExists(taggingRecordId)) {
-            appendTags(taggingRecordId, tagIds, _tagger);
+            appendTags(taggingRecordId, coinAddresses, _tagger);
         } else {
             // Derive targetId from targetURI. Will revert if targetURI is empty.
             uint256 targetId = etsTarget.getOrCreateTargetId(_rawInput.targetURI);
             // Require new tagging records be inserted by calling relayer.
-            createTaggingRecord(tagIds, targetId, _rawInput.recordType, _tagger);
+            createTaggingRecord(coinAddresses, targetId, _rawInput.recordType, _tagger);
         }
     }
 
     /// @inheritdoc IETS
     function applyTagsWithCompositeKey(
-        uint256[] memory _tagIds,
+        address[] memory _coinAddresses,
         uint256 _targetId,
         string calldata _recordType,
         address payable _tagger,
         address _relayer
     ) public payable onlyRelayer {
-        uint256 tagCount = _tagIds.length;
+        uint256 tagCount = _coinAddresses.length;
         require(tagCount > 0, "No tags supplied");
 
         uint256 taggingRecordId = computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _relayer, _tagger);
         if (taggingRecordExists(taggingRecordId)) {
-            appendTags(taggingRecordId, _tagIds, _tagger);
+            appendTags(taggingRecordId, _coinAddresses, _tagger);
         } else {
-            createTaggingRecord(_tagIds, _targetId, _recordType, _tagger);
+            createTaggingRecord(_coinAddresses, _targetId, _recordType, _tagger);
         }
     }
 
@@ -231,18 +233,18 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         uint256 tagCount = _rawInput.tagStrings.length;
         require(tagCount > 0, "No tags supplied");
 
-        uint256[] memory tagIds = new uint256[](tagCount);
+        address[] memory coinAddresses = new address[](tagCount);
         for (uint256 i; i < tagCount; ++i) {
             // New tags are created via calling relayer.
-            tagIds[i] = getOrCreateTagId(_rawInput.tagStrings[i], _tagger);
+            coinAddresses[i] = getOrCreateTagId(_rawInput.tagStrings[i], _tagger);
         }
 
-        replaceTags(computeTaggingRecordIdFromRawInput(_rawInput, _relayer, _tagger), tagIds, _tagger);
+        replaceTags(computeTaggingRecordIdFromRawInput(_rawInput, _relayer, _tagger), coinAddresses, _tagger);
     }
 
     /// @inheritdoc IETS
     function replaceTagsWithCompositeKey(
-        uint256[] calldata _tagIds,
+        address[] calldata _coinAddresses,
         uint256 _targetId,
         string memory _recordType,
         address payable _tagger,
@@ -250,7 +252,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     ) public payable onlyRelayer {
         replaceTags(
             computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _relayer, _tagger),
-            _tagIds,
+            _coinAddresses,
             _tagger
         );
     }
@@ -262,53 +264,53 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address _relayer
     ) public onlyRelayer {
         uint256 rawTagCount = _rawInput.tagStrings.length;
-        uint256[] memory tagIds = new uint256[](rawTagCount);
+        address[] memory coinAddresses = new address[](rawTagCount);
         for (uint256 i; i < rawTagCount; ++i) {
-            tagIds[i] = etsToken.computeTagId(_rawInput.tagStrings[i]);
+            coinAddresses[i] = etsToken.computeCoinAddress(_rawInput.tagStrings[i]);
         }
-        removeTags(computeTaggingRecordIdFromRawInput(_rawInput, _relayer, _tagger), tagIds, _tagger);
+        removeTags(computeTaggingRecordIdFromRawInput(_rawInput, _relayer, _tagger), coinAddresses, _tagger);
     }
 
     /// @inheritdoc IETS
     function removeTagsWithCompositeKey(
-        uint256[] calldata _tagIds,
+        address[] calldata _coinAddresses,
         uint256 _targetId,
         string memory _recordType,
         address payable _tagger,
         address _relayer
     ) public onlyRelayer {
-        removeTags(computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _relayer, _tagger), _tagIds, _tagger);
+        removeTags(computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _relayer, _tagger), _coinAddresses, _tagger);
     }
 
     /// @inheritdoc IETS
     function appendTags(
         uint256 _taggingRecordId,
-        uint256[] memory _tagIds,
+        address[] memory _coinAddresses,
         address _tagger
     ) public payable nonReentrant onlyRelayer {
-        require(_tagIds.length > 0, "No tags supplied");
+        require(_coinAddresses.length > 0, "No tags supplied");
         require(taggingRecords[_taggingRecordId].tagger == _tagger, "Not authorized");
 
         // Filter out new tags from the supplied tags.
-        _tagIds = UintArrayUtils.difference(_tagIds, taggingRecords[_taggingRecordId].tagIds);
+        _coinAddresses = AddressArrayUtils.difference(_coinAddresses, taggingRecords[_taggingRecordId].coinAddresses);
 
-        if (_tagIds.length > 0) {
-            _processTaggingFees(_tagIds);
-            _appendTags(_taggingRecordId, _tagIds);
+        if (_coinAddresses.length > 0) {
+            _processTaggingFees(_coinAddresses);
+            _appendTags(_taggingRecordId, _coinAddresses);
         }
     }
 
     /// @inheritdoc IETS
     function replaceTags(
         uint256 _taggingRecordId,
-        uint256[] memory _tagIds,
+        address[] memory _coinAddresses,
         address _tagger
     ) public payable nonReentrant onlyRelayer {
-        require(_tagIds.length > 0, "No tags supplied");
+        require(_coinAddresses.length > 0, "No tags supplied");
         require(taggingRecords[_taggingRecordId].tagger == _tagger, "Not authorized");
 
         // Find all the tags NOT SHARED by the tagging record and the replacement set.
-        uint256[] memory notShared = UintArrayUtils.difference(taggingRecords[_taggingRecordId].tagIds, _tagIds);
+        address[] memory notShared = AddressArrayUtils.difference(taggingRecords[_taggingRecordId].coinAddresses, _coinAddresses);
 
         // Remove these from the tagging record.
         if (notShared.length > 0) {
@@ -316,29 +318,29 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         }
 
         // Filter out new tags from the replacement set
-        _tagIds = UintArrayUtils.difference(_tagIds, taggingRecords[_taggingRecordId].tagIds);
+        _coinAddresses = AddressArrayUtils.difference(_coinAddresses, taggingRecords[_taggingRecordId].coinAddresses);
 
-        if (_tagIds.length > 0) {
-            _processTaggingFees(_tagIds);
-            _appendTags(_taggingRecordId, _tagIds);
+        if (_coinAddresses.length > 0) {
+            _processTaggingFees(_coinAddresses);
+            _appendTags(_taggingRecordId, _coinAddresses);
         }
     }
 
     /// @inheritdoc IETS
     function removeTags(
         uint256 _taggingRecordId,
-        uint256[] memory _tagIds,
+        address[] memory _coinAddresses,
         address _tagger
     ) public nonReentrant onlyRelayer {
-        require(_tagIds.length > 0, "No tags supplied");
+        require(_coinAddresses.length > 0, "No tags supplied");
         require(taggingRecords[_taggingRecordId].tagger == _tagger, "Not authorized");
 
         // Find tags shared by supplied tags and tagging record tags.
-        _tagIds = UintArrayUtils.intersect(_tagIds, taggingRecords[_taggingRecordId].tagIds);
+        _coinAddresses = AddressArrayUtils.intersect(_coinAddresses, taggingRecords[_taggingRecordId].coinAddresses);
 
-        if (_tagIds.length > 0) {
+        if (_coinAddresses.length > 0) {
             // No tagging fee when tags are removed.
-            _removeTags(_taggingRecordId, _tagIds);
+            _removeTags(_taggingRecordId, _coinAddresses);
         }
     }
 
@@ -390,16 +392,16 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         TaggingAction _action
     ) public view returns (uint256 fee, uint256 tagCount) {
         uint256 rawTagCount = _rawInput.tagStrings.length;
-        uint256[] memory tagIds = new uint256[](rawTagCount);
+        address[] memory coinAddresses = new address[](rawTagCount);
         for (uint256 i; i < rawTagCount; ++i) {
-            tagIds[i] = etsToken.computeTagId(_rawInput.tagStrings[i]);
+            coinAddresses[i] = etsToken.computeCoinAddress(_rawInput.tagStrings[i]);
         }
-        return computeTaggingFee(computeTaggingRecordIdFromRawInput(_rawInput, _relayer, _tagger), tagIds, _action);
+        return computeTaggingFee(computeTaggingRecordIdFromRawInput(_rawInput, _relayer, _tagger), coinAddresses, _action);
     }
 
     /// @inheritdoc IETS
     function computeTaggingFeeFromCompositeKey(
-        uint256[] memory _tagIds,
+        address[] memory _coinAddresses,
         uint256 _targetId,
         string calldata _recordType,
         address _relayer,
@@ -409,7 +411,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         return
             computeTaggingFee(
                 computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _relayer, _tagger),
-                _tagIds,
+                _coinAddresses,
                 _action
             );
     }
@@ -417,40 +419,40 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @inheritdoc IETS
     function computeTaggingFee(
         uint256 _taggingRecordId,
-        uint256[] memory _tagIds,
+        address[] memory _coinAddresses,
         TaggingAction _action
     ) public view returns (uint256 fee, uint256 tagCount) {
         // Return quickly when no tagging record exists.
         if (!taggingRecordExists(_taggingRecordId)) {
-            return (_computeTaggingFee(_tagIds.length), _tagIds.length);
+            return (_computeTaggingFee(_coinAddresses.length), _coinAddresses.length);
         }
 
         if (TaggingAction(_action) == TaggingAction.APPEND) {
-            // remove tagging record tag ids from input tag ids to return number of new tags applied.
-            _tagIds = UintArrayUtils.difference(_tagIds, taggingRecords[_taggingRecordId].tagIds);
+            // remove tagging record coin addresses from input coin addresses to return number of new tags applied.
+            _coinAddresses = AddressArrayUtils.difference(_coinAddresses, taggingRecords[_taggingRecordId].coinAddresses);
         }
 
         if (TaggingAction(_action) == TaggingAction.REPLACE) {
             // Remove tags from tagging record not in replacement tag set.
-            uint256[] memory taggingRecordTags = taggingRecords[_taggingRecordId].tagIds;
-            uint256[] memory tagsToRemove = UintArrayUtils.difference(taggingRecords[_taggingRecordId].tagIds, _tagIds);
+            address[] memory taggingRecordTags = taggingRecords[_taggingRecordId].coinAddresses;
+            address[] memory tagsToRemove = AddressArrayUtils.difference(taggingRecords[_taggingRecordId].coinAddresses, _coinAddresses);
             if (tagsToRemove.length > 0) {
-                taggingRecordTags = UintArrayUtils.difference(taggingRecords[_taggingRecordId].tagIds, tagsToRemove);
+                taggingRecordTags = AddressArrayUtils.difference(taggingRecords[_taggingRecordId].coinAddresses, tagsToRemove);
             }
 
-            _tagIds = UintArrayUtils.difference(_tagIds, taggingRecordTags);
+            _coinAddresses = AddressArrayUtils.difference(_coinAddresses, taggingRecordTags);
         }
 
         if (TaggingAction(_action) == TaggingAction.REMOVE) {
             // Find tags shared by supplied tags and tagging record tags.
-            _tagIds = UintArrayUtils.intersect(_tagIds, taggingRecords[_taggingRecordId].tagIds);
+            _coinAddresses = AddressArrayUtils.intersect(_coinAddresses, taggingRecords[_taggingRecordId].coinAddresses);
 
             // No fee charged for removing tags at the present time, but still nice to give
             // clients a way to know how many tags will be removed.
-            return (0, _tagIds.length);
+            return (0, _coinAddresses.length);
         }
 
-        return (_computeTaggingFee(_tagIds.length), _tagIds.length);
+        return (_computeTaggingFee(_coinAddresses.length), _coinAddresses.length);
     }
 
     /// @inheritdoc IETS
@@ -461,7 +463,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     )
         public
         view
-        returns (uint256[] memory tagIds, uint256 targetId, string memory recordType, address relayer, address tagger)
+        returns (address[] memory coinAddresses, uint256 targetId, string memory recordType, address relayer, address tagger)
     {
         return
             this.getTaggingRecordFromId(
@@ -483,7 +485,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     )
         public
         view
-        returns (uint256[] memory tagIds, uint256 targetId, string memory recordType, address relayer, address tagger)
+        returns (address[] memory coinAddresses, uint256 targetId, string memory recordType, address relayer, address tagger)
     {
         return
             this.getTaggingRecordFromId(
@@ -497,11 +499,11 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     )
         public
         view
-        returns (uint256[] memory tagIds, uint256 targetId, string memory recordType, address relayer, address tagger)
+        returns (address[] memory coinAddresses, uint256 targetId, string memory recordType, address relayer, address tagger)
     {
         TaggingRecord storage taggingRecord = taggingRecords[_id];
         return (
-            taggingRecord.tagIds,
+            taggingRecord.coinAddresses,
             taggingRecord.targetId,
             taggingRecord.recordType,
             taggingRecord.relayer,
@@ -550,7 +552,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     /// @dev write a tagging record, mapping a taggingRecordId to a TaggingRecord struct.
     function _createTaggingRecord(
-        uint256[] memory _tagIds,
+        address[] memory _coinAddresses,
         uint256 _targetId,
         string calldata _recordType,
         address _relayer,
@@ -558,7 +560,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     ) private {
         uint256 taggingRecordId = computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _relayer, _tagger);
         taggingRecords[taggingRecordId] = TaggingRecord({
-            tagIds: _tagIds,
+            coinAddresses: _coinAddresses,
             targetId: _targetId,
             recordType: _recordType,
             relayer: _relayer,
@@ -571,11 +573,11 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /**
      * @dev Append tags to a tagging record
      */
-    function _appendTags(uint256 _taggingRecordId, uint256[] memory _tagIds) private {
-        // Merge _newTagIds with existing tags.
-        taggingRecords[_taggingRecordId].tagIds = UintArrayUtils.extend(
-            taggingRecords[_taggingRecordId].tagIds,
-            _tagIds
+    function _appendTags(uint256 _taggingRecordId, address[] memory _coinAddresses) private {
+        // Merge _coinAddresses with existing tags.
+        taggingRecords[_taggingRecordId].coinAddresses = AddressArrayUtils.extend(
+            taggingRecords[_taggingRecordId].coinAddresses,
+            _coinAddresses
         );
         emit TaggingRecordUpdated(_taggingRecordId, TaggingAction.APPEND);
     }
@@ -584,12 +586,12 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
      * @dev Remove tags from tagging record.
      *
      * @param _taggingRecordId tagging record being updated.
-     * @param _tagIds tagId to remove from tagging record.
+     * @param _coinAddresses coin addresses to remove from tagging record.
      */
-    function _removeTags(uint256 _taggingRecordId, uint256[] memory _tagIds) private {
-        taggingRecords[_taggingRecordId].tagIds = UintArrayUtils.difference(
-            taggingRecords[_taggingRecordId].tagIds,
-            _tagIds
+    function _removeTags(uint256 _taggingRecordId, address[] memory _coinAddresses) private {
+        taggingRecords[_taggingRecordId].coinAddresses = AddressArrayUtils.difference(
+            taggingRecords[_taggingRecordId].coinAddresses,
+            _coinAddresses
         );
         emit TaggingRecordUpdated(_taggingRecordId, TaggingAction.REMOVE);
     }
@@ -602,19 +604,18 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         return (fee);
     }
 
-    function _processTaggingFees(uint256[] memory _tagIds) private {
-        require((msg.value == _computeTaggingFee(_tagIds.length)), "wrong fee supplied");
+    function _processTaggingFees(address[] memory _coinAddresses) private {
+        require((msg.value == _computeTaggingFee(_coinAddresses.length)), "wrong fee supplied");
         address platform = etsAccessControls.getPlatformAddress();
-        for (uint256 i; i < _tagIds.length; ++i) {
-            _processAccrued(_tagIds[i], platform);
+        for (uint256 i; i < _coinAddresses.length; ++i) {
+            _processAccrued(_coinAddresses[i], platform);
         }
     }
 
     // @dev Internal function to divide up the tagging fee and accrue it to ETS participants.
-    function _processAccrued(uint256 _tagId, address _platform) private {
-        // Note: This will cause _processTaggingFees to revert if tagId doesn't exist.
-        address owner = etsToken.ownerOf(_tagId);
-        IETSToken.Tag memory tag = etsToken.getTagById(_tagId);
+    function _processAccrued(address _coinAddress, address _platform) private {
+        // Note: This will cause _processTaggingFees to revert if coinAddress doesn't exist.
+        IETSToken.Tag memory tag = etsToken.getTagByAddress(_coinAddress);
 
         uint256 platformAllocation = (msg.value * platformPercentage) / MODULO;
         uint256 relayerAllocation = (msg.value * relayerPercentage) / MODULO;
@@ -623,13 +624,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         accrued[_platform] = accrued[_platform] + platformAllocation;
         accrued[tag.relayer] = accrued[tag.relayer] + relayerAllocation;
 
-        // pre-auction.
-        if (owner == _platform) {
-            accrued[tag.creator] = accrued[tag.creator] + remainingAllocation;
-        }
-        // post-auction.
-        else {
-            accrued[owner] = accrued[owner] + remainingAllocation;
-        }
+        // In Zora ERC-20 model, creator always gets remaining allocation (no ownership concept)
+        accrued[tag.creator] = accrued[tag.creator] + remainingAllocation;
     }
 }
