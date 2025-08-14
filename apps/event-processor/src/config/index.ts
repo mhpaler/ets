@@ -51,6 +51,7 @@ export const config: EventProcessorConfig = {
   offchainApiUrl: process.env.OFFCHAIN_API_URL || "http://localhost:3000",
   offchainApiKey: process.env.OFFCHAIN_API_KEY,
   logLevel: process.env.LOG_LEVEL || "info",
+  privateKey: process.env.PRIVATE_KEY,
 };
 
 // Validation

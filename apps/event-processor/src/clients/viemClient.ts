@@ -1,4 +1,5 @@
-import { http, createPublicClient, parseAbi } from "viem";
+import { http, createPublicClient, createWalletClient, parseAbi } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
 import { baseSepolia, hardhat } from "viem/chains";
 import { config } from "../config";
 
@@ -8,10 +9,31 @@ const chainMap = {
   31337: hardhat, // Localhost
 };
 
+const chain = chainMap[config.chainId as keyof typeof chainMap] || baseSepolia;
+const transport = http(config.rpcUrl);
+
 export const publicClient = createPublicClient({
-  chain: chainMap[config.chainId as keyof typeof chainMap] || baseSepolia,
-  transport: http(config.rpcUrl),
+  chain,
+  transport,
 });
+
+// Create wallet client for write operations (if private key provided)
+export const walletClient = config.privateKey
+  ? createWalletClient({
+      account: privateKeyToAccount(config.privateKey as `0x${string}`),
+      chain,
+      transport,
+    })
+  : null;
+
+// Combined client that supports both read and write operations
+export const viemClient = {
+  // Read operations
+  ...publicClient,
+  // Write operations (if wallet available)
+  writeContract: walletClient?.writeContract.bind(walletClient),
+  waitForTransactionReceipt: publicClient.waitForTransactionReceipt.bind(publicClient),
+};
 
 // ETSToken ABI for TagCreated event
 export const etsTokenAbi = parseAbi([

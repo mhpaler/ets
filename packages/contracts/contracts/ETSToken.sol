@@ -68,6 +68,11 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
         _;
     }
 
+    modifier onlyOracle() {
+        require(etsAccessControls.isAdmin(_msgSender()) || etsAccessControls.isRelayer(_msgSender()), "Caller not authorized for oracle operations");
+        _;
+    }
+
     // ============ UUPS INTERFACE ============
 
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -215,6 +220,31 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
         emit TagCreated(coinAddress, originalInput, displayVersion, machineName, _creator, _relayer, block.timestamp);
 
         return coinAddress;
+    }
+
+    /// @inheritdoc IETSToken
+    function updateTagZoraCoinAddress(
+        address _predictedCoinAddress,
+        address _actualCoinAddress
+    ) public onlyOracle {
+        require(_predictedCoinAddress != address(0), "Predicted address cannot be zero");
+        require(_actualCoinAddress != address(0), "Actual address cannot be zero");
+        
+        // Verify that the TAG exists for the predicted address
+        Tag storage tag = coinAddressToTag[_predictedCoinAddress];
+        require(tag.coinAddress != address(0), "TAG does not exist for predicted address");
+        
+        // Update the TAG record with the actual coin address
+        // Keep the predicted address as the primary identifier, but store actual address for reference
+        tag.coinAddress = _actualCoinAddress;
+        
+        // Update the lookup mapping if the addresses differ
+        if (_predictedCoinAddress != _actualCoinAddress) {
+            // Add mapping for actual address to point to the same TAG
+            coinAddressToTag[_actualCoinAddress] = tag;
+        }
+        
+        emit TagZoraCoinAddressUpdated(_predictedCoinAddress, _actualCoinAddress, tag.machineName);
     }
 
     // ============ INTERNAL HELPER FUNCTIONS ============

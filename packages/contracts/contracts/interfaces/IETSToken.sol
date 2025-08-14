@@ -104,6 +104,19 @@ interface IETSToken {
         uint256 timestamp
     );
 
+    /**
+     * @dev emitted when a TAG is updated with the actual deployed Zora coin address.
+     *
+     * @param predictedCoinAddress The originally predicted coin address (TAG identifier).
+     * @param actualCoinAddress The actual deployed Zora coin address.
+     * @param machineName The tag machine name for reference.
+     */
+    event TagZoraCoinAddressUpdated(
+        address indexed predictedCoinAddress,
+        address indexed actualCoinAddress,
+        string machineName
+    );
+
     // ============ OWNER INTERFACE ============
 
     /**
@@ -160,6 +173,20 @@ interface IETSToken {
         address payable _relayer,
         address payable _creator
     ) external payable returns (address coinAddress);
+
+    /**
+     * @notice Update a TAG with the actual deployed Zora coin address.
+     *
+     * Updates the TAG record after successful off-chain Zora coin creation.
+     * This function can only be called by authorized oracles/processors.
+     *
+     * @param _predictedCoinAddress The originally predicted coin address (TAG identifier).
+     * @param _actualCoinAddress The actual deployed Zora coin address.
+     */
+    function updateTagZoraCoinAddress(
+        address _predictedCoinAddress,
+        address _actualCoinAddress
+    ) external;
 
 
     // ============ PUBLIC VIEW FUNCTIONS ============

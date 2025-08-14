@@ -31,4 +31,5 @@ export interface EventProcessorConfig {
   offchainApiUrl: string;
   offchainApiKey?: string;
   logLevel: string;
+  privateKey?: string;
 }

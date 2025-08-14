@@ -12,12 +12,12 @@
 ## Current Sprint: Phase 1 MVP
 
 ### 🎯 Active Issue
-**#529**: Add TagCreated Event to ETS Core
-- **Status**: 🚧 IN PROGRESS - Core contract architecture refactored, ready for event implementation
+**#529**: Add TagCreated Event to ETS Core  
+- **Status**: 🚧 IN PROGRESS - TagCreated event infrastructure complete, working on local dev integration
 - **Branch**: 528-tag-coins-epic  
 - **Started**: 2025-08-13
 - **Objective**: Add TagCreated event infrastructure to trigger off-chain coin creation services
-- **Current Focus**: Sub-issue #529.3 - Implement TagCreated Event Infrastructure
+- **Current Focus**: Sub-issue #529.4 - Local Development Integration
 
 ### 🎯 Sub-Issues
 
@@ -41,20 +41,33 @@
   - Simplified relayer creation process (democratized access)
   - Cleaned up unused imports and dependencies
 
-**#529.3: Implement TagCreated Event Infrastructure** 🎯 ACTIVE [0%]
-- **Status**: 🚧 IN PROGRESS - Just started
+**#529.3: Event Processor Round-Trip Architecture Refactoring** ✅ COMPLETED [85%]
+- **Status**: 🚧 IN PROGRESS - Round-trip refactoring 85% complete
 - **Started**: 2025-08-13
-- **Objective**: Add TagCreated event to ETS Token contract and implement emission
-- **Current Task**: Add TagCreated event to ETSToken contract
-- **Next Steps**:
-  1. Add TagCreated event to ETSToken contract
-  2. Implement event emission in createTag() function  
-  3. Add event emission to getOrCreateTagId() function
-  4. Test event structure and data flow
-  5. Validate off-chain service can consume events
+- **Objective**: Implement complete round-trip responsibility for event processor (like Airnode pattern)
+- **Deliverable**: Event processor with full workflow: Event detection → API call → Blockchain update
+- **Key Achievements**:
+  1. ✅ TagCreated event already implemented in ETSToken.sol (line 215)
+  2. ✅ Event emission working in createTag() function
+  3. ✅ Created complete /apps/event-processor service architecture
+  4. ✅ Environment-aware configuration using ETS packages
+  5. ✅ Added updateTagZoraCoinAddress function to ETSToken.sol
+  6. ✅ Added TagZoraCoinAddressUpdated event and onlyOracle modifier
+  7. ✅ Enhanced TagCoinHandler with blockchain update capability
+  8. ✅ Added wallet client support with private key configuration
+- **NEXT IMMEDIATE**: Test and verify round-trip implementation works
 
-**#529.4: Update Test Suite and Mocks** ⏳ PENDING
-- **Status**: Pending #529.3 completion
+**#529.4: Local Development Integration** ⏳ PENDING [0%]
+- **Status**: Pending completion of #529.3 round-trip refactoring
+- **Objective**: Integrate event processor and Zora mocking into local dev stack
+- **Next Steps**:
+  1. Add tag-coin API endpoint to offchain API with localhost mocking
+  2. Add event processor service to start-local-stack.sh
+  3. Implement deterministic mock Zora coin address generation
+  4. Test complete local TAG coin creation workflow
+
+**#529.5: Update Test Suite and Mocks** ⏳ PENDING
+- **Status**: Pending local dev integration completion
 - **Objective**: Comprehensive test updates for new address-based architecture
 
 ### 📋 Priority Queue

@@ -11,6 +11,9 @@
     "start": "node dist/index.js",
     "watch": "ts-node --watch src/index.ts",
     "test": "jest",
+    "test:standalone": "ts-node src/test-standalone.ts",
+    "test:hardhat": "NODE_ENV=development ts-node src/test-local-hardhat.ts",
+    "test:api": "ts-node src/test-api-client.ts",
     "lint": "eslint src/**/*.ts",
     "clean": "rm -rf dist"
   },

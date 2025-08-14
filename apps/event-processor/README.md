@@ -92,8 +92,14 @@ SUBGRAPH_URL=https://...       # Override subgraph endpoint
 - `pnpm build` - Build TypeScript to JavaScript
 - `pnpm start` - Run built JavaScript
 - `pnpm watch` - Run with file watching
-- `pnpm test` - Run tests
+- `pnpm test` - Run Jest tests
 - `pnpm lint` - Run ESLint
+
+### Testing Scripts
+
+- `pnpm test:standalone` - Test with mock data (no external dependencies)
+- `pnpm test:hardhat` - Test against local Hardhat node 
+- `pnpm test:api` - Test API client connectivity
 
 ## Event Processing Flow
 
