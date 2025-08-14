@@ -103,9 +103,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint256[]",
-        "name": "_tagIds",
-        "type": "uint256[]"
+        "internalType": "address[]",
+        "name": "_coinAddresses",
+        "type": "address[]"
       },
       {
         "internalType": "address",
@@ -121,9 +121,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint256[]",
-        "name": "_tagIds",
-        "type": "uint256[]"
+        "internalType": "address[]",
+        "name": "_coinAddresses",
+        "type": "address[]"
       },
       {
         "internalType": "uint256",
@@ -199,9 +199,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint256[]",
-        "name": "_tagIds",
-        "type": "uint256[]"
+        "internalType": "address[]",
+        "name": "_coinAddresses",
+        "type": "address[]"
       },
       {
         "internalType": "enum IETS.TaggingAction",
@@ -228,9 +228,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint256[]",
-        "name": "_tagIds",
-        "type": "uint256[]"
+        "internalType": "address[]",
+        "name": "_coinAddresses",
+        "type": "address[]"
       },
       {
         "internalType": "uint256",
@@ -426,9 +426,9 @@
     "name": "createTag",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "coinAddress",
+        "type": "address"
       }
     ],
     "stateMutability": "payable",
@@ -437,9 +437,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint256[]",
-        "name": "_tagIds",
-        "type": "uint256[]"
+        "internalType": "address[]",
+        "name": "_coinAddresses",
+        "type": "address[]"
       },
       {
         "internalType": "uint256",
@@ -491,9 +491,9 @@
     "name": "getOrCreateTagId",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "coinAddress",
+        "type": "address"
       }
     ],
     "stateMutability": "payable",
@@ -525,9 +525,9 @@
     "name": "getTaggingRecordFromCompositeKey",
     "outputs": [
       {
-        "internalType": "uint256[]",
-        "name": "tagIds",
-        "type": "uint256[]"
+        "internalType": "address[]",
+        "name": "coinAddresses",
+        "type": "address[]"
       },
       {
         "internalType": "uint256",
@@ -564,9 +564,9 @@
     "name": "getTaggingRecordFromId",
     "outputs": [
       {
-        "internalType": "uint256[]",
-        "name": "tagIds",
-        "type": "uint256[]"
+        "internalType": "address[]",
+        "name": "coinAddresses",
+        "type": "address[]"
       },
       {
         "internalType": "uint256",
@@ -630,9 +630,9 @@
     "name": "getTaggingRecordFromRawInput",
     "outputs": [
       {
-        "internalType": "uint256[]",
-        "name": "tagIds",
-        "type": "uint256[]"
+        "internalType": "address[]",
+        "name": "coinAddresses",
+        "type": "address[]"
       },
       {
         "internalType": "uint256",
@@ -666,9 +666,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint256[]",
-        "name": "_tagIds",
-        "type": "uint256[]"
+        "internalType": "address[]",
+        "name": "_coinAddresses",
+        "type": "address[]"
       },
       {
         "internalType": "address",
@@ -684,9 +684,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint256[]",
-        "name": "_tagIds",
-        "type": "uint256[]"
+        "internalType": "address[]",
+        "name": "_coinAddresses",
+        "type": "address[]"
       },
       {
         "internalType": "uint256",
@@ -762,9 +762,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint256[]",
-        "name": "_tagIds",
-        "type": "uint256[]"
+        "internalType": "address[]",
+        "name": "_coinAddresses",
+        "type": "address[]"
       },
       {
         "internalType": "address",
@@ -780,9 +780,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint256[]",
-        "name": "_tagIds",
-        "type": "uint256[]"
+        "internalType": "address[]",
+        "name": "_coinAddresses",
+        "type": "address[]"
       },
       {
         "internalType": "uint256",

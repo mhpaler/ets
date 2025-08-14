@@ -173,9 +173,9 @@
     "name": "getOrCreateTagIds",
     "outputs": [
       {
-        "internalType": "uint256[]",
-        "name": "_tagIds",
-        "type": "uint256[]"
+        "internalType": "address[]",
+        "name": "_coinAddresses",
+        "type": "address[]"
       }
     ],
     "stateMutability": "payable",

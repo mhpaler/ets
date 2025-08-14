@@ -110,7 +110,7 @@ contract ETSRelayerUpgradeTest is
     /// @inheritdoc IETSRelayer
     function getOrCreateTagIds(
         string[] calldata _tags
-    ) public payable whenNotPaused returns (uint256[] memory _tagIds) {}
+    ) public payable whenNotPaused returns (address[] memory _coinAddresses) {}
 
     // ============ PUBLIC VIEW FUNCTIONS ============
 

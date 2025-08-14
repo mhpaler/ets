@@ -70,7 +70,7 @@ abstract contract RelayerMock is ERC165, IETSRelayer, Ownable, Pausable {
         // Mock implementation
     }
 
-    function getOrCreateTagIds(string[] calldata _tags) public payable returns (uint256[] memory _tagIds) {}
+    function getOrCreateTagIds(string[] calldata _tags) public payable returns (address[] memory _coinAddresses) {}
 
     function computeTaggingFee(
         IETS.TaggingRecordRawInput calldata _rawInput,
