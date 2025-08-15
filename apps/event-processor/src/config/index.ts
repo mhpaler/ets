@@ -1,4 +1,5 @@
-import { etsTokenAddress, getAlchemyRpcUrlById } from "@ethereum-tag-service/contracts";
+import { etsTokenAddress } from "@ethereum-tag-service/contracts/contracts";
+import { getAlchemyRpcUrlById } from "@ethereum-tag-service/contracts/utils";
 import { type Environment, getSubgraphEndpoint } from "@ethereum-tag-service/subgraph-endpoints";
 import dotenv from "dotenv";
 import type { EventProcessorConfig } from "../types";

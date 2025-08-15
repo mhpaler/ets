@@ -7,13 +7,13 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "ts-node src/index.ts",
+    "dev": "bun src/index.ts",
     "start": "node dist/index.js",
-    "watch": "ts-node --watch src/index.ts",
+    "watch": "bun --watch src/index.ts",
     "test": "jest",
-    "test:standalone": "ts-node src/test-standalone.ts",
-    "test:hardhat": "NODE_ENV=development ts-node src/test-local-hardhat.ts",
-    "test:api": "ts-node src/test-api-client.ts",
+    "test:standalone": "bun src/test-standalone.ts",
+    "test:hardhat": "NODE_ENV=development bun src/test-local-hardhat.ts",
+    "test:api": "bun src/test-api-client.ts",
     "lint": "eslint src/**/*.ts",
     "clean": "rm -rf dist"
   },
@@ -27,7 +27,6 @@
   "devDependencies": {
     "@types/node": "^22.13.9",
     "typescript": "^5.8.2",
-    "ts-node": "^10.9.2",
     "jest": "^29.7.0",
     "@types/jest": "^29.5.14",
     "eslint": "^9.17.0",

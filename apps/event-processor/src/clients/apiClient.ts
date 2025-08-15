@@ -21,7 +21,16 @@ class ApiClient {
    */
   async createZoraCoin(request: ZoraCoinCreationRequest): Promise<ZoraCoinCreationResponse> {
     try {
-      const response = await this.client.post("/api/tag-coin/create", request);
+      // Convert BigInts to strings for JSON serialization
+      const serializedRequest = {
+        ...request,
+        tagData: {
+          ...request.tagData,
+          timestamp: request.tagData.timestamp.toString(),
+          blockNumber: request.tagData.blockNumber.toString(),
+        },
+      };
+      const response = await this.client.post("/api/tag-coin/create", serializedRequest);
       return response.data;
     } catch (error) {
       console.error("Failed to create Zora coin:", error);

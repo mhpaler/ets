@@ -59,10 +59,7 @@ export class TagCoinHandler {
 
       // Complete the round-trip: Update the ETS contract with actual Zora coin address
       try {
-        await this.updateETSContractWithZoraCoinAddress(
-          tagEvent.coinAddress,
-          response.zoraCoinAddress
-        );
+        await this.updateETSContractWithZoraCoinAddress(tagEvent.coinAddress, response.zoraCoinAddress);
         console.log("Successfully updated ETS contract with Zora coin address");
       } catch (updateError) {
         console.error("Failed to update ETS contract:", {
@@ -85,7 +82,7 @@ export class TagCoinHandler {
    */
   private async updateETSContractWithZoraCoinAddress(
     predictedCoinAddress: string,
-    actualCoinAddress: string
+    actualCoinAddress: string,
   ): Promise<void> {
     if (!viemClient.writeContract) {
       throw new Error("Private key not configured - cannot perform blockchain write operations");
@@ -114,7 +111,7 @@ export class TagCoinHandler {
 
     // Wait for transaction confirmation
     const receipt = await viemClient.waitForTransactionReceipt({ hash });
-    
+
     if (receipt.status === "success") {
       console.log("ETS contract update confirmed:", {
         transactionHash: hash,
