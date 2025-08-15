@@ -17,7 +17,7 @@
  * TAGs are represented by deterministic Zora ERC-20 coin addresses that store tag metadata including
  * three-tier identifier system, origin attribution data with "Relayer" and "Creator" addresses.
  *
- * TAGs use a three-tier identifier system: originalInput ("#BiTCOin"), displayVersion ("#Bitcoin"), 
+ * TAGs use a three-tier identifier system: originalInput ("#BiTCOin"), displayVersion ("#Bitcoin"),
  * and machineName ("bitcoin"). Only one TAG exists per normalized machine name regardless of case.
  *
  * TAG coin addresses are deterministically computed using Zora's coinAddress() function, enabling
@@ -66,7 +66,6 @@ interface IETSToken {
      */
     event TagMinStringLengthSet(uint256 minStringLength);
 
-
     /**
      * @dev emitted when the ETS core contract is set.
      *
@@ -80,8 +79,6 @@ interface IETSToken {
      * @param etsAccessControls contract address access controls is set to.
      */
     event AccessControlsSet(address etsAccessControls);
-
-
 
     /**
      * @dev emitted when a new TAG is created with Zora coin integration.
@@ -104,18 +101,34 @@ interface IETSToken {
         uint256 timestamp
     );
 
+
     /**
-     * @dev emitted when a TAG is updated with the actual deployed Zora coin address.
+     * @dev emitted when the Zora factory contract address is set.
      *
-     * @param predictedCoinAddress The originally predicted coin address (TAG identifier).
-     * @param actualCoinAddress The actual deployed Zora coin address.
-     * @param machineName The tag machine name for reference.
+     * @param factoryAddress Zora factory contract address.
      */
-    event TagZoraCoinAddressUpdated(
-        address indexed predictedCoinAddress,
-        address indexed actualCoinAddress,
-        string machineName
-    );
+    event ZoraFactoryAddressSet(address factoryAddress);
+
+    /**
+     * @dev emitted when the Zora creator EOA address is set.
+     *
+     * @param eoaAddress EOA address for creating Zora coins.
+     */
+    event ZoraCreatorEOASet(address eoaAddress);
+
+    /**
+     * @dev emitted when the Zora platform referrer address is set.
+     *
+     * @param referrerAddress Platform referrer address.
+     */
+    event ZoraPlatformReferrerSet(address referrerAddress);
+
+    /**
+     * @dev emitted when the Zora pool configuration is set.
+     *
+     * @param poolConfig Encoded pool configuration bytes.
+     */
+    event ZoraPoolConfigSet(bytes poolConfig);
 
     // ============ OWNER INTERFACE ============
 
@@ -132,8 +145,6 @@ interface IETSToken {
      * @param _tagMinStringLength minimum character length of string.
      */
     function setTagMinStringLength(uint256 _tagMinStringLength) external;
-
-
 
     // ============ PUBLIC INTERFACE ============
 
@@ -174,20 +185,6 @@ interface IETSToken {
         address payable _creator
     ) external payable returns (address coinAddress);
 
-    /**
-     * @notice Update a TAG with the actual deployed Zora coin address.
-     *
-     * Updates the TAG record after successful off-chain Zora coin creation.
-     * This function can only be called by authorized oracles/processors.
-     *
-     * @param _predictedCoinAddress The originally predicted coin address (TAG identifier).
-     * @param _actualCoinAddress The actual deployed Zora coin address.
-     */
-    function updateTagZoraCoinAddress(
-        address _predictedCoinAddress,
-        address _actualCoinAddress
-    ) external;
-
 
     // ============ PUBLIC VIEW FUNCTIONS ============
 
@@ -202,7 +199,7 @@ interface IETSToken {
      * @param _tag Tag string.
      * @return coinAddress Deterministic Zora ERC-20 coin address.
      */
-    function computeCoinAddress(string memory _tag) external pure returns (address);
+    function computeCoinAddress(string memory _tag) external view returns (address);
 
     /**
      * @notice Check that a TAG exists for a given tag string.
@@ -219,7 +216,6 @@ interface IETSToken {
      * @return true if TAG exists; false if not.
      */
     function tagExistsByAddress(address _coinAddress) external view returns (bool);
-
 
     /**
      * @notice Retrieve a TAG record for a given tag string.
@@ -247,5 +243,4 @@ interface IETSToken {
      * @return wallet address for ETS Platform.
      */
     function getPlatformAddress() external view returns (address payable);
-
 }

@@ -29,6 +29,7 @@ pragma solidity ^0.8.10;
 import { IETS } from "./interfaces/IETS.sol";
 import { IETSToken } from "./interfaces/IETSToken.sol";
 import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
+import { IZoraFactory } from "./interfaces/IZoraFactory.sol";
 import { StringHelpers } from "./utils/StringHelpers.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
@@ -45,6 +46,12 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
     // Public variables
     uint256 public tagMinStringLength;
     uint256 public tagMaxStringLength;
+
+    // Zora integration configuration
+    address public zoraFactoryAddress;    // Zora factory contract address
+    address public zoraCreatorEOA;        // EOA address that creates Zora coins
+    address public zoraPlatformReferrer;  // ETS platform referrer address
+    bytes public zoraPoolConfig;          // Standardized pool configuration
 
     /// @dev Map of coin address to TAG record.
     mapping(address => Tag) public coinAddressToTag;
@@ -68,8 +75,12 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
         _;
     }
 
+    // TODO: Definitely need to look closer at this claude code. It's wrong
     modifier onlyOracle() {
-        require(etsAccessControls.isAdmin(_msgSender()) || etsAccessControls.isRelayer(_msgSender()), "Caller not authorized for oracle operations");
+        require(
+            etsAccessControls.isAdmin(_msgSender()) || etsAccessControls.isRelayer(_msgSender()),
+            "Caller not authorized for oracle operations"
+        );
         _;
     }
 
@@ -154,6 +165,46 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
         emit TagMinStringLengthSet(_tagMinStringLength);
     }
 
+    /**
+     * @notice Sets the Zora factory contract address for coin address computation
+     * @param _factoryAddress Address of the Zora factory contract
+     */
+    function setZoraFactoryAddress(address _factoryAddress) public onlyAdmin {
+        require(_factoryAddress != address(0), "Factory address cannot be zero");
+        zoraFactoryAddress = _factoryAddress;
+        emit ZoraFactoryAddressSet(_factoryAddress);
+    }
+
+    /**
+     * @notice Sets the EOA address that will create Zora coins
+     * @param _eoaAddress EOA address for coin creation
+     */
+    function setZoraCreatorEOA(address _eoaAddress) public onlyAdmin {
+        require(_eoaAddress != address(0), "EOA address cannot be zero");
+        zoraCreatorEOA = _eoaAddress;
+        emit ZoraCreatorEOASet(_eoaAddress);
+    }
+
+    /**
+     * @notice Sets the platform referrer address for Zora coins
+     * @param _referrerAddress Platform referrer address
+     */
+    function setZoraPlatformReferrer(address _referrerAddress) public onlyAdmin {
+        require(_referrerAddress != address(0), "Referrer address cannot be zero");
+        zoraPlatformReferrer = _referrerAddress;
+        emit ZoraPlatformReferrerSet(_referrerAddress);
+    }
+
+    /**
+     * @notice Sets the pool configuration for Zora coins
+     * @param _poolConfig Encoded pool configuration bytes
+     */
+    function setZoraPoolConfig(bytes memory _poolConfig) public onlyAdmin {
+        require(_poolConfig.length > 0, "Pool config cannot be empty");
+        zoraPoolConfig = _poolConfig;
+        emit ZoraPoolConfigSet(_poolConfig);
+    }
+
     // ============ PUBLIC INTERFACE ============
 
     function getOrCreateTag(
@@ -222,30 +273,6 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
         return coinAddress;
     }
 
-    /// @inheritdoc IETSToken
-    function updateTagZoraCoinAddress(
-        address _predictedCoinAddress,
-        address _actualCoinAddress
-    ) public onlyOracle {
-        require(_predictedCoinAddress != address(0), "Predicted address cannot be zero");
-        require(_actualCoinAddress != address(0), "Actual address cannot be zero");
-        
-        // Verify that the TAG exists for the predicted address
-        Tag storage tag = coinAddressToTag[_predictedCoinAddress];
-        require(tag.coinAddress != address(0), "TAG does not exist for predicted address");
-        
-        // Update the TAG record with the actual coin address
-        // Keep the predicted address as the primary identifier, but store actual address for reference
-        tag.coinAddress = _actualCoinAddress;
-        
-        // Update the lookup mapping if the addresses differ
-        if (_predictedCoinAddress != _actualCoinAddress) {
-            // Add mapping for actual address to point to the same TAG
-            coinAddressToTag[_actualCoinAddress] = tag;
-        }
-        
-        emit TagZoraCoinAddressUpdated(_predictedCoinAddress, _actualCoinAddress, tag.machineName);
-    }
 
     // ============ INTERNAL HELPER FUNCTIONS ============
 
@@ -262,13 +289,20 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
     // ============ PUBLIC VIEW FUNCTIONS ============
 
     /// @inheritdoc IETSToken
-    function computeCoinAddress(string memory _tag) public pure returns (address) {
+    function computeCoinAddress(string memory _tag) public view returns (address) {
+        require(zoraFactoryAddress != address(0), "Zora factory not configured");
+        
         string memory machineName = __lower(_tag);
-        bytes32 salt = keccak256(abi.encodePacked(machineName));
+        bytes32 coinSalt = keccak256(abi.encodePacked(machineName));
 
-        // TODO: Implement Zora coinAddress() prediction here
-        // For now, return a deterministic address based on machine name
-        return address(uint160(uint256(keccak256(abi.encodePacked("ZORA_COIN", salt)))));
+        return IZoraFactory(zoraFactoryAddress).coinAddress(
+            zoraCreatorEOA,          // msgSender - EOA that creates coins
+            _tag,                    // name - original tag input: "#Bitcoin"
+            "ETS",                   // symbol - standardized for all ETS coins
+            zoraPoolConfig,          // poolConfig - standardized configuration
+            zoraPlatformReferrer,    // platformReferrer - ETS platform address
+            coinSalt                 // coinSalt - deterministic from machine name
+        );
     }
 
     /// @inheritdoc IETSToken
