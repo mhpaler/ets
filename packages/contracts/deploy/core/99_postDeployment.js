@@ -26,9 +26,6 @@ module.exports = async ({ deployments }) => {
     console.info("ETSToken address:", etsTokenDeployment.address);
     const ETSToken = await ethers.getContractAt("ETSToken", etsTokenDeployment.address);
 
-    const etsAuctionHouse = await deployments.get("ETSAuctionHouse");
-    console.info("ETSAuctionHouse address:", etsAuctionHouse.address);
-
     const etsTarget = await deployments.get("ETSTarget");
     console.info("ETSTarget address:", etsTarget.address);
     const ETSTarget = await ethers.getContractAt("ETSTarget", etsTarget.address);
@@ -78,9 +75,6 @@ module.exports = async ({ deployments }) => {
 
     console.info("Setting EnrichTarget...");
     await ETSTarget.connect(accounts.ETSPlatform).setEnrichTarget(etsEnrichTarget.address);
-
-    console.info("Approving auction house...");
-    await ETSToken.connect(accounts.ETSPlatform).setApprovalForAll(etsAuctionHouse.address, true);
 
     console.info("Setting ETS Core on ETSToken...");
     await ETSToken.connect(accounts.ETSPlatform).setETSCore(ets.address);

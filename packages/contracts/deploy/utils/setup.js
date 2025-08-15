@@ -1,4 +1,5 @@
 const { ethers, getNamedAccounts } = require("hardhat");
+const hre = require("hardhat");
 
 async function setup() {
   // Get the named accounts
@@ -14,6 +15,39 @@ async function setup() {
     ETSPlatform: ETSPlatformSigner,
     ETSOracle: ETSOracleSigner,
   };
+
+  // Get network ID for environment-specific Zora configuration
+  const networkName = hre.network.name;
+
+  // Import Zora protocol deployments if available
+  let ZORA_FACTORY_ADDRESS = ethers.ZeroAddress;
+  let ZORA_POOL_CONFIG = "0x";
+
+  if (networkName === "localhost") {
+    // For localhost, we'll deploy a mock factory
+    console.log("Using MockZoraFactory for localhost testing");
+    ZORA_FACTORY_ADDRESS = "MOCK_FACTORY_DEPLOYMENT"; // Will be replaced during deployment
+  } else {
+    try {
+      // Try to get the actual Zora factory address
+      const { coinFactoryAddress } = require("@zoralabs/protocol-deployments");
+      ZORA_FACTORY_ADDRESS = coinFactoryAddress["8453"]; // Base mainnet address
+    } catch {
+      // If package not available, use a placeholder for production networks
+      console.log("Zora protocol deployments not found, using zero address");
+    }
+  }
+
+  // For localhost, we'll use a mock configuration
+  // For real networks, this would need to be properly encoded pool config
+  if (networkName === "localhost") {
+    // Mock pool config for local testing
+    ZORA_POOL_CONFIG = "0x00";
+  } else {
+    // TODO: Generate actual pool config for production networks
+    // This would use encodeMultiCurvePoolConfig from @zoralabs/protocol-deployments
+    ZORA_POOL_CONFIG = "0x00";
+  }
 
   const initSettings = {
     // Token
@@ -33,6 +67,11 @@ async function setup() {
     TAGGING_FEE: "0.0000032", // Approx $0.01
     TAGGING_FEE_PLATFORM_PERCENTAGE: 20,
     TAGGING_FEE_RELAYER_PERCENTAGE: 30,
+    // Zora integration
+    ZORA_FACTORY_ADDRESS: networkName === "localhost" ? ethers.ZeroAddress : ZORA_FACTORY_ADDRESS,
+    ZORA_CREATOR_EOA: ETSOracle, // Use oracle account as the creator EOA for now
+    ZORA_PLATFORM_REFERRER: ethers.ZeroAddress, // Zero address defaults to Zora protocol
+    ZORA_POOL_CONFIG: ZORA_POOL_CONFIG,
   };
 
   const factories = {

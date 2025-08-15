@@ -48,10 +48,10 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
     uint256 public tagMaxStringLength;
 
     // Zora integration configuration
-    address public zoraFactoryAddress;    // Zora factory contract address
-    address public zoraCreatorEOA;        // EOA address that creates Zora coins
-    address public zoraPlatformReferrer;  // ETS platform referrer address
-    bytes public zoraPoolConfig;          // Standardized pool configuration
+    address public zoraFactoryAddress; // Zora factory contract address
+    address public zoraCreatorEOA; // EOA address that creates Zora coins
+    address public zoraPlatformReferrer; // ETS platform referrer address
+    bytes public zoraPoolConfig; // Standardized pool configuration
 
     /// @dev Map of coin address to TAG record.
     mapping(address => Tag) public coinAddressToTag;
@@ -94,7 +94,11 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
     function initialize(
         IETSAccessControls _etsAccessControls,
         uint256 _tagMinStringLength,
-        uint256 _tagMaxStringLength
+        uint256 _tagMaxStringLength,
+        address _zoraFactoryAddress,
+        address _zoraCreatorEOA,
+        address _zoraPlatformReferrer,
+        bytes memory _zoraPoolConfig
     ) public initializer {
         __ReentrancyGuard_init();
         __Pausable_init();
@@ -106,6 +110,12 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
         etsAccessControls = _etsAccessControls;
         setTagMinStringLength(_tagMinStringLength);
         setTagMaxStringLength(_tagMaxStringLength);
+
+        // Initialize Zora integration settings
+        setZoraFactoryAddress(_zoraFactoryAddress);
+        setZoraCreatorEOA(_zoraCreatorEOA);
+        setZoraPlatformReferrer(_zoraPlatformReferrer);
+        setZoraPoolConfig(_zoraPoolConfig);
     }
 
     // solhint-disable-next-line
@@ -167,10 +177,9 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
 
     /**
      * @notice Sets the Zora factory contract address for coin address computation
-     * @param _factoryAddress Address of the Zora factory contract
+     * @param _factoryAddress Address of the Zora factory contract (zero address allowed for localhost testing)
      */
     function setZoraFactoryAddress(address _factoryAddress) public onlyAdmin {
-        require(_factoryAddress != address(0), "Factory address cannot be zero");
         zoraFactoryAddress = _factoryAddress;
         emit ZoraFactoryAddressSet(_factoryAddress);
     }
@@ -180,7 +189,6 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
      * @param _eoaAddress EOA address for coin creation
      */
     function setZoraCreatorEOA(address _eoaAddress) public onlyAdmin {
-        require(_eoaAddress != address(0), "EOA address cannot be zero");
         zoraCreatorEOA = _eoaAddress;
         emit ZoraCreatorEOASet(_eoaAddress);
     }
@@ -190,7 +198,6 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
      * @param _referrerAddress Platform referrer address
      */
     function setZoraPlatformReferrer(address _referrerAddress) public onlyAdmin {
-        require(_referrerAddress != address(0), "Referrer address cannot be zero");
         zoraPlatformReferrer = _referrerAddress;
         emit ZoraPlatformReferrerSet(_referrerAddress);
     }
@@ -200,7 +207,6 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
      * @param _poolConfig Encoded pool configuration bytes
      */
     function setZoraPoolConfig(bytes memory _poolConfig) public onlyAdmin {
-        require(_poolConfig.length > 0, "Pool config cannot be empty");
         zoraPoolConfig = _poolConfig;
         emit ZoraPoolConfigSet(_poolConfig);
     }
@@ -273,7 +279,6 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
         return coinAddress;
     }
 
-
     // ============ INTERNAL HELPER FUNCTIONS ============
 
     /**
@@ -291,18 +296,19 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
     /// @inheritdoc IETSToken
     function computeCoinAddress(string memory _tag) public view returns (address) {
         require(zoraFactoryAddress != address(0), "Zora factory not configured");
-        
+
         string memory machineName = __lower(_tag);
         bytes32 coinSalt = keccak256(abi.encodePacked(machineName));
 
-        return IZoraFactory(zoraFactoryAddress).coinAddress(
-            zoraCreatorEOA,          // msgSender - EOA that creates coins
-            _tag,                    // name - original tag input: "#Bitcoin"
-            "ETS",                   // symbol - standardized for all ETS coins
-            zoraPoolConfig,          // poolConfig - standardized configuration
-            zoraPlatformReferrer,    // platformReferrer - ETS platform address
-            coinSalt                 // coinSalt - deterministic from machine name
-        );
+        return
+            IZoraFactory(zoraFactoryAddress).coinAddress(
+                zoraCreatorEOA, // msgSender - EOA that creates coins
+                _tag, // name - original tag input: "#Bitcoin"
+                "ETS", // symbol - standardized for all ETS coins
+                zoraPoolConfig, // poolConfig - standardized configuration
+                zoraPlatformReferrer, // platformReferrer - ETS platform address
+                coinSalt // coinSalt - deterministic from machine name
+            );
     }
 
     /// @inheritdoc IETSToken

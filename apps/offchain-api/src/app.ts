@@ -26,8 +26,8 @@ app.use((req, _res, next) => {
 app.use("/api/auction", auctionRoutes);
 app.use("/api/target", targetRoutes);
 
-// Protected TAG Coins routes (require oracle authentication)
-app.use("/api/tag-coins", requireOracleAuth(), tagCoinRoutes);
+// Protected TAG Coin routes (require oracle authentication)
+app.use("/api/tag-coin", requireOracleAuth(), tagCoinRoutes);
 
 // Protected metadata routes (require API key)
 app.use("/api/metadata", requireAPIKey({ enforceInProduction: false }), metadataRoutes);

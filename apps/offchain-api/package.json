@@ -18,6 +18,7 @@
     "@ethereum-tag-service/sdk-core": "workspace:*",
     "@ethereum-tag-service/subgraph-endpoints": "workspace:*",
     "@zoralabs/coins-sdk": "latest",
+    "@zoralabs/protocol-deployments": "^0.6.2",
     "arweave": "^1.14.0",
     "axios": "^1.6.2",
     "cors": "^2.8.5",

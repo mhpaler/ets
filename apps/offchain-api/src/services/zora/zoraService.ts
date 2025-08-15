@@ -6,16 +6,19 @@ import { base, baseSepolia } from "viem/chains";
 import { logger } from "../../utils/logger";
 
 export interface TagCreatedEventData {
-  tagId: string;
-  tagString: string;
-  machineName: string;
-  creator: string;
-  relayer: string;
-  timestamp: number;
+  coinAddress: string; // Predicted Zora coin address from ETS contract
+  originalInput: string; // Exact user input (e.g., "#TestTag")
+  displayVersion: string; // Canonical display format (e.g., "#TestTag")
+  machineName: string; // Normalized identifier (e.g., "testtag")
+  creator: string; // Address credited with creating the TAG
+  relayer: string; // Address of relayer that facilitated creation
+  timestamp: string; // Block timestamp (converted from BigInt)
+  blockNumber: string; // Block number (converted from BigInt)
+  transactionHash: string; // Transaction hash that created the TAG
 }
 
 export interface TagMetadataRequest {
-  tagString: string;
+  originalInput: string; // Changed from tagString to match event data
   machineName: string;
   creator: string;
   relayer: string;
@@ -35,6 +38,7 @@ export class ZoraService {
   private readonly account: any;
   private readonly chainId: number;
   private readonly metadataApiUrl: string;
+  private readonly isLocalhostMode: boolean;
 
   constructor(
     privateKey: `0x${string}`,
@@ -45,6 +49,9 @@ export class ZoraService {
     const chain = chainId === 84532 ? baseSepolia : base;
     this.chainId = chainId;
     this.metadataApiUrl = metadataApiUrl;
+
+    // Check if we're in localhost development mode
+    this.isLocalhostMode = chainId === 31337 || process.env.NODE_ENV === "development";
 
     // Create account from private key (ensure 0x prefix)
     const formattedKey = privateKey.startsWith("0x") ? privateKey : `0x${privateKey}`;
@@ -81,14 +88,14 @@ export class ZoraService {
   }> {
     try {
       const request: TagMetadataRequest = {
-        tagString: eventData.tagString,
+        originalInput: eventData.originalInput,
         machineName: eventData.machineName,
         creator: eventData.creator,
         relayer: eventData.relayer,
       };
 
       logger.info("Calling metadata API", {
-        tagString: eventData.tagString,
+        originalInput: eventData.originalInput,
         apiUrl: `${this.metadataApiUrl}/generate`,
       });
 
@@ -111,7 +118,7 @@ export class ZoraService {
       };
     } catch (error) {
       logger.error("Metadata API call failed", {
-        tagString: eventData.tagString,
+        originalInput: eventData.originalInput,
         error: error instanceof Error ? error.message : String(error),
       });
 
@@ -128,21 +135,40 @@ export class ZoraService {
   public async createCoin(eventData: TagCreatedEventData): Promise<ZoraCoinCreationResult> {
     try {
       logger.info("Creating TAG coin on Zora", {
-        tagString: eventData.tagString,
+        originalInput: eventData.originalInput,
+        coinAddress: eventData.coinAddress,
         creator: eventData.creator,
+        isLocalhostMode: this.isLocalhostMode,
       });
 
-      // Check if coin already exists
+      // In localhost mode, return deterministic mock response
+      if (this.isLocalhostMode) {
+        logger.info("Localhost mode: Returning mock Zora coin creation", {
+          originalInput: eventData.originalInput,
+          coinAddress: eventData.coinAddress,
+        });
+
+        // Generate deterministic mock transaction hash based on tag data
+        const mockTxHash = this.generateMockTransactionHash(eventData);
+
+        return {
+          success: true,
+          coinAddress: eventData.coinAddress as Address,
+          transactionHash: mockTxHash,
+          blockNumber: BigInt(Number.parseInt(eventData.blockNumber) + 1), // Mock next block
+        };
+      }
+
+      // Check if coin already exists using the predicted address from ETS contract
       const exists = await this.coinExists(eventData);
       if (exists) {
-        const coinAddress = await this.predictCoinAddress(eventData);
         logger.info("TAG coin already exists", {
-          tagString: eventData.tagString,
-          coinAddress,
+          originalInput: eventData.originalInput,
+          coinAddress: eventData.coinAddress,
         });
         return {
           success: true,
-          coinAddress,
+          coinAddress: eventData.coinAddress as Address,
           transactionHash: "0x0" as `0x${string}`, // Placeholder for existing coin
         };
       }
@@ -154,7 +180,11 @@ export class ZoraService {
       }
 
       // Use metadata parameters from Zora builder if available, otherwise fallback to manual construction
-      const name = metadataResult.createMetadataParameters?.name || this.toCanonicalName(eventData.tagString.slice(1));
+      // Remove # prefix from originalInput for the name
+      const tagWithoutHash = eventData.originalInput.startsWith("#")
+        ? eventData.originalInput.slice(1)
+        : eventData.originalInput;
+      const name = metadataResult.createMetadataParameters?.name || this.toCanonicalName(tagWithoutHash);
       const symbol = metadataResult.createMetadataParameters?.symbol || "ETS";
       const uri = metadataResult.createMetadataParameters?.uri || metadataResult.metadataUri;
 
@@ -174,7 +204,7 @@ export class ZoraService {
       );
 
       logger.info("Successfully created TAG coin", {
-        tagString: eventData.tagString,
+        originalInput: eventData.originalInput,
         coinAddress: result.address,
         txHash: result.transactionHash,
         blockNumber: result.blockNumber,
@@ -188,7 +218,7 @@ export class ZoraService {
       };
     } catch (error) {
       logger.error("Failed to create TAG coin", {
-        tagString: eventData.tagString,
+        originalInput: eventData.originalInput,
         error: error instanceof Error ? error.message : String(error),
       });
 
@@ -200,22 +230,12 @@ export class ZoraService {
   }
 
   /**
-   * Predict the coin address for a given tag (using Zora's deterministic deployment)
+   * Get the predicted coin address from ETS contract (already computed)
    */
   public async predictCoinAddress(eventData: TagCreatedEventData): Promise<Address> {
-    // TODO: Implement Zora's address prediction using their SDK
-    // For now, return a placeholder - the SDK might provide this functionality
-    const canonicalName = this.toCanonicalName(eventData.tagString.slice(1));
-
-    // This would be implemented using Zora's deterministic addressing
-    // Placeholder implementation
-    const hash = `0x${canonicalName
-      .toLowerCase()
-      .split("")
-      .map((c) => c.charCodeAt(0).toString(16))
-      .join("")
-      .padEnd(40, "0")}`;
-    return hash as Address;
+    // The ETS contract already computed the deterministic address using computeCoinAddress(machineName)
+    // We just return what was provided in the event data
+    return eventData.coinAddress as Address;
   }
 
   /**
@@ -223,11 +243,13 @@ export class ZoraService {
    */
   public async coinExists(eventData: TagCreatedEventData): Promise<boolean> {
     try {
-      const predictedAddress = await this.predictCoinAddress(eventData);
-      const bytecode = await this.publicClient.getBytecode({ address: predictedAddress });
+      const bytecode = await this.publicClient.getBytecode({ address: eventData.coinAddress as Address });
       return bytecode !== undefined && bytecode !== "0x";
     } catch (error) {
-      logger.error("Error checking coin existence", { error });
+      logger.error("Error checking coin existence", {
+        coinAddress: eventData.coinAddress,
+        error: error instanceof Error ? error.message : String(error),
+      });
       return false;
     }
   }
@@ -249,6 +271,26 @@ export class ZoraService {
   }
 
   /**
+   * Generate deterministic mock transaction hash for localhost testing
+   */
+  private generateMockTransactionHash(eventData: TagCreatedEventData): `0x${string}` {
+    // Create deterministic hash based on tag data
+    const input = `MOCK_ZORA_TX_${eventData.machineName}_${eventData.creator}_${eventData.timestamp}`;
+
+    // Simple hash function (for testing only)
+    let hash = 0;
+    for (let i = 0; i < input.length; i++) {
+      const char = input.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+
+    // Convert to hex and pad to 64 characters
+    const hexHash = Math.abs(hash).toString(16).padStart(8, "0");
+    return `0x${"MOCK".charCodeAt(0).toString(16)}${hexHash.repeat(8).slice(0, 60)}` as `0x${string}`;
+  }
+
+  /**
    * Create coin parameters for testing/validation (legacy method)
    */
   public async createCoinParams(eventData: TagCreatedEventData): Promise<any> {
@@ -256,20 +298,28 @@ export class ZoraService {
     // In production, metadata is generated via API
     const metadataResult = await this.generateMetadata(eventData);
 
+    // Remove # prefix from originalInput for the name
+    const tagWithoutHash = eventData.originalInput.startsWith("#")
+      ? eventData.originalInput.slice(1)
+      : eventData.originalInput;
+
     return {
-      name: this.toCanonicalName(eventData.tagString.slice(1)),
+      name: this.toCanonicalName(tagWithoutHash),
       symbol: "ETS",
       recipient: eventData.creator,
       referrer: eventData.relayer,
       metadataUri: metadataResult.metadataUri,
       metadata: {
         // Placeholder for testing
-        description: `TAG coin for ${eventData.tagString} - Created via ETS`,
+        description: `TAG coin for ${eventData.originalInput} - Created via ETS`,
         attributes: [
-          { trait_type: "Original Format", value: eventData.tagString },
+          { trait_type: "Original Format", value: eventData.originalInput },
+          { trait_type: "Display Version", value: eventData.displayVersion },
           { trait_type: "Creator", value: eventData.creator },
           { trait_type: "Machine Name", value: eventData.machineName },
           { trait_type: "Created Via", value: "ETS" },
+          { trait_type: "Block Number", value: eventData.blockNumber },
+          { trait_type: "Transaction Hash", value: eventData.transactionHash },
         ],
       },
     };

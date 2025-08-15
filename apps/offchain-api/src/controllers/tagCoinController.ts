@@ -10,26 +10,38 @@ export class TagCoinController {
   }
 
   /**
-   * Handle TAG coin creation request from oracle
-   * POST /api/tag-coins/create
+   * Handle TAG coin creation request from event processor
+   * POST /api/tag-coin/create
    */
   public async createTagCoin(req: Request, res: Response): Promise<void> {
     try {
-      const eventData: TagCreatedEventData = req.body;
+      // Extract event data from the request (event processor wraps it in { tagData, chainId })
+      const { tagData, chainId } = req.body;
+      const eventData: TagCreatedEventData = tagData;
 
       // Validate required fields
-      if (!this.isValidEventData(eventData)) {
+      if (!this.isValidEventData(eventData) || !chainId) {
         res.status(400).json({
           success: false,
           error: "Invalid event data",
-          required: ["tagId", "tagString", "machineName", "creator", "relayer", "timestamp"],
+          required: [
+            "tagData.coinAddress",
+            "tagData.originalInput",
+            "tagData.machineName",
+            "tagData.creator",
+            "tagData.relayer",
+            "tagData.timestamp",
+            "chainId",
+          ],
         });
         return;
       }
 
       logger.info("Received TAG coin creation request", {
-        tagId: eventData.tagId,
-        tagString: eventData.tagString,
+        coinAddress: eventData.coinAddress,
+        originalInput: eventData.originalInput,
+        machineName: eventData.machineName,
+        chainId,
       });
 
       // Check for idempotency - has this coin already been created?
@@ -149,12 +161,15 @@ export class TagCoinController {
   private isValidEventData(data: any): data is TagCreatedEventData {
     return (
       data &&
-      typeof data.tagId === "string" &&
-      typeof data.tagString === "string" &&
+      typeof data.coinAddress === "string" &&
+      typeof data.originalInput === "string" &&
+      typeof data.displayVersion === "string" &&
       typeof data.machineName === "string" &&
       typeof data.creator === "string" &&
       typeof data.relayer === "string" &&
-      typeof data.timestamp === "number"
+      typeof data.timestamp === "string" &&
+      typeof data.blockNumber === "string" &&
+      typeof data.transactionHash === "string"
     );
   }
 }
