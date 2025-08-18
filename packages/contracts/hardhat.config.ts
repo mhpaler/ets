@@ -14,7 +14,7 @@ import fs from "node:fs";
 import { resolve } from "node:path";
 import { config as dotenvConfig } from "dotenv";
 
-import "./tasks";
+import "./scripts/tasks";
 
 // Load package-specific .env file if it exists, otherwise fall back to project root .env
 const packageEnvPath = resolve(__dirname, ".env");

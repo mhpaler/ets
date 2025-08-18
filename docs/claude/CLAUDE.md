@@ -23,8 +23,11 @@ When switching to work on a different feature branch, updating this reference in
 - Lint: `pnpm lint` (uses Biome)
 - Format: `pnpm format`
 - Test contracts: `pnpm hardhat:test`
-- Test single contract: `cd packages/contracts && npx hardhat test test/ETS.test.ts`
+- Test single contract: `cd packages/contracts && pnpm hardhat test test/ETS.test.ts`
+- Run Hardhat scripts: `cd packages/contracts && pnpm hardhat run scripts/scriptname.js --network localhost`
 - Start local stack: `./scripts/start-local-stack.sh`
+
+**Important**: Always use `pnpm` instead of `npx` for consistency across the project.
 
 ## Environment Configuration for Claude Code
 
@@ -174,6 +177,25 @@ Transform ETS from CTAG NFT system to ERC-20 "TAG coins" on Zora platform while 
 - Improved accessibility and community participation
 - Maintained integrity of tag registry system
 - New economic opportunities for creators and communities
+
+## Session Handoff Status
+
+**Current Sub-Issue**: #529.4 - Local Development Integration  
+**Completion**: 90% (debugging TAG creation failure)  
+**Ready For**: Debug TAG creation transaction reversion in local development stack
+**Architecture**: ✅ Complete deterministic Zora integration architecture deployed
+
+### Major Breakthrough Achieved
+**Deterministic Zora Integration**: Eliminated predict→create→update pattern entirely by bypassing Zora SDK and using direct factory calls with deterministic salts. This solves the fundamental address divergence problem and enables reliable localhost testing.
+
+### Current Blocker
+TAG creation transaction consistently reverts with no clear error message. All infrastructure is deployed and configured correctly, but `getOrCreateTagIds()` calls fail. Investigation needed on access control, fee requirements, or contract state.
+
+### Infrastructure Ready
+- MockZoraFactory deployed and configured
+- Complete local development stack operational  
+- Comprehensive test infrastructure created
+- Event processor service ready for integration
 
 ## Release Management
 

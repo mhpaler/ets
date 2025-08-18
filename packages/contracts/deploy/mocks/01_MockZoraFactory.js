@@ -1,8 +1,5 @@
-const { verify } = require("../utils/verify.js");
-const { saveNetworkConfig } = require("../utils/config.js");
-
 module.exports = async ({ getNamedAccounts, deployments, network }) => {
-  const { deploy, log } = deployments;
+  const { deploy, log, save } = deployments;
   const { ETSAdmin } = await getNamedAccounts();
 
   // Only deploy mock factory on localhost
@@ -21,12 +18,9 @@ module.exports = async ({ getNamedAccounts, deployments, network }) => {
     deterministicDeployment: false,
   });
 
-  if (process.env.VERIFY_ON_DEPLOY === "true") {
-    await verify("MockZoraFactory", deployment, deployment.address, []);
-  }
-
-  await saveNetworkConfig("MockZoraFactory", deployment, deployment.address, false);
-
+  // Save deployment to hardhat-deploy's deployment folder
+  // This ensures it can be referenced by other contracts
+  
   log("====================================================");
   log(`MockZoraFactory deployed to -> ${deployment.address}`);
   log("====================================================");

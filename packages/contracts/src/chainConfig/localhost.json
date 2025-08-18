@@ -3,7 +3,7 @@
   "chainId": "31337",
   "contracts": {
     "AirnodeRrpV0Proxy": {
-      "address": "0x7bc06c482DEAd17c0e297aFbC32f6e63d3846650",
+      "address": "0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8",
       "abi": [
         {
           "inputs": [],
@@ -823,7 +823,7 @@
       ]
     },
     "ETS": {
-      "address": "0xFD471836031dc5108809D173A067e8486B9047A3",
+      "address": "0xf5059a5D33d5853360D16C683c16e67980206f36",
       "abi": [
         {
           "inputs": [],
@@ -2175,7 +2175,7 @@
       ]
     },
     "ETSAccessControls": {
-      "address": "0x2bdCC0de6bE1f7D2ee689a0342D76F52E8EFABa3",
+      "address": "0x9E545E3C0baAB3E08CdfD552C960A1050f373042",
       "abi": [
         {
           "inputs": [],
@@ -3093,7 +3093,7 @@
       ]
     },
     "ETSEnrichTarget": {
-      "address": "0xc351628EB244ec633d5f21fBD6621e1a683B1181",
+      "address": "0x851356ae760d987E095750cCeb3bC6014560891C",
       "abi": [
         {
           "inputs": [],
@@ -3493,7 +3493,7 @@
       ]
     },
     "ETSRelayer": {
-      "address": "0xcbEAF3BDe82155F56486Fb5a1072cb8baAf547cc",
+      "address": "0x95401dc811bb5740090279Ba06cfA8fcF6113778",
       "abi": [
         {
           "inputs": [],
@@ -4185,7 +4185,7 @@
       ]
     },
     "ETSRelayerFactory": {
-      "address": "0x1429859428C0aBc9C2C47C8Ee9FBaf82cFA0F20f",
+      "address": "0x998abeb3E57409262aE5b751f60747921B33613E",
       "abi": [
         {
           "inputs": [
@@ -4331,7 +4331,7 @@
       ]
     },
     "ETSTarget": {
-      "address": "0x7969c5eD335650692Bc04293B07F5BF2e7A673C0",
+      "address": "0xa82fF9aFd8f496c3d6ac40E2a0F282E47488CFc9",
       "abi": [
         {
           "inputs": [],
@@ -4851,7 +4851,7 @@
       ]
     },
     "ETSToken": {
-      "address": "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
+      "address": "0x9A676e781A523b5d0C0e43731313A708CB607508",
       "abi": [
         {
           "inputs": [],
@@ -5815,6 +5815,168 @@
             }
           ],
           "stateMutability": "view",
+          "type": "function"
+        }
+      ]
+    },
+    "MockZoraFactory": {
+      "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+      "abi": [
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "coin",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "msgSender",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "symbol",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "internalType": "bytes",
+              "name": "poolConfig",
+              "type": "bytes"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "platformReferrer",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "bytes32",
+              "name": "coinSalt",
+              "type": "bytes32"
+            }
+          ],
+          "name": "CoinCreatedV4",
+          "type": "event"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "msgSender",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "symbol",
+              "type": "string"
+            },
+            {
+              "internalType": "bytes",
+              "name": "poolConfig",
+              "type": "bytes"
+            },
+            {
+              "internalType": "address",
+              "name": "platformReferrer",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "coinSalt",
+              "type": "bytes32"
+            }
+          ],
+          "name": "coinAddress",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "payoutRecipient",
+              "type": "address"
+            },
+            {
+              "internalType": "address[]",
+              "name": "owners",
+              "type": "address[]"
+            },
+            {
+              "internalType": "string",
+              "name": "uri",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "symbol",
+              "type": "string"
+            },
+            {
+              "internalType": "bytes",
+              "name": "poolConfig",
+              "type": "bytes"
+            },
+            {
+              "internalType": "address",
+              "name": "platformReferrer",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "postDeployHook",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "postDeployHookData",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "coinSalt",
+              "type": "bytes32"
+            }
+          ],
+          "name": "deploy",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "coin",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
           "type": "function"
         }
       ]

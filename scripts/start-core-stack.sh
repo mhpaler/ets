@@ -101,9 +101,20 @@ deploy_contracts() {
     success "Contracts already deployed"
   else
     log "Deploying fresh contracts..."
+    # First deploy mocks for localhost
+    cd "$ROOT_DIR/packages/contracts"
+    pnpm exec hardhat deploy --tags MockZoraFactory --network localhost > "$ROOT_DIR/logs/core-mocks-deploy.log" 2>&1
+    if [ $? -eq 0 ]; then
+      success "Mock contracts deployed successfully"
+    else
+      error "Mock deployment failed. Check logs/core-mocks-deploy.log"
+      exit 1
+    fi
+    
+    # Then deploy core contracts
     pnpm run deploy-all --network localhost > "$ROOT_DIR/logs/core-contracts-deploy.log" 2>&1
     if [ $? -eq 0 ]; then
-      success "Contracts deployed successfully"
+      success "Core contracts deployed successfully"
     else
       error "Contract deployment failed. Check logs/core-contracts-deploy.log"
       exit 1

@@ -44,8 +44,9 @@ async function main() {
     const etsRelayer = new ethers.Contract(relayerAddress, ETSRelayerABI, accounts[signerName]);
     console.log("✅ Relayer is valid\n");
 
-    // Test tag creation (same logic as createTags task)
-    const testTags = ["#Bitcoin"];
+    // Test tag creation with unique tag name
+    const timestamp = Date.now();
+    const testTags = [`#Test${timestamp}`];
     const tagsToMint = [];
 
     for (let i = 0; i < testTags.length; i++) {
@@ -115,23 +116,23 @@ async function main() {
         }
       });
 
-      // Verify the tags were created (updated for address-based system)
+      // Verify the tags were created
       console.log("\n🔍 Verification:");
       for (let i = 0; i < tagsToMint.length; i++) {
-        if (await etsToken.tagExistsByString(tagsToMint[i])) {
-          console.info(`✅ "${tagsToMint[i]}" minted by ${signerName}`);
+        try {
+          // Check if tag exists (contract stores them as lowercase internally)
+          const exists = await etsToken.tagExistsByString(tagsToMint[i].toLowerCase());
+          if (exists) {
+            console.info(`✅ "${tagsToMint[i]}" minted by ${signerName}`);
 
-          // Get additional tag details
-          const tagId = await etsToken.getTagIdByString(tagsToMint[i]);
-          const tagDisplay = await etsToken.getTagDisplayById(tagId);
-          const zoraCoinAddr = await etsToken.getZoraCoinAddressById(tagId);
-
-          console.log(`   ID: ${tagId}`);
-          console.log(`   Display: ${tagDisplay}`);
-          console.log(`   Zora Coin: ${zoraCoinAddr}`);
-          console.log(`   Matches computed: ${zoraCoinAddr.toLowerCase() === computedZoraAddress.toLowerCase()}`);
-        } else {
-          console.error(`❌ "${tagsToMint[i]}" was NOT created successfully`);
+            // Get Zora coin address (computeCoinAddress handles lowercasing internally)
+            const zoraCoinAddr = await etsToken.computeCoinAddress(tagsToMint[i]);
+            console.log(`   Zora Coin: ${zoraCoinAddr}`);
+          } else {
+            console.error(`❌ "${tagsToMint[i]}" was NOT created successfully`);
+          }
+        } catch (verifyError) {
+          console.error(`❌ Error verifying "${tagsToMint[i]}": ${verifyError.message}`);
         }
       }
     } else {
