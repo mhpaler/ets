@@ -10,6 +10,7 @@ async function setup() {
   const ETSPlatformSigner = await ethers.getSigner(ETSPlatform);
   const ETSOracleSigner = await ethers.getSigner(ETSOracle);
 
+  // Build the signer accounts object
   const accounts = {
     ETSAdmin: ETSAdminSigner,
     ETSPlatform: ETSPlatformSigner,
@@ -24,10 +25,12 @@ async function setup() {
   let ZORA_POOL_CONFIG = "0x";
 
   if (networkName === "localhost") {
-    // For localhost, we'll deploy a mock factory
-    console.log("Using MockZoraFactory for localhost testing");
-    ZORA_FACTORY_ADDRESS = "MOCK_FACTORY_DEPLOYMENT"; // Will be replaced during deployment
+    // For localhost, MockZoraFactory will be deployed before ETSToken
+    // ETSToken deployment will read the address from deployments
+    ZORA_FACTORY_ADDRESS = ethers.ZeroAddress; // Placeholder, will be replaced during ETSToken deployment
+    ZORA_POOL_CONFIG = "0x00"; // Mock pool config for local testing
   } else {
+    // For production networks
     try {
       // Try to get the actual Zora factory address
       const { coinFactoryAddress } = require("@zoralabs/protocol-deployments");
@@ -36,14 +39,7 @@ async function setup() {
       // If package not available, use a placeholder for production networks
       console.log("Zora protocol deployments not found, using zero address");
     }
-  }
 
-  // For localhost, we'll use a mock configuration
-  // For real networks, this would need to be properly encoded pool config
-  if (networkName === "localhost") {
-    // Mock pool config for local testing
-    ZORA_POOL_CONFIG = "0x00";
-  } else {
     // TODO: Generate actual pool config for production networks
     // This would use encodeMultiCurvePoolConfig from @zoralabs/protocol-deployments
     ZORA_POOL_CONFIG = "0x00";
@@ -68,9 +64,9 @@ async function setup() {
     TAGGING_FEE_PLATFORM_PERCENTAGE: 20,
     TAGGING_FEE_RELAYER_PERCENTAGE: 30,
     // Zora integration
-    ZORA_FACTORY_ADDRESS: networkName === "localhost" ? ethers.ZeroAddress : ZORA_FACTORY_ADDRESS,
-    ZORA_CREATOR_EOA: networkName === "localhost" ? ETSPlatform : ETSOracle, // Use platform account for localhost
-    ZORA_PLATFORM_REFERRER: networkName === "localhost" ? ETSPlatform : ethers.ZeroAddress, // Use platform account for localhost
+    ZORA_FACTORY_ADDRESS: ZORA_FACTORY_ADDRESS,
+    ZORA_CREATOR_EOA: ETSPlatform, // Always use ETSPlatform address (position 2 from mnemonic)
+    ZORA_PLATFORM_REFERRER: ETSPlatform, // Always use ETSPlatform address (position 2 from mnemonic)
     ZORA_POOL_CONFIG: ZORA_POOL_CONFIG,
   };
 

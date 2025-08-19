@@ -20,3 +20,4 @@
 import "./check-relayer";
 import "./add-relayer";
 import "./create-tags";
+import "./deploy-ets";

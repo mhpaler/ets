@@ -183,9 +183,11 @@ async function createTagsLocal(tags: string[], relayerName: string, signerName: 
 
           // Get TAG data to show full details
           const tagData = await etsToken.read.getTagByAddress([coinAddress]);
-          console.log(`      Original input: ${tagData.originalInput}`);
-          console.log(`      Display version: ${tagData.displayVersion}`);
-          console.log(`      Machine name: ${tagData.machineName}`);
+          // Cast the result to access the struct fields
+          const tagStruct = tagData as any;
+          console.log(`      Original input: ${tagStruct.originalInput}`);
+          console.log(`      Display version: ${tagStruct.displayVersion}`);
+          console.log(`      Machine name: ${tagStruct.machineName}`);
         } else {
           console.log(`   ❌ "${tag}" validation failed!`);
           console.log(`      Coin address: ${coinAddress}`);

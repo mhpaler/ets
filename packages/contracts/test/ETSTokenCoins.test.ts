@@ -16,17 +16,17 @@ describe("ETSToken Coin Integration Tests", () => {
     it("should compute deterministic addresses for tag strings", async () => {
       const tag1 = "#Bitcoin";
       const tag2 = "#Ethereum";
-      
+
       const address1 = await contracts.ETSToken.computeCoinAddress(tag1);
       const address2 = await contracts.ETSToken.computeCoinAddress(tag2);
-      
+
       // Addresses should be different for different tags
       expect(address1).to.not.equal(address2);
-      
+
       // Same tag should always produce same address
       const address1Again = await contracts.ETSToken.computeCoinAddress(tag1);
       expect(address1).to.equal(address1Again);
-      
+
       // Addresses should be valid Ethereum addresses
       expect(ethers.isAddress(address1)).to.be.true;
       expect(ethers.isAddress(address2)).to.be.true;
@@ -36,11 +36,11 @@ describe("ETSToken Coin Integration Tests", () => {
       const tag1 = "#Bitcoin";
       const tag2 = "#bitcoin";
       const tag3 = "#BITCOIN";
-      
+
       const address1 = await contracts.ETSToken.computeCoinAddress(tag1);
       const address2 = await contracts.ETSToken.computeCoinAddress(tag2);
       const address3 = await contracts.ETSToken.computeCoinAddress(tag3);
-      
+
       // All should produce the same address due to normalization
       expect(address1).to.equal(address2);
       expect(address2).to.equal(address3);
@@ -51,20 +51,20 @@ describe("ETSToken Coin Integration Tests", () => {
     it("should return false for non-existent TAG", async () => {
       const tag = "#NonExistentTag";
       const coinAddress = await contracts.ETSToken.computeCoinAddress(tag);
-      
+
       const exists = await contracts.ETSToken.tagExistsByAddress(coinAddress);
       expect(exists).to.be.false;
     });
 
     it("should return true for existing TAG", async () => {
       const tag = "#TestTag";
-      
+
       // Create TAG through ETS core via relayer
       await contracts.ETS.connect(accounts.ETSPlatform).createTag(tag, accounts.RandomTwo.address);
-      
+
       const coinAddress = await contracts.ETSToken.computeCoinAddress(tag);
       const exists = await contracts.ETSToken.tagExistsByAddress(coinAddress);
-      
+
       expect(exists).to.be.true;
     });
   });
@@ -72,27 +72,27 @@ describe("ETSToken Coin Integration Tests", () => {
   describe("tagExistsByString", () => {
     it("should return false for non-existent TAG", async () => {
       const tag = "#NonExistentTag";
-      
+
       const exists = await contracts.ETSToken.tagExistsByString(tag);
       expect(exists).to.be.false;
     });
 
     it("should return true for existing TAG", async () => {
       const tag = "#TestTag";
-      
+
       // Create TAG through ETS core via relayer
       await contracts.ETS.connect(accounts.ETSPlatform).createTag(tag, accounts.RandomTwo.address);
-      
+
       const exists = await contracts.ETSToken.tagExistsByString(tag);
       expect(exists).to.be.true;
     });
 
     it("should be case-insensitive", async () => {
       const tag = "#TestTag";
-      
+
       // Create TAG through ETS core via relayer
       await contracts.ETS.connect(accounts.ETSPlatform).createTag(tag, accounts.RandomTwo.address);
-      
+
       // Should find the tag regardless of case
       expect(await contracts.ETSToken.tagExistsByString("#testtag")).to.be.true;
       expect(await contracts.ETSToken.tagExistsByString("#TESTTAG")).to.be.true;
@@ -104,9 +104,9 @@ describe("ETSToken Coin Integration Tests", () => {
     it("should return empty struct for non-existent TAG", async () => {
       const tag = "#NonExistentTag";
       const coinAddress = await contracts.ETSToken.computeCoinAddress(tag);
-      
+
       const tagData = await contracts.ETSToken.getTagByAddress(coinAddress);
-      
+
       expect(tagData.coinAddress).to.equal(ethers.ZeroAddress);
       expect(tagData.originalInput).to.equal("");
       expect(tagData.displayVersion).to.equal("");
@@ -116,13 +116,13 @@ describe("ETSToken Coin Integration Tests", () => {
     it("should return correct TAG data for existing TAG", async () => {
       const tag = "#TestTag";
       const creator = accounts.RandomTwo.address;
-      
+
       // Create TAG through ETS core via relayer
       await contracts.ETS.connect(accounts.ETSPlatform).createTag(tag, creator);
-      
+
       const coinAddress = await contracts.ETSToken.computeCoinAddress(tag);
       const tagData = await contracts.ETSToken.getTagByAddress(coinAddress);
-      
+
       expect(tagData.coinAddress).to.equal(coinAddress);
       expect(tagData.originalInput).to.equal(tag);
       expect(tagData.displayVersion).to.equal(tag);
@@ -134,9 +134,9 @@ describe("ETSToken Coin Integration Tests", () => {
   describe("getTagByString", () => {
     it("should return empty struct for non-existent TAG", async () => {
       const tag = "#NonExistentTag";
-      
+
       const tagData = await contracts.ETSToken.getTagByString(tag);
-      
+
       expect(tagData.coinAddress).to.equal(ethers.ZeroAddress);
       expect(tagData.originalInput).to.equal("");
       expect(tagData.displayVersion).to.equal("");
@@ -146,27 +146,27 @@ describe("ETSToken Coin Integration Tests", () => {
     it("should return correct TAG data for existing TAG", async () => {
       const tag = "#TestTag";
       const creator = accounts.RandomTwo.address;
-      
+
       // Create TAG through ETS core via relayer
       await contracts.ETS.connect(accounts.ETSPlatform).createTag(tag, creator);
-      
+
       const tagData = await contracts.ETSToken.getTagByString(tag);
-      
+
       expect(tagData.originalInput).to.equal(tag);
       expect(tagData.displayVersion).to.equal(tag);
       expect(tagData.creator).to.equal(creator);
       expect(tagData.relayer).to.equal(accounts.ETSPlatform.address);
-      
+
       // Verify coin address matches computed address
       const expectedCoinAddress = await contracts.ETSToken.computeCoinAddress(tag);
       expect(tagData.coinAddress).to.equal(expectedCoinAddress);
     });
   });
 
-  // NOTE: The following tests are commented out because they test getOrCreateTagId 
+  // NOTE: The following tests are commented out because they test getOrCreateTagId
   // which requires "ETS core" authorization. These tests will be covered in ETSRelayer tests
   // where the proper access control flow is used.
-  
+
   /*
   describe("New TAG coin creation flow", () => {
     it("should create TAG with Zora coin integration", async () => {

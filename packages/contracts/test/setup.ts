@@ -204,7 +204,7 @@ async function setup(): Promise<SetupResult> {
       initSettings.TAG_MIN_STRING_LENGTH,
       initSettings.TAG_MAX_STRING_LENGTH,
       MockZoraFactoryAddress, // _zoraFactoryAddress (use mock for tests)
-      accounts.ETSPlatform.address, // _zoraCreatorEOA 
+      accounts.ETSPlatform.address, // _zoraCreatorEOA
       accounts.ETSPlatform.address, // _zoraPlatformReferrer
       "0x", // _zoraPoolConfig (empty bytes for tests)
     ],
