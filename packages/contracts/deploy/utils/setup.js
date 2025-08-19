@@ -69,8 +69,8 @@ async function setup() {
     TAGGING_FEE_RELAYER_PERCENTAGE: 30,
     // Zora integration
     ZORA_FACTORY_ADDRESS: networkName === "localhost" ? ethers.ZeroAddress : ZORA_FACTORY_ADDRESS,
-    ZORA_CREATOR_EOA: ETSOracle, // Use oracle account as the creator EOA for now
-    ZORA_PLATFORM_REFERRER: ethers.ZeroAddress, // Zero address defaults to Zora protocol
+    ZORA_CREATOR_EOA: networkName === "localhost" ? ETSPlatform : ETSOracle, // Use platform account for localhost
+    ZORA_PLATFORM_REFERRER: networkName === "localhost" ? ETSPlatform : ethers.ZeroAddress, // Use platform account for localhost
     ZORA_POOL_CONFIG: ZORA_POOL_CONFIG,
   };
 

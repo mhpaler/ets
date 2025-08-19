@@ -3,24 +3,15 @@ const { setup } = require("../utils/setup.js");
 const { verify } = require("../utils/verify.js");
 const { saveNetworkConfig } = require("../utils/config.js");
 
-module.exports = async ({ deployments, network }) => {
+module.exports = async ({ deployments }) => {
   const { save, log } = deployments;
   const { factories, initSettings } = await setup();
 
   const etsAccessControlsAddress = (await deployments.get("ETSAccessControls")).address;
 
-  // For localhost, get the MockZoraFactory address
-  let zoraFactoryAddress = initSettings.ZORA_FACTORY_ADDRESS;
-  if (network.name === "localhost") {
-    try {
-      const mockFactory = await deployments.get("MockZoraFactory");
-      zoraFactoryAddress = mockFactory.address;
-      log(`Using MockZoraFactory at ${zoraFactoryAddress} for localhost`);
-    } catch (_error) {
-      log("Warning: MockZoraFactory not found, using zero address");
-      zoraFactoryAddress = ethers.ZeroAddress;
-    }
-  }
+  // Use initSettings for Zora factory address (will be updated in post-deployment for localhost)
+  const zoraFactoryAddress = initSettings.ZORA_FACTORY_ADDRESS;
+  log(`Initial Zora factory address: ${zoraFactoryAddress}`);
 
   // Deploy ETSToken with Zora integration parameters
   const deployment = await upgrades.deployProxy(
@@ -62,4 +53,4 @@ module.exports = async ({ deployments, network }) => {
   log("====================================================");
 };
 module.exports.tags = ["ETSToken"];
-module.exports.dependencies = ["ETSAccessControls", "MockZoraFactory"];
+module.exports.dependencies = ["ETSAccessControls"];

@@ -40,6 +40,34 @@ module.exports = async ({ deployments }) => {
     console.info("ETSRelayerFactory address:", etsRelayerFactory.address);
     const ETSRelayerFactory = await ethers.getContractAt("ETSRelayerFactory", etsRelayerFactory.address);
 
+    // Deploy and configure MockZoraFactory for localhost
+    if (network.name === "localhost") {
+      console.info("============ DEPLOY MOCKZORAFACTORY FOR LOCALHOST ============");
+      
+      // Deploy MockZoraFactory
+      const MockZoraFactory = await ethers.getContractFactory("MockZoraFactory");
+      const mockZoraFactory = await MockZoraFactory.connect(accounts.ETSAdmin).deploy();
+      await mockZoraFactory.waitForDeployment();
+      const mockZoraFactoryAddress = await mockZoraFactory.getAddress();
+      
+      console.info("MockZoraFactory deployed to:", mockZoraFactoryAddress);
+      
+      // Update ETSToken configuration with MockZoraFactory
+      console.info("Updating ETSToken Zora configuration...");
+      await ETSToken.connect(accounts.ETSPlatform).setZoraFactoryAddress(mockZoraFactoryAddress);
+      // Note: ZORA_CREATOR_EOA and ZORA_PLATFORM_REFERRER should already be set correctly during initial deployment
+      // But we'll verify and update them to ensure consistency
+      await ETSToken.connect(accounts.ETSPlatform).setZoraCreatorEOA(accounts.ETSPlatform.address);
+      await ETSToken.connect(accounts.ETSPlatform).setZoraPlatformReferrer(accounts.ETSPlatform.address);
+      await ETSToken.connect(accounts.ETSPlatform).setZoraPoolConfig("0x");
+      
+      console.info("✅ MockZoraFactory configuration completed");
+      console.info("   Factory address:", mockZoraFactoryAddress);
+      console.info("   Creator EOA:", accounts.ETSPlatform.address);
+      console.info("   Platform referrer:", accounts.ETSPlatform.address);
+      console.info("   Pool config: 0x (empty)");
+    }
+
     console.info("============ CONFIGURE ROLES & APPROVALS ============");
     console.info("See /packages/contracts/deploy/deploy.js for settings.");
 

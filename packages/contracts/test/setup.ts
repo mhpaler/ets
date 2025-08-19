@@ -142,6 +142,7 @@ interface Factories {
   ETSUpgrade: ContractFactory;
   ETSRelayerUpgradeTest: ContractFactory;
   AirnodeRrpV0Proxy: ContractFactory;
+  MockZoraFactory: ContractFactory;
 }
 
 async function getFactories(): Promise<Factories> {
@@ -163,6 +164,7 @@ async function getFactories(): Promise<Factories> {
     ETSTargetUpgrade: await ethers.getContractFactory("ETSTargetUpgrade"),
     ETSUpgrade: await ethers.getContractFactory("ETSUpgrade"),
     ETSRelayerUpgradeTest: await ethers.getContractFactory("ETSRelayerUpgradeTest"),
+    MockZoraFactory: await ethers.getContractFactory("MockZoraFactory"),
   };
   return allFactories;
 }
@@ -183,6 +185,11 @@ async function setup(): Promise<SetupResult> {
   await WETH.waitForDeployment();
   const _WETHAddress = await WETH.getAddress();
 
+  // Deploy MockZoraFactory for testing
+  const MockZoraFactory = await factories.MockZoraFactory.deploy();
+  await MockZoraFactory.waitForDeployment();
+  const MockZoraFactoryAddress = await MockZoraFactory.getAddress();
+
   const ETSAccessControls = (await upgrades.deployProxy(factories.ETSAccessControls, [accounts.ETSPlatform.address], {
     kind: "uups",
   })) as unknown as ETSAccessControls;
@@ -196,7 +203,10 @@ async function setup(): Promise<SetupResult> {
       ETSAccessControlsAddress,
       initSettings.TAG_MIN_STRING_LENGTH,
       initSettings.TAG_MAX_STRING_LENGTH,
-      initSettings.OWNERSHIP_TERM_LENGTH,
+      MockZoraFactoryAddress, // _zoraFactoryAddress (use mock for tests)
+      accounts.ETSPlatform.address, // _zoraCreatorEOA 
+      accounts.ETSPlatform.address, // _zoraPlatformReferrer
+      "0x", // _zoraPoolConfig (empty bytes for tests)
     ],
     { kind: "uups" },
   )) as unknown as ETSToken;

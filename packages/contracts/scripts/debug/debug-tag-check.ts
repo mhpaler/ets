@@ -10,19 +10,19 @@ async function main() {
   const chainConfig = require(`../src/chainConfig/${network.name}.json`);
 
   // Get signers
-  const [signer0, signer1, signer2] = await ethers.getSigners();
+  const [_signer0, _signer1, signer2] = await ethers.getSigners();
   console.log("Using account2:", signer2.address);
 
   // Get contract instances with proper typing
-  const etsRelayer = await ethers.getContractAt(
-    "ETSRelayer", 
-    chainConfig.contracts.ETSRelayer.address
-  ) as unknown as ETSRelayer;
-  
-  const etsToken = await ethers.getContractAt(
-    "ETSToken", 
-    chainConfig.contracts.ETSToken.address
-  ) as unknown as ETSToken;
+  const etsRelayer = (await ethers.getContractAt(
+    "ETSRelayer",
+    chainConfig.contracts.ETSRelayer.address,
+  )) as unknown as ETSRelayer;
+
+  const etsToken = (await ethers.getContractAt(
+    "ETSToken",
+    chainConfig.contracts.ETSToken.address,
+  )) as unknown as ETSToken;
 
   // Try to create a TAG
   const tagString = `#Bitcoin${Date.now()}`;
@@ -32,12 +32,12 @@ async function main() {
     console.log("Sending transaction...");
     const tx = await etsRelayer.connect(signer2).getOrCreateTagIds([tagString]);
     console.log("Transaction hash:", tx.hash);
-    
+
     console.log("Waiting for confirmation...");
     const receipt = await tx.wait();
     console.log("✅ Transaction confirmed!");
     console.log("Gas used:", receipt?.gasUsed.toString());
-    
+
     // Check for events
     console.log("\nEvents emitted:");
     if (receipt?.logs) {
@@ -45,36 +45,36 @@ async function main() {
         try {
           const parsedLog = etsToken.interface.parseLog({
             topics: [...log.topics],
-            data: log.data
+            data: log.data,
           });
           if (parsedLog) {
             console.log(`  - ${parsedLog.name}:`, parsedLog.args);
           }
-        } catch (e) {
+        } catch (_e) {
           // Try parsing with relayer interface
           try {
             const parsedLog = etsRelayer.interface.parseLog({
               topics: [...log.topics],
-              data: log.data
+              data: log.data,
             });
             if (parsedLog) {
               console.log(`  - ${parsedLog.name}:`, parsedLog.args);
             }
-          } catch (e2) {
+          } catch (_e2) {
             // Not our event
           }
         }
       }
     }
-    
+
     // Check TAG creation result
     console.log("\nChecking TAG creation result...");
     const coinAddress = await etsToken.computeCoinAddress(tagString);
     console.log("Computed coin address:", coinAddress);
-    
+
     const tagExists = await etsToken.tagExistsByAddress(coinAddress);
     console.log("TAG exists after creation?", tagExists);
-    
+
     if (tagExists) {
       const tagData = await etsToken.getTag(coinAddress);
       console.log("TAG data:");
@@ -83,32 +83,31 @@ async function main() {
       console.log("  Original:", tagData.original);
       console.log("  Coin address:", tagData.coinAddress);
     }
-    
   } catch (error: any) {
     console.log("❌ Transaction failed!");
     console.log("Error:", error.message);
-    
+
     if (error.reason) {
       console.log("Reason:", error.reason);
     }
-    
+
     if (error.data) {
       console.log("Error data:", error.data);
     }
-    
+
     // Additional debugging
     console.log("\nDebugging transaction failure...");
-    
+
     // Check if relayer is registered
     try {
       const ets = await ethers.getContractAt("ETS", chainConfig.contracts.ETS.address);
       const etsAccessControlsAddr = await ets.etsAccessControls();
       const etsAccessControls = await ethers.getContractAt("ETSAccessControls", etsAccessControlsAddr);
-      
+
       const relayerAddress = await etsRelayer.getAddress();
       const isRelayer = await etsAccessControls.isRelayer(relayerAddress);
       console.log("Is ETSRelayer registered?", isRelayer);
-      
+
       if (!isRelayer) {
         console.log("⚠️  ETSRelayer is NOT registered! Run register-relayer.ts first");
       }
@@ -120,7 +119,7 @@ async function main() {
 
 main()
   .then(() => process.exit(0))
-  .catch(error => {
+  .catch((error) => {
     console.error(error);
     process.exit(1);
   });

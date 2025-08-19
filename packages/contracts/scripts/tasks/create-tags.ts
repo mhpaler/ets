@@ -167,15 +167,33 @@ async function createTagsLocal(tags: string[], relayerName: string, signerName: 
       console.log("   ✅ Transaction confirmed with 2 block confirmations!");
       console.log("   ⛽ Gas used:", receipt.gasUsed.toString());
 
-      // Note: TAG validation logic needs debugging (see issue #15 in todos)
-      // For now, transaction success indicates TAG creation worked
-      console.log("\n5. Transaction completed successfully!");
+      console.log("\n5. Validating TAG creation...");
 
       for (const tag of tagsToCreate) {
         const coinAddress = (await etsToken.read.computeCoinAddress([tag])) as Address;
-        console.log(`   ✅ "${tag}" transaction processed`);
-        console.log(`      Computed coin address: ${coinAddress}`);
-        console.log("      TagCreated event should be emitted for this address");
+
+        // Check if TAG now exists (this was the bug we fixed)
+        const existsByAddress = await etsToken.read.tagExistsByAddress([coinAddress]);
+        const existsByString = await etsToken.read.tagExistsByString([tag]);
+
+        if (existsByAddress && existsByString) {
+          console.log(`   ✅ "${tag}" created successfully!`);
+          console.log(`      Coin address: ${coinAddress}`);
+          console.log("      Validation: Address ✅ String ✅");
+
+          // Get TAG data to show full details
+          const tagData = await etsToken.read.getTagByAddress([coinAddress]);
+          console.log(`      Original input: ${tagData.originalInput}`);
+          console.log(`      Display version: ${tagData.displayVersion}`);
+          console.log(`      Machine name: ${tagData.machineName}`);
+        } else {
+          console.log(`   ❌ "${tag}" validation failed!`);
+          console.log(`      Coin address: ${coinAddress}`);
+          console.log(
+            `      Validation: Address ${existsByAddress ? "✅" : "❌"} String ${existsByString ? "✅" : "❌"}`,
+          );
+          console.log("      This indicates a problem with our contract fixes");
+        }
       }
 
       console.log("\n🎉 On-chain TAG creation completed!");
