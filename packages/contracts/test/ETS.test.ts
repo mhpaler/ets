@@ -86,7 +86,7 @@ describe("ETS Core tests", () => {
     it("should revert if set to zero address", async () => {
       await expect(
         contracts.ETS.connect(accounts.ETSPlatform).setAccessControls(ethers.ZeroAddress),
-      ).to.be.revertedWith("Address cannot be zero");
+      ).to.be.revertedWithCustomError(contracts.ETS, "AddressCannotBeZero");
     });
 
     it("should revert if caller is not administrator", async () => {
@@ -110,7 +110,7 @@ describe("ETS Core tests", () => {
       // ETS Platform is not set as admin in access controls.
       await expect(
         contracts.ETS.connect(accounts.ETSPlatform).setAccessControls(await ETSAccessControlsNew.getAddress()),
-      ).to.be.revertedWith("Caller not admin in new contract");
+      ).to.be.revertedWithCustomError(contracts.ETS, "CallerNotAdminInNewContract");
     });
 
     it("should emit AccessControlsSet", async () => {
@@ -147,8 +147,9 @@ describe("ETS Core tests", () => {
       await expect(contracts.ETS.connect(accounts.RandomTwo).setPercentages(10, 10)).to.be.reverted;
     });
     it("should revert if total percentage is over 100%", async () => {
-      await expect(contracts.ETS.connect(accounts.ETSPlatform).setPercentages(60, 60)).to.be.revertedWith(
-        "percentages must not be over 100",
+      await expect(contracts.ETS.connect(accounts.ETSPlatform).setPercentages(60, 60)).to.be.revertedWithCustomError(
+        contracts.ETS,
+        "PercentagesMustNotBeOver100",
       );
     });
 
@@ -360,7 +361,7 @@ describe("ETS Core tests", () => {
           accounts.RandomOne.address,
           accounts.ETSPlatform.address,
         ),
-      ).to.be.revertedWith("Caller not Relayer");
+      ).to.be.revertedWithCustomError(contracts.ETS, "CallerNotRelayer");
     });
 
     it("should revert when caller is not an enabled Relayer", async () => {
@@ -372,7 +373,7 @@ describe("ETS Core tests", () => {
           accounts.RandomOne.address,
           accounts.ETSPlatform.address,
         ),
-      ).to.be.revertedWith("Caller not Relayer");
+      ).to.be.revertedWithCustomError(contracts.ETS, "CallerNotRelayer");
     });
 
     it("should revert when no tags are supplied", async () => {
@@ -384,7 +385,7 @@ describe("ETS Core tests", () => {
           accounts.RandomOne.address,
           accounts.ETSPlatform.address,
         ),
-      ).to.be.revertedWith("No tags supplied");
+      ).to.be.revertedWithCustomError(contracts.ETS, "NoTagsSupplied");
     });
 
     it("should revert when record type is too long", async () => {
@@ -399,7 +400,7 @@ describe("ETS Core tests", () => {
             value: taggingFee,
           },
         ),
-      ).to.be.revertedWith("Record type too long");
+      ).to.be.revertedWithCustomError(contracts.ETS, "RecordTypeTooLong");
     });
 
     it("should revert when insufficient tagging fee is supplied", async () => {
@@ -414,7 +415,7 @@ describe("ETS Core tests", () => {
             value: taggingFee,
           },
         ),
-      ).to.be.revertedWith("wrong fee supplied");
+      ).to.be.revertedWithCustomError(contracts.ETS, "WrongFeeSupplied");
     });
 
     it("should emit TaggingRecordCreated when new Tagging Record is created", async () => {
@@ -509,7 +510,7 @@ describe("ETS Core tests", () => {
               value: taggingFee,
             },
           ),
-        ).to.be.revertedWith("wrong fee supplied");
+        ).to.be.revertedWithCustomError(contracts.ETS, "WrongFeeSupplied");
       });
 
       it("should emit TaggingRecordUpdated", async () => {
@@ -590,7 +591,7 @@ describe("ETS Core tests", () => {
               value: taggingFee,
             },
           ),
-        ).to.be.revertedWith("wrong fee supplied");
+        ).to.be.revertedWithCustomError(contracts.ETS, "WrongFeeSupplied");
       });
 
       it("should emit TaggingRecordUpdated", async () => {
@@ -661,7 +662,7 @@ describe("ETS Core tests", () => {
               value: taggingFee,
             },
           ),
-        ).to.be.revertedWith("wrong fee supplied");
+        ).to.be.revertedWithCustomError(contracts.ETS, "WrongFeeSupplied");
       });
 
       it("can be done with taggingRecordId", async () => {
@@ -709,7 +710,7 @@ describe("ETS Core tests", () => {
               value: taggingFee * BigInt(2),
             },
           ),
-        ).to.be.revertedWith("Not authorized");
+        ).to.be.revertedWithCustomError(contracts.ETS, "NotAuthorized");
       });
     });
   });
@@ -749,7 +750,7 @@ describe("ETS Core tests", () => {
             accounts.RandomOne.address,
             accounts.ETSPlatform.address,
           ),
-        ).to.be.revertedWith("Not authorized");
+        ).to.be.revertedWithCustomError(contracts.ETS, "NotAuthorized");
       });
 
       it("should revert if no tags supplied", async () => {
@@ -764,7 +765,7 @@ describe("ETS Core tests", () => {
             accounts.RandomOne.address,
             accounts.ETSPlatform.address,
           ),
-        ).to.be.revertedWith("No tags supplied");
+        ).to.be.revertedWithCustomError(contracts.ETS, "NoTagsSupplied");
       });
       it("should emit TaggingRecordUpdated", async () => {
         const rawInput = {
@@ -898,7 +899,7 @@ describe("ETS Core tests", () => {
             accounts.RandomOne.address,
             accounts.ETSPlatform.address,
           ),
-        ).to.be.revertedWith("Not authorized");
+        ).to.be.revertedWithCustomError(contracts.ETS, "NotAuthorized");
       });
 
       it("should revert if no tags supplied", async () => {
@@ -910,7 +911,7 @@ describe("ETS Core tests", () => {
             accounts.RandomOne.address,
             accounts.ETSPlatform.address,
           ),
-        ).to.be.revertedWith("No tags supplied");
+        ).to.be.revertedWithCustomError(contracts.ETS, "NoTagsSupplied");
       });
       it("should emit TaggingRecordUpdated", async () => {
         const tx = await contracts.ETS.connect(accounts.ETSPlatform).removeTagsWithCompositeKey(
@@ -1051,7 +1052,7 @@ describe("ETS Core tests", () => {
             [userTag1],
             accounts.RandomTwo.address, // Different tagger
           ),
-        ).to.be.revertedWith("Not authorized");
+        ).to.be.revertedWithCustomError(contracts.ETS, "NotAuthorized");
       });
     });
   });
@@ -1096,7 +1097,7 @@ describe("ETS Core tests", () => {
               value: taggingFee,
             },
           ),
-        ).to.be.revertedWith("wrong fee supplied");
+        ).to.be.revertedWithCustomError(contracts.ETS, "WrongFeeSupplied");
       });
 
       it("should revert when no tags are supplied", async () => {
@@ -1111,7 +1112,7 @@ describe("ETS Core tests", () => {
             accounts.RandomOne.address,
             accounts.ETSPlatform.address,
           ),
-        ).to.be.revertedWith("No tags supplied");
+        ).to.be.revertedWithCustomError(contracts.ETS, "NoTagsSupplied");
       });
 
       it("should emit TaggingRecordUpdated", async () => {
@@ -1191,7 +1192,7 @@ describe("ETS Core tests", () => {
               value: taggingFee,
             },
           ),
-        ).to.be.revertedWith("wrong fee supplied");
+        ).to.be.revertedWithCustomError(contracts.ETS, "WrongFeeSupplied");
       });
 
       it("should emit TaggingRecordUpdated", async () => {
@@ -1259,7 +1260,7 @@ describe("ETS Core tests", () => {
               value: taggingFee,
             },
           ),
-        ).to.be.revertedWith("wrong fee supplied");
+        ).to.be.revertedWithCustomError(contracts.ETS, "WrongFeeSupplied");
       });
 
       it("should emit TaggingRecordUpdated", async () => {
@@ -1306,7 +1307,7 @@ describe("ETS Core tests", () => {
               value: taggingFee * BigInt(2),
             },
           ),
-        ).to.be.revertedWith("Not authorized");
+        ).to.be.revertedWithCustomError(contracts.ETS, "NotAuthorized");
       });
 
       it("can be performed by original relayer", async () => {
@@ -1349,7 +1350,7 @@ describe("ETS Core tests", () => {
         contracts.ETSRelayer.connect(accounts.RandomOne).applyTags(taggingRecords, {
           value: taggingFee * BigInt(2),
         }),
-      ).to.be.revertedWith("Caller not Relayer");
+      ).to.be.revertedWithCustomError(contracts.ETS, "CallerNotRelayer");
     });
 
     it('should emit "TaggingRecordCreated" when successful', async () => {

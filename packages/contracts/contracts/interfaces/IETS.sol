@@ -17,6 +17,20 @@
 pragma solidity ^0.8.10;
 
 interface IETS {
+    // Custom errors
+    error CallerNotAdministrator(address caller);
+    error CallerNotRelayer(address caller);
+    error AddressCannotBeZero();
+    error CallerNotAdminInNewContract(address caller);
+    error PercentagesMustNotBeOver100(uint256 platformPercentage, uint256 relayerPercentage);
+    error NoTagsSupplied();
+    error InvalidCoinAddress(address coinAddress);
+    error RecordTypeTooLong(uint256 length);
+    error InvalidTargetId(uint256 targetId);
+    error NotAuthorized(address tagger, address expected);
+    error TransferFailed();
+    error WrongFeeSupplied(uint256 provided, uint256 required);
+
     /**
      * @notice Data structure for raw client input data.
      *

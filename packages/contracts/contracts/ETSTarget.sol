@@ -58,7 +58,7 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
     // Modifiers
 
     modifier onlyAdmin() {
-        require(etsAccessControls.isAdmin(msg.sender), "Access denied");
+        if (!etsAccessControls.isAdmin(msg.sender)) revert AccessDenied(msg.sender);
         _;
     }
 
@@ -86,15 +86,15 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
      * @param _accessControls Address of ETSAccessControls contract.
      */
     function setAccessControls(IETSAccessControls _accessControls) public onlyAdmin {
-        require(address(_accessControls) != address(0), "Address cannot be zero");
-        require(_accessControls.isAdmin(msg.sender), "Caller not admin in new contract");
+        if (address(_accessControls) == address(0)) revert AddressCannotBeZero();
+        if (!_accessControls.isAdmin(msg.sender)) revert CallerNotAdminInNewContract(msg.sender);
         etsAccessControls = _accessControls;
         emit AccessControlsSet(address(etsAccessControls));
     }
 
     /// @inheritdoc IETSTarget
     function setEnrichTarget(address _etsEnrichTarget) public onlyAdmin {
-        require(address(_etsEnrichTarget) != address(0), "Bad address");
+        if (address(_etsEnrichTarget) == address(0)) revert BadAddress();
         etsEnrichTarget = IETSEnrichTarget(_etsEnrichTarget);
         emit EnrichTargetSet(_etsEnrichTarget);
     }
@@ -113,8 +113,8 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
 
     /// @inheritdoc IETSTarget
     function createTarget(string memory _targetURI) public returns (uint256 targetId) {
-        require(!targetExistsByURI(_targetURI), "target id exists");
-        require(bytes(_targetURI).length > 0, "empty target");
+        if (targetExistsByURI(_targetURI)) revert TargetIdExists(_targetURI);
+        if (bytes(_targetURI).length == 0) revert EmptyTarget();
 
         uint256 _targetId = computeTargetId(_targetURI);
         targets[_targetId] = Target({
@@ -136,7 +136,7 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
         uint256 _httpStatus,
         string calldata _arweaveTxId
     ) external returns (bool success) {
-        require(msg.sender == address(etsEnrichTarget), "Access denied");
+        if (!etsAccessControls.isEventProcessor(msg.sender)) revert AccessDenied(msg.sender);
 
 
         targets[_targetId].targetURI = _targetURI;

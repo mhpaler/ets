@@ -34,8 +34,9 @@ describe("ETSToken Tests", () => {
 
   describe("Administrator role", () => {
     it("should be able to set max tag length", async () => {
-      await expect(contracts.ETSToken.connect(accounts.Buyer).setTagMaxStringLength(55)).to.be.revertedWith(
-        "Access denied",
+      await expect(contracts.ETSToken.connect(accounts.Buyer).setTagMaxStringLength(55)).to.be.revertedWithCustomError(
+        contracts.ETSToken,
+        "AccessDenied",
       );
 
       const currentMaxLength = await contracts.ETSToken.tagMaxStringLength();
@@ -47,8 +48,9 @@ describe("ETSToken Tests", () => {
     });
 
     it("should be able to set min tag length", async () => {
-      await expect(contracts.ETSToken.connect(accounts.Buyer).setTagMinStringLength(5)).to.be.revertedWith(
-        "Access denied",
+      await expect(contracts.ETSToken.connect(accounts.Buyer).setTagMinStringLength(5)).to.be.revertedWithCustomError(
+        contracts.ETSToken,
+        "AccessDenied",
       );
 
       const currentMinLength = await contracts.ETSToken.tagMinStringLength();

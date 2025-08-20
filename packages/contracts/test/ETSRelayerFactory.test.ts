@@ -63,31 +63,30 @@ describe("ETSRelayerFactory Tests", () => {
     it("will revert if sender already owns relayer", async () => {
       await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap");
 
-      await expect(contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Solana")).to.be.revertedWith(
-        "Sender owns relayer",
-      );
+      await expect(
+        contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Solana"),
+      ).to.be.revertedWithCustomError(contracts.ETSAccessControls, "SenderOwnsRelayer");
     });
 
     it("will revert if name is too short", async () => {
-      await expect(contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("X")).to.be.revertedWith(
-        "Relayer name too short",
-      );
+      await expect(contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("X"))
+        .to.be.revertedWithCustomError(contracts.ETSAccessControls, "RelayerNameTooShort")
+        .withArgs(1);
     });
 
     it("will revert if name is too long", async () => {
-      await expect(
-        contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer(
-          "this is a relayer name that is well well well well over the limit in length",
-        ),
-      ).to.be.revertedWith("Relayer name too long");
+      const longName = "this is a relayer name that is well well well well over the limit in length";
+      await expect(contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer(longName))
+        .to.be.revertedWithCustomError(contracts.ETSAccessControls, "RelayerNameTooLong")
+        .withArgs(longName.length);
     });
 
     it("will revert if name already exists", async () => {
       await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap");
 
-      await expect(contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap")).to.be.revertedWith(
-        "Relayer name exists",
-      );
+      await expect(contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap"))
+        .to.be.revertedWithCustomError(contracts.ETSAccessControls, "RelayerNameExists")
+        .withArgs("Uniswap");
     });
 
     it("will emit RelayerAdded", async () => {
@@ -152,7 +151,7 @@ describe("ETSRelayerFactory Tests", () => {
     it("cannot be paused by non-owner or non-relayer admin", async () => {
       // Try pausing as non-owner (eg. RandomTwo)
       const nonOwnerRelayer = new ethers.Contract(relayerAddress, etsRelayerABI, accounts.RandomTwo);
-      await expect(nonOwnerRelayer.pause()).to.be.revertedWith("Caller not relayer admin");
+      await expect(nonOwnerRelayer.pause()).to.be.revertedWithCustomError(nonOwnerRelayer, "CallerNotRelayerAdmin");
     });
 
     it("can be paused & unpaused by Owner", async () => {
@@ -207,7 +206,7 @@ describe("ETSRelayerFactory Tests", () => {
       // Now lock it at the platform level.
       await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleRelayerLock(relayerAddress);
       expect(await contracts.ETSAccessControls.isRelayerLocked(relayerAddress)).to.be.equal(true);
-      await expect(uniswapRelayer.unpause()).to.be.revertedWith("Unpausing not permitted");
+      await expect(uniswapRelayer.unpause()).to.be.revertedWithCustomError(uniswapRelayer, "UnpausingNotPermitted");
     });
 
     it("must be paused before transferring to new owner", async () => {

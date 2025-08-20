@@ -53,10 +53,10 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     mapping(address => address) public relayerOwnerToAddress;
 
     modifier onlyValidName(string calldata _name) {
-        require(!isRelayerByName(_name), "Relayer name exists");
+        if (isRelayerByName(_name)) revert RelayerNameExists(_name);
         bytes memory nameBytes = bytes(_name);
-        require(nameBytes.length >= 2, "Relayer name too short");
-        require(nameBytes.length <= 32, "Relayer name too long");
+        if (nameBytes.length < 2) revert RelayerNameTooShort(nameBytes.length);
+        if (nameBytes.length > 32) revert RelayerNameTooLong(nameBytes.length);
         _;
     }
 
@@ -119,9 +119,9 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
 
     /// @inheritdoc IETSAccessControls
     function changeRelayerOwner(address _currentOwner, address _newOwner) public onlyRole(RELAYER_ROLE) {
-        require(isRelayerByAddress(_msgSender()), "Caller is not relayer");
-        require(IETSRelayer(_msgSender()).getOwner() == _currentOwner, "Not relayer owner");
-        require(!isRelayerByOwner(_newOwner), "New owner already owns a relayer");
+        if (!isRelayerByAddress(_msgSender())) revert CallerIsNotRelayer(_msgSender());
+        if (IETSRelayer(_msgSender()).getOwner() != _currentOwner) revert NotRelayerOwner(_msgSender(), _currentOwner);
+        if (isRelayerByOwner(_newOwner)) revert NewOwnerAlreadyOwnsRelayer(_newOwner);
         relayerOwnerToAddress[_currentOwner] = address(0);
         // _msgSender() is the relayer itself.
         relayerOwnerToAddress[_newOwner] = _msgSender();

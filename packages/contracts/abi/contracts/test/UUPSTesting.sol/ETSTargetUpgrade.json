@@ -1,5 +1,53 @@
 [
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "AccessDenied",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AddressCannotBeZero",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "BadAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "CallerNotAdminInNewContract",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "EmptyTarget",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "targetURI",
+        "type": "string"
+      }
+    ],
+    "name": "TargetIdExists",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {

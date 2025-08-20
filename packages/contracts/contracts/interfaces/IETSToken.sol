@@ -29,6 +29,19 @@
 pragma solidity ^0.8.10;
 
 interface IETSToken {
+    // Custom errors
+    error CallerIsNotETSCore(address caller);
+    error AccessDenied(address caller);
+    error CallerIsNotRelayer(address caller);
+    error AddressCannotBeZero();
+    error CallerNotAdminInNewContract(address caller);
+    error TagAlreadyExists(address coinAddress);
+    error ZoraFactoryNotConfigured();
+    error InvalidTagFormat(uint256 length, uint256 minLength, uint256 maxLength);
+    error TagMustStartWithHash();
+    error SpacesInTag();
+    error TagContainsPrefix();
+
     /**
      * @notice Data structure for TAG Token with three-tier identifier system.
      *

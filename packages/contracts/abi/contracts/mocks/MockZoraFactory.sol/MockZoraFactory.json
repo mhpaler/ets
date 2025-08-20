@@ -96,17 +96,17 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "payoutRecipient",
+        "name": "",
         "type": "address"
       },
       {
         "internalType": "address[]",
-        "name": "owners",
+        "name": "",
         "type": "address[]"
       },
       {
         "internalType": "string",
-        "name": "uri",
+        "name": "",
         "type": "string"
       },
       {
@@ -131,12 +131,12 @@
       },
       {
         "internalType": "address",
-        "name": "postDeployHook",
+        "name": "",
         "type": "address"
       },
       {
         "internalType": "bytes",
-        "name": "postDeployHookData",
+        "name": "",
         "type": "bytes"
       },
       {

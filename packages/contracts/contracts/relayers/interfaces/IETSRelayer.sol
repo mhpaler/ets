@@ -19,6 +19,11 @@ pragma solidity ^0.8.10;
 import { IETS } from "../../interfaces/IETS.sol";
 
 interface IETSRelayer {
+    // Custom errors
+    error CallerNotRelayerAdmin(address caller);
+    error UnpausingNotPermitted();
+    error InsufficientFunds(uint256 required, uint256 available);
+
     /**
      * @dev Emitted when an IETSRelayer contract is paused/unpaused by owner.
      *

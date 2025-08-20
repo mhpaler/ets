@@ -72,12 +72,12 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     /// @dev When applied to a method, only allows execution when the sender has the admin role.
     modifier onlyAdmin() {
-        require(etsAccessControls.isAdmin(_msgSender()), "Caller not Administrator");
+        if (!etsAccessControls.isAdmin(_msgSender())) revert CallerNotAdministrator(_msgSender());
         _;
     }
 
     modifier onlyRelayer() {
-        require(etsAccessControls.isRelayer(_msgSender()), "Caller not Relayer");
+        if (!etsAccessControls.isRelayer(_msgSender())) revert CallerNotRelayer(_msgSender());
         _;
     }
 
@@ -118,8 +118,8 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
      * @param _accessControls Address of ETSAccessControls contract.
      */
     function setAccessControls(IETSAccessControls _accessControls) public onlyAdmin {
-        require(address(_accessControls) != address(0), "Address cannot be zero");
-        require(_accessControls.isAdmin(_msgSender()), "Caller not admin in new contract");
+        if (address(_accessControls) == address(0)) revert AddressCannotBeZero();
+        if (!_accessControls.isAdmin(_msgSender())) revert CallerNotAdminInNewContract(_msgSender());
         etsAccessControls = _accessControls;
         emit AccessControlsSet(address(etsAccessControls));
     }
@@ -135,7 +135,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @param _platformPercentage percentage for platform.
     /// @param _relayerPercentage percentage for relayer.
     function setPercentages(uint256 _platformPercentage, uint256 _relayerPercentage) public onlyAdmin {
-        require(_platformPercentage + _relayerPercentage <= 100, "percentages must not be over 100");
+        if (_platformPercentage + _relayerPercentage > 100) revert PercentagesMustNotBeOver100(_platformPercentage, _relayerPercentage);
         platformPercentage = _platformPercentage;
         relayerPercentage = _relayerPercentage;
 
@@ -152,12 +152,12 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address _tagger
     ) public payable nonReentrant onlyRelayer {
         uint256 tagCount = _coinAddresses.length;
-        require(tagCount > 0, "No tags supplied");
+        if (tagCount == 0) revert NoTagsSupplied();
         for (uint256 i; i < tagCount; ++i) {
-            require(etsToken.tagExistsByAddress(_coinAddresses[i]), "Invalid coin address");
+            if (!etsToken.tagExistsByAddress(_coinAddresses[i])) revert InvalidCoinAddress(_coinAddresses[i]);
         }
-        require(bytes(_recordType).length >= 3 && bytes(_recordType).length < 31, "Record type too long");
-        require(etsTarget.targetExistsById(_targetId), "Invalid targetId");
+        if (bytes(_recordType).length < 3 || bytes(_recordType).length >= 31) revert RecordTypeTooLong(bytes(_recordType).length);
+        if (!etsTarget.targetExistsById(_targetId)) revert InvalidTargetId(_targetId);
         _processTaggingFees(_coinAddresses);
         _createTaggingRecord(_coinAddresses, _targetId, _recordType, _msgSender(), _tagger);
     }
@@ -186,7 +186,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     ) public payable onlyRelayer {
         // Derive coin addresses for the tagStrings.
         uint256 tagCount = _rawInput.tagStrings.length;
-        require(tagCount > 0, "No tags supplied");
+        if (tagCount == 0) revert NoTagsSupplied();
 
         address[] memory coinAddresses = new address[](tagCount);
         for (uint256 i; i < tagCount; ++i) {
@@ -214,7 +214,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address _relayer
     ) public payable onlyRelayer {
         uint256 tagCount = _coinAddresses.length;
-        require(tagCount > 0, "No tags supplied");
+        if (tagCount == 0) revert NoTagsSupplied();
 
         uint256 taggingRecordId = computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _relayer, _tagger);
         if (taggingRecordExists(taggingRecordId)) {
@@ -231,7 +231,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address _relayer
     ) public payable onlyRelayer {
         uint256 tagCount = _rawInput.tagStrings.length;
-        require(tagCount > 0, "No tags supplied");
+        if (tagCount == 0) revert NoTagsSupplied();
 
         address[] memory coinAddresses = new address[](tagCount);
         for (uint256 i; i < tagCount; ++i) {
@@ -288,8 +288,8 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address[] memory _coinAddresses,
         address _tagger
     ) public payable nonReentrant onlyRelayer {
-        require(_coinAddresses.length > 0, "No tags supplied");
-        require(taggingRecords[_taggingRecordId].tagger == _tagger, "Not authorized");
+        if (_coinAddresses.length == 0) revert NoTagsSupplied();
+        if (taggingRecords[_taggingRecordId].tagger != _tagger) revert NotAuthorized(_tagger, taggingRecords[_taggingRecordId].tagger);
 
         // Filter out new tags from the supplied tags.
         _coinAddresses = AddressArrayUtils.difference(_coinAddresses, taggingRecords[_taggingRecordId].coinAddresses);
@@ -306,8 +306,8 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address[] memory _coinAddresses,
         address _tagger
     ) public payable nonReentrant onlyRelayer {
-        require(_coinAddresses.length > 0, "No tags supplied");
-        require(taggingRecords[_taggingRecordId].tagger == _tagger, "Not authorized");
+        if (_coinAddresses.length == 0) revert NoTagsSupplied();
+        if (taggingRecords[_taggingRecordId].tagger != _tagger) revert NotAuthorized(_tagger, taggingRecords[_taggingRecordId].tagger);
 
         // Find all the tags NOT SHARED by the tagging record and the replacement set.
         address[] memory notShared = AddressArrayUtils.difference(taggingRecords[_taggingRecordId].coinAddresses, _coinAddresses);
@@ -332,8 +332,8 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address[] memory _coinAddresses,
         address _tagger
     ) public nonReentrant onlyRelayer {
-        require(_coinAddresses.length > 0, "No tags supplied");
-        require(taggingRecords[_taggingRecordId].tagger == _tagger, "Not authorized");
+        if (_coinAddresses.length == 0) revert NoTagsSupplied();
+        if (taggingRecords[_taggingRecordId].tagger != _tagger) revert NotAuthorized(_tagger, taggingRecords[_taggingRecordId].tagger);
 
         // Find tags shared by supplied tags and tagging record tags.
         _coinAddresses = AddressArrayUtils.intersect(_coinAddresses, taggingRecords[_taggingRecordId].coinAddresses);
@@ -351,7 +351,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
             paid[_account] = paid[_account] + balanceDue;
 
             (bool success, ) = _account.call{ value: balanceDue }("");
-            require(success, "Transfer failed.");
+            if (!success) revert TransferFailed();
 
             emit FundsWithdrawn(_account, balanceDue);
         }
@@ -605,7 +605,8 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     }
 
     function _processTaggingFees(address[] memory _coinAddresses) private {
-        require((msg.value == _computeTaggingFee(_coinAddresses.length)), "wrong fee supplied");
+        uint256 requiredFee = _computeTaggingFee(_coinAddresses.length);
+        if (msg.value != requiredFee) revert WrongFeeSupplied(msg.value, requiredFee);
         address platform = etsAccessControls.getPlatformAddress();
         for (uint256 i; i < _coinAddresses.length; ++i) {
             _processAccrued(_coinAddresses[i], platform);

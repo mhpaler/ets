@@ -45,15 +45,15 @@ contract MockZoraFactory {
      *      For testing, we just emit an event
      */
     function deploy(
-        address payoutRecipient,
-        address[] memory owners,
-        string memory uri,
+        address /* payoutRecipient */,
+        address[] memory /* owners */,
+        string memory /* uri */,
         string memory name,
         string memory symbol,
         bytes memory poolConfig,
         address platformReferrer,
-        address postDeployHook,
-        bytes memory postDeployHookData,
+        address /* postDeployHook */,
+        bytes memory /* postDeployHookData */,
         bytes32 coinSalt
     ) external returns (address coin) {
         // Calculate the same address as coinAddress would return

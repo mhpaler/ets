@@ -25,7 +25,7 @@ describe("ETS Target tests", () => {
     it("should revert if set to zero address", async () => {
       await expect(
         contracts.ETSTarget.connect(accounts.ETSPlatform).setAccessControls(ethers.ZeroAddress),
-      ).to.be.revertedWith("Address cannot be zero");
+      ).to.be.revertedWithCustomError(contracts.ETSTarget, "AddressCannotBeZero");
     });
 
     it("should revert if caller is not administrator", async () => {
@@ -49,7 +49,7 @@ describe("ETS Target tests", () => {
       // Random is not set as admin in access controls.
       await expect(
         contracts.ETSTarget.connect(accounts.RandomOne).setAccessControls(await ETSAccessControlsNew.getAddress()),
-      ).to.be.revertedWith("Access denied");
+      ).to.be.revertedWithCustomError(contracts.ETSTarget, "AccessDenied");
     });
 
     it("should emit AccessControlsSet", async () => {
@@ -123,7 +123,7 @@ describe("ETS Target tests", () => {
           404,
           "https://bafybeiaomvioo67qmjk3zhuv4oqyp5ylzppvhqzqypqdslei6elsi2nr3m.ipfs.infura-ipfs.io/",
         ),
-      ).to.be.revertedWith("Access denied");
+      ).to.be.revertedWithCustomError(contracts.ETSTarget, "AccessDenied");
     });
 
     /*     it("should succeed via ETSEnrichTarget", async () => {

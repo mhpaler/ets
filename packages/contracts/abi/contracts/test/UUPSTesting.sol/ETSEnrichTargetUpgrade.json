@@ -1,5 +1,15 @@
 [
   {
+    "inputs": [],
+    "name": "AccessDenied",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidTarget",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -24,19 +34,6 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "airnodeRrp",
-        "type": "address"
-      }
-    ],
-    "name": "AirnodeRrpUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "beacon",
         "type": "address"
       }
@@ -49,30 +46,18 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "bytes32",
-        "name": "requestId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
         "internalType": "uint256",
         "name": "targetId",
         "type": "uint256"
       },
       {
-        "indexed": false,
-        "internalType": "string",
-        "name": "ipfsHash",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "httpStatus",
-        "type": "uint256"
+        "indexed": true,
+        "internalType": "address",
+        "name": "requestor",
+        "type": "address"
       }
     ],
-    "name": "EnrichmentFulfilled",
+    "name": "EnrichTargetRequested",
     "type": "event"
   },
   {
@@ -86,19 +71,6 @@
       }
     ],
     "name": "Initialized",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "targetId",
-        "type": "uint256"
-      }
-    ],
-    "name": "RequestEnrichTarget",
     "type": "event"
   },
   {
@@ -142,45 +114,6 @@
   },
   {
     "inputs": [],
-    "name": "airnode",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "airnodeRrp",
-    "outputs": [
-      {
-        "internalType": "contract IAirnodeRrpV0",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "endpointId",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "etsAccessControls",
     "outputs": [
       {
@@ -208,24 +141,6 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "requestId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes",
-        "name": "data",
-        "type": "bytes"
-      }
-    ],
-    "name": "fulfillEnrichTarget",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "contract IETSAccessControls",
         "name": "_etsAccessControls",
         "type": "address"
@@ -233,11 +148,6 @@
       {
         "internalType": "contract IETSTarget",
         "name": "_etsTarget",
-        "type": "address"
-      },
-      {
-        "internalType": "contract IAirnodeRrpV0",
-        "name": "_airnodeRrp",
         "type": "address"
       }
     ],
@@ -270,92 +180,6 @@
     "name": "requestEnrichTarget",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "requestIdToTargetId",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_airnode",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_endpointId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "_sponsorAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_sponsorWallet",
-        "type": "address"
-      }
-    ],
-    "name": "setAirnodeRequestParameters",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "contract IAirnodeRrpV0",
-        "name": "_airnodeRrp",
-        "type": "address"
-      }
-    ],
-    "name": "setAirnodeRrp",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "sponsorAddress",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "sponsorWallet",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {

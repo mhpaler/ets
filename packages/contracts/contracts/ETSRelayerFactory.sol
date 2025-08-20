@@ -46,10 +46,10 @@ contract ETSRelayerFactory is Context {
     // Modifiers
 
     modifier onlyValidName(string calldata _name) {
-        require(!etsAccessControls.isRelayerByName(_name), "Relayer name exists");
+        if (etsAccessControls.isRelayerByName(_name)) revert IETSAccessControls.RelayerNameExists(_name);
         bytes memory nameBytes = bytes(_name);
-        require(nameBytes.length >= 2, "Relayer name too short");
-        require(nameBytes.length <= 32, "Relayer name too long");
+        if (nameBytes.length < 2) revert IETSAccessControls.RelayerNameTooShort(nameBytes.length);
+        if (nameBytes.length > 32) revert IETSAccessControls.RelayerNameTooLong(nameBytes.length);
         _;
     }
 
@@ -73,7 +73,7 @@ contract ETSRelayerFactory is Context {
 
     function addRelayer(string calldata _relayerName) external onlyValidName(_relayerName) returns (address relayer) {
         if (!etsAccessControls.isRelayerAdmin(_msgSender())) {
-            require(!etsAccessControls.isRelayerByOwner(_msgSender()), "Sender owns relayer");
+            if (etsAccessControls.isRelayerByOwner(_msgSender())) revert IETSAccessControls.SenderOwnsRelayer(_msgSender());
         }
 
         BeaconProxy relayerProxy = new BeaconProxy(

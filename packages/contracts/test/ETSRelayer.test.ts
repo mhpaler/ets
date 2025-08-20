@@ -67,7 +67,7 @@ describe("ETS Relayer Tests", () => {
         contracts.ETSRelayer.connect(accounts.RandomOne).applyTags(taggingRecords, {
           value: taggingFee * BigInt(2),
         }),
-      ).to.be.revertedWith("Caller not Relayer");
+      ).to.be.revertedWithCustomError(contracts.ETS, "CallerNotRelayer");
     });
 
     it('should emit "TaggingRecordCreated" with new taggingRecordId when NEW tagging record is created', async () => {
@@ -129,16 +129,16 @@ describe("ETS Relayer Tests", () => {
       await contracts.ETSAccessControls.connect(accounts.ETSPlatform).toggleRelayerLock(
         await contracts.ETSRelayer.getAddress(),
       );
-      await expect(contracts.ETSRelayer.connect(accounts.RandomOne).removeTags(taggingRecords)).to.be.revertedWith(
-        "Caller not Relayer",
-      );
+      await expect(
+        contracts.ETSRelayer.connect(accounts.RandomOne).removeTags(taggingRecords),
+      ).to.be.revertedWithCustomError(contracts.ETS, "CallerNotRelayer");
     });
 
     it("should revert if tagging record doesn't exist", async () => {
       // Create a tagging record.
-      await expect(contracts.ETSRelayer.connect(accounts.RandomOne).removeTags(taggingRecords)).to.be.revertedWith(
-        "Not authorized",
-      );
+      await expect(
+        contracts.ETSRelayer.connect(accounts.RandomOne).removeTags(taggingRecords),
+      ).to.be.revertedWithCustomError(contracts.ETS, "NotAuthorized");
     });
 
     it('should emit "TaggingRecordUpdated" and reduce tag count', async () => {
@@ -216,7 +216,7 @@ describe("ETS Relayer Tests", () => {
         contracts.ETSRelayer.connect(accounts.RandomOne).replaceTags([replaceTags], {
           value: taggingFee * BigInt(2),
         }),
-      ).to.be.revertedWith("Caller not Relayer");
+      ).to.be.revertedWithCustomError(contracts.ETS, "CallerNotRelayer");
     });
 
     it("should revert if tagging record doesn't exist", async () => {
@@ -225,7 +225,7 @@ describe("ETS Relayer Tests", () => {
         contracts.ETSRelayer.connect(accounts.RandomOne).replaceTags(taggingRecords, {
           value: taggingFee * BigInt(2),
         }),
-      ).to.be.revertedWith("Not authorized");
+      ).to.be.revertedWithCustomError(contracts.ETS, "NotAuthorized");
     });
 
     it('should emit "TaggingRecordUpdated" and change tag count', async () => {

@@ -21,6 +21,15 @@ pragma solidity ^0.8.10;
 import { IAccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/IAccessControlUpgradeable.sol";
 
 interface IETSAccessControls is IAccessControlUpgradeable {
+    // Custom errors
+    error RelayerNameExists(string name);
+    error RelayerNameTooShort(uint256 length);
+    error RelayerNameTooLong(uint256 length);
+    error CallerIsNotRelayer(address caller);
+    error NotRelayerOwner(address caller, address expectedOwner);
+    error NewOwnerAlreadyOwnsRelayer(address newOwner);
+    error SenderOwnsRelayer(address sender);
+
     /**
      * @dev emitted when the ETS Platform address is set.
      *

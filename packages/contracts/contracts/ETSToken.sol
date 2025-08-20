@@ -61,17 +61,17 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
 
     /// Modifiers
     modifier onlyETSCore() {
-        require(_msgSender() == address(ets), "Caller is not ETS core");
+        if (_msgSender() != address(ets)) revert CallerIsNotETSCore(_msgSender());
         _;
     }
 
     modifier onlyAdmin() {
-        require(etsAccessControls.isAdmin(_msgSender()), "Access denied");
+        if (!etsAccessControls.isAdmin(_msgSender())) revert AccessDenied(_msgSender());
         _;
     }
 
     modifier onlyRelayer() {
-        require(etsAccessControls.isRelayer(_msgSender()), "Caller is not relayer");
+        if (!etsAccessControls.isRelayer(_msgSender())) revert CallerIsNotRelayer(_msgSender());
         _;
     }
 
@@ -130,7 +130,7 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
      * @param _ets Address of ETS contract.
      */
     function setETSCore(IETS _ets) public onlyAdmin {
-        require(address(_ets) != address(0), "Address cannot be zero");
+        if (address(_ets) == address(0)) revert AddressCannotBeZero();
         ets = _ets;
         emit ETSCoreSet(address(ets));
     }
@@ -143,8 +143,8 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
      * @param _accessControls Address of ETSAccessControls contract.
      */
     function setAccessControls(IETSAccessControls _accessControls) public onlyAdmin {
-        require(address(_accessControls) != address(0), "Address cannot be zero");
-        require(_accessControls.isAdmin(_msgSender()), "Caller not admin in new contract");
+        if (address(_accessControls) == address(0)) revert AddressCannotBeZero();
+        if (!_accessControls.isAdmin(_msgSender())) revert CallerNotAdminInNewContract(_msgSender());
         etsAccessControls = _accessControls;
         emit AccessControlsSet(address(etsAccessControls));
     }
@@ -256,7 +256,7 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
         coinAddress = computeCoinAddress(machineName);
 
         // Ensure TAG doesn't already exist
-        require(coinAddressToTag[coinAddress].coinAddress == address(0), "TAG already exists");
+        if (coinAddressToTag[coinAddress].coinAddress != address(0)) revert TagAlreadyExists(coinAddress);
 
         // Store TAG data in state
         coinAddressToTag[coinAddress] = Tag({
@@ -295,7 +295,7 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
 
     /// @inheritdoc IETSToken
     function computeCoinAddress(string memory _tag) public view returns (address) {
-        require(zoraFactoryAddress != address(0), "Zora factory not configured");
+        if (zoraFactoryAddress == address(0)) revert ZoraFactoryNotConfigured();
 
         string memory machineName = __lower(_tag);
         bytes32 coinSalt = keccak256(abi.encodePacked(machineName));
@@ -352,18 +352,17 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
      */
     function _assertTagIsValid(string memory _tag) private view {
         bytes memory tagStringBytes = bytes(_tag);
-        require(
-            tagStringBytes.length >= tagMinStringLength && tagStringBytes.length <= tagMaxStringLength,
-            "Invalid tag format"
-        );
+        if (tagStringBytes.length < tagMinStringLength || tagStringBytes.length > tagMaxStringLength) {
+            revert InvalidTagFormat(tagStringBytes.length, tagMinStringLength, tagMaxStringLength);
+        }
 
-        require(tagStringBytes[0] == 0x23, "Tag must start with #");
+        if (tagStringBytes[0] != 0x23) revert TagMustStartWithHash();
 
         // start from first char after #
         for (uint256 i = 1; i < tagStringBytes.length; i++) {
             bytes1 char = tagStringBytes[i];
-            require(char != 0x20, "Spaces in tag");
-            require(char != 0x23, "Tag contains prefix");
+            if (char == 0x20) revert SpacesInTag();
+            if (char == 0x23) revert TagContainsPrefix();
         }
     }
 }

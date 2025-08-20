@@ -35,6 +35,14 @@
 pragma solidity ^0.8.10;
 
 interface IETSTarget {
+    // Custom errors
+    error AccessDenied(address caller);
+    error AddressCannotBeZero();
+    error CallerNotAdminInNewContract(address caller);
+    error BadAddress();
+    error TargetIdExists(string targetURI);
+    error EmptyTarget();
+
     /**
      * @notice Data structure for an ETS Target.
      *

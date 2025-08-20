@@ -5,6 +5,107 @@
     "type": "constructor"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "AccessDenied",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AddressCannotBeZero",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "CallerIsNotETSCore",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "CallerIsNotRelayer",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "CallerNotAdminInNewContract",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "length",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minLength",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxLength",
+        "type": "uint256"
+      }
+    ],
+    "name": "InvalidTagFormat",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SpacesInTag",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "coinAddress",
+        "type": "address"
+      }
+    ],
+    "name": "TagAlreadyExists",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TagContainsPrefix",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TagMustStartWithHash",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ZoraFactoryNotConfigured",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {

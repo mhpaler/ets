@@ -66,10 +66,9 @@ contract ETSRelayer is
 
     /// Modifiers
     modifier onlyRelayerAdmin() {
-        require(
-            _msgSender() == owner() || etsAccessControls.hasRole(keccak256("RELAYER_ADMIN_ROLE"), _msgSender()),
-            "Caller not relayer admin"
-        );
+        if (!(_msgSender() == owner() || etsAccessControls.hasRole(keccak256("RELAYER_ADMIN_ROLE"), _msgSender()))) {
+            revert CallerNotRelayerAdmin(_msgSender());
+        }
         _;
     }
 
@@ -110,7 +109,7 @@ contract ETSRelayer is
     /// @inheritdoc IETSRelayer
     function unpause() public onlyRelayerAdmin {
         // Check that relayer is not paused by platform.
-        require(!etsAccessControls.isRelayerLocked(address(this)), "Unpausing not permitted");
+        if (etsAccessControls.isRelayerLocked(address(this))) revert UnpausingNotPermitted();
         _unpause();
         emit RelayerPauseToggledByOwner(address(this));
     }
@@ -248,7 +247,7 @@ contract ETSRelayer is
                 _tagger,
                 IETS.TaggingAction.APPEND
             );
-            require(address(this).balance >= valueToSendForTagging, "Insufficient funds");
+            if (address(this).balance < valueToSendForTagging) revert InsufficientFunds(valueToSendForTagging, address(this).balance);
         }
 
         // Call the core applyTagsWithRawInput() function to record new or append to exsiting tagging record.
@@ -272,7 +271,7 @@ contract ETSRelayer is
                 _tagger,
                 IETS.TaggingAction.REPLACE
             );
-            require(address(this).balance >= valueToSendForTagging, "Insufficient funds");
+            if (address(this).balance < valueToSendForTagging) revert InsufficientFunds(valueToSendForTagging, address(this).balance);
         }
 
         // Finally, call the core replaceTags() function to update the tagging record.

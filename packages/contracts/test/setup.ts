@@ -222,11 +222,11 @@ async function setup(): Promise<SetupResult> {
   // Deploy AirnodeRrpV0
   const AirnodeRrpV0Proxy = await factories.AirnodeRrpV0Proxy.deploy();
   await AirnodeRrpV0Proxy.waitForDeployment();
-  const AirnodeRrpV0ProxyAddress = await AirnodeRrpV0Proxy.getAddress();
+  const _AirnodeRrpV0ProxyAddress = await AirnodeRrpV0Proxy.getAddress();
 
   const ETSEnrichTarget = (await upgrades.deployProxy(
     factories.ETSEnrichTarget,
-    [ETSAccessControlsAddress, ETSTargetAddress, AirnodeRrpV0ProxyAddress],
+    [ETSAccessControlsAddress, ETSTargetAddress],
     { kind: "uups" },
   )) as unknown as ETSEnrichTarget;
   await ETSEnrichTarget.waitForDeployment();
