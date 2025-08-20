@@ -15,8 +15,7 @@ describe("Upgrades tests", () => {
   let contracts: Contracts;
   let factories: Factories;
   let ETSRelayerUpgradeTestFactory: ContractFactory;
-  let tokenId: bigint;
-  let tokenId2: bigint;
+  // Note: tokenId variables removed since tests no longer require them
   let beaconAddress: string;
   let relayer1Address: string;
   let relayer2Address: string;
@@ -35,24 +34,11 @@ describe("Upgrades tests", () => {
     ({ accounts, contracts } = result);
     ETSRelayerUpgradeTestFactory = await ethers.getContractFactory("ETSRelayerUpgradeTest");
 
-    // Create two tags and transfer them to RandomOne so that user can add a relayer in tests.
+    // Note: Relayer creation no longer requires tag ownership (democratized)
     const tag = "#LOVE";
-    await contracts.ETSRelayer.connect(accounts.RandomTwo).getOrCreateTagIds([tag]);
-    tokenId = await contracts.ETSToken.computeTagId(tag);
-    await contracts.ETSToken.connect(accounts.ETSPlatform).transferFrom(
-      accounts.ETSPlatform.address,
-      accounts.RandomOne.address,
-      tokenId,
-    );
-
     const tag2 = "#HATE";
-    await contracts.ETSRelayer.connect(accounts.RandomTwo).getOrCreateTagIds([tag2]);
-    tokenId2 = await contracts.ETSToken.computeTagId(tag2);
-    await contracts.ETSToken.connect(accounts.ETSPlatform).transferFrom(
-      accounts.ETSPlatform.address,
-      accounts.RandomTwo.address,
-      tokenId2,
-    );
+    await contracts.ETSRelayer.connect(accounts.RandomTwo).getOrCreateTagIds([tag, tag2]);
+    // Note: Token IDs no longer needed for democratized relayer creation
 
     await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Relayer 1");
     await contracts.ETSRelayerFactory.connect(accounts.RandomTwo).addRelayer("Relayer 2");

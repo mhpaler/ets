@@ -12,10 +12,10 @@ describe("ETS Core tests", () => {
   let targetId: bigint;
   let taggingRecordId: bigint;
   let taggingFee: bigint;
-  let etsTag1: bigint;
-  let etsTag2: bigint;
-  let etsTag3: bigint;
-  let userTag1: bigint;
+  let etsTag1: string; // Now coin addresses instead of token IDs
+  let etsTag2: string;
+  let etsTag3: string;
+  let userTag1: string;
 
   // Constants that don't change can be initialized here
   const tagstring1 = "#Love";
@@ -38,27 +38,20 @@ describe("ETS Core tests", () => {
     //   "ETSPlatform",
     // );
 
-    // Mint some tags via ETSRelayer. Creator is Creator. Retained by platform.
+    // Create tags via ETSRelayer. Creator is Creator.
     await contracts.ETSRelayer.connect(accounts.Creator).getOrCreateTagIds([tagstring1]);
-    etsTag1 = await contracts.ETSToken.computeTagId(tagstring1);
-    //etsTag1 = etsTag1.toString();
+    etsTag1 = await contracts.ETSToken.computeCoinAddress(tagstring1);
 
     await contracts.ETSRelayer.connect(accounts.Creator).getOrCreateTagIds([tagstring2, tagstring3]);
-    etsTag2 = await contracts.ETSToken.computeTagId(tagstring2);
-    //etsTag2 = etsTag2.toString();
-    etsTag3 = await contracts.ETSToken.computeTagId(tagstring3);
-    //etsTag3 = etsTag3.toString();
+    etsTag2 = await contracts.ETSToken.computeCoinAddress(tagstring2);
+    etsTag3 = await contracts.ETSToken.computeCoinAddress(tagstring3);
 
-    // Mint another tag. RandomOne is Relayer, Creator is Creator. Transferred to (owned by) RandomTwo.
+    // Create another tag.
     await contracts.ETSRelayer.connect(accounts.Creator).getOrCreateTagIds([tagstring4]);
-    userTag1 = await contracts.ETSToken.computeTagId(tagstring4);
-    //userTag1 = userTag1.toString();
+    userTag1 = await contracts.ETSToken.computeCoinAddress(tagstring4);
 
-    await contracts.ETSToken.connect(accounts.ETSPlatform).transferFrom(
-      accounts.ETSPlatform.address,
-      accounts.RandomTwo.address,
-      userTag1,
-    );
+    // Note: Tags are no longer NFTs that can be transferred.
+    // They are now represented by Zora coin addresses.
 
     // Add a target to ETS.
     targetURI = "https://google.com";
@@ -206,10 +199,11 @@ describe("ETS Core tests", () => {
         expect(fee).to.equal(taggingFee * BigInt(tagCount));
       });
       it("are computed correctly with composite key inputs", async () => {
-        const tagIds = [12345, 12356, 88843];
+        // Use actual tag addresses instead of numeric IDs
+        const tagAddresses = [etsTag1, etsTag2, etsTag3];
         const result = await contracts.ETS.computeTaggingFeeFromCompositeKey(
-          tagIds,
-          123456,
+          tagAddresses,
+          targetId,
           "bookmark",
           await contracts.ETSRelayer.getAddress(),
           accounts.RandomOne.address,
@@ -217,7 +211,7 @@ describe("ETS Core tests", () => {
         );
 
         const { 0: fee, 1: tagCount } = result;
-        expect(tagCount).to.equal(tagIds.length);
+        expect(tagCount).to.equal(tagAddresses.length);
         expect(fee === taggingFee * tagCount);
       });
     });
@@ -372,8 +366,8 @@ describe("ETS Core tests", () => {
     it("should revert when caller is not an enabled Relayer", async () => {
       await expect(
         contracts.ETS.connect(accounts.RandomOne).applyTagsWithCompositeKey(
-          [12345],
-          12345,
+          [etsTag1],
+          targetId,
           "bookmark",
           accounts.RandomOne.address,
           accounts.ETSPlatform.address,
@@ -471,7 +465,7 @@ describe("ETS Core tests", () => {
         accounts.RandomOne.address,
       );
 
-      expect(taggingRecord.tagIds.length).to.be.equal(3);
+      expect(taggingRecord.coinAddresses.length).to.be.equal(3);
     });
   });
 
@@ -538,7 +532,7 @@ describe("ETS Core tests", () => {
 
       it("should increase the tag count when new tag is supplied", async () => {
         let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(1);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(1);
 
         // Should filter out etsTag1 cause it already exists.
         const rawInput = {
@@ -555,12 +549,12 @@ describe("ETS Core tests", () => {
           },
         );
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(3);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(3);
       });
 
       it("should not increase the tag count when duplicate tag is supplied", async () => {
         let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(1);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(1);
 
         const rawInput = {
           targetURI: "https://google.com",
@@ -576,7 +570,7 @@ describe("ETS Core tests", () => {
           },
         );
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(1);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(1);
       });
     });
 
@@ -615,7 +609,7 @@ describe("ETS Core tests", () => {
 
       it("should increase the tag count when new tag is supplied", async () => {
         let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(1);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(1);
 
         // Should filter out etsTag1 cause it already exists.
         const newTags = [etsTag1, etsTag2, userTag1];
@@ -630,12 +624,12 @@ describe("ETS Core tests", () => {
           },
         );
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(3);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(3);
       });
 
       it("should not increase the tag count when duplicate tag is supplied", async () => {
         let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(1);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(1);
 
         const sameTag = [etsTag1];
         const _tx = await contracts.ETS.connect(accounts.ETSPlatform).applyTagsWithCompositeKey(
@@ -649,7 +643,7 @@ describe("ETS Core tests", () => {
           },
         );
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(1);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(1);
       });
     });
 
@@ -672,7 +666,7 @@ describe("ETS Core tests", () => {
 
       it("can be done with taggingRecordId", async () => {
         let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(1);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(1);
         const tagsToAppend = [etsTag1, etsTag2, userTag1];
         const tx = await contracts.ETS.connect(accounts.ETSPlatform).appendTags(
           taggingRecordId,
@@ -685,7 +679,7 @@ describe("ETS Core tests", () => {
         //await expect(tx).to.emit(contracts.ETS, "TaggingRecordCreated");
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(3);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(3);
       });
 
       it("can be performed by original tagger", async () => {
@@ -701,7 +695,7 @@ describe("ETS Core tests", () => {
         );
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
         const taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(3);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(3);
       });
 
       it("must be performed by the original tagger", async () => {
@@ -813,12 +807,12 @@ describe("ETS Core tests", () => {
         );
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
         const taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(0);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(0);
       });
 
       it("should decrease tag count by two when two tags are removed", async () => {
         let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(4);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(4);
 
         const rawInput = {
           targetURI: "https://google.com",
@@ -831,12 +825,12 @@ describe("ETS Core tests", () => {
           accounts.ETSPlatform.address,
         );
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(2);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(2);
       });
 
       it("should remove the correct tags", async () => {
         let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(4);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(4);
 
         const rawInput = {
           targetURI: "https://google.com",
@@ -850,8 +844,8 @@ describe("ETS Core tests", () => {
         );
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
         const remainingTags = [etsTag1, etsTag3];
-        for (let i = 0; i < taggingRecord.tagIds.length; i++) {
-          expect(remainingTags.includes(taggingRecord.tagIds[i])).to.be.true;
+        for (let i = 0; i < taggingRecord.coinAddresses.length; i++) {
+          expect(remainingTags.includes(taggingRecord.coinAddresses[i])).to.be.true;
         }
       });
       it("should not revert when more tags are supplied to remove than exist on record", async () => {
@@ -953,7 +947,7 @@ describe("ETS Core tests", () => {
 
       it("should decrease tag count by two when two tags are removed", async () => {
         let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(4);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(4);
 
         const removeTags = [etsTag2, userTag1];
         await contracts.ETS.connect(accounts.ETSPlatform).removeTagsWithCompositeKey(
@@ -964,12 +958,12 @@ describe("ETS Core tests", () => {
           accounts.ETSPlatform.address,
         );
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(2);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(2);
       });
 
       it("should remove the correct tags", async () => {
         let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(4);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(4);
 
         const removeTags = [etsTag2, userTag1];
         await contracts.ETS.connect(accounts.ETSPlatform).removeTagsWithCompositeKey(
@@ -981,8 +975,8 @@ describe("ETS Core tests", () => {
         );
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
         const remainingTags = [etsTag1, etsTag3];
-        for (let i = 0; i < taggingRecord.tagIds.length; i++) {
-          expect(remainingTags.includes(taggingRecord.tagIds[i])).to.be.true;
+        for (let i = 0; i < taggingRecord.coinAddresses.length; i++) {
+          expect(remainingTags.includes(taggingRecord.coinAddresses[i])).to.be.true;
         }
       });
 
@@ -1026,7 +1020,7 @@ describe("ETS Core tests", () => {
     describe("using taggingRecordId", async () => {
       it("can be done with taggingRecordId", async () => {
         let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(4);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(4);
         const tx = await contracts.ETS.connect(accounts.ETSPlatform).removeTags(
           taggingRecordId,
           [userTag1], // Remove userTag1
@@ -1035,7 +1029,7 @@ describe("ETS Core tests", () => {
         //await expect(tx).to.emit(contracts.ETS, "TaggingRecordCreated");
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(3);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(3);
       });
 
       it("can be performed by original tagger", async () => {
@@ -1047,7 +1041,7 @@ describe("ETS Core tests", () => {
         );
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
         const taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(3);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(3);
       });
 
       it("must be performed by original tagger", async () => {
@@ -1139,7 +1133,7 @@ describe("ETS Core tests", () => {
 
       it("should replace rather than append", async () => {
         let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(1);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(1);
 
         const replacementRawInput = {
           targetURI: "https://google.com",
@@ -1155,7 +1149,7 @@ describe("ETS Core tests", () => {
           },
         );
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(3);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(3);
 
         // Should emit two events, one for removal and one for append.
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 0);
@@ -1164,7 +1158,7 @@ describe("ETS Core tests", () => {
 
       it("should not increase the tag count when duplicate tag is supplied", async () => {
         let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(1);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(1);
 
         const replacementRawInput = {
           targetURI: "https://google.com",
@@ -1177,7 +1171,7 @@ describe("ETS Core tests", () => {
           accounts.ETSPlatform.address,
         );
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(1);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(1);
       });
     });
 
@@ -1217,7 +1211,7 @@ describe("ETS Core tests", () => {
 
       it("should replace rather than append", async () => {
         let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(1);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(1);
 
         const newTags = [etsTag2, etsTag3, userTag1]; // Replacing 1 tag with 3 new ones.
         const _tx = await contracts.ETS.connect(accounts.ETSPlatform).replaceTagsWithCompositeKey(
@@ -1231,12 +1225,12 @@ describe("ETS Core tests", () => {
           },
         );
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(3);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(3);
       });
 
       it("should not increase the tag count when duplicate tag is supplied", async () => {
         let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(1);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(1);
 
         const sameTag = [etsTag1];
         const _tx = await contracts.ETS.connect(accounts.ETSPlatform).replaceTagsWithCompositeKey(
@@ -1247,7 +1241,7 @@ describe("ETS Core tests", () => {
           accounts.ETSPlatform.address,
         );
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(1);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(1);
       });
     });
 
@@ -1270,7 +1264,7 @@ describe("ETS Core tests", () => {
 
       it("should emit TaggingRecordUpdated", async () => {
         let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(1);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(1);
         const replacementTags = [etsTag2, userTag1];
         const tx = await contracts.ETS.connect(accounts.ETSPlatform).replaceTags(
           taggingRecordId,
@@ -1282,7 +1276,7 @@ describe("ETS Core tests", () => {
         );
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
         taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(2);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(2);
       });
 
       it("can be performed by original tagger", async () => {
@@ -1298,7 +1292,7 @@ describe("ETS Core tests", () => {
         );
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
         const taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(3);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(3);
       });
 
       it("must be performed by original tagger", async () => {
@@ -1328,7 +1322,7 @@ describe("ETS Core tests", () => {
         );
         await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated");
         const taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-        expect(taggingRecord.tagIds.length).to.be.equal(3);
+        expect(taggingRecord.coinAddresses.length).to.be.equal(3);
       });
     });
   });
@@ -1412,8 +1406,8 @@ describe("ETS Core tests", () => {
 
     it("will reuse existing tags and targets", async () => {
       const existingTargetId = targetId;
-      const tag1Id = await contracts.ETSToken.computeTagId("#dex");
-      const tag2Id = await contracts.ETSToken.computeTagId("#ethereum");
+      const tag1Id = await contracts.ETSToken.computeCoinAddress("#dex");
+      const tag2Id = await contracts.ETSToken.computeCoinAddress("#ethereum");
       const reusedTagIds = [tag1Id, tag2Id];
 
       // Create new tagging record with same inputs except with different tagger.
@@ -1447,8 +1441,8 @@ describe("ETS Core tests", () => {
       expect(newTaggingRecord.recordType).to.be.equal("bookmark");
       expect(newTaggingRecord.tagger).to.be.equal(accounts.RandomTwo.address);
       expect(newTaggingRecord.relayer).to.be.equal(accounts.ETSPlatform.address);
-      for (let i = 0; i < newTaggingRecord.tagIds.length; i++) {
-        expect(reusedTagIds.includes(newTaggingRecord.tagIds[i])).to.be.equal(true);
+      for (let i = 0; i < newTaggingRecord.coinAddresses.length; i++) {
+        expect(reusedTagIds.includes(newTaggingRecord.coinAddresses[i])).to.be.equal(true);
       }
     });
   });

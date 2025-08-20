@@ -44,13 +44,12 @@ describe("ETS Relayer Tests", () => {
   });
 
   describe("Creating tags", async () => {
-    it("should emit Transfer", async () => {
+    it("should emit TagCreated", async () => {
       const tagstring1 = "#Love";
-      const etsTagId = await contracts.ETSToken.computeTagId(tagstring1);
+      // const expectedCoinAddress = await contracts.ETSToken.computeCoinAddress(tagstring1);
       const tx = await contracts.ETSRelayer.connect(accounts.Creator).getOrCreateTagIds([tagstring1]);
-      await expect(tx)
-        .to.emit(contracts.ETSToken, "Transfer")
-        .withArgs(ethers.ZeroAddress, accounts.ETSPlatform.address, etsTagId);
+      // Check that TagCreated event is emitted (don't check timestamp as it varies)
+      await expect(tx).to.emit(contracts.ETSToken, "TagCreated");
     });
   });
 
@@ -149,7 +148,7 @@ describe("ETS Relayer Tests", () => {
       });
 
       let taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-      expect(taggingRecord.tagIds.length).to.equal(2);
+      expect(taggingRecord.coinAddresses.length).to.equal(2);
 
       const removeTags = {
         targetURI: targetURI,
@@ -161,7 +160,7 @@ describe("ETS Relayer Tests", () => {
       await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 2);
 
       taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-      expect(taggingRecord.tagIds.length).to.equal(1);
+      expect(taggingRecord.coinAddresses.length).to.equal(1);
     });
 
     it("can work with multiple tags at once", async () => {
@@ -171,7 +170,7 @@ describe("ETS Relayer Tests", () => {
       });
       await contracts.ETSRelayer.connect(accounts.RandomOne).removeTags([tagParams]);
       const taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-      expect(taggingRecord.tagIds.length).to.be.equal(0);
+      expect(taggingRecord.coinAddresses.length).to.be.equal(0);
     });
 
     it('should not emit "TaggingRecordUpdated" or reduce tag count if tags do not exist in tagging record', async () => {
@@ -190,7 +189,7 @@ describe("ETS Relayer Tests", () => {
       await expect(tx).to.not.emit(contracts.ETS, "TaggingRecordUpdated");
 
       const taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-      expect(taggingRecord.tagIds.length).to.be.equal(2);
+      expect(taggingRecord.coinAddresses.length).to.be.equal(2);
     });
   });
 
@@ -249,7 +248,7 @@ describe("ETS Relayer Tests", () => {
       await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 2);
 
       const taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-      expect(taggingRecord.tagIds.length).to.equal(3);
+      expect(taggingRecord.coinAddresses.length).to.equal(3);
     });
 
     it('should not emit "TaggingRecordUpdated" or reduce tag count if nothing changes', async () => {
@@ -275,7 +274,7 @@ describe("ETS Relayer Tests", () => {
 
       await expect(tx).to.not.emit(contracts.ETS, "TaggingRecordUpdated");
       const taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-      expect(taggingRecord.tagIds.length).to.equal(2);
+      expect(taggingRecord.coinAddresses.length).to.equal(2);
     });
     it("should only charge for new tags", async () => {
       // Estimate tagging fee
@@ -320,7 +319,7 @@ describe("ETS Relayer Tests", () => {
       const _receipt = await tx2.wait();
 
       const taggingRecord = await contracts.ETS.getTaggingRecordFromId(taggingRecordId);
-      expect(taggingRecord.tagIds.length).to.equal(5);
+      expect(taggingRecord.coinAddresses.length).to.equal(5);
 
       // A total of 5 tags were applied.
       expect(applyTaggingFee + replaceTaggingFee).to.equal(taggingFee * BigInt(5));

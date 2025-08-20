@@ -41,6 +41,17 @@ describe("ETSAccessControls Tests", () => {
     it("grants ETSPlatform the RELAYER_ADMIN_ROLE", async () => {
       expect(await contracts.ETSAccessControls.isRelayerAdmin(accounts.ETSPlatform.address)).to.be.equal(true);
     });
+
+    it("grants ETSPlatform and ETSOracle the EVENT_PROCESSOR_ROLE", async () => {
+      expect(await contracts.ETSAccessControls.isEventProcessor(accounts.ETSPlatform.address)).to.be.equal(true);
+      expect(await contracts.ETSAccessControls.isEventProcessor(accounts.ETSOracle.address)).to.be.equal(true);
+    });
+
+    it("EVENT_PROCESSOR_ROLE addresses also return true for deprecated isAuctionOracle", async () => {
+      // This ensures backward compatibility
+      expect(await contracts.ETSAccessControls.isAuctionOracle(accounts.ETSPlatform.address)).to.be.equal(true);
+      expect(await contracts.ETSAccessControls.isAuctionOracle(accounts.ETSOracle.address)).to.be.equal(true);
+    });
   });
 
   describe("Platform address", async () => {

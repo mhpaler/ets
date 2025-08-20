@@ -1,6 +1,6 @@
+import path from "node:path";
 import { task } from "hardhat/config";
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
-import path from "node:path";
 
 task("deployETS", "Deploys ETS contracts")
   .addOptionalParam("export", "Path to export deployment information", "")

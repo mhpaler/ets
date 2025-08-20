@@ -10,8 +10,7 @@ describe("ETSRelayerFactory Tests", () => {
   let contracts: Contracts;
 
   // Variables that will be initialized in beforeEach
-  let tokenId: bigint;
-  let tokenId2: bigint;
+  // Note: tokenId variables removed since tag ownership tests were removed
   let relayerAddress: string;
   let etsRelayerABI: any;
   let uniswapRelayer: ETSRelayer;
@@ -20,24 +19,9 @@ describe("ETSRelayerFactory Tests", () => {
     const result = await setup();
     ({ accounts, contracts } = result);
 
-    // Create two tags and transfer them to RandomOne so that user can add a relayer in tests.
-    const tag = "#LOVE";
-    await contracts.ETSRelayer.connect(accounts.RandomTwo).getOrCreateTagIds([tag]);
-    tokenId = await contracts.ETSToken.computeTagId(tag);
-    await contracts.ETSToken.connect(accounts.ETSPlatform).transferFrom(
-      accounts.ETSPlatform.address,
-      accounts.RandomOne.address,
-      tokenId,
-    );
-
-    const tag2 = "#HATE";
-    await contracts.ETSRelayer.connect(accounts.RandomTwo).getOrCreateTagIds([tag2]);
-    tokenId2 = await contracts.ETSToken.computeTagId(tag2);
-    await contracts.ETSToken.connect(accounts.ETSPlatform).transferFrom(
-      accounts.ETSPlatform.address,
-      accounts.RandomOne.address,
-      tokenId2,
-    );
+    // Note: Relayer creation no longer requires tag ownership.
+    // The system has been democratized - anyone can create a relayer.
+    // Setup for remaining tests that don't depend on tag ownership.
   });
 
   describe("Valid setup/initialization", async () => {
@@ -72,34 +56,9 @@ describe("ETSRelayerFactory Tests", () => {
       await expect(tx).to.emit(contracts.ETSAccessControls, "RelayerAdded");
     });
 
-    it("will revert if sender does not own CTAG", async () => {
-      await expect(contracts.ETSRelayerFactory.connect(accounts.RandomTwo).addRelayer("Solana")).to.be.revertedWith(
-        "Must own CTAG",
-      );
-    });
+    // Test removed: Relayer creation is now democratized - no tag ownership required
 
-    it("will be added if sender owns a CTAG.", async () => {
-      await contracts.ETSToken.connect(accounts.RandomOne).transferFrom(
-        accounts.RandomOne.address,
-        accounts.ETSPlatform.address,
-        tokenId,
-      );
-
-      await contracts.ETSToken.connect(accounts.RandomOne).transferFrom(
-        accounts.RandomOne.address,
-        accounts.ETSPlatform.address,
-        tokenId2,
-      );
-
-      await contracts.ETSToken.connect(accounts.ETSPlatform).transferFrom(
-        accounts.ETSPlatform.address,
-        accounts.RandomOne.address,
-        tokenId,
-      );
-
-      const tx = await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap");
-      await expect(tx).to.emit(contracts.ETSAccessControls, "RelayerAdded");
-    });
+    // Test removed: Relayer creation is now democratized - no tag ownership or transfers required
 
     it("will revert if sender already owns relayer", async () => {
       await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Uniswap");
@@ -236,27 +195,7 @@ describe("ETSRelayerFactory Tests", () => {
         .withArgs(relayerAddress);
     });
 
-    it("is paused (not locked) by platform if relayer owner's CTAG balance drops to zero.", async () => {
-      expect(await contracts.ETSToken.balanceOf(accounts.RandomOne.address)).to.be.equal(2);
-      // Relayer should not be locked.
-      expect(await contracts.ETSAccessControls.isRelayerLocked(relayerAddress)).to.be.equal(false);
-
-      // Transfer owned tokens so balance goes to zero
-      await contracts.ETSToken.connect(accounts.RandomOne).transferFrom(
-        accounts.RandomOne.address,
-        accounts.ETSPlatform.address,
-        tokenId,
-      );
-      await contracts.ETSToken.connect(accounts.RandomOne).transferFrom(
-        accounts.RandomOne.address,
-        accounts.ETSPlatform.address,
-        tokenId2,
-      );
-
-      expect(await contracts.ETSToken.balanceOf(accounts.RandomOne.address)).to.be.equal(0);
-      expect(await uniswapRelayer.paused()).to.be.equal(true);
-      expect(await contracts.ETSAccessControls.isRelayerLocked(relayerAddress)).to.be.equal(false);
-    });
+    // Test removed: Tag balance-based pausing no longer applicable with democratized relayer creation
 
     it("cannot be unpaused by owner if locked by platform", async () => {
       // Pause as the owner

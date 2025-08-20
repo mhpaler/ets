@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "hardhat/console.sol";
 
 /**
  * @title MockZoraFactory
@@ -23,14 +22,6 @@ contract MockZoraFactory {
         address platformReferrer,
         bytes32 coinSalt
     ) external view returns (address) {
-        console.log("=== MockZoraFactory.coinAddress DEBUG ===");
-        console.log("msgSender:", msgSender);
-        console.log("name:", name);
-        console.log("symbol:", symbol);
-        console.log("platformReferrer:", platformReferrer);
-        console.logBytes32(coinSalt);
-        console.logBytes(poolConfig);
-        console.log("factory address (this):", address(this));
         
         // Generate deterministic mock address using CREATE2 pattern
         // This ensures the same inputs always produce the same address
@@ -44,8 +35,6 @@ contract MockZoraFactory {
         );
         
         address result = address(uint160(uint256(hash)));
-        console.log("MockZoraFactory result:", result);
-        console.log("=== END MockZoraFactory DEBUG ===");
         
         return result;
     }

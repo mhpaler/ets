@@ -69,8 +69,9 @@ module.exports = async ({ deployments }) => {
     await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), accounts.ETSPlatform.address);
     await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), etsAccessControls.address);
     await ETSAccessControls.grantRole(await ETSAccessControls.RELAYER_ADMIN_ROLE(), etsTokenDeployment.address);
-    await ETSAccessControls.grantRole(await ETSAccessControls.AUCTION_ORACLE_ROLE(), accounts.ETSPlatform.address);
-    await ETSAccessControls.grantRole(await ETSAccessControls.AUCTION_ORACLE_ROLE(), accounts.ETSOracle.address);
+    // Grant EVENT_PROCESSOR_ROLE for the event processor service
+    await ETSAccessControls.grantRole(await ETSAccessControls.EVENT_PROCESSOR_ROLE(), accounts.ETSPlatform.address);
+    await ETSAccessControls.grantRole(await ETSAccessControls.EVENT_PROCESSOR_ROLE(), accounts.ETSOracle.address);
     await ETSAccessControls.grantRole(await ETSAccessControls.SMART_CONTRACT_ROLE(), accounts.ETSAdmin.address);
 
     console.info("Setting EnrichTarget...");

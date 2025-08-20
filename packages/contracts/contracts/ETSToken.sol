@@ -31,7 +31,6 @@ import { IETSToken } from "./interfaces/IETSToken.sol";
 import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
 import { IZoraFactory } from "./interfaces/IZoraFactory.sol";
 import { StringHelpers } from "./utils/StringHelpers.sol";
-import "hardhat/console.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
@@ -254,12 +253,7 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
         string memory displayVersion = _formatDisplayVersion(_tag);
 
         // Compute deterministic coin address
-        console.log("=== createTag DEBUG ===");
-        console.log("Input tag:", _tag);
-        console.log("Machine name for creation:", machineName);
-        
         coinAddress = computeCoinAddress(machineName);
-        console.log("Coin address from computeCoinAddress:", coinAddress);
 
         // Ensure TAG doesn't already exist
         require(coinAddressToTag[coinAddress].coinAddress == address(0), "TAG already exists");
@@ -306,13 +300,6 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
         string memory machineName = __lower(_tag);
         bytes32 coinSalt = keccak256(abi.encodePacked(machineName));
 
-        console.log("=== computeCoinAddress DEBUG ===");
-        console.log("Input tag:", _tag);
-        console.log("Machine name:", machineName);
-        console.log("Zora factory:", zoraFactoryAddress);
-        console.log("Zora creator EOA:", zoraCreatorEOA);
-        console.log("Zora platform referrer:", zoraPlatformReferrer);
-        console.logBytes(zoraPoolConfig);
 
         address result = IZoraFactory(zoraFactoryAddress).coinAddress(
                 zoraCreatorEOA, // msgSender - EOA that creates coins
@@ -323,8 +310,6 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
                 coinSalt // coinSalt - deterministic from machine name
             );
         
-        console.log("Computed address:", result);
-        console.log("=== END computeCoinAddress DEBUG ===");
         
         return result;
     }

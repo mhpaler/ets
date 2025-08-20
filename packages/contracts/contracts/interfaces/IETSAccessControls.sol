@@ -121,6 +121,14 @@ interface IETSAccessControls is IAccessControlUpgradeable {
     function isAuctionOracle(address _addr) external view returns (bool);
 
     /**
+     * @notice Checks whether given address has EVENT_PROCESSOR_ROLE role.
+     *
+     * @param _addr Address being checked.
+     * @return boolean True if address has EVENT_PROCESSOR_ROLE role.
+     */
+    function isEventProcessor(address _addr) external view returns (bool);
+
+    /**
      * @notice Checks whether given address can act as relayer factory.
      *
      * @param _addr Address being checked.

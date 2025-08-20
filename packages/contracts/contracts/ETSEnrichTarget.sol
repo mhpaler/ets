@@ -13,7 +13,6 @@ import { StringsUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/St
 import { RrpRequesterV0 } from "@api3/airnode-protocol/contracts/rrp/requesters/RrpRequesterV0.sol";
 import { IAirnodeRrpV0 } from "@api3/airnode-protocol/contracts/rrp/interfaces/IAirnodeRrpV0.sol";
 
-import "hardhat/console.sol";
 contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable, UUPSUpgradeable {
     /// @dev ETS access controls smart contract.
     IETSAccessControls public etsAccessControls;
