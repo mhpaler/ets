@@ -1,89 +1,78 @@
 {
   "contracts": {
     "ETSAccessControls": {
-      "address": "0x8198f5d8F8CfFE8f9C413d98a0A55aEB8ab9FbB7",
-      "implementation": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "deploymentBlock": 35363,
+      "address": "0x34B40BA116d5Dec75548a9e9A8f15411461E8c70",
+      "implementation": "0xf953b3A269d80e3eB0F2947630Da976B896A8C5b",
+      "deploymentBlock": 65737,
       "upgradeHistory": [
         {
-          "block": 35363,
-          "implementation": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+          "block": 65737,
+          "implementation": "0xf953b3A269d80e3eB0F2947630Da976B896A8C5b"
         }
       ]
     },
     "ETSToken": {
-      "address": "0x202CCe504e04bEd6fC0521238dDf04Bc9E8E15aB",
-      "implementation": "0x0355B7B8cb128fA5692729Ab3AAa199C1753f726",
-      "deploymentBlock": 35365,
+      "address": "0xD0141E899a65C95a556fE2B27e5982A6DE7fDD7A",
+      "implementation": "0x720472c8ce72c2A2D711333e064ABD3E6BbEAdd3",
+      "deploymentBlock": 65738,
       "upgradeHistory": [
         {
-          "block": 35365,
-          "implementation": "0x0355B7B8cb128fA5692729Ab3AAa199C1753f726"
+          "block": 65738,
+          "implementation": "0x720472c8ce72c2A2D711333e064ABD3E6BbEAdd3"
         }
       ]
     },
     "ETSTarget": {
-      "address": "0xf4B146FbA71F41E0592668ffbF264F1D186b2Ca8",
-      "implementation": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      "deploymentBlock": 35366,
+      "address": "0x07882Ae1ecB7429a84f1D53048d35c4bB2056877",
+      "implementation": "0x5067457698Fd6Fa1C6964e416b3f42713513B3dD",
+      "deploymentBlock": 65739,
       "upgradeHistory": [
         {
-          "block": 35366,
-          "implementation": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
-        }
-      ]
-    },
-    "AirnodeRrpV0Proxy": {
-      "address": "0x172076E0166D1F9Cc711C77Adf8488051744980C",
-      "implementation": null,
-      "deploymentBlock": 35367,
-      "upgradeHistory": [
-        {
-          "block": 35367,
-          "implementation": null
+          "block": 65739,
+          "implementation": "0x5067457698Fd6Fa1C6964e416b3f42713513B3dD"
         }
       ]
     },
     "ETSEnrichTarget": {
-      "address": "0x4EE6eCAD1c2Dae9f525404De8555724e3c35d07B",
-      "implementation": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
-      "deploymentBlock": 35368,
+      "address": "0x22753E4264FDDc6181dc7cce468904A80a363E44",
+      "implementation": "0xCace1b78160AE76398F486c8a18044da0d66d86D",
+      "deploymentBlock": 65740,
       "upgradeHistory": [
         {
-          "block": 35368,
-          "implementation": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"
+          "block": 65740,
+          "implementation": "0xCace1b78160AE76398F486c8a18044da0d66d86D"
         }
       ]
     },
     "ETS": {
-      "address": "0xBEc49fA140aCaA83533fB00A2BB19bDdd0290f25",
-      "implementation": "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c",
-      "deploymentBlock": 35369,
+      "address": "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c",
+      "implementation": "0xA7c59f010700930003b33aB25a7a0679C860f29c",
+      "deploymentBlock": 65742,
       "upgradeHistory": [
         {
-          "block": 35369,
-          "implementation": "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c"
+          "block": 65742,
+          "implementation": "0xA7c59f010700930003b33aB25a7a0679C860f29c"
         }
       ]
     },
     "ETSRelayer": {
-      "address": "0xD84379CEae14AA33C123Af12424A37803F885889",
-      "implementation": "0xD84379CEae14AA33C123Af12424A37803F885889",
-      "deploymentBlock": 35370,
+      "address": "0x276C216D241856199A83bf27b2286659e5b877D3",
+      "implementation": "0x276C216D241856199A83bf27b2286659e5b877D3",
+      "deploymentBlock": 65743,
       "upgradeHistory": [
         {
-          "block": 35370,
-          "implementation": "0xD84379CEae14AA33C123Af12424A37803F885889"
+          "block": 65743,
+          "implementation": "0x276C216D241856199A83bf27b2286659e5b877D3"
         }
       ]
     },
     "ETSRelayerFactory": {
-      "address": "0x2B0d36FACD61B71CC05ab8F3D2355ec3631C0dd5",
+      "address": "0x3347B4d90ebe72BeFb30444C9966B2B990aE9FcB",
       "implementation": null,
-      "deploymentBlock": 35371,
+      "deploymentBlock": 65744,
       "upgradeHistory": [
         {
-          "block": 35371,
+          "block": 65744,
           "implementation": null
         }
       ]

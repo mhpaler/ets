@@ -10,15 +10,11 @@ module.exports = async ({ deployments }) => {
   const etsAccessControlsAddress = (await deployments.get("ETSAccessControls")).address;
   const etsTargetAddress = (await deployments.get("ETSTarget")).address;
 
-  // Get the AirnodeRrpV0 address - use whichever name is consistently saved in 35_AirnodeRrp.js
-  const airnodeRrpAddress = (await deployments.get("AirnodeRrpV0Proxy")).address;
-  log(`Using AirnodeRrpV0 at address: ${airnodeRrpAddress}`);
-
-  // Deploy ETSEnrichTarget with composition pattern
-  // Note: No constructorArgs needed anymore - we pass airnodeRrpAddress to initialize instead
+  // Deploy ETSEnrichTarget as a simple API gateway (no Airnode)
+  // ETSEnrichTarget now only needs ETSAccessControls and ETSTarget addresses
   const deployment = await upgrades.deployProxy(
     factories.ETSEnrichTarget,
-    [etsAccessControlsAddress, etsTargetAddress, airnodeRrpAddress], // Include airnodeRrpAddress in initialize params
+    [etsAccessControlsAddress, etsTargetAddress], // Only 2 parameters now - removed Airnode
     {
       kind: "uups",
       pollingInterval: 3000,
@@ -53,4 +49,4 @@ module.exports = async ({ deployments }) => {
 };
 
 module.exports.tags = ["ETSEnrichTarget"];
-module.exports.dependencies = ["ETSTarget", "AirnodeRrpV0Proxy"]; // Ensure dependency name matches 35_AirnodeRrp.js
+module.exports.dependencies = ["ETSTarget"]; // No longer depends on Airnode

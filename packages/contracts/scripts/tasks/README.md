@@ -1,319 +1,320 @@
-# ETS Tasks
+# ETS Hardhat Tasks - TypeScript & Zora TAG Coin Framework
 
-## Accounts
+> **✨ Modernized**: All tasks now use TypeScript, viem, and support the new Zora TAG coin architecture with Event Processor integration.
 
-**`accounts`**
+## Architecture Overview
 
-Prints a listing of named accounts for the chain and mnemonic in `hardhat.config.ts`. Named accounts can be used as the `signer` in various other tasks. eg. `--signer account6`
+- **🏠 Local Development**: Direct contract interaction with full validation
+- **🌐 Production**: API guidance with fallback to manual operations
+- **🔗 Address-Based TAGs**: Zora coin integration for TAG tokens
+- **⚡ Event Processor**: Automated TAG creation and target enrichment
+- **💎 Viem Client**: Modern Ethereum interaction library
+- **🔍 Comprehensive Validation**: Network, contracts, permissions, and balance checks
 
-Note: `account0` is ETSAdmin(Deployer) & `account1` is ETSPlatform.
+---
 
-```bash
-hardhat accounts --network [localhost|arbitrumSepolia]
-```
+## Account Management
 
-output:
+### `accounts`
 
-```bash
-account0: 0x93A5f58566D436Cae0711ED4d2815B85A26924e6 Balance: 26.594860885037614049
-account1: 0xE9FBC1a1925F6f117211C59b89A55b576182e1e9 Balance: 20.143140900271999525
-account2: 0x60F2760f0D99330A555c5fc350099b634971C6Eb Balance: 11.00826380355641031
-account3: 0xcF38E38DA8C9921f39DC8E9327Bc03bA514D4C37 Balance: 9.95031682028310787
-account4: 0xE2d53594A3C7Fdf1CA86D8e957C275b72e34DA06 Balance: 9.501443532
-account5: 0xdF0eB27bCc26E639137899d63B5221DABd2355f2 Balance: 9.1197065959375
-account6: 0xD2592533dB2979a6c68152e8C859bAd1115474B5 Balance: 9.691938888
-account7: 0x4a87997e329540Dc8bA02bEABb5C1e0f977ae1CC Balance: 0.0
-account8: 0x0099e70f84475409f9567c90C8b212282cfFE671 Balance: 0.0
-account9: 0x5b7B04a62431c16c9afFeB83dc423329a1998D85 Balance: 0.0
-account10: 0x310e0299FfE527461341F63F3171fb2882De9E92 Balance: 0.0
-```
-
-## Relayers
-
-**`addRelayer`**
-
-Adds a new relayer to ETS. Signer must own a tag. Only one relayer is permitted per tag owner. Relayer name must unique to ETS. `account1` (ETSPlatform) may create unlimited relayers.
+Displays account information with balances and role assignments.
 
 ```bash
-hardhat addRelayer --name "My Relayer" --signer "account3" --network [localhost|arbitrumSepolia]
+hardhat accounts --network localhost
+hardhat accounts --count 5 --network localhost
 ```
 
-**`togglePauseRelayerByOwner`**
+**Output:**
+```bash
+account0: 0x93A5f58566D436Cae0711ED4d2815B85A26924e6 Balance: 26.5949 ETH
+         Role: ETSAdmin (Deployer)
+account1: 0xE9FBC1a1925F6f117211C59b89A55b576182e1e9 Balance: 20.1431 ETH
+         Role: ETSPlatform
+account2: 0x60F2760f0D99330A555c5fc350099b634971C6Eb Balance: 11.0083 ETH
+```
 
-Toggle switch to pauses/unpause a Relayer, `--signer` must be Relayer owner.
+---
+
+## Relayer Management
+
+### `addRelayer`
+
+Creates a new relayer in the protocol. Each account can own one relayer (unless they're a relayer admin).
 
 ```bash
-hardhat togglePauseRelayerByOwner --relayer "ETSRelayer" --signer "account1" --network [localhost|arbitrumSepolia]
+hardhat addRelayer --name "MyRelayer" --signer account0 --network localhost
 ```
 
-**`transferRelayer`**
+**Local Environment:**
+- ✅ Validates relayer name availability
+- ✅ Checks ownership constraints
+- ✅ Verifies account permissions
+- ✅ Deploys and registers relayer contract
 
-Transfer Relayer to a new owner, `--signer` must be Relayer owner.
+### `checkRelayer`
+
+Comprehensive relayer status check with troubleshooting guidance.
 
 ```bash
-hardhat transferRelayer --relayer "ETSRelayer" --signer "account1" --to "0x70997970C51812dc3A010C7d01b50e0d17dc79C8" --network [localhost|arbitrumSepolia]
+hardhat checkRelayer --name "MyRelayer" --network localhost
 ```
 
-## Tags
+**Status Checks:**
+- Registration and activity status
+- Owner information
+- Pause state and permissions
+- Recent activity metrics
 
-**`createTags`**
+### `transferRelayer`
 
-Create one or more CTAGs. Required flags are `--tags` followed by one or more tags separated by commas, `--relayer` followed by Relayer name, and a `--signer` (which becomes "Creator").
+Transfer relayer ownership to a new account. Requires relayer to be paused.
 
 ```bash
-hardhat createTags --relayer "ETSRelayer" --signer "account3" --tags "#USDC, #Solana" --network [localhost|arbitrumSepolia]
+hardhat transferRelayer --relayer "MyRelayer" --to "0x..." --signer account0 --network localhost
 ```
 
-## Tagging Records
+**Safety Features:**
+- ✅ Ownership verification
+- ✅ Pause state requirement
+- ✅ New owner constraint validation
+- ✅ Transaction simulation
 
-**`applyTags`**
+### `togglePauseRelayerByOwner`
 
-Create a new tagging record or append tags to an existing tagging record. Required flags are `--relayer` followed by Relayer name, `--tags` followed by one or more tags separated by commas, `--uri` followed by a URI of any shape, `--record-type` followed by an arbitrary string describing the tagging record, a `--signer` (becomes the "Tagger").
-
-Tagging record id (unique identifier) is a compound key composed of `relayer+uri+record-type+signer`
+Toggle relayer pause state (owner or admin only).
 
 ```bash
-# Create a new tagging record
-hardhat applyTags --relayer "Uniswap" --uri "https://solana.com/" --tags "#Solana,#Web" --record-type "discovery" --signer "account5" --network [localhost|arbitrumSepolia]
-
-# Append #Infrastructure the tagging record we just created
-hardhat applyTags --relayer "Uniswap" --uri "https://solana.com/" --tags "#Infrastructure" --record-type "discovery" --signer "account5" --network [localhost|arbitrumSepolia]
+hardhat togglePauseRelayerByOwner --relayer "MyRelayer" --signer account0 --network localhost
 ```
 
-**`removeTags`**
+**Permissions:**
+- Relayer owner can always pause/unpause
+- Relayer admin can pause/unpause any relayer
+- Automatic state verification
 
-Remove one or more tags from an existing Tagging Record.
+---
+
+## TAG Operations (Zora Coin Framework)
+
+### `createTags`
+
+Creates TAG tokens using the new Zora coin integration. Each TAG becomes an ERC-20 token.
 
 ```bash
-# Remove #Solana from the tagging record created previously
-hardhat removeTags --relayer "Uniswap" --uri "https://solana.com/" --tags "#Solana" --record-type "discovery" --signer "account5" --network [localhost|arbitrumSepolia]
+hardhat createTags --tags "#Bitcoin,#Ethereum,#DeFi" --relayer "MyRelayer" --signer account0 --network localhost
 ```
 
-**`replaceTags`**
+**Features:**
+- 🏗️ **Zora Integration**: Each TAG becomes a tradeable ERC-20 coin
+- 📍 **Address-Based**: TAGs identified by deterministic coin addresses
+- ⚡ **Event Processor**: Automatic coin creation via TagCreated events
+- 🔍 **Validation**: Case-insensitive, format validation, duplicate checking
+- 📊 **Comprehensive Feedback**: Gas usage, coin addresses, validation status
 
-Replace all tags in a tagging record.
+**Local Environment Flow:**
+1. Network connectivity check
+2. Contract deployment verification
+3. Relayer registration validation
+4. TAG existence checking
+5. Zora coin creation simulation
+6. Transaction execution with confirmations
+7. TAG validation and status reporting
+
+**Production Environment:**
+- Provides API endpoint guidance
+- Handles complex Zora integration
+- Manages IPFS metadata
+- Optimizes gas costs
+
+---
+
+## Tagging Operations (Address-Based Architecture)
+
+### `applyTags`
+
+Creates tagging records using the new address-based TAG architecture.
 
 ```bash
-# Replace #Solana,#Web,#Infrastructure with #Monolithic,#SolanaFoundation
-hardhat removeTags --relayer "Uniswap" --uri "https://solana.com/" --tags "#Monolithic,#SolanaFoundation" --record-type "discovery" --signer "account5" --network [local]
+hardhat applyTags --tags "#Bitcoin,#DeFi" --uri "https://bitcoin.org" --recordType "bookmark" --relayer "MyRelayer" --signer account0 --network localhost
 ```
 
-## Auction House
+**Features:**
+- 🏷️ **Address-Based TAGs**: Uses coin addresses instead of token IDs
+- 🔄 **Auto-Creation**: Missing TAGs are created automatically
+- 💰 **Fee Calculation**: Dynamic tagging fees based on TAG count
+- 📋 **Record Management**: Creates or appends to existing records
+- 🎯 **Target Enrichment**: Optional enrichment via Event Processor
 
-**`auctionhouse`**
+**Parameters:**
+- `--uri`: URI being tagged
+- `--tags`: Hashtags separated by commas
+- `--recordType`: Arbitrary record type (default: "bookmark")
+- `--relayer`: Relayer name
+- `--signer`: Tagger account
+- `--enrich`: Enable target enrichment (default: false)
 
-All `auctionhouse` tasks are called with the `action` flag. So a typical command will follow the pattern `hardhat auctionhouse --action [action name]`.
+### `removeTags`
 
-Depending on the action being called, additional flags may be required. Those are detailed below.
-
-The only other required flag is the `--network` flag. This is simply the network you wish the task to be performed on. See `hardhat.config.ts` for list of configured networks. If you don't supply the network flag, the task will error out.
-
-### Actions
-
-**`--action settings`**
-
-display global auction settings
-
-`hardhat auctionhouse --action settings --network [localhost|arbitrumSepolia]`
-
-output:
+Remove specific tags from an existing tagging record.
 
 ```bash
-{
-  paused: false,
-  maxAuctions: 1,
-  activeAuctions: 0,
-  totalAuctions: 3,
-  reserve: '0.1',
-  bidIncrement: 5,
-  duration: 5,
-  timebuffer: 10
-}
+hardhat removeTags --tags "#Bitcoin" --uri "https://bitcoin.org" --recordType "bookmark" --relayer "MyRelayer" --signer account0 --network localhost
 ```
 
-**`--action togglepause`**
+**Validation:**
+- Record existence verification
+- TAG presence in record validation
+- Ownership permission checking
 
-Toggle switch to pause/unpause the auction.
+### `replaceTags`
+
+Replace all tags in a tagging record with new ones.
 
 ```bash
-hardhat auctionhouse --action togglepause --network [localhost|arbitrumSepolia]
+hardhat replaceTags --tags "#Cryptocurrency,#Store-of-Value" --uri "https://bitcoin.org" --recordType "bookmark" --relayer "MyRelayer" --signer account0 --network localhost
 ```
 
-**`--action setreserve`**
+**Process:**
+1. Record existence validation
+2. New TAG creation (if needed)
+3. Atomic replacement operation
+4. Fee calculation for new TAGs
 
-Sets the reserve price in ETH/POL for auctions.
+---
+
+## Deployment
+
+### `deployETS`
+
+Deploys the complete ETS protocol with Zora integration.
 
 ```bash
-# Set minimum first bid to 0.1 POL
-hardhat auctionhouse --action setreserve --value 0.1 --network [localhost|arbitrumSepolia]
+hardhat deployETS --network localhost
 ```
 
-**`--action setduration`**
+**Deployment Stack:**
+- Core ETS contracts
+- Zora factory integration
+- Event processor configuration
+- Access controls setup
+- Initial relayer creation
 
-Sets the duration of the auction in seconds.
+---
+
+## Environment-Aware Operation
+
+### Local Development (`--network localhost`)
+
+All tasks provide full contract interaction with:
+- ✅ Network connectivity validation
+- ✅ Contract deployment verification
+- ✅ Permission and ownership checks
+- ✅ Transaction simulation before execution
+- ✅ Comprehensive error handling with guidance
+- ✅ Gas usage reporting
+- ✅ State validation after operations
+
+### Production Networks
+
+Tasks provide guidance for:
+- 🌐 API endpoint usage
+- 📋 Manual operation procedures
+- ⚠️ Safety considerations
+- 🔗 Web interface alternatives
+
+---
+
+## Common Usage Patterns
+
+### Full Development Workflow
 
 ```bash
-# set auction to one minute
-hardhat auctionhouse --action setduration --value 60 --network [localhost|arbitrumSepolia]
+# 1. Start local environment
+./scripts/start-core-stack.sh
+
+# 2. Check accounts
+hardhat accounts --network localhost
+
+# 3. Add relayer
+hardhat addRelayer --name "DevRelayer" --signer account1 --network localhost
+
+# 4. Create TAGs
+hardhat createTags --tags "#Test,#Development" --relayer "DevRelayer" --network localhost
+
+# 5. Create tagging records
+hardhat applyTags --tags "#Test" --uri "https://example.com" --relayer "DevRelayer" --network localhost
+
+# 6. Manage relayer
+hardhat togglePauseRelayerByOwner --relayer "DevRelayer" --signer account1 --network localhost
 ```
 
-**`--action settimebuffer`**
-
-`timeBuffer` is the time in seconds required around the last bid. If a bid comes in within the `timeBuffer`, the auction is extended by this amount. For example, if `timeBuffer` is 60 seconds and a bid is cast with 10 seconds remaining, the auction is extended by 60 seconds. This prevents auction swooping.
+### Production Operations
 
 ```bash
-# set auction timebuffer to one minute
-hardhat auctionhouse --action settimebuffer --value 60 --network [localhost|arbitrumSepolia]
+# Check status
+hardhat checkRelayer --name "ProductionRelayer" --network mainnet
+
+# Get API guidance
+hardhat createTags --tags "#Production" --network mainnet
 ```
 
-**`--action setmaxauctions`**
+---
 
-Set maximum number of active auctions that can be running at once in the Auction House.
+## Error Handling & Troubleshooting
 
-```bash
-# Set max concurrent auctions to 3
-hardhat auctionhouse --action setmaxauctions --value 3 --network [localhost|arbitrumSepolia]
-```
+All tasks include comprehensive error handling with specific guidance:
 
-**`--action showcurrent`**
+- **🔌 Network Issues**: Connection troubleshooting
+- **📋 Contract Issues**: Deployment and configuration help
+- **🔐 Permission Issues**: Role and ownership guidance
+- **💰 Balance Issues**: Insufficient funds detection
+- **⛽ Gas Issues**: Transaction simulation and optimization
+- **🏷️ TAG Issues**: Format validation and existence checking
 
-Shows details about the current open/active auction if any exist.
+---
 
-`hardhat auctionhouse --action showcurrent --network [localhost|arbitrumSepolia]`
+## Migration from Legacy Tasks
 
-output:
+### Removed (Obsolete)
+- ❌ `checkAirnodeParams` - Airnode removed
+- ❌ `enrichTarget` - Replaced by Event Processor
+- ❌ `enrichTargetDirect` - Replaced by Event Processor
 
-```bash
-=================================================
-    Auction Details for #way
--------------------------------------------------
-      auctionId: 3
-      tag: #way
-      reservePrice: 0.1
-      currentHighBid: 0.2
-      startTime: 1704951479
-      endTime: 1704951484
-      currentTime: 1707011789
-      bidder: 0xcF38E38DA8C9921f39DC8E9327Bc03bA514D4C37
-      auctioneer: 0xE9FBC1a1925F6f117211C59b89A55b576182e1e9
-      started: true
-      ended: true
-      settled: true
-=================================================
-```
+### Converted & Enhanced
+- ✅ `accounts` → Modern TypeScript with role information
+- ✅ `addRelayer` → viem integration with validation
+- ✅ `createTags` → Zora coin framework support
+- ✅ `applyTags` → Address-based TAG architecture
+- ✅ `removeTags` → Enhanced validation and error handling
+- ✅ `replaceTags` → Atomic operations with fee calculation
+- ✅ `transferRelayer` → Safety features and state verification
+- ✅ `togglePauseRelayerByOwner` → Permission validation
 
-optional flag: `--output: "object"` will output auction details as an json object:
+---
 
-```bash
-Current Auction:  {
-  auctionId: 3,
-  tag: '#way',
-  reservePrice: '0.1',
-  currentHighBid: '0.2',
-  startTime: 1704951479,
-  endTime: 1704951484,
-  currentTime: 1707012187,
-  bidder: '0xcF38E38DA8C9921f39DC8E9327Bc03bA514D4C37',
-  auctioneer: '0xE9FBC1a1925F6f117211C59b89A55b576182e1e9',
-  started: true,
-  ended: true,
-  settled: true
-}
-```
+## Technical Details
 
-**`--action status`**
+### Zora TAG Coin Integration
+- Each TAG becomes an ERC-20 token on Zora
+- Deterministic coin addresses computed from TAG strings
+- Automatic coin creation via Event Processor
+- Metadata and IPFS integration
 
-Returns the status of a specific auction as identified by `--tag [tagstring]` or `--id [auction id]`.
+### Address-Based Architecture
+- TAGs identified by coin addresses (not token IDs)
+- Case-insensitive normalization
+- Efficient lookups and validation
+- Seamless integration with DeFi protocols
 
-```bash
-hardhat auctionhouse --action status --tag [hastag] --id [auctionId] --output object --network [localhost|arbitrumSepolia]
-```
+### Event Processor Integration
+- Automatic TAG coin creation
+- Target enrichment workflows
+- Asynchronous processing
+- Offchain API coordination
 
-output:
-
-```bash
-Current Auction:  {
-  auctionId: 3,
-  tag: '#way',
-  reservePrice: '0.1',
-  currentHighBid: '0.2',
-  startTime: 1704951479,
-  endTime: 1704951484,
-  currentTime: 1707020409,
-  bidder: '0xcF38E38DA8C9921f39DC8E9327Bc03bA514D4C37',
-  auctioneer: '0xE9FBC1a1925F6f117211C59b89A55b576182e1e9',
-  started: true,
-  ended: true,
-  settled: true
-}
-```
-
-**`--action nextauction`**
-
-Trigger release of next auction using the auction Oracle. Requires an open auction slot (no active or unsettled auctions). This is basically a utility/dev task that triggers the RequestCreateAuction event from the ETSAuctionHouse smart contract.
-
-```bash
-hardhat auctionhouse --action nextauction --network [localhost|arbitrumSepolia]
-```
-
-**`--action auction`**
-
-Create an auction for a given tag. Requires open auction slot and tag exists and is owned by ETS.
-
-```bash
-hardhat auctionhouse --action auction --tag "#way" --network [localhost|arbitrumSepolia]
-```
-
-**`--action bid`**
-
-Bid on an active auction.
-
-```bash
-# account3 bids 0.2POL on auction 3
-hardhat auctionhouse --action bid --id "3" --signer account3 --bid 0.2 --network [localhost|arbitrumSepolia]
-```
-
-**`--action settleauction`**
-
-Settles the latest auction assuming it has ended. Settling auction transfers tag to highest bidder and trigger release of next tag to be auctioned via the ETS Auction Oracle.
-
-By default, ETSPlatform (account2) is the signer. You can optionally supply a different signer to settle the auction, eg `--signer account5`.
-
-```bash
-# Settle latest ended auction
-hardhat auctionhouse --action settleauction --network [localhost|arbitrumSepolia]
-```
-
-## Test Data
-
-**`testdata`**
-
-The following test data commands are meant to rapidly populate a blockchain with ETS test data. Useful when developing locally (or on test nets).
-
-`testdata` has the same pattern as `auctionhouse` where an `--action` flag is used.
-
-### Testdata Actions
-
-**`--action createTag`**
-
-Create random CTAGs from random accounts. `--qty` sets how many tags to create, eg 10. `--signers` sets number of different signers (Tag Creators) starting from `account2` (see `hardhat accounts`).
-
-```bash
-hardhat testdata --action createTag --qty 5 --signers 4 --network [localhost|arbitrumSepolia]
-```
-
-**`--action createTaggingRecords`**
-
-Create tagging records. `--qty` sets how many tagging records to create, `--signers` sets number of different signers (Taggers) starting from `account2`.
-
-```bash
-hardhat testdata --action createTaggingRecords --qty 4 --signers 5 --network [localhost|arbitrumSepolia]
-```
-
-**`--action createAuctions`**
-
-Creates auctions. This command will release a tag for auction, bid on it a random number of times (up to 10) from a random bidder selected from the number of signers given in `--signers`. The auction will end, be settled, and the next auction will be released and bid on and so on for the number of auctions given by `--qty`. Requires tags are created before calling this command.
-
-```bash
-hardhat testdata --action createAuctions --qty 3 --signers 3 --network [localhost|arbitrumSepolia]
-```
+### Modern Development Stack
+- **TypeScript**: Type safety and modern JavaScript features
+- **Viem**: Modern Ethereum client library
+- **Comprehensive Validation**: Multi-step verification processes
+- **Error Recovery**: Specific guidance for common issues
+- **Gas Optimization**: Transaction simulation and fee estimation
