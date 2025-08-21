@@ -79,11 +79,19 @@
 - **Technical Breakthrough**: Complete deployment ordering solution - MockZoraFactory→ETSToken with automatic address injection
 - **Solution**: Eliminated post-deployment updates, everything configured at deploy time
 
-**#529.5: Update Test Suite and Mocks** 🎯 CURRENT PRIORITY
-- **Status**: ✅ READY TO START - Infrastructure complete, TAG creation pipeline validated
+**#529.5: Update Test Suite and Mocks** 🎯 CURRENT PRIORITY [85%]
+- **Status**: 🚧 IN PROGRESS - Integration test refactoring nearly complete
 - **Objective**: Comprehensive test updates for new address-based architecture
 - **Dependencies**: #529.4 complete ✅ - MockZoraFactory architecture working
 - **Foundation Ready**: Working MockZoraFactory deployment, successful TAG creation, TypeScript infrastructure
+- **Current Sub-Task**: Integration test refactoring for target enrichment pipeline
+- **Key Accomplishments This Session**:
+  - [x] Refactored target-enrichment.test.ts for address-based architecture
+  - [x] Created target-enrichment-v2.test.ts with viem + environment detection
+  - [x] Migrated from ethers to viem + @ethereum-tag-service/contracts
+  - [x] Added workspace dependencies to test package.json
+  - [x] Implemented early failure stack validation
+  - [x] Environment-aware testing (local/staging/production)
 
 ### 📋 Next Active Issue
 **#529.5**: Update Test Suite and Mocks
@@ -91,11 +99,12 @@
 - **Dependencies**: #529.4 complete ✅
 - **Estimated Effort**: 2-3 days
 - **Key Tasks**:
-  - [ ] Update ETSRelayer.test.ts for address-based operations
+  - [x] Update integration tests for address-based operations (target-enrichment refactor)
+  - [ ] 🎯 CURRENT: Test refactored integration test with bun
+  - [ ] Update core contract test suite (ETSRelayer.test.ts, ETS.test.ts)
   - [ ] Create comprehensive Zora integration test coverage  
   - [ ] Add mock factory tests for edge cases
   - [ ] Performance test TAG creation at scale
-  - [ ] Integration tests for end-to-end coin creation flow
 
 ### 📋 Future Priority Queue
 1. **#532**: Implement secure EOA management for Zora coin creation
