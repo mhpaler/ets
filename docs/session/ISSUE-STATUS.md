@@ -79,19 +79,22 @@
 - **Technical Breakthrough**: Complete deployment ordering solution - MockZoraFactory→ETSToken with automatic address injection
 - **Solution**: Eliminated post-deployment updates, everything configured at deploy time
 
-**#529.5: Update Test Suite and Mocks** 🎯 CURRENT PRIORITY [85%]
-- **Status**: 🚧 IN PROGRESS - Integration test refactoring nearly complete
-- **Objective**: Comprehensive test updates for new address-based architecture
+**#529.5: Update Test Suite and Mocks** 🎯 CURRENT PRIORITY [95%]
+- **Status**: 🚧 IN PROGRESS - Event Processor integration debugging (target ID parsing issue)
+- **Objective**: Comprehensive test updates for new address-based architecture  
 - **Dependencies**: #529.4 complete ✅ - MockZoraFactory architecture working
 - **Foundation Ready**: Working MockZoraFactory deployment, successful TAG creation, TypeScript infrastructure
-- **Current Sub-Task**: Integration test refactoring for target enrichment pipeline
+- **Current Sub-Task**: 🎯 Debug Event Processor target ID parsing (currently parsing 0 instead of actual hash)
 - **Key Accomplishments This Session**:
   - [x] Refactored target-enrichment.test.ts for address-based architecture
   - [x] Created target-enrichment-v2.test.ts with viem + environment detection
   - [x] Migrated from ethers to viem + @ethereum-tag-service/contracts
-  - [x] Added workspace dependencies to test package.json
-  - [x] Implemented early failure stack validation
-  - [x] Environment-aware testing (local/staging/production)
+  - [x] Fixed TypeScript module resolution issues (Node16 configuration)
+  - [x] Fixed Event Processor chain ID configuration (31337 for local development)
+  - [x] Verified Event Processor detects TargetCreated events successfully
+  - [x] Confirmed offchain API endpoint works correctly with manual testing
+  - [x] Integration test environment detection and service validation working
+  - [ ] 🎯 CURRENT: Debug targetId=0 parsing issue in Event Processor logs
 
 ### 📋 Next Active Issue
 **#529.5**: Update Test Suite and Mocks
@@ -100,7 +103,8 @@
 - **Estimated Effort**: 2-3 days
 - **Key Tasks**:
   - [x] Update integration tests for address-based operations (target-enrichment refactor)
-  - [ ] 🎯 CURRENT: Test refactored integration test with bun
+  - [ ] 🎯 CURRENT: Fix Event Processor targetId parsing (logs show targetId=0 instead of actual hash)
+  - [ ] Complete integration test for target enrichment pipeline
   - [ ] Update core contract test suite (ETSRelayer.test.ts, ETS.test.ts)
   - [ ] Create comprehensive Zora integration test coverage  
   - [ ] Add mock factory tests for edge cases

@@ -5,7 +5,7 @@ import { localhost } from "viem/chains";
 
 task(
   "transferRelayer",
-  'Transfer relayer ownership. eg: hardhat transferRelayer --relayer "MyRelayer" --to "0x..." --signer account0 --network localhost'
+  'Transfer relayer ownership. eg: hardhat transferRelayer --relayer "MyRelayer" --to "0x..." --signer account0 --network localhost',
 )
   .addParam("relayer", "Relayer name to transfer")
   .addParam("to", "New owner address")
@@ -143,11 +143,16 @@ async function transferRelayerLocal(relayerName: string, newOwner: Address, sign
       if (!isPaused) {
         console.log("   ❌ Relayer must be paused before transfer");
         console.log("   💡 Pause the relayer first:");
-        console.log("      hardhat togglePauseRelayerByOwner --relayer", relayerName, "--signer", signerName, "--network localhost");
+        console.log(
+          "      hardhat togglePauseRelayerByOwner --relayer",
+          relayerName,
+          "--signer",
+          signerName,
+          "--network localhost",
+        );
         return;
       }
       console.log("   ✅ Relayer is paused (required for transfer)");
-
     } catch (error: any) {
       console.log("   ❌ Failed to check relayer:", error.message);
       return;
@@ -158,7 +163,7 @@ async function transferRelayerLocal(relayerName: string, newOwner: Address, sign
 
     // Check if new owner already owns a relayer (unless they're a relayer admin)
     const newOwnerIsAdmin = await etsAccessControls.read.isRelayerAdmin([newOwner]);
-    
+
     if (!newOwnerIsAdmin) {
       const newOwnerOwnsRelayer = await etsAccessControls.read.isRelayerByOwner([newOwner]);
       if (newOwnerOwnsRelayer) {
@@ -173,7 +178,8 @@ async function transferRelayerLocal(relayerName: string, newOwner: Address, sign
     const newOwnerBalance = await publicClient.getBalance({ address: newOwner });
     console.log(`   💰 New owner balance: ${(Number(newOwnerBalance) / 1e18).toFixed(4)} ETH`);
 
-    if (Number(newOwnerBalance) < 1e15) { // Less than 0.001 ETH
+    if (Number(newOwnerBalance) < 1e15) {
+      // Less than 0.001 ETH
       console.log("   ⚠️  New owner has very low balance - they may need ETH for future operations");
     }
 
@@ -209,7 +215,7 @@ async function transferRelayerLocal(relayerName: string, newOwner: Address, sign
       console.log("\n6. Verifying ownership transfer...");
 
       const newOwnerFromContract = (await etsRelayerWithWallet.read.owner()) as Address;
-      
+
       if (newOwnerFromContract.toLowerCase() === newOwner.toLowerCase()) {
         console.log("   ✅ Ownership transfer successful!");
         console.log("   👤 New owner:", newOwnerFromContract);
@@ -219,9 +225,12 @@ async function transferRelayerLocal(relayerName: string, newOwner: Address, sign
         const newOwnerOwnsRelayer = await etsAccessControls.read.isRelayerByOwner([newOwner]);
 
         console.log("   📊 Ownership tracking updated:");
-        console.log(`      Old owner (${account.address}): ${oldOwnerOwnsRelayer ? "Still owns relayer" : "No longer owns relayer"}`);
-        console.log(`      New owner (${newOwner}): ${newOwnerOwnsRelayer ? "Now owns relayer" : "ERROR: Not recognized as owner"}`);
-
+        console.log(
+          `      Old owner (${account.address}): ${oldOwnerOwnsRelayer ? "Still owns relayer" : "No longer owns relayer"}`,
+        );
+        console.log(
+          `      New owner (${newOwner}): ${newOwnerOwnsRelayer ? "Now owns relayer" : "ERROR: Not recognized as owner"}`,
+        );
       } else {
         console.log("   ❌ Ownership transfer verification failed");
         console.log("   Expected:", newOwner);
@@ -234,13 +243,14 @@ async function transferRelayerLocal(relayerName: string, newOwner: Address, sign
       console.log(`   Old owner: ${account.address}`);
       console.log(`   New owner: ${newOwner}`);
       console.log(`   Transaction: ${txHash}`);
-      
+
       console.log("\n💡 Next steps for new owner:");
       console.log("   • Relayer remains paused after transfer");
       console.log("   • New owner can unpause when ready:");
-      console.log(`     hardhat togglePauseRelayerByOwner --relayer "${relayerName}" --signer <new_owner_account> --network localhost`);
+      console.log(
+        `     hardhat togglePauseRelayerByOwner --relayer "${relayerName}" --signer <new_owner_account> --network localhost`,
+      );
       console.log("   • New owner can now manage the relayer operations");
-
     } catch (error: any) {
       console.log("   ❌ Transaction failed:", error.message);
 
@@ -252,13 +262,12 @@ async function transferRelayerLocal(relayerName: string, newOwner: Address, sign
         console.log("   💡 Only the current owner can transfer the relayer");
       }
     }
-
   } catch (error: any) {
     console.log("❌ Error:", error.message);
   }
 }
 
-async function provideProductionGuidance(relayerName: string, newOwner: Address, networkName: string) {
+async function provideProductionGuidance(_relayerName: string, _newOwner: Address, networkName: string) {
   console.log("🌐 PRODUCTION/STAGING ENVIRONMENT");
   console.log("===================================\n");
 

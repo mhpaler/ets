@@ -2,7 +2,56 @@
 
 set -e
 
-USE_SEPARATE_LOG_TERMINAL=true  # Set to false if you want logs in the main terminal
+# Parse command line arguments
+CORE_MODE=false
+SHOW_HELP=false
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --core)
+      CORE_MODE=true
+      shift
+      ;;
+    --help|-h)
+      SHOW_HELP=true
+      shift
+      ;;
+    *)
+      echo "Unknown option: $1"
+      echo "Use --help for usage information"
+      exit 1
+      ;;
+  esac
+done
+
+# Show help if requested
+if [ "$SHOW_HELP" = true ]; then
+  echo ""
+  echo "ETS Local Development Stack"
+  echo ""
+  echo "Usage: $0 [OPTIONS]"
+  echo ""
+  echo "Options:"
+  echo "  --core     Start core services only (Hardhat, Event Processor, Offchain API, ArLocal)"
+  echo "  --help|-h  Show this help message"
+  echo ""
+  echo "Note: Graph Node/Subgraph temporarily disabled for maintenance"
+  echo ""
+  echo "Default: Start full stack (core services + Explorer UI)"
+  echo ""
+  echo "Examples:"
+  echo "  $0          # Start full stack"
+  echo "  $0 --core   # Start core services only"
+  echo ""
+  exit 0
+fi
+
+# Auto-detect if we're in VS Code terminal
+if [ "$TERM_PROGRAM" = "vscode" ]; then
+  USE_SEPARATE_LOG_TERMINAL=false  # VS Code can't open separate Terminal.app windows
+else
+  USE_SEPARATE_LOG_TERMINAL=true   # Native terminal can open separate log window
+fi
 
 # Directory of this script
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
@@ -51,10 +100,19 @@ print_banner() {
   echo -e "  ${CYAN}██╔══╝     ██║   ╚════██║${NC}"
   echo -e "  ${CYAN}███████╗   ██║   ███████║${NC}"
   echo -e "  ${CYAN}╚══════╝   ╚═╝   ╚══════╝${NC}"
-  echo -e "  ${YELLOW}Universal Tagging System${NC}"
-  echo ""
-  echo ""
-  echo -e "${GREEN}Starting local development stack...${NC}"
+  
+  if [ "$CORE_MODE" = true ]; then
+    echo -e "  ${YELLOW}Core TAG Creation Stack${NC}"
+    echo ""
+    echo ""
+    echo -e "${GREEN}Starting core services for TAG creation testing...${NC}"
+  else
+    echo -e "  ${YELLOW}Universal Tagging System${NC}"
+    echo ""
+    echo ""
+    echo -e "${GREEN}Starting full local development stack...${NC}"
+  fi
+  
   echo ""
   echo "Script directory: $SCRIPT_DIR"
   echo "Root directory: $ROOT_DIR"
@@ -120,9 +178,18 @@ check_service_conflicts() {
 
   local conflicts_found=0
   local services_to_kill=()
-  local ports_to_check=(8545 8000 8001 8020 4000 3001 3000 1984)
-  local port_names=("Hardhat" "Graph Node (HTTP)" "Graph Node (WebSocket)" "Graph Node (Admin)" "Offchain API" "Explorer UI" "Airnode API" "ArLocal")
-  local docker_containers=("graph-node" "ipfs" "postgres" "airnode" "oracle-airnode")
+  
+  # Define ports and services based on mode
+  # TEMPORARILY DISABLED: Graph Node ports (8000, 8001, 8020) to unblock integration testing
+  if [ "$CORE_MODE" = true ]; then
+    local ports_to_check=(8545 4000 1984 3002)
+    local port_names=("Hardhat" "Offchain API" "ArLocal" "Event Processor")
+    local docker_containers=()  # Graph Node containers disabled
+  else
+    local ports_to_check=(8545 4000 3001 1984 3002)
+    local port_names=("Hardhat" "Offchain API" "Explorer UI" "ArLocal" "Event Processor") 
+    local docker_containers=()  # Graph Node containers disabled
+  fi
   local protected_processes=("docker" "Docker" "com.docker.backend" "dockerd")
 
   # Check port conflicts
@@ -289,7 +356,11 @@ check_logs_size() {
 # Replace your open_logs_terminal function with this updated version
 open_logs_terminal() {
   if [ "$USE_SEPARATE_LOG_TERMINAL" != "true" ]; then
-    log "Using main terminal for logs (separate log terminal disabled)"
+    if [ "$TERM_PROGRAM" = "vscode" ]; then
+      log "Running in VS Code terminal - logs will appear inline (no separate window)"
+    else
+      log "Using main terminal for logs (separate log terminal disabled)"
+    fi
     return
   fi
 
@@ -302,7 +373,7 @@ open_logs_terminal() {
   touch "$ROOT_DIR/logs/subgraph-deploy.log"
   touch "$ROOT_DIR/logs/arlocal.log"
   touch "$ROOT_DIR/logs/offchain-api.log"
-  touch "$ROOT_DIR/logs/oracle.log"
+  touch "$ROOT_DIR/logs/event-processor.log"
   touch "$ROOT_DIR/logs/explorer.log"
 
   # Create a temporary script file for the new terminal
@@ -321,7 +392,7 @@ tail -f logs/*.log | grep --line-buffered "" |
       -e $'s/.*subgraph-deploy.log.*/\033[0;34m[SUBGRAPH-DEPLOY]\033[0m &/' \
       -e $'s/.*arlocal.log.*/\033[1;34m[ARLOCAL]\033[0m &/' \
       -e $'s/.*offchain-api.log.*/\033[0;32m[OFFCHAIN-API]\033[0m &/' \
-      -e $'s/.*oracle.log.*/\033[0;35m[ORACLE]\033[0m &/' \
+      -e $'s/.*event-processor.log.*/\033[0;35m[EVENT-PROCESSOR]\033[0m &/' \
       -e $'s/.*explorer.log.*/\033[0;33m[EXPLORER]\033[0m &/'
 EOF
 
@@ -486,62 +557,54 @@ deploy_subgraph() {
 
 
 
-# Add function to start arlocal
+# Add function to start arlocal (using Docker)
 start_arlocal() {
-  log "Starting ArLocal (Arweave local node)..."
-  cd "$ROOT_DIR/apps/offchain-api"
+  log "Starting ArLocal (Arweave local node) in Docker..."
+  
+  # Check if ArLocal container is already running
+  if docker ps --format '{{.Names}}' | grep -q "arlocal"; then
+    warn "ArLocal container already running, stopping it first..."
+    docker stop arlocal > /dev/null 2>&1 || true
+    docker rm arlocal > /dev/null 2>&1 || true
+  fi
 
-  # Check if arlocal is installed
-  if pnpm list arlocal | grep -q "arlocal"; then
-    # Use project dependency
-    # Respecting the USE_SEPARATE_LOG_TERMINAL setting
-    if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
-      pnpm run arlocal > "$ROOT_DIR/logs/arlocal.log" 2>&1 &
-    else
-      pnpm run arlocal | tee "$ROOT_DIR/logs/arlocal.log" &
-    fi
-  elif command -v arlocal &> /dev/null; then
-    # Fall back to global installation
-    if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
-      arlocal > "$ROOT_DIR/logs/arlocal.log" 2>&1 &
-    else
-      arlocal | tee "$ROOT_DIR/logs/arlocal.log" &
-    fi
-  else
-    # Check if we need to install arlocal
-    log "ArLocal not found. Attempting to install as a dev dependency..."
-    pnpm add -D arlocal
+  # Start ArLocal in Docker container
+  docker run -d \
+    --name arlocal \
+    -p 1984:1984 \
+    -e NODE_ENV=development \
+    textury/arlocal:latest > /dev/null 2>&1
 
-    if pnpm list arlocal | grep -q "arlocal"; then
-      # Successfully installed
-      if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
-        pnpm run arlocal > "$ROOT_DIR/logs/arlocal.log" 2>&1 &
-      else
-        pnpm run arlocal | tee "$ROOT_DIR/logs/arlocal.log" &
-      fi
+  if [ $? -eq 0 ]; then
+    # Capture Docker logs
+    if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
+      docker logs -f arlocal > "$ROOT_DIR/logs/arlocal.log" 2>&1 &
     else
-      error "ArLocal is not installed. Please install it using 'pnpm add -D arlocal' in the offchain-api directory"
+      docker logs -f arlocal | tee "$ROOT_DIR/logs/arlocal.log" &
+    fi
+    
+    ARLOCAL_LOG_PID=$!
+    echo $ARLOCAL_LOG_PID >> "$ROOT_DIR/logs/service_pids.txt"
+    
+    # Set up colored output for this service
+    colorize_output "ARLOCAL" "${LIGHT_GREEN}"
+    
+    # Wait for ArLocal to be ready
+    sleep 3
+    
+    # Check if container is still running
+    if docker ps --format '{{.Names}}' | grep -q "arlocal"; then
+      display_service_url "ArLocal server" "http://localhost:1984/"
+      success "ArLocal started in Docker container"
+    else
+      error "ArLocal Docker container failed to start"
+      docker logs arlocal
       exit 1
     fi
-  fi
-
-  ARLOCAL_PID=$!
-  echo $ARLOCAL_PID >> "$ROOT_DIR/logs/service_pids.txt"
-
-  # Set up colored output for this service
-  colorize_output "ARLOCAL" "${LIGHT_GREEN}"
-
-  # Check if ArLocal is actually running
-  sleep 3
-  if ! ps -p $ARLOCAL_PID > /dev/null; then
-    error "ArLocal failed to start. Check logs/arlocal.log for details"
-    cat "$ROOT_DIR/logs/arlocal.log"
+  else
+    error "Failed to start ArLocal Docker container"
     exit 1
   fi
-
- # Add this line to display the ArLocal server URL to the screen
-  display_service_url "ArLocal server" "http://localhost:1984/"
-  success "ArLocal started with PID: $ARLOCAL_PID"
 }
 
 # Add after start_arlocal function
@@ -595,47 +658,41 @@ start_offchain_api() {
   success "Offchain API started with PID: $API_PID"
 }
 
-# Start Airnode Oracle
-start_oracle() {
-  log "Starting Airnode oracle..."
-  cd "$ROOT_DIR/apps/oracle"
-
-  # Check if USE_SEPARATE_LOG_TERMINAL is enabled
+# Start Event Processor
+start_event_processor() {
+  log "Starting Event Processor..."
+  cd "$ROOT_DIR/apps/event-processor"
+  
+  # Set environment for localhost testing
+  export NODE_ENV=development
+  export CHAIN_ID=31337
+  export BLOCKCHAIN_RPC_URL=http://localhost:8545
+  export OFFCHAIN_API_URL=http://localhost:4000
+  
   if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
-    pnpm run start-local-oracle > "$ROOT_DIR/logs/oracle.log" 2>&1
+    bun src/index.ts > "$ROOT_DIR/logs/event-processor.log" 2>&1 &
   else
-    pnpm run start-local-oracle | tee "$ROOT_DIR/logs/oracle.log"
+    bun src/index.ts | tee "$ROOT_DIR/logs/event-processor.log" &
   fi
-
-  # Check if the script completed successfully
-  if [ ${PIPESTATUS[0]} -ne 0 ]; then
-    error "Airnode Oracle setup failed. Check logs/oracle.log for details"
-    cat "$ROOT_DIR/logs/oracle.log"
-    exit 1
-  fi
-
-  # Wait briefly to ensure the container has started
+  
+  EVENT_PROCESSOR_PID=$!
+  echo $EVENT_PROCESSOR_PID >> "$ROOT_DIR/logs/service_pids.txt"
+  
+  # Set up colored output for this service
+  colorize_output "EVENT-PROCESSOR" "${PURPLE}"
+  
   sleep 3
-
-  # Check if the Airnode container is running
-  CONTAINER_ID=$(docker ps --filter "name=oracle-airnode" -q)
-  if [ -z "$CONTAINER_ID" ]; then
-    error "Airnode Docker container failed to start. Check logs/oracle.log for details"
-    cat "$ROOT_DIR/logs/oracle.log"
+  if ps -p $EVENT_PROCESSOR_PID > /dev/null; then
+    display_service_url "Event Processor" "Running (monitoring events)"
+    success "Event Processor started with PID: $EVENT_PROCESSOR_PID"
+  else
+    error "Event Processor failed to start. Check logs/event-processor.log for details"
+    cat "$ROOT_DIR/logs/event-processor.log"
     exit 1
   fi
-
-  # Start capturing container logs in the background
-  log "Capturing Airnode container logs..."
-  docker logs -f "$CONTAINER_ID" >> "$ROOT_DIR/logs/oracle.log" 2>&1 &
-  LOGS_PID=$!
-  echo $LOGS_PID >> "$ROOT_DIR/logs/service_pids.txt"
-
-  # Set up colored output for both log files
-  colorize_output "ORACLE" "${PURPLE}"
-  display_service_url "Airnode Oracle" "http://localhost:8080/"
-  success "Airnode oracle started successfully with container ID: $CONTAINER_ID"
 }
+
+# Airnode Oracle removed - replaced with Event Processor
 
 
 
@@ -717,22 +774,45 @@ LOG_ROTATION_PID=$!
 echo $LOG_ROTATION_PID >> "$ROOT_DIR/logs/service_pids.txt"
 success "Log rotation set up with PID: $LOG_ROTATION_PID"
 
-# Start all services in the correct order
-start_hardhat
-deploy_contracts
-start_graph_node
-deploy_subgraph
-start_arlocal
-fund_arlocal_wallet
-start_offchain_api
-start_oracle
-start_explorer
-populate_data
+# Start services based on mode
+if [ "$CORE_MODE" = true ]; then
+  log "Starting core services only..."
+  # Core services: Hardhat + Contracts + Event Processor + Offchain API + ArLocal
+  # TEMPORARILY DISABLED: Subgraph (Graph Node) to unblock integration testing
+  start_hardhat
+  deploy_contracts
+  # start_graph_node    # DISABLED: Graph Node broken, fix later
+  # deploy_subgraph     # DISABLED: Requires Graph Node
+  start_arlocal         # FIXED: Now using Docker instead of native
+  fund_arlocal_wallet   
+  start_offchain_api
+  start_event_processor
+else
+  log "Starting full stack..."
+  # Full stack: Core services + Explorer UI
+  # TEMPORARILY DISABLED: Subgraph (Graph Node) to unblock integration testing
+  start_hardhat
+  deploy_contracts
+  # start_graph_node    # DISABLED: Graph Node broken, fix later
+  # deploy_subgraph     # DISABLED: Requires Graph Node
+  start_arlocal         # FIXED: Now using Docker instead of native
+  fund_arlocal_wallet   
+  start_offchain_api
+  start_event_processor
+  start_explorer
+  populate_data
+fi
 
 display_all_services
 # 66970359841036948517769269395685321134451577895751556947483004888163188906780
 
-success "All services started successfully!"
+if [ "$CORE_MODE" = true ]; then
+  success "Core services started successfully!"
+  log "Ready for TAG creation testing"
+else
+  success "All services started successfully!"
+  log "Full development stack ready"
+fi
 log "Services are logging with different colors"
 log "Log files are available in the $ROOT_DIR/logs directory"
 
@@ -754,8 +834,9 @@ cleanup() {
   fi
 
   # Stop Docker containers
-  docker stop $(docker ps -q --filter "name=graph-node") 2>/dev/null || true
-  docker stop $(docker ps -q --filter "name=airnode") 2>/dev/null || true
+  docker stop arlocal 2>/dev/null || true
+  docker rm arlocal 2>/dev/null || true
+  # docker stop $(docker ps -q --filter "name=graph-node") 2>/dev/null || true  # DISABLED: Graph Node
 
   rm -f "$ROOT_DIR/logs/service_pids.txt" "$ROOT_DIR/logs/tail_pids.txt"
   success "All services stopped"

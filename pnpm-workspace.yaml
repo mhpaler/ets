@@ -3,6 +3,8 @@ packages:
   - "apps/**"
   - "packages/**"
   - "examples/**"
+  # integration tests
+  - "test"
   # exclude packages that are inside test directories
   # - "!**/.next/**" # NEW
   # - "!**/dist/**" # NEW

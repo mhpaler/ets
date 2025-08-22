@@ -159,11 +159,8 @@ pnpm exec hardhat test ../../test/integration/target-enrichment.test.ts
 
 With all services running:
 ```bash
-# Terminal 1: Start core stack
-./scripts/start-core-stack.sh
-
-# Terminal 2: Start offchain API
-cd apps/offchain-api && pnpm dev
+# Terminal 1: Start core stack (includes offchain API)
+./scripts/start-local-stack.sh --core
 
 # Terminal 3: Run test
 cd packages/contracts

@@ -1,5 +1,5 @@
-import { task } from "hardhat/config";
 import { formatEther } from "ethers";
+import { task } from "hardhat/config";
 
 task("accounts", "Prints the list of accounts with balances")
   .addOptionalParam("count", "Number of accounts to display", "11")
@@ -19,16 +19,16 @@ task("accounts", "Prints the list of accounts with balances")
       try {
         const balance = await accounts[i].provider?.getBalance(accounts[i].address);
         const formattedBalance = balance ? formatEther(balance) : "0.0";
-        
+
         console.log(`account${i}: ${accounts[i].address} Balance: ${formattedBalance} ETH`);
-        
+
         // Add role information for key accounts
         if (i === 0) {
           console.log("           Role: ETSAdmin (Deployer)");
         } else if (i === 1) {
           console.log("           Role: ETSPlatform");
         }
-      } catch (error) {
+      } catch (_error) {
         console.log(`account${i}: ${accounts[i].address} Balance: Error fetching balance`);
       }
     }

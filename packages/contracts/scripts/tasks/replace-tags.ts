@@ -5,7 +5,7 @@ import { localhost } from "viem/chains";
 
 task(
   "replaceTags",
-  'Replace all tags in a tagging record. eg: hardhat replaceTags --tags "#NewTag1,#NewTag2" --uri "https://google.com" --recordType "bookmark" --relayer "ETSRelayer" --network localhost'
+  'Replace all tags in a tagging record. eg: hardhat replaceTags --tags "#NewTag1,#NewTag2" --uri "https://google.com" --recordType "bookmark" --relayer "ETSRelayer" --network localhost',
 )
   .addParam("uri", 'URI being tagged eg. --uri "https://google.com"')
   .addParam("tags", 'New hashtags separated by commas. eg. --tags "#NewTag1,#NewTag2"')
@@ -28,14 +28,7 @@ task(
 
     // Environment-specific logic
     if (hre.network.name === "localhost") {
-      await replaceTagsLocal(
-        taskArgs.uri,
-        newTags,
-        taskArgs.relayer,
-        taskArgs.recordType,
-        taskArgs.signer,
-        hre
-      );
+      await replaceTagsLocal(taskArgs.uri, newTags, taskArgs.relayer, taskArgs.recordType, taskArgs.signer, hre);
     } else {
       await provideProductionGuidance(taskArgs.uri, newTags, taskArgs.recordType, hre.network.name);
     }
@@ -47,7 +40,7 @@ async function replaceTagsLocal(
   relayerName: string,
   recordType: string,
   signerName: string,
-  hre: any
+  hre: any,
 ) {
   console.log("🏠 LOCAL ENVIRONMENT DETECTED");
   console.log("=====================================\n");
@@ -167,7 +160,9 @@ async function replaceTagsLocal(
       console.log("      • Relayer");
       console.log("      • Signer (tagger)");
       console.log("\n   💡 Create a new record with:");
-      console.log(`      hardhat applyTags --tags "${newTags.join(",")}" --uri "${uri}" --recordType "${recordType}" --relayer "${relayerName}" --network localhost`);
+      console.log(
+        `      hardhat applyTags --tags "${newTags.join(",")}" --uri "${uri}" --recordType "${recordType}" --relayer "${relayerName}" --network localhost`,
+      );
       return;
     }
     console.log("   ✅ Tagging record exists");
@@ -205,7 +200,7 @@ async function replaceTagsLocal(
 
         const createTxHash = await etsRelayerForTagCreation.write.getOrCreateTagIds([missingTags]);
         console.log("   📤 Tag creation transaction sent:", createTxHash);
-        
+
         const createReceipt = await publicClient.waitForTransactionReceipt({
           hash: createTxHash,
           confirmations: 1,
@@ -261,10 +256,10 @@ async function replaceTagsLocal(
       console.log("   ⛽ Gas used:", receipt.gasUsed.toString());
 
       console.log("\n7. Validating tag replacement...");
-      
+
       // Verify the record still exists with new tags
       const recordStillExists = await ets.read.taggingRecordExists([taggingRecordId]);
-      
+
       if (recordStillExists) {
         console.log(`   ✅ Tags replaced successfully in record: ${taggingRecordId}`);
         console.log(`   📊 Record now contains ${actualTagCount} new tags`);
@@ -285,7 +280,6 @@ async function replaceTagsLocal(
       console.log("   New tags:", newTags.join(", "));
       console.log(`   Tagger: ${account.address}`);
       console.log(`   Relayer: ${relayerName}`);
-
     } catch (error: any) {
       console.log("   ❌ Transaction failed:", error.message);
 

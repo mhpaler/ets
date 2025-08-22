@@ -8,12 +8,12 @@ The **Working Branch Notebook** is a feature branch-specific document that maint
 
 Current branch notebook:
 - **Branch**: `528-tag-coins-epic` (TAG Coins implementation)
-- **Issue Status**: #529.5 Update Test Suite and Mocks 🎯 READY TO START
-- **Notebook**: [SESSION-STATUS.md](/Users/User/Sites/ets/docs/session/SESSION-STATUS.md) - Current session handoff info
+- **Issue Status**: #529.5 Update Test Suite and Mocks 🎯 IN PROGRESS [85%]
+- **Notebook**: [SESSION-STATUS.md](/Users/User/Sites/ets/docs/session/SESSION-STATUS.md) - Integration test refactoring session
 - **Issue Tracker**: [ISSUE-STATUS.md](/Users/User/Sites/ets/docs/session/ISSUE-STATUS.md) - Tracks current focus and priority queue
-- **Purpose**: MAJOR MILESTONE - Complete MockZoraFactory deployment architecture + working TAG creation pipeline
-- **Session Updated**: 2025-08-19 (BREAKTHROUGH: End-to-end TAG creation pipeline validated, MockZoraFactory architecture complete)
-- **Current Priority**: #529.5 Update Test Suite and Mocks (foundation ready)
+- **Purpose**: Integration test modernization with viem migration + workspace dependencies
+- **Session Updated**: 2025-08-21 (MAJOR UPGRADE: Integration test infrastructure modernized for scalable development)
+- **Current Priority**: Test refactored integration test with bun to validate viem + workspace deps
 
 When switching to work on a different feature branch, updating this reference in CLAUDE.md provides immediate context for future sessions.
 

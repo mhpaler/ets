@@ -2,8 +2,8 @@
   "name": "localhost",
   "chainId": "31337",
   "contracts": {
-    "AirnodeRrpV0Proxy": {
-      "address": "0xc96304e3c037f81dA488ed9dEa1D8F2a48278a75",
+    "ETSAccessControls": {
+      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
       "abi": [
         {
           "inputs": [],
@@ -11,121 +11,104 @@
           "type": "constructor"
         },
         {
-          "anonymous": false,
           "inputs": [
             {
-              "indexed": true,
-              "internalType": "bytes32",
-              "name": "templateId",
-              "type": "bytes32"
-            },
-            {
-              "indexed": false,
               "internalType": "address",
-              "name": "airnode",
+              "name": "caller",
               "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "bytes32",
-              "name": "endpointId",
-              "type": "bytes32"
-            },
-            {
-              "indexed": false,
-              "internalType": "bytes",
-              "name": "parameters",
-              "type": "bytes"
             }
           ],
-          "name": "CreatedTemplate",
-          "type": "event"
+          "name": "CallerIsNotRelayer",
+          "type": "error"
         },
         {
-          "anonymous": false,
           "inputs": [
             {
-              "indexed": true,
               "internalType": "address",
-              "name": "airnode",
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "NewOwnerAlreadyOwnsRelayer",
+          "type": "error"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "caller",
               "type": "address"
             },
             {
-              "indexed": true,
-              "internalType": "bytes32",
-              "name": "requestId",
-              "type": "bytes32"
-            },
+              "internalType": "address",
+              "name": "expectedOwner",
+              "type": "address"
+            }
+          ],
+          "name": "NotRelayerOwner",
+          "type": "error"
+        },
+        {
+          "inputs": [
             {
-              "indexed": false,
               "internalType": "string",
-              "name": "errorMessage",
+              "name": "name",
               "type": "string"
             }
           ],
-          "name": "FailedRequest",
-          "type": "event"
+          "name": "RelayerNameExists",
+          "type": "error"
         },
         {
-          "anonymous": false,
           "inputs": [
             {
-              "indexed": true,
-              "internalType": "address",
-              "name": "airnode",
-              "type": "address"
-            },
-            {
-              "indexed": true,
-              "internalType": "bytes32",
-              "name": "requestId",
-              "type": "bytes32"
-            },
-            {
-              "indexed": false,
-              "internalType": "bytes",
-              "name": "data",
-              "type": "bytes"
-            }
-          ],
-          "name": "FulfilledRequest",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "airnode",
-              "type": "address"
-            },
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "sponsor",
-              "type": "address"
-            },
-            {
-              "indexed": true,
-              "internalType": "bytes32",
-              "name": "withdrawalRequestId",
-              "type": "bytes32"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "sponsorWallet",
-              "type": "address"
-            },
-            {
-              "indexed": false,
               "internalType": "uint256",
-              "name": "amount",
+              "name": "length",
               "type": "uint256"
             }
           ],
-          "name": "FulfilledWithdrawal",
+          "name": "RelayerNameTooLong",
+          "type": "error"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "length",
+              "type": "uint256"
+            }
+          ],
+          "name": "RelayerNameTooShort",
+          "type": "error"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "sender",
+              "type": "address"
+            }
+          ],
+          "name": "SenderOwnsRelayer",
+          "type": "error"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "previousAdmin",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "newAdmin",
+              "type": "address"
+            }
+          ],
+          "name": "AdminChanged",
           "type": "event"
         },
         {
@@ -134,71 +117,144 @@
             {
               "indexed": true,
               "internalType": "address",
-              "name": "airnode",
+              "name": "beacon",
               "type": "address"
+            }
+          ],
+          "name": "BeaconUpgraded",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint8",
+              "name": "version",
+              "type": "uint8"
+            }
+          ],
+          "name": "Initialized",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "newAddress",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "prevAddress",
+              "type": "address"
+            }
+          ],
+          "name": "PlatformSet",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "relayer",
+              "type": "address"
+            }
+          ],
+          "name": "RelayerAdded",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "relayer",
+              "type": "address"
+            }
+          ],
+          "name": "RelayerLockToggled",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "role",
+              "type": "bytes32"
             },
             {
               "indexed": true,
               "internalType": "bytes32",
-              "name": "requestId",
+              "name": "previousAdminRole",
               "type": "bytes32"
             },
             {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "requesterRequestCount",
-              "type": "uint256"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "chainId",
-              "type": "uint256"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "requester",
-              "type": "address"
-            },
-            {
-              "indexed": false,
+              "indexed": true,
               "internalType": "bytes32",
-              "name": "endpointId",
+              "name": "newAdminRole",
               "type": "bytes32"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "sponsor",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "sponsorWallet",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "fulfillAddress",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "bytes4",
-              "name": "fulfillFunctionId",
-              "type": "bytes4"
-            },
-            {
-              "indexed": false,
-              "internalType": "bytes",
-              "name": "parameters",
-              "type": "bytes"
             }
           ],
-          "name": "MadeFullRequest",
+          "name": "RoleAdminChanged",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "role",
+              "type": "bytes32"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "sender",
+              "type": "address"
+            }
+          ],
+          "name": "RoleGranted",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "role",
+              "type": "bytes32"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "sender",
+              "type": "address"
+            }
+          ],
+          "name": "RoleRevoked",
           "type": "event"
         },
         {
@@ -207,212 +263,125 @@
             {
               "indexed": true,
               "internalType": "address",
-              "name": "airnode",
+              "name": "implementation",
               "type": "address"
-            },
-            {
-              "indexed": true,
-              "internalType": "bytes32",
-              "name": "requestId",
-              "type": "bytes32"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "requesterRequestCount",
-              "type": "uint256"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "chainId",
-              "type": "uint256"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "requester",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "bytes32",
-              "name": "templateId",
-              "type": "bytes32"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "sponsor",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "sponsorWallet",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "fulfillAddress",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "bytes4",
-              "name": "fulfillFunctionId",
-              "type": "bytes4"
-            },
-            {
-              "indexed": false,
-              "internalType": "bytes",
-              "name": "parameters",
-              "type": "bytes"
             }
           ],
-          "name": "MadeTemplateRequest",
+          "name": "Upgraded",
           "type": "event"
         },
         {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "airnode",
-              "type": "address"
-            },
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "sponsor",
-              "type": "address"
-            },
-            {
-              "indexed": true,
-              "internalType": "bytes32",
-              "name": "withdrawalRequestId",
-              "type": "bytes32"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "sponsorWallet",
-              "type": "address"
-            }
-          ],
-          "name": "RequestedWithdrawal",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "sponsor",
-              "type": "address"
-            },
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "requester",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "bool",
-              "name": "sponsorshipStatus",
-              "type": "bool"
-            }
-          ],
-          "name": "SetSponsorshipStatus",
-          "type": "event"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address[]",
-              "name": "authorizers",
-              "type": "address[]"
-            },
-            {
-              "internalType": "address",
-              "name": "airnode",
-              "type": "address"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "requestId",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "endpointId",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "address",
-              "name": "sponsor",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "requester",
-              "type": "address"
-            }
-          ],
-          "name": "checkAuthorizationStatus",
+          "inputs": [],
+          "name": "AUCTION_ORACLE_ROLE",
           "outputs": [
             {
-              "internalType": "bool",
-              "name": "status",
-              "type": "bool"
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
             }
           ],
           "stateMutability": "view",
           "type": "function"
         },
         {
-          "inputs": [
-            {
-              "internalType": "address[]",
-              "name": "authorizers",
-              "type": "address[]"
-            },
-            {
-              "internalType": "address",
-              "name": "airnode",
-              "type": "address"
-            },
-            {
-              "internalType": "bytes32[]",
-              "name": "requestIds",
-              "type": "bytes32[]"
-            },
-            {
-              "internalType": "bytes32[]",
-              "name": "endpointIds",
-              "type": "bytes32[]"
-            },
-            {
-              "internalType": "address[]",
-              "name": "sponsors",
-              "type": "address[]"
-            },
-            {
-              "internalType": "address[]",
-              "name": "requesters",
-              "type": "address[]"
-            }
-          ],
-          "name": "checkAuthorizationStatuses",
+          "inputs": [],
+          "name": "DEFAULT_ADMIN_ROLE",
           "outputs": [
             {
-              "internalType": "bool[]",
-              "name": "statuses",
-              "type": "bool[]"
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "EVENT_PROCESSOR_ROLE",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "NAME",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "RELAYER_ADMIN_ROLE",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "RELAYER_FACTORY_ROLE",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "RELAYER_ROLE",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "SMART_CONTRACT_ROLE",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "VERSION",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
             }
           ],
           "stateMutability": "view",
@@ -422,60 +391,123 @@
           "inputs": [
             {
               "internalType": "address",
-              "name": "airnode",
+              "name": "_currentOwner",
               "type": "address"
             },
             {
-              "internalType": "bytes32",
-              "name": "endpointId",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "bytes",
-              "name": "parameters",
-              "type": "bytes"
+              "internalType": "address",
+              "name": "_newOwner",
+              "type": "address"
             }
           ],
-          "name": "createTemplate",
+          "name": "changeRelayerOwner",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getPlatformAddress",
           "outputs": [
             {
-              "internalType": "bytes32",
-              "name": "templateId",
-              "type": "bytes32"
+              "internalType": "address payable",
+              "name": "",
+              "type": "address"
             }
           ],
-          "stateMutability": "nonpayable",
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "_name",
+              "type": "string"
+            }
+          ],
+          "name": "getRelayerAddressFromName",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_address",
+              "type": "address"
+            }
+          ],
+          "name": "getRelayerAddressFromOwner",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_address",
+              "type": "address"
+            }
+          ],
+          "name": "getRelayerNameFromAddress",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "stateMutability": "view",
           "type": "function"
         },
         {
           "inputs": [
             {
               "internalType": "bytes32",
-              "name": "requestId",
+              "name": "role",
+              "type": "bytes32"
+            }
+          ],
+          "name": "getRoleAdmin",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "role",
               "type": "bytes32"
             },
             {
               "internalType": "address",
-              "name": "airnode",
+              "name": "account",
               "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "fulfillAddress",
-              "type": "address"
-            },
-            {
-              "internalType": "bytes4",
-              "name": "fulfillFunctionId",
-              "type": "bytes4"
-            },
-            {
-              "internalType": "string",
-              "name": "errorMessage",
-              "type": "string"
             }
           ],
-          "name": "fail",
+          "name": "grantRole",
           "outputs": [],
           "stateMutability": "nonpayable",
           "type": "function"
@@ -484,98 +516,1284 @@
           "inputs": [
             {
               "internalType": "bytes32",
-              "name": "requestId",
+              "name": "role",
               "type": "bytes32"
             },
             {
               "internalType": "address",
-              "name": "airnode",
+              "name": "account",
               "type": "address"
+            }
+          ],
+          "name": "hasRole",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_platformAddress",
+              "type": "address"
+            }
+          ],
+          "name": "initialize",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_addr",
+              "type": "address"
+            }
+          ],
+          "name": "isAdmin",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_addr",
+              "type": "address"
+            }
+          ],
+          "name": "isAuctionOracle",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_addr",
+              "type": "address"
+            }
+          ],
+          "name": "isEventProcessor",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_addr",
+              "type": "address"
+            }
+          ],
+          "name": "isRelayer",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_addr",
+              "type": "address"
+            }
+          ],
+          "name": "isRelayerAdmin",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_addr",
+              "type": "address"
+            }
+          ],
+          "name": "isRelayerAndNotPaused",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_addr",
+              "type": "address"
+            }
+          ],
+          "name": "isRelayerByAddress",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "_name",
+              "type": "string"
+            }
+          ],
+          "name": "isRelayerByName",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_addr",
+              "type": "address"
+            }
+          ],
+          "name": "isRelayerByOwner",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_addr",
+              "type": "address"
+            }
+          ],
+          "name": "isRelayerFactory",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_addr",
+              "type": "address"
+            }
+          ],
+          "name": "isRelayerLocked",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_addr",
+              "type": "address"
+            }
+          ],
+          "name": "isSmartContract",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_relayerOwner",
+              "type": "address"
+            }
+          ],
+          "name": "pauseRelayerByOwnerAddress",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "proxiableUUID",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_relayer",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "_name",
+              "type": "string"
             },
             {
               "internalType": "address",
-              "name": "fulfillAddress",
+              "name": "_owner",
               "type": "address"
+            }
+          ],
+          "name": "registerRelayer",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "name": "relayerContractToName",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "name": "relayerLocked",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "name": "relayerNameToContract",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "name": "relayerOwnerToAddress",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "role",
+              "type": "bytes32"
             },
             {
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            }
+          ],
+          "name": "renounceRole",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "role",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            }
+          ],
+          "name": "revokeRole",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address payable",
+              "name": "_platform",
+              "type": "address"
+            }
+          ],
+          "name": "setPlatform",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "_role",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "_adminRole",
+              "type": "bytes32"
+            }
+          ],
+          "name": "setRoleAdmin",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
               "internalType": "bytes4",
-              "name": "fulfillFunctionId",
+              "name": "interfaceId",
               "type": "bytes4"
+            }
+          ],
+          "name": "supportsInterface",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_relayer",
+              "type": "address"
+            }
+          ],
+          "name": "toggleRelayerLock",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "newImplementation",
+              "type": "address"
+            }
+          ],
+          "name": "upgradeTo",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "newImplementation",
+              "type": "address"
             },
             {
               "internalType": "bytes",
               "name": "data",
               "type": "bytes"
+            }
+          ],
+          "name": "upgradeToAndCall",
+          "outputs": [],
+          "stateMutability": "payable",
+          "type": "function"
+        }
+      ]
+    },
+    "MockZoraFactory": {
+      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      "abi": [
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "coin",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "msgSender",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "symbol",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "internalType": "bytes",
+              "name": "poolConfig",
+              "type": "bytes"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "platformReferrer",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "bytes32",
+              "name": "coinSalt",
+              "type": "bytes32"
+            }
+          ],
+          "name": "CoinCreatedV4",
+          "type": "event"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "msgSender",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "symbol",
+              "type": "string"
             },
             {
               "internalType": "bytes",
-              "name": "signature",
+              "name": "poolConfig",
               "type": "bytes"
+            },
+            {
+              "internalType": "address",
+              "name": "platformReferrer",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "coinSalt",
+              "type": "bytes32"
             }
           ],
-          "name": "fulfill",
+          "name": "coinAddress",
           "outputs": [
             {
-              "internalType": "bool",
-              "name": "callSuccess",
-              "type": "bool"
-            },
-            {
-              "internalType": "bytes",
-              "name": "callData",
-              "type": "bytes"
+              "internalType": "address",
+              "name": "",
+              "type": "address"
             }
           ],
-          "stateMutability": "nonpayable",
+          "stateMutability": "view",
           "type": "function"
         },
         {
           "inputs": [
             {
-              "internalType": "bytes32",
-              "name": "withdrawalRequestId",
-              "type": "bytes32"
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "address[]",
+              "name": "",
+              "type": "address[]"
+            },
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "symbol",
+              "type": "string"
+            },
+            {
+              "internalType": "bytes",
+              "name": "poolConfig",
+              "type": "bytes"
             },
             {
               "internalType": "address",
-              "name": "airnode",
+              "name": "platformReferrer",
               "type": "address"
             },
             {
               "internalType": "address",
-              "name": "sponsor",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "coinSalt",
+              "type": "bytes32"
+            }
+          ],
+          "name": "deploy",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "coin",
               "type": "address"
             }
           ],
-          "name": "fulfillWithdrawal",
-          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
+      ]
+    },
+    "ETSToken": {
+      "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+      "abi": [
+        {
+          "inputs": [],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "caller",
+              "type": "address"
+            }
+          ],
+          "name": "AccessDenied",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "AddressCannotBeZero",
+          "type": "error"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "caller",
+              "type": "address"
+            }
+          ],
+          "name": "CallerIsNotETSCore",
+          "type": "error"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "caller",
+              "type": "address"
+            }
+          ],
+          "name": "CallerIsNotRelayer",
+          "type": "error"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "caller",
+              "type": "address"
+            }
+          ],
+          "name": "CallerNotAdminInNewContract",
+          "type": "error"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "length",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "minLength",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxLength",
+              "type": "uint256"
+            }
+          ],
+          "name": "InvalidTagFormat",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "SpacesInTag",
+          "type": "error"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "coinAddress",
+              "type": "address"
+            }
+          ],
+          "name": "TagAlreadyExists",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "TagContainsPrefix",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "TagMustStartWithHash",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "ZoraFactoryNotConfigured",
+          "type": "error"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "etsAccessControls",
+              "type": "address"
+            }
+          ],
+          "name": "AccessControlsSet",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "previousAdmin",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "newAdmin",
+              "type": "address"
+            }
+          ],
+          "name": "AdminChanged",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "beacon",
+              "type": "address"
+            }
+          ],
+          "name": "BeaconUpgraded",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "ets",
+              "type": "address"
+            }
+          ],
+          "name": "ETSCoreSet",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint8",
+              "name": "version",
+              "type": "uint8"
+            }
+          ],
+          "name": "Initialized",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            }
+          ],
+          "name": "Paused",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "coinAddress",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "originalInput",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "displayVersion",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "machineName",
+              "type": "string"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "creator",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "relayer",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            }
+          ],
+          "name": "TagCreated",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "maxStringLength",
+              "type": "uint256"
+            }
+          ],
+          "name": "TagMaxStringLengthSet",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "minStringLength",
+              "type": "uint256"
+            }
+          ],
+          "name": "TagMinStringLengthSet",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            }
+          ],
+          "name": "Unpaused",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "implementation",
+              "type": "address"
+            }
+          ],
+          "name": "Upgraded",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "eoaAddress",
+              "type": "address"
+            }
+          ],
+          "name": "ZoraCreatorEOASet",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "factoryAddress",
+              "type": "address"
+            }
+          ],
+          "name": "ZoraFactoryAddressSet",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "referrerAddress",
+              "type": "address"
+            }
+          ],
+          "name": "ZoraPlatformReferrerSet",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "bytes",
+              "name": "poolConfig",
+              "type": "bytes"
+            }
+          ],
+          "name": "ZoraPoolConfigSet",
+          "type": "event"
+        },
+        {
+          "inputs": [],
+          "name": "NAME",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "VERSION",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "name": "coinAddressToTag",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "originalInput",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "displayVersion",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "machineName",
+              "type": "string"
+            },
+            {
+              "internalType": "address",
+              "name": "coinAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "creator",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "relayer",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "_tag",
+              "type": "string"
+            }
+          ],
+          "name": "computeCoinAddress",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "_tag",
+              "type": "string"
+            },
+            {
+              "internalType": "address payable",
+              "name": "_relayer",
+              "type": "address"
+            },
+            {
+              "internalType": "address payable",
+              "name": "_creator",
+              "type": "address"
+            }
+          ],
+          "name": "createTag",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "coinAddress",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "payable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "ets",
+          "outputs": [
+            {
+              "internalType": "contract IETS",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "etsAccessControls",
+          "outputs": [
+            {
+              "internalType": "contract IETSAccessControls",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "_tag",
+              "type": "string"
+            },
+            {
+              "internalType": "address payable",
+              "name": "_relayer",
+              "type": "address"
+            },
+            {
+              "internalType": "address payable",
+              "name": "_creator",
+              "type": "address"
+            }
+          ],
+          "name": "getOrCreateTag",
+          "outputs": [
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "originalInput",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "displayVersion",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "machineName",
+                  "type": "string"
+                },
+                {
+                  "internalType": "address",
+                  "name": "coinAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "creator",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "relayer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "timestamp",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IETSToken.Tag",
+              "name": "tag",
+              "type": "tuple"
+            }
+          ],
           "stateMutability": "payable",
           "type": "function"
         },
         {
           "inputs": [
             {
-              "internalType": "bytes32[]",
-              "name": "templateIds",
-              "type": "bytes32[]"
+              "internalType": "string",
+              "name": "_tag",
+              "type": "string"
+            },
+            {
+              "internalType": "address payable",
+              "name": "_relayer",
+              "type": "address"
+            },
+            {
+              "internalType": "address payable",
+              "name": "_creator",
+              "type": "address"
             }
           ],
-          "name": "getTemplates",
+          "name": "getOrCreateTagId",
           "outputs": [
             {
-              "internalType": "address[]",
-              "name": "airnodes",
-              "type": "address[]"
-            },
+              "internalType": "address",
+              "name": "coinAddress",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "payable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getPlatformAddress",
+          "outputs": [
             {
-              "internalType": "bytes32[]",
-              "name": "endpointIds",
-              "type": "bytes32[]"
-            },
-            {
-              "internalType": "bytes[]",
-              "name": "parameters",
-              "type": "bytes[]"
+              "internalType": "address payable",
+              "name": "",
+              "type": "address"
             }
           ],
           "stateMutability": "view",
@@ -585,48 +1803,154 @@
           "inputs": [
             {
               "internalType": "address",
-              "name": "airnode",
+              "name": "_coinAddress",
+              "type": "address"
+            }
+          ],
+          "name": "getTagByAddress",
+          "outputs": [
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "originalInput",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "displayVersion",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "machineName",
+                  "type": "string"
+                },
+                {
+                  "internalType": "address",
+                  "name": "coinAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "creator",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "relayer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "timestamp",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IETSToken.Tag",
+              "name": "",
+              "type": "tuple"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "_tag",
+              "type": "string"
+            }
+          ],
+          "name": "getTagByString",
+          "outputs": [
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "originalInput",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "displayVersion",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "machineName",
+                  "type": "string"
+                },
+                {
+                  "internalType": "address",
+                  "name": "coinAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "creator",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "relayer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "timestamp",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IETSToken.Tag",
+              "name": "",
+              "type": "tuple"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "contract IETSAccessControls",
+              "name": "_etsAccessControls",
               "type": "address"
             },
             {
-              "internalType": "bytes32",
-              "name": "endpointId",
-              "type": "bytes32"
+              "internalType": "uint256",
+              "name": "_tagMinStringLength",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_tagMaxStringLength",
+              "type": "uint256"
             },
             {
               "internalType": "address",
-              "name": "sponsor",
+              "name": "_zoraFactoryAddress",
               "type": "address"
             },
             {
               "internalType": "address",
-              "name": "sponsorWallet",
+              "name": "_zoraCreatorEOA",
               "type": "address"
             },
             {
               "internalType": "address",
-              "name": "fulfillAddress",
+              "name": "_zoraPlatformReferrer",
               "type": "address"
-            },
-            {
-              "internalType": "bytes4",
-              "name": "fulfillFunctionId",
-              "type": "bytes4"
             },
             {
               "internalType": "bytes",
-              "name": "parameters",
+              "name": "_zoraPoolConfig",
               "type": "bytes"
             }
           ],
-          "name": "makeFullRequest",
-          "outputs": [
-            {
-              "internalType": "bytes32",
-              "name": "requestId",
-              "type": "bytes32"
-            }
-          ],
+          "name": "initialize",
+          "outputs": [],
           "stateMutability": "nonpayable",
           "type": "function"
         },
@@ -634,59 +1958,171 @@
           "inputs": [
             {
               "internalType": "bytes32",
-              "name": "templateId",
+              "name": "",
               "type": "bytes32"
-            },
-            {
-              "internalType": "address",
-              "name": "sponsor",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "sponsorWallet",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "fulfillAddress",
-              "type": "address"
-            },
-            {
-              "internalType": "bytes4",
-              "name": "fulfillFunctionId",
-              "type": "bytes4"
-            },
-            {
-              "internalType": "bytes",
-              "name": "parameters",
-              "type": "bytes"
             }
           ],
-          "name": "makeTemplateRequest",
+          "name": "machineNameHashToCoinAddress",
           "outputs": [
             {
-              "internalType": "bytes32",
-              "name": "requestId",
-              "type": "bytes32"
+              "internalType": "address",
+              "name": "",
+              "type": "address"
             }
           ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "pause",
+          "outputs": [],
           "stateMutability": "nonpayable",
           "type": "function"
         },
         {
-          "inputs": [
-            {
-              "internalType": "bytes32",
-              "name": "requestId",
-              "type": "bytes32"
-            }
-          ],
-          "name": "requestIsAwaitingFulfillment",
+          "inputs": [],
+          "name": "paused",
           "outputs": [
             {
               "internalType": "bool",
-              "name": "isAwaitingFulfillment",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "proxiableUUID",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "contract IETSAccessControls",
+              "name": "_accessControls",
+              "type": "address"
+            }
+          ],
+          "name": "setAccessControls",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "contract IETS",
+              "name": "_ets",
+              "type": "address"
+            }
+          ],
+          "name": "setETSCore",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_tagMaxStringLength",
+              "type": "uint256"
+            }
+          ],
+          "name": "setTagMaxStringLength",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_tagMinStringLength",
+              "type": "uint256"
+            }
+          ],
+          "name": "setTagMinStringLength",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_eoaAddress",
+              "type": "address"
+            }
+          ],
+          "name": "setZoraCreatorEOA",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_factoryAddress",
+              "type": "address"
+            }
+          ],
+          "name": "setZoraFactoryAddress",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_referrerAddress",
+              "type": "address"
+            }
+          ],
+          "name": "setZoraPlatformReferrer",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes",
+              "name": "_poolConfig",
+              "type": "bytes"
+            }
+          ],
+          "name": "setZoraPoolConfig",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_coinAddress",
+              "type": "address"
+            }
+          ],
+          "name": "tagExistsByAddress",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
               "type": "bool"
             }
           ],
@@ -696,30 +2132,25 @@
         {
           "inputs": [
             {
-              "internalType": "address",
-              "name": "airnode",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "sponsorWallet",
-              "type": "address"
+              "internalType": "string",
+              "name": "_tag",
+              "type": "string"
             }
           ],
-          "name": "requestWithdrawal",
-          "outputs": [],
-          "stateMutability": "nonpayable",
+          "name": "tagExistsByString",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
           "type": "function"
         },
         {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "name": "requesterToRequestCountPlusOne",
+          "inputs": [],
+          "name": "tagMaxStringLength",
           "outputs": [
             {
               "internalType": "uint256",
@@ -731,56 +2162,8 @@
           "type": "function"
         },
         {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "requester",
-              "type": "address"
-            },
-            {
-              "internalType": "bool",
-              "name": "sponsorshipStatus",
-              "type": "bool"
-            }
-          ],
-          "name": "setSponsorshipStatus",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "name": "sponsorToRequesterToSponsorshipStatus",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "name": "sponsorToWithdrawalRequestCount",
+          "inputs": [],
+          "name": "tagMinStringLength",
           "outputs": [
             {
               "internalType": "uint256",
@@ -792,28 +2175,89 @@
           "type": "function"
         },
         {
+          "inputs": [],
+          "name": "unPause",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
           "inputs": [
             {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
+              "internalType": "address",
+              "name": "newImplementation",
+              "type": "address"
             }
           ],
-          "name": "templates",
-          "outputs": [
+          "name": "upgradeTo",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
             {
               "internalType": "address",
-              "name": "airnode",
+              "name": "newImplementation",
               "type": "address"
             },
             {
-              "internalType": "bytes32",
-              "name": "endpointId",
-              "type": "bytes32"
-            },
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "name": "upgradeToAndCall",
+          "outputs": [],
+          "stateMutability": "payable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "zoraCreatorEOA",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "zoraFactoryAddress",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "zoraPlatformReferrer",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "zoraPoolConfig",
+          "outputs": [
             {
               "internalType": "bytes",
-              "name": "parameters",
+              "name": "",
               "type": "bytes"
             }
           ],
@@ -822,8 +2266,800 @@
         }
       ]
     },
+    "ETSTarget": {
+      "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+      "abi": [
+        {
+          "inputs": [],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "caller",
+              "type": "address"
+            }
+          ],
+          "name": "AccessDenied",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "AddressCannotBeZero",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "BadAddress",
+          "type": "error"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "caller",
+              "type": "address"
+            }
+          ],
+          "name": "CallerNotAdminInNewContract",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "EmptyTarget",
+          "type": "error"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "targetURI",
+              "type": "string"
+            }
+          ],
+          "name": "TargetIdExists",
+          "type": "error"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "etsAccessControls",
+              "type": "address"
+            }
+          ],
+          "name": "AccessControlsSet",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "previousAdmin",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "newAdmin",
+              "type": "address"
+            }
+          ],
+          "name": "AdminChanged",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "beacon",
+              "type": "address"
+            }
+          ],
+          "name": "BeaconUpgraded",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "etsEnrichTarget",
+              "type": "address"
+            }
+          ],
+          "name": "EnrichTargetSet",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint8",
+              "name": "version",
+              "type": "uint8"
+            }
+          ],
+          "name": "Initialized",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "targetId",
+              "type": "uint256"
+            }
+          ],
+          "name": "TargetCreated",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "targetId",
+              "type": "uint256"
+            }
+          ],
+          "name": "TargetUpdated",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "implementation",
+              "type": "address"
+            }
+          ],
+          "name": "Upgraded",
+          "type": "event"
+        },
+        {
+          "inputs": [],
+          "name": "NAME",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "VERSION",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "_targetURI",
+              "type": "string"
+            }
+          ],
+          "name": "computeTargetId",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "_targetURI",
+              "type": "string"
+            }
+          ],
+          "name": "createTarget",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "targetId",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "etsAccessControls",
+          "outputs": [
+            {
+              "internalType": "contract IETSAccessControls",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "etsEnrichTarget",
+          "outputs": [
+            {
+              "internalType": "contract IETSEnrichTarget",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "_targetURI",
+              "type": "string"
+            }
+          ],
+          "name": "getOrCreateTargetId",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_targetId",
+              "type": "uint256"
+            }
+          ],
+          "name": "getTargetById",
+          "outputs": [
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "targetURI",
+                  "type": "string"
+                },
+                {
+                  "internalType": "address",
+                  "name": "createdBy",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "enriched",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "httpStatus",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "string",
+                  "name": "arweaveTxId",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct IETSTarget.Target",
+              "name": "",
+              "type": "tuple"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "_targetURI",
+              "type": "string"
+            }
+          ],
+          "name": "getTargetByURI",
+          "outputs": [
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "targetURI",
+                  "type": "string"
+                },
+                {
+                  "internalType": "address",
+                  "name": "createdBy",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "enriched",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "httpStatus",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "string",
+                  "name": "arweaveTxId",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct IETSTarget.Target",
+              "name": "",
+              "type": "tuple"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_etsAccessControls",
+              "type": "address"
+            }
+          ],
+          "name": "initialize",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "proxiableUUID",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "contract IETSAccessControls",
+              "name": "_accessControls",
+              "type": "address"
+            }
+          ],
+          "name": "setAccessControls",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_etsEnrichTarget",
+              "type": "address"
+            }
+          ],
+          "name": "setEnrichTarget",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_targetId",
+              "type": "uint256"
+            }
+          ],
+          "name": "targetExistsById",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "_targetURI",
+              "type": "string"
+            }
+          ],
+          "name": "targetExistsByURI",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "name": "targets",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "targetURI",
+              "type": "string"
+            },
+            {
+              "internalType": "address",
+              "name": "createdBy",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "enriched",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "httpStatus",
+              "type": "uint256"
+            },
+            {
+              "internalType": "string",
+              "name": "arweaveTxId",
+              "type": "string"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_targetId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "string",
+              "name": "_targetURI",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_enriched",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_httpStatus",
+              "type": "uint256"
+            },
+            {
+              "internalType": "string",
+              "name": "_arweaveTxId",
+              "type": "string"
+            }
+          ],
+          "name": "updateTarget",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "success",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "newImplementation",
+              "type": "address"
+            }
+          ],
+          "name": "upgradeTo",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "newImplementation",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "name": "upgradeToAndCall",
+          "outputs": [],
+          "stateMutability": "payable",
+          "type": "function"
+        }
+      ]
+    },
+    "ETSEnrichTarget": {
+      "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+      "abi": [
+        {
+          "inputs": [],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "inputs": [],
+          "name": "AccessDenied",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "InvalidTarget",
+          "type": "error"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "previousAdmin",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "newAdmin",
+              "type": "address"
+            }
+          ],
+          "name": "AdminChanged",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "beacon",
+              "type": "address"
+            }
+          ],
+          "name": "BeaconUpgraded",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "targetId",
+              "type": "uint256"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "requestor",
+              "type": "address"
+            }
+          ],
+          "name": "EnrichTargetRequested",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint8",
+              "name": "version",
+              "type": "uint8"
+            }
+          ],
+          "name": "Initialized",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "implementation",
+              "type": "address"
+            }
+          ],
+          "name": "Upgraded",
+          "type": "event"
+        },
+        {
+          "inputs": [],
+          "name": "NAME",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "VERSION",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "etsAccessControls",
+          "outputs": [
+            {
+              "internalType": "contract IETSAccessControls",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "etsTarget",
+          "outputs": [
+            {
+              "internalType": "contract IETSTarget",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "contract IETSAccessControls",
+              "name": "_etsAccessControls",
+              "type": "address"
+            },
+            {
+              "internalType": "contract IETSTarget",
+              "name": "_etsTarget",
+              "type": "address"
+            }
+          ],
+          "name": "initialize",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "proxiableUUID",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_targetId",
+              "type": "uint256"
+            }
+          ],
+          "name": "requestEnrichTarget",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "newImplementation",
+              "type": "address"
+            }
+          ],
+          "name": "upgradeTo",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "newImplementation",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "name": "upgradeToAndCall",
+          "outputs": [],
+          "stateMutability": "payable",
+          "type": "function"
+        }
+      ]
+    },
     "ETS": {
-      "address": "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c",
+      "address": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
       "abi": [
         {
           "inputs": [],
@@ -2303,51 +4539,39 @@
         }
       ]
     },
-    "ETSAccessControls": {
-      "address": "0x34B40BA116d5Dec75548a9e9A8f15411461E8c70",
+    "ETSRelayerFactory": {
+      "address": "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
       "abi": [
         {
-          "inputs": [],
-          "stateMutability": "nonpayable",
-          "type": "constructor"
-        },
-        {
           "inputs": [
             {
               "internalType": "address",
-              "name": "caller",
-              "type": "address"
-            }
-          ],
-          "name": "CallerIsNotRelayer",
-          "type": "error"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "newOwner",
-              "type": "address"
-            }
-          ],
-          "name": "NewOwnerAlreadyOwnsRelayer",
-          "type": "error"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "caller",
+              "name": "_etsRelayerLogic",
               "type": "address"
             },
             {
-              "internalType": "address",
-              "name": "expectedOwner",
+              "internalType": "contract IETSAccessControls",
+              "name": "_etsAccessControls",
+              "type": "address"
+            },
+            {
+              "internalType": "contract IETS",
+              "name": "_ets",
+              "type": "address"
+            },
+            {
+              "internalType": "contract IETSToken",
+              "name": "_etsToken",
+              "type": "address"
+            },
+            {
+              "internalType": "contract IETSTarget",
+              "name": "_etsTarget",
               "type": "address"
             }
           ],
-          "name": "NotRelayerOwner",
-          "type": "error"
+          "stateMutability": "nonpayable",
+          "type": "constructor"
         },
         {
           "inputs": [
@@ -2394,223 +4618,6 @@
           "type": "error"
         },
         {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "previousAdmin",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "newAdmin",
-              "type": "address"
-            }
-          ],
-          "name": "AdminChanged",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "beacon",
-              "type": "address"
-            }
-          ],
-          "name": "BeaconUpgraded",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint8",
-              "name": "version",
-              "type": "uint8"
-            }
-          ],
-          "name": "Initialized",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "newAddress",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "prevAddress",
-              "type": "address"
-            }
-          ],
-          "name": "PlatformSet",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "relayer",
-              "type": "address"
-            }
-          ],
-          "name": "RelayerAdded",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "relayer",
-              "type": "address"
-            }
-          ],
-          "name": "RelayerLockToggled",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "bytes32",
-              "name": "role",
-              "type": "bytes32"
-            },
-            {
-              "indexed": true,
-              "internalType": "bytes32",
-              "name": "previousAdminRole",
-              "type": "bytes32"
-            },
-            {
-              "indexed": true,
-              "internalType": "bytes32",
-              "name": "newAdminRole",
-              "type": "bytes32"
-            }
-          ],
-          "name": "RoleAdminChanged",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "bytes32",
-              "name": "role",
-              "type": "bytes32"
-            },
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "account",
-              "type": "address"
-            },
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "sender",
-              "type": "address"
-            }
-          ],
-          "name": "RoleGranted",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "bytes32",
-              "name": "role",
-              "type": "bytes32"
-            },
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "account",
-              "type": "address"
-            },
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "sender",
-              "type": "address"
-            }
-          ],
-          "name": "RoleRevoked",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "implementation",
-              "type": "address"
-            }
-          ],
-          "name": "Upgraded",
-          "type": "event"
-        },
-        {
-          "inputs": [],
-          "name": "AUCTION_ORACLE_ROLE",
-          "outputs": [
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "DEFAULT_ADMIN_ROLE",
-          "outputs": [
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "EVENT_PROCESSOR_ROLE",
-          "outputs": [
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
           "inputs": [],
           "name": "NAME",
           "outputs": [
@@ -2624,833 +4631,32 @@
           "type": "function"
         },
         {
-          "inputs": [],
-          "name": "RELAYER_ADMIN_ROLE",
-          "outputs": [
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "RELAYER_FACTORY_ROLE",
-          "outputs": [
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "RELAYER_ROLE",
-          "outputs": [
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "SMART_CONTRACT_ROLE",
-          "outputs": [
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "VERSION",
-          "outputs": [
-            {
-              "internalType": "string",
-              "name": "",
-              "type": "string"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_currentOwner",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "_newOwner",
-              "type": "address"
-            }
-          ],
-          "name": "changeRelayerOwner",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "getPlatformAddress",
-          "outputs": [
-            {
-              "internalType": "address payable",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
           "inputs": [
             {
               "internalType": "string",
-              "name": "_name",
+              "name": "_relayerName",
               "type": "string"
             }
           ],
-          "name": "getRelayerAddressFromName",
+          "name": "addRelayer",
           "outputs": [
             {
               "internalType": "address",
-              "name": "",
+              "name": "relayer",
               "type": "address"
             }
           ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_address",
-              "type": "address"
-            }
-          ],
-          "name": "getRelayerAddressFromOwner",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_address",
-              "type": "address"
-            }
-          ],
-          "name": "getRelayerNameFromAddress",
-          "outputs": [
-            {
-              "internalType": "string",
-              "name": "",
-              "type": "string"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes32",
-              "name": "role",
-              "type": "bytes32"
-            }
-          ],
-          "name": "getRoleAdmin",
-          "outputs": [
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes32",
-              "name": "role",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "address",
-              "name": "account",
-              "type": "address"
-            }
-          ],
-          "name": "grantRole",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes32",
-              "name": "role",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "address",
-              "name": "account",
-              "type": "address"
-            }
-          ],
-          "name": "hasRole",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_platformAddress",
-              "type": "address"
-            }
-          ],
-          "name": "initialize",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_addr",
-              "type": "address"
-            }
-          ],
-          "name": "isAdmin",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_addr",
-              "type": "address"
-            }
-          ],
-          "name": "isAuctionOracle",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_addr",
-              "type": "address"
-            }
-          ],
-          "name": "isEventProcessor",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_addr",
-              "type": "address"
-            }
-          ],
-          "name": "isRelayer",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_addr",
-              "type": "address"
-            }
-          ],
-          "name": "isRelayerAdmin",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_addr",
-              "type": "address"
-            }
-          ],
-          "name": "isRelayerAndNotPaused",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_addr",
-              "type": "address"
-            }
-          ],
-          "name": "isRelayerByAddress",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "_name",
-              "type": "string"
-            }
-          ],
-          "name": "isRelayerByName",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_addr",
-              "type": "address"
-            }
-          ],
-          "name": "isRelayerByOwner",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_addr",
-              "type": "address"
-            }
-          ],
-          "name": "isRelayerFactory",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_addr",
-              "type": "address"
-            }
-          ],
-          "name": "isRelayerLocked",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_addr",
-              "type": "address"
-            }
-          ],
-          "name": "isSmartContract",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_relayerOwner",
-              "type": "address"
-            }
-          ],
-          "name": "pauseRelayerByOwnerAddress",
-          "outputs": [],
           "stateMutability": "nonpayable",
           "type": "function"
         },
         {
           "inputs": [],
-          "name": "proxiableUUID",
+          "name": "ets",
           "outputs": [
             {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_relayer",
-              "type": "address"
-            },
-            {
-              "internalType": "string",
-              "name": "_name",
-              "type": "string"
-            },
-            {
-              "internalType": "address",
-              "name": "_owner",
-              "type": "address"
-            }
-          ],
-          "name": "registerRelayer",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
+              "internalType": "contract IETS",
               "name": "",
               "type": "address"
-            }
-          ],
-          "name": "relayerContractToName",
-          "outputs": [
-            {
-              "internalType": "string",
-              "name": "",
-              "type": "string"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "name": "relayerLocked",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "",
-              "type": "string"
-            }
-          ],
-          "name": "relayerNameToContract",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "name": "relayerOwnerToAddress",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes32",
-              "name": "role",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "address",
-              "name": "account",
-              "type": "address"
-            }
-          ],
-          "name": "renounceRole",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes32",
-              "name": "role",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "address",
-              "name": "account",
-              "type": "address"
-            }
-          ],
-          "name": "revokeRole",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address payable",
-              "name": "_platform",
-              "type": "address"
-            }
-          ],
-          "name": "setPlatform",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes32",
-              "name": "_role",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "_adminRole",
-              "type": "bytes32"
-            }
-          ],
-          "name": "setRoleAdmin",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes4",
-              "name": "interfaceId",
-              "type": "bytes4"
-            }
-          ],
-          "name": "supportsInterface",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_relayer",
-              "type": "address"
-            }
-          ],
-          "name": "toggleRelayerLock",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "newImplementation",
-              "type": "address"
-            }
-          ],
-          "name": "upgradeTo",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "newImplementation",
-              "type": "address"
-            },
-            {
-              "internalType": "bytes",
-              "name": "data",
-              "type": "bytes"
-            }
-          ],
-          "name": "upgradeToAndCall",
-          "outputs": [],
-          "stateMutability": "payable",
-          "type": "function"
-        }
-      ]
-    },
-    "ETSEnrichTarget": {
-      "address": "0x22753E4264FDDc6181dc7cce468904A80a363E44",
-      "abi": [
-        {
-          "inputs": [],
-          "stateMutability": "nonpayable",
-          "type": "constructor"
-        },
-        {
-          "inputs": [],
-          "name": "AccessDenied",
-          "type": "error"
-        },
-        {
-          "inputs": [],
-          "name": "InvalidTarget",
-          "type": "error"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "previousAdmin",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "newAdmin",
-              "type": "address"
-            }
-          ],
-          "name": "AdminChanged",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "beacon",
-              "type": "address"
-            }
-          ],
-          "name": "BeaconUpgraded",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "uint256",
-              "name": "targetId",
-              "type": "uint256"
-            },
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "requestor",
-              "type": "address"
-            }
-          ],
-          "name": "EnrichTargetRequested",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint8",
-              "name": "version",
-              "type": "uint8"
-            }
-          ],
-          "name": "Initialized",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "implementation",
-              "type": "address"
-            }
-          ],
-          "name": "Upgraded",
-          "type": "event"
-        },
-        {
-          "inputs": [],
-          "name": "NAME",
-          "outputs": [
-            {
-              "internalType": "string",
-              "name": "",
-              "type": "string"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "VERSION",
-          "outputs": [
-            {
-              "internalType": "string",
-              "name": "",
-              "type": "string"
             }
           ],
           "stateMutability": "view",
@@ -3483,84 +4689,48 @@
           "type": "function"
         },
         {
-          "inputs": [
-            {
-              "internalType": "contract IETSAccessControls",
-              "name": "_etsAccessControls",
-              "type": "address"
-            },
-            {
-              "internalType": "contract IETSTarget",
-              "name": "_etsTarget",
-              "type": "address"
-            }
-          ],
-          "name": "initialize",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
           "inputs": [],
-          "name": "proxiableUUID",
+          "name": "etsToken",
           "outputs": [
             {
-              "internalType": "bytes32",
+              "internalType": "contract IETSToken",
               "name": "",
-              "type": "bytes32"
+              "type": "address"
             }
           ],
           "stateMutability": "view",
           "type": "function"
         },
         {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "_targetId",
-              "type": "uint256"
-            }
-          ],
-          "name": "requestEnrichTarget",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
+          "inputs": [],
+          "name": "getBeacon",
+          "outputs": [
             {
               "internalType": "address",
-              "name": "newImplementation",
+              "name": "",
               "type": "address"
             }
           ],
-          "name": "upgradeTo",
-          "outputs": [],
-          "stateMutability": "nonpayable",
+          "stateMutability": "view",
           "type": "function"
         },
         {
-          "inputs": [
+          "inputs": [],
+          "name": "getImplementation",
+          "outputs": [
             {
               "internalType": "address",
-              "name": "newImplementation",
+              "name": "",
               "type": "address"
-            },
-            {
-              "internalType": "bytes",
-              "name": "data",
-              "type": "bytes"
             }
           ],
-          "name": "upgradeToAndCall",
-          "outputs": [],
-          "stateMutability": "payable",
+          "stateMutability": "view",
           "type": "function"
         }
       ]
     },
     "ETSRelayer": {
-      "address": "0x276C216D241856199A83bf27b2286659e5b877D3",
+      "address": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
       "abi": [
         {
           "inputs": [],
@@ -4280,1996 +5450,6 @@
         {
           "stateMutability": "payable",
           "type": "receive"
-        }
-      ]
-    },
-    "ETSRelayerFactory": {
-      "address": "0x3347B4d90ebe72BeFb30444C9966B2B990aE9FcB",
-      "abi": [
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_etsRelayerLogic",
-              "type": "address"
-            },
-            {
-              "internalType": "contract IETSAccessControls",
-              "name": "_etsAccessControls",
-              "type": "address"
-            },
-            {
-              "internalType": "contract IETS",
-              "name": "_ets",
-              "type": "address"
-            },
-            {
-              "internalType": "contract IETSToken",
-              "name": "_etsToken",
-              "type": "address"
-            },
-            {
-              "internalType": "contract IETSTarget",
-              "name": "_etsTarget",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "constructor"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "name",
-              "type": "string"
-            }
-          ],
-          "name": "RelayerNameExists",
-          "type": "error"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "length",
-              "type": "uint256"
-            }
-          ],
-          "name": "RelayerNameTooLong",
-          "type": "error"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "length",
-              "type": "uint256"
-            }
-          ],
-          "name": "RelayerNameTooShort",
-          "type": "error"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "sender",
-              "type": "address"
-            }
-          ],
-          "name": "SenderOwnsRelayer",
-          "type": "error"
-        },
-        {
-          "inputs": [],
-          "name": "NAME",
-          "outputs": [
-            {
-              "internalType": "string",
-              "name": "",
-              "type": "string"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "_relayerName",
-              "type": "string"
-            }
-          ],
-          "name": "addRelayer",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "relayer",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "ets",
-          "outputs": [
-            {
-              "internalType": "contract IETS",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "etsAccessControls",
-          "outputs": [
-            {
-              "internalType": "contract IETSAccessControls",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "etsTarget",
-          "outputs": [
-            {
-              "internalType": "contract IETSTarget",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "etsToken",
-          "outputs": [
-            {
-              "internalType": "contract IETSToken",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "getBeacon",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "getImplementation",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        }
-      ]
-    },
-    "ETSTarget": {
-      "address": "0x07882Ae1ecB7429a84f1D53048d35c4bB2056877",
-      "abi": [
-        {
-          "inputs": [],
-          "stateMutability": "nonpayable",
-          "type": "constructor"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "caller",
-              "type": "address"
-            }
-          ],
-          "name": "AccessDenied",
-          "type": "error"
-        },
-        {
-          "inputs": [],
-          "name": "AddressCannotBeZero",
-          "type": "error"
-        },
-        {
-          "inputs": [],
-          "name": "BadAddress",
-          "type": "error"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "caller",
-              "type": "address"
-            }
-          ],
-          "name": "CallerNotAdminInNewContract",
-          "type": "error"
-        },
-        {
-          "inputs": [],
-          "name": "EmptyTarget",
-          "type": "error"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "targetURI",
-              "type": "string"
-            }
-          ],
-          "name": "TargetIdExists",
-          "type": "error"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "etsAccessControls",
-              "type": "address"
-            }
-          ],
-          "name": "AccessControlsSet",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "previousAdmin",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "newAdmin",
-              "type": "address"
-            }
-          ],
-          "name": "AdminChanged",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "beacon",
-              "type": "address"
-            }
-          ],
-          "name": "BeaconUpgraded",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "etsEnrichTarget",
-              "type": "address"
-            }
-          ],
-          "name": "EnrichTargetSet",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint8",
-              "name": "version",
-              "type": "uint8"
-            }
-          ],
-          "name": "Initialized",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "targetId",
-              "type": "uint256"
-            }
-          ],
-          "name": "TargetCreated",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "targetId",
-              "type": "uint256"
-            }
-          ],
-          "name": "TargetUpdated",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "implementation",
-              "type": "address"
-            }
-          ],
-          "name": "Upgraded",
-          "type": "event"
-        },
-        {
-          "inputs": [],
-          "name": "NAME",
-          "outputs": [
-            {
-              "internalType": "string",
-              "name": "",
-              "type": "string"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "VERSION",
-          "outputs": [
-            {
-              "internalType": "string",
-              "name": "",
-              "type": "string"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "_targetURI",
-              "type": "string"
-            }
-          ],
-          "name": "computeTargetId",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "pure",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "_targetURI",
-              "type": "string"
-            }
-          ],
-          "name": "createTarget",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "targetId",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "etsAccessControls",
-          "outputs": [
-            {
-              "internalType": "contract IETSAccessControls",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "etsEnrichTarget",
-          "outputs": [
-            {
-              "internalType": "contract IETSEnrichTarget",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "_targetURI",
-              "type": "string"
-            }
-          ],
-          "name": "getOrCreateTargetId",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "_targetId",
-              "type": "uint256"
-            }
-          ],
-          "name": "getTargetById",
-          "outputs": [
-            {
-              "components": [
-                {
-                  "internalType": "string",
-                  "name": "targetURI",
-                  "type": "string"
-                },
-                {
-                  "internalType": "address",
-                  "name": "createdBy",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "enriched",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "httpStatus",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "string",
-                  "name": "arweaveTxId",
-                  "type": "string"
-                }
-              ],
-              "internalType": "struct IETSTarget.Target",
-              "name": "",
-              "type": "tuple"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "_targetURI",
-              "type": "string"
-            }
-          ],
-          "name": "getTargetByURI",
-          "outputs": [
-            {
-              "components": [
-                {
-                  "internalType": "string",
-                  "name": "targetURI",
-                  "type": "string"
-                },
-                {
-                  "internalType": "address",
-                  "name": "createdBy",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "enriched",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "httpStatus",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "string",
-                  "name": "arweaveTxId",
-                  "type": "string"
-                }
-              ],
-              "internalType": "struct IETSTarget.Target",
-              "name": "",
-              "type": "tuple"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_etsAccessControls",
-              "type": "address"
-            }
-          ],
-          "name": "initialize",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "proxiableUUID",
-          "outputs": [
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "contract IETSAccessControls",
-              "name": "_accessControls",
-              "type": "address"
-            }
-          ],
-          "name": "setAccessControls",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_etsEnrichTarget",
-              "type": "address"
-            }
-          ],
-          "name": "setEnrichTarget",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "_targetId",
-              "type": "uint256"
-            }
-          ],
-          "name": "targetExistsById",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "_targetURI",
-              "type": "string"
-            }
-          ],
-          "name": "targetExistsByURI",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "name": "targets",
-          "outputs": [
-            {
-              "internalType": "string",
-              "name": "targetURI",
-              "type": "string"
-            },
-            {
-              "internalType": "address",
-              "name": "createdBy",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "enriched",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "httpStatus",
-              "type": "uint256"
-            },
-            {
-              "internalType": "string",
-              "name": "arweaveTxId",
-              "type": "string"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "_targetId",
-              "type": "uint256"
-            },
-            {
-              "internalType": "string",
-              "name": "_targetURI",
-              "type": "string"
-            },
-            {
-              "internalType": "uint256",
-              "name": "_enriched",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "_httpStatus",
-              "type": "uint256"
-            },
-            {
-              "internalType": "string",
-              "name": "_arweaveTxId",
-              "type": "string"
-            }
-          ],
-          "name": "updateTarget",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "success",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "newImplementation",
-              "type": "address"
-            }
-          ],
-          "name": "upgradeTo",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "newImplementation",
-              "type": "address"
-            },
-            {
-              "internalType": "bytes",
-              "name": "data",
-              "type": "bytes"
-            }
-          ],
-          "name": "upgradeToAndCall",
-          "outputs": [],
-          "stateMutability": "payable",
-          "type": "function"
-        }
-      ]
-    },
-    "ETSToken": {
-      "address": "0xD0141E899a65C95a556fE2B27e5982A6DE7fDD7A",
-      "abi": [
-        {
-          "inputs": [],
-          "stateMutability": "nonpayable",
-          "type": "constructor"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "caller",
-              "type": "address"
-            }
-          ],
-          "name": "AccessDenied",
-          "type": "error"
-        },
-        {
-          "inputs": [],
-          "name": "AddressCannotBeZero",
-          "type": "error"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "caller",
-              "type": "address"
-            }
-          ],
-          "name": "CallerIsNotETSCore",
-          "type": "error"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "caller",
-              "type": "address"
-            }
-          ],
-          "name": "CallerIsNotRelayer",
-          "type": "error"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "caller",
-              "type": "address"
-            }
-          ],
-          "name": "CallerNotAdminInNewContract",
-          "type": "error"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "length",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "minLength",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "maxLength",
-              "type": "uint256"
-            }
-          ],
-          "name": "InvalidTagFormat",
-          "type": "error"
-        },
-        {
-          "inputs": [],
-          "name": "SpacesInTag",
-          "type": "error"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "coinAddress",
-              "type": "address"
-            }
-          ],
-          "name": "TagAlreadyExists",
-          "type": "error"
-        },
-        {
-          "inputs": [],
-          "name": "TagContainsPrefix",
-          "type": "error"
-        },
-        {
-          "inputs": [],
-          "name": "TagMustStartWithHash",
-          "type": "error"
-        },
-        {
-          "inputs": [],
-          "name": "ZoraFactoryNotConfigured",
-          "type": "error"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "etsAccessControls",
-              "type": "address"
-            }
-          ],
-          "name": "AccessControlsSet",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "previousAdmin",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "newAdmin",
-              "type": "address"
-            }
-          ],
-          "name": "AdminChanged",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "beacon",
-              "type": "address"
-            }
-          ],
-          "name": "BeaconUpgraded",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "ets",
-              "type": "address"
-            }
-          ],
-          "name": "ETSCoreSet",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint8",
-              "name": "version",
-              "type": "uint8"
-            }
-          ],
-          "name": "Initialized",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "account",
-              "type": "address"
-            }
-          ],
-          "name": "Paused",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "coinAddress",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "string",
-              "name": "originalInput",
-              "type": "string"
-            },
-            {
-              "indexed": false,
-              "internalType": "string",
-              "name": "displayVersion",
-              "type": "string"
-            },
-            {
-              "indexed": false,
-              "internalType": "string",
-              "name": "machineName",
-              "type": "string"
-            },
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "creator",
-              "type": "address"
-            },
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "relayer",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "timestamp",
-              "type": "uint256"
-            }
-          ],
-          "name": "TagCreated",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "maxStringLength",
-              "type": "uint256"
-            }
-          ],
-          "name": "TagMaxStringLengthSet",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "minStringLength",
-              "type": "uint256"
-            }
-          ],
-          "name": "TagMinStringLengthSet",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "account",
-              "type": "address"
-            }
-          ],
-          "name": "Unpaused",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "implementation",
-              "type": "address"
-            }
-          ],
-          "name": "Upgraded",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "eoaAddress",
-              "type": "address"
-            }
-          ],
-          "name": "ZoraCreatorEOASet",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "factoryAddress",
-              "type": "address"
-            }
-          ],
-          "name": "ZoraFactoryAddressSet",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "referrerAddress",
-              "type": "address"
-            }
-          ],
-          "name": "ZoraPlatformReferrerSet",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "bytes",
-              "name": "poolConfig",
-              "type": "bytes"
-            }
-          ],
-          "name": "ZoraPoolConfigSet",
-          "type": "event"
-        },
-        {
-          "inputs": [],
-          "name": "NAME",
-          "outputs": [
-            {
-              "internalType": "string",
-              "name": "",
-              "type": "string"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "VERSION",
-          "outputs": [
-            {
-              "internalType": "string",
-              "name": "",
-              "type": "string"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "name": "coinAddressToTag",
-          "outputs": [
-            {
-              "internalType": "string",
-              "name": "originalInput",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "displayVersion",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "machineName",
-              "type": "string"
-            },
-            {
-              "internalType": "address",
-              "name": "coinAddress",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "creator",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "relayer",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "timestamp",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "_tag",
-              "type": "string"
-            }
-          ],
-          "name": "computeCoinAddress",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "_tag",
-              "type": "string"
-            },
-            {
-              "internalType": "address payable",
-              "name": "_relayer",
-              "type": "address"
-            },
-            {
-              "internalType": "address payable",
-              "name": "_creator",
-              "type": "address"
-            }
-          ],
-          "name": "createTag",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "coinAddress",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "payable",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "ets",
-          "outputs": [
-            {
-              "internalType": "contract IETS",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "etsAccessControls",
-          "outputs": [
-            {
-              "internalType": "contract IETSAccessControls",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "_tag",
-              "type": "string"
-            },
-            {
-              "internalType": "address payable",
-              "name": "_relayer",
-              "type": "address"
-            },
-            {
-              "internalType": "address payable",
-              "name": "_creator",
-              "type": "address"
-            }
-          ],
-          "name": "getOrCreateTag",
-          "outputs": [
-            {
-              "components": [
-                {
-                  "internalType": "string",
-                  "name": "originalInput",
-                  "type": "string"
-                },
-                {
-                  "internalType": "string",
-                  "name": "displayVersion",
-                  "type": "string"
-                },
-                {
-                  "internalType": "string",
-                  "name": "machineName",
-                  "type": "string"
-                },
-                {
-                  "internalType": "address",
-                  "name": "coinAddress",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "creator",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "relayer",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "timestamp",
-                  "type": "uint256"
-                }
-              ],
-              "internalType": "struct IETSToken.Tag",
-              "name": "tag",
-              "type": "tuple"
-            }
-          ],
-          "stateMutability": "payable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "_tag",
-              "type": "string"
-            },
-            {
-              "internalType": "address payable",
-              "name": "_relayer",
-              "type": "address"
-            },
-            {
-              "internalType": "address payable",
-              "name": "_creator",
-              "type": "address"
-            }
-          ],
-          "name": "getOrCreateTagId",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "coinAddress",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "payable",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "getPlatformAddress",
-          "outputs": [
-            {
-              "internalType": "address payable",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_coinAddress",
-              "type": "address"
-            }
-          ],
-          "name": "getTagByAddress",
-          "outputs": [
-            {
-              "components": [
-                {
-                  "internalType": "string",
-                  "name": "originalInput",
-                  "type": "string"
-                },
-                {
-                  "internalType": "string",
-                  "name": "displayVersion",
-                  "type": "string"
-                },
-                {
-                  "internalType": "string",
-                  "name": "machineName",
-                  "type": "string"
-                },
-                {
-                  "internalType": "address",
-                  "name": "coinAddress",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "creator",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "relayer",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "timestamp",
-                  "type": "uint256"
-                }
-              ],
-              "internalType": "struct IETSToken.Tag",
-              "name": "",
-              "type": "tuple"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "_tag",
-              "type": "string"
-            }
-          ],
-          "name": "getTagByString",
-          "outputs": [
-            {
-              "components": [
-                {
-                  "internalType": "string",
-                  "name": "originalInput",
-                  "type": "string"
-                },
-                {
-                  "internalType": "string",
-                  "name": "displayVersion",
-                  "type": "string"
-                },
-                {
-                  "internalType": "string",
-                  "name": "machineName",
-                  "type": "string"
-                },
-                {
-                  "internalType": "address",
-                  "name": "coinAddress",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "creator",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "relayer",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "timestamp",
-                  "type": "uint256"
-                }
-              ],
-              "internalType": "struct IETSToken.Tag",
-              "name": "",
-              "type": "tuple"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "contract IETSAccessControls",
-              "name": "_etsAccessControls",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "_tagMinStringLength",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "_tagMaxStringLength",
-              "type": "uint256"
-            },
-            {
-              "internalType": "address",
-              "name": "_zoraFactoryAddress",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "_zoraCreatorEOA",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "_zoraPlatformReferrer",
-              "type": "address"
-            },
-            {
-              "internalType": "bytes",
-              "name": "_zoraPoolConfig",
-              "type": "bytes"
-            }
-          ],
-          "name": "initialize",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "name": "machineNameHashToCoinAddress",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "pause",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "paused",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "proxiableUUID",
-          "outputs": [
-            {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "contract IETSAccessControls",
-              "name": "_accessControls",
-              "type": "address"
-            }
-          ],
-          "name": "setAccessControls",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "contract IETS",
-              "name": "_ets",
-              "type": "address"
-            }
-          ],
-          "name": "setETSCore",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "_tagMaxStringLength",
-              "type": "uint256"
-            }
-          ],
-          "name": "setTagMaxStringLength",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "_tagMinStringLength",
-              "type": "uint256"
-            }
-          ],
-          "name": "setTagMinStringLength",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_eoaAddress",
-              "type": "address"
-            }
-          ],
-          "name": "setZoraCreatorEOA",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_factoryAddress",
-              "type": "address"
-            }
-          ],
-          "name": "setZoraFactoryAddress",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_referrerAddress",
-              "type": "address"
-            }
-          ],
-          "name": "setZoraPlatformReferrer",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes",
-              "name": "_poolConfig",
-              "type": "bytes"
-            }
-          ],
-          "name": "setZoraPoolConfig",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_coinAddress",
-              "type": "address"
-            }
-          ],
-          "name": "tagExistsByAddress",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "_tag",
-              "type": "string"
-            }
-          ],
-          "name": "tagExistsByString",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "tagMaxStringLength",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "tagMinStringLength",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "unPause",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "newImplementation",
-              "type": "address"
-            }
-          ],
-          "name": "upgradeTo",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "newImplementation",
-              "type": "address"
-            },
-            {
-              "internalType": "bytes",
-              "name": "data",
-              "type": "bytes"
-            }
-          ],
-          "name": "upgradeToAndCall",
-          "outputs": [],
-          "stateMutability": "payable",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "zoraCreatorEOA",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "zoraFactoryAddress",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "zoraPlatformReferrer",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "zoraPoolConfig",
-          "outputs": [
-            {
-              "internalType": "bytes",
-              "name": "",
-              "type": "bytes"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        }
-      ]
-    },
-    "MockZoraFactory": {
-      "address": "0x5c74c94173F05dA1720953407cbb920F3DF9f887",
-      "abi": [
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "coin",
-              "type": "address"
-            },
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "msgSender",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "string",
-              "name": "name",
-              "type": "string"
-            },
-            {
-              "indexed": false,
-              "internalType": "string",
-              "name": "symbol",
-              "type": "string"
-            },
-            {
-              "indexed": false,
-              "internalType": "bytes",
-              "name": "poolConfig",
-              "type": "bytes"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "platformReferrer",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "bytes32",
-              "name": "coinSalt",
-              "type": "bytes32"
-            }
-          ],
-          "name": "CoinCreatedV4",
-          "type": "event"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "msgSender",
-              "type": "address"
-            },
-            {
-              "internalType": "string",
-              "name": "name",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "symbol",
-              "type": "string"
-            },
-            {
-              "internalType": "bytes",
-              "name": "poolConfig",
-              "type": "bytes"
-            },
-            {
-              "internalType": "address",
-              "name": "platformReferrer",
-              "type": "address"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "coinSalt",
-              "type": "bytes32"
-            }
-          ],
-          "name": "coinAddress",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            },
-            {
-              "internalType": "address[]",
-              "name": "",
-              "type": "address[]"
-            },
-            {
-              "internalType": "string",
-              "name": "",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "name",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "symbol",
-              "type": "string"
-            },
-            {
-              "internalType": "bytes",
-              "name": "poolConfig",
-              "type": "bytes"
-            },
-            {
-              "internalType": "address",
-              "name": "platformReferrer",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            },
-            {
-              "internalType": "bytes",
-              "name": "",
-              "type": "bytes"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "coinSalt",
-              "type": "bytes32"
-            }
-          ],
-          "name": "deploy",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "coin",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "function"
         }
       ]
     }

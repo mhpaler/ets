@@ -5,7 +5,7 @@ import { localhost } from "viem/chains";
 
 task(
   "removeTags",
-  'Remove tags from a tagging record. eg: hardhat removeTags --tags "#USDC,#Solana" --uri "https://google.com" --recordType "bookmark" --relayer "ETSRelayer" --network localhost'
+  'Remove tags from a tagging record. eg: hardhat removeTags --tags "#USDC,#Solana" --uri "https://google.com" --recordType "bookmark" --relayer "ETSRelayer" --network localhost',
 )
   .addParam("uri", 'URI being tagged eg. --uri "https://google.com"')
   .addParam("tags", 'Hashtags to remove, separated by commas. eg. --tags "#USDC,#Solana"')
@@ -28,14 +28,7 @@ task(
 
     // Environment-specific logic
     if (hre.network.name === "localhost") {
-      await removeTagsLocal(
-        taskArgs.uri,
-        tags,
-        taskArgs.relayer,
-        taskArgs.recordType,
-        taskArgs.signer,
-        hre
-      );
+      await removeTagsLocal(taskArgs.uri, tags, taskArgs.relayer, taskArgs.recordType, taskArgs.signer, hre);
     } else {
       await provideProductionGuidance(taskArgs.uri, tags, taskArgs.recordType, hre.network.name);
     }
@@ -47,7 +40,7 @@ async function removeTagsLocal(
   relayerName: string,
   recordType: string,
   signerName: string,
-  hre: any
+  hre: any,
 ) {
   console.log("🏠 LOCAL ENVIRONMENT DETECTED");
   console.log("=====================================\n");
@@ -173,13 +166,13 @@ async function removeTagsLocal(
 
     // 5. Check which tags are currently in the record
     console.log("\n5. Verifying tags to remove...");
-    
+
     // Get current tags in the record (we'll need to query the record details)
     try {
       // Note: This would require a view function to get current tags in a record
       // For now, we'll proceed with the assumption that the tags exist
       console.log("   📝 Preparing to remove tags:", tags.join(", "));
-    } catch (error: any) {
+    } catch (_error: any) {
       console.log("   ⚠️  Cannot verify current tags in record");
       console.log("   💡 Proceeding with removal attempt...");
     }
@@ -220,10 +213,10 @@ async function removeTagsLocal(
       console.log("   ⛽ Gas used:", receipt.gasUsed.toString());
 
       console.log("\n7. Validating tag removal...");
-      
+
       // Verify the record still exists (unless all tags were removed)
       const recordStillExists = await ets.read.taggingRecordExists([taggingRecordId]);
-      
+
       if (recordStillExists) {
         console.log(`   ✅ Tags removed successfully from record: ${taggingRecordId}`);
         console.log("   📊 Record still contains other tags");
@@ -237,7 +230,6 @@ async function removeTagsLocal(
       console.log(`   • Removed ${tags.length} tags from the record`);
       console.log("   • Events emitted for subgraph indexing");
       console.log("   • Gas fees paid for the operation");
-
     } catch (error: any) {
       console.log("   ❌ Transaction failed:", error.message);
 

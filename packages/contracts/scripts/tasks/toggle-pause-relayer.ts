@@ -5,7 +5,7 @@ import { localhost } from "viem/chains";
 
 task(
   "togglePauseRelayerByOwner",
-  'Toggle pause state of a relayer (owner only). eg: hardhat togglePauseRelayerByOwner --relayer "MyRelayer" --signer account0 --network localhost'
+  'Toggle pause state of a relayer (owner only). eg: hardhat togglePauseRelayerByOwner --relayer "MyRelayer" --signer account0 --network localhost',
 )
   .addParam("relayer", "Relayer name to toggle pause state")
   .addOptionalParam("signer", "Relayer owner signer (account0, account1, etc)", "account0")
@@ -101,7 +101,7 @@ async function togglePauseRelayerLocal(relayerName: string, signerName: string, 
 
     try {
       const relayerAddress = (await etsAccessControls.read.getRelayerAddressFromName([relayerName])) as Address;
-      
+
       // Check if relayer exists by name (this works even if paused)
       const existsByName = await etsAccessControls.read.isRelayerByName([relayerName]);
       if (!existsByName) {
@@ -110,10 +110,10 @@ async function togglePauseRelayerLocal(relayerName: string, signerName: string, 
         console.log("      hardhat addRelayer --name", relayerName, "--network localhost");
         return;
       }
-      
+
       console.log("   ✅ Relayer exists");
       console.log("   📍 Relayer address:", relayerAddress);
-      
+
       // Note: isRelayer() returns false for paused relayers, but we can still toggle their pause state
       const isRelayer = await etsAccessControls.read.isRelayer([relayerAddress]);
       console.log("   📊 Active status (isRelayer):", isRelayer);
@@ -133,8 +133,7 @@ async function togglePauseRelayerLocal(relayerName: string, signerName: string, 
       console.log("   👤 Current signer:", account.address);
       console.log("   🔑 Is relayer admin:", isRelayerAdmin);
 
-      const canPause = 
-        currentOwner.toLowerCase() === account.address.toLowerCase() || isRelayerAdmin;
+      const canPause = currentOwner.toLowerCase() === account.address.toLowerCase() || isRelayerAdmin;
 
       if (!canPause) {
         console.log("   ❌ Signer cannot pause/unpause this relayer");
@@ -146,10 +145,9 @@ async function togglePauseRelayerLocal(relayerName: string, signerName: string, 
       // Check current pause state
       const currentPauseState = await etsRelayer.read.paused();
       const isActive = await etsAccessControls.read.isRelayerAndNotPaused([relayerAddress]);
-      
+
       console.log("   ⏸️  Current pause state:", currentPauseState ? "PAUSED" : "ACTIVE");
       console.log("   ✅ Is active (registered + not paused):", isActive);
-
     } catch (error: any) {
       console.log("   ❌ Failed to check relayer:", error.message);
       return;
@@ -170,7 +168,7 @@ async function togglePauseRelayerLocal(relayerName: string, signerName: string, 
       // Get current state to determine which action to take
       const currentPauseState = await etsRelayerWithWallet.read.paused();
       const action = currentPauseState ? "unpause" : "pause";
-      
+
       console.log(`   🎯 Action: ${action.toUpperCase()} relayer`);
 
       // Simulate transaction first
@@ -183,7 +181,7 @@ async function togglePauseRelayerLocal(relayerName: string, signerName: string, 
       console.log("   ✅ Simulation successful, executing transaction...");
 
       // Execute the appropriate function
-      const txHash = currentPauseState 
+      const txHash = currentPauseState
         ? await etsRelayerWithWallet.write.unpause()
         : await etsRelayerWithWallet.write.pause();
 
@@ -202,7 +200,7 @@ async function togglePauseRelayerLocal(relayerName: string, signerName: string, 
 
       const newPauseState = await etsRelayerWithWallet.read.paused();
       const newIsActive = await etsAccessControls.read.isRelayerAndNotPaused([relayerAddress]);
-      
+
       if (newPauseState !== currentPauseState) {
         console.log("   ✅ Pause state changed successfully!");
         console.log(`   ⏸️  New pause state: ${newPauseState ? "PAUSED" : "ACTIVE"}`);
@@ -219,7 +217,6 @@ async function togglePauseRelayerLocal(relayerName: string, signerName: string, 
           console.log("      • Can create new tags");
           console.log("      • Fully operational for users");
         }
-
       } else {
         console.log("   ❌ Pause state verification failed");
         console.log("   Expected change from:", currentPauseState);
@@ -233,7 +230,6 @@ async function togglePauseRelayerLocal(relayerName: string, signerName: string, 
       console.log(`   Operator: ${account.address}`);
       console.log(`   Transaction: ${txHash}`);
       console.log(`   Final state: ${newPauseState ? "PAUSED" : "ACTIVE"}`);
-
     } catch (error: any) {
       console.log("   ❌ Transaction failed:", error.message);
 
@@ -245,13 +241,12 @@ async function togglePauseRelayerLocal(relayerName: string, signerName: string, 
         console.log("   💡 Check current pause state and permissions");
       }
     }
-
   } catch (error: any) {
     console.log("❌ Error:", error.message);
   }
 }
 
-async function provideProductionGuidance(relayerName: string, networkName: string) {
+async function provideProductionGuidance(_relayerName: string, networkName: string) {
   console.log("🌐 PRODUCTION/STAGING ENVIRONMENT");
   console.log("===================================\n");
 

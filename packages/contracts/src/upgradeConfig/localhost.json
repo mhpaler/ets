@@ -1,78 +1,78 @@
 {
   "contracts": {
     "ETSAccessControls": {
-      "address": "0x34B40BA116d5Dec75548a9e9A8f15411461E8c70",
-      "implementation": "0xf953b3A269d80e3eB0F2947630Da976B896A8C5b",
-      "deploymentBlock": 65737,
+      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      "implementation": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "deploymentBlock": 5,
       "upgradeHistory": [
         {
-          "block": 65737,
-          "implementation": "0xf953b3A269d80e3eB0F2947630Da976B896A8C5b"
+          "block": 5,
+          "implementation": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
         }
       ]
     },
     "ETSToken": {
-      "address": "0xD0141E899a65C95a556fE2B27e5982A6DE7fDD7A",
-      "implementation": "0x720472c8ce72c2A2D711333e064ABD3E6BbEAdd3",
-      "deploymentBlock": 65738,
+      "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+      "implementation": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+      "deploymentBlock": 9,
       "upgradeHistory": [
         {
-          "block": 65738,
-          "implementation": "0x720472c8ce72c2A2D711333e064ABD3E6BbEAdd3"
+          "block": 9,
+          "implementation": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
         }
       ]
     },
     "ETSTarget": {
-      "address": "0x07882Ae1ecB7429a84f1D53048d35c4bB2056877",
-      "implementation": "0x5067457698Fd6Fa1C6964e416b3f42713513B3dD",
-      "deploymentBlock": 65739,
+      "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+      "implementation": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+      "deploymentBlock": 11,
       "upgradeHistory": [
         {
-          "block": 65739,
-          "implementation": "0x5067457698Fd6Fa1C6964e416b3f42713513B3dD"
+          "block": 11,
+          "implementation": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"
         }
       ]
     },
     "ETSEnrichTarget": {
-      "address": "0x22753E4264FDDc6181dc7cce468904A80a363E44",
-      "implementation": "0xCace1b78160AE76398F486c8a18044da0d66d86D",
-      "deploymentBlock": 65740,
+      "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+      "implementation": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+      "deploymentBlock": 13,
       "upgradeHistory": [
         {
-          "block": 65740,
-          "implementation": "0xCace1b78160AE76398F486c8a18044da0d66d86D"
+          "block": 13,
+          "implementation": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"
         }
       ]
     },
     "ETS": {
-      "address": "0xfaAddC93baf78e89DCf37bA67943E1bE8F37Bb8c",
-      "implementation": "0xA7c59f010700930003b33aB25a7a0679C860f29c",
-      "deploymentBlock": 65742,
+      "address": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
+      "implementation": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
+      "deploymentBlock": 15,
       "upgradeHistory": [
         {
-          "block": 65742,
-          "implementation": "0xA7c59f010700930003b33aB25a7a0679C860f29c"
+          "block": 15,
+          "implementation": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318"
         }
       ]
     },
     "ETSRelayer": {
-      "address": "0x276C216D241856199A83bf27b2286659e5b877D3",
-      "implementation": "0x276C216D241856199A83bf27b2286659e5b877D3",
-      "deploymentBlock": 65743,
+      "address": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
+      "implementation": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
+      "deploymentBlock": 16,
       "upgradeHistory": [
         {
-          "block": 65743,
-          "implementation": "0x276C216D241856199A83bf27b2286659e5b877D3"
+          "block": 16,
+          "implementation": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e"
         }
       ]
     },
     "ETSRelayerFactory": {
-      "address": "0x3347B4d90ebe72BeFb30444C9966B2B990aE9FcB",
+      "address": "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
       "implementation": null,
-      "deploymentBlock": 65744,
+      "deploymentBlock": 17,
       "upgradeHistory": [
         {
-          "block": 65744,
+          "block": 17,
           "implementation": null
         }
       ]

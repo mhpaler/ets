@@ -5,7 +5,7 @@ import { localhost } from "viem/chains";
 
 task(
   "applyTags",
-  'Tag a URI with hashtags. eg: hardhat applyTags --tags "#USDC,#Solana" --uri "https://google.com" --recordType "bookmark" --relayer "ETSRelayer" --network localhost'
+  'Tag a URI with hashtags. eg: hardhat applyTags --tags "#USDC,#Solana" --uri "https://google.com" --recordType "bookmark" --relayer "ETSRelayer" --network localhost',
 )
   .addParam("uri", 'URI being tagged eg. --uri "https://google.com"')
   .addParam("tags", 'Hashtags separated by commas. eg. --tags "#USDC,#Solana"')
@@ -37,7 +37,7 @@ task(
         taskArgs.recordType,
         taskArgs.signer,
         taskArgs.enrich === "true",
-        hre
+        hre,
       );
     } else {
       await provideProductionGuidance(taskArgs.uri, tags, taskArgs.recordType, hre.network.name);
@@ -51,7 +51,7 @@ async function applyTagsLocal(
   recordType: string,
   signerName: string,
   enrich: boolean,
-  hre: any
+  hre: any,
 ) {
   console.log("🏠 LOCAL ENVIRONMENT DETECTED");
   console.log("=====================================\n");
@@ -168,7 +168,7 @@ async function applyTagsLocal(
 
         const createTxHash = await etsRelayerForTagCreation.write.getOrCreateTagIds([missingTags]);
         console.log("   📤 Tag creation transaction sent:", createTxHash);
-        
+
         const createReceipt = await publicClient.waitForTransactionReceipt({
           hash: createTxHash,
           confirmations: 1,
@@ -268,7 +268,6 @@ async function applyTagsLocal(
       console.log("\n💡 Query your tagging record:");
       console.log(`   Record ID: ${taggingRecordId}`);
       console.log("   Use subgraph or contract view functions");
-
     } catch (error: any) {
       console.log("   ❌ Transaction failed:", error.message);
 

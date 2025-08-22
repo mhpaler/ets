@@ -81,9 +81,8 @@ describe("Target Enrichment Integration", function () {
       console.error("\n💥 Required services are not running!");
       console.error("📋 Failed services:", failedServices.join(", "));
       console.error("\n💡 To start all required services, run:");
-      console.error("   ./scripts/start-core-stack.sh");
-      console.error("   npx arlocal  # (in separate terminal)");
-      console.error("\nNote: start-core-stack.sh includes Hardhat, Offchain API, and Event Processor");
+      console.error("   ./scripts/start-local-stack.sh --core");
+      console.error("\nNote: Core mode includes Hardhat, Subgraph, Offchain API, Event Processor, and ArLocal");
       this.skip();
       return;
     }
@@ -147,20 +146,20 @@ describe("Target Enrichment Integration", function () {
       return;
     }
 
-    // 6. Verify Event Processor is running (started by start-core-stack.sh)
+    // 6. Verify Event Processor is running (started by start-local-stack.sh --core)
     await verifyEventProcessor();
   });
 
   after("Cleanup", async () => {
-    // Event processor is managed by start-core-stack.sh, no cleanup needed
+    // Event processor is managed by start-local-stack.sh --core, no cleanup needed
     console.log("\n✅ Test cleanup complete");
-    console.log("💡 Event processor and other services managed by start-core-stack.sh");
+    console.log("💡 Event processor and other services managed by start-local-stack.sh --core");
   });
 
   async function verifyEventProcessor() {
     console.log("🔍 Verifying Event Processor is running...");
 
-    // Since start-core-stack.sh starts the event processor, we just verify it's working
+    // Since start-local-stack.sh --core starts the event processor, we just verify it's working
     // by checking if it can connect to required services and has proper configuration
     try {
       // The event processor should be running and watching for events
@@ -176,7 +175,7 @@ describe("Target Enrichment Integration", function () {
       }
     } catch (error) {
       console.error("❌ Event Processor verification failed:", error.message);
-      console.error("   Make sure start-core-stack.sh completed successfully");
+      console.error("   Make sure start-local-stack.sh --core completed successfully");
       throw error;
     }
   }

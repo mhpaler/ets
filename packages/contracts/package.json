@@ -61,7 +61,7 @@
   "scripts": {
     "build": "pnpm build:package",
     "build:contracts": "pnpm compile",
-    "build:package": "scripts/build-package.sh",
+    "build:package": "scripts/build/build-package.sh",
     "clean": "rm -rf dist",
     "compile": "hardhat clean && hardhat compile",
     "coverage": "hardhat coverage",

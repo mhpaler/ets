@@ -22,11 +22,38 @@ export interface ZoraCoinCreationResponse {
   error?: string;
 }
 
+export interface TargetCreatedEvent {
+  targetId: bigint;
+  blockNumber: bigint;
+  transactionHash: string;
+}
+
+export interface TargetEnrichmentRequest {
+  targetId: string;
+  chainId: number;
+}
+
+export interface TargetEnrichmentResponse {
+  success: boolean;
+  txId?: string;
+  httpStatus?: number;
+  error?: string;
+}
+
+export interface EnrichTargetRequestedEvent {
+  targetId: bigint;
+  requestor: string;
+  blockNumber: bigint;
+  transactionHash: string;
+}
+
 export interface EventProcessorConfig {
-  environment: "staging" | "production" | "development";
+  environment: "staging" | "production" | "development" | "localhost";
   chainId: number;
   rpcUrl: string;
   etsTokenAddress: string;
+  etsTargetAddress: string;
+  etsEnrichTargetAddress: string;
   subgraphUrl: string;
   offchainApiUrl: string;
   offchainApiKey?: string;

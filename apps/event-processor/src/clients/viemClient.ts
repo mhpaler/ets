@@ -40,7 +40,29 @@ export const etsTokenAbi = parseAbi([
   "event TagCreated(address indexed coinAddress, string originalInput, string displayVersion, string machineName, address indexed creator, address indexed relayer, uint256 timestamp)",
 ]);
 
+// ETSTarget ABI for TargetCreated event and functions
+export const etsTargetAbi = parseAbi([
+  "event TargetCreated(uint256 indexed targetId)",
+  "function getTargetById(uint256 _targetId) view returns (string targetURI, address createdBy, uint256 enriched, uint256 httpStatus, string arweaveTxId)",
+  "function updateTarget(uint256 _targetId, string calldata _targetURI, uint256 _enriched, uint256 _httpStatus, string calldata _arweaveTxId) external returns (bool success)",
+]);
+
+// ETSEnrichTarget ABI for EnrichTargetRequested event
+export const etsEnrichTargetAbi = parseAbi([
+  "event EnrichTargetRequested(uint256 indexed targetId, address indexed requestor)",
+]);
+
 export const tagCreatedEvent = {
   address: config.etsTokenAddress as `0x${string}`,
   event: etsTokenAbi[0], // TagCreated event
+} as const;
+
+export const targetCreatedEvent = {
+  address: config.etsTargetAddress as `0x${string}`,
+  event: etsTargetAbi[0], // TargetCreated event
+} as const;
+
+export const enrichTargetRequestedEvent = {
+  address: config.etsEnrichTargetAddress as `0x${string}`,
+  event: etsEnrichTargetAbi[0], // EnrichTargetRequested event
 } as const;
