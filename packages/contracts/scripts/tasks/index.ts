@@ -13,6 +13,9 @@ import "./toggle-pause-relayer";
 // TAG operations (Zora coin integration)
 import "./create-tags";
 
+// Target operations (for testing enrichment pipeline)
+import "./create-target";
+
 // Tagging operations (address-based TAG architecture)
 import "./apply-tags";
 import "./remove-tags";

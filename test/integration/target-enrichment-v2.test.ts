@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, test } from "bun:test";
 import { etsAccessControlsAbi, etsEnrichTargetAbi, etsTargetAbi } from "@ethereum-tag-service/contracts/contracts";
 import axios from "axios";
 import { expect } from "chai";
@@ -5,7 +6,6 @@ import { http, type Address, type Hash, createPublicClient, createWalletClient }
 import { mnemonicToAccount } from "viem/accounts";
 import { localhost } from "viem/chains";
 import { keccak256, toBytes, toHex } from "viem/utils";
-import { describe, beforeAll, afterAll, beforeEach, test } from "bun:test";
 
 /**
  * Target Enrichment Integration Test v2
@@ -428,12 +428,14 @@ describe("Target Enrichment Integration v2", () => {
     test("should automatically enrich a newly created target", async () => {
       // COMMENTED OUT FOR ENVIRONMENT DETECTION TESTING
       // This test validates the complete target enrichment pipeline
-      
+
       if (!walletClient || !contracts.ETSTarget) {
         throw new Error("Wallet client or ETSTarget contract not initialized");
       }
 
-      const targetURI = "https://www.ethereum.org/en/developers/";
+      // Use a unique URL with timestamp to avoid collisions
+      const timestamp = Date.now();
+      const targetURI = `https://www.ethereum.org/en/developers/?test=${timestamp}`;
 
       console.log(`\n🎯 Creating target: ${targetURI}`);
 
@@ -441,13 +443,38 @@ describe("Target Enrichment Integration v2", () => {
       const targetId = keccak256(toBytes(targetURI));
       console.log(`🔢 Target ID: ${targetId}`);
 
-      // Create target
-      const txHash = await walletClient.writeContract({
-        address: contracts.ETSTarget.address,
-        abi: contracts.ETSTarget.abi,
-        functionName: "createTarget",
-        args: [targetURI],
-      });
+      // Check if target already exists
+      let targetExists = false;
+      try {
+        const existingTarget = await publicClient.readContract({
+          address: contracts.ETSTarget.address,
+          abi: contracts.ETSTarget.abi,
+          functionName: "getTargetById",
+          args: [targetId],
+        });
+
+        if (existingTarget[0] === targetURI) {
+          console.log("⚠️  Target already exists, skipping creation");
+          targetExists = true;
+        }
+      } catch (_e) {
+        // Target doesn't exist, proceed with creation
+        console.log("✅ Target does not exist, creating new target");
+      }
+
+      let txHash: Hash;
+      if (!targetExists) {
+        // Create target
+        txHash = await walletClient.writeContract({
+          address: contracts.ETSTarget.address,
+          abi: contracts.ETSTarget.abi,
+          functionName: "createTarget",
+          args: [targetURI],
+        });
+      } else {
+        // Use a dummy hash for existing target
+        txHash = "0x0000000000000000000000000000000000000000000000000000000000000000" as Hash;
+      }
 
       console.log(`📝 Transaction: ${txHash}`);
 
