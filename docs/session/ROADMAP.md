@@ -15,8 +15,8 @@ current_issue_id: #529.5
 current_status: IN_PROGRESS
 completion_percent: 97
 blocking_bug: "Event Processor wallet client configuration issue"
-exact_task: "Fix wallet client availability for on-chain target updates"
-resume_action: "Configure Event Processor wallet client for ETSTarget.updateTarget() calls"
+exact_task: "Configure Event Processor wallet client for ETSTarget.updateTarget() calls"
+resume_action: "Check viemClient.ts wallet configuration and PRIVATE_KEY environment variable setup"
 ```
 
 ## CRITICAL_PATH

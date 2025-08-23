@@ -68,7 +68,7 @@ Based on file changes, intelligently decide whether to link issues:
 
 ## Template Response
 
-**Claude's Response to `/commit`:**
+**Claude's Response to `/ets-commit`:**
 
 ```
 📝 **Analyzing Changes for Smart Commit**

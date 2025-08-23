@@ -26,7 +26,7 @@ When you need to step away from a session, follow these steps to maintain contex
 - Add "Resume Guidance" section for next session
 - If triggered by pre-compression, add compression recovery notes
 
-### 3. **Execute /commit Command**
+### 3. **Execute /ets-commit Command**
 
 - This will automatically:
   - Analyze all changes
@@ -44,10 +44,10 @@ When you need to step away from a session, follow these steps to maintain contex
 ## Execution Flow
 
 ```
-/steppingaway triggers:
+/ets-steppingaway triggers:
   1. Update ROADMAP.md ACTIVE_WORK
   2. Create SESSION-STATUS.md with session details
-  3. Run /commit (which handles git operations)
+  3. Run /ets-commit (which handles git operations)
   4. Confirm completion
 ```
 
@@ -90,7 +90,7 @@ resume_action: "Debug why Event Processor parses targetId=0 instead of actual ha
 
 ## Benefits
 
-1. **Single Command** - Just run /steppingaway and everything is handled
-2. **No Duplication** - Reuses /commit logic instead of duplicating
+1. **Single Command** - Just run /ets-steppingaway and everything is handled
+2. **No Duplication** - Reuses /ets-commit logic instead of duplicating
 3. **Consistent State** - ROADMAP and git commits always stay in sync
 4. **Complete Handoff** - All context preserved for next session

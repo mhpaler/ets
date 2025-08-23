@@ -5,7 +5,7 @@ Automatic safety system that runs before compression to preserve project context
 ## Safety Protocol
 
 When compression is imminent, this command automatically:
-1. **Preserves Current Work State** via /steppingaway 
+1. **Preserves Current Work State** via /ets-steppingaway 
 2. **Commits All Progress** to git history
 3. **Updates Project Context** in permanent files
 4. **Signals Ready for Compression**
@@ -20,10 +20,10 @@ When compression is imminent, this command automatically:
 ### 2. **Execute Full State Preservation**
 ```
 /pre-compress triggers:
-  1. Run /steppingaway workflow:
+  1. Run /ets-steppingaway workflow:
      - Update ROADMAP.md ACTIVE_WORK
      - Create/update SESSION-STATUS.md
-     - Execute /commit (with dependency analysis)
+     - Execute /ets-commit (with dependency analysis)
   2. Add compression marker to SESSION-STATUS.md
   3. Create recovery instructions for post-compression
 ```
@@ -33,7 +33,7 @@ After pre-compress completes:
 - All work committed to git
 - ROADMAP.md reflects exact current state
 - SESSION-STATUS.md has detailed context
-- Recovery path documented for /resumework
+- Recovery path documented for /ets-resumework
 
 ## Recovery Instructions Added to SESSION-STATUS.md
 
@@ -49,7 +49,7 @@ After pre-compress completes:
 - **Files Modified**: [list of uncommitted files if any]
 
 ### Resume Instructions:
-1. Run /resumework (should pick up from ROADMAP.md)
+1. Run /ets-resumework (should pick up from ROADMAP.md)
 2. Review this section for any debugging insights
 3. Continue from exact_task in ROADMAP.md ACTIVE_WORK
 ```
@@ -66,16 +66,16 @@ The pre-compress system should activate when:
 
 1. **Zero Context Loss** - All state preserved before compression
 2. **Automatic Safety** - No manual intervention required
-3. **Perfect Recovery** - /resumework works seamlessly post-compression
+3. **Perfect Recovery** - /ets-resumework works seamlessly post-compression
 4. **Debugging Continuity** - In-progress insights preserved
 5. **Git History Intact** - All work committed with proper messages
 
 ## Integration with Existing Commands
 
 ```yaml
-/steppingaway: Enhanced to add compression markers
-/commit: Enhanced to detect pre-compression context
-/resumework: Enhanced to handle post-compression recovery
+/ets-steppingaway: Enhanced to add compression markers
+/ets-commit: Enhanced to detect pre-compression context
+/ets-resumework: Enhanced to handle post-compression recovery
 /mapcheck: Shows if session was compressed recently
 ```
 
@@ -92,9 +92,9 @@ Current work: #529.5 - Fix targetId parsing [95%]
 🔄 **Preserving State**
 ✅ Updated ROADMAP.md ACTIVE_WORK
 ✅ Created SESSION-STATUS.md with debugging context  
-✅ Executed /commit with dependency analysis
+✅ Executed /ets-commit with dependency analysis
 ✅ Added compression recovery notes
 
 🎯 **Ready for Compression**
-All project context preserved. Post-compression recovery available via /resumework.
+All project context preserved. Post-compression recovery available via /ets-resumework.
 ```

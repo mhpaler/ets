@@ -18,15 +18,15 @@ When resuming work from a previous session, this command:
 - Review SESSION-STATUS.md "Resume Guidance" section
 - Parse completion percentage and exact task location
 
-### 3. **Ready to Proceed**
+### 3. **Check with User Before Proceeding**
 
 - Summarize current state in 2-3 sentences
 - State the immediate next action from `resume_action`
-- Begin work without asking further questions
+- **Ask user to confirm before starting work**: "Should I proceed with this task?"
 
 ## Template Response
 
-**Claude's Response to `/resumework`:**
+**Claude's Response to `/ets-resumework`:**
 
 ```
 📋 **Resuming #[Issue].[Sub]: [exact_task from ROADMAP] [X% complete]**
@@ -35,13 +35,13 @@ Current state: [current_status from ROADMAP + blocking issue if any]
 
 Immediate next step: [resume_action from ROADMAP.md]
 
-[Proceeds with the work immediately]
+Should I proceed with this task?
 ```
 
 ## Benefits
 
 1. **Zero Context Switching Time** - ROADMAP.md has exact task state
-2. **No Redundant Questions** - Don't ask what to work on
+2. **User Control** - Confirms task before starting work
 3. **Picks Up Exactly Where Left Off** - Uses the documented resume_action
 4. **Consistent Experience** - Same pattern every time
 5. **Machine-Optimized** - YAML structure in ROADMAP for easy parsing
