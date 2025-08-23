@@ -11,32 +11,33 @@ last_updated: 2025-08-23
 
 ## ACTIVE_WORK
 ```yaml
-current_issue_id: #529.5
-current_status: IN_PROGRESS
-completion_percent: 97
-blocking_bug: "Event Processor wallet client configuration issue"
-exact_task: "Configure Event Processor wallet client for ETSTarget.updateTarget() calls"
-resume_action: "Check viemClient.ts wallet configuration and PRIVATE_KEY environment variable setup"
+current_issue_id: #536
+current_status: PLANNED
+completion_percent: 0
+exact_task: "Temporal Workflow Migration Epic - Architecture discussion completed"
+next_priority: "#536.1 - Temporal Infrastructure Setup"
+resume_action: "Begin Temporal infrastructure setup: create apps/temporal-processor service structure"
+transition_note: "EPIC #536 created with 4 sub-issues, replacing Event Processor with Temporal workflows"
+architectural_decision: "Dual event listening: Blockchain → Temporal (workflows) + Subgraph (indexing)"
 ```
 
 ## CRITICAL_PATH
 ```yaml
 priority_chain:
-  - id: #529.5
-    blocks: ["#535.1", "#535.2", "#532", "#533"]
-    reason: "Core integration must work before any hardening or production features"
-    
-  - id: #535.1
-    blocks: ["#532"]
-    reason: "Production logging required before EOA management"
+  - id: #536
+    blocks: ["#532", "#533"]
+    reason: "Temporal migration must complete before EOA management and creator allocations"
+    estimated_duration: "2-3 weeks"
     
   - id: #532
     blocks: ["#533"]
     reason: "Secure EOA management required for creator allocations"
+    estimated_duration: "1 week"
 
-current_bottleneck: #529.5
-next_unblocked: []  # Nothing can proceed until #529.5 is complete
-estimated_path_duration: "2-3 weeks"
+current_bottleneck: #536
+next_unblocked: ["#536.1"]  # Temporal setup can begin immediately
+estimated_path_duration: "3-4 weeks total"
+architecture_change: "Event Processor → Temporal Workflows (operational simplification)"
 ```
 
 ## DEPENDENCIES
@@ -67,6 +68,16 @@ technical_dependencies:
     last_success: 2025-08-22
 
 architectural_decisions:
+  - date: 2025-08-23
+    decision: "Temporal Workflow Migration (EPIC #536)"
+    impact:
+      - "Replace Event Processor with Temporal workflows"
+      - "Eliminate custom orchestration and retry logic" 
+      - "Reduce 6-service distributed system to 5-service with built-in reliability"
+      - "Save weeks of custom reliability engineering"
+    rationale: "Pre-MVP status optimal for major architecture change"
+    implementation: "apps/temporal-processor (replaces apps/event-processor)"
+    
   - date: 2025-08-23
     decision: "Refactored project management to ROADMAP.md with dependencies"
     impact:
@@ -173,10 +184,9 @@ artifacts:
 ##### SUB_529.5: Update Test Suite and Mocks
 ```yaml
 id: #529.5
-status: DEBUGGING
-completion: 95
-blocking_issue: "targetId=0 parsing bug"
-debug_location: "apps/event-processor/src/handlers/targetEnrichmentHandler.ts:144-153"
+status: COMPLETED
+completion: 100
+completed_date: 2025-08-23
 completed_tasks:
   - target-enrichment-v2.test.ts with viem
   - TypeScript module resolution (Node16)
@@ -184,11 +194,9 @@ completed_tasks:
   - TargetCreated event detection
   - Offchain API validation
   - Hardhat create-target task
-remaining_tasks:
-  - Fix targetId parsing bug
-  - Complete integration test validation
-  - Update core contract test suite
-  - Create Zora integration test coverage
+  - Integration test validation pipeline
+  - Core contract test coverage
+architecture_transition: "Identified Temporal workflows as Event Processor replacement"
 ```
 
 #### ISSUE_530: Research Zora Integration Strategy
@@ -217,41 +225,75 @@ artifacts:
   - Zora metadata builder integration
 ```
 
-### EPIC_535: Offchain Process Hardening
+### EPIC_536: Temporal Workflow Migration
 ```yaml
-id: #535
+id: #536
 status: PLANNED
-priority: MEDIUM
+priority: HIGH
 dependencies: ["#529.5"]
-estimated_effort: 1-2 weeks
-objective: "Production robustness for API + Event Processor"
+estimated_effort: 2-3 weeks
+objective: "Replace custom Event Processor with Temporal workflows for operational simplicity"
+benefits:
+  - "Built-in retry/recovery (eliminate custom orchestration)"
+  - "Visual workflow monitoring (eliminate custom dashboards)"
+  - "Automatic state management (eliminate manual coordination)"
+  - "Standard deployment patterns (reduce operational overhead)"
+architecture_change: "6-service distributed → 5-service with Temporal orchestration"
 ```
 
-##### SUB_535.1: Environment-Aware Logging Infrastructure
+##### SUB_536.1: Temporal Infrastructure Setup
 ```yaml
-id: #535.1
+id: #536.1
 status: NOT_STARTED
 priority: HIGH
-template_reference: /apps/offchain-api/src/utils/logger.ts
-requirements:
-  - Replace all console.log with pino
-  - Environment-based log levels
-  - Structured logging with context
-  - Configurable via env vars
-deliverable: "Production-ready logging for event-processor"
+deliverables:
+  - "apps/temporal-processor service (replaces apps/event-processor)"
+  - "Temporal server deployment configuration"
+  - "Dual event listening architecture (Blockchain → Temporal + Subgraph)"
+  - "Workflow and activity structure"
+estimated_duration: "3-4 days"
 ```
 
-##### SUB_535.2: Target Enrichment API Hardening
+##### SUB_536.2: Target Enrichment Workflow Migration
 ```yaml
-id: #535.2
+id: #536.2
+status: NOT_STARTED
+priority: HIGH
+dependencies: ["#536.1"]
+deliverables:
+  - "TargetCreated event → Temporal workflow"
+  - "Activities: fetchMetadata, storeOnArweave, updateBlockchain"
+  - "Built-in retry policies (replace custom error handling)"
+  - "Workflow state visualization"
+estimated_duration: "4-5 days"
+```
+
+##### SUB_536.3: TAG Coin Creation Workflow Migration
+```yaml
+id: #536.3
+status: NOT_STARTED
+priority: HIGH
+dependencies: ["#536.2"]
+deliverables:
+  - "TagCreated event → Temporal workflow"
+  - "Activities: createCoinMetadata, deployCoinOnZora, allocateRewards"
+  - "Parallel execution optimization"
+  - "Creator allocation workflow"
+estimated_duration: "3-4 days"
+```
+
+##### SUB_536.4: Production Migration and Event Processor Retirement
+```yaml
+id: #536.4
 status: NOT_STARTED
 priority: MEDIUM
-focus_areas:
-  - Content detection for diverse URIs
-  - Robust metadata extraction
-  - Edge case handling
-  - Performance optimization
-  - Test coverage expansion
+dependencies: ["#536.3"]
+deliverables:
+  - "Side-by-side validation (Temporal vs Event Processor)"
+  - "Traffic migration strategy"
+  - "Event Processor service removal"
+  - "Deployment and monitoring integration"
+estimated_duration: "2-3 days"
 ```
 
 ## FUTURE_ISSUES

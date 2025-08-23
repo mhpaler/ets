@@ -1,154 +1,156 @@
 # Session Status - August 23, 2025
 
 ## Session Overview
-**Duration**: Command system fixes + Event Processor wallet client investigation
+**Duration**: Architecture discussion + EPIC creation  
 **Branch**: `528-tag-coins-epic`  
-**Key Focus**: Fixed command references and investigated wallet client configuration
+**Key Focus**: Major architecture decision - Replace Event Processor with Temporal workflows
 
 ---
 
 ## Major Accomplishments This Session
 
-### ✅ **Command System Fixes Completed**
+### ✅ **Architecture Decision: Temporal Workflow Migration**
 
-**Problem Addressed**: Internal command references in slash commands still using old names without "ets-" prefix
-**Solution**: Updated all cross-references in command files
+**Problem Identified**: Custom Event Processor creating operational complexity
+- Hand-built orchestration with manual recovery
+- 11-step async workflows across 4 services  
+- Manual error handling with no built-in retry/recovery
+- High operational overhead for distributed system (64 potential failure scenarios)
 
-### 🔧 **Technical Achievements**
+**Solution Decided**: Replace Event Processor with Temporal workflows
+- Built-in retry/recovery eliminates custom orchestration
+- Visual workflow monitoring eliminates custom dashboards
+- Automatic state management eliminates manual coordination
+- Standard deployment patterns reduce operational overhead
 
-**1. Command Reference Updates**
-- Fixed all `/commit` → `/ets-commit` references across command files
-- Fixed all `/steppingaway` → `/ets-steppingaway` references  
-- Fixed all `/resumework` → `/ets-resumework` references
-- Updated ets-pre-compress.md with correct command names
-- Ensured consistency across all slash command documentation
+### 🏗️ **EPIC #536 Created: Temporal Workflow Migration**
 
-**2. Enhanced /ets-resumework Command**  
-- Modified to ask user confirmation before proceeding with work
-- Changed from automatic execution to user-controlled workflow
-- Updated template response to end with "Should I proceed with this task?"
-- Better user experience with explicit consent
+**Complete Epic Structure**:
+- **#536.1**: Temporal Infrastructure Setup (3-4 days)
+- **#536.2**: Target Enrichment Workflow Migration (4-5 days)  
+- **#536.3**: TAG Coin Creation Workflow Migration (3-4 days)
+- **#536.4**: Production Migration & Event Processor Retirement (2-3 days)
 
-**3. Event Processor Wallet Investigation**
-- Analyzed viemClient.ts configuration structure
-- Identified wallet client creation depends on PRIVATE_KEY environment variable
-- Located config resolution in src/config/index.ts
-- Found .env.example but wallet configuration missing
+**Architecture Benefits Documented**:
+- 6-service distributed system → 5-service with Temporal orchestration
+- Eliminate weeks of custom reliability engineering
+- Pre-MVP status optimal for major architecture change
 
-### 🧪 **Integration Test Pipeline Status**
+### 📋 **ROADMAP Updates**
 
-**Test Flow Progress:**
+**Critical Path Updated**:
+- #536 now blocks #532 (EOA management) and #533 (creator allocations)
+- #535 (Offchain Process Hardening) removed - superseded by Temporal's built-in reliability
+- Timeline: 2-3 weeks for Temporal migration + 1 week for EOA = 3-4 weeks total
+
+**Dual Event Listening Architecture Designed**:
 ```
-Target Creation ✅ → TargetCreated Event ✅ → Event Processor ✅ → Offchain API ✅ → Target Update ⚠️
+[Blockchain Events] → [Temporal Workflows] (business logic)
+[Blockchain Events] → [Subgraph] (indexing/queries)
 ```
-
-**Pipeline Status:**
-- ✅ **Target Creation**: Working (transaction succeeds, emits event)
-- ✅ **Event Detection**: Event Processor detects TargetCreated events correctly
-- ✅ **Event Parsing**: targetId parsing now working correctly (MAJOR FIX)
-- ✅ **API Validation**: Target enrichment working with offchain API
-- ⚠️ **On-Chain Update**: Blocked by wallet client configuration
 
 ---
 
 ## Current State
 
-### ✅ **Issue #529.5 - IN PROGRESS [97%]**
-**Sub-Issue**: Update Test Suite and Mocks  
-**Status**: 🚧 Near completion - wallet client configuration needed
-**Current Task**: 🎯 Configure Event Processor wallet client for ETSTarget.updateTarget() calls
+### 🎯 **EPIC #536 - Temporal Workflow Migration [PLANNED]**
+**Status**: Architecture discussion complete, ready for implementation  
+**Next Priority**: #536.1 - Temporal Infrastructure Setup  
 
-### 🎯 **Exact Stopping Point**
-Event Processor missing wallet configuration for on-chain updates:
-- viemClient.ts creates walletClient only if `config.privateKey` exists
-- config.ts looks for `process.env.PRIVATE_KEY` environment variable
-- .env.example missing PRIVATE_KEY field
-- Need to add PRIVATE_KEY to local development configuration
+### 🏗️ **Implementation Strategy Defined**
+- Replace `apps/event-processor` with `apps/temporal-processor`
+- Keep existing: Blockchain, Subgraph, Offchain API, Arweave  
+- Dual event listening: direct blockchain events to both Temporal and Subgraph
+- Migration phases: Setup → Target Enrichment → TAG Coins → Production switch
 
-### 🔍 **Key Technical Insights**
-- **Wallet Client Dependencies**: viem requires PRIVATE_KEY env var for writeContract operations
-- **Config Resolution**: Event Processor uses src/config/index.ts for all environment variables
-- **Missing Setup**: Local development needs PRIVATE_KEY configuration for blockchain writes
+### 🔧 **Technical Architecture Sketched**
+- **Target Enrichment Workflow**: TargetCreated → fetchMetadata → storeOnArweave → updateBlockchain
+- **TAG Coin Creation Workflow**: TagCreated → createCoinMetadata → deployCoinOnZora → allocateRewards
+- **Built-in Features**: Retry policies, timeout handling, workflow state visualization
 
 ---
 
-## What's Ready for Use
+## What's Ready for Implementation
 
-### ✅ **Production-Ready Components**
-1. **Slash Command System**: All cross-references fixed, consistent "ets-" naming
-2. **Enhanced /ets-resumework**: Now asks user confirmation before proceeding
-3. **Event Processor Core**: targetId parsing working correctly (from previous session)
-4. **Target Enrichment Pipeline**: API integration functional
-5. **Project Management System**: ROADMAP.md with accurate state tracking
+### ✅ **Architecture Foundation Complete**
+1. **Epic Structure**: 4 sub-issues with clear deliverables and timelines
+2. **Technical Design**: Workflow sketches and activity definitions  
+3. **Migration Strategy**: Side-by-side validation → traffic switch → Event Processor retirement
+4. **Stack Placement**: Dual event listening architecture defined
 
-### ✅ **Technical Infrastructure** 
-- **Command Documentation**: All internal references updated and consistent
-- **User Control Workflow**: /ets-resumework now requires confirmation
-- **Event Processing Logic**: Correct parsing of blockchain events maintained
-- **Configuration Discovery**: Located wallet client dependency on PRIVATE_KEY
+### ✅ **Project Planning Updated**  
+- **ROADMAP.md**: Complete EPIC #536 structure with dependencies
+- **Critical Path**: Updated to reflect Temporal migration priority
+- **Architectural Decisions**: Documented rationale and benefits
+- **Timeline Estimates**: 2-3 weeks total effort breakdown
 
 ---
 
-## Immediate Next Steps (5-10 mins)
+## Immediate Next Steps (First Implementation Session)
 
-### 🎯 **Add PRIVATE_KEY to Event Processor Configuration**
-**Issue**: Event Processor missing PRIVATE_KEY environment variable for wallet client
+### 🎯 **Begin #536.1: Temporal Infrastructure Setup**
 **Specific Tasks**:
-1. Add PRIVATE_KEY field to apps/event-processor/.env.example
-2. Set PRIVATE_KEY in local .env file (using hardhat account private key)
-3. Verify wallet client creation in viemClient.ts
-4. Test Event Processor can perform on-chain updates
+1. Create `apps/temporal-processor` service directory structure
+2. Set up Temporal server deployment configuration  
+3. Implement dual event listening architecture (Blockchain → Temporal + Subgraph)
+4. Create workflow and activity structure templates
 
-**Expected Resolution**: Add environment variable → wallet client available → complete integration test
+**Expected Deliverables**:
+- Service scaffolding with proper TypeScript configuration
+- Temporal server running locally
+- Basic event listener detecting TargetCreated and TagCreated events
+- Workflow/activity structure ready for business logic
 
-**Next Tasks for #529.5**:
-- [ ] 🎯 CURRENT: Add PRIVATE_KEY to Event Processor .env configuration
-- [ ] Validate complete end-to-end integration test pipeline
-- [ ] Mark #529.5 as COMPLETED (100%)
-- [ ] Move to #535.1 Environment-Aware Logging Infrastructure
+**Estimated Duration**: 3-4 days
 
 ---
 
 ## Architecture Decisions Made
 
-### **Command System Consistency**
-- **Decision**: Update all internal slash command cross-references to use "ets-" prefix
-- **Rationale**: Maintain consistency after command renaming in previous session
-- **Impact**: All command documentation now properly references correct command names
+### **Major Strategic Decision: Temporal Workflow Migration**
+- **Decision**: Replace custom Event Processor with Temporal workflows (EPIC #536)
+- **Rationale**: Pre-MVP status optimal for eliminating custom reliability engineering
+- **Impact**: Reduce operational complexity, gain built-in monitoring/recovery, save weeks of development
+- **Timeline**: 2-3 weeks vs months of custom infrastructure work
 
-### **User Control for Automation**
-- **Decision**: Modify /ets-resumework to ask user confirmation before proceeding
-- **Rationale**: User requested more control over when work begins automatically
-- **Impact**: Better user experience with explicit consent before starting tasks
+### **Dual Event Listening Architecture**
+- **Decision**: Blockchain events trigger both Temporal workflows AND Subgraph indexing
+- **Rationale**: Separation of concerns - Temporal for business logic, Subgraph for client queries
+- **Implementation**: Direct event listening to both services (simpler than webhook chains)
+
+### **Keep Existing Services Strategy**  
+- **Decision**: Preserve Blockchain, Subgraph, Offchain API, Arweave - only replace Event Processor
+- **Rationale**: Minimize migration risk, focus effort on operational complexity reduction
+- **Benefit**: Proven services remain unchanged, only orchestration layer replaced
 
 ---
 
 ## Session Quality Metrics
 
-- **Command System Fixes**: ✅ Complete (all cross-references updated)
-- **User Experience Enhancement**: ✅ Improved (/ets-resumework now asks confirmation)
-- **Configuration Discovery**: Good (identified wallet client PRIVATE_KEY dependency)
-- **Next Task Clarity**: High (specific environment variable addition needed)
-- **Documentation Consistency**: High (all command references now accurate)
+- **Architecture Decision**: ✅ Complete (major strategic decision made)
+- **Implementation Planning**: ✅ Complete (detailed EPIC with sub-issues)  
+- **Next Steps Clarity**: ✅ High (specific #536.1 tasks defined)
+- **Documentation Quality**: ✅ High (ROADMAP updated, architecture captured)
+- **Strategic Impact**: **HIGH** - Major operational simplification before MVP
 
-**Session Impact**: **MAINTENANCE & IMPROVEMENT** - Fixed command references, enhanced user control
+**Session Impact**: **STRATEGIC ARCHITECTURE** - Major decision to eliminate operational complexity
 
 ### **Resume Guidance for Next Session**:
-1. **Quick Config Fix**: Add PRIVATE_KEY to Event Processor .env (5 mins)
-2. **Test Integration**: Validate complete end-to-end pipeline (5 mins)
-3. **Complete #529.5**: Mark as 100% complete 
-4. **Next Priority**: Begin #535.1 Environment-Aware Logging Infrastructure
+1. **Start #536.1**: Create apps/temporal-processor service directory structure
+2. **Set up Temporal**: Install Temporal server and configure for local development
+3. **Implement Event Listening**: Create blockchain event listeners for TargetCreated/TagCreated
+4. **Template Structure**: Set up workflow and activity templates ready for business logic
 
-**Estimated Time to Complete #529.5**: 10-15 minutes (environment variable setup)
+**Estimated Time to Begin Implementation**: Immediate (all planning complete)
 
 ## Files Modified This Session
 
-### Command System Updates:
-- `.claude/commands/ets-commit.md` - Fixed internal references to use ets- prefix
-- `.claude/commands/ets-steppingaway.md` - Updated cross-references to other commands
-- `.claude/commands/ets-pre-compress.md` - Fixed all internal command references
-- `.claude/commands/ets-resumework.md` - Added user confirmation before proceeding
+### Project Planning:
+- `docs/session/ROADMAP.md` - Created complete EPIC #536 structure, updated critical path
+- `docs/session/SESSION-STATUS.md` - Documented architecture decision and implementation plan
 
-### Session Documentation:
-- `docs/session/ROADMAP.md` - Updated ACTIVE_WORK with current task details
-- `docs/session/SESSION-STATUS.md` - Documented session accomplishments and next steps
+### Session Context:
+- `docs/session/ARCHITECTURE-DISCUSSION.md` - Referenced for architecture evaluation context
+- `test/README.md` - Referenced to understand current 6-service distributed architecture
+
+**Ready for**: #536.1 Temporal Infrastructure Setup implementation
