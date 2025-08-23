@@ -24,6 +24,7 @@ When you need to step away from a session, follow these steps to maintain contex
 - Note immediate next steps with specific details
 - Include any debugging discoveries or insights
 - Add "Resume Guidance" section for next session
+- If triggered by pre-compression, add compression recovery notes
 
 ### 3. **Execute /commit Command**
 

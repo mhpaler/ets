@@ -8,6 +8,7 @@ When resuming work from a previous session, this command:
 
 - Read ROADMAP.md ACTIVE_WORK section first (current task state)
 - Read SESSION-STATUS.md for session details and resume guidance
+- Check for compression recovery notes in SESSION-STATUS.md
 - Check git status for any changes since stepping away
 
 ### 2. **State Reconstruction**
