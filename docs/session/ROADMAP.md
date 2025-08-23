@@ -12,11 +12,11 @@ last_updated: 2025-08-23
 ## ACTIVE_WORK
 ```yaml
 current_issue_id: #529.5
-current_status: DEBUGGING
-completion_percent: 95
-blocking_bug: "Event Processor targetId=0 parsing issue"
-exact_task: "Fix targetId parsing in targetEnrichmentHandler.ts:144-153"
-resume_action: "Debug why Event Processor parses targetId=0 instead of actual hash"
+current_status: IN_PROGRESS
+completion_percent: 97
+blocking_bug: "Event Processor wallet client configuration issue"
+exact_task: "Fix wallet client availability for on-chain target updates"
+resume_action: "Configure Event Processor wallet client for ETSTarget.updateTarget() calls"
 ```
 
 ## CRITICAL_PATH
@@ -50,9 +50,9 @@ technical_dependencies:
     
   - from: ZORA_COINS
     to: EVENT_PROCESSOR
-    status: BLOCKED
-    blocker: "targetId=0 parsing bug in event handler"
-    blocking_issue: #529.5
+    status: WORKING
+    blocker: "wallet client configuration for on-chain updates"
+    notes: "targetId parsing fixed, enrichment working, on-chain update blocked"
     
   - from: CONTRACTS
     to: MOCK_ZORA_FACTORY

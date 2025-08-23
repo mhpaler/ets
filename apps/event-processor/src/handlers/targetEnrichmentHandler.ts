@@ -177,8 +177,23 @@ export class TargetEnrichmentHandler {
     );
 
     // Parse the non-indexed uint256 targetId from log.data
-    // log.data contains the ABI-encoded non-indexed parameters
-    const targetId = log.data && log.data !== "0x" ? BigInt(log.data) : 0n;
+    // Need to decode the ABI-encoded data properly
+    let targetId = 0n;
+
+    if (log.data && log.data !== "0x") {
+      try {
+        // Remove 0x prefix and decode as uint256
+        const hexData = log.data.slice(2);
+        if (hexData.length === 64) {
+          // uint256 is 32 bytes = 64 hex characters
+          targetId = BigInt(`0x${hexData}`);
+        } else {
+          this.logger.warn({ data: log.data, length: hexData.length }, "Unexpected data length for uint256");
+        }
+      } catch (error) {
+        this.logger.error({ error, data: log.data }, "Failed to parse targetId from log data");
+      }
+    }
 
     this.logger.debug({ targetId: targetId.toString() }, "Parsed target ID from event");
 
