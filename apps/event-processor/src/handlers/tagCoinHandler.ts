@@ -3,25 +3,31 @@ import { apiClient } from "../clients/apiClient";
 import { viemClient } from "../clients/viemClient";
 import { config } from "../config";
 import type { TagCreatedEvent, ZoraCoinCreationRequest } from "../types";
+import { getComponentLogger } from "../utils/logger";
 
 /**
  * Processes TagCreated events and initiates Zora coin creation
  */
 export class TagCoinHandler {
+  private readonly logger = getComponentLogger("TagCoinHandler");
+
   /**
    * Handle a batch of TagCreated event logs
    */
   async handleTagCreatedLogs(logs: Log[]): Promise<void> {
-    console.log(`Processing ${logs.length} TagCreated event(s)`);
+    this.logger.info({ eventCount: logs.length }, "Processing TagCreated event(s)");
 
     for (const log of logs) {
       try {
         await this.processSingleTagCreatedEvent(log);
       } catch (error) {
-        console.error("Failed to process TagCreated event:", {
-          transactionHash: log.transactionHash,
-          error: error instanceof Error ? error.message : error,
-        });
+        this.logger.error(
+          {
+            transactionHash: log.transactionHash,
+            error: error instanceof Error ? error.message : error,
+          },
+          "Failed to process TagCreated event",
+        );
         // Continue processing other events even if one fails
       }
     }
@@ -34,12 +40,15 @@ export class TagCoinHandler {
     // Parse the event data
     const tagEvent = this.parseTagCreatedEvent(log);
 
-    console.log("Processing TagCreated event:", {
-      coinAddress: tagEvent.coinAddress,
-      machineName: tagEvent.machineName,
-      creator: tagEvent.creator,
-      transactionHash: tagEvent.transactionHash,
-    });
+    this.logger.info(
+      {
+        coinAddress: tagEvent.coinAddress,
+        machineName: tagEvent.machineName,
+        creator: tagEvent.creator,
+        transactionHash: tagEvent.transactionHash,
+      },
+      "Processing TagCreated event",
+    );
 
     // Create request for off-chain API
     const request: ZoraCoinCreationRequest = {
@@ -51,29 +60,38 @@ export class TagCoinHandler {
     const response = await apiClient.createZoraCoin(request);
 
     if (response.success && response.zoraCoinAddress) {
-      console.log("Successfully created Zora coin:", {
-        etsCoinAddress: tagEvent.coinAddress,
-        zoraCoinAddress: response.zoraCoinAddress,
-        transactionHash: response.transactionHash,
-      });
+      this.logger.info(
+        {
+          etsCoinAddress: tagEvent.coinAddress,
+          zoraCoinAddress: response.zoraCoinAddress,
+          transactionHash: response.transactionHash,
+        },
+        "Successfully created Zora coin",
+      );
 
       // Complete the round-trip: Update the ETS contract with actual Zora coin address
       try {
         await this.updateETSContractWithZoraCoinAddress(tagEvent.coinAddress, response.zoraCoinAddress);
-        console.log("Successfully updated ETS contract with Zora coin address");
+        this.logger.info("Successfully updated ETS contract with Zora coin address");
       } catch (updateError) {
-        console.error("Failed to update ETS contract:", {
-          etsCoinAddress: tagEvent.coinAddress,
-          zoraCoinAddress: response.zoraCoinAddress,
-          error: updateError instanceof Error ? updateError.message : updateError,
-        });
+        this.logger.error(
+          {
+            etsCoinAddress: tagEvent.coinAddress,
+            zoraCoinAddress: response.zoraCoinAddress,
+            error: updateError instanceof Error ? updateError.message : updateError,
+          },
+          "Failed to update ETS contract",
+        );
         // Don't throw here - the Zora coin was created successfully
       }
     } else {
-      console.error("Failed to create Zora coin:", {
-        etsCoinAddress: tagEvent.coinAddress,
-        error: response.error,
-      });
+      this.logger.error(
+        {
+          etsCoinAddress: tagEvent.coinAddress,
+          error: response.error,
+        },
+        "Failed to create Zora coin",
+      );
     }
   }
 
@@ -105,18 +123,22 @@ export class TagCoinHandler {
       ],
       functionName: "updateTagZoraCoinAddress",
       args: [predictedCoinAddress as `0x${string}`, actualCoinAddress as `0x${string}`],
+      chain: null, // Let the client determine the chain
     });
 
-    console.log("ETS contract update transaction submitted:", hash);
+    this.logger.info({ transactionHash: hash }, "ETS contract update transaction submitted");
 
     // Wait for transaction confirmation
     const receipt = await viemClient.waitForTransactionReceipt({ hash });
 
     if (receipt.status === "success") {
-      console.log("ETS contract update confirmed:", {
-        transactionHash: hash,
-        blockNumber: receipt.blockNumber,
-      });
+      this.logger.info(
+        {
+          transactionHash: hash,
+          blockNumber: receipt.blockNumber,
+        },
+        "ETS contract update confirmed",
+      );
     } else {
       throw new Error(`Transaction failed with status: ${receipt.status}`);
     }
@@ -126,8 +148,9 @@ export class TagCoinHandler {
    * Parse TagCreated event log into structured data
    */
   private parseTagCreatedEvent(log: Log): TagCreatedEvent {
-    // Extract event args (assuming standard event log structure)
-    const args = log.args as any;
+    // TODO: Implement proper event parsing using decodeEventLog
+    // For now, return a placeholder structure
+    const args = {} as any;
 
     return {
       coinAddress: args.coinAddress,

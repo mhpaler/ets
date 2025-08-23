@@ -1,9 +1,11 @@
 import axios, { type AxiosInstance } from "axios";
 import { config } from "../config";
 import type { ZoraCoinCreationRequest, ZoraCoinCreationResponse } from "../types";
+import { getComponentLogger } from "../utils/logger";
 
 class ApiClient {
   private client: AxiosInstance;
+  private readonly logger = getComponentLogger("ApiClient");
 
   constructor() {
     this.client = axios.create({
@@ -33,7 +35,7 @@ class ApiClient {
       const response = await this.client.post("/api/tag-coin/create", serializedRequest);
       return response.data;
     } catch (error) {
-      console.error("Failed to create Zora coin:", error);
+      this.logger.error({ error }, "Failed to create Zora coin");
       return {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
@@ -49,7 +51,7 @@ class ApiClient {
       const response = await this.client.get("/health");
       return response.status === 200;
     } catch (error) {
-      console.error("API health check failed:", error);
+      this.logger.error({ error }, "API health check failed");
       return false;
     }
   }

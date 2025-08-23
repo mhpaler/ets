@@ -1,9 +1,11 @@
 import axios, { type AxiosInstance } from "axios";
 import { config } from "../config";
 import type { TargetEnrichmentRequest, TargetEnrichmentResponse } from "../types";
+import { getComponentLogger } from "../utils/logger";
 
 export class TargetEnrichmentClient {
   private client: AxiosInstance;
+  private readonly logger = getComponentLogger("TargetEnrichmentClient");
 
   constructor() {
     this.client = axios.create({
@@ -24,7 +26,7 @@ export class TargetEnrichmentClient {
       const response = await this.client.get("/health");
       return response.status === 200;
     } catch (error) {
-      console.warn("Target enrichment API health check failed:", error);
+      this.logger.warn({ error }, "Target enrichment API health check failed");
       return false;
     }
   }
@@ -34,7 +36,7 @@ export class TargetEnrichmentClient {
    */
   async enrichTarget(targetId: string, chainId: number): Promise<TargetEnrichmentResponse> {
     try {
-      console.log(`🔍 Enriching target ${targetId} on chain ${chainId}`);
+      this.logger.info({ targetId, chainId }, "🔍 Enriching target");
 
       const response = await this.client.post("/api/target/enrich", {
         targetId,
@@ -43,7 +45,15 @@ export class TargetEnrichmentClient {
       });
 
       if (response.status === 200 && response.data.success) {
-        console.log(`✅ Target ${targetId} enriched successfully`);
+        this.logger.info(
+          {
+            targetId,
+            txId: response.data.data.txId,
+            httpStatus: response.data.data.httpStatus,
+          },
+          "✅ Target enriched successfully",
+        );
+
         return {
           success: true,
           txId: response.data.data.txId,
@@ -51,13 +61,21 @@ export class TargetEnrichmentClient {
         };
       }
 
-      console.warn(`⚠️ Target ${targetId} enrichment failed:`, response.data);
+      this.logger.warn(
+        {
+          targetId,
+          responseData: response.data,
+        },
+        "⚠️ Target enrichment failed",
+      );
+
       return {
         success: false,
         error: response.data.message || "Unknown enrichment error",
       };
     } catch (error) {
-      console.error(`💥 Failed to enrich target ${targetId}:`, error);
+      this.logger.error({ targetId, error }, "💥 Failed to enrich target");
+
       return {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",

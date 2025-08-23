@@ -3,23 +3,25 @@ import { targetEnrichmentClient } from "../clients/targetEnrichmentClient";
 import { etsTargetAbi, viemClient } from "../clients/viemClient";
 import { config } from "../config";
 import type { EnrichTargetRequestedEvent, TargetCreatedEvent } from "../types";
+import { getComponentLogger, getEventLogger } from "../utils/logger";
 
 /**
  * Handles TargetCreated and EnrichTargetRequested events by enriching targets with metadata
  */
 export class TargetEnrichmentHandler {
+  private readonly logger = getComponentLogger("TargetEnrichmentHandler");
+
   /**
    * Process an array of TargetCreated event logs
    */
   async handleTargetCreatedLogs(logs: Log[]): Promise<void> {
-    console.log(`📥 Processing ${logs.length} TargetCreated event(s)...`);
+    this.logger.info({ eventCount: logs.length }, "📥 Processing TargetCreated event(s)");
 
     for (const log of logs) {
       try {
         await this.processTargetCreatedEvent(log);
       } catch (error) {
-        console.error("Failed to process TargetCreated event:", error);
-        console.error("Event log:", log);
+        this.logger.error({ error, eventLog: log }, "Failed to process TargetCreated event");
       }
     }
   }
@@ -28,14 +30,13 @@ export class TargetEnrichmentHandler {
    * Process an array of EnrichTargetRequested event logs
    */
   async handleEnrichTargetRequestedLogs(logs: Log[]): Promise<void> {
-    console.log(`📥 Processing ${logs.length} EnrichTargetRequested event(s)...`);
+    this.logger.info({ eventCount: logs.length }, "📥 Processing EnrichTargetRequested event(s)");
 
     for (const log of logs) {
       try {
         await this.processEnrichTargetRequestedEvent(log);
       } catch (error) {
-        console.error("Failed to process EnrichTargetRequested event:", error);
-        console.error("Event log:", log);
+        this.logger.error({ error, eventLog: log }, "Failed to process EnrichTargetRequested event");
       }
     }
   }
@@ -45,7 +46,8 @@ export class TargetEnrichmentHandler {
    */
   private async processTargetCreatedEvent(log: Log): Promise<void> {
     const event = this.parseTargetCreatedEvent(log);
-    console.log(`🎯 Processing TargetCreated event for target ID: ${event.targetId}`);
+    const eventLogger = getEventLogger(event.targetId.toString(), config.chainId, "TargetCreated");
+    eventLogger.info("🎯 Processing TargetCreated event");
     await this.enrichTarget(event.targetId);
   }
 
@@ -54,7 +56,8 @@ export class TargetEnrichmentHandler {
    */
   private async processEnrichTargetRequestedEvent(log: Log): Promise<void> {
     const event = this.parseEnrichTargetRequestedEvent(log);
-    console.log(`🎯 Processing EnrichTargetRequested event for target ID: ${event.targetId} by ${event.requestor}`);
+    const eventLogger = getEventLogger(event.targetId.toString(), config.chainId, "EnrichTargetRequested");
+    eventLogger.info({ requestor: event.requestor }, "🎯 Processing EnrichTargetRequested event");
     await this.enrichTarget(event.targetId);
   }
 
@@ -63,32 +66,45 @@ export class TargetEnrichmentHandler {
    */
   private async enrichTarget(targetId: bigint): Promise<void> {
     const targetIdStr = targetId.toString();
+    const enrichmentLogger = getEventLogger(targetIdStr, config.chainId, "Enrichment");
 
     try {
+      enrichmentLogger.info("🔍 Enriching target");
+
       // Call the offchain API to enrich the target
       const enrichmentResult = await targetEnrichmentClient.enrichTarget(targetIdStr, config.chainId);
 
       if (enrichmentResult.success) {
-        console.log(`✅ Target ${targetIdStr} enriched successfully`);
-        console.log(`   Arweave TX ID: ${enrichmentResult.txId}`);
-        console.log(`   HTTP Status: ${enrichmentResult.httpStatus}`);
+        enrichmentLogger.info(
+          {
+            arweaveTxId: enrichmentResult.txId,
+            httpStatus: enrichmentResult.httpStatus,
+          },
+          "✅ Target enriched successfully",
+        );
 
         // Update the target on-chain with enriched data
         await this.updateTargetOnChain(targetId, enrichmentResult.txId || "", enrichmentResult.httpStatus || 500);
       } else {
-        console.error(`❌ Failed to enrich target ${targetIdStr}:`, enrichmentResult.error);
+        enrichmentLogger.error(
+          {
+            error: enrichmentResult.error,
+            httpStatus: enrichmentResult.httpStatus,
+          },
+          "❌ Failed to enrich target",
+        );
 
         // Still update the target with error status
         await this.updateTargetOnChain(targetId, "", 500);
       }
     } catch (error) {
-      console.error(`💥 Error processing target ${targetIdStr}:`, error);
+      enrichmentLogger.error({ error }, "💥 Error processing target");
 
       // Update target with error status
       try {
         await this.updateTargetOnChain(targetId, "", 500);
       } catch (updateError) {
-        console.error(`💥 Failed to update target ${targetIdStr} with error status:`, updateError);
+        enrichmentLogger.error({ updateError }, "💥 Failed to update target with error status");
       }
     }
   }
@@ -97,13 +113,15 @@ export class TargetEnrichmentHandler {
    * Update the target on-chain with enriched data
    */
   private async updateTargetOnChain(targetId: bigint, arweaveTxId: string, httpStatus: number): Promise<void> {
+    const chainLogger = getEventLogger(targetId.toString(), config.chainId, "OnChainUpdate");
+
     if (!viemClient.writeContract) {
-      console.warn("⚠️ No wallet client available - cannot update target on-chain");
+      chainLogger.warn("⚠️ No wallet client available - cannot update target on-chain");
       return;
     }
 
     try {
-      console.log(`📝 Updating target ${targetId} on-chain...`);
+      chainLogger.info({ arweaveTxId, httpStatus }, "📝 Updating target on-chain");
 
       // First, get the current target data to preserve the URI
       const targetData = await viemClient.readContract({
@@ -125,15 +143,22 @@ export class TargetEnrichmentHandler {
           BigInt(httpStatus), // httpStatus
           arweaveTxId, // arweaveTxId
         ],
+        chain: null, // Let the client determine the chain
       });
 
-      console.log(`✅ Target ${targetId} updated on-chain. Transaction: ${hash}`);
+      chainLogger.info({ transactionHash: hash }, "✅ Target updated on-chain");
 
       // Wait for confirmation
       const receipt = await viemClient.waitForTransactionReceipt({ hash });
-      console.log(`✅ Target update confirmed in block ${receipt.blockNumber}`);
+      chainLogger.info(
+        {
+          blockNumber: receipt.blockNumber,
+          transactionHash: hash,
+        },
+        "✅ Target update confirmed",
+      );
     } catch (error) {
-      console.error(`💥 Failed to update target ${targetId} on-chain:`, error);
+      chainLogger.error({ error }, "💥 Failed to update target on-chain");
       throw error;
     }
   }
@@ -142,8 +167,20 @@ export class TargetEnrichmentHandler {
    * Parse TargetCreated event from log
    */
   private parseTargetCreatedEvent(log: Log): TargetCreatedEvent {
-    // TargetCreated event has one indexed parameter: targetId
-    const targetId = BigInt(log.topics[1] || "0x0");
+    // TargetCreated event has NO indexed parameters - targetId is in log.data
+    this.logger.debug(
+      {
+        topics: log.topics,
+        data: log.data,
+      },
+      "Parsing TargetCreated event",
+    );
+
+    // Parse the non-indexed uint256 targetId from log.data
+    // log.data contains the ABI-encoded non-indexed parameters
+    const targetId = log.data && log.data !== "0x" ? BigInt(log.data) : 0n;
+
+    this.logger.debug({ targetId: targetId.toString() }, "Parsed target ID from event");
 
     return {
       targetId,
@@ -159,6 +196,14 @@ export class TargetEnrichmentHandler {
     // EnrichTargetRequested event has two indexed parameters: targetId and requestor
     const targetId = BigInt(log.topics[1] || "0x0");
     const requestor = `0x${log.topics[2]?.slice(26) || "0"}`;
+
+    this.logger.debug(
+      {
+        targetId: targetId.toString(),
+        requestor,
+      },
+      "Parsed EnrichTargetRequested event",
+    );
 
     return {
       targetId,

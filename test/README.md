@@ -1,273 +1,120 @@
 # ETS Integration Tests
 
-This directory contains integration tests for the Ethereum Tag Service (ETS) ecosystem, validating end-to-end workflows that span multiple components including smart contracts, event processors, and off-chain services.
+This directory contains integration tests for the Ethereum Tag Service (ETS) ecosystem, validating end-to-end workflows across our distributed architecture.
 
-## Test Structure
+## Architecture Overview
+
+ETS operates as a **6-service distributed system** with complex async workflows spanning blockchain events, off-chain processing, and decentralized storage. Our integration tests validate these critical cross-service interactions.
+
+### System Components
 
 ```
 test/
-├── integration/           # End-to-end integration tests
-│   ├── target-enrichment.test.ts
-│   └── tag-coin-creation.test.ts (placeholder)
-└── README.md
+├── integration/                    # End-to-end integration tests
+│   ├── target-enrichment-v2.test.ts     # Target metadata pipeline
+│   ├── zora-tag-coin-v2.test.ts         # TAG → Zora coin pipeline  
+│   └── docs/                       # Test documentation
+│       ├── target-enrichment.md
+│       └── tag-coin-creation.md
+└── README.md                       # This file
 ```
 
-## Integration Test Overview
+## Testing Philosophy
 
-Integration tests validate complete workflows across the ETS stack, ensuring all components work together correctly. These tests differ from unit tests by:
-- Testing multiple components interacting together
-- Requiring external services (Hardhat, APIs, event processors)
-- Validating real event flows and state changes
-- Testing error handling across service boundaries
+Our integration tests validate complete workflows across the ETS stack, ensuring all components work together correctly. These tests differ from unit tests by:
+
+- **Multi-Service Coordination**: Testing 6 services working together
+- **Real Event Flows**: Validating blockchain events trigger correct responses
+- **Async Workflow Validation**: End-to-end pipeline completion
+- **Error Boundary Testing**: Graceful degradation across service failures
+
+For detailed testing strategy and MVP framework, see: [`../docs/session/MVP-FRAMEWORK.md`](../docs/session/MVP-FRAMEWORK.md)
+
+## 6-Service Distributed Architecture
+
+ETS operates across six coordinated services with complex async workflows:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                    ETS Distributed System                                                   │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  [User/dApp]        [Blockchain]        [Event Processor]      [Offchain API]      [Arweave/ArLocal]    [Subgraph]
+      │                   │                       │                     │                     │              │
+      │             Event-driven                  │                     │                     │              │
+      │              workflows                    │                     │                     │              │
+      ├──────────────────>│                       │                     │                     │              │
+      │                   ├──────────────────────>│                     │                     │              │
+      │                   │                       ├────────────────────>│                     │              │
+      │                   │                       │                     ├────────────────────>│              │
+      │                   │                       │                     │                     │              │
+      │                   │<──────────────────────┤                     │                     │              │
+      │                   ├─────────────────────────────────────────────────────────────────────────────────>│
+      ├─────────────────────────────────────────────────────────────────────────────────────────────────────>│
+```
+
+### Primary Workflows
+
+**Target Enrichment Pipeline**: URL creation → metadata extraction → decentralized storage  
+**TAG Coin Pipeline**: TAG creation → Zora coin deployment → creator allocation
+
+For complete architecture details, see: [`../docs/session/MVP-FRAMEWORK.md`](../docs/session/MVP-FRAMEWORK.md)
 
 ---
 
-## Target Enrichment Integration Test
+## Integration Test Suites
 
-The target enrichment test (`integration/target-enrichment.test.ts`) validates the complete **target enrichment pipeline** - the process of fetching metadata for URLs and storing it on-chain.
+### Target Enrichment Tests
+**File**: [`integration/target-enrichment-v2.test.ts`](integration/target-enrichment-v2.test.ts)  
+**Pipeline**: `createTarget()` → `TargetCreated` event → Event Processor → Offchain API → Arweave storage  
+**Details**: [`integration/docs/target-enrichment.md`](integration/docs/target-enrichment.md)
 
-### Architecture Components
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        Target Enrichment Flow                        │
-└─────────────────────────────────────────────────────────────────────┘
-
-     [User/dApp]                [Blockchain]              [Event Processor]           [Offchain API]
-         │                           │                           │                          │
-         │                           │                           │                          │
-    1. createTarget()                │                           │                          │
-         ├──────────────────────────>│                           │                          │
-         │                           │                           │                          │
-         │                    2. TargetCreated                   │                          │
-         │                        Event                          │                          │
-         │                           ├──────────────────────────>│                          │
-         │                           │                           │                          │
-         │                           │                      3. Detect Event                 │
-         │                           │                           │                          │
-         │                           │                      4. Call API                     │
-         │                           │                           ├─────────────────────────>│
-         │                           │                           │                          │
-         │                           │                           │    5. Fetch URL metadata │
-         │                           │                           │       Store in Arweave   │
-         │                           │                           │                          │
-         │                           │                      6. Return metadata              │
-         │                           │                           │<─────────────────────────┤
-         │                           │                           │                          │
-         │                           │   7. updateTarget()       │                          │
-         │                           │<──────────────────────────┤                          │
-         │                           │   (EVENT_PROCESSOR_ROLE)  │                          │
-         │                           │                           │                          │
-         │                      8. Target enriched               │                          │
-         │                      (metadata stored)                │                          │
-         │                           │                           │                          │
-```
-
-### What the Test Validates
-
-#### 1. **Automatic Enrichment Flow** 
-When a target is created, it should automatically be enriched:
-
-```typescript
-// User creates a target
-ETSTarget.createTarget("https://example.com")
-    ↓
-// Emits TargetCreated event
-    ↓
-// Event Processor detects event
-    ↓
-// Calls Offchain API for metadata
-    ↓
-// Updates target on-chain with metadata
-```
-
-**Test validates:**
-- TargetCreated event is emitted ✅
-- Target gets enriched (enriched timestamp > 0) ✅
-- HTTP status is recorded ✅
-- Arweave TX ID is stored (if available) ✅
-
-#### 2. **Manual Enrichment Flow**
-Users can manually request enrichment for existing targets:
-
-```typescript
-// Target already exists
-ETSEnrichTarget.requestEnrichTarget(targetId)
-    ↓
-// Emits EnrichTargetRequested event
-    ↓
-// Event Processor detects event
-    ↓
-// Same enrichment flow as automatic
-```
-
-**Test validates:**
-- EnrichTargetRequested event is emitted ✅
-- Manual request triggers enrichment ✅
-- Target gets updated with metadata ✅
-
-#### 3. **Error Handling Flow**
-Invalid URLs should be handled gracefully:
-
-```typescript
-// Create target with invalid URL
-ETSTarget.createTarget("https://invalid-domain.test")
-    ↓
-// Event Processor attempts enrichment
-    ↓
-// Offchain API returns error status
-    ↓
-// Target updated with error status (not 200)
-```
-
-**Test validates:**
-- Invalid URLs don't break the system ✅
-- Error status codes are recorded ✅
-- No Arweave upload for failed fetches ✅
-
-### Current Architecture
-
-The target enrichment flow uses an event-driven architecture:
-
-```
-Target Created → Event Processor → Offchain API → Event Processor → ETSTarget.updateTarget()
-```
-
-**Key Components:**
-1. **Event Processor** - Listens for blockchain events and orchestrates enrichment
-2. **ETSEnrichTarget** - Gateway contract for manual enrichment requests
-3. **EVENT_PROCESSOR_ROLE** - Permission that allows event processor to update targets
-4. **Direct updates** - Event processor updates ETSTarget directly
-
-### Test Requirements
-
-For the test to work properly, it needs:
-
-1. **Hardhat Network** ✅ (Running on localhost:8545)
-2. **Deployed Contracts** ✅ (ETSTarget, ETSEnrichTarget, ETSAccessControls)
-3. **Event Processor Service** (Started by test)
-4. **Offchain API** (localhost:4000)
-5. **ArLocal (Optional)** (For Arweave storage simulation)
-
-### Running the Test
-
-From the contracts package:
-```bash
-cd packages/contracts
-pnpm exec hardhat test ../../test/integration/target-enrichment.test.ts
-```
-
-With all services running:
-```bash
-# Terminal 1: Start core stack (includes offchain API)
-./scripts/start-local-stack.sh --core
-
-# Terminal 3: Run test
-cd packages/contracts
-pnpm exec hardhat test ../../test/integration/target-enrichment.test.ts
-```
+### TAG Coin Creation Tests  
+**File**: [`integration/zora-tag-coin-v2.test.ts`](integration/zora-tag-coin-v2.test.ts)  
+**Pipeline**: `createTags()` → `TagCreated` event → Event Processor → Zora coin creation  
+**Details**: [`integration/docs/tag-coin-creation.md`](integration/docs/tag-coin-creation.md)
 
 ---
 
-## TAG Coin Creation Integration Test (Placeholder)
+## MVP Testing Framework
 
-**File:** `integration/tag-coin-creation.test.ts` (to be implemented)
+Our testing follows a **3-tier MVP approach** to manage distributed system complexity:
 
-This test will validate the complete TAG coin creation flow on Zora:
+- **Tier 1**: Happy Path + Critical Failures (8 essential tests)
+- **Tier 2**: Post-MVP Robustness (12 additional tests)  
+- **Tier 3**: Production Readiness (15 comprehensive tests)
 
-### Planned Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        TAG Coin Creation Flow                        │
-└─────────────────────────────────────────────────────────────────────┘
-
-     [User/dApp]                [ETS Contracts]           [Event Processor]           [Zora Protocol]
-         │                           │                           │                          │
-         │                           │                           │                          │
-    1. createTags()                  │                           │                          │
-         ├──────────────────────────>│                           │                          │
-         │                           │                           │                          │
-         │                    2. TagCreated                      │                          │
-         │                        Event                          │                          │
-         │                           ├──────────────────────────>│                          │
-         │                           │                           │                          │
-         │                           │                      3. Process Event                │
-         │                           │                           │                          │
-         │                           │                      4. Create Coin                  │
-         │                           │                           ├─────────────────────────>│
-         │                           │                           │                          │
-         │                           │                           │    5. Deploy 1155 Token  │
-         │                           │                           │                          │
-         │                           │                      6. Coin Address                 │
-         │                           │                           │<─────────────────────────┤
-         │                           │                           │                          │
-         │                           │   7. Store mapping        │                          │
-         │                           │<──────────────────────────┤                          │
-         │                           │                           │                          │
-         │                      8. TAG coin ready                │                          │
-         │                           │                           │                          │
-```
-
-### What the Test Will Validate
-
-1. **TAG Creation → Coin Deployment**
-   - TagCreated event emission
-   - Zora coin creation via factory
-   - Deterministic address computation
-   - Metadata upload to IPFS
-
-2. **Creator Allocation**
-   - Initial coin allocation to creator
-   - Fee distribution mechanics
-   - Platform fee handling
-
-3. **Error Scenarios**
-   - Duplicate TAG handling
-   - Invalid TAG names
-   - Network failures
-
-### Test Requirements
-
-1. **MockZoraFactory** (localhost testing)
-2. **Event Processor** with Zora integration
-3. **IPFS/Arweave** for metadata storage
-4. **Deployed ETS contracts**
+**Strategy**: Happy Path + Catchall + Blockchain Recovery
 
 ---
 
-## Running All Integration Tests
+## Running Tests
 
 ```bash
-# Run all integration tests
+# All integration tests
 cd packages/contracts
 pnpm exec hardhat test ../../test/integration/**/*.test.ts
 
-# With coverage
-pnpm exec hardhat coverage --testfiles "../../test/integration/**/*.test.ts"
+# Specific test suite
+pnpm exec hardhat test ../../test/integration/target-enrichment-v2.test.ts
+pnpm exec hardhat test ../../test/integration/zora-tag-coin-v2.test.ts
+
+# With services running
+./scripts/start-local-stack.sh --core  # Terminal 1
+pnpm exec hardhat test ../../test/integration/  # Terminal 2
 ```
 
-## Best Practices
+## Service Dependencies
 
-1. **Service Dependencies**: Always check required services are running
-2. **Test Isolation**: Each test should clean up after itself
-3. **Timeout Handling**: Use appropriate timeouts for async operations
-4. **Event Verification**: Always verify events are emitted correctly
-5. **Error Cases**: Test both success and failure scenarios
+**Required for all tests:**
+- Hardhat Network (localhost:8545)
+- Event Processor Service
+- Offchain API (localhost:4000)
 
-## Troubleshooting
+**Optional:**
+- ArLocal (Arweave simulation)
+- Subgraph (localhost:8000)
 
-### Tests Timing Out
-- Ensure all required services are running
-- Check network connectivity
-- Verify contract deployments are successful
+---
 
-### Event Not Detected
-- Confirm EVENT_PROCESSOR_ROLE is granted
-- Check event processor logs for errors
-- Verify correct contract addresses in config
-
-### Service Connection Issues
-- Check service URLs and ports
-- Ensure no firewall blocking
-- Verify service health endpoints
+For troubleshooting, test details, and development strategy, see the individual test documentation files linked above.

@@ -47,7 +47,7 @@ const getETSEnrichTargetAddress = () => {
 const getRpcUrl = () => {
   const alchemyKey = process.env.ALCHEMY_API_KEY;
   if (!alchemyKey) {
-    console.warn("ALCHEMY_API_KEY not provided, using localhost fallback");
+    // Note: We'll log this with proper logger after config is created
     return "http://localhost:8545";
   }
 

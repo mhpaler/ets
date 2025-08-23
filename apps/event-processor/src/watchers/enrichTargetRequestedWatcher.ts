@@ -1,5 +1,6 @@
 import { enrichTargetRequestedEvent, publicClient } from "../clients/viemClient";
 import { TargetEnrichmentHandler } from "../handlers/targetEnrichmentHandler";
+import { getComponentLogger } from "../utils/logger";
 
 /**
  * Watches for EnrichTargetRequested events and processes manual enrichment requests
@@ -7,6 +8,7 @@ import { TargetEnrichmentHandler } from "../handlers/targetEnrichmentHandler";
 export class EnrichTargetRequestedWatcher {
   private handler: TargetEnrichmentHandler;
   private isWatching = false;
+  private readonly logger = getComponentLogger("EnrichTargetRequestedWatcher");
 
   constructor() {
     this.handler = new TargetEnrichmentHandler();
@@ -17,11 +19,11 @@ export class EnrichTargetRequestedWatcher {
    */
   async start(): Promise<void> {
     if (this.isWatching) {
-      console.log("EnrichTargetRequested watcher is already running");
+      this.logger.warn("EnrichTargetRequested watcher is already running");
       return;
     }
 
-    console.log("Starting EnrichTargetRequested event watcher...");
+    this.logger.info("🗺️ Starting EnrichTargetRequested event watcher...");
     this.isWatching = true;
 
     try {
@@ -34,27 +36,32 @@ export class EnrichTargetRequestedWatcher {
           }
         },
         onError: (error) => {
-          console.error("Error watching EnrichTargetRequested events:", error);
+          this.logger.error({ error }, "Error watching EnrichTargetRequested events");
         },
       });
 
-      console.log(`Watching for EnrichTargetRequested events on chain ${publicClient.chain?.id}`);
-      console.log(`ETSEnrichTarget contract address: ${enrichTargetRequestedEvent.address}`);
+      this.logger.info(
+        {
+          chainId: publicClient.chain?.id,
+          contractAddress: enrichTargetRequestedEvent.address,
+        },
+        "👀 Watching for EnrichTargetRequested events",
+      );
 
       // Handle graceful shutdown
       process.on("SIGINT", () => {
-        console.log("\nReceived SIGINT. Shutting down EnrichTargetRequested watcher...");
+        this.logger.info("🛑 Received SIGINT. Shutting down EnrichTargetRequested watcher...");
         unwatch();
         this.isWatching = false;
       });
 
       process.on("SIGTERM", () => {
-        console.log("\nReceived SIGTERM. Shutting down EnrichTargetRequested watcher...");
+        this.logger.info("🛑 Received SIGTERM. Shutting down EnrichTargetRequested watcher...");
         unwatch();
         this.isWatching = false;
       });
     } catch (error) {
-      console.error("Failed to start EnrichTargetRequested watcher:", error);
+      this.logger.error({ error }, "Failed to start EnrichTargetRequested watcher");
       this.isWatching = false;
       throw error;
     }
@@ -64,7 +71,7 @@ export class EnrichTargetRequestedWatcher {
    * Process historical events from a specific block range
    */
   async processHistoricalEvents(fromBlock?: bigint, toBlock?: bigint): Promise<void> {
-    console.log("Processing historical EnrichTargetRequested events...");
+    this.logger.info({ fromBlock, toBlock }, "📚 Processing historical EnrichTargetRequested events...");
 
     try {
       const logs = await publicClient.getLogs({
@@ -73,13 +80,13 @@ export class EnrichTargetRequestedWatcher {
         toBlock: toBlock || "latest",
       });
 
-      console.log(`Found ${logs.length} historical EnrichTargetRequested event(s)`);
+      this.logger.info({ eventCount: logs.length }, "📋 Found historical EnrichTargetRequested events");
 
       if (logs.length > 0) {
         await this.handler.handleEnrichTargetRequestedLogs(logs);
       }
     } catch (error) {
-      console.error("Failed to process historical EnrichTargetRequested events:", error);
+      this.logger.error({ error }, "Failed to process historical EnrichTargetRequested events");
       throw error;
     }
   }

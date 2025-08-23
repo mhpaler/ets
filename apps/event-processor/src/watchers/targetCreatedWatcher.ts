@@ -1,5 +1,6 @@
 import { publicClient, targetCreatedEvent } from "../clients/viemClient";
 import { TargetEnrichmentHandler } from "../handlers/targetEnrichmentHandler";
+import { getComponentLogger } from "../utils/logger";
 
 /**
  * Watches for TargetCreated events and enriches targets with metadata
@@ -7,6 +8,7 @@ import { TargetEnrichmentHandler } from "../handlers/targetEnrichmentHandler";
 export class TargetCreatedWatcher {
   private handler: TargetEnrichmentHandler;
   private isWatching = false;
+  private readonly logger = getComponentLogger("TargetCreatedWatcher");
 
   constructor() {
     this.handler = new TargetEnrichmentHandler();
@@ -17,11 +19,11 @@ export class TargetCreatedWatcher {
    */
   async start(): Promise<void> {
     if (this.isWatching) {
-      console.log("TargetCreated watcher is already running");
+      this.logger.warn("TargetCreated watcher is already running");
       return;
     }
 
-    console.log("Starting TargetCreated event watcher...");
+    this.logger.info("🎯 Starting TargetCreated event watcher...");
     this.isWatching = true;
 
     try {
@@ -34,27 +36,32 @@ export class TargetCreatedWatcher {
           }
         },
         onError: (error) => {
-          console.error("Error watching TargetCreated events:", error);
+          this.logger.error({ error }, "Error watching TargetCreated events");
         },
       });
 
-      console.log(`Watching for TargetCreated events on chain ${publicClient.chain?.id}`);
-      console.log(`ETSTarget contract address: ${targetCreatedEvent.address}`);
+      this.logger.info(
+        {
+          chainId: publicClient.chain?.id,
+          contractAddress: targetCreatedEvent.address,
+        },
+        "👀 Watching for TargetCreated events",
+      );
 
       // Handle graceful shutdown
       process.on("SIGINT", () => {
-        console.log("\nReceived SIGINT. Shutting down TargetCreated watcher...");
+        this.logger.info("🛑 Received SIGINT. Shutting down TargetCreated watcher...");
         unwatch();
         this.isWatching = false;
       });
 
       process.on("SIGTERM", () => {
-        console.log("\nReceived SIGTERM. Shutting down TargetCreated watcher...");
+        this.logger.info("🛑 Received SIGTERM. Shutting down TargetCreated watcher...");
         unwatch();
         this.isWatching = false;
       });
     } catch (error) {
-      console.error("Failed to start TargetCreated watcher:", error);
+      this.logger.error({ error }, "Failed to start TargetCreated watcher");
       this.isWatching = false;
       throw error;
     }
@@ -64,7 +71,7 @@ export class TargetCreatedWatcher {
    * Process historical events from a specific block range
    */
   async processHistoricalEvents(fromBlock?: bigint, toBlock?: bigint): Promise<void> {
-    console.log("Processing historical TargetCreated events...");
+    this.logger.info({ fromBlock, toBlock }, "📚 Processing historical TargetCreated events...");
 
     try {
       const logs = await publicClient.getLogs({
@@ -73,13 +80,13 @@ export class TargetCreatedWatcher {
         toBlock: toBlock || "latest",
       });
 
-      console.log(`Found ${logs.length} historical TargetCreated event(s)`);
+      this.logger.info({ eventCount: logs.length }, "📋 Found historical TargetCreated events");
 
       if (logs.length > 0) {
         await this.handler.handleTargetCreatedLogs(logs);
       }
     } catch (error) {
-      console.error("Failed to process historical TargetCreated events:", error);
+      this.logger.error({ error }, "Failed to process historical TargetCreated events");
       throw error;
     }
   }

@@ -121,6 +121,22 @@ export class MetadataService {
       logger.info({ url, contentType }, "Detected content type");
       return contentType.toLowerCase();
     } catch (error) {
+      // If HEAD request fails (405 Method Not Allowed), try GET with range header
+      if (axios.isAxiosError(error) && error.response?.status === 405) {
+        try {
+          logger.info({ url }, "HEAD request failed with 405, trying GET with range header");
+          const response = await axios.get(url, {
+            headers: { Range: "bytes=0-1023" }, // Only fetch first 1KB
+            timeout: 10000, // 10 second timeout for range requests
+          });
+          const contentType = response.headers["content-type"] || "";
+          logger.info({ url, contentType }, "Detected content type via GET request");
+          return contentType.toLowerCase();
+        } catch (rangeError) {
+          logger.warn({ url, rangeError }, "Range GET request also failed");
+        }
+      }
+
       logger.error(
         {
           url,
@@ -129,8 +145,8 @@ export class MetadataService {
         "Failed to detect content type",
       );
 
-      // Default to HTML if we can't detect
-      return "text/html";
+      // Default to unknown instead of HTML to trigger generic extractor
+      return "unknown";
     }
   }
 

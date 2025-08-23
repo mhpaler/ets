@@ -1,3 +1,4 @@
+// @ts-ignore - Bun test runner types
 import { afterAll, beforeAll, beforeEach, describe, test } from "bun:test";
 import { etsAccessControlsAbi, etsEnrichTargetAbi, etsTargetAbi } from "@ethereum-tag-service/contracts/contracts";
 import axios from "axios";
@@ -106,6 +107,7 @@ describe("Target Enrichment Integration v2", () => {
   let walletClient: any = null;
   let testerAccount: ReturnType<typeof mnemonicToAccount> | null = null;
   let eventProcessorAccount: ReturnType<typeof mnemonicToAccount> | null = null;
+  let allServicesHealthy = false;
   const contracts: {
     ETSAccessControls?: { address: Address; abi: typeof etsAccessControlsAbi };
     ETSTarget?: { address: Address; abi: typeof etsTargetAbi };
@@ -236,8 +238,11 @@ describe("Target Enrichment Integration v2", () => {
       console.error("📋 Failed services:", failedServices.join(", "));
       console.error("\n💡 To start all required services:");
       console.error("   ./scripts/start-local-stack.sh --core  # Core services for testing");
+      allServicesHealthy = false;
       throw new Error("Local services not available");
     }
+
+    allServicesHealthy = true;
   }
 
   async function validateRemoteServices() {
@@ -249,8 +254,10 @@ describe("Target Enrichment Integration v2", () => {
         timeout: env.timeouts.serviceHealth,
       });
       console.log(`  ✅ Offchain API: Status ${response.status}`);
+      allServicesHealthy = true;
     } catch (error) {
       console.error(`  ❌ Offchain API unavailable: ${error.message}`);
+      allServicesHealthy = false;
       throw new Error("Remote offchain API not available");
     }
   }
@@ -550,6 +557,142 @@ describe("Target Enrichment Integration v2", () => {
     test("should validate production infrastructure (read-only)", async () => {
       // Placeholder for production read-only tests
       console.log("🚧 Production tests not yet implemented");
+    });
+  });
+
+  describe("MVP Framework - Tier 1: Happy Path Tests", () => {
+    beforeEach(() => {
+      if (env.requiresLocalServices && !allServicesHealthy) {
+        console.log("Skipping MVP tests - local services not available");
+        return;
+      }
+    });
+
+    test.skip("happy-path-html: Standard webpage with OpenGraph metadata", async () => {
+      // Target: A well-formed HTML page with OpenGraph tags
+      const targetURI = "https://docs.anthropic.com"; // Known to have good metadata
+
+      console.log("🧪 Testing HTML page with OpenGraph metadata");
+      console.log(`Target URI: ${targetURI}`);
+
+      // TODO: Implement test for:
+      // 1. Create target with HTML URL
+      // 2. Verify TargetCreated event emission
+      // 3. Wait for event processor to detect and process
+      // 4. Verify offchain API enrichment call
+      // 5. Confirm metadata extraction (title, description, image)
+      // 6. Validate Arweave storage (mock or real)
+      // 7. Verify target updated on-chain with enriched data
+
+      console.log("🚧 HTML OpenGraph test not yet implemented");
+      expect(true).to.be.true; // Placeholder assertion
+    });
+
+    test.skip("happy-path-github: GitHub repository URL with structured data", async () => {
+      // Target: GitHub repo with rich metadata
+      const targetURI = "https://github.com/microsoft/vscode";
+
+      console.log("🧪 Testing GitHub repository URL");
+      console.log(`Target URI: ${targetURI}`);
+
+      // TODO: Implement test for:
+      // 1. Create target with GitHub URL
+      // 2. Verify TargetCreated event emission
+      // 3. Wait for event processor to detect and process
+      // 4. Verify offchain API enrichment call
+      // 5. Confirm GitHub-specific metadata extraction
+      // 6. Validate Arweave storage with GitHub data
+      // 7. Verify target updated on-chain with enriched data
+
+      console.log("🚧 GitHub repository test not yet implemented");
+      expect(true).to.be.true; // Placeholder assertion
+    });
+
+    test.skip("happy-path-image: Direct image URL with content-type detection", async () => {
+      // Target: Direct image URL for content-type testing
+      const targetURI = "https://via.placeholder.com/640x480.png";
+
+      console.log("🧪 Testing direct image URL");
+      console.log(`Target URI: ${targetURI}`);
+
+      // TODO: Implement test for:
+      // 1. Create target with image URL
+      // 2. Verify TargetCreated event emission
+      // 3. Wait for event processor to detect and process
+      // 4. Verify offchain API enrichment call
+      // 5. Confirm content-type detection for image
+      // 6. Validate image metadata extraction
+      // 7. Verify target updated on-chain with enriched data
+
+      console.log("🚧 Direct image test not yet implemented");
+      expect(true).to.be.true; // Placeholder assertion
+    });
+  });
+
+  describe("MVP Framework - Tier 2: Critical Failure Tests", () => {
+    beforeEach(() => {
+      if (env.requiresLocalServices && !allServicesHealthy) {
+        console.log("Skipping failure tests - local services not available");
+        return;
+      }
+    });
+
+    test.skip("event-processor-down: Event processor service unavailable", async () => {
+      console.log("🧪 Testing event processor failure scenario");
+      // TODO: Simulate event processor down, verify graceful degradation
+      console.log("🚧 Event processor failure test not yet implemented");
+      expect(true).to.be.true;
+    });
+
+    test.skip("offchain-api-down: API service returns 500/503", async () => {
+      console.log("🧪 Testing offchain API failure scenario");
+      // TODO: Simulate API failures, verify error handling
+      console.log("🚧 Offchain API failure test not yet implemented");
+      expect(true).to.be.true;
+    });
+
+    test.skip("arweave-unavailable: Storage fails but target still gets updated", async () => {
+      console.log("🧪 Testing Arweave storage failure scenario");
+      // TODO: Simulate Arweave failures, verify partial success handling
+      console.log("🚧 Arweave failure test not yet implemented");
+      expect(true).to.be.true;
+    });
+
+    test.skip("network-partition: Event processor can't reach API (timeout)", async () => {
+      console.log("🧪 Testing network partition scenario");
+      // TODO: Simulate network timeouts, verify retry logic
+      console.log("🚧 Network partition test not yet implemented");
+      expect(true).to.be.true;
+    });
+
+    test.skip("partial-failure-recovery: Service comes back online, processes backlog", async () => {
+      console.log("🧪 Testing service recovery scenario");
+      // TODO: Test service recovery and backlog processing
+      console.log("🚧 Service recovery test not yet implemented");
+      expect(true).to.be.true;
+    });
+  });
+
+  describe("MVP Framework - Tier 3: System Recovery Tests", () => {
+    beforeEach(() => {
+      if (env.requiresLocalServices && !allServicesHealthy) {
+        console.log("Skipping recovery tests - local services not available");
+        return;
+      }
+    });
+
+    test.skip("blockchain-recovery: Replay unprocessed targets from blockchain state", async () => {
+      console.log("🧪 Testing blockchain-based recovery");
+      // TODO: Test recovery from blockchain state after service outages
+      console.log("🚧 Blockchain recovery test not yet implemented");
+      expect(true).to.be.true;
+    });
+
+    test.skip("graceful-degradation: Catchall handles unsupported URL patterns", async () => {
+      console.log("🧪 Testing graceful degradation for unsupported URLs");
+      // TODO: Test fallback behavior for edge case URLs
+      console.log("🚧 Graceful degradation test not yet implemented");
+      expect(true).to.be.true;
     });
   });
 });

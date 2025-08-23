@@ -8,12 +8,12 @@ The **Working Branch Notebook** is a feature branch-specific document that maint
 
 Current branch notebook:
 - **Branch**: `528-tag-coins-epic` (TAG Coins implementation)
-- **Issue Status**: #529.5 Update Test Suite and Mocks 🎯 IN PROGRESS [85%]
-- **Notebook**: [SESSION-STATUS.md](/Users/User/Sites/ets/docs/session/SESSION-STATUS.md) - Integration test refactoring session
+- **Issue Status**: #529.5 Update Test Suite and Mocks 🎯 IN PROGRESS [95%]
+- **Notebook**: [SESSION-STATUS.md](/Users/User/Sites/ets/docs/session/SESSION-STATUS.md) - Event Processor integration debug session
 - **Issue Tracker**: [ISSUE-STATUS.md](/Users/User/Sites/ets/docs/session/ISSUE-STATUS.md) - Tracks current focus and priority queue
-- **Purpose**: Integration test modernization with viem migration + workspace dependencies
-- **Session Updated**: 2025-08-21 (MAJOR UPGRADE: Integration test infrastructure modernized for scalable development)
-- **Current Priority**: Test refactored integration test with bun to validate viem + workspace deps
+- **Purpose**: Debug Event Processor integration - fix targetId=0 parsing issue
+- **Session Updated**: 2025-08-22 (CRITICAL PROGRESS: Integration test pipeline 95% complete, one parsing bug to fix)
+- **Current Priority**: Fix Event Processor targetId=0 parsing issue - nearly done with integration test pipeline
 
 When switching to work on a different feature branch, updating this reference in CLAUDE.md provides immediate context for future sessions.
 

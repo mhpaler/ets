@@ -18,20 +18,20 @@ export const publicClient = createPublicClient({
 });
 
 // Create wallet client for write operations (if private key provided)
-export const walletClient = config.privateKey
+export const walletClient: any = config.privateKey
   ? createWalletClient({
       account: privateKeyToAccount(config.privateKey as `0x${string}`),
       chain,
       transport,
     })
-  : null;
+  : undefined;
 
 // Combined client that supports both read and write operations
 export const viemClient = {
   // Read operations
   ...publicClient,
   // Write operations (if wallet available)
-  writeContract: walletClient?.writeContract.bind(walletClient),
+  writeContract: walletClient?.writeContract.bind(walletClient) as any,
   waitForTransactionReceipt: publicClient.waitForTransactionReceipt.bind(publicClient),
 };
 

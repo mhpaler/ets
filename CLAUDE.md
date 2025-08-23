@@ -10,7 +10,7 @@ The main Claude context documentation has been reorganized for better maintainab
 - **Vision & Strategy**: [`docs/claude/CLAUDE-VISION.md`](./docs/claude/CLAUDE-VISION.md) 
 - **Implementation Plan**: [`docs/claude/CLAUDE-IMPLEMENTATION.md`](./docs/claude/CLAUDE-IMPLEMENTATION.md)
 - **Session Status**: [`docs/session/SESSION-STATUS.md`](./docs/session/SESSION-STATUS.md)
-- **Issue Tracking**: [`docs/session/ISSUE-STATUS.md`](./docs/session/ISSUE-STATUS.md)
+- **Project Roadmap**: [`docs/session/ROADMAP.md`](./docs/session/ROADMAP.md)
 
 ## Current Work Context
 

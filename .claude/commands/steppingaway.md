@@ -6,39 +6,90 @@ Execute the stepping away procedure for the ETS project:
 
 When you need to step away from a session, follow these steps to maintain context:
 
-### 1. **Update ISSUE-STATUS.md**
-- Mark current issue progress
-- **Update sub-issue completion status** (e.g., #531.1, #531.2)
-- **Document active sub-issue** and its specific progress
-- Note any blocking items
-- Set next priority actions for current sub-issue
+### 1. **Update ROADMAP.md ACTIVE_WORK section**
 
-### 2. **Create/Update SESSION-STATUS.md** 
-- Document what was accomplished (by sub-issue)
-- **Current sub-issue focus** and completion percentage
+- Update `current_issue_id` with exact issue/sub-issue
+- Set `current_status` (DEBUGGING, IN_PROGRESS, BLOCKED, COMPLETED)
+- Update `completion_percent` accurately
+- Document any `blocking_bug` or issue
+- Set `exact_task` describing what you're working on
+- Define `resume_action` for next session
+- Update the relevant sub-issue section with completed/pending tasks
+
+### 2. **Create/Update SESSION-STATUS.md**
+
+- Document what was accomplished this session
+- **Current task focus** and exact stopping point
 - List what's ready to test/use
-- Note immediate next steps for active sub-issue
-- Include time estimates for resuming current sub-issue
+- Note immediate next steps with specific details
+- Include any debugging discoveries or insights
+- Add "Resume Guidance" section for next session
 
-### 3. **Commit Current Work**
-- Add any new files to git
-- Commit work-in-progress with descriptive message
-- Push to remote branch for safety
+### 3. **Execute /commit Command**
 
-### 4. **Update Working Branch Notebook**
-- Update CLAUDE.md with current session context
-- **Include active sub-issue in branch notebook** (e.g., "#531.2 - Private Key Handling")
-- Reference the SESSION-STATUS.md file
-- Note any important architectural decisions made
+- This will automatically:
+  - Analyze all changes
+  - Update ROADMAP.md progress (redundant with step 1, but ensures consistency)
+  - Create intelligent commit message with issue linking
+  - Add and commit all changes
+  - Push to remote if appropriate
 
-## Sub-Issue Tracking Template
+### 4. **Final Context Notes** (Optional)
 
-### **Current Sub-Issue Status Format:**
+- Add any session-specific notes to SESSION-STATUS.md that don't fit in commit
+- Document any architectural decisions or trade-offs made
+- Note any external dependencies or blockers discovered
+
+## Execution Flow
+
 ```
-**#[Issue].[Sub]: [Sub-issue Name]** [Status Icon] [Completion %]
-- [x] Completed task 1
-- [x] Completed task 2  
-- [ ] 🎯 CURRENT: Active task (what you're working on now)
-- [ ] Next task
-- [ ] BLOCKED: Task waiting on external dependency
+/steppingaway triggers:
+  1. Update ROADMAP.md ACTIVE_WORK
+  2. Create SESSION-STATUS.md with session details
+  3. Run /commit (which handles git operations)
+  4. Confirm completion
 ```
+
+## Status Documentation Template
+
+### **ROADMAP.md ACTIVE_WORK Format:**
+
+```yaml
+current_issue_id: #529.5
+current_status: DEBUGGING
+completion_percent: 95
+blocking_bug: "Event Processor targetId=0 parsing issue"
+exact_task: "Fix targetId parsing in targetEnrichmentHandler.ts:144-153"
+resume_action: "Debug why Event Processor parses targetId=0 instead of actual hash"
+```
+
+### **SESSION-STATUS.md Format:**
+
+```markdown
+## Session Overview
+**Duration**: [What was worked on]
+**Focus**: [Specific issue/sub-issue]
+**Key Achievement**: [Main accomplishment]
+
+## What Was Accomplished
+- [Specific completed items]
+- [Problems solved]
+- [Code written/modified]
+
+## Current State
+- **Exact Stopping Point**: [Line-level detail]
+- **Next Action**: [Specific next step]
+- **Blocking Issues**: [Any blockers]
+
+## Resume Guidance for Next Session
+1. [First thing to do]
+2. [Second thing to check]
+3. [Expected outcome]
+```
+
+## Benefits
+
+1. **Single Command** - Just run /steppingaway and everything is handled
+2. **No Duplication** - Reuses /commit logic instead of duplicating
+3. **Consistent State** - ROADMAP and git commits always stay in sync
+4. **Complete Handoff** - All context preserved for next session
