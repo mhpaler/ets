@@ -1,8 +1,8 @@
-# Context Command
+# Mapcheck Command
 
-Quick context reminder about current work, epic, and roadmap position.
+Quick roadmap check to see current position, epic progress, and critical path.
 
-## Quick Context Display
+## Quick Roadmap Check
 
 When triggered, this command provides an immediate snapshot of:
 - Current issue and exact task
@@ -21,7 +21,7 @@ When triggered, this command provides an immediate snapshot of:
 ## Template Response
 
 ```
-📍 CURRENT CONTEXT
+📍 ROADMAP CHECK
 ━━━━━━━━━━━━━━━━
 Issue: #529.5 - Update Test Suite and Mocks [95%]
 Task: Fix targetId parsing in targetEnrichmentHandler.ts:144-153
