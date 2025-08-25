@@ -1,0 +1,111 @@
+import type { Address, Hash } from "viem";
+
+// Workflow Input Types
+export interface TargetEnrichmentWorkflowInput {
+  targetId: string;
+  targetURI: string;
+  transactionHash: Hash;
+  blockNumber: bigint;
+  chainId: number;
+  timestamp: Date;
+}
+
+export interface TagCreatedWorkflowInput {
+  tagId: string;
+  coinAddress: Address;
+  tagString: string;
+  creator: Address;
+  transactionHash: Hash;
+  blockNumber: bigint;
+  chainId: number;
+  timestamp: Date;
+}
+
+// Activity Result Types
+export interface MetadataFetchResult {
+  title?: string;
+  description?: string;
+  image?: string;
+  keywords?: string[];
+  targetType?: string;
+  status: "success" | "failed";
+  error?: string;
+}
+
+export interface ArweaveUploadResult {
+  transactionId: string;
+  gatewayUrl: string;
+  status: "success" | "failed";
+  error?: string;
+}
+
+export interface BlockchainUpdateResult {
+  transactionHash: Hash;
+  status: "success" | "failed";
+  error?: string;
+}
+
+export interface ZoraCoinCreationResult {
+  coinAddress: Address;
+  transactionHash: Hash;
+  metadataURI: string;
+  status: "success" | "failed";
+  error?: string;
+}
+
+// Workflow Result Types
+export interface TargetEnrichmentResult {
+  targetId: string;
+  metadataURI?: string;
+  arweaveTransactionId?: string;
+  updateTransactionHash?: Hash;
+  status: "completed" | "failed" | "partial";
+  steps: {
+    fetchMetadata: boolean;
+    uploadToArweave: boolean;
+    updateBlockchain: boolean;
+  };
+  error?: string;
+}
+
+export interface TagCreatedResult {
+  tagId: string;
+  coinAddress?: Address;
+  zoraTxHash?: Hash;
+  status: "completed" | "failed" | "partial";
+  steps: {
+    createMetadata: boolean;
+    deployOnZora: boolean;
+    allocateRewards: boolean;
+  };
+  error?: string;
+}
+
+// Event Types from blockchain
+export interface TargetCreatedEvent {
+  targetId: string;
+  targetURI: string;
+  targetType: number;
+  created: Address;
+  transactionHash: Hash;
+  blockNumber: bigint;
+  logIndex: number;
+}
+
+export interface TagCreatedEvent {
+  tagId: string;
+  coinAddress: Address;
+  tagString: string;
+  creator: Address;
+  transactionHash: Hash;
+  blockNumber: bigint;
+  logIndex: number;
+}
+
+export interface EnrichTargetRequestedEvent {
+  targetId: string;
+  requester: Address;
+  transactionHash: Hash;
+  blockNumber: bigint;
+  logIndex: number;
+}

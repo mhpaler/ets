@@ -1,0 +1,54 @@
+# Dynamic configuration for Temporal server in development
+# Optimized for local development with PostgreSQL
+
+# Increase workflow execution size limits for development
+limit.maxIDLength:
+  - value: 1000
+    constraints: {}
+
+# Workflow execution retention
+system.advancedVisibilityWritingMode:
+  - value: "dual"
+    constraints: {}
+
+# History service configuration
+history.defaultActivityRetryPolicy:
+  - value:
+      InitialIntervalInSeconds: 1
+      MaximumIntervalInSeconds: 60
+      BackoffCoefficient: 2
+      MaximumAttempts: 5
+    constraints: {}
+
+history.defaultWorkflowRetryPolicy:
+  - value:
+      InitialIntervalInSeconds: 1
+      MaximumIntervalInSeconds: 60
+      BackoffCoefficient: 2
+      MaximumAttempts: 5
+    constraints: {}
+
+# Frontend service rate limiting (generous for dev)
+frontend.namespaceRPS:
+  - value: 10000
+    constraints: {}
+
+frontend.globalNamespaceRPS:
+  - value: 10000
+    constraints: {}
+
+# Worker service configuration
+worker.taskQueueActivitiesPerSecond:
+  - value: 1000
+    constraints: {}
+
+# Matching service configuration
+matching.numTaskqueueReadPartitions:
+  - value: 1
+    constraints:
+      namespace: "default"
+
+matching.numTaskqueueWritePartitions:
+  - value: 1
+    constraints:
+      namespace: "default"
