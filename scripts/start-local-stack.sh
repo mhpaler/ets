@@ -739,16 +739,45 @@ start_temporal_server() {
   
   # Wait for services to be ready
   log "Waiting for Temporal server to be ready..."
-  local max_attempts=30
+  local max_attempts=60  # Increased timeout since Temporal takes time to initialize
   local attempt=1
   
   while [ $attempt -le $max_attempts ]; do
-    if docker compose ps | grep -q "temporal.*Up" && \
-       curl -s http://localhost:8080 >/dev/null 2>&1; then
-      break
+    # Check if containers are up
+    if docker compose ps | grep -q "temporal.*Up"; then
+      # Check if Temporal UI is accessible
+      if curl -s http://localhost:8080 >/dev/null 2>&1; then
+        # Check if Temporal server gRPC endpoint is ready by testing connection
+        log "Temporal containers are up, testing gRPC connection..."
+        
+        # Use a simple Node.js script to test Temporal client connection
+        cd "$ROOT_DIR/apps/temporal-processor"
+        if timeout 10 node -e "
+          const { Client } = require('@temporalio/client');
+          (async () => {
+            try {
+              const client = new Client({
+                connection: { address: 'localhost:7233' },
+                namespace: 'default'
+              });
+              await client.connection.close();
+              console.log('SUCCESS: Temporal server gRPC ready');
+              process.exit(0);
+            } catch (error) {
+              console.log('RETRY: Temporal server not ready -', error.message);
+              process.exit(1);
+            }
+          })();
+        " >/dev/null 2>&1; then
+          log "Temporal server gRPC endpoint is ready!"
+          break
+        else
+          log "Temporal server gRPC not ready yet, waiting..."
+        fi
+      fi
     fi
     
-    if [ $((attempt % 5)) -eq 0 ]; then
+    if [ $((attempt % 10)) -eq 0 ]; then
       log "Still waiting for Temporal server... (attempt $attempt/$max_attempts)"
     fi
     
@@ -758,13 +787,13 @@ start_temporal_server() {
   
   if [ $attempt -gt $max_attempts ]; then
     error "Temporal server failed to start within timeout"
-    docker-compose logs
+    docker compose logs
     exit 1
   fi
   
   display_service_url "Temporal Server" "http://localhost:7233"
   display_service_url "Temporal UI" "http://localhost:8080"
-  success "Temporal Server started successfully"
+  success "Temporal Server started and verified - gRPC endpoint ready for connections"
 }
 
 # Start Temporal Processor (replaces Event Processor)

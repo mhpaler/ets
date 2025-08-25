@@ -3,9 +3,9 @@ import type { Address, Hash } from "viem";
 // Workflow Input Types
 export interface TargetEnrichmentWorkflowInput {
   targetId: string;
-  targetURI: string;
+  targetURI?: string; // Optional - workflow will call offchain-api which fetches this from contract
   transactionHash: Hash;
-  blockNumber: bigint;
+  blockNumber: string; // String for Temporal payload serialization
   chainId: number;
   timestamp: Date;
 }

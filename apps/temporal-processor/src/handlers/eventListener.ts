@@ -1,5 +1,5 @@
 import { Client } from "@temporalio/client";
-import { http, type Log, createPublicClient, parseAbiItem } from "viem";
+import { http, type Log, createPublicClient, decodeEventLog, parseAbi, parseAbiItem } from "viem";
 import { base, localhost, sepolia } from "viem/chains";
 import { config } from "../config";
 import type { TagCreatedEvent, TargetCreatedEvent } from "../types";
@@ -27,14 +27,18 @@ const publicClient = createPublicClient({
   transport: http(config.blockchain.rpcUrl),
 });
 
-// Event ABIs
-const targetCreatedAbi = parseAbiItem(
-  "event TargetCreated(uint256 indexed targetId, string targetURI, uint256 targetType, address indexed creator)",
-);
+// Event ABIs - using simplified signature that matches working event processor
+// Note: targetId is NOT indexed in the actual contract
+const targetCreatedAbi = parseAbiItem("event TargetCreated(uint256 targetId)");
 
 const tagCreatedAbi = parseAbiItem(
-  "event TagCreated(uint256 indexed tagId, address indexed coinAddress, string tagString, address indexed creator, uint256 blockNumber, address relayer, uint256 timestamp)",
+  "event TagCreated(address indexed coinAddress, string originalInput, string displayVersion, string machineName, address indexed creator, address indexed relayer, uint256 timestamp)",
 );
+
+// ETSTarget contract ABI for reading target data (unused but kept for future workflow use)
+const _etsTargetAbi = parseAbi([
+  "function getTargetById(uint256 _targetId) view returns (string targetURI, address createdBy, uint256 enriched, uint256 httpStatus, string arweaveTxId)",
+]);
 
 export class EventListener {
   private temporalClient: Client | null = null;
@@ -95,52 +99,88 @@ export class EventListener {
   private watchTargetCreatedEvents(): void {
     logger.info("Setting up TargetCreated event watcher...");
 
-    this.unwatchTargetCreated = publicClient.watchEvent({
-      address: config.blockchain.contracts.etsTarget,
-      event: targetCreatedAbi,
-      onLogs: async (logs: Log[]) => {
+    logger.info("🔧 Initializing watchContractEvent for TargetCreated...");
+    this.unwatchTargetCreated = publicClient.watchContractEvent({
+      address: config.blockchain.contracts.etsTarget as `0x${string}`,
+      abi: [targetCreatedAbi],
+      eventName: "TargetCreated",
+      onLogs: async (logs) => {
+        logger.info(`🎯 DETECTED ${logs.length} TargetCreated event(s)`);
         for (const log of logs) {
           await this.handleTargetCreatedEvent(log);
         }
       },
       onError: (error) => {
-        logger.error({ error }, "Error watching TargetCreated events");
+        logger.error({ error }, "❌ Error watching TargetCreated events");
       },
+      pollingInterval: 2000, // Poll every 2 seconds
     });
+    logger.info("✅ TargetCreated watcher initialized");
 
     logger.info({ contract: config.blockchain.contracts.etsTarget }, "Watching for TargetCreated events");
+
+    // Add periodic debug polling to verify the watcher is working
+    setInterval(async () => {
+      try {
+        const latestBlock = await publicClient.getBlockNumber();
+        logger.info(
+          `🔄 Polling debug: Latest block ${latestBlock}, watching contract ${config.blockchain.contracts.etsTarget}`,
+        );
+
+        // Also check for recent events using getLogs as a verification
+        const recentLogs = await publicClient.getLogs({
+          address: config.blockchain.contracts.etsTarget as `0x${string}`,
+          event: targetCreatedAbi,
+          fromBlock: latestBlock - 10n >= 0n ? latestBlock - 10n : 0n,
+          toBlock: latestBlock,
+        });
+
+        if (recentLogs.length > 0) {
+          logger.info(`📋 getLogs found ${recentLogs.length} TargetCreated event(s) in recent blocks`);
+        }
+      } catch (error) {
+        logger.error({ error }, "❌ Debug polling failed");
+      }
+    }, 10000); // Every 10 seconds
   }
 
   private watchTagCreatedEvents(): void {
     logger.info("Setting up TagCreated event watcher...");
 
-    this.unwatchTagCreated = publicClient.watchEvent({
-      address: config.blockchain.contracts.etsToken,
-      event: tagCreatedAbi,
-      onLogs: async (logs: Log[]) => {
+    logger.info("🔧 Initializing watchContractEvent for TagCreated...");
+    this.unwatchTagCreated = publicClient.watchContractEvent({
+      address: config.blockchain.contracts.etsToken as `0x${string}`,
+      abi: [tagCreatedAbi],
+      eventName: "TagCreated",
+      onLogs: async (logs) => {
+        logger.info(`🏷️ DETECTED ${logs.length} TagCreated event(s)`);
         for (const log of logs) {
           await this.handleTagCreatedEvent(log);
         }
       },
       onError: (error) => {
-        logger.error({ error }, "Error watching TagCreated events");
+        logger.error({ error }, "❌ Error watching TagCreated events");
       },
+      pollingInterval: 2000, // Poll every 2 seconds
     });
+    logger.info("✅ TagCreated watcher initialized");
 
     logger.info({ contract: config.blockchain.contracts.etsToken }, "Watching for TagCreated events");
   }
 
   private async handleTargetCreatedEvent(log: Log): Promise<void> {
     try {
-      const { args, transactionHash, blockNumber } = log;
-      const [targetId, targetURI, targetType, creator] = args as [bigint, string, bigint, `0x${string}`];
+      const { transactionHash, blockNumber } = log;
+      const decoded = decodeEventLog({
+        abi: [targetCreatedAbi],
+        data: log.data,
+        topics: log.topics,
+      });
+      const { targetId } = decoded.args;
 
       logger.info(
         {
           targetId: targetId.toString(),
-          targetURI,
-          targetType: targetType.toString(),
-          creator,
           transactionHash,
           blockNumber: blockNumber?.toString(),
         },
@@ -152,24 +192,28 @@ export class EventListener {
       }
 
       // Get block timestamp
+      logger.info("Fetching block timestamp...");
       const block = await publicClient.getBlock({ blockNumber: blockNumber! });
 
+      logger.info("Preparing workflow arguments...");
+      const workflowArgs = {
+        targetId: targetId.toString(),
+        transactionHash,
+        blockNumber: blockNumber!.toString(),
+        chainId: config.blockchain.chainId,
+        timestamp: new Date(Number(block.timestamp) * 1000),
+      };
+
       // Start Temporal workflow for target enrichment
+      logger.info("Starting Temporal workflow...");
       const workflowId = `target-enrichment-${targetId}-${Date.now()}`;
-      const _handle = await this.temporalClient.workflow.start("TargetEnrichmentWorkflow", {
+      await this.temporalClient.workflow.start("TargetEnrichmentWorkflow", {
         workflowId,
         taskQueue: config.temporal.taskQueue,
-        args: [
-          {
-            targetId: targetId.toString(),
-            targetURI,
-            transactionHash,
-            blockNumber: blockNumber!,
-            chainId: config.blockchain.chainId,
-            timestamp: new Date(Number(block.timestamp) * 1000),
-          },
-        ],
+        args: [workflowArgs],
       });
+
+      logger.info("Workflow started successfully!");
 
       logger.info(
         {
@@ -181,7 +225,16 @@ export class EventListener {
     } catch (error) {
       logger.error(
         {
-          error,
+          error:
+            error instanceof Error
+              ? {
+                  name: error.name,
+                  message: error.message,
+                  stack: error.stack,
+                  cause: error.cause,
+                }
+              : error,
+          errorString: String(error),
           log,
         },
         "Failed to handle TargetCreated event",
@@ -191,15 +244,22 @@ export class EventListener {
 
   private async handleTagCreatedEvent(log: Log): Promise<void> {
     try {
-      const { args, transactionHash, blockNumber } = log;
-      const [tagId, coinAddress, tagString, creator] = args as [bigint, `0x${string}`, string, `0x${string}`];
+      const { transactionHash, blockNumber } = log;
+      const decoded = decodeEventLog({
+        abi: [tagCreatedAbi],
+        data: log.data,
+        topics: log.topics,
+      });
+      const { coinAddress, originalInput, displayVersion, machineName, creator, relayer } = decoded.args;
 
       logger.info(
         {
-          tagId: tagId.toString(),
           coinAddress,
-          tagString,
+          originalInput,
+          displayVersion,
+          machineName,
           creator,
+          relayer,
           transactionHash,
           blockNumber: blockNumber?.toString(),
         },
@@ -214,16 +274,18 @@ export class EventListener {
       const block = await publicClient.getBlock({ blockNumber: blockNumber! });
 
       // Start Temporal workflow for TAG coin creation
-      const workflowId = `tag-coin-creation-${tagId}-${Date.now()}`;
-      const _handle = await this.temporalClient.workflow.start("TagCreatedWorkflow", {
+      const workflowId = `tag-coin-creation-${coinAddress}-${Date.now()}`;
+      await this.temporalClient.workflow.start("TagCreatedWorkflow", {
         workflowId,
         taskQueue: config.temporal.taskQueue,
         args: [
           {
-            tagId: tagId.toString(),
             coinAddress,
-            tagString,
+            originalInput,
+            displayVersion,
+            machineName,
             creator,
+            relayer,
             transactionHash,
             blockNumber: blockNumber!,
             chainId: config.blockchain.chainId,
@@ -235,8 +297,9 @@ export class EventListener {
       logger.info(
         {
           workflowId,
-          tagId: tagId.toString(),
-          tagString,
+          coinAddress,
+          originalInput,
+          displayVersion,
         },
         "Started TagCreatedWorkflow",
       );
