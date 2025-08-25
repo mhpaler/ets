@@ -9,6 +9,7 @@
     "start": "node dist/index.js",
     "test": "jest --config jest.config.js",
     "lint": "eslint . --ext .ts",
+    "generate-keyfile": "ts-node-dev --transpile-only scripts/generate-arweave-keyfile.ts",
     "mint-ar": "ts-node-dev --transpile-only scripts/mint-ar-local.ts",
     "test:watch": "jest --watch"
   },
