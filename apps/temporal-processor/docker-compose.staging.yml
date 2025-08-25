@@ -1,0 +1,62 @@
+# Staging Environment - Uses Temporal Cloud + Base Sepolia
+# This configuration is for staging deployments where we connect to:
+# - Temporal Cloud (managed service)
+# - Base Sepolia testnet
+# - Remote PostgreSQL (if needed for local storage)
+
+services:
+  # Local PostgreSQL for any application-specific data (optional)
+  postgresql:
+    container_name: temporal-postgresql-staging
+    image: postgres:14
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-temporal_staging}
+      POSTGRES_USER: temporal_staging
+      POSTGRES_DB: temporal_staging
+    ports:
+      - "5433:5432"  # Different port to avoid conflicts
+    volumes:
+      - temporal-postgres-staging-data:/var/lib/postgresql/data
+    networks:
+      - temporal-staging-network
+    profiles:
+      - local-postgres  # Only start if explicitly requested
+
+  # Temporal Processor - connects to Temporal Cloud
+  temporal-processor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: temporal-processor-staging
+    environment:
+      - NODE_ENV=staging
+      - CHAIN_ID=84532  # Base Sepolia
+      - TEMPORAL_SERVER_URL=${TEMPORAL_CLOUD_URL}
+      - TEMPORAL_NAMESPACE=${TEMPORAL_NAMESPACE:-staging}
+      - TEMPORAL_TASK_QUEUE=${TEMPORAL_TASK_QUEUE:-ets-workflows-staging}
+      - TEMPORAL_CLIENT_CERT=${TEMPORAL_CLIENT_CERT}
+      - TEMPORAL_CLIENT_KEY=${TEMPORAL_CLIENT_KEY}
+      - RPC_URL=${BASE_SEPOLIA_RPC_URL}
+      - ALCHEMY_API_KEY=${ALCHEMY_API_KEY}
+      - OFFCHAIN_API_URL=${STAGING_OFFCHAIN_API_URL:-https://api-staging.ets.xyz}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - temporal-staging-logs:/app/logs
+    depends_on:
+      - postgresql
+    profiles:
+      - processor  # Can be started independently
+    networks:
+      - temporal-staging-network
+    restart: unless-stopped
+
+volumes:
+  temporal-postgres-staging-data:
+    driver: local
+  temporal-staging-logs:
+    driver: local
+
+networks:
+  temporal-staging-network:
+    driver: bridge
+    name: temporal-staging-network

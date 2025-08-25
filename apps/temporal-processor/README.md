@@ -118,27 +118,73 @@ temporal workflow start \
 
 ## Deployment
 
-### Docker Build
+### Local Development
 
 ```bash
-# Build image
-docker build -t ets-temporal-processor .
+# Start Temporal server and processor
+docker compose up -d
 
-# Run with env file
-docker run --env-file .env ets-temporal-processor
+# Build and run locally
+pnpm build
+pnpm start
 ```
+
+### Staging Deployment (Base Sepolia)
+
+```bash
+# Set required environment variables
+export TEMPORAL_CLIENT_CERT="<base64-encoded-cert>"
+export TEMPORAL_CLIENT_KEY="<base64-encoded-key>"
+export ALCHEMY_API_KEY="<your-alchemy-key>"
+
+# Deploy to staging
+./scripts/deploy-staging.sh
+```
+
+### Production Deployment (Base Mainnet)
+
+```bash
+# Set required environment variables
+export TEMPORAL_CLIENT_CERT="<base64-encoded-cert>"
+export TEMPORAL_CLIENT_KEY="<base64-encoded-key>"
+export ALCHEMY_API_KEY="<your-alchemy-key>"
+
+# Deploy to production (requires confirmation)
+./scripts/deploy-production.sh
+```
+
+### Environment-Specific Configurations
+
+#### Local Development
+- **Chain ID**: 31337 (Localhost)
+- **Temporal**: Local Docker server
+- **RPC**: Local Hardhat node
+
+#### Staging
+- **Chain ID**: 84532 (Base Sepolia)
+- **Temporal**: Temporal Cloud
+- **RPC**: Alchemy Base Sepolia
+
+#### Production
+- **Chain ID**: 8453 (Base Mainnet)
+- **Temporal**: Temporal Cloud
+- **RPC**: Alchemy Base Mainnet
 
 ### Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `TEMPORAL_SERVER_URL` | Temporal server address | `localhost:7233` |
-| `TEMPORAL_NAMESPACE` | Temporal namespace | `default` |
-| `TEMPORAL_TASK_QUEUE` | Task queue name | `ets-workflows` |
-| `RPC_URL` | Blockchain RPC endpoint | `http://localhost:8545` |
-| `CHAIN_ID` | Chain ID | `31337` |
-| `PRIVATE_KEY` | Private key for on-chain updates | Required |
-| `OFFCHAIN_API_URL` | Offchain API URL | `http://localhost:3000` |
+| Variable | Description | Local | Staging | Production |
+|----------|-------------|--------|---------|------------|
+| `NODE_ENV` | Environment mode | `development` | `staging` | `production` |
+| `CHAIN_ID` | Blockchain network | `31337` | `84532` | `8453` |
+| `TEMPORAL_SERVER_URL` | Temporal server address | `localhost:7233` | `<namespace>.tmprl.cloud:7233` | `<namespace>.tmprl.cloud:7233` |
+| `TEMPORAL_NAMESPACE` | Temporal namespace | `default` | `staging` | `production` |
+| `TEMPORAL_TASK_QUEUE` | Task queue name | `ets-workflows` | `ets-workflows-staging` | `ets-workflows-production` |
+| `TEMPORAL_CLIENT_CERT` | Base64 client certificate | Not required | Required | Required |
+| `TEMPORAL_CLIENT_KEY` | Base64 client private key | Not required | Required | Required |
+| `RPC_URL` | Blockchain RPC endpoint | `http://localhost:8545` | Auto (Alchemy) | Auto (Alchemy) |
+| `ALCHEMY_API_KEY` | Alchemy API key | Optional | Required | Required |
+| `OFFCHAIN_API_URL` | Offchain API URL | `http://localhost:3000` | Staging API URL | Production API URL |
+| `LOG_LEVEL` | Logging level | `info` | `info` | `warn` |
 
 ## Migration from Event Processor
 

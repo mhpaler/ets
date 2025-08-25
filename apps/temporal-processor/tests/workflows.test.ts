@@ -1,15 +1,15 @@
 import { TestWorkflowEnvironment } from "@temporalio/testing";
 import { Worker } from "@temporalio/worker";
-import { 
-  fetchTargetMetadata,
-  uploadToArweave, 
-  updateTargetOnChain
-} from "../src/activities/targetEnrichmentActivities";
-import { 
+import {
+  allocateCreatorRewards,
   createTagCoinMetadata,
   deployTagCoinOnZora,
-  allocateCreatorRewards
 } from "../src/activities/tagCoinActivities";
+import {
+  fetchTargetMetadata,
+  updateTargetOnChain,
+  uploadToArweave,
+} from "../src/activities/targetEnrichmentActivities";
 import type { TagCreatedWorkflowInput, TargetEnrichmentWorkflowInput } from "../src/types";
 import { TagCreatedWorkflow, TargetEnrichmentWorkflow } from "../src/workflows";
 

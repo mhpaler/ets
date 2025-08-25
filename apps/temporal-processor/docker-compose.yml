@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   postgresql:
@@ -17,11 +16,11 @@ services:
 
   temporal:
     container_name: temporal-server
-    image: temporalio/auto-setup:1.24.2
+    image: temporalio/auto-setup:latest
     depends_on:
       - postgresql
     environment:
-      - DB=postgresql
+      - DB=postgres12_pgx
       - DB_PORT=5432
       - POSTGRES_USER=temporal
       - POSTGRES_PWD=temporal
@@ -36,7 +35,7 @@ services:
 
   temporal-ui:
     container_name: temporal-ui
-    image: temporalio/ui:2.27.3
+    image: temporalio/ui:latest
     depends_on:
       - temporal
     environment:
@@ -49,7 +48,7 @@ services:
 
   temporal-admin-tools:
     container_name: temporal-admin-tools
-    image: temporalio/admin-tools:1.24.2
+    image: temporalio/admin-tools:latest
     depends_on:
       - temporal
     environment:

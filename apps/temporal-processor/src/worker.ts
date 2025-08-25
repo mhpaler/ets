@@ -1,14 +1,6 @@
 import { NativeConnection, Worker } from "@temporalio/worker";
-import { 
-  fetchTargetMetadata,
-  uploadToArweave, 
-  updateTargetOnChain
-} from "./activities/targetEnrichmentActivities";
-import { 
-  createTagCoinMetadata,
-  deployTagCoinOnZora,
-  allocateCreatorRewards
-} from "./activities/tagCoinActivities";
+import { allocateCreatorRewards, createTagCoinMetadata, deployTagCoinOnZora } from "./activities/tagCoinActivities";
+import { fetchTargetMetadata, updateTargetOnChain, uploadToArweave } from "./activities/targetEnrichmentActivities";
 
 const activities = {
   fetchTargetMetadata,
@@ -16,7 +8,7 @@ const activities = {
   updateTargetOnChain,
   createTagCoinMetadata,
   deployTagCoinOnZora,
-  allocateCreatorRewards
+  allocateCreatorRewards,
 };
 import { config } from "./config";
 import { getComponentLogger } from "./utils/logger";
@@ -26,11 +18,32 @@ const logger = getComponentLogger("Worker");
 async function run() {
   try {
     logger.info("🚀 Starting Temporal worker...");
+    logger.info(
+      {
+        isCloud: config.temporal.isCloud,
+        serverUrl: config.temporal.serverUrl,
+        namespace: config.temporal.namespace,
+      },
+      "Connection configuration",
+    );
 
-    // Create connection to Temporal server
-    const connection = await NativeConnection.connect({
+    // Create connection to Temporal server (supports both local and cloud)
+    const connectionOptions: any = {
       address: config.temporal.serverUrl,
-    });
+    };
+
+    // Add TLS configuration for Temporal Cloud
+    if (config.temporal.isCloud) {
+      logger.info("Configuring Temporal Cloud connection with TLS");
+      connectionOptions.tls = {
+        clientCertPair: {
+          crt: Buffer.from(config.temporal.clientCert!, "base64"),
+          key: Buffer.from(config.temporal.clientKey!, "base64"),
+        },
+      };
+    }
+
+    const connection = await NativeConnection.connect(connectionOptions);
 
     // Create worker that hosts both workflows and activities
     const worker = await Worker.create({

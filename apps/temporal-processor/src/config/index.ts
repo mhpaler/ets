@@ -1,5 +1,10 @@
 import path from "node:path";
-import { etsAddress, etsTargetAddress, etsTokenAddress } from "@ethereum-tag-service/contracts/contracts";
+import {
+  etsAddress,
+  etsEnrichTargetAddress,
+  etsTargetAddress,
+  etsTokenAddress,
+} from "@ethereum-tag-service/contracts/contracts";
 import { getAlchemyRpcUrlById } from "@ethereum-tag-service/contracts/utils";
 import { type Environment, getSubgraphEndpoint } from "@ethereum-tag-service/subgraph-endpoints";
 import { config as dotenvConfig } from "dotenv";
@@ -15,6 +20,9 @@ interface Config {
     namespace: string;
     taskQueue: string;
     workerId: string;
+    clientCert?: string;
+    clientKey?: string;
+    isCloud: boolean;
   };
 
   // Blockchain Configuration
@@ -64,21 +72,27 @@ const getRpcUrl = (): string => {
   }
 };
 
+// Determine if using Temporal Cloud
+const isTemporalCloud = Boolean(process.env.TEMPORAL_CLIENT_CERT && process.env.TEMPORAL_CLIENT_KEY);
+
 export const config: Config = {
   temporal: {
     serverUrl: process.env.TEMPORAL_SERVER_URL || "localhost:7233",
     namespace: process.env.TEMPORAL_NAMESPACE || "default",
     taskQueue: process.env.TEMPORAL_TASK_QUEUE || "ets-workflows",
     workerId: process.env.TEMPORAL_WORKER_ID || `ets-worker-${Date.now()}`,
+    clientCert: process.env.TEMPORAL_CLIENT_CERT,
+    clientKey: process.env.TEMPORAL_CLIENT_KEY,
+    isCloud: isTemporalCloud,
   },
 
   blockchain: {
     rpcUrl: getRpcUrl(),
     chainId,
     contracts: {
-      etsToken: etsTokenAddress(environment, chainId),
-      etsTarget: etsTargetAddress(environment, chainId),
-      ets: etsAddress(environment, chainId),
+      etsToken: etsTokenAddress[chainId as keyof typeof etsTokenAddress] as Address,
+      etsTarget: etsTargetAddress[chainId as keyof typeof etsTargetAddress] as Address,
+      ets: etsAddress[chainId as keyof typeof etsAddress] as Address,
     },
   },
 
@@ -100,9 +114,9 @@ export const config: Config = {
 function validateConfig(): void {
   try {
     // Test that workspace packages provide valid addresses
-    const tokenAddr = etsTokenAddress(config.env, config.blockchain.chainId);
-    const targetAddr = etsTargetAddress(config.env, config.blockchain.chainId);
-    const etsAddr = etsAddress(config.env, config.blockchain.chainId);
+    const tokenAddr = config.blockchain.contracts.etsToken;
+    const targetAddr = config.blockchain.contracts.etsTarget;
+    const etsAddr = config.blockchain.contracts.ets;
 
     if (!tokenAddr || !targetAddr || !etsAddr) {
       throw new Error(

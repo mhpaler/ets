@@ -32,7 +32,7 @@ if [ "$SHOW_HELP" = true ]; then
   echo "Usage: $0 [OPTIONS]"
   echo ""
   echo "Options:"
-  echo "  --core     Start core services only (Hardhat, Event Processor, Offchain API, ArLocal)"
+  echo "  --core     Start core services only (Hardhat, Temporal Server/Processor, Offchain API, ArLocal)"
   echo "  --help|-h  Show this help message"
   echo ""
   echo "Note: Graph Node/Subgraph temporarily disabled for maintenance"
@@ -373,7 +373,8 @@ open_logs_terminal() {
   touch "$ROOT_DIR/logs/subgraph-deploy.log"
   touch "$ROOT_DIR/logs/arlocal.log"
   touch "$ROOT_DIR/logs/offchain-api.log"
-  touch "$ROOT_DIR/logs/event-processor.log"
+  touch "$ROOT_DIR/logs/temporal-server.log"
+  touch "$ROOT_DIR/logs/temporal-processor.log"
   touch "$ROOT_DIR/logs/explorer.log"
 
   # Create a temporary script file for the new terminal
@@ -392,7 +393,8 @@ tail -f logs/*.log | grep --line-buffered "" |
       -e $'s/.*subgraph-deploy.log.*/\033[0;34m[SUBGRAPH-DEPLOY]\033[0m &/' \
       -e $'s/.*arlocal.log.*/\033[1;34m[ARLOCAL]\033[0m &/' \
       -e $'s/.*offchain-api.log.*/\033[0;32m[OFFCHAIN-API]\033[0m &/' \
-      -e $'s/.*event-processor.log.*/\033[0;35m[EVENT-PROCESSOR]\033[0m &/' \
+      -e $'s/.*temporal-server.log.*/\033[1;35m[TEMPORAL-SERVER]\033[0m &/' \
+      -e $'s/.*temporal-processor.log.*/\033[0;35m[TEMPORAL-PROCESSOR]\033[0m &/' \
       -e $'s/.*explorer.log.*/\033[0;33m[EXPLORER]\033[0m &/'
 EOF
 
@@ -561,11 +563,12 @@ deploy_subgraph() {
 start_arlocal() {
   log "Starting ArLocal (Arweave local node) in Docker..."
   
-  # Check if ArLocal container is already running
-  if docker ps --format '{{.Names}}' | grep -q "arlocal"; then
-    warn "ArLocal container already running, stopping it first..."
+  # Clean up any existing ArLocal container (running or stopped)
+  if docker ps -a --format '{{.Names}}' | grep -q "arlocal"; then
+    warn "ArLocal container exists, cleaning up first..."
     docker stop arlocal > /dev/null 2>&1 || true
     docker rm arlocal > /dev/null 2>&1 || true
+    sleep 1
   fi
 
   # Start ArLocal in Docker container
@@ -607,7 +610,30 @@ start_arlocal() {
   fi
 }
 
-# Add after start_arlocal function
+# Add after start_arlocal function  
+generate_arweave_keyfile() {
+  log "Checking for Arweave keyfile..."
+  cd "$ROOT_DIR/apps/offchain-api"
+  
+  if [ ! -f "arweave-keyfile.json" ]; then
+    log "Arweave keyfile not found. Generating new keyfile for local development..."
+    if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
+      pnpm run generate-keyfile > "$ROOT_DIR/logs/arweave-keyfile-generation.log" 2>&1
+    else
+      pnpm run generate-keyfile | tee "$ROOT_DIR/logs/arweave-keyfile-generation.log"
+    fi
+    if [ ${PIPESTATUS[0]} -eq 0 ]; then
+      success "Arweave keyfile generated successfully"
+    else
+      error "Failed to generate Arweave keyfile. Check logs/arweave-keyfile-generation.log for details"
+      cat "$ROOT_DIR/logs/arweave-keyfile-generation.log"
+      exit 1
+    fi
+  else
+    success "Arweave keyfile already exists"
+  fi
+}
+
 fund_arlocal_wallet() {
   log "Funding ArLocal wallet with test tokens..."
   cd "$ROOT_DIR/apps/offchain-api"
@@ -692,9 +718,93 @@ start_event_processor() {
   fi
 }
 
-# Airnode Oracle removed - replaced with Event Processor
+# Start Temporal Server
+start_temporal_server() {
+  log "Starting Temporal Server with Docker Compose..."
+  cd "$ROOT_DIR/apps/temporal-processor"
+  
+  # Clean up any existing Temporal containers (running or stopped)
+  if docker compose ps -a | grep -q "temporal"; then
+    warn "Temporal server containers exist, cleaning up first..."
+    docker compose down > /dev/null 2>&1 || true
+    sleep 2
+  fi
+  
+  # Start Temporal server stack
+  if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
+    docker compose up -d > "$ROOT_DIR/logs/temporal-server.log" 2>&1
+  else
+    docker compose up -d | tee "$ROOT_DIR/logs/temporal-server.log"
+  fi
+  
+  # Wait for services to be ready
+  log "Waiting for Temporal server to be ready..."
+  local max_attempts=30
+  local attempt=1
+  
+  while [ $attempt -le $max_attempts ]; do
+    if docker compose ps | grep -q "temporal.*Up" && \
+       curl -s http://localhost:8080 >/dev/null 2>&1; then
+      break
+    fi
+    
+    if [ $((attempt % 5)) -eq 0 ]; then
+      log "Still waiting for Temporal server... (attempt $attempt/$max_attempts)"
+    fi
+    
+    sleep 2
+    attempt=$((attempt + 1))
+  done
+  
+  if [ $attempt -gt $max_attempts ]; then
+    error "Temporal server failed to start within timeout"
+    docker-compose logs
+    exit 1
+  fi
+  
+  display_service_url "Temporal Server" "http://localhost:7233"
+  display_service_url "Temporal UI" "http://localhost:8080"
+  success "Temporal Server started successfully"
+}
 
+# Start Temporal Processor (replaces Event Processor)
+start_temporal_processor() {
+  log "Starting Temporal Processor..."
+  cd "$ROOT_DIR/apps/temporal-processor"
+  
+  # Set environment for localhost testing
+  export NODE_ENV=development
+  export CHAIN_ID=31337
+  export RPC_URL=http://localhost:8545
+  export OFFCHAIN_API_URL=http://localhost:3000
+  export TEMPORAL_SERVER_URL=localhost:7233
+  export TEMPORAL_NAMESPACE=default
+  export TEMPORAL_TASK_QUEUE=ets-workflows
+  
+  if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
+    PATH="/Users/User/.nvm/versions/node/v20.19.4/bin:$PATH" pnpm run dev > "$ROOT_DIR/logs/temporal-processor.log" 2>&1 &
+  else
+    PATH="/Users/User/.nvm/versions/node/v20.19.4/bin:$PATH" pnpm run dev | tee "$ROOT_DIR/logs/temporal-processor.log" &
+  fi
+  
+  TEMPORAL_PROCESSOR_PID=$!
+  echo $TEMPORAL_PROCESSOR_PID >> "$ROOT_DIR/logs/service_pids.txt"
+  
+  # Set up colored output for this service
+  colorize_output "TEMPORAL-PROCESSOR" "${PURPLE}"
+  
+  sleep 5
+  if ps -p $TEMPORAL_PROCESSOR_PID > /dev/null; then
+    display_service_url "Temporal Processor" "Running (monitoring events → workflows)"
+    success "Temporal Processor started with PID: $TEMPORAL_PROCESSOR_PID"
+  else
+    error "Temporal Processor failed to start. Check logs/temporal-processor.log for details"
+    cat "$ROOT_DIR/logs/temporal-processor.log"
+    exit 1
+  fi
+}
 
+# Airnode Oracle removed - replaced with Temporal Processor
 
 # Start Explorer UI
 start_explorer() {
@@ -777,16 +887,18 @@ success "Log rotation set up with PID: $LOG_ROTATION_PID"
 # Start services based on mode
 if [ "$CORE_MODE" = true ]; then
   log "Starting core services only..."
-  # Core services: Hardhat + Contracts + Event Processor + Offchain API + ArLocal
+  # Core services: Hardhat + Contracts + Temporal Server/Processor + Offchain API + ArLocal
   # TEMPORARILY DISABLED: Subgraph (Graph Node) to unblock integration testing
   start_hardhat
   deploy_contracts
   # start_graph_node    # DISABLED: Graph Node broken, fix later
   # deploy_subgraph     # DISABLED: Requires Graph Node
   start_arlocal         # FIXED: Now using Docker instead of native
+  generate_arweave_keyfile   # Generate keyfile if needed for ArLocal testing
   fund_arlocal_wallet   
   start_offchain_api
-  start_event_processor
+  start_temporal_server      # NEW: Temporal server infrastructure
+  start_temporal_processor   # REPLACES: Event Processor with Temporal workflows
 else
   log "Starting full stack..."
   # Full stack: Core services + Explorer UI
@@ -796,9 +908,11 @@ else
   # start_graph_node    # DISABLED: Graph Node broken, fix later
   # deploy_subgraph     # DISABLED: Requires Graph Node
   start_arlocal         # FIXED: Now using Docker instead of native
+  generate_arweave_keyfile   # Generate keyfile if needed for ArLocal testing
   fund_arlocal_wallet   
   start_offchain_api
-  start_event_processor
+  start_temporal_server      # NEW: Temporal server infrastructure  
+  start_temporal_processor   # REPLACES: Event Processor with Temporal workflows
   start_explorer
   populate_data
 fi
@@ -837,6 +951,12 @@ cleanup() {
   docker stop arlocal 2>/dev/null || true
   docker rm arlocal 2>/dev/null || true
   # docker stop $(docker ps -q --filter "name=graph-node") 2>/dev/null || true  # DISABLED: Graph Node
+  
+  # Stop Temporal Docker containers
+  if [ -d "$ROOT_DIR/apps/temporal-processor" ]; then
+    cd "$ROOT_DIR/apps/temporal-processor"
+    docker compose down 2>/dev/null || true
+  fi
 
   rm -f "$ROOT_DIR/logs/service_pids.txt" "$ROOT_DIR/logs/tail_pids.txt"
   success "All services stopped"
