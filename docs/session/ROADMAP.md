@@ -11,33 +11,34 @@ last_updated: 2025-08-23
 
 ## ACTIVE_WORK
 ```yaml
-current_issue_id: #536.3  
-current_status: MOSTLY_COMPLETED
-completion_percent: 95
-exact_task: "Event detection working perfectly, workflow infrastructure ready, minor gRPC connection issue remaining"
-next_priority: "#536.4 - Complete workflow execution validation"
-resume_action: "Debug final gRPC connection issue between Temporal client and worker, validate complete workflow execution"
-transition_note: "Comprehensive Temporal processor with dual event handlers (TagCreated + TargetCreated) and full deployment pipeline"
-implementation_complete: "Event handlers, workflows, activities, worker, deployment scripts, Docker configs, environment docs"
+current_issue_id: #537.1  
+current_status: PLANNED
+completion_percent: 15
+exact_task: "Strategic architecture pivot completed - Temporal to Gelato Web3 Functions migration planned"
+next_priority: "#537.1 - Gelato Web3 Functions Development Setup"
+resume_action: "Begin Gelato development environment setup: npm install @gelatonetwork/web3-functions-sdk, create local testing workflow"
+transition_note: "Strategic pivot documented in ROADMAP.md - 95% complete Temporal infrastructure abandoned for operational simplicity"
+architecture_decision: "Replace apps/temporal-processor with Gelato Web3 Functions for event processing"
+temporal_lessons_learned: "Event detection patterns (viem watchContractEvent, ABI signatures, serialization) transfer directly to Gelato"
 ```
 
 ## CRITICAL_PATH
 ```yaml
 priority_chain:
-  - id: #536
+  - id: #537
     blocks: ["#532", "#533"]
-    reason: "Temporal migration must complete before EOA management and creator allocations"
-    estimated_duration: "2-3 weeks"
+    reason: "Gelato Web3 Functions migration must complete before EOA management and creator allocations"
+    estimated_duration: "1-2 weeks"
     
   - id: #532
     blocks: ["#533"]
     reason: "Secure EOA management required for creator allocations"
     estimated_duration: "1 week"
 
-current_bottleneck: #536
-next_unblocked: ["#536.1"]  # Temporal setup can begin immediately
-estimated_path_duration: "3-4 weeks total"
-architecture_change: "Event Processor → Temporal Workflows (operational simplification)"
+current_bottleneck: #537
+next_unblocked: ["#537.1"]  # Gelato setup can begin immediately
+estimated_path_duration: "2-3 weeks total"
+architecture_change: "Event Processor → Gelato Web3 Functions (zero-infrastructure serverless)"
 ```
 
 ## DEPENDENCIES
@@ -68,15 +69,21 @@ technical_dependencies:
     last_success: 2025-08-22
 
 architectural_decisions:
-  - date: 2025-08-23
-    decision: "Temporal Workflow Migration (EPIC #536)"
+  - date: 2025-08-26
+    decision: "Gelato Web3 Functions Migration (EPIC #537)"
     impact:
-      - "Replace Event Processor with Temporal workflows"
-      - "Eliminate custom orchestration and retry logic" 
-      - "Reduce 6-service distributed system to 5-service with built-in reliability"
-      - "Save weeks of custom reliability engineering"
-    rationale: "Pre-MVP status optimal for major architecture change"
-    implementation: "apps/temporal-processor (replaces apps/event-processor)"
+      - "Replace custom Event Processor infrastructure with Gelato serverless functions"
+      - "Eliminate Docker orchestration, server maintenance, and gRPC debugging"
+      - "Reduce 6-service distributed system to 4-service + Gelato managed functions"
+      - "Built-in multi-chain support and managed reliability"
+      - "Simple local testing with 'npx w3f test' workflow"
+    rationale: "Operational simplicity over infrastructure control - focus on business logic"
+    implementation: "Gelato Web3 Functions (replaces apps/temporal-processor and apps/event-processor)"
+    
+  - date: 2025-08-23
+    decision: "Temporal Workflow Migration (EPIC #536) - DEPRECATED"
+    status: "ABANDONED - pivot to Gelato"
+    rationale: "95% complete but operational complexity too high for long-term maintenance"
     
   - date: 2025-08-23
     decision: "Refactored project management to ROADMAP.md with dependencies"
@@ -225,19 +232,98 @@ artifacts:
   - Zora metadata builder integration
 ```
 
-### EPIC_536: Temporal Workflow Migration
+### EPIC_537: Gelato Web3 Functions Migration  
+```yaml
+id: #537
+status: ACTIVE
+priority: HIGH
+dependencies: ["#529.5"]
+estimated_effort: 1-2 weeks
+objective: "Replace custom Event Processor with Gelato Web3 Functions for zero-infrastructure serverless event processing"
+benefits:
+  - "Zero infrastructure maintenance (no servers, Docker, or gRPC)"
+  - "Built-in blockchain event triggers and multi-chain support"
+  - "Managed reliability with automatic retries and state management"
+  - "Simple local testing with 'npx w3f test' workflow"
+  - "IPFS-based deployment eliminates CI/CD complexity"
+architecture_change: "6-service distributed → 4-service + Gelato managed functions"
+```
+
+##### SUB_537.1: Gelato Web3 Functions Development Setup
+```yaml
+id: #537.1
+status: NOT_STARTED
+priority: HIGH
+completion: 0
+dependencies: ["#529.5"]
+deliverables:
+  - "Gelato Web3 Functions development environment setup"
+  - "Local testing workflow with 'npx w3f test'"
+  - "Network forking configuration for localhost/staging/production"
+  - "Environment-specific configuration management"
+  - "Gelato CLI and template integration"
+estimated_duration: "2-3 days"
+```
+
+##### SUB_537.2: Event Handler Migration 
+```yaml
+id: #537.2
+status: NOT_STARTED
+priority: HIGH
+completion: 0
+dependencies: ["#537.1"]
+deliverables:
+  - "TargetCreated event handler as Gelato Web3 Function"
+  - "TagCreated event handler as Gelato Web3 Function"
+  - "Event-driven triggers configuration"
+  - "Offchain-api integration for metadata and Arweave uploads"
+  - "On-chain transaction execution for target updates"
+estimated_duration: "3-4 days"
+```
+
+##### SUB_537.3: Multi-Environment Integration Testing
+```yaml
+id: #537.3
+status: NOT_STARTED
+priority: HIGH
+completion: 0
+dependencies: ["#537.2"]
+deliverables:
+  - "Local testing against Hardhat localhost (chain ID 31337)"
+  - "Staging testing against Base Sepolia (chain ID 11155111)"
+  - "Production testing against Base Mainnet (chain ID 8453)"
+  - "Gelato task creation and management for each environment"
+  - "End-to-end workflow validation across all environments"
+estimated_duration: "4-5 days"
+```
+
+##### SUB_537.4: Development Workflow Integration
+```yaml
+id: #537.4
+status: NOT_STARTED
+priority: MEDIUM
+completion: 0
+dependencies: ["#537.3"]
+deliverables:
+  - "Update start-local-stack.sh for Gelato-based development"
+  - "Remove Temporal/Docker dependencies from local development"
+  - "Integration with existing test suite and validation pipeline"
+  - "Documentation updates for new Gelato workflow"
+  - "Production deployment procedures"
+estimated_duration: "2-3 days"
+```
+
+### EPIC_536: Temporal Workflow Migration - DEPRECATED
 ```yaml
 id: #536
-status: PLANNED
-priority: HIGH
+status: ABANDONED
+priority: DEPRECATED
 dependencies: ["#529.5"]
 estimated_effort: 2-3 weeks
 objective: "Replace custom Event Processor with Temporal workflows for operational simplicity"
-benefits:
-  - "Built-in retry/recovery (eliminate custom orchestration)"
-  - "Visual workflow monitoring (eliminate custom dashboards)"
-  - "Automatic state management (eliminate manual coordination)"
-  - "Standard deployment patterns (reduce operational overhead)"
+abandonment_reason: "95% complete but operational complexity (Docker, gRPC, server maintenance) too high"
+pivot_to: "#537 - Gelato Web3 Functions Migration"
+lessons_learned: "Event detection patterns and workflow logic transfer to Gelato implementation"
 architecture_change: "6-service distributed → 5-service with Temporal orchestration"
 ```
 

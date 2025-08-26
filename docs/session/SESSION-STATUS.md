@@ -1,247 +1,91 @@
-# Session Status - August 25, 2025
+# ETS Session Status - Architecture Pivot Session
 
 ## Session Overview
-**Duration**: Temporal Infrastructure Implementation - Day 1  
-**Branch**: `528-tag-coins-epic`  
-**Key Focus**: Implementing #536.1 - Temporal Infrastructure Setup (85% complete)
+**Duration**: Architecture evaluation and strategic pivot session  
+**Focus**: EPIC #536 → EPIC #537 transition (Temporal to Gelato Web3 Functions)  
+**Key Achievement**: Strategic decision to abandon Temporal for operational simplicity  
 
----
+## What Was Accomplished
 
-## Major Accomplishments This Session
+### Major Architecture Decision
+- **Analyzed Temporal vs Gelato tradeoffs** with detailed research
+- **Decided to pivot from Temporal to Gelato Web3 Functions** for operational simplicity
+- **Created comprehensive EPIC #537** with 4-phase migration plan
+- **Updated ROADMAP.md** to reflect new architecture direction
 
-### ✅ **Temporal Infrastructure Implementation - 85% Complete**
+### Technical Validation
+- **Confirmed Temporal event detection was 95% working** (visible proof in logs)
+- **Identified operational complexity concerns**: Docker orchestration, gRPC debugging, server maintenance
+- **Researched Gelato Web3 Functions**: local testing with `npx w3f test`, network forking, serverless deployment
+- **Validated that Temporal lessons learned transfer to Gelato**: event patterns, viem API usage, ABI signatures
 
-**Created Complete Service Structure**:
-- `apps/temporal-processor/` - Full service directory with TypeScript configuration
-- Installed Temporal SDK dependencies (@temporalio/client, worker, workflow, activity)
-- Dual compilation setup for workflows (ES2022) and activities (Node16)
-
-### 🏗️ **Workflows and Activities Implemented**
-
-**Workflows Created**:
-1. **TargetEnrichmentWorkflow**:
-   - Fetches metadata from target URI
-   - Uploads to Arweave for permanent storage
-   - Updates on-chain target with Arweave TX ID
-   - Handles partial failures gracefully
-
-2. **TagCreatedWorkflow**:
-   - Creates TAG coin metadata
-   - Deploys coin on Zora platform
-   - Allocates creator rewards (placeholder)
-   - Built-in retry policies and error handling
-
-**Activities Implemented**:
-- `fetchTargetMetadata` - Calls offchain API for metadata extraction
-- `uploadToArweave` - Persists metadata to Arweave
-- `updateTargetOnChain` - Updates blockchain with enrichment data
-- `createTagCoinMetadata` - Generates TAG coin metadata
-- `deployTagCoinOnZora` - Deploys coins on Zora
-- `allocateCreatorRewards` - Placeholder for future rewards system
-
-### 🔧 **Event Listening Architecture**
-
-**Blockchain Event Listener** (`eventListener.ts`):
-- Monitors `TargetCreated` events from ETSTarget contract
-- Monitors `TagCreated` events from ETSToken contract
-- Automatically triggers corresponding Temporal workflows
-- Uses viem for blockchain interaction
-- Configurable for localhost/sepolia/base chains
-
-### 🐳 **Docker Infrastructure**
-
-**Complete Temporal Stack**:
-- PostgreSQL database for workflow state
-- Temporal server with auto-setup
-- Temporal UI on port 8080 for monitoring
-- Admin tools for debugging
-- Dynamic configuration optimized for development
-
-### ✅ **Previous Architecture Decision: Temporal Workflow Migration**
-
-**Problem Identified**: Custom Event Processor creating operational complexity
-- Hand-built orchestration with manual recovery
-- 11-step async workflows across 4 services  
-- Manual error handling with no built-in retry/recovery
-- High operational overhead for distributed system (64 potential failure scenarios)
-
-**Solution Decided**: Replace Event Processor with Temporal workflows
-- Built-in retry/recovery eliminates custom orchestration
-- Visual workflow monitoring eliminates custom dashboards
-- Automatic state management eliminates manual coordination
-- Standard deployment patterns reduce operational overhead
-
-### 🏗️ **EPIC #536 Created: Temporal Workflow Migration**
-
-**Complete Epic Structure**:
-- **#536.1**: Temporal Infrastructure Setup (3-4 days)
-- **#536.2**: Target Enrichment Workflow Migration (4-5 days)  
-- **#536.3**: TAG Coin Creation Workflow Migration (3-4 days)
-- **#536.4**: Production Migration & Event Processor Retirement (2-3 days)
-
-**Architecture Benefits Documented**:
-- 6-service distributed system → 5-service with Temporal orchestration
-- Eliminate weeks of custom reliability engineering
-- Pre-MVP status optimal for major architecture change
-
-### 📋 **ROADMAP Updates**
-
-**Critical Path Updated**:
-- #536 now blocks #532 (EOA management) and #533 (creator allocations)
-- #535 (Offchain Process Hardening) removed - superseded by Temporal's built-in reliability
-- Timeline: 2-3 weeks for Temporal migration + 1 week for EOA = 3-4 weeks total
-
-**Dual Event Listening Architecture Designed**:
-```
-[Blockchain Events] → [Temporal Workflows] (business logic)
-[Blockchain Events] → [Subgraph] (indexing/queries)
-```
-
----
+### ROADMAP Documentation
+- **Deprecated EPIC #536** (Temporal) with lessons learned preservation
+- **Created EPIC #537** (Gelato Web3 Functions Migration) with detailed sub-issues:
+  - SUB_537.1: Development Setup (2-3 days)
+  - SUB_537.2: Event Handler Migration (3-4 days) 
+  - SUB_537.3: Multi-Environment Testing (4-5 days)
+  - SUB_537.4: Development Workflow Integration (2-3 days)
+- **Updated CRITICAL_PATH** to reflect 1-2 week timeline (vs 2-3 weeks for Temporal)
 
 ## Current State
 
-### 🎯 **EPIC #536.1 - Temporal Infrastructure Setup [85% COMPLETE]**
-**Status**: Service implementation complete, ready for testing  
-**Next Steps**: Start Temporal server, run tests, validate event detection  
+### Exact Stopping Point
+- **ROADMAP.md updated** with complete EPIC #537 structure
+- **Temporal processor still running** but marked for replacement
+- **Event detection proven working** with consistent `📋 getLogs found 1 TargetCreated event(s)` messages
+- **Architecture decision documented** with rationale and impact analysis
 
-### 🏗️ **Implementation Strategy Defined**
-- Replace `apps/event-processor` with `apps/temporal-processor`
-- Keep existing: Blockchain, Subgraph, Offchain API, Arweave  
-- Dual event listening: direct blockchain events to both Temporal and Subgraph
-- Migration phases: Setup → Target Enrichment → TAG Coins → Production switch
+### Next Action
+**Begin SUB_537.1: Gelato Web3 Functions Development Setup**
+1. Install Gelato Web3 Functions SDK: `npm install @gelatonetwork/web3-functions-sdk`
+2. Create Gelato project structure in `apps/gelato-functions/`
+3. Set up local testing workflow with `npx w3f test`
+4. Configure environment-specific settings (localhost/staging/production)
 
-### 🔧 **Technical Architecture Sketched**
-- **Target Enrichment Workflow**: TargetCreated → fetchMetadata → storeOnArweave → updateBlockchain
-- **TAG Coin Creation Workflow**: TagCreated → createCoinMetadata → deployCoinOnZora → allocateRewards
-- **Built-in Features**: Retry policies, timeout handling, workflow state visualization
+### Technical Foundation Ready
+- **Contract addresses available** in `/packages/contracts/src/upgradeConfig/localhost.json`
+- **Event ABI signatures validated** from Temporal work:
+  - `TargetCreated(uint256 targetId)` - not indexed
+  - `TagCreated(address indexed coinAddress, string originalInput, string displayVersion, string machineName, address indexed creator, address indexed relayer, uint256 timestamp)`
+- **Offchain-api integration patterns proven** working for metadata and Arweave uploads
+- **Multi-environment chain IDs defined**: localhost (31337), sepolia (11155111), base (8453)
 
----
+## Resume Guidance for Next Session
 
-## What's Ready for Implementation
+### Start Here
+1. **Kill Temporal processor**: `pkill -f "pnpm run dev"` in apps/temporal-processor
+2. **Install Gelato SDK**: Navigate to project root and run Gelato setup commands
+3. **Create apps/gelato-functions/** directory structure 
+4. **Begin SUB_537.1** following ROADMAP.md deliverables
 
-### ✅ **Architecture Foundation Complete**
-1. **Epic Structure**: 4 sub-issues with clear deliverables and timelines
-2. **Technical Design**: Workflow sketches and activity definitions  
-3. **Migration Strategy**: Side-by-side validation → traffic switch → Event Processor retirement
-4. **Stack Placement**: Dual event listening architecture defined
+### Expected Workflow
+- **Simple local testing** with `npx w3f test` (no Docker complexity)
+- **Network forking** for localhost development (similar to Hardhat)
+- **Event-driven triggers** replacing custom event detection
+- **IPFS deployment** eliminating server infrastructure
 
-### ✅ **Project Planning Updated**  
-- **ROADMAP.md**: Complete EPIC #536 structure with dependencies
-- **Critical Path**: Updated to reflect Temporal migration priority
-- **Architectural Decisions**: Documented rationale and benefits
-- **Timeline Estimates**: 2-3 weeks total effort breakdown
+### Key Technical Transfers
+- **Event detection patterns** from Temporal transfer directly
+- **viem API knowledge** (watchContractEvent, ABI parsing, serialization) applies
+- **Contract integration** (addresses, events, chain IDs) already validated
+- **Offchain-api communication** patterns remain unchanged
 
----
+## Architecture Benefits Summary
 
-## Immediate Next Steps (Complete Testing)
+**Gelato Advantages:**
+- ✅ Zero infrastructure (no Docker, gRPC, server maintenance)
+- ✅ Simple local testing (`npx w3f test` vs complex Temporal setup)
+- ✅ Built-in event triggers and multi-chain support
+- ✅ Managed reliability and automatic retries
+- ✅ 1-2 week implementation (vs 2-3 weeks Temporal)
 
-### 🎯 **Complete #536.1: Temporal Infrastructure Testing**
-**Remaining Tasks** (15% to complete):
-1. ✅ ~~Create `apps/temporal-processor` service directory structure~~
-2. ✅ ~~Set up Temporal server deployment configuration~~  
-3. ✅ ~~Implement dual event listening architecture~~
-4. ✅ ~~Create workflow and activity structure templates~~
-5. 🔄 Start Temporal server with docker-compose
-6. 🔄 Run workflow tests to validate execution
-7. 🔄 Test event detection with local blockchain
-
-**What's Been Delivered**:
-- ✅ Complete service scaffolding with TypeScript configuration
-- ✅ Docker Compose for Temporal server stack
-- ✅ Event listener for TargetCreated and TagCreated events
-- ✅ Full workflow/activity implementation with retry policies
-- ✅ Jest test suite for workflow validation
-- ✅ Comprehensive README documentation
-
-**Next Session Tasks**:
-```bash
-# 1. Start Temporal server
-cd apps/temporal-processor
-docker-compose up -d
-
-# 2. Run tests
-pnpm test
-
-# 3. Start worker and event listener
-pnpm run worker  # Terminal 1
-pnpm run dev     # Terminal 2
-
-# 4. Validate with local blockchain events
-```
-
-**Estimated Time to Complete**: 30-60 minutes
+**Temporal Investment Not Wasted:**
+- ✅ Event detection patterns proven and transferable
+- ✅ Contract integration validated
+- ✅ Workflow logic maps to Gelato functions
+- ✅ Multi-environment configuration knowledge preserved
 
 ---
 
-## Architecture Decisions Made
-
-### **Major Strategic Decision: Temporal Workflow Migration**
-- **Decision**: Replace custom Event Processor with Temporal workflows (EPIC #536)
-- **Rationale**: Pre-MVP status optimal for eliminating custom reliability engineering
-- **Impact**: Reduce operational complexity, gain built-in monitoring/recovery, save weeks of development
-- **Timeline**: 2-3 weeks vs months of custom infrastructure work
-
-### **Dual Event Listening Architecture**
-- **Decision**: Blockchain events trigger both Temporal workflows AND Subgraph indexing
-- **Rationale**: Separation of concerns - Temporal for business logic, Subgraph for client queries
-- **Implementation**: Direct event listening to both services (simpler than webhook chains)
-
-### **Keep Existing Services Strategy**  
-- **Decision**: Preserve Blockchain, Subgraph, Offchain API, Arweave - only replace Event Processor
-- **Rationale**: Minimize migration risk, focus effort on operational complexity reduction
-- **Benefit**: Proven services remain unchanged, only orchestration layer replaced
-
----
-
-## Session Quality Metrics
-
-- **Implementation Progress**: ✅ 85% Complete (#536.1)
-- **Code Quality**: ✅ High (TypeScript, proper error handling, retry policies)  
-- **Test Coverage**: ✅ Complete (Jest tests for workflows)
-- **Documentation Quality**: ✅ High (README, inline comments, config examples)
-- **Architecture Adherence**: ✅ Perfect (follows Temporal best practices)
-
-**Session Impact**: **MAJOR IMPLEMENTATION** - Temporal infrastructure 85% complete in single session
-
-### **Resume Guidance for Next Session**:
-1. **Start Docker**: Run `docker-compose up -d` in apps/temporal-processor
-2. **Verify UI**: Open http://localhost:8080 to see Temporal UI
-3. **Run Tests**: Execute `pnpm test` to validate workflows
-4. **Start Services**: Run worker and event listener in separate terminals
-5. **Integration Test**: Create test transactions on local blockchain
-
-**Time to Complete #536.1**: 30-60 minutes of testing/validation
-
-## Files Created This Session
-
-### New Service Implementation:
-- `apps/temporal-processor/` - Complete new service directory
-- `package.json` - Service configuration with Temporal SDK
-- `tsconfig.json` & `tsconfig.workflows.json` - TypeScript configurations
-- `docker-compose.yml` - Temporal server stack configuration
-- `dynamicconfig/development-sql.yaml` - Temporal server config
-- `.env.example` - Configuration template
-- `README.md` - Comprehensive service documentation
-- `jest.config.js` - Test configuration
-
-### Source Code:
-- `src/index.ts` - Main entry point for event listener
-- `src/worker.ts` - Temporal worker implementation
-- `src/config/index.ts` - Configuration management
-- `src/types/index.ts` - TypeScript type definitions
-- `src/utils/logger.ts` - Logging utilities
-- `src/handlers/eventListener.ts` - Blockchain event monitoring
-- `src/workflows/targetEnrichmentWorkflow.ts` - Target enrichment workflow
-- `src/workflows/tagCreatedWorkflow.ts` - TAG coin creation workflow
-- `src/workflows/index.ts` - Workflow exports
-- `src/activities/targetEnrichmentActivities.ts` - Target enrichment activities
-- `src/activities/tagCoinActivities.ts` - TAG coin activities  
-- `src/activities/index.ts` - Activity exports
-- `tests/workflows.test.ts` - Workflow test suite
-
-### Documentation Updates:
-- `docs/session/ROADMAP.md` - Updated #536.1 to IN_PROGRESS (85% complete)
-- `docs/session/SESSION-STATUS.md` - Documented implementation progress
-
-**Ready for**: Testing and validation of Temporal infrastructure
+**Ready to begin SUB_537.1: Gelato Web3 Functions Development Setup**
