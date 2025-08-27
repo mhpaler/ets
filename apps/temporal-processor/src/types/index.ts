@@ -16,7 +16,7 @@ export interface TagCreatedWorkflowInput {
   tagString: string;
   creator: Address;
   transactionHash: Hash;
-  blockNumber: bigint;
+  blockNumber: string; // String for Temporal payload serialization
   chainId: number;
   timestamp: Date;
 }

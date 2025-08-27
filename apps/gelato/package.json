@@ -15,7 +15,8 @@
   },
   "dependencies": {
     "@ethereum-tag-service/contracts": "workspace:*",
-    "@gelatonetwork/web3-functions-sdk": "^2.3.0"
+    "@gelatonetwork/web3-functions-sdk": "^2.3.0",
+    "viem": "^2.21.11"
   },
   "devDependencies": {
     "@types/node": "^20.11.25",

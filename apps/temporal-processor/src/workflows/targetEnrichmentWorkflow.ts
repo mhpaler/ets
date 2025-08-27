@@ -33,6 +33,14 @@ export async function TargetEnrichmentWorkflow(input: TargetEnrichmentWorkflowIn
   };
 
   try {
+    // Ensure we have a targetURI
+    if (!input.targetURI) {
+      throw ApplicationFailure.create({
+        message: "targetURI is required for enrichment",
+        nonRetryable: true,
+      });
+    }
+
     // Step 1: Fetch metadata from the target URI
     console.log(`[Workflow] Fetching metadata for target ${input.targetId} from ${input.targetURI}`);
 

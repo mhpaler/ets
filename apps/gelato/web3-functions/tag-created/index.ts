@@ -1,7 +1,4 @@
-import {
-  Web3Function,
-  Web3FunctionContext,
-} from "@gelatonetwork/web3-functions-sdk";
+import { Web3Function, type Web3FunctionContext } from "@gelatonetwork/web3-functions-sdk";
 
 Web3Function.onRun(async (context: Web3FunctionContext) => {
   const { userArgs, storage } = context;
@@ -14,10 +11,10 @@ Web3Function.onRun(async (context: Web3FunctionContext) => {
 
   // Get run count from storage
   const runCountStr = await storage.get("runCount");
-  const runCount = runCountStr ? parseInt(runCountStr) + 1 : 1;
-  
+  const runCount = runCountStr ? Number.parseInt(runCountStr) + 1 : 1;
+
   console.log(`Run #${runCount} - Function is alive and running`);
-  
+
   // Store updated run count
   await storage.set("runCount", runCount.toString());
   await storage.set("lastRun", new Date().toISOString());

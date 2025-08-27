@@ -14,10 +14,16 @@ module.exports = {
       "ts-jest",
       {
         tsconfig: {
+          target: "ES2022",
+          lib: ["ES2022"],
           module: "commonjs",
           esModuleInterop: true,
+          types: ["node", "jest"],
+          experimentalDecorators: true,
+          emitDecoratorMetadata: true,
         },
       },
     ],
   },
+  setupFilesAfterEnv: [],
 };

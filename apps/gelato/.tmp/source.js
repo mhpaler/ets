@@ -1,4 +1,4 @@
-// ../../apps/gelato/web3-functions/target-enrichment/index.ts
+// web3-functions/target-enrichment/index.ts
 import { Web3Function } from "@gelatonetwork/web3-functions-sdk";
 import { decodeEventLog } from "viem";
 var TARGET_ABI = [
