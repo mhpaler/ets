@@ -1,0 +1,24 @@
+{
+  "name": "@ets/gelato",
+  "version": "0.1.0",
+  "description": "Gelato Web3 Functions for ETS event processing",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test:target-enrichment": "cd ../../packages/contracts && pnpm exec hardhat w3f-run target-enrichment --logs",
+    "test:tag-created": "cd ../../packages/contracts && pnpm exec hardhat w3f-run tag-created --logs",
+    "deploy:target-enrichment:staging": "cd ../../packages/contracts && pnpm exec hardhat w3f-deploy target-enrichment --network baseSepolia",
+    "deploy:target-enrichment:prod": "cd ../../packages/contracts && pnpm exec hardhat w3f-deploy target-enrichment --network base",
+    "deploy:tag-created:staging": "cd ../../packages/contracts && pnpm exec hardhat w3f-deploy tag-created --network baseSepolia",
+    "deploy:tag-created:prod": "cd ../../packages/contracts && pnpm exec hardhat w3f-deploy tag-created --network base"
+  },
+  "dependencies": {
+    "@ethereum-tag-service/contracts": "workspace:*",
+    "@gelatonetwork/web3-functions-sdk": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.25",
+    "typescript": "^5.4.5"
+  }
+}

@@ -9,6 +9,7 @@ import "@nomicfoundation/hardhat-toolbox";
 import "@nomiclabs/hardhat-truffle5";
 import "@openzeppelin/hardhat-upgrades";
 import "@nomicfoundation/hardhat-chai-matchers";
+import "@gelatonetwork/web3-functions-sdk/hardhat-plugin";
 
 import fs from "node:fs";
 import { resolve } from "node:path";
@@ -36,6 +37,13 @@ const mnemonic = {
 };
 
 const config: HardhatUserConfig = {
+  // Gelato Web3 Functions configuration
+  w3f: {
+    rootDir: "../../apps/gelato/web3-functions",
+    debug: false,
+    networks: ["hardhat", "localhost", "baseSepolia", "base"], // Networks for multiChainProvider
+    denoFlags: ["--unstable-node-globals"],
+  },
   networks: {
     hardhat: {
       chainId: 31337,

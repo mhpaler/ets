@@ -24,6 +24,16 @@ or with pnpm:
 pnpm install @ethereum-tag-service/contracts
 ```
 
+## Gelato Web3 Functions Setup
+
+If you encounter deno binary issues when running Web3 Functions:
+
+```bash
+cd packages/contracts/node_modules/deno-bin && node install.js
+```
+
+This manually downloads the Deno runtime required for Gelato Web3 Functions execution.
+
 ## Implementing a Relayer
 
 The IETSRelayer interface provides core tagging functionality:

@@ -13,7 +13,12 @@
     "url": "git+https://github.com/ethereum-tag-service/ets.git",
     "directory": "packages/contracts"
   },
-  "keywords": ["ets", "composable", "nft", "tagging"],
+  "keywords": [
+    "ets",
+    "composable",
+    "nft",
+    "tagging"
+  ],
   "bugs": {
     "url": "https://github.com/orgs/ethereum-tag-service/discussions"
   },
@@ -57,13 +62,17 @@
   "main": "./dist/multiChainConfig.js",
   "module": "./dist/multiChainConfig.mjs",
   "types": "./dist/multiChainConfig.d.ts",
-  "files": ["dist", "contracts"],
+  "files": [
+    "dist",
+    "contracts"
+  ],
   "scripts": {
     "build": "pnpm build:package",
     "build:contracts": "pnpm compile",
     "build:package": "scripts/build/build-package.sh",
     "clean": "rm -rf dist",
     "compile": "hardhat clean && hardhat compile",
+    "postinstall": "node node_modules/deno-bin/install.js || true",
     "coverage": "hardhat coverage",
     "deploy-all": "hardhat deployETS --tags deployAll",
     "deploy-upgrade": "hardhat deployETS --tags upgradeAll",
@@ -84,6 +93,7 @@
     "@enzoferey/ethers-error-parser": "^0.2.3",
     "@ethereum-tag-service/tsconfig": "workspace:*",
     "@ethersproject/abstract-signer": "^5.6.0",
+    "@gelatonetwork/web3-functions-sdk": "^2.4.4",
     "@ledgerhq/hw-app-eth": "^6.38.0",
     "@ledgerhq/hw-transport-node-hid": "^6.29.3",
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
@@ -110,6 +120,7 @@
     "@wagmi/cli": "^2.1.15",
     "axios": "^1.6.2",
     "chai": "^4.5.0",
+    "deno-bin": "1.36.0",
     "dotenv": "^16.3.1",
     "ethereumjs-util": "^7.1.4",
     "ethers": "6.8.1",
