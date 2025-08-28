@@ -1,0 +1,53 @@
+# Dynamic configuration for Temporal Server (PostgreSQL version)
+# Optimized for local development
+
+# Reduce resource usage for local development
+system.forceSearchAttributesCacheRefreshOnRead:
+  - value: false
+
+# Increase limits for development
+limit.maxIDLength:
+  - value: 1000
+
+# History service configuration
+history.persistenceMaxQPS:
+  - value: 3000
+
+history.persistenceGlobalMaxQPS:
+  - value: 0
+
+# Matching service configuration  
+matching.numTaskqueueReadPartitions:
+  - value: 1
+
+matching.numTaskqueueWritePartitions:
+  - value: 1
+
+# Frontend service limits
+frontend.persistenceMaxQPS:
+  - value: 3000
+
+frontend.persistenceGlobalMaxQPS:
+  - value: 0
+
+frontend.visibilityMaxPageSize:
+  - value: 100
+
+# Worker service configuration
+worker.persistenceMaxQPS:
+  - value: 100
+
+# System limits
+system.maxConsecutiveWorkflowTaskFailures:
+  - value: 10
+
+# Development-friendly settings
+frontend.enableClientVersionCheck:
+  - value: false
+
+# Allow larger payloads for development
+limit.blobSize.error:
+  - value: 1048576  # 1MB
+
+limit.blobSize.warn:
+  - value: 512000   # 500KB

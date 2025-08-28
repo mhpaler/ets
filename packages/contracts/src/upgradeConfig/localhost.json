@@ -3,10 +3,10 @@
     "ETSAccessControls": {
       "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
       "implementation": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "deploymentBlock": 5,
+      "deploymentBlock": 4,
       "upgradeHistory": [
         {
-          "block": 5,
+          "block": 4,
           "implementation": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
         }
       ]
@@ -14,10 +14,10 @@
     "ETSToken": {
       "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
       "implementation": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-      "deploymentBlock": 9,
+      "deploymentBlock": 8,
       "upgradeHistory": [
         {
-          "block": 9,
+          "block": 8,
           "implementation": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
         }
       ]
@@ -25,10 +25,10 @@
     "ETSTarget": {
       "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
       "implementation": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
-      "deploymentBlock": 11,
+      "deploymentBlock": 10,
       "upgradeHistory": [
         {
-          "block": 11,
+          "block": 10,
           "implementation": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"
         }
       ]
@@ -36,10 +36,10 @@
     "ETSEnrichTarget": {
       "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
       "implementation": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
-      "deploymentBlock": 13,
+      "deploymentBlock": 12,
       "upgradeHistory": [
         {
-          "block": 13,
+          "block": 12,
           "implementation": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"
         }
       ]
@@ -47,10 +47,10 @@
     "ETS": {
       "address": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
       "implementation": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
-      "deploymentBlock": 15,
+      "deploymentBlock": 14,
       "upgradeHistory": [
         {
-          "block": 15,
+          "block": 14,
           "implementation": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318"
         }
       ]
@@ -58,10 +58,10 @@
     "ETSRelayer": {
       "address": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
       "implementation": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
-      "deploymentBlock": 16,
+      "deploymentBlock": 15,
       "upgradeHistory": [
         {
-          "block": 16,
+          "block": 15,
           "implementation": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e"
         }
       ]
@@ -69,10 +69,10 @@
     "ETSRelayerFactory": {
       "address": "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
       "implementation": null,
-      "deploymentBlock": 17,
+      "deploymentBlock": 16,
       "upgradeHistory": [
         {
-          "block": 17,
+          "block": 16,
           "implementation": null
         }
       ]

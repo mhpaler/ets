@@ -1,12 +1,18 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
-    "ignoreUnknown": false,
+    "ignoreUnknown": true,
     "ignore": [
       "apps/data-api/src/generated/**",
       "packages/subgraph/src/generated/**",
       "apps/oracle/config/templates/**",
-      "research/**"
+      "research/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/.next/**",
+      "**/node_modules/**",
+      "**/.tmp/**",
+      "**/tmp/**"
     ]
   },
   "formatter": {
@@ -88,7 +94,11 @@
       }
     },
     {
-      "include": ["packages/sdk-*/src/index.ts", "apps/app/utils/index.ts"],
+      "include": [
+        "packages/sdk-*/src/index.ts",
+        "apps/app/utils/index.ts",
+        "apps/temporal-processor/src/activities/index.ts"
+      ],
       "linter": {
         "rules": {
           "performance": {

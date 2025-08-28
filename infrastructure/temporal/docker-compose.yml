@@ -1,0 +1,91 @@
+# Temporal Infrastructure - Persistent Services
+# This runs separately from the application stack and persists between restarts
+
+services:
+  temporal-postgresql:
+    container_name: temporal-infrastructure-postgres
+    image: postgres:14
+    environment:
+      POSTGRES_PASSWORD: temporal
+      POSTGRES_USER: temporal
+      POSTGRES_DB: temporal
+    ports:
+      - "5433:5432"  # Using 5433 to avoid conflicts with other PostgreSQL instances
+    volumes:
+      - temporal-postgres-data:/var/lib/postgresql/data
+    networks:
+      - temporal-infrastructure-network
+    restart: unless-stopped  # Auto-restart but respect manual stops
+    labels:
+      - "temporal.infrastructure=true"
+      - "temporal.component=database"
+
+  temporal-server:
+    container_name: temporal-infrastructure-server
+    image: temporalio/auto-setup:latest
+    depends_on:
+      - temporal-postgresql
+    environment:
+      - DB=postgres12_pgx
+      - DB_PORT=5432
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal
+      - POSTGRES_SEEDS=temporal-postgresql
+      - SKIP_DEFAULT_NAMESPACE_CREATION=false
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
+    ports:
+      - "7233:7233"
+    volumes:
+      - ./dynamicconfig:/etc/temporal/config/dynamicconfig
+    networks:
+      - temporal-infrastructure-network
+    restart: unless-stopped  # Auto-restart but respect manual stops
+    labels:
+      - "temporal.infrastructure=true"
+      - "temporal.component=server"
+
+  temporal-ui:
+    container_name: temporal-infrastructure-ui
+    image: temporalio/ui:latest
+    depends_on:
+      - temporal-server
+    environment:
+      - TEMPORAL_ADDRESS=temporal-server:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000,http://localhost:3001,http://localhost:4000
+    ports:
+      - "8080:8080"
+    networks:
+      - temporal-infrastructure-network
+    restart: unless-stopped  # Auto-restart but respect manual stops
+    labels:
+      - "temporal.infrastructure=true"
+      - "temporal.component=ui"
+
+  temporal-admin-tools:
+    container_name: temporal-infrastructure-admin
+    image: temporalio/admin-tools:latest
+    depends_on:
+      - temporal-server
+    environment:
+      - TEMPORAL_ADDRESS=temporal-server:7233
+      - TEMPORAL_CLI_ADDRESS=temporal-server:7233
+    stdin_open: true
+    tty: true
+    networks:
+      - temporal-infrastructure-network
+    restart: unless-stopped
+    labels:
+      - "temporal.infrastructure=true"
+      - "temporal.component=admin"
+
+volumes:
+  temporal-postgres-data:
+    driver: local
+    name: temporal-infrastructure-postgres-data
+
+networks:
+  temporal-infrastructure-network:
+    driver: bridge
+    name: temporal-infrastructure-network
+    # Make this network external so app services can connect to it
+    external: false

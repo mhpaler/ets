@@ -164,6 +164,61 @@ check_docker() {
   success "Docker is running!"
 }
 
+# Check if Temporal infrastructure is running
+check_temporal_infrastructure() {
+  log "Checking Temporal infrastructure status..."
+  
+  # Check if Temporal infrastructure containers exist and are running
+  local running_containers=$(docker ps --filter "label=temporal.infrastructure=true" --format "{{.Names}}" 2>/dev/null | wc -l | tr -d ' ')
+  
+  if [ "$running_containers" -gt 0 ]; then
+    # Quick health check
+    if curl -s http://localhost:8080 >/dev/null 2>&1; then
+      success "Temporal infrastructure is running"
+      display_service_url "Temporal Server (Infrastructure)" "http://localhost:7233"
+      display_service_url "Temporal UI (Infrastructure)" "http://localhost:8080"
+      return 0
+    else
+      warn "Temporal infrastructure containers found but not responding"
+    fi
+  fi
+  
+  # Check if infrastructure exists but is stopped
+  local stopped_containers=$(docker ps -a --filter "label=temporal.infrastructure=true" --filter "status=exited" --format "{{.Names}}" 2>/dev/null | wc -l | tr -d ' ')
+  
+  if [ "$stopped_containers" -gt 0 ]; then
+    warn "Temporal infrastructure exists but is stopped"
+    log "Attempting to start existing infrastructure..."
+    
+    if "$SCRIPT_DIR/start-temporal-infrastructure.sh"; then
+      success "Temporal infrastructure started successfully"
+      display_service_url "Temporal Server (Infrastructure)" "http://localhost:7233"
+      display_service_url "Temporal UI (Infrastructure)" "http://localhost:8080"
+      return 0
+    else
+      error "Failed to start existing Temporal infrastructure"
+      exit 1
+    fi
+  fi
+  
+  # No infrastructure found
+  error "Temporal infrastructure is not set up"
+  echo ""
+  error "The ETS stack requires persistent Temporal infrastructure."
+  error "Please set it up first:"
+  echo ""
+  echo "  For first-time setup:"
+  echo "    ./scripts/setup-temporal-infrastructure.sh"
+  echo ""
+  echo "  If already set up but stopped:"
+  echo "    ./scripts/start-temporal-infrastructure.sh"
+  echo ""
+  echo "  To check status:"
+  echo "    ./scripts/check-temporal-infrastructure.sh"
+  echo ""
+  exit 1
+}
+
 check_port_availability() {
   local port=$1
   if lsof -i:$port -sTCP:LISTEN -t >/dev/null 2>&1; then
@@ -174,21 +229,18 @@ check_port_availability() {
 }
 
 check_service_conflicts() {
-  log "Checking for potential service conflicts..."
+  log "Checking for port conflicts..."
 
   local conflicts_found=0
   local services_to_kill=()
   
   # Define ports and services based on mode
-  # TEMPORARILY DISABLED: Graph Node ports (8000, 8001, 8020) to unblock integration testing
   if [ "$CORE_MODE" = true ]; then
-    local ports_to_check=(8545 4000 1984 3002)
-    local port_names=("Hardhat" "Offchain API" "ArLocal" "Event Processor")
-    local docker_containers=()  # Graph Node containers disabled
+    local ports_to_check=(8545 4000 1984)
+    local port_names=("Hardhat" "Offchain API" "ArLocal")
   else
-    local ports_to_check=(8545 4000 3001 1984 3002)
-    local port_names=("Hardhat" "Offchain API" "Explorer UI" "ArLocal" "Event Processor") 
-    local docker_containers=()  # Graph Node containers disabled
+    local ports_to_check=(8545 4000 3001 1984)
+    local port_names=("Hardhat" "Offchain API" "Explorer UI" "ArLocal") 
   fi
   local protected_processes=("docker" "Docker" "com.docker.backend" "dockerd")
 
@@ -222,85 +274,37 @@ check_service_conflicts() {
     fi
   done
 
-  # Check Docker container conflicts
-  if docker info >/dev/null 2>&1; then
-    for container in "${docker_containers[@]}"; do
-      if docker ps --format '{{.Names}}' | grep -q "$container"; then
-        warn "Docker container '$container' is already running"
-        conflicts_found=1
-      fi
-    done
-  else
-    warn "Docker daemon not running or not accessible"
-    conflicts_found=1
-  fi
-
   # If conflicts were found, ask user what to do
   if [ $conflicts_found -eq 1 ]; then
     echo
-    warn "Service conflicts were detected. These may interfere with the ETS stack."
-    read -p "Would you like to stop these conflicts and continue? (y/n) " -n 1 -r
+    warn "Port conflicts detected. These may prevent services from starting."
+    read -p "Would you like to stop conflicting processes and continue? (y/n) " -n 1 -r
     echo
 
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-      log "Stopping conflicting services..."
+      log "Stopping conflicting processes..."
 
       # Stop conflicting processes (excluding protected ones)
       for pid in "${services_to_kill[@]}"; do
         log "Killing process with PID: $pid"
-        kill -9 "$pid" 2>/dev/null || true
+        kill -TERM "$pid" 2>/dev/null || true
+        sleep 1
+        # Force kill if still running
+        if ps -p "$pid" > /dev/null 2>&1; then
+          kill -KILL "$pid" 2>/dev/null || true
+        fi
       done
 
-      # Check if Docker is accessible before trying to stop containers
-      if docker info >/dev/null 2>&1; then
-        # Stop conflicting Docker containers with retries
-        for container in "${docker_containers[@]}"; do
-          if docker ps --format '{{.Names}}' | grep -q "$container"; then
-            log "Stopping Docker container: $container"
-
-            # Try graceful stop first
-            docker stop "$container" >/dev/null 2>&1 || true
-
-            # If container still exists after 3 seconds, try force remove
-            sleep 3
-            if docker ps --format '{{.Names}}' | grep -q "$container"; then
-              warn "Container still running, trying force removal"
-              docker rm -f "$container" >/dev/null 2>&1 || true
-            fi
-          fi
-        done
-
-        # Additional cleanup for any orphaned containers
-        log "Checking for any orphaned project containers..."
-        ORPHANS=$(docker ps --filter "label=com.docker.compose.project" -q)
-        if [ -n "$ORPHANS" ]; then
-          warn "Found orphaned project containers, stopping them"
-          docker stop $ORPHANS >/dev/null 2>&1 || true
-          docker rm $ORPHANS >/dev/null 2>&1 || true
-        fi
-      else
-        error "Docker daemon not accessible. Please restart Docker manually."
-        error "After Docker is running again, restart this script."
-        exit 1
-      fi
-
       # Give everything time to shut down
-      sleep 3
+      sleep 2
 
-      # Verify Docker is still running after our operations
-      if ! docker info >/dev/null 2>&1; then
-        error "Docker daemon is not responding after cleanup operations."
-        error "Please restart Docker manually, then try again."
-        exit 1
-      fi
-
-      success "Conflicting services stopped"
+      success "Conflicting processes stopped"
     else
-      error "Cannot start ETS stack with service conflicts. Please resolve them manually."
+      error "Cannot start ETS stack with port conflicts. Please resolve them manually."
       exit 1
     fi
   else
-    success "No service conflicts detected"
+    success "No port conflicts detected"
   fi
 }
 
@@ -718,82 +722,15 @@ start_event_processor() {
   fi
 }
 
-# Start Temporal Server
+# Note: Temporal Server is now managed as persistent infrastructure
+# The infrastructure must be started separately with:
+# ./scripts/setup-temporal-infrastructure.sh (first time)
+# ./scripts/start-temporal-infrastructure.sh (if stopped)
+#
+# This function is kept for backward compatibility but does nothing
 start_temporal_server() {
-  log "Starting Temporal Server with Docker Compose..."
-  cd "$ROOT_DIR/apps/temporal-processor"
-  
-  # Clean up any existing Temporal containers (running or stopped)
-  if docker compose ps -a | grep -q "temporal"; then
-    warn "Temporal server containers exist, cleaning up first..."
-    docker compose down > /dev/null 2>&1 || true
-    sleep 2
-  fi
-  
-  # Start Temporal server stack
-  if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
-    docker compose up -d > "$ROOT_DIR/logs/temporal-server.log" 2>&1
-  else
-    docker compose up -d | tee "$ROOT_DIR/logs/temporal-server.log"
-  fi
-  
-  # Wait for services to be ready
-  log "Waiting for Temporal server to be ready..."
-  local max_attempts=60  # Increased timeout since Temporal takes time to initialize
-  local attempt=1
-  
-  while [ $attempt -le $max_attempts ]; do
-    # Check if containers are up
-    if docker compose ps | grep -q "temporal.*Up"; then
-      # Check if Temporal UI is accessible
-      if curl -s http://localhost:8080 >/dev/null 2>&1; then
-        # Check if Temporal server gRPC endpoint is ready by testing connection
-        log "Temporal containers are up, testing gRPC connection..."
-        
-        # Use a simple Node.js script to test Temporal client connection
-        cd "$ROOT_DIR/apps/temporal-processor"
-        if timeout 10 node -e "
-          const { Client } = require('@temporalio/client');
-          (async () => {
-            try {
-              const client = new Client({
-                connection: { address: 'localhost:7233' },
-                namespace: 'default'
-              });
-              await client.connection.close();
-              console.log('SUCCESS: Temporal server gRPC ready');
-              process.exit(0);
-            } catch (error) {
-              console.log('RETRY: Temporal server not ready -', error.message);
-              process.exit(1);
-            }
-          })();
-        " >/dev/null 2>&1; then
-          log "Temporal server gRPC endpoint is ready!"
-          break
-        else
-          log "Temporal server gRPC not ready yet, waiting..."
-        fi
-      fi
-    fi
-    
-    if [ $((attempt % 10)) -eq 0 ]; then
-      log "Still waiting for Temporal server... (attempt $attempt/$max_attempts)"
-    fi
-    
-    sleep 2
-    attempt=$((attempt + 1))
-  done
-  
-  if [ $attempt -gt $max_attempts ]; then
-    error "Temporal server failed to start within timeout"
-    docker compose logs
-    exit 1
-  fi
-  
-  display_service_url "Temporal Server" "http://localhost:7233"
-  display_service_url "Temporal UI" "http://localhost:8080"
-  success "Temporal Server started and verified - gRPC endpoint ready for connections"
+  log "Temporal Server is managed as persistent infrastructure"
+  warn "If Temporal Server is not running, use: ./scripts/start-temporal-infrastructure.sh"
 }
 
 # Start Temporal Processor (replaces Event Processor)
@@ -891,6 +828,7 @@ touch "$ROOT_DIR/logs/service_pids.txt" "$ROOT_DIR/logs/tail_pids.txt"
 
 print_banner
 check_docker
+check_temporal_infrastructure
 check_service_conflicts
 
 # Create logs directory with explicit error handling
@@ -926,7 +864,7 @@ if [ "$CORE_MODE" = true ]; then
   generate_arweave_keyfile   # Generate keyfile if needed for ArLocal testing
   fund_arlocal_wallet   
   start_offchain_api
-  start_temporal_server      # NEW: Temporal server infrastructure
+  # start_temporal_server      # REMOVED: Now managed as persistent infrastructure
   start_temporal_processor   # REPLACES: Event Processor with Temporal workflows
 else
   log "Starting full stack..."
@@ -940,7 +878,7 @@ else
   generate_arweave_keyfile   # Generate keyfile if needed for ArLocal testing
   fund_arlocal_wallet   
   start_offchain_api
-  start_temporal_server      # NEW: Temporal server infrastructure  
+  # start_temporal_server      # REMOVED: Now managed as persistent infrastructure  
   start_temporal_processor   # REPLACES: Event Processor with Temporal workflows
   start_explorer
   populate_data
@@ -981,9 +919,15 @@ cleanup() {
   docker rm arlocal 2>/dev/null || true
   # docker stop $(docker ps -q --filter "name=graph-node") 2>/dev/null || true  # DISABLED: Graph Node
   
-  # Stop Temporal Docker containers
-  if [ -d "$ROOT_DIR/apps/temporal-processor" ]; then
+  # NOTE: Temporal infrastructure containers are NOT stopped here
+  # They are persistent and managed separately with:
+  # ./scripts/stop-temporal-infrastructure.sh
+  
+  # Only stop the temporal-processor Docker containers if they exist
+  # (these were the old non-persistent ones)
+  if [ -d "$ROOT_DIR/apps/temporal-processor" ] && [ -f "$ROOT_DIR/apps/temporal-processor/docker-compose.yml" ]; then
     cd "$ROOT_DIR/apps/temporal-processor"
+    # Only stop containers that are NOT labeled as infrastructure
     docker compose down 2>/dev/null || true
   fi
 
