@@ -210,11 +210,11 @@ export class TagMetadataService {
 
     return `<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg">
       <rect width="400" height="400" fill="${color}"/>
-      <text x="200" y="200" text-anchor="middle" dominant-baseline="middle" 
+      <text x="200" y="200" text-anchor="middle" dominant-baseline="middle"
             font-family="Arial, sans-serif" font-size="48" fill="white">
         ${cleanTag}
       </text>
-      <text x="200" y="350" text-anchor="middle" dominant-baseline="middle" 
+      <text x="200" y="350" text-anchor="middle" dominant-baseline="middle"
             font-family="Arial, sans-serif" font-size="16" fill="white" opacity="0.8">
         ETS TAG Coin
       </text>

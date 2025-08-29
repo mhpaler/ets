@@ -87,8 +87,8 @@ export class ZoraService {
     error?: string;
   }> {
     try {
-      const request: TagMetadataRequest = {
-        originalInput: eventData.originalInput,
+      const request = {
+        tagString: eventData.originalInput, // Metadata API expects tagString
         machineName: eventData.machineName,
         creator: eventData.creator,
         relayer: eventData.relayer,
@@ -103,6 +103,7 @@ export class ZoraService {
         timeout: 30000,
         headers: {
           "Content-Type": "application/json",
+          "x-api-key": process.env.INTERNAL_API_KEY || "local-dev-key",
         },
       });
 
@@ -197,7 +198,7 @@ export class ZoraService {
           payoutRecipient: eventData.creator as Address,
           platformReferrer: eventData.relayer as Address,
           chainId: this.chainId,
-          currency: this.chainId === 84532 ? DeployCurrency.ETH : DeployCurrency.ZORA, // ETH on testnet, ZORA on mainnet
+          currency: "ETH", // Use ETH as currency for Base Sepolia
         },
         this.walletClient,
         this.publicClient,
