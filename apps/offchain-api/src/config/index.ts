@@ -1,4 +1,5 @@
 import path from "node:path";
+import fs from "node:fs";
 import {
   type SupportedChainId,
   availableChainIds,
@@ -7,16 +8,17 @@ import {
 } from "@ethereum-tag-service/contracts/multiChainConfig";
 import dotenv from "dotenv";
 
-// Load .env file
-const envPath =
-  process.env.NODE_ENV === "production"
-    ? path.resolve(__dirname, "../../.env")
-    : path.resolve(__dirname, "../../.env.local");
+// Load .env file - check if .env.local exists first, otherwise use .env
+const envLocalPath = path.resolve(__dirname, "../../.env.local");
+const envPath = path.resolve(__dirname, "../../.env");
 
-dotenv.config({ path: envPath });
+// Use .env.local if it exists, otherwise use .env
+const configPath = fs.existsSync(envLocalPath) ? envLocalPath : envPath;
+
+dotenv.config({ path: configPath });
 
 console.info("process.env.NODE_ENV", process.env.NODE_ENV);
-console.info("Environment variables loaded from:", envPath);
+console.info("Environment variables loaded from:", configPath);
 console.info("MOCK_ARWEAVE env var:", process.env.MOCK_ARWEAVE);
 
 // Validate that the chainId is supported

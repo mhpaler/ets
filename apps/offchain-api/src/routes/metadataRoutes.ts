@@ -4,13 +4,12 @@ import { TagMetadataService } from "../services/metadata/tagMetadataService";
 
 const router = Router();
 
-// Initialize metadata service in mock mode for testing
+// Initialize metadata service
 const initializeMetadataService = (): TagMetadataService => {
   const mockMode = process.env.METADATA_MOCK_MODE !== "false"; // Default to true
-  const baseImageUrl = process.env.METADATA_IMAGE_BASE_URL || "https://ets.xyz/images/tags";
-  const baseMetadataUrl = process.env.METADATA_BASE_URL || "https://ets.xyz/metadata/tags";
+  const stagingMode = process.env.NODE_ENV === "staging";
 
-  return new TagMetadataService(mockMode, baseImageUrl, baseMetadataUrl);
+  return new TagMetadataService(mockMode, stagingMode);
 };
 
 // Initialize controller
