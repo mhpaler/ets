@@ -71,6 +71,7 @@ export class TagCoinController {
           message: "TAG coin created successfully",
           coinAddress: result.coinAddress,
           transactionHash: result.transactionHash,
+          totalCostETH: result.totalCostETH,
           created: true,
         });
       } else {
@@ -172,6 +173,49 @@ export class TagCoinController {
       typeof data.blockNumber === "string" &&
       typeof data.transactionHash === "string"
     );
+  }
+
+  /**
+   * Get service configuration
+   * GET /api/tag-coins/config
+   */
+  public async getConfig(_req: Request, res: Response): Promise<void> {
+    try {
+      const serviceType = process.env.ZORA_SERVICE_TYPE?.toUpperCase() || "SDK";
+      const chainId = process.env.CHAIN_ID ? Number.parseInt(process.env.CHAIN_ID) : 84532;
+      
+      // Determine chain name
+      let chainName: string;
+      if (chainId === 8453) {
+        chainName = "Base";
+      } else if (chainId === 84532) {
+        chainName = "Base Sepolia";
+      } else if (chainId === 31337) {
+        chainName = "Localhost";
+      } else {
+        chainName = "Unknown";
+      }
+
+      res.status(200).json({
+        success: true,
+        config: {
+          serviceType,
+          chainId,
+          chainName,
+          apiUrl: process.env.METADATA_API_URL || "http://localhost:3000/api/metadata",
+        },
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      logger.error("Error in getConfig controller", {
+        error: error instanceof Error ? error.message : String(error),
+      });
+
+      res.status(500).json({
+        success: false,
+        error: "Failed to get configuration",
+      });
+    }
   }
 }
 

@@ -21,6 +21,8 @@ export interface ZoraCoinCreationResult {
   coinAddress?: Address;
   transactionHash?: `0x${string}`;
   blockNumber?: bigint;
+  gasUsed?: bigint;
+  totalCostETH?: string;
   error?: string;
   created?: boolean; // Indicates if coin was newly created vs already existed
 }

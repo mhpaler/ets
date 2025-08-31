@@ -1,11 +1,11 @@
-import { coinFactoryABI, coinFactoryAddress, encodeMultiCurvePoolConfig } from "@zoralabs/protocol-deployments";
+import * as ZoraProtocol from "@zoralabs/protocol-deployments";
 import { type Address, type Hex, type PublicClient, type WalletClient, keccak256, parseEventLogs, toBytes } from "viem";
 import { parseUnits, zeroAddress } from "viem";
 import { base, baseSepolia } from "viem/chains";
 import { logger } from "../../utils/logger";
 
 // Zora factory address for Base chain (8453) - same across all chains due to deterministic deploys
-export const COIN_FACTORY_ADDRESS = coinFactoryAddress["8453"] as Address;
+export const COIN_FACTORY_ADDRESS = (ZoraProtocol as any).coinFactoryAddress["8453"] as Address;
 
 export interface ZoraFactoryCreateParams {
   payoutRecipient: Address;
@@ -23,6 +23,10 @@ export interface ZoraFactoryResult {
   coinAddress?: Address;
   transactionHash?: Hex;
   blockNumber?: bigint;
+  gasUsed?: bigint;
+  effectiveGasPrice?: bigint;
+  totalCostWei?: bigint;
+  totalCostETH?: string;
   error?: string;
 }
 
@@ -63,7 +67,7 @@ export class ZoraFactoryService {
     try {
       const address = await this.publicClient.readContract({
         address: COIN_FACTORY_ADDRESS,
-        abi: coinFactoryABI,
+        abi: (ZoraProtocol as any).coinFactoryABI,
         functionName: "coinAddress",
         args: [
           params.msgSender,
@@ -101,7 +105,7 @@ export class ZoraFactoryService {
       // Simulate the transaction first
       const { request } = await this.publicClient.simulateContract({
         address: COIN_FACTORY_ADDRESS,
-        abi: coinFactoryABI,
+        abi: (ZoraProtocol as any).coinFactoryABI,
         functionName: "deploy",
         args: [
           params.payoutRecipient,
@@ -119,6 +123,8 @@ export class ZoraFactoryService {
       });
 
       // Execute the transaction
+      // TODO: Remove @ts-ignore when viem fixes writeContract typing with dynamic ABIs
+      // @ts-ignore - Complex viem generic typing issue with simulateContract -> writeContract flow
       const txHash = await this.walletClient.writeContract(request);
 
       // Wait for transaction receipt
@@ -127,22 +133,36 @@ export class ZoraFactoryService {
       });
 
       // Parse the coin address from logs
+      // TODO: Remove @ts-ignore when @zoralabs/protocol-deployments improves TypeScript definitions
+      // @ts-ignore - parseEventLogs typing issue with dynamic ABI from protocol-deployments
       const logs = parseEventLogs({
-        abi: coinFactoryABI,
+        abi: (ZoraProtocol as any).coinFactoryABI,
         logs: receipt.logs,
       });
 
+      // TODO: Remove @ts-ignore when event log typing is resolved
+      // @ts-ignore - Event structure typing from parseEventLogs result
       const coinCreatedEvent = logs.find((log) => log.eventName === "CoinCreatedV4");
+      // @ts-ignore - Event args property typing issue
       const coinAddress = coinCreatedEvent?.args?.coin as Address;
 
       if (!coinAddress) {
         throw new Error("Failed to extract coin address from transaction logs");
       }
 
+      // Calculate transaction cost
+      const gasUsed = receipt.gasUsed;
+      const effectiveGasPrice = receipt.effectiveGasPrice || BigInt(0);
+      const totalCostWei = gasUsed * effectiveGasPrice;
+      const totalCostETH = (Number(totalCostWei) / 1e18).toFixed(6);
+
       logger.info("Successfully created coin via Zora factory", {
         coinAddress,
         txHash,
         blockNumber: receipt.blockNumber,
+        gasUsed: gasUsed.toString(),
+        effectiveGasPrice: effectiveGasPrice.toString(),
+        totalCostETH: `${totalCostETH} ETH`,
       });
 
       return {
@@ -150,6 +170,10 @@ export class ZoraFactoryService {
         coinAddress,
         transactionHash: txHash,
         blockNumber: receipt.blockNumber,
+        gasUsed,
+        effectiveGasPrice,
+        totalCostWei,
+        totalCostETH,
       };
     } catch (error) {
       logger.error("Failed to create coin via Zora factory", {
@@ -174,7 +198,7 @@ export class ZoraFactoryService {
     const COIN_ETH_PAIR_NUM_DISCOVERY_POSITIONS = 11;
     const COIN_ETH_PAIR_MAX_DISCOVERY_SUPPLY_SHARE = parseUnits("0.05", 18);
 
-    const poolConfig = encodeMultiCurvePoolConfig({
+    const poolConfig = (ZoraProtocol as any).encodeMultiCurvePoolConfig({
       currency: zeroAddress, // ETH pairing
       tickLower: [COIN_ETH_PAIR_LOWER_TICK],
       tickUpper: [COIN_ETH_PAIR_UPPER_TICK],

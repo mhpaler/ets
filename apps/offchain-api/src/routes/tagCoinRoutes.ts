@@ -29,6 +29,7 @@ const tagCoinController = new TagCoinController(zoraService);
 // Routes
 router.post("/create", (req, res) => tagCoinController.createTagCoin(req, res));
 router.get("/health", (req, res) => tagCoinController.healthCheck(req, res));
+router.get("/config", (req, res) => tagCoinController.getConfig(req, res));
 router.get("/:tagString", (req, res) => tagCoinController.getTagCoin(req, res));
 
 export default router;
