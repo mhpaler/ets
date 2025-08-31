@@ -74,7 +74,7 @@ export class ZoraContractsService implements IZoraService {
    */
   public async predictCoinAddress(eventData: TagCreatedEventData): Promise<Address> {
     const coinSalt = this.zoraFactory.generateCoinSalt(eventData.machineName);
-    const poolConfig = this.zoraFactory.getStandardPoolConfig();
+    const poolConfig = await this.zoraFactory.getStandardPoolConfig();
 
     return await this.zoraFactory.predictCoinAddress({
       msgSender: this.account.address,
@@ -128,7 +128,7 @@ export class ZoraContractsService implements IZoraService {
 
       // Create coin using direct factory interaction
       const coinSalt = this.zoraFactory.generateCoinSalt(eventData.machineName);
-      const poolConfig = this.zoraFactory.getStandardPoolConfig();
+      const poolConfig = await this.zoraFactory.getStandardPoolConfig();
 
       const result = await this.zoraFactory.createCoin({
         payoutRecipient: eventData.creator as Address,

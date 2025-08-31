@@ -183,7 +183,7 @@ export class TagCoinController {
     try {
       const serviceType = process.env.ZORA_SERVICE_TYPE?.toUpperCase() || "SDK";
       const chainId = process.env.CHAIN_ID ? Number.parseInt(process.env.CHAIN_ID) : 84532;
-      
+
       // Determine chain name
       let chainName: string;
       if (chainId === 8453) {
