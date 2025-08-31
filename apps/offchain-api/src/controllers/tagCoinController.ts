@@ -1,11 +1,11 @@
 import type { Request, Response } from "express";
-import type { TagCreatedEventData, ZoraService } from "../services/zora/zoraService";
+import type { IZoraService, TagCreatedEventData } from "../services/zora/IZoraService";
 import { logger } from "../utils/logger";
 
 export class TagCoinController {
-  private readonly zoraService: ZoraService;
+  private readonly zoraService: IZoraService;
 
-  constructor(zoraService: ZoraService) {
+  constructor(zoraService: IZoraService) {
     this.zoraService = zoraService;
   }
 
@@ -48,7 +48,8 @@ export class TagCoinController {
       const coinExists = await this.zoraService.coinExists(eventData);
       if (coinExists) {
         logger.info("TAG coin already exists", {
-          tagString: eventData.tagString,
+          originalInput: eventData.originalInput,
+          coinAddress: eventData.coinAddress,
         });
 
         const coinAddress = await this.zoraService.predictCoinAddress(eventData);

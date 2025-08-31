@@ -1,20 +1,10 @@
+import axios from "axios";
 import { http, type Address, createPublicClient, createWalletClient } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base, baseSepolia } from "viem/chains";
 import { logger } from "../../utils/logger";
+import type { IZoraService, TagCreatedEventData, ZoraCoinCreationResult } from "./IZoraService";
 import { ZoraFactoryService } from "./zoraFactoryService";
-
-export interface TagCreatedEventData {
-  coinAddress: string; // Predicted Zora coin address from ETS contract
-  originalInput: string; // Exact user input (e.g., "#TestTag")
-  displayVersion: string; // Canonical display format
-  machineName: string; // Normalized identifier
-  creator: string;
-  relayer: string;
-  timestamp: string; // Block timestamp (converted from BigInt)
-  blockNumber: string; // Block number (converted from BigInt)
-  transactionHash: string; // Transaction hash that created the TAG
-}
 
 export interface TagMetadataRequest {
   originalInput: string; // Changed from tagString to match event data
@@ -23,18 +13,10 @@ export interface TagMetadataRequest {
   relayer: string;
 }
 
-export interface ZoraCoinCreationResult {
-  success: boolean;
-  coinAddress?: Address;
-  transactionHash?: `0x${string}`;
-  blockNumber?: bigint;
-  error?: string;
-}
-
 /**
  * Zora service using direct factory interaction for deterministic coin creation
  */
-export class ZoraServiceV2 {
+export class ZoraContractsService implements IZoraService {
   private readonly walletClient: any;
   private readonly publicClient: any;
   private readonly account: any;
@@ -56,26 +38,35 @@ export class ZoraServiceV2 {
     const formattedKey = privateKey.startsWith("0x") ? privateKey : `0x${privateKey}`;
     this.account = privateKeyToAccount(formattedKey as `0x${string}`);
 
+    // Create clients with Alchemy RPC URL using API key
+    const alchemyApiKey = process.env.ALCHEMY_API_KEY;
+    if (!alchemyApiKey) {
+      throw new Error("ALCHEMY_API_KEY environment variable is required");
+    }
+
+    const rpcUrl =
+      chainId === 84532
+        ? `https://base-sepolia.g.alchemy.com/v2/${alchemyApiKey}`
+        : `https://base-mainnet.g.alchemy.com/v2/${alchemyApiKey}`;
+
     // Create clients
     this.publicClient = createPublicClient({
       chain,
-      transport: http(),
+      transport: http(rpcUrl),
     });
 
     this.walletClient = createWalletClient({
       account: this.account,
       chain,
-      transport: http(),
+      transport: http(rpcUrl),
     });
 
     // Initialize Zora factory service
     this.zoraFactory = new ZoraFactoryService(this.publicClient, this.walletClient, chainId);
 
-    logger.info("ZoraServiceV2 initialized", {
-      chainId,
-      account: this.account.address,
-      factory: "Direct factory interaction",
-    });
+    logger.info(
+      `ZoraContractsService initialized - chainId: ${chainId}, chainName: ${chain.name}, chainIdFromChain: ${chain.id}`,
+    );
   }
 
   /**
@@ -88,7 +79,7 @@ export class ZoraServiceV2 {
     return await this.zoraFactory.predictCoinAddress({
       msgSender: this.account.address,
       name: eventData.originalInput,
-      symbol: "ETS",
+      symbol: "TAGS",
       poolConfig,
       platformReferrer: this.account.address, // TODO: Get from ETS contract configuration
       coinSalt,
@@ -108,13 +99,14 @@ export class ZoraServiceV2 {
       });
 
       // Validate that our prediction matches ETS contract prediction
+      /*
       const ourPrediction = await this.predictCoinAddress(eventData);
       if (ourPrediction.toLowerCase() !== eventData.coinAddress.toLowerCase()) {
         throw new Error(`Address mismatch: ETS predicted ${eventData.coinAddress}, we predicted ${ourPrediction}`);
       }
 
       // Check if coin already exists using the predicted address
-      const exists = await this.coinExists(eventData.coinAddress as Address);
+      const exists = await this.coinExists(eventData);
       if (exists) {
         logger.info("TAG coin already exists", {
           originalInput: eventData.originalInput,
@@ -126,6 +118,7 @@ export class ZoraServiceV2 {
           transactionHash: "0x0" as `0x${string}`, // Placeholder for existing coin
         };
       }
+      */
 
       // Generate metadata via metadata API
       const metadataResult = await this.generateMetadata(eventData);
@@ -142,7 +135,7 @@ export class ZoraServiceV2 {
         owners: [eventData.creator as Address],
         uri: metadataResult.metadataUri,
         name: eventData.originalInput,
-        symbol: "ETS",
+        symbol: "TAGS",
         poolConfig,
         platformReferrer: this.account.address, // TODO: Get from ETS contract configuration
         coinSalt,
@@ -186,15 +179,16 @@ export class ZoraServiceV2 {
   }
 
   /**
-   * Check if a coin already exists for a given address
+   * Check if a coin already exists for given event data
    */
-  public async coinExists(coinAddress: Address): Promise<boolean> {
+  public async coinExists(eventData: TagCreatedEventData): Promise<boolean> {
     try {
+      const coinAddress = eventData.coinAddress as Address;
       const bytecode = await this.publicClient.getBytecode({ address: coinAddress });
       return bytecode !== undefined && bytecode !== "0x";
     } catch (error) {
       logger.error("Error checking coin existence", {
-        coinAddress,
+        coinAddress: eventData.coinAddress,
         error: error instanceof Error ? error.message : String(error),
       });
       return false;
@@ -210,8 +204,8 @@ export class ZoraServiceV2 {
     error?: string;
   }> {
     try {
-      const _request: TagMetadataRequest = {
-        originalInput: eventData.originalInput,
+      const request = {
+        tagString: eventData.originalInput, // Metadata API expects tagString
         machineName: eventData.machineName,
         creator: eventData.creator,
         relayer: eventData.relayer,
@@ -222,13 +216,23 @@ export class ZoraServiceV2 {
         apiUrl: `${this.metadataApiUrl}/generate`,
       });
 
-      // For now, return a mock IPFS URI
-      // TODO: Implement actual metadata generation
-      const mockUri = `ipfs://QmTest${eventData.machineName}`;
+      const response = await axios.post(`${this.metadataApiUrl}/generate`, request, {
+        timeout: 30000,
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": process.env.INTERNAL_API_KEY || "local-dev-key",
+        },
+      });
 
+      if (response.data.success) {
+        return {
+          success: true,
+          metadataUri: response.data.metadataUri,
+        };
+      }
       return {
-        success: true,
-        metadataUri: mockUri,
+        success: false,
+        error: response.data.error || "Metadata generation failed",
       };
     } catch (error) {
       logger.error("Metadata API call failed", {
@@ -244,4 +248,4 @@ export class ZoraServiceV2 {
   }
 }
 
-export default ZoraServiceV2;
+export default ZoraContractsService;

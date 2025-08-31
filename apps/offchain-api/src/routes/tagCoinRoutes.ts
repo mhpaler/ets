@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { TagCoinController } from "../controllers/tagCoinController";
-import { ZoraService } from "../services/zora/zoraService";
+import type { IZoraService } from "../services/zora/IZoraService";
+import { createZoraServiceFromEnv } from "../services/zora/zoraServiceProvider";
 
 const router = Router();
 
-// Initialize Zora service (TODO: move to dependency injection)
-const initializeZoraService = (): ZoraService => {
+// Initialize Zora service using provider (supports environment-based switching)
+const initializeZoraService = (): IZoraService => {
   const privateKey = process.env.ETS_EOA_PRIVATE_KEY as `0x${string}`;
   if (!privateKey) {
     throw new Error("ETS_EOA_PRIVATE_KEY environment variable is required");
@@ -17,7 +18,8 @@ const initializeZoraService = (): ZoraService => {
   // Metadata API URL (internal service call)
   const metadataApiUrl = process.env.METADATA_API_URL || "http://localhost:3000/api/metadata";
 
-  return new ZoraService(privateKey, chainId, metadataApiUrl);
+  // Use createZoraServiceFromEnv to create service based on ZORA_SERVICE_TYPE env var
+  return createZoraServiceFromEnv(privateKey, chainId, metadataApiUrl);
 };
 
 // Initialize controller

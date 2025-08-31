@@ -1,10 +1,4 @@
-import {
-  createMetadataBuilder,
-  createZoraUploaderForCreator,
-  getURLFromUploadResult,
-  setApiKey,
-  validateImageMimeType,
-} from "@zoralabs/coins-sdk";
+import * as ZoraSDK from "@zoralabs/coins-sdk";
 import { logger } from "../../utils/logger";
 
 export interface TagMetadataRequest {
@@ -43,7 +37,7 @@ export class TagMetadataService {
           isPlaceholder: zoraApiKey === "your_zora_api_key_here",
         });
       } else {
-        setApiKey(zoraApiKey);
+        ZoraSDK.setApiKey(zoraApiKey);
         logger.info("Zora API key configured for IPFS uploads");
       }
     }
@@ -90,7 +84,7 @@ export class TagMetadataService {
 
     const mockMetadata = {
       name: `TAG: ${canonicalName}`,
-      symbol: "ETS",
+      symbol: "TAGS",
       description: `TAG coin for ${request.tagString} - Created via ETS`,
       image: mockImageUri,
       properties: this.buildETSProperties(request),
@@ -121,12 +115,13 @@ export class TagMetadataService {
     const imageFile = await this.generateImageFile(request);
 
     // Create uploader for the creator's address
-    const uploader = createZoraUploaderForCreator(request.creator as `0x${string}`);
+    const uploader = (ZoraSDK as any).createZoraUploaderForCreator(request.creator as `0x${string}`);
 
     // Build metadata with Zora builder
-    const builder = createMetadataBuilder()
+    const builder = (ZoraSDK as any)
+      .createMetadataBuilder()
       .withName(`TAG: ${canonicalName}`)
-      .withSymbol("ETS")
+      .withSymbol("TAGS")
       .withDescription(`TAG coin for ${request.tagString} - Created via ETS`)
       .withImage(imageFile)
       .withProperties(this.buildETSProperties(request));
@@ -182,7 +177,7 @@ export class TagMetadataService {
       machine_name: request.machineName,
       tag_type: this.getTagType(request.tagString),
       created_timestamp: new Date().toISOString(),
-      symbol: "ETS",
+      symbol: "TAGS",
     };
   }
 

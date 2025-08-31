@@ -4,18 +4,7 @@ import { http, type Address, createPublicClient, createWalletClient } from "viem
 import { privateKeyToAccount } from "viem/accounts";
 import { base, baseSepolia } from "viem/chains";
 import { logger } from "../../utils/logger";
-
-export interface TagCreatedEventData {
-  coinAddress: string; // Predicted Zora coin address from ETS contract
-  originalInput: string; // Exact user input (e.g., "#TestTag")
-  displayVersion: string; // Canonical display format (e.g., "#TestTag")
-  machineName: string; // Normalized identifier (e.g., "testtag")
-  creator: string; // Address credited with creating the TAG
-  relayer: string; // Address of relayer that facilitated creation
-  timestamp: string; // Block timestamp (converted from BigInt)
-  blockNumber: string; // Block number (converted from BigInt)
-  transactionHash: string; // Transaction hash that created the TAG
-}
+import type { IZoraService, TagCreatedEventData, ZoraCoinCreationResult } from "./IZoraService";
 
 export interface TagMetadataRequest {
   originalInput: string; // Changed from tagString to match event data
@@ -24,15 +13,7 @@ export interface TagMetadataRequest {
   relayer: string;
 }
 
-export interface ZoraCoinCreationResult {
-  success: boolean;
-  coinAddress?: Address;
-  transactionHash?: `0x${string}`;
-  blockNumber?: bigint;
-  error?: string;
-}
-
-export class ZoraService {
+export class ZoraSDKService implements IZoraService {
   private readonly walletClient: any;
   private readonly publicClient: any;
   private readonly account: any;
@@ -51,7 +32,7 @@ export class ZoraService {
     this.metadataApiUrl = metadataApiUrl;
 
     logger.info(
-      `ZoraService constructor - chainId: ${chainId}, chainName: ${chain.name}, chainIdFromChain: ${chain.id}`,
+      `ZoraSDKService constructor - chainId: ${chainId}, chainName: ${chain.name}, chainIdFromChain: ${chain.id}`,
     );
 
     // Check if we're in localhost development mode
@@ -92,15 +73,6 @@ export class ZoraService {
       logger.warn("walletClient.chain was undefined, manually setting it");
       this.walletClient.chain = chain;
     }
-
-    // Double-check chain object structure matches expected viem format
-    logger.info(
-      `After chain setup - publicClient.chain.id: ${this.publicClient.chain?.id}, walletClient.chain.id: ${this.walletClient.chain?.id}`,
-    );
-    logger.info(`Chain object keys: ${Object.keys(this.publicClient.chain || {}).join(", ")}`);
-    logger.info(
-      `Chain name: ${this.publicClient.chain?.name}, nativeCurrency: ${this.publicClient.chain?.nativeCurrency?.symbol}`,
-    );
 
     // Note: The @zoralabs/coins-sdk doesn't have a client instance
     // We'll use the static functions directly with our walletClient
@@ -175,30 +147,6 @@ export class ZoraService {
         isLocalhostMode: this.isLocalhostMode,
       });
 
-      // Verify signing account is properly configured
-      logger.info("🔐 Verifying signing account configuration:");
-      logger.info(`   Account address: ${this.account.address}`);
-      logger.info(`   WalletClient account: ${this.walletClient.account?.address}`);
-      logger.info(`   Account type: ${this.account.type}`);
-      logger.info(`   Has signMessage: ${typeof this.account.signMessage === "function"}`);
-      logger.info(`   Has signTransaction: ${typeof this.account.signTransaction === "function"}`);
-
-      // Verify chain configuration
-      logger.info("⛓️ Chain configuration:");
-      logger.info(`   Chain ID: ${this.chainId}`);
-      logger.info(`   PublicClient chain: ${this.publicClient.chain?.name} (${this.publicClient.chain?.id})`);
-      logger.info(`   WalletClient chain: ${this.walletClient.chain?.name} (${this.walletClient.chain?.id})`);
-
-      // Check account balance (optional but useful for debugging)
-      try {
-        const balance = await this.publicClient.getBalance({
-          address: this.account.address,
-        });
-        logger.info(`   Account balance: ${balance} wei (${Number(balance) / 1e18} ETH)`);
-      } catch (balanceError) {
-        logger.warn(`   Could not fetch balance: ${balanceError}`);
-      }
-
       // In localhost mode, return deterministic mock response
       if (this.isLocalhostMode) {
         logger.info("Localhost mode: Returning mock Zora coin creation", {
@@ -253,38 +201,6 @@ export class ZoraService {
       const name = `TAG: ${this.toCanonicalName(tagWithoutHash)}`;
       const symbol = "TAGS";
       const uri = metadataResult.metadataUri;
-
-      // Debug logging before createCoin
-      logger.info(`About to call createCoin SDK - chainId: ${this.chainId}`);
-      logger.info(`publicClient.chain exists: ${!!this.publicClient.chain}`);
-      logger.info(`publicClient.chain.id: ${this.publicClient.chain?.id}`);
-      logger.info(`walletClient.chain exists: ${!!this.walletClient.chain}`);
-      logger.info(`walletClient.chain.id: ${this.walletClient.chain?.id}`);
-
-      // Additional debug - check if chain IDs match expected values
-      logger.info(`Expected Base Sepolia ID: 84532, actual: ${this.publicClient.chain?.id}`);
-      logger.info(`Chain ID type: ${typeof this.publicClient.chain?.id}`);
-
-      // Manually test the validation logic
-      const { base: baseChain, baseSepolia: baseSepoliaChain } = await import("viem/chains");
-      logger.info(`Imported baseSepolia.id: ${baseSepoliaChain.id}, base.id: ${baseChain.id}`);
-      logger.info(`Manual validation - matches baseSepolia: ${this.publicClient.chain?.id === baseSepoliaChain.id}`);
-      logger.info(`Manual validation - matches base: ${this.publicClient.chain?.id === baseChain.id}`);
-
-      // Final debug - log the exact objects being passed to SDK
-      logger.info(`Final SDK call - publicClient.chain.id: ${this.publicClient.chain?.id}`);
-      logger.info(`Final SDK call - walletClient.chain.id: ${this.walletClient.chain?.id}`);
-
-      // Log the exact parameters we're sending to SDK
-      console.log("🔍 SDK Parameters being sent:");
-      console.log(`   creator: ${eventData.creator}`);
-      console.log(`   name: ${name}`);
-      console.log(`   symbol: ${symbol}`);
-      console.log(`   uri: ${uri}`);
-      console.log("   currency: ZORA");
-      console.log(`   chainId: ${this.chainId}`);
-      console.log(`   platformReferrer: ${eventData.relayer}`);
-      console.log("   skipMetadataValidation: true");
 
       // Create coin using Zora SDK (correct format)
       try {
@@ -449,4 +365,4 @@ export class ZoraService {
   }
 }
 
-export default ZoraService;
+export default ZoraSDKService;

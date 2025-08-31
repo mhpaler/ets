@@ -11,16 +11,16 @@ last_updated: 2025-08-23
 
 ## ACTIVE_WORK
 ```yaml
-current_issue_id: #536.3
-current_status: IN_PROGRESS
+current_issue_id: #536
+current_status: NOT_STARTED
 completion_percent: 0
-exact_task: "Integration Testing Framework Update for Temporal workflows"
-next_priority: "Continue Temporal Processor development - integration testing and validation"
-resume_action: "Implement integration tests for Temporal workflows and start Temporal server validation"
-transition_note: "Pivoting from Gelato back to Temporal - unit testing foundation complete, ready for integration"
-architecture_decision: "Continuing with Temporal Processor instead of Gelato Web3 Functions migration"
-key_resolution: "Testing framework provides solid foundation for Temporal workflow development"
-session_accomplishment: "Built comprehensive unit testing framework for workflow orchestration patterns"
+exact_task: "Implement deterministic coin address generation via direct contract interaction"
+next_priority: "Research Zora factory contract CREATE2 logic and implement address prediction"
+resume_action: "Analyze Zora factory contract to understand salt generation and CREATE2 deployment"
+transition_note: "SDK integration complete and working on mainnet - now need deterministic addresses"
+architecture_decision: "Must bypass SDK and interact directly with factory contracts for CREATE2"
+key_resolution: "SDK doesn't support predetermined addresses - need direct contract calls"
+session_accomplishment: "Validated full SDK integration on Base mainnet with proper creator association"
 ```
 
 ## CRITICAL_PATH
