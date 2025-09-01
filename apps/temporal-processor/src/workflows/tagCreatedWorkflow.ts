@@ -23,7 +23,7 @@ const { createTagCoinMetadata, deployTagCoinOnZora, allocateCreatorRewards } = p
  */
 export async function TagCreatedWorkflow(input: TagCreatedWorkflowInput): Promise<TagCreatedResult> {
   const result: TagCreatedResult = {
-    tagId: input.tagId,
+    tagId: input.coinAddress, // Using coinAddress as ID since tagId doesn't exist in event
     status: "failed",
     steps: {
       createMetadata: false,
@@ -33,12 +33,12 @@ export async function TagCreatedWorkflow(input: TagCreatedWorkflowInput): Promis
   };
 
   try {
-    // Step 1: Create metadata for the TAG coin
-    console.log(`[Workflow] Creating metadata for TAG ${input.tagString} (ID: ${input.tagId})`);
+    // Step 1: Create metadata for the TAG coin (now a pass-through)
+    console.log(`[Workflow] Processing TAG ${input.originalInput} with coin address ${input.coinAddress}`);
 
     const metadataResult = await createTagCoinMetadata({
-      tagId: input.tagId,
-      tagString: input.tagString,
+      tagId: input.coinAddress,
+      tagString: input.originalInput,
       creator: input.creator,
       coinAddress: input.coinAddress,
     });
@@ -51,17 +51,23 @@ export async function TagCreatedWorkflow(input: TagCreatedWorkflowInput): Promis
     }
 
     result.steps.createMetadata = true;
-    console.log(`[Workflow] Successfully created metadata for TAG ${input.tagString}`);
+    console.log(`[Workflow] Metadata step complete for TAG ${input.originalInput}`);
 
     // Step 2: Deploy TAG coin on Zora
-    console.log(`[Workflow] Deploying TAG coin on Zora for ${input.tagString}`);
+    console.log(`[Workflow] Deploying TAG coin on Zora for ${input.originalInput}`);
 
     const zoraResult = await deployTagCoinOnZora({
-      tagId: input.tagId,
-      tagString: input.tagString,
+      tagId: input.coinAddress,
+      tagString: input.originalInput,
       coinAddress: input.coinAddress,
       metadataURI: metadataResult.metadataURI,
       creator: input.creator,
+      displayVersion: input.displayVersion,
+      machineName: input.machineName,
+      relayer: input.relayer,
+      timestamp: input.timestamp.toISOString(),
+      blockNumber: input.blockNumber,
+      transactionHash: input.transactionHash,
     });
 
     if (zoraResult.status === "failed") {
@@ -80,11 +86,11 @@ export async function TagCreatedWorkflow(input: TagCreatedWorkflowInput): Promis
     await sleep("10 seconds");
 
     // Step 3: Allocate creator rewards (placeholder for future implementation)
-    console.log(`[Workflow] Allocating creator rewards for TAG ${input.tagString}`);
+    console.log(`[Workflow] Allocating creator rewards for TAG ${input.originalInput}`);
 
     try {
       const rewardsResult = await allocateCreatorRewards({
-        tagId: input.tagId,
+        tagId: input.coinAddress,
         coinAddress: zoraResult.coinAddress,
         creator: input.creator,
         amount: "1000000", // 1M units as initial allocation
@@ -105,7 +111,7 @@ export async function TagCreatedWorkflow(input: TagCreatedWorkflowInput): Promis
     result.status = result.steps.deployOnZora ? "completed" : "partial";
     return result;
   } catch (error) {
-    console.error(`[Workflow] TAG coin creation failed for ${input.tagString}:`, error);
+    console.error(`[Workflow] TAG coin creation failed for ${input.originalInput}:`, error);
 
     // Check if any steps succeeded for partial success
     if (result.steps.createMetadata || result.steps.deployOnZora) {

@@ -1,111 +1,112 @@
-# Session Status - Service Abstraction Refactoring Complete
+# Session Status - Temporal-Zora Integration Complete
 
 ## Session Overview
-**Duration**: Complete refactoring session focused on service abstraction implementation  
-**Focus**: Issue #536 - Deterministic coin address generation via service abstraction  
-**Key Achievement**: Complete service abstraction pattern implemented with biome compliance
+**Duration**: Full integration session
+**Focus**: Connecting Temporal Processor to offchain-api for Zora coin creation
+**Key Achievement**: 🎉 **Complete end-to-end integration pipeline ready for testing**
 
 ## What Was Accomplished
 
-### Major Service Abstraction Implementation
-- **Created IZoraService interface** - Common contract for both SDK and Factory services
-- **Renamed services for clarity** - ZoraService → ZoraSDKService, ZoraServiceV2 → ZoraContractsService  
-- **Service provider functions** - Created createZoraService() and createZoraServiceFromEnv() replacing static class pattern
-- **Environment-based switching** - Full support for ZORA_SERVICE_TYPE env var switching between "SDK" and "FACTORY"
-- **Updated all imports** - Controllers, routes, and dependencies updated to use unified interface
+### 1. 🔧 Zora Coin Ownership Configuration
+- Added `PRIVY_WALLET_ADDRESS` and `ZORA_WALLET_ADDRESS` environment variables to offchain-api
+- Updated `ZoraContractsService` to set multiple owners on coin creation
+- Created owner management utilities (add-owner.ts, remove-owner.ts, list-owners.ts)
+- Modified utilities to handle batch operations with `addOwners` and `removeOwners`
 
-### Code Quality & Linting Resolution
-- **Fixed @zoralabs/coins-sdk imports** - Used namespace import pattern to resolve TypeScript declaration issues
-- **Biome compliance achieved** - Resolved static-only class pattern by converting to functions
-- **Removed debug logging** - Cleaned up verbose logging from ZoraSDKService per requirements
-- **Consistent error handling** - Unified error patterns across service implementations
+### 2. 🔄 Temporal Processor Integration
+- Fixed incorrect API endpoints in `tagCoinActivities.ts`
+- Updated to use existing `/api/tag-coin/create` endpoint
+- Corrected payload structure to match `TagCreatedEventData` format
+- Added oracle authentication header for API security
 
-### Testing Infrastructure Ready
-- **Renamed test scripts** - test-api-baby-steps.ts → test-create-coin-sdk.ts for clarity
-- **Created factory test** - test-create-coin-factory.ts ready for ZoraContractsService validation  
-- **Same API endpoints** - Both services use identical routes with backend switching via env var
+### 3. 📝 Type and Workflow Updates
+- Updated `TagCreatedWorkflowInput` to match actual event structure
+- Fixed field mapping in `TagCreatedWorkflow` (originalInput, machineName, etc.)
+- Added `oracleApiKey` to Temporal config for authentication
+
+### 4. 🏗️ Architecture Decisions
+- **Single Endpoint Pattern**: `/api/tag-coin/create` handles both metadata and coin deployment
+- **Multi-Owner Support**: All coins created with up to 3 owners (Privy, Zora, EOA)
+- **Address Validation**: Deterministic address from ETS passed through entire pipeline
 
 ## Current State
+- **Exact Stopping Point**: Integration complete, ready for testing
+- **Next Action**: Start local services and test tag creation flow
+- **Blocking Issues**: None - ready to test
 
-### Exact Stopping Point
-- **Service abstraction refactoring**: ✅ COMPLETE - All code changes committed successfully
-- **Biome linting**: ✅ FIXED - All linting issues resolved, full codebase passes checks
-- **Git commit**: ✅ COMPLETE - Comprehensive commit with issue linking and change documentation
-- **API server state**: ⚠️ BLOCKED - Server showing import errors and port conflicts
-
-### Blocking Issues
-1. **offchain-api runtime errors**: Server failing to start cleanly after refactoring
-2. **Import resolution problems**: Background bash shows `Cannot read properties of undefined (reading 'createFromEnv')`
-3. **Port conflicts**: EADDRINUSE :::4000 preventing clean restarts
-
-### Ready to Test  
-- **ZoraContractsService**: Implementation complete with metadata generation and RPC configuration
-- **Service switching**: ZORA_SERVICE_TYPE env var support fully implemented
-- **Test script**: test-create-coin-factory.ts ready to validate factory service through API
+## The Complete Pipeline
+```
+ETS Contract 
+  → TagCreated Event (with deterministic coinAddress)
+  → Temporal EventListener (watching for events)
+  → TagCreatedWorkflow (orchestration)
+  → deployTagCoinOnZora Activity (API call)
+  → POST /api/tag-coin/create (with oracle auth)
+  → ZoraContractsService.createCoin()
+  → Zora Factory (creates tradable coin)
+  → Multi-owner coin deployed
+```
 
 ## Resume Guidance for Next Session
 
-### Immediate Actions Required
-1. **Kill existing processes**: Stop all running servers to resolve port conflicts
-2. **Clean restart offchain-api**: Fresh server start with ZORA_SERVICE_TYPE=FACTORY 
-3. **Validate import resolution**: Ensure all service provider imports working correctly
-4. **Run factory test**: Execute `bun src/test-create-coin-factory.ts` to test ZoraContractsService
-
-### Expected Testing Flow
+### 1. Start Required Services
 ```bash
-# 1. Clean environment
-pkill -f "pnpm dev"  # Kill existing API servers
-cd /Users/User/Sites/ets/apps/offchain-api
+# Terminal 1: Start offchain-api
+cd apps/offchain-api
+npm run dev
 
-# 2. Start API with factory service
-ZORA_SERVICE_TYPE=FACTORY pnpm dev
+# Terminal 2: Start Temporal server
+temporal server start-dev
 
-# 3. Run factory test (in separate terminal)
-cd /Users/User/Sites/ets/apps/zora-coin-poc  
-bun src/test-create-coin-factory.ts
+# Terminal 3: Start Temporal processor
+cd apps/temporal-processor
+npm run dev
+
+# Terminal 4: Start local blockchain with contracts
+cd packages/contracts
+npm run local
 ```
 
-### Expected Outcome
-- ZoraContractsService should create coins using direct factory interaction
-- Same metadata generation as SDK service via offchain-api
-- Proof that service abstraction works for both implementations
-- Foundation for deterministic address generation (CREATE2 salt implementation)
+### 2. Test the Integration
+- Deploy ETS contracts locally
+- Create a tag using hardhat task or direct contract call
+- Watch Temporal logs for event detection
+- Verify offchain-api receives request
+- Check Zora coin creation with multi-owner configuration
 
-## Technical Context
+### 3. Validation Points
+- ✅ TagCreated event emitted with correct coinAddress
+- ✅ Temporal picks up event and starts workflow
+- ✅ Workflow calls offchain-api with proper auth
+- ✅ Offchain-api creates Zora coin with metadata
+- ✅ Coin has multiple owners as configured
+- ✅ Coin is tradable with proper liquidity
 
-### Service Architecture Achieved
+## Key Files Modified
+- `apps/temporal-processor/src/activities/tagCoinActivities.ts` - Fixed API endpoints
+- `apps/temporal-processor/src/workflows/tagCreatedWorkflow.ts` - Updated field mapping
+- `apps/temporal-processor/src/types/index.ts` - Corrected input types
+- `apps/temporal-processor/src/config/index.ts` - Added oracle API key
+- `apps/offchain-api/src/services/zora/zoraContractsService.ts` - Multi-owner support
+- `apps/offchain-api/.env` - Added owner configuration
+
+## Environment Variables Needed
+```env
+# In apps/offchain-api/.env
+PRIVY_WALLET_ADDRESS=0xde98c2a8182d9638f7945e17e0a0a0c94bb28c1a
+ZORA_WALLET_ADDRESS=0x4de7c002be724ad63d5dca3f64126bbddb9fd735
+ETS_EOA_PRIVATE_KEY=0x... # Already configured
+
+# In apps/temporal-processor/.env
+ORACLE_API_KEY=local-oracle-key
+OFFCHAIN_API_URL=http://localhost:4000
 ```
-┌─────────────────────┐    ┌──────────────────────────┐
-│   tagCoinRoutes     │────│  createZoraServiceFromEnv │  
-└─────────────────────┘    └──────────────────────────┘
-            │                           │
-            │               ┌───────────┼───────────┐
-            ▼               ▼           ▼           ▼
-┌─────────────────────┐  ┌─────────┐ ┌─────────────────┐
-│  TagCoinController  │  │ SDK     │ │ FACTORY         │
-│                     │  │ Service │ │ Service         │
-└─────────────────────┘  └─────────┘ └─────────────────┘
-```
 
-### Files Modified This Session
-- `/apps/offchain-api/src/services/zora/IZoraService.ts` (NEW)
-- `/apps/offchain-api/src/services/zora/zoraServiceProvider.ts` (NEW)  
-- `/apps/offchain-api/src/services/zora/zoraSDKService.ts` (RENAMED + UPDATED)
-- `/apps/offchain-api/src/services/zora/zoraContractsService.ts` (RENAMED + UPDATED)
-- `/apps/offchain-api/src/routes/tagCoinRoutes.ts` (UPDATED)
-- `/apps/offchain-api/src/controllers/tagCoinController.ts` (UPDATED)
-- `/apps/offchain-api/src/services/metadata/tagMetadataService.ts` (IMPORTS FIXED)
+## Success Metrics
+- 🎯 **Integration Complete**: All components connected
+- 🚀 **Ready to Test**: Full pipeline awaiting validation
+- 🛡️ **Security**: Oracle auth implemented
+- 📊 **Multi-Owner**: Coins created with proper ownership
+- ⚡ **Deterministic**: Address validation ready
 
-### Key Architecture Decision
-- **Functions over static classes**: Biome linting rules enforced better patterns
-- **Environment-based service selection**: Clean separation of concerns
-- **Common interface compliance**: Both services implement identical contract
-- **Metadata API integration**: Both services use same metadata generation pipeline
-
-## Next Milestones
-1. **Validate service abstraction** - Confirm both SDK and Factory services work through API
-2. **Implement CREATE2 salt generation** - Add deterministic address prediction to Factory service  
-3. **End-to-end testing** - Full TAG coin creation with predetermined addresses
-4. **Integration with ETS contracts** - Connect factory service with ETS.computeCoinAddress()
-
-The service abstraction foundation is now complete and ready for deterministic address implementation.
+**The TAG Coins integration with Temporal and Zora is ready for end-to-end testing!** 🎉

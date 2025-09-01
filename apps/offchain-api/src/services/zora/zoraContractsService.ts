@@ -23,6 +23,7 @@ export class ZoraContractsService implements IZoraService {
   private readonly chainId: number;
   private readonly metadataApiUrl: string;
   private readonly zoraFactory: ZoraFactoryService;
+  private readonly coinOwners: Address[];
 
   constructor(
     privateKey: `0x${string}`,
@@ -64,8 +65,33 @@ export class ZoraContractsService implements IZoraService {
     // Initialize Zora factory service
     this.zoraFactory = new ZoraFactoryService(this.publicClient, this.walletClient, chainId);
 
+    // Configure coin owners from environment variables
+    const privyWalletAddress = process.env.PRIVY_WALLET_ADDRESS;
+    const zoraWalletAddress = process.env.ZORA_WALLET_ADDRESS;
+    
+    // Build owners array with all three addresses
+    this.coinOwners = [];
+    
+    // Add Privy wallet address if configured
+    if (privyWalletAddress && privyWalletAddress !== "0x0000000000000000000000000000000000000000") {
+      this.coinOwners.push(privyWalletAddress as Address);
+    }
+    
+    // Add Zora wallet address if configured
+    if (zoraWalletAddress && zoraWalletAddress !== "0x0000000000000000000000000000000000000000") {
+      this.coinOwners.push(zoraWalletAddress as Address);
+    }
+    
+    // Always add the EOA address (from private key) as an owner
+    this.coinOwners.push(this.account.address);
+
+    // Remove duplicates in case any addresses are the same
+    const uniqueOwners = [...new Set(this.coinOwners)];
+    this.coinOwners = uniqueOwners;
+
     logger.info(
-      `ZoraContractsService initialized - chainId: ${chainId}, chainName: ${chain.name}, chainIdFromChain: ${chain.id}`,
+      `ZoraContractsService initialized - chainId: ${chainId}, chainName: ${chain.name}, chainIdFromChain: ${chain.id}, owners: ${this.coinOwners.length}`,
+      { owners: this.coinOwners }
     );
   }
 
@@ -96,6 +122,8 @@ export class ZoraContractsService implements IZoraService {
         predictedAddress: eventData.coinAddress,
         creator: eventData.creator,
         machineName: eventData.machineName,
+        owners: this.coinOwners,
+        ownerCount: this.coinOwners.length,
       });
 
       // Validate that our prediction matches ETS contract prediction
@@ -131,8 +159,8 @@ export class ZoraContractsService implements IZoraService {
       const poolConfig = await this.zoraFactory.getStandardPoolConfig();
 
       const result = await this.zoraFactory.createCoin({
-        payoutRecipient: eventData.creator as Address,
-        owners: [eventData.creator as Address],
+        payoutRecipient: this.account.address, // Platform receives payouts for now
+        owners: this.coinOwners, // Multiple owners: Privy wallet, Zora wallet, and EOA
         uri: metadataResult.metadataUri,
         name: eventData.originalInput,
         symbol: "TAGS",

@@ -11,10 +11,12 @@ export interface TargetEnrichmentWorkflowInput {
 }
 
 export interface TagCreatedWorkflowInput {
-  tagId: string;
   coinAddress: Address;
-  tagString: string;
+  originalInput: string;
+  displayVersion: string;
+  machineName: string;
   creator: Address;
+  relayer: Address;
   transactionHash: Hash;
   blockNumber: string; // String for Temporal payload serialization
   chainId: number;

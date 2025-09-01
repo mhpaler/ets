@@ -60,12 +60,22 @@ async function testFactoryViAPI() {
       console.log(`💰 Coin Address: ${response.data.coinAddress}`);
       console.log(`🧾 Transaction: ${response.data.transactionHash}`);
       console.log(`📝 Created: ${response.data.created ? "New coin" : "Already existed"}`);
+      if (response.data.totalCostETH) {
+        console.log(`⛽ Gas Cost: ${response.data.totalCostETH} ETH`);
+      }
 
-      // Generate explorer URL
-      const explorerUrl =
-        CHAIN_ID === "8453"
-          ? `https://basescan.org/tx/${response.data.transactionHash}`
-          : `https://sepolia.basescan.org/tx/${response.data.transactionHash}`;
+      // Generate explorer URL based on chain ID
+      let explorerUrl: string;
+      if (CHAIN_ID === "8453") {
+        // Base mainnet
+        explorerUrl = `https://basescan.org/tx/${response.data.transactionHash}`;
+      } else if (CHAIN_ID === "84532") {
+        // Base Sepolia
+        explorerUrl = `https://sepolia.basescan.org/tx/${response.data.transactionHash}`;
+      } else {
+        // Default/unknown
+        explorerUrl = `Transaction hash: ${response.data.transactionHash}`;
+      }
 
       console.log(`🔍 View on explorer: ${explorerUrl}`);
     } else {

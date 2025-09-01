@@ -196,32 +196,32 @@ export class ZoraFactoryService {
    */
   async getStandardPoolConfig(): Promise<Hex> {
     // Determine optimal currency based on chain
-    const currency = this.chainId === 84532 ? "ETH" : "CREATOR_COIN_OR_ZORA"; // Base Sepolia only supports ETH
-    
+    const currency = this.chainId === 84532 ? "ETH" : "CREATOR_COIN"; // Base Sepolia only supports ETH
+
     try {
       logger.info("Fetching pool config from Zora API", {
         chainId: this.chainId,
         currency,
-        startingMarketCap: "HIGH"
+        startingMarketCap: "HIGH",
       });
 
       const apiUrl = "https://api-sdk.zora.engineering/create/content/pool-config";
       const params = new URLSearchParams({
         chain_id: this.chainId.toString(),
         currency,
-        starting_market_cap: "HIGH"
+        starting_market_cap: "HIGH",
       });
 
       const zoraApiKey = process.env.ZORA_API_KEY;
       const headers = {
-        "Accept": "application/json",
+        Accept: "application/json",
         "User-Agent": "ETS-Factory-Service/1.0",
-        ...(zoraApiKey && zoraApiKey !== "your_zora_api_key_here" ? { "api-key": zoraApiKey } : {})
+        ...(zoraApiKey && zoraApiKey !== "your_zora_api_key_here" ? { "api-key": zoraApiKey } : {}),
       };
 
       const response = await fetch(`${apiUrl}?${params}`, {
         method: "GET",
-        headers
+        headers,
       });
 
       if (!response.ok) {
@@ -238,24 +238,23 @@ export class ZoraFactoryService {
         currency,
         chainId: this.chainId,
         poolConfigLength: data.poolConfig.length,
-        source: "ZORA_API"
+        source: "ZORA_API",
       });
 
       return data.poolConfig as Hex;
-
     } catch (error) {
       logger.warn("⚠️ API failed, using manual fallback", {
         error: error instanceof Error ? error.message : String(error),
-        chainId: this.chainId
+        chainId: this.chainId,
       });
 
       // Manual fallback with creator coin address
       const CREATOR_COIN_ADDRESS = "0x182e5583685615cc03bedcb575928eedf80e52de" as Address;
-      
+
       const poolConfig = (ZoraProtocol as any).encodeMultiCurvePoolConfig({
         currency: CREATOR_COIN_ADDRESS,
         tickLower: [-250000],
-        tickUpper: [-195000], 
+        tickUpper: [-195000],
         numDiscoveryPositions: [11],
         maxDiscoverySupplyShare: [parseUnits("0.05", 18)],
       });
@@ -264,7 +263,7 @@ export class ZoraFactoryService {
         currency: "CREATOR_COIN_MANUAL",
         creatorCoinAddress: CREATOR_COIN_ADDRESS,
         chainId: this.chainId,
-        source: "MANUAL_FALLBACK"
+        source: "MANUAL_FALLBACK",
       });
 
       return poolConfig as Hex;

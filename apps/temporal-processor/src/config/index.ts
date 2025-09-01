@@ -40,6 +40,7 @@ interface Config {
   services: {
     offchainApiUrl: string;
     arweaveGateway: string;
+    oracleApiKey: string;
   };
 
   // Worker Configuration
@@ -99,6 +100,7 @@ export const config: Config = {
   services: {
     offchainApiUrl: process.env.OFFCHAIN_API_URL || "http://localhost:3000",
     arweaveGateway: process.env.ARWEAVE_GATEWAY || "https://arweave.net",
+    oracleApiKey: process.env.ORACLE_API_KEY || "local-oracle-key",
   },
 
   worker: {

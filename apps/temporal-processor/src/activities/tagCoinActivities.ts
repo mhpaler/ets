@@ -20,6 +20,7 @@ interface RewardsAllocationResult {
 
 /**
  * Activity: Create metadata for TAG coin
+ * Note: The offchain-api endpoint handles both metadata creation and coin deployment in one call
  */
 export async function createTagCoinMetadata(params: {
   tagId: string;
@@ -27,68 +28,26 @@ export async function createTagCoinMetadata(params: {
   creator: Address;
   coinAddress: Address;
 }): Promise<MetadataCreationResult> {
-  try {
-    logger.info(
-      {
-        tagId: params.tagId,
-        tagString: params.tagString,
-        coinAddress: params.coinAddress,
-      },
-      "Creating TAG coin metadata",
-    );
+  // This activity is now a no-op since the offchain-api handles metadata internally
+  // We keep it for workflow compatibility but it just passes through
+  logger.info(
+    {
+      tagId: params.tagId,
+      tagString: params.tagString,
+      coinAddress: params.coinAddress,
+    },
+    "Metadata will be created as part of coin deployment",
+  );
 
-    // Call offchain API to create TAG coin metadata
-    const response = await axios.post(
-      `${config.services.offchainApiUrl}/api/tag-coins/create-metadata`,
-      {
-        tagId: params.tagId,
-        tagString: params.tagString,
-        creator: params.creator,
-        coinAddress: params.coinAddress,
-      },
-      {
-        timeout: 30000,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
-
-    if (response.data.success) {
-      logger.info(
-        {
-          tagId: params.tagId,
-          metadataURI: response.data.metadataURI,
-        },
-        "Successfully created TAG coin metadata",
-      );
-
-      return {
-        metadataURI: response.data.metadataURI,
-        status: "success",
-      };
-    }
-    throw new Error(response.data.error || "Failed to create metadata");
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    logger.error(
-      {
-        tagId: params.tagId,
-        error: errorMessage,
-      },
-      "Failed to create TAG coin metadata",
-    );
-
-    return {
-      metadataURI: "",
-      status: "failed",
-      error: errorMessage,
-    };
-  }
+  return {
+    metadataURI: "handled-by-deploy", // Special marker
+    status: "success",
+  };
 }
 
 /**
  * Activity: Deploy TAG coin on Zora
+ * Calls the offchain-api /api/tag-coin/create endpoint
  */
 export async function deployTagCoinOnZora(params: {
   tagId: string;
@@ -96,31 +55,48 @@ export async function deployTagCoinOnZora(params: {
   coinAddress: Address;
   metadataURI: string;
   creator: Address;
+  displayVersion?: string;
+  machineName: string;
+  relayer: Address;
+  timestamp: string;
+  blockNumber: string;
+  transactionHash: string;
 }): Promise<ZoraCoinCreationResult> {
   try {
     logger.info(
       {
-        tagId: params.tagId,
-        tagString: params.tagString,
         coinAddress: params.coinAddress,
+        originalInput: params.tagString,
+        machineName: params.machineName,
       },
-      "Deploying TAG coin on Zora",
+      "Deploying TAG coin on Zora via offchain-api",
     );
+
+    // Prepare the TagCreatedEventData payload
+    const tagData = {
+      coinAddress: params.coinAddress,
+      originalInput: params.tagString,
+      displayVersion: params.displayVersion || params.tagString,
+      machineName: params.machineName,
+      creator: params.creator,
+      relayer: params.relayer,
+      timestamp: params.timestamp,
+      blockNumber: params.blockNumber,
+      transactionHash: params.transactionHash,
+    };
 
     // Call offchain API to deploy on Zora
     const response = await axios.post(
-      `${config.services.offchainApiUrl}/api/tag-coins/deploy-on-zora`,
+      `${config.services.offchainApiUrl}/api/tag-coin/create`,
       {
-        tagId: params.tagId,
-        tagString: params.tagString,
-        coinAddress: params.coinAddress,
-        metadataURI: params.metadataURI,
-        creator: params.creator,
+        tagData,
+        chainId: config.blockchain.chainId,
       },
       {
         timeout: 60000, // 60 seconds for deployment
         headers: {
           "Content-Type": "application/json",
+          "x-oracle-key": config.services.oracleApiKey || "local-oracle-key", // Add oracle auth header
         },
       },
     );
@@ -128,9 +104,9 @@ export async function deployTagCoinOnZora(params: {
     if (response.data.success) {
       logger.info(
         {
-          tagId: params.tagId,
           coinAddress: response.data.coinAddress,
           transactionHash: response.data.transactionHash,
+          created: response.data.created,
         },
         "Successfully deployed TAG coin on Zora",
       );
@@ -138,7 +114,7 @@ export async function deployTagCoinOnZora(params: {
       return {
         coinAddress: response.data.coinAddress,
         transactionHash: response.data.transactionHash,
-        metadataURI: params.metadataURI,
+        metadataURI: "", // Not returned by current API
         status: "success",
       };
     }
@@ -147,7 +123,7 @@ export async function deployTagCoinOnZora(params: {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error(
       {
-        tagId: params.tagId,
+        coinAddress: params.coinAddress,
         error: errorMessage,
       },
       "Failed to deploy TAG coin on Zora",
