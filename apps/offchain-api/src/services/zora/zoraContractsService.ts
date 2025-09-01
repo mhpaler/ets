@@ -68,20 +68,20 @@ export class ZoraContractsService implements IZoraService {
     // Configure coin owners from environment variables
     const privyWalletAddress = process.env.PRIVY_WALLET_ADDRESS;
     const zoraWalletAddress = process.env.ZORA_WALLET_ADDRESS;
-    
+
     // Build owners array with all three addresses
     this.coinOwners = [];
-    
+
     // Add Privy wallet address if configured
     if (privyWalletAddress && privyWalletAddress !== "0x0000000000000000000000000000000000000000") {
       this.coinOwners.push(privyWalletAddress as Address);
     }
-    
+
     // Add Zora wallet address if configured
     if (zoraWalletAddress && zoraWalletAddress !== "0x0000000000000000000000000000000000000000") {
       this.coinOwners.push(zoraWalletAddress as Address);
     }
-    
+
     // Always add the EOA address (from private key) as an owner
     this.coinOwners.push(this.account.address);
 
@@ -91,7 +91,7 @@ export class ZoraContractsService implements IZoraService {
 
     logger.info(
       `ZoraContractsService initialized - chainId: ${chainId}, chainName: ${chain.name}, chainIdFromChain: ${chain.id}, owners: ${this.coinOwners.length}`,
-      { owners: this.coinOwners }
+      { owners: this.coinOwners },
     );
   }
 

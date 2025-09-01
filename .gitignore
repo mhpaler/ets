@@ -18,6 +18,9 @@ yarn-error.log*
 
 # local env files
 .env
+
+# Reference implementations (not part of production code)
+packages/hardhat-example/
 .env.local
 .env.development.local
 .env.test.local

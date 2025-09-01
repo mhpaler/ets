@@ -1,112 +1,77 @@
-# Session Status - Temporal-Zora Integration Complete
+# Session Status - Hardhat 3 + Viem Integration Complete
 
 ## Session Overview
-**Duration**: Full integration session
-**Focus**: Connecting Temporal Processor to offchain-api for Zora coin creation
-**Key Achievement**: 🎉 **Complete end-to-end integration pipeline ready for testing**
+**Duration**: Complete SUB-538.3 - Hardhat 3 + viem test integration  
+**Focus**: Debugging and fixing viem TypeScript integration with Node.js test runner  
+**Key Achievement**: 🎉 **Successfully completed viem test integration with working HD wallet verification**
 
 ## What Was Accomplished
 
-### 1. 🔧 Zora Coin Ownership Configuration
-- Added `PRIVY_WALLET_ADDRESS` and `ZORA_WALLET_ADDRESS` environment variables to offchain-api
-- Updated `ZoraContractsService` to set multiple owners on coin creation
-- Created owner management utilities (add-owner.ts, remove-owner.ts, list-owners.ts)
-- Modified utilities to handle batch operations with `addOwners` and `removeOwners`
+### 1. ✅ Fixed Peer Dependency Issues (SUB-538.3 - Final Phase)
+- **Root Cause Identified**: `@nomicfoundation/hardhat-toolbox-viem` requires complete peer dependency set
+- **Solution Applied**: Added all required Hardhat 3 peer dependencies to match working hardhat-example
+- **Dependencies Added**: hardhat-ignition-viem, hardhat-keystore, hardhat-network-helpers, hardhat-node-test-runner, hardhat-verify, hardhat-viem, hardhat-viem-assertions
 
-### 2. 🔄 Temporal Processor Integration
-- Fixed incorrect API endpoints in `tagCoinActivities.ts`
-- Updated to use existing `/api/tag-coin/create` endpoint
-- Corrected payload structure to match `TagCreatedEventData` format
-- Added oracle authentication header for API security
+### 2. ✅ Configuration Modernization  
+- **Environment Variable Cleanup**: Migrated from custom `getMnemonic()` function to `configVariable()` pattern
+- **Updated .env Files**: Reformed environment variables to match Hardhat 3 patterns:
+  - `LOCAL_MNEMONIC`, `STAGING_MNEMONIC`, `PRODUCTION_MNEMONIC`
+  - `BASE_SEPOLIA_RPC_URL`, `BASE_MAINNET_RPC_URL`
+- **Hardhat Config Simplification**: Removed manual dotenv loading in favor of Hardhat's built-in handling
 
-### 3. 📝 Type and Workflow Updates
-- Updated `TagCreatedWorkflowInput` to match actual event structure
-- Fixed field mapping in `TagCreatedWorkflow` (originalInput, machineName, etc.)
-- Added `oracleApiKey` to Temporal config for authentication
+### 3. ✅ Package Version Alignment
+- **Critical Fixes**: Updated package versions to match working hardhat-example
+  - `@types/node`: `^20.12.7` → `^22.18.0`
+  - `typescript`: `^5.7.2` → `~5.8.3`
+  - `viem`: `^2.21.11` → `^2.35.1`
 
-### 4. 🏗️ Architecture Decisions
-- **Single Endpoint Pattern**: `/api/tag-coin/create` handles both metadata and coin deployment
-- **Multi-Owner Support**: All coins created with up to 3 owners (Privy, Zora, EOA)
-- **Address Validation**: Deterministic address from ETS passed through entire pipeline
+### 4. ✅ Test Framework Migration
+- **Test Runner Change**: Converted from Chai (`describe`, `expect`) to Node.js test runner (`node:test`)
+- **Import Pattern**: `import { describe, it } from "node:test"` + `import assert from "node:assert/strict"`
+- **Network Connection Fix**: Resolved TypeScript errors by proper async handling in test structure
 
 ## Current State
-- **Exact Stopping Point**: Integration complete, ready for testing
-- **Next Action**: Start local services and test tag creation flow
-- **Blocking Issues**: None - ready to test
+- **Exact Stopping Point**: SUB-538.3 is 100% complete with working viem test
+- **Test Results**: ✅ Chain ID detection (31337), ✅ HD wallet integration (0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266)
+- **Ready Components**: Hardhat 3.0, viem plugin, HD wallet architecture, Node.js test runner
+- **Next Action**: Begin SUB-538.4 - Oracle→EventProcessor renaming across contract files
 
-## The Complete Pipeline
-```
-ETS Contract 
-  → TagCreated Event (with deterministic coinAddress)
-  → Temporal EventListener (watching for events)
-  → TagCreatedWorkflow (orchestration)
-  → deployTagCoinOnZora Activity (API call)
-  → POST /api/tag-coin/create (with oracle auth)
-  → ZoraContractsService.createCoin()
-  → Zora Factory (creates tradable coin)
-  → Multi-owner coin deployed
-```
+## Architecture Decisions Made
+
+### Hardhat 3 Migration Strategy
+- **Plugin System**: Using modern `plugins: []` array with hardhat-toolbox-viem as single import
+- **Environment Management**: `configVariable()` pattern for all network configurations
+- **HD Wallet Integration**: Mnemonic-based account derivation per KEY-MANAGEMENT-STRATEGY.md
+- **Test Framework**: Node.js test runner (not Mocha/Chai) for consistency with Hardhat 3
+
+### Environment Variable Structure
+- **Local Development**: `LOCAL_MNEMONIC` with test mnemonic, edr-simulated network
+- **Staging**: `STAGING_MNEMONIC` + `BASE_SEPOLIA_RPC_URL` for Base Sepolia testnet
+- **Production**: `PRODUCTION_MNEMONIC` + `BASE_MAINNET_RPC_URL` for Base Mainnet
 
 ## Resume Guidance for Next Session
 
-### 1. Start Required Services
-```bash
-# Terminal 1: Start offchain-api
-cd apps/offchain-api
-npm run dev
+### 1. Immediate Next Steps
+1. **Start SUB-538.4**: Search for Oracle references across contract files
+2. **Renaming Strategy**: Oracle → EventProcessor in interfaces, implementations, comments
+3. **Test Validation**: Ensure renamed contracts still compile and tests pass
 
-# Terminal 2: Start Temporal server
-temporal server start-dev
+### 2. Expected Scope
+- **Contract Files**: Likely references in ETS.sol, interfaces, and mock contracts
+- **Variable Names**: Function parameters, struct fields, event names
+- **Comments/Documentation**: Update all references for consistency
 
-# Terminal 3: Start Temporal processor
-cd apps/temporal-processor
-npm run dev
+### 3. Success Criteria
+- All Oracle references renamed to EventProcessor
+- Contracts compile successfully with `hardhat build`  
+- Existing tests continue to pass
+- No breaking changes to external interfaces
 
-# Terminal 4: Start local blockchain with contracts
-cd packages/contracts
-npm run local
-```
+## Technical Foundation Status
+- 🎯 **Hardhat 3 Migration**: Complete and functional ✅
+- 🔧 **Plugin System**: Modern configuration working ✅
+- 💎 **HD Wallet Setup**: Full role-based derivation implemented ✅
+- 🏗️ **Viem Integration**: Test infrastructure working ✅
+- 🧪 **Node.js Test Runner**: Successfully integrated ✅
 
-### 2. Test the Integration
-- Deploy ETS contracts locally
-- Create a tag using hardhat task or direct contract call
-- Watch Temporal logs for event detection
-- Verify offchain-api receives request
-- Check Zora coin creation with multi-owner configuration
-
-### 3. Validation Points
-- ✅ TagCreated event emitted with correct coinAddress
-- ✅ Temporal picks up event and starts workflow
-- ✅ Workflow calls offchain-api with proper auth
-- ✅ Offchain-api creates Zora coin with metadata
-- ✅ Coin has multiple owners as configured
-- ✅ Coin is tradable with proper liquidity
-
-## Key Files Modified
-- `apps/temporal-processor/src/activities/tagCoinActivities.ts` - Fixed API endpoints
-- `apps/temporal-processor/src/workflows/tagCreatedWorkflow.ts` - Updated field mapping
-- `apps/temporal-processor/src/types/index.ts` - Corrected input types
-- `apps/temporal-processor/src/config/index.ts` - Added oracle API key
-- `apps/offchain-api/src/services/zora/zoraContractsService.ts` - Multi-owner support
-- `apps/offchain-api/.env` - Added owner configuration
-
-## Environment Variables Needed
-```env
-# In apps/offchain-api/.env
-PRIVY_WALLET_ADDRESS=0xde98c2a8182d9638f7945e17e0a0a0c94bb28c1a
-ZORA_WALLET_ADDRESS=0x4de7c002be724ad63d5dca3f64126bbddb9fd735
-ETS_EOA_PRIVATE_KEY=0x... # Already configured
-
-# In apps/temporal-processor/.env
-ORACLE_API_KEY=local-oracle-key
-OFFCHAIN_API_URL=http://localhost:4000
-```
-
-## Success Metrics
-- 🎯 **Integration Complete**: All components connected
-- 🚀 **Ready to Test**: Full pipeline awaiting validation
-- 🛡️ **Security**: Oracle auth implemented
-- 📊 **Multi-Owner**: Coins created with proper ownership
-- ⚡ **Deterministic**: Address validation ready
-
-**The TAG Coins integration with Temporal and Zora is ready for end-to-end testing!** 🎉
+**The major infrastructure migration is complete! Ready to proceed with contract refactoring tasks.** 🚀

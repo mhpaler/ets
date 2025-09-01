@@ -6,40 +6,45 @@ epic_branch: 528-tag-coins-epic
 main_branch: stage
 github_epic: #528
 project_name: TAG Coins Implementation
-last_updated: 2025-08-23
+last_updated: 2025-09-01
 ```
 
 ## ACTIVE_WORK
 ```yaml
-current_issue_id: "Temporal-Zora Integration"
-current_status: READY_TO_TEST
-completion_percent: 90
-exact_task: "Connected Temporal Processor to offchain-api for Zora coin creation"
+current_issue_id: "SUB-538.3: Refactor test suite for Hardhat 3 + HD wallet"
+current_status: COMPLETED
+completion_percent: 100
+exact_task: "Complete viem test integration with Node.js test runner and HD wallet verification"
 blocking_bug: null
-next_priority: "Test end-to-end pipeline: ETS tag creation → Temporal → Zora coin"
-resume_action: "Start local services (offchain-api, Temporal, contracts) and test tag creation flow"
-session_accomplishment: "Complete integration pipeline: Temporal now calls offchain-api with proper auth and payload structure"
-architecture_decision: "Single endpoint pattern - /api/tag-coin/create handles both metadata and coin creation"
-ready_to_test: "Full pipeline ready: ETS TagCreated event → Temporal workflow → offchain-api → Zora coin with multi-owner support"
+next_priority: "SUB-538.4: Oracle→EventProcessor renaming across contracts"
+resume_action: "Begin SUB-538.4 - rename Oracle references to EventProcessor in contract files"
+session_accomplishment: "Successfully completed Hardhat 3 + viem + HD wallet integration with working test"
+architecture_decision: "Node.js test runner with hardhat-toolbox-viem, configVariable pattern, HD wallet per KEY-MANAGEMENT-STRATEGY.md"
+critical_path: "Test infrastructure completed - ready to proceed with contract renaming tasks"
 ```
 
 ## CRITICAL_PATH
 ```yaml
 priority_chain:
-  - id: #537
-    blocks: ["#532", "#533"]
-    reason: "Gelato Web3 Functions migration must complete before EOA management and creator allocations"
+  - id: #538
+    blocks: ["#536", "end-to-end testing", "staging deployment", "production deployment"]
+    reason: "Contracts package is foundation - all services depend on it for HD wallet integration"
     estimated_duration: "1-2 weeks"
     
+  - id: #536
+    blocks: ["#532", "#533"]
+    reason: "Temporal integration requires HD wallet-compatible contracts"
+    estimated_duration: "3-5 days after #538"
+
   - id: #532
     blocks: ["#533"]
     reason: "Secure EOA management required for creator allocations"
     estimated_duration: "1 week"
 
-current_bottleneck: #537.2
-next_unblocked: ["#537.2", "#537.3"]  # Can implement both event handlers in parallel
-estimated_path_duration: "1-2 weeks remaining"
-architecture_change: "Gelato Web3 Functions infrastructure complete - ready for event handler implementation"
+current_bottleneck: #538.1
+next_unblocked: ["#538.1"]  # Must complete sequentially: Infrastructure → Viem → HD Wallet → Naming → TypeScript → Validation
+estimated_path_duration: "1-2 weeks for contracts, then 1-2 weeks for integration"
+architecture_change: "HD wallet foundation enabling secure multi-role operations across entire stack"
 ```
 
 ## DEPENDENCIES
@@ -119,6 +124,17 @@ id: #528
 status: IN_PROGRESS
 branch: 528-tag-coins-epic
 phase: Phase 1 MVP
+```
+
+#### ISSUE_538: Major Contracts Package Refactoring
+```yaml
+id: #538
+status: NOT_STARTED
+parent_epic: #528
+priority: CRITICAL
+blocks: ["#536", "end-to-end testing", "staging deployment", "production deployment"]
+estimated_effort: "1-2 weeks"
+objective: "Modernize contracts package with HD wallet architecture and viem integration"
 ```
 
 #### ISSUE_529: Add TagCreated Event to ETS Core
@@ -233,6 +249,18 @@ artifacts:
   - Zora metadata builder integration
 ```
 
+### EPIC_538: Major Contracts Package Refactoring
+```yaml
+id: #538
+status: ACTIVE
+priority: CRITICAL
+dependencies: []
+estimated_effort: 1-2 weeks
+objective: "Modernize contracts package foundation with HD wallet architecture, Hardhat 3.0, and viem integration"
+blocks: ["All integration testing", "Staging deployment", "Production deployment"]
+architecture_change: "Legacy single-key + ethers → HD wallet multi-role + viem foundation"
+```
+
 ### EPIC_537: Gelato Web3 Functions Migration  
 ```yaml
 id: #537
@@ -315,17 +343,17 @@ deliverables:
 estimated_duration: "2-3 days"
 ```
 
-### EPIC_536: Temporal Workflow Migration - REACTIVATED
+### EPIC_536: Temporal Workflow Migration - BLOCKED
 ```yaml
 id: #536
-status: ACTIVE
+status: BLOCKED
 priority: HIGH
-dependencies: ["#529.5"]
+dependencies: ["#538"]
 estimated_effort: 1-2 weeks
 objective: "Replace custom Event Processor with Temporal workflows for operational simplicity"
-reactivation_reason: "Unit testing foundation complete, ready for integration testing and production deployment"
+blocking_reason: "Requires HD wallet-compatible contracts foundation"
 architecture_change: "6-service distributed → 5-service with Temporal orchestration"
-current_phase: "Integration testing and production validation"
+current_phase: "Waiting for contracts refactoring completion"
 ```
 
 ##### SUB_536.1: Temporal Infrastructure Setup
@@ -424,13 +452,20 @@ estimated_duration: "2-3 days"
 ## FUTURE_ISSUES
 ```yaml
 queue:
+  - id: "End-to-End Integration Testing"
+    title: "Test complete pipeline: ETS tag creation → Temporal → Zora coin"
+    status: BLOCKED
+    dependencies: ["#538", "#536"]
+    
   - id: #532
     title: "Implement secure EOA management for Zora coin creation"
     status: NOT_STARTED
+    dependencies: ["#538", "#536"]
     
   - id: #533
     title: "Build creator allocation and distribution system"
     status: NOT_STARTED
+    dependencies: ["#532"]
 
 future_features:
   - title: "Configurable Smart Wallet Relayers"
