@@ -2,7 +2,7 @@ import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
 /**
  * Ignition module for upgrading ETSAccessControls to ETSAccessControlsUpgrade
- * 
+ *
  * This demonstrates how to handle UUPS upgrades with Ignition
  */
 const ETSAccessControlsUpgradeModule = buildModule("ETSAccessControlsUpgrade", (m) => {
@@ -17,7 +17,7 @@ const ETSAccessControlsUpgradeModule = buildModule("ETSAccessControlsUpgrade", (
 
   // Perform the upgrade by calling upgradeTo on the proxy
   m.call(proxy, "upgradeTo", [newImplementation], {
-    id: "UpgradeCall"
+    id: "UpgradeCall",
   });
 
   // Return both the upgraded proxy (now with new implementation) and new implementation

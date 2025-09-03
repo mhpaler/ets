@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { describe, it, beforeEach } from "node:test";
+import { beforeEach, describe, it } from "node:test";
 import { zeroAddress } from "viem";
 import { loadIgnitionFixture } from "./fixtures/ignitionFixture.js";
 
@@ -43,7 +43,10 @@ describe("ETS Core tests", async () => {
 
   describe("Valid setup", async () => {
     it("should have Access controls set to ETSAccessControls contract", async () => {
-      assert.equal((await contracts.ETS.read.etsAccessControls()).toLowerCase(), contracts.ETSAccessControls.address.toLowerCase());
+      assert.equal(
+        (await contracts.ETS.read.etsAccessControls()).toLowerCase(),
+        contracts.ETSAccessControls.address.toLowerCase(),
+      );
     });
     it("should have Token set to ETSToken contract", async () => {
       assert.equal((await contracts.ETS.read.etsToken()).toLowerCase(), contracts.ETSToken.address.toLowerCase());
@@ -52,10 +55,7 @@ describe("ETS Core tests", async () => {
       assert.equal((await contracts.ETS.read.etsTarget()).toLowerCase(), contracts.ETSTarget.address.toLowerCase());
     });
     it("should have an active relayer contract (ETSRelayer)", async () => {
-      assert.equal(
-        await contracts.ETSAccessControls.read.isRelayerAndNotPaused([contracts.ETSRelayer.address]),
-        true
-      );
+      assert.equal(await contracts.ETSAccessControls.read.isRelayerAndNotPaused([contracts.ETSRelayer.address]), true);
     });
 
     it("should have a testing relayer (ETSPlatform)", async () => {
@@ -75,7 +75,9 @@ describe("ETS Core tests", async () => {
 
     it("should revert if caller is not administrator", async () => {
       try {
-        await contracts.ETS.write.setAccessControls([accounts.RandomOne.account.address], { account: accounts.RandomTwo.account });
+        await contracts.ETS.write.setAccessControls([accounts.RandomOne.account.address], {
+          account: accounts.RandomTwo.account,
+        });
         assert.fail("Should have reverted");
       } catch (error: any) {
         assert.ok(error.message.includes("revert") || error.message.includes("AccessDenied"));
@@ -84,7 +86,9 @@ describe("ETS Core tests", async () => {
 
     it("should revert if a access controls is set to a non-access control contract", async () => {
       try {
-        await contracts.ETS.write.setAccessControls([accounts.RandomTwo.account.address], { account: accounts.ETSPlatform.account });
+        await contracts.ETS.write.setAccessControls([accounts.RandomTwo.account.address], {
+          account: accounts.ETSPlatform.account,
+        });
         assert.fail("Should have reverted");
       } catch (error: any) {
         assert.ok(error.message.includes("revert"));
@@ -233,16 +237,13 @@ describe("ETS Core tests", async () => {
     describe("for existing tagging records", async () => {
       // Set up existing tagging record at module level
       const tags = [etsTag1, etsTag2];
-      await contracts.ETS.write.applyTagsWithCompositeKey([
-        tags,
-        targetId,
-        "bookmark",
-        accounts.RandomOne.account.address,
-        accounts.ETSPlatform.account.address,
-      ], {
-        value: taggingFee * BigInt(2),
-        account: accounts.ETSPlatform.account,
-      });
+      await contracts.ETS.write.applyTagsWithCompositeKey(
+        [tags, targetId, "bookmark", accounts.RandomOne.account.address, accounts.ETSPlatform.account.address],
+        {
+          value: taggingFee * BigInt(2),
+          account: accounts.ETSPlatform.account,
+        },
+      );
 
       taggingRecordId = await contracts.ETS.read.computeTaggingRecordIdFromCompositeKey([
         targetId,
@@ -367,11 +368,10 @@ describe("ETS Core tests", async () => {
         recordType: "bookmark",
       };
       try {
-        await contracts.ETS.write.applyTagsWithRawInput([
-          rawInput,
-          accounts.RandomOne.account.address,
-          accounts.ETSPlatform.account.address,
-        ], { account: accounts.RandomOne.account });
+        await contracts.ETS.write.applyTagsWithRawInput(
+          [rawInput, accounts.RandomOne.account.address, accounts.ETSPlatform.account.address],
+          { account: accounts.RandomOne.account },
+        );
         assert.fail("Should have reverted");
       } catch (error: any) {
         assert.ok(error.message.includes("revert") || error.message.includes("CallerNotRelayer"));
@@ -380,13 +380,10 @@ describe("ETS Core tests", async () => {
 
     it("should revert when caller is not an enabled Relayer", async () => {
       try {
-        await contracts.ETS.write.applyTagsWithCompositeKey([
-          [etsTag1],
-          targetId,
-          "bookmark",
-          accounts.RandomOne.account.address,
-          accounts.ETSPlatform.account.address,
-        ], { account: accounts.RandomOne.account });
+        await contracts.ETS.write.applyTagsWithCompositeKey(
+          [[etsTag1], targetId, "bookmark", accounts.RandomOne.account.address, accounts.ETSPlatform.account.address],
+          { account: accounts.RandomOne.account },
+        );
         assert.fail("Should have reverted");
       } catch (error: any) {
         assert.ok(error.message.includes("revert") || error.message.includes("CallerNotRelayer"));
@@ -395,13 +392,10 @@ describe("ETS Core tests", async () => {
 
     it("should revert when no tags are supplied", async () => {
       try {
-        await contracts.ETS.write.applyTagsWithCompositeKey([
-          [],
-          targetId,
-          "bookmark",
-          accounts.RandomOne.account.address,
-          accounts.ETSPlatform.account.address,
-        ], { account: accounts.ETSPlatform.account });
+        await contracts.ETS.write.applyTagsWithCompositeKey(
+          [[], targetId, "bookmark", accounts.RandomOne.account.address, accounts.ETSPlatform.account.address],
+          { account: accounts.ETSPlatform.account },
+        );
         assert.fail("Should have reverted");
       } catch (error: any) {
         assert.ok(error.message.includes("revert") || error.message.includes("NoTagsSupplied"));
@@ -1499,14 +1493,13 @@ describe("ETS Core tests", async () => {
         enrich: false,
       };
 
-      await contracts.ETS.write.applyTagsWithRawInput([
-        rawInput,
-        accounts.RandomTwo.account.address,
-        accounts.ETSPlatform.account.address,
-      ], {
-        value: taggingFee,
-        account: accounts.ETSPlatform.account,
-      });
+      await contracts.ETS.write.applyTagsWithRawInput(
+        [rawInput, accounts.RandomTwo.account.address, accounts.ETSPlatform.account.address],
+        {
+          value: taggingFee,
+          account: accounts.ETSPlatform.account,
+        },
+      );
 
       // Get post-tag amounts
       const platformPostTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
@@ -1540,14 +1533,13 @@ describe("ETS Core tests", async () => {
       };
 
       // RandomTwo is tagger, ETSPlatform is relayer.
-      await contracts.ETS.write.applyTagsWithRawInput([
-        rawInput,
-        accounts.RandomTwo.account.address,
-        accounts.ETSPlatform.account.address,
-      ], {
-        value: taggingFee,
-        account: accounts.ETSPlatform.account,
-      });
+      await contracts.ETS.write.applyTagsWithRawInput(
+        [rawInput, accounts.RandomTwo.account.address, accounts.ETSPlatform.account.address],
+        {
+          value: taggingFee,
+          account: accounts.ETSPlatform.account,
+        },
+      );
 
       // Get post-tag amounts
       const platformPostTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);

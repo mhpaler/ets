@@ -8,7 +8,10 @@ describe("ETS Core Setup & Configuration", async () => {
 
   describe("Valid setup", async () => {
     it("should have Access controls set to ETSAccessControls contract", async () => {
-      assert.equal((await contracts.ETS.read.etsAccessControls()).toLowerCase(), contracts.ETSAccessControls.address.toLowerCase());
+      assert.equal(
+        (await contracts.ETS.read.etsAccessControls()).toLowerCase(),
+        contracts.ETSAccessControls.address.toLowerCase(),
+      );
     });
     it("should have Token set to ETSToken contract", async () => {
       assert.equal((await contracts.ETS.read.etsToken()).toLowerCase(), contracts.ETSToken.address.toLowerCase());
@@ -17,10 +20,7 @@ describe("ETS Core Setup & Configuration", async () => {
       assert.equal((await contracts.ETS.read.etsTarget()).toLowerCase(), contracts.ETSTarget.address.toLowerCase());
     });
     it("should have an active relayer contract (ETSRelayer)", async () => {
-      assert.equal(
-        await contracts.ETSAccessControls.read.isRelayerAndNotPaused([contracts.ETSRelayer.address]),
-        true
-      );
+      assert.equal(await contracts.ETSAccessControls.read.isRelayerAndNotPaused([contracts.ETSRelayer.address]), true);
     });
 
     it("should have a testing relayer (ETSPlatform)", async () => {
@@ -40,7 +40,9 @@ describe("ETS Core Setup & Configuration", async () => {
 
     it("should revert if caller is not administrator", async () => {
       try {
-        await contracts.ETS.write.setAccessControls([accounts.RandomOne.account.address], { account: accounts.RandomTwo.account });
+        await contracts.ETS.write.setAccessControls([accounts.RandomOne.account.address], {
+          account: accounts.RandomTwo.account,
+        });
         assert.fail("Should have reverted");
       } catch (error: any) {
         assert.ok(error.message.includes("revert") || error.message.includes("AccessDenied"));
@@ -49,7 +51,9 @@ describe("ETS Core Setup & Configuration", async () => {
 
     it("should revert if a access controls is set to a non-access control contract", async () => {
       try {
-        await contracts.ETS.write.setAccessControls([accounts.RandomTwo.account.address], { account: accounts.ETSPlatform.account });
+        await contracts.ETS.write.setAccessControls([accounts.RandomTwo.account.address], {
+          account: accounts.ETSPlatform.account,
+        });
         assert.fail("Should have reverted");
       } catch (error: any) {
         assert.ok(error.message.includes("revert"));

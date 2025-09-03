@@ -1,12 +1,12 @@
 import { network } from "hardhat";
-import { parseEther, encodeFunctionData } from "viem";
+import { encodeFunctionData, parseEther } from "viem";
+import ETSEnrichTargetModule from "../../ignition/modules/ETSEnrichTarget.js";
 import ETSRelayerFactoryModule from "../../ignition/modules/ETSRelayerFactory.js";
 import WETHModule from "../../ignition/modules/WETH.js";
-import ETSEnrichTargetModule from "../../ignition/modules/ETSEnrichTarget.js";
 
 /**
  * Complete Ignition-based fixture that replaces test/setup.ts
- * 
+ *
  * This fixture provides the complete ETS system deployment with:
  * - All contracts deployed via Ignition modules
  * - Full dependency resolution (UUPS + Beacon proxies)
@@ -49,15 +49,15 @@ export interface IgnitionSetupResult {
  */
 export async function ignitionFixture(): Promise<IgnitionSetupResult> {
   const { ignition, viem } = await network.connect();
-  
+
   console.log("🚀 Deploying complete ETS system via Ignition...");
-  
+
   // Get wallet clients for account setup
   const walletClients = await viem.getWalletClients();
   const accounts = {
-    ETSAdmin: walletClients[0],      // First account as admin
-    ETSPlatform: walletClients[1],   // Second account as platform
-    ETSOracle: walletClients[2],     // Third account as oracle
+    ETSAdmin: walletClients[0], // First account as admin
+    ETSPlatform: walletClients[1], // Second account as platform
+    ETSOracle: walletClients[2], // Third account as oracle
     Buyer: walletClients[3],
     RandomOne: walletClients[4],
     RandomTwo: walletClients[5],
@@ -68,45 +68,40 @@ export async function ignitionFixture(): Promise<IgnitionSetupResult> {
   const { weth } = (await ignition.deploy(WETHModule)) as any;
 
   // Deploy complete ETS system with RelayerFactory (includes everything)
-  const {
-    relayerFactory,
-    relayerImplementation, 
-    etsCore,
-    token,
-    target,
-    accessControls,
-    mockZoraFactory
-  } = (await ignition.deploy(ETSRelayerFactoryModule, {
-    parameters: {
-      ETSAccessControls: {
-        platformAddress: accounts.ETSPlatform.account.address,
+  const { relayerFactory, relayerImplementation, etsCore, token, target, accessControls, mockZoraFactory } =
+    (await ignition.deploy(ETSRelayerFactoryModule, {
+      parameters: {
+        ETSAccessControls: {
+          platformAddress: accounts.ETSPlatform.account.address,
+        },
+        ETSCore: {
+          taggingFee: parseEther("0.1"),
+          platformPercentage: 20,
+          relayerPercentage: 30,
+        },
       },
-      ETSCore: {
-        taggingFee: parseEther("0.1"),
-        platformPercentage: 20,
-        relayerPercentage: 30,
-      },
-    },
-  })) as any;
+    })) as any;
 
   // Deploy ETSEnrichTarget manually using the same contracts from RelayerFactory
   // We can't use the ETSEnrichTargetModule because it creates its own AccessControls and Target
   const enrichTargetImplementation = await viem.deployContract("ETSEnrichTarget", []);
-  
+
   // Create initialization calldata using viem's encodeFunctionData
   const initializeCalldata = encodeFunctionData({
-    abi: [{
-      "inputs": [
-        {"internalType": "contract IETSAccessControls", "name": "_etsAccessControls", "type": "address"},
-        {"internalType": "contract IETSTarget", "name": "_etsTarget", "type": "address"}
-      ],
-      "name": "initialize",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    }],
+    abi: [
+      {
+        inputs: [
+          { internalType: "contract IETSAccessControls", name: "_etsAccessControls", type: "address" },
+          { internalType: "contract IETSTarget", name: "_etsTarget", type: "address" },
+        ],
+        name: "initialize",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+    ],
     functionName: "initialize",
-    args: [accessControls.address, target.address]
+    args: [accessControls.address, target.address],
   });
 
   // Deploy proxy
@@ -130,15 +125,15 @@ export async function ignitionFixture(): Promise<IgnitionSetupResult> {
   console.log("🔧 Configuring roles and permissions...");
 
   // Set role admins
-  await accessControlsContract.write.setRoleAdmin([
-    await accessControlsContract.read.RELAYER_FACTORY_ROLE(),
-    await accessControlsContract.read.RELAYER_ADMIN_ROLE(),
-  ], { account: accounts.ETSPlatform.account });
+  await accessControlsContract.write.setRoleAdmin(
+    [await accessControlsContract.read.RELAYER_FACTORY_ROLE(), await accessControlsContract.read.RELAYER_ADMIN_ROLE()],
+    { account: accounts.ETSPlatform.account },
+  );
 
-  await accessControlsContract.write.setRoleAdmin([
-    await accessControlsContract.read.RELAYER_ROLE(),
-    await accessControlsContract.read.RELAYER_FACTORY_ROLE(),
-  ], { account: accounts.ETSPlatform.account });
+  await accessControlsContract.write.setRoleAdmin(
+    [await accessControlsContract.read.RELAYER_ROLE(), await accessControlsContract.read.RELAYER_FACTORY_ROLE()],
+    { account: accounts.ETSPlatform.account },
+  );
 
   // Grant roles
   const relayerAdminRole = await accessControlsContract.read.RELAYER_ADMIN_ROLE();
@@ -147,27 +142,43 @@ export async function ignitionFixture(): Promise<IgnitionSetupResult> {
   const relayerFactoryRole = await accessControlsContract.read.RELAYER_FACTORY_ROLE();
 
   // Grant RELAYER_ADMIN_ROLE
-  await accessControlsContract.write.grantRole([relayerAdminRole, accounts.ETSAdmin.account.address], { account: accounts.ETSPlatform.account });
-  await accessControlsContract.write.grantRole([relayerAdminRole, accounts.ETSPlatform.account.address], { account: accounts.ETSPlatform.account });
-  await accessControlsContract.write.grantRole([relayerAdminRole, accessControls.address], { account: accounts.ETSPlatform.account });
-  await accessControlsContract.write.grantRole([relayerAdminRole, token.address], { account: accounts.ETSPlatform.account });
+  await accessControlsContract.write.grantRole([relayerAdminRole, accounts.ETSAdmin.account.address], {
+    account: accounts.ETSPlatform.account,
+  });
+  await accessControlsContract.write.grantRole([relayerAdminRole, accounts.ETSPlatform.account.address], {
+    account: accounts.ETSPlatform.account,
+  });
+  await accessControlsContract.write.grantRole([relayerAdminRole, accessControls.address], {
+    account: accounts.ETSPlatform.account,
+  });
+  await accessControlsContract.write.grantRole([relayerAdminRole, token.address], {
+    account: accounts.ETSPlatform.account,
+  });
 
   // Grant EVENT_PROCESSOR_ROLE
-  await accessControlsContract.write.grantRole([eventProcessorRole, accounts.ETSPlatform.account.address], { account: accounts.ETSPlatform.account });
-  await accessControlsContract.write.grantRole([eventProcessorRole, accounts.ETSOracle.account.address], { account: accounts.ETSPlatform.account });
-  
+  await accessControlsContract.write.grantRole([eventProcessorRole, accounts.ETSPlatform.account.address], {
+    account: accounts.ETSPlatform.account,
+  });
+  await accessControlsContract.write.grantRole([eventProcessorRole, accounts.ETSOracle.account.address], {
+    account: accounts.ETSPlatform.account,
+  });
+
   // Grant SMART_CONTRACT_ROLE
-  await accessControlsContract.write.grantRole([smartContractRole, accounts.ETSAdmin.account.address], { account: accounts.ETSPlatform.account });
+  await accessControlsContract.write.grantRole([smartContractRole, accounts.ETSAdmin.account.address], {
+    account: accounts.ETSPlatform.account,
+  });
 
   // Grant RELAYER_FACTORY_ROLE to the factory
-  await accessControlsContract.write.grantRole([relayerFactoryRole, relayerFactory.address], { account: accounts.ETSPlatform.account });
+  await accessControlsContract.write.grantRole([relayerFactoryRole, relayerFactory.address], {
+    account: accounts.ETSPlatform.account,
+  });
 
   console.log("🔗 Linking contracts...");
 
   // Set EnrichTarget on Target
   await targetContract.write.setEnrichTarget([enrichTarget.address], { account: accounts.ETSPlatform.account });
-  
-  // Set ETS Core on Token  
+
+  // Set ETS Core on Token
   await tokenContract.write.setETSCore([etsCore.address], { account: accounts.ETSPlatform.account });
 
   console.log("🏭 Creating test relayers...");
@@ -177,8 +188,12 @@ export async function ignitionFixture(): Promise<IgnitionSetupResult> {
   await relayerFactoryContract.write.addRelayer(["SecondTestRelayer"], { account: accounts.ETSPlatform.account });
 
   // Get relayer addresses
-  const firstRelayerAddress = await accessControlsContract.read.getRelayerAddressFromName(["ETSRelayer"]) as `0x${string}`;
-  const secondRelayerAddress = await accessControlsContract.read.getRelayerAddressFromName(["SecondTestRelayer"]) as `0x${string}`;
+  const firstRelayerAddress = (await accessControlsContract.read.getRelayerAddressFromName([
+    "ETSRelayer",
+  ])) as `0x${string}`;
+  const secondRelayerAddress = (await accessControlsContract.read.getRelayerAddressFromName([
+    "SecondTestRelayer",
+  ])) as `0x${string}`;
 
   // Create relayer contract instances
   const etsRelayer = await viem.getContractAt("ETSRelayer", firstRelayerAddress, {

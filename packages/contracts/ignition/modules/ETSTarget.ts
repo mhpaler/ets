@@ -3,7 +3,7 @@ import ETSAccessControlsModule from "./ETSAccessControls.js";
 
 /**
  * Ignition module for deploying ETSTarget with UUPS proxy pattern
- * 
+ *
  * This is a Layer 2 module - depends on ETSAccessControls
  * Demonstrates module composition using m.useModule()
  */
@@ -18,14 +18,11 @@ const ETSTargetModule = buildModule("ETSTarget", (m) => {
   const initializeCalldata = m.encodeFunctionCall(
     targetImplementation,
     "initialize",
-    [accessControls] // ETSTarget.initialize(address _accessControlsContract)
+    [accessControls], // ETSTarget.initialize(address _accessControlsContract)
   );
 
-  const targetProxy = m.contract("ERC1967Proxy", [
-    targetImplementation,
-    initializeCalldata,
-  ], {
-    id: "ETSTargetProxy"
+  const targetProxy = m.contract("ERC1967Proxy", [targetImplementation, initializeCalldata], {
+    id: "ETSTargetProxy",
   });
 
   return {

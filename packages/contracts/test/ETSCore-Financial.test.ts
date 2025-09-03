@@ -9,14 +9,11 @@ describe("ETS Core Financial Operations", async () => {
     let platformPreTagAccrued: bigint;
     let relayerPreTagAccrued: bigint;
     let creatorPreTagAccrued: bigint;
-    let ownerPreTagAccrued: bigint;
-    let platformPostTagAccrued: bigint;
 
     // Get initial accrued amounts at module level
     platformPreTagAccrued = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
     relayerPreTagAccrued = await contracts.ETS.read.accrued([accounts.RandomOne.account.address]);
     creatorPreTagAccrued = await contracts.ETS.read.accrued([accounts.Creator.account.address]);
-    ownerPreTagAccrued = await contracts.ETS.read.accrued([accounts.RandomTwo.account.address]);
 
     it("should track accrued balances correctly", async () => {
       // Test that we can read accrued balances
@@ -44,14 +41,13 @@ describe("ETS Core Financial Operations", async () => {
       };
 
       // Create tagging record with fee
-      await contracts.ETS.write.applyTagsWithRawInput([
-        rawInput,
-        accounts.RandomTwo.account.address,
-        accounts.ETSPlatform.account.address,
-      ], {
-        value: taggingFee,
-        account: accounts.ETSPlatform.account,
-      });
+      await contracts.ETS.write.applyTagsWithRawInput(
+        [rawInput, accounts.RandomTwo.account.address, accounts.ETSPlatform.account.address],
+        {
+          value: taggingFee,
+          account: accounts.ETSPlatform.account,
+        },
+      );
 
       // Get post-test amounts
       const platformPostTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
@@ -63,8 +59,9 @@ describe("ETS Core Financial Operations", async () => {
       assert.ok(relayerPostTest > relayerPreTest, "Relayer should receive fees");
       assert.ok(creatorPostTest > creatorPreTest, "Creator should receive fees");
 
-      // Store for drawdown test
-      platformPostTagAccrued = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
+      // Platform balance should have increased after tagging
+      const platformPostTagAccrued = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
+      assert.ok(platformPostTagAccrued > 0n, "Platform should have accrued fees");
     });
 
     it("should allow drawdown of accrued fees", async () => {
@@ -110,20 +107,19 @@ describe("ETS Core Financial Operations", async () => {
     it("can be performed on behalf of the platform", async () => {
       // Create another tagging record to generate more fees
       const rawInput = {
-        targetURI: "https://financial-test-2.com", 
+        targetURI: "https://financial-test-2.com",
         tagStrings: ["#Incredible"], // User owned tag
         recordType: "bookmark",
         enrich: false,
       };
 
-      await contracts.ETS.write.applyTagsWithRawInput([
-        rawInput,
-        accounts.RandomTwo.account.address,
-        accounts.ETSPlatform.account.address,
-      ], {
-        value: taggingFee,
-        account: accounts.ETSPlatform.account,
-      });
+      await contracts.ETS.write.applyTagsWithRawInput(
+        [rawInput, accounts.RandomTwo.account.address, accounts.ETSPlatform.account.address],
+        {
+          value: taggingFee,
+          account: accounts.ETSPlatform.account,
+        },
+      );
 
       // Get platform balance before drawdown
       const platformBalanceBefore = await contracts.publicClient.getBalance({
@@ -177,14 +173,13 @@ describe("ETS Core Financial Operations", async () => {
       const platformPreTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
       const relayerPreTest = await contracts.ETS.read.accrued([contracts.ETSRelayer.address]);
 
-      await contracts.ETS.write.applyTagsWithRawInput([
-        rawInput,
-        accounts.RandomTwo.account.address,
-        accounts.ETSPlatform.account.address,
-      ], {
-        value: taggingFee,
-        account: accounts.ETSPlatform.account,
-      });
+      await contracts.ETS.write.applyTagsWithRawInput(
+        [rawInput, accounts.RandomTwo.account.address, accounts.ETSPlatform.account.address],
+        {
+          value: taggingFee,
+          account: accounts.ETSPlatform.account,
+        },
+      );
 
       // Get post-test amounts
       const platformPostTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
@@ -216,14 +211,13 @@ describe("ETS Core Financial Operations", async () => {
       const relayerPreTest = await contracts.ETS.read.accrued([contracts.ETSRelayer.address]);
       const ownerPreTest = await contracts.ETS.read.accrued([accounts.Creator.account.address]); // Creator owns this tag
 
-      await contracts.ETS.write.applyTagsWithRawInput([
-        rawInput,
-        accounts.RandomTwo.account.address,
-        accounts.ETSPlatform.account.address,
-      ], {
-        value: taggingFee,
-        account: accounts.ETSPlatform.account,
-      });
+      await contracts.ETS.write.applyTagsWithRawInput(
+        [rawInput, accounts.RandomTwo.account.address, accounts.ETSPlatform.account.address],
+        {
+          value: taggingFee,
+          account: accounts.ETSPlatform.account,
+        },
+      );
 
       // Get post-test amounts
       const platformPostTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);

@@ -2,7 +2,7 @@ import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
 /**
  * Ignition module for deploying MockZoraFactory contract
- * 
+ *
  * This is a Layer 1 module with no dependencies - provides mock Zora factory
  * functionality for testing environments.
  */

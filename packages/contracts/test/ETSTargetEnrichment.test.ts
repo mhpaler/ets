@@ -19,19 +19,19 @@ describe("ETS Target Enrichment Flow tests", async () => {
   eventProcessorSigner = accounts.RandomTwo; // Use RandomTwo as our event processor
   const eventProcessorRole = await contracts.ETSAccessControls.read.EVENT_PROCESSOR_ROLE();
   await contracts.ETSAccessControls.write.grantRole([eventProcessorRole, eventProcessorSigner.account.address], {
-    account: accounts.ETSPlatform.account
+    account: accounts.ETSPlatform.account,
   });
 
-  // Allow ETSEnrichTarget to be set on ETSTarget (for manual enrichment requests) 
+  // Allow ETSEnrichTarget to be set on ETSTarget (for manual enrichment requests)
   await contracts.ETSTarget.write.setEnrichTarget([contracts.ETSEnrichTarget.address], {
-    account: accounts.ETSPlatform.account
+    account: accounts.ETSPlatform.account,
   });
 
   describe("ETSEnrichTarget API Gateway", async () => {
     it("should have correct setup", async () => {
       const accessControls = await contracts.ETSEnrichTarget.read.etsAccessControls();
       assert.equal(accessControls.toLowerCase(), contracts.ETSAccessControls.address.toLowerCase());
-      
+
       const target = await contracts.ETSEnrichTarget.read.etsTarget();
       assert.equal(target.toLowerCase(), contracts.ETSTarget.address.toLowerCase());
     });
@@ -47,7 +47,9 @@ describe("ETS Target Enrichment Flow tests", async () => {
     it("should revert when requesting enrichment for non-existent target", async () => {
       const nonExistentTargetId = 999999n;
       try {
-        await contracts.ETSEnrichTarget.write.requestEnrichTarget([nonExistentTargetId], { account: accounts.RandomOne.account });
+        await contracts.ETSEnrichTarget.write.requestEnrichTarget([nonExistentTargetId], {
+          account: accounts.RandomOne.account,
+        });
         assert.fail("Should have reverted");
       } catch (error: any) {
         assert.ok(error.message.includes("revert") || error.message.includes("InvalidTarget"));
@@ -69,13 +71,16 @@ describe("ETS Target Enrichment Flow tests", async () => {
       assert.equal(targetBefore.arweaveTxId, "");
 
       // Event processor updates the target directly
-      await contracts.ETSTarget.write.updateTarget([
-        targetId,
-        targetURI, // Preserve original URI
-        enrichedTimestamp,
-        mockHttpStatus,
-        mockArweaveTxId,
-      ], { account: eventProcessorSigner.account });
+      await contracts.ETSTarget.write.updateTarget(
+        [
+          targetId,
+          targetURI, // Preserve original URI
+          enrichedTimestamp,
+          mockHttpStatus,
+          mockArweaveTxId,
+        ],
+        { account: eventProcessorSigner.account },
+      );
       // TODO: Event testing needs to be implemented with viem
       // .to.emit(contracts.ETSTarget, "TargetUpdated")
       // .withArgs(targetId);
@@ -95,13 +100,10 @@ describe("ETS Target Enrichment Flow tests", async () => {
 
       // Random user should not be able to update target
       try {
-        await contracts.ETSTarget.write.updateTarget([
-          targetId,
-          targetURI,
-          enrichedTimestamp,
-          mockHttpStatus,
-          mockArweaveTxId,
-        ], { account: accounts.RandomOne.account });
+        await contracts.ETSTarget.write.updateTarget(
+          [targetId, targetURI, enrichedTimestamp, mockHttpStatus, mockArweaveTxId],
+          { account: accounts.RandomOne.account },
+        );
         assert.fail("Should have reverted");
       } catch (error: any) {
         assert.ok(error.message.includes("revert") || error.message.includes("AccessDenied"));
@@ -114,13 +116,10 @@ describe("ETS Target Enrichment Flow tests", async () => {
       const mockHttpStatus = 422; // Unprocessable Entity
       const enrichedTimestamp = BigInt(Date.now());
 
-      await contracts.ETSTarget.write.updateTarget([
-        targetId,
-        targetURI,
-        enrichedTimestamp,
-        mockHttpStatus,
-        mockArweaveTxId,
-      ], { account: eventProcessorSigner.account });
+      await contracts.ETSTarget.write.updateTarget(
+        [targetId, targetURI, enrichedTimestamp, mockHttpStatus, mockArweaveTxId],
+        { account: eventProcessorSigner.account },
+      );
 
       const target = await contracts.ETSTarget.read.getTargetById([targetId]);
       assert.equal(target.httpStatus, BigInt(mockHttpStatus));
@@ -147,13 +146,10 @@ describe("ETS Target Enrichment Flow tests", async () => {
       const mockHttpStatus = 200;
       const enrichedTimestamp = BigInt(Date.now());
 
-      await contracts.ETSTarget.write.updateTarget([
-        newTargetId,
-        newTargetURI,
-        enrichedTimestamp,
-        mockHttpStatus,
-        mockArweaveTxId,
-      ], { account: eventProcessorSigner.account });
+      await contracts.ETSTarget.write.updateTarget(
+        [newTargetId, newTargetURI, enrichedTimestamp, mockHttpStatus, mockArweaveTxId],
+        { account: eventProcessorSigner.account },
+      );
 
       // Verify the target was enriched
       const enrichedTarget = await contracts.ETSTarget.read.getTargetById([newTargetId]);
@@ -176,13 +172,10 @@ describe("ETS Target Enrichment Flow tests", async () => {
       const mockHttpStatus = 200;
       const enrichedTimestamp = BigInt(Date.now());
 
-      await contracts.ETSTarget.write.updateTarget([
-        targetId,
-        targetURI,
-        enrichedTimestamp,
-        mockHttpStatus,
-        mockArweaveTxId,
-      ], { account: eventProcessorSigner.account });
+      await contracts.ETSTarget.write.updateTarget(
+        [targetId, targetURI, enrichedTimestamp, mockHttpStatus, mockArweaveTxId],
+        { account: eventProcessorSigner.account },
+      );
 
       // Verify the target was enriched
       const enrichedTarget = await contracts.ETSTarget.read.getTargetById([targetId]);
@@ -196,13 +189,10 @@ describe("ETS Target Enrichment Flow tests", async () => {
       const firstHttpStatus = 200;
       const firstTimestamp = BigInt(Date.now());
 
-      await contracts.ETSTarget.write.updateTarget([
-        targetId,
-        targetURI,
-        firstTimestamp,
-        firstHttpStatus,
-        firstArweaveTxId,
-      ], { account: eventProcessorSigner.account });
+      await contracts.ETSTarget.write.updateTarget(
+        [targetId, targetURI, firstTimestamp, firstHttpStatus, firstArweaveTxId],
+        { account: eventProcessorSigner.account },
+      );
 
       // Simulate time passing and content changing
       // TODO: mine() function needs viem equivalent - skip for now
@@ -213,13 +203,10 @@ describe("ETS Target Enrichment Flow tests", async () => {
       const secondHttpStatus = 200;
       const secondTimestamp = BigInt(Date.now()) + 1000n;
 
-      await contracts.ETSTarget.write.updateTarget([
-        targetId,
-        targetURI,
-        secondTimestamp,
-        secondHttpStatus,
-        secondArweaveTxId,
-      ], { account: eventProcessorSigner.account });
+      await contracts.ETSTarget.write.updateTarget(
+        [targetId, targetURI, secondTimestamp, secondHttpStatus, secondArweaveTxId],
+        { account: eventProcessorSigner.account },
+      );
 
       // Verify the target was updated with new enrichment data
       const reEnrichedTarget = await contracts.ETSTarget.read.getTargetById([targetId]);
@@ -262,13 +249,10 @@ describe("ETS Target Enrichment Flow tests", async () => {
         await contracts.ETSTarget.write.getOrCreateTargetId([testTargetURI], { account: accounts.RandomOne.account });
 
         // Enrich with mock data
-        await contracts.ETSTarget.write.updateTarget([
-          testTargetId,
-          testTargetURI,
-          BigInt(Date.now()),
-          testCase.httpStatus,
-          testCase.mockTxId,
-        ], { account: eventProcessorSigner.account });
+        await contracts.ETSTarget.write.updateTarget(
+          [testTargetId, testTargetURI, BigInt(Date.now()), testCase.httpStatus, testCase.mockTxId],
+          { account: eventProcessorSigner.account },
+        );
 
         // Verify enrichment
         const target = await contracts.ETSTarget.read.getTargetById([testTargetId]);
@@ -295,13 +279,10 @@ describe("ETS Target Enrichment Flow tests", async () => {
 
         // Enrich with status code
         const mockTxId = statusCode.status === 200 ? "MOCK_json_success_123" : "";
-        await contracts.ETSTarget.write.updateTarget([
-          testTargetId,
-          testTargetURI,
-          BigInt(Date.now()),
-          statusCode.status,
-          mockTxId,
-        ], { account: eventProcessorSigner.account });
+        await contracts.ETSTarget.write.updateTarget(
+          [testTargetId, testTargetURI, BigInt(Date.now()), statusCode.status, mockTxId],
+          { account: eventProcessorSigner.account },
+        );
 
         // Verify status code was recorded
         const target = await contracts.ETSTarget.read.getTargetById([testTargetId]);

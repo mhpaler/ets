@@ -30,7 +30,9 @@ describe("ETS Target tests", async () => {
 
     it("should revert if caller is not administrator", async () => {
       try {
-        await contracts.ETSTarget.write.setAccessControls([accounts.RandomOne.account.address], { account: accounts.RandomTwo.account });
+        await contracts.ETSTarget.write.setAccessControls([accounts.RandomOne.account.address], {
+          account: accounts.RandomTwo.account,
+        });
         assert.fail("Should have reverted");
       } catch (error: any) {
         assert.ok(error.message.includes("revert") || error.message.includes("AccessDenied"));
@@ -39,7 +41,9 @@ describe("ETS Target tests", async () => {
 
     it("should revert if a access controls is set to a non-access control contract", async () => {
       try {
-        await contracts.ETSTarget.write.setAccessControls([accounts.RandomTwo.account.address], { account: accounts.ETSPlatform.account });
+        await contracts.ETSTarget.write.setAccessControls([accounts.RandomTwo.account.address], {
+          account: accounts.ETSPlatform.account,
+        });
         assert.fail("Should have reverted");
       } catch (error: any) {
         assert.ok(error.message.includes("revert"));
@@ -61,7 +65,7 @@ describe("ETS Target tests", async () => {
     //   ).to.be.revertedWithCustomError(contracts.ETSTarget, "AccessDenied");
     // });
 
-    // TODO: Complex test requiring new contract deployment - skip for now  
+    // TODO: Complex test requiring new contract deployment - skip for now
     // it("should emit AccessControlsSet", async () => {
     //   const factories = await getFactories();
     //   const ETSAccessControlsNew = await upgrades.deployProxy(
@@ -142,7 +146,6 @@ describe("ETS Target tests", async () => {
     //     assert.ok(error.message.includes("revert") || error.message.includes("AccessDenied"));
     //   }
     // });
-
     /*     it("should succeed via ETSEnrichTarget", async () => {
       await contracts.ETSTarget.connect(accounts.RandomOne).getOrCreateTargetId(targetURI);
       const targetId = await contracts.ETSTarget.computeTargetId(targetURI);

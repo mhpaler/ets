@@ -2,21 +2,21 @@ import { loadIgnitionFixture } from "./ignitionFixture.js";
 
 /**
  * Shared ETS Core fixture that provides common setup for all ETS core test files
- * 
+ *
  * This fixture extends the basic ignition fixture with ETS-specific setup:
  * - Creates test tags via ETSRelayer
- * - Sets up test targets  
+ * - Sets up test targets
  * - Provides common test data and addresses
  */
 export async function loadETSCoreFixture() {
   const base = await loadIgnitionFixture();
-  
+
   // Common test constants
   const tagstring1 = "#Love";
   const tagstring2 = "#Hate";
   const tagstring3 = "#Fear";
   const tagstring4 = "#Incredible";
-  
+
   // Get tagging fee
   const taggingFee = await base.contracts.ETS.read.taggingFee();
 
@@ -24,7 +24,9 @@ export async function loadETSCoreFixture() {
   await base.contracts.ETSRelayer.write.getOrCreateTagIds([[tagstring1]], { account: base.accounts.Creator.account });
   const etsTag1 = await base.contracts.ETSToken.read.computeCoinAddress([tagstring1]);
 
-  await base.contracts.ETSRelayer.write.getOrCreateTagIds([[tagstring2, tagstring3]], { account: base.accounts.Creator.account });
+  await base.contracts.ETSRelayer.write.getOrCreateTagIds([[tagstring2, tagstring3]], {
+    account: base.accounts.Creator.account,
+  });
   const etsTag2 = await base.contracts.ETSToken.read.computeCoinAddress([tagstring2]);
   const etsTag3 = await base.contracts.ETSToken.read.computeCoinAddress([tagstring3]);
 
@@ -42,7 +44,7 @@ export async function loadETSCoreFixture() {
     // Common test data
     tagStrings: {
       tagstring1,
-      tagstring2, 
+      tagstring2,
       tagstring3,
       tagstring4,
     },

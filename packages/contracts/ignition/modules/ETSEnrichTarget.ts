@@ -4,11 +4,11 @@ import ETSTargetModule from "./ETSTarget.js";
 
 /**
  * Ignition module for deploying ETSEnrichTarget with UUPS proxy pattern
- * 
+ *
  * This is a Layer 4a module - depends on:
  * - ETSAccessControls (via ETSTarget dependency chain)
  * - ETSTarget (Layer 2)
- * 
+ *
  * Demonstrates complex dependency resolution
  */
 const ETSEnrichTargetModule = buildModule("ETSEnrichTarget", (m) => {
@@ -19,20 +19,13 @@ const ETSEnrichTargetModule = buildModule("ETSEnrichTarget", (m) => {
   const enrichTargetImplementation = m.contract("ETSEnrichTarget", []);
 
   // Deploy UUPS proxy with initialization
-  const initializeCalldata = m.encodeFunctionCall(
-    enrichTargetImplementation,
-    "initialize",
-    [
-      accessControls,  // IETSAccessControls _etsAccessControls
-      target,          // IETSTarget _etsTarget
-    ]
-  );
+  const initializeCalldata = m.encodeFunctionCall(enrichTargetImplementation, "initialize", [
+    accessControls, // IETSAccessControls _etsAccessControls
+    target, // IETSTarget _etsTarget
+  ]);
 
-  const enrichTargetProxy = m.contract("ERC1967Proxy", [
-    enrichTargetImplementation,
-    initializeCalldata,
-  ], {
-    id: "ETSEnrichTargetProxy"
+  const enrichTargetProxy = m.contract("ERC1967Proxy", [enrichTargetImplementation, initializeCalldata], {
+    id: "ETSEnrichTargetProxy",
   });
 
   return {

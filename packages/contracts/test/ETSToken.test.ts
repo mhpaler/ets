@@ -81,8 +81,8 @@ describe("ETSToken Tests", async () => {
       assert.equal(address1, address1Again);
 
       // Addresses should be valid Ethereum addresses (start with 0x and be 42 chars)
-      assert.ok(address1.startsWith('0x') && address1.length === 42);
-      assert.ok(address2.startsWith('0x') && address2.length === 42);
+      assert.ok(address1.startsWith("0x") && address1.length === 42);
+      assert.ok(address2.startsWith("0x") && address2.length === 42);
     });
 
     it("should be case-insensitive (normalized)", async () => {
@@ -113,7 +113,9 @@ describe("ETSToken Tests", async () => {
       const tag = "#TestTagExists";
 
       // Create TAG through ETS core (using write with account)
-      await contracts.ETS.write.createTag([tag, accounts.RandomTwo.account.address], { account: accounts.ETSPlatform.account });
+      await contracts.ETS.write.createTag([tag, accounts.RandomTwo.account.address], {
+        account: accounts.ETSPlatform.account,
+      });
 
       const coinAddress = await contracts.ETSToken.read.computeCoinAddress([tag]);
       const exists = await contracts.ETSToken.read.tagExistsByAddress([coinAddress]);
@@ -134,7 +136,9 @@ describe("ETSToken Tests", async () => {
       const tag = "#TestTagString";
 
       // Create TAG through ETS core (using write with account)
-      await contracts.ETS.write.createTag([tag, accounts.RandomTwo.account.address], { account: accounts.ETSPlatform.account });
+      await contracts.ETS.write.createTag([tag, accounts.RandomTwo.account.address], {
+        account: accounts.ETSPlatform.account,
+      });
 
       const exists = await contracts.ETSToken.read.tagExistsByString([tag]);
       assert.equal(exists, true);
@@ -144,7 +148,9 @@ describe("ETSToken Tests", async () => {
       const tag = "#TestTagCase";
 
       // Create TAG through ETS core (using write with account)
-      await contracts.ETS.write.createTag([tag, accounts.RandomTwo.account.address], { account: accounts.ETSPlatform.account });
+      await contracts.ETS.write.createTag([tag, accounts.RandomTwo.account.address], {
+        account: accounts.ETSPlatform.account,
+      });
 
       // Should find the tag regardless of case
       assert.equal(await contracts.ETSToken.read.tagExistsByString(["#testtagcase"]), true);

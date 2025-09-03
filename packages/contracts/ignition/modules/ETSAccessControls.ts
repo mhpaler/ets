@@ -2,7 +2,7 @@ import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
 /**
  * Ignition module for deploying ETSAccessControls with UUPS proxy pattern
- * 
+ *
  * This module can be used for both:
  * 1. Production deployments: npx hardhat ignition deploy ETSAccessControlsModule
  * 2. Test fixtures: await ignition.deploy(ETSAccessControlsModule)
@@ -16,18 +16,11 @@ const ETSAccessControlsModule = buildModule("ETSAccessControls", (m) => {
 
   // Deploy UUPS proxy using ERC1967Proxy
   // This is the manual approach since Ignition doesn't have built-in UUPS support yet
-  const initializeCalldata = m.encodeFunctionCall(
-    accessControlsImplementation,
-    "initialize",
-    [platformAddress]
-  );
+  const initializeCalldata = m.encodeFunctionCall(accessControlsImplementation, "initialize", [platformAddress]);
 
-  const accessControlsProxy = m.contract("ERC1967Proxy", [
-    accessControlsImplementation,
-    initializeCalldata,
-  ], {
+  const accessControlsProxy = m.contract("ERC1967Proxy", [accessControlsImplementation, initializeCalldata], {
     // Give this future a meaningful name
-    id: "ETSAccessControlsProxy"
+    id: "ETSAccessControlsProxy",
   });
 
   // Return the proxy as the main contract interface

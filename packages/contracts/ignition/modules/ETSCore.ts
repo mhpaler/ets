@@ -1,17 +1,17 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 import { parseEther } from "viem";
 import ETSAccessControlsModule from "./ETSAccessControls.js";
-import ETSTokenModule from "./ETSToken.js";
 import ETSTargetModule from "./ETSTarget.js";
+import ETSTokenModule from "./ETSToken.js";
 
 /**
  * Ignition module for deploying ETS Core with UUPS proxy pattern
- * 
+ *
  * This is a Layer 4b module - the central ETS contract that depends on:
  * - ETSAccessControls (via other dependencies)
  * - ETSToken (Layer 3)
  * - ETSTarget (Layer 2)
- * 
+ *
  * This is the most complex dependency resolution in the system
  */
 const ETSCoreModule = buildModule("ETSCore", (m) => {
@@ -32,24 +32,17 @@ const ETSCoreModule = buildModule("ETSCore", (m) => {
   const etsCoreImplementation = m.contract("ETS", []);
 
   // Deploy UUPS proxy with initialization
-  const initializeCalldata = m.encodeFunctionCall(
-    etsCoreImplementation,
-    "initialize",
-    [
-      accessControls,       // IETSAccessControls _etsAccessControls
-      token,               // IETSToken _etsToken
-      target,              // IETSTarget _etsTarget
-      taggingFee,          // uint256 _taggingFee
-      platformPercentage,  // uint256 _platformPercentage
-      relayerPercentage,   // uint256 _relayerPercentage
-    ]
-  );
+  const initializeCalldata = m.encodeFunctionCall(etsCoreImplementation, "initialize", [
+    accessControls, // IETSAccessControls _etsAccessControls
+    token, // IETSToken _etsToken
+    target, // IETSTarget _etsTarget
+    taggingFee, // uint256 _taggingFee
+    platformPercentage, // uint256 _platformPercentage
+    relayerPercentage, // uint256 _relayerPercentage
+  ]);
 
-  const etsCoreProxy = m.contract("ERC1967Proxy", [
-    etsCoreImplementation,
-    initializeCalldata,
-  ], {
-    id: "ETSCoreProxy"
+  const etsCoreProxy = m.contract("ERC1967Proxy", [etsCoreImplementation, initializeCalldata], {
+    id: "ETSCoreProxy",
   });
 
   return {

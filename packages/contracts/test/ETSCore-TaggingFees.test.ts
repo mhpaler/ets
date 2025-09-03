@@ -5,9 +5,9 @@ import { loadETSCoreFixture } from "./fixtures/etsCoreFixture.js";
 describe("ETS Core Tagging Fees", async () => {
   const { accounts, contracts, tagStrings, tagAddresses, testTarget, taggingFee } = await loadETSCoreFixture();
   const { tagstring1, tagstring2, tagstring3, tagstring4 } = tagStrings;
-  const { etsTag1, etsTag2, etsTag3, userTag1 } = tagAddresses;
+  const { etsTag1, etsTag2, etsTag3 } = tagAddresses;
   const { targetURI, targetId } = testTarget;
-  
+
   let taggingRecordId: bigint;
 
   describe("Tagging fees", async () => {
@@ -71,16 +71,13 @@ describe("ETS Core Tagging Fees", async () => {
     describe("for existing tagging records", async () => {
       // Set up existing tagging record at module level
       const tags = [etsTag1, etsTag2];
-      await contracts.ETS.write.applyTagsWithCompositeKey([
-        tags,
-        targetId,
-        "bookmark",
-        accounts.RandomOne.account.address,
-        accounts.ETSPlatform.account.address,
-      ], {
-        value: taggingFee * BigInt(2),
-        account: accounts.ETSPlatform.account,
-      });
+      await contracts.ETS.write.applyTagsWithCompositeKey(
+        [tags, targetId, "bookmark", accounts.RandomOne.account.address, accounts.ETSPlatform.account.address],
+        {
+          value: taggingFee * BigInt(2),
+          account: accounts.ETSPlatform.account,
+        },
+      );
 
       taggingRecordId = await contracts.ETS.read.computeTaggingRecordIdFromCompositeKey([
         targetId,
@@ -216,14 +213,13 @@ describe("ETS Core Tagging Fees", async () => {
         enrich: false,
       };
 
-      await contracts.ETS.write.applyTagsWithRawInput([
-        rawInput,
-        accounts.RandomTwo.account.address,
-        accounts.ETSPlatform.account.address,
-      ], {
-        value: taggingFee,
-        account: accounts.ETSPlatform.account,
-      });
+      await contracts.ETS.write.applyTagsWithRawInput(
+        [rawInput, accounts.RandomTwo.account.address, accounts.ETSPlatform.account.address],
+        {
+          value: taggingFee,
+          account: accounts.ETSPlatform.account,
+        },
+      );
 
       // Get post-tag amounts
       const platformPostTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
@@ -257,14 +253,13 @@ describe("ETS Core Tagging Fees", async () => {
       };
 
       // RandomTwo is tagger, ETSPlatform is relayer.
-      await contracts.ETS.write.applyTagsWithRawInput([
-        rawInput,
-        accounts.RandomTwo.account.address,
-        accounts.ETSPlatform.account.address,
-      ], {
-        value: taggingFee,
-        account: accounts.ETSPlatform.account,
-      });
+      await contracts.ETS.write.applyTagsWithRawInput(
+        [rawInput, accounts.RandomTwo.account.address, accounts.ETSPlatform.account.address],
+        {
+          value: taggingFee,
+          account: accounts.ETSPlatform.account,
+        },
+      );
 
       // Get post-tag amounts
       const platformPostTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);

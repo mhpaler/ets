@@ -4,11 +4,11 @@ import MockZoraFactoryModule from "./MockZoraFactory.js";
 
 /**
  * Ignition module for deploying ETSToken with UUPS proxy pattern
- * 
+ *
  * This is a Layer 3 module - depends on:
  * - ETSAccessControls (Layer 1 via Layer 2)
  * - MockZoraFactory (Layer 1)
- * 
+ *
  * Demonstrates complex multi-dependency module composition
  */
 const ETSTokenModule = buildModule("ETSToken", (m) => {
@@ -27,25 +27,18 @@ const ETSTokenModule = buildModule("ETSToken", (m) => {
   const tokenImplementation = m.contract("ETSToken", []);
 
   // Deploy UUPS proxy with initialization
-  const initializeCalldata = m.encodeFunctionCall(
-    tokenImplementation,
-    "initialize",
-    [
-      accessControls,           // IETSAccessControls _etsAccessControls
-      tagMinStringLength,       // uint256 _tagMinStringLength
-      tagMaxStringLength,       // uint256 _tagMaxStringLength  
-      mockZoraFactory,          // address _zoraFactoryAddress
-      zoraCreatorEOA,          // address _zoraCreatorEOA
-      zoraPlatformReferrer,    // address _zoraPlatformReferrer
-      zoraPoolConfig,          // bytes memory _zoraPoolConfig
-    ]
-  );
+  const initializeCalldata = m.encodeFunctionCall(tokenImplementation, "initialize", [
+    accessControls, // IETSAccessControls _etsAccessControls
+    tagMinStringLength, // uint256 _tagMinStringLength
+    tagMaxStringLength, // uint256 _tagMaxStringLength
+    mockZoraFactory, // address _zoraFactoryAddress
+    zoraCreatorEOA, // address _zoraCreatorEOA
+    zoraPlatformReferrer, // address _zoraPlatformReferrer
+    zoraPoolConfig, // bytes memory _zoraPoolConfig
+  ]);
 
-  const tokenProxy = m.contract("ERC1967Proxy", [
-    tokenImplementation,
-    initializeCalldata,
-  ], {
-    id: "ETSTokenProxy"
+  const tokenProxy = m.contract("ERC1967Proxy", [tokenImplementation, initializeCalldata], {
+    id: "ETSTokenProxy",
   });
 
   return {

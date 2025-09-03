@@ -11,16 +11,16 @@ last_updated: 2025-09-01
 
 ## ACTIVE_WORK
 ```yaml
-current_issue_id: "SUB-538.3: Refactor test suite for Hardhat 3 + HD wallet"
+current_issue_id: "SUB-538.3: Hardhat Ignition migration for DRY deployment/test setup - Test Suite Migration"
 current_status: COMPLETED
-completion_percent: 100
-exact_task: "Complete viem test integration with Node.js test runner and HD wallet verification"
-blocking_bug: null
-next_priority: "SUB-538.4: Oracle→EventProcessor renaming across contracts"
-resume_action: "Begin SUB-538.4 - rename Oracle references to EventProcessor in contract files"
-session_accomplishment: "Successfully completed Hardhat 3 + viem + HD wallet integration with working test"
-architecture_decision: "Node.js test runner with hardhat-toolbox-viem, configVariable pattern, HD wallet per KEY-MANAGEMENT-STRATEGY.md"
-critical_path: "Test infrastructure completed - ready to proceed with contract renaming tasks"
+completion_percent: 95
+exact_task: "Fixed all remaining fee calculation issues in ETSCore-Records.test.ts using proper fee computation methods"
+blocking_bug: "None - all WrongFeeSupplied errors resolved"
+next_priority: "Run full test suite to verify all 33 tests pass in ETSCore-Records.test.ts"
+resume_action: "Run test suite, complete final cleanup, and mark SUB-538.3 as complete"
+session_accomplishment: "Completed full test migration from ethers.js to viem - fixed all 6 remaining fee calculation issues using contract's computeTaggingFee methods"
+architecture_decision: "Use contract's fee computation methods (computeTaggingFeeFromRawInput, computeTaggingFeeFromCompositeKey, computeTaggingFeeFromTaggingRecordId) instead of hardcoded multipliers"
+critical_path: "Test migration complete - ready to move to SUB-538.4 HD Wallet Integration"
 ```
 
 ## CRITICAL_PATH
