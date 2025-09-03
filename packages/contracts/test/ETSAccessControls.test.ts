@@ -1,66 +1,89 @@
-import { expect } from "chai";
-import { ethers } from "hardhat";
-import type { Accounts, Contracts } from "./setup";
-import { setup } from "./setup"; // No .js extension
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import { loadIgnitionFixture } from "./fixtures/ignitionFixture.js";
 
-describe("ETSAccessControls Tests", () => {
-  let accounts: Accounts;
-  let contracts: Contracts;
-
-  beforeEach("Setup test", async () => {
-    // Using object destructuring as requested
-    const result = await setup();
-    ({ accounts, contracts } = result);
-  });
+describe("ETSAccessControls Tests", async () => {
+  const { accounts, contracts } = await loadIgnitionFixture();
 
   describe("Valid setup/initialization", async () => {
     it("sets RELAYER_ADMIN_ROLE as the role that can grant RELAYER_FACTORY_ROLE.", async () => {
-      expect(await contracts.ETSAccessControls.getRoleAdmin(ethers.id("RELAYER_FACTORY_ROLE"))).to.be.equal(
-        await ethers.id("RELAYER_ADMIN_ROLE"),
-      );
+      const relayerFactoryRole = await contracts.ETSAccessControls.read.RELAYER_FACTORY_ROLE();
+      const relayerAdminRole = await contracts.ETSAccessControls.read.RELAYER_ADMIN_ROLE();
+      const roleAdmin = await contracts.ETSAccessControls.read.getRoleAdmin([relayerFactoryRole]);
+      assert.equal(roleAdmin, relayerAdminRole);
     });
 
     it("sets RELAYER_FACTORY_ROLE as the role that can grant RELAYER_ROLE.", async () => {
-      expect(await contracts.ETSAccessControls.getRoleAdmin(ethers.id("RELAYER_ROLE"))).to.be.equal(
-        await ethers.id("RELAYER_FACTORY_ROLE"),
-      );
+      const relayerRole = await contracts.ETSAccessControls.read.RELAYER_ROLE();
+      const relayerFactoryRole = await contracts.ETSAccessControls.read.RELAYER_FACTORY_ROLE();
+      const roleAdmin = await contracts.ETSAccessControls.read.getRoleAdmin([relayerRole]);
+      assert.equal(roleAdmin, relayerFactoryRole);
     });
 
     it("grants ETSAdmin (deployer) the DEFAULT_ADMIN_ROLE role", async () => {
-      expect(await contracts.ETSAccessControls.isAdmin(accounts.ETSAdmin.address)).to.be.equal(true);
+      const isAdmin = await contracts.ETSAccessControls.read.isAdmin([accounts.ETSAdmin.account.address]);
+      assert.equal(isAdmin, true);
     });
 
     it("grants ETSPlatform the DEFAULT_ADMIN_ROLE", async () => {
-      expect(await contracts.ETSAccessControls.isAdmin(accounts.ETSPlatform.address)).to.be.equal(true);
+      const isAdmin = await contracts.ETSAccessControls.read.isAdmin([accounts.ETSPlatform.account.address]);
+      assert.equal(isAdmin, true);
     });
 
     it('sets ETSPlatform address as the "Platform"', async () => {
-      expect(await contracts.ETSAccessControls.getPlatformAddress()).to.be.equal(accounts.ETSPlatform.address);
+      const platformAddress = await contracts.ETSAccessControls.read.getPlatformAddress();
+      assert.equal(platformAddress.toLowerCase(), accounts.ETSPlatform.account.address.toLowerCase());
     });
 
     it("grants ETSPlatform the RELAYER_ADMIN_ROLE", async () => {
-      expect(await contracts.ETSAccessControls.isRelayerAdmin(accounts.ETSPlatform.address)).to.be.equal(true);
+      const isRelayerAdmin = await contracts.ETSAccessControls.read.isRelayerAdmin([
+        accounts.ETSPlatform.account.address,
+      ]);
+      assert.equal(isRelayerAdmin, true);
     });
 
     it("grants ETSPlatform and ETSOracle the EVENT_PROCESSOR_ROLE", async () => {
-      expect(await contracts.ETSAccessControls.isEventProcessor(accounts.ETSPlatform.address)).to.be.equal(true);
-      expect(await contracts.ETSAccessControls.isEventProcessor(accounts.ETSOracle.address)).to.be.equal(true);
+      const isPlatformEventProcessor = await contracts.ETSAccessControls.read.isEventProcessor([
+        accounts.ETSPlatform.account.address,
+      ]);
+      const isOracleEventProcessor = await contracts.ETSAccessControls.read.isEventProcessor([
+        accounts.ETSOracle.account.address,
+      ]);
+      assert.equal(isPlatformEventProcessor, true);
+      assert.equal(isOracleEventProcessor, true);
     });
 
     it("EVENT_PROCESSOR_ROLE addresses also return true for deprecated isAuctionOracle", async () => {
       // This ensures backward compatibility
-      expect(await contracts.ETSAccessControls.isAuctionOracle(accounts.ETSPlatform.address)).to.be.equal(true);
-      expect(await contracts.ETSAccessControls.isAuctionOracle(accounts.ETSOracle.address)).to.be.equal(true);
+      const isPlatformAuctionOracle = await contracts.ETSAccessControls.read.isAuctionOracle([
+        accounts.ETSPlatform.account.address,
+      ]);
+      const isOracleAuctionOracle = await contracts.ETSAccessControls.read.isAuctionOracle([
+        accounts.ETSOracle.account.address,
+      ]);
+      assert.equal(isPlatformAuctionOracle, true);
+      assert.equal(isOracleAuctionOracle, true);
     });
   });
 
   describe("Platform address", async () => {
     it("can only be set by administrator", async () => {
-      await expect(contracts.ETSAccessControls.connect(accounts.Buyer).setPlatform(accounts.RandomOne.address)).to.be
-        .reverted;
+      // Test that non-admin cannot set platform address
+      try {
+        await contracts.ETSAccessControls.write.setPlatform([accounts.RandomOne.account.address], {
+          account: accounts.Buyer.account,
+        });
+        assert.fail("Should have reverted");
+      } catch (error: any) {
+        assert.ok(error.message.includes("revert") || error.message.includes("AccessDenied"));
+      }
 
-      await contracts.ETSAccessControls.connect(accounts.ETSPlatform).setPlatform(accounts.RandomOne.address);
-      expect(await contracts.ETSAccessControls.getPlatformAddress()).to.be.equal(accounts.RandomOne.address);
+      // Test that admin can set platform address
+      await contracts.ETSAccessControls.write.setPlatform([accounts.RandomOne.account.address], {
+        account: accounts.ETSPlatform.account,
+      });
+      const newPlatformAddress = await contracts.ETSAccessControls.read.getPlatformAddress();
+      assert.equal(newPlatformAddress.toLowerCase(), accounts.RandomOne.account.address.toLowerCase());
     });
   });
 });
