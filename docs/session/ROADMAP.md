@@ -11,16 +11,17 @@ last_updated: 2025-09-01
 
 ## ACTIVE_WORK
 ```yaml
-current_issue_id: "SUB-538.3: Hardhat Ignition migration for DRY deployment/test setup - Test Suite Migration"
-current_status: COMPLETED
-completion_percent: 95
-exact_task: "Fixed all remaining fee calculation issues in ETSCore-Records.test.ts using proper fee computation methods"
-blocking_bug: "None - all WrongFeeSupplied errors resolved"
-next_priority: "Run full test suite to verify all 33 tests pass in ETSCore-Records.test.ts"
-resume_action: "Run test suite, complete final cleanup, and mark SUB-538.3 as complete"
-session_accomplishment: "Completed full test migration from ethers.js to viem - fixed all 6 remaining fee calculation issues using contract's computeTaggingFee methods"
-architecture_decision: "Use contract's fee computation methods (computeTaggingFeeFromRawInput, computeTaggingFeeFromCompositeKey, computeTaggingFeeFromTaggingRecordId) instead of hardcoded multipliers"
-critical_path: "Test migration complete - ready to move to SUB-538.4 HD Wallet Integration"
+current_issue_id: "SUB-538.3: Test Suite Migration from ethers.js + chai to viem + Node.js"
+current_status: DEBUGGING
+completion_percent: 99
+exact_task: "Fix ETSUpgradeableRelayer.test.ts beacon proxy test - identified network connection issue with fixture relayers"
+blocking_bug: "ContractFunctionZeroDataError: version() returned no data - beacon proxy instances need proper viem network connection"
+next_priority: "Complete final beacon proxy test fix, then move to SUB-538.4: HD Wallet Integration"
+resume_action: "Fix beacon proxy contract instances in ETSUpgradeableRelayer.test.ts - use proper viem.getContractAt with network connection"
+session_accomplishment: "Diagnosed beacon proxy issue - fixture relayers exist but need proper network connection for version() calls"
+architecture_decision: "Identified fixture creates proxy addresses but not connected contract instances - need proper viem contract connection"
+critical_path: "Final beacon proxy network connection fix needed - 1 failing test remaining"
+debugging_insight: "ignitionFixture creates relayer addresses correctly but contract instances need network.connect() viem client"
 ```
 
 ## CRITICAL_PATH

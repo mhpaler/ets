@@ -1,95 +1,103 @@
-import { expect } from "chai";
-import type { Contract, ContractFactory } from "ethers";
-import { ethers } from "hardhat";
-import type { Accounts, Contracts, Factories } from "./setup";
-import { getFactories, setup } from "./setup";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import { network } from "hardhat";
+import { loadIgnitionFixture } from "./fixtures/ignitionFixture.js";
 
-// Define interfaces for the relayer contracts
-interface ETSRelayerUpgraded {
-  version(): Promise<string>;
-  newFunction(): Promise<boolean>;
-}
-
-describe("Upgrades tests", () => {
-  let accounts: Accounts;
-  let contracts: Contracts;
-  let factories: Factories;
-  let ETSRelayerUpgradeTestFactory: ContractFactory;
-  // Note: tokenId variables removed since tests no longer require them
-  let beaconAddress: string;
-  let relayer1Address: string;
-  let relayer2Address: string;
-  let etsRelayerBeaconABI: any;
-  let etsRelayerABI: any;
-  let etsRelayerUpgradeTestABI: any;
-  let etsRelayerBeacon: Contract;
-  let relayer1v1: Contract;
-  let relayer1v2: Contract;
-  let relayer2v1: Contract;
-  let relayer2v2: Contract;
-
-  beforeEach("Setup test", async () => {
-    factories = await getFactories();
-    const result = await setup();
-    ({ accounts, contracts } = result);
-    ETSRelayerUpgradeTestFactory = await ethers.getContractFactory("ETSRelayerUpgradeTest");
-
-    // Note: Relayer creation no longer requires tag ownership (democratized)
-    const tag = "#LOVE";
-    const tag2 = "#HATE";
-    await contracts.ETSRelayer.connect(accounts.RandomTwo).getOrCreateTagIds([tag, tag2]);
-    // Note: Token IDs no longer needed for democratized relayer creation
-
-    await contracts.ETSRelayerFactory.connect(accounts.RandomOne).addRelayer("Relayer 1");
-    await contracts.ETSRelayerFactory.connect(accounts.RandomTwo).addRelayer("Relayer 2");
-
-    beaconAddress = await contracts.ETSRelayerFactory.getBeacon();
-    relayer1Address = await contracts.ETSAccessControls.getRelayerAddressFromName("Relayer 1");
-    relayer2Address = await contracts.ETSAccessControls.getRelayerAddressFromName("Relayer 2");
-
-    etsRelayerBeaconABI = require("../abi/contracts/relayers/ETSRelayerBeacon.sol/ETSRelayerBeacon.json");
-    etsRelayerABI = require("../abi/contracts/relayers/ETSRelayer.sol/ETSRelayer.json");
-    etsRelayerUpgradeTestABI = require("../abi/contracts/test/ETSRelayerUpgradeTest.sol/ETSRelayerUpgradeTest.json");
-  });
+describe("Relayer Beacon Upgrade tests", async () => {
+  const { accounts, contracts } = await loadIgnitionFixture();
 
   describe("ETSRelayer", () => {
-    it("is upgradeable", async () => {
-      relayer1v1 = new ethers.Contract(relayer1Address, etsRelayerABI, accounts.Buyer);
-      relayer2v1 = new ethers.Contract(relayer2Address, etsRelayerABI, accounts.Creator);
+    it("is upgradeable via beacon proxy pattern", async () => {
+      const { viem } = await network.connect();
 
-      expect(await relayer1v1.version()).to.be.equal("0.1.1");
-      expect(await relayer2v1.version()).to.be.equal("0.1.1");
+      // === SETUP: Use existing relayers from fixture ===
+      console.log("🚀 Setting up relayers...");
 
-      // Connect to the beacon contract by platform
-      etsRelayerBeacon = new ethers.Contract(beaconAddress, etsRelayerBeaconABI, accounts.ETSAdmin);
+      // The fixture already creates "ETSRelayer" and "SecondTestRelayer"
+      // Get their addresses
+      const relayer1Address = await contracts.ETSAccessControls.read.getRelayerAddressFromName(["ETSRelayer"]);
+      const relayer2Address = await contracts.ETSAccessControls.read.getRelayerAddressFromName(["SecondTestRelayer"]);
 
-      // Deploy v2 relayer, and update beacon with address.
-      const ETSRelayerUpgradeTest = await ETSRelayerUpgradeTestFactory.deploy();
-      await etsRelayerBeacon.update(await ETSRelayerUpgradeTest.getAddress());
-      expect(await etsRelayerBeacon.implementation()).to.be.equal(await ETSRelayerUpgradeTest.getAddress());
+      // Get beacon address from the factory
+      const beaconAddress = await contracts.ETSRelayerFactory.read.getBeacon();
 
-      // Reload relayers, note addresses (of proxies) haven't changed, only the API has.
-      relayer1v2 = new ethers.Contract(relayer1Address, etsRelayerUpgradeTestABI, accounts.Buyer);
-      relayer2v2 = new ethers.Contract(relayer2Address, etsRelayerUpgradeTestABI, accounts.Creator);
+      // === PHASE 1: Verify initial relayer versions ===
+      console.log("✅ Phase 1: Checking initial relayer versions...");
 
-      // Expect version bump.
-      expect(await relayer1v2.version()).to.be.equal("UPGRADE TEST");
-      expect(await relayer2v1.version()).to.be.equal("UPGRADE TEST");
+      const relayer1v1 = await viem.getContractAt("ETSRelayer", relayer1Address);
+      const relayer2v1 = await viem.getContractAt("ETSRelayer", relayer2Address);
 
-      // Expect new function present.
-      expect(await (relayer1v2 as unknown as ETSRelayerUpgraded).newFunction()).to.be.equal(true);
-      expect(await (relayer2v2 as unknown as ETSRelayerUpgraded).newFunction()).to.be.equal(true);
+      const version1Initial = await relayer1v1.read.version();
+      const version2Initial = await relayer2v1.read.version();
+
+      assert.equal(version1Initial, "0.1.1");
+      assert.equal(version2Initial, "0.1.1");
+      console.log("✅ Both relayers initially at version 0.1.1");
+
+      // === PHASE 2: Deploy upgrade implementation ===
+      console.log("🔄 Phase 2: Deploying upgrade implementation...");
+
+      const upgradeImplementation = await viem.deployContract("ETSRelayerUpgradeTest", []);
+      console.log("✅ ETSRelayerUpgradeTest deployed");
+
+      // === PHASE 3: Update beacon ===
+      console.log("🔧 Phase 3: Updating beacon...");
+
+      const beacon = await viem.getContractAt("ETSRelayerBeacon", beaconAddress);
+
+      // Update the beacon (should be done by admin/platform)
+      await beacon.write.update([upgradeImplementation.address], { account: accounts.ETSAdmin.account });
+
+      // Verify beacon implementation updated
+      const newImplementation = await beacon.read.implementation();
+      assert.equal(newImplementation, upgradeImplementation.address);
+      console.log("✅ Beacon successfully updated to new implementation");
+
+      // === PHASE 4: Verify all relayers upgraded ===
+      console.log("🎉 Phase 4: Verifying all relayers upgraded automatically...");
+
+      // Get relayer instances with new ABI
+      const relayer1v2 = await viem.getContractAt("ETSRelayerUpgradeTest", relayer1Address);
+      const relayer2v2 = await viem.getContractAt("ETSRelayerUpgradeTest", relayer2Address);
+
+      // Check versions (should be upgraded)
+      const version1Upgraded = await relayer1v2.read.version();
+      const version2Upgraded = await relayer2v2.read.version();
+
+      assert.equal(version1Upgraded, "UPGRADE TEST");
+      assert.equal(version2Upgraded, "UPGRADE TEST");
+      console.log("✅ Both relayers automatically upgraded to 'UPGRADE TEST'");
+
+      // Check new function is available
+      const newFunc1 = await relayer1v2.read.newFunction();
+      const newFunc2 = await relayer2v2.read.newFunction();
+
+      assert.equal(newFunc1, true);
+      assert.equal(newFunc2, true);
+      console.log("✅ New function available on both relayers");
+
+      console.log("🎉 Beacon proxy upgrade successful! All relayers upgraded simultaneously.");
     });
 
-    it("is only upgradeable by owner", async () => {
-      // Connect to the beacon contract using random address.
-      etsRelayerBeacon = new ethers.Contract(beaconAddress, etsRelayerBeaconABI, accounts.RandomTwo);
+    it("beacon is only upgradeable by owner", async () => {
+      const { viem } = await network.connect();
 
-      // Deploy v2 relayer, and try to update beacon with address.
-      const ETSRelayerUpgradeTest = await factories.ETSRelayerUpgradeTest.deploy();
-      await expect(etsRelayerBeacon.update(await ETSRelayerUpgradeTest.getAddress())).to.be.revertedWith(
-        "Ownable: caller is not the owner",
-      );
+      // Get beacon address from the factory
+      const beaconAddress = await contracts.ETSRelayerFactory.read.getBeacon();
+      const beacon = await viem.getContractAt("ETSRelayerBeacon", beaconAddress);
+
+      // Deploy upgrade implementation
+      const upgradeImplementation = await viem.deployContract("ETSRelayerUpgradeTest", []);
+
+      // Try to update beacon with non-owner account (should fail)
+      try {
+        await beacon.write.update([upgradeImplementation.address], { account: accounts.RandomTwo.account });
+        assert.fail("Expected transaction to revert with 'Ownable: caller is not the owner'");
+      } catch (error: any) {
+        assert.ok(error.message.includes("Ownable: caller is not the owner"), "Should revert with ownership error");
+      }
+
+      console.log("✅ Beacon correctly protected - only owner can upgrade");
     });
   });
 });

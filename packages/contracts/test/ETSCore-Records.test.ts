@@ -182,8 +182,8 @@ describe("ETS Core Records Management", async () => {
         assert.fail(`Failed to retrieve multi-tag tagging record by ID. Record ID: ${recordId}`);
       }
 
-      // viem returns struct as array tuple: [coinAddresses, targetId, recordType, tagger, relayer]
-      const [coinAddressesById, targetIdById, recordTypeById, taggerById, relayerById] = taggingRecordById;
+      // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
+      const [coinAddressesById, targetIdById, recordTypeById, relayerById, taggerById] = taggingRecordById;
 
       if (!coinAddressesById || !Array.isArray(coinAddressesById)) {
         assert.fail(`Retrieved record but coinAddresses is not valid array: ${coinAddressesById}`);
@@ -291,7 +291,7 @@ describe("ETS Core Records Management", async () => {
           assert.fail("Failed to retrieve tagging record");
         }
 
-        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, tagger, relayer]
+        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
         const [coinAddresses] = taggingRecord;
         if (!coinAddresses || !Array.isArray(coinAddresses)) {
           assert.fail("Failed to retrieve coinAddresses from tagging record");
@@ -430,7 +430,7 @@ describe("ETS Core Records Management", async () => {
           assert.fail("Failed to retrieve tagging record");
         }
 
-        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, tagger, relayer]
+        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
         const [coinAddresses] = taggingRecord;
         if (!coinAddresses || !Array.isArray(coinAddresses)) {
           assert.fail("Failed to retrieve coinAddresses from tagging record");
@@ -447,11 +447,9 @@ describe("ETS Core Records Management", async () => {
         const tagsToAppend = [recordIdTag1, recordIdTag2];
 
         // Compute the expected fee for appending these specific tags to the existing record
-        const [expectedFee] = await contracts.ETS.read.computeTaggingFeeFromTaggingRecordId([
+        const [expectedFee] = await contracts.ETS.read.computeTaggingFee([
           appendTaggingRecordId,
           tagsToAppend,
-          accounts.ETSPlatform.account.address,
-          accounts.RandomOne.account.address,
           0, // APPLY action
         ]);
 
@@ -570,7 +568,7 @@ describe("ETS Core Records Management", async () => {
           assert.fail("Failed to retrieve tagging record");
         }
 
-        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, tagger, relayer]
+        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
         const [coinAddresses] = taggingRecord;
         if (!coinAddresses || !Array.isArray(coinAddresses)) {
           assert.fail("Failed to retrieve coinAddresses from tagging record");
@@ -620,14 +618,14 @@ describe("ETS Core Records Management", async () => {
           assert.fail("Failed to retrieve tagging record");
         }
 
-        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, tagger, relayer]
+        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
         const [coinAddresses] = taggingRecord;
         if (!coinAddresses || !Array.isArray(coinAddresses)) {
           assert.fail("Failed to retrieve coinAddresses from tagging record");
         }
         const initialCount = coinAddresses.length;
 
-        const removeTags = [etsTag2, userTag1];
+        const removeTags = [etsTag3, userTag1]; // etsTag3 and userTag1 should still be in record after previous test
         // TODO: Event testing needs to be implemented with viem
         await contracts.ETS.write.removeTagsWithCompositeKey(
           [
@@ -655,12 +653,46 @@ describe("ETS Core Records Management", async () => {
 
     describe("using taggingRecordId", async () => {
       it("can be done with taggingRecordId", async () => {
-        let taggingRecord = await contracts.ETS.read.getTaggingRecordFromId([removeTaggingRecordId]);
+        // Create a fresh record with unique record type for this test
+        const freshRecordTags = [etsTag1]; // Use just one tag to keep it simple
+
+        // Compute the expected fee for this specific record
+        const [freshRecordFee] = await contracts.ETS.read.computeTaggingFeeFromCompositeKey([
+          freshRecordTags, // coinAddresses first
+          targetId,
+          "bookmark-remove-fresh",
+          accounts.ETSPlatform.account.address, // relayer
+          accounts.RandomOne.account.address, // tagger
+          0, // APPLY action
+        ]);
+
+        await contracts.ETS.write.applyTagsWithCompositeKey(
+          [
+            freshRecordTags,
+            targetId,
+            "bookmark-remove-fresh",
+            accounts.RandomOne.account.address,
+            accounts.ETSPlatform.account.address,
+          ],
+          {
+            value: freshRecordFee,
+            account: accounts.ETSPlatform.account,
+          },
+        );
+
+        const freshRecordId = await contracts.ETS.read.computeTaggingRecordIdFromCompositeKey([
+          targetId,
+          "bookmark-remove-fresh",
+          accounts.ETSPlatform.account.address,
+          accounts.RandomOne.account.address,
+        ]);
+
+        let taggingRecord = await contracts.ETS.read.getTaggingRecordFromId([freshRecordId]);
         if (!taggingRecord) {
-          assert.fail("Failed to retrieve tagging record");
+          assert.fail("Failed to retrieve fresh tagging record");
         }
 
-        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, tagger, relayer]
+        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
         const [coinAddresses] = taggingRecord;
         if (!coinAddresses || !Array.isArray(coinAddresses)) {
           assert.fail("Failed to retrieve coinAddresses from tagging record");
@@ -670,14 +702,14 @@ describe("ETS Core Records Management", async () => {
         // TODO: Event testing needs to be implemented with viem
         await contracts.ETS.write.removeTags(
           [
-            removeTaggingRecordId,
-            [etsTag3], // Remove etsTag3 which should still be there
+            freshRecordId,
+            [etsTag1], // Remove etsTag1 which should be there
             accounts.RandomOne.account.address,
           ],
           { account: accounts.ETSPlatform.account },
         );
 
-        taggingRecord = await contracts.ETS.read.getTaggingRecordFromId([removeTaggingRecordId]);
+        taggingRecord = await contracts.ETS.read.getTaggingRecordFromId([freshRecordId]);
         if (!taggingRecord) {
           assert.fail("Failed to retrieve updated tagging record");
         }
@@ -758,7 +790,7 @@ describe("ETS Core Records Management", async () => {
           assert.fail("Failed to retrieve tagging record");
         }
 
-        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, tagger, relayer]
+        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
         const [coinAddresses] = taggingRecord;
         if (!coinAddresses || !Array.isArray(coinAddresses)) {
           assert.fail("Failed to retrieve coinAddresses from tagging record");
@@ -807,7 +839,7 @@ describe("ETS Core Records Management", async () => {
           assert.fail("Failed to retrieve tagging record");
         }
 
-        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, tagger, relayer]
+        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
         const [coinAddresses] = taggingRecord;
         if (!coinAddresses || !Array.isArray(coinAddresses)) {
           assert.fail("Failed to retrieve coinAddresses from tagging record");
@@ -860,7 +892,7 @@ describe("ETS Core Records Management", async () => {
           assert.fail("Failed to retrieve tagging record");
         }
 
-        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, tagger, relayer]
+        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
         const [coinAddresses] = taggingRecord;
         if (!coinAddresses || !Array.isArray(coinAddresses)) {
           assert.fail("Failed to retrieve coinAddresses from tagging record");
@@ -869,11 +901,9 @@ describe("ETS Core Records Management", async () => {
 
         const replacementTags = [etsTag2, userTag1];
         // Compute the expected fee for replacing with these specific tags
-        const [expectedFee] = await contracts.ETS.read.computeTaggingFeeFromTaggingRecordId([
+        const [expectedFee] = await contracts.ETS.read.computeTaggingFee([
           replaceTaggingRecordId,
           replacementTags,
-          accounts.ETSPlatform.account.address,
-          accounts.RandomOne.account.address,
           1, // REPLACE action
         ]);
 
@@ -957,7 +987,7 @@ describe("ETS Core Records Management", async () => {
         assert.fail("Failed to retrieve tagging record by composite key");
       }
 
-      // viem returns struct as array tuple: [coinAddresses, targetId, recordType, tagger, relayer]
+      // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
       const [, targetId] = taggingRecord;
       if (!targetId) {
         assert.fail("Failed to retrieve targetId from tagging record");
@@ -971,7 +1001,7 @@ describe("ETS Core Records Management", async () => {
         assert.fail("Failed to retrieve tagging record by id");
       }
 
-      // viem returns struct as array tuple: [coinAddresses, targetId, recordType, tagger, relayer]
+      // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
       const [, targetId] = taggingRecord;
       if (!targetId) {
         assert.fail("Failed to retrieve targetId from tagging record");
@@ -991,39 +1021,54 @@ describe("ETS Core Records Management", async () => {
         targetURI: recordTagParams.targetURI,
         tagStrings: ["#dex", "#ethereum"],
         recordType: "bookmark",
-        enrich: false,
       };
+
+      // Compute the expected fee for applying these specific tags
+      const [expectedFee] = await contracts.ETS.read.computeTaggingFeeFromRawInput([
+        taggingRecordInputParams,
+        accounts.ETSPlatform.account.address, // relayer
+        accounts.RandomTwo.account.address, // tagger
+        0, // APPLY action
+      ]);
 
       // RandomTwo is tagger, ETSPlatform is relayer.
       await contracts.ETS.write.applyTagsWithRawInput(
         [taggingRecordInputParams, accounts.RandomTwo.account.address, accounts.ETSPlatform.account.address],
         {
-          value: taggingFee * 2n,
+          value: expectedFee,
           account: accounts.ETSPlatform.account,
         },
       );
 
       // Get tagging record id from composite key.
+      // Parameters: targetId, recordType, relayer, tagger
       const newTaggingRecordId = await contracts.ETS.read.computeTaggingRecordIdFromCompositeKey([
         existingTargetId,
         "bookmark",
-        accounts.ETSPlatform.account.address,
-        accounts.RandomTwo.account.address,
+        accounts.ETSPlatform.account.address, // relayer
+        accounts.RandomTwo.account.address, // tagger
       ]);
 
       assert.notEqual(newTaggingRecordId.toString(), recordTestTaggingRecordId.toString());
 
       const newTaggingRecord = await contracts.ETS.read.getTaggingRecordFromId([newTaggingRecordId]);
-      if (!newTaggingRecord || !newTaggingRecord.targetId || !newTaggingRecord.coinAddresses) {
+      if (!newTaggingRecord) {
         assert.fail("Failed to retrieve new tagging record");
       }
-      assert.equal(newTaggingRecord.targetId.toString(), existingTargetId.toString());
-      assert.equal(newTaggingRecord.recordType, "bookmark");
-      assert.equal(newTaggingRecord.tagger.toLowerCase(), accounts.RandomTwo.account.address.toLowerCase());
-      assert.equal(newTaggingRecord.relayer.toLowerCase(), accounts.ETSPlatform.account.address.toLowerCase());
 
-      for (let i = 0; i < newTaggingRecord.coinAddresses.length; i++) {
-        assert.ok(reusedTagIds.includes(newTaggingRecord.coinAddresses[i]));
+      // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
+      const [coinAddresses, targetId, recordType, relayer, tagger] = newTaggingRecord;
+      if (!coinAddresses || !targetId) {
+        assert.fail("Failed to retrieve new tagging record data");
+      }
+
+      assert.equal(targetId.toString(), existingTargetId.toString());
+      assert.equal(recordType, "bookmark");
+      assert.equal(tagger.toLowerCase(), accounts.RandomTwo.account.address.toLowerCase());
+      assert.equal(relayer.toLowerCase(), accounts.ETSPlatform.account.address.toLowerCase());
+
+      for (let i = 0; i < coinAddresses.length; i++) {
+        assert.ok(reusedTagIds.includes(coinAddresses[i]));
       }
     });
   });
