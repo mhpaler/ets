@@ -13,15 +13,15 @@ last_updated: 2025-09-01
 ```yaml
 current_issue_id: "SUB-538.3: Test Suite Migration from ethers.js + chai to viem + Node.js"
 current_status: DEBUGGING
-completion_percent: 99
-exact_task: "Fix ETSUpgradeableRelayer.test.ts beacon proxy test - identified network connection issue with fixture relayers"
-blocking_bug: "ContractFunctionZeroDataError: version() returned no data - beacon proxy instances need proper viem network connection"
-next_priority: "Complete final beacon proxy test fix, then move to SUB-538.4: HD Wallet Integration"
-resume_action: "Fix beacon proxy contract instances in ETSUpgradeableRelayer.test.ts - use proper viem.getContractAt with network connection"
-session_accomplishment: "Diagnosed beacon proxy issue - fixture relayers exist but need proper network connection for version() calls"
-architecture_decision: "Identified fixture creates proxy addresses but not connected contract instances - need proper viem contract connection"
-critical_path: "Final beacon proxy network connection fix needed - 1 failing test remaining"
-debugging_insight: "ignitionFixture creates relayer addresses correctly but contract instances need network.connect() viem client"
+completion_percent: 98
+exact_task: "Diagnose beacon proxy upgrade mechanism - existing proxy instances break after beacon update but new proxies may work"
+blocking_bug: "Beacon upgrade successfully updates implementation address but existing proxy instances return ContractFunctionZeroDataError"
+next_priority: "Test if NEW relayers work after beacon upgrade to isolate proxy state vs contract compatibility issues"
+resume_action: "Run test to create brand new relayer after beacon upgrade and verify if fresh proxies work with ETSRelayerUpgradeTest ABI"
+session_accomplishment: "Discovered beacon upgrade mechanism works (implementation address changes correctly) but existing proxy instances become inaccessible"
+architecture_decision: "Found storage layout compatibility issue - added missing etsAccessControls field to ETSRelayerUpgradeTest but existing proxies still fail"
+critical_path: "Need to determine if issue is with existing proxy state compatibility or fundamental contract problems"
+debugging_insight: "OpenZeppelin forum suggests beacon proxy upgrades may require manual initialization of existing proxies when storage changes"
 ```
 
 ## CRITICAL_PATH

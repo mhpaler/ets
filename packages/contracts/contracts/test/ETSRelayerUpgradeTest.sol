@@ -5,6 +5,7 @@ import { IETS } from "../interfaces/IETS.sol";
 import { IETSToken } from "../interfaces/IETSToken.sol";
 import { IETSTarget } from "../interfaces/IETSTarget.sol";
 import { IETSRelayer } from "../relayers/interfaces/IETSRelayer.sol";
+import { IETSAccessControls } from "../interfaces/IETSAccessControls.sol";
 import { UintArrayUtils } from "../libraries/UintArrayUtils.sol";
 
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -39,6 +40,9 @@ contract ETSRelayerUpgradeTest is
     /// @dev Address and interface for ETS Target.
     IETSTarget public etsTarget;
 
+    /// @dev Address and interface for ETS Access Controls.
+    IETSAccessControls public etsAccessControls;
+
     // Public constants
     string public constant NAME = "ETS Relayer";
     string public constant VERSION = "UPGRADE TEST";
@@ -64,6 +68,7 @@ contract ETSRelayerUpgradeTest is
         IETS _ets,
         IETSToken _etsToken,
         IETSTarget _etsTarget,
+        IETSAccessControls _etsAccessControls,
         address payable _creator,
         address payable _owner
     ) public initializer {
@@ -74,6 +79,7 @@ contract ETSRelayerUpgradeTest is
         ets = _ets;
         etsToken = _etsToken;
         etsTarget = _etsTarget;
+        etsAccessControls = _etsAccessControls;
         creator = _creator;
         transferOwnership(_owner);
     }
