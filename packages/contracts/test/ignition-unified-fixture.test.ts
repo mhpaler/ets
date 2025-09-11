@@ -61,7 +61,11 @@ describe("Hardhat Ignition - Complete Unified Fixture", async () => {
 
     // Verify ETSTarget has EnrichTarget set
     const targetEnrichTarget = await contracts.ETSTarget.read.etsEnrichTarget();
-    assert.equal(targetEnrichTarget, contracts.ETSEnrichTarget.address, "ETSTarget should reference ETSEnrichTarget");
+    assert.equal(
+      targetEnrichTarget.toLowerCase(),
+      contracts.ETSEnrichTarget.address.toLowerCase(),
+      "ETSTarget should reference ETSEnrichTarget",
+    );
 
     // Test basic functionality - create a tag
     const tagString = "#IgnitionTest";
