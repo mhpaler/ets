@@ -50,7 +50,6 @@ export interface IgnitionSetupResult {
 export async function ignitionFixture(): Promise<IgnitionSetupResult> {
   const { ignition, viem } = await network.connect();
 
-  console.log("🚀 Deploying complete ETS system via Ignition...");
 
   // Get wallet clients for account setup
   const walletClients = await viem.getWalletClients();
@@ -112,7 +111,6 @@ export async function ignitionFixture(): Promise<IgnitionSetupResult> {
 
   const enrichTarget = { address: enrichTargetProxy.address };
 
-  console.log("✅ Core system deployed, starting post-deployment configuration...");
 
   // Get contract instances for post-deployment setup
   const accessControlsContract = await viem.getContractAt("ETSAccessControls", accessControls.address);
@@ -122,7 +120,6 @@ export async function ignitionFixture(): Promise<IgnitionSetupResult> {
   const relayerFactoryContract = await viem.getContractAt("ETSRelayerFactory", relayerFactory.address);
 
   // ============ POST-DEPLOYMENT CONFIGURATION ============
-  console.log("🔧 Configuring roles and permissions...");
 
   // Set role admins
   await accessControlsContract.write.setRoleAdmin(
@@ -173,7 +170,6 @@ export async function ignitionFixture(): Promise<IgnitionSetupResult> {
     account: accounts.ETSPlatform.account,
   });
 
-  console.log("🔗 Linking contracts...");
 
   // Set EnrichTarget on Target
   await targetContract.write.setEnrichTarget([enrichTarget.address], { account: accounts.ETSPlatform.account });
@@ -181,7 +177,6 @@ export async function ignitionFixture(): Promise<IgnitionSetupResult> {
   // Set ETS Core on Token
   await tokenContract.write.setETSCore([etsCore.address], { account: accounts.ETSPlatform.account });
 
-  console.log("🏭 Creating test relayers...");
 
   // Create test relayers
   await relayerFactoryContract.write.addRelayer(["ETSRelayer"], { account: accounts.ETSPlatform.account });
@@ -203,7 +198,6 @@ export async function ignitionFixture(): Promise<IgnitionSetupResult> {
     client: { wallet: accounts.RandomTwo },
   });
 
-  console.log("✅ Complete ETS system deployed and configured!");
 
   // Return in format compatible with existing tests - using the contract instances
   const contracts: IgnitionContracts = {

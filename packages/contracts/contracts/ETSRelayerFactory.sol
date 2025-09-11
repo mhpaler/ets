@@ -29,7 +29,7 @@ import { BeaconProxy } from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.so
 contract ETSRelayerFactory is Context {
     mapping(uint256 => address) private vaults;
 
-    ETSRelayerBeacon immutable etsRelayerBeacon;
+    ETSRelayerBeacon public etsRelayerBeacon;
 
     /// @dev ETS access controls contract.
     IETSAccessControls public etsAccessControls;
@@ -58,13 +58,14 @@ contract ETSRelayerFactory is Context {
     string public constant NAME = "ETS Relayer Factory";
 
     constructor(
-        address _etsRelayerLogic,
+        address _etsRelayerBeacon,  // Changed: Accept pre-deployed beacon address
         IETSAccessControls _etsAccessControls,
         IETS _ets,
         IETSToken _etsToken,
         IETSTarget _etsTarget
     ) {
-        etsRelayerBeacon = new ETSRelayerBeacon(_etsRelayerLogic);
+        // Changed: Use the pre-deployed beacon instead of creating a new one
+        etsRelayerBeacon = ETSRelayerBeacon(_etsRelayerBeacon);
         etsAccessControls = _etsAccessControls;
         ets = _ets;
         etsToken = _etsToken;

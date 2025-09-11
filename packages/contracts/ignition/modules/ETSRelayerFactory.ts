@@ -22,17 +22,23 @@ const ETSRelayerFactoryModule = buildModule("ETSRelayerFactory", (m) => {
   // Deploy the ETSRelayer implementation (logic contract for beacon)
   const relayerImplementation = m.contract("ETSRelayer", []);
 
-  // Deploy ETSRelayerFactory (this creates the beacon internally)
+  // Deploy the ETSRelayerBeacon separately through Ignition to ensure proper bytecode
+  const relayerBeacon = m.contract("ETSRelayerBeacon", [
+    relayerImplementation, // address _relayerLogic
+  ]);
+
+  // Deploy ETSRelayerFactory with the pre-deployed beacon
   const relayerFactory = m.contract("ETSRelayerFactory", [
-    relayerImplementation, // address _etsRelayerLogic
-    accessControls, // IETSAccessControls _etsAccessControls
-    etsCore, // IETS _ets
-    token, // IETSToken _etsToken
-    target, // IETSTarget _etsTarget
+    relayerBeacon,      // address _etsRelayerBeacon (pre-deployed, not created in constructor)
+    accessControls,     // IETSAccessControls _etsAccessControls
+    etsCore,           // IETS _ets
+    token,             // IETSToken _etsToken
+    target,            // IETSTarget _etsTarget
   ]);
 
   return {
     relayerFactory,
+    relayerBeacon,
     relayerImplementation,
     // Expose all system components
     etsCore,
