@@ -174,10 +174,10 @@ export async function ignitionFixture(): Promise<IgnitionSetupResult> {
 
   // Create relayer contract instances
   const etsRelayer = await viem.getContractAt("ETSRelayer", firstRelayerAddress, {
-    client: { wallet: accounts.RandomOne },
+    client: { wallet: accounts.User2 },
   });
   const secondRelayer = await viem.getContractAt("ETSRelayer", secondRelayerAddress, {
-    client: { wallet: accounts.RandomTwo },
+    client: { wallet: accounts.User3 },
   });
 
   // Return in format compatible with existing tests - using the contract instances

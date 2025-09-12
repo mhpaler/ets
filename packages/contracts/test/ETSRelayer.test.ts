@@ -33,7 +33,7 @@ describe("ETS Relayer Tests", async () => {
     targetId,
     "bookmark",
     contracts.ETSRelayer.address,
-    accounts.RandomOne.account.address,
+    accounts.User2.account.address,
   ]);
 
   describe("Creating tags", async () => {
@@ -41,7 +41,7 @@ describe("ETS Relayer Tests", async () => {
       const tagstring1 = "#Love";
       // const expectedCoinAddress = await contracts.ETSToken.read.computeCoinAddress([tagstring1]);
       const _tagAddressesBefore = await contracts.ETSRelayer.write.getOrCreateTagIds([[tagstring1]], {
-        account: accounts.Creator.account,
+        account: accounts.User4.account,
       });
       // TODO: Event testing needs to be implemented with viem
       // Check that TagCreated event is emitted (don't check timestamp as it varies)
@@ -69,7 +69,7 @@ describe("ETS Relayer Tests", async () => {
       try {
         await contracts.ETSRelayer.write.applyTags([taggingRecords], {
           value: taggingFee * BigInt(2),
-          account: accounts.RandomOne.account,
+          account: accounts.User2.account,
         });
         assert.fail("Should have reverted");
       } catch (error: any) {
@@ -96,7 +96,7 @@ describe("ETS Relayer Tests", async () => {
 
       await contracts.ETSRelayer.write.applyTags([taggingRecords], {
         value: taggingFee * BigInt(2),
-        account: accounts.RandomOne.account,
+        account: accounts.User2.account,
       });
       // TODO: Event testing needs to be implemented with viem
       // await expect(tx).to.emit(contracts.ETS, "TaggingRecordCreated").withArgs(taggingRecordId);
@@ -112,7 +112,7 @@ describe("ETS Relayer Tests", async () => {
       // Create the record.
       await contracts.ETSRelayer.write.applyTags([taggingRecords], {
         value: taggingFee * BigInt(2),
-        account: accounts.RandomOne.account,
+        account: accounts.User2.account,
       });
 
       const appendRecord = {
@@ -128,7 +128,7 @@ describe("ETS Relayer Tests", async () => {
 
       await contracts.ETSRelayer.write.applyTags([[appendRecord]], {
         value: taggingFee * BigInt(1),
-        account: accounts.RandomOne.account,
+        account: accounts.User2.account,
       });
       // TODO: Event testing needs to be implemented with viem
       // await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 0);
@@ -143,7 +143,7 @@ describe("ETS Relayer Tests", async () => {
       // Create the record.
       await contracts.ETSRelayer.write.applyTags([taggingRecords], {
         value: taggingFee * BigInt(2),
-        account: accounts.RandomOne.account,
+        account: accounts.User2.account,
       });
 
       // Get initial tag count
@@ -160,7 +160,7 @@ describe("ETS Relayer Tests", async () => {
 
       await contracts.ETSRelayer.write.applyTags([taggingRecords], {
         value: _calcTaggingFee,
-        account: accounts.RandomOne.account,
+        account: accounts.User2.account,
       });
       // TODO: Event testing needs to be implemented with viem
       // await expect(tx).to.not.emit(contracts.ETS, "TaggingRecordUpdated");
@@ -177,7 +177,7 @@ describe("ETS Relayer Tests", async () => {
       // Create the record.
       await contracts.ETSRelayer.write.applyTags([taggingRecords], {
         value: taggingFee * BigInt(2),
-        account: accounts.RandomOne.account,
+        account: accounts.User2.account,
       });
 
       // Pause ETSRelayer
@@ -187,7 +187,7 @@ describe("ETS Relayer Tests", async () => {
 
       try {
         await contracts.ETSRelayer.write.removeTags([taggingRecords], {
-          account: accounts.RandomOne.account,
+          account: accounts.User2.account,
         });
         assert.fail("Should have reverted");
       } catch (error: any) {
@@ -199,7 +199,7 @@ describe("ETS Relayer Tests", async () => {
       // Try to remove tags from non-existent tagging record
       try {
         await contracts.ETSRelayer.write.removeTags([taggingRecords], {
-          account: accounts.RandomOne.account,
+          account: accounts.User2.account,
         });
         assert.fail("Should have reverted");
       } catch (error: any) {
@@ -221,7 +221,7 @@ describe("ETS Relayer Tests", async () => {
       // Create the record.
       await contracts.ETSRelayer.write.applyTags([taggingRecords], {
         value: taggingFee * BigInt(2),
-        account: accounts.RandomOne.account,
+        account: accounts.User2.account,
       });
 
       let taggingRecord = await contracts.ETS.read.getTaggingRecordFromId([taggingRecordId]);
@@ -235,7 +235,7 @@ describe("ETS Relayer Tests", async () => {
         recordType: "bookmark",
         enrich: false,
       };
-      const tx = await contracts.ETSRelayer.write.removeTags([[removeTags]], { account: accounts.RandomOne.account });
+      const tx = await contracts.ETSRelayer.write.removeTags([[removeTags]], { account: accounts.User2.account });
       // TODO: Event testing needs to be implemented with viem
       // await expect(tx).to.emit(contracts.ETS, "TaggingRecordUpdated").withArgs(taggingRecordId, 2);
 
@@ -257,13 +257,13 @@ describe("ETS Relayer Tests", async () => {
       // Create the record.
       await contracts.ETSRelayer.write.applyTags([taggingRecords], {
         value: taggingFee * BigInt(2),
-        account: accounts.RandomOne.account,
+        account: accounts.User2.account,
       });
 
       // Check what tags we have before removal
       const recordBefore = await contracts.ETS.read.getTaggingRecordFromId([taggingRecordId]);
 
-      await contracts.ETSRelayer.write.removeTags([[tagParams]], { account: accounts.RandomOne.account });
+      await contracts.ETSRelayer.write.removeTags([[tagParams]], { account: accounts.User2.account });
       const taggingRecord = await contracts.ETS.read.getTaggingRecordFromId([taggingRecordId]);
 
       // Instead of expecting 0, let's verify the removal worked (should have fewer tags)
@@ -274,7 +274,7 @@ describe("ETS Relayer Tests", async () => {
       // Create the record.
       await contracts.ETSRelayer.write.applyTags([taggingRecords], {
         value: taggingFee * BigInt(2),
-        account: accounts.RandomOne.account,
+        account: accounts.User2.account,
       });
 
       const removeTags = {
@@ -283,7 +283,7 @@ describe("ETS Relayer Tests", async () => {
         recordType: "bookmark",
         enrich: false,
       };
-      const tx = await contracts.ETSRelayer.write.removeTags([[removeTags]], { account: accounts.RandomOne.account });
+      const tx = await contracts.ETSRelayer.write.removeTags([[removeTags]], { account: accounts.User2.account });
       // TODO: Event testing needs to be implemented with viem
       // await expect(tx).to.not.emit(contracts.ETS, "TaggingRecordUpdated");
 
@@ -298,7 +298,7 @@ describe("ETS Relayer Tests", async () => {
       // Create the record.
       await contracts.ETSRelayer.write.applyTags([taggingRecords], {
         value: taggingFee * BigInt(2),
-        account: accounts.RandomOne.account,
+        account: accounts.User2.account,
       });
 
       // Pause ETSRelayer
@@ -316,7 +316,7 @@ describe("ETS Relayer Tests", async () => {
       try {
         await contracts.ETSRelayer.write.replaceTags([[replaceTags]], {
           value: taggingFee * BigInt(2),
-          account: accounts.RandomOne.account,
+          account: accounts.User2.account,
         });
         assert.fail("Should have reverted");
       } catch (error: any) {
@@ -329,7 +329,7 @@ describe("ETS Relayer Tests", async () => {
       try {
         await contracts.ETSRelayer.write.replaceTags([taggingRecords], {
           value: taggingFee * BigInt(2),
-          account: accounts.RandomOne.account,
+          account: accounts.User2.account,
         });
         assert.fail("Should have reverted");
       } catch (error: any) {
@@ -351,7 +351,7 @@ describe("ETS Relayer Tests", async () => {
       // Create the record.
       await contracts.ETSRelayer.write.applyTags([taggingRecords], {
         value: taggingFee * BigInt(2),
-        account: accounts.RandomOne.account,
+        account: accounts.User2.account,
       });
       // Removing two and adding three in one step.
       const replaceTags = {
@@ -362,7 +362,7 @@ describe("ETS Relayer Tests", async () => {
       };
       const tx = await contracts.ETSRelayer.write.replaceTags([[replaceTags]], {
         value: taggingFee * BigInt(3),
-        account: accounts.RandomOne.account,
+        account: accounts.User2.account,
       });
 
       // TODO: Event testing needs to be implemented with viem
@@ -377,7 +377,7 @@ describe("ETS Relayer Tests", async () => {
       // Create the record.
       await contracts.ETSRelayer.write.applyTags([taggingRecords], {
         value: taggingFee * BigInt(2),
-        account: accounts.RandomOne.account,
+        account: accounts.User2.account,
       });
 
       // Estimate tagging fee
@@ -393,7 +393,7 @@ describe("ETS Relayer Tests", async () => {
       }
       const tx = await contracts.ETSRelayer.write.replaceTags([taggingRecords], {
         value: calcTaggingFee,
-        account: accounts.RandomOne.account,
+        account: accounts.User2.account,
       });
 
       // TODO: Event testing needs to be implemented with viem
@@ -415,7 +415,7 @@ describe("ETS Relayer Tests", async () => {
       }
       const _tx1 = await contracts.ETSRelayer.write.applyTags([taggingRecords], {
         value: applyTaggingFee,
-        account: accounts.RandomOne.account,
+        account: accounts.User2.account,
       });
 
       // keep the original two and add three in one step.
@@ -440,7 +440,7 @@ describe("ETS Relayer Tests", async () => {
       }
       const tx2 = await contracts.ETSRelayer.write.replaceTags([replaceRecords], {
         value: replaceTaggingFee,
-        account: accounts.RandomOne.account,
+        account: accounts.User2.account,
       });
 
       // viem doesn't need .wait() - transaction hash is returned directly
@@ -491,10 +491,10 @@ describe("ETS Relayer Tests", async () => {
 
     describe("for existing tagging records", async () => {
       beforeEach("Setup test", async () => {
-        // Create a tagging record, ETSPlatform is relayer, accounts.RandomOne is tagger.
+        // Create a tagging record, ETSPlatform is relayer, accounts.User2 is tagger.
         await contracts.ETSRelayer.write.applyTags([taggingRecords], {
           value: taggingFee * BigInt(2),
-          account: accounts.RandomOne.account,
+          account: accounts.User2.account,
         });
 
         tagstring1 = "#love";
@@ -594,7 +594,7 @@ describe("ETS Relayer Tests", async () => {
       // Create initial tagging record using first relayer
       await contracts.ETSRelayer.write.applyTags([taggingRecords], {
         value: taggingFee * BigInt(2),
-        account: accounts.RandomOne.account,
+        account: accounts.User2.account,
       });
     });
 
@@ -609,14 +609,14 @@ describe("ETS Relayer Tests", async () => {
       // Create record through secondRelayer but try to attribute it to firstRelayer
       await contracts.secondRelayer.write.applyTagsViaRelayer([[newRecord], contracts.ETSRelayer.address], {
         value: taggingFee,
-        account: accounts.RandomOne.account,
+        account: accounts.User2.account,
       });
 
       // Verify the record was created with secondRelayer as the relayer
       const taggingRecordId = await contracts.ETS.read.computeTaggingRecordIdFromRawInput([
         newRecord,
         contracts.secondRelayer.address,
-        accounts.RandomOne.account.address,
+        accounts.User2.account.address,
       ]);
 
       const record = await contracts.ETS.read.getTaggingRecordFromId([taggingRecordId]);
@@ -635,7 +635,7 @@ describe("ETS Relayer Tests", async () => {
         [[appendRecord], contracts.ETSRelayer.address],
         {
           value: taggingFee,
-          account: accounts.RandomOne.account,
+          account: accounts.User2.account,
         },
       );
 
@@ -654,7 +654,7 @@ describe("ETS Relayer Tests", async () => {
         [[replaceRecord], contracts.ETSRelayer.address],
         {
           value: taggingFee,
-          account: accounts.RandomOne.account,
+          account: accounts.User2.account,
         },
       );
 
@@ -672,7 +672,7 @@ describe("ETS Relayer Tests", async () => {
       const tx = await contracts.secondRelayer.write.removeTagsViaRelayer(
         [[removeRecord], contracts.ETSRelayer.address],
         {
-          account: accounts.RandomOne.account,
+          account: accounts.User2.account,
         },
       );
 

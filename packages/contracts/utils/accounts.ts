@@ -9,7 +9,7 @@
  * - Position 1: ETSPlatform - Platform operations, fee collection
  * - Position 2: ETSEventProcessor - Temporal workflow callbacks & event processing
  * - Position 3: ETSZora - Zora coin creation, profile-linked
- * - Position 4+: Test accounts (Buyer, RandomOne, RandomTwo, Creator, etc.)
+ * - Position 4-7: Test accounts (User1, User2, User3, User4)
  */
 
 // Use 'any' for WalletClient type to avoid complex viem type issues
@@ -19,10 +19,10 @@ export interface ETSAccounts {
   ETSPlatform: any;
   ETSEventProcessor: any;
   ETSZora: any;
-  Buyer: any;
-  RandomOne: any;
-  RandomTwo: any;
-  Creator: any;
+  User1: any;
+  User2: any;
+  User3: any;
+  User4: any;
 }
 
 /**
@@ -43,10 +43,10 @@ export function getETSAccounts(walletClients: any[]): ETSAccounts {
     ETSZora: walletClients[3], // Position 3: Zora integration
 
     // Test accounts (positions 4-7)
-    Buyer: walletClients[4], // Position 4: Test buyer account
-    RandomOne: walletClients[5], // Position 5: Test account one
-    RandomTwo: walletClients[6], // Position 6: Test account two
-    Creator: walletClients[7], // Position 7: Test creator account
+    User1: walletClients[4], // Position 4: General test user
+    User2: walletClients[5], // Position 5: General test user
+    User3: walletClients[6], // Position 6: General test user
+    User4: walletClients[7], // Position 7: General test user
   };
 }
 
@@ -61,10 +61,10 @@ export function getAccountPosition(role: keyof ETSAccounts): number {
     ETSPlatform: 1,
     ETSEventProcessor: 2,
     ETSZora: 3,
-    Buyer: 4,
-    RandomOne: 5,
-    RandomTwo: 6,
-    Creator: 7,
+    User1: 4,
+    User2: 5,
+    User3: 6,
+    User4: 7,
   };
 
   return positions[role];
@@ -78,8 +78,8 @@ export const ROLE_DESCRIPTIONS = {
   ETSPlatform: "Platform operations and fee management",
   ETSEventProcessor: "Automated event processing and workflow callbacks",
   ETSZora: "Zora protocol integration and coin creation",
-  Buyer: "Test account for purchasing operations",
-  RandomOne: "General purpose test account",
-  RandomTwo: "General purpose test account",
-  Creator: "Test account for creator operations",
+  User1: "General purpose test account",
+  User2: "General purpose test account",
+  User3: "General purpose test account",
+  User4: "General purpose test account",
 } as const;

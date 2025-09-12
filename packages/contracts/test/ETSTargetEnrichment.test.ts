@@ -13,10 +13,10 @@ describe("ETS Target Enrichment Flow tests", async () => {
 
   // Create a target to use in tests
   targetId = await contracts.ETSTarget.read.computeTargetId([targetURI]);
-  await contracts.ETSTarget.write.getOrCreateTargetId([targetURI], { account: accounts.RandomOne.account });
+  await contracts.ETSTarget.write.getOrCreateTargetId([targetURI], { account: accounts.User2.account });
 
   // Set up event processor role
-  eventProcessorSigner = accounts.RandomTwo; // Use RandomTwo as our event processor
+  eventProcessorSigner = accounts.User3; // Use User3 as our event processor
   const eventProcessorRole = await contracts.ETSAccessControls.read.EVENT_PROCESSOR_ROLE();
   await contracts.ETSAccessControls.write.grantRole([eventProcessorRole, eventProcessorSigner.account.address], {
     account: accounts.ETSPlatform.account,
@@ -38,17 +38,17 @@ describe("ETS Target Enrichment Flow tests", async () => {
 
     it("should emit EnrichTargetRequested event for manual enrichment", async () => {
       // TODO: Event testing needs to be implemented with viem
-      await contracts.ETSEnrichTarget.write.requestEnrichTarget([targetId], { account: accounts.RandomOne.account });
-      // await expect(contracts.ETSEnrichTarget.connect(accounts.RandomOne).requestEnrichTarget(targetId))
+      await contracts.ETSEnrichTarget.write.requestEnrichTarget([targetId], { account: accounts.User2.account });
+      // await expect(contracts.ETSEnrichTarget.connect(accounts.User2).requestEnrichTarget(targetId))
       //   .to.emit(contracts.ETSEnrichTarget, "EnrichTargetRequested")
-      //   .withArgs(targetId, accounts.RandomOne.address);
+      //   .withArgs(targetId, accounts.User2.address);
     });
 
     it("should revert when requesting enrichment for non-existent target", async () => {
       const nonExistentTargetId = 999999n;
       try {
         await contracts.ETSEnrichTarget.write.requestEnrichTarget([nonExistentTargetId], {
-          account: accounts.RandomOne.account,
+          account: accounts.User2.account,
         });
         assert.fail("Should have reverted");
       } catch (error: any) {
@@ -102,7 +102,7 @@ describe("ETS Target Enrichment Flow tests", async () => {
       try {
         await contracts.ETSTarget.write.updateTarget(
           [targetId, targetURI, enrichedTimestamp, mockHttpStatus, mockArweaveTxId],
-          { account: accounts.RandomOne.account },
+          { account: accounts.User2.account },
         );
         assert.fail("Should have reverted");
       } catch (error: any) {
@@ -136,8 +136,8 @@ describe("ETS Target Enrichment Flow tests", async () => {
 
       // Step 1: Target creation emits TargetCreated event
       // TODO: Event testing needs to be implemented with viem
-      await contracts.ETSTarget.write.getOrCreateTargetId([newTargetURI], { account: accounts.RandomOne.account });
-      // await expect(contracts.ETSTarget.connect(accounts.RandomOne).createTarget(newTargetURI))
+      await contracts.ETSTarget.write.getOrCreateTargetId([newTargetURI], { account: accounts.User2.account });
+      // await expect(contracts.ETSTarget.connect(accounts.User2).createTarget(newTargetURI))
       //   .to.emit(contracts.ETSTarget, "TargetCreated")
       //   .withArgs(newTargetId);
 
@@ -162,10 +162,10 @@ describe("ETS Target Enrichment Flow tests", async () => {
 
       // Step 1: Consumer requests manual enrichment
       // TODO: Event testing needs to be implemented with viem
-      await contracts.ETSEnrichTarget.write.requestEnrichTarget([targetId], { account: accounts.RandomOne.account });
-      // await expect(contracts.ETSEnrichTarget.connect(accounts.RandomOne).requestEnrichTarget(targetId))
+      await contracts.ETSEnrichTarget.write.requestEnrichTarget([targetId], { account: accounts.User2.account });
+      // await expect(contracts.ETSEnrichTarget.connect(accounts.User2).requestEnrichTarget(targetId))
       //   .to.emit(contracts.ETSEnrichTarget, "EnrichTargetRequested")
-      //   .withArgs(targetId, accounts.RandomOne.address);
+      //   .withArgs(targetId, accounts.User2.address);
 
       // Step 2: Simulate event processor processing the EnrichTargetRequested event
       const mockArweaveTxId = "MOCK_json_c3d4e5f6_1735123458";
@@ -246,7 +246,7 @@ describe("ETS Target Enrichment Flow tests", async () => {
         const testTargetId = await contracts.ETSTarget.read.computeTargetId([testTargetURI]);
 
         // Create target
-        await contracts.ETSTarget.write.getOrCreateTargetId([testTargetURI], { account: accounts.RandomOne.account });
+        await contracts.ETSTarget.write.getOrCreateTargetId([testTargetURI], { account: accounts.User2.account });
 
         // Enrich with mock data
         await contracts.ETSTarget.write.updateTarget(
@@ -275,7 +275,7 @@ describe("ETS Target Enrichment Flow tests", async () => {
         const testTargetId = await contracts.ETSTarget.read.computeTargetId([testTargetURI]);
 
         // Create target
-        await contracts.ETSTarget.write.getOrCreateTargetId([testTargetURI], { account: accounts.RandomOne.account });
+        await contracts.ETSTarget.write.getOrCreateTargetId([testTargetURI], { account: accounts.User2.account });
 
         // Enrich with status code
         const mockTxId = statusCode.status === 200 ? "MOCK_json_success_123" : "";
@@ -299,8 +299,8 @@ describe("ETS Target Enrichment Flow tests", async () => {
 
       // Verify it emits the correct event
       // TODO: Event testing needs to be implemented with viem
-      await contracts.ETSEnrichTarget.write.requestEnrichTarget([targetId], { account: accounts.RandomOne.account });
-      // await expect(contracts.ETSEnrichTarget.connect(accounts.RandomOne).requestEnrichTarget(targetId)).to.emit(
+      await contracts.ETSEnrichTarget.write.requestEnrichTarget([targetId], { account: accounts.User2.account });
+      // await expect(contracts.ETSEnrichTarget.connect(accounts.User2).requestEnrichTarget(targetId)).to.emit(
       //   contracts.ETSEnrichTarget,
       //   "EnrichTargetRequested",
       // );

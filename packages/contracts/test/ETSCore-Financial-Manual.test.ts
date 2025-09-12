@@ -5,14 +5,14 @@ import { network } from "hardhat";
 describe("ETS Core Financial - Manual Deployment Test", async () => {
   const { viem } = await network.connect();
   const publicClient = await viem.getPublicClient();
-  const [admin, platform, oracle, creator, randomOne, randomTwo] = await viem.getWalletClients();
+  const [admin, platform, oracle, user4, user2, user3] = await viem.getWalletClients();
 
   it("should handle ETH flow correctly with manual deployment", async () => {
     console.log("🔧 Testing ETH flow with manual contract deployment...");
 
     // Get initial balances
-    const randomTwoBalanceBefore = await publicClient.getBalance({ address: randomTwo.account.address });
-    console.log("RandomTwo balance before:", randomTwoBalanceBefore);
+    const user3BalanceBefore = await publicClient.getBalance({ address: user3.account.address });
+    console.log("User3 balance before:", user3BalanceBefore);
 
     // TODO: Manual deployment of minimal ETS contracts needed for fee testing
     // For now, let's test if we can even get basic contract interactions working
@@ -20,7 +20,7 @@ describe("ETS Core Financial - Manual Deployment Test", async () => {
     // Create a simple transaction to verify ETH handling works
     const testAmount = 100000000000000000n; // 0.1 ETH
 
-    const txHash = await randomTwo.sendTransaction({
+    const txHash = await user3.sendTransaction({
       to: platform.account.address,
       value: testAmount,
     });
@@ -32,15 +32,15 @@ describe("ETS Core Financial - Manual Deployment Test", async () => {
     console.log("Gas used:", receipt.gasUsed);
 
     // Check balances after
-    const randomTwoBalanceAfter = await publicClient.getBalance({ address: randomTwo.account.address });
+    const user3BalanceAfter = await publicClient.getBalance({ address: user3.account.address });
     const platformBalanceAfter = await publicClient.getBalance({ address: platform.account.address });
 
-    const randomTwoSpent = randomTwoBalanceBefore - randomTwoBalanceAfter;
-    console.log("RandomTwo spent (including gas):", randomTwoSpent);
+    const user3Spent = user3BalanceBefore - user3BalanceAfter;
+    console.log("User3 spent (including gas):", user3Spent);
     console.log("Platform received:", testAmount);
 
     // Verify basic ETH transfer works
-    assert.ok(randomTwoSpent >= testAmount, "RandomTwo should have spent at least the test amount");
+    assert.ok(user3Spent >= testAmount, "User3 should have spent at least the test amount");
 
     console.log("✅ Basic ETH transfer works - issue is likely with Ignition fixtures");
   });

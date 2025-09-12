@@ -33,7 +33,7 @@ describe("ETSToken Tests", async () => {
     it("should be able to set max tag length", async () => {
       // Test that non-admin cannot set max tag length
       try {
-        await contracts.ETSToken.write.setTagMaxStringLength([55], { account: accounts.Buyer.account });
+        await contracts.ETSToken.write.setTagMaxStringLength([55], { account: accounts.User1.account });
         assert.fail("Should have reverted");
       } catch (error: any) {
         assert.ok(error.message.includes("revert") || error.message.includes("AccessDenied"));
@@ -50,7 +50,7 @@ describe("ETSToken Tests", async () => {
     it("should be able to set min tag length", async () => {
       // Test that non-admin cannot set min tag length
       try {
-        await contracts.ETSToken.write.setTagMinStringLength([5], { account: accounts.Buyer.account });
+        await contracts.ETSToken.write.setTagMinStringLength([5], { account: accounts.User1.account });
         assert.fail("Should have reverted");
       } catch (error: any) {
         assert.ok(error.message.includes("revert") || error.message.includes("AccessDenied"));
@@ -113,7 +113,7 @@ describe("ETSToken Tests", async () => {
       const tag = "#TestTagExists";
 
       // Create TAG through ETS core (using write with account)
-      await contracts.ETS.write.createTag([tag, accounts.RandomTwo.account.address], {
+      await contracts.ETS.write.createTag([tag, accounts.User3.account.address], {
         account: accounts.ETSPlatform.account,
       });
 
@@ -136,7 +136,7 @@ describe("ETSToken Tests", async () => {
       const tag = "#TestTagString";
 
       // Create TAG through ETS core (using write with account)
-      await contracts.ETS.write.createTag([tag, accounts.RandomTwo.account.address], {
+      await contracts.ETS.write.createTag([tag, accounts.User3.account.address], {
         account: accounts.ETSPlatform.account,
       });
 
@@ -148,7 +148,7 @@ describe("ETSToken Tests", async () => {
       const tag = "#TestTagCase";
 
       // Create TAG through ETS core (using write with account)
-      await contracts.ETS.write.createTag([tag, accounts.RandomTwo.account.address], {
+      await contracts.ETS.write.createTag([tag, accounts.User3.account.address], {
         account: accounts.ETSPlatform.account,
       });
 
@@ -174,7 +174,7 @@ describe("ETSToken Tests", async () => {
 
     it("should return correct TAG data for existing TAG", async () => {
       const tag = "#TestTagByAddress";
-      const creator = accounts.RandomTwo.account.address;
+      const creator = accounts.User3.account.address;
 
       // Create TAG through ETS core via relayer
       await contracts.ETS.write.createTag([tag, creator], { account: accounts.ETSPlatform.account });
@@ -204,7 +204,7 @@ describe("ETSToken Tests", async () => {
 
     it("should return correct TAG data for existing TAG", async () => {
       const tag = "#TestTagByString";
-      const creator = accounts.RandomTwo.account.address;
+      const creator = accounts.User3.account.address;
 
       // Create TAG through ETS core via relayer
       await contracts.ETS.write.createTag([tag, creator], { account: accounts.ETSPlatform.account });

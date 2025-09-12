@@ -30,8 +30,8 @@ describe("ETS Target tests", async () => {
 
     it("should revert if caller is not administrator", async () => {
       try {
-        await contracts.ETSTarget.write.setAccessControls([accounts.RandomOne.account.address], {
-          account: accounts.RandomTwo.account,
+        await contracts.ETSTarget.write.setAccessControls([accounts.User2.account.address], {
+          account: accounts.User3.account,
         });
         assert.fail("Should have reverted");
       } catch (error: any) {
@@ -41,7 +41,7 @@ describe("ETS Target tests", async () => {
 
     it("should revert if a access controls is set to a non-access control contract", async () => {
       try {
-        await contracts.ETSTarget.write.setAccessControls([accounts.RandomTwo.account.address], {
+        await contracts.ETSTarget.write.setAccessControls([accounts.User3.account.address], {
           account: accounts.ETSPlatform.account,
         });
         assert.fail("Should have reverted");
@@ -61,7 +61,7 @@ describe("ETS Target tests", async () => {
     //
     //   // Random is not set as admin in access controls.
     //   await expect(
-    //     contracts.ETSTarget.connect(accounts.RandomOne).setAccessControls(await ETSAccessControlsNew.getAddress()),
+    //     contracts.ETSTarget.connect(accounts.User2).setAccessControls(await ETSAccessControlsNew.getAddress()),
     //   ).to.be.revertedWithCustomError(contracts.ETSTarget, "AccessDenied");
     // });
 
@@ -106,24 +106,24 @@ describe("ETS Target tests", async () => {
   describe("Getting a target object", async () => {
     it("should work with either target URI or target Id", async () => {
       const uniqueTargetURI = "https://example.com/target-object-test";
-      await contracts.ETSTarget.write.getOrCreateTargetId([uniqueTargetURI], { account: accounts.RandomOne.account });
+      await contracts.ETSTarget.write.getOrCreateTargetId([uniqueTargetURI], { account: accounts.User2.account });
       // Fetch target object using target URI string.
       const targetObjViaURI = await contracts.ETSTarget.read.getTargetByURI([uniqueTargetURI]);
       assert.equal(targetObjViaURI.targetURI, uniqueTargetURI);
-      assert.equal(targetObjViaURI.createdBy.toLowerCase(), accounts.RandomOne.account.address.toLowerCase());
+      assert.equal(targetObjViaURI.createdBy.toLowerCase(), accounts.User2.account.address.toLowerCase());
 
       // Fetch target object using target Id.
       const targetId = await contracts.ETSTarget.read.computeTargetId([uniqueTargetURI]);
       const targetObjViaId = await contracts.ETSTarget.read.getTargetById([targetId]);
       assert.equal(targetObjViaId.targetURI, uniqueTargetURI);
-      assert.equal(targetObjViaId.createdBy.toLowerCase(), accounts.RandomOne.account.address.toLowerCase());
+      assert.equal(targetObjViaId.createdBy.toLowerCase(), accounts.User2.account.address.toLowerCase());
     });
   });
 
   describe("Updating a target object", async () => {
     // TODO: Complex test requiring block/timestamp access - skip for now
     // it("should revert when attempted directly", async () => {
-    //   await contracts.ETSTarget.write.getOrCreateTargetId([targetURI], { account: accounts.RandomOne.account });
+    //   await contracts.ETSTarget.write.getOrCreateTargetId([targetURI], { account: accounts.User2.account });
     //   const targetId = await contracts.ETSTarget.read.computeTargetId([targetURI]);
     //   const blockNum = await ethers.provider.getBlockNumber();
     //   const block = await ethers.provider.getBlock(blockNum);
@@ -140,14 +140,14 @@ describe("ETS Target tests", async () => {
     //       timestamp,
     //       404,
     //       "https://bafybeiaomvioo67qmjk3zhuv4oqyp5ylzppvhqzqypqdslei6elsi2nr3m.ipfs.infura-ipfs.io/",
-    //     ], { account: accounts.RandomOne.account });
+    //     ], { account: accounts.User2.account });
     //     assert.fail("Should have reverted");
     //   } catch (error: any) {
     //     assert.ok(error.message.includes("revert") || error.message.includes("AccessDenied"));
     //   }
     // });
     /*     it("should succeed via ETSEnrichTarget", async () => {
-      await contracts.ETSTarget.connect(accounts.RandomOne).getOrCreateTargetId(targetURI);
+      await contracts.ETSTarget.connect(accounts.User2).getOrCreateTargetId(targetURI);
       const targetId = await contracts.ETSTarget.computeTargetId(targetURI);
 
       await expect(

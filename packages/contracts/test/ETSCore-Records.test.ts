@@ -30,8 +30,8 @@ describe("ETS Core Records Management", async () => {
       };
       try {
         await contracts.ETS.write.applyTagsWithRawInput(
-          [rawInput, accounts.RandomOne.account.address, accounts.ETSPlatform.account.address],
-          { account: accounts.RandomOne.account },
+          [rawInput, accounts.User2.account.address, accounts.ETSPlatform.account.address],
+          { account: accounts.User2.account },
         );
         assert.fail("Should have reverted");
       } catch (error: any) {
@@ -42,8 +42,8 @@ describe("ETS Core Records Management", async () => {
     it("should revert when caller is not an enabled Relayer", async () => {
       try {
         await contracts.ETS.write.applyTagsWithCompositeKey(
-          [[etsTag1], targetId, "bookmark", accounts.RandomOne.account.address, accounts.ETSPlatform.account.address],
-          { account: accounts.RandomOne.account },
+          [[etsTag1], targetId, "bookmark", accounts.User2.account.address, accounts.ETSPlatform.account.address],
+          { account: accounts.User2.account },
         );
         assert.fail("Should have reverted");
       } catch (error: any) {
@@ -54,7 +54,7 @@ describe("ETS Core Records Management", async () => {
     it("should revert when no tags are supplied", async () => {
       try {
         await contracts.ETS.write.applyTagsWithCompositeKey(
-          [[], targetId, "bookmark", accounts.RandomOne.account.address, accounts.ETSPlatform.account.address],
+          [[], targetId, "bookmark", accounts.User2.account.address, accounts.ETSPlatform.account.address],
           { account: accounts.ETSPlatform.account },
         );
         assert.fail("Should have reverted");
@@ -70,7 +70,7 @@ describe("ETS Core Records Management", async () => {
             [etsTag1],
             targetId,
             "reallyReallyreallyReallyreallyReallyreallyReallyreallyReallyreallyReallyLongRecordType",
-            accounts.RandomOne.account.address,
+            accounts.User2.account.address,
             accounts.ETSPlatform.account.address,
           ],
           {
@@ -91,7 +91,7 @@ describe("ETS Core Records Management", async () => {
             [etsTag1, userTag1],
             targetId,
             "bookmark",
-            accounts.RandomOne.account.address,
+            accounts.User2.account.address,
             accounts.ETSPlatform.account.address,
           ],
           {
@@ -109,7 +109,7 @@ describe("ETS Core Records Management", async () => {
       const tags = [etsTag1];
       // TODO: Event testing needs to be implemented with viem
       await contracts.ETS.write.applyTagsWithCompositeKey(
-        [tags, targetId, "bookmark", accounts.RandomOne.account.address, accounts.ETSPlatform.account.address],
+        [tags, targetId, "bookmark", accounts.User2.account.address, accounts.ETSPlatform.account.address],
         {
           value: taggingFee,
           account: accounts.ETSPlatform.account,
@@ -123,7 +123,7 @@ describe("ETS Core Records Management", async () => {
       const tags = [etsTag1];
       // TODO: Event testing needs to be implemented with viem
       await contracts.ETS.write.applyTagsWithCompositeKey(
-        [tags, targetId, "bookmark-zero-fee", accounts.RandomOne.account.address, accounts.ETSPlatform.account.address],
+        [tags, targetId, "bookmark-zero-fee", accounts.User2.account.address, accounts.ETSPlatform.account.address],
         { account: accounts.ETSPlatform.account },
       );
       // await expect(tx).to.emit(contracts.ETS, "TaggingRecordCreated");
@@ -132,7 +132,7 @@ describe("ETS Core Records Management", async () => {
     it("should have the correct number of tags", async () => {
       // Create completely new tags to avoid conflicts
       await contracts.ETSRelayer.write.getOrCreateTagIds([["#MultiTag1", "#MultiTag2", "#MultiTag3"]], {
-        account: accounts.Creator.account,
+        account: accounts.User4.account,
       });
 
       const multiTag1 = await contracts.ETSToken.read.computeCoinAddress(["#MultiTag1"]);
@@ -147,7 +147,7 @@ describe("ETS Core Records Management", async () => {
         targetId,
         "bookmark-multi-tag",
         accounts.ETSPlatform.account.address,
-        accounts.RandomOne.account.address,
+        accounts.User2.account.address,
         0, // APPLY action
       ]);
 
@@ -158,7 +158,7 @@ describe("ETS Core Records Management", async () => {
           tags,
           targetId,
           "bookmark-multi-tag",
-          accounts.RandomOne.account.address,
+          accounts.User2.account.address,
           accounts.ETSPlatform.account.address,
         ],
         {
@@ -172,7 +172,7 @@ describe("ETS Core Records Management", async () => {
         targetId,
         "bookmark-multi-tag",
         accounts.ETSPlatform.account.address,
-        accounts.RandomOne.account.address,
+        accounts.User2.account.address,
       ]);
 
       // Try to get the record by ID first
@@ -194,7 +194,7 @@ describe("ETS Core Records Management", async () => {
         targetId,
         "bookmark-multi-tag",
         accounts.ETSPlatform.account.address,
-        accounts.RandomOne.account.address,
+        accounts.User2.account.address,
       ]);
 
       if (!taggingRecord) {
@@ -221,7 +221,7 @@ describe("ETS Core Records Management", async () => {
         appendTags,
         targetId,
         "bookmark-append",
-        accounts.RandomOne.account.address,
+        accounts.User2.account.address,
         accounts.ETSPlatform.account.address,
       ],
       {
@@ -234,7 +234,7 @@ describe("ETS Core Records Management", async () => {
       targetId,
       "bookmark-append",
       accounts.ETSPlatform.account.address,
-      accounts.RandomOne.account.address,
+      accounts.User2.account.address,
     ]);
 
     describe("using tagging record raw input", async () => {
@@ -246,7 +246,7 @@ describe("ETS Core Records Management", async () => {
         };
         try {
           await contracts.ETS.write.applyTagsWithRawInput(
-            [rawInput, accounts.RandomOne.account.address, accounts.ETSPlatform.account.address],
+            [rawInput, accounts.User2.account.address, accounts.ETSPlatform.account.address],
             {
               value: taggingFee, // Insufficient fee - should be 3x for 3 new tags
               account: accounts.ETSPlatform.account,
@@ -270,13 +270,13 @@ describe("ETS Core Records Management", async () => {
         const [expectedFee, tagCount] = await contracts.ETS.read.computeTaggingFeeFromRawInput([
           rawInput,
           accounts.ETSPlatform.account.address,
-          accounts.RandomOne.account.address,
+          accounts.User2.account.address,
           0, // APPLY action
         ]);
 
         // TODO: Event testing needs to be implemented with viem
         await contracts.ETS.write.applyTagsWithRawInput(
-          [rawInput, accounts.RandomOne.account.address, accounts.ETSPlatform.account.address],
+          [rawInput, accounts.User2.account.address, accounts.ETSPlatform.account.address],
           {
             value: expectedFee, // Use computed fee
             account: accounts.ETSPlatform.account,
@@ -308,12 +308,12 @@ describe("ETS Core Records Management", async () => {
         const [expectedFee, tagCount] = await contracts.ETS.read.computeTaggingFeeFromRawInput([
           rawInput,
           accounts.ETSPlatform.account.address,
-          accounts.RandomOne.account.address,
+          accounts.User2.account.address,
           0, // APPLY action
         ]);
 
         await contracts.ETS.write.applyTagsWithRawInput(
-          [rawInput, accounts.RandomOne.account.address, accounts.ETSPlatform.account.address],
+          [rawInput, accounts.User2.account.address, accounts.ETSPlatform.account.address],
           {
             value: expectedFee, // Use computed fee
             account: accounts.ETSPlatform.account,
@@ -337,7 +337,7 @@ describe("ETS Core Records Management", async () => {
       it("should revert when insufficient tagging fee is supplied", async () => {
         // Create new unique tags for this test
         await contracts.ETSRelayer.write.getOrCreateTagIds([["#uniqueTag1", "#uniqueTag2"]], {
-          account: accounts.Creator.account,
+          account: accounts.User4.account,
         });
         const uniqueTag1 = await contracts.ETSToken.read.computeCoinAddress(["#uniqueTag1"]);
         const uniqueTag2 = await contracts.ETSToken.read.computeCoinAddress(["#uniqueTag2"]);
@@ -349,7 +349,7 @@ describe("ETS Core Records Management", async () => {
               tags,
               targetId,
               "bookmark-append",
-              accounts.RandomOne.account.address,
+              accounts.User2.account.address,
               accounts.ETSPlatform.account.address,
             ],
             {
@@ -366,7 +366,7 @@ describe("ETS Core Records Management", async () => {
       it("should emit TaggingRecordUpdated", async () => {
         // Create new unique tags for this test
         await contracts.ETSRelayer.write.getOrCreateTagIds([["#compKeyTag1", "#compKeyTag2"]], {
-          account: accounts.Creator.account,
+          account: accounts.User4.account,
         });
         const compKeyTag1 = await contracts.ETSToken.read.computeCoinAddress(["#compKeyTag1"]);
         const compKeyTag2 = await contracts.ETSToken.read.computeCoinAddress(["#compKeyTag2"]);
@@ -377,7 +377,7 @@ describe("ETS Core Records Management", async () => {
           targetId,
           "bookmark-append",
           accounts.ETSPlatform.account.address,
-          accounts.RandomOne.account.address,
+          accounts.User2.account.address,
           0, // APPLY action
         ]);
 
@@ -387,7 +387,7 @@ describe("ETS Core Records Management", async () => {
             [compKeyTag1, compKeyTag2],
             targetId,
             "bookmark-append",
-            accounts.RandomOne.account.address,
+            accounts.User2.account.address,
             accounts.ETSPlatform.account.address,
           ],
           {
@@ -403,7 +403,7 @@ describe("ETS Core Records Management", async () => {
       it("should revert when insufficient tagging fee is supplied", async () => {
         // Create completely new tags to avoid fee conflicts
         await contracts.ETSRelayer.write.getOrCreateTagIds([["#appendTag1", "#appendTag2", "#appendTag3"]], {
-          account: accounts.Creator.account,
+          account: accounts.User4.account,
         });
         const appendTag1 = await contracts.ETSToken.read.computeCoinAddress(["#appendTag1"]);
         const appendTag2 = await contracts.ETSToken.read.computeCoinAddress(["#appendTag2"]);
@@ -412,7 +412,7 @@ describe("ETS Core Records Management", async () => {
         const tagsToAppend = [appendTag1, appendTag2, appendTag3];
         try {
           await contracts.ETS.write.appendTags(
-            [appendTaggingRecordId, tagsToAppend, accounts.RandomOne.account.address],
+            [appendTaggingRecordId, tagsToAppend, accounts.User2.account.address],
             {
               value: taggingFee, // Insufficient fee - should be 3x for 3 new tags
               account: accounts.ETSPlatform.account,
@@ -439,7 +439,7 @@ describe("ETS Core Records Management", async () => {
 
         // Create completely new tags to avoid fee conflicts
         await contracts.ETSRelayer.write.getOrCreateTagIds([["#recordIdTag1", "#recordIdTag2"]], {
-          account: accounts.Creator.account,
+          account: accounts.User4.account,
         });
         const recordIdTag1 = await contracts.ETSToken.read.computeCoinAddress(["#recordIdTag1"]);
         const recordIdTag2 = await contracts.ETSToken.read.computeCoinAddress(["#recordIdTag2"]);
@@ -455,7 +455,7 @@ describe("ETS Core Records Management", async () => {
 
         // TODO: Event testing needs to be implemented with viem
         await contracts.ETS.write.appendTags(
-          [appendTaggingRecordId, tagsToAppend, accounts.RandomOne.account.address],
+          [appendTaggingRecordId, tagsToAppend, accounts.User2.account.address],
           {
             value: expectedFee, // Use computed fee
             account: accounts.ETSPlatform.account,
@@ -477,7 +477,7 @@ describe("ETS Core Records Management", async () => {
       it("must be performed by the original tagger", async () => {
         // Create new tags to avoid fee conflicts
         await contracts.ETSRelayer.write.getOrCreateTagIds([["#authTag1", "#authTag2"]], {
-          account: accounts.Creator.account,
+          account: accounts.User4.account,
         });
         const authTag1 = await contracts.ETSToken.read.computeCoinAddress(["#authTag1"]);
         const authTag2 = await contracts.ETSToken.read.computeCoinAddress(["#authTag2"]);
@@ -488,7 +488,7 @@ describe("ETS Core Records Management", async () => {
             [
               appendTaggingRecordId,
               tagsToAppend,
-              accounts.RandomTwo.account.address, // different tagger
+              accounts.User3.account.address, // different tagger
             ],
             {
               value: taggingFee * 2n,
@@ -511,7 +511,7 @@ describe("ETS Core Records Management", async () => {
         removeTags,
         targetId,
         "bookmark-remove",
-        accounts.RandomOne.account.address,
+        accounts.User2.account.address,
         accounts.ETSPlatform.account.address,
       ],
       {
@@ -524,7 +524,7 @@ describe("ETS Core Records Management", async () => {
       targetId,
       "bookmark-remove",
       accounts.ETSPlatform.account.address,
-      accounts.RandomOne.account.address,
+      accounts.User2.account.address,
     ]);
 
     describe("using taggingRecord raw input", async () => {
@@ -536,7 +536,7 @@ describe("ETS Core Records Management", async () => {
         };
         try {
           await contracts.ETS.write.removeTagsWithRawInput(
-            [rawInput, accounts.RandomOne.account.address, accounts.ETSPlatform.account.address],
+            [rawInput, accounts.User2.account.address, accounts.ETSPlatform.account.address],
             { account: accounts.ETSPlatform.account },
           );
           assert.fail("Should have reverted");
@@ -553,7 +553,7 @@ describe("ETS Core Records Management", async () => {
         };
         try {
           await contracts.ETS.write.removeTagsWithRawInput(
-            [rawInput, accounts.RandomOne.account.address, accounts.ETSPlatform.account.address],
+            [rawInput, accounts.User2.account.address, accounts.ETSPlatform.account.address],
             { account: accounts.ETSPlatform.account },
           );
           assert.fail("Should have reverted");
@@ -582,7 +582,7 @@ describe("ETS Core Records Management", async () => {
         };
         // TODO: Event testing needs to be implemented with viem
         await contracts.ETS.write.removeTagsWithRawInput(
-          [rawInput, accounts.RandomOne.account.address, accounts.ETSPlatform.account.address],
+          [rawInput, accounts.User2.account.address, accounts.ETSPlatform.account.address],
           { account: accounts.ETSPlatform.account },
         );
 
@@ -603,7 +603,7 @@ describe("ETS Core Records Management", async () => {
       it("should revert if no tags supplied", async () => {
         try {
           await contracts.ETS.write.removeTagsWithCompositeKey(
-            [[], targetId, "bookmark-remove", accounts.RandomOne.account.address, accounts.ETSPlatform.account.address],
+            [[], targetId, "bookmark-remove", accounts.User2.account.address, accounts.ETSPlatform.account.address],
             { account: accounts.ETSPlatform.account },
           );
           assert.fail("Should have reverted");
@@ -632,7 +632,7 @@ describe("ETS Core Records Management", async () => {
             removeTags,
             targetId,
             "bookmark-remove",
-            accounts.RandomOne.account.address,
+            accounts.User2.account.address,
             accounts.ETSPlatform.account.address,
           ],
           { account: accounts.ETSPlatform.account },
@@ -662,7 +662,7 @@ describe("ETS Core Records Management", async () => {
           targetId,
           "bookmark-remove-fresh",
           accounts.ETSPlatform.account.address, // relayer
-          accounts.RandomOne.account.address, // tagger
+          accounts.User2.account.address, // tagger
           0, // APPLY action
         ]);
 
@@ -671,7 +671,7 @@ describe("ETS Core Records Management", async () => {
             freshRecordTags,
             targetId,
             "bookmark-remove-fresh",
-            accounts.RandomOne.account.address,
+            accounts.User2.account.address,
             accounts.ETSPlatform.account.address,
           ],
           {
@@ -684,7 +684,7 @@ describe("ETS Core Records Management", async () => {
           targetId,
           "bookmark-remove-fresh",
           accounts.ETSPlatform.account.address,
-          accounts.RandomOne.account.address,
+          accounts.User2.account.address,
         ]);
 
         let taggingRecord = await contracts.ETS.read.getTaggingRecordFromId([freshRecordId]);
@@ -704,7 +704,7 @@ describe("ETS Core Records Management", async () => {
           [
             freshRecordId,
             [etsTag1], // Remove etsTag1 which should be there
-            accounts.RandomOne.account.address,
+            accounts.User2.account.address,
           ],
           { account: accounts.ETSPlatform.account },
         );
@@ -727,7 +727,7 @@ describe("ETS Core Records Management", async () => {
             [
               removeTaggingRecordId,
               [etsTag1], // Try to remove a tag that exists
-              accounts.RandomTwo.account.address, // Different tagger
+              accounts.User3.account.address, // Different tagger
             ],
             { account: accounts.ETSPlatform.account },
           );
@@ -747,7 +747,7 @@ describe("ETS Core Records Management", async () => {
         replaceTags,
         targetId,
         "bookmark-replace",
-        accounts.RandomOne.account.address,
+        accounts.User2.account.address,
         accounts.ETSPlatform.account.address,
       ],
       {
@@ -760,7 +760,7 @@ describe("ETS Core Records Management", async () => {
       targetId,
       "bookmark-replace",
       accounts.ETSPlatform.account.address,
-      accounts.RandomOne.account.address,
+      accounts.User2.account.address,
     ]);
 
     describe("using taggingRecord raw input", async () => {
@@ -772,7 +772,7 @@ describe("ETS Core Records Management", async () => {
         };
         try {
           await contracts.ETS.write.replaceTagsWithRawInput(
-            [replacementRawInput, accounts.RandomOne.account.address, accounts.ETSPlatform.account.address],
+            [replacementRawInput, accounts.User2.account.address, accounts.ETSPlatform.account.address],
             {
               value: taggingFee, // Insufficient fee - should be 3x for 3 new tags
               account: accounts.ETSPlatform.account,
@@ -806,13 +806,13 @@ describe("ETS Core Records Management", async () => {
         const [expectedFee] = await contracts.ETS.read.computeTaggingFeeFromRawInput([
           replacementRawInput,
           accounts.ETSPlatform.account.address,
-          accounts.RandomOne.account.address,
+          accounts.User2.account.address,
           1, // REPLACE action
         ]);
 
         // TODO: Event testing needs to be implemented with viem
         await contracts.ETS.write.replaceTagsWithRawInput(
-          [replacementRawInput, accounts.RandomOne.account.address, accounts.ETSPlatform.account.address],
+          [replacementRawInput, accounts.User2.account.address, accounts.ETSPlatform.account.address],
           {
             value: expectedFee, // Use computed fee
             account: accounts.ETSPlatform.account,
@@ -853,7 +853,7 @@ describe("ETS Core Records Management", async () => {
           targetId,
           "bookmark-replace",
           accounts.ETSPlatform.account.address,
-          accounts.RandomOne.account.address,
+          accounts.User2.account.address,
           1, // REPLACE action
         ]);
 
@@ -863,7 +863,7 @@ describe("ETS Core Records Management", async () => {
             newTags,
             targetId,
             "bookmark-replace",
-            accounts.RandomOne.account.address,
+            accounts.User2.account.address,
             accounts.ETSPlatform.account.address,
           ],
           {
@@ -909,7 +909,7 @@ describe("ETS Core Records Management", async () => {
 
         // TODO: Event testing needs to be implemented with viem
         await contracts.ETS.write.replaceTags(
-          [replaceTaggingRecordId, replacementTags, accounts.RandomOne.account.address],
+          [replaceTaggingRecordId, replacementTags, accounts.User2.account.address],
           {
             value: expectedFee, // Use computed fee
             account: accounts.ETSPlatform.account,
@@ -935,7 +935,7 @@ describe("ETS Core Records Management", async () => {
             [
               replaceTaggingRecordId,
               replacementTags,
-              accounts.RandomTwo.account.address, // Different tagger
+              accounts.User3.account.address, // Different tagger
             ],
             {
               value: taggingFee * 3n, // Correct fee for 3 tags
@@ -960,7 +960,7 @@ describe("ETS Core Records Management", async () => {
     };
 
     await contracts.ETS.write.applyTagsWithRawInput(
-      [recordTagParams, accounts.RandomOne.account.address, accounts.ETSPlatform.account.address],
+      [recordTagParams, accounts.User2.account.address, accounts.ETSPlatform.account.address],
       {
         value: taggingFee * 2n,
         account: accounts.ETSPlatform.account,
@@ -972,7 +972,7 @@ describe("ETS Core Records Management", async () => {
       recordTestTargetId,
       "bookmark",
       accounts.ETSPlatform.account.address,
-      accounts.RandomOne.account.address,
+      accounts.User2.account.address,
     ]);
 
     it("should be retrievable by it's unique composite key", async () => {
@@ -980,7 +980,7 @@ describe("ETS Core Records Management", async () => {
         recordTestTargetId,
         "bookmark",
         accounts.ETSPlatform.account.address,
-        accounts.RandomOne.account.address,
+        accounts.User2.account.address,
       ]);
 
       if (!taggingRecord) {
@@ -1027,13 +1027,13 @@ describe("ETS Core Records Management", async () => {
       const [expectedFee] = await contracts.ETS.read.computeTaggingFeeFromRawInput([
         taggingRecordInputParams,
         accounts.ETSPlatform.account.address, // relayer
-        accounts.RandomTwo.account.address, // tagger
+        accounts.User3.account.address, // tagger
         0, // APPLY action
       ]);
 
       // RandomTwo is tagger, ETSPlatform is relayer.
       await contracts.ETS.write.applyTagsWithRawInput(
-        [taggingRecordInputParams, accounts.RandomTwo.account.address, accounts.ETSPlatform.account.address],
+        [taggingRecordInputParams, accounts.User3.account.address, accounts.ETSPlatform.account.address],
         {
           value: expectedFee,
           account: accounts.ETSPlatform.account,
@@ -1046,7 +1046,7 @@ describe("ETS Core Records Management", async () => {
         existingTargetId,
         "bookmark",
         accounts.ETSPlatform.account.address, // relayer
-        accounts.RandomTwo.account.address, // tagger
+        accounts.User3.account.address, // tagger
       ]);
 
       assert.notEqual(newTaggingRecordId.toString(), recordTestTaggingRecordId.toString());
@@ -1064,7 +1064,7 @@ describe("ETS Core Records Management", async () => {
 
       assert.equal(targetId.toString(), existingTargetId.toString());
       assert.equal(recordType, "bookmark");
-      assert.equal(tagger.toLowerCase(), accounts.RandomTwo.account.address.toLowerCase());
+      assert.equal(tagger.toLowerCase(), accounts.User3.account.address.toLowerCase());
       assert.equal(relayer.toLowerCase(), accounts.ETSPlatform.account.address.toLowerCase());
 
       for (let i = 0; i < coinAddresses.length; i++) {
@@ -1093,7 +1093,7 @@ describe("ETS Core Records Management", async () => {
       try {
         await contracts.ETSRelayer.write.applyTags([taggingRecords], {
           value: taggingFee * 2n,
-          account: accounts.RandomOne.account,
+          account: accounts.User2.account,
         });
         assert.fail("Should have reverted");
       } catch (error: any) {
@@ -1118,7 +1118,7 @@ describe("ETS Core Records Management", async () => {
       // TODO: Event testing needs to be implemented with viem
       await contracts.ETSRelayer.write.applyTags([taggingRecords], {
         value: taggingFee * 2n,
-        account: accounts.RandomOne.account,
+        account: accounts.User2.account,
       });
       // await expect(tx).to.emit(contracts.ETS, "TaggingRecordCreated");
     });

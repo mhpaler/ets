@@ -23,7 +23,7 @@ describe("ETS Core Tagging Fees", async () => {
           await contracts.ETS.read.computeTaggingFeeFromRawInput([
             rawInput,
             contracts.ETSRelayer.address,
-            accounts.RandomOne.account.address,
+            accounts.User2.account.address,
             4, // INVALID TaggingAction
           ]);
           assert.fail("Should have reverted");
@@ -41,7 +41,7 @@ describe("ETS Core Tagging Fees", async () => {
         const result = await contracts.ETS.read.computeTaggingFeeFromRawInput([
           rawInput,
           contracts.ETSRelayer.address,
-          accounts.RandomOne.account.address,
+          accounts.User2.account.address,
           0,
         ]);
 
@@ -58,7 +58,7 @@ describe("ETS Core Tagging Fees", async () => {
           targetId,
           "bookmark",
           contracts.ETSRelayer.address,
-          accounts.RandomOne.account.address,
+          accounts.User2.account.address,
           0,
         ]);
 
@@ -72,7 +72,7 @@ describe("ETS Core Tagging Fees", async () => {
       // Set up existing tagging record at module level
       const tags = [etsTag1, etsTag2];
       await contracts.ETS.write.applyTagsWithCompositeKey(
-        [tags, targetId, "bookmark", accounts.RandomOne.account.address, accounts.ETSPlatform.account.address],
+        [tags, targetId, "bookmark", accounts.User2.account.address, accounts.ETSPlatform.account.address],
         {
           value: taggingFee * BigInt(2),
           account: accounts.ETSPlatform.account,
@@ -83,7 +83,7 @@ describe("ETS Core Tagging Fees", async () => {
         targetId,
         "bookmark",
         accounts.ETSPlatform.account.address,
-        accounts.RandomOne.account.address,
+        accounts.User2.account.address,
       ]);
 
       it("are computed correctly when applying new tags using raw inputs", async () => {
@@ -96,7 +96,7 @@ describe("ETS Core Tagging Fees", async () => {
         const result = await contracts.ETS.read.computeTaggingFeeFromRawInput([
           rawInput,
           accounts.ETSPlatform.account.address, // original relayer
-          accounts.RandomOne.account.address, // original tagger
+          accounts.User2.account.address, // original tagger
           0,
         ]);
 
@@ -114,7 +114,7 @@ describe("ETS Core Tagging Fees", async () => {
         const result = await contracts.ETS.read.computeTaggingFeeFromRawInput([
           rawInput,
           accounts.ETSPlatform.account.address, // original relayer
-          accounts.RandomOne.account.address, // original tagger
+          accounts.User2.account.address, // original tagger
           0,
         ]);
 
@@ -132,7 +132,7 @@ describe("ETS Core Tagging Fees", async () => {
         const result = await contracts.ETS.read.computeTaggingFeeFromRawInput([
           rawInput,
           accounts.ETSPlatform.account.address, // original relayer
-          accounts.RandomOne.account.address, // original tagger
+          accounts.User2.account.address, // original tagger
           0,
         ]);
 
@@ -150,7 +150,7 @@ describe("ETS Core Tagging Fees", async () => {
         const result = await contracts.ETS.read.computeTaggingFeeFromRawInput([
           rawInput,
           accounts.ETSPlatform.account.address, // original relayer
-          accounts.RandomOne.account.address, // original tagger
+          accounts.User2.account.address, // original tagger
           1,
         ]);
 
@@ -170,7 +170,7 @@ describe("ETS Core Tagging Fees", async () => {
         const result = await contracts.ETS.read.computeTaggingFeeFromRawInput([
           rawInput,
           accounts.ETSPlatform.account.address, // original relayer
-          accounts.RandomOne.account.address, // original tagger
+          accounts.User2.account.address, // original tagger
           1,
         ]);
 
@@ -188,7 +188,7 @@ describe("ETS Core Tagging Fees", async () => {
         const result = await contracts.ETS.read.computeTaggingFeeFromRawInput([
           rawInput,
           accounts.ETSPlatform.account.address, // original relayer
-          accounts.RandomOne.account.address, // original tagger
+          accounts.User2.account.address, // original tagger
           1,
         ]);
 
@@ -204,7 +204,7 @@ describe("ETS Core Tagging Fees", async () => {
       // Get fresh pre-tag amounts for this test
       const platformPreTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
       const relayerPreTest = await contracts.ETS.read.accrued([contracts.ETSRelayer.address]);
-      const creatorPreTest = await contracts.ETS.read.accrued([accounts.Creator.account.address]);
+      const creatorPreTest = await contracts.ETS.read.accrued([accounts.User4.account.address]);
 
       const rawInput = {
         targetURI: "https://uniswap.org-test1", // Unique URI to avoid conflicts
@@ -214,7 +214,7 @@ describe("ETS Core Tagging Fees", async () => {
       };
 
       await contracts.ETS.write.applyTagsWithRawInput(
-        [rawInput, accounts.RandomTwo.account.address, accounts.ETSPlatform.account.address],
+        [rawInput, accounts.User3.account.address, accounts.ETSPlatform.account.address],
         {
           value: taggingFee,
           account: accounts.ETSPlatform.account,
@@ -224,7 +224,7 @@ describe("ETS Core Tagging Fees", async () => {
       // Get post-tag amounts
       const platformPostTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
       const relayerPostTest = await contracts.ETS.read.accrued([contracts.ETSRelayer.address]);
-      const creatorPostTest = await contracts.ETS.read.accrued([accounts.Creator.account.address]);
+      const creatorPostTest = await contracts.ETS.read.accrued([accounts.User4.account.address]);
 
       const platformPercentage = await contracts.ETS.read.platformPercentage();
       const relayerPercentage = await contracts.ETS.read.relayerPercentage();
@@ -240,10 +240,10 @@ describe("ETS Core Tagging Fees", async () => {
     });
 
     it("to the token owner when the tag used is user owned (post-auction)", async () => {
-      // The #Incredible tag was created by accounts.Creator, so they should get the owner portion
+      // The #Incredible tag was created by accounts.User4, so they should get the owner portion
       const platformPreTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
       const relayerPreTest = await contracts.ETS.read.accrued([contracts.ETSRelayer.address]);
-      const creatorPreTest = await contracts.ETS.read.accrued([accounts.Creator.account.address]); // Creator owns the tag
+      const creatorPreTest = await contracts.ETS.read.accrued([accounts.User4.account.address]); // Creator owns the tag
 
       const rawInput = {
         targetURI: "https://uniswap.org-test2", // Unique URI to avoid conflicts
@@ -254,7 +254,7 @@ describe("ETS Core Tagging Fees", async () => {
 
       // RandomTwo is tagger, ETSPlatform is relayer.
       await contracts.ETS.write.applyTagsWithRawInput(
-        [rawInput, accounts.RandomTwo.account.address, accounts.ETSPlatform.account.address],
+        [rawInput, accounts.User3.account.address, accounts.ETSPlatform.account.address],
         {
           value: taggingFee,
           account: accounts.ETSPlatform.account,
@@ -264,7 +264,7 @@ describe("ETS Core Tagging Fees", async () => {
       // Get post-tag amounts
       const platformPostTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
       const relayerPostTest = await contracts.ETS.read.accrued([contracts.ETSRelayer.address]);
-      const creatorPostTest = await contracts.ETS.read.accrued([accounts.Creator.account.address]); // Creator owns the tag
+      const creatorPostTest = await contracts.ETS.read.accrued([accounts.User4.account.address]); // Creator owns the tag
 
       const platformPercentage = await contracts.ETS.read.platformPercentage();
       const relayerPercentage = await contracts.ETS.read.relayerPercentage();

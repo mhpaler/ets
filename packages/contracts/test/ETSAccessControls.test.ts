@@ -70,8 +70,8 @@ describe("ETSAccessControls Tests", async () => {
     it("can only be set by administrator", async () => {
       // Test that non-admin cannot set platform address
       try {
-        await contracts.ETSAccessControls.write.setPlatform([accounts.RandomOne.account.address], {
-          account: accounts.Buyer.account,
+        await contracts.ETSAccessControls.write.setPlatform([accounts.User2.account.address], {
+          account: accounts.User1.account,
         });
         assert.fail("Should have reverted");
       } catch (error: any) {
@@ -79,11 +79,11 @@ describe("ETSAccessControls Tests", async () => {
       }
 
       // Test that admin can set platform address
-      await contracts.ETSAccessControls.write.setPlatform([accounts.RandomOne.account.address], {
+      await contracts.ETSAccessControls.write.setPlatform([accounts.User2.account.address], {
         account: accounts.ETSPlatform.account,
       });
       const newPlatformAddress = await contracts.ETSAccessControls.read.getPlatformAddress();
-      assert.equal(newPlatformAddress.toLowerCase(), accounts.RandomOne.account.address.toLowerCase());
+      assert.equal(newPlatformAddress.toLowerCase(), accounts.User2.account.address.toLowerCase());
     });
   });
 });

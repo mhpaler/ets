@@ -40,8 +40,8 @@ describe("ETS Core Setup & Configuration", async () => {
 
     it("should revert if caller is not administrator", async () => {
       try {
-        await contracts.ETS.write.setAccessControls([accounts.RandomOne.account.address], {
-          account: accounts.RandomTwo.account,
+        await contracts.ETS.write.setAccessControls([accounts.User2.account.address], {
+          account: accounts.User3.account,
         });
         assert.fail("Should have reverted");
       } catch (error: any) {
@@ -51,7 +51,7 @@ describe("ETS Core Setup & Configuration", async () => {
 
     it("should revert if a access controls is set to a non-access control contract", async () => {
       try {
-        await contracts.ETS.write.setAccessControls([accounts.RandomTwo.account.address], {
+        await contracts.ETS.write.setAccessControls([accounts.User3.account.address], {
           account: accounts.ETSPlatform.account,
         });
         assert.fail("Should have reverted");
@@ -65,7 +65,7 @@ describe("ETS Core Setup & Configuration", async () => {
     //   const factories = await getFactories();
     //   const ETSAccessControlsNew = await upgrades.deployProxy(
     //     factories.ETSAccessControls,
-    //     [accounts.RandomOne.address],
+    //     [accounts.User2.address],
     //     { kind: "uups" },
     //   );
     //
@@ -94,7 +94,7 @@ describe("ETS Core Setup & Configuration", async () => {
   describe("Setting tagging fee", async () => {
     it("should revert if caller is not administrator", async () => {
       try {
-        await contracts.ETS.write.setTaggingFee([0n], { account: accounts.RandomTwo.account });
+        await contracts.ETS.write.setTaggingFee([0n], { account: accounts.User3.account });
         assert.fail("Should have reverted");
       } catch (error: any) {
         assert.ok(error.message.includes("revert") || error.message.includes("AccessDenied"));
@@ -115,7 +115,7 @@ describe("ETS Core Setup & Configuration", async () => {
   describe("Setting tagging fee distribution percentages", async () => {
     it("should revert if caller is not administrator", async () => {
       try {
-        await contracts.ETS.write.setPercentages([10n, 10n], { account: accounts.RandomTwo.account });
+        await contracts.ETS.write.setPercentages([10n, 10n], { account: accounts.User3.account });
         assert.fail("Should have reverted");
       } catch (error: any) {
         assert.ok(error.message.includes("revert") || error.message.includes("AccessDenied"));

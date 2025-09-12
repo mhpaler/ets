@@ -31,7 +31,7 @@ describe("ETSRelayerFactory Tests", async () => {
       );
 
       try {
-        await contracts.ETSRelayerFactory.write.addRelayer(["UniswapTest1"], { account: accounts.RandomOne.account });
+        await contracts.ETSRelayerFactory.write.addRelayer(["UniswapTest1"], { account: accounts.User2.account });
         assert.fail("Expected transaction to revert");
       } catch (error) {
         assert.ok(error, "Transaction should have reverted");
@@ -42,7 +42,7 @@ describe("ETSRelayerFactory Tests", async () => {
         { account: accounts.ETSPlatform.account },
       );
 
-      await contracts.ETSRelayerFactory.write.addRelayer(["UniswapTest1"], { account: accounts.RandomOne.account });
+      await contracts.ETSRelayerFactory.write.addRelayer(["UniswapTest1"], { account: accounts.User2.account });
       // TODO: Event testing needs to be implemented with viem
     });
 
@@ -51,10 +51,10 @@ describe("ETSRelayerFactory Tests", async () => {
     // Test removed: Relayer creation is now democratized - no tag ownership or transfers required
 
     it("will revert if sender already owns relayer", async () => {
-      await contracts.ETSRelayerFactory.write.addRelayer(["UniswapTest2"], { account: accounts.RandomTwo.account });
+      await contracts.ETSRelayerFactory.write.addRelayer(["UniswapTest2"], { account: accounts.User3.account });
 
       try {
-        await contracts.ETSRelayerFactory.write.addRelayer(["SolanaTest2"], { account: accounts.RandomTwo.account });
+        await contracts.ETSRelayerFactory.write.addRelayer(["SolanaTest2"], { account: accounts.User3.account });
         assert.fail("Expected transaction to revert with SenderOwnsRelayer");
       } catch (error: any) {
         assert.ok(error.message.includes("SenderOwnsRelayer"), "Should revert with SenderOwnsRelayer error");
@@ -63,7 +63,7 @@ describe("ETSRelayerFactory Tests", async () => {
 
     it("will revert if name is too short", async () => {
       try {
-        await contracts.ETSRelayerFactory.write.addRelayer(["X"], { account: accounts.RandomOne.account });
+        await contracts.ETSRelayerFactory.write.addRelayer(["X"], { account: accounts.User2.account });
         assert.fail("Expected transaction to revert with RelayerNameTooShort");
       } catch (error: any) {
         assert.ok(error.message.includes("RelayerNameTooShort"), "Should revert with RelayerNameTooShort error");
@@ -73,7 +73,7 @@ describe("ETSRelayerFactory Tests", async () => {
     it("will revert if name is too long", async () => {
       const longName = "this is a relayer name that is well well well well over the limit in length";
       try {
-        await contracts.ETSRelayerFactory.write.addRelayer([longName], { account: accounts.RandomOne.account });
+        await contracts.ETSRelayerFactory.write.addRelayer([longName], { account: accounts.User2.account });
         assert.fail("Expected transaction to revert with RelayerNameTooLong");
       } catch (error: any) {
         assert.ok(error.message.includes("RelayerNameTooLong"), "Should revert with RelayerNameTooLong error");
@@ -81,10 +81,10 @@ describe("ETSRelayerFactory Tests", async () => {
     });
 
     it("will revert if name already exists", async () => {
-      await contracts.ETSRelayerFactory.write.addRelayer(["UniswapTest5"], { account: accounts.Creator.account });
+      await contracts.ETSRelayerFactory.write.addRelayer(["UniswapTest5"], { account: accounts.User4.account });
 
       try {
-        await contracts.ETSRelayerFactory.write.addRelayer(["UniswapTest5"], { account: accounts.Buyer.account });
+        await contracts.ETSRelayerFactory.write.addRelayer(["UniswapTest5"], { account: accounts.User1.account });
         assert.fail("Expected transaction to revert with RelayerNameExists");
       } catch (error: any) {
         assert.ok(error.message.includes("RelayerNameExists"), "Should revert with RelayerNameExists error");
@@ -129,13 +129,13 @@ describe("ETSRelayerFactory Tests", async () => {
     });
 
     it("can be locked/unlocked by Platform", async () => {
-      // Reuse the relayer created by Creator in the "will revert if name already exists" test
+      // Reuse the relayer created by User4 in the "will revert if name already exists" test
       const relayerAddress = await contracts.ETSAccessControls.read.getRelayerAddressFromName(["UniswapTest5"]);
 
       // Try pausing by non-administrator account.
       try {
         await contracts.ETSAccessControls.write.toggleRelayerLock([relayerAddress], {
-          account: accounts.Creator.account,
+          account: accounts.User4.account,
         });
         assert.fail("Expected transaction to revert");
       } catch (error) {
@@ -172,7 +172,7 @@ describe("ETSRelayerFactory Tests", async () => {
 
       // Try pausing as non-owner (eg. RandomTwo)
       try {
-        await nonOwnerRelayer.write.pause([], { account: accounts.RandomTwo.account });
+        await nonOwnerRelayer.write.pause([], { account: accounts.User3.account });
         assert.fail("Expected transaction to revert with CallerNotRelayerAdmin");
       } catch (error: any) {
         assert.ok(error.message.includes("CallerNotRelayerAdmin"), "Should revert with CallerNotRelayerAdmin error");
@@ -214,7 +214,7 @@ describe("ETSRelayerFactory Tests", async () => {
     });
 
     it("can be locked/unlocked by Platform (duplicate test)", async () => {
-      // Reuse the relayer created by Creator in the "will revert if name already exists" test
+      // Reuse the relayer created by User4 in the "will revert if name already exists" test
       const relayerAddress = await contracts.ETSAccessControls.read.getRelayerAddressFromName(["UniswapTest5"]);
 
       const isLocked1 = await contracts.ETSAccessControls.read.isRelayerLocked([relayerAddress]);
@@ -222,7 +222,7 @@ describe("ETSRelayerFactory Tests", async () => {
 
       try {
         await contracts.ETSAccessControls.write.toggleRelayerLock([relayerAddress], {
-          account: accounts.Creator.account,
+          account: accounts.User4.account,
         });
         assert.fail("Expected transaction to revert");
       } catch (error) {
@@ -291,7 +291,7 @@ describe("ETSRelayerFactory Tests", async () => {
       assert.equal(isPaused, false);
 
       try {
-        await uniswapRelayer.write.changeOwner([accounts.Buyer.account.address], {
+        await uniswapRelayer.write.changeOwner([accounts.User1.account.address], {
           account: accounts.ETSPlatform.account,
         });
         assert.fail("Expected transaction to revert with 'Pausable: not paused'");
@@ -302,8 +302,8 @@ describe("ETSRelayerFactory Tests", async () => {
       await uniswapRelayer.write.pause([], { account: accounts.ETSAdmin.account });
 
       // Attempt to transfer ownership (ETSPlatform is the actual owner from fixture)
-      // Use Buyer account which doesn't own any relayer
-      await uniswapRelayer.write.changeOwner([accounts.Buyer.account.address], {
+      // Use User1 account which doesn't own any relayer
+      await uniswapRelayer.write.changeOwner([accounts.User1.account.address], {
         account: accounts.ETSPlatform.account,
       });
       // TODO: Event testing needs to be implemented with viem
@@ -321,7 +321,7 @@ describe("ETSRelayerFactory Tests", async () => {
       await uniswapRelayer.write.pause([], { account: accounts.ETSAdmin.account });
 
       try {
-        await uniswapRelayer.write.changeOwner([accounts.RandomTwo.account.address], {
+        await uniswapRelayer.write.changeOwner([accounts.User3.account.address], {
           account: accounts.ETSPlatform.account,
         });
         assert.fail("Expected transaction to revert with 'Ownable: caller is not the owner'");
@@ -334,13 +334,13 @@ describe("ETSRelayerFactory Tests", async () => {
     });
 
     it("when transferred should no longer belong to previous owner", async () => {
-      // Use the relayer we just transferred to Buyer in the previous test
-      // The ETSRelayer from fixture is now owned by Buyer
+      // Use the relayer we just transferred to User1 in the previous test
+      // The ETSRelayer from fixture is now owned by User1
       const uniswapRelayer = contracts.ETSRelayer;
 
-      // Verify Buyer is now the current owner after the previous test
-      const isBuyerOwner = await contracts.ETSAccessControls.read.isRelayerByOwner([accounts.Buyer.account.address]);
-      assert.equal(isBuyerOwner, true);
+      // Verify User1 is now the current owner after the previous test
+      const isUser1Owner = await contracts.ETSAccessControls.read.isRelayerByOwner([accounts.User1.account.address]);
+      assert.equal(isUser1Owner, true);
 
       // For the final transfer, we need another account that doesn't own a relayer
       // Looking at the fixture, we have 7 accounts total, and we've used 6 for relayers
@@ -352,19 +352,19 @@ describe("ETSRelayerFactory Tests", async () => {
       // First check if relayer is already paused from previous test
       const isPaused = await uniswapRelayer.read.paused([]);
       if (isPaused) {
-        // Unpause first (Buyer is now the owner, but we need RELAYER_ADMIN_ROLE to unpause)
+        // Unpause first (User1 is now the owner, but we need RELAYER_ADMIN_ROLE to unpause)
         await uniswapRelayer.write.unpause([], { account: accounts.ETSAdmin.account });
       }
 
-      // Now pause the relayer (Buyer is the owner)
-      await uniswapRelayer.write.pause([], { account: accounts.Buyer.account });
-      await uniswapRelayer.write.changeOwner([additionalAccount.account.address], { account: accounts.Buyer.account });
+      // Now pause the relayer (User1 is the owner)
+      await uniswapRelayer.write.pause([], { account: accounts.User1.account });
+      await uniswapRelayer.write.changeOwner([additionalAccount.account.address], { account: accounts.User1.account });
 
-      const isOwnerBuyer = await contracts.ETSAccessControls.read.isRelayerByOwner([accounts.Buyer.account.address]);
+      const isOwnerUser1 = await contracts.ETSAccessControls.read.isRelayerByOwner([accounts.User1.account.address]);
       const isOwnerAdditional = await contracts.ETSAccessControls.read.isRelayerByOwner([
         additionalAccount.account.address,
       ]);
-      assert.equal(isOwnerBuyer, false);
+      assert.equal(isOwnerUser1, false);
       assert.equal(isOwnerAdditional, true);
     });
   });

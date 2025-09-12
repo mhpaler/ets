@@ -35,10 +35,10 @@ export interface Accounts {
   ETSPlatform: SignerWithAddress;
   ETSEventProcessor: SignerWithAddress;
   ETSZora: SignerWithAddress;
-  Buyer: SignerWithAddress;
-  RandomOne: SignerWithAddress;
-  RandomTwo: SignerWithAddress;
-  Creator: SignerWithAddress;
+  User1: SignerWithAddress;
+  User2: SignerWithAddress;
+  User3: SignerWithAddress;
+  User4: SignerWithAddress;
 }
 
 export interface Contracts {
