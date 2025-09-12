@@ -42,27 +42,27 @@ describe("ETSAccessControls Tests", async () => {
       assert.equal(isRelayerAdmin, true);
     });
 
-    it("grants ETSPlatform and ETSOracle the EVENT_PROCESSOR_ROLE", async () => {
+    it("grants ETSPlatform and ETSEventProcessor the EVENT_PROCESSOR_ROLE", async () => {
       const isPlatformEventProcessor = await contracts.ETSAccessControls.read.isEventProcessor([
         accounts.ETSPlatform.account.address,
       ]);
-      const isOracleEventProcessor = await contracts.ETSAccessControls.read.isEventProcessor([
-        accounts.ETSOracle.account.address,
+      const isEventProcessorHasRole = await contracts.ETSAccessControls.read.isEventProcessor([
+        accounts.ETSEventProcessor.account.address,
       ]);
       assert.equal(isPlatformEventProcessor, true);
-      assert.equal(isOracleEventProcessor, true);
+      assert.equal(isEventProcessorHasRole, true);
     });
 
-    it("EVENT_PROCESSOR_ROLE addresses also return true for deprecated isAuctionOracle", async () => {
-      // This ensures backward compatibility
-      const isPlatformAuctionOracle = await contracts.ETSAccessControls.read.isAuctionOracle([
+    it("EVENT_PROCESSOR_ROLE addresses work correctly", async () => {
+      // Test EVENT_PROCESSOR_ROLE functionality
+      const isPlatformEventProcessor = await contracts.ETSAccessControls.read.isEventProcessor([
         accounts.ETSPlatform.account.address,
       ]);
-      const isOracleAuctionOracle = await contracts.ETSAccessControls.read.isAuctionOracle([
-        accounts.ETSOracle.account.address,
+      const isEventProcessorHasRole = await contracts.ETSAccessControls.read.isEventProcessor([
+        accounts.ETSEventProcessor.account.address,
       ]);
-      assert.equal(isPlatformAuctionOracle, true);
-      assert.equal(isOracleAuctionOracle, true);
+      assert.equal(isPlatformEventProcessor, true);
+      assert.equal(isEventProcessorHasRole, true);
     });
   });
 

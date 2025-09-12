@@ -4,7 +4,7 @@ import { getNetworkSettings } from "../../config/settings.js";
 import ETSEnrichTargetModule from "../../ignition/modules/ETSEnrichTarget.js";
 import ETSRelayerFactoryModule from "../../ignition/modules/ETSRelayerFactory.js";
 import WETHModule from "../../ignition/modules/WETH.js";
-import { getETSAccounts, type ETSAccounts } from "../../utils/accounts.js";
+import { type ETSAccounts, getETSAccounts } from "../../utils/accounts.js";
 
 /**
  * Complete Ignition-based fixture that replaces test/setup.ts

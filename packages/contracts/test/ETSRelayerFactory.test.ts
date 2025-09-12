@@ -92,7 +92,7 @@ describe("ETSRelayerFactory Tests", async () => {
     });
 
     it("will emit RelayerAdded", async () => {
-      await contracts.ETSRelayerFactory.write.addRelayer(["UniswapTest6"], { account: accounts.ETSOracle.account });
+      await contracts.ETSRelayerFactory.write.addRelayer(["UniswapTest6"], { account: accounts.ETSEventProcessor.account });
       // TODO: Event testing needs to be implemented with viem
     });
 
@@ -113,7 +113,7 @@ describe("ETSRelayerFactory Tests", async () => {
 
   describe("Active relayer contracts", async () => {
     it("can be looked up by address", async () => {
-      // Reuse the relayer created by ETSOracle in the previous test
+      // Reuse the relayer created by ETSEventProcessor in the previous test
       const relayerAddress = await contracts.ETSAccessControls.read.getRelayerAddressFromName(["UniswapTest6"]);
 
       const isRelayerByAddress = await contracts.ETSAccessControls.read.isRelayerByAddress([relayerAddress]);

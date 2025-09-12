@@ -32,7 +32,6 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     bytes32 public constant RELAYER_ROLE = keccak256("RELAYER_ROLE");
     bytes32 public constant RELAYER_FACTORY_ROLE = keccak256("RELAYER_FACTORY_ROLE");
     bytes32 public constant RELAYER_ADMIN_ROLE = keccak256("RELAYER_ADMIN_ROLE");
-    bytes32 public constant AUCTION_ORACLE_ROLE = keccak256("AUCTION_ORACLE_ROLE"); // @deprecated - use EVENT_PROCESSOR_ROLE
     bytes32 public constant EVENT_PROCESSOR_ROLE = keccak256("EVENT_PROCESSOR_ROLE");
     bytes32 public constant SMART_CONTRACT_ROLE = keccak256("SMART_CONTRACT_ROLE");
 
@@ -147,16 +146,6 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
 
     /// @inheritdoc IETSAccessControls
     /// @dev DEPRECATED - TODO: Remove in v2.0.0 after full EVENT_PROCESSOR migration
-    /// @dev Use isEventProcessor() instead. Kept for backward compatibility.
-    /// @dev REMOVAL CHECKLIST:
-    /// @dev 1. Remove AUCTION_ORACLE_ROLE constant (line 35)
-    /// @dev 2. Remove this function
-    /// @dev 3. Remove from IETSAccessControls interface
-    /// @dev 4. Search codebase for any remaining "AUCTION_ORACLE" references
-    function isAuctionOracle(address _addr) public view returns (bool) {
-        // For backward compatibility, check both roles
-        return hasRole(AUCTION_ORACLE_ROLE, _addr) || hasRole(EVENT_PROCESSOR_ROLE, _addr);
-    }
 
     /// @inheritdoc IETSAccessControls
     function isEventProcessor(address _addr) public view returns (bool) {

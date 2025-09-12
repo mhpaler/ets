@@ -33,7 +33,8 @@ export interface InitSettings {
 export interface Accounts {
   ETSAdmin: SignerWithAddress;
   ETSPlatform: SignerWithAddress;
-  ETSOracle: SignerWithAddress;
+  ETSEventProcessor: SignerWithAddress;
+  ETSZora: SignerWithAddress;
   Buyer: SignerWithAddress;
   RandomOne: SignerWithAddress;
   RandomTwo: SignerWithAddress;

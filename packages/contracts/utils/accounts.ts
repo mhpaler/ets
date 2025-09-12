@@ -1,9 +1,9 @@
 /**
  * HD Wallet Account Management for ETS
- * 
+ *
  * Implements the role-based account strategy defined in KEY-MANAGEMENT-STRATEGY.md
  * All environments use the same derivation path positions for consistency.
- * 
+ *
  * Position assignments:
  * - Position 0: ETSAdmin - Contract deployment + ongoing admin functions
  * - Position 1: ETSPlatform - Platform operations, fee collection
@@ -37,16 +37,16 @@ export function getETSAccounts(walletClients: any[]): ETSAccounts {
 
   return {
     // Operational accounts (positions 0-3)
-    ETSAdmin: walletClients[0],          // Position 0: Contract deployment + admin
-    ETSPlatform: walletClients[1],       // Position 1: Platform operations
+    ETSAdmin: walletClients[0], // Position 0: Contract deployment + admin
+    ETSPlatform: walletClients[1], // Position 1: Platform operations
     ETSEventProcessor: walletClients[2], // Position 2: Event processing (formerly ETSOracle)
-    ETSZora: walletClients[3],           // Position 3: Zora integration
-    
+    ETSZora: walletClients[3], // Position 3: Zora integration
+
     // Test accounts (positions 4-7)
-    Buyer: walletClients[4],             // Position 4: Test buyer account
-    RandomOne: walletClients[5],         // Position 5: Test account one
-    RandomTwo: walletClients[6],         // Position 6: Test account two
-    Creator: walletClients[7],           // Position 7: Test creator account
+    Buyer: walletClients[4], // Position 4: Test buyer account
+    RandomOne: walletClients[5], // Position 5: Test account one
+    RandomTwo: walletClients[6], // Position 6: Test account two
+    Creator: walletClients[7], // Position 7: Test creator account
   };
 }
 
@@ -66,7 +66,7 @@ export function getAccountPosition(role: keyof ETSAccounts): number {
     RandomTwo: 6,
     Creator: 7,
   };
-  
+
   return positions[role];
 }
 

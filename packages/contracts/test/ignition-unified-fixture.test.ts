@@ -26,7 +26,8 @@ describe("Hardhat Ignition - Complete Unified Fixture", async () => {
     // Verify accounts are set up
     assert.ok(accounts.ETSAdmin, "ETSAdmin account should exist");
     assert.ok(accounts.ETSPlatform, "ETSPlatform account should exist");
-    assert.ok(accounts.ETSOracle, "ETSOracle account should exist");
+    assert.ok(accounts.ETSEventProcessor, "ETSEventProcessor account should exist");
+    assert.ok(accounts.ETSZora, "ETSZora account should exist");
 
     // Verify init settings
     assert.equal(initSettings.TAG_MIN_STRING_LENGTH, 2);
