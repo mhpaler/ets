@@ -1,18 +1,18 @@
-import hardhatToolboxViemPlugin from "@nomicfoundation/hardhat-toolbox-viem";
+import hardhatToolboxViem from "@nomicfoundation/hardhat-toolbox-viem";
+import * as dotenv from "dotenv";
 import type { HardhatUserConfig } from "hardhat/config";
 import { configVariable } from "hardhat/config";
-import * as dotenv from "dotenv";
 
 // Load environment variables from .env file
 dotenv.config();
 
 const config: HardhatUserConfig = {
-  plugins: [hardhatToolboxViemPlugin],
+  plugins: [hardhatToolboxViem],
   solidity: {
     npmFilesToBuild: [
       "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol",
       "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol",
-      "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol"
+      "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol",
     ],
     compilers: [
       {

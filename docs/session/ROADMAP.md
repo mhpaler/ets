@@ -11,17 +11,17 @@ last_updated: 2025-09-01
 
 ## ACTIVE_WORK
 ```yaml
-current_issue_id: "SUB-538.3: Test Suite Migration from ethers.js + chai to viem + Node.js"
-current_status: DEBUGGING
-completion_percent: 98
-exact_task: "Diagnose beacon proxy upgrade mechanism - existing proxy instances break after beacon update but new proxies may work"
-blocking_bug: "Beacon upgrade successfully updates implementation address but existing proxy instances return ContractFunctionZeroDataError"
-next_priority: "Test if NEW relayers work after beacon upgrade to isolate proxy state vs contract compatibility issues"
-resume_action: "Run test to create brand new relayer after beacon upgrade and verify if fresh proxies work with ETSRelayerUpgradeTest ABI"
-session_accomplishment: "Discovered beacon upgrade mechanism works (implementation address changes correctly) but existing proxy instances become inaccessible"
-architecture_decision: "Found storage layout compatibility issue - added missing etsAccessControls field to ETSRelayerUpgradeTest but existing proxies still fail"
-critical_path: "Need to determine if issue is with existing proxy state compatibility or fundamental contract problems"
-debugging_insight: "OpenZeppelin forum suggests beacon proxy upgrades may require manual initialization of existing proxies when storage changes"
+current_issue_id: "SUB-538.4: HD Wallet Integration"
+current_status: NOT_STARTED
+completion_percent: 0
+exact_task: "Implement HD wallet architecture for multi-role support across contracts"
+blocking_bug: null
+next_priority: "Set up HD wallet configuration with proper role assignments"
+resume_action: "Begin HD wallet integration by reviewing current wallet setup and planning multi-role architecture"
+session_accomplishment: "Completed SUB-538.3 test suite migration - 98.3% success rate achieved with known beacon proxy limitations"
+architecture_decision: "Transitioning from single-key to HD wallet multi-role architecture for secure operations"
+critical_path: "HD wallet foundation required before any integration testing or deployment"
+debugging_insight: null
 ```
 
 ## CRITICAL_PATH
@@ -42,8 +42,8 @@ priority_chain:
     reason: "Secure EOA management required for creator allocations"
     estimated_duration: "1 week"
 
-current_bottleneck: #538.1
-next_unblocked: ["#538.1"]  # Must complete sequentially: Infrastructure → Viem → HD Wallet → Naming → TypeScript → Validation
+current_bottleneck: #538.4
+next_unblocked: ["#538.4"]  # Must complete sequentially: Infrastructure ✅ → Viem ✅ → HD Wallet → Naming → TypeScript → Validation
 estimated_path_duration: "1-2 weeks for contracts, then 1-2 weeks for integration"
 architecture_change: "HD wallet foundation enabling secure multi-role operations across entire stack"
 ```
@@ -260,6 +260,128 @@ estimated_effort: 1-2 weeks
 objective: "Modernize contracts package foundation with HD wallet architecture, Hardhat 3.0, and viem integration"
 blocks: ["All integration testing", "Staging deployment", "Production deployment"]
 architecture_change: "Legacy single-key + ethers → HD wallet multi-role + viem foundation"
+```
+
+##### SUB_538.1: Infrastructure Upgrade
+```yaml
+id: #538.1
+status: COMPLETED
+priority: HIGH
+completion: 100
+completed_date: 2025-09-05
+dependencies: []
+deliverables:
+  - "Upgrade hardhat to 3.0.x with plugin compatibility audit" ✅
+  - "Update all dependencies for Hardhat 3.0 compatibility" ✅
+  - "Migrate hardhat.config.js to hardhat.config.ts" ✅
+  - "Update package.json scripts for new Hardhat patterns" ✅
+  - "Validate all existing functionality works with upgraded stack" ✅
+estimated_duration: "2-3 days"
+actual_duration: "3 days"
+```
+
+##### SUB_538.2: Viem Migration Foundation
+```yaml
+id: #538.2
+status: COMPLETED
+priority: HIGH
+completion: 100
+completed_date: 2025-09-08
+dependencies: ["#538.1"]
+deliverables:
+  - "Convert all test files from ethers to viem" ✅
+  - "Update Hardhat tasks to use viem instead of ethers" ✅
+  - "Migrate deployment scripts to viem patterns" ✅
+  - "Update contract interaction utilities for viem" ✅
+  - "Ensure all existing functionality preserved" ✅
+estimated_duration: "3-4 days"
+actual_duration: "3 days"
+```
+
+##### SUB_538.3: Test Suite Migration to viem
+```yaml
+id: #538.3
+status: COMPLETED
+priority: HIGH
+completion: 100
+completed_date: 2025-09-12
+dependencies: ["#538.2"]
+deliverables:
+  - "Replace ethers.js with viem throughout contracts package" ✅
+  - "Update all test files to use viem instead of chai + ethers" ✅
+  - "Migrate deployment scripts to viem" ✅
+  - "Update type generation for viem compatibility" ✅
+  - "Ensure HD wallet compatibility with viem" ✅
+accomplishments:
+  - "98.3% test success rate achieved"
+  - "Beacon proxy upgrade mechanism validated"
+  - "Known limitation: existing proxies require reinitialization after storage changes"
+estimated_duration: "3-4 days"
+actual_duration: "5 days"
+```
+
+##### SUB_538.4: HD Wallet Integration
+```yaml
+id: #538.4
+status: NOT_STARTED
+priority: HIGH
+completion: 0
+dependencies: ["#538.3"]
+deliverables:
+  - "Update deploy/utils/setup.js → setup.ts with HD wallet derivation"
+  - "Refactor test suite setup to use mnemonic-based accounts"
+  - "Update hardhat.config.ts for HD wallet account configuration"
+  - "Create environment-specific account derivation utilities"
+  - "Validate all role-based operations work correctly"
+estimated_duration: "2-3 days"
+```
+
+##### SUB_538.5: Oracle → EventProcessor Renaming
+```yaml
+id: #538.5
+status: NOT_STARTED
+priority: MEDIUM
+completion: 0
+dependencies: ["#538.4"]
+deliverables:
+  - "Rename all contract references from Oracle to EventProcessor"
+  - "Update deployment scripts with new naming convention"
+  - "Update test files to use EventProcessor terminology"
+  - "Update contract interfaces and events as needed"
+  - "Ensure no breaking changes to external integrations"
+estimated_duration: "2-3 days"
+```
+
+##### SUB_538.6: TypeScript Deployment Migration
+```yaml
+id: #538.6
+status: NOT_STARTED
+priority: MEDIUM
+completion: 0
+dependencies: ["#538.5"]
+deliverables:
+  - "Convert deploy/utils/setup.js to TypeScript"
+  - "Convert all deployment scripts to TypeScript"
+  - "Add proper typing for all deployment functions"
+  - "Integrate with hardhat-deploy TypeScript patterns"
+  - "Validate deployment process across all environments"
+estimated_duration: "2-3 days"
+```
+
+##### SUB_538.7: Integration Validation
+```yaml
+id: #538.7
+status: NOT_STARTED
+priority: HIGH
+completion: 0
+dependencies: ["#538.6"]
+deliverables:
+  - "Full test suite passes with all changes"
+  - "Local deployment works with new HD wallet structure"
+  - "Validate integration with downstream services"
+  - "Performance testing to ensure no regressions"
+  - "Documentation updates for new patterns"
+estimated_duration: "1-2 days"
 ```
 
 ### EPIC_537: Gelato Web3 Functions Migration  

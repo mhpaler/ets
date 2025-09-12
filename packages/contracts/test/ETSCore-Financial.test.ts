@@ -76,7 +76,6 @@ describe("ETS Core Financial Operations", async () => {
 
       // Check balances before tagging
 
-
       // Get tagger balance before to ensure they have enough ETH
 
       // Debug: Check if relayer is initialized
@@ -172,9 +171,7 @@ describe("ETS Core Financial Operations", async () => {
           value: expectedFee,
           account: accounts.RandomTwo.account,
         });
-
       }
-
 
       // Get platform balance before drawdown
       const platformBalanceBefore = await publicClient.getBalance({

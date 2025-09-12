@@ -29,11 +29,11 @@ const ETSRelayerFactoryModule = buildModule("ETSRelayerFactory", (m) => {
 
   // Deploy ETSRelayerFactory with the pre-deployed beacon
   const relayerFactory = m.contract("ETSRelayerFactory", [
-    relayerBeacon,      // address _etsRelayerBeacon (pre-deployed, not created in constructor)
-    accessControls,     // IETSAccessControls _etsAccessControls
-    etsCore,           // IETS _ets
-    token,             // IETSToken _etsToken
-    target,            // IETSTarget _etsTarget
+    relayerBeacon, // address _etsRelayerBeacon (pre-deployed, not created in constructor)
+    accessControls, // IETSAccessControls _etsAccessControls
+    etsCore, // IETS _ets
+    token, // IETSToken _etsToken
+    target, // IETSTarget _etsTarget
   ]);
 
   return {

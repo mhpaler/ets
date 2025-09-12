@@ -1,8 +1,10 @@
 import { network } from "hardhat";
 import { encodeFunctionData, parseEther } from "viem";
+import { getNetworkSettings } from "../../config/settings.js";
 import ETSEnrichTargetModule from "../../ignition/modules/ETSEnrichTarget.js";
 import ETSRelayerFactoryModule from "../../ignition/modules/ETSRelayerFactory.js";
 import WETHModule from "../../ignition/modules/WETH.js";
+import { getETSAccounts, type ETSAccounts } from "../../utils/accounts.js";
 
 /**
  * Complete Ignition-based fixture that replaces test/setup.ts
@@ -28,20 +30,12 @@ export interface IgnitionContracts {
   MockZoraFactory: any;
 }
 
-export interface IgnitionAccounts {
-  ETSAdmin: any;
-  ETSPlatform: any;
-  ETSOracle: any;
-  Buyer: any;
-  RandomOne: any;
-  RandomTwo: any;
-  Creator: any;
-}
+export interface IgnitionAccounts extends ETSAccounts {}
 
 export interface IgnitionSetupResult {
   accounts: IgnitionAccounts;
   contracts: IgnitionContracts;
-  initSettings: any;
+  initSettings: ReturnType<typeof getNetworkSettings>;
 }
 
 /**
@@ -50,18 +44,9 @@ export interface IgnitionSetupResult {
 export async function ignitionFixture(): Promise<IgnitionSetupResult> {
   const { ignition, viem } = await network.connect();
 
-
   // Get wallet clients for account setup
   const walletClients = await viem.getWalletClients();
-  const accounts = {
-    ETSAdmin: walletClients[0], // First account as admin
-    ETSPlatform: walletClients[1], // Second account as platform
-    ETSOracle: walletClients[2], // Third account as oracle
-    Buyer: walletClients[3],
-    RandomOne: walletClients[4],
-    RandomTwo: walletClients[5],
-    Creator: walletClients[6],
-  };
+  const accounts = getETSAccounts(walletClients);
 
   // Deploy WETH separately (optional dependency)
   const { weth } = (await ignition.deploy(WETHModule)) as any;
@@ -111,7 +96,6 @@ export async function ignitionFixture(): Promise<IgnitionSetupResult> {
 
   const enrichTarget = { address: enrichTargetProxy.address };
 
-
   // Get contract instances for post-deployment setup
   const accessControlsContract = await viem.getContractAt("ETSAccessControls", accessControls.address);
   const targetContract = await viem.getContractAt("ETSTarget", target.address);
@@ -156,7 +140,7 @@ export async function ignitionFixture(): Promise<IgnitionSetupResult> {
   await accessControlsContract.write.grantRole([eventProcessorRole, accounts.ETSPlatform.account.address], {
     account: accounts.ETSPlatform.account,
   });
-  await accessControlsContract.write.grantRole([eventProcessorRole, accounts.ETSOracle.account.address], {
+  await accessControlsContract.write.grantRole([eventProcessorRole, accounts.ETSEventProcessor.account.address], {
     account: accounts.ETSPlatform.account,
   });
 
@@ -170,13 +154,11 @@ export async function ignitionFixture(): Promise<IgnitionSetupResult> {
     account: accounts.ETSPlatform.account,
   });
 
-
   // Set EnrichTarget on Target
   await targetContract.write.setEnrichTarget([enrichTarget.address], { account: accounts.ETSPlatform.account });
 
   // Set ETS Core on Token
   await tokenContract.write.setETSCore([etsCore.address], { account: accounts.ETSPlatform.account });
-
 
   // Create test relayers
   await relayerFactoryContract.write.addRelayer(["ETSRelayer"], { account: accounts.ETSPlatform.account });
@@ -198,7 +180,6 @@ export async function ignitionFixture(): Promise<IgnitionSetupResult> {
     client: { wallet: accounts.RandomTwo },
   });
 
-
   // Return in format compatible with existing tests - using the contract instances
   const contracts: IgnitionContracts = {
     WETH: await viem.getContractAt("WETH", weth.address),
@@ -214,22 +195,8 @@ export async function ignitionFixture(): Promise<IgnitionSetupResult> {
     MockZoraFactory: await viem.getContractAt("MockZoraFactory", mockZoraFactory.address),
   };
 
-  const initSettings = {
-    TAG_MIN_STRING_LENGTH: 2,
-    TAG_MAX_STRING_LENGTH: 32,
-    OWNERSHIP_TERM_LENGTH: 730,
-    MAX_AUCTIONS: 1,
-    TIME_BUFFER: 600,
-    RESERVE_PRICE: "2",
-    MIN_INCREMENT_BID_PERCENTAGE: 5,
-    DURATION: 30 * 60,
-    RELAYER_PERCENTAGE: 20,
-    CREATOR_PERCENTAGE: 40,
-    PLATFORM_PERCENTAGE: 40,
-    TAGGING_FEE: "0.1",
-    TAGGING_FEE_PLATFORM_PERCENTAGE: 20,
-    TAGGING_FEE_RELAYER_PERCENTAGE: 30,
-  };
+  // Get network settings (use localhost chainId)
+  const initSettings = getNetworkSettings(31337);
 
   return { accounts, contracts, initSettings };
 }
