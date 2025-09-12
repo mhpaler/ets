@@ -92,7 +92,9 @@ describe("ETSRelayerFactory Tests", async () => {
     });
 
     it("will emit RelayerAdded", async () => {
-      await contracts.ETSRelayerFactory.write.addRelayer(["UniswapTest6"], { account: accounts.ETSEventProcessor.account });
+      await contracts.ETSRelayerFactory.write.addRelayer(["UniswapTest6"], {
+        account: accounts.ETSEventProcessor.account,
+      });
       // TODO: Event testing needs to be implemented with viem
     });
 
@@ -334,38 +336,46 @@ describe("ETSRelayerFactory Tests", async () => {
     });
 
     it("when transferred should no longer belong to previous owner", async () => {
-      // Use the relayer we just transferred to User1 in the previous test
-      // The ETSRelayer from fixture is now owned by User1
-      const uniswapRelayer = contracts.ETSRelayer;
+      // Use the secondRelayer from the fixture which is owned by ETSPlatform
+      const testRelayer = contracts.secondRelayer;
+      const relayerAddress = testRelayer.address;
 
-      // Verify User1 is now the current owner after the previous test
-      const isUser1Owner = await contracts.ETSAccessControls.read.isRelayerByOwner([accounts.User1.account.address]);
-      assert.equal(isUser1Owner, true);
+      // Pause the relayer (required for transfers)
+      await testRelayer.write.pause([], { account: accounts.ETSAdmin.account });
 
-      // For the final transfer, we need another account that doesn't own a relayer
-      // Looking at the fixture, we have 7 accounts total, and we've used 6 for relayers
-      // Let's see if we can get additional accounts from the wallet clients
+      // Get two accounts that don't own any relayers
       const { viem } = await network.connect();
       const walletClients = await viem.getWalletClients();
-      const additionalAccount = walletClients[7]; // 8th account (index 7)
+      const firstNewOwner = walletClients[8]; // 9th account (index 8) - unused account
+      const secondNewOwner = walletClients[9]; // 10th account (index 9) - unused account
 
-      // First check if relayer is already paused from previous test
-      const isPaused = await uniswapRelayer.read.paused([]);
-      if (isPaused) {
-        // Unpause first (User1 is now the owner, but we need RELAYER_ADMIN_ROLE to unpause)
-        await uniswapRelayer.write.unpause([], { account: accounts.ETSAdmin.account });
-      }
+      // Transfer the relayer to first new owner
+      await testRelayer.write.changeOwner([firstNewOwner.account.address], {
+        account: accounts.ETSPlatform.account,
+      });
 
-      // Now pause the relayer (User1 is the owner)
-      await uniswapRelayer.write.pause([], { account: accounts.User1.account });
-      await uniswapRelayer.write.changeOwner([additionalAccount.account.address], { account: accounts.User1.account });
-
-      const isOwnerUser1 = await contracts.ETSAccessControls.read.isRelayerByOwner([accounts.User1.account.address]);
-      const isOwnerAdditional = await contracts.ETSAccessControls.read.isRelayerByOwner([
-        additionalAccount.account.address,
+      // Verify first new owner is now the owner via access controls
+      const relayerOwnedByFirst = await contracts.ETSAccessControls.read.getRelayerAddressFromOwner([
+        firstNewOwner.account.address,
       ]);
-      assert.equal(isOwnerUser1, false);
-      assert.equal(isOwnerAdditional, true);
+      assert.equal(relayerOwnedByFirst.toLowerCase(), relayerAddress.toLowerCase());
+
+      // Transfer to second new owner (relayer is already paused)
+      await testRelayer.write.changeOwner([secondNewOwner.account.address], {
+        account: firstNewOwner.account,
+      });
+
+      // Verify ownership has transferred
+      const relayerOwnedBySecond = await contracts.ETSAccessControls.read.getRelayerAddressFromOwner([
+        secondNewOwner.account.address,
+      ]);
+      assert.equal(relayerOwnedBySecond.toLowerCase(), relayerAddress.toLowerCase());
+
+      // Verify first owner no longer owns any relayer
+      const relayerOwnedByFirstAfter = await contracts.ETSAccessControls.read.getRelayerAddressFromOwner([
+        firstNewOwner.account.address,
+      ]);
+      assert.equal(relayerOwnedByFirstAfter, "0x0000000000000000000000000000000000000000");
     });
   });
 });

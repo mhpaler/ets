@@ -42,7 +42,7 @@ async function main() {
   // Create parameters file for Ignition
   const parameters = {
     ETSCore: {
-      taggingFee: settings.TAGGING_FEE.toString(),
+      taggingFee: parseEther(settings.TAGGING_FEE).toString(),
       platformPercentage: settings.PLATFORM_PERCENTAGE,
       relayerPercentage: settings.RELAYER_PERCENTAGE,
     },
@@ -60,8 +60,8 @@ async function main() {
   };
 
   // Write parameters to temp file
-  const fs = await import("fs");
-  const path = await import("path");
+  const fs = await import("node:fs");
+  const path = await import("node:path");
   const paramsPath = path.join(process.cwd(), "ignition", "parameters", `${network}.json`);
 
   // Ensure directory exists
@@ -95,6 +95,19 @@ async function main() {
 
     console.log("\n✅ Deployment complete!");
 
+    // Run post-deployment configuration for local networks
+    // Skip if SKIP_CONFIG env var is set
+    if ((network === "localhost" || network === "hardhat") && !process.env.SKIP_CONFIG) {
+      console.log("\n🔧 Running post-deployment configuration...");
+      try {
+        execSync(`npx hardhat run scripts/configure-ets.ts --network ${network}`, { stdio: "inherit" });
+        console.log("✅ Configuration complete!");
+      } catch (_error) {
+        console.error("❌ Configuration failed. You can run it manually with:");
+        console.error(`   npx hardhat run scripts/configure-ets.ts --network ${network}`);
+      }
+    }
+
     // Verify contracts on public networks
     if (network !== "localhost" && network !== "hardhat") {
       console.log("\n🔍 Verifying contracts on Etherscan...");
@@ -102,7 +115,7 @@ async function main() {
       try {
         execSync(`npx hardhat ignition verify ${network}`, { stdio: "inherit" });
         console.log("✅ Verification complete!");
-      } catch (error) {
+      } catch (_error) {
         console.warn("⚠️  Verification failed. You may need to verify manually.");
       }
     }

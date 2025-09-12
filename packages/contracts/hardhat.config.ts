@@ -6,6 +6,9 @@ import { configVariable } from "hardhat/config";
 // Load environment variables from .env file
 dotenv.config();
 
+// Tasks would go here but the API has changed in Hardhat 3
+// Use scripts instead (see scripts/ directory)
+
 const config: HardhatUserConfig = {
   plugins: [hardhatToolboxViem],
   solidity: {
