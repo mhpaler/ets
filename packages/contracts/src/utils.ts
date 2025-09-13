@@ -1,8 +1,8 @@
 // utils.ts
 
-import { etsTokenAddress } from "./contracts";
+import { etsTokenAddress } from "./contracts.js";
 // Importing the chainsConfig types and objects to use in utility functions.
-import { type SupportedChain, type SupportedChainId, chains } from "./multiChainConfig";
+import { type SupportedChain, type SupportedChainId, chains } from "./multiChainConfig.js";
 
 // Retrieves a chain configuration by its ID. Takes in a SupportedChainId and returns
 // the corresponding Chain object from the chains configuration.

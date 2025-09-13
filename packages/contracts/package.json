@@ -52,6 +52,16 @@
       "types": "./dist/upgradeConfig/*.d.ts",
       "import": "./dist/upgradeConfig/*.mjs",
       "require": "./dist/upgradeConfig/*.js"
+    },
+    "./deployments": {
+      "types": "./dist/deployments.d.ts",
+      "import": "./dist/deployments.js",
+      "require": "./dist/deployments.cjs"
+    },
+    "./abis": {
+      "types": "./dist/abis.d.ts",
+      "import": "./dist/abis.js",
+      "require": "./dist/abis.cjs"
     }
   },
   "main": "./dist/multiChainConfig.js",

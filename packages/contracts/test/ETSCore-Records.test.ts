@@ -154,13 +154,7 @@ describe("ETS Core Records Management", async () => {
       console.log(`Expected fee: ${expectedFee}, Tag count: ${tagCount}, Sending: ${taggingFee * BigInt(3)}`);
 
       await contracts.ETS.write.applyTagsWithCompositeKey(
-        [
-          tags,
-          targetId,
-          "bookmark-multi-tag",
-          accounts.User2.account.address,
-          accounts.ETSPlatform.account.address,
-        ],
+        [tags, targetId, "bookmark-multi-tag", accounts.User2.account.address, accounts.ETSPlatform.account.address],
         {
           value: expectedFee, // Use computed fee instead of hardcoded
           account: accounts.ETSPlatform.account,
@@ -217,13 +211,7 @@ describe("ETS Core Records Management", async () => {
     // Set up existing record for append tests
     const appendTags = [etsTag1];
     await contracts.ETS.write.applyTagsWithCompositeKey(
-      [
-        appendTags,
-        targetId,
-        "bookmark-append",
-        accounts.User2.account.address,
-        accounts.ETSPlatform.account.address,
-      ],
+      [appendTags, targetId, "bookmark-append", accounts.User2.account.address, accounts.ETSPlatform.account.address],
       {
         value: taggingFee,
         account: accounts.ETSPlatform.account,
@@ -345,13 +333,7 @@ describe("ETS Core Records Management", async () => {
         const tags = [uniqueTag1, uniqueTag2];
         try {
           await contracts.ETS.write.applyTagsWithCompositeKey(
-            [
-              tags,
-              targetId,
-              "bookmark-append",
-              accounts.User2.account.address,
-              accounts.ETSPlatform.account.address,
-            ],
+            [tags, targetId, "bookmark-append", accounts.User2.account.address, accounts.ETSPlatform.account.address],
             {
               value: taggingFee, // Insufficient fee - should be 2x for 2 new tags
               account: accounts.ETSPlatform.account,
@@ -411,13 +393,10 @@ describe("ETS Core Records Management", async () => {
 
         const tagsToAppend = [appendTag1, appendTag2, appendTag3];
         try {
-          await contracts.ETS.write.appendTags(
-            [appendTaggingRecordId, tagsToAppend, accounts.User2.account.address],
-            {
-              value: taggingFee, // Insufficient fee - should be 3x for 3 new tags
-              account: accounts.ETSPlatform.account,
-            },
-          );
+          await contracts.ETS.write.appendTags([appendTaggingRecordId, tagsToAppend, accounts.User2.account.address], {
+            value: taggingFee, // Insufficient fee - should be 3x for 3 new tags
+            account: accounts.ETSPlatform.account,
+          });
           assert.fail("Should have reverted");
         } catch (error: any) {
           assert.ok(error.message.includes("revert") || error.message.includes("WrongFeeSupplied"));
@@ -454,13 +433,10 @@ describe("ETS Core Records Management", async () => {
         ]);
 
         // TODO: Event testing needs to be implemented with viem
-        await contracts.ETS.write.appendTags(
-          [appendTaggingRecordId, tagsToAppend, accounts.User2.account.address],
-          {
-            value: expectedFee, // Use computed fee
-            account: accounts.ETSPlatform.account,
-          },
-        );
+        await contracts.ETS.write.appendTags([appendTaggingRecordId, tagsToAppend, accounts.User2.account.address], {
+          value: expectedFee, // Use computed fee
+          account: accounts.ETSPlatform.account,
+        });
 
         taggingRecord = await contracts.ETS.read.getTaggingRecordFromId([appendTaggingRecordId]);
         if (!taggingRecord) {
@@ -507,13 +483,7 @@ describe("ETS Core Records Management", async () => {
     // Set up record with multiple tags for removal tests
     const removeTags = [etsTag1, etsTag2, etsTag3, userTag1];
     await contracts.ETS.write.applyTagsWithCompositeKey(
-      [
-        removeTags,
-        targetId,
-        "bookmark-remove",
-        accounts.User2.account.address,
-        accounts.ETSPlatform.account.address,
-      ],
+      [removeTags, targetId, "bookmark-remove", accounts.User2.account.address, accounts.ETSPlatform.account.address],
       {
         value: taggingFee * BigInt(4),
         account: accounts.ETSPlatform.account,
@@ -743,13 +713,7 @@ describe("ETS Core Records Management", async () => {
     // Set up record for replace tests
     const replaceTags = [etsTag1];
     await contracts.ETS.write.applyTagsWithCompositeKey(
-      [
-        replaceTags,
-        targetId,
-        "bookmark-replace",
-        accounts.User2.account.address,
-        accounts.ETSPlatform.account.address,
-      ],
+      [replaceTags, targetId, "bookmark-replace", accounts.User2.account.address, accounts.ETSPlatform.account.address],
       {
         value: taggingFee,
         account: accounts.ETSPlatform.account,
@@ -859,13 +823,7 @@ describe("ETS Core Records Management", async () => {
 
         // TODO: Event testing needs to be implemented with viem
         await contracts.ETS.write.replaceTagsWithCompositeKey(
-          [
-            newTags,
-            targetId,
-            "bookmark-replace",
-            accounts.User2.account.address,
-            accounts.ETSPlatform.account.address,
-          ],
+          [newTags, targetId, "bookmark-replace", accounts.User2.account.address, accounts.ETSPlatform.account.address],
           {
             value: expectedFee, // Use computed fee
             account: accounts.ETSPlatform.account,

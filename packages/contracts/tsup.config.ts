@@ -1,7 +1,14 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ["src/contracts.ts", "src/multiChainConfig.ts", "src/utils.ts", "src/version.ts"],
+  entry: [
+    "src/contracts.ts",
+    "src/deployments.ts",
+    "src/abis.ts",
+    "src/multiChainConfig.ts",
+    "src/utils.ts",
+    "src/version.ts",
+  ],
   format: ["cjs", "esm"],
   dts: true,
   splitting: false,

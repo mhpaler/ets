@@ -11,17 +11,17 @@ last_updated: 2025-09-01
 
 ## ACTIVE_WORK
 ```yaml
-current_issue_id: "SUB-538.4: HD Wallet Integration"
+current_issue_id: "CLI Implementation for ETS Management"
 current_status: COMPLETED
 completion_percent: 100
-exact_task: "Completed HD wallet integration and converted Hardhat tasks to scripts"
+exact_task: "Created standalone CLI package using Commander.js with full ETS contract interaction support"
 blocking_bug: null
-next_priority: "Implement proper CLI solution for 15+ ETS management commands"
-resume_action: "Choose and implement CLI solution (Commander.js vs Hardhat Plugin) for better task management"
-session_accomplishment: "Successfully completed HD wallet integration, fixed all tests, created deployment scripts with auto-configuration"
-architecture_decision: "Converted from Hardhat tasks to scripts due to API changes in Hardhat 3; need proper CLI for 15+ commands"
-critical_path: "HD wallet complete ✅ - ready for integration testing with proper CLI tooling"
-debugging_insight: "Hardhat 3 removed scope/subtask APIs - plugins create subtasks internally, custom code should use scripts"
+next_priority: "Test CLI commands with deployed contracts and refine command structure"
+resume_action: "Test all CLI commands (relayer, roles, tags) with local deployment"
+session_accomplishment: "Created @ethereum-tag-service/ets-cli package with Commander.js, integrated Ignition deployments via custom exports"
+architecture_decision: "Created standalone CLI package instead of Hardhat plugin for better portability; built custom Ignition export bridge since Wagmi CLI lacks native support"
+critical_path: "CLI foundation complete ✅ - ready for command testing and refinement"
+debugging_insight: "Wagmi CLI doesn't support Hardhat Ignition yet; created custom export generation script to bridge gap"
 ```
 
 ## CRITICAL_PATH
