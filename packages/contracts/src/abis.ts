@@ -5,12 +5,14 @@ import ETSEnrichTargetArtifact from "../artifacts/contracts/ETSEnrichTarget.sol/
 import ETSRelayerFactoryArtifact from "../artifacts/contracts/ETSRelayerFactory.sol/ETSRelayerFactory.json";
 import ETSTargetArtifact from "../artifacts/contracts/ETSTarget.sol/ETSTarget.json";
 import ETSTokenArtifact from "../artifacts/contracts/ETSToken.sol/ETSToken.json";
+import ETSRelayerArtifact from "../artifacts/contracts/relayers/ETSRelayer.sol/ETSRelayer.json";
 
 export const ETSAccessControlsABI = ETSAccessControlsArtifact.abi;
 export const ETSTokenABI = ETSTokenArtifact.abi;
 export const ETSTargetABI = ETSTargetArtifact.abi;
 export const ETSCoreABI = ETSCoreArtifact.abi;
 export const ETSEnrichTargetABI = ETSEnrichTargetArtifact.abi;
+export const ETSRelayerABI = ETSRelayerArtifact.abi;
 export const ETSRelayerFactoryABI = ETSRelayerFactoryArtifact.abi;
 
 // Helper function to get ABI by contract name
@@ -32,6 +34,9 @@ export function getContractABI(contractName: string) {
     case "ETSEnrichTarget":
     case "enrichTarget":
       return ETSEnrichTargetABI;
+    case "ETSRelayer":
+    case "relayer":
+      return ETSRelayerABI;
     case "ETSRelayerFactory":
     case "relayerFactory":
       return ETSRelayerFactoryABI;

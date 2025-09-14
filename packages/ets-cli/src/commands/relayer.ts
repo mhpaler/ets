@@ -22,14 +22,12 @@ export function setupRelayerCommands(program: Command) {
         const factoryAddress = await getContractAddress(options.network, "relayerFactory");
 
         // Get factory contract ABI
-        const { abi: factoryAbi } = await import(
-          "@ethereum-tag-service/contracts/artifacts/contracts/ETSRelayerFactory.sol/ETSRelayerFactory.json"
-        );
+        const { ETSRelayerFactoryABI } = await import("@ethereum-tag-service/contracts/abis");
 
         // Add the relayer
         const hash = await walletClient.writeContract({
           address: factoryAddress,
-          abi: factoryAbi,
+          abi: ETSRelayerFactoryABI,
           functionName: "addRelayer",
           args: [name],
         });
@@ -42,13 +40,11 @@ export function setupRelayerCommands(program: Command) {
 
           // Get the new relayer address
           const accessControlsAddress = await getContractAddress(options.network, "accessControls");
-          const { abi: accessControlsAbi } = await import(
-            "@ethereum-tag-service/contracts/artifacts/contracts/ETSAccessControls.sol/ETSAccessControls.json"
-          );
+          const { ETSAccessControlsABI } = await import("@ethereum-tag-service/contracts/abis");
 
           const relayerAddress = await publicClient.readContract({
             address: accessControlsAddress,
-            abi: accessControlsAbi,
+            abi: ETSAccessControlsABI,
             functionName: "getRelayerAddressFromName",
             args: [name],
           });
@@ -109,14 +105,12 @@ export function setupRelayerCommands(program: Command) {
       try {
         const publicClient = await getPublicClient(options.network);
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
-        const { abi: accessControlsAbi } = await import(
-          "@ethereum-tag-service/contracts/artifacts/contracts/ETSAccessControls.sol/ETSAccessControls.json"
-        );
+        const { ETSAccessControlsABI } = await import("@ethereum-tag-service/contracts/abis");
 
         // Get relayer address
         const relayerAddress = (await publicClient.readContract({
           address: accessControlsAddress,
-          abi: accessControlsAbi,
+          abi: ETSAccessControlsABI,
           functionName: "getRelayerAddressFromName",
           args: [name],
         })) as string;
@@ -127,20 +121,18 @@ export function setupRelayerCommands(program: Command) {
         }
 
         // Get relayer info
-        const { abi: relayerAbi } = await import(
-          "@ethereum-tag-service/contracts/artifacts/contracts/relayers/ETSRelayer.sol/ETSRelayer.json"
-        );
+        const { ETSRelayerABI } = await import("@ethereum-tag-service/contracts/abis");
 
         const [isPaused, owner] = await Promise.all([
           publicClient.readContract({
             address: relayerAddress as `0x${string}`,
-            abi: relayerAbi,
+            abi: ETSRelayerABI,
             functionName: "paused",
             args: [],
           }),
           publicClient.readContract({
             address: relayerAddress as `0x${string}`,
-            abi: relayerAbi,
+            abi: ETSRelayerABI,
             functionName: "owner",
             args: [],
           }),
@@ -171,14 +163,12 @@ export function setupRelayerCommands(program: Command) {
         const walletClient = await getWalletClient(options.network);
         const publicClient = await getPublicClient(options.network);
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
-        const { abi: accessControlsAbi } = await import(
-          "@ethereum-tag-service/contracts/artifacts/contracts/ETSAccessControls.sol/ETSAccessControls.json"
-        );
+        const { ETSAccessControlsABI } = await import("@ethereum-tag-service/contracts/abis");
 
         // Get relayer address
         const relayerAddress = (await publicClient.readContract({
           address: accessControlsAddress,
-          abi: accessControlsAbi,
+          abi: ETSAccessControlsABI,
           functionName: "getRelayerAddressFromName",
           args: [name],
         })) as `0x${string}`;
@@ -189,9 +179,7 @@ export function setupRelayerCommands(program: Command) {
         }
 
         // Pause the relayer
-        const { abi: relayerAbi } = await import(
-          "@ethereum-tag-service/contracts/artifacts/contracts/relayers/ETSRelayer.sol/ETSRelayer.json"
-        );
+        const { ETSRelayerABI } = await import("@ethereum-tag-service/contracts/abis");
 
         const hash = await walletClient.writeContract({
           address: relayerAddress,

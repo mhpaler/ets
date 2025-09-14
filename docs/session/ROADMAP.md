@@ -12,16 +12,16 @@ last_updated: 2025-09-01
 ## ACTIVE_WORK
 ```yaml
 current_issue_id: "CLI Implementation for ETS Management"
-current_status: COMPLETED
-completion_percent: 100
-exact_task: "Created standalone CLI package using Commander.js with full ETS contract interaction support"
+current_status: IN_PROGRESS
+completion_percent: 60
+exact_task: "Implementing and testing CLI commands for ETS contract management"
 blocking_bug: null
-next_priority: "Test CLI commands with deployed contracts and refine command structure"
-resume_action: "Test all CLI commands (relayer, roles, tags) with local deployment"
-session_accomplishment: "Created @ethereum-tag-service/ets-cli package with Commander.js, integrated Ignition deployments via custom exports"
-architecture_decision: "Created standalone CLI package instead of Hardhat plugin for better portability; built custom Ignition export bridge since Wagmi CLI lacks native support"
-critical_path: "CLI foundation complete ✅ - ready for command testing and refinement"
-debugging_insight: "Wagmi CLI doesn't support Hardhat Ignition yet; created custom export generation script to bridge gap"
+next_priority: "Complete remaining CLI commands (roles check/list, tags create/apply/info)"
+resume_action: "Implement role commands starting with 'ets roles check' to display user's roles"
+session_accomplishment: "Fixed ABI imports, added ETSRelayerABI export, successfully tested relayer add/info commands"
+architecture_decision: "Dual deployment export strategy: Wagmi for existing packages, custom Ignition exports for CLI"
+critical_path: "CLI relayer commands working ✅ - need roles and tags commands"
+debugging_insight: "Must use funded account (PRIVATE_KEY env var) for contract interactions"
 ```
 
 ## CRITICAL_PATH
@@ -593,26 +593,38 @@ queue:
 future_features:
   - title: "Configurable Smart Wallet Relayers"
     scope: ["Plugin architecture", "Custom fees", "Rate limiting"]
-    
+
   - title: "ENS Subdomain Integration"
     scope: ["myrelayer.ets.eth subdomains", "ENS in RelayerFactory"]
+
+  - title: "Wagmi CLI Ignition Integration"
+    scope: ["Create Wagmi plugin for Hardhat Ignition deployments", "Generate typed contract functions from Ignition artifacts", "Unify deployment export strategy"]
+    context: "Currently using dual approach: Wagmi reads hardhat-deploy format, CLI reads Ignition directly"
+    impact: "Would eliminate need for generate-ignition-exports.ts workaround and provide typed functions for all packages"
+    technical_debt: true
 ```
 
 ## TECHNICAL_DECISIONS
 ```yaml
 decisions:
+  - date: 2025-09-13
+    decision: "Dual deployment export strategy"
+    rationale: "Wagmi CLI doesn't support Ignition; created parallel exports for CLI while maintaining wagmi for existing packages"
+    workaround: "generate-ignition-exports.ts bridges gap for CLI usage"
+    future_solution: "Create Wagmi plugin for Ignition or migrate to unified deployment format"
+
   - date: 2025-08-13
     decision: "Address-based architecture over tokenIds"
     rationale: "Cleaner, more intuitive"
-    
+
   - date: 2025-08-15
     decision: "Deterministic Zora integration"
     rationale: "Eliminated predict→create→update pattern"
-    
+
   - date: 2025-08-19
     decision: "MockZoraFactory deployment ordering"
     rationale: "Deploy-time configuration over post-deployment updates"
-    
+
   - date: 2025-08-22
     decision: "TypeScript Node16 module resolution"
     rationale: "Required for workspace package imports"

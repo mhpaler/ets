@@ -1,5 +1,5 @@
 // Auto-generated from Ignition deployments
-// Generated at: 2025-09-13T00:06:53.148Z
+// Generated at: 2025-09-14T16:55:28.702Z
 
 export interface ContractAddresses {
   accessControls?: string;
