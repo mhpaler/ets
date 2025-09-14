@@ -7,6 +7,7 @@
       "packages/subgraph/src/generated/**",
       "apps/oracle/config/templates/**",
       "research/**",
+      "docs/hardhat-website/**",
       "**/dist/**",
       "**/build/**",
       "**/.next/**",
@@ -113,6 +114,19 @@
       "formatter": {
         "indentWidth": 4,
         "indentStyle": "space"
+      }
+    },
+    {
+      "include": ["packages/contracts/test/**/*.test.ts", "packages/contracts/ignition/modules/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useConst": "off"
+          },
+          "correctness": {
+            "noUnusedVariables": "warn"
+          }
+        }
       }
     }
   ],

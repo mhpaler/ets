@@ -78,8 +78,8 @@ export function setupRelayerCommands(program: Command) {
       const spinner = ora("Loading relayers...").start();
 
       try {
-        const publicClient = await getPublicClient(options.network);
-        const accessControlsAddress = await getContractAddress(options.network, "accessControls");
+        const _publicClient = await getPublicClient(options.network);
+        const _accessControlsAddress = await getContractAddress(options.network, "accessControls");
 
         // This would need to be implemented based on your contract's methods
         // For now, just show a message
@@ -183,7 +183,7 @@ export function setupRelayerCommands(program: Command) {
 
         const hash = await walletClient.writeContract({
           address: relayerAddress,
-          abi: relayerAbi,
+          abi: ETSRelayerABI,
           functionName: "pause",
           args: [],
         });

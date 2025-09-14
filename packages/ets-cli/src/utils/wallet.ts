@@ -14,7 +14,7 @@ export async function getWalletClient(network: string): Promise<WalletClient> {
   const transport = http(chain.rpcUrl);
 
   // Get account from private key or mnemonic
-  let account;
+  let account: any;
 
   if (process.env.PRIVATE_KEY) {
     const privateKey = process.env.PRIVATE_KEY.startsWith("0x")

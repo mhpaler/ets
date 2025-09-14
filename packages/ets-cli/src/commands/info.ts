@@ -59,7 +59,7 @@ export function setupInfoCommands(program: Command) {
                 if (code && code !== "0x") {
                   console.log(chalk.green(`    ✅ Deployed (${code.length / 2} bytes)`));
                 } else {
-                  console.log(chalk.red(`    ❌ Not deployed`));
+                  console.log(chalk.red("    ❌ Not deployed"));
                 }
               }
             } else {
@@ -158,7 +158,7 @@ export function setupInfoCommands(program: Command) {
         if (process.env.MNEMONIC) {
           console.log(chalk.gray(`Source: Mnemonic (index ${process.env.ACCOUNT_INDEX || 0})`));
         } else {
-          console.log(chalk.gray(`Source: Private Key`));
+          console.log(chalk.gray("Source: Private Key"));
         }
       } catch (error: any) {
         console.error(chalk.red(`❌ Error: ${error.message}`));

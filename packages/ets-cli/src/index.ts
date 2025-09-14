@@ -44,7 +44,7 @@ program
     // Validate network
     try {
       await getNetwork(options.network);
-    } catch (error) {
+    } catch (_error) {
       console.error(chalk.red(`❌ Error: Invalid network "${options.network}"`));
       console.log(chalk.yellow("Supported networks: localhost, baseSepolia, base"));
       process.exit(1);

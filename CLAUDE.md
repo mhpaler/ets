@@ -68,6 +68,15 @@ PATH="/Users/User/.nvm/versions/node/v20.19.4/bin:$PATH" git commit -m "message"
 - **Error Handling**: Explicit error boundaries, detailed error messages
 - **File Size**: Keep files under 200-300 lines, refactor when larger
 
+### Biome & Code Quality
+- **NEVER use `--no-verify`**: Always fix Biome errors before committing
+- **Lean on Biome**: It's an excellent tool that prevents technical debt
+- **Fix issues properly**: When Biome blocks a commit:
+  - Fix the actual issues in the code
+  - If truly problematic, adjust Biome configuration
+  - As last resort, use inline Biome ignore comments with justification
+- **No bypassing**: `--no-verify` commits are not acceptable
+
 ### Debug Logging Strategy
 
 **Hybrid approach with automatic console stripping:**
