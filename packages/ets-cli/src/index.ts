@@ -8,6 +8,8 @@ import { setupInfoCommands } from "./commands/info.js";
 import { setupRelayerCommands } from "./commands/relayer.js";
 import { setupRoleCommands } from "./commands/roles.js";
 import { setupTagCommands } from "./commands/tags.js";
+import { setupTargetCommands } from "./commands/targets.js";
+import { setupTestDataCommands } from "./commands/testdata.js";
 import { getNetwork } from "./utils/network.js";
 import { getWalletClient } from "./utils/wallet.js";
 
@@ -32,12 +34,10 @@ program
     }
 
     // Check wallet configuration
-    if (!process.env.PRIVATE_KEY && !process.env.MNEMONIC) {
-      console.error(chalk.red("❌ Error: Either PRIVATE_KEY or MNEMONIC must be set in .env file"));
+    if (!process.env.PRIVATE_KEY) {
+      console.error(chalk.red("❌ Error: PRIVATE_KEY must be set in .env file"));
       console.log(chalk.yellow("\nExample .env file:"));
       console.log(chalk.gray("  PRIVATE_KEY=your_private_key_here"));
-      console.log(chalk.gray("  # or"));
-      console.log(chalk.gray("  MNEMONIC=your twelve word mnemonic phrase here"));
       process.exit(1);
     }
 
@@ -56,6 +56,8 @@ setupRelayerCommands(program);
 setupRoleCommands(program);
 setupInfoCommands(program);
 setupTagCommands(program);
+setupTargetCommands(program);
+setupTestDataCommands(program);
 
 // Parse arguments
 program.parse();

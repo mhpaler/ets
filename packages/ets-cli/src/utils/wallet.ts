@@ -1,7 +1,6 @@
 import chalk from "chalk";
 import { http, type PublicClient, type WalletClient, createPublicClient, createWalletClient } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { mnemonicToAccount } from "viem/accounts";
 import { getNetwork } from "./network.js";
 
 let walletClient: WalletClient | null = null;
@@ -13,23 +12,17 @@ export async function getWalletClient(network: string): Promise<WalletClient> {
   const chain = await getNetwork(network);
   const transport = http(chain.rpcUrl);
 
-  // Get account from private key or mnemonic
-  let account: any;
-
-  if (process.env.PRIVATE_KEY) {
-    const privateKey = process.env.PRIVATE_KEY.startsWith("0x")
-      ? (process.env.PRIVATE_KEY as `0x${string}`)
-      : (`0x${process.env.PRIVATE_KEY}` as `0x${string}`);
-
-    account = privateKeyToAccount(privateKey);
-  } else if (process.env.MNEMONIC) {
-    const accountIndex = Number.parseInt(process.env.ACCOUNT_INDEX || "0");
-    account = mnemonicToAccount(process.env.MNEMONIC, {
-      accountIndex,
-    });
-  } else {
-    throw new Error("No wallet configuration found. Set PRIVATE_KEY or MNEMONIC in .env");
+  // Get account from private key
+  const privateKey = process.env.PRIVATE_KEY;
+  if (!privateKey) {
+    throw new Error("PRIVATE_KEY environment variable not set");
   }
+
+  const formattedKey = privateKey.startsWith("0x")
+    ? (privateKey as `0x${string}`)
+    : (`0x${privateKey}` as `0x${string}`);
+
+  const account = privateKeyToAccount(formattedKey);
 
   walletClient = createWalletClient({
     account,

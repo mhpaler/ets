@@ -153,12 +153,44 @@ export function setupInfoCommands(program: Command) {
         console.log(chalk.white(`Address: ${account}`));
         console.log(chalk.white(`Balance: ${formatEther(balance)} ETH`));
         console.log(chalk.white(`Network: ${options.network}`));
+        console.log(chalk.gray("Source: Private Key"));
 
-        // Check if using mnemonic or private key
-        if (process.env.MNEMONIC) {
-          console.log(chalk.gray(`Source: Mnemonic (index ${process.env.ACCOUNT_INDEX || 0})`));
-        } else {
-          console.log(chalk.gray("Source: Private Key"));
+        // Check if user owns a relayer
+        try {
+          const accessControlsAddress = await getContractAddress(options.network, "accessControls");
+          const { ETSAccessControlsABI } = await import("@ethereum-tag-service/contracts/abis");
+
+          // Check if address owns a relayer
+          const isRelayerOwner = await publicClient.readContract({
+            address: accessControlsAddress,
+            abi: ETSAccessControlsABI,
+            functionName: "isRelayerByOwner",
+            args: [account as `0x${string}`],
+          });
+
+          if (isRelayerOwner) {
+            // Get relayer address
+            const relayerAddress = await publicClient.readContract({
+              address: accessControlsAddress,
+              abi: ETSAccessControlsABI,
+              functionName: "getRelayerAddressFromOwner",
+              args: [account as `0x${string}`],
+            });
+
+            // Get relayer name
+            const relayerName = await publicClient.readContract({
+              address: accessControlsAddress,
+              abi: ETSAccessControlsABI,
+              functionName: "getRelayerNameFromAddress",
+              args: [relayerAddress],
+            });
+
+            console.log(chalk.cyan("\n📦 Owned Relayer:"));
+            console.log(chalk.white(`  Name: ${relayerName}`));
+            console.log(chalk.white(`  Address: ${relayerAddress}`));
+          }
+        } catch (error) {
+          // Silently fail if we can't check relayer status
         }
       } catch (error: any) {
         console.error(chalk.red(`❌ Error: ${error.message}`));

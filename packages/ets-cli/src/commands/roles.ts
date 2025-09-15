@@ -19,9 +19,8 @@ export function setupRoleCommands(program: Command) {
       try {
         const publicClient = await getPublicClient(options.network);
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
-        const { abi } = await import(
-          "@ethereum-tag-service/contracts/artifacts/contracts/ETSAccessControls.sol/ETSAccessControls.json"
-        );
+        const { ETSAccessControlsABI } = await import("@ethereum-tag-service/contracts/abis");
+        const abi = ETSAccessControlsABI;
 
         // Use provided address or get from wallet
         const checkAddress = address || (await getAccount(options.network));
@@ -164,9 +163,8 @@ export function setupRoleCommands(program: Command) {
         const publicClient = await getPublicClient(options.network);
         const factoryAddress = await getContractAddress(options.network, "relayerFactory");
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
-        const { abi } = await import(
-          "@ethereum-tag-service/contracts/artifacts/contracts/ETSAccessControls.sol/ETSAccessControls.json"
-        );
+        const { ETSAccessControlsABI } = await import("@ethereum-tag-service/contracts/abis");
+        const abi = ETSAccessControlsABI;
 
         // Check if factory has role
         const RELAYER_FACTORY_ROLE = await publicClient.readContract({

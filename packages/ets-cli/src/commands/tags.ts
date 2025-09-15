@@ -14,6 +14,14 @@ export function setupTagCommands(program: Command) {
     .argument("<tags...>", "Tags to create (space-separated)")
     .option("-r, --relayer <name>", "Relayer to use", "ETSRelayer")
     .option("-n, --network <network>", "Network to use", process.env.NETWORK || "localhost")
+    .addHelpText(
+      "after",
+      `
+Examples:
+  $ ets tags create "#defi" "#ethereum" "#protocol"
+  $ ets tags create "#nft" "#art" --relayer "My Relayer"
+  $ ets tags create "#bitcoin" --network mainnet`,
+    )
     .action(async (tagList: string[], options) => {
       const spinner = ora("Creating tags...").start();
 
@@ -21,7 +29,6 @@ export function setupTagCommands(program: Command) {
         const walletClient = await getWalletClient(options.network);
         const publicClient = await getPublicClient(options.network);
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
-        const coreAddress = await getContractAddress(options.network, "core");
 
         // Get relayer address
         const { ETSAccessControlsABI: accessControlsAbi } = await import("@ethereum-tag-service/contracts/abis");
@@ -37,35 +44,75 @@ export function setupTagCommands(program: Command) {
           process.exit(1);
         }
 
-        // Get tagging fee
-        const { ETSCoreABI: coreAbi } = await import("@ethereum-tag-service/contracts/abis");
-        const taggingFee = (await publicClient.readContract({
-          address: coreAddress,
-          abi: coreAbi,
-          functionName: "taggingFee",
-          args: [],
-        })) as bigint;
+        // Check which tags already exist
+        const { ETSTokenABI: tokenAbi } = await import("@ethereum-tag-service/contracts/abis");
+        const tokenAddress = await getContractAddress(options.network, "token");
+        const tagsToCreate = [];
 
-        const totalFee = taggingFee * BigInt(tagList.length);
-        spinner.text = `Creating ${tagList.length} tags (fee: ${parseEther(totalFee.toString())} ETH)...`;
+        for (const tag of tagList) {
+          const coinAddress = await publicClient.readContract({
+            address: tokenAddress,
+            abi: tokenAbi,
+            functionName: "computeCoinAddress",
+            args: [tag],
+          });
+          const exists = await publicClient.readContract({
+            address: tokenAddress,
+            abi: tokenAbi,
+            functionName: "tagExistsByAddress",
+            args: [coinAddress],
+          });
 
-        // Create tags
+          if (!exists) {
+            tagsToCreate.push(tag);
+            spinner.text = `Checking tags... ${tag} will be created`;
+          } else {
+            spinner.text = `Checking tags... ${tag} already exists`;
+          }
+        }
+
+        if (tagsToCreate.length === 0) {
+          spinner.succeed("All tags already exist!");
+          return;
+        }
+
+        spinner.text = `Creating ${tagsToCreate.length} new tags...`;
+
+        // Create tags through the relayer's getOrCreateTagIds function
+        const { ETSRelayerABI } = await import("@ethereum-tag-service/contracts/abis");
+
         const hash = await walletClient.writeContract({
-          address: coreAddress,
-          abi: coreAbi,
-          functionName: "createTags",
-          args: [tagList, relayerAddress],
-          value: totalFee,
+          address: relayerAddress,
+          abi: ETSRelayerABI,
+          functionName: "getOrCreateTagIds",
+          args: [tagsToCreate],
         });
 
         spinner.text = "Waiting for confirmation...";
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
         if (receipt.status === "success") {
-          spinner.succeed(`Created ${tagList.length} tags successfully!`);
-          console.log(chalk.green(`\n✅ Tags created: ${tagList.join(", ")}`));
+          spinner.succeed(`Created ${tagsToCreate.length} tags successfully!`);
+          console.log(chalk.green(`\n✅ Tags created: ${tagsToCreate.join(", ")}`));
           console.log(chalk.gray(`   Transaction: ${hash}`));
           console.log(chalk.gray(`   Block: ${receipt.blockNumber}`));
+
+          // Show the coin addresses for the created tags
+          console.log(chalk.cyan("\n📦 Tag Details:"));
+          for (const tag of tagsToCreate) {
+            const coinAddress = await publicClient.readContract({
+              address: tokenAddress,
+              abi: tokenAbi,
+              functionName: "computeCoinAddress",
+              args: [tag],
+            });
+            console.log(chalk.white(`  ${tag} → ${coinAddress}`));
+          }
+
+          if (options.network === "localhost") {
+            console.log(chalk.yellow("\n⚠️  Note: On localhost, Zora content coins are not created."));
+            console.log(chalk.yellow("   This requires the off-chain event processor."));
+          }
         } else {
           spinner.fail("Transaction failed");
         }
@@ -83,6 +130,17 @@ export function setupTagCommands(program: Command) {
     .argument("<tags...>", "Tags to apply (space-separated)")
     .option("-r, --relayer <name>", "Relayer to use", "ETSRelayer")
     .option("-n, --network <network>", "Network to use", process.env.NETWORK || "localhost")
+    .option("-t, --record-type <type>", "Record type", "bookmark")
+    .option("-e, --enrich", "Enrich the target", false)
+    .addHelpText(
+      "after",
+      `
+Examples:
+  $ ets tags apply "https://ethereum.org" "#ethereum" "#blockchain" "#web3"
+  $ ets tags apply "https://bitcoin.org" "#bitcoin" "#crypto" --relayer "My Relayer"
+  $ ets tags apply "ipfs://QmXxx..." "#nft" "#art" --enrich
+  $ ets tags apply "https://example.com" "#bookmark" --record-type bookmark --network mainnet`,
+    )
     .action(async (target: string, tagList: string[], options) => {
       const spinner = ora("Applying tags...").start();
 
@@ -90,7 +148,6 @@ export function setupTagCommands(program: Command) {
         const walletClient = await getWalletClient(options.network);
         const publicClient = await getPublicClient(options.network);
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
-        const coreAddress = await getContractAddress(options.network, "core");
 
         // Get relayer address
         const { ETSAccessControlsABI: accessControlsAbi } = await import("@ethereum-tag-service/contracts/abis");
@@ -106,30 +163,36 @@ export function setupTagCommands(program: Command) {
           process.exit(1);
         }
 
-        // Get tagging fee
-        const { ETSCoreABI: coreAbi } = await import("@ethereum-tag-service/contracts/abis");
-        const taggingFee = (await publicClient.readContract({
-          address: coreAddress,
-          abi: coreAbi,
-          functionName: "taggingFee",
-          args: [],
-        })) as bigint;
+        // Prepare tag parameters
+        const tagParams = {
+          targetURI: target,
+          tagStrings: tagList,
+          recordType: options.recordType || "bookmark",
+          enrich: options.enrich || false,
+        };
 
-        const totalFee = taggingFee * BigInt(tagList.length);
-        spinner.text = `Applying ${tagList.length} tags to "${target}"...`;
+        // Calculate tagging fee through the relayer
+        const { ETSRelayerABI } = await import("@ethereum-tag-service/contracts/abis");
+        spinner.text = "Calculating tagging fee...";
 
-        // Apply tags
+        const feeResult = await publicClient.readContract({
+          address: relayerAddress,
+          abi: ETSRelayerABI,
+          functionName: "computeTaggingFee",
+          args: [tagParams, 0],
+        });
+        const [taggingFee, actualTagCount] = feeResult as [bigint, bigint];
+
+        const formattedFee = (Number(taggingFee) / 1e18).toFixed(4);
+        spinner.text = `Applying ${actualTagCount} tags to "${target}" (fee: ${formattedFee} ETH)...`;
+
+        // Apply tags through the relayer
         const hash = await walletClient.writeContract({
-          address: coreAddress,
-          abi: coreAbi,
-          functionName: "applyTagsWithRawInput",
-          args: [
-            tagList, // tags
-            target, // targetURI
-            "0", // recordType (0 for regular)
-            relayerAddress, // relayer
-          ],
-          value: totalFee,
+          address: relayerAddress,
+          abi: ETSRelayerABI,
+          functionName: "applyTags",
+          args: [[tagParams]],
+          value: taggingFee,
         });
 
         spinner.text = "Waiting for confirmation...";
@@ -152,6 +215,251 @@ export function setupTagCommands(program: Command) {
     });
 
   tags
+    .command("remove")
+    .description("Remove tags from a tagging record")
+    .argument("<target>", "Target URL or identifier")
+    .argument("<tags...>", "Tags to remove (space-separated)")
+    .option("-r, --relayer <name>", "Relayer to use", "ETSRelayer")
+    .option("-n, --network <network>", "Network to use", process.env.NETWORK || "localhost")
+    .option("-t, --record-type <type>", "Record type", "bookmark")
+    .addHelpText(
+      "after",
+      `
+Examples:
+  $ ets tags remove "https://ethereum.org" "#old" "#outdated"
+  $ ets tags remove "https://bitcoin.org" "#test" --relayer "My Relayer"`,
+    )
+    .action(async (target: string, tagList: string[], options) => {
+      const spinner = ora("Removing tags...").start();
+
+      try {
+        const walletClient = await getWalletClient(options.network);
+        const publicClient = await getPublicClient(options.network);
+        const accessControlsAddress = await getContractAddress(options.network, "accessControls");
+
+        // Get relayer address
+        const { ETSAccessControlsABI: accessControlsAbi } = await import("@ethereum-tag-service/contracts/abis");
+        const relayerAddress = (await publicClient.readContract({
+          address: accessControlsAddress,
+          abi: accessControlsAbi,
+          functionName: "getRelayerAddressFromName",
+          args: [options.relayer],
+        })) as `0x${string}`;
+
+        if (relayerAddress === "0x0000000000000000000000000000000000000000") {
+          spinner.fail(`Relayer "${options.relayer}" not found`);
+          process.exit(1);
+        }
+
+        // Check if tagging record exists
+        const coreAddress = await getContractAddress(options.network, "core");
+        const { ETSCoreABI } = await import("@ethereum-tag-service/contracts/abis");
+
+        const tagParams = {
+          targetURI: target,
+          tagStrings: tagList,
+          recordType: options.recordType || "bookmark",
+          enrich: false,
+        };
+
+        const taggingRecordId = await publicClient.readContract({
+          address: coreAddress,
+          abi: ETSCoreABI,
+          functionName: "computeTaggingRecordIdFromRawInput",
+          args: [tagParams, relayerAddress, walletClient.account.address],
+        });
+
+        const recordExists = await publicClient.readContract({
+          address: coreAddress,
+          abi: ETSCoreABI,
+          functionName: "taggingRecordExists",
+          args: [taggingRecordId],
+        });
+
+        if (!recordExists) {
+          spinner.fail("Tagging record not found");
+          console.log(chalk.red(`\n❌ No tagging record exists for this combination of:`));
+          console.log(chalk.gray(`   URI: ${target}`));
+          console.log(chalk.gray(`   Record Type: ${options.recordType}`));
+          console.log(chalk.gray(`   Relayer: ${options.relayer}`));
+          console.log(chalk.gray(`   Tagger: ${walletClient.account.address}`));
+          process.exit(1);
+        }
+
+        // Remove tags through the relayer
+        const { ETSRelayerABI } = await import("@ethereum-tag-service/contracts/abis");
+
+        const hash = await walletClient.writeContract({
+          address: relayerAddress,
+          abi: ETSRelayerABI,
+          functionName: "removeTags",
+          args: [[tagParams]],
+        });
+
+        spinner.text = "Waiting for confirmation...";
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+
+        if (receipt.status === "success") {
+          // Check if record still exists after removal
+          const recordStillExists = await publicClient.readContract({
+            address: coreAddress,
+            abi: ETSCoreABI,
+            functionName: "taggingRecordExists",
+            args: [taggingRecordId],
+          });
+
+          if (recordStillExists) {
+            spinner.succeed(`Removed ${tagList.length} tags from record`);
+            console.log(chalk.green(`\n✅ Tags removed from: ${target}`));
+            console.log(chalk.green(`   Removed tags: ${tagList.join(", ")}`));
+            console.log(chalk.gray(`   Record still contains other tags`));
+          } else {
+            spinner.succeed(`All tags removed - record deleted`);
+            console.log(chalk.green(`\n✅ All tags removed from: ${target}`));
+            console.log(chalk.gray(`   Record no longer exists (empty records are cleaned up)`));
+          }
+          console.log(chalk.gray(`   Transaction: ${hash}`));
+        } else {
+          spinner.fail("Transaction failed");
+        }
+      } catch (error: any) {
+        spinner.fail("Failed to remove tags");
+        console.error(chalk.red(`❌ Error: ${error.message}`));
+        process.exit(1);
+      }
+    });
+
+  tags
+    .command("replace")
+    .description("Replace all tags in a tagging record")
+    .argument("<target>", "Target URL or identifier")
+    .argument("<tags...>", "New tags to replace with (space-separated)")
+    .option("-r, --relayer <name>", "Relayer to use", "ETSRelayer")
+    .option("-n, --network <network>", "Network to use", process.env.NETWORK || "localhost")
+    .option("-t, --record-type <type>", "Record type", "bookmark")
+    .option("-e, --enrich", "Enrich the target", false)
+    .addHelpText(
+      "after",
+      `
+Examples:
+  $ ets tags replace "https://ethereum.org" "#defi" "#layer2" "#zk"
+  $ ets tags replace "https://bitcoin.org" "#crypto" "#btc" --relayer "My Relayer"`,
+    )
+    .action(async (target: string, tagList: string[], options) => {
+      const spinner = ora("Replacing tags...").start();
+
+      try {
+        const walletClient = await getWalletClient(options.network);
+        const publicClient = await getPublicClient(options.network);
+        const accessControlsAddress = await getContractAddress(options.network, "accessControls");
+
+        // Get relayer address
+        const { ETSAccessControlsABI: accessControlsAbi } = await import("@ethereum-tag-service/contracts/abis");
+        const relayerAddress = (await publicClient.readContract({
+          address: accessControlsAddress,
+          abi: accessControlsAbi,
+          functionName: "getRelayerAddressFromName",
+          args: [options.relayer],
+        })) as `0x${string}`;
+
+        if (relayerAddress === "0x0000000000000000000000000000000000000000") {
+          spinner.fail(`Relayer "${options.relayer}" not found`);
+          process.exit(1);
+        }
+
+        // Check which new tags need to be created
+        const { ETSTokenABI: tokenAbi } = await import("@ethereum-tag-service/contracts/abis");
+        const tokenAddress = await getContractAddress(options.network, "token");
+        const tagsToCreate = [];
+
+        spinner.text = "Checking tags...";
+        for (const tag of tagList) {
+          const coinAddress = await publicClient.readContract({
+            address: tokenAddress,
+            abi: tokenAbi,
+            functionName: "computeCoinAddress",
+            args: [tag],
+          });
+          const exists = await publicClient.readContract({
+            address: tokenAddress,
+            abi: tokenAbi,
+            functionName: "tagExistsByAddress",
+            args: [coinAddress],
+          });
+
+          if (!exists) {
+            tagsToCreate.push(tag);
+          }
+        }
+
+        // Create missing tags first
+        if (tagsToCreate.length > 0) {
+          spinner.text = `Creating ${tagsToCreate.length} new tags...`;
+          const { ETSRelayerABI } = await import("@ethereum-tag-service/contracts/abis");
+
+          const createHash = await walletClient.writeContract({
+            address: relayerAddress,
+            abi: ETSRelayerABI,
+            functionName: "getOrCreateTagIds",
+            args: [tagsToCreate],
+          });
+
+          const createReceipt = await publicClient.waitForTransactionReceipt({ hash: createHash });
+          if (createReceipt.status !== "success") {
+            spinner.fail("Failed to create new tags");
+            process.exit(1);
+          }
+        }
+
+        // Prepare replacement parameters
+        const tagParams = {
+          targetURI: target,
+          tagStrings: tagList,
+          recordType: options.recordType || "bookmark",
+          enrich: options.enrich || false,
+        };
+
+        // Calculate tagging fee
+        const { ETSRelayerABI } = await import("@ethereum-tag-service/contracts/abis");
+        const feeResult = await publicClient.readContract({
+          address: relayerAddress,
+          abi: ETSRelayerABI,
+          functionName: "computeTaggingFee",
+          args: [tagParams, 0],
+        });
+        const [taggingFee] = feeResult as [bigint, bigint];
+
+        spinner.text = `Replacing tags (fee: ${(Number(taggingFee) / 1e18).toFixed(4)} ETH)...`;
+
+        // Replace tags through the relayer
+        const hash = await walletClient.writeContract({
+          address: relayerAddress,
+          abi: ETSRelayerABI,
+          functionName: "replaceTags",
+          args: [[tagParams]],
+          value: taggingFee,
+        });
+
+        spinner.text = "Waiting for confirmation...";
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+
+        if (receipt.status === "success") {
+          spinner.succeed(`Replaced tags successfully!`);
+          console.log(chalk.green(`\n✅ Tags replaced on: ${target}`));
+          console.log(chalk.green(`   New tags: ${tagList.join(", ")}`));
+          console.log(chalk.gray(`   Transaction: ${hash}`));
+          console.log(chalk.gray(`   Block: ${receipt.blockNumber}`));
+        } else {
+          spinner.fail("Transaction failed");
+        }
+      } catch (error: any) {
+        spinner.fail("Failed to replace tags");
+        console.error(chalk.red(`❌ Error: ${error.message}`));
+        process.exit(1);
+      }
+    });
+
+  tags
     .command("info")
     .description("Get information about a tag")
     .argument("<tag>", "Tag to look up")
@@ -164,11 +472,11 @@ export function setupTagCommands(program: Command) {
         const tokenAddress = await getContractAddress(options.network, "token");
         const { ETSTokenABI: abi } = await import("@ethereum-tag-service/contracts/abis");
 
-        // Get tag ID
-        const tagId = await publicClient.readContract({
+        // Get coin address (which serves as the tag ID)
+        const coinAddress = await publicClient.readContract({
           address: tokenAddress,
           abi,
-          functionName: "computeTagId",
+          functionName: "computeCoinAddress",
           args: [tag],
         });
 
@@ -184,18 +492,20 @@ export function setupTagCommands(program: Command) {
 
         console.log(chalk.cyan(`\n🏷️  Tag: "${tag}"`));
         console.log(chalk.gray("─".repeat(60)));
-        console.log(chalk.white(`  Tag ID: ${tagId}`));
+        console.log(chalk.white(`  Coin Address: ${coinAddress}`));
         console.log(chalk.white(`  Status: ${exists ? chalk.green("Exists") : chalk.yellow("Not created")}`));
 
         if (exists) {
           // Get additional info if tag exists
           try {
-            const uri = await publicClient.readContract({
+            const tagData = await publicClient.readContract({
               address: tokenAddress,
               abi,
-              functionName: "uri",
-              args: [tagId],
+              functionName: "getTagByAddress",
+              args: [coinAddress],
             });
+            // The tagData is a struct with originalInput, displayVersion, machineName
+            const uri = `Tag data stored on-chain`;
             console.log(chalk.white(`  URI: ${uri}`));
           } catch {
             // URI might not be available
