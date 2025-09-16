@@ -4,8 +4,8 @@ import chalk from "chalk";
 import { Command } from "commander";
 import dotenv from "dotenv";
 import { version } from "../package.json";
+import { setupChannelCommands } from "./commands/channel.js";
 import { setupInfoCommands } from "./commands/info.js";
-import { setupRelayerCommands } from "./commands/relayer.js";
 import { setupRoleCommands } from "./commands/roles.js";
 import { setupTagCommands } from "./commands/tags.js";
 import { setupTargetCommands } from "./commands/targets.js";
@@ -52,7 +52,7 @@ program
   });
 
 // Add command groups
-setupRelayerCommands(program);
+setupChannelCommands(program);
 setupRoleCommands(program);
 setupInfoCommands(program);
 setupTagCommands(program);

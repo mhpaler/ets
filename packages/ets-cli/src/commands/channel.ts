@@ -5,30 +5,30 @@ import { getContractAt } from "viem";
 import { getContractAddress } from "../utils/network.js";
 import { getPublicClient, getWalletClient } from "../utils/wallet.js";
 
-export function setupRelayerCommands(program: Command) {
-  const relayer = program.command("relayer").description("Manage ETS relayers");
+export function setupChannelCommands(program: Command) {
+  const channel = program.command("channel").description("Manage ETS channels");
 
-  relayer
+  channel
     .command("add")
-    .description("Add a new relayer")
-    .argument("<name>", "Relayer name")
+    .description("Add a new channel")
+    .argument("<name>", "Channel name")
     .option("-n, --network <network>", "Network to use", process.env.NETWORK || "localhost")
     .action(async (name: string, options) => {
-      const spinner = ora("Adding relayer...").start();
+      const spinner = ora("Adding channel...").start();
 
       try {
         const walletClient = await getWalletClient(options.network);
         const publicClient = await getPublicClient(options.network);
-        const factoryAddress = await getContractAddress(options.network, "relayerFactory");
+        const factoryAddress = await getContractAddress(options.network, "channelFactory");
 
         // Get factory contract ABI
-        const { ETSRelayerFactoryABI } = await import("@ethereum-tag-service/contracts/abis");
+        const { ETSChannelFactoryABI } = await import("@ethereum-tag-service/contracts/abis");
 
-        // Add the relayer
+        // Add the channel
         const hash = await walletClient.writeContract({
           address: factoryAddress,
-          abi: ETSRelayerFactoryABI,
-          functionName: "addRelayer",
+          abi: ETSChannelFactoryABI,
+          functionName: "addChannel",
           args: [name],
         });
 
@@ -36,32 +36,32 @@ export function setupRelayerCommands(program: Command) {
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
         if (receipt.status === "success") {
-          spinner.succeed(`Relayer "${name}" added successfully!`);
+          spinner.succeed(`Channel "${name}" added successfully!`);
 
-          // Get the new relayer address
+          // Get the new channel address
           const accessControlsAddress = await getContractAddress(options.network, "accessControls");
           const { ETSAccessControlsABI } = await import("@ethereum-tag-service/contracts/abis");
 
-          const relayerAddress = await publicClient.readContract({
+          const channelAddress = await publicClient.readContract({
             address: accessControlsAddress,
             abi: ETSAccessControlsABI,
-            functionName: "getRelayerAddressFromName",
+            functionName: "getChannelAddressFromName",
             args: [name],
           });
 
-          console.log(chalk.green(`\n✅ Relayer created at: ${relayerAddress}`));
+          console.log(chalk.green(`\n✅ Channel created at: ${channelAddress}`));
           console.log(chalk.gray(`   Transaction: ${hash}`));
           console.log(chalk.gray(`   Block: ${receipt.blockNumber}`));
         } else {
           spinner.fail("Transaction failed");
         }
       } catch (error: any) {
-        spinner.fail("Failed to add relayer");
+        spinner.fail("Failed to add channel");
 
-        if (error.message?.includes("RelayerNameExists")) {
-          console.error(chalk.red("❌ A relayer with this name already exists"));
-        } else if (error.message?.includes("SenderAlreadyOwnsRelayer")) {
-          console.error(chalk.red("❌ This address already owns a relayer"));
+        if (error.message?.includes("ChannelNameExists")) {
+          console.error(chalk.red("❌ A channel with this name already exists"));
+        } else if (error.message?.includes("SenderAlreadyOwnsChannel")) {
+          console.error(chalk.red("❌ This address already owns a channel"));
         } else {
           console.error(chalk.red(`❌ Error: ${error.message}`));
         }
@@ -70,183 +70,181 @@ export function setupRelayerCommands(program: Command) {
       }
     });
 
-  relayer
+  channel
     .command("list")
-    .description("List all relayers")
+    .description("List all channels")
     .option("-n, --network <network>", "Network to use", process.env.NETWORK || "localhost")
     .action(async (options) => {
-      const spinner = ora("Loading relayers...").start();
+      const spinner = ora("Loading channels...").start();
 
       try {
         const publicClient = await getPublicClient(options.network);
-        const factoryAddress = await getContractAddress(options.network, "relayerFactory");
+        const factoryAddress = await getContractAddress(options.network, "channelFactory");
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
-        const { ETSRelayerFactoryABI, ETSAccessControlsABI, ETSRelayerABI } = await import(
+        const { ETSChannelFactoryABI, ETSAccessControlsABI, ETSChannelABI } = await import(
           "@ethereum-tag-service/contracts/abis"
         );
 
-        // Get RelayerAdded events from AccessControls (not factory)
+        // Get ChannelAdded events from AccessControls (not factory)
         const events = await publicClient.getLogs({
           address: accessControlsAddress,
           event: {
             type: "event",
-            name: "RelayerAdded",
-            inputs: [
-              { type: "address", name: "relayer", indexed: false },
-            ],
+            name: "ChannelAdded",
+            inputs: [{ type: "address", name: "channel", indexed: false }],
           },
           fromBlock: 0n,
           toBlock: "latest",
         });
 
-        spinner.succeed("Relayers loaded");
+        spinner.succeed("Channels loaded");
 
         if (events.length === 0) {
-          console.log(chalk.yellow("\nNo relayers found"));
-          console.log(chalk.gray("Use 'ets relayer add <name>' to create a relayer"));
+          console.log(chalk.yellow("\nNo channels found"));
+          console.log(chalk.gray("Use 'ets channel add <name>' to create a channel"));
         } else {
-          console.log(chalk.cyan(`\n📦 Relayers (${events.length} total)`));
+          console.log(chalk.cyan(`\n📦 Channels (${events.length} total)`));
           console.log(chalk.gray("─".repeat(60)));
 
           for (const event of events) {
-            const relayerAddress = event.args.relayer as `0x${string}`;
+            const channelAddress = event.args.channel as `0x${string}`;
 
             // Get block info for creation date
             const block = await publicClient.getBlock({ blockNumber: event.blockNumber });
             const createdDate = new Date(Number(block.timestamp) * 1000).toLocaleDateString();
 
-            // Get relayer name from AccessControls
-            const relayerName = await publicClient.readContract({
+            // Get channel name from AccessControls
+            const channelName = await publicClient.readContract({
               address: accessControlsAddress,
               abi: ETSAccessControlsABI,
-              functionName: "getRelayerNameFromAddress",
-              args: [relayerAddress],
+              functionName: "getChannelNameFromAddress",
+              args: [channelAddress],
             });
 
-            // Get owner from the relayer contract itself
+            // Get owner from the channel contract itself
             const owner = await publicClient.readContract({
-              address: relayerAddress,
-              abi: ETSRelayerABI,
+              address: channelAddress,
+              abi: ETSChannelABI,
               functionName: "owner",
               args: [],
             });
 
             const isPaused = await publicClient.readContract({
-              address: relayerAddress,
-              abi: ETSRelayerABI,
+              address: channelAddress,
+              abi: ETSChannelABI,
               functionName: "paused",
               args: [],
             });
 
-            console.log(chalk.white(`\n  ${relayerName}`));
-            console.log(chalk.gray(`    Address: ${relayerAddress}`));
+            console.log(chalk.white(`\n  ${channelName}`));
+            console.log(chalk.gray(`    Address: ${channelAddress}`));
             console.log(chalk.gray(`    Owner: ${owner}`));
             console.log(chalk.gray(`    Created: ${createdDate}`));
             console.log(chalk.gray(`    Status: ${isPaused ? chalk.yellow("Paused") : chalk.green("Active")}`));
           }
         }
       } catch (error: any) {
-        spinner.fail("Failed to list relayers");
+        spinner.fail("Failed to list channels");
         console.error(chalk.red(`❌ Error: ${error.message}`));
         process.exit(1);
       }
     });
 
-  relayer
+  channel
     .command("info")
-    .description("Get information about a relayer")
-    .argument("<name>", "Relayer name")
+    .description("Get information about a channel")
+    .argument("<name>", "Channel name")
     .option("-n, --network <network>", "Network to use", process.env.NETWORK || "localhost")
     .action(async (name: string, options) => {
-      const spinner = ora("Loading relayer info...").start();
+      const spinner = ora("Loading channel info...").start();
 
       try {
         const publicClient = await getPublicClient(options.network);
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
         const { ETSAccessControlsABI } = await import("@ethereum-tag-service/contracts/abis");
 
-        // Get relayer address
-        const relayerAddress = (await publicClient.readContract({
+        // Get channel address
+        const channelAddress = (await publicClient.readContract({
           address: accessControlsAddress,
           abi: ETSAccessControlsABI,
-          functionName: "getRelayerAddressFromName",
+          functionName: "getChannelAddressFromName",
           args: [name],
         })) as string;
 
-        if (relayerAddress === "0x0000000000000000000000000000000000000000") {
-          spinner.fail(`Relayer "${name}" not found`);
+        if (channelAddress === "0x0000000000000000000000000000000000000000") {
+          spinner.fail(`Channel "${name}" not found`);
           process.exit(1);
         }
 
-        // Get relayer info
-        const { ETSRelayerABI } = await import("@ethereum-tag-service/contracts/abis");
+        // Get channel info
+        const { ETSChannelABI } = await import("@ethereum-tag-service/contracts/abis");
 
         const [isPaused, owner] = await Promise.all([
           publicClient.readContract({
-            address: relayerAddress as `0x${string}`,
-            abi: ETSRelayerABI,
+            address: channelAddress as `0x${string}`,
+            abi: ETSChannelABI,
             functionName: "paused",
             args: [],
           }),
           publicClient.readContract({
-            address: relayerAddress as `0x${string}`,
-            abi: ETSRelayerABI,
+            address: channelAddress as `0x${string}`,
+            abi: ETSChannelABI,
             functionName: "owner",
             args: [],
           }),
         ]);
 
-        spinner.succeed("Relayer info loaded");
+        spinner.succeed("Channel info loaded");
 
-        console.log(chalk.cyan(`\n📋 Relayer: ${name}`));
-        console.log(chalk.white(`   Address: ${relayerAddress}`));
+        console.log(chalk.cyan(`\n📋 Channel: ${name}`));
+        console.log(chalk.white(`   Address: ${channelAddress}`));
         console.log(chalk.white(`   Owner: ${owner}`));
         console.log(chalk.white(`   Status: ${isPaused ? chalk.yellow("Paused") : chalk.green("Active")}`));
       } catch (error: any) {
-        spinner.fail("Failed to get relayer info");
+        spinner.fail("Failed to get channel info");
         console.error(chalk.red(`❌ Error: ${error.message}`));
         process.exit(1);
       }
     });
 
-  relayer
+  channel
     .command("pause")
-    .description("Pause a relayer")
-    .argument("<name>", "Relayer name")
+    .description("Pause a channel")
+    .argument("<name>", "Channel name")
     .option("-n, --network <network>", "Network to use", process.env.NETWORK || "localhost")
     .action(async (name: string, options) => {
-      const spinner = ora("Checking relayer...").start();
+      const spinner = ora("Checking channel...").start();
 
       try {
         const walletClient = await getWalletClient(options.network);
         const publicClient = await getPublicClient(options.network);
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
-        const { ETSAccessControlsABI, ETSRelayerABI } = await import("@ethereum-tag-service/contracts/abis");
+        const { ETSAccessControlsABI, ETSChannelABI } = await import("@ethereum-tag-service/contracts/abis");
 
-        // Get relayer address
-        const relayerAddress = (await publicClient.readContract({
+        // Get channel address
+        const channelAddress = (await publicClient.readContract({
           address: accessControlsAddress,
           abi: ETSAccessControlsABI,
-          functionName: "getRelayerAddressFromName",
+          functionName: "getChannelAddressFromName",
           args: [name],
         })) as `0x${string}`;
 
-        if (relayerAddress === "0x0000000000000000000000000000000000000000") {
-          spinner.fail(`Relayer "${name}" not found`);
+        if (channelAddress === "0x0000000000000000000000000000000000000000") {
+          spinner.fail(`Channel "${name}" not found`);
           process.exit(1);
         }
 
         // Check ownership
         const owner = await publicClient.readContract({
-          address: relayerAddress,
-          abi: ETSRelayerABI,
+          address: channelAddress,
+          abi: ETSChannelABI,
           functionName: "owner",
           args: [],
         });
 
         const currentAccount = walletClient.account.address;
         if (owner.toLowerCase() !== currentAccount.toLowerCase()) {
-          spinner.fail(`You don't own relayer "${name}"`);
+          spinner.fail(`You don't own channel "${name}"`);
           console.error(chalk.red(`  Owner: ${owner}`));
           console.error(chalk.red(`  Your address: ${currentAccount}`));
           process.exit(1);
@@ -254,22 +252,22 @@ export function setupRelayerCommands(program: Command) {
 
         // Check if already paused
         const isPaused = await publicClient.readContract({
-          address: relayerAddress,
-          abi: ETSRelayerABI,
+          address: channelAddress,
+          abi: ETSChannelABI,
           functionName: "paused",
           args: [],
         });
 
         if (isPaused) {
-          spinner.warn(`Relayer "${name}" is already paused`);
+          spinner.warn(`Channel "${name}" is already paused`);
           process.exit(0);
         }
 
-        // Pause the relayer
-        spinner.text = "Pausing relayer...";
+        // Pause the channel
+        spinner.text = "Pausing channel...";
         const hash = await walletClient.writeContract({
-          address: relayerAddress,
-          abi: ETSRelayerABI,
+          address: channelAddress,
+          abi: ETSChannelABI,
           functionName: "pause",
           args: [],
         });
@@ -278,55 +276,55 @@ export function setupRelayerCommands(program: Command) {
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
         if (receipt.status === "success") {
-          spinner.succeed(`Relayer "${name}" paused successfully!`);
+          spinner.succeed(`Channel "${name}" paused successfully!`);
         } else {
           spinner.fail("Transaction failed");
         }
       } catch (error: any) {
-        spinner.fail("Failed to pause relayer");
+        spinner.fail("Failed to pause channel");
         console.error(chalk.red(`❌ Error: ${error.message}`));
         process.exit(1);
       }
     });
 
-  relayer
+  channel
     .command("unpause")
-    .description("Unpause a relayer")
-    .argument("<name>", "Relayer name")
+    .description("Unpause a channel")
+    .argument("<name>", "Channel name")
     .option("-n, --network <network>", "Network to use", process.env.NETWORK || "localhost")
     .action(async (name: string, options) => {
-      const spinner = ora("Checking relayer...").start();
+      const spinner = ora("Checking channel...").start();
 
       try {
         const walletClient = await getWalletClient(options.network);
         const publicClient = await getPublicClient(options.network);
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
-        const { ETSAccessControlsABI, ETSRelayerABI } = await import("@ethereum-tag-service/contracts/abis");
+        const { ETSAccessControlsABI, ETSChannelABI } = await import("@ethereum-tag-service/contracts/abis");
 
-        // Get relayer address
-        const relayerAddress = (await publicClient.readContract({
+        // Get channel address
+        const channelAddress = (await publicClient.readContract({
           address: accessControlsAddress,
           abi: ETSAccessControlsABI,
-          functionName: "getRelayerAddressFromName",
+          functionName: "getChannelAddressFromName",
           args: [name],
         })) as `0x${string}`;
 
-        if (relayerAddress === "0x0000000000000000000000000000000000000000") {
-          spinner.fail(`Relayer "${name}" not found`);
+        if (channelAddress === "0x0000000000000000000000000000000000000000") {
+          spinner.fail(`Channel "${name}" not found`);
           process.exit(1);
         }
 
         // Check ownership
         const owner = await publicClient.readContract({
-          address: relayerAddress,
-          abi: ETSRelayerABI,
+          address: channelAddress,
+          abi: ETSChannelABI,
           functionName: "owner",
           args: [],
         });
 
         const currentAccount = walletClient.account.address;
         if (owner.toLowerCase() !== currentAccount.toLowerCase()) {
-          spinner.fail(`You don't own relayer "${name}"`);
+          spinner.fail(`You don't own channel "${name}"`);
           console.error(chalk.red(`  Owner: ${owner}`));
           console.error(chalk.red(`  Your address: ${currentAccount}`));
           process.exit(1);
@@ -334,22 +332,22 @@ export function setupRelayerCommands(program: Command) {
 
         // Check if already unpaused
         const isPaused = await publicClient.readContract({
-          address: relayerAddress,
-          abi: ETSRelayerABI,
+          address: channelAddress,
+          abi: ETSChannelABI,
           functionName: "paused",
           args: [],
         });
 
         if (!isPaused) {
-          spinner.warn(`Relayer "${name}" is already active (unpaused)`);
+          spinner.warn(`Channel "${name}" is already active (unpaused)`);
           process.exit(0);
         }
 
-        // Unpause the relayer
-        spinner.text = "Unpausing relayer...";
+        // Unpause the channel
+        spinner.text = "Unpausing channel...";
         const hash = await walletClient.writeContract({
-          address: relayerAddress,
-          abi: ETSRelayerABI,
+          address: channelAddress,
+          abi: ETSChannelABI,
           functionName: "unpause",
           args: [],
         });
@@ -358,12 +356,12 @@ export function setupRelayerCommands(program: Command) {
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
         if (receipt.status === "success") {
-          spinner.succeed(`Relayer "${name}" unpaused successfully!`);
+          spinner.succeed(`Channel "${name}" unpaused successfully!`);
         } else {
           spinner.fail("Transaction failed");
         }
       } catch (error: any) {
-        spinner.fail("Failed to unpause relayer");
+        spinner.fail("Failed to unpause channel");
         console.error(chalk.red(`❌ Error: ${error.message}`));
         process.exit(1);
       }

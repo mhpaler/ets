@@ -1,18 +1,65 @@
+import { execSync } from "child_process";
 import chalk from "chalk";
 import type { Command } from "commander";
 import ora from "ora";
-import { execSync } from "child_process";
 
 // Helper to generate random words for tags
-function getRandomWords(count: number = 1): string[] {
+function getRandomWords(count = 1): string[] {
   const words = [
-    "blockchain", "ethereum", "bitcoin", "defi", "web3", "nft", "dao", "protocol",
-    "layer2", "zk", "rollup", "bridge", "swap", "yield", "vault", "stake",
-    "governance", "token", "coin", "metaverse", "gamefi", "socialfi", "rwa",
-    "oracle", "dex", "cex", "wallet", "security", "audit", "hack", "rug",
-    "moon", "hodl", "fomo", "dyor", "wagmi", "gm", "ngmi", "ape",
-    "whale", "shrimp", "gas", "gwei", "wei", "solidity", "vyper", "rust",
-    "smart", "contract", "dapp", "ipfs", "arweave", "ceramic", "lens"
+    "blockchain",
+    "ethereum",
+    "bitcoin",
+    "defi",
+    "web3",
+    "nft",
+    "dao",
+    "protocol",
+    "layer2",
+    "zk",
+    "rollup",
+    "bridge",
+    "swap",
+    "yield",
+    "vault",
+    "stake",
+    "governance",
+    "token",
+    "coin",
+    "metaverse",
+    "gamefi",
+    "socialfi",
+    "rwa",
+    "oracle",
+    "dex",
+    "cex",
+    "wallet",
+    "security",
+    "audit",
+    "hack",
+    "rug",
+    "moon",
+    "hodl",
+    "fomo",
+    "dyor",
+    "wagmi",
+    "gm",
+    "ngmi",
+    "ape",
+    "whale",
+    "shrimp",
+    "gas",
+    "gwei",
+    "wei",
+    "solidity",
+    "vyper",
+    "rust",
+    "smart",
+    "contract",
+    "dapp",
+    "ipfs",
+    "arweave",
+    "ceramic",
+    "lens",
   ];
 
   const selected: string[] = [];
@@ -65,7 +112,7 @@ function getTestUrls(count: number): string[] {
 function executeCommand(command: string, privateKey: string): void {
   const fullCommand = `PRIVATE_KEY=${privateKey} ${command}`;
   try {
-    execSync(fullCommand, { stdio: 'inherit' });
+    execSync(fullCommand, { stdio: "inherit" });
   } catch (error) {
     console.error(chalk.red(`Failed to execute: ${command}`));
     throw error;
@@ -74,13 +121,11 @@ function executeCommand(command: string, privateKey: string): void {
 
 // Helper to wait
 function wait(seconds: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, seconds * 1000));
+  return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 }
 
 export function setupTestDataCommands(program: Command) {
-  const testdata = program
-    .command("testdata")
-    .description("Generate test data for ETS");
+  const testdata = program.command("testdata").description("Generate test data for ETS");
 
   testdata
     .command("all")
@@ -89,7 +134,7 @@ export function setupTestDataCommands(program: Command) {
     .option("--tags <number>", "Number of tags to create", "10")
     .option("--targets <number>", "Number of targets to create", "5")
     .option("--records <number>", "Number of tagging records to create", "10")
-    .option("--relayers <number>", "Number of relayers to create", "2")
+    .option("--channels <number>", "Number of channels to create", "2")
     .addHelpText(
       "after",
       `
@@ -110,14 +155,14 @@ Examples:
       ];
 
       try {
-        // 1. Create relayers (using Platform account which can create multiple)
-        if (options.relayers > 0) {
-          spinner.text = `Creating ${options.relayers} relayers...`;
-          for (let i = 1; i <= options.relayers; i++) {
-            const relayerName = `TestRelayer${i}`;
+        // 1. Create channels (using Platform account which can create multiple)
+        if (options.channels > 0) {
+          spinner.text = `Creating ${options.channels} channels...`;
+          for (let i = 1; i <= options.channels; i++) {
+            const channelName = `TestChannel${i}`;
             executeCommand(
-              `pnpm ets relayer add "${relayerName}" --network ${options.network}`,
-              privateKeys[1] // Platform account
+              `pnpm ets channel add "${channelName}" --network ${options.network}`,
+              privateKeys[1], // Platform account
             );
             await wait(1);
           }
@@ -131,13 +176,10 @@ Examples:
             // Create in batches of 5
             const batchSize = Math.min(5, options.tags - i);
             const words = getRandomWords(batchSize);
-            const tags = words.map(w => `"#${w}"`).join(" ");
+            const tags = words.map((w) => `"#${w}"`).join(" ");
             const signerIndex = i % privateKeys.length;
 
-            executeCommand(
-              `pnpm ets tags create ${tags} --network ${options.network}`,
-              privateKeys[signerIndex]
-            );
+            executeCommand(`pnpm ets tags create ${tags} --network ${options.network}`, privateKeys[signerIndex]);
             await wait(1);
           }
         }
@@ -150,7 +192,7 @@ Examples:
             const signerIndex = i % privateKeys.length;
             executeCommand(
               `pnpm ets targets create "${urls[i]}" --network ${options.network}`,
-              privateKeys[signerIndex]
+              privateKeys[signerIndex],
             );
             await wait(1);
           }
@@ -164,14 +206,14 @@ Examples:
           for (let i = 0; i < options.records; i++) {
             const tagCount = Math.floor(Math.random() * 4) + 1; // 1-4 tags per record
             const words = getRandomWords(tagCount);
-            const tags = words.map(w => `"#${w}"`).join(" ");
+            const tags = words.map((w) => `"#${w}"`).join(" ");
             const signerIndex = i % privateKeys.length;
-            const relayerIndex = i % Math.max(1, options.relayers);
-            const relayerName = relayerIndex === 0 ? "ETSRelayer" : `TestRelayer${relayerIndex}`;
+            const channelIndex = i % Math.max(1, options.channels);
+            const channelName = channelIndex === 0 ? "ETSChannel" : `TestChannel${channelIndex}`;
 
             executeCommand(
-              `pnpm ets tags apply "${urls[i]}" ${tags} --relayer "${relayerName}" --network ${options.network}`,
-              privateKeys[signerIndex]
+              `pnpm ets tags apply "${urls[i]}" ${tags} --channel "${channelName}" --network ${options.network}`,
+              privateKeys[signerIndex],
             );
             await wait(2); // Wait a bit longer between tagging records
           }
@@ -181,11 +223,10 @@ Examples:
 
         console.log(chalk.cyan("\n📊 Test Data Summary:"));
         console.log(chalk.gray("─".repeat(60)));
-        console.log(chalk.white(`  Relayers created: ${options.relayers}`));
+        console.log(chalk.white(`  Channels created: ${options.channels}`));
         console.log(chalk.white(`  Tags created: ${options.tags}`));
         console.log(chalk.white(`  Targets created: ${options.targets}`));
         console.log(chalk.white(`  Tagging records created: ${options.records}`));
-
       } catch (error: any) {
         spinner.fail("Failed to create test data");
         console.error(chalk.red(`❌ Error: ${error.message}`));
@@ -198,7 +239,7 @@ Examples:
     .description("Create random tags")
     .option("-n, --network <network>", "Network to use", "localhost")
     .option("-q, --quantity <number>", "Number of tags to create", "10")
-    .option("-r, --relayer <name>", "Relayer to use", "ETSRelayer")
+    .option("-r, --channel <name>", "Channel to use", "ETSChannel")
     .action(async (options) => {
       const spinner = ora(`Creating ${options.quantity} tags...`).start();
 
@@ -215,8 +256,8 @@ Examples:
           const signerIndex = i % privateKeys.length;
 
           executeCommand(
-            `pnpm ets tags create ${tag} --relayer "${options.relayer}" --network ${options.network}`,
-            privateKeys[signerIndex]
+            `pnpm ets tags create ${tag} --channel "${options.channel}" --network ${options.network}`,
+            privateKeys[signerIndex],
           );
           await wait(1);
         }
@@ -234,7 +275,7 @@ Examples:
     .description("Create random tagging records")
     .option("-n, --network <network>", "Network to use", "localhost")
     .option("-q, --quantity <number>", "Number of records to create", "10")
-    .option("-r, --relayer <name>", "Relayer to use", "ETSRelayer")
+    .option("-r, --channel <name>", "Channel to use", "ETSChannel")
     .action(async (options) => {
       const spinner = ora(`Creating ${options.quantity} tagging records...`).start();
 
@@ -250,14 +291,14 @@ Examples:
         for (let i = 0; i < options.quantity; i++) {
           const tagCount = Math.floor(Math.random() * 4) + 1;
           const words = getRandomWords(tagCount);
-          const tags = words.map(w => `"#${w}"`).join(" ");
+          const tags = words.map((w) => `"#${w}"`).join(" ");
           const signerIndex = i % privateKeys.length;
 
           spinner.text = `Creating record ${i + 1}/${options.quantity}...`;
 
           executeCommand(
-            `pnpm ets tags apply "${urls[i]}" ${tags} --relayer "${options.relayer}" --network ${options.network}`,
-            privateKeys[signerIndex]
+            `pnpm ets tags apply "${urls[i]}" ${tags} --channel "${options.channel}" --network ${options.network}`,
+            privateKeys[signerIndex],
           );
           await wait(2);
         }

@@ -13,7 +13,7 @@ export interface NetworkConfig {
     target?: Address;
     core?: Address;
     enrichTarget?: Address;
-    relayerFactory?: Address;
+    channelFactory?: Address;
   };
 }
 
@@ -60,7 +60,7 @@ export async function getNetwork(networkName: string): Promise<NetworkConfig> {
           target: chainConfig.contracts?.ETSTarget?.address,
           core: chainConfig.contracts?.ETS?.address,
           enrichTarget: chainConfig.contracts?.ETSEnrichTarget?.address,
-          relayerFactory: chainConfig.contracts?.ETSRelayerFactory?.address,
+          channelFactory: chainConfig.contracts?.ETSChannelFactory?.address,
         };
       } catch {
         // No contracts found for this network

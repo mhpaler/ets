@@ -12,14 +12,14 @@ export function setupTagCommands(program: Command) {
     .command("create")
     .description("Create new tags")
     .argument("<tags...>", "Tags to create (space-separated)")
-    .option("-r, --relayer <name>", "Relayer to use", "ETSRelayer")
+    .option("-r, --channel <name>", "Channel to use", "ETSChannel")
     .option("-n, --network <network>", "Network to use", process.env.NETWORK || "localhost")
     .addHelpText(
       "after",
       `
 Examples:
   $ ets tags create "#defi" "#ethereum" "#protocol"
-  $ ets tags create "#nft" "#art" --relayer "My Relayer"
+  $ ets tags create "#nft" "#art" --channel "My Channel"
   $ ets tags create "#bitcoin" --network mainnet`,
     )
     .action(async (tagList: string[], options) => {
@@ -30,17 +30,17 @@ Examples:
         const publicClient = await getPublicClient(options.network);
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
 
-        // Get relayer address
+        // Get channel address
         const { ETSAccessControlsABI: accessControlsAbi } = await import("@ethereum-tag-service/contracts/abis");
-        const relayerAddress = (await publicClient.readContract({
+        const channelAddress = (await publicClient.readContract({
           address: accessControlsAddress,
           abi: accessControlsAbi,
-          functionName: "getRelayerAddressFromName",
-          args: [options.relayer],
+          functionName: "getChannelAddressFromName",
+          args: [options.channel],
         })) as `0x${string}`;
 
-        if (relayerAddress === "0x0000000000000000000000000000000000000000") {
-          spinner.fail(`Relayer "${options.relayer}" not found`);
+        if (channelAddress === "0x0000000000000000000000000000000000000000") {
+          spinner.fail(`Channel "${options.channel}" not found`);
           process.exit(1);
         }
 
@@ -78,12 +78,12 @@ Examples:
 
         spinner.text = `Creating ${tagsToCreate.length} new tags...`;
 
-        // Create tags through the relayer's getOrCreateTagIds function
-        const { ETSRelayerABI } = await import("@ethereum-tag-service/contracts/abis");
+        // Create tags through the channel's getOrCreateTagIds function
+        const { ETSChannelABI } = await import("@ethereum-tag-service/contracts/abis");
 
         const hash = await walletClient.writeContract({
-          address: relayerAddress,
-          abi: ETSRelayerABI,
+          address: channelAddress,
+          abi: ETSChannelABI,
           functionName: "getOrCreateTagIds",
           args: [tagsToCreate],
         });
@@ -128,7 +128,7 @@ Examples:
     .description("Apply tags to targets")
     .argument("<target>", "Target URL or identifier")
     .argument("<tags...>", "Tags to apply (space-separated)")
-    .option("-r, --relayer <name>", "Relayer to use", "ETSRelayer")
+    .option("-r, --channel <name>", "Channel to use", "ETSChannel")
     .option("-n, --network <network>", "Network to use", process.env.NETWORK || "localhost")
     .option("-t, --record-type <type>", "Record type", "bookmark")
     .option("-e, --enrich", "Enrich the target", false)
@@ -137,7 +137,7 @@ Examples:
       `
 Examples:
   $ ets tags apply "https://ethereum.org" "#ethereum" "#blockchain" "#web3"
-  $ ets tags apply "https://bitcoin.org" "#bitcoin" "#crypto" --relayer "My Relayer"
+  $ ets tags apply "https://bitcoin.org" "#bitcoin" "#crypto" --channel "My Channel"
   $ ets tags apply "ipfs://QmXxx..." "#nft" "#art" --enrich
   $ ets tags apply "https://example.com" "#bookmark" --record-type bookmark --network mainnet`,
     )
@@ -149,17 +149,17 @@ Examples:
         const publicClient = await getPublicClient(options.network);
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
 
-        // Get relayer address
+        // Get channel address
         const { ETSAccessControlsABI: accessControlsAbi } = await import("@ethereum-tag-service/contracts/abis");
-        const relayerAddress = (await publicClient.readContract({
+        const channelAddress = (await publicClient.readContract({
           address: accessControlsAddress,
           abi: accessControlsAbi,
-          functionName: "getRelayerAddressFromName",
-          args: [options.relayer],
+          functionName: "getChannelAddressFromName",
+          args: [options.channel],
         })) as `0x${string}`;
 
-        if (relayerAddress === "0x0000000000000000000000000000000000000000") {
-          spinner.fail(`Relayer "${options.relayer}" not found`);
+        if (channelAddress === "0x0000000000000000000000000000000000000000") {
+          spinner.fail(`Channel "${options.channel}" not found`);
           process.exit(1);
         }
 
@@ -171,13 +171,13 @@ Examples:
           enrich: options.enrich || false,
         };
 
-        // Calculate tagging fee through the relayer
-        const { ETSRelayerABI } = await import("@ethereum-tag-service/contracts/abis");
+        // Calculate tagging fee through the channel
+        const { ETSChannelABI } = await import("@ethereum-tag-service/contracts/abis");
         spinner.text = "Calculating tagging fee...";
 
         const feeResult = await publicClient.readContract({
-          address: relayerAddress,
-          abi: ETSRelayerABI,
+          address: channelAddress,
+          abi: ETSChannelABI,
           functionName: "computeTaggingFee",
           args: [tagParams, 0],
         });
@@ -186,10 +186,10 @@ Examples:
         const formattedFee = (Number(taggingFee) / 1e18).toFixed(4);
         spinner.text = `Applying ${actualTagCount} tags to "${target}" (fee: ${formattedFee} ETH)...`;
 
-        // Apply tags through the relayer
+        // Apply tags through the channel
         const hash = await walletClient.writeContract({
-          address: relayerAddress,
-          abi: ETSRelayerABI,
+          address: channelAddress,
+          abi: ETSChannelABI,
           functionName: "applyTags",
           args: [[tagParams]],
           value: taggingFee,
@@ -219,7 +219,7 @@ Examples:
     .description("Remove tags from a tagging record")
     .argument("<target>", "Target URL or identifier")
     .argument("<tags...>", "Tags to remove (space-separated)")
-    .option("-r, --relayer <name>", "Relayer to use", "ETSRelayer")
+    .option("-r, --channel <name>", "Channel to use", "ETSChannel")
     .option("-n, --network <network>", "Network to use", process.env.NETWORK || "localhost")
     .option("-t, --record-type <type>", "Record type", "bookmark")
     .addHelpText(
@@ -227,7 +227,7 @@ Examples:
       `
 Examples:
   $ ets tags remove "https://ethereum.org" "#old" "#outdated"
-  $ ets tags remove "https://bitcoin.org" "#test" --relayer "My Relayer"`,
+  $ ets tags remove "https://bitcoin.org" "#test" --channel "My Channel"`,
     )
     .action(async (target: string, tagList: string[], options) => {
       const spinner = ora("Removing tags...").start();
@@ -237,17 +237,17 @@ Examples:
         const publicClient = await getPublicClient(options.network);
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
 
-        // Get relayer address
+        // Get channel address
         const { ETSAccessControlsABI: accessControlsAbi } = await import("@ethereum-tag-service/contracts/abis");
-        const relayerAddress = (await publicClient.readContract({
+        const channelAddress = (await publicClient.readContract({
           address: accessControlsAddress,
           abi: accessControlsAbi,
-          functionName: "getRelayerAddressFromName",
-          args: [options.relayer],
+          functionName: "getChannelAddressFromName",
+          args: [options.channel],
         })) as `0x${string}`;
 
-        if (relayerAddress === "0x0000000000000000000000000000000000000000") {
-          spinner.fail(`Relayer "${options.relayer}" not found`);
+        if (channelAddress === "0x0000000000000000000000000000000000000000") {
+          spinner.fail(`Channel "${options.channel}" not found`);
           process.exit(1);
         }
 
@@ -266,7 +266,7 @@ Examples:
           address: coreAddress,
           abi: ETSCoreABI,
           functionName: "computeTaggingRecordIdFromRawInput",
-          args: [tagParams, relayerAddress, walletClient.account.address],
+          args: [tagParams, channelAddress, walletClient.account.address],
         });
 
         const recordExists = await publicClient.readContract({
@@ -281,17 +281,17 @@ Examples:
           console.log(chalk.red(`\n❌ No tagging record exists for this combination of:`));
           console.log(chalk.gray(`   URI: ${target}`));
           console.log(chalk.gray(`   Record Type: ${options.recordType}`));
-          console.log(chalk.gray(`   Relayer: ${options.relayer}`));
+          console.log(chalk.gray(`   Channel: ${options.channel}`));
           console.log(chalk.gray(`   Tagger: ${walletClient.account.address}`));
           process.exit(1);
         }
 
-        // Remove tags through the relayer
-        const { ETSRelayerABI } = await import("@ethereum-tag-service/contracts/abis");
+        // Remove tags through the channel
+        const { ETSChannelABI } = await import("@ethereum-tag-service/contracts/abis");
 
         const hash = await walletClient.writeContract({
-          address: relayerAddress,
-          abi: ETSRelayerABI,
+          address: channelAddress,
+          abi: ETSChannelABI,
           functionName: "removeTags",
           args: [[tagParams]],
         });
@@ -334,7 +334,7 @@ Examples:
     .description("Replace all tags in a tagging record")
     .argument("<target>", "Target URL or identifier")
     .argument("<tags...>", "New tags to replace with (space-separated)")
-    .option("-r, --relayer <name>", "Relayer to use", "ETSRelayer")
+    .option("-r, --channel <name>", "Channel to use", "ETSChannel")
     .option("-n, --network <network>", "Network to use", process.env.NETWORK || "localhost")
     .option("-t, --record-type <type>", "Record type", "bookmark")
     .option("-e, --enrich", "Enrich the target", false)
@@ -343,7 +343,7 @@ Examples:
       `
 Examples:
   $ ets tags replace "https://ethereum.org" "#defi" "#layer2" "#zk"
-  $ ets tags replace "https://bitcoin.org" "#crypto" "#btc" --relayer "My Relayer"`,
+  $ ets tags replace "https://bitcoin.org" "#crypto" "#btc" --channel "My Channel"`,
     )
     .action(async (target: string, tagList: string[], options) => {
       const spinner = ora("Replacing tags...").start();
@@ -353,17 +353,17 @@ Examples:
         const publicClient = await getPublicClient(options.network);
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
 
-        // Get relayer address
+        // Get channel address
         const { ETSAccessControlsABI: accessControlsAbi } = await import("@ethereum-tag-service/contracts/abis");
-        const relayerAddress = (await publicClient.readContract({
+        const channelAddress = (await publicClient.readContract({
           address: accessControlsAddress,
           abi: accessControlsAbi,
-          functionName: "getRelayerAddressFromName",
-          args: [options.relayer],
+          functionName: "getChannelAddressFromName",
+          args: [options.channel],
         })) as `0x${string}`;
 
-        if (relayerAddress === "0x0000000000000000000000000000000000000000") {
-          spinner.fail(`Relayer "${options.relayer}" not found`);
+        if (channelAddress === "0x0000000000000000000000000000000000000000") {
+          spinner.fail(`Channel "${options.channel}" not found`);
           process.exit(1);
         }
 
@@ -395,11 +395,11 @@ Examples:
         // Create missing tags first
         if (tagsToCreate.length > 0) {
           spinner.text = `Creating ${tagsToCreate.length} new tags...`;
-          const { ETSRelayerABI } = await import("@ethereum-tag-service/contracts/abis");
+          const { ETSChannelABI } = await import("@ethereum-tag-service/contracts/abis");
 
           const createHash = await walletClient.writeContract({
-            address: relayerAddress,
-            abi: ETSRelayerABI,
+            address: channelAddress,
+            abi: ETSChannelABI,
             functionName: "getOrCreateTagIds",
             args: [tagsToCreate],
           });
@@ -420,10 +420,10 @@ Examples:
         };
 
         // Calculate tagging fee
-        const { ETSRelayerABI } = await import("@ethereum-tag-service/contracts/abis");
+        const { ETSChannelABI } = await import("@ethereum-tag-service/contracts/abis");
         const feeResult = await publicClient.readContract({
-          address: relayerAddress,
-          abi: ETSRelayerABI,
+          address: channelAddress,
+          abi: ETSChannelABI,
           functionName: "computeTaggingFee",
           args: [tagParams, 0],
         });
@@ -431,10 +431,10 @@ Examples:
 
         spinner.text = `Replacing tags (fee: ${(Number(taggingFee) / 1e18).toFixed(4)} ETH)...`;
 
-        // Replace tags through the relayer
+        // Replace tags through the channel
         const hash = await walletClient.writeContract({
-          address: relayerAddress,
-          abi: ETSRelayerABI,
+          address: channelAddress,
+          abi: ETSChannelABI,
           functionName: "replaceTags",
           args: [[tagParams]],
           value: taggingFee,

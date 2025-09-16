@@ -41,7 +41,7 @@ export function setupInfoCommands(program: Command) {
             { name: "Target", key: "target" },
             { name: "Core", key: "core" },
             { name: "EnrichTarget", key: "enrichTarget" },
-            { name: "RelayerFactory", key: "relayerFactory" },
+            { name: "ChannelFactory", key: "channelFactory" },
           ];
 
           for (const contract of contracts) {
@@ -94,7 +94,7 @@ export function setupInfoCommands(program: Command) {
             if (coreAddress) {
               const { ETSCoreABI: coreAbi } = await import("@ethereum-tag-service/contracts/abis");
 
-              const [taggingFee, platformPercentage, relayerPercentage] = await Promise.all([
+              const [taggingFee, platformPercentage, channelPercentage] = await Promise.all([
                 publicClient.readContract({
                   address: coreAddress,
                   abi: coreAbi,
@@ -110,14 +110,14 @@ export function setupInfoCommands(program: Command) {
                 publicClient.readContract({
                   address: coreAddress,
                   abi: coreAbi,
-                  functionName: "relayerPercentage",
+                  functionName: "channelPercentage",
                   args: [],
                 }),
               ]);
 
               console.log(chalk.white(`  Tagging Fee: ${formatEther(taggingFee as bigint)} ETH`));
               console.log(chalk.white(`  Platform Percentage: ${platformPercentage}%`));
-              console.log(chalk.white(`  Relayer Percentage: ${relayerPercentage}%`));
+              console.log(chalk.white(`  Channel Percentage: ${channelPercentage}%`));
             }
           } catch (error) {
             // Contracts might not be deployed
@@ -130,7 +130,7 @@ export function setupInfoCommands(program: Command) {
         console.log(chalk.cyan("\n💡 Tips:"));
         console.log(chalk.gray("  • Use --detailed flag for more information"));
         console.log(chalk.gray("  • Use 'ets roles check' to see your roles"));
-        console.log(chalk.gray("  • Use 'ets relayer list' to see relayers"));
+        console.log(chalk.gray("  • Use 'ets channel list' to see channels"));
       } catch (error: any) {
         spinner.fail("Failed to load deployment info");
         console.error(chalk.red(`❌ Error: ${error.message}`));
@@ -155,42 +155,42 @@ export function setupInfoCommands(program: Command) {
         console.log(chalk.white(`Network: ${options.network}`));
         console.log(chalk.gray("Source: Private Key"));
 
-        // Check if user owns a relayer
+        // Check if user owns a channel
         try {
           const accessControlsAddress = await getContractAddress(options.network, "accessControls");
           const { ETSAccessControlsABI } = await import("@ethereum-tag-service/contracts/abis");
 
-          // Check if address owns a relayer
-          const isRelayerOwner = await publicClient.readContract({
+          // Check if address owns a channel
+          const isChannelOwner = await publicClient.readContract({
             address: accessControlsAddress,
             abi: ETSAccessControlsABI,
-            functionName: "isRelayerByOwner",
+            functionName: "isChannelByOwner",
             args: [account as `0x${string}`],
           });
 
-          if (isRelayerOwner) {
-            // Get relayer address
-            const relayerAddress = await publicClient.readContract({
+          if (isChannelOwner) {
+            // Get channel address
+            const channelAddress = await publicClient.readContract({
               address: accessControlsAddress,
               abi: ETSAccessControlsABI,
-              functionName: "getRelayerAddressFromOwner",
+              functionName: "getChannelAddressFromOwner",
               args: [account as `0x${string}`],
             });
 
-            // Get relayer name
-            const relayerName = await publicClient.readContract({
+            // Get channel name
+            const channelName = await publicClient.readContract({
               address: accessControlsAddress,
               abi: ETSAccessControlsABI,
-              functionName: "getRelayerNameFromAddress",
-              args: [relayerAddress],
+              functionName: "getChannelNameFromAddress",
+              args: [channelAddress],
             });
 
-            console.log(chalk.cyan("\n📦 Owned Relayer:"));
-            console.log(chalk.white(`  Name: ${relayerName}`));
-            console.log(chalk.white(`  Address: ${relayerAddress}`));
+            console.log(chalk.cyan("\n📦 Owned Channel:"));
+            console.log(chalk.white(`  Name: ${channelName}`));
+            console.log(chalk.white(`  Address: ${channelAddress}`));
           }
         } catch (error) {
-          // Silently fail if we can't check relayer status
+          // Silently fail if we can't check channel status
         }
       } catch (error: any) {
         console.error(chalk.red(`❌ Error: ${error.message}`));

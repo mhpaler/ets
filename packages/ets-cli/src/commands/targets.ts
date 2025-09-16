@@ -209,9 +209,7 @@ Examples:
           event: {
             type: "event",
             name: "TargetCreated",
-            inputs: [
-              { type: "uint256", name: "targetId", indexed: false },
-            ],
+            inputs: [{ type: "uint256", name: "targetId", indexed: false }],
           },
           fromBlock: 0n,
           toBlock: "latest",
@@ -268,7 +266,9 @@ Examples:
               console.log(chalk.white(`\n  ID: ${targetId}`));
               console.log(chalk.gray(`    URI: ${target.targetURI}`));
               console.log(chalk.gray(`    Created: ${createdDate} by ${target.createdBy.slice(0, 10)}...`));
-              console.log(chalk.gray(`    Enriched: ${target.enriched > 0n ? chalk.green("Yes") : chalk.yellow("No")}`));
+              console.log(
+                chalk.gray(`    Enriched: ${target.enriched > 0n ? chalk.green("Yes") : chalk.yellow("No")}`),
+              );
             } catch (error: any) {
               console.log(chalk.red(`    Error loading target: ${error.message}`));
             }

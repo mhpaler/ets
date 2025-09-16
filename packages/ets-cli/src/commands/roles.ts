@@ -27,16 +27,16 @@ export function setupRoleCommands(program: Command) {
 
         // Get role hashes
         const [
-          RELAYER_ADMIN_ROLE,
+          CHANNEL_ADMIN_ROLE,
           EVENT_PROCESSOR_ROLE,
           SMART_CONTRACT_ROLE,
-          RELAYER_FACTORY_ROLE,
+          CHANNEL_FACTORY_ROLE,
           DEFAULT_ADMIN_ROLE,
         ] = await Promise.all([
           publicClient.readContract({
             address: accessControlsAddress,
             abi,
-            functionName: "RELAYER_ADMIN_ROLE",
+            functionName: "CHANNEL_ADMIN_ROLE",
             args: [],
           }),
           publicClient.readContract({
@@ -54,7 +54,7 @@ export function setupRoleCommands(program: Command) {
           publicClient.readContract({
             address: accessControlsAddress,
             abi,
-            functionName: "RELAYER_FACTORY_ROLE",
+            functionName: "CHANNEL_FACTORY_ROLE",
             args: [],
           }),
           publicClient.readContract({
@@ -77,7 +77,7 @@ export function setupRoleCommands(program: Command) {
             address: accessControlsAddress,
             abi,
             functionName: "hasRole",
-            args: [RELAYER_ADMIN_ROLE, checkAddress],
+            args: [CHANNEL_ADMIN_ROLE, checkAddress],
           }),
           publicClient.readContract({
             address: accessControlsAddress,
@@ -95,15 +95,15 @@ export function setupRoleCommands(program: Command) {
             address: accessControlsAddress,
             abi,
             functionName: "hasRole",
-            args: [RELAYER_FACTORY_ROLE, checkAddress],
+            args: [CHANNEL_FACTORY_ROLE, checkAddress],
           }),
         ]);
 
-        // Check if owns relayer
-        const ownsRelayer = await publicClient.readContract({
+        // Check if owns channel
+        const ownsChannel = await publicClient.readContract({
           address: accessControlsAddress,
           abi,
-          functionName: "isRelayerByOwner",
+          functionName: "isChannelByOwner",
           args: [checkAddress],
         });
 
@@ -114,10 +114,10 @@ export function setupRoleCommands(program: Command) {
 
         const roleNames = [
           "DEFAULT_ADMIN_ROLE",
-          "RELAYER_ADMIN_ROLE",
+          "CHANNEL_ADMIN_ROLE",
           "EVENT_PROCESSOR_ROLE",
           "SMART_CONTRACT_ROLE",
-          "RELAYER_FACTORY_ROLE",
+          "CHANNEL_FACTORY_ROLE",
         ];
 
         let hasAnyRole = false;
@@ -132,14 +132,14 @@ export function setupRoleCommands(program: Command) {
           console.log(chalk.yellow("  ❌ No roles assigned"));
         }
 
-        if (ownsRelayer) {
-          const relayerAddress = await publicClient.readContract({
+        if (ownsChannel) {
+          const channelAddress = await publicClient.readContract({
             address: accessControlsAddress,
             abi,
-            functionName: "getRelayerAddressFromOwner",
+            functionName: "getChannelAddressFromOwner",
             args: [checkAddress],
           });
-          console.log(chalk.blue(`\n  📦 Owns relayer: ${relayerAddress}`));
+          console.log(chalk.blue(`\n  📦 Owns channel: ${channelAddress}`));
         }
 
         // Also show balance
@@ -161,16 +161,16 @@ export function setupRoleCommands(program: Command) {
 
       try {
         const publicClient = await getPublicClient(options.network);
-        const factoryAddress = await getContractAddress(options.network, "relayerFactory");
+        const factoryAddress = await getContractAddress(options.network, "channelFactory");
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
         const { ETSAccessControlsABI } = await import("@ethereum-tag-service/contracts/abis");
         const abi = ETSAccessControlsABI;
 
         // Check if factory has role
-        const RELAYER_FACTORY_ROLE = await publicClient.readContract({
+        const CHANNEL_FACTORY_ROLE = await publicClient.readContract({
           address: accessControlsAddress,
           abi,
-          functionName: "RELAYER_FACTORY_ROLE",
+          functionName: "CHANNEL_FACTORY_ROLE",
           args: [],
         });
 
@@ -178,7 +178,7 @@ export function setupRoleCommands(program: Command) {
           address: accessControlsAddress,
           abi,
           functionName: "hasRole",
-          args: [RELAYER_FACTORY_ROLE, factoryAddress],
+          args: [CHANNEL_FACTORY_ROLE, factoryAddress],
         });
 
         spinner.succeed("Role assignments loaded");
@@ -186,8 +186,8 @@ export function setupRoleCommands(program: Command) {
         console.log(chalk.cyan("\n📋 System Role Assignments"));
         console.log(chalk.gray("─".repeat(60)));
 
-        console.log(chalk.white(`\nRelayerFactory (${factoryAddress}):`));
-        console.log(`  RELAYER_FACTORY_ROLE: ${factoryHasRole ? chalk.green("✅") : chalk.red("❌")}`);
+        console.log(chalk.white(`\nChannelFactory (${factoryAddress}):`));
+        console.log(`  CHANNEL_FACTORY_ROLE: ${factoryHasRole ? chalk.green("✅") : chalk.red("❌")}`);
 
         console.log(chalk.yellow("\n💡 To check a specific address, use:"));
         console.log(chalk.gray("  ets roles check <address>"));

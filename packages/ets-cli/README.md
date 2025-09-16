@@ -47,20 +47,20 @@ ets info [--detailed]
 ets account
 ```
 
-#### Relayer Management
+#### Channel Management
 
 ```bash
-# Add a new relayer
-ets relayer add <name>
+# Add a new channel
+ets channel add <name>
 
-# Get relayer information
-ets relayer info <name>
+# Get channel information
+ets channel info <name>
 
-# List all relayers
-ets relayer list
+# List all channels
+ets channel list
 
-# Pause a relayer
-ets relayer pause <name>
+# Pause a channel
+ets channel pause <name>
 ```
 
 #### Role Management
@@ -77,10 +77,10 @@ ets roles list
 
 ```bash
 # Create new tags
-ets tags create tag1 tag2 tag3 [--relayer ETSRelayer]
+ets tags create tag1 tag2 tag3 [--channel ETSChannel]
 
 # Apply tags to a target
-ets tags apply "https://example.com" tag1 tag2 [--relayer ETSRelayer]
+ets tags apply "https://example.com" tag1 tag2 [--channel ETSChannel]
 
 # Get tag information
 ets tags info <tag>
@@ -99,17 +99,17 @@ ets account
 ets roles check
 ```
 
-### Managing Relayers
+### Managing Channels
 
 ```bash
-# Add a new relayer
-ets relayer add MyRelayer --network localhost
+# Add a new channel
+ets channel add MyChannel --network localhost
 
-# Check relayer status
-ets relayer info MyRelayer
+# Check channel status
+ets channel info MyChannel
 
-# Pause the relayer
-ets relayer pause MyRelayer
+# Pause the channel
+ets channel pause MyChannel
 ```
 
 ### Working with Tags
