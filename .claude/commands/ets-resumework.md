@@ -7,16 +7,16 @@ When resuming work from a previous session, this command:
 ### 1. **Immediate Context Recovery**
 
 - Read ROADMAP.md ACTIVE_WORK section first (current task state)
-- Read SESSION-STATUS.md for session details and resume guidance
-- Check for compression recovery notes in SESSION-STATUS.md
-- Check git status for any changes since stepping away
+- Check git status for any uncommitted changes
+- Review recent commits with git log to understand recent work
+- Check CHANGELOG.md and DECISIONS.md for recent updates
 
 ### 2. **State Reconstruction**
 
 - Pull exact task from `resume_action` in ROADMAP.md
 - Check `blocking_bug` and `current_status` fields
-- Review SESSION-STATUS.md "Resume Guidance" section
 - Parse completion percentage and exact task location
+- Review any TODO items in todo list (if applicable)
 
 ### 3. **Check with User Before Proceeding**
 
