@@ -1,11 +1,4 @@
 import path from "node:path";
-import {
-  etsAddress,
-  etsEnrichTargetAddress,
-  etsTargetAddress,
-  etsTokenAddress,
-} from "@ethereum-tag-service/contracts/contracts";
-import { getAlchemyRpcUrlById } from "@ethereum-tag-service/contracts/utils";
 import { type Environment, getSubgraphEndpoint } from "@ethereum-tag-service/subgraph-endpoints";
 import { config as dotenvConfig } from "dotenv";
 import type { Address } from "viem";
@@ -33,6 +26,7 @@ interface Config {
       etsToken: Address;
       etsTarget: Address;
       ets: Address;
+      etsEnrichTarget: Address;
     };
   };
 
@@ -40,7 +34,7 @@ interface Config {
   services: {
     offchainApiUrl: string;
     arweaveGateway: string;
-    oracleApiKey: string;
+    eventProcessorApiKey: string;
   };
 
   // Worker Configuration
@@ -58,19 +52,33 @@ interface Config {
 const environment = (process.env.NODE_ENV || "development") as Environment;
 const chainId = Number.parseInt(process.env.CHAIN_ID || "31337", 10);
 
-// Get RPC URL using workspace utility or fallback to env
+// Contract addresses by chainId
+const CONTRACT_ADDRESSES: Record<number, { token: Address; target: Address; ets: Address; enrichTarget: Address }> = {
+  31337: {
+    token: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9" as Address,
+    target: "0x0165878A594ca255338adfa4d48449f69242Eb8F" as Address,
+    ets: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6" as Address,
+    enrichTarget: "0x610178dA211FEF7D417bC0e6FeD39F05609AD788" as Address,
+  },
+  // Add staging/production addresses when available
+};
+
+// Get RPC URL based on environment
 const getRpcUrl = (): string => {
   if (process.env.RPC_URL) {
     return process.env.RPC_URL;
   }
 
-  // Use workspace utility for Alchemy URLs
-  try {
-    return getAlchemyRpcUrlById(chainId);
-  } catch {
-    // Fallback to localhost for development
-    return "http://localhost:8545";
+  // Use Alchemy for non-local environments
+  const alchemyKey = process.env.ALCHEMY_API_KEY;
+  if (alchemyKey && chainId !== 31337) {
+    // Construct Alchemy URL based on chainId
+    const alchemyNetwork = chainId === 84532 ? "base-sepolia" : "base-mainnet";
+    return `https://${alchemyNetwork}.g.alchemy.com/v2/${alchemyKey}`;
   }
+
+  // Fallback to localhost for development
+  return "http://localhost:8545";
 };
 
 // Determine if using Temporal Cloud
@@ -91,16 +99,17 @@ export const config: Config = {
     rpcUrl: getRpcUrl(),
     chainId,
     contracts: {
-      etsToken: etsTokenAddress[chainId as keyof typeof etsTokenAddress] as Address,
-      etsTarget: etsTargetAddress[chainId as keyof typeof etsTargetAddress] as Address,
-      ets: etsAddress[chainId as keyof typeof etsAddress] as Address,
+      etsToken: CONTRACT_ADDRESSES[chainId]?.token || CONTRACT_ADDRESSES[31337].token,
+      etsTarget: CONTRACT_ADDRESSES[chainId]?.target || CONTRACT_ADDRESSES[31337].target,
+      ets: CONTRACT_ADDRESSES[chainId]?.ets || CONTRACT_ADDRESSES[31337].ets,
+      etsEnrichTarget: CONTRACT_ADDRESSES[chainId]?.enrichTarget || CONTRACT_ADDRESSES[31337].enrichTarget,
     },
   },
 
   services: {
     offchainApiUrl: process.env.OFFCHAIN_API_URL || "http://localhost:3000",
     arweaveGateway: process.env.ARWEAVE_GATEWAY || "https://arweave.net",
-    oracleApiKey: process.env.ORACLE_API_KEY || "local-oracle-key",
+    eventProcessorApiKey: process.env.EVENT_PROCESSOR_API_KEY || "local-event-processor-key",
   },
 
   worker: {
@@ -115,12 +124,10 @@ export const config: Config = {
 // Validate configuration
 function validateConfig(): void {
   try {
-    // Test that workspace packages provide valid addresses
-    const tokenAddr = config.blockchain.contracts.etsToken;
-    const targetAddr = config.blockchain.contracts.etsTarget;
-    const etsAddr = config.blockchain.contracts.ets;
+    // Check that contract addresses are available
+    const { etsToken, etsTarget, ets, etsEnrichTarget } = config.blockchain.contracts;
 
-    if (!tokenAddr || !targetAddr || !etsAddr) {
+    if (!etsToken || !etsTarget || !ets || !etsEnrichTarget) {
       throw new Error(
         `Missing contract addresses for environment: ${config.env}, chainId: ${config.blockchain.chainId}`,
       );

@@ -17,6 +17,6 @@ echo "Compiling TypeScript files..."
 tsup src  --config tsup.config.ts --format cjs,esm --dts --outDir dist --target es2020
 
 cp -R contracts/interfaces dist/interfaces
-cp -R contracts/relayers/interfaces dist/interfaces/relayers
+cp -R contracts/channels/interfaces dist/interfaces/channels
 
 echo "Package build completed successfully!"

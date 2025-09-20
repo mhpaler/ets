@@ -1,5 +1,5 @@
 import { ethers, network } from "hardhat";
-import type { ETS, ETSRelayer, ETSToken } from "../typechain-types";
+import type { ETS, ETSChannel, ETSToken } from "../typechain-types";
 
 async function main() {
   console.log("====================================");
@@ -22,15 +22,15 @@ async function main() {
     chainConfig.contracts.ETSToken.address,
   )) as unknown as ETSToken;
 
-  const etsRelayer = (await ethers.getContractAt(
-    "ETSRelayer",
-    chainConfig.contracts.ETSRelayer.address,
-  )) as unknown as ETSRelayer;
+  const etsChannel = (await ethers.getContractAt(
+    "ETSChannel",
+    chainConfig.contracts.ETSChannel.address,
+  )) as unknown as ETSChannel;
 
   console.log("Contract addresses:");
   console.log("  ETS:", await ets.getAddress());
   console.log("  ETSToken:", await etsToken.getAddress());
-  console.log("  ETSRelayer:", await etsRelayer.getAddress());
+  console.log("  ETSChannel:", await etsChannel.getAddress());
   console.log();
 
   // Check platform fee settings
@@ -43,10 +43,10 @@ async function main() {
   }
 
   try {
-    const relayerFee = await ets.relayerFee();
-    console.log("  Relayer fee:", ethers.formatEther(relayerFee), "ETH");
+    const channelFee = await ets.channelFee();
+    console.log("  Channel fee:", ethers.formatEther(channelFee), "ETH");
   } catch (_error: any) {
-    console.log("  Relayer fee not found (might be 0 or not set)");
+    console.log("  Channel fee not found (might be 0 or not set)");
   }
 
   try {
@@ -63,13 +63,13 @@ async function main() {
     const etsAccessControlsAddr = await ets.etsAccessControls();
     const etsAccessControls = await ethers.getContractAt("ETSAccessControls", etsAccessControlsAddr);
 
-    const relayerAddress = await etsRelayer.getAddress();
-    const isRelayer = await etsAccessControls.isRelayer(relayerAddress);
-    console.log("  Is ETSRelayer registered in AccessControls?", isRelayer);
+    const channelAddress = await etsChannel.getAddress();
+    const isChannel = await etsAccessControls.isChannel(channelAddress);
+    console.log("  Is ETSChannel registered in AccessControls?", isChannel);
 
-    // Check if ETSRelayer is paused
-    const isPaused = await etsRelayer.isPaused();
-    console.log("  Is ETSRelayer paused?", isPaused);
+    // Check if ETSChannel is paused
+    const isPaused = await etsChannel.isPaused();
+    console.log("  Is ETSChannel paused?", isPaused);
   } catch (error: any) {
     console.log("  Error checking access controls:", error.message);
   }
@@ -81,7 +81,7 @@ async function main() {
   try {
     // Try without value first
     console.log("  Attempting without ETH value...");
-    const gasEstimate = await etsRelayer.connect(signer2).getOrCreateTagIds.estimateGas([tagString]);
+    const gasEstimate = await etsChannel.connect(signer2).getOrCreateTagIds.estimateGas([tagString]);
     console.log(`  ✅ Gas estimate (no value): ${gasEstimate.toString()}`);
   } catch (error: any) {
     console.log("  ❌ Failed without value:", error.message);
@@ -91,7 +91,7 @@ async function main() {
     for (const amount of testAmounts) {
       try {
         console.log(`  Attempting with ${amount} ETH...`);
-        const gasEstimate = await etsRelayer
+        const gasEstimate = await etsChannel
           .connect(signer2)
           .getOrCreateTagIds.estimateGas([tagString], { value: ethers.parseEther(amount) });
         console.log(`  ✅ Gas estimate (${amount} ETH): ${gasEstimate.toString()}`);
@@ -105,7 +105,7 @@ async function main() {
   // Try actual transaction
   console.log("\nDetailed transaction test:");
   try {
-    const tx = await etsRelayer.connect(signer2).getOrCreateTagIds([tagString]);
+    const tx = await etsChannel.connect(signer2).getOrCreateTagIds([tagString]);
     console.log("  ✅ Transaction succeeded!");
     console.log("  Transaction hash:", tx.hash);
     const receipt = await tx.wait();
@@ -130,7 +130,7 @@ async function main() {
 
   // Check what function we're calling
   console.log("\nFunction analysis:");
-  const iface = etsRelayer.interface;
+  const iface = etsChannel.interface;
   const functionFragment = iface.getFunction("getOrCreateTagIds");
   if (functionFragment) {
     console.log("  Function signature:", functionFragment.format());

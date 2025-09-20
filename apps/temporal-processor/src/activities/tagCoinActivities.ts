@@ -57,7 +57,7 @@ export async function deployTagCoinOnZora(params: {
   creator: Address;
   displayVersion?: string;
   machineName: string;
-  relayer: Address;
+  channel: Address;
   timestamp: string;
   blockNumber: string;
   transactionHash: string;
@@ -79,7 +79,7 @@ export async function deployTagCoinOnZora(params: {
       displayVersion: params.displayVersion || params.tagString,
       machineName: params.machineName,
       creator: params.creator,
-      relayer: params.relayer,
+      channel: params.channel,
       timestamp: params.timestamp,
       blockNumber: params.blockNumber,
       transactionHash: params.transactionHash,
@@ -96,7 +96,7 @@ export async function deployTagCoinOnZora(params: {
         timeout: 60000, // 60 seconds for deployment
         headers: {
           "Content-Type": "application/json",
-          "x-oracle-key": config.services.oracleApiKey || "local-oracle-key", // Add oracle auth header
+          "x-event-processor-key": config.services.eventProcessorApiKey || "local-event-processor-key", // Add event processor auth header
         },
       },
     );

@@ -32,7 +32,7 @@ describe("DEFINITIVE: Hardhat Network Bytecode Verification", async () => {
     const chainId = await publicClient.getChainId();
     const blockNumber = await publicClient.getBlockNumber();
 
-    console.log(`📋 Network Info:`);
+    console.log("📋 Network Info:");
     console.log(`   Chain ID: ${chainId}`);
     console.log(`   Block Number: ${blockNumber}`);
 
@@ -89,7 +89,7 @@ describe("DEFINITIVE: Hardhat Network Bytecode Verification", async () => {
               txError.message.includes("execution reverted") ||
               txError.message.includes("contract")
             ) {
-              console.log(`   ❌ Transaction failed (no contract code)`);
+              console.log("   ❌ Transaction failed (no contract code)");
             } else {
               console.log(`   Transaction failed (other reason): ${txError.message.split("\n")[0]}`);
             }
@@ -100,7 +100,7 @@ describe("DEFINITIVE: Hardhat Network Bytecode Verification", async () => {
       }
     }
 
-    console.log(`\n📊 IGNITION RESULTS SUMMARY:`);
+    console.log("\n📊 IGNITION RESULTS SUMMARY:");
     console.log(`   Contracts with bytecode: ${contractsWithBytecode}`);
     console.log(`   Contracts without bytecode: ${contractsWithoutBytecode}`);
     console.log(`   Total contracts tested: ${contractsToTest.length}`);
@@ -136,7 +136,7 @@ describe("DEFINITIVE: Hardhat Network Bytecode Verification", async () => {
       }
     }
 
-    console.log(`\n📊 MANUAL DEPLOYMENT RESULTS:`);
+    console.log("\n📊 MANUAL DEPLOYMENT RESULTS:");
     console.log(`   Manual contracts with bytecode: ${manualContractsWithBytecode}/${manualContracts.length}`);
 
     assert.equal(manualContractsWithBytecode, manualContracts.length, "All manual deployments should have bytecode");

@@ -17,10 +17,10 @@ describe("Hardhat Ignition - Complete Unified Fixture", async () => {
     assert.ok(contracts.ETSTarget.address, "ETSTarget should be deployed");
     assert.ok(contracts.ETSEnrichTarget.address, "ETSEnrichTarget should be deployed");
     assert.ok(contracts.ETS.address, "ETS Core should be deployed");
-    assert.ok(contracts.ETSRelayerFactory.address, "ETSRelayerFactory should be deployed");
-    assert.ok(contracts.ETSRelayerImplementation.address, "ETSRelayerImplementation should be deployed");
-    assert.ok(contracts.ETSRelayer.address, "ETSRelayer proxy should be created");
-    assert.ok(contracts.secondRelayer.address, "Second relayer proxy should be created");
+    assert.ok(contracts.ETSChannelFactory.address, "ETSChannelFactory should be deployed");
+    assert.ok(contracts.ETSChannelImplementation.address, "ETSChannelImplementation should be deployed");
+    assert.ok(contracts.ETSChannel.address, "ETSChannel proxy should be created");
+    assert.ok(contracts.secondChannel.address, "Second channel proxy should be created");
     assert.ok(contracts.MockZoraFactory.address, "MockZoraFactory should be deployed");
 
     // Verify accounts are set up
@@ -38,7 +38,7 @@ describe("Hardhat Ignition - Complete Unified Fixture", async () => {
     console.log("   👥 7 test accounts configured");
     console.log("   ⚙️  Settings and configuration applied");
     console.log("   🔗 All contracts linked and configured");
-    console.log("   🏭 Test relayers created and ready");
+    console.log("   🏭 Test channels created and ready");
   });
 
   it("should have all contracts correctly linked and configured", async () => {
@@ -70,7 +70,7 @@ describe("Hardhat Ignition - Complete Unified Fixture", async () => {
 
     // Test basic functionality - create a tag
     const tagString = "#IgnitionTest";
-    await contracts.ETSRelayer.write.getOrCreateTagIds([[tagString]]);
+    await contracts.ETSChannel.write.getOrCreateTagIds([[tagString]]);
 
     const coinAddress = await contracts.ETSToken.read.computeCoinAddress([tagString]);
     const tagExists = await contracts.ETSToken.read.tagExistsByString([tagString]);
@@ -97,7 +97,7 @@ describe("Hardhat Ignition - Complete Unified Fixture", async () => {
 
     // Create multiple tags (common test pattern)
     const tagStrings = ["#Test1", "#Test2", "#Test3"];
-    await contracts.ETSRelayer.write.getOrCreateTagIds([tagStrings]);
+    await contracts.ETSChannel.write.getOrCreateTagIds([tagStrings]);
 
     // Verify all tags were created
     for (const tagString of tagStrings) {

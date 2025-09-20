@@ -6,18 +6,18 @@ describe("ETSAccessControls Tests", async () => {
   const { accounts, contracts } = await loadIgnitionFixture();
 
   describe("Valid setup/initialization", async () => {
-    it("sets RELAYER_ADMIN_ROLE as the role that can grant RELAYER_FACTORY_ROLE.", async () => {
-      const relayerFactoryRole = await contracts.ETSAccessControls.read.RELAYER_FACTORY_ROLE();
-      const relayerAdminRole = await contracts.ETSAccessControls.read.RELAYER_ADMIN_ROLE();
-      const roleAdmin = await contracts.ETSAccessControls.read.getRoleAdmin([relayerFactoryRole]);
-      assert.equal(roleAdmin, relayerAdminRole);
+    it("sets CHANNEL_ADMIN_ROLE as the role that can grant CHANNEL_FACTORY_ROLE.", async () => {
+      const channelFactoryRole = await contracts.ETSAccessControls.read.CHANNEL_FACTORY_ROLE();
+      const channelAdminRole = await contracts.ETSAccessControls.read.CHANNEL_ADMIN_ROLE();
+      const roleAdmin = await contracts.ETSAccessControls.read.getRoleAdmin([channelFactoryRole]);
+      assert.equal(roleAdmin, channelAdminRole);
     });
 
-    it("sets RELAYER_FACTORY_ROLE as the role that can grant RELAYER_ROLE.", async () => {
-      const relayerRole = await contracts.ETSAccessControls.read.RELAYER_ROLE();
-      const relayerFactoryRole = await contracts.ETSAccessControls.read.RELAYER_FACTORY_ROLE();
-      const roleAdmin = await contracts.ETSAccessControls.read.getRoleAdmin([relayerRole]);
-      assert.equal(roleAdmin, relayerFactoryRole);
+    it("sets CHANNEL_FACTORY_ROLE as the role that can grant CHANNEL_ROLE.", async () => {
+      const channelRole = await contracts.ETSAccessControls.read.CHANNEL_ROLE();
+      const channelFactoryRole = await contracts.ETSAccessControls.read.CHANNEL_FACTORY_ROLE();
+      const roleAdmin = await contracts.ETSAccessControls.read.getRoleAdmin([channelRole]);
+      assert.equal(roleAdmin, channelFactoryRole);
     });
 
     it("grants ETSAdmin (deployer) the DEFAULT_ADMIN_ROLE role", async () => {
@@ -35,11 +35,11 @@ describe("ETSAccessControls Tests", async () => {
       assert.equal(platformAddress.toLowerCase(), accounts.ETSPlatform.account.address.toLowerCase());
     });
 
-    it("grants ETSPlatform the RELAYER_ADMIN_ROLE", async () => {
-      const isRelayerAdmin = await contracts.ETSAccessControls.read.isRelayerAdmin([
+    it("grants ETSPlatform the CHANNEL_ADMIN_ROLE", async () => {
+      const isChannelAdmin = await contracts.ETSAccessControls.read.isChannelAdmin([
         accounts.ETSPlatform.account.address,
       ]);
-      assert.equal(isRelayerAdmin, true);
+      assert.equal(isChannelAdmin, true);
     });
 
     it("grants ETSPlatform and ETSEventProcessor the EVENT_PROCESSOR_ROLE", async () => {

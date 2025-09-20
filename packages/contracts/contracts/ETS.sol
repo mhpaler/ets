@@ -51,8 +51,8 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @dev Percentage of tagging fee allocated to ETS.
     uint256 public platformPercentage;
 
-    /// @dev Percentage of tagging fee allocated to Relayer.
-    uint256 public relayerPercentage;
+    /// @dev Percentage of tagging fee allocated to Channel.
+    uint256 public channelPercentage;
 
     /// @dev Map for holding amount accrued to participant address wallets.
     mapping(address => uint256) public accrued;
@@ -77,8 +77,8 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         _;
     }
 
-    modifier onlyRelayer() {
-        if (!etsAccessControls.isRelayer(_msgSender())) revert CallerNotRelayer(_msgSender());
+    modifier onlyChannel() {
+        if (!etsAccessControls.isChannel(_msgSender())) revert CallerNotChannel(_msgSender());
         _;
     }
 
@@ -95,14 +95,14 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         IETSTarget _etsTarget,
         uint256 _taggingFee,
         uint256 _platformPercentage,
-        uint256 _relayerPercentage
+        uint256 _channelPercentage
     ) public initializer {
         __ReentrancyGuard_init();
         etsAccessControls = _etsAccessControls;
         etsToken = _etsToken;
         etsTarget = _etsTarget;
         setTaggingFee(_taggingFee);
-        setPercentages(_platformPercentage, _relayerPercentage);
+        setPercentages(_platformPercentage, _channelPercentage);
     }
 
     // Ensure that only address with admin role can upgrade.
@@ -134,13 +134,13 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
 
     /// @notice Admin functionality for updating the percentages.
     /// @param _platformPercentage percentage for platform.
-    /// @param _relayerPercentage percentage for relayer.
-    function setPercentages(uint256 _platformPercentage, uint256 _relayerPercentage) public onlyAdmin {
-        if (_platformPercentage + _relayerPercentage > 100) revert PercentagesMustNotBeOver100(_platformPercentage, _relayerPercentage);
+    /// @param _channelPercentage percentage for channel.
+    function setPercentages(uint256 _platformPercentage, uint256 _channelPercentage) public onlyAdmin {
+        if (_platformPercentage + _channelPercentage > 100) revert PercentagesMustNotBeOver100(_platformPercentage, _channelPercentage);
         platformPercentage = _platformPercentage;
-        relayerPercentage = _relayerPercentage;
+        channelPercentage = _channelPercentage;
 
-        emit PercentagesSet(platformPercentage, relayerPercentage);
+        emit PercentagesSet(platformPercentage, channelPercentage);
     }
 
     // ============ PUBLIC INTERFACE ============
@@ -151,7 +151,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         uint256 _targetId,
         string calldata _recordType,
         address _tagger
-    ) public payable nonReentrant onlyRelayer {
+    ) public payable nonReentrant onlyChannel {
         uint256 tagCount = _coinAddresses.length;
         if (tagCount == 0) revert NoTagsSupplied();
         for (uint256 i; i < tagCount; ++i) {
@@ -167,7 +167,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     function getOrCreateTagId(
         string calldata _tag,
         address payable _creator
-    ) public payable onlyRelayer returns (address coinAddress) {
+    ) public payable onlyChannel returns (address coinAddress) {
         return etsToken.getOrCreateTagId(_tag, payable(_msgSender()), _creator);
     }
 
@@ -175,7 +175,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     function createTag(
         string calldata _tag,
         address payable _creator
-    ) public payable nonReentrant onlyRelayer returns (address coinAddress) {
+    ) public payable nonReentrant onlyChannel returns (address coinAddress) {
         return etsToken.createTag(_tag, payable(_msgSender()), _creator);
     }
 
@@ -183,8 +183,8 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     function applyTagsWithRawInput(
         TaggingRecordRawInput calldata _rawInput,
         address payable _tagger,
-        address _relayer
-    ) public payable onlyRelayer {
+        address _channel
+    ) public payable onlyChannel {
         
         // Derive coin addresses for the tagStrings.
         uint256 tagCount = _rawInput.tagStrings.length;
@@ -195,14 +195,14 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
             coinAddresses[i] = getOrCreateTagId(_rawInput.tagStrings[i], _tagger);
         }
 
-        uint256 taggingRecordId = computeTaggingRecordIdFromRawInput(_rawInput, _relayer, _tagger);
+        uint256 taggingRecordId = computeTaggingRecordIdFromRawInput(_rawInput, _channel, _tagger);
 
         if (taggingRecordExists(taggingRecordId)) {
             appendTags(taggingRecordId, coinAddresses, _tagger);
         } else {
             // Derive targetId from targetURI. Will revert if targetURI is empty.
             uint256 targetId = etsTarget.getOrCreateTargetId(_rawInput.targetURI);
-            // Require new tagging records be inserted by calling relayer.
+            // Require new tagging records be inserted by calling channel.
             createTaggingRecord(coinAddresses, targetId, _rawInput.recordType, _tagger);
         }
     }
@@ -213,12 +213,12 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         uint256 _targetId,
         string calldata _recordType,
         address payable _tagger,
-        address _relayer
-    ) public payable onlyRelayer {
+        address _channel
+    ) public payable onlyChannel {
         uint256 tagCount = _coinAddresses.length;
         if (tagCount == 0) revert NoTagsSupplied();
 
-        uint256 taggingRecordId = computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _relayer, _tagger);
+        uint256 taggingRecordId = computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _channel, _tagger);
         if (taggingRecordExists(taggingRecordId)) {
             appendTags(taggingRecordId, _coinAddresses, _tagger);
         } else {
@@ -230,18 +230,18 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     function replaceTagsWithRawInput(
         TaggingRecordRawInput calldata _rawInput,
         address payable _tagger,
-        address _relayer
-    ) public payable onlyRelayer {
+        address _channel
+    ) public payable onlyChannel {
         uint256 tagCount = _rawInput.tagStrings.length;
         if (tagCount == 0) revert NoTagsSupplied();
 
         address[] memory coinAddresses = new address[](tagCount);
         for (uint256 i; i < tagCount; ++i) {
-            // New tags are created via calling relayer.
+            // New tags are created via calling channel.
             coinAddresses[i] = getOrCreateTagId(_rawInput.tagStrings[i], _tagger);
         }
 
-        replaceTags(computeTaggingRecordIdFromRawInput(_rawInput, _relayer, _tagger), coinAddresses, _tagger);
+        replaceTags(computeTaggingRecordIdFromRawInput(_rawInput, _channel, _tagger), coinAddresses, _tagger);
     }
 
     /// @inheritdoc IETS
@@ -250,10 +250,10 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         uint256 _targetId,
         string memory _recordType,
         address payable _tagger,
-        address _relayer
-    ) public payable onlyRelayer {
+        address _channel
+    ) public payable onlyChannel {
         replaceTags(
-            computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _relayer, _tagger),
+            computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _channel, _tagger),
             _coinAddresses,
             _tagger
         );
@@ -263,14 +263,14 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     function removeTagsWithRawInput(
         TaggingRecordRawInput calldata _rawInput,
         address _tagger,
-        address _relayer
-    ) public onlyRelayer {
+        address _channel
+    ) public onlyChannel {
         uint256 rawTagCount = _rawInput.tagStrings.length;
         address[] memory coinAddresses = new address[](rawTagCount);
         for (uint256 i; i < rawTagCount; ++i) {
             coinAddresses[i] = etsToken.computeCoinAddress(_rawInput.tagStrings[i]);
         }
-        removeTags(computeTaggingRecordIdFromRawInput(_rawInput, _relayer, _tagger), coinAddresses, _tagger);
+        removeTags(computeTaggingRecordIdFromRawInput(_rawInput, _channel, _tagger), coinAddresses, _tagger);
     }
 
     /// @inheritdoc IETS
@@ -279,9 +279,9 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         uint256 _targetId,
         string memory _recordType,
         address payable _tagger,
-        address _relayer
-    ) public onlyRelayer {
-        removeTags(computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _relayer, _tagger), _coinAddresses, _tagger);
+        address _channel
+    ) public onlyChannel {
+        removeTags(computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _channel, _tagger), _coinAddresses, _tagger);
     }
 
     /// @inheritdoc IETS
@@ -289,7 +289,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         uint256 _taggingRecordId,
         address[] memory _coinAddresses,
         address _tagger
-    ) public payable nonReentrant onlyRelayer {
+    ) public payable nonReentrant onlyChannel {
         if (_coinAddresses.length == 0) revert NoTagsSupplied();
         if (taggingRecords[_taggingRecordId].tagger != _tagger) revert NotAuthorized(_tagger, taggingRecords[_taggingRecordId].tagger);
 
@@ -307,7 +307,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         uint256 _taggingRecordId,
         address[] memory _coinAddresses,
         address _tagger
-    ) public payable nonReentrant onlyRelayer {
+    ) public payable nonReentrant onlyChannel {
         if (_coinAddresses.length == 0) revert NoTagsSupplied();
         if (taggingRecords[_taggingRecordId].tagger != _tagger) revert NotAuthorized(_tagger, taggingRecords[_taggingRecordId].tagger);
 
@@ -333,7 +333,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         uint256 _taggingRecordId,
         address[] memory _coinAddresses,
         address _tagger
-    ) public nonReentrant onlyRelayer {
+    ) public nonReentrant onlyChannel {
         if (_coinAddresses.length == 0) revert NoTagsSupplied();
         if (taggingRecords[_taggingRecordId].tagger != _tagger) revert NotAuthorized(_tagger, taggingRecords[_taggingRecordId].tagger);
 
@@ -364,14 +364,14 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @inheritdoc IETS
     function computeTaggingRecordIdFromRawInput(
         TaggingRecordRawInput memory _rawInput,
-        address _relayer,
+        address _channel,
         address _tagger
     ) public view returns (uint256 taggingRecordId) {
         return
             computeTaggingRecordIdFromCompositeKey(
                 etsTarget.computeTargetId(_rawInput.targetURI),
                 _rawInput.recordType,
-                _relayer,
+                _channel,
                 _tagger
             );
     }
@@ -380,16 +380,16 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     function computeTaggingRecordIdFromCompositeKey(
         uint256 _targetId,
         string memory _recordType,
-        address _relayer,
+        address _channel,
         address _tagger
     ) public pure returns (uint256 taggingRecordId) {
-        taggingRecordId = uint256(keccak256(abi.encodePacked(_targetId, _recordType, _relayer, _tagger)));
+        taggingRecordId = uint256(keccak256(abi.encodePacked(_targetId, _recordType, _channel, _tagger)));
     }
 
     /// @inheritdoc IETS
     function computeTaggingFeeFromRawInput(
         TaggingRecordRawInput calldata _rawInput,
-        address _relayer,
+        address _channel,
         address _tagger,
         TaggingAction _action
     ) public view returns (uint256 fee, uint256 tagCount) {
@@ -398,7 +398,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         for (uint256 i; i < rawTagCount; ++i) {
             coinAddresses[i] = etsToken.computeCoinAddress(_rawInput.tagStrings[i]);
         }
-        return computeTaggingFee(computeTaggingRecordIdFromRawInput(_rawInput, _relayer, _tagger), coinAddresses, _action);
+        return computeTaggingFee(computeTaggingRecordIdFromRawInput(_rawInput, _channel, _tagger), coinAddresses, _action);
     }
 
     /// @inheritdoc IETS
@@ -406,13 +406,13 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address[] memory _coinAddresses,
         uint256 _targetId,
         string calldata _recordType,
-        address _relayer,
+        address _channel,
         address _tagger,
         TaggingAction _action
     ) public view returns (uint256 fee, uint256 tagCount) {
         return
             computeTaggingFee(
-                computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _relayer, _tagger),
+                computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _channel, _tagger),
                 _coinAddresses,
                 _action
             );
@@ -460,19 +460,19 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @inheritdoc IETS
     function getTaggingRecordFromRawInput(
         TaggingRecordRawInput memory _rawInput,
-        address _relayer,
+        address _channel,
         address _tagger
     )
         public
         view
-        returns (address[] memory coinAddresses, uint256 targetId, string memory recordType, address relayer, address tagger)
+        returns (address[] memory coinAddresses, uint256 targetId, string memory recordType, address channel, address tagger)
     {
         return
             this.getTaggingRecordFromId(
                 computeTaggingRecordIdFromCompositeKey(
                     etsTarget.computeTargetId(_rawInput.targetURI),
                     _rawInput.recordType,
-                    _relayer,
+                    _channel,
                     _tagger
                 )
             );
@@ -482,16 +482,16 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     function getTaggingRecordFromCompositeKey(
         uint256 _targetId,
         string memory _recordType,
-        address _relayer,
+        address _channel,
         address _tagger
     )
         public
         view
-        returns (address[] memory coinAddresses, uint256 targetId, string memory recordType, address relayer, address tagger)
+        returns (address[] memory coinAddresses, uint256 targetId, string memory recordType, address channel, address tagger)
     {
         return
             this.getTaggingRecordFromId(
-                computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _relayer, _tagger)
+                computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _channel, _tagger)
             );
     }
 
@@ -501,14 +501,14 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     )
         public
         view
-        returns (address[] memory coinAddresses, uint256 targetId, string memory recordType, address relayer, address tagger)
+        returns (address[] memory coinAddresses, uint256 targetId, string memory recordType, address channel, address tagger)
     {
         TaggingRecord storage taggingRecord = taggingRecords[_id];
         return (
             taggingRecord.coinAddresses,
             taggingRecord.targetId,
             taggingRecord.recordType,
-            taggingRecord.relayer,
+            taggingRecord.channel,
             taggingRecord.tagger
         );
     }
@@ -516,7 +516,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     /// @inheritdoc IETS
     function taggingRecordExistsByRawInput(
         TaggingRecordRawInput memory _rawInput,
-        address _relayer,
+        address _channel,
         address _tagger
     ) public view returns (bool) {
         return
@@ -524,7 +524,7 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
                 computeTaggingRecordIdFromCompositeKey(
                     etsTarget.computeTargetId(_rawInput.targetURI),
                     _rawInput.recordType,
-                    _relayer,
+                    _channel,
                     _tagger
                 )
             );
@@ -534,10 +534,10 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
     function taggingRecordExistsByCompositeKey(
         uint256 _targetId,
         string memory _recordType,
-        address _relayer,
+        address _channel,
         address _tagger
     ) public view returns (bool) {
-        return taggingRecordExists(computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _relayer, _tagger));
+        return taggingRecordExists(computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _channel, _tagger));
     }
 
     /// @inheritdoc IETS
@@ -557,15 +557,15 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         address[] memory _coinAddresses,
         uint256 _targetId,
         string calldata _recordType,
-        address _relayer,
+        address _channel,
         address _tagger
     ) private {
-        uint256 taggingRecordId = computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _relayer, _tagger);
+        uint256 taggingRecordId = computeTaggingRecordIdFromCompositeKey(_targetId, _recordType, _channel, _tagger);
         taggingRecords[taggingRecordId] = TaggingRecord({
             coinAddresses: _coinAddresses,
             targetId: _targetId,
             recordType: _recordType,
-            relayer: _relayer,
+            channel: _channel,
             tagger: _tagger
         });
 
@@ -621,11 +621,11 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         IETSToken.Tag memory tag = etsToken.getTagByAddress(_coinAddress);
 
         uint256 platformAllocation = (msg.value * platformPercentage) / MODULO;
-        uint256 relayerAllocation = (msg.value * relayerPercentage) / MODULO;
-        uint256 remainingAllocation = msg.value - (platformAllocation + relayerAllocation);
+        uint256 channelAllocation = (msg.value * channelPercentage) / MODULO;
+        uint256 remainingAllocation = msg.value - (platformAllocation + channelAllocation);
 
         accrued[_platform] = accrued[_platform] + platformAllocation;
-        accrued[tag.relayer] = accrued[tag.relayer] + relayerAllocation;
+        accrued[tag.channel] = accrued[tag.channel] + channelAllocation;
 
         // In Zora ERC-20 model, creator always gets remaining allocation (no ownership concept)
         accrued[tag.creator] = accrued[tag.creator] + remainingAllocation;

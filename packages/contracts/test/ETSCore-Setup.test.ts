@@ -19,12 +19,12 @@ describe("ETS Core Setup & Configuration", async () => {
     it("should have Target set to ETSTarget contract", async () => {
       assert.equal((await contracts.ETS.read.etsTarget()).toLowerCase(), contracts.ETSTarget.address.toLowerCase());
     });
-    it("should have an active relayer contract (ETSRelayer)", async () => {
-      assert.equal(await contracts.ETSAccessControls.read.isRelayerAndNotPaused([contracts.ETSRelayer.address]), true);
+    it("should have an active channel contract (ETSChannel)", async () => {
+      assert.equal(await contracts.ETSAccessControls.read.isChannelAndNotPaused([contracts.ETSChannel.address]), true);
     });
 
-    it("should have a testing relayer (ETSPlatform)", async () => {
-      assert.equal(await contracts.ETSAccessControls.read.isRelayer([accounts.ETSPlatform.account.address]), true);
+    it("should have a testing channel (ETSPlatform)", async () => {
+      assert.equal(await contracts.ETSAccessControls.read.isChannel([accounts.ETSPlatform.account.address]), true);
     });
   });
 
@@ -138,7 +138,7 @@ describe("ETS Core Setup & Configuration", async () => {
       //   .withArgs(30, 30);
 
       assert.equal(await contracts.ETS.read.platformPercentage(), 30n);
-      assert.equal(await contracts.ETS.read.relayerPercentage(), 30n);
+      assert.equal(await contracts.ETS.read.channelPercentage(), 30n);
     });
   });
 });

@@ -1,5 +1,5 @@
 // Auto-generated from Ignition deployments
-// Generated at: 2025-09-14T16:55:28.702Z
+// Generated at: 2025-09-16T00:47:06.481Z
 
 export interface ContractAddresses {
   accessControls?: string;
@@ -7,7 +7,7 @@ export interface ContractAddresses {
   target?: string;
   core?: string;
   enrichTarget?: string;
-  relayerFactory?: string;
+  channelFactory?: string;
 }
 
 export interface NetworkDeployment {
@@ -26,7 +26,7 @@ export const deployments: Record<string, NetworkDeployment> = {
       target: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
       core: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
       enrichTarget: "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
-      relayerFactory: "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
+      channelFactory: "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
     },
   },
 };

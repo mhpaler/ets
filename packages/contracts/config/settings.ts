@@ -18,9 +18,9 @@ export interface ETSSettings {
   // Platform Configuration
   TAGGING_FEE: string; // ETH amount as string for compatibility
   PLATFORM_PERCENTAGE: number;
-  RELAYER_PERCENTAGE: number;
+  CHANNEL_PERCENTAGE: number;
   TAGGING_FEE_PLATFORM_PERCENTAGE: number;
-  TAGGING_FEE_RELAYER_PERCENTAGE: number;
+  TAGGING_FEE_CHANNEL_PERCENTAGE: number;
 
   // Auction Configuration (legacy, may be removed)
   OWNERSHIP_TERM_LENGTH: number;
@@ -31,9 +31,9 @@ export interface ETSSettings {
   DURATION: number;
   CREATOR_PERCENTAGE: number;
 
-  // Relayer Configuration
-  RELAYER_NAME: string;
-  RELAYER_SYMBOL: string;
+  // Channel Configuration
+  CHANNEL_NAME: string;
+  CHANNEL_SYMBOL: string;
 
   // Zora Configuration (network-specific)
   ZORA_FACTORY_ADDRESS?: string;
@@ -54,9 +54,9 @@ export const DEFAULT_SETTINGS: ETSSettings = {
   // Platform Configuration
   TAGGING_FEE: "0.0001",
   PLATFORM_PERCENTAGE: 40,
-  RELAYER_PERCENTAGE: 20,
+  CHANNEL_PERCENTAGE: 20,
   TAGGING_FEE_PLATFORM_PERCENTAGE: 20,
-  TAGGING_FEE_RELAYER_PERCENTAGE: 30,
+  TAGGING_FEE_CHANNEL_PERCENTAGE: 30,
 
   // Auction Configuration (legacy)
   OWNERSHIP_TERM_LENGTH: 730,
@@ -67,9 +67,9 @@ export const DEFAULT_SETTINGS: ETSSettings = {
   DURATION: 30 * 60, // 30 minutes
   CREATOR_PERCENTAGE: 40,
 
-  // Relayer Configuration
-  RELAYER_NAME: "ETS Relayer",
-  RELAYER_SYMBOL: "ETSR",
+  // Channel Configuration
+  CHANNEL_NAME: "ETS Channel",
+  CHANNEL_SYMBOL: "ETSC",
 };
 
 /**

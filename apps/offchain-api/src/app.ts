@@ -1,7 +1,7 @@
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
-import { requireAPIKey, requireOracleAuth } from "./middleware/auth";
+import { requireAPIKey, requireEventProcessorAuth } from "./middleware/auth";
 import auctionRoutes from "./routes/auctionRoutes";
 import metadataRoutes from "./routes/metadataRoutes";
 import tagCoinRoutes from "./routes/tagCoinRoutes";
@@ -26,8 +26,8 @@ app.use((req, _res, next) => {
 app.use("/api/auction", auctionRoutes);
 app.use("/api/target", targetRoutes);
 
-// Protected TAG Coin routes (require oracle authentication)
-app.use("/api/tag-coin", requireOracleAuth(), tagCoinRoutes);
+// Protected TAG Coin routes (require event processor authentication)
+app.use("/api/tag-coin", requireEventProcessorAuth(), tagCoinRoutes);
 
 // Protected metadata routes (require API key)
 app.use("/api/metadata", requireAPIKey({ enforceInProduction: false }), metadataRoutes);

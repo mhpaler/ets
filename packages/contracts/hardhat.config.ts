@@ -75,7 +75,7 @@ const config: HardhatUserConfig = {
       chainId: 31337,
       accounts: {
         mnemonic: configVariable("LOCAL_MNEMONIC"),
-        count: 10, // Generate 10 accounts from mnemonic
+        count: 20, // Generate 20 accounts: 10 reserved + test accounts
       },
     },
     localhost: {
@@ -85,6 +85,7 @@ const config: HardhatUserConfig = {
       chainId: 31337,
       accounts: {
         mnemonic: configVariable("LOCAL_MNEMONIC"),
+        count: 20, // Generate 20 accounts: 10 reserved + test accounts
       },
     },
     // Base Sepolia (Staging)
@@ -95,6 +96,7 @@ const config: HardhatUserConfig = {
       chainId: 84532,
       accounts: {
         mnemonic: configVariable("STAGING_MNEMONIC"),
+        count: 20, // Generate 20 accounts: 10 reserved + test accounts
       },
     },
     // Base Mainnet (Production)
@@ -105,6 +107,7 @@ const config: HardhatUserConfig = {
       chainId: 8453,
       accounts: {
         mnemonic: configVariable("PRODUCTION_MNEMONIC"),
+        count: 20, // Generate 20 accounts: 10 reserved + test accounts
       },
     },
   },

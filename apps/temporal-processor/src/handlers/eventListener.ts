@@ -32,7 +32,7 @@ const publicClient = createPublicClient({
 const targetCreatedAbi = parseAbiItem("event TargetCreated(uint256 targetId)");
 
 const tagCreatedAbi = parseAbiItem(
-  "event TagCreated(address indexed coinAddress, string originalInput, string displayVersion, string machineName, address indexed creator, address indexed relayer, uint256 timestamp)",
+  "event TagCreated(address indexed coinAddress, string originalInput, string displayVersion, string machineName, address indexed creator, address indexed channel, uint256 timestamp)",
 );
 
 // ETSTarget contract ABI for reading target data (unused but kept for future workflow use)
@@ -58,9 +58,6 @@ export class EventListener {
     try {
       // Initialize Temporal client
       this.temporalClient = new Client({
-        connection: {
-          address: config.temporal.serverUrl,
-        },
         namespace: config.temporal.namespace,
       });
 
@@ -250,7 +247,7 @@ export class EventListener {
         data: log.data,
         topics: log.topics,
       });
-      const { coinAddress, originalInput, displayVersion, machineName, creator, relayer } = decoded.args;
+      const { coinAddress, originalInput, displayVersion, machineName, creator, channel } = decoded.args;
 
       logger.info(
         {
@@ -259,7 +256,7 @@ export class EventListener {
           displayVersion,
           machineName,
           creator,
-          relayer,
+          channel,
           transactionHash,
           blockNumber: blockNumber?.toString(),
         },
@@ -285,7 +282,7 @@ export class EventListener {
             displayVersion,
             machineName,
             creator,
-            relayer,
+            channel,
             transactionHash,
             blockNumber: blockNumber!,
             chainId: config.blockchain.chainId,

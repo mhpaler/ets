@@ -1,9 +1,9 @@
 import axios from "axios";
-import { http, type Hash, createPublicClient, createWalletClient } from "viem";
+import { http, type Hash, createPublicClient, createWalletClient, parseAbi } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base, localhost, sepolia } from "viem/chains";
 import { config } from "../config";
-import type { ArweaveUploadResult, BlockchainUpdateResult, MetadataFetchResult } from "../types";
+import type { EnrichmentEventResult, MetadataFetchResult } from "../types";
 import { getComponentLogger } from "../utils/logger";
 
 const logger = getComponentLogger("TargetEnrichmentActivities");
@@ -24,6 +24,10 @@ function getChain() {
 
 /**
  * Activity: Fetch metadata from target URI
+ *
+ * This activity directly fetches metadata from the target URI without
+ * depending on offchain-api. It handles various content types and
+ * extracts relevant metadata.
  */
 export async function fetchTargetMetadata(params: {
   targetId: string;
@@ -32,33 +36,89 @@ export async function fetchTargetMetadata(params: {
   try {
     logger.info({ targetId: params.targetId, uri: params.targetURI }, "Fetching target metadata");
 
-    // Call offchain API to fetch and process metadata
-    const response = await axios.post(
-      `${config.services.offchainApiUrl}/api/targets/fetch-metadata`,
-      {
-        targetId: params.targetId,
-        targetURI: params.targetURI,
+    // Direct fetch from the target URI
+    const response = await axios.get(params.targetURI, {
+      timeout: 30000, // 30 second timeout
+      headers: {
+        "User-Agent": "ETS-TemporalProcessor/1.0",
+        Accept: "text/html,application/json,application/ld+json",
       },
-      {
-        timeout: 30000, // 30 second timeout
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
+      validateStatus: (status) => status < 500, // Accept any status < 500
+    });
 
-    if (response.data.success) {
-      logger.info({ targetId: params.targetId }, "Successfully fetched metadata");
-      return {
-        title: response.data.metadata.title,
-        description: response.data.metadata.description,
-        image: response.data.metadata.image,
-        keywords: response.data.metadata.keywords,
-        targetType: response.data.metadata.targetType,
-        status: "success",
+    // Extract metadata based on content type
+    let metadata: Partial<MetadataFetchResult> = {};
+
+    if (response.status === 404) {
+      throw new Error("Target URI not found");
+    }
+
+    const contentType = response.headers["content-type"] || "";
+
+    if (contentType.includes("application/json")) {
+      // Handle JSON responses (APIs, JSON-LD, etc.)
+      const data = response.data;
+      metadata = {
+        title: data.title || data.name || params.targetURI,
+        description: data.description || data.about || "",
+        image: data.image || data.logo || data.thumbnail || "",
+        keywords: Array.isArray(data.keywords)
+          ? data.keywords
+          : data.tags
+            ? Array.isArray(data.tags)
+              ? data.tags
+              : [data.tags]
+            : [],
+        targetType: data.type || "json",
+      };
+    } else if (contentType.includes("text/html")) {
+      // For HTML, extract basic metadata from the response
+      // In production, you'd use a proper HTML parser like cheerio
+      const html = response.data.toString();
+
+      // Extract title
+      const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+      const metaTitle = html.match(/<meta\s+(?:name|property)="(?:og:title|twitter:title)"[^>]*content="([^"]+)"/i);
+
+      // Extract description
+      const metaDesc = html.match(
+        /<meta\s+(?:name|property)="(?:description|og:description|twitter:description)"[^>]*content="([^"]+)"/i,
+      );
+
+      // Extract image
+      const metaImage = html.match(/<meta\s+(?:name|property)="(?:og:image|twitter:image)"[^>]*content="([^"]+)"/i);
+
+      // Extract keywords
+      const metaKeywords = html.match(/<meta\s+name="keywords"[^>]*content="([^"]+)"/i);
+
+      metadata = {
+        title: metaTitle?.[1] || titleMatch?.[1] || params.targetURI,
+        description: metaDesc?.[1] || "",
+        image: metaImage?.[1] || "",
+        keywords: metaKeywords?.[1]?.split(",").map((k: string) => k.trim()) || [],
+        targetType: "webpage",
+      };
+    } else {
+      // Default metadata for other content types
+      metadata = {
+        title: params.targetURI.split("/").pop() || params.targetURI,
+        description: `Content from ${params.targetURI}`,
+        image: "",
+        keywords: [],
+        targetType: contentType.split("/")[0] || "unknown",
       };
     }
-    throw new Error(response.data.error || "Failed to fetch metadata");
+
+    logger.info({ targetId: params.targetId, metadata }, "Successfully fetched metadata");
+
+    return {
+      title: metadata.title,
+      description: metadata.description,
+      image: metadata.image,
+      keywords: metadata.keywords,
+      targetType: metadata.targetType,
+      status: "success",
+    };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error({ targetId: params.targetId, error: errorMessage }, "Failed to fetch metadata");
@@ -71,80 +131,26 @@ export async function fetchTargetMetadata(params: {
 }
 
 /**
- * Activity: Upload metadata to Arweave
+ * Activity: Emit target enrichment event on-chain
+ *
+ * This activity emits an enrichment event with the fetched metadata
+ * for The Graph to index. No storage, just event emission.
  */
-export async function uploadToArweave(params: {
+export async function emitTargetEnrichmentEvent(params: {
   targetId: string;
   metadata: MetadataFetchResult;
-  targetURI: string;
-}): Promise<ArweaveUploadResult> {
+}): Promise<EnrichmentEventResult> {
   try {
-    logger.info({ targetId: params.targetId }, "Uploading metadata to Arweave");
-
-    // Call offchain API to upload to Arweave
-    const response = await axios.post(
-      `${config.services.offchainApiUrl}/api/targets/upload-to-arweave`,
-      {
-        targetId: params.targetId,
-        targetURI: params.targetURI,
-        metadata: params.metadata,
-      },
-      {
-        timeout: 60000, // 60 second timeout for upload
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
-
-    if (response.data.success) {
-      logger.info(
-        {
-          targetId: params.targetId,
-          transactionId: response.data.transactionId,
-        },
-        "Successfully uploaded to Arweave",
-      );
-
-      return {
-        transactionId: response.data.transactionId,
-        gatewayUrl: `${config.services.arweaveGateway}/${response.data.transactionId}`,
-        status: "success",
-      };
-    }
-    throw new Error(response.data.error || "Failed to upload to Arweave");
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    logger.error({ targetId: params.targetId, error: errorMessage }, "Failed to upload to Arweave");
-
-    return {
-      transactionId: "",
-      gatewayUrl: "",
-      status: "failed",
-      error: errorMessage,
-    };
-  }
-}
-
-/**
- * Activity: Update target on-chain with enriched metadata
- */
-export async function updateTargetOnChain(params: {
-  targetId: string;
-  arweaveTransactionId: string;
-  metadataURI: string;
-}): Promise<BlockchainUpdateResult> {
-  try {
-    logger.info({ targetId: params.targetId }, "Updating target on-chain");
+    logger.info({ targetId: params.targetId }, "Emitting target enrichment event");
 
     // Check if we have a private key configured
-    const privateKey = process.env.PRIVATE_KEY;
+    const privateKey = process.env.EVENT_PROCESSOR_PRIVATE_KEY || process.env.PRIVATE_KEY;
     if (!privateKey) {
-      logger.warn("No PRIVATE_KEY configured, skipping on-chain update");
+      logger.warn("No private key configured, skipping enrichment event");
       return {
         transactionHash: "0x0" as Hash,
         status: "failed",
-        error: "No private key configured for on-chain updates",
+        error: "No private key configured for enrichment events",
       };
     }
 
@@ -163,24 +169,27 @@ export async function updateTargetOnChain(params: {
       transport: http(config.blockchain.rpcUrl),
     });
 
-    // Prepare the transaction to update target
-    // This would call ETSTarget.updateTarget() with EVENT_PROCESSOR_ROLE
+    // Prepare keywords as comma-separated string
+    const keywordsString = params.metadata.keywords?.join(",") || "";
+
+    // ABI for the enrichTarget function
+    const enrichTargetAbi = parseAbi([
+      "function enrichTarget(uint256 targetId, string memory title, string memory description, string memory imageUrl, string memory keywords) external",
+      "event TargetEnriched(uint256 indexed targetId, string title, string description, string imageUrl, string keywords)",
+    ]);
+
+    // Simulate the transaction first
     const { request } = await publicClient.simulateContract({
-      address: config.blockchain.contracts.etsTarget,
-      abi: [
-        {
-          name: "updateTarget",
-          type: "function",
-          inputs: [
-            { name: "targetId", type: "uint256" },
-            { name: "metadataURI", type: "string" },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
+      address: config.blockchain.contracts.etsEnrichTarget,
+      abi: enrichTargetAbi,
+      functionName: "enrichTarget",
+      args: [
+        BigInt(params.targetId),
+        params.metadata.title || "",
+        params.metadata.description || "",
+        params.metadata.image || "",
+        keywordsString,
       ],
-      functionName: "updateTarget",
-      args: [BigInt(params.targetId), params.metadataURI],
       account,
     });
 
@@ -196,7 +205,7 @@ export async function updateTargetOnChain(params: {
           targetId: params.targetId,
           transactionHash: hash,
         },
-        "Successfully updated target on-chain",
+        "Successfully emitted enrichment event",
       );
 
       return {
@@ -207,7 +216,7 @@ export async function updateTargetOnChain(params: {
     throw new Error("Transaction reverted");
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logger.error({ targetId: params.targetId, error: errorMessage }, "Failed to update on-chain");
+    logger.error({ targetId: params.targetId, error: errorMessage }, "Failed to emit enrichment event");
 
     return {
       transactionHash: "0x0" as Hash,

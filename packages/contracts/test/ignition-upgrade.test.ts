@@ -7,7 +7,7 @@ import ETSAccessControlsUpgradeModule from "../ignition/modules/ETSAccessControl
 describe("Hardhat Ignition - UUPS Upgrade Testing", async () => {
   it("should deploy initial contract and then upgrade it", async () => {
     const { ignition, viem } = await network.connect();
-    const publicClient = await viem.getPublicClient();
+    const _publicClient = await viem.getPublicClient();
     const [walletClient] = await viem.getWalletClients();
 
     // === PHASE 1: Deploy initial contract ===
@@ -26,7 +26,7 @@ describe("Hardhat Ignition - UUPS Upgrade Testing", async () => {
       const upgradeContract = await viem.getContractAt("ETSAccessControlsUpgrade", accessControls.address);
       await upgradeContract.read.upgradeTest();
       assert.fail("upgradeTest() should not exist in initial contract");
-    } catch (error) {
+    } catch (_error) {
       // Expected - function doesn't exist
       console.log("✅ Initial contract confirmed - no upgradeTest() function");
     }
@@ -73,11 +73,11 @@ describe("Hardhat Ignition - UUPS Upgrade Testing", async () => {
 
     console.log("🎉 UUPS Upgrade Test Complete!");
     console.log(`   Proxy Address: ${accessControls.address}`);
-    console.log(`   ✅ Initial deployment successful`);
-    console.log(`   ✅ Upgrade deployment successful`);
-    console.log(`   ✅ New functionality added`);
-    console.log(`   ✅ Original functionality preserved`);
-    console.log(`   ✅ State preserved across upgrade`);
+    console.log("   ✅ Initial deployment successful");
+    console.log("   ✅ Upgrade deployment successful");
+    console.log("   ✅ New functionality added");
+    console.log("   ✅ Original functionality preserved");
+    console.log("   ✅ State preserved across upgrade");
   });
 
   it("should fail upgrade from non-admin account", async () => {
@@ -99,7 +99,7 @@ describe("Hardhat Ignition - UUPS Upgrade Testing", async () => {
       });
 
       assert.fail("Upgrade should have failed from non-admin account");
-    } catch (error) {
+    } catch (_error) {
       console.log("✅ Upgrade correctly failed from non-admin account");
       // This is expected - only admin can upgrade
     }

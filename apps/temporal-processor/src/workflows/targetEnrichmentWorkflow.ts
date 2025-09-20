@@ -3,7 +3,7 @@ import type * as activities from "../activities";
 import type { TargetEnrichmentResult, TargetEnrichmentWorkflowInput } from "../types";
 
 // Import activity types
-const { fetchTargetMetadata, uploadToArweave, updateTargetOnChain } = proxyActivities<typeof activities>({
+const { fetchTargetMetadata, emitTargetEnrichmentEvent } = proxyActivities<typeof activities>({
   startToCloseTimeout: "5 minutes",
   retry: {
     initialInterval: "1 second",
@@ -18,8 +18,7 @@ const { fetchTargetMetadata, uploadToArweave, updateTargetOnChain } = proxyActiv
  *
  * Steps:
  * 1. Fetch metadata from the target URI
- * 2. Upload metadata to Arweave for permanent storage
- * 3. Update the on-chain target with the Arweave transaction ID
+ * 2. Emit enrichment event on-chain for The Graph to index
  */
 export async function TargetEnrichmentWorkflow(input: TargetEnrichmentWorkflowInput): Promise<TargetEnrichmentResult> {
   const result: TargetEnrichmentResult = {
@@ -27,8 +26,7 @@ export async function TargetEnrichmentWorkflow(input: TargetEnrichmentWorkflowIn
     status: "failed",
     steps: {
       fetchMetadata: false,
-      uploadToArweave: false,
-      updateBlockchain: false,
+      emitEnrichmentEvent: false,
     },
   };
 
@@ -57,59 +55,35 @@ export async function TargetEnrichmentWorkflow(input: TargetEnrichmentWorkflowIn
     }
 
     result.steps.fetchMetadata = true;
+    result.metadata = metadataResult;
     console.log(`[Workflow] Successfully fetched metadata for target ${input.targetId}`);
 
-    // Step 2: Upload metadata to Arweave
-    console.log(`[Workflow] Uploading metadata to Arweave for target ${input.targetId}`);
+    // Step 2: Emit enrichment event on-chain
+    console.log(`[Workflow] Emitting enrichment event for target ${input.targetId}`);
 
-    const arweaveResult = await uploadToArweave({
+    const enrichmentResult = await emitTargetEnrichmentEvent({
       targetId: input.targetId,
       metadata: metadataResult,
-      targetURI: input.targetURI,
     });
 
-    if (arweaveResult.status === "failed") {
+    if (enrichmentResult.status === "failed") {
       throw ApplicationFailure.create({
-        message: `Failed to upload to Arweave: ${arweaveResult.error}`,
+        message: `Failed to emit enrichment event: ${enrichmentResult.error}`,
         nonRetryable: false,
       });
     }
 
-    result.steps.uploadToArweave = true;
-    result.arweaveTransactionId = arweaveResult.transactionId;
-    result.metadataURI = arweaveResult.gatewayUrl;
-    console.log(`[Workflow] Successfully uploaded to Arweave: ${arweaveResult.transactionId}`);
-
-    // Optional delay to ensure Arweave propagation
-    await sleep("5 seconds");
-
-    // Step 3: Update on-chain target with enriched metadata
-    console.log(`[Workflow] Updating on-chain target ${input.targetId} with Arweave TX`);
-
-    const updateResult = await updateTargetOnChain({
-      targetId: input.targetId,
-      arweaveTransactionId: arweaveResult.transactionId,
-      metadataURI: arweaveResult.gatewayUrl,
-    });
-
-    if (updateResult.status === "failed") {
-      // This is less critical - we have the data on Arweave
-      console.warn(`[Workflow] Failed to update on-chain: ${updateResult.error}`);
-      result.status = "partial";
-      result.error = `On-chain update failed: ${updateResult.error}`;
-    } else {
-      result.steps.updateBlockchain = true;
-      result.updateTransactionHash = updateResult.transactionHash;
-      result.status = "completed";
-      console.log(`[Workflow] Successfully updated on-chain: ${updateResult.transactionHash}`);
-    }
+    result.steps.emitEnrichmentEvent = true;
+    result.enrichmentTransactionHash = enrichmentResult.transactionHash;
+    result.status = "completed";
+    console.log(`[Workflow] Successfully emitted enrichment event: ${enrichmentResult.transactionHash}`);
 
     return result;
   } catch (error) {
     console.error(`[Workflow] Target enrichment failed for ${input.targetId}:`, error);
 
-    // Check if any steps succeeded for partial success
-    if (result.steps.fetchMetadata || result.steps.uploadToArweave) {
+    // Check if metadata was fetched for partial success
+    if (result.steps.fetchMetadata) {
       result.status = "partial";
     }
 

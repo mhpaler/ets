@@ -25,12 +25,14 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
     error AccessDenied();
     error InvalidTarget();
 
-    // Events
-    event EnrichTargetRequested(uint256 indexed targetId, address indexed requestor);
-
     // Modifiers
     modifier onlyAdmin() {
         if (!etsAccessControls.isAdmin(_msgSender())) revert AccessDenied();
+        _;
+    }
+
+    modifier onlyEventProcessor() {
+        if (!etsAccessControls.isEventProcessor(_msgSender())) revert AccessDenied();
         _;
     }
 
@@ -60,8 +62,28 @@ contract ETSEnrichTarget is IETSEnrichTarget, Initializable, ContextUpgradeable,
     /// @inheritdoc IETSEnrichTarget
     function requestEnrichTarget(uint256 _targetId) external {
         if (!etsTarget.targetExistsById(_targetId)) revert InvalidTarget();
-        
+
         // Simply emit event for event processor to pick up
         emit EnrichTargetRequested(_targetId, _msgSender());
+    }
+
+    /// @inheritdoc IETSEnrichTarget
+    function enrichTarget(
+        uint256 _targetId,
+        string memory _title,
+        string memory _description,
+        string memory _imageUrl,
+        string memory _keywords
+    ) external onlyEventProcessor {
+        if (!etsTarget.targetExistsById(_targetId)) revert InvalidTarget();
+
+        // Emit enrichment event for The Graph to index
+        emit TargetEnriched(
+            _targetId,
+            _title,
+            _description,
+            _imageUrl,
+            _keywords
+        );
     }
 }

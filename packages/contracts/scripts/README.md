@@ -57,45 +57,32 @@ NAME="MyRelayer" npx hardhat run scripts/add-relayer.ts --network localhost
 NAME="MyRelayer" SIGNER=1 npx hardhat run scripts/add-relayer.ts --network localhost
 ```
 
-## Converting Old Tasks
+## Using the ETS CLI
 
-The old Hardhat tasks in `scripts/tasks/` use an API that's no longer compatible with Hardhat 3. To use them:
+For most contract interactions, use the ETS CLI package which provides a comprehensive command-line interface:
 
-1. Convert them to scripts (like the examples above)
-2. Use environment variables instead of command-line arguments
-3. Access Hardhat Runtime Environment via `import hardhat from "hardhat"`
+```bash
+# Navigate to CLI package
+cd packages/ets-cli
 
-### Example Conversion
+# Install globally
+pnpm link --global
 
-Old task format:
-```typescript
-task("myTask", "Description")
-  .addParam("param1", "Description")
-  .setAction(async (taskArgs, hre) => {
-    // task logic
-  });
+# Use the CLI
+ets relayer add "MyRelayer"
+ets tags create "#ethereum" "#blockchain"
+ets targets create "https://example.com"
+ets roles check
+ets testdata all
 ```
 
-New script format:
-```typescript
-#!/usr/bin/env tsx
-import hardhat from "hardhat";
+The CLI replaces the old Hardhat tasks and provides better user experience with:
+- Proper authentication handling
+- Network configuration
+- Interactive feedback
+- Comprehensive help text
 
-async function main() {
-  const param1 = process.env.PARAM1;
-  
-  // script logic using hardhat instead of hre
-  const { viem } = await hardhat.network.connect();
-  // ...
-}
-
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
-```
+See the [ETS CLI documentation](../../ets-cli/README.md) for full usage.
 
 ## Account Roles
 

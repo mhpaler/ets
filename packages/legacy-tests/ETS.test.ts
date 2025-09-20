@@ -1463,22 +1463,22 @@ describe("ETS Core tests", async () => {
   });
 
   describe("Tagging fees should accrue", async () => {
-    let platformPreTagAccrued: bigint;
-    let relayerPreTagAccrued: bigint;
-    let creatorPreTagAccrued: bigint;
-    let ownerPreTagAccrued: bigint;
+    let _platformPreTagAccrued: bigint;
+    let _relayerPreTagAccrued: bigint;
+    let _creatorPreTagAccrued: bigint;
+    let _ownerPreTagAccrued: bigint;
 
     // For post-tagging values
-    let platformPostTagAccrued: bigint;
-    let relayerPostTagAccrued: bigint;
-    let creatorPostTagAccrued: bigint;
-    let ownerPostTagAccrued: bigint;
+    let _platformPostTagAccrued: bigint;
+    let _relayerPostTagAccrued: bigint;
+    let _creatorPostTagAccrued: bigint;
+    let _ownerPostTagAccrued: bigint;
 
     // Get initial accrued amounts at module level
-    platformPreTagAccrued = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
-    relayerPreTagAccrued = await contracts.ETS.read.accrued([accounts.RandomOne.account.address]);
-    creatorPreTagAccrued = await contracts.ETS.read.accrued([accounts.Creator.account.address]);
-    ownerPreTagAccrued = await contracts.ETS.read.accrued([accounts.RandomTwo.account.address]);
+    _platformPreTagAccrued = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
+    _relayerPreTagAccrued = await contracts.ETS.read.accrued([accounts.RandomOne.account.address]);
+    _creatorPreTagAccrued = await contracts.ETS.read.accrued([accounts.Creator.account.address]);
+    _ownerPreTagAccrued = await contracts.ETS.read.accrued([accounts.RandomTwo.account.address]);
 
     it("to the token creator when the tag used is platform owned (pre-auction)", async () => {
       // Get fresh pre-tag amounts for this test

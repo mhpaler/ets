@@ -3,7 +3,7 @@ import { describe, it } from "node:test";
 import { zeroAddress } from "viem";
 import { loadIgnitionFixture } from "./fixtures/ignitionFixture.js";
 
-// NOTE: ETSRelayer.test.ts for tag creation tests.
+// NOTE: ETSChannel.test.ts for tag creation tests.
 
 describe("ETSToken Tests", async () => {
   const { accounts, contracts } = await loadIgnitionFixture();
@@ -176,7 +176,7 @@ describe("ETSToken Tests", async () => {
       const tag = "#TestTagByAddress";
       const creator = accounts.User3.account.address;
 
-      // Create TAG through ETS core via relayer
+      // Create TAG through ETS core via channel
       await contracts.ETS.write.createTag([tag, creator], { account: accounts.ETSPlatform.account });
 
       const coinAddress = await contracts.ETSToken.read.computeCoinAddress([tag]);
@@ -186,7 +186,7 @@ describe("ETSToken Tests", async () => {
       assert.equal(tagData.originalInput, tag);
       assert.equal(tagData.displayVersion, tag);
       assert.equal(tagData.creator.toLowerCase(), creator.toLowerCase());
-      assert.equal(tagData.relayer.toLowerCase(), accounts.ETSPlatform.account.address.toLowerCase());
+      assert.equal(tagData.channel.toLowerCase(), accounts.ETSPlatform.account.address.toLowerCase());
     });
   });
 
@@ -206,7 +206,7 @@ describe("ETSToken Tests", async () => {
       const tag = "#TestTagByString";
       const creator = accounts.User3.account.address;
 
-      // Create TAG through ETS core via relayer
+      // Create TAG through ETS core via channel
       await contracts.ETS.write.createTag([tag, creator], { account: accounts.ETSPlatform.account });
 
       const tagData = await contracts.ETSToken.read.getTagByString([tag]);
@@ -214,7 +214,7 @@ describe("ETSToken Tests", async () => {
       assert.equal(tagData.originalInput, tag);
       assert.equal(tagData.displayVersion, tag);
       assert.equal(tagData.creator.toLowerCase(), creator.toLowerCase());
-      assert.equal(tagData.relayer.toLowerCase(), accounts.ETSPlatform.account.address.toLowerCase());
+      assert.equal(tagData.channel.toLowerCase(), accounts.ETSPlatform.account.address.toLowerCase());
 
       // Verify coin address matches computed address
       const expectedCoinAddress = await contracts.ETSToken.read.computeCoinAddress([tag]);

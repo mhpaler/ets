@@ -18,7 +18,7 @@ async function main() {
   const ETSTokenAddress = networkConfig.contracts.ETSToken.address;
   const ETSAccessControlsABI = networkConfig.contracts.ETSAccessControls.abi;
   const ETSAccessControlsAddress = networkConfig.contracts.ETSAccessControls.address;
-  const ETSRelayerABI = networkConfig.contracts.ETSRelayer.abi;
+  const ETSChannelABI = networkConfig.contracts.ETSChannel.abi;
 
   console.log("📋 Contract addresses from network config:");
   console.log(`  ETSToken: ${ETSTokenAddress}`);
@@ -30,19 +30,19 @@ async function main() {
   const etsToken = new ethers.Contract(ETSTokenAddress, ETSTokenABI, accounts[signerName]);
 
   try {
-    // Check that caller is using a valid relayer (same as createTags task)
-    const relayerName = "ETSRelayer";
-    const relayerAddress = await etsAccessControls.getRelayerAddressFromName(relayerName);
+    // Check that caller is using a valid channel (same as createTags task)
+    const channelName = "ETSChannel";
+    const channelAddress = await etsAccessControls.getChannelAddressFromName(channelName);
 
-    console.log(`📡 Relayer "${relayerName}" address: ${relayerAddress}`);
+    console.log(`📡 Channel "${channelName}" address: ${channelAddress}`);
 
-    if ((await etsAccessControls.isRelayer(relayerAddress)) === false) {
-      console.info(`"${relayerName}" is not a relayer`);
+    if ((await etsAccessControls.isChannel(channelAddress)) === false) {
+      console.info(`"${channelName}" is not a channel`);
       return;
     }
 
-    const etsRelayer = new ethers.Contract(relayerAddress, ETSRelayerABI, accounts[signerName]);
-    console.log("✅ Relayer is valid\n");
+    const etsChannel = new ethers.Contract(channelAddress, ETSChannelABI, accounts[signerName]);
+    console.log("✅ Channel is valid\n");
 
     // Test tag creation with unique tag name
     const timestamp = Date.now();
@@ -69,7 +69,7 @@ async function main() {
       console.log(`🎯 Computed Zora coin address: ${computedZoraAddress}`);
 
       console.log("📝 Calling getOrCreateTagIds...");
-      const tx = await etsRelayer.getOrCreateTagIds(tagsToMint);
+      const tx = await etsChannel.getOrCreateTagIds(tagsToMint);
       console.log(`⏳ Transaction hash: ${tx.hash}`);
 
       const receipt = await tx.wait();

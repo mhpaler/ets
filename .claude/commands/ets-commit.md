@@ -1,157 +1,199 @@
 # Commit Command
 
-## Smart Commit with Issue Linking
+## Complete Commit & Documentation Flow
 
-When triggered, this command commits all changes in the working directory with an intelligent commit message that links to relevant TAG Coins epic issues.
+This single command handles all commit, documentation, and progress tracking needs.
 
 ### 1. **Analyze Changes**
 - Run `git status` and `git diff` to understand what changed
 - Identify which files and areas of the codebase were modified
 - Check ROADMAP.md ACTIVE_WORK section to determine current issue/task
-- Update ROADMAP.md if progress was made on current_issue_id
 
-### 2. **Generate Issue-Linked Commit Message**
+### 2. **Update Documentation** (Lightweight & Context-Aware)
+
+#### A. Create Changeset (if published packages changed):
+If changes affect packages like `@ethereum-tag-service/contracts`:
+```bash
+pnpm changeset
+```
+- Select affected packages
+- Choose semver bump (major/minor/patch)
+- Write changeset summary
+
+#### B. Update Project CHANGELOG.md (for apps/non-published):
+For changes to apps (temporal-processor, offchain-api, etc.):
+```markdown
+## YYYY-MM-DD
+### Added/Changed/Fixed/Removed
+- Brief description of changes
+- Reference issue numbers (#XXX)
+```
+
+#### C. Update DECISIONS.md (only if architectural decision made):
+```markdown
+## YYYY-MM-DD: [Decision Title]
+**Rationale**: Why we chose this approach
+**Alternatives**: What else we considered
+**Trade-offs**: What we're giving up
+**Future**: When we might revisit
+```
+
+#### C. Update API docs (only if contract interfaces changed):
+- Document new functions/events
+- Mark deprecated items
+- Note breaking changes
+
+### 3. **Update ROADMAP.md**
+
+#### A. Update ACTIVE_WORK:
+- Update `current_issue_id` with exact issue/sub-issue
+- Set `current_status` (IN_PROGRESS, DEBUGGING, BLOCKED, COMPLETED)
+- Update `completion_percent`
+- Clear or set `blocking_bug`
+- Update `exact_task` and `resume_action`
+- Note any `architecture_decision` made
+
+#### B. Add New Issues/Sub-tasks (if discovered):
+- Add to appropriate EPIC section
+- Update dependency chains
+- Note blockers
+
+#### C. Update CRITICAL_PATH (if needed):
+- Update `current_bottleneck`
+- Refresh `next_unblocked` list
+- Adjust `estimated_path_duration`
+
+### 4. **Generate Smart Commit Message**
 - Create descriptive commit message based on changes
-- Link to relevant TAG Coins epic issues using `#[issue-number]`
-- Reference the epic branch context (`528-tag-coins-epic`)
-- Available issues to link:
-  - `#528` - TAG Coins Epic (main epic)
-  - `#529` - Add TagCreated Event to ETS Core
-  - `#530` - Research Zora integration (completed)
-  - `#531` - Off-chain event processing service (completed)
-  - `#532` - Secure EOA management
-  - `#533` - Creator allocation system
+- Link to relevant issues using `#[issue-number]`
+- Include brief summary of documentation updates
 
-### 3. **Analyze Dependencies & Update ROADMAP**
-
-#### A. Dependency Analysis:
-- Check if current work resolves any blockers in DEPENDENCIES section
-- Identify if completed task was blocking other issues
-- Update dependency statuses (BLOCKED → READY → WORKING → VALIDATED)
-- Check if critical path needs updating
-
-#### B. Update ROADMAP Progress:
-- Update `completion_percent` if progress was made
-- Update `current_status` if it changed (e.g., DEBUGGING → IN_PROGRESS)
-- Clear `blocking_bug` if it was resolved
-- Update `exact_task` to reflect current state
-- Note completed tasks in the relevant sub-issue section
-
-#### C. Critical Path Updates:
-- If current issue completed, update `current_bottleneck`
-- Update `next_unblocked` list with newly available work
-- Adjust `estimated_path_duration` if timeline changed
-- Document any architectural decisions that impact dependencies
-
-### 4. **Commit Execution**
+### 5. **Execute Commit**
 - Add all changes with `git add .`
-- Create commit with proper environment: `PATH="/Users/User/.nvm/versions/node/v20.19.4/bin:$PATH"`
-- Use standardized commit footer with Claude attribution
+- Commit with proper environment: `PATH="/Users/User/.nvm/versions/node/v20.19.4/bin:$PATH"`
+- Include standardized footer with Claude attribution
 - Push to current branch if appropriate
 
-### 5. **Issue Linking Strategy**
-Based on file changes, intelligently decide whether to link issues:
+## Issue Linking Strategy
 
 **Link to TAG Coins issues when:**
-- **Contract changes** (packages/contracts/) → `#529` (TagCreated Event)
-- **Off-chain API changes** (apps/offchain-api/) → `#531` (Event Processing)
-- **Oracle changes** (apps/oracle/) → `#532` (EOA Management)
-- **TAG Coins documentation** (docs/tag-coins/, docs/session/) → `#528` (Epic)
-- **Implementation work** → `#528` (Epic) + specific issues
+- **Contract changes** → `#529` (TagCreated Event)
+- **Off-chain API changes** → `#531` (Event Processing)
+- **Temporal processor** → `#539` (Temporal Implementation)
+- **Oracle changes** → `#532` (EOA Management)
+- **Documentation** → `#528` (Epic)
 
-**No issue linking for housekeeping:**
-- **General documentation** organization (moving files, fixing references)
-- **Script creation** (slash commands, utilities, tooling)
-- **Build/config changes** (package.json, tsconfig, etc.)
-- **Cleanup work** (removing temp files, organizing folders)
-- **Development tooling** (adding shortcuts, helper scripts)
+**No issue linking for:**
+- General cleanup/refactoring
+- Development tooling
+- Build/config changes
 
 ## Template Response
 
-**Claude's Response to `/ets-commit`:**
-
 ```
-📝 **Analyzing Changes for Smart Commit**
+📝 **Analyzing Changes**
+Modified: [List key files]
+Area: [Contract/API/Processor/etc.]
+Current Issue: #XXX
 
-Modified files: [List of changed files]
-Area of work: [Contract/API/Documentation/etc.]
+📚 **Updating Documentation**
+✓ Changeset: Created for @ethereum-tag-service/contracts (if applicable)
+✓ CHANGELOG.md: Added [summary] (for apps)
+✓ DECISIONS.md: Documented [decision] (if applicable)
+✓ ROADMAP.md: Updated progress to XX%
 
-🔗 **Linking to Issues**: #528 #[specific-issue]
-
-💾 **Committing Changes**
-
-[Executes git add and commit with generated message]
-
-✅ **Commit Complete**
-Message: [Shows the commit message used]
-Linked issues: [Lists GitHub issues referenced]
-Branch: [Current branch name]
+🔗 **Commit Message**
 ```
+[Type]: [Brief description]
 
-## Commit Message Formats
+[Detailed changes if needed]
 
-**For feature/implementation work:**
-```
-[Action]: [Brief description of changes]
-
-[More detailed description if needed]
+Documentation:
+- CHANGELOG: [What was added]
+- DECISIONS: [Key decision] (if any)
+- Progress: [Issue #XXX at XX%]
 
 Related to #528 TAG Coins Epic
-Addresses #[specific-issue] [issue title]
+Addresses #XXX [specific issue]
 
-🤖 Generated with [Claude Code](https://claude.ai/code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
-```
-
-**For housekeeping/tooling work:**
-```
-[Action]: [Brief description of changes]
-
-[More detailed description if needed]
-
-🤖 Generated with [Claude Code](https://claude.ai/code)
+🤖 Generated with Claude Code
 
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-## Dependency Analysis Example
-
-**Before commit (fixing targetId bug):**
-```yaml
-ACTIVE_WORK:
-  current_issue_id: #529.5
-  blocking_bug: "targetId=0 parsing issue"
-  
-DEPENDENCIES:
-  ZORA_COINS → EVENT_PROCESSOR: BLOCKED
-  
-CRITICAL_PATH:
-  current_bottleneck: #529.5
-  next_unblocked: []
+✅ **Complete**
+Branch: [current-branch]
+Issues: #528 #XXX
+Progress: XX% on #XXX
+Next: [What's next from ROADMAP]
 ```
 
-**After commit (bug fixed):**
-```yaml
-ACTIVE_WORK:
-  current_issue_id: #529.5
-  blocking_bug: null  # Cleared!
-  completion_percent: 100
-  
-DEPENDENCIES:
-  ZORA_COINS → EVENT_PROCESSOR: WORKING  # Unblocked!
-  
-CRITICAL_PATH:
-  current_bottleneck: #535.1  # Advanced!
-  next_unblocked: ["#535.1", "#535.2"]  # Can work on these now
+## Commit Message Types
+- `feat`: New feature
+- `fix`: Bug fix
+- `refactor`: Code restructuring
+- `docs`: Documentation only
+- `test`: Test additions/changes
+- `chore`: Build/tooling/deps
+
+## Example Documentation Updates
+
+### CHANGELOG.md Entry:
+```markdown
+## 2024-01-20
+
+### Changed
+- Refactored target enrichment to remove Arweave dependency (#539)
+- Now emits events directly for The Graph indexing
+- 10x gas savings by avoiding storage operations
+
+### Added
+- `enrichTarget()` function to ETSEnrichTarget contract
+- `TargetEnriched` event for metadata emission
+
+### Removed
+- Arweave upload activities from temporal processor
+- On-chain storage of enrichment metadata
+```
+
+### DECISIONS.md Entry:
+```markdown
+## 2024-01-20: Remove Arweave from Target Enrichment
+
+**Rationale**:
+- Events are 10x cheaper than storage
+- The Graph indexes events, not storage
+- Arweave adds complexity without current benefit
+
+**Alternatives Considered**:
+- On-chain storage (too expensive)
+- IPFS (similar complexity to Arweave)
+- Hybrid approach (overengineered)
+
+**Trade-offs**:
+- Can't query enrichment directly from contract
+- Rely on The Graph for data availability
+
+**Future**:
+- Can add Arweave when we need permanent media storage
+- Easy to add storage later if needed
 ```
 
 ## Benefits
 
-1. **Automatic Issue Linking** - Connects commits to GitHub issues for tracking
-2. **Intelligent Analysis** - Determines relevant issues based on changed files
-3. **Consistent Format** - Uses project's established commit message style
-4. **Epic Tracking** - Always links back to the main TAG Coins epic (#528)
-5. **Team Visibility** - Clear commit history shows progress on specific issues
-6. **Dependency Management** - Automatically updates blockers and critical path
-7. **Parallel Work Discovery** - Identifies when multiple tasks become available
+1. **Single Command** - Everything in one place
+2. **Automatic Documentation** - Captures context while fresh
+3. **Progress Tracking** - ROADMAP always current
+4. **Decision History** - Architectural choices documented
+5. **Issue Linking** - Clear traceability
+6. **Lightweight** - Only update what changed
+
+## Quick Commit (No Major Changes)
+
+For minor commits without significant changes:
+```
+/ets-commit --quick
+```
+- Skips DECISIONS.md
+- Minimal CHANGELOG entry
+- Basic ROADMAP update

@@ -19,10 +19,10 @@ describe("ETS Core Records Management", async () => {
   await contracts.ETS.write.setTaggingFee([originalTaggingFee], { account: accounts.ETSPlatform.account });
   const taggingFee = originalTaggingFee;
 
-  let taggingRecordId: bigint;
+  let _taggingRecordId: bigint;
 
   describe("Creating new tagging records", async () => {
-    it("should revert when non-relayer calls applyTagsWithRawInput", async () => {
+    it("should revert when non-channel calls applyTagsWithRawInput", async () => {
       const rawInput = {
         targetURI: "https://google.com",
         tagStrings: ["#love"],
@@ -35,11 +35,11 @@ describe("ETS Core Records Management", async () => {
         );
         assert.fail("Should have reverted");
       } catch (error: any) {
-        assert.ok(error.message.includes("revert") || error.message.includes("CallerNotRelayer"));
+        assert.ok(error.message.includes("revert") || error.message.includes("CallerNotChannel"));
       }
     });
 
-    it("should revert when caller is not an enabled Relayer", async () => {
+    it("should revert when caller is not an enabled Channel", async () => {
       try {
         await contracts.ETS.write.applyTagsWithCompositeKey(
           [[etsTag1], targetId, "bookmark", accounts.User2.account.address, accounts.ETSPlatform.account.address],
@@ -47,7 +47,7 @@ describe("ETS Core Records Management", async () => {
         );
         assert.fail("Should have reverted");
       } catch (error: any) {
-        assert.ok(error.message.includes("revert") || error.message.includes("CallerNotRelayer"));
+        assert.ok(error.message.includes("revert") || error.message.includes("CallerNotChannel"));
       }
     });
 
@@ -131,7 +131,7 @@ describe("ETS Core Records Management", async () => {
 
     it("should have the correct number of tags", async () => {
       // Create completely new tags to avoid conflicts
-      await contracts.ETSRelayer.write.getOrCreateTagIds([["#MultiTag1", "#MultiTag2", "#MultiTag3"]], {
+      await contracts.ETSChannel.write.getOrCreateTagIds([["#MultiTag1", "#MultiTag2", "#MultiTag3"]], {
         account: accounts.User4.account,
       });
 
@@ -176,8 +176,8 @@ describe("ETS Core Records Management", async () => {
         assert.fail(`Failed to retrieve multi-tag tagging record by ID. Record ID: ${recordId}`);
       }
 
-      // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
-      const [coinAddressesById, targetIdById, recordTypeById, relayerById, taggerById] = taggingRecordById;
+      // viem returns struct as array tuple: [coinAddresses, targetId, recordType, channel, tagger]
+      const [coinAddressesById, _targetIdById, _recordTypeById, _channelById, _taggerById] = taggingRecordById;
 
       if (!coinAddressesById || !Array.isArray(coinAddressesById)) {
         assert.fail(`Retrieved record but coinAddresses is not valid array: ${coinAddressesById}`);
@@ -255,7 +255,7 @@ describe("ETS Core Records Management", async () => {
         };
 
         // First compute the expected fee for appending to existing record
-        const [expectedFee, tagCount] = await contracts.ETS.read.computeTaggingFeeFromRawInput([
+        const [expectedFee, _tagCount] = await contracts.ETS.read.computeTaggingFeeFromRawInput([
           rawInput,
           accounts.ETSPlatform.account.address,
           accounts.User2.account.address,
@@ -279,7 +279,7 @@ describe("ETS Core Records Management", async () => {
           assert.fail("Failed to retrieve tagging record");
         }
 
-        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
+        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, channel, tagger]
         const [coinAddresses] = taggingRecord;
         if (!coinAddresses || !Array.isArray(coinAddresses)) {
           assert.fail("Failed to retrieve coinAddresses from tagging record");
@@ -293,7 +293,7 @@ describe("ETS Core Records Management", async () => {
         };
 
         // Compute the expected fee
-        const [expectedFee, tagCount] = await contracts.ETS.read.computeTaggingFeeFromRawInput([
+        const [expectedFee, _tagCount] = await contracts.ETS.read.computeTaggingFeeFromRawInput([
           rawInput,
           accounts.ETSPlatform.account.address,
           accounts.User2.account.address,
@@ -324,7 +324,7 @@ describe("ETS Core Records Management", async () => {
     describe("using taggingRecord composite key", async () => {
       it("should revert when insufficient tagging fee is supplied", async () => {
         // Create new unique tags for this test
-        await contracts.ETSRelayer.write.getOrCreateTagIds([["#uniqueTag1", "#uniqueTag2"]], {
+        await contracts.ETSChannel.write.getOrCreateTagIds([["#uniqueTag1", "#uniqueTag2"]], {
           account: accounts.User4.account,
         });
         const uniqueTag1 = await contracts.ETSToken.read.computeCoinAddress(["#uniqueTag1"]);
@@ -347,14 +347,14 @@ describe("ETS Core Records Management", async () => {
 
       it("should emit TaggingRecordUpdated", async () => {
         // Create new unique tags for this test
-        await contracts.ETSRelayer.write.getOrCreateTagIds([["#compKeyTag1", "#compKeyTag2"]], {
+        await contracts.ETSChannel.write.getOrCreateTagIds([["#compKeyTag1", "#compKeyTag2"]], {
           account: accounts.User4.account,
         });
         const compKeyTag1 = await contracts.ETSToken.read.computeCoinAddress(["#compKeyTag1"]);
         const compKeyTag2 = await contracts.ETSToken.read.computeCoinAddress(["#compKeyTag2"]);
 
         // Compute the expected fee for appending these tags to existing record
-        const [expectedFee, tagCount] = await contracts.ETS.read.computeTaggingFeeFromCompositeKey([
+        const [expectedFee, _tagCount] = await contracts.ETS.read.computeTaggingFeeFromCompositeKey([
           [compKeyTag1, compKeyTag2],
           targetId,
           "bookmark-append",
@@ -384,7 +384,7 @@ describe("ETS Core Records Management", async () => {
     describe("using taggingRecordId", async () => {
       it("should revert when insufficient tagging fee is supplied", async () => {
         // Create completely new tags to avoid fee conflicts
-        await contracts.ETSRelayer.write.getOrCreateTagIds([["#appendTag1", "#appendTag2", "#appendTag3"]], {
+        await contracts.ETSChannel.write.getOrCreateTagIds([["#appendTag1", "#appendTag2", "#appendTag3"]], {
           account: accounts.User4.account,
         });
         const appendTag1 = await contracts.ETSToken.read.computeCoinAddress(["#appendTag1"]);
@@ -409,7 +409,7 @@ describe("ETS Core Records Management", async () => {
           assert.fail("Failed to retrieve tagging record");
         }
 
-        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
+        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, channel, tagger]
         const [coinAddresses] = taggingRecord;
         if (!coinAddresses || !Array.isArray(coinAddresses)) {
           assert.fail("Failed to retrieve coinAddresses from tagging record");
@@ -417,7 +417,7 @@ describe("ETS Core Records Management", async () => {
         const initialCount = coinAddresses.length;
 
         // Create completely new tags to avoid fee conflicts
-        await contracts.ETSRelayer.write.getOrCreateTagIds([["#recordIdTag1", "#recordIdTag2"]], {
+        await contracts.ETSChannel.write.getOrCreateTagIds([["#recordIdTag1", "#recordIdTag2"]], {
           account: accounts.User4.account,
         });
         const recordIdTag1 = await contracts.ETSToken.read.computeCoinAddress(["#recordIdTag1"]);
@@ -452,7 +452,7 @@ describe("ETS Core Records Management", async () => {
 
       it("must be performed by the original tagger", async () => {
         // Create new tags to avoid fee conflicts
-        await contracts.ETSRelayer.write.getOrCreateTagIds([["#authTag1", "#authTag2"]], {
+        await contracts.ETSChannel.write.getOrCreateTagIds([["#authTag1", "#authTag2"]], {
           account: accounts.User4.account,
         });
         const authTag1 = await contracts.ETSToken.read.computeCoinAddress(["#authTag1"]);
@@ -538,7 +538,7 @@ describe("ETS Core Records Management", async () => {
           assert.fail("Failed to retrieve tagging record");
         }
 
-        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
+        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, channel, tagger]
         const [coinAddresses] = taggingRecord;
         if (!coinAddresses || !Array.isArray(coinAddresses)) {
           assert.fail("Failed to retrieve coinAddresses from tagging record");
@@ -588,7 +588,7 @@ describe("ETS Core Records Management", async () => {
           assert.fail("Failed to retrieve tagging record");
         }
 
-        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
+        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, channel, tagger]
         const [coinAddresses] = taggingRecord;
         if (!coinAddresses || !Array.isArray(coinAddresses)) {
           assert.fail("Failed to retrieve coinAddresses from tagging record");
@@ -631,7 +631,7 @@ describe("ETS Core Records Management", async () => {
           freshRecordTags, // coinAddresses first
           targetId,
           "bookmark-remove-fresh",
-          accounts.ETSPlatform.account.address, // relayer
+          accounts.ETSPlatform.account.address, // channel
           accounts.User2.account.address, // tagger
           0, // APPLY action
         ]);
@@ -662,7 +662,7 @@ describe("ETS Core Records Management", async () => {
           assert.fail("Failed to retrieve fresh tagging record");
         }
 
-        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
+        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, channel, tagger]
         const [coinAddresses] = taggingRecord;
         if (!coinAddresses || !Array.isArray(coinAddresses)) {
           assert.fail("Failed to retrieve coinAddresses from tagging record");
@@ -754,7 +754,7 @@ describe("ETS Core Records Management", async () => {
           assert.fail("Failed to retrieve tagging record");
         }
 
-        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
+        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, channel, tagger]
         const [coinAddresses] = taggingRecord;
         if (!coinAddresses || !Array.isArray(coinAddresses)) {
           assert.fail("Failed to retrieve coinAddresses from tagging record");
@@ -803,12 +803,12 @@ describe("ETS Core Records Management", async () => {
           assert.fail("Failed to retrieve tagging record");
         }
 
-        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
+        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, channel, tagger]
         const [coinAddresses] = taggingRecord;
         if (!coinAddresses || !Array.isArray(coinAddresses)) {
           assert.fail("Failed to retrieve coinAddresses from tagging record");
         }
-        const initialCount = coinAddresses.length;
+        const _initialCount = coinAddresses.length;
 
         const newTags = [etsTag2, etsTag3, userTag1]; // Replacing with 3 new ones.
         // Compute the expected fee for replacing with these new tags
@@ -850,7 +850,7 @@ describe("ETS Core Records Management", async () => {
           assert.fail("Failed to retrieve tagging record");
         }
 
-        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
+        // viem returns struct as array tuple: [coinAddresses, targetId, recordType, channel, tagger]
         const [coinAddresses] = taggingRecord;
         if (!coinAddresses || !Array.isArray(coinAddresses)) {
           assert.fail("Failed to retrieve coinAddresses from tagging record");
@@ -945,7 +945,7 @@ describe("ETS Core Records Management", async () => {
         assert.fail("Failed to retrieve tagging record by composite key");
       }
 
-      // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
+      // viem returns struct as array tuple: [coinAddresses, targetId, recordType, channel, tagger]
       const [, targetId] = taggingRecord;
       if (!targetId) {
         assert.fail("Failed to retrieve targetId from tagging record");
@@ -959,7 +959,7 @@ describe("ETS Core Records Management", async () => {
         assert.fail("Failed to retrieve tagging record by id");
       }
 
-      // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
+      // viem returns struct as array tuple: [coinAddresses, targetId, recordType, channel, tagger]
       const [, targetId] = taggingRecord;
       if (!targetId) {
         assert.fail("Failed to retrieve targetId from tagging record");
@@ -984,12 +984,12 @@ describe("ETS Core Records Management", async () => {
       // Compute the expected fee for applying these specific tags
       const [expectedFee] = await contracts.ETS.read.computeTaggingFeeFromRawInput([
         taggingRecordInputParams,
-        accounts.ETSPlatform.account.address, // relayer
+        accounts.ETSPlatform.account.address, // channel
         accounts.User3.account.address, // tagger
         0, // APPLY action
       ]);
 
-      // RandomTwo is tagger, ETSPlatform is relayer.
+      // RandomTwo is tagger, ETSPlatform is channel.
       await contracts.ETS.write.applyTagsWithRawInput(
         [taggingRecordInputParams, accounts.User3.account.address, accounts.ETSPlatform.account.address],
         {
@@ -999,11 +999,11 @@ describe("ETS Core Records Management", async () => {
       );
 
       // Get tagging record id from composite key.
-      // Parameters: targetId, recordType, relayer, tagger
+      // Parameters: targetId, recordType, channel, tagger
       const newTaggingRecordId = await contracts.ETS.read.computeTaggingRecordIdFromCompositeKey([
         existingTargetId,
         "bookmark",
-        accounts.ETSPlatform.account.address, // relayer
+        accounts.ETSPlatform.account.address, // channel
         accounts.User3.account.address, // tagger
       ]);
 
@@ -1014,8 +1014,8 @@ describe("ETS Core Records Management", async () => {
         assert.fail("Failed to retrieve new tagging record");
       }
 
-      // viem returns struct as array tuple: [coinAddresses, targetId, recordType, relayer, tagger]
-      const [coinAddresses, targetId, recordType, relayer, tagger] = newTaggingRecord;
+      // viem returns struct as array tuple: [coinAddresses, targetId, recordType, channel, tagger]
+      const [coinAddresses, targetId, recordType, channel, tagger] = newTaggingRecord;
       if (!coinAddresses || !targetId) {
         assert.fail("Failed to retrieve new tagging record data");
       }
@@ -1023,7 +1023,7 @@ describe("ETS Core Records Management", async () => {
       assert.equal(targetId.toString(), existingTargetId.toString());
       assert.equal(recordType, "bookmark");
       assert.equal(tagger.toLowerCase(), accounts.User3.account.address.toLowerCase());
-      assert.equal(relayer.toLowerCase(), accounts.ETSPlatform.account.address.toLowerCase());
+      assert.equal(channel.toLowerCase(), accounts.ETSPlatform.account.address.toLowerCase());
 
       for (let i = 0; i < coinAddresses.length; i++) {
         assert.ok(reusedTagIds.includes(coinAddresses[i]));
@@ -1031,12 +1031,12 @@ describe("ETS Core Records Management", async () => {
     });
   });
 
-  describe("Writing a tagging record via a Relayer contract", async () => {
-    it("should revert when Relayer is paused", async () => {
-      assert.equal(await contracts.ETSAccessControls.read.isRelayerAndNotPaused([contracts.ETSRelayer.address]), true);
+  describe("Writing a tagging record via a Channel contract", async () => {
+    it("should revert when Channel is paused", async () => {
+      assert.equal(await contracts.ETSAccessControls.read.isChannelAndNotPaused([contracts.ETSChannel.address]), true);
 
-      // Pause ETSRelayer
-      await contracts.ETSAccessControls.write.toggleRelayerLock([contracts.ETSRelayer.address], {
+      // Pause ETSChannel
+      await contracts.ETSAccessControls.write.toggleChannelLock([contracts.ETSChannel.address], {
         account: accounts.ETSPlatform.account,
       });
 
@@ -1049,24 +1049,24 @@ describe("ETS Core Records Management", async () => {
       const taggingRecords = [tagParams];
 
       try {
-        await contracts.ETSRelayer.write.applyTags([taggingRecords], {
+        await contracts.ETSChannel.write.applyTags([taggingRecords], {
           value: taggingFee * 2n,
           account: accounts.User2.account,
         });
         assert.fail("Should have reverted");
       } catch (error: any) {
-        assert.ok(error.message.includes("revert") || error.message.includes("CallerNotRelayer"));
+        assert.ok(error.message.includes("revert") || error.message.includes("CallerNotChannel"));
       }
     });
 
     it('should emit "TaggingRecordCreated" when successful', async () => {
-      // Unpause the relayer first
-      await contracts.ETSAccessControls.write.toggleRelayerLock([contracts.ETSRelayer.address], {
+      // Unpause the channel first
+      await contracts.ETSAccessControls.write.toggleChannelLock([contracts.ETSChannel.address], {
         account: accounts.ETSPlatform.account,
       });
 
       const tagParams = {
-        targetURI: "https://relayer-test.com",
+        targetURI: "https://channel-test.com",
         tagStrings: ["#love", "#hate"],
         recordType: "bookmark",
         enrich: false,
@@ -1074,7 +1074,7 @@ describe("ETS Core Records Management", async () => {
       const taggingRecords = [tagParams];
 
       // TODO: Event testing needs to be implemented with viem
-      await contracts.ETSRelayer.write.applyTags([taggingRecords], {
+      await contracts.ETSChannel.write.applyTags([taggingRecords], {
         value: taggingFee * 2n,
         account: accounts.User2.account,
       });

@@ -117,7 +117,11 @@
       }
     },
     {
-      "include": ["packages/contracts/test/**/*.test.ts", "packages/contracts/ignition/modules/**"],
+      "include": [
+        "packages/contracts/test/**/*.test.ts",
+        "packages/contracts/ignition/modules/**",
+        "packages/legacy-tests/**/*.test.ts"
+      ],
       "linter": {
         "rules": {
           "style": {

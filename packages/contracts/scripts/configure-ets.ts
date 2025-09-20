@@ -20,7 +20,7 @@ async function main() {
   const chainId = hardhat.network.name === "localhost" ? 31337 : hardhat.network.config?.chainId || 31337;
   const deploymentPath = `./ignition/deployments/chain-${chainId}/deployed_addresses.json`;
 
-  const fs = await import("fs");
+  const fs = await import("node:fs");
   if (!fs.existsSync(deploymentPath)) {
     console.error("❌ No deployment found. Run deployment first.");
     process.exit(1);
@@ -37,14 +37,14 @@ async function main() {
   const target = await viem.getContractAt("ETSTarget", deployed["ETSTarget#ETSTargetProxy"]);
   const etsCore = await viem.getContractAt("ETS", deployed["ETSCore#ETSCoreProxy"]);
   const enrichTarget = await viem.getContractAt("ETSEnrichTarget", deployed["ETSEnrichTarget#ETSEnrichTargetProxy"]);
-  const relayerFactory = await viem.getContractAt("ETSRelayerFactory", deployed["ETSRelayerFactory#ETSRelayerFactory"]);
+  const channelFactory = await viem.getContractAt("ETSChannelFactory", deployed["ETSChannelFactory#ETSChannelFactory"]);
 
   console.log("Setting up roles...");
 
   // Get role hashes
-  const RELAYER_FACTORY_ROLE = await accessControls.read.RELAYER_FACTORY_ROLE();
-  const RELAYER_ADMIN_ROLE = await accessControls.read.RELAYER_ADMIN_ROLE();
-  const RELAYER_ROLE = await accessControls.read.RELAYER_ROLE();
+  const CHANNEL_FACTORY_ROLE = await accessControls.read.CHANNEL_FACTORY_ROLE();
+  const CHANNEL_ADMIN_ROLE = await accessControls.read.CHANNEL_ADMIN_ROLE();
+  const CHANNEL_ROLE = await accessControls.read.CHANNEL_ROLE();
   const EVENT_PROCESSOR_ROLE = await accessControls.read.EVENT_PROCESSOR_ROLE();
   const SMART_CONTRACT_ROLE = await accessControls.read.SMART_CONTRACT_ROLE();
   const DEFAULT_ADMIN_ROLE = await accessControls.read.DEFAULT_ADMIN_ROLE();
@@ -63,29 +63,29 @@ async function main() {
   }
 
   // Set role admins using the platform account
-  await accessControls.write.setRoleAdmin([RELAYER_FACTORY_ROLE, RELAYER_ADMIN_ROLE], {
+  await accessControls.write.setRoleAdmin([CHANNEL_FACTORY_ROLE, CHANNEL_ADMIN_ROLE], {
     account: accounts.ETSPlatform.account,
   });
-  console.log("✅ Set RELAYER_ADMIN_ROLE as admin of RELAYER_FACTORY_ROLE");
+  console.log("✅ Set CHANNEL_ADMIN_ROLE as admin of CHANNEL_FACTORY_ROLE");
 
-  await accessControls.write.setRoleAdmin([RELAYER_ROLE, RELAYER_FACTORY_ROLE], {
+  await accessControls.write.setRoleAdmin([CHANNEL_ROLE, CHANNEL_FACTORY_ROLE], {
     account: accounts.ETSPlatform.account,
   });
-  console.log("✅ Set RELAYER_FACTORY_ROLE as admin of RELAYER_ROLE");
+  console.log("✅ Set CHANNEL_FACTORY_ROLE as admin of CHANNEL_ROLE");
 
   // Grant roles
   console.log("\nGranting roles...");
 
-  // Grant RELAYER_ADMIN_ROLE
-  await accessControls.write.grantRole([RELAYER_ADMIN_ROLE, accounts.ETSAdmin.account.address], {
+  // Grant CHANNEL_ADMIN_ROLE
+  await accessControls.write.grantRole([CHANNEL_ADMIN_ROLE, accounts.ETSAdmin.account.address], {
     account: accounts.ETSPlatform.account,
   });
-  console.log("✅ Granted RELAYER_ADMIN_ROLE to ETSAdmin");
+  console.log("✅ Granted CHANNEL_ADMIN_ROLE to ETSAdmin");
 
-  await accessControls.write.grantRole([RELAYER_ADMIN_ROLE, accounts.ETSPlatform.account.address], {
+  await accessControls.write.grantRole([CHANNEL_ADMIN_ROLE, accounts.ETSPlatform.account.address], {
     account: accounts.ETSPlatform.account,
   });
-  console.log("✅ Granted RELAYER_ADMIN_ROLE to ETSPlatform");
+  console.log("✅ Granted CHANNEL_ADMIN_ROLE to ETSPlatform");
 
   // Grant EVENT_PROCESSOR_ROLE
   await accessControls.write.grantRole([EVENT_PROCESSOR_ROLE, accounts.ETSPlatform.account.address], {
@@ -104,11 +104,11 @@ async function main() {
   });
   console.log("✅ Granted SMART_CONTRACT_ROLE to ETSAdmin");
 
-  // Grant RELAYER_FACTORY_ROLE to the factory
-  await accessControls.write.grantRole([RELAYER_FACTORY_ROLE, relayerFactory.address], {
+  // Grant CHANNEL_FACTORY_ROLE to the factory
+  await accessControls.write.grantRole([CHANNEL_FACTORY_ROLE, channelFactory.address], {
     account: accounts.ETSPlatform.account,
   });
-  console.log("✅ Granted RELAYER_FACTORY_ROLE to RelayerFactory");
+  console.log("✅ Granted CHANNEL_FACTORY_ROLE to ChannelFactory");
 
   // Link contracts
   console.log("\nLinking contracts...");
@@ -132,7 +132,7 @@ async function main() {
   console.log("  Target:", deployed["ETSTarget#ETSTargetProxy"]);
   console.log("  Core:", deployed["ETSCore#ETSCoreProxy"]);
   console.log("  EnrichTarget:", deployed["ETSEnrichTarget#ETSEnrichTargetProxy"]);
-  console.log("  RelayerFactory:", deployed["ETSRelayerFactory#ETSRelayerFactory"]);
+  console.log("  ChannelFactory:", deployed["ETSChannelFactory#ETSChannelFactory"]);
 }
 
 main()

@@ -19,7 +19,7 @@ interface NetworkConfig {
     target?: string;
     core?: string;
     enrichTarget?: string;
-    relayerFactory?: string;
+    channelFactory?: string;
   };
 }
 
@@ -30,7 +30,7 @@ const CONTRACT_MAPPING: Record<string, string> = {
   "ETSTarget#ETSTargetProxy": "target",
   "ETSCore#ETSCoreProxy": "core",
   "ETSEnrichTarget#ETSEnrichTargetProxy": "enrichTarget",
-  "ETSRelayerFactory#ETSRelayerFactory": "relayerFactory",
+  "ETSChannelFactory#ETSChannelFactory": "channelFactory",
 };
 
 // Network configurations
@@ -92,7 +92,7 @@ export interface ContractAddresses {
   target?: string;
   core?: string;
   enrichTarget?: string;
-  relayerFactory?: string;
+  channelFactory?: string;
 }
 
 export interface NetworkDeployment {
@@ -131,7 +131,7 @@ export function getContractAddresses(networkName: string): ContractAddresses | u
       require: "./dist/deployments.js",
     };
 
-    fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + "\n");
+    fs.writeFileSync(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`);
     console.log("📦 Updated package.json exports");
   }
 }

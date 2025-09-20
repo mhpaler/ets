@@ -85,8 +85,8 @@ describe("Beacon Proxy Upgrade tests - Ignition", async () => {
       assert.ok(relayer1Code && relayer1Code.length > 0, "Relayer 1 should have bytecode");
 
       // Get relayer instances
-      const relayer1 = await viem.getContractAt("ETSRelayer", relayer1Address as `0x${string}`);
-      const relayer2 = await viem.getContractAt("ETSRelayer", relayer2Address as `0x${string}`);
+      const _relayer1 = await viem.getContractAt("ETSRelayer", relayer1Address as `0x${string}`);
+      const _relayer2 = await viem.getContractAt("ETSRelayer", relayer2Address as `0x${string}`);
 
       // Check initial implementation
       const initialImpl = await factory.read.getImplementation();

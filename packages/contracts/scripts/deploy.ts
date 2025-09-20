@@ -44,7 +44,7 @@ async function main() {
     ETSCore: {
       taggingFee: parseEther(settings.TAGGING_FEE).toString(),
       platformPercentage: settings.PLATFORM_PERCENTAGE,
-      relayerPercentage: settings.RELAYER_PERCENTAGE,
+      channelPercentage: settings.CHANNEL_PERCENTAGE,
     },
     ETSToken: {
       tagMinStringLength: settings.TAG_MIN_STRING_LENGTH,
@@ -53,9 +53,9 @@ async function main() {
     ETSTarget: {
       targetMaxStringLength: settings.TARGET_MAX_STRING_LENGTH,
     },
-    ETSRelayerFactory: {
-      relayerName: settings.RELAYER_NAME,
-      relayerSymbol: settings.RELAYER_SYMBOL,
+    ETSChannelFactory: {
+      channelName: settings.CHANNEL_NAME,
+      channelSymbol: settings.CHANNEL_SYMBOL,
     },
   };
 
@@ -77,7 +77,7 @@ async function main() {
 
   try {
     // Deploy all modules
-    const modules = ["ETSAccessControls", "ETSToken", "ETSTarget", "ETSCore", "ETSEnrichTarget", "ETSRelayerFactory"];
+    const modules = ["ETSAccessControls", "ETSToken", "ETSTarget", "ETSCore", "ETSEnrichTarget", "ETSChannelFactory"];
 
     for (const module of modules) {
       console.log(`  Deploying ${module}...`);

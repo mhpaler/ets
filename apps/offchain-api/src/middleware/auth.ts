@@ -121,11 +121,11 @@ function validateAPIKey(
   providedKey: string,
   config: AuthConfig,
 ): { valid: boolean; keyId?: string; isInternal?: boolean; reason?: string } {
-  // Check internal API key (for oracle)
+  // Check internal API key (for event processor)
   if (config.internalApiKey && providedKey === config.internalApiKey) {
     return {
       valid: true,
-      keyId: "internal-oracle",
+      keyId: "internal-event-processor",
       isInternal: true,
     };
   }
@@ -157,16 +157,16 @@ function validateAPIKey(
 }
 
 /**
- * Middleware specifically for oracle endpoints
+ * Middleware specifically for event processor endpoints
  * Requires internal API key and optionally IP validation
  */
-export function requireOracleAuth() {
-  const oracleIPs = process.env.ORACLE_ALLOWED_IPS?.split(",") || [];
+export function requireEventProcessorAuth() {
+  const eventProcessorIPs = process.env.EVENT_PROCESSOR_ALLOWED_IPS?.split(",") || [];
 
   return requireAPIKey({
     enforceInProduction: true,
-    internalApiKey: process.env.ORACLE_API_KEY || process.env.INTERNAL_API_KEY,
-    allowedIPs: oracleIPs.length > 0 ? oracleIPs : undefined,
+    internalApiKey: process.env.EVENT_PROCESSOR_API_KEY || process.env.INTERNAL_API_KEY,
+    allowedIPs: eventProcessorIPs.length > 0 ? eventProcessorIPs : undefined,
   });
 }
 

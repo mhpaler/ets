@@ -16,7 +16,7 @@ export interface TagCreatedWorkflowInput {
   displayVersion: string;
   machineName: string;
   creator: Address;
-  relayer: Address;
+  channel: Address;
   transactionHash: Hash;
   blockNumber: string; // String for Temporal payload serialization
   chainId: number;
@@ -34,14 +34,9 @@ export interface MetadataFetchResult {
   error?: string;
 }
 
-export interface ArweaveUploadResult {
-  transactionId: string;
-  gatewayUrl: string;
-  status: "success" | "failed";
-  error?: string;
-}
+// Arweave removed - using direct event emission instead
 
-export interface BlockchainUpdateResult {
+export interface EnrichmentEventResult {
   transactionHash: Hash;
   status: "success" | "failed";
   error?: string;
@@ -58,14 +53,12 @@ export interface ZoraCoinCreationResult {
 // Workflow Result Types
 export interface TargetEnrichmentResult {
   targetId: string;
-  metadataURI?: string;
-  arweaveTransactionId?: string;
-  updateTransactionHash?: Hash;
+  enrichmentTransactionHash?: Hash;
+  metadata?: MetadataFetchResult;
   status: "completed" | "failed" | "partial";
   steps: {
     fetchMetadata: boolean;
-    uploadToArweave: boolean;
-    updateBlockchain: boolean;
+    emitEnrichmentEvent: boolean;
   };
   error?: string;
 }

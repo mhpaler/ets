@@ -57,7 +57,7 @@ describe("CRITICAL: Real Network Deployment Verification", async () => {
 
       // Try to interact with contract on real network
       try {
-        const contract = await viem.getContractAt("MockZoraFactory", address);
+        const _contract = await viem.getContractAt("MockZoraFactory", address);
         // Try a basic call - if no bytecode, this should fail
         console.log("   Testing contract interaction on real network...");
 

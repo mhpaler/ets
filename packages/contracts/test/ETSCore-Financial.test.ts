@@ -11,28 +11,28 @@ describe("ETS Core Financial Operations", async () => {
 
   describe("Accrued fees management", async () => {
     let _platformPreTagAccrued: bigint;
-    let _relayerPreTagAccrued: bigint;
+    let _channelPreTagAccrued: bigint;
     let _creatorPreTagAccrued: bigint;
 
     // Get initial accrued amounts at module level
     _platformPreTagAccrued = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
-    _relayerPreTagAccrued = await contracts.ETS.read.accrued([accounts.User2.account.address]);
+    _channelPreTagAccrued = await contracts.ETS.read.accrued([accounts.User2.account.address]);
     _creatorPreTagAccrued = await contracts.ETS.read.accrued([accounts.User4.account.address]);
 
     it("should track accrued balances correctly", async () => {
       // Test that we can read accrued balances
       const platformAccrued = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
-      const relayerAccrued = await contracts.ETS.read.accrued([contracts.ETSRelayer.address]);
+      const channelAccrued = await contracts.ETS.read.accrued([contracts.ETSChannel.address]);
       const creatorAccrued = await contracts.ETS.read.accrued([accounts.User4.account.address]);
 
       // These should be BigInt values starting at 0n
       assert.equal(typeof platformAccrued, "bigint");
-      assert.equal(typeof relayerAccrued, "bigint");
+      assert.equal(typeof channelAccrued, "bigint");
       assert.equal(typeof creatorAccrued, "bigint");
 
       // All three actors should start with zero accrued balances
       assert.equal(platformAccrued, 0n, "Platform should start with zero accrued balance");
-      assert.equal(relayerAccrued, 0n, "Relayer should start with zero accrued balance");
+      assert.equal(channelAccrued, 0n, "Channel should start with zero accrued balance");
       assert.equal(creatorAccrued, 0n, "User4 should start with zero accrued balance");
     });
 
@@ -42,7 +42,7 @@ describe("ETS Core Financial Operations", async () => {
 
       // Get pre-test amounts
       const platformPreTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
-      const relayerPreTest = await contracts.ETS.read.accrued([contracts.ETSRelayer.address]);
+      const channelPreTest = await contracts.ETS.read.accrued([contracts.ETSChannel.address]);
       const creatorPreTest = await contracts.ETS.read.accrued([accounts.User4.account.address]);
 
       // Use a unique target to ensure we're creating a new tagging record
@@ -57,45 +57,45 @@ describe("ETS Core Financial Operations", async () => {
       // Compute the expected fee for this specific operation
       const computeResult = await contracts.ETS.read.computeTaggingFeeFromRawInput([
         rawInput,
-        contracts.ETSRelayer.address, // relayer should be the ETSRelayer contract
+        contracts.ETSChannel.address, // channel should be the ETSChannel contract
         accounts.User3.account.address, // tagger
         0, // APPLY action
       ]);
       const [expectedFee] = computeResult;
 
-      // Verify ETSRelayer is active
+      // Verify ETSChannel is active
 
-      // Create tagging record via ETSRelayer contract
+      // Create tagging record via ETSChannel contract
 
       const taggingParams = {
         targetURI: rawInput.targetURI,
         tagStrings: rawInput.tagStrings,
         recordType: rawInput.recordType,
-        enrich: false, // Add this field that ETSRelayer expects
+        enrich: false, // Add this field that ETSChannel expects
       };
 
       // Check balances before tagging
 
       // Get tagger balance before to ensure they have enough ETH
 
-      // Debug: Check if relayer is initialized
+      // Debug: Check if channel is initialized
 
-      // Check what the relayer computes for the fee
+      // Check what the channel computes for the fee
 
-      // Check if the tagging fee is still set in the relayer's view
+      // Check if the tagging fee is still set in the channel's view
 
-      // The relayer should be calling ets.taggingFee() internally
-      // Let's simulate what happens in applyTagsViaRelayer
+      // The channel should be calling ets.taggingFee() internally
+      // Let's simulate what happens in applyTagsViaChannel
 
-      // Let's check what the relayer balance is immediately before and after
+      // Let's check what the channel balance is immediately before and after
 
-      // Try calling the relayer to apply tags
+      // Try calling the channel to apply tags
 
-      await contracts.ETSRelayer.write.applyTags(
+      await contracts.ETSChannel.write.applyTags(
         [[taggingParams]], // Array of tagging records
         {
           value: expectedFee,
-          account: accounts.User3.account, // User3 is the tagger calling ETSRelayer
+          account: accounts.User3.account, // User3 is the tagger calling ETSChannel
         },
       );
 
@@ -107,12 +107,12 @@ describe("ETS Core Financial Operations", async () => {
 
       // Get post-test amounts
       const platformPostTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
-      const relayerPostTest = await contracts.ETS.read.accrued([contracts.ETSRelayer.address]);
+      const channelPostTest = await contracts.ETS.read.accrued([contracts.ETSChannel.address]);
       const creatorPostTest = await contracts.ETS.read.accrued([accounts.User4.account.address]);
 
       // Verify fees were distributed
       assert.ok(platformPostTest > platformPreTest, "Platform should receive fees");
-      assert.ok(relayerPostTest > relayerPreTest, "Relayer should receive fees");
+      assert.ok(channelPostTest > channelPreTest, "Channel should receive fees");
       assert.ok(creatorPostTest > creatorPreTest, "User4 should receive fees");
 
       // Platform balance should have increased after tagging
@@ -155,7 +155,7 @@ describe("ETS Core Financial Operations", async () => {
 
         const [expectedFee] = await contracts.ETS.read.computeTaggingFeeFromRawInput([
           rawInput,
-          contracts.ETSRelayer.address,
+          contracts.ETSChannel.address,
           accounts.User3.account.address,
           0, // APPLY action
         ]);
@@ -167,7 +167,7 @@ describe("ETS Core Financial Operations", async () => {
           enrich: false,
         };
 
-        await contracts.ETSRelayer.write.applyTags([[taggingParams]], {
+        await contracts.ETSChannel.write.applyTags([[taggingParams]], {
           value: expectedFee,
           account: accounts.User3.account,
         });
@@ -243,7 +243,7 @@ describe("ETS Core Financial Operations", async () => {
       // Compute the expected fee for this specific operation
       const [expectedFee2] = await contracts.ETS.read.computeTaggingFeeFromRawInput([
         rawInput,
-        accounts.ETSPlatform.account.address, // relayer
+        accounts.ETSPlatform.account.address, // channel
         accounts.User3.account.address, // tagger
         0, // APPLY action
       ]);
@@ -294,7 +294,7 @@ describe("ETS Core Financial Operations", async () => {
     it("should distribute fees according to current percentages", async () => {
       // Get current percentages
       const platformPercentage = await contracts.ETS.read.platformPercentage();
-      const relayerPercentage = await contracts.ETS.read.relayerPercentage();
+      const channelPercentage = await contracts.ETS.read.channelPercentage();
 
       // Create a tagging record to test distribution
       const rawInput = {
@@ -305,17 +305,17 @@ describe("ETS Core Financial Operations", async () => {
 
       // Get pre-test amounts
       const platformPreTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
-      const relayerPreTest = await contracts.ETS.read.accrued([contracts.ETSRelayer.address]);
+      const channelPreTest = await contracts.ETS.read.accrued([contracts.ETSChannel.address]);
 
-      // First create the tag via the ETSRelayer so it has the correct relayer
-      await contracts.ETSRelayer.write.getOrCreateTagIds([["#PercentageTest"]], {
+      // First create the tag via the ETSChannel so it has the correct channel
+      await contracts.ETSChannel.write.getOrCreateTagIds([["#PercentageTest"]], {
         account: accounts.User3.account,
       });
 
       // Compute the expected fee for this specific operation
       const [expectedFee] = await contracts.ETS.read.computeTaggingFeeFromRawInput([
         rawInput,
-        contracts.ETSRelayer.address, // relayer should be the ETSRelayer contract
+        contracts.ETSChannel.address, // channel should be the ETSChannel contract
         accounts.User3.account.address, // tagger
         0, // APPLY action
       ]);
@@ -330,18 +330,18 @@ describe("ETS Core Financial Operations", async () => {
 
       // Get post-test amounts
       const platformPostTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
-      const relayerPostTest = await contracts.ETS.read.accrued([contracts.ETSRelayer.address]);
+      const channelPostTest = await contracts.ETS.read.accrued([contracts.ETSChannel.address]);
 
       // Calculate expected amounts
       const platformExpected = (expectedFee * BigInt(platformPercentage)) / 100n;
-      const relayerExpected = (expectedFee * BigInt(relayerPercentage)) / 100n;
+      const channelExpected = (expectedFee * BigInt(channelPercentage)) / 100n;
 
       // Verify distribution
       const platformReceived = platformPostTest - platformPreTest;
-      const relayerReceived = relayerPostTest - relayerPreTest;
+      const channelReceived = channelPostTest - channelPreTest;
 
       assert.equal(platformReceived, platformExpected, "Platform should receive correct percentage");
-      assert.equal(relayerReceived, relayerExpected, "Relayer should receive correct percentage");
+      assert.equal(channelReceived, channelExpected, "Channel should receive correct percentage");
     });
 
     it("should distribute remaining fees to tag owner", async () => {
@@ -354,13 +354,13 @@ describe("ETS Core Financial Operations", async () => {
 
       // Get pre-test amounts
       const platformPreTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
-      const relayerPreTest = await contracts.ETS.read.accrued([contracts.ETSRelayer.address]);
+      const channelPreTest = await contracts.ETS.read.accrued([contracts.ETSChannel.address]);
       const ownerPreTest = await contracts.ETS.read.accrued([accounts.User4.account.address]); // User4 owns this tag
 
       // Compute the expected fee for this specific operation
       const [expectedFee3] = await contracts.ETS.read.computeTaggingFeeFromRawInput([
         rawInput,
-        accounts.ETSPlatform.account.address, // relayer
+        accounts.ETSPlatform.account.address, // channel
         accounts.User3.account.address, // tagger
         0, // APPLY action
       ]);
@@ -375,25 +375,25 @@ describe("ETS Core Financial Operations", async () => {
 
       // Get post-test amounts
       const platformPostTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
-      const relayerPostTest = await contracts.ETS.read.accrued([contracts.ETSRelayer.address]);
+      const channelPostTest = await contracts.ETS.read.accrued([contracts.ETSChannel.address]);
       const ownerPostTest = await contracts.ETS.read.accrued([accounts.User4.account.address]);
 
       // Get percentages
       const platformPercentage = await contracts.ETS.read.platformPercentage();
-      const relayerPercentage = await contracts.ETS.read.relayerPercentage();
+      const channelPercentage = await contracts.ETS.read.channelPercentage();
 
       // Calculate expected amounts
       const platformExpected = (expectedFee3 * BigInt(platformPercentage)) / 100n;
-      const relayerExpected = (expectedFee3 * BigInt(relayerPercentage)) / 100n;
-      const ownerExpected = expectedFee3 - platformExpected - relayerExpected;
+      const channelExpected = (expectedFee3 * BigInt(channelPercentage)) / 100n;
+      const ownerExpected = expectedFee3 - platformExpected - channelExpected;
 
       // Verify distribution
       const platformReceived = platformPostTest - platformPreTest;
-      const relayerReceived = relayerPostTest - relayerPreTest;
+      const channelReceived = channelPostTest - channelPreTest;
       const ownerReceived = ownerPostTest - ownerPreTest;
 
       assert.equal(platformReceived, platformExpected, "Platform should receive correct percentage");
-      assert.equal(relayerReceived, relayerExpected, "Relayer should receive correct percentage");
+      assert.equal(channelReceived, channelExpected, "Channel should receive correct percentage");
       assert.equal(ownerReceived, ownerExpected, "Owner should receive remaining amount");
     });
   });

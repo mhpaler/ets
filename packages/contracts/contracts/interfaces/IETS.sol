@@ -19,10 +19,10 @@ pragma solidity ^0.8.10;
 interface IETS {
     // Custom errors
     error CallerNotAdministrator(address caller);
-    error CallerNotRelayer(address caller);
+    error CallerNotChannel(address caller);
     error AddressCannotBeZero();
     error CallerNotAdminInNewContract(address caller);
-    error PercentagesMustNotBeOver100(uint256 platformPercentage, uint256 relayerPercentage);
+    error PercentagesMustNotBeOver100(uint256 platformPercentage, uint256 channelPercentage);
     error NoTagsSupplied();
     error InvalidCoinAddress(address coinAddress);
     error RecordTypeTooLong(uint256 length);
@@ -50,22 +50,22 @@ interface IETS {
      * The TaggingRecord is the fundamental data structure of ETS and reflects "who tagged what, where and why".
      *
      * Every Tagging record has a unique Id computed from the hashed composite of targetId, recordType, tagger and
-     * relayer addresses cast as a uint256. see computeTaggingRecordId()
+     * channel addresses cast as a uint256. see computeTaggingRecordId()
      *
-     * Given this design, a tagger who tags the same URI with the same tags and recordType via two different relayers
+     * Given this design, a tagger who tags the same URI with the same tags and recordType via two different channels
      * would produce two TaggingRecords in ETS.
      *
      * @param coinAddresses Addresses of Zora ERC-20 coin(s) representing TAG tokens.
      * @param targetId Id of target being tagged.
      * @param recordType Arbitrary identifier for type of tagging record.
-     * @param relayer Address of Relayer contract that wrote tagging record.
-     * @param tagger Address of wallet that initiated tagging record via relayer.
+     * @param channel Address of Channel contract that wrote tagging record.
+     * @param tagger Address of wallet that initiated tagging record via channel.
      */
     struct TaggingRecord {
         address[] coinAddresses;
         uint256 targetId;
         string recordType;
-        address relayer;
+        address channel;
         address tagger;
     }
 
@@ -100,9 +100,9 @@ interface IETS {
      * @dev emitted when participant distribution percentages are set.
      *
      * @param platformPercentage percentage of tagging fee allocated to ETS.
-     * @param relayerPercentage percentage of tagging fee allocated to relayer of record for CTAG being used in tagging record.
+     * @param channelPercentage percentage of tagging fee allocated to channel of record for CTAG being used in tagging record.
      */
-    event PercentagesSet(uint256 platformPercentage, uint256 relayerPercentage);
+    event PercentagesSet(uint256 platformPercentage, uint256 channelPercentage);
 
     /**
      * @dev emitted when a new tagging record is recorded within ETS.
@@ -134,13 +134,13 @@ interface IETS {
      *
      * Requirements:
      *
-     *   - Caller must be relayer contract.
+     *   - Caller must be channel contract.
      *   - TAG coin(s) and TargetId must exist.
      *
      * @param _coinAddresses Array of Zora ERC-20 coin addresses representing TAG tokens.
      * @param _targetId targetId of the URI being tagged. See ETSTarget.sol
      * @param _recordType Arbitrary identifier for type of tagging record.
-     * @param _tagger Address calling Relayer contract to create tagging record.
+     * @param _tagger Address calling Channel contract to create tagging record.
      */
     function createTaggingRecord(
         address[] memory _coinAddresses,
@@ -155,7 +155,7 @@ interface IETS {
      * Combo function that accepts a tag string and returns corresponding TAG coin address if it exists,
      * or if it doesn't exist, creates a new TAG and then returns corresponding address.
      *
-     * Only ETS Relayer contracts may call this function.
+     * Only ETS Channel contracts may call this function.
      *
      * @param _tag Tag string.
      * @param _creator Address credited with creating TAG.
@@ -171,7 +171,7 @@ interface IETS {
      *
      * Reverts if tag exists or is invalid.
      *
-     * Only ETS Relayer contracts may call this function.
+     * Only ETS Channel contracts may call this function.
      *
      * @param _tag Tag string.
      * @param _creator Address credited with creating TAG.
@@ -185,37 +185,37 @@ interface IETS {
      * Like it's sister function applyTagsWithCompositeKey, records new ETS Tagging Record or appends tags to an
      * existing record if found to already exist. This function differs in that it creates new ETS target records
      * and CTAG tokens for novel targetURIs and hastag strings respectively. This function can only be called by
-     * Relayer contracts. If this is a new tagging record, ETS will use msg.sender, if it's an existing tagging
-     * record, ETS will use _relayer parameter.
+     * Channel contracts. If this is a new tagging record, ETS will use msg.sender, if it's an existing tagging
+     * record, ETS will use _channel parameter.
      *
      * @param _rawInput Raw client input data formed as TaggingRecordRawInput struct.
-     * @param _tagger Address that calls Relayer to tag a targetURI.
-     * @param _relayer Address of Relayer contract that facilitated tagging record
+     * @param _tagger Address that calls Channel to tag a targetURI.
+     * @param _channel Address of Channel contract that facilitated tagging record
      */
     function applyTagsWithRawInput(
         TaggingRecordRawInput calldata _rawInput,
         address payable _tagger,
-        address _relayer
+        address _channel
     ) external payable;
 
     /**
      * @notice Apply one or more tags to a targetId using using tagging record composite key.
      *
      * Records new ETS Tagging Record to the blockchain or appends tags if Tagging Record already exists. TAG coins and
-     * targetId are created if they don't exist. Caller must be Relayer contract.
+     * targetId are created if they don't exist. Caller must be Channel contract.
      *
      * @param _coinAddresses Array of Zora ERC-20 coin addresses representing TAG tokens.
      * @param _targetId targetId of the URI being tagged. See ETSTarget.sol
      * @param _recordType Arbitrary identifier for type of tagging record.
-     * @param _tagger Address of that calls Relayer to create tagging record.
-     * @param _relayer Address of Relayer contract that facilitated tagging record.
+     * @param _tagger Address of that calls Channel to create tagging record.
+     * @param _channel Address of Channel contract that facilitated tagging record.
      */
     function applyTagsWithCompositeKey(
         address[] calldata _coinAddresses,
         uint256 _targetId,
         string memory _recordType,
         address payable _tagger,
-        address _relayer
+        address _channel
     ) external payable;
 
     /**
@@ -224,13 +224,13 @@ interface IETS {
      * If supplied tag strings don't have CTAGs, new ones are minted.
      *
      * @param _rawInput Raw client input data formed as TaggingRecordRawInput struct.
-     * @param _tagger Address that calls Relayer to tag a targetURI.
-     * @param _relayer Address of Relayer contract that facilitated tagging record.
+     * @param _tagger Address that calls Channel to tag a targetURI.
+     * @param _channel Address of Channel contract that facilitated tagging record.
      */
     function replaceTagsWithRawInput(
         TaggingRecordRawInput calldata _rawInput,
         address payable _tagger,
-        address _relayer
+        address _channel
     ) external payable;
 
     /**
@@ -242,28 +242,28 @@ interface IETS {
      * @param _coinAddresses Array of Zora ERC-20 coin addresses representing TAG tokens.
      * @param _targetId targetId of the URI being tagged. See ETSTarget.sol
      * @param _recordType Arbitrary identifier for type of tagging record.
-     * @param _tagger Address of that calls Relayer to create tagging record.
-     * @param _relayer Address of Relayer contract that facilitated tagging record.
+     * @param _tagger Address of that calls Channel to create tagging record.
+     * @param _channel Address of Channel contract that facilitated tagging record.
      */
     function replaceTagsWithCompositeKey(
         address[] calldata _coinAddresses,
         uint256 _targetId,
         string memory _recordType,
         address payable _tagger,
-        address _relayer
+        address _channel
     ) external payable;
 
     /**
      * @notice Remove one or more tags from a tagging record using raw data for record lookup.
      *
      * @param _rawInput Raw client input data formed as TaggingRecordRawInput struct.
-     * @param _tagger Address that calls Relayer to tag a targetURI.
-     * @param _relayer Address of Relayer contract that facilitated tagging record.
+     * @param _tagger Address that calls Channel to tag a targetURI.
+     * @param _channel Address of Channel contract that facilitated tagging record.
      */
     function removeTagsWithRawInput(
         TaggingRecordRawInput calldata _rawInput,
         address _tagger,
-        address _relayer
+        address _channel
     ) external;
 
     /**
@@ -272,15 +272,15 @@ interface IETS {
      * @param _coinAddresses Array of Zora ERC-20 coin addresses representing TAG tokens.
      * @param _targetId targetId of the URI being tagged. See ETSTarget.sol
      * @param _recordType Arbitrary identifier for type of tagging record.
-     * @param _tagger Address of that calls Relayer to create tagging record.
-     * @param _relayer Address of Relayer contract that facilitated tagging record.
+     * @param _tagger Address of that calls Channel to create tagging record.
+     * @param _channel Address of Channel contract that facilitated tagging record.
      */
     function removeTagsWithCompositeKey(
         address[] calldata _coinAddresses,
         uint256 _targetId,
         string memory _recordType,
         address payable _tagger,
-        address _relayer
+        address _channel
     ) external;
 
     /**
@@ -288,7 +288,7 @@ interface IETS {
      *
      * @param _taggingRecordId tagging record being updated.
      * @param _coinAddresses Array of Zora ERC-20 coin addresses representing TAG tokens.
-     * @param _tagger Address of that calls Relayer to tag a targetURI.
+     * @param _tagger Address of that calls Channel to tag a targetURI.
      */
     function appendTags(uint256 _taggingRecordId, address[] calldata _coinAddresses, address _tagger) external payable;
 
@@ -300,7 +300,7 @@ interface IETS {
      *
      * @param _taggingRecordId tagging record being updated.
      * @param _coinAddresses Array of Zora ERC-20 coin addresses representing TAG tokens.
-     * @param _tagger Address of that calls Relayer to tag a targetURI.
+     * @param _tagger Address of that calls Channel to tag a targetURI.
      */
     function replaceTags(uint256 _taggingRecordId, address[] calldata _coinAddresses, address _tagger) external payable;
 
@@ -309,7 +309,7 @@ interface IETS {
      *
      * @param _taggingRecordId tagging record being updated.
      * @param _coinAddresses Array of Zora ERC-20 coin addresses representing TAG tokens.
-     * @param _tagger Address of that calls Relayer to tag a targetURI.
+     * @param _tagger Address of that calls Channel to tag a targetURI.
      */
     function removeTags(uint256 _taggingRecordId, address[] calldata _coinAddresses, address _tagger) external;
 
@@ -327,14 +327,14 @@ interface IETS {
      * @notice Compute a taggingRecordId from raw input.
      *
      * @param _rawInput Raw client input data formed as TaggingRecordRawInput struct.
-     * @param _relayer Address of tagging record Relayer contract.
-     * @param _tagger Address interacting with Relayer to tag content ("Tagger").
+     * @param _channel Address of tagging record Channel contract.
+     * @param _tagger Address interacting with Channel to tag content ("Tagger").
      *
      * @return taggingRecordId Unique identifier for a tagging record.
      */
     function computeTaggingRecordIdFromRawInput(
         TaggingRecordRawInput calldata _rawInput,
-        address _relayer,
+        address _channel,
         address _tagger
     ) external view returns (uint256 taggingRecordId);
 
@@ -342,19 +342,19 @@ interface IETS {
      * @notice Compute & return a taggingRecordId.
      *
      * Every TaggingRecord in ETS is mapped to by it's taggingRecordId. This Id is a composite key
-     * composed of targetId, recordType, relayer contract address and tagger address hashed and cast as a uint256.
+     * composed of targetId, recordType, channel contract address and tagger address hashed and cast as a uint256.
      *
      * @param _targetId Id of target being tagged (see ETSTarget.sol).
      * @param _recordType Arbitrary identifier for type of tagging record.
-     * @param _relayer Address of tagging record Relayer contract.
-     * @param _tagger Address interacting with Relayer to tag content ("Tagger").
+     * @param _channel Address of tagging record Channel contract.
+     * @param _tagger Address interacting with Channel to tag content ("Tagger").
      *
      * @return taggingRecordId Unique identifier for a tagging record.
      */
     function computeTaggingRecordIdFromCompositeKey(
         uint256 _targetId,
         string memory _recordType,
-        address _relayer,
+        address _channel,
         address _tagger
     ) external pure returns (uint256 taggingRecordId);
 
@@ -362,8 +362,8 @@ interface IETS {
      * @notice Compute tagging fee for raw input and desired action.
      *
      * @param _rawInput Raw client input data formed as TaggingRecordRawInput struct.
-     * @param _relayer Address of tagging record Relayer contract.
-     * @param _tagger Address interacting with Relayer to tag content ("Tagger").
+     * @param _channel Address of tagging record Channel contract.
+     * @param _tagger Address interacting with Channel to tag content ("Tagger").
      * @param _action Integer representing action to be performed according to enum TaggingAction.
      *
      * @return fee Calculated tagging fee in ETH/Matic
@@ -371,7 +371,7 @@ interface IETS {
      */
     function computeTaggingFeeFromRawInput(
         TaggingRecordRawInput memory _rawInput,
-        address _relayer,
+        address _channel,
         address _tagger,
         TaggingAction _action
     ) external view returns (uint256 fee, uint256 tagCount);
@@ -380,8 +380,8 @@ interface IETS {
      * @notice Compute tagging fee for TAG coins, tagging record composite key and desired action.
      *
      * @param _coinAddresses Array of Zora ERC-20 coin addresses representing TAG tokens.
-     * @param _relayer Address of tagging record Relayer contract.
-     * @param _tagger Address interacting with Relayer to tag content ("Tagger").
+     * @param _channel Address of tagging record Channel contract.
+     * @param _tagger Address interacting with Channel to tag content ("Tagger").
      * @param _action Integer representing action to be performed according to enum TaggingAction.
      *
      * @return fee Calculated tagging fee in ETH/Matic
@@ -391,7 +391,7 @@ interface IETS {
         address[] memory _coinAddresses,
         uint256 _targetId,
         string calldata _recordType,
-        address _relayer,
+        address _channel,
         address _tagger,
         TaggingAction _action
     ) external view returns (uint256 fee, uint256 tagCount);
@@ -422,47 +422,47 @@ interface IETS {
      * @notice Retrieve a tagging record from it's raw input.
      *
      * @param _rawInput Raw client input data formed as TaggingRecordRawInput struct.
-     * @param _relayer Address of tagging record Relayer contract.
-     * @param _tagger Address interacting with Relayer to tag content ("Tagger").
+     * @param _channel Address of tagging record Channel contract.
+     * @param _tagger Address interacting with Channel to tag content ("Tagger").
      *
      * @return coinAddresses Zora ERC-20 coin addresses representing TAG tokens.
      * @return targetId TargetId that was tagged.
      * @return recordType Type of tagging record.
-     * @return relayer Address of tagging record Relayer contract.
-     * @return tagger Address interacting with Relayer to tag content ("Tagger").
+     * @return channel Address of tagging record Channel contract.
+     * @return tagger Address interacting with Channel to tag content ("Tagger").
      */
     function getTaggingRecordFromRawInput(
         TaggingRecordRawInput memory _rawInput,
-        address _relayer,
+        address _channel,
         address _tagger
     )
         external
         view
-        returns (address[] memory coinAddresses, uint256 targetId, string memory recordType, address relayer, address tagger);
+        returns (address[] memory coinAddresses, uint256 targetId, string memory recordType, address channel, address tagger);
 
     /**
      * @notice Retrieve a tagging record from composite key parts.
      *
      * @param _targetId Id of target being tagged.
      * @param _recordType Arbitrary identifier for type of tagging record.
-     * @param _relayer Address of Relayer contract that wrote tagging record.
-     * @param _tagger Address of wallet that initiated tagging record via relayer.
+     * @param _channel Address of Channel contract that wrote tagging record.
+     * @param _tagger Address of wallet that initiated tagging record via channel.
      *
      * @return coinAddresses Zora ERC-20 coin addresses representing TAG tokens.
      * @return targetId TargetId that was tagged.
      * @return recordType Type of tagging record.
-     * @return relayer Address of tagging record Relayer contract.
-     * @return tagger Address interacting with Relayer to tag content ("Tagger").
+     * @return channel Address of tagging record Channel contract.
+     * @return tagger Address interacting with Channel to tag content ("Tagger").
      */
     function getTaggingRecordFromCompositeKey(
         uint256 _targetId,
         string memory _recordType,
-        address _relayer,
+        address _channel,
         address _tagger
     )
         external
         view
-        returns (address[] memory coinAddresses, uint256 targetId, string memory recordType, address relayer, address tagger);
+        returns (address[] memory coinAddresses, uint256 targetId, string memory recordType, address channel, address tagger);
 
     /**
      * @notice Retrieve a tagging record from Id.
@@ -472,28 +472,28 @@ interface IETS {
      * @return coinAddresses Zora ERC-20 coin addresses representing TAG tokens.
      * @return targetId TargetId that was tagged.
      * @return recordType Type of tagging record.
-     * @return relayer Address of tagging record Relayer contract.
-     * @return tagger Address interacting with Relayer to tag content ("Tagger").
+     * @return channel Address of tagging record Channel contract.
+     * @return tagger Address interacting with Channel to tag content ("Tagger").
      */
     function getTaggingRecordFromId(
         uint256 _id
     )
         external
         view
-        returns (address[] memory coinAddresses, uint256 targetId, string memory recordType, address relayer, address tagger);
+        returns (address[] memory coinAddresses, uint256 targetId, string memory recordType, address channel, address tagger);
 
     /**
      * @notice Check that a tagging record exists for given raw input.
      *
      * @param _rawInput Raw client input data formed as TaggingRecordRawInput struct.
-     * @param _relayer Address of tagging record Relayer contract.
-     * @param _tagger Address interacting with Relayer to tag content ("Tagger").
+     * @param _channel Address of tagging record Channel contract.
+     * @param _tagger Address interacting with Channel to tag content ("Tagger").
      *
      * @return boolean; true for exists, false for not.
      */
     function taggingRecordExistsByRawInput(
         TaggingRecordRawInput memory _rawInput,
-        address _relayer,
+        address _channel,
         address _tagger
     ) external view returns (bool);
 
@@ -502,15 +502,15 @@ interface IETS {
      *
      * @param _targetId Id of target being tagged.
      * @param _recordType Arbitrary identifier for type of tagging record.
-     * @param _relayer Address of Relayer contract that wrote tagging record.
-     * @param _tagger Address of wallet that initiated tagging record via relayer.
+     * @param _channel Address of Channel contract that wrote tagging record.
+     * @param _tagger Address of wallet that initiated tagging record via channel.
      *
      * @return boolean; true for exists, false for not.
      */
     function taggingRecordExistsByCompositeKey(
         uint256 _targetId,
         string memory _recordType,
-        address _relayer,
+        address _channel,
         address _tagger
     ) external view returns (bool);
 

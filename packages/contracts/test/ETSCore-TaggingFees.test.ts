@@ -8,7 +8,7 @@ describe("ETS Core Tagging Fees", async () => {
   const { etsTag1, etsTag2, etsTag3 } = tagAddresses;
   const { targetURI, targetId } = testTarget;
 
-  let taggingRecordId: bigint;
+  let _taggingRecordId: bigint;
 
   describe("Tagging fees", async () => {
     describe("for new tagging records", async () => {
@@ -22,7 +22,7 @@ describe("ETS Core Tagging Fees", async () => {
         try {
           await contracts.ETS.read.computeTaggingFeeFromRawInput([
             rawInput,
-            contracts.ETSRelayer.address,
+            contracts.ETSChannel.address,
             accounts.User2.account.address,
             4, // INVALID TaggingAction
           ]);
@@ -40,7 +40,7 @@ describe("ETS Core Tagging Fees", async () => {
         };
         const result = await contracts.ETS.read.computeTaggingFeeFromRawInput([
           rawInput,
-          contracts.ETSRelayer.address,
+          contracts.ETSChannel.address,
           accounts.User2.account.address,
           0,
         ]);
@@ -57,7 +57,7 @@ describe("ETS Core Tagging Fees", async () => {
           tagAddresses,
           targetId,
           "bookmark",
-          contracts.ETSRelayer.address,
+          contracts.ETSChannel.address,
           accounts.User2.account.address,
           0,
         ]);
@@ -79,7 +79,7 @@ describe("ETS Core Tagging Fees", async () => {
         },
       );
 
-      taggingRecordId = await contracts.ETS.read.computeTaggingRecordIdFromCompositeKey([
+      _taggingRecordId = await contracts.ETS.read.computeTaggingRecordIdFromCompositeKey([
         targetId,
         "bookmark",
         accounts.ETSPlatform.account.address,
@@ -95,7 +95,7 @@ describe("ETS Core Tagging Fees", async () => {
         };
         const result = await contracts.ETS.read.computeTaggingFeeFromRawInput([
           rawInput,
-          accounts.ETSPlatform.account.address, // original relayer
+          accounts.ETSPlatform.account.address, // original channel
           accounts.User2.account.address, // original tagger
           0,
         ]);
@@ -113,7 +113,7 @@ describe("ETS Core Tagging Fees", async () => {
         };
         const result = await contracts.ETS.read.computeTaggingFeeFromRawInput([
           rawInput,
-          accounts.ETSPlatform.account.address, // original relayer
+          accounts.ETSPlatform.account.address, // original channel
           accounts.User2.account.address, // original tagger
           0,
         ]);
@@ -131,7 +131,7 @@ describe("ETS Core Tagging Fees", async () => {
         };
         const result = await contracts.ETS.read.computeTaggingFeeFromRawInput([
           rawInput,
-          accounts.ETSPlatform.account.address, // original relayer
+          accounts.ETSPlatform.account.address, // original channel
           accounts.User2.account.address, // original tagger
           0,
         ]);
@@ -149,7 +149,7 @@ describe("ETS Core Tagging Fees", async () => {
         };
         const result = await contracts.ETS.read.computeTaggingFeeFromRawInput([
           rawInput,
-          accounts.ETSPlatform.account.address, // original relayer
+          accounts.ETSPlatform.account.address, // original channel
           accounts.User2.account.address, // original tagger
           1,
         ]);
@@ -169,7 +169,7 @@ describe("ETS Core Tagging Fees", async () => {
         };
         const result = await contracts.ETS.read.computeTaggingFeeFromRawInput([
           rawInput,
-          accounts.ETSPlatform.account.address, // original relayer
+          accounts.ETSPlatform.account.address, // original channel
           accounts.User2.account.address, // original tagger
           1,
         ]);
@@ -187,7 +187,7 @@ describe("ETS Core Tagging Fees", async () => {
         };
         const result = await contracts.ETS.read.computeTaggingFeeFromRawInput([
           rawInput,
-          accounts.ETSPlatform.account.address, // original relayer
+          accounts.ETSPlatform.account.address, // original channel
           accounts.User2.account.address, // original tagger
           1,
         ]);
@@ -203,7 +203,7 @@ describe("ETS Core Tagging Fees", async () => {
     it("to the token creator when the tag used is platform owned (pre-auction)", async () => {
       // Get fresh pre-tag amounts for this test
       const platformPreTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
-      const relayerPreTest = await contracts.ETS.read.accrued([contracts.ETSRelayer.address]);
+      const channelPreTest = await contracts.ETS.read.accrued([contracts.ETSChannel.address]);
       const creatorPreTest = await contracts.ETS.read.accrued([accounts.User4.account.address]);
 
       const rawInput = {
@@ -223,26 +223,26 @@ describe("ETS Core Tagging Fees", async () => {
 
       // Get post-tag amounts
       const platformPostTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
-      const relayerPostTest = await contracts.ETS.read.accrued([contracts.ETSRelayer.address]);
+      const channelPostTest = await contracts.ETS.read.accrued([contracts.ETSChannel.address]);
       const creatorPostTest = await contracts.ETS.read.accrued([accounts.User4.account.address]);
 
       const platformPercentage = await contracts.ETS.read.platformPercentage();
-      const relayerPercentage = await contracts.ETS.read.relayerPercentage();
+      const channelPercentage = await contracts.ETS.read.channelPercentage();
 
       // Calculate the expected amounts based on percentage splits
       const platformAmount = (taggingFee * platformPercentage) / 100n;
-      const relayerAmount = (taggingFee * relayerPercentage) / 100n;
-      const creatorAmount = taggingFee - platformAmount - relayerAmount;
+      const channelAmount = (taggingFee * channelPercentage) / 100n;
+      const creatorAmount = taggingFee - platformAmount - channelAmount;
 
       assert.equal(platformPostTest, platformPreTest + platformAmount);
-      assert.equal(relayerPostTest, relayerPreTest + relayerAmount);
+      assert.equal(channelPostTest, channelPreTest + channelAmount);
       assert.equal(creatorPostTest, creatorPreTest + creatorAmount);
     });
 
     it("to the token owner when the tag used is user owned (post-auction)", async () => {
       // The #Incredible tag was created by accounts.User4, so they should get the owner portion
       const platformPreTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
-      const relayerPreTest = await contracts.ETS.read.accrued([contracts.ETSRelayer.address]);
+      const channelPreTest = await contracts.ETS.read.accrued([contracts.ETSChannel.address]);
       const creatorPreTest = await contracts.ETS.read.accrued([accounts.User4.account.address]); // Creator owns the tag
 
       const rawInput = {
@@ -252,7 +252,7 @@ describe("ETS Core Tagging Fees", async () => {
         enrich: false,
       };
 
-      // RandomTwo is tagger, ETSPlatform is relayer.
+      // RandomTwo is tagger, ETSPlatform is channel.
       await contracts.ETS.write.applyTagsWithRawInput(
         [rawInput, accounts.User3.account.address, accounts.ETSPlatform.account.address],
         {
@@ -263,19 +263,19 @@ describe("ETS Core Tagging Fees", async () => {
 
       // Get post-tag amounts
       const platformPostTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
-      const relayerPostTest = await contracts.ETS.read.accrued([contracts.ETSRelayer.address]);
+      const channelPostTest = await contracts.ETS.read.accrued([contracts.ETSChannel.address]);
       const creatorPostTest = await contracts.ETS.read.accrued([accounts.User4.account.address]); // Creator owns the tag
 
       const platformPercentage = await contracts.ETS.read.platformPercentage();
-      const relayerPercentage = await contracts.ETS.read.relayerPercentage();
+      const channelPercentage = await contracts.ETS.read.channelPercentage();
 
       // Calculate the expected amounts based on percentage splits
       const platformAmount = (taggingFee * platformPercentage) / 100n;
-      const relayerAmount = (taggingFee * relayerPercentage) / 100n;
-      const creatorAmount = taggingFee - platformAmount - relayerAmount;
+      const channelAmount = (taggingFee * channelPercentage) / 100n;
+      const creatorAmount = taggingFee - platformAmount - channelAmount;
 
       assert.equal(platformPostTest, platformPreTest + platformAmount);
-      assert.equal(relayerPostTest, relayerPreTest + relayerAmount);
+      assert.equal(channelPostTest, channelPreTest + channelAmount);
       assert.equal(creatorPostTest, creatorPreTest + creatorAmount);
     });
   });

@@ -4,7 +4,7 @@ import { loadIgnitionFixture } from "./ignitionFixture.js";
  * Shared ETS Core fixture that provides common setup for all ETS core test files
  *
  * This fixture extends the basic ignition fixture with ETS-specific setup:
- * - Creates test tags via ETSRelayer
+ * - Creates test tags via ETSChannel
  * - Sets up test targets
  * - Provides common test data and addresses
  */
@@ -20,18 +20,18 @@ export async function loadETSCoreFixture() {
   // Get tagging fee
   const taggingFee = await base.contracts.ETS.read.taggingFee();
 
-  // Create tags via ETSRelayer. User4 is the tag creator.
-  await base.contracts.ETSRelayer.write.getOrCreateTagIds([[tagstring1]], { account: base.accounts.User4.account });
+  // Create tags via ETSChannel. User4 is the tag creator.
+  await base.contracts.ETSChannel.write.getOrCreateTagIds([[tagstring1]], { account: base.accounts.User4.account });
   const etsTag1 = await base.contracts.ETSToken.read.computeCoinAddress([tagstring1]);
 
-  await base.contracts.ETSRelayer.write.getOrCreateTagIds([[tagstring2, tagstring3]], {
+  await base.contracts.ETSChannel.write.getOrCreateTagIds([[tagstring2, tagstring3]], {
     account: base.accounts.User4.account,
   });
   const etsTag2 = await base.contracts.ETSToken.read.computeCoinAddress([tagstring2]);
   const etsTag3 = await base.contracts.ETSToken.read.computeCoinAddress([tagstring3]);
 
   // Create another tag.
-  await base.contracts.ETSRelayer.write.getOrCreateTagIds([[tagstring4]], { account: base.accounts.User4.account });
+  await base.contracts.ETSChannel.write.getOrCreateTagIds([[tagstring4]], { account: base.accounts.User4.account });
   const userTag1 = await base.contracts.ETSToken.read.computeCoinAddress([tagstring4]);
 
   // Add a target to ETS.

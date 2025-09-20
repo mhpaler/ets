@@ -22,13 +22,13 @@ import { IAccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/a
 
 interface IETSAccessControls is IAccessControlUpgradeable {
     // Custom errors
-    error RelayerNameExists(string name);
-    error RelayerNameTooShort(uint256 length);
-    error RelayerNameTooLong(uint256 length);
-    error CallerIsNotRelayer(address caller);
-    error NotRelayerOwner(address caller, address expectedOwner);
-    error NewOwnerAlreadyOwnsRelayer(address newOwner);
-    error SenderOwnsRelayer(address sender);
+    error ChannelNameExists(string name);
+    error ChannelNameTooShort(uint256 length);
+    error ChannelNameTooLong(uint256 length);
+    error CallerIsNotChannel(address caller);
+    error NotChannelOwner(address caller, address expectedOwner);
+    error NewOwnerAlreadyOwnsChannel(address newOwner);
+    error SenderOwnsChannel(address sender);
 
     /**
      * @dev emitted when the ETS Platform address is set.
@@ -39,21 +39,21 @@ interface IETSAccessControls is IAccessControlUpgradeable {
     event PlatformSet(address newAddress, address prevAddress);
 
     /**
-     * @dev emitted when a Relayer contract is added & enabled in ETS.
+     * @dev emitted when a Channel contract is added & enabled in ETS.
      *
-     * Relayer contracts are not required implement all ETS Core API functions. Therefore, to ease
-     * testing of ETS Core API fuinctions, ETS permits addition of ETS owned wallet addresses as Relayers.
+     * Channel contracts are not required implement all ETS Core API functions. Therefore, to ease
+     * testing of ETS Core API fuinctions, ETS permits addition of ETS owned wallet addresses as Channels.
      *
-     * @param relayer Relayer contract address.
+     * @param channel Channel contract address.
      */
-    event RelayerAdded(address relayer);
+    event ChannelAdded(address channel);
 
     /**
-     * @dev emitted when a Relayer contract is paused or unpaused.
+     * @dev emitted when a Channel contract is paused or unpaused.
      *
-     * @param relayer Address that had pause toggled.
+     * @param channel Address that had pause toggled.
      */
-    event RelayerLockToggled(address relayer);
+    event ChannelLockToggled(address channel);
 
     /**
      * @notice Sets the Platform wallet address. Can only be called by address with DEFAULT_ADMIN_ROLE.
@@ -63,38 +63,38 @@ interface IETSAccessControls is IAccessControlUpgradeable {
     function setPlatform(address payable _platform) external;
 
     /**
-     * @notice Adds a Relayer contract to ETS. Can only be called by address
+     * @notice Adds a Channel contract to ETS. Can only be called by address
      * with DEFAULT_ADMIN_ROLE.
      *
-     * @param _relayer Address of the Relayer contract. Must conform to IETSRelayer.
-     * @param _name Human readable name of the Relayer.
-     * @param _owner Address of relayer owner.
+     * @param _channel Address of the Channel contract. Must conform to IETSChannel.
+     * @param _name Human readable name of the Channel.
+     * @param _owner Address of channel owner.
      */
-    function registerRelayer(address _relayer, string calldata _name, address _owner) external;
+    function registerChannel(address _channel, string calldata _name, address _owner) external;
 
     /**
-     * @notice Pause relayer given the relayer owner address. Callable by Platform only.
+     * @notice Pause channel given the channel owner address. Callable by Platform only.
      *
-     * @param _relayerOwner Address of the Relayer owner.
+     * @param _channelOwner Address of the Channel owner.
      */
-    function pauseRelayerByOwnerAddress(address _relayerOwner) external;
+    function pauseChannelByOwnerAddress(address _channelOwner) external;
 
     /**
-     * @notice Change the relayer owner as stored in ETSAccessControls. Callable from Relayer only.
-     * Called via changeOwner() on a relayer.
+     * @notice Change the channel owner as stored in ETSAccessControls. Callable from Channel only.
+     * Called via changeOwner() on a channel.
      *
-     * @param _currentOwner Address of the current relayer owner.
-     * @param _newOwner Address of the new relayer owner.
+     * @param _currentOwner Address of the current channel owner.
+     * @param _newOwner Address of the new channel owner.
      */
-    function changeRelayerOwner(address _currentOwner, address _newOwner) external;
+    function changeChannelOwner(address _currentOwner, address _newOwner) external;
 
     /**
-     * @notice Pauses/Unpauses a Relayer contract. Can only be called by address
+     * @notice Pauses/Unpauses a Channel contract. Can only be called by address
      * with DEFAULT_ADMIN_ROLE.
      *
-     * @param _relayer Address of the Relayer contract.
+     * @param _channel Address of the Channel contract.
      */
-    function toggleRelayerLock(address _relayer) external;
+    function toggleChannelLock(address _channel) external;
 
     /**
      * @notice Sets the role admin for a given role. An address with role admin can grant or
@@ -130,44 +130,44 @@ interface IETSAccessControls is IAccessControlUpgradeable {
     function isEventProcessor(address _addr) external view returns (bool);
 
     /**
-     * @notice Checks whether given address can act as relayer factory.
+     * @notice Checks whether given address can act as channel factory.
      *
      * @param _addr Address being checked.
-     * @return boolean True if address can act as relayer factory.
+     * @return boolean True if address can act as channel factory.
      */
-    function isRelayerFactory(address _addr) external view returns (bool);
+    function isChannelFactory(address _addr) external view returns (bool);
 
     /**
-     * @notice Checks whether given address is a relayer.
+     * @notice Checks whether given address is a channel.
      *
      * @param _addr Address being checked.
-     * @return boolean True if address can be a relayer.
+     * @return boolean True if address can be a channel.
      */
-    function isRelayer(address _addr) external view returns (bool);
+    function isChannel(address _addr) external view returns (bool);
 
     /**
-     * @notice Checks whether given address is a registered Relayer and not paused.
+     * @notice Checks whether given address is a registered Channel and not paused.
      *
      * @param _addr Address being checked.
-     * @return boolean True if address is a Relayer and not paused.
+     * @return boolean True if address is a Channel and not paused.
      */
-    function isRelayerAndNotPaused(address _addr) external view returns (bool);
+    function isChannelAndNotPaused(address _addr) external view returns (bool);
 
     /**
-     * @notice Checks relayer is paused by ETS Platform.
+     * @notice Checks channel is paused by ETS Platform.
      *
      * @param _addr Address being checked.
-     * @return boolean True if relayer address is paused by platform.
+     * @return boolean True if channel address is paused by platform.
      */
-    function isRelayerLocked(address _addr) external view returns (bool);
+    function isChannelLocked(address _addr) external view returns (bool);
 
     /**
-     * @notice Checks whether given address owns a relayer.
+     * @notice Checks whether given address owns a channel.
      *
      * @param _addr Address being checked.
-     * @return boolean True if address owns a relayer.
+     * @return boolean True if address owns a channel.
      */
-    function isRelayerByOwner(address _addr) external view returns (bool);
+    function isChannelByOwner(address _addr) external view returns (bool);
 
     /**
      * @notice Checks whether given address has RELAYER_ADMIN role.
@@ -175,47 +175,47 @@ interface IETSAccessControls is IAccessControlUpgradeable {
      * @param _addr Address being checked.
      * @return boolean True if address has RELAYER_ADMIN role.
      */
-    function isRelayerAdmin(address _addr) external view returns (bool);
+    function isChannelAdmin(address _addr) external view returns (bool);
 
     /**
-     * @notice Checks whether given Relayer Name is a registered Relayer.
+     * @notice Checks whether given Channel Name is a registered Channel.
      *
      * @param _name Name being checked.
-     * @return boolean True if _name is a Relayer.
+     * @return boolean True if _name is a Channel.
      */
-    function isRelayerByName(string calldata _name) external view returns (bool);
+    function isChannelByName(string calldata _name) external view returns (bool);
 
     /**
-     * @notice Checks whether given address is a registered Relayer.
+     * @notice Checks whether given address is a registered Channel.
      *
      * @param _addr Address being checked.
-     * @return boolean True if address is a registered Relayer.
+     * @return boolean True if address is a registered Channel.
      */
-    function isRelayerByAddress(address _addr) external view returns (bool);
+    function isChannelByAddress(address _addr) external view returns (bool);
 
     /**
-     * @notice Get relayer address from it's name.
+     * @notice Get channel address from it's name.
      *
-     * @param _name Name of relayer.
-     * @return Address of relayer.
+     * @param _name Name of channel.
+     * @return Address of channel.
      */
-    function getRelayerAddressFromName(string calldata _name) external view returns (address);
+    function getChannelAddressFromName(string calldata _name) external view returns (address);
 
     /**
-     * @notice Get relayer name from it's address.
+     * @notice Get channel name from it's address.
      *
-     * @param _address Adsdress of relayer.
-     * @return Name of relayer.
+     * @param _address Adsdress of channel.
+     * @return Name of channel.
      */
-    function getRelayerNameFromAddress(address _address) external view returns (string calldata);
+    function getChannelNameFromAddress(address _address) external view returns (string calldata);
 
     /**
-     * @notice Get relayer address from its owner address.
+     * @notice Get channel address from its owner address.
      *
-     * @param _address address of relayer owner.
-     * @return Address of relayer.
+     * @param _address address of channel owner.
+     * @return Address of channel.
      */
-    function getRelayerAddressFromOwner(address _address) external view returns (address);
+    function getChannelAddressFromOwner(address _address) external view returns (address);
 
     /**
      * @notice Returns wallet address for ETS Platform.

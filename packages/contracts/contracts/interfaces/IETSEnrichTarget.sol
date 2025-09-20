@@ -30,8 +30,33 @@ pragma solidity ^0.8.10;
 /// @title IETSEnrichTarget
 /// @notice Interface for the ETSEnrichTarget API gateway contract
 interface IETSEnrichTarget {
+    // Events
+    event EnrichTargetRequested(uint256 indexed targetId, address indexed requestor);
+    event TargetEnriched(
+        uint256 indexed targetId,
+        string title,
+        string description,
+        string imageUrl,
+        string keywords
+    );
     /// @notice Request to enrich a target's metadata
     /// @param _targetId The target ID to enrich
     /// @dev Emits EnrichTargetRequested event for the Event Processor to handle
     function requestEnrichTarget(uint256 _targetId) external;
+
+    /// @notice Emit enrichment data for a target (called by Event Processor)
+    /// @param _targetId The target ID being enriched
+    /// @param _title The extracted title metadata
+    /// @param _description The extracted description metadata
+    /// @param _imageUrl The extracted image URL metadata
+    /// @param _keywords Comma-separated keywords metadata
+    /// @dev Only callable by EVENT_PROCESSOR_ROLE
+    /// @dev Emits TargetEnriched event for The Graph to index
+    function enrichTarget(
+        uint256 _targetId,
+        string memory _title,
+        string memory _description,
+        string memory _imageUrl,
+        string memory _keywords
+    ) external;
 }

@@ -94,7 +94,7 @@ describe("Upgrades tests", async () => {
         },
       });
 
-      const initialContract = await viem.getContractAt("ETSEnrichTarget", (enrichTarget as any).address);
+      const _initialContract = await viem.getContractAt("ETSEnrichTarget", (enrichTarget as any).address);
 
       // Verify upgrade function doesn't exist initially
       try {
@@ -135,7 +135,7 @@ describe("Upgrades tests", async () => {
         },
       });
 
-      const initialContract = await viem.getContractAt("ETSTarget", (target as any).address);
+      const _initialContract = await viem.getContractAt("ETSTarget", (target as any).address);
 
       // Verify upgrade function doesn't exist initially
       try {
@@ -176,7 +176,7 @@ describe("Upgrades tests", async () => {
         },
       });
 
-      const initialContract = await viem.getContractAt("ETSToken", (token as any).address);
+      const _initialContract = await viem.getContractAt("ETSToken", (token as any).address);
 
       // Verify upgrade function doesn't exist initially
       try {
@@ -206,7 +206,7 @@ describe("Upgrades tests", async () => {
   describe("ETS Core", () => {
     it("is upgradeable", async () => {
       const { ignition, viem } = await network.connect();
-      const [walletClient] = await viem.getWalletClients();
+      const [_walletClient] = await viem.getWalletClients();
 
       // Deploy initial contract (ETS Core has complex dependencies)
       const { etsCore } = await ignition.deploy(ETSCoreModule, {
@@ -214,12 +214,12 @@ describe("Upgrades tests", async () => {
           ETSCore: {
             taggingFee: "100000000000000000", // 0.1 ETH in wei
             platformPercentage: 20,
-            relayerPercentage: 30,
+            channelPercentage: 30,
           },
         },
       });
 
-      const initialContract = await viem.getContractAt("ETS", (etsCore as any).address);
+      const _initialContract = await viem.getContractAt("ETS", (etsCore as any).address);
 
       // Verify upgrade function doesn't exist initially
       try {

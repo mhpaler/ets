@@ -1,11 +1,11 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "rootDir": "./src/workflows",
-    "outDir": "./dist/workflows",
+    "rootDir": "./src",
+    "outDir": "./dist",
     "lib": ["ES2022"],
     "target": "ES2022",
-    "module": "ES2022",
+    "module": "Node16",
     "moduleResolution": "Node16",
     "types": []
   },

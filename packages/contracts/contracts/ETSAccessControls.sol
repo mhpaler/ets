@@ -19,7 +19,7 @@
 pragma solidity ^0.8.10;
 
 import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
-import { IETSRelayer } from "./relayers/interfaces/IETSRelayer.sol";
+import { IETSChannel } from "./channels/interfaces/IETSChannel.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
@@ -29,9 +29,9 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     /// Public constants
     string public constant NAME = "ETS access controls";
     string public constant VERSION = "0.0.1";
-    bytes32 public constant RELAYER_ROLE = keccak256("RELAYER_ROLE");
-    bytes32 public constant RELAYER_FACTORY_ROLE = keccak256("RELAYER_FACTORY_ROLE");
-    bytes32 public constant RELAYER_ADMIN_ROLE = keccak256("RELAYER_ADMIN_ROLE");
+    bytes32 public constant CHANNEL_ROLE = keccak256("CHANNEL_ROLE");
+    bytes32 public constant CHANNEL_FACTORY_ROLE = keccak256("CHANNEL_FACTORY_ROLE");
+    bytes32 public constant CHANNEL_ADMIN_ROLE = keccak256("CHANNEL_ADMIN_ROLE");
     bytes32 public constant EVENT_PROCESSOR_ROLE = keccak256("EVENT_PROCESSOR_ROLE");
     bytes32 public constant SMART_CONTRACT_ROLE = keccak256("SMART_CONTRACT_ROLE");
 
@@ -39,23 +39,23 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     /// There will only be one "Platform" so no need to make it a role.
     address payable internal platform;
 
-    /// @notice Mapping to contain whether Relayer is paused by the protocol.
-    mapping(address => bool) public relayerLocked;
+    /// @notice Mapping to contain whether Channel is paused by the protocol.
+    mapping(address => bool) public channelLocked;
 
-    /// @notice Relayer name to contract address.
-    mapping(string => address) public relayerNameToContract;
+    /// @notice Channel name to contract address.
+    mapping(string => address) public channelNameToContract;
 
-    /// @notice Relayer contract address to human readable name.
-    mapping(address => string) public relayerContractToName;
+    /// @notice Channel contract address to human readable name.
+    mapping(address => string) public channelContractToName;
 
-    /// @notice Relayer owner address to relayer address.
-    mapping(address => address) public relayerOwnerToAddress;
+    /// @notice Channel owner address to channel address.
+    mapping(address => address) public channelOwnerToAddress;
 
     modifier onlyValidName(string calldata _name) {
-        if (isRelayerByName(_name)) revert RelayerNameExists(_name);
+        if (isChannelByName(_name)) revert ChannelNameExists(_name);
         bytes memory nameBytes = bytes(_name);
-        if (nameBytes.length < 2) revert RelayerNameTooShort(nameBytes.length);
-        if (nameBytes.length > 32) revert RelayerNameTooLong(nameBytes.length);
+        if (nameBytes.length < 2) revert ChannelNameTooShort(nameBytes.length);
+        if (nameBytes.length > 32) revert ChannelNameTooLong(nameBytes.length);
         _;
     }
 
@@ -92,44 +92,44 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     }
 
     /// @inheritdoc IETSAccessControls
-    function registerRelayer(
-        address _relayer,
+    function registerChannel(
+        address _channel,
         string calldata _name,
         address _owner
-    ) public onlyRole(RELAYER_FACTORY_ROLE) {
-        relayerNameToContract[_name] = _relayer;
-        relayerContractToName[_relayer] = _name;
-        relayerOwnerToAddress[_owner] = _relayer;
-        relayerLocked[_relayer] = false;
+    ) public onlyRole(CHANNEL_FACTORY_ROLE) {
+        channelNameToContract[_name] = _channel;
+        channelContractToName[_channel] = _name;
+        channelOwnerToAddress[_owner] = _channel;
+        channelLocked[_channel] = false;
         // Note: grantRole emits RoleGranted event.
-        grantRole(RELAYER_ROLE, _relayer);
-        emit RelayerAdded(_relayer);
+        grantRole(CHANNEL_ROLE, _channel);
+        emit ChannelAdded(_channel);
     }
 
     /// @inheritdoc IETSAccessControls
-    function pauseRelayerByOwnerAddress(address _relayerOwner) public onlyRole(RELAYER_ADMIN_ROLE) {
-        if (isRelayerByOwner(_relayerOwner)) {
-            IETSRelayer relayer = IETSRelayer(getRelayerAddressFromOwner(_relayerOwner));
-            if (!relayer.isPaused()) {
-                relayer.pause();
+    function pauseChannelByOwnerAddress(address _channelOwner) public onlyRole(CHANNEL_ADMIN_ROLE) {
+        if (isChannelByOwner(_channelOwner)) {
+            IETSChannel channel = IETSChannel(getChannelAddressFromOwner(_channelOwner));
+            if (!channel.isPaused()) {
+                channel.pause();
             }
         }
     }
 
     /// @inheritdoc IETSAccessControls
-    function changeRelayerOwner(address _currentOwner, address _newOwner) public onlyRole(RELAYER_ROLE) {
-        if (!isRelayerByAddress(_msgSender())) revert CallerIsNotRelayer(_msgSender());
-        if (IETSRelayer(_msgSender()).getOwner() != _currentOwner) revert NotRelayerOwner(_msgSender(), _currentOwner);
-        if (isRelayerByOwner(_newOwner)) revert NewOwnerAlreadyOwnsRelayer(_newOwner);
-        relayerOwnerToAddress[_currentOwner] = address(0);
-        // _msgSender() is the relayer itself.
-        relayerOwnerToAddress[_newOwner] = _msgSender();
+    function changeChannelOwner(address _currentOwner, address _newOwner) public onlyRole(CHANNEL_ROLE) {
+        if (!isChannelByAddress(_msgSender())) revert CallerIsNotChannel(_msgSender());
+        if (IETSChannel(_msgSender()).getOwner() != _currentOwner) revert NotChannelOwner(_msgSender(), _currentOwner);
+        if (isChannelByOwner(_newOwner)) revert NewOwnerAlreadyOwnsChannel(_newOwner);
+        channelOwnerToAddress[_currentOwner] = address(0);
+        // _msgSender() is the channel itself.
+        channelOwnerToAddress[_newOwner] = _msgSender();
     }
 
     /// @inheritdoc IETSAccessControls
-    function toggleRelayerLock(address _relayer) public onlyRole(RELAYER_ADMIN_ROLE) {
-        relayerLocked[_relayer] = !relayerLocked[_relayer];
-        emit RelayerLockToggled(_relayer);
+    function toggleChannelLock(address _channel) public onlyRole(CHANNEL_ADMIN_ROLE) {
+        channelLocked[_channel] = !channelLocked[_channel];
+        emit ChannelLockToggled(_channel);
     }
 
     // ============ PUBLIC VIEW FUNCTIONS ============
@@ -153,58 +153,58 @@ contract ETSAccessControls is Initializable, AccessControlUpgradeable, IETSAcces
     }
 
     /// @inheritdoc IETSAccessControls
-    function isRelayerFactory(address _addr) public view returns (bool) {
-        return hasRole(RELAYER_ADMIN_ROLE, _addr) || hasRole(RELAYER_FACTORY_ROLE, _addr);
+    function isChannelFactory(address _addr) public view returns (bool) {
+        return hasRole(CHANNEL_ADMIN_ROLE, _addr) || hasRole(CHANNEL_FACTORY_ROLE, _addr);
     }
 
     /// @inheritdoc IETSAccessControls
-    function isRelayer(address _addr) public view returns (bool) {
-        return hasRole(RELAYER_ADMIN_ROLE, _addr) || isRelayerAndNotPaused(_addr);
+    function isChannel(address _addr) public view returns (bool) {
+        return hasRole(CHANNEL_ADMIN_ROLE, _addr) || isChannelAndNotPaused(_addr);
     }
 
     /// @inheritdoc IETSAccessControls
-    function isRelayerLocked(address _addr) public view returns (bool) {
-        return relayerLocked[_addr];
+    function isChannelLocked(address _addr) public view returns (bool) {
+        return channelLocked[_addr];
     }
 
     /// @inheritdoc IETSAccessControls
-    function isRelayerAndNotPaused(address _addr) public view returns (bool) {
-        return isRelayerByAddress(_addr) && !isRelayerLocked(_addr) && !IETSRelayer(_addr).isPaused();
+    function isChannelAndNotPaused(address _addr) public view returns (bool) {
+        return isChannelByAddress(_addr) && !isChannelLocked(_addr) && !IETSChannel(_addr).isPaused();
     }
 
     /// @inheritdoc IETSAccessControls
-    function isRelayerByOwner(address _addr) public view returns (bool) {
-        return relayerOwnerToAddress[_addr] != address(0);
+    function isChannelByOwner(address _addr) public view returns (bool) {
+        return channelOwnerToAddress[_addr] != address(0);
     }
 
     /// @inheritdoc IETSAccessControls
-    function isRelayerAdmin(address _addr) public view returns (bool) {
-        return hasRole(RELAYER_ADMIN_ROLE, _addr);
+    function isChannelAdmin(address _addr) public view returns (bool) {
+        return hasRole(CHANNEL_ADMIN_ROLE, _addr);
     }
 
     /// @inheritdoc IETSAccessControls
-    function isRelayerByName(string memory _name) public view returns (bool) {
-        return relayerNameToContract[_name] != address(0);
+    function isChannelByName(string memory _name) public view returns (bool) {
+        return channelNameToContract[_name] != address(0);
     }
 
     /// @inheritdoc IETSAccessControls
-    function isRelayerByAddress(address _addr) public view returns (bool) {
-        return keccak256(abi.encodePacked(relayerContractToName[_addr])) != keccak256(abi.encodePacked(""));
+    function isChannelByAddress(address _addr) public view returns (bool) {
+        return keccak256(abi.encodePacked(channelContractToName[_addr])) != keccak256(abi.encodePacked(""));
     }
 
     /// @inheritdoc IETSAccessControls
-    function getRelayerAddressFromName(string memory _name) public view returns (address) {
-        return relayerNameToContract[_name];
+    function getChannelAddressFromName(string memory _name) public view returns (address) {
+        return channelNameToContract[_name];
     }
 
     /// @inheritdoc IETSAccessControls
-    function getRelayerNameFromAddress(address _address) public view returns (string memory) {
-        return relayerContractToName[_address];
+    function getChannelNameFromAddress(address _address) public view returns (string memory) {
+        return channelContractToName[_address];
     }
 
     /// @inheritdoc IETSAccessControls
-    function getRelayerAddressFromOwner(address _address) public view returns (address) {
-        return relayerOwnerToAddress[_address];
+    function getChannelAddressFromOwner(address _address) public view returns (address) {
+        return channelOwnerToAddress[_address];
     }
 
     /// @inheritdoc IETSAccessControls

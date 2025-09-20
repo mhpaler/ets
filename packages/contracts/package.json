@@ -106,7 +106,6 @@
     "@nomicfoundation/hardhat-viem": "^3.0.0",
     "@nomicfoundation/hardhat-viem-assertions": "^3.0.1",
     "@openzeppelin/test-helpers": "^0.5.15",
-    "@sunodo/wagmi-plugin-hardhat-deploy": "^0.3.0",
     "@typechain/ethers-v5": "^11.1.2",
     "@typechain/ethers-v6": "^0.5.1",
     "@types/chai": "^4.2.18",

@@ -5,9 +5,9 @@ import type {
   AirnodeRrpV0Proxy,
   ETS,
   ETSAccessControls,
+  ETSChannel,
+  ETSChannelFactory,
   ETSEnrichTarget,
-  ETSRelayer,
-  ETSRelayerFactory,
   ETSTarget,
   ETSToken,
   WETH,
@@ -22,12 +22,12 @@ export interface InitSettings {
   RESERVE_PRICE: string;
   MIN_INCREMENT_BID_PERCENTAGE: number;
   DURATION: number;
-  RELAYER_PERCENTAGE: number;
+  CHANNEL_PERCENTAGE: number;
   CREATOR_PERCENTAGE: number;
   PLATFORM_PERCENTAGE: number;
   TAGGING_FEE: string;
   TAGGING_FEE_PLATFORM_PERCENTAGE: number;
-  TAGGING_FEE_RELAYER_PERCENTAGE: number;
+  TAGGING_FEE_CHANNEL_PERCENTAGE: number;
 }
 
 export interface Accounts {
@@ -48,11 +48,11 @@ export interface Contracts {
   ETSTarget: ETSTarget;
   ETSEnrichTarget: ETSEnrichTarget;
   ETS: ETS;
-  ETSRelayerFactory: ETSRelayerFactory;
-  ETSRelayerImplementation: ETSRelayer;
-  ETSRelayer: ETSRelayer;
+  ETSChannelFactory: ETSChannelFactory;
+  ETSChannelImplementation: ETSChannel;
+  ETSChannel: ETSChannel;
   WETH: WETH;
-  secondRelayer: ETSRelayer;
+  secondChannel: ETSChannel;
 }
 
 export interface Artifacts {
@@ -62,8 +62,8 @@ export interface Artifacts {
   ETSTarget: Artifact;
   ETSEnrichTarget: Artifact;
   ETS: Artifact;
-  ETSRelayer: Artifact;
-  ETSRelayerFactory: Artifact;
+  ETSChannel: Artifact;
+  ETSChannelFactory: Artifact;
   ETSAccessControlsUpgrade: Artifact;
   ETSTokenUpgrade: Artifact;
   ETSEnrichTargetUpgrade: Artifact;
@@ -79,14 +79,14 @@ export interface Factories {
   ETSTarget: ContractFactory;
   ETSEnrichTarget: ContractFactory;
   ETS: ContractFactory;
-  ETSRelayer: ContractFactory;
-  ETSRelayerFactory: ContractFactory;
+  ETSChannel: ContractFactory;
+  ETSChannelFactory: ContractFactory;
   ETSAccessControlsUpgrade: ContractFactory;
   ETSTokenUpgrade: ContractFactory;
   ETSEnrichTargetUpgrade: ContractFactory;
   ETSTargetUpgrade: ContractFactory;
   ETSUpgrade: ContractFactory;
-  ETSRelayerV2test: ContractFactory;
+  ETSChannelV2test: ContractFactory;
   WETH: ContractFactory;
 }
 

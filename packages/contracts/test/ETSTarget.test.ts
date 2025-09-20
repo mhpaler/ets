@@ -6,7 +6,7 @@ import { loadIgnitionFixture } from "./fixtures/ignitionFixture.js";
 describe("ETS Target tests", async () => {
   const { accounts, contracts } = await loadIgnitionFixture();
   let targetURI: string;
-  let tx: any;
+  let _tx: any;
 
   // Set up common variables
   targetURI = "https://google.com";
@@ -85,8 +85,8 @@ describe("ETS Target tests", async () => {
 
   describe("Creating a new target Id via getOrCreateTargetId", async () => {
     it("should emit the new target Id", async () => {
-      const targetId = await contracts.ETSTarget.read.computeTargetId([targetURI]);
-      tx = await contracts.ETSTarget.write.getOrCreateTargetId([targetURI]);
+      const _targetId = await contracts.ETSTarget.read.computeTargetId([targetURI]);
+      _tx = await contracts.ETSTarget.write.getOrCreateTargetId([targetURI]);
       // TODO: Event testing needs to be implemented with viem
       // await expect(tx).to.emit(contracts.ETSTarget, "TargetCreated").withArgs(targetId);
     });
@@ -97,7 +97,7 @@ describe("ETS Target tests", async () => {
       const _targetId = await contracts.ETSTarget.read.computeTargetId([targetURI]);
       await contracts.ETSTarget.write.getOrCreateTargetId([targetURI]);
 
-      tx = await contracts.ETSTarget.write.getOrCreateTargetId([targetURI]);
+      _tx = await contracts.ETSTarget.write.getOrCreateTargetId([targetURI]);
       // TODO: Event testing needs to be implemented with viem
       // await expect(tx).not.to.emit(contracts.ETSTarget, "TargetCreated");
     });

@@ -2,7 +2,7 @@
   "ETSCore": {
     "taggingFee": "100000000000000000",
     "platformPercentage": 40,
-    "relayerPercentage": 20
+    "channelPercentage": 20
   },
   "ETSToken": {
     "tagMinStringLength": 2,
@@ -11,8 +11,8 @@
   "ETSTarget": {
     "targetMaxStringLength": 512
   },
-  "ETSRelayerFactory": {
-    "relayerName": "ETS Relayer",
-    "relayerSymbol": "ETSR"
+  "ETSChannelFactory": {
+    "channelName": "ETS Channel",
+    "channelSymbol": "ETSC"
   }
 }

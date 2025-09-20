@@ -24,7 +24,7 @@ const targetCreatedAbi = parseAbiItem(
 );
 
 const tagCreatedAbi = parseAbiItem(
-  "event TagCreated(uint256 indexed tagId, address indexed coinAddress, string tagString, address indexed creator, uint256 blockNumber, address indexed relayer, uint256 timestamp)",
+  "event TagCreated(uint256 indexed tagId, address indexed coinAddress, string tagString, address indexed creator, uint256 blockNumber, address indexed channel, uint256 timestamp)",
 );
 
 // Get chain configuration

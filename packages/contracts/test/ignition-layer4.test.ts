@@ -99,7 +99,7 @@ describe("Hardhat Ignition - Layer 4 Modules (Complete System)", async () => {
         ETSCore: {
           taggingFee: parseEther("0.05"), // Custom fee
           platformPercentage: 25, // Custom percentage
-          relayerPercentage: 35, // Custom percentage
+          channelPercentage: 35, // Custom percentage
         },
       },
     })) as any;

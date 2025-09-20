@@ -15,7 +15,7 @@
  * Ethereum Tag Service tags with Zora ERC-20 coin integration.
  *
  * TAGs are represented by deterministic Zora ERC-20 coin addresses that store tag metadata including
- * three-tier identifier system, origin attribution data with "Relayer" and "Creator" addresses.
+ * three-tier identifier system, origin attribution data with "Channel" and "Creator" addresses.
  *
  * TAGs use a three-tier identifier system: originalInput ("#BiTCOin"), displayVersion ("#Bitcoin"),
  * and machineName ("bitcoin"). Only one TAG exists per normalized machine name regardless of case.
@@ -70,16 +70,16 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
         _;
     }
 
-    modifier onlyRelayer() {
-        if (!etsAccessControls.isRelayer(_msgSender())) revert CallerIsNotRelayer(_msgSender());
+    modifier onlyChannel() {
+        if (!etsAccessControls.isChannel(_msgSender())) revert CallerIsNotChannel(_msgSender());
         _;
     }
 
     // TODO: Definitely need to look closer at this claude code. It's wrong
-    modifier onlyOracle() {
+    modifier onlyEventProcessor() {
         require(
-            etsAccessControls.isAdmin(_msgSender()) || etsAccessControls.isRelayer(_msgSender()),
-            "Caller not authorized for oracle operations"
+            etsAccessControls.isAdmin(_msgSender()) || etsAccessControls.isChannel(_msgSender()),
+            "Not authorized for events"
         );
         _;
     }
@@ -215,12 +215,12 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
 
     function getOrCreateTag(
         string calldata _tag,
-        address payable _relayer,
+        address payable _channel,
         address payable _creator
     ) public payable returns (Tag memory tag) {
         address coinAddress = computeCoinAddress(_tag);
         if (!tagExistsByAddress(coinAddress)) {
-            coinAddress = createTag(_tag, _relayer, _creator);
+            coinAddress = createTag(_tag, _channel, _creator);
         }
         return coinAddressToTag[coinAddress];
     }
@@ -228,12 +228,12 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
     /// @inheritdoc IETSToken
     function getOrCreateTagId(
         string calldata _tag,
-        address payable _relayer,
+        address payable _channel,
         address payable _creator
     ) public payable returns (address coinAddress) {
         coinAddress = computeCoinAddress(_tag);
         if (!tagExistsByAddress(coinAddress)) {
-            coinAddress = createTag(_tag, _relayer, _creator);
+            coinAddress = createTag(_tag, _channel, _creator);
         }
         return coinAddress;
     }
@@ -241,7 +241,7 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
     /// @inheritdoc IETSToken
     function createTag(
         string calldata _tag,
-        address payable _relayer,
+        address payable _channel,
         address payable _creator
     ) public payable nonReentrant onlyETSCore returns (address coinAddress) {
         // Perform basic tag string validation.
@@ -265,7 +265,7 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
             machineName: machineName,
             coinAddress: coinAddress,
             creator: _creator,
-            relayer: _relayer,
+            channel: _channel,
             timestamp: block.timestamp
         });
 
@@ -274,7 +274,7 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
         machineNameHashToCoinAddress[machineNameHash] = coinAddress;
 
         // Emit comprehensive event
-        emit TagCreated(coinAddress, originalInput, displayVersion, machineName, _creator, _relayer, block.timestamp);
+        emit TagCreated(coinAddress, originalInput, displayVersion, machineName, _creator, _channel, block.timestamp);
 
         return coinAddress;
     }

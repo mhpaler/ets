@@ -1,5 +1,5 @@
 import { ethers, network } from "hardhat";
-import type { ETSRelayer, ETSToken } from "../typechain-types";
+import type { ETSChannel, ETSToken } from "../typechain-types";
 
 async function main() {
   console.log("====================================");
@@ -14,10 +14,10 @@ async function main() {
   console.log("Using account2:", signer2.address);
 
   // Get contract instances with proper typing
-  const etsRelayer = (await ethers.getContractAt(
-    "ETSRelayer",
-    chainConfig.contracts.ETSRelayer.address,
-  )) as unknown as ETSRelayer;
+  const etsChannel = (await ethers.getContractAt(
+    "ETSChannel",
+    chainConfig.contracts.ETSChannel.address,
+  )) as unknown as ETSChannel;
 
   const etsToken = (await ethers.getContractAt(
     "ETSToken",
@@ -30,7 +30,7 @@ async function main() {
 
   try {
     console.log("Sending transaction...");
-    const tx = await etsRelayer.connect(signer2).getOrCreateTagIds([tagString]);
+    const tx = await etsChannel.connect(signer2).getOrCreateTagIds([tagString]);
     console.log("Transaction hash:", tx.hash);
 
     console.log("Waiting for confirmation...");
@@ -51,9 +51,9 @@ async function main() {
             console.log(`  - ${parsedLog.name}:`, parsedLog.args);
           }
         } catch (_e) {
-          // Try parsing with relayer interface
+          // Try parsing with channel interface
           try {
-            const parsedLog = etsRelayer.interface.parseLog({
+            const parsedLog = etsChannel.interface.parseLog({
               topics: [...log.topics],
               data: log.data,
             });
@@ -98,21 +98,21 @@ async function main() {
     // Additional debugging
     console.log("\nDebugging transaction failure...");
 
-    // Check if relayer is registered
+    // Check if channel is registered
     try {
       const ets = await ethers.getContractAt("ETS", chainConfig.contracts.ETS.address);
       const etsAccessControlsAddr = await ets.etsAccessControls();
       const etsAccessControls = await ethers.getContractAt("ETSAccessControls", etsAccessControlsAddr);
 
-      const relayerAddress = await etsRelayer.getAddress();
-      const isRelayer = await etsAccessControls.isRelayer(relayerAddress);
-      console.log("Is ETSRelayer registered?", isRelayer);
+      const channelAddress = await etsChannel.getAddress();
+      const isChannel = await etsAccessControls.isChannel(channelAddress);
+      console.log("Is ETSChannel registered?", isChannel);
 
-      if (!isRelayer) {
-        console.log("⚠️  ETSRelayer is NOT registered! Run register-relayer.ts first");
+      if (!isChannel) {
+        console.log("⚠️  ETSChannel is NOT registered! Run register-channel.ts first");
       }
     } catch (e: any) {
-      console.log("Could not check relayer registration:", e.message);
+      console.log("Could not check channel registration:", e.message);
     }
   }
 }
