@@ -11,11 +11,8 @@ describe("ETS Core Financial - Manual Deployment Test", async () => {
   const user2 = walletClients[11]; // Position 11: User2 (test account)
 
   it("should handle ETH flow correctly with manual deployment", async () => {
-    console.log("🔧 Testing ETH flow with manual contract deployment...");
-
     // Get initial balances
     const user2BalanceBefore = await publicClient.getBalance({ address: user2.account.address });
-    console.log("User2 balance before:", user2BalanceBefore);
 
     // TODO: Manual deployment of minimal ETS contracts needed for fee testing
     // For now, let's test if we can even get basic contract interactions working
@@ -28,29 +25,19 @@ describe("ETS Core Financial - Manual Deployment Test", async () => {
       value: testAmount,
     });
 
-    console.log("Test transaction hash:", txHash);
-
     const receipt = await publicClient.getTransactionReceipt({ hash: txHash });
-    console.log("Transaction status:", receipt.status);
-    console.log("Gas used:", receipt.gasUsed);
 
     // Check balances after
     const user2BalanceAfter = await publicClient.getBalance({ address: user2.account.address });
     const _platformBalanceAfter = await publicClient.getBalance({ address: platform.account.address });
 
     const user2Spent = user2BalanceBefore - user2BalanceAfter;
-    console.log("User2 spent (including gas):", user2Spent);
-    console.log("Platform received:", testAmount);
 
     // Verify basic ETH transfer works
     assert.ok(user2Spent >= testAmount, "User2 should have spent at least the test amount");
-
-    console.log("✅ Basic ETH transfer works - issue is likely with Ignition fixtures");
   });
 
   it("should verify Ignition contracts have bytecode", async () => {
-    console.log("🔍 Checking if Ignition-deployed contracts actually have bytecode...");
-
     // Import the Ignition fixture to check its contracts
     const { loadIgnitionFixture } = await import("./fixtures/ignitionFixture.js");
     const { contracts } = await loadIgnitionFixture();
@@ -59,20 +46,12 @@ describe("ETS Core Financial - Manual Deployment Test", async () => {
     const etsCode = await publicClient.getBytecode({ address: contracts.ETS.address });
     const channelCode = await publicClient.getBytecode({ address: contracts.ETSChannel.address });
 
-    console.log("ETS contract address:", contracts.ETS.address);
-    console.log("ETS contract has bytecode:", etsCode && etsCode !== "0x" ? "YES" : "NO");
-    console.log("ETS bytecode length:", etsCode ? etsCode.length : 0);
-
-    console.log("ETSChannel address:", contracts.ETSChannel.address);
-    console.log("ETSChannel has bytecode:", channelCode && channelCode !== "0x" ? "YES" : "NO");
-    console.log("ETSChannel bytecode length:", channelCode ? channelCode.length : 0);
+    // Verify contracts have bytecode
+    assert.ok(etsCode && etsCode !== "0x", "ETS contract should have bytecode");
+    assert.ok(channelCode && channelCode !== "0x", "ETSChannel contract should have bytecode");
 
     // Test if we can call a basic read function
-    try {
-      const taggingFee = await contracts.ETS.read.taggingFee();
-      console.log("ETS.taggingFee() works:", taggingFee);
-    } catch (error: any) {
-      console.log("ETS.taggingFee() FAILED:", error.message);
-    }
+    const taggingFee = await contracts.ETS.read.taggingFee();
+    assert.ok(taggingFee > 0n, "Tagging fee should be greater than 0");
   });
 });

@@ -37,7 +37,6 @@
 pragma solidity ^0.8.10;
 
 import { IETSTarget } from "./interfaces/IETSTarget.sol";
-import { IETSEnrichTarget } from "./interfaces/IETSEnrichTarget.sol";
 import { IETSAccessControls } from "./interfaces/IETSAccessControls.sol";
 import { StringHelpers } from "./utils/StringHelpers.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -45,12 +44,13 @@ import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils
 contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
     IETSAccessControls public etsAccessControls;
 
-    IETSEnrichTarget public etsEnrichTarget;
-
     // Public constants
 
     string public constant NAME = "ETSTarget";
     string public constant VERSION = "0.0.1";
+
+    // Custom errors
+    error InvalidTarget();
 
     /// @dev Map of targetId to Target struct.
     mapping(uint256 => Target) public targets;
@@ -59,6 +59,11 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
 
     modifier onlyAdmin() {
         if (!etsAccessControls.isAdmin(msg.sender)) revert AccessDenied(msg.sender);
+        _;
+    }
+
+    modifier onlyEventProcessor() {
+        if (!etsAccessControls.isEventProcessor(msg.sender)) revert AccessDenied(msg.sender);
         _;
     }
 
@@ -92,12 +97,6 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
         emit AccessControlsSet(address(etsAccessControls));
     }
 
-    /// @inheritdoc IETSTarget
-    function setEnrichTarget(address _etsEnrichTarget) public onlyAdmin {
-        if (address(_etsEnrichTarget) == address(0)) revert BadAddress();
-        etsEnrichTarget = IETSEnrichTarget(_etsEnrichTarget);
-        emit EnrichTargetSet(_etsEnrichTarget);
-    }
 
     // ============ PUBLIC INTERFACE ============
 
@@ -119,35 +118,12 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
         uint256 _targetId = computeTargetId(_targetURI);
         targets[_targetId] = Target({
             targetURI: _targetURI,
-            createdBy: msg.sender,
-            enriched: 0,
-            httpStatus: 0,
-            arweaveTxId: ""
+            createdBy: msg.sender
         });
         emit TargetCreated(_targetId);
         return _targetId;
     }
 
-    /// @inheritdoc IETSTarget
-    function updateTarget(
-        uint256 _targetId,
-        string calldata _targetURI,
-        uint256 _enriched,
-        uint256 _httpStatus,
-        string calldata _arweaveTxId
-    ) external returns (bool success) {
-        if (!etsAccessControls.isEventProcessor(msg.sender)) revert AccessDenied(msg.sender);
-
-
-        targets[_targetId].targetURI = _targetURI;
-        targets[_targetId].enriched = _enriched;
-        targets[_targetId].httpStatus = _httpStatus;
-        targets[_targetId].arweaveTxId = _arweaveTxId;
-
-
-        emit TargetUpdated(_targetId);
-        return true;
-    }
 
     // ============ PUBLIC VIEW FUNCTIONS ============
 
@@ -179,5 +155,35 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
     function getTargetById(uint256 _targetId) public view returns (Target memory) {
 
         return targets[_targetId];
+    }
+
+    // ============ ENRICHMENT INTERFACE ============
+
+    /// @inheritdoc IETSTarget
+    function requestEnrichTarget(uint256 _targetId) external {
+        if (!targetExistsById(_targetId)) revert InvalidTarget();
+
+        // Simply emit event for event processor to pick up
+        emit EnrichTargetRequested(_targetId, msg.sender);
+    }
+
+    /// @inheritdoc IETSTarget
+    function enrichTarget(
+        uint256 _targetId,
+        string memory _title,
+        string memory _description,
+        string memory _imageUrl,
+        string memory _keywords
+    ) external onlyEventProcessor {
+        if (!targetExistsById(_targetId)) revert InvalidTarget();
+
+        // Emit enrichment event for The Graph to index
+        emit TargetEnriched(
+            _targetId,
+            _title,
+            _description,
+            _imageUrl,
+            _keywords
+        );
     }
 }

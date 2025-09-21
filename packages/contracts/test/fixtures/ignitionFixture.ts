@@ -1,5 +1,5 @@
 import { network } from "hardhat";
-import { encodeFunctionData, parseEther } from "viem";
+import { parseEther } from "viem";
 import { getNetworkSettings } from "../../config/settings.js";
 import ETSChannelFactoryModule from "../../ignition/modules/ETSChannelFactory.js";
 import ETSEnrichTargetModule from "../../ignition/modules/ETSEnrichTarget.js";
@@ -66,35 +66,9 @@ export async function ignitionFixture(): Promise<IgnitionSetupResult> {
       },
     })) as any;
 
-  // Deploy ETSEnrichTarget manually using the same contracts from ChannelFactory
-  // We can't use the ETSEnrichTargetModule because it creates its own AccessControls and Target
-  const enrichTargetImplementation = await viem.deployContract("ETSEnrichTarget", []);
-
-  // Create initialization calldata using viem's encodeFunctionData
-  const initializeCalldata = encodeFunctionData({
-    abi: [
-      {
-        inputs: [
-          { internalType: "contract IETSAccessControls", name: "_etsAccessControls", type: "address" },
-          { internalType: "contract IETSTarget", name: "_etsTarget", type: "address" },
-        ],
-        name: "initialize",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-    ],
-    functionName: "initialize",
-    args: [accessControls.address, target.address],
-  });
-
-  // Deploy proxy
-  const enrichTargetProxy = await viem.deployContract("ERC1967Proxy", [
-    enrichTargetImplementation.address,
-    initializeCalldata,
-  ]);
-
-  const enrichTarget = { address: enrichTargetProxy.address };
+  // Deploy ETSEnrichTarget using its own module
+  // This will create its own AccessControls and Target instances
+  const { enrichTarget: enrichTargetProxy } = (await ignition.deploy(ETSEnrichTargetModule)) as any;
 
   // Get contract instances for post-deployment setup
   const accessControlsContract = await viem.getContractAt("ETSAccessControls", accessControls.address);
@@ -155,7 +129,7 @@ export async function ignitionFixture(): Promise<IgnitionSetupResult> {
   });
 
   // Set EnrichTarget on Target
-  await targetContract.write.setEnrichTarget([enrichTarget.address], { account: accounts.ETSPlatform.account });
+  await targetContract.write.setEnrichTarget([enrichTargetProxy.address], { account: accounts.ETSPlatform.account });
 
   // Set ETS Core on Token
   await tokenContract.write.setETSCore([etsCore.address], { account: accounts.ETSPlatform.account });
@@ -186,7 +160,7 @@ export async function ignitionFixture(): Promise<IgnitionSetupResult> {
     ETSAccessControls: accessControlsContract,
     ETSToken: tokenContract,
     ETSTarget: targetContract,
-    ETSEnrichTarget: await viem.getContractAt("ETSEnrichTarget", enrichTarget.address),
+    ETSEnrichTarget: await viem.getContractAt("ETSEnrichTarget", enrichTargetProxy.address),
     ETS: etsCoreContract,
     ETSChannelFactory: channelFactoryContract,
     ETSChannelImplementation: await viem.getContractAt("ETSChannel", channelImplementation.address),

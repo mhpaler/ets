@@ -48,16 +48,10 @@ interface IETSTarget {
      *
      * @param targetURI Unique resource identifier Target points to
      * @param createdBy Address of IETSTargetTagger implementation that created Target
-     * @param enriched block timestamp when Target was last enriched. Defaults to 0
-     * @param httpStatus https status of last response from ETSEnrichTarget API eg. "404", "200". defaults to 0
-     * @param arweaveTxId Arweave transaction ID of additional metadata for Target collected by ETSEnrichTarget API
      */
     struct Target {
         string targetURI;
         address createdBy;
-        uint256 enriched;
-        uint256 httpStatus;
-        string arweaveTxId;
     }
 
     /**
@@ -68,11 +62,29 @@ interface IETSTarget {
     event AccessControlsSet(address etsAccessControls);
 
     /**
-     * @dev emitted when the ETSEnrichTarget API address is set.
+     * @dev emitted when a target enrichment is requested.
      *
-     * @param etsEnrichTarget contract address ETSEnrichTarget is set to.
+     * @param targetId The target ID to enrich.
+     * @param requestor Address requesting the enrichment.
      */
-    event EnrichTargetSet(address etsEnrichTarget);
+    event EnrichTargetRequested(uint256 indexed targetId, address indexed requestor);
+
+    /**
+     * @dev emitted when target metadata is enriched.
+     *
+     * @param targetId The target ID being enriched.
+     * @param title The extracted title metadata.
+     * @param description The extracted description metadata.
+     * @param imageUrl The extracted image URL metadata.
+     * @param keywords Comma-separated keywords metadata.
+     */
+    event TargetEnriched(
+        uint256 indexed targetId,
+        string title,
+        string description,
+        string imageUrl,
+        string keywords
+    );
 
     /**
      * @dev emitted when a new Target is created.
@@ -81,20 +93,6 @@ interface IETSTarget {
      */
     event TargetCreated(uint256 targetId);
 
-    /**
-     * @dev emitted when an existing Target is updated.
-     *
-     * @param targetId Id of Target being updated.
-     */
-    event TargetUpdated(uint256 targetId);
-
-    /**
-     * @notice Sets ETSEnrichTarget contract address so that Target metadata enrichment
-     * functions can be called from ETSTarget.
-     *
-     * @param _etsEnrichTarget Address of ETSEnrichTarget contract.
-     */
-    function setEnrichTarget(address _etsEnrichTarget) external;
 
     /**
      * @notice Get ETS targetId from URI.
@@ -115,24 +113,6 @@ interface IETSTarget {
      */
     function createTarget(string memory _targetURI) external returns (uint256 targetId);
 
-    /**
-     * @notice Update a Target record.
-     *
-     * @param _targetId Id of Target being updated.
-     * @param _targetURI Unique resource identifier Target points to.
-     * @param _enriched block timestamp when Target was last enriched
-     * @param _httpStatus https status of last response from ETSEnrichTarget API eg. "404", "200". defaults to 0
-     * @param _arweaveTxId Arweave transaction ID of additional metadata for Target collected by ETSEnrichTarget API
-
-     * @return success true when Target is successfully updated.
-     */
-    function updateTarget(
-        uint256 _targetId,
-        string calldata _targetURI,
-        uint256 _enriched,
-        uint256 _httpStatus,
-        string calldata _arweaveTxId
-    ) external returns (bool success);
 
     /**
      * @notice Function to deterministically compute & return a targetId.
@@ -182,4 +162,31 @@ interface IETSTarget {
      * @return Target record.
      */
     function getTargetById(uint256 _targetId) external view returns (Target memory);
+
+    /**
+     * @notice Request to enrich a target's metadata.
+     *
+     * @param _targetId The target ID to enrich.
+     * @dev Emits EnrichTargetRequested event for the Event Processor to handle.
+     */
+    function requestEnrichTarget(uint256 _targetId) external;
+
+    /**
+     * @notice Emit enrichment data for a target (called by Event Processor).
+     *
+     * @param _targetId The target ID being enriched.
+     * @param _title The extracted title metadata.
+     * @param _description The extracted description metadata.
+     * @param _imageUrl The extracted image URL metadata.
+     * @param _keywords Comma-separated keywords metadata.
+     * @dev Only callable by EVENT_PROCESSOR_ROLE.
+     * @dev Emits TargetEnriched event for The Graph to index.
+     */
+    function enrichTarget(
+        uint256 _targetId,
+        string memory _title,
+        string memory _description,
+        string memory _imageUrl,
+        string memory _keywords
+    ) external;
 }
