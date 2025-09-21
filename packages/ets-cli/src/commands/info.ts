@@ -189,7 +189,7 @@ export function setupInfoCommands(program: Command) {
             console.log(chalk.white(`  Name: ${channelName}`));
             console.log(chalk.white(`  Address: ${channelAddress}`));
           }
-        } catch (error) {
+        } catch (_error) {
           // Silently fail if we can't check channel status
         }
       } catch (error: any) {

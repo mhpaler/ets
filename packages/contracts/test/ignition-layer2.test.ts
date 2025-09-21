@@ -43,7 +43,7 @@ describe("Hardhat Ignition - Layer 2 Modules (With Dependencies)", async () => {
     console.log("🚀 Testing parameter passing through dependency chain...");
 
     // Deploy ETSTarget with custom platform address for ETSAccessControls
-    const { target, accessControls } = (await ignition.deploy(ETSTargetModule, {
+    const { accessControls } = (await ignition.deploy(ETSTargetModule, {
       parameters: {
         ETSAccessControls: {
           platformAddress: secondAccount.account.address,

@@ -16,12 +16,8 @@ import ETSTokenModule from "./ETSToken.js";
  */
 const ETSCoreModule = buildModule("ETSCore", (m) => {
   // Import all dependencies - Ignition will resolve the dependency graph
-  const { token, accessControls: tokenAccessControls, mockZoraFactory } = m.useModule(ETSTokenModule);
-  const { target, accessControls: targetAccessControls } = m.useModule(ETSTargetModule);
-
-  // Note: Both token and target import ETSAccessControls, but Ignition should handle this efficiently
-  // We'll use the one from target for consistency (they should be the same instance)
-  const accessControls = targetAccessControls;
+  const { token, accessControls, mockZoraFactory } = m.useModule(ETSTokenModule);
+  const { target } = m.useModule(ETSTargetModule);
 
   // Get fee configuration parameters (with defaults matching setup.ts)
   const taggingFee = m.getParameter("taggingFee", parseEther("0.1")); // 0.1 ETH default

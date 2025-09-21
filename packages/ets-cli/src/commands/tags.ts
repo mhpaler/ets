@@ -278,7 +278,7 @@ Examples:
 
         if (!recordExists) {
           spinner.fail("Tagging record not found");
-          console.log(chalk.red(`\n❌ No tagging record exists for this combination of:`));
+          console.log(chalk.red("\n❌ No tagging record exists for this combination of:"));
           console.log(chalk.gray(`   URI: ${target}`));
           console.log(chalk.gray(`   Record Type: ${options.recordType}`));
           console.log(chalk.gray(`   Channel: ${options.channel}`));
@@ -312,11 +312,11 @@ Examples:
             spinner.succeed(`Removed ${tagList.length} tags from record`);
             console.log(chalk.green(`\n✅ Tags removed from: ${target}`));
             console.log(chalk.green(`   Removed tags: ${tagList.join(", ")}`));
-            console.log(chalk.gray(`   Record still contains other tags`));
+            console.log(chalk.gray("   Record still contains other tags"));
           } else {
-            spinner.succeed(`All tags removed - record deleted`);
+            spinner.succeed("All tags removed - record deleted");
             console.log(chalk.green(`\n✅ All tags removed from: ${target}`));
-            console.log(chalk.gray(`   Record no longer exists (empty records are cleaned up)`));
+            console.log(chalk.gray("   Record no longer exists (empty records are cleaned up)"));
           }
           console.log(chalk.gray(`   Transaction: ${hash}`));
         } else {
@@ -444,7 +444,7 @@ Examples:
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
         if (receipt.status === "success") {
-          spinner.succeed(`Replaced tags successfully!`);
+          spinner.succeed("Replaced tags successfully!");
           console.log(chalk.green(`\n✅ Tags replaced on: ${target}`));
           console.log(chalk.green(`   New tags: ${tagList.join(", ")}`));
           console.log(chalk.gray(`   Transaction: ${hash}`));
@@ -498,14 +498,14 @@ Examples:
         if (exists) {
           // Get additional info if tag exists
           try {
-            const tagData = await publicClient.readContract({
+            const _tagData = await publicClient.readContract({
               address: tokenAddress,
               abi,
               functionName: "getTagByAddress",
               args: [coinAddress],
             });
             // The tagData is a struct with originalInput, displayVersion, machineName
-            const uri = `Tag data stored on-chain`;
+            const uri = "Tag data stored on-chain";
             console.log(chalk.white(`  URI: ${uri}`));
           } catch {
             // URI might not be available

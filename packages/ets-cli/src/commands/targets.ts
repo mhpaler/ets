@@ -53,7 +53,7 @@ Examples:
             args: [targetURL],
           });
 
-          spinner.warn(`Target already exists!`);
+          spinner.warn("Target already exists!");
           console.log(chalk.yellow(`\n⚠️  Target ID: ${targetId}`));
           console.log(chalk.yellow(`   URL: ${targetURL}`));
           return;
@@ -89,8 +89,8 @@ Examples:
             });
           }
 
-          spinner.succeed(`Target created successfully!`);
-          console.log(chalk.green(`\n✅ Target Details:`));
+          spinner.succeed("Target created successfully!");
+          console.log(chalk.green("\n✅ Target Details:"));
           console.log(chalk.white(`   Target ID: ${targetId}`));
           console.log(chalk.white(`   URL: ${targetURL}`));
           console.log(chalk.gray(`   Transaction: ${hash}`));
@@ -152,7 +152,7 @@ Examples:
         });
 
         if (!targetExists) {
-          spinner.fail(`Target not found`);
+          spinner.fail("Target not found");
           console.error(chalk.red(`❌ No target with ID: ${targetId}`));
           process.exit(1);
         }
@@ -235,10 +235,10 @@ Examples:
               // topics[1] is the first indexed parameter (targetId)
               let targetId: bigint;
 
-              if (event.args && event.args.targetId) {
+              if (event.args?.targetId) {
                 // If args are parsed, use them
                 targetId = event.args.targetId as bigint;
-              } else if (event.topics && event.topics[1]) {
+              } else if (event.topics?.[1]) {
                 // Otherwise get from topics (indexed parameter)
                 targetId = BigInt(event.topics[1]);
               } else {

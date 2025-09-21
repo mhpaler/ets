@@ -1,13 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import hre from "hardhat";
 import { parseEther } from "viem";
 import { loadETSCoreFixture } from "./fixtures/etsCoreFixture.js";
 
 describe("ETS Core Financial Operations", async () => {
-  const { accounts, contracts, taggingFee } = await loadETSCoreFixture();
-  const { viem } = await hre.network.connect();
-  const publicClient = await viem.getPublicClient();
+  const { accounts, contracts, taggingFee, publicClient } = await loadETSCoreFixture();
 
   describe("Accrued fees management", async () => {
     let _platformPreTagAccrued: bigint;
@@ -121,29 +118,15 @@ describe("ETS Core Financial Operations", async () => {
     });
 
     it("should allow drawdown of accrued fees", async () => {
-      // KNOWN ISSUE: This test fails on in-process Hardhat network due to proxy ETH handling
-      // Works correctly on localhost network (standalone Hardhat node)
-      // To run: Start `npx hardhat node` then run tests with `--network localhost`
-      if (hre.network.name !== "localhost") {
-        console.warn("⚠️  Skipping drawdown test - only works on localhost network, not in-process");
-        return;
-      }
+      // Previously failed due to multiple network.connect() calls
+      // Now fixed with proper fixture handling
 
       // First, ensure there are accrued fees to drawdown
       const accruedBeforeDrawdown = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
 
       // Check actual ETS contract balance
 
-      // TEST: Send ETH directly to ETS to see if it can hold ETH
-      try {
-        const walletClient = await viem.getWalletClient(accounts.User2.account.address);
-        await walletClient.sendTransaction({
-          to: contracts.ETS.address,
-          value: parseEther("1"),
-        });
-      } catch (_error: any) {
-        // This is expected if ETS doesn't have receive/fallback
-      }
+      // Note: ETS contract should have ETH from tagging fees
 
       // If no accrued fees, create a tagging to generate some
       if (accruedBeforeDrawdown === 0n) {
@@ -226,13 +209,7 @@ describe("ETS Core Financial Operations", async () => {
     });
 
     it("can be performed on behalf of the platform", async () => {
-      // KNOWN ISSUE: This test fails on in-process Hardhat network due to proxy ETH handling
-      // Works correctly on localhost network (standalone Hardhat node)
-      // To run: Start `npx hardhat node` then run tests with `--network localhost`
-      if (hre.network.name !== "localhost") {
-        console.warn("⚠️  Skipping drawdown test - only works on localhost network, not in-process");
-        return;
-      }
+      // Now works in-process with fixed network context
       // Create another tagging record to generate more fees
       const rawInput = {
         targetURI: "https://financial-test-2.com",

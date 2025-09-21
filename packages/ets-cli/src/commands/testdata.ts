@@ -1,4 +1,4 @@
-import { execSync } from "child_process";
+import { execSync } from "node:child_process";
 import chalk from "chalk";
 import type { Command } from "commander";
 import ora from "ora";
@@ -171,7 +171,7 @@ Examples:
         // 2. Create tags
         if (options.tags > 0) {
           spinner.text = `Creating ${options.tags} tags...`;
-          const tagBatches = [];
+          const _tagBatches = [];
           for (let i = 0; i < options.tags; i += 5) {
             // Create in batches of 5
             const batchSize = Math.min(5, options.tags - i);

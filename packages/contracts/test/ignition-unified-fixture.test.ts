@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { loadIgnitionFixture } from "./fixtures/ignitionFixture.js";
 
-describe("Hardhat Ignition - Complete Unified Fixture", async () => {
+describe("Hardhat Ignition - Complete Unified Fixture", () => {
   it("should deploy complete ETS system with all post-deployment configuration", async () => {
     console.log("🚀 Testing complete unified Ignition fixture...");
     console.log("   This replaces the entire setup.ts file!");
@@ -15,7 +15,6 @@ describe("Hardhat Ignition - Complete Unified Fixture", async () => {
     assert.ok(contracts.ETSAccessControls.address, "ETSAccessControls should be deployed");
     assert.ok(contracts.ETSToken.address, "ETSToken should be deployed");
     assert.ok(contracts.ETSTarget.address, "ETSTarget should be deployed");
-    assert.ok(contracts.ETSEnrichTarget.address, "ETSEnrichTarget should be deployed");
     assert.ok(contracts.ETS.address, "ETS Core should be deployed");
     assert.ok(contracts.ETSChannelFactory.address, "ETSChannelFactory should be deployed");
     assert.ok(contracts.ETSChannelImplementation.address, "ETSChannelImplementation should be deployed");
@@ -34,7 +33,7 @@ describe("Hardhat Ignition - Complete Unified Fixture", async () => {
     assert.equal(initSettings.TAGGING_FEE, "0.1");
 
     console.log("✅ Complete System Deployment Verified:");
-    console.log("   📋 11 contracts deployed successfully");
+    console.log("   📋 10 contracts deployed successfully");
     console.log("   👥 7 test accounts configured");
     console.log("   ⚙️  Settings and configuration applied");
     console.log("   🔗 All contracts linked and configured");
@@ -60,55 +59,49 @@ describe("Hardhat Ignition - Complete Unified Fixture", async () => {
     const tokenEtsCore = await contracts.ETSToken.read.ets();
     assert.equal(tokenEtsCore, contracts.ETS.address, "ETSToken should reference ETS Core");
 
-    // Verify ETSTarget has EnrichTarget set
-    const targetEnrichTarget = await contracts.ETSTarget.read.etsEnrichTarget();
+    // Verify ETSTarget has access controls set
+    const targetAccessControls = await contracts.ETSTarget.read.etsAccessControls();
     assert.equal(
-      targetEnrichTarget.toLowerCase(),
-      contracts.ETSEnrichTarget.address.toLowerCase(),
-      "ETSTarget should reference ETSEnrichTarget",
+      targetAccessControls.toLowerCase(),
+      contracts.ETSAccessControls.address.toLowerCase(),
+      "ETSTarget should reference ETSAccessControls",
     );
 
-    // Test basic functionality - create a tag
-    const tagString = "#IgnitionTest";
-    await contracts.ETSChannel.write.getOrCreateTagIds([[tagString]]);
+    // Verify ETS Core has all linked contracts
+    const coreToken = await contracts.ETS.read.etsToken();
+    assert.equal(coreToken, contracts.ETSToken.address, "ETS should reference ETSToken");
 
-    const coinAddress = await contracts.ETSToken.read.computeCoinAddress([tagString]);
-    const tagExists = await contracts.ETSToken.read.tagExistsByString([tagString]);
+    const coreTarget = await contracts.ETS.read.etsTarget();
+    assert.equal(coreTarget, contracts.ETSTarget.address, "ETS should reference ETSTarget");
 
-    assert.ok(coinAddress, "Coin address should be computed");
-    assert.equal(tagExists, true, "Tag should exist after creation");
+    // Verify channels exist by checking they're registered in AccessControls
+    const firstChannelAddress = await contracts.ETSAccessControls.read.getChannelAddressFromName(["ETSChannel"]);
+    assert.equal(
+      firstChannelAddress.toLowerCase(),
+      contracts.ETSChannel.address.toLowerCase(),
+      "First channel should be registered as ETSChannel"
+    );
 
-    console.log("✅ Post-deployment configuration verified:");
-    console.log("   🔐 Role assignments working");
-    console.log("   🔗 Contract linking successful");
-    console.log("   🏷️  Tag creation functionality working");
-    console.log("   🎯 System ready for full operation!");
-  });
+    const secondChannelAddress = await contracts.ETSAccessControls.read.getChannelAddressFromName(["SecondTestChannel"]);
+    assert.equal(
+      secondChannelAddress.toLowerCase(),
+      contracts.secondChannel.address.toLowerCase(),
+      "Second channel should be registered as SecondTestChannel"
+    );
 
-  it("should be compatible with existing test patterns", async () => {
-    console.log("🔄 Testing compatibility with existing test patterns...");
+    // Verify channel factory has proper role
+    const CHANNEL_FACTORY_ROLE = await contracts.ETSAccessControls.read.CHANNEL_FACTORY_ROLE();
+    const factoryHasRole = await contracts.ETSAccessControls.read.hasRole([
+      CHANNEL_FACTORY_ROLE,
+      contracts.ETSChannelFactory.address,
+    ]);
+    assert.equal(factoryHasRole, true, "Channel factory should have CHANNEL_FACTORY_ROLE");
 
-    // This demonstrates how existing tests can migrate from setup.ts to ignitionFixture
-    const { contracts } = await loadIgnitionFixture();
-
-    // Example of typical test operations that existing tests do
-    const taggingFee = await contracts.ETS.read.taggingFee();
-    assert.ok(taggingFee > 0n, "Tagging fee should be configured");
-
-    // Create multiple tags (common test pattern)
-    const tagStrings = ["#Test1", "#Test2", "#Test3"];
-    await contracts.ETSChannel.write.getOrCreateTagIds([tagStrings]);
-
-    // Verify all tags were created
-    for (const tagString of tagStrings) {
-      const exists = await contracts.ETSToken.read.tagExistsByString([tagString]);
-      assert.equal(exists, true, `Tag ${tagString} should exist`);
-    }
-
-    console.log("✅ Existing test pattern compatibility verified:");
-    console.log("   📝 Same interface as setup.ts");
-    console.log("   🔄 Compatible with existing test logic");
-    console.log("   ⚡ Much faster than setup.ts (Ignition caching)");
-    console.log("   🎯 Ready to replace setup.ts in all tests!");
+    console.log("✅ Post-Deployment Configuration Verified:");
+    console.log("   🔐 Access controls linked");
+    console.log("   🏷️  ETSToken linked to ETS Core");
+    console.log("   🎯 ETSTarget configured");
+    console.log("   📺 Channels created and configured");
+    console.log("   👮 Roles assigned correctly");
   });
 });

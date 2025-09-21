@@ -79,11 +79,9 @@ export function setupChannelCommands(program: Command) {
 
       try {
         const publicClient = await getPublicClient(options.network);
-        const factoryAddress = await getContractAddress(options.network, "channelFactory");
+        const _factoryAddress = await getContractAddress(options.network, "channelFactory");
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
-        const { ETSChannelFactoryABI, ETSAccessControlsABI, ETSChannelABI } = await import(
-          "@ethereum-tag-service/contracts/abis"
-        );
+        const { ETSAccessControlsABI, ETSChannelABI } = await import("@ethereum-tag-service/contracts/abis");
 
         // Get ChannelAdded events from AccessControls (not factory)
         const events = await publicClient.getLogs({

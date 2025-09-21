@@ -1,5 +1,20 @@
 # @ethereum-tag-service/contracts
 
+## 2025-09-20
+
+### Fixed
+- Fixed test fixtures to use single network context, resolving "no bytecode" issues (#528)
+- Enabled event testing in Hardhat's in-process test runner
+- Fixed drawdown tests that previously only worked on localhost network
+
+### Changed
+- Consolidated test fixtures into single `ignitionFixture.ts`
+- Removed redundant `ETSTargetEnrichment` test files (functionality merged into ETSTarget)
+
+### Removed
+- Removed `fixedIgnitionFixture.ts` (consolidated into main fixture)
+- Removed `ETSTargetEnrichment-Localhost.test.ts` (redundant with main tests)
+
 ## 0.0.7
 
 ### Patch Changes
@@ -48,34 +63,3 @@
 
     Replace localhost chain (id: 1337) with hardhat chain (id: 31337) in multiChainConfig
     to align with Hardhat's default chain ID and prevent network connection issues during
-    local development. This ensures consistent chain ID usage across the application.
-
-    @ethereum-tag-service/sdk-core fix: use local RPC for Hardhat development environment
-
-    Update clientFactory to use local RPC URL for chain ID 31337 (Hardhat) instead of
-    attempting to use Alchemy. This enables proper client initialization during local
-    development while maintaining Alchemy RPC usage for testnet and mainnet environments.
-
-    @ethereum-tag-service/subgraph feat(subgraph): upgrade and optimize subgraph implementation
-
-    - Upgrade specVersion to 0.0.4 and enable nonFatalErrors
-    - Improve address comparison using equals() instead of string conversion
-    - Update docker compose syntax for newer versions
-    - Add better error handling with GraphProtocol logging
-    - Optimize zero address checks in Creator, Platform, and Relayer entities
-
-- [#394](https://github.com/ethereum-tag-service/ets/pull/394) [`465ffe6`](https://github.com/ethereum-tag-service/ets/commit/465ffe6a5d99a469e770d5118e231eccf3faa86f) Thanks [@mhpaler](https://github.com/mhpaler)! - Significant refactor of the contracts package including the following:
-
-    1. Refactor deployment scripts to take target chain as argument.
-    2. Refactor package bundler to utilize tsup
-    3. Change deployment artifacts folder to /src
-    4. Add chain visibility functions to package including chains() & availableChainIds()
-    5. Add utility functions see /src/utils.ts
-
-    These changes make it easier for consuming applications to access available chain info via the @ethereum-tag-service/contracts package.
-
-## 0.0.1
-
-### Patch Changes
-
-- [#364](https://github.com/ethereum-tag-service/ets/pull/364) [`c85ab03`](https://github.com/ethereum-tag-service/ets/commit/c85ab033adbff506a27e0c747da01a0ac53e9f59) Thanks [@mhpaler](https://github.com/mhpaler)! - Add and configure and execute repository & package linting.
