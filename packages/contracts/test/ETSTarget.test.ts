@@ -4,7 +4,6 @@ import { parseEventLogs } from "viem";
 import { loadIgnitionFixture } from "./fixtures/ignitionFixture.js";
 
 describe("ETS Target tests", () => {
-
   describe("Valid setup", () => {
     it("should have Access controls set to ETSAccessControls contract", async () => {
       const { contracts } = await loadIgnitionFixture();
@@ -20,10 +19,9 @@ describe("ETS Target tests", () => {
       // Set up event processor role
       const eventProcessorSigner = accounts.User3;
       const eventProcessorRole = await contracts.ETSAccessControls.read.EVENT_PROCESSOR_ROLE();
-      await contracts.ETSAccessControls.write.grantRole(
-        [eventProcessorRole, eventProcessorSigner.account.address],
-        { account: accounts.ETSPlatform.account }
-      );
+      await contracts.ETSAccessControls.write.grantRole([eventProcessorRole, eventProcessorSigner.account.address], {
+        account: accounts.ETSPlatform.account,
+      });
 
       // Create a target
       const enrichTargetURI = "https://example.com/enrichment-test";
@@ -39,10 +37,9 @@ describe("ETS Target tests", () => {
       const imageUrl = "https://test.com/image.png";
       const keywords = "test,keywords";
 
-      const txHash = await contracts.ETSTarget.write.enrichTarget(
-        [targetId, title, description, imageUrl, keywords],
-        { account: eventProcessorSigner.account }
-      );
+      const txHash = await contracts.ETSTarget.write.enrichTarget([targetId, title, description, imageUrl, keywords], {
+        account: eventProcessorSigner.account,
+      });
 
       // NOW WE CAN WAIT FOR RECEIPT!
       const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
@@ -104,10 +101,9 @@ describe("ETS Target tests", () => {
       // Set up event processor
       const eventProcessorSigner = accounts.User3;
       const eventProcessorRole = await contracts.ETSAccessControls.read.EVENT_PROCESSOR_ROLE();
-      await contracts.ETSAccessControls.write.grantRole(
-        [eventProcessorRole, eventProcessorSigner.account.address],
-        { account: accounts.ETSPlatform.account }
-      );
+      await contracts.ETSAccessControls.write.grantRole([eventProcessorRole, eventProcessorSigner.account.address], {
+        account: accounts.ETSPlatform.account,
+      });
 
       const gasTargetURI = "https://example.com/gas-test";
       const gasTargetId = await contracts.ETSTarget.read.computeTargetId([gasTargetURI]);
@@ -119,7 +115,7 @@ describe("ETS Target tests", () => {
       // Execute enrichment
       const txHash = await contracts.ETSTarget.write.enrichTarget(
         [gasTargetId, "Title", "Description", "https://image.png", "keywords"],
-        { account: eventProcessorSigner.account }
+        { account: eventProcessorSigner.account },
       );
 
       const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
@@ -190,15 +186,12 @@ describe("ETS Target tests", () => {
       });
 
       // Should fail without role
-      await assert.rejects(
-        async () => {
-          await contracts.ETSTarget.write.enrichTarget(
-            [targetId, "Title", "Description", "https://image.png", "keywords"],
-            { account: accounts.User2.account }
-          );
-        },
-        /AccessDenied/
-      );
+      await assert.rejects(async () => {
+        await contracts.ETSTarget.write.enrichTarget(
+          [targetId, "Title", "Description", "https://image.png", "keywords"],
+          { account: accounts.User2.account },
+        );
+      }, /AccessDenied/);
     });
 
     it("should allow any user to request enrichment", async () => {

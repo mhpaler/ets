@@ -79,14 +79,16 @@ describe("Hardhat Ignition - Complete Unified Fixture", () => {
     assert.equal(
       firstChannelAddress.toLowerCase(),
       contracts.ETSChannel.address.toLowerCase(),
-      "First channel should be registered as ETSChannel"
+      "First channel should be registered as ETSChannel",
     );
 
-    const secondChannelAddress = await contracts.ETSAccessControls.read.getChannelAddressFromName(["SecondTestChannel"]);
+    const secondChannelAddress = await contracts.ETSAccessControls.read.getChannelAddressFromName([
+      "SecondTestChannel",
+    ]);
     assert.equal(
       secondChannelAddress.toLowerCase(),
       contracts.secondChannel.address.toLowerCase(),
-      "Second channel should be registered as SecondTestChannel"
+      "Second channel should be registered as SecondTestChannel",
     );
 
     // Verify channel factory has proper role

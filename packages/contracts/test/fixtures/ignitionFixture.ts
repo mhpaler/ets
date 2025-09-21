@@ -82,7 +82,10 @@ export async function loadIgnitionFixture(): Promise<IgnitionSetupResult> {
 
     // Set role admins
     await accessControlsContract.write.setRoleAdmin(
-      [await accessControlsContract.read.CHANNEL_FACTORY_ROLE(), await accessControlsContract.read.CHANNEL_ADMIN_ROLE()],
+      [
+        await accessControlsContract.read.CHANNEL_FACTORY_ROLE(),
+        await accessControlsContract.read.CHANNEL_ADMIN_ROLE(),
+      ],
       { account: accounts.ETSPlatform.account },
     );
 

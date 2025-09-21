@@ -180,7 +180,7 @@ export async function emitTargetEnrichmentEvent(params: {
 
     // Simulate the transaction first
     const { request } = await publicClient.simulateContract({
-      address: config.blockchain.contracts.etsEnrichTarget,
+      address: config.blockchain.contracts.etsTarget, // Now part of ETSTarget
       abi: enrichTargetAbi,
       functionName: "enrichTarget",
       args: [

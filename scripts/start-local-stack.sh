@@ -32,10 +32,10 @@ if [ "$SHOW_HELP" = true ]; then
   echo "Usage: $0 [OPTIONS]"
   echo ""
   echo "Options:"
-  echo "  --core     Start core services only (Hardhat, Temporal Server/Processor, Offchain API, ArLocal)"
+  echo "  --core     Start core services only (Hardhat, Temporal Server/Processor)"
   echo "  --help|-h  Show this help message"
   echo ""
-  echo "Note: Graph Node/Subgraph temporarily disabled for maintenance"
+  echo "Note: Simplified stack - no longer requires ArLocal or Offchain API"
   echo ""
   echo "Default: Start full stack (core services + Explorer UI)"
   echo ""
@@ -236,11 +236,11 @@ check_service_conflicts() {
   
   # Define ports and services based on mode
   if [ "$CORE_MODE" = true ]; then
-    local ports_to_check=(8545 4000 1984)
-    local port_names=("Hardhat" "Offchain API" "ArLocal")
+    local ports_to_check=(8545)
+    local port_names=("Hardhat")
   else
-    local ports_to_check=(8545 4000 3001 1984)
-    local port_names=("Hardhat" "Offchain API" "Explorer UI" "ArLocal") 
+    local ports_to_check=(8545 3001)
+    local port_names=("Hardhat" "Explorer UI")
   fi
   local protected_processes=("docker" "Docker" "com.docker.backend" "dockerd")
 
@@ -375,8 +375,6 @@ open_logs_terminal() {
   touch "$ROOT_DIR/logs/graph-node.log"
   touch "$ROOT_DIR/logs/contracts-deploy.log"
   touch "$ROOT_DIR/logs/subgraph-deploy.log"
-  touch "$ROOT_DIR/logs/arlocal.log"
-  touch "$ROOT_DIR/logs/offchain-api.log"
   touch "$ROOT_DIR/logs/temporal-server.log"
   touch "$ROOT_DIR/logs/temporal-processor.log"
   touch "$ROOT_DIR/logs/explorer.log"
@@ -395,8 +393,6 @@ tail -f logs/*.log | grep --line-buffered "" |
       -e $'s/.*graph-node.log.*/\033[0;33m[SUBGRAPH]\033[0m &/' \
       -e $'s/.*contracts-deploy.log.*/\033[0;32m[CONTRACTS]\033[0m &/' \
       -e $'s/.*subgraph-deploy.log.*/\033[0;34m[SUBGRAPH-DEPLOY]\033[0m &/' \
-      -e $'s/.*arlocal.log.*/\033[1;34m[ARLOCAL]\033[0m &/' \
-      -e $'s/.*offchain-api.log.*/\033[0;32m[OFFCHAIN-API]\033[0m &/' \
       -e $'s/.*temporal-server.log.*/\033[1;35m[TEMPORAL-SERVER]\033[0m &/' \
       -e $'s/.*temporal-processor.log.*/\033[0;35m[TEMPORAL-PROCESSOR]\033[0m &/' \
       -e $'s/.*explorer.log.*/\033[0;33m[EXPLORER]\033[0m &/'
@@ -491,7 +487,7 @@ start_hardhat() {
 deploy_contracts() {
   log "Deploying contracts..."
   cd "$ROOT_DIR/packages/contracts"
-  pnpm run deploy-all --network localhost > "$ROOT_DIR/logs/contracts-deploy.log" 2>&1
+  pnpm run deploy:localhost > "$ROOT_DIR/logs/contracts-deploy.log" 2>&1
   local EXIT_CODE=$?
 
   if [ $EXIT_CODE -eq 0 ]; then
@@ -742,10 +738,11 @@ start_temporal_processor() {
   export NODE_ENV=development
   export CHAIN_ID=31337
   export RPC_URL=http://localhost:8545
-  export OFFCHAIN_API_URL=http://localhost:3000
   export TEMPORAL_SERVER_URL=localhost:7233
   export TEMPORAL_NAMESPACE=default
   export TEMPORAL_TASK_QUEUE=ets-workflows
+  # Private key for EVENT_PROCESSOR role (account[2] in Hardhat)
+  export EVENT_PROCESSOR_PRIVATE_KEY="0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a"
   
   if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
     PATH="/Users/User/.nvm/versions/node/v20.19.4/bin:$PATH" pnpm run dev > "$ROOT_DIR/logs/temporal-processor.log" 2>&1 &
@@ -854,32 +851,20 @@ success "Log rotation set up with PID: $LOG_ROTATION_PID"
 # Start services based on mode
 if [ "$CORE_MODE" = true ]; then
   log "Starting core services only..."
-  # Core services: Hardhat + Contracts + Temporal Server/Processor + Offchain API + ArLocal
-  # TEMPORARILY DISABLED: Subgraph (Graph Node) to unblock integration testing
+  # Core services: Hardhat + Contracts + Temporal Processor
   start_hardhat
   deploy_contracts
-  # start_graph_node    # DISABLED: Graph Node broken, fix later
-  # deploy_subgraph     # DISABLED: Requires Graph Node
-  start_arlocal         # FIXED: Now using Docker instead of native
-  generate_arweave_keyfile   # Generate keyfile if needed for ArLocal testing
-  fund_arlocal_wallet   
-  start_offchain_api
-  # start_temporal_server      # REMOVED: Now managed as persistent infrastructure
-  start_temporal_processor   # REPLACES: Event Processor with Temporal workflows
+  # start_graph_node    # Optional: The Graph for indexing events
+  # deploy_subgraph     # Optional: Requires Graph Node
+  start_temporal_processor   # Handles enrichment workflows
 else
   log "Starting full stack..."
   # Full stack: Core services + Explorer UI
-  # TEMPORARILY DISABLED: Subgraph (Graph Node) to unblock integration testing
   start_hardhat
   deploy_contracts
-  # start_graph_node    # DISABLED: Graph Node broken, fix later
-  # deploy_subgraph     # DISABLED: Requires Graph Node
-  start_arlocal         # FIXED: Now using Docker instead of native
-  generate_arweave_keyfile   # Generate keyfile if needed for ArLocal testing
-  fund_arlocal_wallet   
-  start_offchain_api
-  # start_temporal_server      # REMOVED: Now managed as persistent infrastructure  
-  start_temporal_processor   # REPLACES: Event Processor with Temporal workflows
+  # start_graph_node    # Optional: The Graph for indexing events
+  # deploy_subgraph     # Optional: Requires Graph Node
+  start_temporal_processor   # Handles enrichment workflows
   start_explorer
   populate_data
 fi
@@ -914,10 +899,8 @@ cleanup() {
     done
   fi
 
-  # Stop Docker containers
-  docker stop arlocal 2>/dev/null || true
-  docker rm arlocal 2>/dev/null || true
-  # docker stop $(docker ps -q --filter "name=graph-node") 2>/dev/null || true  # DISABLED: Graph Node
+  # Stop Docker containers (if Graph Node is enabled)
+  # docker stop $(docker ps -q --filter "name=graph-node") 2>/dev/null || true  # Optional: Graph Node
   
   # NOTE: Temporal infrastructure containers are NOT stopped here
   # They are persistent and managed separately with:

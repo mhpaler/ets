@@ -4,16 +4,15 @@ This directory contains integration tests for the Ethereum Tag Service (ETS) eco
 
 ## Architecture Overview
 
-ETS operates as a **5-service system with Temporal workflow orchestration**, providing reliable async workflows spanning blockchain events, off-chain processing, and decentralized storage. Our integration tests validate these critical cross-service interactions with built-in observability.
+ETS operates with **Temporal workflow orchestration**, providing reliable async workflows spanning blockchain events and off-chain processing. Our integration tests validate these critical cross-service interactions with built-in observability.
 
 ### System Components
 
 ```
 test/
 ├── integration/                    # End-to-end integration tests
-│   ├── target-enrichment-v2.test.ts     # Target metadata pipeline (Temporal workflows)
-│   ├── zora-tag-coin-v2.test.ts         # TAG → Zora coin pipeline (Temporal workflows)  
-│   └── temporal-workflows.test.ts        # Core workflow orchestration tests
+│   ├── target-enrichment-v2.test.ts     # Target metadata enrichment via Temporal workflows
+│   └── zora-tag-coin-v2.test.ts         # TAG → Zora coin pipeline (Temporal workflows)
 └── README.md                       # This file
 ```
 
@@ -29,33 +28,32 @@ Our integration tests validate complete **Temporal workflow orchestration** acro
 
 For detailed testing strategy and comprehensive documentation, see: [`../docs/testing/`](../docs/testing/)
 
-## 5-Service + Temporal Architecture
+## Core Service Architecture with Temporal
 
-ETS operates across five coordinated services with Temporal workflow orchestration:
+ETS operates with Temporal workflow orchestration for reliable async processing:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │                                    ETS Temporal System                                                     │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 
-  [User/dApp]        [Blockchain]        [Temporal Server]     [Temporal Processor]   [Offchain API]    [ArLocal]
-      │                   │                       │                     │                     │              │
-      │             Event-driven                  │                     │                     │              │
-      │              workflows                    │                     │                     │              │
-      ├──────────────────>│                       │                     │                     │              │
-      │                   │                       │                     │                     │              │
-      │                   ├─────────────────────────────────────────────>│                     │              │
-      │                   │                       │                     │                     │              │
-      │                   │                       │◄────────────────────┤                     │              │
-      │                   │                       │                     ├────────────────────>│              │
-      │                   │                       │                     │                     ├─────────────>│
-      │                   │◄──────────────────────┤                     │                     │              │
-      │                   ├─────────────────────────────────────────────────────────────────────────────────>│
+  [User/dApp]        [Blockchain]        [Temporal Server]     [Temporal Processor]        [The Graph]
+      │                   │                       │                     │                        │
+      │             Event-driven                  │                     │                        │
+      │              workflows                    │                     │                        │
+      ├──────────────────>│                       │                     │                        │
+      │                   │                       │                     │                        │
+      │                   ├───────────────────────┼─────────────────────>│                        │
+      │                   │                       │                     │                        │
+      │                   │                       │◄────────────────────┤                        │
+      │                   │                       │                     ├──────────────────────>│
+      │                   │◄──────────────────────┤                     │                        │
+      │                   ├───────────────────────┼─────────────────────┼──────────────────────>│
 ```
 
 ### Primary Workflows
 
-**TargetEnrichmentWorkflow**: URL creation → metadata extraction → decentralized storage → blockchain update  
+**TargetEnrichmentWorkflow**: URL creation → metadata extraction → event emission for indexing
 **TagCreatedWorkflow**: TAG creation → Zora coin deployment → creator allocation → reward distribution
 
 For complete architecture details, see: [`../docs/testing/TEMPORAL-INTEGRATION-TESTS.md`](../docs/testing/TEMPORAL-INTEGRATION-TESTS.md)
@@ -65,8 +63,8 @@ For complete architecture details, see: [`../docs/testing/TEMPORAL-INTEGRATION-T
 ## Integration Test Suites
 
 ### Temporal Target Enrichment Tests
-**File**: [`integration/target-enrichment-v2.test.ts`](integration/target-enrichment-v2.test.ts)  
-**Workflow**: `createTarget()` → `TargetCreated` event → `TargetEnrichmentWorkflow` → Offchain API → Arweave storage  
+**File**: [`integration/target-enrichment-v2.test.ts`](integration/target-enrichment-v2.test.ts)
+**Workflow**: `requestEnrichTarget()` → `EnrichTargetRequested` event → `TargetEnrichmentWorkflow` → metadata fetch → `TargetEnriched` event emission
 **Details**: [`../docs/testing/temporal-target-enrichment.md`](../docs/testing/temporal-target-enrichment.md)
 
 ### Temporal TAG Coin Creation Tests  
@@ -150,11 +148,7 @@ During test execution, monitor workflows via:
 - Hardhat Network (localhost:8545)
 - **Temporal Server** (localhost:7233) with PostgreSQL backend
 - **Temporal Processor** (Event listener + Worker)
-- Offchain API (localhost:4000)
-
-**Optional:**
-- ArLocal (Arweave simulation - localhost:1984)
-- Subgraph (localhost:8000)
+- The Graph (for indexing enriched data)
 
 ---
 
