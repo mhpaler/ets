@@ -42,7 +42,7 @@ export async function TargetEnrichmentWorkflow(input: TargetEnrichmentWorkflowIn
 
     const metadataResult = await fetchTargetMetadata({
       targetId: input.targetId,
-      targetURI: input.targetURI,
+      targetURI: input.targetURI || "",
     });
 
     if (metadataResult.status === "failed") {
@@ -68,7 +68,7 @@ export async function TargetEnrichmentWorkflow(input: TargetEnrichmentWorkflowIn
       // Don't fail the workflow if we can't emit the event
       // The metadata was successfully fetched, which is the main goal
       console.warn(`[Workflow] Failed to emit enrichment event: ${eventResult.error}`);
-      console.warn(`[Workflow] Metadata was fetched but not emitted on-chain`);
+      console.warn("[Workflow] Metadata was fetched but not emitted on-chain");
 
       // We could potentially store this for manual retry later
       result.steps.emitEnrichmentEvent = false;

@@ -11,7 +11,7 @@ describe("ETS Core Records Management", async () => {
     testTarget,
     taggingFee: originalTaggingFee,
   } = await loadETSCoreFixture();
-  const { tagstring1, tagstring2, tagstring3, tagstring4 } = tagStrings;
+  const { tagstring1, tagstring2 } = tagStrings;
   const { etsTag1, etsTag2, etsTag3, userTag1 } = tagAddresses;
   const { targetURI, targetId } = testTarget;
 

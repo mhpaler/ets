@@ -8,6 +8,7 @@
   "scripts": {
     "build": "tsc && tsc -p tsconfig.workflows.json",
     "dev": "tsx src/index.ts",
+    "dev:watch": "bun --watch src/index.ts",
     "start": "node dist/index.js",
     "worker": "tsx src/worker.ts",
     "workflow:start": "temporal workflow start --type TargetEnrichmentWorkflow --task-queue ets-workflows --workflow-id test-workflow-1",

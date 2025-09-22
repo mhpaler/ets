@@ -106,7 +106,7 @@ describe("Upgrades tests", async () => {
       }
 
       // Perform upgrade
-      const { upgradedProxy } = await ignition.deploy(ETSEnrichTargetUpgradeModule, {
+      await ignition.deploy(ETSEnrichTargetUpgradeModule, {
         parameters: {
           ETSEnrichTargetUpgrade: {
             proxyAddress: (enrichTarget as any).address,
@@ -147,7 +147,7 @@ describe("Upgrades tests", async () => {
       }
 
       // Perform upgrade
-      const { upgradedProxy } = await ignition.deploy(ETSTargetUpgradeModule, {
+      await ignition.deploy(ETSTargetUpgradeModule, {
         parameters: {
           ETSTargetUpgrade: {
             proxyAddress: (target as any).address,
@@ -188,7 +188,7 @@ describe("Upgrades tests", async () => {
       }
 
       // Perform upgrade
-      const { upgradedProxy } = await ignition.deploy(ETSTokenUpgradeModule, {
+      await ignition.deploy(ETSTokenUpgradeModule, {
         parameters: {
           ETSTokenUpgrade: {
             proxyAddress: (token as any).address,
@@ -231,7 +231,7 @@ describe("Upgrades tests", async () => {
       }
 
       // Perform upgrade
-      const { upgradedProxy } = await ignition.deploy(ETSUpgradeModule, {
+      await ignition.deploy(ETSUpgradeModule, {
         parameters: {
           ETSUpgrade: {
             proxyAddress: (etsCore as any).address,

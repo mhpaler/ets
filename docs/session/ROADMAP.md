@@ -6,22 +6,22 @@ epic_branch: 528-tag-coins-epic
 main_branch: stage
 github_epic: #528
 project_name: TAG Coins Implementation
-last_updated: 2025-09-15
+last_updated: 2025-09-22
 ```
 
 ## ACTIVE_WORK
 ```yaml
 current_issue_id: "#539: Temporal Implementation"
 current_status: IN_PROGRESS
-completion_percent: 60
-exact_task: "Implemented target enrichment workflow and activities"
+completion_percent: 75
+exact_task: "Fixed Temporal processor worker separation and enrichment workflow"
 blocking_bug: null
-next_priority: "Test full enrichment pipeline with blockchain events"
-resume_action: "Run integration tests with full local stack"
-session_accomplishment: "Created target enrichment workflow, updated local stack script, created integration tests"
-architecture_decision: "Removed ArLocal and offchain-api dependencies for simpler architecture"
-critical_path: "Target enrichment ready for testing, then move to tag coin creation"
-debugging_insight: "start-local-stack.sh was using non-existent deploy-all script"
+next_priority: "Fix handleTargetCreatedEvent to fetch targetURI properly"
+resume_action: "Update handleTargetCreatedEvent to read targetURI from contract like handleEnrichTargetRequestedEvent does"
+session_accomplishment: "Separated worker from event listener, fixed EVENT_PROCESSOR_ROLE, improved dev workflow with bun --watch"
+architecture_decision: "Worker must run as separate process with tsx (not bun) due to native dependencies"
+critical_path: "Target enrichment pipeline working, needs targetURI fix for TargetCreated events"
+debugging_insight: "Temporal worker wasn't running - only event listener was creating workflows but not executing them"
 ```
 
 ## CRITICAL_PATH

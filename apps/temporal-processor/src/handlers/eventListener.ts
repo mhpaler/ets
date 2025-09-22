@@ -31,6 +31,10 @@ const publicClient = createPublicClient({
 // Note: targetId is NOT indexed in the actual contract
 const targetCreatedAbi = parseAbiItem("event TargetCreated(uint256 targetId)");
 
+const enrichTargetRequestedAbi = parseAbiItem(
+  "event EnrichTargetRequested(uint256 indexed targetId, address indexed requestor)",
+);
+
 const tagCreatedAbi = parseAbiItem(
   "event TagCreated(address indexed coinAddress, string originalInput, string displayVersion, string machineName, address indexed creator, address indexed channel, uint256 timestamp)",
 );
@@ -43,6 +47,7 @@ const _etsTargetAbi = parseAbi([
 export class EventListener {
   private temporalClient: Client | null = null;
   private unwatchTargetCreated?: () => void;
+  private unwatchEnrichTargetRequested?: () => void;
   private unwatchTagCreated?: () => void;
   private isRunning = false;
 
@@ -73,6 +78,9 @@ export class EventListener {
       // Start watching for TargetCreated events
       this.watchTargetCreatedEvents();
 
+      // Start watching for EnrichTargetRequested events
+      this.watchEnrichTargetRequestedEvents();
+
       // Start watching for TagCreated events
       this.watchTagCreatedEvents();
 
@@ -91,6 +99,27 @@ export class EventListener {
       logger.error({ error }, "Failed to start event listener");
       throw error;
     }
+  }
+
+  private watchEnrichTargetRequestedEvents(): void {
+    logger.info("Setting up EnrichTargetRequested event watcher...");
+
+    this.unwatchEnrichTargetRequested = publicClient.watchContractEvent({
+      address: config.blockchain.contracts.etsTarget as `0x${string}`,
+      abi: [enrichTargetRequestedAbi],
+      eventName: "EnrichTargetRequested",
+      onLogs: async (logs) => {
+        logger.info(`🔄 DETECTED ${logs.length} EnrichTargetRequested event(s)`);
+        for (const log of logs) {
+          await this.handleEnrichTargetRequestedEvent(log);
+        }
+      },
+      onError: (error) => {
+        logger.error({ error }, "❌ Error watching EnrichTargetRequested events");
+      },
+      pollingInterval: 2000, // Poll every 2 seconds
+    });
+    logger.info("✅ EnrichTargetRequested watcher initialized");
   }
 
   private watchTargetCreatedEvents(): void {
@@ -163,6 +192,87 @@ export class EventListener {
     logger.info("✅ TagCreated watcher initialized");
 
     logger.info({ contract: config.blockchain.contracts.etsToken }, "Watching for TagCreated events");
+  }
+
+  private async handleEnrichTargetRequestedEvent(log: Log): Promise<void> {
+    try {
+      const { transactionHash, blockNumber } = log;
+      const decoded = decodeEventLog({
+        abi: [enrichTargetRequestedAbi],
+        data: log.data,
+        topics: log.topics,
+      });
+      const { targetId, requestor } = decoded.args;
+
+      logger.info(
+        {
+          targetId: targetId.toString(),
+          requestor,
+          transactionHash,
+          blockNumber: blockNumber?.toString(),
+        },
+        "🔄 EnrichTargetRequested event detected",
+      );
+
+      if (!this.temporalClient) {
+        throw new Error("Temporal client not initialized");
+      }
+
+      // Fetch the target URI from the contract
+      const etsTargetAbi = parseAbi([
+        "struct Target { string targetURI; address createdBy; }",
+        "function getTargetById(uint256 _targetId) view returns (Target memory)",
+      ]);
+
+      const targetData = (await publicClient.readContract({
+        address: config.blockchain.contracts.etsTarget as `0x${string}`,
+        abi: etsTargetAbi,
+        functionName: "getTargetById",
+        args: [targetId],
+      })) as { targetURI: string; createdBy: string };
+
+      const targetURI = targetData.targetURI;
+
+      // Start Temporal workflow for target enrichment
+      const workflowId = `target-enrichment-requested-${targetId}-${Date.now()}`;
+      await this.temporalClient.workflow.start("TargetEnrichmentWorkflow", {
+        workflowId,
+        taskQueue: config.temporal.taskQueue,
+        args: [
+          {
+            targetId: targetId.toString(),
+            targetURI,
+          },
+        ],
+      });
+
+      logger.info(
+        {
+          workflowId,
+          targetId: targetId.toString(),
+          targetURI,
+          requestor,
+        },
+        "Started TargetEnrichmentWorkflow for enrichment request",
+      );
+    } catch (error) {
+      logger.error(
+        {
+          error:
+            error instanceof Error
+              ? {
+                  name: error.name,
+                  message: error.message,
+                  stack: error.stack,
+                  cause: error.cause,
+                }
+              : error,
+          errorString: String(error),
+          log,
+        },
+        "Failed to handle EnrichTargetRequested event",
+      );
+    }
   }
 
   private async handleTargetCreatedEvent(log: Log): Promise<void> {
@@ -316,6 +426,10 @@ export class EventListener {
 
     if (this.unwatchTargetCreated) {
       this.unwatchTargetCreated();
+    }
+
+    if (this.unwatchEnrichTargetRequested) {
+      this.unwatchEnrichTargetRequested();
     }
 
     if (this.unwatchTagCreated) {

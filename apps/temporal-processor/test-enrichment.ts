@@ -33,7 +33,7 @@ async function testEnrichment() {
       if (result.status === "success") {
         console.log("✅ Success!");
         console.log("  Title:", result.title);
-        console.log("  Description:", result.description?.substring(0, 100) + "...");
+        console.log("  Description:", `${result.description?.substring(0, 100)}...`);
         console.log("  Image:", result.image);
         console.log("  Keywords:", result.keywords?.join(", "));
         console.log("  Type:", result.targetType);

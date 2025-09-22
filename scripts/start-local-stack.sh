@@ -467,11 +467,11 @@ display_all_services() {
 start_hardhat() {
   log "Starting Hardhat node..."
   cd "$ROOT_DIR/packages/contracts"
-  # Start hardhat in background, redirect output to log file
-  pnpm hardhat > "$ROOT_DIR/logs/hardhat.log" 2>&1 &
+
+  # Use Node 22 for Hardhat operations
+  bash -c "source ~/.nvm/nvm.sh && nvm use 22 && pnpm hardhat node" > "$ROOT_DIR/logs/hardhat.log" 2>&1 &
   HARDHAT_PID=$!
   echo $HARDHAT_PID >> "$ROOT_DIR/logs/service_pids.txt"
-
 
   # Set up colored output for this service
   colorize_output "HARDHAT" "${CYAN}"
@@ -487,7 +487,9 @@ start_hardhat() {
 deploy_contracts() {
   log "Deploying contracts..."
   cd "$ROOT_DIR/packages/contracts"
-  pnpm run deploy:localhost > "$ROOT_DIR/logs/contracts-deploy.log" 2>&1
+
+  # Use Node 22 for Hardhat operations
+  bash -c "source ~/.nvm/nvm.sh && nvm use 22 && pnpm run deploy:localhost" > "$ROOT_DIR/logs/contracts-deploy.log" 2>&1
   local EXIT_CODE=$?
 
   if [ $EXIT_CODE -eq 0 ]; then
@@ -744,25 +746,42 @@ start_temporal_processor() {
   # Private key for EVENT_PROCESSOR role (account[2] in Hardhat)
   export EVENT_PROCESSOR_PRIVATE_KEY="0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a"
   
+  # Start the event listener (creates workflows)
   if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
-    PATH="/Users/User/.nvm/versions/node/v20.19.4/bin:$PATH" pnpm run dev > "$ROOT_DIR/logs/temporal-processor.log" 2>&1 &
+    PATH="/Users/User/.nvm/versions/node/v20.19.4/bin:$PATH" pnpm run dev:watch > "$ROOT_DIR/logs/temporal-processor.log" 2>&1 &
   else
-    PATH="/Users/User/.nvm/versions/node/v20.19.4/bin:$PATH" pnpm run dev | tee "$ROOT_DIR/logs/temporal-processor.log" &
+    PATH="/Users/User/.nvm/versions/node/v20.19.4/bin:$PATH" pnpm run dev:watch | tee "$ROOT_DIR/logs/temporal-processor.log" &
   fi
-  
+
   TEMPORAL_PROCESSOR_PID=$!
   echo $TEMPORAL_PROCESSOR_PID >> "$ROOT_DIR/logs/service_pids.txt"
+
+  # Start the worker (executes workflows) - must use tsx, not bun, due to native dependencies
+  if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
+    PATH="/Users/User/.nvm/versions/node/v20.19.4/bin:$PATH" tsx src/worker.ts > "$ROOT_DIR/logs/temporal-worker.log" 2>&1 &
+  else
+    PATH="/Users/User/.nvm/versions/node/v20.19.4/bin:$PATH" tsx src/worker.ts | tee "$ROOT_DIR/logs/temporal-worker.log" &
+  fi
+
+  TEMPORAL_WORKER_PID=$!
+  echo $TEMPORAL_WORKER_PID >> "$ROOT_DIR/logs/service_pids.txt"
   
   # Set up colored output for this service
   colorize_output "TEMPORAL-PROCESSOR" "${PURPLE}"
   
   sleep 5
-  if ps -p $TEMPORAL_PROCESSOR_PID > /dev/null; then
+  if ps -p $TEMPORAL_PROCESSOR_PID > /dev/null && ps -p $TEMPORAL_WORKER_PID > /dev/null; then
     display_service_url "Temporal Processor" "Running (monitoring events → workflows)"
     success "Temporal Processor started with PID: $TEMPORAL_PROCESSOR_PID"
+    success "Temporal Worker started with PID: $TEMPORAL_WORKER_PID"
   else
-    error "Temporal Processor failed to start. Check logs/temporal-processor.log for details"
-    cat "$ROOT_DIR/logs/temporal-processor.log"
+    error "Temporal services failed to start. Check logs for details"
+    if [ ! ps -p $TEMPORAL_PROCESSOR_PID > /dev/null ]; then
+      cat "$ROOT_DIR/logs/temporal-processor.log"
+    fi
+    if [ ! ps -p $TEMPORAL_WORKER_PID > /dev/null ]; then
+      cat "$ROOT_DIR/logs/temporal-worker.log"
+    fi
     exit 1
   fi
 }

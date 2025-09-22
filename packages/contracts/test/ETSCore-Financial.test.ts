@@ -4,7 +4,7 @@ import { parseEther } from "viem";
 import { loadETSCoreFixture } from "./fixtures/etsCoreFixture.js";
 
 describe("ETS Core Financial Operations", async () => {
-  const { accounts, contracts, taggingFee, publicClient } = await loadETSCoreFixture();
+  const { accounts, contracts, publicClient } = await loadETSCoreFixture();
 
   describe("Accrued fees management", async () => {
     let _platformPreTagAccrued: bigint;

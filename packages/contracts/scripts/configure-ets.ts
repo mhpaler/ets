@@ -34,9 +34,7 @@ async function main() {
     deployed["ETSAccessControls#ETSAccessControlsProxy"],
   );
   const token = await viem.getContractAt("ETSToken", deployed["ETSToken#ETSTokenProxy"]);
-  const target = await viem.getContractAt("ETSTarget", deployed["ETSTarget#ETSTargetProxy"]);
   const etsCore = await viem.getContractAt("ETS", deployed["ETSCore#ETSCoreProxy"]);
-  const enrichTarget = await viem.getContractAt("ETSEnrichTarget", deployed["ETSEnrichTarget#ETSEnrichTargetProxy"]);
   const channelFactory = await viem.getContractAt("ETSChannelFactory", deployed["ETSChannelFactory#ETSChannelFactory"]);
 
   console.log("Setting up roles...");
@@ -112,12 +110,6 @@ async function main() {
 
   // Link contracts
   console.log("\nLinking contracts...");
-
-  // Set EnrichTarget on Target
-  await target.write.setEnrichTarget([enrichTarget.address], {
-    account: accounts.ETSPlatform.account,
-  });
-  console.log("✅ Set EnrichTarget on Target contract");
 
   // Set ETS Core on Token
   await token.write.setETSCore([etsCore.address], {

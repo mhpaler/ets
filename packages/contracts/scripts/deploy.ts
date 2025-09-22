@@ -77,7 +77,7 @@ async function main() {
 
   try {
     // Deploy all modules
-    const modules = ["ETSAccessControls", "ETSToken", "ETSTarget", "ETSCore", "ETSEnrichTarget", "ETSChannelFactory"];
+    const modules = ["ETSAccessControls", "ETSToken", "ETSTarget", "ETSCore", "ETSChannelFactory"];
 
     for (const module of modules) {
       console.log(`  Deploying ${module}...`);
