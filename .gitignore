@@ -11,6 +11,9 @@ logs
 .DS_Store
 *.pem
 
+# Temporal processor checkpoint files
+.checkpoint/
+
 # debug
 npm-debug.log*
 yarn-debug.log*

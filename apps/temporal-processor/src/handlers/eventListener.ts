@@ -3,6 +3,7 @@ import { http, type Log, createPublicClient, decodeEventLog, parseAbi, parseAbiI
 import { base, localhost, sepolia } from "viem/chains";
 import { config } from "../config";
 import type { TagCreatedEvent, TargetCreatedEvent } from "../types";
+import { CheckpointManager } from "../utils/checkpoint";
 import { getComponentLogger } from "../utils/logger";
 
 const logger = getComponentLogger("EventListener");
@@ -22,9 +23,17 @@ function getChain() {
 }
 
 // Create viem public client
+// TODO: For production, consider:
+// 1. Use webSocket transport if RPC supports it (more efficient than polling)
+// 2. Implement watchBlockNumber + getLogs pattern for missed events recovery
+// 3. Add exponential backoff for reconnection on failures
 const publicClient = createPublicClient({
   chain: getChain(),
   transport: http(config.blockchain.rpcUrl),
+  // Enable batch processing for better performance
+  batch: {
+    multicall: true,
+  },
 });
 
 // Event ABIs - using simplified signature that matches working event processor
@@ -39,17 +48,19 @@ const tagCreatedAbi = parseAbiItem(
   "event TagCreated(address indexed coinAddress, string originalInput, string displayVersion, string machineName, address indexed creator, address indexed channel, uint256 timestamp)",
 );
 
-// ETSTarget contract ABI for reading target data (unused but kept for future workflow use)
-const _etsTargetAbi = parseAbi([
-  "function getTargetById(uint256 _targetId) view returns (string targetURI, address createdBy, uint256 enriched, uint256 httpStatus, string arweaveTxId)",
-]);
-
 export class EventListener {
   private temporalClient: Client | null = null;
   private unwatchTargetCreated?: () => void;
   private unwatchEnrichTargetRequested?: () => void;
   private unwatchTagCreated?: () => void;
+  private processedEvents = new Set<string>(); // Track processed events to avoid duplicates
+  private debugPollingInterval?: NodeJS.Timeout;
+  private checkpointManager: CheckpointManager;
   private isRunning = false;
+
+  constructor() {
+    this.checkpointManager = new CheckpointManager(config.env);
+  }
 
   async start(): Promise<void> {
     if (this.isRunning) {
@@ -61,6 +72,30 @@ export class EventListener {
     this.isRunning = true;
 
     try {
+      // Initialize checkpoint manager
+      await this.checkpointManager.initialize();
+
+      // Check for chain reset
+      const currentBlock = await publicClient.getBlockNumber();
+      const currentChainId = config.blockchain.chainId;
+      const currentContracts = {
+        etsTarget: config.blockchain.contracts.etsTarget,
+        etsToken: config.blockchain.contracts.etsToken,
+      };
+
+      const wasReset = await this.checkpointManager.detectChainReset(currentBlock, currentChainId, currentContracts);
+
+      if (wasReset) {
+        logger.info("🔄 Starting fresh after chain reset");
+        this.processedEvents.clear();
+      } else {
+        // Load last processed block if available
+        const lastBlock = this.checkpointManager.getLastProcessedBlock();
+        if (lastBlock) {
+          logger.info(`📍 Resuming from checkpoint at block ${lastBlock}`);
+        }
+      }
+
       // Initialize Temporal client
       this.temporalClient = new Client({
         namespace: config.temporal.namespace,
@@ -117,7 +152,7 @@ export class EventListener {
       onError: (error) => {
         logger.error({ error }, "❌ Error watching EnrichTargetRequested events");
       },
-      pollingInterval: 2000, // Poll every 2 seconds
+      pollingInterval: 1000, // Poll every second for better responsiveness
     });
     logger.info("✅ EnrichTargetRequested watcher initialized");
   }
@@ -132,37 +167,111 @@ export class EventListener {
       eventName: "TargetCreated",
       onLogs: async (logs) => {
         logger.info(`🎯 DETECTED ${logs.length} TargetCreated event(s)`);
+        const newEventIds: string[] = [];
+        let highestBlock = 0n;
+
         for (const log of logs) {
-          await this.handleTargetCreatedEvent(log);
+          const eventKey = `${log.transactionHash}-${log.logIndex}`;
+          // Add to processedEvents IMMEDIATELY to prevent race condition
+          if (!this.processedEvents.has(eventKey) && !this.checkpointManager.hasProcessedEvent(eventKey)) {
+            // Mark as processed BEFORE handling to prevent double processing
+            this.processedEvents.add(eventKey);
+            newEventIds.push(eventKey);
+
+            // Now handle the event
+            await this.handleTargetCreatedEvent(log);
+
+            if (log.blockNumber && log.blockNumber > highestBlock) {
+              highestBlock = log.blockNumber;
+            }
+          } else {
+            logger.debug(`Skipping duplicate event ${eventKey}`);
+          }
+        }
+
+        // Update checkpoint if we processed any new events
+        if (newEventIds.length > 0 && highestBlock > 0n) {
+          await this.checkpointManager.updateProcessedEvents(
+            highestBlock,
+            config.blockchain.chainId,
+            {
+              etsTarget: config.blockchain.contracts.etsTarget,
+              etsToken: config.blockchain.contracts.etsToken,
+            },
+            newEventIds,
+          );
         }
       },
       onError: (error) => {
         logger.error({ error }, "❌ Error watching TargetCreated events");
       },
-      pollingInterval: 2000, // Poll every 2 seconds
+      pollingInterval: 1000, // Poll every second for better responsiveness
     });
     logger.info("✅ TargetCreated watcher initialized");
 
     logger.info({ contract: config.blockchain.contracts.etsTarget }, "Watching for TargetCreated events");
 
     // Add periodic debug polling to verify the watcher is working
-    setInterval(async () => {
+    this.debugPollingInterval = setInterval(async () => {
       try {
         const latestBlock = await publicClient.getBlockNumber();
         logger.info(
           `🔄 Polling debug: Latest block ${latestBlock}, watching contract ${config.blockchain.contracts.etsTarget}`,
         );
 
-        // Also check for recent events using getLogs as a verification
+        // Determine the starting block for getLogs
+        const lastProcessedBlock = this.checkpointManager.getLastProcessedBlock();
+        const fromBlock = lastProcessedBlock
+          ? lastProcessedBlock + 1n > latestBlock
+            ? latestBlock
+            : lastProcessedBlock + 1n
+          : latestBlock - 10n >= 0n
+            ? latestBlock - 10n
+            : 0n;
+
+        // Only look for new events since last checkpoint
         const recentLogs = await publicClient.getLogs({
           address: config.blockchain.contracts.etsTarget as `0x${string}`,
           event: targetCreatedAbi,
-          fromBlock: latestBlock - 10n >= 0n ? latestBlock - 10n : 0n,
+          fromBlock,
           toBlock: latestBlock,
         });
 
         if (recentLogs.length > 0) {
-          logger.info(`📋 getLogs found ${recentLogs.length} TargetCreated event(s) in recent blocks`);
+          logger.info(
+            `📋 getLogs found ${recentLogs.length} TargetCreated event(s) in blocks ${fromBlock}-${latestBlock}`,
+          );
+          // Process these events since watchContractEvent might have missed them
+          let processedCount = 0;
+          const newEventIds: string[] = [];
+
+          for (const log of recentLogs) {
+            const eventKey = `${log.transactionHash}-${log.logIndex}`;
+            if (!this.processedEvents.has(eventKey) && !this.checkpointManager.hasProcessedEvent(eventKey)) {
+              // Mark as processed BEFORE handling to prevent double processing
+              this.processedEvents.add(eventKey);
+              newEventIds.push(eventKey);
+
+              logger.info(`🔄 Processing unhandled event from block ${log.blockNumber}`);
+              await this.handleTargetCreatedEvent(log as Log);
+              processedCount++;
+            }
+          }
+
+          if (processedCount > 0) {
+            logger.info(`✅ Processed ${processedCount} previously unhandled event(s)`);
+
+            // Update checkpoint with new state
+            await this.checkpointManager.updateProcessedEvents(
+              latestBlock,
+              config.blockchain.chainId,
+              {
+                etsTarget: config.blockchain.contracts.etsTarget,
+                etsToken: config.blockchain.contracts.etsToken,
+              },
+              newEventIds,
+            );
+          }
         }
       } catch (error) {
         logger.error({ error }, "❌ Debug polling failed");
@@ -187,7 +296,7 @@ export class EventListener {
       onError: (error) => {
         logger.error({ error }, "❌ Error watching TagCreated events");
       },
-      pollingInterval: 2000, // Poll every 2 seconds
+      pollingInterval: 1000, // Poll every second for better responsiveness
     });
     logger.info("✅ TagCreated watcher initialized");
 
@@ -211,7 +320,7 @@ export class EventListener {
           transactionHash,
           blockNumber: blockNumber?.toString(),
         },
-        "🔄 EnrichTargetRequested event detected",
+        "🔄 EnrichTargetRequested event detected - manual enrichment",
       );
 
       if (!this.temporalClient) {
@@ -234,7 +343,7 @@ export class EventListener {
       const targetURI = targetData.targetURI;
 
       // Start Temporal workflow for target enrichment
-      const workflowId = `target-enrichment-requested-${targetId}-${Date.now()}`;
+      const workflowId = `existing-target-enrich-${targetId}-${Date.now()}`;
       await this.temporalClient.workflow.start("TargetEnrichmentWorkflow", {
         workflowId,
         taskQueue: config.temporal.taskQueue,
@@ -291,12 +400,29 @@ export class EventListener {
           transactionHash,
           blockNumber: blockNumber?.toString(),
         },
-        "🎯 TargetCreated event detected",
+        "🆕 TargetCreated event detected - automatic enrichment",
       );
 
       if (!this.temporalClient) {
         throw new Error("Temporal client not initialized");
       }
+
+      // Fetch the target URI from the contract
+      logger.info("Fetching target URI from contract...");
+      const etsTargetAbi = parseAbi([
+        "struct Target { string targetURI; address createdBy; }",
+        "function getTargetById(uint256 _targetId) view returns (Target memory)",
+      ]);
+
+      const targetData = (await publicClient.readContract({
+        address: config.blockchain.contracts.etsTarget as `0x${string}`,
+        abi: etsTargetAbi,
+        functionName: "getTargetById",
+        args: [targetId],
+      })) as { targetURI: string; createdBy: string };
+
+      const targetURI = targetData.targetURI;
+      logger.info({ targetURI }, "Target URI fetched");
 
       // Get block timestamp
       logger.info("Fetching block timestamp...");
@@ -305,6 +431,7 @@ export class EventListener {
       logger.info("Preparing workflow arguments...");
       const workflowArgs = {
         targetId: targetId.toString(),
+        targetURI,
         transactionHash,
         blockNumber: blockNumber!.toString(),
         chainId: config.blockchain.chainId,
@@ -313,7 +440,7 @@ export class EventListener {
 
       // Start Temporal workflow for target enrichment
       logger.info("Starting Temporal workflow...");
-      const workflowId = `target-enrichment-${targetId}-${Date.now()}`;
+      const workflowId = `new-target-enrich-${targetId}-${Date.now()}`;
       await this.temporalClient.workflow.start("TargetEnrichmentWorkflow", {
         workflowId,
         taskQueue: config.temporal.taskQueue,
@@ -434,6 +561,11 @@ export class EventListener {
 
     if (this.unwatchTagCreated) {
       this.unwatchTagCreated();
+    }
+
+    if (this.debugPollingInterval) {
+      clearInterval(this.debugPollingInterval);
+      this.debugPollingInterval = undefined;
     }
 
     if (this.temporalClient) {

@@ -6,16 +6,25 @@
 - Temporal processor worker separation - worker must run as separate process to execute workflows (#539)
 - EVENT_PROCESSOR_ROLE grant in configuration script after removing ETSEnrichTarget references
 - Integration test error expectations to match actual contract errors (AccessDenied vs UNAUTHORIZED)
+- **Event processing duplicates** - Added deduplication and checkpoint system (#539)
+- **Race condition** between event watcher and polling causing duplicate workflows
+- **Temporal worker logs** not appearing in fullstack logger
 
 ### Added
 - `bun --watch` mode for Temporal processor development workflow
 - Automatic worker startup in start-local-stack.sh script
 - Worker process logging to temporal-worker.log
+- **Checkpoint system** for event processing persistence across restarts
+- **Chain reset detection** for Hardhat restarts
+- **Event deduplication** using transaction hash + log index
+- **temporal-worker.log** to log viewer and colorization
 
 ### Changed
 - Separated Temporal worker from event listener for proper workflow execution
 - Updated start-local-stack.sh to run both event listener and worker processes
 - Worker must use tsx (not bun) due to native Temporal dependencies
+- **Event processing** now marks events as processed before handling to prevent race conditions
+- **Polling interval** optimized to 1 second for better local dev responsiveness
 
 ### Removed
 - ETSEnrichTarget contract and interface (functionality merged into ETSTarget)
@@ -26,3 +35,5 @@
 - Workflows weren't executing because worker wasn't running (only event listener)
 - handleTargetCreatedEvent doesn't fetch targetURI (passes undefined to workflow)
 - handleEnrichTargetRequestedEvent correctly fetches targetURI from contract
+- **Race condition** between watcher and polling was causing duplicate workflows
+- **Hot-reload** now properly cleans up intervals and watchers

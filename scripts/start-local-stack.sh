@@ -377,6 +377,7 @@ open_logs_terminal() {
   touch "$ROOT_DIR/logs/subgraph-deploy.log"
   touch "$ROOT_DIR/logs/temporal-server.log"
   touch "$ROOT_DIR/logs/temporal-processor.log"
+  touch "$ROOT_DIR/logs/temporal-worker.log"
   touch "$ROOT_DIR/logs/explorer.log"
 
   # Create a temporary script file for the new terminal
@@ -395,6 +396,7 @@ tail -f logs/*.log | grep --line-buffered "" |
       -e $'s/.*subgraph-deploy.log.*/\033[0;34m[SUBGRAPH-DEPLOY]\033[0m &/' \
       -e $'s/.*temporal-server.log.*/\033[1;35m[TEMPORAL-SERVER]\033[0m &/' \
       -e $'s/.*temporal-processor.log.*/\033[0;35m[TEMPORAL-PROCESSOR]\033[0m &/' \
+      -e $'s/.*temporal-worker.log.*/\033[1;34m[TEMPORAL-WORKER]\033[0m &/' \
       -e $'s/.*explorer.log.*/\033[0;33m[EXPLORER]\033[0m &/'
 EOF
 
@@ -746,40 +748,46 @@ start_temporal_processor() {
   # Private key for EVENT_PROCESSOR role (account[2] in Hardhat)
   export EVENT_PROCESSOR_PRIVATE_KEY="0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a"
   
-  # Start the event listener (creates workflows)
+  # Start the event listener (creates workflows) with watch mode for hot reload
   if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
-    PATH="/Users/User/.nvm/versions/node/v20.19.4/bin:$PATH" pnpm run dev:watch > "$ROOT_DIR/logs/temporal-processor.log" 2>&1 &
+    PATH="/Users/User/.nvm/versions/node/v20.19.4/bin:$PATH" tsx --watch src/index.ts > "$ROOT_DIR/logs/temporal-processor.log" 2>&1 &
   else
-    PATH="/Users/User/.nvm/versions/node/v20.19.4/bin:$PATH" pnpm run dev:watch | tee "$ROOT_DIR/logs/temporal-processor.log" &
+    PATH="/Users/User/.nvm/versions/node/v20.19.4/bin:$PATH" tsx --watch src/index.ts | tee "$ROOT_DIR/logs/temporal-processor.log" &
   fi
 
   TEMPORAL_PROCESSOR_PID=$!
   echo $TEMPORAL_PROCESSOR_PID >> "$ROOT_DIR/logs/service_pids.txt"
 
-  # Start the worker (executes workflows) - must use tsx, not bun, due to native dependencies
+  # Start the worker (executes workflows) - uses tsx with watch mode for hot-reloading
+  # Note: tsx watch mode will properly restart the process on file changes
   if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
-    PATH="/Users/User/.nvm/versions/node/v20.19.4/bin:$PATH" tsx src/worker.ts > "$ROOT_DIR/logs/temporal-worker.log" 2>&1 &
+    PATH="/Users/User/.nvm/versions/node/v20.19.4/bin:$PATH" tsx --watch src/worker.ts > "$ROOT_DIR/logs/temporal-worker.log" 2>&1 &
   else
-    PATH="/Users/User/.nvm/versions/node/v20.19.4/bin:$PATH" tsx src/worker.ts | tee "$ROOT_DIR/logs/temporal-worker.log" &
+    PATH="/Users/User/.nvm/versions/node/v20.19.4/bin:$PATH" tsx --watch src/worker.ts | tee "$ROOT_DIR/logs/temporal-worker.log" &
   fi
 
   TEMPORAL_WORKER_PID=$!
   echo $TEMPORAL_WORKER_PID >> "$ROOT_DIR/logs/service_pids.txt"
-  
-  # Set up colored output for this service
+
+  # Set up colored output for both services
   colorize_output "TEMPORAL-PROCESSOR" "${PURPLE}"
-  
-  sleep 5
-  if ps -p $TEMPORAL_PROCESSOR_PID > /dev/null && ps -p $TEMPORAL_WORKER_PID > /dev/null; then
+  colorize_output "TEMPORAL-WORKER" "${LIGHT_BLUE}"
+
+  # Wait longer for services to fully start (worker needs time to compile)
+  sleep 10
+
+  # Check if services started by looking for expected output in logs
+  if grep -q "Event listeners started successfully" "$ROOT_DIR/logs/temporal-processor.log" 2>/dev/null && \
+     grep -q "Worker state changed" "$ROOT_DIR/logs/temporal-worker.log" 2>/dev/null; then
     display_service_url "Temporal Processor" "Running (monitoring events → workflows)"
     success "Temporal Processor started with PID: $TEMPORAL_PROCESSOR_PID"
     success "Temporal Worker started with PID: $TEMPORAL_WORKER_PID"
   else
     error "Temporal services failed to start. Check logs for details"
-    if [ ! ps -p $TEMPORAL_PROCESSOR_PID > /dev/null ]; then
+    if ! ps -p $TEMPORAL_PROCESSOR_PID > /dev/null 2>&1; then
       cat "$ROOT_DIR/logs/temporal-processor.log"
     fi
-    if [ ! ps -p $TEMPORAL_WORKER_PID > /dev/null ]; then
+    if ! ps -p $TEMPORAL_WORKER_PID > /dev/null 2>&1; then
       cat "$ROOT_DIR/logs/temporal-worker.log"
     fi
     exit 1

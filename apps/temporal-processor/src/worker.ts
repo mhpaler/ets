@@ -14,7 +14,38 @@ import { getComponentLogger } from "./utils/logger";
 
 const logger = getComponentLogger("Worker");
 
+// Store worker and connection instances globally for cleanup
+let worker: Worker | null = null;
+let connection: NativeConnection | null = null;
+
+// Cleanup function for graceful shutdown
+async function cleanup() {
+  if (worker) {
+    logger.info("Shutting down worker...");
+    try {
+      worker.shutdown();
+      await worker.runUntilShutdown();
+      worker = null;
+    } catch (error) {
+      logger.error({ error }, "Error shutting down worker");
+    }
+  }
+
+  if (connection) {
+    logger.info("Closing connection...");
+    try {
+      await connection.close();
+      connection = null;
+    } catch (error) {
+      logger.error({ error }, "Error closing connection");
+    }
+  }
+}
+
 async function run() {
+  // Clean up any existing instances first (important for hot-reload)
+  await cleanup();
+
   try {
     logger.info("🚀 Starting Temporal worker...");
     logger.info(
@@ -42,10 +73,10 @@ async function run() {
       };
     }
 
-    const connection = await NativeConnection.connect(connectionOptions);
+    connection = await NativeConnection.connect(connectionOptions);
 
     // Create worker that hosts both workflows and activities
-    const worker = await Worker.create({
+    worker = await Worker.create({
       connection,
       namespace: config.temporal.namespace,
       taskQueue: config.temporal.taskQueue,
@@ -78,12 +109,20 @@ async function run() {
 // Handle graceful shutdown
 process.on("SIGINT", async () => {
   logger.info("Received SIGINT, shutting down worker gracefully...");
+  await cleanup();
   process.exit(0);
 });
 
 process.on("SIGTERM", async () => {
   logger.info("Received SIGTERM, shutting down worker gracefully...");
+  await cleanup();
   process.exit(0);
+});
+
+// Handle tsx --watch reload events (SIGUSR2 is sent by tsx before reload)
+process.on("SIGUSR2", async () => {
+  logger.info("Received SIGUSR2 (hot-reload), cleaning up worker...");
+  await cleanup();
 });
 
 // Start the worker

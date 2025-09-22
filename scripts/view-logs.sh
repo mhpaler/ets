@@ -9,4 +9,5 @@ tail -f logs/*.log | grep --line-buffered "" |
       -e $'s/.*subgraph-deploy.log.*/\033[0;34m[SUBGRAPH-DEPLOY]\033[0m &/' \
       -e $'s/.*temporal-server.log.*/\033[1;35m[TEMPORAL-SERVER]\033[0m &/' \
       -e $'s/.*temporal-processor.log.*/\033[0;35m[TEMPORAL-PROCESSOR]\033[0m &/' \
+      -e $'s/.*temporal-worker.log.*/\033[1;34m[TEMPORAL-WORKER]\033[0m &/' \
       -e $'s/.*explorer.log.*/\033[0;33m[EXPLORER]\033[0m &/'

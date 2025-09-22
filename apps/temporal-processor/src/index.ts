@@ -4,7 +4,26 @@ import { getComponentLogger } from "./utils/logger";
 
 const logger = getComponentLogger("Main");
 
+// Store event listener instance globally for cleanup
+let eventListener: EventListener | null = null;
+
+// Cleanup function for graceful shutdown
+async function cleanup() {
+  if (eventListener) {
+    logger.info("Cleaning up event listener...");
+    try {
+      await eventListener.stop();
+      eventListener = null;
+    } catch (error) {
+      logger.error({ error }, "Error during cleanup");
+    }
+  }
+}
+
 async function main() {
+  // Clean up any existing instance first (important for hot-reload)
+  await cleanup();
+
   logger.info("🚀 Starting Temporal Processor Service");
   logger.info(
     {
@@ -17,7 +36,7 @@ async function main() {
   );
 
   // Create and start event listener
-  const eventListener = new EventListener();
+  eventListener = new EventListener();
 
   try {
     await eventListener.start();
@@ -26,14 +45,20 @@ async function main() {
     // Keep the process alive
     process.on("SIGINT", async () => {
       logger.info("Received SIGINT, shutting down gracefully...");
-      await eventListener.stop();
+      await cleanup();
       process.exit(0);
     });
 
     process.on("SIGTERM", async () => {
       logger.info("Received SIGTERM, shutting down gracefully...");
-      await eventListener.stop();
+      await cleanup();
       process.exit(0);
+    });
+
+    // Handle tsx --watch reload events (SIGUSR2 is sent by tsx before reload)
+    process.on("SIGUSR2", async () => {
+      logger.info("Received SIGUSR2 (hot-reload), cleaning up...");
+      await cleanup();
     });
   } catch (error) {
     logger.error({ error }, "Failed to start Temporal Processor Service");

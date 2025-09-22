@@ -13,15 +13,15 @@ last_updated: 2025-09-22
 ```yaml
 current_issue_id: "#539: Temporal Implementation"
 current_status: IN_PROGRESS
-completion_percent: 75
-exact_task: "Fixed Temporal processor worker separation and enrichment workflow"
+completion_percent: 85
+exact_task: "Implemented robust event processing with checkpoint system and deduplication"
 blocking_bug: null
-next_priority: "Fix handleTargetCreatedEvent to fetch targetURI properly"
-resume_action: "Update handleTargetCreatedEvent to read targetURI from contract like handleEnrichTargetRequestedEvent does"
-session_accomplishment: "Separated worker from event listener, fixed EVENT_PROCESSOR_ROLE, improved dev workflow with bun --watch"
-architecture_decision: "Worker must run as separate process with tsx (not bun) due to native dependencies"
-critical_path: "Target enrichment pipeline working, needs targetURI fix for TargetCreated events"
-debugging_insight: "Temporal worker wasn't running - only event listener was creating workflows but not executing them"
+next_priority: "Complete production readiness for Temporal processor"
+resume_action: "Test full end-to-end workflow with tag creation and enrichment, then prepare for staging deployment"
+session_accomplishment: "Added checkpoint persistence, chain reset detection, event deduplication, fixed race conditions"
+architecture_decision: "File-based checkpoint system for MVP, marks events processed before handling to prevent races"
+critical_path: "Event processing pipeline stable and robust, ready for integration testing"
+debugging_insight: "Race condition between watcher and polling was causing duplicate workflows - fixed with immediate marking"
 ```
 
 ## CRITICAL_PATH
