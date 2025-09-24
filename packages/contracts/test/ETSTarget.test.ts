@@ -32,14 +32,27 @@ describe("ETS Target tests", () => {
       });
 
       // Enrich the target
-      const title = "Test Title";
-      const description = "Test Description";
-      const imageUrl = "https://test.com/image.png";
-      const keywords = "test,keywords";
+      const schemaVersion = "ets-metadata-v1";
+      const metadata = {
+        core: {
+          uri: enrichTargetURI,
+          title: "Test Title",
+          description: "Test Description",
+          image: "https://test.com/image.png",
+          httpStatus: 200,
+          contentType: "text/html",
+        },
+        type: "article",
+        keywords: ["test", "keywords"],
+      };
+      const payload = new TextEncoder().encode(JSON.stringify(metadata));
 
-      const txHash = await contracts.ETSTarget.write.enrichTarget([targetId, title, description, imageUrl, keywords], {
-        account: eventProcessorSigner.account,
-      });
+      const txHash = await contracts.ETSTarget.write.enrichTarget(
+        [targetId, `0x${Buffer.from(payload).toString("hex")}`, schemaVersion],
+        {
+          account: eventProcessorSigner.account,
+        },
+      );
 
       // NOW WE CAN WAIT FOR RECEIPT!
       const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
@@ -59,10 +72,18 @@ describe("ETS Target tests", () => {
       // Verify event parameters
       const eventArgs = targetEnriched.args as any;
       assert.equal(eventArgs.targetId, targetId);
-      assert.equal(eventArgs.title, title);
-      assert.equal(eventArgs.description, description);
-      assert.equal(eventArgs.imageUrl, imageUrl);
-      assert.equal(eventArgs.keywords, keywords);
+      assert.equal(eventArgs.enrichedBy.toLowerCase(), eventProcessorSigner.account.address.toLowerCase());
+      assert.equal(eventArgs.schemaVersion, schemaVersion);
+
+      // Verify payload integrity
+      const receivedPayload = Buffer.from(eventArgs.payload.slice(2), "hex");
+      const receivedMetadata = JSON.parse(new TextDecoder().decode(receivedPayload));
+      assert.deepEqual(receivedMetadata, metadata);
+
+      // Verify payload hash
+      const { keccak256 } = await import("viem");
+      const expectedHash = keccak256(payload);
+      assert.equal(eventArgs.payloadHash, expectedHash);
     });
 
     it("should emit EnrichTargetRequested event for manual enrichment request", async () => {
@@ -113,8 +134,11 @@ describe("ETS Target tests", () => {
       });
 
       // Execute enrichment
+      const schemaVersion = "ets-metadata-v1";
+      const metadata = { title: "Title", description: "Description" };
+      const payload = new TextEncoder().encode(JSON.stringify(metadata));
       const txHash = await contracts.ETSTarget.write.enrichTarget(
-        [gasTargetId, "Title", "Description", "https://image.png", "keywords"],
+        [gasTargetId, `0x${Buffer.from(payload).toString("hex")}`, schemaVersion],
         { account: eventProcessorSigner.account },
       );
 
@@ -186,9 +210,12 @@ describe("ETS Target tests", () => {
       });
 
       // Should fail without role
+      const schemaVersion = "ets-metadata-v1";
+      const metadata = { title: "Title", description: "Description" };
+      const payload = new TextEncoder().encode(JSON.stringify(metadata));
       await assert.rejects(async () => {
         await contracts.ETSTarget.write.enrichTarget(
-          [targetId, "Title", "Description", "https://image.png", "keywords"],
+          [targetId, `0x${Buffer.from(payload).toString("hex")}`, schemaVersion],
           { account: accounts.User2.account },
         );
       }, /AccessDenied/);

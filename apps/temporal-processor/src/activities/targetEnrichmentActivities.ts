@@ -1,9 +1,10 @@
-import axios from "axios";
 import { http, type Hash, createPublicClient, createWalletClient, parseAbi } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base, localhost, sepolia } from "viem/chains";
 import { config } from "../config";
+import { MetadataExtractor } from "../services/MetadataExtractor";
 import type { EnrichmentEventResult, MetadataFetchResult } from "../types";
+import type { ETSTargetMetadata } from "../types/metadata";
 import { getComponentLogger } from "../utils/logger";
 
 const logger = getComponentLogger("TargetEnrichmentActivities");
@@ -25,132 +26,68 @@ function getChain() {
 /**
  * Activity: Fetch metadata from target URI
  *
- * This activity directly fetches metadata from the target URI without
- * depending on offchain-api. It handles various content types and
- * extracts relevant metadata.
+ * This activity uses unfurl.js to extract rich metadata from the target URI.
+ * It handles various content types and extracts OpenGraph, Twitter Cards,
+ * and basic HTML metadata.
  */
 export async function fetchTargetMetadata(params: {
   targetId: string;
   targetURI: string;
-}): Promise<MetadataFetchResult> {
+}): Promise<ETSTargetMetadata> {
   try {
     logger.info({ targetId: params.targetId, uri: params.targetURI }, "Fetching target metadata");
 
-    // Direct fetch from the target URI
-    const response = await axios.get(params.targetURI, {
-      timeout: 30000, // 30 second timeout
-      headers: {
-        "User-Agent": "ETS-TemporalProcessor/1.0",
-        Accept: "text/html,application/json,application/ld+json",
-      },
-      validateStatus: (status) => status < 500, // Accept any status < 500
+    // Use our MetadataExtractor
+    const extractor = new MetadataExtractor({
+      timeout: 10000, // 10 seconds
+      maxSize: 5 * 1024 * 1024, // 5MB
     });
 
-    // Extract metadata based on content type
-    let metadata: Partial<MetadataFetchResult> = {};
+    const metadata = await extractor.extract(params.targetURI);
 
-    if (response.status === 404) {
-      throw new Error("Target URI not found");
-    }
+    logger.info(
+      {
+        targetId: params.targetId,
+        type: metadata.type,
+        platform: metadata.platform,
+        extractionMethod: metadata.core.extractionMethod,
+        httpStatus: metadata.core.httpStatus,
+      },
+      "Successfully extracted metadata",
+    );
 
-    const contentType = response.headers["content-type"] || "";
-
-    if (contentType.includes("application/json")) {
-      // Handle JSON responses (APIs, JSON-LD, etc.)
-      const data = response.data;
-      metadata = {
-        title: data.title || data.name || params.targetURI,
-        description: data.description || data.about || "",
-        image: data.image || data.logo || data.thumbnail || "",
-        keywords: Array.isArray(data.keywords)
-          ? data.keywords
-          : data.tags
-            ? Array.isArray(data.tags)
-              ? data.tags
-              : [data.tags]
-            : [],
-        targetType: data.type || "json",
-      };
-    } else if (contentType.includes("text/html")) {
-      // For HTML, extract basic metadata from the response
-      // In production, you'd use a proper HTML parser like cheerio
-      const html = response.data.toString();
-
-      // Extract title
-      const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-      const metaTitle = html.match(/<meta\s+(?:name|property)="(?:og:title|twitter:title)"[^>]*content="([^"]+)"/i);
-
-      // Extract description
-      const metaDesc = html.match(
-        /<meta\s+(?:name|property)="(?:description|og:description|twitter:description)"[^>]*content="([^"]+)"/i,
-      );
-
-      // Extract image
-      const metaImage = html.match(/<meta\s+(?:name|property)="(?:og:image|twitter:image)"[^>]*content="([^"]+)"/i);
-
-      // Extract keywords
-      const metaKeywords = html.match(/<meta\s+name="keywords"[^>]*content="([^"]+)"/i);
-
-      metadata = {
-        title: metaTitle?.[1] || titleMatch?.[1] || params.targetURI,
-        description: metaDesc?.[1] || "",
-        image: metaImage?.[1] || "",
-        keywords: metaKeywords?.[1]?.split(",").map((k: string) => k.trim()) || [],
-        targetType: "webpage",
-      };
-    } else {
-      // Default metadata for other content types
-      metadata = {
-        title: params.targetURI.split("/").pop() || params.targetURI,
-        description: `Content from ${params.targetURI}`,
-        image: "",
-        keywords: [],
-        targetType: contentType.split("/")[0] || "unknown",
-      };
-    }
-
-    logger.info({ targetId: params.targetId, metadata }, "Successfully fetched metadata");
-
-    return {
-      title: metadata.title,
-      description: metadata.description,
-      image: metadata.image,
-      keywords: metadata.keywords,
-      targetType: metadata.targetType,
-      status: "success",
-    };
+    return metadata;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error({ targetId: params.targetId, error: errorMessage }, "Failed to fetch metadata");
 
-    return {
-      status: "failed",
-      error: errorMessage,
-    };
+    // Return error metadata structure
+    const { createErrorMetadata } = await import("../types/metadata.js");
+    return createErrorMetadata(params.targetURI, errorMessage);
   }
 }
 
 /**
- * Activity: Emit target enrichment event on-chain
+ * Activity: Call enrichTarget function on-chain
  *
- * This activity emits an enrichment event with the fetched metadata
- * for The Graph to index. No storage, just event emission.
+ * This activity calls the enrichTarget function on the ETSTarget contract,
+ * which then emits an event with the fetched metadata for The Graph to index.
  */
-export async function emitTargetEnrichmentEvent(params: {
+export async function callEnrichTargetOnChain(params: {
   targetId: string;
-  metadata: MetadataFetchResult;
+  metadata: ETSTargetMetadata;
 }): Promise<EnrichmentEventResult> {
   try {
-    logger.info({ targetId: params.targetId }, "Emitting target enrichment event");
+    logger.info({ targetId: params.targetId }, "Calling enrichTarget on-chain");
 
     // Check if we have a private key configured
     const privateKey = process.env.EVENT_PROCESSOR_PRIVATE_KEY || process.env.PRIVATE_KEY;
     if (!privateKey) {
-      logger.warn("No private key configured, skipping enrichment event");
+      logger.warn("No private key configured, skipping on-chain enrichment");
       return {
         transactionHash: "0x0" as Hash,
         status: "failed",
-        error: "No private key configured for enrichment events",
+        error: "No private key configured for on-chain enrichment",
       };
     }
 
@@ -169,27 +106,36 @@ export async function emitTargetEnrichmentEvent(params: {
       transport: http(config.blockchain.rpcUrl),
     });
 
-    // Prepare keywords as comma-separated string
-    const keywordsString = params.metadata.keywords?.join(",") || "";
+    // Convert metadata to JSON bytes for on-chain event
+    const metadataObj = {
+      core: params.metadata.core,
+      type: params.metadata.type,
+      platform: params.metadata.platform,
+      keywords: params.metadata.keywords,
+      extensions: params.metadata.extensions,
+    };
+
+    // Encode JSON as UTF-8 bytes
+    const metadataJson = JSON.stringify(metadataObj);
+    const encoder = new TextEncoder();
+    const payloadBytes = encoder.encode(metadataJson);
+    const payloadHex = `0x${Buffer.from(payloadBytes).toString("hex")}`;
+
+    // Schema version for metadata format
+    const schemaVersion = "ets-metadata-v1";
 
     // ABI for the enrichTarget function
     const enrichTargetAbi = parseAbi([
-      "function enrichTarget(uint256 targetId, string memory title, string memory description, string memory imageUrl, string memory keywords) external",
-      "event TargetEnriched(uint256 indexed targetId, string title, string description, string imageUrl, string keywords)",
+      "function enrichTarget(uint256 targetId, bytes calldata payload, string calldata schemaVersion) external",
+      "event TargetEnriched(uint256 indexed targetId, address indexed enrichedBy, string schemaVersion, bytes32 payloadHash, bytes payload)",
     ]);
 
     // Simulate the transaction first
     const { request } = await publicClient.simulateContract({
-      address: config.blockchain.contracts.etsTarget, // Now part of ETSTarget
+      address: config.blockchain.contracts.etsTarget,
       abi: enrichTargetAbi,
       functionName: "enrichTarget",
-      args: [
-        BigInt(params.targetId),
-        params.metadata.title || "",
-        params.metadata.description || "",
-        params.metadata.image || "",
-        keywordsString,
-      ],
+      args: [BigInt(params.targetId), payloadHex as `0x${string}`, schemaVersion],
       account,
     });
 
@@ -205,7 +151,7 @@ export async function emitTargetEnrichmentEvent(params: {
           targetId: params.targetId,
           transactionHash: hash,
         },
-        "Successfully emitted enrichment event",
+        "Successfully called enrichTarget on-chain",
       );
 
       return {
@@ -216,7 +162,7 @@ export async function emitTargetEnrichmentEvent(params: {
     throw new Error("Transaction reverted");
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logger.error({ targetId: params.targetId, error: errorMessage }, "Failed to emit enrichment event");
+    logger.error({ targetId: params.targetId, error: errorMessage }, "Failed to call enrichTarget on-chain");
 
     return {
       transactionHash: "0x0" as Hash,

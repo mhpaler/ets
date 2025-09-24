@@ -73,17 +73,17 @@ interface IETSTarget {
      * @dev emitted when target metadata is enriched.
      *
      * @param targetId The target ID being enriched.
-     * @param title The extracted title metadata.
-     * @param description The extracted description metadata.
-     * @param imageUrl The extracted image URL metadata.
-     * @param keywords Comma-separated keywords metadata.
+     * @param enrichedBy The address that performed the enrichment.
+     * @param schemaVersion Schema version for the metadata format (e.g. "ets-metadata-v1").
+     * @param payloadHash Keccak256 hash of the payload for integrity verification.
+     * @param payload Raw UTF-8 JSON metadata as bytes.
      */
     event TargetEnriched(
         uint256 indexed targetId,
-        string title,
-        string description,
-        string imageUrl,
-        string keywords
+        address indexed enrichedBy,
+        string schemaVersion,
+        bytes32 payloadHash,
+        bytes payload
     );
 
     /**
@@ -175,18 +175,14 @@ interface IETSTarget {
      * @notice Emit enrichment data for a target (called by Event Processor).
      *
      * @param _targetId The target ID being enriched.
-     * @param _title The extracted title metadata.
-     * @param _description The extracted description metadata.
-     * @param _imageUrl The extracted image URL metadata.
-     * @param _keywords Comma-separated keywords metadata.
+     * @param _payload UTF-8 JSON blob containing the metadata.
+     * @param _schemaVersion Schema version for the metadata format (e.g. "ets-metadata-v1").
      * @dev Only callable by EVENT_PROCESSOR_ROLE.
      * @dev Emits TargetEnriched event for The Graph to index.
      */
     function enrichTarget(
         uint256 _targetId,
-        string memory _title,
-        string memory _description,
-        string memory _imageUrl,
-        string memory _keywords
+        bytes calldata _payload,
+        string calldata _schemaVersion
     ) external;
 }

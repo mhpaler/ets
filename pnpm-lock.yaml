@@ -413,7 +413,7 @@ importers:
         version: link:../../packages/subgraph-endpoints
       '@zoralabs/coins-sdk':
         specifier: latest
-        version: 0.3.0(abitype@1.0.5(typescript@5.9.2)(zod@3.25.76))(viem@2.35.1(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76))
+        version: 0.3.1(abitype@1.0.5(typescript@5.9.2)(zod@3.25.76))(viem@2.35.1(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76))
       '@zoralabs/protocol-deployments':
         specifier: ^0.6.2
         version: 0.6.2
@@ -612,6 +612,9 @@ importers:
       pino-pretty:
         specifier: ^10.3.1
         version: 10.3.1
+      unfurl.js:
+        specifier: ^6.4.0
+        version: 6.4.0(encoding@0.1.13)
       viem:
         specifier: ^2.33.2
         version: 2.35.1(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@6.0.5)(zod@3.25.76)
@@ -6655,6 +6658,13 @@ packages:
 
   '@zoralabs/coins-sdk@0.3.0':
     resolution: {integrity: sha512-ep/IaG13vwFmePDNp9UsDaNgLz1uB3C5JmTBtBOkT9saQomx4apheonA4Za/t8oCwe/VyQ51h0TAgHCiVS5i4A==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      abitype: 1.0.5
+      viem: ^2.33.2
+
+  '@zoralabs/coins-sdk@0.3.1':
+    resolution: {integrity: sha512-UOtVR28Sxc01sJFDExjecugekELp923ob6KYcN5qLsWySl8oQgBoV4GhTfOFgWtZZ4D+b/YAHsTC6JZ6od63/Q==}
     engines: {node: '>=22'}
     peerDependencies:
       abitype: 1.0.5
@@ -23947,19 +23957,19 @@ snapshots:
 
   '@xtuc/long@4.2.2': {}
 
-  '@zoralabs/coins-sdk@0.3.0(abitype@1.0.5(typescript@5.9.2)(zod@3.25.76))(viem@2.35.1(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76))':
-    dependencies:
-      '@hey-api/client-fetch': 0.8.4
-      '@zoralabs/protocol-deployments': 0.6.2
-      abitype: 1.0.5(typescript@5.9.2)(zod@3.25.76)
-      viem: 2.35.1(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76)
-
   '@zoralabs/coins-sdk@0.3.0(abitype@1.0.5(typescript@5.9.2)(zod@3.25.76))(viem@2.35.1(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@6.0.5)(zod@3.25.76))':
     dependencies:
       '@hey-api/client-fetch': 0.8.4
       '@zoralabs/protocol-deployments': 0.6.2
       abitype: 1.0.5(typescript@5.9.2)(zod@3.25.76)
       viem: 2.35.1(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@6.0.5)(zod@3.25.76)
+
+  '@zoralabs/coins-sdk@0.3.1(abitype@1.0.5(typescript@5.9.2)(zod@3.25.76))(viem@2.35.1(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76))':
+    dependencies:
+      '@hey-api/client-fetch': 0.8.4
+      '@zoralabs/protocol-deployments': 0.6.2
+      abitype: 1.0.5(typescript@5.9.2)(zod@3.25.76)
+      viem: 2.35.1(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76)
 
   '@zoralabs/protocol-deployments@0.6.2': {}
 

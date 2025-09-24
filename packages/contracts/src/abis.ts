@@ -2,7 +2,6 @@ import ETSCoreArtifact from "../artifacts/contracts/ETS.sol/ETS.json";
 // Export contract ABIs
 import ETSAccessControlsArtifact from "../artifacts/contracts/ETSAccessControls.sol/ETSAccessControls.json";
 import ETSChannelFactoryArtifact from "../artifacts/contracts/ETSChannelFactory.sol/ETSChannelFactory.json";
-import ETSEnrichTargetArtifact from "../artifacts/contracts/ETSEnrichTarget.sol/ETSEnrichTarget.json";
 import ETSTargetArtifact from "../artifacts/contracts/ETSTarget.sol/ETSTarget.json";
 import ETSTokenArtifact from "../artifacts/contracts/ETSToken.sol/ETSToken.json";
 import ETSChannelArtifact from "../artifacts/contracts/channels/ETSChannel.sol/ETSChannel.json";
@@ -11,7 +10,6 @@ export const ETSAccessControlsABI = ETSAccessControlsArtifact.abi;
 export const ETSTokenABI = ETSTokenArtifact.abi;
 export const ETSTargetABI = ETSTargetArtifact.abi;
 export const ETSCoreABI = ETSCoreArtifact.abi;
-export const ETSEnrichTargetABI = ETSEnrichTargetArtifact.abi;
 export const ETSChannelABI = ETSChannelArtifact.abi;
 export const ETSChannelFactoryABI = ETSChannelFactoryArtifact.abi;
 
@@ -31,9 +29,6 @@ export function getContractABI(contractName: string) {
     case "ETSCore":
     case "core":
       return ETSCoreABI;
-    case "ETSEnrichTarget":
-    case "enrichTarget":
-      return ETSEnrichTargetABI;
     case "ETSChannel":
     case "channel":
       return ETSChannelABI;

@@ -170,20 +170,21 @@ contract ETSTarget is IETSTarget, UUPSUpgradeable, StringHelpers {
     /// @inheritdoc IETSTarget
     function enrichTarget(
         uint256 _targetId,
-        string memory _title,
-        string memory _description,
-        string memory _imageUrl,
-        string memory _keywords
+        bytes calldata _payload,
+        string calldata _schemaVersion
     ) external onlyEventProcessor {
         if (!targetExistsById(_targetId)) revert InvalidTarget();
+
+        // Compute payload hash for integrity verification
+        bytes32 payloadHash = keccak256(_payload);
 
         // Emit enrichment event for The Graph to index
         emit TargetEnriched(
             _targetId,
-            _title,
-            _description,
-            _imageUrl,
-            _keywords
+            msg.sender,
+            _schemaVersion,
+            payloadHash,
+            _payload
         );
     }
 }

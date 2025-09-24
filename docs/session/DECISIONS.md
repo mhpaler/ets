@@ -1,5 +1,53 @@
 # Architecture Decisions
 
+## 2025-09-23: Efficient JSON Event Pattern for Metadata
+
+**Rationale**:
+- Events are 10x cheaper than storage for metadata
+- Raw bytes payload more efficient than multiple string parameters
+- Schema versioning enables forward compatibility
+- Payload hash ensures integrity without on-chain storage
+
+**Alternatives Considered**:
+- Multiple string parameters (less efficient, harder to extend)
+- On-chain storage (too expensive at ~20k gas per KB)
+- IPFS/Arweave hybrid (adds complexity without immediate benefit)
+- Compressed formats (complexity outweighs savings)
+
+**Trade-offs**:
+- Can't query metadata directly from contract
+- Rely on The Graph for data availability
+- Slightly more complex encoding/decoding
+
+**Future**:
+- Can evolve schema without breaking existing indexers
+- Easy to add storage layer later if needed
+- Could add compression if payloads grow significantly
+
+## 2025-09-23: Hybrid Metadata Structure (Core + Extensions)
+
+**Rationale**:
+- Uniform core fields ensure consistency across all content types
+- Extensions allow type-specific richness without bloating all records
+- Maps cleanly to GraphQL schema in The Graph
+- Balances gas costs with data completeness
+
+**Alternatives Considered**:
+- Fully uniform structure (loses type-specific value)
+- Completely dynamic structure (hard to query/index)
+- Separate events per type (complex indexing)
+- Minimal metadata only (insufficient for discovery)
+
+**Trade-offs**:
+- More complex than flat structure
+- Requires careful schema design
+- Some redundancy in edge cases
+
+**Future**:
+- Extensions can grow independently
+- New content types easy to add
+- Can optimize based on usage patterns
+
 ## 2025-09-22: Temporal Worker Process Separation
 
 **Rationale**:

@@ -1,10 +1,10 @@
 import { NativeConnection, Worker } from "@temporalio/worker";
 import { allocateCreatorRewards, createTagCoinMetadata, deployTagCoinOnZora } from "./activities/tagCoinActivities";
-import { emitTargetEnrichmentEvent, fetchTargetMetadata } from "./activities/targetEnrichmentActivities";
+import { callEnrichTargetOnChain, fetchTargetMetadata } from "./activities/targetEnrichmentActivities";
 
 const activities = {
   fetchTargetMetadata,
-  emitTargetEnrichmentEvent,
+  callEnrichTargetOnChain,
   createTagCoinMetadata,
   deployTagCoinOnZora,
   allocateCreatorRewards,
@@ -24,7 +24,6 @@ async function cleanup() {
     logger.info("Shutting down worker...");
     try {
       worker.shutdown();
-      await worker.runUntilShutdown();
       worker = null;
     } catch (error) {
       logger.error({ error }, "Error shutting down worker");

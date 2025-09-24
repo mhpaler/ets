@@ -1,9 +1,9 @@
-import { ApplicationFailure, proxyActivities, sleep } from "@temporalio/workflow";
+import { ApplicationFailure, log, proxyActivities, sleep } from "@temporalio/workflow";
 import type * as activities from "../activities";
 import type { TargetEnrichmentResult, TargetEnrichmentWorkflowInput } from "../types";
 
 // Import activity types with proper timeout and retry configuration
-const { fetchTargetMetadata, emitTargetEnrichmentEvent } = proxyActivities<typeof activities>({
+const { fetchTargetMetadata, callEnrichTargetOnChain } = proxyActivities<typeof activities>({
   startToCloseTimeout: "2 minutes",
   retry: {
     initialInterval: "1 second",
@@ -17,12 +17,12 @@ const { fetchTargetMetadata, emitTargetEnrichmentEvent } = proxyActivities<typeo
  * Workflow for enriching targets with metadata
  *
  * This workflow handles the EnrichTargetRequested events from the blockchain.
- * It fetches metadata from the target URI and emits an enrichment event
- * for The Graph to index.
+ * It fetches metadata from the target URI and calls the enrichTarget function
+ * on-chain, which emits an event for The Graph to index.
  *
  * Steps:
  * 1. Fetch metadata from the target URI
- * 2. Emit enrichment event on-chain with the metadata
+ * 2. Call enrichTarget on-chain with the metadata
  */
 export async function TargetEnrichmentWorkflow(input: TargetEnrichmentWorkflowInput): Promise<TargetEnrichmentResult> {
   const result: TargetEnrichmentResult = {
@@ -35,40 +35,41 @@ export async function TargetEnrichmentWorkflow(input: TargetEnrichmentWorkflowIn
   };
 
   try {
-    console.log(`[Workflow] Starting target enrichment for ${input.targetURI} (ID: ${input.targetId})`);
+    log.info(`Starting target enrichment for ${input.targetURI} (ID: ${input.targetId})`);
 
     // Step 1: Fetch metadata from the target URI
-    console.log(`[Workflow] Fetching metadata from ${input.targetURI}`);
+    log.info(`Fetching metadata from ${input.targetURI}`);
 
-    const metadataResult = await fetchTargetMetadata({
+    const metadata = await fetchTargetMetadata({
       targetId: input.targetId,
       targetURI: input.targetURI || "",
     });
 
-    if (metadataResult.status === "failed") {
-      throw ApplicationFailure.create({
-        message: `Failed to fetch metadata: ${metadataResult.error}`,
-        nonRetryable: false,
-      });
-    }
-
     result.steps.fetchMetadata = true;
-    result.metadata = metadataResult;
-    console.log(`[Workflow] Successfully fetched metadata for ${input.targetURI}`);
+    // Convert ETSTargetMetadata to MetadataFetchResult for compatibility
+    result.metadata = {
+      title: metadata.core.title,
+      description: metadata.core.description,
+      image: metadata.core.image || undefined,
+      keywords: metadata.keywords,
+      targetType: metadata.type,
+      status: "success" as const,
+    };
+    log.info(`Successfully fetched metadata for ${input.targetURI}`);
 
-    // Step 2: Emit enrichment event on-chain
-    console.log(`[Workflow] Emitting enrichment event for target ${input.targetId}`);
+    // Step 2: Call enrichTarget function on-chain
+    log.info(`Calling enrichTarget on-chain for target ${input.targetId}`);
 
-    const eventResult = await emitTargetEnrichmentEvent({
+    const eventResult = await callEnrichTargetOnChain({
       targetId: input.targetId,
-      metadata: metadataResult,
+      metadata: metadata,
     });
 
     if (eventResult.status === "failed") {
-      // Don't fail the workflow if we can't emit the event
+      // Don't fail the workflow if we can't call the contract function
       // The metadata was successfully fetched, which is the main goal
-      console.warn(`[Workflow] Failed to emit enrichment event: ${eventResult.error}`);
-      console.warn("[Workflow] Metadata was fetched but not emitted on-chain");
+      log.warn(`Failed to call enrichTarget on-chain: ${eventResult.error}`);
+      log.warn("Metadata was fetched but not recorded on-chain");
 
       // We could potentially store this for manual retry later
       result.steps.emitEnrichmentEvent = false;
@@ -76,10 +77,10 @@ export async function TargetEnrichmentWorkflow(input: TargetEnrichmentWorkflowIn
     } else {
       result.steps.emitEnrichmentEvent = true;
       result.enrichmentTransactionHash = eventResult.transactionHash;
-      console.log(`[Workflow] Successfully emitted enrichment event: ${eventResult.transactionHash}`);
+      log.info(`Successfully called enrichTarget on-chain: ${eventResult.transactionHash}`);
     }
 
-    // Wait for blockchain confirmation if event was emitted
+    // Wait for blockchain confirmation if enrichment was called
     if (result.steps.emitEnrichmentEvent) {
       await sleep("5 seconds");
     }
@@ -88,12 +89,12 @@ export async function TargetEnrichmentWorkflow(input: TargetEnrichmentWorkflowIn
     if (result.steps.fetchMetadata && result.steps.emitEnrichmentEvent) {
       result.status = "completed";
     } else if (result.steps.fetchMetadata) {
-      result.status = "partial"; // Metadata fetched but event not emitted
+      result.status = "partial"; // Metadata fetched but not recorded on-chain
     }
 
     return result;
   } catch (error) {
-    console.error(`[Workflow] Target enrichment failed for ${input.targetURI}:`, error);
+    log.error(`Target enrichment failed for ${input.targetURI}:`, { error });
 
     // Check if any steps succeeded for partial success
     if (result.steps.fetchMetadata) {
