@@ -80,10 +80,12 @@ export async function TargetEnrichmentWorkflow(input: TargetEnrichmentWorkflowIn
       log.info(`Successfully called enrichTarget on-chain: ${eventResult.transactionHash}`);
     }
 
-    // Wait for blockchain confirmation if enrichment was called
-    if (result.steps.emitEnrichmentEvent) {
-      await sleep("5 seconds");
-    }
+    // Optional: Add delay for indexers to process the event
+    // Note: Transaction receipt is already awaited in the activity, so this is usually unnecessary
+    // Uncomment if you need to ensure indexers have time to process before workflow completes
+    // if (result.steps.emitEnrichmentEvent) {
+    //   await sleep("5 seconds");
+    // }
 
     // Determine final status
     if (result.steps.fetchMetadata && result.steps.emitEnrichmentEvent) {

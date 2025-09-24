@@ -1,5 +1,26 @@
 # ETS Session Changelog
 
+## 2025-09-23
+
+### Fixed
+- **Temporal worker management** - Added comprehensive process cleanup and restart functionality
+- **ChainId configuration** - Fixed localhost chain configuration for viem in targetEnrichmentActivities
+- **Stale worker processes** - Added automatic cleanup of orphaned tsx watch processes on startup
+
+### Added
+- **manage-temporal-workers.sh** - Standalone script for worker status, stop, and restart operations
+- **Integration test suite** for metadata extraction with comprehensive URL validation
+- **Bad URI handling** in metadata extraction with security validations (blocks file://, javascript://, internal IPs)
+- **Test-driven development framework** for metadata extraction improvements
+
+### Changed
+- Enhanced start-local-stack.sh with proper worker cleanup on shutdown (Ctrl+C)
+- Commented out redundant 5-second timer in TargetEnrichmentWorkflow (receipt already awaited in activity)
+- Worker management now properly kills all tsx processes before starting new ones
+
+### Removed
+- Redundant blockchain confirmation timer in workflow (activity already waits for receipt)
+
 ## 2025-09-22
 
 ### Fixed

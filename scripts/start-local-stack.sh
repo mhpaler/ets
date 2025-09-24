@@ -736,8 +736,28 @@ start_temporal_server() {
 # Start Temporal Processor (replaces Event Processor)
 start_temporal_processor() {
   log "Starting Temporal Processor..."
+
+  # First check for any existing worker processes
+  if pgrep -f "tsx.*worker\.ts" > /dev/null 2>&1; then
+    warn "Found existing Temporal worker processes. Cleaning up..."
+    pkill -f "tsx.*worker\.ts" 2>/dev/null || true
+    sleep 2
+    # Force kill if still running
+    pkill -9 -f "tsx.*worker\.ts" 2>/dev/null || true
+    success "Cleaned up stale worker processes"
+  fi
+
+  if pgrep -f "tsx.*src/index\.ts" > /dev/null 2>&1; then
+    warn "Found existing Temporal processor processes. Cleaning up..."
+    pkill -f "tsx.*src/index\.ts" 2>/dev/null || true
+    sleep 2
+    # Force kill if still running
+    pkill -9 -f "tsx.*src/index\.ts" 2>/dev/null || true
+    success "Cleaned up stale processor processes"
+  fi
+
   cd "$ROOT_DIR/apps/temporal-processor"
-  
+
   # Set environment for localhost testing
   export NODE_ENV=development
   export CHAIN_ID=31337
@@ -912,6 +932,19 @@ log "Log files are available in the $ROOT_DIR/logs directory"
 # Trap for cleanup
 cleanup() {
   log "Cleaning up..."
+
+  # First, kill all tsx worker processes (they might spawn child processes)
+  log "Stopping Temporal workers..."
+  pkill -f "tsx.*worker\.ts" 2>/dev/null || true
+  pkill -f "tsx.*src/index\.ts" 2>/dev/null || true
+
+  # Give them a moment to shut down gracefully
+  sleep 1
+
+  # Force kill any remaining worker processes
+  pkill -9 -f "tsx.*worker\.ts" 2>/dev/null || true
+  pkill -9 -f "tsx.*src/index\.ts" 2>/dev/null || true
+
   # Kill all service processes
   if [ -f "$ROOT_DIR/logs/service_pids.txt" ]; then
     for pid in $(cat "$ROOT_DIR/logs/service_pids.txt"); do
