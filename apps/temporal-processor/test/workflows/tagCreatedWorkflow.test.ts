@@ -4,9 +4,9 @@ import {
   allocateCreatorRewards,
   createTagCoinMetadata,
   deployTagCoinOnZora,
-} from "../src/activities/tagCoinActivities";
-import type { TagCreatedWorkflowInput } from "../src/types";
-import { TagCreatedWorkflow } from "../src/workflows";
+} from "../../src/activities/tagCoinActivities";
+import type { TagCreatedWorkflowInput } from "../../src/types";
+import { TagCreatedWorkflow } from "../../src/workflows";
 
 describe("TagCreatedWorkflow", () => {
   let testEnv: TestWorkflowEnvironment;
@@ -42,7 +42,7 @@ describe("TagCreatedWorkflow", () => {
     const worker = await Worker.create({
       connection: nativeConnection,
       taskQueue: "test",
-      workflowsPath: require.resolve("../src/workflows"),
+      workflowsPath: require.resolve("../../src/workflows"),
       activities: mockActivities,
     });
 

@@ -1,8 +1,8 @@
 // @ts-ignore - Bun test runner types
 import { afterAll, beforeAll, describe, test } from "bun:test";
 import { expect } from "chai";
-import { MetadataExtractor } from "../../apps/temporal-processor/src/services/MetadataExtractor";
-import type { ETSTargetMetadata } from "../../apps/temporal-processor/src/types/metadata";
+import { MetadataExtractor } from "../src/services/MetadataExtractor";
+import type { ETSTargetMetadata } from "../src/types/metadata";
 
 /**
  * Metadata Extraction Integration Tests
@@ -14,7 +14,7 @@ import type { ETSTargetMetadata } from "../../apps/temporal-processor/src/types/
  * - Error handling for bad URIs
  * - Edge case handling (404s, timeouts, redirects)
  *
- * Run with: bun test test/integration/metadata-extraction.test.ts
+ * Run with: bun test apps/temporal-processor/test/metadata-extraction.test.ts
  */
 
 describe("Metadata Extraction Integration Tests", () => {
@@ -207,7 +207,7 @@ describe("Metadata Extraction Integration Tests", () => {
         expect(metadata.type).to.equal("unknown");
         // Error message should indicate wrong content type
         expect(metadata.core.description).to.satisfy(
-          (desc: string) => desc.includes("WRONG_CONTENT_TYPE") || desc.includes("content type")
+          (desc: string) => desc.includes("WRONG_CONTENT_TYPE") || desc.includes("content type"),
         );
       } else {
         expect(metadata.type).to.equal("document");

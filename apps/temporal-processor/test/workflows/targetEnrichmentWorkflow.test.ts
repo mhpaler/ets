@@ -2,11 +2,10 @@ import { TestWorkflowEnvironment } from "@temporalio/testing";
 import { Worker } from "@temporalio/worker";
 import {
   fetchTargetMetadata,
-  updateTargetOnChain,
-  uploadToArweave,
-} from "../src/activities/targetEnrichmentActivities";
-import type { TargetEnrichmentWorkflowInput } from "../src/types";
-import { TargetEnrichmentWorkflow } from "../src/workflows";
+  callEnrichTargetOnChain,
+} from "../../src/activities/targetEnrichmentActivities";
+import type { TargetEnrichmentWorkflowInput } from "../../src/types";
+import { TargetEnrichmentWorkflow } from "../../src/workflows";
 
 describe("TargetEnrichmentWorkflow", () => {
   let testEnv: TestWorkflowEnvironment;
@@ -25,19 +24,20 @@ describe("TargetEnrichmentWorkflow", () => {
     // Mock activities
     const mockActivities = {
       fetchTargetMetadata: jest.fn().mockResolvedValue({
-        title: "Test Title",
-        description: "Test Description",
-        image: "https://example.com/image.jpg",
+        core: {
+          uri: "https://example.com",
+          title: "Test Title",
+          description: "Test Description",
+          image: "https://example.com/image.jpg",
+          httpStatus: 200,
+          extractionMethod: "opengraph",
+          extractedAt: new Date().toISOString(),
+        },
+        type: "website",
+        platform: undefined,
         keywords: ["test", "example"],
-        targetType: "website",
-        status: "success",
       }),
-      uploadToArweave: jest.fn().mockResolvedValue({
-        transactionId: "test-arweave-tx-123",
-        gatewayUrl: "https://arweave.net/test-arweave-tx-123",
-        status: "success",
-      }),
-      updateTargetOnChain: jest.fn().mockResolvedValue({
+      callEnrichTargetOnChain: jest.fn().mockResolvedValue({
         transactionHash: "0x123456789",
         status: "success",
       }),
@@ -47,7 +47,7 @@ describe("TargetEnrichmentWorkflow", () => {
     const worker = await Worker.create({
       connection: nativeConnection,
       taskQueue: "test",
-      workflowsPath: require.resolve("../src/workflows"),
+      workflowsPath: require.resolve("../../src/workflows"),
       activities: mockActivities,
     });
 
@@ -73,45 +73,45 @@ describe("TargetEnrichmentWorkflow", () => {
       expect(result.status).toBe("completed");
       expect(result.targetId).toBe("123");
       expect(result.steps.fetchMetadata).toBe(true);
-      expect(result.steps.uploadToArweave).toBe(true);
-      expect(result.steps.updateBlockchain).toBe(true);
-      expect(result.arweaveTransactionId).toBe("test-arweave-tx-123");
-      expect(result.metadataURI).toBe("https://arweave.net/test-arweave-tx-123");
+      expect(result.steps.emitEnrichmentEvent).toBe(true);
+      expect(result.enrichmentTransactionHash).toBe("0x123456789");
 
       // Verify activities were called
       expect(mockActivities.fetchTargetMetadata).toHaveBeenCalledWith({
         targetId: "123",
         targetURI: "https://example.com",
       });
-      expect(mockActivities.uploadToArweave).toHaveBeenCalled();
-      expect(mockActivities.updateTargetOnChain).toHaveBeenCalled();
+      expect(mockActivities.callEnrichTargetOnChain).toHaveBeenCalled();
     });
   }, 60000); // 60 second timeout
 
   it("should handle partial failure gracefully", async () => {
     const { client, nativeConnection } = testEnv;
 
-    // Mock activities with on-chain update failure
+    // Mock activities with on-chain enrichment failure
     const mockActivities = {
       fetchTargetMetadata: jest.fn().mockResolvedValue({
-        title: "Test Title",
-        status: "success",
+        core: {
+          uri: "https://example.com",
+          title: "Test Title",
+          description: "Test Description",
+          httpStatus: 200,
+          extractionMethod: "opengraph",
+          extractedAt: new Date().toISOString(),
+        },
+        type: "website",
       }),
-      uploadToArweave: jest.fn().mockResolvedValue({
-        transactionId: "test-arweave-tx-456",
-        gatewayUrl: "https://arweave.net/test-arweave-tx-456",
-        status: "success",
-      }),
-      updateTargetOnChain: jest.fn().mockResolvedValue({
+      callEnrichTargetOnChain: jest.fn().mockResolvedValue({
         status: "failed",
         error: "Insufficient gas",
+        transactionHash: "0x0",
       }),
     };
 
     const worker = await Worker.create({
       connection: nativeConnection,
       taskQueue: "test",
-      workflowsPath: require.resolve("../src/workflows"),
+      workflowsPath: require.resolve("../../src/workflows"),
       activities: mockActivities,
     });
 
@@ -131,12 +131,10 @@ describe("TargetEnrichmentWorkflow", () => {
         args: [input],
       });
 
-      // Should be partial success since Arweave succeeded
+      // Should be partial success since metadata fetched but enrichment failed
       expect(result.status).toBe("partial");
       expect(result.steps.fetchMetadata).toBe(true);
-      expect(result.steps.uploadToArweave).toBe(true);
-      expect(result.steps.updateBlockchain).toBe(false);
-      expect(result.arweaveTransactionId).toBe("test-arweave-tx-456");
+      expect(result.steps.emitEnrichmentEvent).toBe(false);
       expect(result.error).toContain("Insufficient gas");
     });
   }, 60000); // 60 second timeout
