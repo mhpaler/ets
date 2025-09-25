@@ -1,4 +1,4 @@
-import { http, type Hash, createPublicClient, createWalletClient, parseAbi, defineChain } from "viem";
+import { http, type Hash, createPublicClient, createWalletClient, defineChain, parseAbi } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base, sepolia } from "viem/chains";
 import { config } from "../config";
@@ -12,15 +12,15 @@ const logger = getComponentLogger("TargetEnrichmentActivities");
 // Define localhost chain with correct configuration
 const localChain = defineChain({
   id: 31337,
-  name: 'Localhost',
+  name: "Localhost",
   nativeCurrency: {
     decimals: 18,
-    name: 'Ether',
-    symbol: 'ETH',
+    name: "Ether",
+    symbol: "ETH",
   },
   rpcUrls: {
-    default: { http: ['http://127.0.0.1:8545'] },
-    public: { http: ['http://127.0.0.1:8545'] },
+    default: { http: ["http://127.0.0.1:8545"] },
+    public: { http: ["http://127.0.0.1:8545"] },
   },
 });
 
