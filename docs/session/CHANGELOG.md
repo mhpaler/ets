@@ -6,20 +6,26 @@
 - **Temporal worker management** - Added comprehensive process cleanup and restart functionality
 - **ChainId configuration** - Fixed localhost chain configuration for viem in targetEnrichmentActivities
 - **Stale worker processes** - Added automatic cleanup of orphaned tsx watch processes on startup
+- **Metadata extraction tests** - Fixed all 17 tests to handle real-world API responses gracefully
 
 ### Added
 - **manage-temporal-workers.sh** - Standalone script for worker status, stop, and restart operations
 - **Integration test suite** for metadata extraction with comprehensive URL validation
 - **Bad URI handling** in metadata extraction with security validations (blocks file://, javascript://, internal IPs)
 - **Test-driven development framework** for metadata extraction improvements
+- **Organized test structure** - Created test/ subdirectories (workflows/, unit/, integration/)
 
 ### Changed
 - Enhanced start-local-stack.sh with proper worker cleanup on shutdown (Ctrl+C)
 - Commented out redundant 5-second timer in TargetEnrichmentWorkflow (receipt already awaited in activity)
 - Worker management now properly kills all tsx processes before starting new ones
+- **Reorganized temporal-processor tests** - Moved to organized structure with proper subdirectories
+- **Updated targetEnrichmentWorkflow.test.ts** - Removed Arweave references, fixed activity names
 
 ### Removed
 - Redundant blockchain confirmation timer in workflow (activity already waits for receipt)
+- **simple.test.ts** - Removed as it provided minimal value
+- **Old tests/ directory** - Consolidated into single test/ directory
 
 ## 2025-09-22
 
