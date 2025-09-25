@@ -1,9 +1,6 @@
 import { TestWorkflowEnvironment } from "@temporalio/testing";
 import { Worker } from "@temporalio/worker";
-import {
-  fetchTargetMetadata,
-  callEnrichTargetOnChain,
-} from "../../src/activities/targetEnrichmentActivities";
+import { callEnrichTargetOnChain, fetchTargetMetadata } from "../../src/activities/targetEnrichmentActivities";
 import type { TargetEnrichmentWorkflowInput } from "../../src/types";
 import { TargetEnrichmentWorkflow } from "../../src/workflows";
 
