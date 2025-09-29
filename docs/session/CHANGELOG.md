@@ -1,5 +1,21 @@
 # ETS Session Changelog
 
+## 2025-09-29
+
+### Fixed
+- **Integration test for target enrichment** - Updated to use new enrichTarget signature with payload + schemaVersion (#539)
+- **Metadata parsing in tests** - Fixed to handle nested metadata structure (core.title, core.description)
+- **Test URL validation** - Now uses real GitHub URLs for proper metadata extraction testing
+
+### Changed
+- **target-enrichment.test.ts** - Refactored to match new ETSTarget contract interface
+- **Payload format** - Tests now use hex-encoded JSON payloads as expected by viem
+
+### Added
+- **Real metadata verification** - Integration tests now validate actual metadata extraction from GitHub URLs
+- **HTTP status tracking** - Tests verify HTTP status codes in enrichment responses
+- **Content type detection** - Tests check content type identification (e.g., "repository" for GitHub)
+
 ## 2025-09-23
 
 ### Fixed

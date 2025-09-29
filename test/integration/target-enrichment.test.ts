@@ -312,7 +312,8 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
       throw new Error("Wallet not configured");
     }
 
-    const targetURI = `https://example.com/test-${Date.now()}`;
+    // Use a real URL that will return valid metadata
+    const targetURI = `https://github.com/ethereum/go-ethereum?t=${Date.now()}`;
     console.log(`\n🎯 Creating and requesting enrichment for: ${targetURI}`);
 
     // First, create a target by calling createTarget
@@ -385,10 +386,10 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
           type: "event",
           inputs: [
             { name: "targetId", type: "uint256", indexed: true },
-            { name: "title", type: "string" },
-            { name: "description", type: "string" },
-            { name: "imageUrl", type: "string" },
-            { name: "keywords", type: "string" },
+            { name: "enrichedBy", type: "address", indexed: true },
+            { name: "schemaVersion", type: "string" },
+            { name: "payloadHash", type: "bytes32" },
+            { name: "payload", type: "bytes" },
           ],
         },
         fromBlock: receipt.blockNumber,
@@ -399,8 +400,34 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
         enrichedEventFound = true;
         console.log("  🎉 TargetEnriched event found!");
         const enrichedEvent = enrichedLogs[0];
-        console.log(`     Title: ${enrichedEvent.args?.title}`);
-        console.log(`     Description: ${enrichedEvent.args?.description?.substring(0, 100)}...`);
+        console.log(`     Enriched by: ${enrichedEvent.args?.enrichedBy}`);
+        console.log(`     Schema version: ${enrichedEvent.args?.schemaVersion}`);
+
+        // Parse the payload to show metadata
+        if (enrichedEvent.args?.payload) {
+          try {
+            const payloadStr = typeof enrichedEvent.args.payload === 'string'
+              ? enrichedEvent.args.payload
+              : enrichedEvent.args.payload;
+            const cleanHex = payloadStr.startsWith('0x') ? payloadStr.slice(2) : payloadStr;
+            const metadata = JSON.parse(Buffer.from(cleanHex, 'hex').toString());
+
+            // Handle nested metadata structure from Temporal workflow
+            const title = metadata.core?.title || metadata.title || 'N/A';
+            const description = metadata.core?.description || metadata.description || 'N/A';
+            const image = metadata.core?.image || metadata.image;
+            const httpStatus = metadata.core?.httpStatus;
+
+            console.log(`     Title: ${title}`);
+            console.log(`     Description: ${description.substring(0, 100)}...`);
+            if (image) console.log(`     Image: ${image}`);
+            if (httpStatus) console.log(`     HTTP Status: ${httpStatus}`);
+            if (metadata.type) console.log(`     Content Type: ${metadata.type}`);
+          } catch (e) {
+            console.log(`     Payload hash: ${enrichedEvent.args?.payloadHash}`);
+            console.log(`     Parse error: ${e}`);
+          }
+        }
       } else {
         const elapsed = Math.round((Date.now() - startTime) / 1000);
         console.log(`  ⏳ Still waiting... (${elapsed}s elapsed)`);
@@ -460,13 +487,23 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
       transport: http(env.rpcUrl),
     });
 
-    // Simulate enrichTarget call
+    // Simulate enrichTarget call with new signature (payload + schemaVersion)
     try {
+      // Create metadata payload
+      const metadata = {
+        title: "Test Title",
+        description: "Test Description",
+        image: "https://example.com/image.png",
+        keywords: ["test", "keywords"],
+      };
+      const payload = `0x${Buffer.from(JSON.stringify(metadata)).toString('hex')}` as `0x${string}`;
+      const schemaVersion = "v1.0.0";
+
       const { request } = await publicClient.simulateContract({
         address: contracts.ETSTarget!.address,
         abi: contracts.ETSTarget!.abi,
         functionName: "enrichTarget",
-        args: [targetId, "Test Title", "Test Description", "https://example.com/image.png", "test,keywords"],
+        args: [targetId, payload, schemaVersion],
         account: eventProcessorAccount,
       });
 
@@ -525,11 +562,21 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
     console.log(`\n🚫 Testing unauthorized enrichment attempt for target ${targetId}...`);
 
     try {
+      // Create metadata payload for unauthorized attempt
+      const metadata = {
+        title: "Hack Title",
+        description: "Hack Description",
+        image: "https://hack.com/image.png",
+        keywords: ["hack"],
+      };
+      const payload = `0x${Buffer.from(JSON.stringify(metadata)).toString('hex')}` as `0x${string}`;
+      const schemaVersion = "v1.0.0";
+
       await publicClient.simulateContract({
         address: contracts.ETSTarget!.address,
         abi: contracts.ETSTarget!.abi,
         functionName: "enrichTarget",
-        args: [targetId, "Hack Title", "Hack Description", "https://hack.com/image.png", "hack"],
+        args: [targetId, payload, schemaVersion],
         account: testerAccount,
       });
 
