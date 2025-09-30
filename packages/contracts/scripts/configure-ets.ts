@@ -117,6 +117,34 @@ async function main() {
   });
   console.log("✅ Set ETS Core on Token contract");
 
+  // Create default ETSChannel
+  console.log("\nCreating default ETSChannel...");
+
+  try {
+    // Check if ETSChannel already exists
+    const existingChannel = await accessControls.read.getChannelAddressFromName(["ETSChannel"]);
+
+    if (existingChannel && existingChannel !== "0x0000000000000000000000000000000000000000") {
+      console.log("✅ ETSChannel already exists at:", existingChannel);
+    } else {
+      // Create the default channel using ETSAdmin account
+      const tx = await channelFactory.write.addChannel(["ETSChannel"], {
+        account: accounts.ETSAdmin.account,
+      });
+
+      // Wait for transaction confirmation
+      const publicClient = await viem.getPublicClient();
+      const _receipt = await publicClient.waitForTransactionReceipt({ hash: tx });
+
+      // Get the deployed channel address from the event
+      const channelAddress = await accessControls.read.getChannelAddressFromName(["ETSChannel"]);
+      console.log("✅ Created default ETSChannel at:", channelAddress);
+    }
+  } catch (error) {
+    console.error("⚠️  Could not create default ETSChannel:", error);
+    console.log("   You may need to create it manually using: pnpm ets channel create ETSChannel");
+  }
+
   console.log("\n✅ Configuration complete!");
   console.log("\nContract addresses:");
   console.log("  AccessControls:", deployed["ETSAccessControls#ETSAccessControlsProxy"]);
@@ -125,6 +153,16 @@ async function main() {
   console.log("  Core:", deployed["ETSCore#ETSCoreProxy"]);
   console.log("  EnrichTarget:", deployed["ETSEnrichTarget#ETSEnrichTargetProxy"]);
   console.log("  ChannelFactory:", deployed["ETSChannelFactory#ETSChannelFactory"]);
+
+  // Show the ETSChannel address if it exists
+  try {
+    const etsChannelAddress = await accessControls.read.getChannelAddressFromName(["ETSChannel"]);
+    if (etsChannelAddress && etsChannelAddress !== "0x0000000000000000000000000000000000000000") {
+      console.log("  ETSChannel:", etsChannelAddress);
+    }
+  } catch (_e) {
+    // Ignore errors here
+  }
 }
 
 main()

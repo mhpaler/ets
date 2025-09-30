@@ -1,5 +1,5 @@
 import { Client } from "@temporalio/client";
-import { http, type Log, createPublicClient, decodeEventLog, parseAbi, parseAbiItem } from "viem";
+import { http, type Abi, type AbiEvent, type Log, createPublicClient, decodeEventLog } from "viem";
 import { base, localhost, sepolia } from "viem/chains";
 import { config } from "../config";
 import type { TagCreatedEvent, TargetCreatedEvent } from "../types";
@@ -36,17 +36,25 @@ const publicClient = createPublicClient({
   },
 });
 
-// Event ABIs - using simplified signature that matches working event processor
-// Note: targetId is NOT indexed in the actual contract
-const targetCreatedAbi = parseAbiItem("event TargetCreated(uint256 targetId)");
+// Store ABIs and events (will be loaded asynchronously)
+let ETSTargetABI: Abi;
+let ETSTokenABI: Abi;
+let targetCreatedEvent: AbiEvent;
+let enrichTargetRequestedEvent: AbiEvent;
+let tagCreatedEvent: AbiEvent;
 
-const enrichTargetRequestedAbi = parseAbiItem(
-  "event EnrichTargetRequested(uint256 indexed targetId, address indexed requestor)",
-);
+// Load ABIs asynchronously
+async function loadABIs() {
+  const abis = await import("@ethereum-tag-service/contracts/abis");
+  ETSTargetABI = abis.ETSTargetABI as Abi;
+  ETSTokenABI = abis.ETSTokenABI as Abi;
 
-const tagCreatedAbi = parseAbiItem(
-  "event TagCreated(address indexed coinAddress, string originalInput, string displayVersion, string machineName, address indexed creator, address indexed channel, uint256 timestamp)",
-);
+  targetCreatedEvent = ETSTargetABI.find((item) => item.type === "event" && item.name === "TargetCreated") as AbiEvent;
+  enrichTargetRequestedEvent = ETSTargetABI.find(
+    (item) => item.type === "event" && item.name === "EnrichTargetRequested",
+  ) as AbiEvent;
+  tagCreatedEvent = ETSTokenABI.find((item) => item.type === "event" && item.name === "TagCreated") as AbiEvent;
+}
 
 export class EventListener {
   private temporalClient: Client | null = null;
@@ -72,6 +80,10 @@ export class EventListener {
     this.isRunning = true;
 
     try {
+      // Load contract ABIs first
+      await loadABIs();
+      logger.info("Contract ABIs loaded successfully");
+
       // Initialize checkpoint manager
       await this.checkpointManager.initialize();
 
@@ -139,9 +151,14 @@ export class EventListener {
   private watchEnrichTargetRequestedEvents(): void {
     logger.info("Setting up EnrichTargetRequested event watcher...");
 
+    if (!enrichTargetRequestedEvent) {
+      logger.error("enrichTargetRequestedEvent not loaded yet!");
+      return;
+    }
+
     this.unwatchEnrichTargetRequested = publicClient.watchContractEvent({
       address: config.blockchain.contracts.etsTarget as `0x${string}`,
-      abi: [enrichTargetRequestedAbi],
+      abi: [enrichTargetRequestedEvent],
       eventName: "EnrichTargetRequested",
       onLogs: async (logs) => {
         logger.info(`🔄 DETECTED ${logs.length} EnrichTargetRequested event(s)`);
@@ -160,17 +177,22 @@ export class EventListener {
   private watchTargetCreatedEvents(): void {
     logger.info("Setting up TargetCreated event watcher...");
 
+    if (!targetCreatedEvent) {
+      logger.error("targetCreatedEvent not loaded yet!");
+      return;
+    }
+
     logger.info("🔧 Initializing watchContractEvent for TargetCreated...");
     this.unwatchTargetCreated = publicClient.watchContractEvent({
       address: config.blockchain.contracts.etsTarget as `0x${string}`,
-      abi: [targetCreatedAbi],
+      abi: [targetCreatedEvent],
       eventName: "TargetCreated",
       onLogs: async (logs) => {
         logger.info(`🎯 DETECTED ${logs.length} TargetCreated event(s)`);
         const newEventIds: string[] = [];
         let highestBlock = 0n;
 
-        for (const log of logs) {
+        for (const log of logs as Log[]) {
           const eventKey = `${log.transactionHash}-${log.logIndex}`;
           // Add to processedEvents IMMEDIATELY to prevent race condition
           if (!this.processedEvents.has(eventKey) && !this.checkpointManager.hasProcessedEvent(eventKey)) {
@@ -229,10 +251,15 @@ export class EventListener {
             ? latestBlock - 10n
             : 0n;
 
-        // Only look for new events since last checkpoint
+        // Only look for new events since last checkpoint (skip if ABI not loaded)
+        if (!targetCreatedEvent) {
+          logger.warn("targetCreatedEvent not loaded yet, skipping getLogs");
+          return;
+        }
+
         const recentLogs = await publicClient.getLogs({
           address: config.blockchain.contracts.etsTarget as `0x${string}`,
-          event: targetCreatedAbi,
+          event: targetCreatedEvent,
           fromBlock,
           toBlock: latestBlock,
         });
@@ -282,10 +309,15 @@ export class EventListener {
   private watchTagCreatedEvents(): void {
     logger.info("Setting up TagCreated event watcher...");
 
+    if (!tagCreatedEvent) {
+      logger.error("tagCreatedEvent not loaded yet!");
+      return;
+    }
+
     logger.info("🔧 Initializing watchContractEvent for TagCreated...");
     this.unwatchTagCreated = publicClient.watchContractEvent({
       address: config.blockchain.contracts.etsToken as `0x${string}`,
-      abi: [tagCreatedAbi],
+      abi: [tagCreatedEvent],
       eventName: "TagCreated",
       onLogs: async (logs) => {
         logger.info(`🏷️ DETECTED ${logs.length} TagCreated event(s)`);
@@ -307,11 +339,11 @@ export class EventListener {
     try {
       const { transactionHash, blockNumber } = log;
       const decoded = decodeEventLog({
-        abi: [enrichTargetRequestedAbi],
+        abi: [enrichTargetRequestedEvent],
         data: log.data,
         topics: log.topics,
       });
-      const { targetId, requestor } = decoded.args;
+      const { targetId, requestor } = (decoded.args || {}) as { targetId: bigint; requestor: string };
 
       logger.info(
         {
@@ -328,14 +360,9 @@ export class EventListener {
       }
 
       // Fetch the target URI from the contract
-      const etsTargetAbi = parseAbi([
-        "struct Target { string targetURI; address createdBy; }",
-        "function getTargetById(uint256 _targetId) view returns (Target memory)",
-      ]);
-
       const targetData = (await publicClient.readContract({
         address: config.blockchain.contracts.etsTarget as `0x${string}`,
-        abi: etsTargetAbi,
+        abi: ETSTargetABI,
         functionName: "getTargetById",
         args: [targetId],
       })) as { targetURI: string; createdBy: string };
@@ -388,11 +415,11 @@ export class EventListener {
     try {
       const { transactionHash, blockNumber } = log;
       const decoded = decodeEventLog({
-        abi: [targetCreatedAbi],
+        abi: [targetCreatedEvent],
         data: log.data,
         topics: log.topics,
       });
-      const { targetId } = decoded.args;
+      const { targetId } = (decoded.args || {}) as { targetId: bigint };
 
       logger.info(
         {
@@ -409,14 +436,9 @@ export class EventListener {
 
       // Fetch the target URI from the contract
       logger.info("Fetching target URI from contract...");
-      const etsTargetAbi = parseAbi([
-        "struct Target { string targetURI; address createdBy; }",
-        "function getTargetById(uint256 _targetId) view returns (Target memory)",
-      ]);
-
       const targetData = (await publicClient.readContract({
         address: config.blockchain.contracts.etsTarget as `0x${string}`,
-        abi: etsTargetAbi,
+        abi: ETSTargetABI,
         functionName: "getTargetById",
         args: [targetId],
       })) as { targetURI: string; createdBy: string };
@@ -480,11 +502,19 @@ export class EventListener {
     try {
       const { transactionHash, blockNumber } = log;
       const decoded = decodeEventLog({
-        abi: [tagCreatedAbi],
+        abi: [tagCreatedEvent],
         data: log.data,
         topics: log.topics,
       });
-      const { coinAddress, originalInput, displayVersion, machineName, creator, channel } = decoded.args;
+      const { coinAddress, originalInput, displayVersion, machineName, creator, channel } = (decoded.args || {}) as {
+        coinAddress: string;
+        originalInput: string;
+        displayVersion: string;
+        machineName: string;
+        creator: string;
+        channel: string;
+        timestamp: bigint;
+      };
 
       logger.info(
         {
@@ -521,9 +551,9 @@ export class EventListener {
             creator,
             channel,
             transactionHash,
-            blockNumber: blockNumber!,
+            blockNumber: blockNumber!.toString(),
             chainId: config.blockchain.chainId,
-            timestamp: new Date(Number(block.timestamp) * 1000),
+            timestamp: new Date(Number(block.timestamp) * 1000).toISOString(),
           },
         ],
       });
@@ -540,7 +570,16 @@ export class EventListener {
     } catch (error) {
       logger.error(
         {
-          error,
+          error:
+            error instanceof Error
+              ? {
+                  name: error.name,
+                  message: error.message,
+                  stack: error.stack,
+                  cause: error.cause,
+                }
+              : error,
+          errorString: String(error),
           log,
         },
         "Failed to handle TagCreated event",

@@ -1,6 +1,5 @@
 import type { Client } from "@temporalio/client";
-import { http, createPublicClient } from "viem";
-import { parseAbiItem } from "viem";
+import { http, type Abi, type AbiEvent, createPublicClient } from "viem";
 import { base, localhost, sepolia } from "viem/chains";
 import { config } from "../config";
 import { getComponentLogger } from "../utils/logger";
@@ -18,14 +17,24 @@ const logger = getComponentLogger("EventRecovery");
  * - Initial backfill when starting the service
  */
 
-// Event ABIs
-const targetCreatedAbi = parseAbiItem(
-  "event TargetCreated(uint256 indexed targetId, string targetURI, uint256 targetType, address indexed creator)",
-);
+// Store event ABIs (will be loaded asynchronously)
+let targetCreatedEvent: AbiEvent;
+let tagCreatedEvent: AbiEvent;
+let abisLoaded = false;
 
-const tagCreatedAbi = parseAbiItem(
-  "event TagCreated(uint256 indexed tagId, address indexed coinAddress, string tagString, address indexed creator, uint256 blockNumber, address indexed channel, uint256 timestamp)",
-);
+// Load ABIs asynchronously
+async function loadABIs() {
+  if (abisLoaded) return;
+
+  const abis = await import("@ethereum-tag-service/contracts/abis");
+  const ETSTargetABI = abis.ETSTargetABI as Abi;
+  const ETSTokenABI = abis.ETSTokenABI as Abi;
+
+  targetCreatedEvent = ETSTargetABI.find((item) => item.type === "event" && item.name === "TargetCreated") as AbiEvent;
+  tagCreatedEvent = ETSTokenABI.find((item) => item.type === "event" && item.name === "TagCreated") as AbiEvent;
+
+  abisLoaded = true;
+}
 
 // Get chain configuration
 function getChain() {
@@ -62,10 +71,13 @@ export class EventRecovery {
       "Starting TargetCreated event recovery",
     );
 
+    // Ensure ABIs are loaded
+    await loadABIs();
+
     try {
       const logs = await publicClient.getLogs({
         address: config.blockchain.contracts.etsTarget as `0x${string}`,
-        event: targetCreatedAbi,
+        event: targetCreatedEvent,
         fromBlock,
         toBlock,
       });
@@ -104,10 +116,13 @@ export class EventRecovery {
   async recoverTagCreatedEvents(fromBlock: bigint, toBlock: bigint | "latest" = "latest"): Promise<void> {
     logger.info({ fromBlock: fromBlock.toString(), toBlock: toBlock.toString() }, "Starting TagCreated event recovery");
 
+    // Ensure ABIs are loaded
+    await loadABIs();
+
     try {
       const logs = await publicClient.getLogs({
         address: config.blockchain.contracts.etsToken as `0x${string}`,
-        event: tagCreatedAbi,
+        event: tagCreatedEvent,
         fromBlock,
         toBlock,
       });

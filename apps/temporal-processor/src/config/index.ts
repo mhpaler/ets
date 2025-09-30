@@ -1,4 +1,6 @@
 import path from "node:path";
+// @ts-ignore - Using require to handle ES module in CommonJS context
+const { getContractAddresses } = require("@ethereum-tag-service/contracts/deployments");
 import { type Environment, getSubgraphEndpoint } from "@ethereum-tag-service/subgraph-endpoints";
 import { config as dotenvConfig } from "dotenv";
 import type { Address } from "viem";
@@ -27,7 +29,10 @@ interface Config {
       etsTarget: Address;
       ets: Address;
       etsEnrichTarget: Address;
+      mockZoraFactory?: Address;
     };
+    eventProcessorPrivateKey?: string;
+    zoraPrivateKey?: string;
   };
 
   // External Services
@@ -52,16 +57,23 @@ interface Config {
 const environment = (process.env.NODE_ENV || "development") as Environment;
 const chainId = Number.parseInt(process.env.CHAIN_ID || "31337", 10);
 
-// Contract addresses by chainId
-const CONTRACT_ADDRESSES: Record<number, { token: Address; target: Address; ets: Address; enrichTarget: Address }> = {
-  31337: {
-    token: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9" as Address,
-    target: "0x0165878A594ca255338adfa4d48449f69242Eb8F" as Address,
-    ets: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6" as Address,
-    enrichTarget: "0x610178dA211FEF7D417bC0e6FeD39F05609AD788" as Address,
-  },
-  // Add staging/production addresses when available
+// Get network name based on chainId
+const getNetworkName = (chainId: number): string => {
+  switch (chainId) {
+    case 31337:
+      return "localhost";
+    case 84532:
+      return "baseSepolia";
+    case 8453:
+      return "base";
+    default:
+      return "localhost";
+  }
 };
+
+// Get contract addresses from the contracts package
+const networkName = getNetworkName(chainId);
+const contractAddresses = getContractAddresses(networkName);
 
 // Get RPC URL based on environment
 const getRpcUrl = (): string => {
@@ -99,11 +111,18 @@ export const config: Config = {
     rpcUrl: getRpcUrl(),
     chainId,
     contracts: {
-      etsToken: CONTRACT_ADDRESSES[chainId]?.token || CONTRACT_ADDRESSES[31337].token,
-      etsTarget: CONTRACT_ADDRESSES[chainId]?.target || CONTRACT_ADDRESSES[31337].target,
-      ets: CONTRACT_ADDRESSES[chainId]?.ets || CONTRACT_ADDRESSES[31337].ets,
-      etsEnrichTarget: CONTRACT_ADDRESSES[chainId]?.enrichTarget || CONTRACT_ADDRESSES[31337].enrichTarget,
+      etsToken: (contractAddresses?.token as Address) || ("0x0" as Address),
+      etsTarget: (contractAddresses?.target as Address) || ("0x0" as Address),
+      ets: (contractAddresses?.core as Address) || ("0x0" as Address),
+      etsEnrichTarget: (contractAddresses?.target as Address) || ("0x0" as Address), // Using target since enrichTarget is merged
+      mockZoraFactory: contractAddresses?.mockZoraFactory as Address,
     },
+    // Use the event processor private key (account[2] in Hardhat)
+    eventProcessorPrivateKey:
+      process.env.EVENT_PROCESSOR_PRIVATE_KEY || "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a", // Hardhat account[2]
+    // Use the Zora private key for TAG coin creation (account[3] in Hardhat)
+    zoraPrivateKey:
+      process.env.ZORA_PRIVATE_KEY || "0xdbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97", // Hardhat account[3]
   },
 
   services: {
@@ -125,12 +144,17 @@ export const config: Config = {
 function validateConfig(): void {
   try {
     // Check that contract addresses are available
-    const { etsToken, etsTarget, ets, etsEnrichTarget } = config.blockchain.contracts;
+    const { etsToken, etsTarget, ets } = config.blockchain.contracts;
 
-    if (!etsToken || !etsTarget || !ets || !etsEnrichTarget) {
+    if (!etsToken || etsTarget === "0x0" || !etsTarget || etsTarget === "0x0" || !ets || ets === "0x0") {
       throw new Error(
         `Missing contract addresses for environment: ${config.env}, chainId: ${config.blockchain.chainId}`,
       );
+    }
+
+    // Check MockZoraFactory for localhost
+    if (config.blockchain.chainId === 31337 && !config.blockchain.contracts.mockZoraFactory) {
+      console.warn("Warning: MockZoraFactory not deployed for localhost testing");
     }
   } catch (error) {
     throw new Error(`Contract configuration error: ${error instanceof Error ? error.message : error}`);

@@ -406,15 +406,14 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
         // Parse the payload to show metadata
         if (enrichedEvent.args?.payload) {
           try {
-            const payloadStr = typeof enrichedEvent.args.payload === 'string'
-              ? enrichedEvent.args.payload
-              : enrichedEvent.args.payload;
-            const cleanHex = payloadStr.startsWith('0x') ? payloadStr.slice(2) : payloadStr;
-            const metadata = JSON.parse(Buffer.from(cleanHex, 'hex').toString());
+            const payloadStr =
+              typeof enrichedEvent.args.payload === "string" ? enrichedEvent.args.payload : enrichedEvent.args.payload;
+            const cleanHex = payloadStr.startsWith("0x") ? payloadStr.slice(2) : payloadStr;
+            const metadata = JSON.parse(Buffer.from(cleanHex, "hex").toString());
 
             // Handle nested metadata structure from Temporal workflow
-            const title = metadata.core?.title || metadata.title || 'N/A';
-            const description = metadata.core?.description || metadata.description || 'N/A';
+            const title = metadata.core?.title || metadata.title || "N/A";
+            const description = metadata.core?.description || metadata.description || "N/A";
             const image = metadata.core?.image || metadata.image;
             const httpStatus = metadata.core?.httpStatus;
 
@@ -496,7 +495,7 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
         image: "https://example.com/image.png",
         keywords: ["test", "keywords"],
       };
-      const payload = `0x${Buffer.from(JSON.stringify(metadata)).toString('hex')}` as `0x${string}`;
+      const payload = `0x${Buffer.from(JSON.stringify(metadata)).toString("hex")}` as `0x${string}`;
       const schemaVersion = "v1.0.0";
 
       const { request } = await publicClient.simulateContract({
@@ -569,7 +568,7 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
         image: "https://hack.com/image.png",
         keywords: ["hack"],
       };
-      const payload = `0x${Buffer.from(JSON.stringify(metadata)).toString('hex')}` as `0x${string}`;
+      const payload = `0x${Buffer.from(JSON.stringify(metadata)).toString("hex")}` as `0x${string}`;
       const schemaVersion = "v1.0.0";
 
       await publicClient.simulateContract({

@@ -1,4 +1,4 @@
-import { http, type Hash, createPublicClient, createWalletClient, defineChain, parseAbi } from "viem";
+import { http, type Abi, type Hash, createPublicClient, createWalletClient, defineChain } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base, sepolia } from "viem/chains";
 import { config } from "../config";
@@ -139,16 +139,13 @@ export async function callEnrichTargetOnChain(params: {
     // Schema version for metadata format
     const schemaVersion = "ets-metadata-v1";
 
-    // ABI for the enrichTarget function
-    const enrichTargetAbi = parseAbi([
-      "function enrichTarget(uint256 targetId, bytes calldata payload, string calldata schemaVersion) external",
-      "event TargetEnriched(uint256 indexed targetId, address indexed enrichedBy, string schemaVersion, bytes32 payloadHash, bytes payload)",
-    ]);
+    // Load the ABI dynamically
+    const { ETSTargetABI } = await import("@ethereum-tag-service/contracts/abis");
 
-    // Simulate the transaction first
+    // Simulate the transaction first using the full ETSTargetABI
     const { request } = await publicClient.simulateContract({
       address: config.blockchain.contracts.etsTarget,
-      abi: enrichTargetAbi,
+      abi: ETSTargetABI as Abi,
       functionName: "enrichTarget",
       args: [BigInt(params.targetId), payloadHex as `0x${string}`, schemaVersion],
       account,

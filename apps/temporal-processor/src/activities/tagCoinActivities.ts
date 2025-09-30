@@ -1,5 +1,7 @@
-import axios from "axios";
 import type { Address, Hash } from "viem";
+import { http, createPublicClient, createWalletClient, encodeAbiParameters, keccak256, toBytes } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { hardhat, localhost } from "viem/chains";
 import { config } from "../config";
 import type { ZoraCoinCreationResult } from "../types";
 import { getComponentLogger } from "../utils/logger";
@@ -20,7 +22,7 @@ interface RewardsAllocationResult {
 
 /**
  * Activity: Create metadata for TAG coin
- * Note: The offchain-api endpoint handles both metadata creation and coin deployment in one call
+ * Creates simple inline metadata for MVP (no IPFS needed)
  */
 export async function createTagCoinMetadata(params: {
   tagId: string;
@@ -28,26 +30,61 @@ export async function createTagCoinMetadata(params: {
   creator: Address;
   coinAddress: Address;
 }): Promise<MetadataCreationResult> {
-  // This activity is now a no-op since the offchain-api handles metadata internally
-  // We keep it for workflow compatibility but it just passes through
-  logger.info(
-    {
-      tagId: params.tagId,
-      tagString: params.tagString,
-      coinAddress: params.coinAddress,
-    },
-    "Metadata will be created as part of coin deployment",
-  );
+  try {
+    logger.info(
+      {
+        tagId: params.tagId,
+        tagString: params.tagString,
+        coinAddress: params.coinAddress,
+      },
+      "Creating TAG coin metadata",
+    );
 
-  return {
-    metadataURI: "handled-by-deploy", // Special marker
-    status: "success",
-  };
+    // Create simple metadata JSON for MVP
+    const metadata = {
+      name: `TAG: ${params.tagString.replace("#", "")}`,
+      symbol: "ETS",
+      description: `ETS TAG coin for ${params.tagString}`,
+      image: "https://ets.link/logo.png", // Placeholder image
+      attributes: [
+        {
+          trait_type: "Platform",
+          value: "ETS",
+        },
+        {
+          trait_type: "Creator",
+          value: params.creator,
+        },
+        {
+          trait_type: "Tag",
+          value: params.tagString,
+        },
+      ],
+    };
+
+    // Convert to data URI for inline metadata (no IPFS needed for MVP)
+    const metadataUri = `data:application/json;base64,${Buffer.from(JSON.stringify(metadata)).toString("base64")}`;
+
+    logger.info({ metadataUri: `${metadataUri.substring(0, 100)}...` }, "Created inline metadata");
+
+    return {
+      metadataURI: metadataUri,
+      status: "success",
+    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error({ error: errorMessage }, "Failed to create metadata");
+    return {
+      metadataURI: "",
+      status: "failed",
+      error: errorMessage,
+    };
+  }
 }
 
 /**
- * Activity: Deploy TAG coin on Zora
- * Calls the offchain-api /api/tag-coin/create endpoint
+ * Activity: Deploy TAG coin on Zora/MockZoraFactory
+ * Directly deploys to the factory contract (localhost uses MockZoraFactory)
  */
 export async function deployTagCoinOnZora(params: {
   tagId: string;
@@ -69,56 +106,143 @@ export async function deployTagCoinOnZora(params: {
         originalInput: params.tagString,
         machineName: params.machineName,
       },
-      "Deploying TAG coin on Zora via offchain-api",
+      "Deploying TAG coin on Zora/MockZoraFactory",
     );
 
-    // Prepare the TagCreatedEventData payload
-    const tagData = {
-      coinAddress: params.coinAddress,
-      originalInput: params.tagString,
-      displayVersion: params.displayVersion || params.tagString,
-      machineName: params.machineName,
-      creator: params.creator,
-      channel: params.channel,
-      timestamp: params.timestamp,
-      blockNumber: params.blockNumber,
-      transactionHash: params.transactionHash,
-    };
+    // Setup clients for blockchain interaction
+    // Use hardhat chain for proper chainId (31337)
+    const chainConfig = config.blockchain.chainId === 31337 ? hardhat : localhost;
 
-    // Call offchain API to deploy on Zora
-    const response = await axios.post(
-      `${config.services.offchainApiUrl}/api/tag-coin/create`,
+    const publicClient = createPublicClient({
+      chain: chainConfig,
+      transport: http(config.blockchain.rpcUrl),
+    });
+
+    // Use the Zora private key for TAG coin deployment (Position 3: ETSZora)
+    const account = privateKeyToAccount(config.blockchain.zoraPrivateKey as `0x${string}`);
+
+    const walletClient = createWalletClient({
+      account,
+      chain: chainConfig,
+      transport: http(config.blockchain.rpcUrl),
+    });
+
+    // Generate deterministic salt from machineName (same as ETS contract)
+    const coinSalt = keccak256(toBytes(params.machineName));
+
+    // Prepare pool configuration (standard ETH pool for MVP)
+    const poolConfig = encodeAbiParameters(
+      [{ type: "uint256" }],
+      [0n], // Standard pool config
+    );
+
+    // Get factory address (MockZoraFactory for localhost)
+    const factoryAddress = config.blockchain.contracts.mockZoraFactory;
+    if (!factoryAddress) {
+      throw new Error("MockZoraFactory address not configured");
+    }
+
+    logger.info(
       {
-        tagData,
-        chainId: config.blockchain.chainId,
+        factoryAddress,
+        coinSalt,
+        machineName: params.machineName,
       },
-      {
-        timeout: 60000, // 60 seconds for deployment
-        headers: {
-          "Content-Type": "application/json",
-          "x-event-processor-key": config.services.eventProcessorApiKey || "local-event-processor-key", // Add event processor auth header
+      "Calling factory deploy function",
+    );
+
+    // Factory deploy ABI
+    const deployAbi = {
+      name: "deploy",
+      type: "function",
+      stateMutability: "nonpayable",
+      inputs: [
+        { name: "payoutRecipient", type: "address" },
+        { name: "owners", type: "address[]" },
+        { name: "uri", type: "string" },
+        { name: "name", type: "string" },
+        { name: "symbol", type: "string" },
+        { name: "poolConfig", type: "bytes" },
+        { name: "platformReferrer", type: "address" },
+        { name: "postDeployHook", type: "address" },
+        { name: "postDeployHookData", type: "bytes" },
+        { name: "coinSalt", type: "bytes32" },
+      ],
+      outputs: [{ name: "coin", type: "address" }],
+    } as const;
+
+    // Check if coin already exists (by checking predicted address)
+    const predictedAddress = await publicClient.readContract({
+      address: factoryAddress as Address,
+      abi: [
+        {
+          name: "coinAddress",
+          type: "function",
+          stateMutability: "view",
+          inputs: [
+            { name: "msgSender", type: "address" },
+            { name: "name", type: "string" },
+            { name: "symbol", type: "string" },
+            { name: "poolConfig", type: "bytes" },
+            { name: "platformReferrer", type: "address" },
+            { name: "coinSalt", type: "bytes32" },
+          ],
+          outputs: [{ name: "", type: "address" }],
         },
-      },
-    );
+      ],
+      functionName: "coinAddress",
+      args: [
+        account.address,
+        `TAG: ${params.tagString.replace("#", "")}`,
+        "ETS",
+        poolConfig,
+        params.channel, // Use channel as platform referrer
+        coinSalt,
+      ],
+    });
 
-    if (response.data.success) {
+    logger.info({ predictedAddress }, "Predicted coin address from factory");
+
+    // Deploy the coin
+    const hash = await walletClient.writeContract({
+      address: factoryAddress as Address,
+      abi: [deployAbi],
+      functionName: "deploy",
+      args: [
+        params.creator, // payoutRecipient
+        [params.creator], // owners (just creator for MVP)
+        params.metadataURI, // uri
+        `TAG: ${params.tagString.replace("#", "")}`, // name
+        "ETS", // symbol
+        poolConfig, // poolConfig
+        params.channel, // platformReferrer (channel that created the tag)
+        "0x0000000000000000000000000000000000000000" as Address, // postDeployHook (none)
+        "0x" as `0x${string}`, // postDeployHookData (empty)
+        coinSalt, // coinSalt
+      ],
+    });
+
+    // Wait for transaction confirmation
+    const receipt = await publicClient.waitForTransactionReceipt({ hash });
+
+    if (receipt.status === "success") {
       logger.info(
         {
-          coinAddress: response.data.coinAddress,
-          transactionHash: response.data.transactionHash,
-          created: response.data.created,
+          coinAddress: predictedAddress,
+          transactionHash: hash,
         },
-        "Successfully deployed TAG coin on Zora",
+        "Successfully deployed TAG coin",
       );
 
       return {
-        coinAddress: response.data.coinAddress,
-        transactionHash: response.data.transactionHash,
-        metadataURI: "", // Not returned by current API
+        coinAddress: predictedAddress,
+        transactionHash: hash,
+        metadataURI: params.metadataURI,
         status: "success",
       };
     }
-    throw new Error(response.data.error || "Failed to deploy on Zora");
+
+    throw new Error("Transaction failed");
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error(
@@ -126,7 +250,7 @@ export async function deployTagCoinOnZora(params: {
         coinAddress: params.coinAddress,
         error: errorMessage,
       },
-      "Failed to deploy TAG coin on Zora",
+      "Failed to deploy TAG coin",
     );
 
     return {

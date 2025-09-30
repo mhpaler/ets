@@ -65,7 +65,7 @@ export async function TagCreatedWorkflow(input: TagCreatedWorkflowInput): Promis
       displayVersion: input.displayVersion,
       machineName: input.machineName,
       channel: input.channel,
-      timestamp: input.timestamp.toISOString(),
+      timestamp: input.timestamp,
       blockNumber: input.blockNumber,
       transactionHash: input.transactionHash,
     });

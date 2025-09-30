@@ -20,7 +20,7 @@ export interface TagCreatedWorkflowInput {
   transactionHash: Hash;
   blockNumber: string; // String for Temporal payload serialization
   chainId: number;
-  timestamp: Date;
+  timestamp: string; // ISO string for Temporal payload serialization
 }
 
 // Activity Result Types

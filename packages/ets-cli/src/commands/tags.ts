@@ -5,6 +5,24 @@ import { parseEther } from "viem";
 import { getContractAddress } from "../utils/network.js";
 import { getPublicClient, getWalletClient } from "../utils/wallet.js";
 
+/**
+ * Validates that all tags start with '#' and provides helpful error messages
+ * @param tags Array of tag strings to validate
+ * @param spinner Optional ora spinner to fail with error message
+ * @returns void if valid, exits process if invalid
+ */
+function validateTags(tags: string[], spinner?: ora.Ora): void {
+  const invalidTags = tags.filter((tag) => !tag.startsWith("#"));
+  if (invalidTags.length > 0) {
+    if (spinner) {
+      spinner.fail("Invalid tag format");
+    }
+    console.error(chalk.red(`\n❌ Tags must start with '#'. Invalid tags: ${invalidTags.join(", ")}`));
+    console.log(chalk.yellow(`\n💡 Try using tags like: ${invalidTags.map((t) => `#${t}`).join(", ")}`));
+    process.exit(1);
+  }
+}
+
 export function setupTagCommands(program: Command) {
   const tags = program.command("tags").description("Manage ETS tags");
 
@@ -76,6 +94,9 @@ Examples:
           return;
         }
 
+        // Validate tags before sending to contract
+        validateTags(tagsToCreate, spinner);
+
         spinner.text = `Creating ${tagsToCreate.length} new tags...`;
 
         // Create tags through the channel's getOrCreateTagIds function
@@ -145,6 +166,8 @@ Examples:
       const spinner = ora("Applying tags...").start();
 
       try {
+        // Validate all tags before proceeding
+        validateTags(tagList, spinner);
         const walletClient = await getWalletClient(options.network);
         const publicClient = await getPublicClient(options.network);
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
@@ -233,6 +256,8 @@ Examples:
       const spinner = ora("Removing tags...").start();
 
       try {
+        // Validate all tags before proceeding
+        validateTags(tagList, spinner);
         const walletClient = await getWalletClient(options.network);
         const publicClient = await getPublicClient(options.network);
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
@@ -349,6 +374,8 @@ Examples:
       const spinner = ora("Replacing tags...").start();
 
       try {
+        // Validate all tags before proceeding
+        validateTags(tagList, spinner);
         const walletClient = await getWalletClient(options.network);
         const publicClient = await getPublicClient(options.network);
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
@@ -394,6 +421,9 @@ Examples:
 
         // Create missing tags first
         if (tagsToCreate.length > 0) {
+          // Validate tags before sending to contract
+          validateTags(tagsToCreate, spinner);
+
           spinner.text = `Creating ${tagsToCreate.length} new tags...`;
           const { ETSChannelABI } = await import("@ethereum-tag-service/contracts/abis");
 

@@ -1,5 +1,33 @@
 # ETS Session Changelog
 
+## 2025-09-30
+
+### Completed
+- **#539 Temporal Implementation** - Fully completed with both target enrichment and TAG creation workflows operational (100%)
+- **#539.9 Contract ABI imports** - Replaced all hardcoded ABIs with imports from @ethereum-tag-service/contracts package
+- **TAG Coin Creation Workflow** - Complete end-to-end implementation from ETS tag creation → Temporal workflow → MockZoraFactory deployment
+- **E2E TAG Creation Tests** - All 5 integration tests passing for TAG coin creation flow
+
+### Fixed
+- **Configure script ETSChannel creation** - Fixed to use `addChannel` instead of non-existent `deployChannel` function
+- **Chain ID configuration** - Applied Hardhat chain ID override (31337) to TAG coin integration tests
+- **Invalid tag error handling** - Made e2e tests more flexible in error message validation
+- **Account position for TAG deployment** - Corrected to use Position 3 (ETSZora) from HD wallet strategy
+
+### Added
+- **Direct MockZoraFactory integration** - Removed offchain-api dependency for architectural simplification (MVP goal)
+- **Dynamic contract address loading** - TAG coin activities now use @ethereum-tag-service/contracts package
+- **Environment-aware TAG tests** - Tests handle metadata differences between localhost and staging/production
+- **Batch TAG creation test** - Verified efficient handling of multiple TAGs in single transaction
+- **Duplicate TAG handling test** - Confirmed proper behavior when attempting to create existing TAGs
+
+### Changed
+- **tagCoinActivities.ts** - Updated to use zoraPrivateKey (Position 3) instead of eventProcessorPrivateKey
+- **TAG deployment flow** - Direct factory contract interaction without intermediate API layer
+- **Test assertions** - More flexible error validation for contract reverts
+- **Temporal processor ABIs** - Now using dynamic imports from contracts package for all contract ABIs
+- **Event listener architecture** - Added async ABI loading to handle ES modules in CommonJS context
+
 ## 2025-09-29
 
 ### Fixed

@@ -20,6 +20,7 @@ interface NetworkConfig {
     core?: string;
     enrichTarget?: string;
     channelFactory?: string;
+    mockZoraFactory?: string;
   };
 }
 
@@ -31,6 +32,7 @@ const CONTRACT_MAPPING: Record<string, string> = {
   "ETSCore#ETSCoreProxy": "core",
   "ETSEnrichTarget#ETSEnrichTargetProxy": "enrichTarget",
   "ETSChannelFactory#ETSChannelFactory": "channelFactory",
+  "MockZoraFactory#MockZoraFactory": "mockZoraFactory",
 };
 
 // Network configurations
