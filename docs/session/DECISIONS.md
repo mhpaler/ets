@@ -1,5 +1,63 @@
 # Architecture Decisions
 
+## 2025-10-01: Task Queue Switching for Multi-Environment Control
+
+**Rationale**:
+- Enables hot-swapping between local debugging and cloud processing
+- Full control during development while maintaining production readiness
+- Simple environment variable switch without code changes
+- Progressive deployment flow: local → staging → production
+
+**Implementation**:
+- Different task queues per environment: `ets-workflows-{location}-{environment}`
+- Examples: `ets-workflows-local-staging`, `ets-workflows-cloud-staging`
+- Workers connect to specific queues based on deployment target
+- Only one worker processes each workflow (Temporal guarantees)
+
+**Alternatives Considered**:
+- Single queue with on/off switches (less flexible)
+- Event listener enable/disable flags (doesn't control worker processing)
+- Separate deployments per environment (more complex to manage)
+
+**Trade-offs**:
+- Must remember to switch queues when changing environments
+- Multiple queue names to manage
+- Potential for confusion if wrong queue configured
+
+**Future**:
+- Can automate queue selection based on deployment context
+- Add monitoring to detect misconfigured queues
+- Consider unified queue with smart routing
+
+## 2025-10-01: Documentation-First Configuration for MVP
+
+**Rationale**:
+- Avoid over-engineering for MVP stage
+- Manual configuration creates understanding of system
+- Clear, explicit steps reduce black-box magic
+- Can iterate to automation after validating approach
+
+**Implementation**:
+- BASE-SEPOLIA-DEPLOYMENT.md with step-by-step guide
+- CHANGE-MANAGEMENT.md for deployment lifecycle
+- Separate .env files per environment
+- Manual configuration with clear documentation
+
+**Alternatives Considered**:
+- Unified configuration system (over-engineered for MVP)
+- Automated deployment scripts (premature optimization)
+- Central config service (unnecessary complexity)
+
+**Trade-offs**:
+- Manual process prone to human error
+- Some copy-paste of configuration values
+- Not suitable for frequent deployments
+
+**Future**:
+- Can add deployment scripts after patterns stabilize
+- Consider unified config if managing multiple environments
+- Automate based on learned deployment patterns
+
 ## 2025-09-23: Efficient JSON Event Pattern for Metadata
 
 **Rationale**:

@@ -1,5 +1,26 @@
 # ETS Session Changelog
 
+## 2025-10-01
+
+### Added
+- **BASE-SEPOLIA-DEPLOYMENT.md** - Complete deployment guide for Base Sepolia with task queue switching strategy
+- **CHANGE-MANAGEMENT.md** - Progressive deployment lifecycle documentation (Local → Staging → Production)
+- **Task queue switching strategy** - Enables hot-swapping between local debugging and cloud deployment
+- **Documentation-first configuration** - MVP approach avoiding over-engineering
+
+### Changed
+- **ROADMAP.md** - Updated with deployment strategy architectural decisions
+- **#539.5 Multi-Environment Configuration** - Now IN_PROGRESS (30% complete)
+
+### Removed
+- **Vestigial apps** - Cleaned up 5 obsolete apps from @apps directory:
+  - event-processor (replaced by temporal-processor)
+  - offchain-api (no longer needed for MVP)
+  - gelato (Web3 functions replaced by Temporal)
+  - oracle (Airnode replaced by Temporal)
+  - zora-coin-poc (POC integrated into temporal-processor)
+- **607 npm packages** - Removed from dependencies after cleanup
+
 ## 2025-09-30
 
 ### Completed

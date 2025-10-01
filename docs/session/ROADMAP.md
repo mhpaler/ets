@@ -11,17 +11,18 @@ last_updated: 2025-09-22
 
 ## ACTIVE_WORK
 ```yaml
-current_issue_id: "#539: Temporal Implementation"
-current_status: COMPLETED
-completion_percent: 100
-exact_task: "Both target enrichment and TAG creation workflows fully implemented and tested"
+current_issue_id: "#539.5: Multi-Environment Configuration"
+current_status: IN_PROGRESS
+completion_percent: 30
+exact_task: "Setting up Base Sepolia deployment with task queue switching strategy"
 blocking_bug: null
-next_priority: "Production readiness and monitoring setup"
-resume_action: "Deploy to staging environment for integration testing"
-session_accomplishment: "Complete end-to-end TAG creation flow working with MockZoraFactory deployment"
-architecture_decision: "Direct MockZoraFactory interaction without offchain-api dependency"
-critical_path: "Target enrichment ✅ → TAG creation workflow ✅ → Full e2e testing ✅ → Production ready"
-debugging_insight: "Hot-reload issues resolved by proper worker restart and chain ID configuration"
+next_priority: "Deploy contracts to Base Sepolia and test local processing"
+resume_action: "Execute BASE-SEPOLIA-DEPLOYMENT.md steps"
+session_accomplishment: "Created deployment and change management documentation for progressive deployment"
+architecture_decision: "Task queue switching for local/cloud control, documentation-first configuration approach"
+critical_path: "Documentation ✅ → Base Sepolia contracts → Local staging test → Cloud staging → Production"
+debugging_insight: "Task queues enable seamless switching between local debugging and cloud processing"
+deployment_strategy: "Progressive deployment with full control at each stage"
 ```
 
 ## CRITICAL_PATH
@@ -77,6 +78,26 @@ technical_dependencies:
     last_success: 2025-08-22
 
 architectural_decisions:
+  - date: 2025-10-01
+    decision: "Task Queue Switching Strategy for Multi-Environment Control"
+    impact:
+      - "Use different Temporal task queues for local vs cloud processing"
+      - "Enables hot-swapping between local debugging and cloud deployment"
+      - "Queue naming: ets-workflows-{location}-{environment}"
+      - "Supports progressive deployment: local → local-staging → cloud-staging → production"
+    rationale: "Provides full control during development while maintaining cloud deployment capability"
+    implementation: "Documentation-only approach for MVP, configuration via environment variables"
+
+  - date: 2025-10-01
+    decision: "Documentation-First Configuration Management"
+    impact:
+      - "No unified configuration system for MVP"
+      - "Clear deployment guides for each environment"
+      - "Manual configuration with documented steps"
+      - "Can upgrade to scripted/unified approach post-MVP"
+    rationale: "Avoid over-engineering for MVP, focus on clear documentation"
+    implementation: "docs/deployment/BASE-SEPOLIA-DEPLOYMENT.md and CHANGE-MANAGEMENT.md"
+
   - date: 2025-08-26
     decision: "Gelato Web3 Functions Migration (EPIC #537)"
     impact:
@@ -608,17 +629,26 @@ achievements:
 ##### SUB_539.5: Multi-Environment Configuration
 ```yaml
 id: #539.5
-status: NOT_STARTED
+status: IN_PROGRESS
 priority: MEDIUM
-completion: 0
+completion: 30
 dependencies: ["#539.4"]
 deliverables:
-  - "Local development configuration (Hardhat, ArLocal, MockZora)"
-  - "Staging configuration (Base Sepolia, Temporal Cloud)"
+  - "Local development configuration (Hardhat, ArLocal, MockZora)" ✅
+  - "Staging configuration (Base Sepolia, Temporal Cloud)" 🔄
   - "Production preparation (Base Mainnet, security hardening)"
-  - "Configuration management and validation"
+  - "Configuration management and validation" ✅
   - "Deployment scripts for all environments"
 estimated_duration: "1-2 days"
+completed:
+  - "BASE-SEPOLIA-DEPLOYMENT.md with step-by-step guide"
+  - "CHANGE-MANAGEMENT.md for deployment lifecycle"
+  - "Task queue switching strategy documented"
+  - "Progressive deployment flow defined"
+next_steps:
+  - "Deploy contracts to Base Sepolia"
+  - "Test local processing of Base Sepolia events"
+  - "Validate cloud deployment"
 ```
 
 ##### SUB_539.6: Monitoring & Observability

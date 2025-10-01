@@ -8,7 +8,6 @@
     "bun": "pnpm exec bun",
     "biome": "pnpm exec biome",
     "build": "pnpm run clean && turbo run build --filter=@ethereum-tag-service/site --filter=@ethereum-tag-service/app --env-mode=loose",
-    "build:offchain-api": "NODE_ENV=development pnpm install && pnpm turbo run build --filter=@ethereum-tag-service/offchain-api^... && cd apps/offchain-api && NODE_ENV=development pnpm build",
     "changeset:build": "pnpm run --recursive --filter \"./packages/**\" build",
     "changeset:prepublish": "pnpm version:update && pnpm changeset:build && bun ./scripts/formatPackageJson.ts",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish",
@@ -116,8 +115,6 @@
       "examples/**",
       "apps/app",
       "apps/site",
-      "apps/oracle",
-      "apps/offchain-api",
       "packages/brand",
       "packages/contracts",
       "packages/tsconfig"
@@ -142,11 +139,6 @@
       "apps/data-api": {
         "entry": ["src/**/*.ts!"],
         "project": ["src/**/*.ts!"]
-      },
-      "apps/offchain-api": {
-        "entry": ["src/index.ts!", "scripts/mint-ar-local.ts"],
-        "project": ["src/**/*.ts!"],
-        "excludeEntryComponents": false
       }
     }
   }
