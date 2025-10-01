@@ -307,23 +307,14 @@ ZORA_API_KEY=... # Zora SDK authentication
 
 ### Internal Service Authentication
 
-**Oracle API Key**:
+**Event Processor API Key**:
 ```bash
-ORACLE_API_KEY=... # Temporal → offchain-api authentication
+EVENT_PROCESSOR_API_KEY=... # Authentication for automated operations
 ```
 
-**Usage**: Authenticates Temporal processor requests to offchain-api
+**Usage**: Authenticates Temporal processor for automated blockchain operations
 **Security**: High - enables automated contract operations
 **Rotation**: Monthly or after security incidents
-
-**Internal API Key**:
-```bash
-INTERNAL_API_KEY=... # Service-to-service authentication
-```
-
-**Usage**: Internal service communication and metadata API access
-**Security**: High - enables internal operations
-**Rotation**: Monthly or after personnel changes
 
 ### External Platform Integration
 
@@ -510,6 +501,6 @@ PRODUCTION_ADDRESSES={
 
 ---
 
-**Last Updated**: September 1, 2025
+**Last Updated**: October 1, 2025
 **Document Owner**: ETS Development Team
 **Review Cycle**: Quarterly or after major platform changes

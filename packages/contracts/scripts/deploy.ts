@@ -81,8 +81,13 @@ async function main() {
 
     for (const module of modules) {
       console.log(`  Deploying ${module}...`);
+      // For non-localhost networks, auto-confirm deployment
       const cmd = `npx hardhat ignition deploy ignition/modules/${module}.ts --network ${network} --parameters ${paramsPath}`;
-      execSync(cmd, { stdio: "inherit" });
+      if (network !== "localhost" && network !== "hardhat") {
+        execSync(`echo "y" | ${cmd}`, { stdio: "inherit", shell: true });
+      } else {
+        execSync(cmd, { stdio: "inherit" });
+      }
     }
 
     // For localhost, also deploy MockZoraFactory

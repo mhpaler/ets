@@ -2,7 +2,6 @@ import type { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers"
 import type { ContractFactory } from "ethers";
 import type { Artifact } from "hardhat/types";
 import type {
-  AirnodeRrpV0Proxy,
   ETS,
   ETSAccessControls,
   ETSChannel,
@@ -42,7 +41,6 @@ export interface Accounts {
 }
 
 export interface Contracts {
-  AirnodeRrpV0Proxy: AirnodeRrpV0Proxy;
   ETSAccessControls: ETSAccessControls;
   ETSToken: ETSToken;
   ETSTarget: ETSTarget;
@@ -56,7 +54,6 @@ export interface Contracts {
 }
 
 export interface Artifacts {
-  AirnodeRrpV0Proxy: Artifact;
   ETSAccessControls: Artifact;
   ETSToken: Artifact;
   ETSTarget: Artifact;
@@ -73,7 +70,6 @@ export interface Artifacts {
 }
 
 export interface Factories {
-  AirnodeRrpV0Proxy: ContractFactory;
   ETSAccessControls: ContractFactory;
   ETSToken: ContractFactory;
   ETSTarget: ContractFactory;

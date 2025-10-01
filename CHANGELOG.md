@@ -5,6 +5,29 @@ All notable changes to the ETS project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2025-10-01
+
+### Added
+- Base Sepolia deployment with complete contract suite (#539)
+- Task queue switching strategy for Temporal workflows
+- Environment-aware configuration for multi-network support
+
+### Changed
+- Fixed `configure-ets.ts` script to properly handle role assignments on Base Sepolia
+- ETSChannel now properly owned by ETSPlatform instead of ETSAdmin
+- Updated deployment scripts with auto-confirmation for non-localhost environments
+- Deploy command renamed from `deploy:baseSepolia` to `deploy:staging`
+
+### Fixed
+- Role configuration now uses correct admin account for setRoleAdmin calls
+- Network detection properly uses HARDHAT_NETWORK environment variable
+- ETSChannel creation properly assigns ownership to ETSPlatform
+
+### Removed
+- Vestigial Airnode dependencies from contracts package
+- 5 obsolete apps (event-processor, offchain-api, gelato, oracle, zora-coin-poc) - saved 607 packages
+- Diagnostic scripts used during Base Sepolia deployment debugging
+
 ## 2025-01-21
 
 ### Added

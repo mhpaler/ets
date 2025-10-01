@@ -1,6 +1,6 @@
 {
   "ETSCore": {
-    "taggingFee": "100000000000000000",
+    "taggingFee": "10000000000000",
     "platformPercentage": 40,
     "channelPercentage": 20
   },

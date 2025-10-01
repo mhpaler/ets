@@ -17,7 +17,20 @@ async function main() {
   const accounts = getETSAccounts(walletClients);
 
   // Get deployment addresses
-  const chainId = hardhat.network.name === "localhost" ? 31337 : hardhat.network.config?.chainId || 31337;
+  // Use environment variable or fallback to hardhat network name
+  const networkName = process.env.HARDHAT_NETWORK || hardhat.network.name || "localhost";
+
+  // Map network names to chain IDs
+  const chainIdMap: Record<string, number> = {
+    localhost: 31337,
+    hardhat: 31337,
+    baseSepolia: 84532,
+    base: 8453,
+  };
+
+  const chainId = chainIdMap[networkName] || 31337;
+
+  console.log(`Using network: ${networkName} (chainId: ${chainId})`);
   const deploymentPath = `./ignition/deployments/chain-${chainId}/deployed_addresses.json`;
 
   const fs = await import("node:fs");
@@ -60,14 +73,15 @@ async function main() {
     console.log("✅ Granted DEFAULT_ADMIN_ROLE to ETSPlatform");
   }
 
-  // Set role admins using the platform account
+  // Set role admins - must use an account with DEFAULT_ADMIN_ROLE
+  // Use adminAccount which we determined has DEFAULT_ADMIN_ROLE
   await accessControls.write.setRoleAdmin([CHANNEL_FACTORY_ROLE, CHANNEL_ADMIN_ROLE], {
-    account: accounts.ETSPlatform.account,
+    account: adminAccount,
   });
   console.log("✅ Set CHANNEL_ADMIN_ROLE as admin of CHANNEL_FACTORY_ROLE");
 
   await accessControls.write.setRoleAdmin([CHANNEL_ROLE, CHANNEL_FACTORY_ROLE], {
-    account: accounts.ETSPlatform.account,
+    account: adminAccount,
   });
   console.log("✅ Set CHANNEL_FACTORY_ROLE as admin of CHANNEL_ROLE");
 
@@ -75,38 +89,43 @@ async function main() {
   console.log("\nGranting roles...");
 
   // Grant CHANNEL_ADMIN_ROLE
+  // For granting roles, we can use ETSPlatform since it has DEFAULT_ADMIN_ROLE
+  // and DEFAULT_ADMIN_ROLE is the admin of all these roles by default
   await accessControls.write.grantRole([CHANNEL_ADMIN_ROLE, accounts.ETSAdmin.account.address], {
-    account: accounts.ETSPlatform.account,
+    account: adminAccount,
   });
   console.log("✅ Granted CHANNEL_ADMIN_ROLE to ETSAdmin");
 
   await accessControls.write.grantRole([CHANNEL_ADMIN_ROLE, accounts.ETSPlatform.account.address], {
-    account: accounts.ETSPlatform.account,
+    account: adminAccount,
   });
   console.log("✅ Granted CHANNEL_ADMIN_ROLE to ETSPlatform");
 
   // Grant EVENT_PROCESSOR_ROLE
   await accessControls.write.grantRole([EVENT_PROCESSOR_ROLE, accounts.ETSPlatform.account.address], {
-    account: accounts.ETSPlatform.account,
+    account: adminAccount,
   });
   console.log("✅ Granted EVENT_PROCESSOR_ROLE to ETSPlatform");
 
   await accessControls.write.grantRole([EVENT_PROCESSOR_ROLE, accounts.ETSEventProcessor.account.address], {
-    account: accounts.ETSPlatform.account,
+    account: adminAccount,
   });
   console.log("✅ Granted EVENT_PROCESSOR_ROLE to ETSEventProcessor");
 
   // Grant SMART_CONTRACT_ROLE
   await accessControls.write.grantRole([SMART_CONTRACT_ROLE, accounts.ETSAdmin.account.address], {
-    account: accounts.ETSPlatform.account,
+    account: adminAccount,
   });
   console.log("✅ Granted SMART_CONTRACT_ROLE to ETSAdmin");
 
   // Grant CHANNEL_FACTORY_ROLE to the factory
   await accessControls.write.grantRole([CHANNEL_FACTORY_ROLE, channelFactory.address], {
-    account: accounts.ETSPlatform.account,
+    account: adminAccount,
   });
   console.log("✅ Granted CHANNEL_FACTORY_ROLE to ChannelFactory");
+
+  // Wait a moment for the role grant to be confirmed
+  await new Promise(resolve => setTimeout(resolve, 1000));
 
   // Link contracts
   console.log("\nLinking contracts...");
@@ -127,18 +146,19 @@ async function main() {
     if (existingChannel && existingChannel !== "0x0000000000000000000000000000000000000000") {
       console.log("✅ ETSChannel already exists at:", existingChannel);
     } else {
-      // Create the default channel using ETSAdmin account
+      // Create the default channel using ETSPlatform account (will be the channel owner)
       const tx = await channelFactory.write.addChannel(["ETSChannel"], {
-        account: accounts.ETSAdmin.account,
+        account: accounts.ETSPlatform.account,
       });
 
       // Wait for transaction confirmation
       const publicClient = await viem.getPublicClient();
-      const _receipt = await publicClient.waitForTransactionReceipt({ hash: tx });
+      await publicClient.waitForTransactionReceipt({ hash: tx });
 
       // Get the deployed channel address from the event
       const channelAddress = await accessControls.read.getChannelAddressFromName(["ETSChannel"]);
       console.log("✅ Created default ETSChannel at:", channelAddress);
+      console.log(`   (owned by ETSPlatform: ${accounts.ETSPlatform.account.address})`);
     }
   } catch (error) {
     console.error("⚠️  Could not create default ETSChannel:", error);
