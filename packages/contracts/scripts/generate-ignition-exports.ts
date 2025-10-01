@@ -74,6 +74,11 @@ async function generateExports() {
       }
     }
 
+    // Since ETSEnrichTarget was merged into ETSTarget, use target address for enrichTarget
+    if (contracts.target && !contracts.enrichTarget) {
+      contracts.enrichTarget = contracts.target;
+    }
+
     deployments[network.name] = {
       chainId: network.chainId,
       name: network.name,

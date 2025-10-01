@@ -66,19 +66,19 @@ export async function TargetEnrichmentWorkflow(input: TargetEnrichmentWorkflowIn
     });
 
     if (eventResult.status === "failed") {
-      // Don't fail the workflow if we can't call the contract function
-      // The metadata was successfully fetched, which is the main goal
-      log.warn(`Failed to call enrichTarget on-chain: ${eventResult.error}`);
-      log.warn("Metadata was fetched but not recorded on-chain");
-
-      // We could potentially store this for manual retry later
-      result.steps.emitEnrichmentEvent = false;
-      result.error = eventResult.error;
-    } else {
-      result.steps.emitEnrichmentEvent = true;
-      result.enrichmentTransactionHash = eventResult.transactionHash;
-      log.info(`Successfully called enrichTarget on-chain: ${eventResult.transactionHash}`);
+      // Fail the workflow so Temporal can retry according to retry policy
+      // The on-chain enrichment is critical - metadata-only is not acceptable
+      log.error(`Failed to call enrichTarget on-chain: ${eventResult.error}`);
+      throw ApplicationFailure.create({
+        message: `On-chain enrichment failed: ${eventResult.error}`,
+        type: "EnrichmentTransactionFailed",
+        nonRetryable: false, // Allow Temporal to retry
+      });
     }
+
+    result.steps.emitEnrichmentEvent = true;
+    result.enrichmentTransactionHash = eventResult.transactionHash;
+    log.info(`Successfully called enrichTarget on-chain: ${eventResult.transactionHash}`);
 
     // Optional: Add delay for indexers to process the event
     // Note: Transaction receipt is already awaited in the activity, so this is usually unnecessary
@@ -87,23 +87,14 @@ export async function TargetEnrichmentWorkflow(input: TargetEnrichmentWorkflowIn
     //   await sleep("5 seconds");
     // }
 
-    // Determine final status
-    if (result.steps.fetchMetadata && result.steps.emitEnrichmentEvent) {
-      result.status = "completed";
-    } else if (result.steps.fetchMetadata) {
-      result.status = "partial"; // Metadata fetched but not recorded on-chain
-    }
-
+    // If we reach here, both steps succeeded
+    result.status = "completed";
     return result;
   } catch (error) {
     log.error(`Target enrichment failed for ${input.targetURI}:`, { error });
-
-    // Check if any steps succeeded for partial success
-    if (result.steps.fetchMetadata) {
-      result.status = "partial";
-    }
-
     result.error = error instanceof Error ? error.message : String(error);
-    return result;
+
+    // Re-throw to let Temporal handle the failure
+    throw error;
   }
 }

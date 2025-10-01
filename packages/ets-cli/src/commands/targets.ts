@@ -203,6 +203,11 @@ Examples:
         const targetAddress = await getContractAddress(options.network, "target");
         const { ETSTargetABI } = await import("@ethereum-tag-service/contracts/abis");
 
+        // Get the deployment block for this network
+        const { getNetwork } = await import("../utils/network.js");
+        const networkConfig = await getNetwork(options.network);
+        const fromBlock = networkConfig.deploymentBlock || 0n;
+
         // Get TargetCreated events
         const events = await publicClient.getLogs({
           address: targetAddress,
@@ -211,7 +216,7 @@ Examples:
             name: "TargetCreated",
             inputs: [{ type: "uint256", name: "targetId", indexed: false }],
           },
-          fromBlock: 0n,
+          fromBlock,
           toBlock: "latest",
         });
 
@@ -276,6 +281,87 @@ Examples:
         }
       } catch (error: any) {
         spinner.fail("Failed to list targets");
+        console.error(chalk.red(`❌ Error: ${error.message}`));
+        process.exit(1);
+      }
+    });
+
+  targets
+    .command("enrich")
+    .description("Re-enrich target metadata")
+    .argument("<id>", "Target ID (uint256 number)")
+    .option("-n, --network <network>", "Network to use", process.env.NETWORK || "localhost")
+    .addHelpText(
+      "after",
+      `
+Examples:
+  $ ets targets enrich 12345
+  $ ets targets enrich 0x1234...  # Hex format also accepted`,
+    )
+    .action(async (id: string, options) => {
+      const spinner = ora("Requesting target enrichment...").start();
+
+      try {
+        const walletClient = await getWalletClient(options.network);
+        const targetAddress = await getContractAddress(options.network, "target");
+        const { ETSTargetABI } = await import("@ethereum-tag-service/contracts/abis");
+
+        // Convert input to BigInt for uint256 target ID
+        let targetId: bigint;
+        try {
+          targetId = BigInt(id);
+        } catch {
+          spinner.fail("Invalid target ID. Please provide a valid number.");
+          process.exit(1);
+        }
+
+        // Check if target exists
+        const publicClient = await getPublicClient(options.network);
+        const targetExists = await publicClient.readContract({
+          address: targetAddress,
+          abi: ETSTargetABI,
+          functionName: "targetExistsById",
+          args: [targetId],
+        });
+
+        if (!targetExists) {
+          spinner.fail("Target not found");
+          console.error(chalk.red(`❌ No target with ID: ${targetId}`));
+          process.exit(1);
+        }
+
+        spinner.text = "Submitting enrichment request...";
+
+        // Call requestEnrichTarget
+        const hash = await walletClient.writeContract({
+          address: targetAddress,
+          abi: ETSTargetABI,
+          functionName: "requestEnrichTarget",
+          args: [targetId],
+        });
+
+        spinner.text = "Waiting for confirmation...";
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+
+        if (receipt.status === "success") {
+          spinner.succeed("Enrichment request submitted successfully!");
+          console.log(chalk.green("\n✅ EnrichTargetRequested event emitted"));
+          console.log(chalk.white(`   Target ID: ${targetId}`));
+          console.log(chalk.gray(`   Transaction: ${hash}`));
+          console.log(chalk.gray(`   Block: ${receipt.blockNumber}`));
+
+          if (options.network === "localhost") {
+            console.log(chalk.yellow("\n⚠️  Note: The event processor will pick this up and enrich the target."));
+          } else {
+            console.log(
+              chalk.yellow("\n⚠️  Note: The Temporal Processor will detect this event and enrich the target."),
+            );
+          }
+        } else {
+          spinner.fail("Transaction failed");
+        }
+      } catch (error: any) {
+        spinner.fail("Failed to request enrichment");
         console.error(chalk.red(`❌ Error: ${error.message}`));
         process.exit(1);
       }

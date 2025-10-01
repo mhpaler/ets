@@ -1,6 +1,6 @@
 import { http, type Abi, type Hash, createPublicClient, createWalletClient, defineChain } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { base, sepolia } from "viem/chains";
+import { base, baseSepolia } from "viem/chains";
 import { config } from "../config";
 import { MetadataExtractor } from "../services/MetadataExtractor";
 import type { EnrichmentEventResult, MetadataFetchResult } from "../types";
@@ -29,8 +29,8 @@ function getChain() {
   switch (config.blockchain.chainId) {
     case 31337:
       return localChain;
-    case 11155111:
-      return sepolia;
+    case 84532:
+      return baseSepolia;
     case 8453:
       return base;
     default:
@@ -95,8 +95,8 @@ export async function callEnrichTargetOnChain(params: {
   try {
     logger.info({ targetId: params.targetId }, "Calling enrichTarget on-chain");
 
-    // Check if we have a private key configured
-    const privateKey = process.env.EVENT_PROCESSOR_PRIVATE_KEY || process.env.PRIVATE_KEY;
+    // Get private key from config (supports both HD wallet and direct key)
+    const privateKey = config.blockchain.eventProcessorPrivateKey;
     if (!privateKey) {
       logger.warn("No private key configured, skipping on-chain enrichment");
       return {

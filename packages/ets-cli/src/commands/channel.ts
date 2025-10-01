@@ -83,6 +83,11 @@ export function setupChannelCommands(program: Command) {
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
         const { ETSAccessControlsABI, ETSChannelABI } = await import("@ethereum-tag-service/contracts/abis");
 
+        // Get the deployment block for this network
+        const { getNetwork } = await import("../utils/network.js");
+        const networkConfig = await getNetwork(options.network);
+        const fromBlock = networkConfig.deploymentBlock || 0n;
+
         // Get ChannelAdded events from AccessControls (not factory)
         const events = await publicClient.getLogs({
           address: accessControlsAddress,
@@ -91,7 +96,7 @@ export function setupChannelCommands(program: Command) {
             name: "ChannelAdded",
             inputs: [{ type: "address", name: "channel", indexed: false }],
           },
-          fromBlock: 0n,
+          fromBlock,
           toBlock: "latest",
         });
 

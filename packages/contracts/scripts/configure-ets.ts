@@ -125,7 +125,7 @@ async function main() {
   console.log("✅ Granted CHANNEL_FACTORY_ROLE to ChannelFactory");
 
   // Wait a moment for the role grant to be confirmed
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 
   // Link contracts
   console.log("\nLinking contracts...");

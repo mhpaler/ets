@@ -3,7 +3,7 @@ import path from "node:path";
 const { getContractAddresses } = require("@ethereum-tag-service/contracts/deployments");
 import { type Environment, getSubgraphEndpoint } from "@ethereum-tag-service/subgraph-endpoints";
 import { config as dotenvConfig } from "dotenv";
-import type { Address } from "viem";
+import type { Address, Hex } from "viem";
 
 // Load environment variables
 dotenvConfig({ path: path.resolve(process.cwd(), ".env") });
@@ -93,6 +93,55 @@ const getRpcUrl = (): string => {
   return "http://localhost:8545";
 };
 
+// @ts-ignore - Using require for ESM modules
+const { HDKey } = require("@scure/bip32");
+// @ts-ignore - Using require for ESM modules
+const { mnemonicToSeedSync } = require("@scure/bip39");
+
+// Derive private key from HD wallet
+const derivePrivateKey = (mnemonic: string, position: number): Hex => {
+  const seed = mnemonicToSeedSync(mnemonic);
+  const hdKey = HDKey.fromMasterSeed(seed);
+  // Using standard Ethereum HD path
+  const path = `m/44'/60'/0'/0/${position}`;
+  const derivedKey = hdKey.derive(path);
+  if (!derivedKey.privateKey) {
+    throw new Error(`Failed to derive private key at position ${position}`);
+  }
+  return `0x${Buffer.from(derivedKey.privateKey).toString("hex")}` as Hex;
+};
+
+// Get private keys for event processor and Zora roles
+const getPrivateKeys = () => {
+  // Check if using HD wallet (mnemonic provided)
+  // Strip quotes if present (dotenv doesn't auto-strip them)
+  const mnemonic = process.env.MNEMONIC?.replace(/^["']|["']$/g, "");
+
+  if (mnemonic) {
+    // HD Wallet positions:
+    // 0: ETSAdmin
+    // 1: ETSPlatform
+    // 2: ETSEventProcessor
+    // 3: ETSZora
+    const eventProcessorPosition = Number.parseInt(process.env.HD_WALLET_POSITION || "2", 10);
+    const zoraPosition = 3; // Always position 3 for Zora
+
+    return {
+      eventProcessorPrivateKey: derivePrivateKey(mnemonic, eventProcessorPosition),
+      zoraPrivateKey: derivePrivateKey(mnemonic, zoraPosition),
+    };
+  }
+
+  // Fall back to individual private keys
+  return {
+    eventProcessorPrivateKey: (process.env.EVENT_PROCESSOR_PRIVATE_KEY ||
+      process.env.PRIVATE_KEY ||
+      "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a") as Hex, // Hardhat account[2]
+    zoraPrivateKey: (process.env.ZORA_PRIVATE_KEY ||
+      "0xdbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97") as Hex, // Hardhat account[3]
+  };
+};
+
 // Determine if using Temporal Cloud
 const isTemporalCloud = Boolean(process.env.TEMPORAL_CLIENT_CERT && process.env.TEMPORAL_CLIENT_KEY);
 
@@ -117,12 +166,8 @@ export const config: Config = {
       etsEnrichTarget: (contractAddresses?.target as Address) || ("0x0" as Address), // Using target since enrichTarget is merged
       mockZoraFactory: contractAddresses?.mockZoraFactory as Address,
     },
-    // Use the event processor private key (account[2] in Hardhat)
-    eventProcessorPrivateKey:
-      process.env.EVENT_PROCESSOR_PRIVATE_KEY || "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a", // Hardhat account[2]
-    // Use the Zora private key for TAG coin creation (account[3] in Hardhat)
-    zoraPrivateKey:
-      process.env.ZORA_PRIVATE_KEY || "0xdbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97", // Hardhat account[3]
+    // Use HD wallet-derived keys or fallback to individual private keys
+    ...getPrivateKeys(),
   },
 
   services: {

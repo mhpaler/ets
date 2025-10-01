@@ -2,15 +2,39 @@
 
 ## 2025-10-01
 
+### Completed
+- **Base Sepolia Integration Tests** - All 3 integration tests passing on Base Sepolia testnet
+  - E2E enrichment workflow with Temporal Processor
+  - Direct enrichment by event processor account
+  - Security validation for access control
+- **Temporal Processor Base Sepolia Support** - Full configuration for staging deployment
+  - HD wallet integration with mnemonic-based accounts
+  - Alchemy RPC for reliable event filtering
+  - Base Sepolia chain support (84532)
+
 ### Added
 - **BASE-SEPOLIA-DEPLOYMENT.md** - Complete deployment guide for Base Sepolia with task queue switching strategy
 - **CHANGE-MANAGEMENT.md** - Progressive deployment lifecycle documentation (Local → Staging → Production)
 - **Task queue switching strategy** - Enables hot-swapping between local debugging and cloud deployment
 - **Documentation-first configuration** - MVP approach avoiding over-engineering
+- **`ets targets enrich` CLI command** - Manually trigger target enrichment via `requestEnrichTarget()`
+- **Base Sepolia startup script** - `start-basesepolia.sh` for local TP testing against testnet
+
+### Fixed
+- **Integration test chain configuration** - Tests now use correct chain for wallet clients (fixes "invalid chain ID" errors)
+- **Target ID computation** - Switched from unreliable event parsing to `computeTargetId()` for accuracy
+- **RPC state propagation** - Added 2-second delays for Alchemy cache consistency
+- **Test timeout** - Increased enrichment test timeout to 40s to allow Temporal workflow completion
+- **Workflow error handling** - Throw `ApplicationFailure` on enrichment errors instead of silently completing
+- **MNEMONIC parsing** - Strip quotes from environment variable (dotenv doesn't auto-strip)
+- **Alchemy block range limits** - Set maxBlockRange to 9n (free tier allows 10 blocks inclusive)
+- **Event processor private key** - Use `config.blockchain.eventProcessorPrivateKey` instead of direct env access
 
 ### Changed
-- **ROADMAP.md** - Updated with deployment strategy architectural decisions
-- **#539.5 Multi-Environment Configuration** - Now IN_PROGRESS (30% complete)
+- **ROADMAP.md** - Updated with deployment strategy architectural decisions and operational toggle approach
+- **#539.5 Multi-Environment Configuration** - Now IN_PROGRESS (85% → 100% complete)
+- **Integration tests** - Now use Base Sepolia (84532) instead of Ethereum Sepolia (11155111)
+- **Contract address loading** - Integration tests load from `@ethereum-tag-service/contracts/deployments` dynamically
 
 ### Removed
 - **Vestigial apps** - Cleaned up 5 obsolete apps from @apps directory:

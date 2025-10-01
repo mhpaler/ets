@@ -6,7 +6,7 @@ epic_branch: 528-tag-coins-epic
 main_branch: stage
 github_epic: #528
 project_name: TAG Coins Implementation
-last_updated: 2025-09-22
+last_updated: 2025-10-01
 ```
 
 ## ACTIVE_WORK
@@ -14,15 +14,16 @@ last_updated: 2025-09-22
 current_issue_id: "#539.5: Multi-Environment Configuration"
 current_status: COMPLETED
 completion_percent: 100
-exact_task: "Base Sepolia deployment completed with full role configuration"
+exact_task: "Base Sepolia integration complete - all tests passing, TP operational"
 blocking_bug: null
-next_priority: "Set up Temporal Processor for Base Sepolia events"
-resume_action: "Configure temporal-processor for Base Sepolia event processing"
-session_accomplishment: "Successfully deployed all contracts to Base Sepolia with proper role configuration and ETSChannel ownership"
-architecture_decision: "ETSChannel owned by ETSPlatform for proper tagging authority"
-critical_path: "Documentation ✅ → Base Sepolia contracts ✅ → Local staging test → Cloud staging → Production"
-debugging_insight: "Role configuration requires DEFAULT_ADMIN_ROLE for setRoleAdmin operations"
-deployment_strategy: "Progressive deployment with full control at each stage"
+next_priority: "#539.10: Production-Ready Event Recovery & Checkpoint System"
+resume_action: "Implement chunked historical scanning and checkpoint recovery before cloud deployment"
+session_accomplishment: "✅ Base Sepolia fully integrated: TP operational, integration tests passing (E2E, direct enrichment, security validation)"
+architecture_decision: "Operational toggle strategy: only ONE TP instance per blockchain at a time (hot-swap: stop cloud → test local → stop local → deploy cloud)"
+critical_path: "Base Sepolia contracts ✅ → Local staging test ✅ → Checkpoint system 🔄 → Cloud staging → Production"
+debugging_insight: "RPC state propagation delays required (2s) for Alchemy cache consistency; maxBlockRange=9n for free tier (10 blocks inclusive)"
+deployment_strategy: "Current: forward-only event processing works; Next: add historical backfill + checkpoint recovery for production readiness"
+integration_test_coverage: "3/3 passing - E2E workflow (40s timeout), direct enrichment, unauthorized access denial"
 ```
 
 ## CRITICAL_PATH
@@ -79,14 +80,26 @@ technical_dependencies:
 
 architectural_decisions:
   - date: 2025-10-01
+    decision: "Operational Toggle Strategy for Local vs Cloud TP"
+    impact:
+      - "Only ONE Temporal Processor instance runs per blockchain at a time"
+      - "Task queues (local-staging vs cloud-staging) provide organizational clarity, not isolation"
+      - "Conflicts prevented operationally: turn off cloud TP when testing locally, turn off local TP when deploying to cloud"
+      - "Hot-swap workflow: stop cloud → test local → stop local → deploy → start cloud"
+    rationale: "Both local and cloud TPs watch the same blockchain events - simultaneous operation would cause duplicate enrichment. Operational control is simpler and more reliable than distributed coordination."
+    implementation: "Manual on/off control during development, future: checkpoint-based deduplication for safety (#539.10)"
+    alternative_considered: "Checkpoint-based coordination where both workers check shared state before processing - adds complexity, deferred to #539.10"
+
+  - date: 2025-10-01
     decision: "Task Queue Switching Strategy for Multi-Environment Control"
     impact:
       - "Use different Temporal task queues for local vs cloud processing"
       - "Enables hot-swapping between local debugging and cloud deployment"
       - "Queue naming: ets-workflows-{location}-{environment}"
       - "Supports progressive deployment: local → local-staging → cloud-staging → production"
-    rationale: "Provides full control during development while maintaining cloud deployment capability"
+    rationale: "Provides organizational clarity and workflow isolation within Temporal"
     implementation: "Documentation-only approach for MVP, configuration via environment variables"
+    clarification: "Task queues organize work, but do NOT prevent duplicate blockchain event processing - that requires operational control (see Operational Toggle Strategy)"
 
   - date: 2025-10-01
     decision: "Documentation-First Configuration Management"
@@ -631,24 +644,32 @@ achievements:
 id: #539.5
 status: IN_PROGRESS
 priority: MEDIUM
-completion: 30
+completion: 85
 dependencies: ["#539.4"]
 deliverables:
   - "Local development configuration (Hardhat, ArLocal, MockZora)" ✅
-  - "Staging configuration (Base Sepolia, Temporal Cloud)" 🔄
+  - "Staging configuration (Base Sepolia, Temporal Cloud)" ✅
   - "Production preparation (Base Mainnet, security hardening)"
   - "Configuration management and validation" ✅
-  - "Deployment scripts for all environments"
+  - "Deployment scripts for all environments" ✅
 estimated_duration: "1-2 days"
 completed:
-  - "BASE-SEPOLIA-DEPLOYMENT.md with step-by-step guide"
-  - "CHANGE-MANAGEMENT.md for deployment lifecycle"
-  - "Task queue switching strategy documented"
-  - "Progressive deployment flow defined"
+  - "BASE-SEPOLIA-DEPLOYMENT.md with step-by-step guide" ✅
+  - "CHANGE-MANAGEMENT.md for deployment lifecycle" ✅
+  - "Task queue switching strategy documented" ✅
+  - "Progressive deployment flow defined" ✅
+  - "Deployed all contracts to Base Sepolia (chain 84532)" ✅
+  - "Configured local TP for Base Sepolia events with Alchemy RPC" ✅
+  - "Created .env.basesepolia with HD wallet and proper configuration" ✅
+  - "Fixed Alchemy block range limits (9-block max for free tier)" ✅
+  - "Created start-basesepolia.sh script for TP" ✅
+blockers:
+  - "Checkpoint system only scans recent 10 blocks on first run"
+  - "Need historical event backfill (#539.10) for existing targets"
 next_steps:
-  - "Deploy contracts to Base Sepolia"
-  - "Test local processing of Base Sepolia events"
-  - "Validate cloud deployment"
+  - "Test new target creation with current setup (forward-only processing)"
+  - "Implement SUB_539.10 for production-ready checkpoint system"
+  - "Validate cloud deployment after checkpoint implementation"
 ```
 
 ##### SUB_539.6: Monitoring & Observability
@@ -727,6 +748,36 @@ achievements:
   - "Build successful with no TypeScript errors"
 discovered_date: 2025-09-30
 discovered_by: "E2E testing investigation"
+```
+
+##### SUB_539.10: Production-Ready Event Recovery & Checkpoint System
+```yaml
+id: #539.10
+status: NOT_STARTED
+priority: CRITICAL
+completion: 0
+dependencies: ["#539.5"]
+deliverables:
+  - "Implement chunked historical scanning for deployment block → current block"
+  - "Handle Alchemy/RPC provider block range limits (10 blocks for free tier)"
+  - "Persistent checkpoint storage with atomic updates"
+  - "Event deduplication across restarts using event IDs (txHash-logIndex)"
+  - "Graceful recovery on worker crash/restart from last checkpoint"
+  - "Backfill capability for manually triggering historical event processing"
+  - "Environment-specific deployment blocks (localhost: 0, baseSepolia: 31787829, base: TBD)"
+  - "Checkpoint validation and corruption detection"
+  - "Progress reporting for long-running historical scans"
+estimated_duration: "3-4 days"
+rationale: "Critical for cloud/production deployment - ensures no events are missed during downtime or initial deployment"
+architecture_requirements:
+  - "Must handle provider limitations (Alchemy free tier: 10 blocks, PAYG: larger ranges)"
+  - "Atomic checkpoint updates to prevent partial state"
+  - "Memory-efficient processing for large block ranges (avoid loading all events at once)"
+  - "Idempotent event processing (safe to reprocess duplicate events)"
+  - "Observable progress for operators monitoring backfills"
+production_readiness: "Blocks cloud deployment and production rollout"
+discovered_date: 2025-10-01
+discovered_by: "Base Sepolia integration testing - existing targets not detected"
 ```
 
 

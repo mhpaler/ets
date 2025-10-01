@@ -7,6 +7,7 @@ export interface NetworkConfig {
   name: string;
   viemChain: Chain;
   rpcUrl: string;
+  deploymentBlock?: bigint;
   contracts?: {
     accessControls?: Address;
     token?: Address;
@@ -17,24 +18,40 @@ export interface NetworkConfig {
   };
 }
 
+// Helper to construct Alchemy URL
+const getAlchemyUrl = (network: string): string | undefined => {
+  const alchemyKey = process.env.ALCHEMY_API_KEY;
+  if (!alchemyKey) return undefined;
+
+  const networkMap: Record<string, string> = {
+    baseSepolia: "base-sepolia",
+    base: "base-mainnet",
+  };
+
+  const alchemyNetwork = networkMap[network];
+  return alchemyNetwork ? `https://${alchemyNetwork}.g.alchemy.com/v2/${alchemyKey}` : undefined;
+};
+
 const networks: Record<string, NetworkConfig> = {
   localhost: {
     chainId: 31337,
     name: "Localhost",
     viemChain: { ...localhost, id: 31337 },
     rpcUrl: process.env.RPC_URL_LOCALHOST || "http://127.0.0.1:8545",
+    deploymentBlock: 0n,
   },
   baseSepolia: {
     chainId: 84532,
     name: "Base Sepolia",
     viemChain: baseSepolia,
-    rpcUrl: process.env.RPC_URL_BASESEPOLIA || "https://sepolia.base.org",
+    rpcUrl: process.env.RPC_URL_BASESEPOLIA || getAlchemyUrl("baseSepolia") || "https://sepolia.base.org",
+    deploymentBlock: 31787829n, // ETS deployment block
   },
   base: {
     chainId: 8453,
     name: "Base",
     viemChain: base,
-    rpcUrl: process.env.RPC_URL_BASE || "https://mainnet.base.org",
+    rpcUrl: process.env.RPC_URL_BASE || getAlchemyUrl("base") || "https://mainnet.base.org",
   },
 };
 

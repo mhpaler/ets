@@ -2,9 +2,9 @@
 import { afterAll, beforeAll, describe, test } from "bun:test";
 import { ETSAccessControlsABI, ETSTargetABI } from "@ethereum-tag-service/contracts/abis";
 import { expect } from "chai";
-import { http, type Address, type Hash, createPublicClient, createWalletClient, parseEventLogs } from "viem";
+import { http, type Address, createPublicClient, createWalletClient, parseEventLogs } from "viem";
 import { mnemonicToAccount } from "viem/accounts";
-import { base, localhost, sepolia } from "viem/chains";
+import { base, baseSepolia, localhost } from "viem/chains";
 
 /**
  * Target Enrichment Integration Test v3
@@ -16,7 +16,7 @@ import { base, localhost, sepolia } from "viem/chains";
  *
  * Environments:
  * - local: Uses Hardhat + Temporal processor
- * - staging: Uses Sepolia testnet + staging infrastructure
+ * - staging: Uses Base Sepolia testnet + staging infrastructure
  * - production: Uses Base mainnet (read-only)
  */
 
@@ -24,7 +24,7 @@ interface EnvironmentConfig {
   name: string;
   rpcUrl: string;
   chainId: number;
-  chain: typeof localhost | typeof sepolia | typeof base;
+  chain: typeof localhost | typeof baseSepolia | typeof base;
   temporalUrl?: string;
   requiresLocalServices: boolean;
   isReadOnly: boolean;
@@ -66,23 +66,22 @@ const environments: Record<string, EnvironmentConfig> = {
   },
 
   staging: {
-    name: "Staging (Sepolia)",
-    rpcUrl: process.env.STAGING_RPC_URL || "https://sepolia.infura.io/v3/YOUR_KEY",
-    chainId: 11155111,
-    chain: sepolia,
+    name: "Staging (Base Sepolia)",
+    rpcUrl: process.env.STAGING_RPC_URL || "https://base-sepolia.g.alchemy.com/v2/TjjzoNYlIqWqZxcoufe60bhVbARhkxYX",
+    chainId: 84532,
+    chain: baseSepolia,
     requiresLocalServices: false,
     isReadOnly: false,
     mnemonic: process.env.MNEMONIC_TESTNET_STAGING,
     accounts: {
-      testerIndex: 0,
+      testerIndex: 0, // Position 0 (ETSAdmin) - should be funded on testnet
+      eventProcessorIndex: 2, // Position 2 = EVENT_PROCESSOR_ROLE
     },
     timeouts: {
       enrichment: 30000,
       serviceHealth: 5000,
     },
-    contracts: {
-      // Add staging contract addresses when deployed
-    },
+    // Contract addresses will be loaded from deployments
   },
 
   production: {
@@ -236,15 +235,9 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
       }
 
       if (testerAccount) {
-        // Use localhost chain configuration with custom chainId
-        const localChain = {
-          ...localhost,
-          id: 31337,
-        };
-
         walletClient = createWalletClient({
           account: testerAccount,
-          chain: localChain,
+          chain: env.chain,
           transport: http(env.rpcUrl),
         });
       }
@@ -254,14 +247,15 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
   async function loadContracts() {
     console.log("📦 Loading contract addresses...");
 
-    if (env.chainId === 31337) {
-      // Load from local deployments
+    // Load from contracts package deployments for localhost and baseSepolia
+    if (env.chainId === 31337 || env.chainId === 84532) {
       try {
         const { getContractAddresses } = await import("@ethereum-tag-service/contracts/deployments");
-        const addresses = await getContractAddresses("localhost");
+        const networkName = env.chainId === 31337 ? "localhost" : "baseSepolia";
+        const addresses = await getContractAddresses(networkName);
 
         if (!addresses) {
-          throw new Error("No contract addresses found for localhost");
+          throw new Error(`No contract addresses found for ${networkName}`);
         }
 
         contracts.ETSTarget = {
@@ -281,7 +275,7 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
         throw error;
       }
     } else if (env.contracts) {
-      // Use configured addresses for staging/production
+      // Use configured addresses for production
       if (env.contracts.etsTarget) {
         contracts.ETSTarget = {
           address: env.contracts.etsTarget,
@@ -325,18 +319,33 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
       account: testerAccount,
     });
 
-    const createReceipt = await publicClient.waitForTransactionReceipt({ hash: createTargetTx });
+    await publicClient.waitForTransactionReceipt({ hash: createTargetTx });
     console.log(`  📤 Target created in tx: ${createTargetTx}`);
 
-    // Get the targetId from the TargetCreated event
-    const targetCreatedLogs = parseEventLogs({
-      abi: contracts.ETSTarget!.abi,
-      logs: createReceipt.logs,
-    });
+    // Wait a moment for RPC state to propagate (Alchemy caching)
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    const targetCreatedEvent = targetCreatedLogs.find((log) => log.eventName === "TargetCreated");
-    const targetId = targetCreatedEvent?.args?.targetId;
+    // Compute target ID from URI (more reliable than parsing events)
+    const targetId = await publicClient.readContract({
+      address: contracts.ETSTarget!.address,
+      abi: contracts.ETSTarget!.abi,
+      functionName: "computeTargetId",
+      args: [targetURI],
+    });
     console.log(`  🎯 Target ID: ${targetId}`);
+
+    // Verify target exists
+    const targetExists = await publicClient.readContract({
+      address: contracts.ETSTarget!.address,
+      abi: contracts.ETSTarget!.abi,
+      functionName: "targetExistsById",
+      args: [targetId],
+    });
+    console.log(`  ✓ Target exists: ${targetExists}`);
+
+    if (!targetExists) {
+      throw new Error(`Target ${targetId} was not created successfully`);
+    }
 
     // Now request enrichment for this targetId
     const { request } = await publicClient.simulateContract({
@@ -438,7 +447,7 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
         `  ⚠️  No TargetEnriched event after ${env.timeouts.enrichment / 1000}s (workflow may still be processing)`,
       );
     }
-  });
+  }, 40000); // 40 second timeout to allow for enrichment workflow
 
   // Test: Event processor can enrich targets
   test("should allow event processor to enrich target", async () => {
@@ -451,10 +460,9 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
     const targetURI = `https://github.com/test-${Date.now()}`;
 
     // Create wallet client for regular user to create target
-    const localChain = { ...localhost, id: 31337 };
     const userWallet = createWalletClient({
       account: testerAccount!,
-      chain: localChain,
+      chain: env.chain,
       transport: http(env.rpcUrl),
     });
 
@@ -466,23 +474,25 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
       args: [targetURI],
     });
 
-    const createReceipt = await publicClient.waitForTransactionReceipt({ hash: createTx });
+    await publicClient.waitForTransactionReceipt({ hash: createTx });
 
-    // Get targetId from event
-    const logs = parseEventLogs({
+    // Wait a moment for RPC state to propagate (Alchemy caching)
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    // Compute target ID from URI (more reliable than parsing events)
+    const targetId = await publicClient.readContract({
+      address: contracts.ETSTarget!.address,
       abi: contracts.ETSTarget!.abi,
-      logs: createReceipt.logs,
+      functionName: "computeTargetId",
+      args: [targetURI],
     });
-
-    const targetCreatedEvent = logs.find((log) => log.eventName === "TargetCreated");
-    const targetId = targetCreatedEvent?.args?.targetId;
 
     console.log(`\n🤖 Event processor enriching target ${targetId}...`);
 
     // Create wallet client for event processor
     const eventProcessorWallet = createWalletClient({
       account: eventProcessorAccount,
-      chain: localChain,
+      chain: env.chain,
       transport: http(env.rpcUrl),
     });
 
@@ -547,16 +557,18 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
       account: testerAccount,
     });
 
-    const createReceipt = await publicClient.waitForTransactionReceipt({ hash: createTx });
+    await publicClient.waitForTransactionReceipt({ hash: createTx });
 
-    // Get targetId from event
-    const logs = parseEventLogs({
+    // Wait a moment for RPC state to propagate (Alchemy caching)
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    // Compute target ID from URI (more reliable than parsing events)
+    const targetId = await publicClient.readContract({
+      address: contracts.ETSTarget!.address,
       abi: contracts.ETSTarget!.abi,
-      logs: createReceipt.logs,
+      functionName: "computeTargetId",
+      args: [targetURI],
     });
-
-    const targetCreatedEvent = logs.find((log) => log.eventName === "TargetCreated");
-    const targetId = targetCreatedEvent?.args?.targetId;
 
     console.log(`\n🚫 Testing unauthorized enrichment attempt for target ${targetId}...`);
 

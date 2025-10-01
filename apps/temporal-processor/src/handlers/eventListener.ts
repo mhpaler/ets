@@ -243,6 +243,7 @@ export class EventListener {
 
         // Determine the starting block for getLogs
         const lastProcessedBlock = this.checkpointManager.getLastProcessedBlock();
+
         const fromBlock = lastProcessedBlock
           ? lastProcessedBlock + 1n > latestBlock
             ? latestBlock
@@ -257,16 +258,37 @@ export class EventListener {
           return;
         }
 
-        const recentLogs = await publicClient.getLogs({
-          address: config.blockchain.contracts.etsTarget as `0x${string}`,
-          event: targetCreatedEvent,
-          fromBlock,
-          toBlock: latestBlock,
-        });
+        // Alchemy free tier only allows 10 blocks at a time for getLogs
+        // Since the range is inclusive (fromBlock and toBlock both included),
+        // we need to use 9 as the max difference to get 10 blocks total
+        const maxBlockRange = 9n;
+        const blockRange = latestBlock - fromBlock;
+
+        let recentLogs: any[] = [];
+
+        if (blockRange <= maxBlockRange) {
+          // Range is small enough, query directly
+          recentLogs = await publicClient.getLogs({
+            address: config.blockchain.contracts.etsTarget as `0x${string}`,
+            event: targetCreatedEvent,
+            fromBlock,
+            toBlock: latestBlock,
+          });
+        } else {
+          // Need to chunk the request - just query the most recent 10 blocks
+          const adjustedFromBlock = latestBlock - maxBlockRange + 1n;
+          recentLogs = await publicClient.getLogs({
+            address: config.blockchain.contracts.etsTarget as `0x${string}`,
+            event: targetCreatedEvent,
+            fromBlock: adjustedFromBlock,
+            toBlock: latestBlock,
+          });
+        }
 
         if (recentLogs.length > 0) {
+          const actualFromBlock = blockRange <= maxBlockRange ? fromBlock : latestBlock - maxBlockRange + 1n;
           logger.info(
-            `📋 getLogs found ${recentLogs.length} TargetCreated event(s) in blocks ${fromBlock}-${latestBlock}`,
+            `📋 getLogs found ${recentLogs.length} TargetCreated event(s) in blocks ${actualFromBlock}-${latestBlock}`,
           );
           // Process these events since watchContractEvent might have missed them
           let processedCount = 0;
