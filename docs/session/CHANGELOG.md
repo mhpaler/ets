@@ -1,5 +1,23 @@
 # ETS Session Changelog
 
+## 2025-10-03
+
+### Changed
+- Updated Zora TAG coin metadata description from "ETS TAG coin for {tag}" to "Tradeable token for {tag} on Ethereum Tag Service" for better clarity
+- Finalized direct factory deployment approach using CREATOR_COIN_OR_ZORA pool configuration
+- Validated ZORA-paired coins are tradeable on Zora platform (ETH pairing not supported on Base mainnet)
+
+### Fixed
+- Corrected HD wallet derivation to use `addressIndex` instead of `accountIndex` for position-based account generation
+- Implemented dynamic SVG generation with hashtag text instead of static "ETS TAG" placeholder
+- Streamlined coin naming to use clean hashtag format (e.g., "#1759503475456") instead of prefixed format
+
+### Discovered
+- Zora platform requires ZORA token pairing for Base mainnet tradeability
+- Native ETH uses `zeroAddress` (0x000...000) in pool config but isn't supported by Zora's Base infrastructure
+- Initial distribution correctly allocates 1% (10M tokens) to creator, 99% (990M tokens) to liquidity pool
+- Zora indexer has ~24 hour lag for displaying holder information on newly deployed coins
+
 ## 2025-10-01
 
 ### Completed

@@ -171,18 +171,10 @@ Examples:
         console.log(chalk.gray("─".repeat(60)));
         console.log(chalk.white(`  URI: ${target.targetURI}`));
         console.log(chalk.white(`  Created by: ${target.createdBy}`));
-        console.log(chalk.white(`  HTTP Status: ${target.httpStatus || "Not checked"}`));
 
-        if (target.enriched && target.enriched > 0n) {
-          const enrichedDate = new Date(Number(target.enriched) * 1000).toLocaleDateString();
-          console.log(chalk.white(`  Enriched: ${chalk.green("Yes")} (${enrichedDate})`));
-
-          if (target.arweaveTxId) {
-            console.log(chalk.white(`  Arweave TX: ${target.arweaveTxId}`));
-          }
-        } else {
-          console.log(chalk.white(`  Enriched: ${chalk.yellow("No")}`));
-        }
+        // Note: Enrichment status requires The Graph indexer
+        // Direct event queries have block range limitations on free RPC tiers
+        console.log(chalk.gray("  Enrichment: (requires The Graph - coming soon)"));
       } catch (error: any) {
         spinner.fail("Failed to load target info");
         console.error(chalk.red(`❌ Error: ${error.message}`));

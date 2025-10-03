@@ -1,0 +1,36 @@
+{
+  "name": "@ethereum-tag-service/zora-coin-poc",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Zora Content Coin Creation POC - Demonstrates programmatic coin creation using Coinbase Smart Wallet dual-owner architecture",
+  "author": "Ethereum Tag Service <team@ets.xyz>",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+
+    "===== CURRENT: Direct Factory Deployment =====": "",
+    "validate": "bun src/validate-metadata.ts",
+    "deploy": "bun src/deploy-direct-factory.ts",
+    "deploy:dry": "bun src/deploy-direct-factory.ts --dry-run",
+    "deploy:testnet": "bun src/deploy-direct-factory.ts --testnet",
+    "deploy:testnet:dry": "bun src/deploy-direct-factory.ts --testnet --dry-run",
+
+    "===== REFERENCE: Account Abstraction POC =====": "",
+    "poc:viem": "bun poc-reference/src/deploy-with-viem-aa.ts",
+    "poc:viem:dry": "bun poc-reference/src/deploy-with-viem-aa.ts --dry-run",
+    "poc:viem:testnet": "bun poc-reference/src/deploy-with-viem-aa.ts --testnet",
+    "poc:viem:testnet:dry": "bun poc-reference/src/deploy-with-viem-aa.ts --testnet --dry-run",
+    "poc:real": "bun poc-reference/src/deploy-real-coin.ts",
+    "poc:simple": "bun poc-reference/src/deploy-simple-zora.ts",
+    "poc:simple:dry": "bun poc-reference/src/deploy-simple-zora.ts --dry-run"
+  },
+  "license": "ISC",
+  "packageManager": "pnpm@10.14.0",
+  "dependencies": {
+    "@zoralabs/coins-sdk": "^0.3.0",
+    "axios": "^1.11.0",
+    "dotenv": "^17.2.1",
+    "viem": "^2.35.1"
+  }
+}
