@@ -132,17 +132,30 @@ Examples:
           console.log(chalk.gray(`   Transaction: ${hash}`));
           console.log(chalk.gray(`   Block: ${receipt.blockNumber}`));
 
-          // Show the coin addresses for the created tags
+          // Fetch the current tag counter to determine tag IDs
+          const totalTagsCreated = await publicClient.readContract({
+            address: tokenAddress,
+            abi: tokenAbi,
+            functionName: "totalTagsCreated",
+          });
+
+          // Calculate the starting tag ID (tags were created sequentially)
+          const endingTagId = Number(totalTagsCreated);
+          const startingTagId = endingTagId - tagsToCreate.length + 1;
+
+          // Show the coin addresses and tag IDs for the created tags
           console.log(chalk.cyan("\n🏷️  Tag Details:"));
           const explorerUrl = getBlockExplorerUrl(options.network);
-          for (const tag of tagsToCreate) {
+          for (let i = 0; i < tagsToCreate.length; i++) {
+            const tag = tagsToCreate[i];
+            const tagId = startingTagId + i;
             const coinAddress = await publicClient.readContract({
               address: tokenAddress,
               abi: tokenAbi,
               functionName: "computeCoinAddress",
               args: [tag],
             });
-            console.log(chalk.white(`  ${tag} → ${coinAddress}`));
+            console.log(chalk.white(`  ${tag} (TAG #${tagId}) → ${coinAddress}`));
             if (explorerUrl) {
               console.log(chalk.blue(`     ${explorerUrl}/token/${coinAddress}`));
             }

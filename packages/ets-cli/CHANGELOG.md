@@ -1,5 +1,15 @@
 # ETS CLI Changelog
 
+## 2025-10-04
+
+### Added
+- Tag ID display in CLI output - shows sequential TAG number (e.g., "TAG #8") fetched from contract
+- Non-optimistic tag counter retrieval - fetches actual `totalTagsCreated()` from chain
+
+### Changed
+- Tag details now display format: `#TagName (TAG #8) → 0xCoinAddress`
+- Enhanced UX with sequential tag numbering for batch creations
+
 ## 2025-10-03
 
 ### Added

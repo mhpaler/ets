@@ -41,7 +41,13 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
 
     // Public constants
     string public constant NAME = "ETS TAG Token";
-    string public constant VERSION = "0.0.1";
+    string public constant VERSION = "0.1.0";
+
+    /**
+     * Version History:
+     * - 0.0.1: Initial deployment
+     * - 0.1.0: Added totalTagsCreated counter; Updated TagCreated event signature (breaking change)
+     */
 
     // Public variables
     uint256 public tagMinStringLength;

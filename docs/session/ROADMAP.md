@@ -11,20 +11,20 @@ last_updated: 2025-10-01
 
 ## ACTIVE_WORK
 ```yaml
-current_issue_id: "#539.5: Multi-Environment Configuration"
+current_issue_id: "#539.11: Contract Upgrade Documentation"
 current_status: COMPLETED
 completion_percent: 100
-exact_task: "Tag counter + Zora integration fixes committed - ready for #539.10 checkpoint system"
+exact_task: "Documented generic contract upgrade pattern and deployed ETSToken v0.1.0 to Base Sepolia"
 blocking_bug: null
 next_priority: "#539.10: Production-Ready Event Recovery & Checkpoint System"
 resume_action: "Implement chunked historical scanning and checkpoint recovery before cloud deployment"
-session_accomplishment: "✅ Tag counter (totalTagsCreated) implemented with comprehensive test coverage; ✅ Zora parameter mismatch fixed (TP now reads from ETSToken contract); ✅ CLI UX improved with deployment polling"
-architecture_decision: "Operational toggle strategy: only ONE TP instance per blockchain at a time (hot-swap: stop cloud → test local → stop local → deploy cloud)"
-critical_path: "Base Sepolia contracts ✅ → Local staging test ✅ → Tag counter ✅ → Zora fixes ✅ → Checkpoint system 🔄 → Cloud staging → Production"
-debugging_insight: "RPC state propagation delays required (2s) for Alchemy cache consistency; maxBlockRange=9n for free tier (10 blocks inclusive)"
-deployment_strategy: "Current: forward-only event processing works; Next: add historical backfill + checkpoint recovery for production readiness"
-integration_test_coverage: "All tests passing - 5 tag counter tests added, ETSEnrichTarget references removed"
-recent_commit: "feat: Add tag counter and fix Zora deployment integration (#528, #539)"
+session_accomplishment: "✅ ETSToken upgraded to v0.1.0 on Base Sepolia; ✅ Established generic upgrade pattern with semantic versioning; ✅ CLI enhanced with tag ID display; ✅ Created comprehensive upgrade guide for future reference"
+architecture_decision: "Generic contract upgrade pattern with semantic versioning in VERSION constant"
+critical_path: "Base Sepolia contracts ✅ → Tag counter upgrade ✅ → Generic upgrade pattern ✅ → Checkpoint system 🔄 → Cloud staging → Production"
+debugging_insight: "UUPS proxies require empty constructors; Ignition needs unique IDs to avoid conflicts with existing deployments"
+deployment_strategy: "Established reusable upgrade pattern: update VERSION → compile → deploy generic module → verify → rebuild ABIs"
+integration_test_coverage: "Upgrade verified on-chain; TP processes new events; CLI displays tag IDs correctly"
+recent_commit: "feat: Establish generic contract upgrade pattern and deploy ETSToken v0.1.0 (#528, #539)"
 ```
 
 ## CRITICAL_PATH

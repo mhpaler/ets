@@ -1,30 +1,45 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
 /**
- * Ignition module for upgrading ETSToken to ETSTokenUpgrade
+ * Generic Ignition module for upgrading ETSToken
  *
- * This demonstrates how to handle UUPS upgrades with Ignition
+ * This module can be reused for all ETSToken upgrades. The contract's VERSION
+ * constant tracks which version is deployed.
+ *
+ * Usage:
+ *   npx hardhat ignition deploy ignition/modules/ETSTokenUpgrade.ts \
+ *     --network baseSepolia \
+ *     --parameters ignition/parameters/etsTokenUpgrade.json
+ *
+ * Before upgrading:
+ *   1. Update VERSION constant in contracts/ETSToken.sol
+ *   2. Compile contracts: pnpm compile
+ *   3. Run this deployment script
  */
 const ETSTokenUpgradeModule = buildModule("ETSTokenUpgrade", (m) => {
   // Get the proxy address from parameters
   const proxyAddress = m.getParameter("proxyAddress");
 
-  // Deploy the new implementation
-  const newImplementation = m.contract("ETSTokenUpgrade", []);
+  // Deploy the new ETSToken implementation
+  // This will always deploy the CURRENT version from contracts/ETSToken.sol
+  // Note: Constructor takes no arguments (UUPS pattern uses initialize())
+  // Use unique ID to avoid conflict with existing deployment
+  const newImplementation = m.contract("ETSToken", [], {
+    id: "ETSTokenImplementation",
+  });
 
   // Get reference to the existing proxy
   const proxy = m.contractAt("ETSToken", proxyAddress);
 
   // Perform the upgrade by calling upgradeTo on the proxy
   m.call(proxy, "upgradeTo", [newImplementation], {
-    id: "UpgradeCall",
+    id: "UpgradeETSToken",
   });
 
-  // Return both the upgraded proxy (now with new implementation) and new implementation
   return {
     upgradedProxy: proxy,
     newImplementation,
   };
-}) as any;
+});
 
 export default ETSTokenUpgradeModule;

@@ -1,5 +1,35 @@
 # Architecture Decisions
 
+## 2025-10-04: Generic Contract Upgrade Pattern with Semantic Versioning
+
+**Rationale**:
+- Reusable upgrade modules prevent proliferation of feature-specific upgrade scripts
+- Semantic versioning in contract VERSION constant provides clear upgrade history
+- Generic pattern scales to unlimited upgrades without code duplication
+- On-chain version tracking allows querying contract version directly
+
+**Implementation**:
+- One upgrade module per contract type (e.g., ETSTokenUpgrade.ts)
+- VERSION constant in contract follows semantic versioning (0.0.1 → 0.1.0)
+- Version history documented in contract comments
+- Upgrade module always deploys current contract version
+- Parameters file contains only proxy address
+
+**Alternatives Considered**:
+- Feature-named upgrade modules (ETSTokenUpgradeToCounter.ts) - doesn't scale
+- Timestamp-based deployments - less clear than semantic versions
+- Migration numbers - unnecessary complexity for contract upgrades
+
+**Trade-offs**:
+- Must remember to update VERSION constant before upgrade
+- Version history in comments not queryable on-chain
+- Generic module doesn't self-document what changed
+
+**Future**:
+- Could add version registry contract for on-chain history
+- May automate VERSION bumping in build process
+- Consider adding upgrade description in events
+
 ## 2025-10-03: Contract-Sourced Zora Configuration for Parameter Consistency
 
 **Rationale**:
