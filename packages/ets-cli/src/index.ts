@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 
+// Load environment variables FIRST, before any other imports
+import dotenv from "dotenv";
+dotenv.config();
+
 import chalk from "chalk";
 import { Command } from "commander";
-import dotenv from "dotenv";
 import { version } from "../package.json";
 import { setupChannelCommands } from "./commands/channel.js";
 import { setupInfoCommands } from "./commands/info.js";
@@ -12,9 +15,6 @@ import { setupTargetCommands } from "./commands/targets.js";
 import { setupTestDataCommands } from "./commands/testdata.js";
 import { getNetwork } from "./utils/network.js";
 import { getWalletClient } from "./utils/wallet.js";
-
-// Load environment variables
-dotenv.config();
 
 const program = new Command();
 

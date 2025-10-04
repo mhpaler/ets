@@ -3,39 +3,8 @@ import { describe, it } from "node:test";
 import { network } from "hardhat";
 import { parseEther } from "viem";
 import ETSCoreModule from "../ignition/modules/ETSCore.js";
-import ETSEnrichTargetModule from "../ignition/modules/ETSEnrichTarget.js";
 
 describe("Hardhat Ignition - Layer 4 Modules (Complete System)", async () => {
-  it("should deploy ETSEnrichTarget with full dependency chain", async () => {
-    const { ignition, viem } = await network.connect();
-
-    console.log("🚀 Deploying ETSEnrichTarget module (complete dependency chain)...");
-
-    // Deploy ETSEnrichTarget - should automatically resolve entire dependency tree
-    const { enrichTarget, target, accessControls } = (await ignition.deploy(ETSEnrichTargetModule)) as any;
-
-    // Verify all contracts deployed
-    assert.ok(enrichTarget.address);
-    assert.ok(target.address);
-    assert.ok(accessControls.address);
-
-    console.log("ETSEnrichTarget deployed at:", enrichTarget.address);
-    console.log("ETSTarget deployed at:", target.address);
-    console.log("ETSAccessControls deployed at:", accessControls.address);
-
-    // Test ETSEnrichTarget initialization
-    const enrichTargetContract = await viem.getContractAt("ETSEnrichTarget", enrichTarget.address);
-
-    // Verify dependencies are correctly linked
-    const enrichTargetAccessControls = await enrichTargetContract.read.etsAccessControls();
-    const enrichTargetTarget = await enrichTargetContract.read.etsTarget();
-
-    assert.equal(enrichTargetAccessControls, accessControls.address);
-    assert.equal(enrichTargetTarget, target.address);
-
-    console.log("✅ ETSEnrichTarget dependency resolution working!");
-  });
-
   it("should deploy ETS Core with maximum complexity dependency chain", async () => {
     const { ignition, viem } = await network.connect();
 

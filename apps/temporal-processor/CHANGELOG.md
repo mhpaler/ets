@@ -1,5 +1,35 @@
 # Temporal Processor Changelog
 
+## 2025-10-03
+
+### Added
+- Sequential tag counter support - workflows now process tagId from TagCreated events (#539.5)
+- Zora deployment polling in activities for reliable coin creation confirmation
+- Multi-chain Basescan link support (Base Sepolia, Base Mainnet)
+- SVG metadata generation for TAG coins with inline data URIs
+- Dynamic pool config fetching from Zora API based on chain ID
+
+### Changed
+- **CRITICAL FIX**: Temporal Processor now reads Zora config from ETSToken contract to ensure parameter matching
+  - Uses machineName (not tagString) for coinName
+  - Uses "ETS" (not "TAG") for coinSymbol
+  - Uses zoraPlatformReferrer from contract (not channel address)
+- Enhanced TagCreated event handling to capture and log tagId (e.g., "Processing TAG #123: #bitcoin")
+- Updated deployment activities to validate Zora metadata structure
+- Improved error handling and retry logic for Zora deployments
+
+### Fixed
+- Deterministic address mapping between ETS tags and Zora coins
+- Parameter mismatch causing address inconsistencies between contracts and off-chain deployment
+- Chain ID configuration for multi-environment support (localhost, Base Sepolia, Base Mainnet)
+
+### Technical
+- Added validateZoraMetadata() function for metadata structure validation
+- Modified deployTagCoinOnZora() to use contract-sourced configuration
+- Implemented fetchPoolConfig() activity for dynamic Zora API integration
+- Related to #528 TAG Coins Epic
+- Addresses #539 Temporal Implementation
+
 ## 2025-09-23
 
 ### Added

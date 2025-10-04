@@ -136,6 +136,62 @@ async function main() {
   });
   console.log("✅ Set ETS Core on Token contract");
 
+  // Configure Zora integration
+  console.log("\nConfiguring Zora integration...");
+
+  // Zora factory address (same across all chains via CREATE2)
+  const ZORA_FACTORY = "0x777777751622c0d3258f214F9DF38E35BF45baF3";
+
+  // Fetch pool configuration from Zora API
+  const poolConfigUrl = new URL("https://api-sdk.zora.engineering/create/content/pool-config");
+  poolConfigUrl.searchParams.append("chain_id", chainId.toString());
+  // Base Sepolia (84532) only supports ETH, Base Mainnet (8453) can use CREATOR_COIN_OR_ZORA
+  const currency = chainId === 84532 ? "ETH" : "CREATOR_COIN_OR_ZORA";
+  poolConfigUrl.searchParams.append("currency", currency);
+  poolConfigUrl.searchParams.append("starting_market_cap", "HIGH");
+
+  console.log(`Fetching pool config from Zora API (chainId: ${chainId}, currency: ${currency})...`);
+  const poolConfigResponse = await fetch(poolConfigUrl.toString());
+  if (!poolConfigResponse.ok) {
+    throw new Error(`Pool config API failed: ${poolConfigResponse.status} ${poolConfigResponse.statusText}`);
+  }
+
+  const poolConfigData = (await poolConfigResponse.json()) as { poolConfig?: string };
+  if (!poolConfigData.poolConfig) {
+    throw new Error("Pool config missing in API response");
+  }
+
+  const zoraPoolConfig = poolConfigData.poolConfig as `0x${string}`;
+  console.log(`✅ Fetched pool config from Zora API (${zoraPoolConfig.substring(0, 20)}...)`);
+
+  // Set Zora factory address (only for non-localhost)
+  if (chainId !== 31337) {
+    await token.write.setZoraFactoryAddress([ZORA_FACTORY], {
+      account: accounts.ETSPlatform.account,
+    });
+    console.log(`✅ Set Zora factory address: ${ZORA_FACTORY}`);
+  } else {
+    console.log("ℹ️  Skipping Zora factory address (using MockZoraFactory on localhost)");
+  }
+
+  // Set Zora creator EOA (accounts.ETSZora - position 3)
+  await token.write.setZoraCreatorEOA([accounts.ETSZora.account.address], {
+    account: accounts.ETSPlatform.account,
+  });
+  console.log(`✅ Set Zora creator EOA: ${accounts.ETSZora.account.address}`);
+
+  // Set Zora platform referrer (accounts.ETSPlatform - required for deterministic addresses)
+  await token.write.setZoraPlatformReferrer([accounts.ETSPlatform.account.address], {
+    account: accounts.ETSPlatform.account,
+  });
+  console.log(`✅ Set Zora platform referrer: ${accounts.ETSPlatform.account.address}`);
+
+  // Set Zora pool config
+  await token.write.setZoraPoolConfig([zoraPoolConfig], {
+    account: accounts.ETSPlatform.account,
+  });
+  console.log("✅ Set Zora pool config");
+
   // Create default ETSChannel
   console.log("\nCreating default ETSChannel...");
 

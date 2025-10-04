@@ -6,6 +6,20 @@ import { getContractAddress } from "../utils/network.js";
 import { getPublicClient, getWalletClient } from "../utils/wallet.js";
 
 /**
+ * Get the block explorer base URL for a given network
+ */
+function getBlockExplorerUrl(network: string): string | null {
+  switch (network) {
+    case "baseSepolia":
+      return "https://sepolia.basescan.org";
+    case "base":
+      return "https://basescan.org";
+    default:
+      return null;
+  }
+}
+
+/**
  * Validates that all tags start with '#' and provides helpful error messages
  * @param tags Array of tag strings to validate
  * @param spinner Optional ora spinner to fail with error message
@@ -119,7 +133,8 @@ Examples:
           console.log(chalk.gray(`   Block: ${receipt.blockNumber}`));
 
           // Show the coin addresses for the created tags
-          console.log(chalk.cyan("\n📦 Tag Details:"));
+          console.log(chalk.cyan("\n🏷️  Tag Details:"));
+          const explorerUrl = getBlockExplorerUrl(options.network);
           for (const tag of tagsToCreate) {
             const coinAddress = await publicClient.readContract({
               address: tokenAddress,
@@ -128,11 +143,68 @@ Examples:
               args: [tag],
             });
             console.log(chalk.white(`  ${tag} → ${coinAddress}`));
+            if (explorerUrl) {
+              console.log(chalk.blue(`     ${explorerUrl}/token/${coinAddress}`));
+            }
+          }
+
+          // Add transaction link for baseSepolia and base networks
+          if (explorerUrl) {
+            console.log(chalk.cyan("\n🔗 View Transaction:"));
+            console.log(chalk.blue(`   ${explorerUrl}/tx/${hash}`));
           }
 
           if (options.network === "localhost") {
             console.log(chalk.yellow("\n⚠️  Note: On localhost, Zora content coins are not created."));
             console.log(chalk.yellow("   This requires the off-chain event processor."));
+          } else if (options.network === "baseSepolia" || options.network === "base") {
+            // Wait for Zora deployment confirmation
+            console.log(chalk.cyan("\n⏳ Waiting for Zora coin deployment..."));
+            const deploymentSpinner = ora("Checking Zora deployment status...").start();
+
+            const maxAttempts = 60; // 5 minutes with 5-second intervals
+            const pollInterval = 5000; // 5 seconds
+
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+              try {
+                // Check if coin has been deployed by checking if it has code
+                let allDeployed = true;
+                for (const tag of tagsToCreate) {
+                  const coinAddress = await publicClient.readContract({
+                    address: tokenAddress,
+                    abi: tokenAbi,
+                    functionName: "computeCoinAddress",
+                    args: [tag],
+                  });
+
+                  const code = await publicClient.getBytecode({ address: coinAddress as `0x${string}` });
+                  if (!code || code === "0x") {
+                    allDeployed = false;
+                    break;
+                  }
+                }
+
+                if (allDeployed) {
+                  deploymentSpinner.succeed("Zora coin deployed successfully!");
+                  console.log(chalk.green("✅ TAG coins are now live and tradeable on Zora"));
+                  break;
+                }
+
+                if (attempt < maxAttempts - 1) {
+                  deploymentSpinner.text = `Checking deployment... (${attempt + 1}/${maxAttempts})`;
+                  await new Promise((resolve) => setTimeout(resolve, pollInterval));
+                }
+              } catch (_error) {
+                // Continue polling on errors
+                if (attempt === maxAttempts - 1) {
+                  deploymentSpinner.warn("Could not confirm Zora deployment");
+                  console.log(
+                    chalk.yellow("⚠️  The TAG was created on ETS, but Zora deployment took longer than expected."),
+                  );
+                  console.log(chalk.yellow("   The deployment may still be in progress. Check back in a few minutes."));
+                }
+              }
+            }
           }
         } else {
           spinner.fail("Transaction failed");

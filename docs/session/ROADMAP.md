@@ -14,16 +14,17 @@ last_updated: 2025-10-01
 current_issue_id: "#539.5: Multi-Environment Configuration"
 current_status: COMPLETED
 completion_percent: 100
-exact_task: "Base Sepolia integration complete - all tests passing, TP operational"
+exact_task: "Tag counter + Zora integration fixes committed - ready for #539.10 checkpoint system"
 blocking_bug: null
 next_priority: "#539.10: Production-Ready Event Recovery & Checkpoint System"
 resume_action: "Implement chunked historical scanning and checkpoint recovery before cloud deployment"
-session_accomplishment: "✅ Base Sepolia fully integrated: TP operational, integration tests passing (E2E, direct enrichment, security validation)"
+session_accomplishment: "✅ Tag counter (totalTagsCreated) implemented with comprehensive test coverage; ✅ Zora parameter mismatch fixed (TP now reads from ETSToken contract); ✅ CLI UX improved with deployment polling"
 architecture_decision: "Operational toggle strategy: only ONE TP instance per blockchain at a time (hot-swap: stop cloud → test local → stop local → deploy cloud)"
-critical_path: "Base Sepolia contracts ✅ → Local staging test ✅ → Checkpoint system 🔄 → Cloud staging → Production"
+critical_path: "Base Sepolia contracts ✅ → Local staging test ✅ → Tag counter ✅ → Zora fixes ✅ → Checkpoint system 🔄 → Cloud staging → Production"
 debugging_insight: "RPC state propagation delays required (2s) for Alchemy cache consistency; maxBlockRange=9n for free tier (10 blocks inclusive)"
 deployment_strategy: "Current: forward-only event processing works; Next: add historical backfill + checkpoint recovery for production readiness"
-integration_test_coverage: "3/3 passing - E2E workflow (40s timeout), direct enrichment, unauthorized access denial"
+integration_test_coverage: "All tests passing - 5 tag counter tests added, ETSEnrichTarget references removed"
+recent_commit: "feat: Add tag counter and fix Zora deployment integration (#528, #539)"
 ```
 
 ## CRITICAL_PATH
@@ -778,6 +779,111 @@ architecture_requirements:
 production_readiness: "Blocks cloud deployment and production rollout"
 discovered_date: 2025-10-01
 discovered_by: "Base Sepolia integration testing - existing targets not detected"
+```
+
+### EPIC_540: Environment Configuration Consolidation
+```yaml
+id: #540
+status: NOT_STARTED
+priority: MEDIUM
+dependencies: []
+estimated_effort: 1-2 weeks
+objective: "Consolidate scattered .env files into centralized configuration system with type safety and validation"
+motivation: "Technical debt - .env files duplicated across packages causing conflicts, module initialization issues, and poor developer experience"
+pain_points:
+  - "RPC URLs duplicated/conflicting across packages (CLI, temporal-processor, contracts)"
+  - "Module initialization timing issues with dotenv loading"
+  - "No type safety or validation on environment variables"
+  - "Secrets mixed with configuration in committed files"
+  - "Each package loads env independently, no shared source of truth"
+benefits:
+  - "Single source of truth for network configurations"
+  - "Type-safe environment access prevents runtime errors"
+  - "Easier onboarding - one place to configure"
+  - "Works with all existing tools (Hardhat, Next.js, Temporal, CLI)"
+  - "Clear separation of config vs secrets"
+architecture_change: "Scattered package .envs → Root .env + @ets/env package + local overrides"
+progress: "0% - needs design and planning"
+```
+
+##### SUB_540.1: Environment Audit & Documentation
+```yaml
+id: #540.1
+status: NOT_STARTED
+priority: HIGH
+completion: 0
+dependencies: []
+deliverables:
+  - "Audit all .env files across monorepo"
+  - "Document all environment variables by package"
+  - "Identify duplicates and conflicts"
+  - "Map dependencies between packages and env vars"
+  - "Create inventory of secrets vs configuration"
+estimated_duration: "1-2 days"
+```
+
+##### SUB_540.2: Create @ets/env Package
+```yaml
+id: #540.2
+status: NOT_STARTED
+priority: HIGH
+completion: 0
+dependencies: ["#540.1"]
+deliverables:
+  - "Create packages/env with loading logic"
+  - "Implement hierarchical env loading (root → network → local)"
+  - "Add zod schemas for validation (optional)"
+  - "Export typed configuration objects"
+  - "Handle module initialization order (load before imports)"
+estimated_duration: "2-3 days"
+```
+
+##### SUB_540.3: Root Configuration Files
+```yaml
+id: #540.3
+status: NOT_STARTED
+priority: HIGH
+completion: 0
+dependencies: ["#540.2"]
+deliverables:
+  - "Create root .env for shared defaults"
+  - "Create .env.localhost for local development"
+  - "Create .env.baseSepolia for staging"
+  - "Create .env.base for production"
+  - "Document precedence rules and override patterns"
+estimated_duration: "1 day"
+```
+
+##### SUB_540.4: Package Migration
+```yaml
+id: #540.4
+status: NOT_STARTED
+priority: HIGH
+completion: 0
+dependencies: ["#540.3"]
+deliverables:
+  - "Migrate packages/contracts to use @ets/env"
+  - "Migrate packages/ets-cli to use @ets/env"
+  - "Migrate apps/temporal-processor to use @ets/env"
+  - "Migrate apps/app (Next.js) to use @ets/env"
+  - "Create package-specific .env.local.example for secrets"
+estimated_duration: "3-4 days"
+```
+
+##### SUB_540.5: Validation & Documentation
+```yaml
+id: #540.5
+status: NOT_STARTED
+priority: MEDIUM
+completion: 0
+dependencies: ["#540.4"]
+deliverables:
+  - "End-to-end testing across all packages"
+  - "Update README files with new config approach"
+  - "Create configuration guide for developers"
+  - "Update .env.example files"
+  - "Document troubleshooting for common issues"
+estimated_duration: "1-2 days"
 ```
 
 

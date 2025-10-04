@@ -97,6 +97,7 @@ interface IETSToken {
      * @dev emitted when a new TAG is created with Zora coin integration.
      *
      * @param coinAddress Deterministic Zora ERC-20 coin address (primary identifier).
+     * @param tagId Sequential tag ID for UX (e.g., TAG #1, TAG #2).
      * @param originalInput Exact user input string (e.g., "#BiTCOin").
      * @param displayVersion Canonical display format (e.g., "#Bitcoin").
      * @param machineName Normalized identifier (e.g., "bitcoin").
@@ -106,11 +107,12 @@ interface IETSToken {
      */
     event TagCreated(
         address indexed coinAddress,
+        uint256 indexed tagId,
         string originalInput,
         string displayVersion,
         string machineName,
         address indexed creator,
-        address indexed channel,
+        address channel,
         uint256 timestamp
     );
 

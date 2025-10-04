@@ -3,7 +3,9 @@ import type * as activities from "../activities";
 import type { TagCreatedResult, TagCreatedWorkflowInput } from "../types";
 
 // Import activity types
-const { createTagCoinMetadata, deployTagCoinOnZora, allocateCreatorRewards } = proxyActivities<typeof activities>({
+const { createTagCoinMetadata, deployTagCoinOnZora, allocateCreatorRewards, fetchPoolConfig } = proxyActivities<
+  typeof activities
+>({
   startToCloseTimeout: "5 minutes",
   retry: {
     initialInterval: "1 second",
@@ -23,7 +25,7 @@ const { createTagCoinMetadata, deployTagCoinOnZora, allocateCreatorRewards } = p
  */
 export async function TagCreatedWorkflow(input: TagCreatedWorkflowInput): Promise<TagCreatedResult> {
   const result: TagCreatedResult = {
-    tagId: input.coinAddress, // Using coinAddress as ID since tagId doesn't exist in event
+    tagId: input.tagId,
     status: "failed",
     steps: {
       createMetadata: false,
@@ -34,7 +36,7 @@ export async function TagCreatedWorkflow(input: TagCreatedWorkflowInput): Promis
 
   try {
     // Step 1: Create metadata for the TAG coin (now a pass-through)
-    log.info(`Processing TAG ${input.originalInput} with coin address ${input.coinAddress}`);
+    log.info(`Processing TAG #${input.tagId}: ${input.originalInput} with coin address ${input.coinAddress}`);
 
     const metadataResult = await createTagCoinMetadata({
       tagId: input.coinAddress,
@@ -53,6 +55,11 @@ export async function TagCreatedWorkflow(input: TagCreatedWorkflowInput): Promis
     result.steps.createMetadata = true;
     log.info(`Metadata step complete for TAG ${input.originalInput}`);
 
+    // Step 1.5: Fetch pool configuration from Zora API
+    log.info(`Fetching pool configuration for chain ${input.chainId}`);
+    const poolConfig = await fetchPoolConfig(input.chainId);
+    log.info("Pool configuration fetched successfully");
+
     // Step 2: Deploy TAG coin on Zora
     log.info(`Deploying TAG coin on Zora for ${input.originalInput}`);
 
@@ -68,6 +75,7 @@ export async function TagCreatedWorkflow(input: TagCreatedWorkflowInput): Promis
       timestamp: input.timestamp,
       blockNumber: input.blockNumber,
       transactionHash: input.transactionHash,
+      poolConfig,
     });
 
     if (zoraResult.status === "failed") {
@@ -113,11 +121,19 @@ export async function TagCreatedWorkflow(input: TagCreatedWorkflowInput): Promis
   } catch (error) {
     log.error(`TAG coin creation failed for ${input.originalInput}:`, { error });
 
-    // Check if any steps succeeded for partial success
-    if (result.steps.createMetadata || result.steps.deployOnZora) {
-      result.status = "partial";
+    // For critical failures (metadata creation or deployment), re-throw to fail the workflow
+    // This ensures the workflow shows as FAILED in Temporal UI and can be retried
+    if (!result.steps.deployOnZora) {
+      // Deployment is critical - if it failed, the workflow should fail
+      throw ApplicationFailure.create({
+        message: `TAG coin workflow failed: ${error instanceof Error ? error.message : String(error)}`,
+        nonRetryable: false, // Allow retry attempts
+        cause: error instanceof Error ? error : undefined,
+      });
     }
 
+    // If we got here, deployment succeeded but rewards failed (non-critical)
+    result.status = "partial";
     result.error = error instanceof Error ? error.message : String(error);
     return result;
   }

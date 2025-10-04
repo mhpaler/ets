@@ -53,6 +53,9 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
     address public zoraPlatformReferrer; // ETS platform referrer address
     bytes public zoraPoolConfig; // Standardized pool configuration
 
+    // Tag counter for UX
+    uint256 public totalTagsCreated;
+
     /// @dev Map of coin address to TAG record.
     mapping(address => Tag) public coinAddressToTag;
 
@@ -273,8 +276,11 @@ contract ETSToken is IETSToken, ReentrancyGuardUpgradeable, PausableUpgradeable,
         bytes32 machineNameHash = keccak256(bytes(machineName));
         machineNameHashToCoinAddress[machineNameHash] = coinAddress;
 
-        // Emit comprehensive event
-        emit TagCreated(coinAddress, originalInput, displayVersion, machineName, _creator, _channel, block.timestamp);
+        // Increment tag counter
+        totalTagsCreated++;
+
+        // Emit comprehensive event with tag ID
+        emit TagCreated(coinAddress, totalTagsCreated, originalInput, displayVersion, machineName, _creator, _channel, block.timestamp);
 
         return coinAddress;
     }

@@ -23,6 +23,7 @@ interface Config {
   // Blockchain Configuration
   blockchain: {
     rpcUrl: string;
+    wsRpcUrl?: string;
     chainId: number;
     contracts: {
       etsToken: Address;
@@ -93,6 +94,24 @@ const getRpcUrl = (): string => {
   return "http://localhost:8545";
 };
 
+// Get WebSocket RPC URL based on environment
+const getWsRpcUrl = (): string | undefined => {
+  if (process.env.WS_RPC_URL) {
+    return process.env.WS_RPC_URL;
+  }
+
+  // Use Alchemy WebSocket for non-local environments
+  const alchemyKey = process.env.ALCHEMY_API_KEY;
+  if (alchemyKey && chainId !== 31337) {
+    // Construct Alchemy WebSocket URL based on chainId
+    const alchemyNetwork = chainId === 84532 ? "base-sepolia" : "base-mainnet";
+    return `wss://${alchemyNetwork}.g.alchemy.com/v2/${alchemyKey}`;
+  }
+
+  // No WebSocket for localhost (Hardhat doesn't support it)
+  return undefined;
+};
+
 // @ts-ignore - Using require for ESM modules
 const { HDKey } = require("@scure/bip32");
 // @ts-ignore - Using require for ESM modules
@@ -158,6 +177,7 @@ export const config: Config = {
 
   blockchain: {
     rpcUrl: getRpcUrl(),
+    wsRpcUrl: getWsRpcUrl(),
     chainId,
     contracts: {
       etsToken: (contractAddresses?.token as Address) || ("0x0" as Address),

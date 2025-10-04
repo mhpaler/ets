@@ -1,11 +1,17 @@
 import { NativeConnection, Worker } from "@temporalio/worker";
-import { allocateCreatorRewards, createTagCoinMetadata, deployTagCoinOnZora } from "./activities/tagCoinActivities";
+import {
+  allocateCreatorRewards,
+  createTagCoinMetadata,
+  deployTagCoinOnZora,
+  fetchPoolConfig,
+} from "./activities/tagCoinActivities";
 import { callEnrichTargetOnChain, fetchTargetMetadata } from "./activities/targetEnrichmentActivities";
 
 const activities = {
   fetchTargetMetadata,
   callEnrichTargetOnChain,
   createTagCoinMetadata,
+  fetchPoolConfig,
   deployTagCoinOnZora,
   allocateCreatorRewards,
 };

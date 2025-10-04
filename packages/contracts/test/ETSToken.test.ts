@@ -6,7 +6,7 @@ import { loadIgnitionFixture } from "./fixtures/ignitionFixture.js";
 // NOTE: ETSChannel.test.ts for tag creation tests.
 
 describe("ETSToken Tests", async () => {
-  const { accounts, contracts } = await loadIgnitionFixture();
+  const { accounts, contracts, publicClient } = await loadIgnitionFixture();
 
   describe("Valid setup", () => {
     it("should have Access controls set to ETSAccessControls contract", async () => {
@@ -219,6 +219,86 @@ describe("ETSToken Tests", async () => {
       // Verify coin address matches computed address
       const expectedCoinAddress = await contracts.ETSToken.read.computeCoinAddress([tag]);
       assert.equal(tagData.coinAddress.toLowerCase(), expectedCoinAddress.toLowerCase());
+    });
+  });
+
+  describe("Tag Counter", () => {
+    it("should initialize totalTagsCreated to 0", async () => {
+      const totalTags = await contracts.ETSToken.read.totalTagsCreated();
+      assert.ok(totalTags >= 0n, "totalTagsCreated should be initialized");
+    });
+
+    it("should increment totalTagsCreated when creating a tag", async () => {
+      const initialCount = await contracts.ETSToken.read.totalTagsCreated();
+      const tag = "#CounterTest1";
+      const creator = accounts.User1.account.address;
+
+      // Create TAG through ETS core
+      await contracts.ETS.write.createTag([tag, creator], { account: accounts.ETSPlatform.account });
+
+      const newCount = await contracts.ETSToken.read.totalTagsCreated();
+      assert.equal(newCount, initialCount + 1n, "totalTagsCreated should increment by 1");
+    });
+
+    it("should emit TagCreated event with sequential tagId", async () => {
+      const initialCount = await contracts.ETSToken.read.totalTagsCreated();
+      const tag = "#CounterTest2";
+      const creator = accounts.User2.account.address;
+
+      // Create TAG and get transaction receipt
+      const hash = await contracts.ETS.write.createTag([tag, creator], { account: accounts.ETSPlatform.account });
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+
+      // Parse all logs from the transaction
+      const logs = await publicClient.getContractEvents({
+        abi: contracts.ETSToken.abi,
+        address: contracts.ETSToken.address,
+        fromBlock: receipt.blockNumber,
+        toBlock: receipt.blockNumber,
+      });
+
+      // Find the TagCreated event
+      const tagCreatedEvent = logs.find((log) => log.eventName === "TagCreated");
+      assert.ok(tagCreatedEvent, "TagCreated event should be emitted");
+
+      // Verify tagId
+      const eventArgs = tagCreatedEvent.args as any;
+      assert.equal(eventArgs.tagId, initialCount + 1n, "tagId should match expected counter value");
+    });
+
+    it("should maintain sequential tagIds across multiple tag creations", async () => {
+      const startCount = await contracts.ETSToken.read.totalTagsCreated();
+
+      // Create 3 tags
+      const tags = ["#Sequential1", "#Sequential2", "#Sequential3"];
+      const creator = accounts.User3.account.address;
+
+      for (const tag of tags) {
+        await contracts.ETS.write.createTag([tag, creator], { account: accounts.ETSPlatform.account });
+      }
+
+      const endCount = await contracts.ETSToken.read.totalTagsCreated();
+      assert.equal(endCount, startCount + 3n, "totalTagsCreated should increment by 3");
+    });
+
+    it("should not increment counter for duplicate tag creation attempts", async () => {
+      const tag = "#DuplicateTest";
+      const creator = accounts.User4.account.address;
+
+      // Create tag first time
+      await contracts.ETS.write.createTag([tag, creator], { account: accounts.ETSPlatform.account });
+      const countAfterFirst = await contracts.ETSToken.read.totalTagsCreated();
+
+      // Try to create same tag again (should fail)
+      try {
+        await contracts.ETS.write.createTag([tag, creator], { account: accounts.ETSPlatform.account });
+        assert.fail("Should have reverted for duplicate tag");
+      } catch (error: any) {
+        assert.ok(error.message.includes("revert") || error.message.includes("TagAlreadyExists"));
+      }
+
+      const countAfterSecond = await contracts.ETSToken.read.totalTagsCreated();
+      assert.equal(countAfterSecond, countAfterFirst, "Counter should not increment for failed tag creation");
     });
   });
 });

@@ -1,5 +1,37 @@
 # Architecture Decisions
 
+## 2025-10-03: Contract-Sourced Zora Configuration for Parameter Consistency
+
+**Rationale**:
+- Temporal Processor must use exact same parameters as ETS contracts when calling Zora factory
+- CREATE2 deterministic addresses require identical parameters (coinName, symbol, platformReferrer)
+- Single source of truth prevents parameter drift between on-chain and off-chain systems
+- Enables dynamic configuration updates without redeploying Temporal Processor
+
+**Implementation**:
+- Temporal Processor reads Zora config directly from ETSToken contract before deployment:
+  - `coinName`: Uses `machineName` (e.g., "bitcoin") NOT `tagString` (e.g., "#Bitcoin")
+  - `coinSymbol`: Uses "ETS" NOT "TAG"
+  - `platformReferrer`: Uses `zoraPlatformReferrer` from contract NOT channel address
+  - `zoraFactoryAddress`, `zoraPoolConfig`: Read from contract configuration
+- Tag counter (`totalTagsCreated`) provides sequential IDs for UX ("You created TAG #1,234!")
+- CLI waits for actual Zora deployment bytecode before showing success
+
+**Alternatives Considered**:
+- Hardcoded configuration in Temporal Processor (causes parameter drift)
+- Environment variables for Zora config (duplicates configuration, error-prone)
+- Separate configuration service (adds complexity without benefit)
+
+**Trade-offs**:
+- Requires on-chain read before each Zora deployment (minimal gas cost)
+- Temporal Processor depends on contract deployment state
+- Must ensure contract is properly configured during setup
+
+**Future**:
+- Can cache configuration per session to reduce reads
+- Add configuration validation checks during deployment
+- Consider emitting configuration change events for monitoring
+
 ## 2025-10-01: Task Queue Switching for Multi-Environment Control
 
 **Rationale**:

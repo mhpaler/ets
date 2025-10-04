@@ -1,12 +1,50 @@
-import type { Address, Hash } from "viem";
-import { http, createPublicClient, createWalletClient, encodeAbiParameters, keccak256, toBytes } from "viem";
+import type { Address, Chain, Hash } from "viem";
+import { http, createPublicClient, createWalletClient, keccak256, toBytes } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { hardhat, localhost } from "viem/chains";
+import { base, baseSepolia, hardhat } from "viem/chains";
 import { config } from "../config";
 import type { ZoraCoinCreationResult } from "../types";
 import { getComponentLogger } from "../utils/logger";
 
 const logger = getComponentLogger("TagCoinActivities");
+
+// Zora Factory address (same across all chains via CREATE2)
+const ZORA_FACTORY = "0x777777751622c0d3258f214F9DF38E35BF45baF3" as const;
+
+/**
+ * Validate metadata matches Zora's required structure
+ * Based on Zora SDK validateMetadataJSON implementation
+ */
+function validateZoraMetadata(metadata: unknown): void {
+  if (typeof metadata !== "object" || !metadata) {
+    throw new Error("Metadata must be an object");
+  }
+
+  const meta = metadata as Record<string, unknown>;
+
+  // Validate required fields
+  if (typeof meta.name !== "string" || !meta.name) {
+    throw new Error("Metadata name is required and must be a non-empty string");
+  }
+  if (typeof meta.description !== "string" || !meta.description) {
+    throw new Error("Metadata description is required and must be a non-empty string");
+  }
+  if (typeof meta.symbol !== "string" || !meta.symbol) {
+    throw new Error("Metadata symbol is required and must be a non-empty string");
+  }
+
+  // Validate image field
+  if (typeof meta.image !== "string" || !meta.image) {
+    throw new Error("Metadata image is required and must be a string");
+  }
+
+  // Validate URI format (data:, ipfs://, ar://, http://, https://)
+  const imageStr = meta.image as string;
+  const validPrefixes = ["data:", "ipfs://", "ar://", "http://", "https://"];
+  if (!validPrefixes.some((prefix) => imageStr.startsWith(prefix))) {
+    throw new Error("Metadata image must be a valid URI (data:, ipfs://, ar://, http://, or https://)");
+  }
+}
 
 interface MetadataCreationResult {
   metadataURI: string;
@@ -22,7 +60,7 @@ interface RewardsAllocationResult {
 
 /**
  * Activity: Create metadata for TAG coin
- * Creates simple inline metadata for MVP (no IPFS needed)
+ * Generates SVG image and validates with Zora SDK
  */
 export async function createTagCoinMetadata(params: {
   tagId: string;
@@ -37,35 +75,39 @@ export async function createTagCoinMetadata(params: {
         tagString: params.tagString,
         coinAddress: params.coinAddress,
       },
-      "Creating TAG coin metadata",
+      "Creating TAG coin metadata with SVG",
     );
 
-    // Create simple metadata JSON for MVP
+    // Generate SVG with hashtag text
+    const svgText = params.tagString;
+    const fontSize = svgText.length > 15 ? "60" : "80"; // Smaller font for longer tags
+    const svg = `<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg"><rect width="512" height="512" fill="#6366f1"/><text x="50%" y="50%" font-size="${fontSize}" font-family="Arial, sans-serif" fill="#ffffff" text-anchor="middle" dy=".3em">${svgText}</text></svg>`;
+    const svgBase64 = Buffer.from(svg).toString("base64");
+
+    // Create metadata structure
+    // Note: name uses tagString for display, but coin uses machineName for deterministic addressing
     const metadata = {
-      name: `TAG: ${params.tagString.replace("#", "")}`,
-      symbol: "ETS",
-      description: `ETS TAG coin for ${params.tagString}`,
-      image: "https://ets.link/logo.png", // Placeholder image
-      attributes: [
-        {
-          trait_type: "Platform",
-          value: "ETS",
-        },
-        {
-          trait_type: "Creator",
-          value: params.creator,
-        },
-        {
-          trait_type: "Tag",
-          value: params.tagString,
-        },
-      ],
+      name: params.tagString,
+      symbol: "ETS", // Must match coin symbol for consistency
+      description: `Tradeable token for ${params.tagString} on Ethereum Tag Service`,
+      image: `data:image/svg+xml;base64,${svgBase64}`,
     };
 
-    // Convert to data URI for inline metadata (no IPFS needed for MVP)
+    // Validate metadata structure (matches Zora SDK requirements)
+    logger.info("Validating metadata structure");
+    try {
+      validateZoraMetadata(metadata);
+      logger.info("Metadata validation passed");
+    } catch (validationError) {
+      const errorMessage = validationError instanceof Error ? validationError.message : String(validationError);
+      logger.error({ error: errorMessage, metadata }, "Metadata validation failed");
+      throw new Error(`Invalid metadata structure: ${errorMessage}`);
+    }
+
+    // Convert to data URI for inline metadata
     const metadataUri = `data:application/json;base64,${Buffer.from(JSON.stringify(metadata)).toString("base64")}`;
 
-    logger.info({ metadataUri: `${metadataUri.substring(0, 100)}...` }, "Created inline metadata");
+    logger.info({ metadataUri: `${metadataUri.substring(0, 100)}...` }, "Created and validated inline metadata");
 
     return {
       metadataURI: metadataUri,
@@ -79,6 +121,43 @@ export async function createTagCoinMetadata(params: {
       status: "failed",
       error: errorMessage,
     };
+  }
+}
+
+/**
+ * Activity: Fetch pool configuration from Zora API
+ * Returns the pool config bytes needed for coin deployment
+ */
+export async function fetchPoolConfig(chainId: number): Promise<`0x${string}`> {
+  try {
+    logger.info({ chainId }, "Fetching pool config from Zora API");
+
+    const poolConfigUrl = new URL("https://api-sdk.zora.engineering/create/content/pool-config");
+    poolConfigUrl.searchParams.append("chain_id", chainId.toString());
+    // Base Sepolia (84532) only supports ETH, Base Mainnet (8453) can use CREATOR_COIN_OR_ZORA
+    const currency = chainId === 84532 ? "ETH" : "CREATOR_COIN_OR_ZORA";
+    poolConfigUrl.searchParams.append("currency", currency);
+    poolConfigUrl.searchParams.append("starting_market_cap", "HIGH");
+
+    const response = await fetch(poolConfigUrl.toString());
+
+    if (!response.ok) {
+      throw new Error(`Pool config API failed: ${response.status} ${response.statusText}`);
+    }
+
+    const data = (await response.json()) as { poolConfig?: string };
+
+    if (!data.poolConfig) {
+      throw new Error("Pool config missing in API response");
+    }
+
+    logger.info({ poolConfig: `${data.poolConfig.substring(0, 50)}...` }, "Pool config fetched successfully");
+
+    return data.poolConfig as `0x${string}`;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error({ error: errorMessage, chainId }, "Failed to fetch pool config");
+    throw error;
   }
 }
 
@@ -98,6 +177,7 @@ export async function deployTagCoinOnZora(params: {
   timestamp: string;
   blockNumber: string;
   transactionHash: string;
+  poolConfig: `0x${string}`; // Now passed from workflow
 }): Promise<ZoraCoinCreationResult> {
   try {
     logger.info(
@@ -105,21 +185,105 @@ export async function deployTagCoinOnZora(params: {
         coinAddress: params.coinAddress,
         originalInput: params.tagString,
         machineName: params.machineName,
+        chainId: config.blockchain.chainId,
       },
-      "Deploying TAG coin on Zora/MockZoraFactory",
+      "Deploying TAG coin on Zora factory",
     );
 
-    // Setup clients for blockchain interaction
-    // Use hardhat chain for proper chainId (31337)
-    const chainConfig = config.blockchain.chainId === 31337 ? hardhat : localhost;
+    // Determine chain configuration and factory address
+    let chainConfig: Chain;
+    let factoryAddress: Address;
+    const chainId = config.blockchain.chainId;
+
+    if (chainId === 31337) {
+      // Localhost - use MockZoraFactory
+      chainConfig = hardhat;
+      factoryAddress = config.blockchain.contracts.mockZoraFactory as Address;
+      if (!factoryAddress) {
+        throw new Error("MockZoraFactory address not configured for localhost");
+      }
+      logger.info({ factoryAddress }, "Using MockZoraFactory for localhost");
+    } else if (chainId === 84532) {
+      // Base Sepolia
+      chainConfig = baseSepolia;
+      factoryAddress = ZORA_FACTORY;
+      logger.info({ factoryAddress }, "Using real Zora factory on Base Sepolia");
+    } else if (chainId === 8453) {
+      // Base Mainnet
+      chainConfig = base;
+      factoryAddress = ZORA_FACTORY;
+      logger.info({ factoryAddress }, "Using real Zora factory on Base Mainnet");
+    } else {
+      throw new Error(`Unsupported chain ID: ${chainId}`);
+    }
 
     const publicClient = createPublicClient({
       chain: chainConfig,
       transport: http(config.blockchain.rpcUrl),
     });
 
-    // Use the Zora private key for TAG coin deployment (Position 3: ETSZora)
+    // Read Zora configuration from ETSToken contract to match ETS contract's computeCoinAddress
+    logger.info("Reading Zora configuration from ETSToken contract...");
+    const [zoraCreatorEOA, zoraPlatformReferrer, zoraPoolConfig] = await Promise.all([
+      publicClient.readContract({
+        address: config.blockchain.contracts.etsToken,
+        abi: [
+          {
+            name: "zoraCreatorEOA",
+            type: "function",
+            stateMutability: "view",
+            inputs: [],
+            outputs: [{ name: "", type: "address" }],
+          },
+        ],
+        functionName: "zoraCreatorEOA",
+      }) as Promise<Address>,
+      publicClient.readContract({
+        address: config.blockchain.contracts.etsToken,
+        abi: [
+          {
+            name: "zoraPlatformReferrer",
+            type: "function",
+            stateMutability: "view",
+            inputs: [],
+            outputs: [{ name: "", type: "address" }],
+          },
+        ],
+        functionName: "zoraPlatformReferrer",
+      }) as Promise<Address>,
+      publicClient.readContract({
+        address: config.blockchain.contracts.etsToken,
+        abi: [
+          {
+            name: "zoraPoolConfig",
+            type: "function",
+            stateMutability: "view",
+            inputs: [],
+            outputs: [{ name: "", type: "bytes" }],
+          },
+        ],
+        functionName: "zoraPoolConfig",
+      }) as Promise<`0x${string}`>,
+    ]);
+
+    logger.info(
+      {
+        zoraCreatorEOA,
+        zoraPlatformReferrer,
+        zoraPoolConfigLength: zoraPoolConfig.length,
+      },
+      "Read Zora configuration from ETSToken contract",
+    );
+
+    // Use the Zora EOA account for deployment (must match contract configuration)
     const account = privateKeyToAccount(config.blockchain.zoraPrivateKey as `0x${string}`);
+
+    // Verify the account matches the configured zoraCreatorEOA
+    if (account.address.toLowerCase() !== zoraCreatorEOA.toLowerCase()) {
+      throw new Error(
+        `Zora account mismatch: wallet=${account.address}, contract=${zoraCreatorEOA}. Check HD_WALLET_POSITION=3`,
+      );
+    }
 
     const walletClient = createWalletClient({
       account,
@@ -130,18 +294,6 @@ export async function deployTagCoinOnZora(params: {
     // Generate deterministic salt from machineName (same as ETS contract)
     const coinSalt = keccak256(toBytes(params.machineName));
 
-    // Prepare pool configuration (standard ETH pool for MVP)
-    const poolConfig = encodeAbiParameters(
-      [{ type: "uint256" }],
-      [0n], // Standard pool config
-    );
-
-    // Get factory address (MockZoraFactory for localhost)
-    const factoryAddress = config.blockchain.contracts.mockZoraFactory;
-    if (!factoryAddress) {
-      throw new Error("MockZoraFactory address not configured");
-    }
-
     logger.info(
       {
         factoryAddress,
@@ -151,11 +303,19 @@ export async function deployTagCoinOnZora(params: {
       "Calling factory deploy function",
     );
 
+    // CRITICAL: Use exact same parameters as ETS contract's computeCoinAddress
+    // - name: machineName (lowercase, no #)
+    // - symbol: "ETS" (not "TAG")
+    // - poolConfig: from ETSToken contract (not API)
+    // - platformReferrer: zoraPlatformReferrer from contract (not channel)
+    const coinName = params.machineName; // Use machineName, not tagString!
+    const coinSymbol = "ETS"; // Use "ETS", not "TAG"!
+
     // Factory deploy ABI
     const deployAbi = {
       name: "deploy",
       type: "function",
-      stateMutability: "nonpayable",
+      stateMutability: "payable",
       inputs: [
         { name: "payoutRecipient", type: "address" },
         { name: "owners", type: "address[]" },
@@ -168,12 +328,15 @@ export async function deployTagCoinOnZora(params: {
         { name: "postDeployHookData", type: "bytes" },
         { name: "coinSalt", type: "bytes32" },
       ],
-      outputs: [{ name: "coin", type: "address" }],
+      outputs: [
+        { name: "coin", type: "address" },
+        { name: "deployData", type: "bytes" },
+      ],
     } as const;
 
-    // Check if coin already exists (by checking predicted address)
+    // Predict coin address using contract configuration
     const predictedAddress = await publicClient.readContract({
-      address: factoryAddress as Address,
+      address: factoryAddress,
       abi: [
         {
           name: "coinAddress",
@@ -191,35 +354,53 @@ export async function deployTagCoinOnZora(params: {
         },
       ],
       functionName: "coinAddress",
-      args: [
-        account.address,
-        `TAG: ${params.tagString.replace("#", "")}`,
-        "ETS",
-        poolConfig,
-        params.channel, // Use channel as platform referrer
-        coinSalt,
-      ],
+      args: [zoraCreatorEOA, coinName, coinSymbol, zoraPoolConfig, zoraPlatformReferrer, coinSalt],
     });
 
     logger.info({ predictedAddress }, "Predicted coin address from factory");
 
-    // Deploy the coin
-    const hash = await walletClient.writeContract({
-      address: factoryAddress as Address,
+    // Simulate deployment first to catch errors early
+    logger.info("Simulating contract call...");
+    await publicClient.simulateContract({
+      account,
+      address: factoryAddress,
       abi: [deployAbi],
       functionName: "deploy",
       args: [
         params.creator, // payoutRecipient
-        [params.creator], // owners (just creator for MVP)
+        [params.creator], // owners
         params.metadataURI, // uri
-        `TAG: ${params.tagString.replace("#", "")}`, // name
-        "ETS", // symbol
-        poolConfig, // poolConfig
-        params.channel, // platformReferrer (channel that created the tag)
-        "0x0000000000000000000000000000000000000000" as Address, // postDeployHook (none)
-        "0x" as `0x${string}`, // postDeployHookData (empty)
+        coinName, // name (machineName)
+        coinSymbol, // symbol ("ETS")
+        zoraPoolConfig, // poolConfig (from contract)
+        zoraPlatformReferrer, // platformReferrer (from contract)
+        "0x0000000000000000000000000000000000000000" as Address, // postDeployHook
+        "0x" as `0x${string}`, // postDeployHookData
         coinSalt, // coinSalt
       ],
+      value: 0n,
+    });
+
+    logger.info("Simulation successful, executing deployment...");
+
+    // Deploy the coin
+    const hash = await walletClient.writeContract({
+      address: factoryAddress,
+      abi: [deployAbi],
+      functionName: "deploy",
+      args: [
+        params.creator, // payoutRecipient
+        [params.creator], // owners
+        params.metadataURI, // uri
+        coinName, // name (machineName)
+        coinSymbol, // symbol ("ETS")
+        zoraPoolConfig, // poolConfig (from contract)
+        zoraPlatformReferrer, // platformReferrer (from contract)
+        "0x0000000000000000000000000000000000000000" as Address, // postDeployHook
+        "0x" as `0x${string}`, // postDeployHookData
+        coinSalt, // coinSalt
+      ],
+      value: 0n,
     });
 
     // Wait for transaction confirmation

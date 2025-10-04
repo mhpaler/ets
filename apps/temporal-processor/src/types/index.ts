@@ -12,6 +12,7 @@ export interface TargetEnrichmentWorkflowInput {
 
 export interface TagCreatedWorkflowInput {
   coinAddress: Address;
+  tagId: string; // Sequential tag ID for UX
   originalInput: string;
   displayVersion: string;
   machineName: string;

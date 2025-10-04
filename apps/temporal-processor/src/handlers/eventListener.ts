@@ -1,6 +1,6 @@
 import { Client } from "@temporalio/client";
-import { http, type Abi, type AbiEvent, type Log, createPublicClient, decodeEventLog } from "viem";
-import { base, localhost, sepolia } from "viem/chains";
+import { http, type Abi, type AbiEvent, type Log, createPublicClient, decodeEventLog, webSocket } from "viem";
+import { base, baseSepolia, localhost } from "viem/chains";
 import { config } from "../config";
 import type { TagCreatedEvent, TargetCreatedEvent } from "../types";
 import { CheckpointManager } from "../utils/checkpoint";
@@ -13,8 +13,8 @@ function getChain() {
   switch (config.blockchain.chainId) {
     case 31337:
       return localhost;
-    case 11155111:
-      return sepolia;
+    case 84532:
+      return baseSepolia;
     case 8453:
       return base;
     default:
@@ -22,19 +22,44 @@ function getChain() {
   }
 }
 
-// Create viem public client
-// TODO: For production, consider:
-// 1. Use webSocket transport if RPC supports it (more efficient than polling)
-// 2. Implement watchBlockNumber + getLogs pattern for missed events recovery
-// 3. Add exponential backoff for reconnection on failures
-const publicClient = createPublicClient({
+// Create HTTP client for reliable read operations (getLogs, readContract)
+const httpClient = createPublicClient({
   chain: getChain(),
   transport: http(config.blockchain.rpcUrl),
-  // Enable batch processing for better performance
   batch: {
     multicall: true,
   },
 });
+
+// Create WebSocket client for real-time event watching (if available)
+const wsClient = config.blockchain.wsRpcUrl
+  ? createPublicClient({
+      chain: getChain(),
+      transport: webSocket(config.blockchain.wsRpcUrl, {
+        reconnect: {
+          attempts: 5,
+          delay: 5000, // 5 seconds between retries
+        },
+        keepAlive: {
+          interval: 30000, // ping every 30 seconds
+        },
+        timeout: 60000, // 60 second timeout
+      }),
+    })
+  : null;
+
+// Use WebSocket for watching events (real-time), HTTP for queries
+const watchClient = wsClient || httpClient;
+const publicClient = httpClient; // Always use HTTP for read operations
+
+logger.info(
+  {
+    transport: wsClient ? "WebSocket" : "HTTP",
+    wsUrl: config.blockchain.wsRpcUrl,
+    httpUrl: config.blockchain.rpcUrl,
+  },
+  "Initialized blockchain clients",
+);
 
 // Store ABIs and events (will be loaded asynchronously)
 let ETSTargetABI: Abi;
@@ -156,7 +181,7 @@ export class EventListener {
       return;
     }
 
-    this.unwatchEnrichTargetRequested = publicClient.watchContractEvent({
+    this.unwatchEnrichTargetRequested = watchClient.watchContractEvent({
       address: config.blockchain.contracts.etsTarget as `0x${string}`,
       abi: [enrichTargetRequestedEvent],
       eventName: "EnrichTargetRequested",
@@ -167,9 +192,12 @@ export class EventListener {
         }
       },
       onError: (error) => {
-        logger.error({ error }, "❌ Error watching EnrichTargetRequested events");
+        // Log error but don't spam - polling backup will catch events
+        if (!error.message?.includes("filter not found")) {
+          logger.error({ error }, "❌ Error watching EnrichTargetRequested events");
+        }
       },
-      pollingInterval: 1000, // Poll every second for better responsiveness
+      pollingInterval: wsClient ? undefined : 1000, // Only poll if using HTTP
     });
     logger.info("✅ EnrichTargetRequested watcher initialized");
   }
@@ -183,7 +211,7 @@ export class EventListener {
     }
 
     logger.info("🔧 Initializing watchContractEvent for TargetCreated...");
-    this.unwatchTargetCreated = publicClient.watchContractEvent({
+    this.unwatchTargetCreated = watchClient.watchContractEvent({
       address: config.blockchain.contracts.etsTarget as `0x${string}`,
       abi: [targetCreatedEvent],
       eventName: "TargetCreated",
@@ -225,9 +253,12 @@ export class EventListener {
         }
       },
       onError: (error) => {
-        logger.error({ error }, "❌ Error watching TargetCreated events");
+        // Log error but don't spam - polling backup will catch events
+        if (!error.message?.includes("filter not found")) {
+          logger.error({ error }, "❌ Error watching TargetCreated events");
+        }
       },
-      pollingInterval: 1000, // Poll every second for better responsiveness
+      pollingInterval: wsClient ? undefined : 1000, // Only poll if using HTTP
     });
     logger.info("✅ TargetCreated watcher initialized");
 
@@ -337,7 +368,7 @@ export class EventListener {
     }
 
     logger.info("🔧 Initializing watchContractEvent for TagCreated...");
-    this.unwatchTagCreated = publicClient.watchContractEvent({
+    this.unwatchTagCreated = watchClient.watchContractEvent({
       address: config.blockchain.contracts.etsToken as `0x${string}`,
       abi: [tagCreatedEvent],
       eventName: "TagCreated",
@@ -348,9 +379,12 @@ export class EventListener {
         }
       },
       onError: (error) => {
-        logger.error({ error }, "❌ Error watching TagCreated events");
+        // Log error but don't spam - polling backup will catch events
+        if (!error.message?.includes("filter not found")) {
+          logger.error({ error }, "❌ Error watching TagCreated events");
+        }
       },
-      pollingInterval: 1000, // Poll every second for better responsiveness
+      pollingInterval: wsClient ? undefined : 1000, // Only poll if using HTTP
     });
     logger.info("✅ TagCreated watcher initialized");
 
@@ -528,8 +562,10 @@ export class EventListener {
         data: log.data,
         topics: log.topics,
       });
-      const { coinAddress, originalInput, displayVersion, machineName, creator, channel } = (decoded.args || {}) as {
+      const { coinAddress, tagId, originalInput, displayVersion, machineName, creator, channel } = (decoded.args ||
+        {}) as {
         coinAddress: string;
+        tagId: bigint;
         originalInput: string;
         displayVersion: string;
         machineName: string;
@@ -541,6 +577,7 @@ export class EventListener {
       logger.info(
         {
           coinAddress,
+          tagId: tagId.toString(),
           originalInput,
           displayVersion,
           machineName,
@@ -567,6 +604,7 @@ export class EventListener {
         args: [
           {
             coinAddress,
+            tagId: tagId.toString(),
             originalInput,
             displayVersion,
             machineName,
@@ -627,6 +665,18 @@ export class EventListener {
     if (this.debugPollingInterval) {
       clearInterval(this.debugPollingInterval);
       this.debugPollingInterval = undefined;
+    }
+
+    // Close WebSocket connection if it exists
+    if (wsClient) {
+      try {
+        const socket = await wsClient.transport.getSocket();
+        socket.close();
+        logger.info("WebSocket connection closed");
+      } catch {
+        // Socket may already be closed
+        logger.debug("WebSocket already closed");
+      }
     }
 
     if (this.temporalClient) {

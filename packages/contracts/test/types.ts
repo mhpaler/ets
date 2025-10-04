@@ -6,7 +6,6 @@ import type {
   ETSAccessControls,
   ETSChannel,
   ETSChannelFactory,
-  ETSEnrichTarget,
   ETSTarget,
   ETSToken,
   WETH,
@@ -44,7 +43,6 @@ export interface Contracts {
   ETSAccessControls: ETSAccessControls;
   ETSToken: ETSToken;
   ETSTarget: ETSTarget;
-  ETSEnrichTarget: ETSEnrichTarget;
   ETS: ETS;
   ETSChannelFactory: ETSChannelFactory;
   ETSChannelImplementation: ETSChannel;
@@ -57,13 +55,11 @@ export interface Artifacts {
   ETSAccessControls: Artifact;
   ETSToken: Artifact;
   ETSTarget: Artifact;
-  ETSEnrichTarget: Artifact;
   ETS: Artifact;
   ETSChannel: Artifact;
   ETSChannelFactory: Artifact;
   ETSAccessControlsUpgrade: Artifact;
   ETSTokenUpgrade: Artifact;
-  ETSEnrichTargetUpgrade: Artifact;
   ETSTargetUpgrade: Artifact;
   ETSUpgrade: Artifact;
   WETH: Artifact;
@@ -73,13 +69,11 @@ export interface Factories {
   ETSAccessControls: ContractFactory;
   ETSToken: ContractFactory;
   ETSTarget: ContractFactory;
-  ETSEnrichTarget: ContractFactory;
   ETS: ContractFactory;
   ETSChannel: ContractFactory;
   ETSChannelFactory: ContractFactory;
   ETSAccessControlsUpgrade: ContractFactory;
   ETSTokenUpgrade: ContractFactory;
-  ETSEnrichTargetUpgrade: ContractFactory;
   ETSTargetUpgrade: ContractFactory;
   ETSUpgrade: ContractFactory;
   ETSChannelV2test: ContractFactory;

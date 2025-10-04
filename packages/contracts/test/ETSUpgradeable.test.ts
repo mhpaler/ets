@@ -4,8 +4,6 @@ import { network } from "hardhat";
 import ETSAccessControlsModule from "../ignition/modules/ETSAccessControls.js";
 import ETSAccessControlsUpgradeModule from "../ignition/modules/ETSAccessControlsUpgrade.js";
 import ETSCoreModule from "../ignition/modules/ETSCore.js";
-import ETSEnrichTargetModule from "../ignition/modules/ETSEnrichTarget.js";
-import ETSEnrichTargetUpgradeModule from "../ignition/modules/ETSEnrichTargetUpgrade.js";
 import ETSTargetModule from "../ignition/modules/ETSTarget.js";
 import ETSTargetUpgradeModule from "../ignition/modules/ETSTargetUpgrade.js";
 import ETSTokenModule from "../ignition/modules/ETSToken.js";
@@ -76,48 +74,6 @@ describe("Upgrades tests", async () => {
       assert.equal(hasAdminRoleAfterUpgrade, true);
       console.log("✅ Original functionality preserved!");
       console.log("✅ State preserved across upgrade!");
-    });
-  });
-
-  describe("ETSEnrichTarget", () => {
-    it("is upgradeable", async () => {
-      const { ignition, viem } = await network.connect();
-      const [walletClient] = await viem.getWalletClients();
-
-      // Deploy initial contract
-      const { enrichTarget } = await ignition.deploy(ETSEnrichTargetModule, {
-        parameters: {
-          ETSEnrichTarget: {
-            accessControlsAddress: walletClient.account.address, // Temporary placeholder
-            targetAddress: walletClient.account.address, // Temporary placeholder
-          },
-        },
-      });
-
-      const _initialContract = await viem.getContractAt("ETSEnrichTarget", (enrichTarget as any).address);
-
-      // Verify upgrade function doesn't exist initially
-      try {
-        const upgradeContract = await viem.getContractAt("ETSEnrichTargetUpgrade", (enrichTarget as any).address);
-        await upgradeContract.read.upgradeTest();
-        assert.fail("upgradeTest() should not exist in initial contract");
-      } catch {
-        // Expected - function doesn't exist
-      }
-
-      // Perform upgrade
-      await ignition.deploy(ETSEnrichTargetUpgradeModule, {
-        parameters: {
-          ETSEnrichTargetUpgrade: {
-            proxyAddress: (enrichTarget as any).address,
-          },
-        },
-      });
-
-      // Verify upgrade worked
-      const upgradedContract = await viem.getContractAt("ETSEnrichTargetUpgrade", (enrichTarget as any).address);
-      const upgradeTestResult = await upgradedContract.read.upgradeTest();
-      assert.equal(upgradeTestResult, true);
     });
   });
 

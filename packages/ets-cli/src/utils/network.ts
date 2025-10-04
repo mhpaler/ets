@@ -32,7 +32,8 @@ const getAlchemyUrl = (network: string): string | undefined => {
   return alchemyNetwork ? `https://${alchemyNetwork}.g.alchemy.com/v2/${alchemyKey}` : undefined;
 };
 
-const networks: Record<string, NetworkConfig> = {
+// Lazy network config to ensure env vars are loaded
+const getNetworkConfigs = (): Record<string, NetworkConfig> => ({
   localhost: {
     chainId: 31337,
     name: "Localhost",
@@ -53,9 +54,10 @@ const networks: Record<string, NetworkConfig> = {
     viemChain: base,
     rpcUrl: process.env.RPC_URL_BASE || getAlchemyUrl("base") || "https://mainnet.base.org",
   },
-};
+});
 
 export async function getNetwork(networkName: string): Promise<NetworkConfig> {
+  const networks = getNetworkConfigs();
   const network = networks[networkName];
   if (!network) {
     throw new Error(`Unknown network: ${networkName}. Supported: ${Object.keys(networks).join(", ")}`);

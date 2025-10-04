@@ -137,14 +137,19 @@ function generateAndValidateMetadata(tagString: string): { metadata: CoinMetadat
 async function getPoolConfig(): Promise<`0x${string}`> {
   const poolConfigUrl = new URL("https://api-sdk.zora.engineering/create/content/pool-config");
   poolConfigUrl.searchParams.append("chain_id", chain.id.toString());
-  poolConfigUrl.searchParams.append("currency", "CREATOR_COIN_OR_ZORA"); // Use creator coin if exists, otherwise ZORA
+  // Base Sepolia only supports ETH, Base Mainnet can use CREATOR_COIN_OR_ZORA
+  const currency = isTestnet ? "ETH" : "CREATOR_COIN_OR_ZORA";
+  poolConfigUrl.searchParams.append("currency", currency);
   poolConfigUrl.searchParams.append("starting_market_cap", "HIGH");
 
   console.log("📡 Fetching pool config from Zora API...");
+  console.log(`   URL: ${poolConfigUrl.toString()}`);
 
   const response = await fetch(poolConfigUrl.toString());
 
   if (!response.ok) {
+    const errorBody = await response.text();
+    console.error(`   Error response: ${errorBody}`);
     throw new Error(`Pool config API failed: ${response.status} ${response.statusText}`);
   }
 
