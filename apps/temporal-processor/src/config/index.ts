@@ -119,9 +119,8 @@ async function createConfig(): Promise<Config> {
 
   // Get temporal configuration from environment or defaults
   const temporal = {
-    serverUrl: process.env.TEMPORAL_SERVER_URL ||
-      (env.name === 'local' ? 'localhost:7233' : 'cloud.tmprl.cloud:7233'),
-    namespace: process.env.TEMPORAL_NAMESPACE || 'default',
+    serverUrl: process.env.TEMPORAL_SERVER_URL || (env.name === "local" ? "localhost:7233" : "cloud.tmprl.cloud:7233"),
+    namespace: process.env.TEMPORAL_NAMESPACE || "default",
     taskQueue: process.env.TEMPORAL_TASK_QUEUE || `ets-workflows-${env.name}`,
     workerId: process.env.TEMPORAL_WORKER_ID || `ets-worker-${env.name}-${Date.now()}`,
     clientCert: process.env.TEMPORAL_CLIENT_CERT,
@@ -180,7 +179,7 @@ let configPromise: Promise<Config> | null = null;
 
 export async function getConfig(): Promise<Config> {
   if (!configPromise) {
-    configPromise = createConfig().then(config => {
+    configPromise = createConfig().then((config) => {
       // Validate configuration after creation
       validateConfig(config);
       return config;

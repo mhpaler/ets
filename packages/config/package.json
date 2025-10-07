@@ -1,0 +1,30 @@
+{
+  "name": "@ethereum-tag-service/config",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Unified configuration system for ETS monorepo",
+  "author": "Ethereum Tag Service <team@ets.xyz>",
+  "license": "ISC",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist", "src", "types"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "viem": "^2.21.54",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "typescript": "^5.7.2",
+    "vitest": "^1.5.0"
+  },
+  "peerDependencies": {
+    "@ethereum-tag-service/contracts": "workspace:*"
+  }
+}

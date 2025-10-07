@@ -40,6 +40,8 @@
     "setup-fork": "bun ./scripts/setupFork.ts",
     "start-graph-node": "cd scripts && ./start-graph-node.sh",
     "test:build": "pnpm run --r --parallel test:build",
+    "test:integration": "bun test test/integration/",
+    "test:metadata": "cd apps/temporal-processor && jest ../../test/integration/metadata-extraction.test.ts --testTimeout=30000",
     "version:update": "bun ./scripts/updateVersion.ts"
   },
   "devDependencies": {

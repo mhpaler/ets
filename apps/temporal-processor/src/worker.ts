@@ -113,9 +113,9 @@ async function run() {
     logger.error(
       {
         error: err instanceof Error ? err.message : err,
-        stack: err instanceof Error ? err.stack : undefined
+        stack: err instanceof Error ? err.stack : undefined,
       },
-      "Failed to start worker"
+      "Failed to start worker",
     );
     process.exit(1);
   }

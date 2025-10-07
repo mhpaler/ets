@@ -28,6 +28,10 @@ describe("TagCreatedWorkflow", () => {
         metadataURI: "ipfs://test-metadata-uri",
         status: "success",
       }),
+      fetchPoolConfig: jest.fn().mockResolvedValue({
+        poolConfig: "0x0000000000000000000000000000000000000000",
+        status: "success",
+      }),
       deployTagCoinOnZora: jest.fn().mockResolvedValue({
         coinAddress: "0x1234567890abcdef",
         transactionHash: "0xabcdef123456",
@@ -50,12 +54,15 @@ describe("TagCreatedWorkflow", () => {
       const input: TagCreatedWorkflowInput = {
         tagId: "789",
         coinAddress: "0x1234567890abcdef",
-        tagString: "#ethereum",
+        originalInput: "#ethereum",
+        displayVersion: "#Ethereum",
+        machineName: "ethereum",
         creator: "0xcreator123",
+        channel: "0xchannel123",
         transactionHash: "0x789abc",
         blockNumber: "300",
         chainId: 31337,
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
       };
 
       const result = await client.workflow.execute(TagCreatedWorkflow, {
@@ -75,8 +82,8 @@ describe("TagCreatedWorkflow", () => {
 
       // Verify activities were called
       expect(mockActivities.createTagCoinMetadata).toHaveBeenCalledWith({
-        tagId: "789",
-        tagString: "#ethereum",
+        tagId: "0x1234567890abcdef", // Workflow uses coinAddress as tagId
+        tagString: "#ethereum", // Activity still uses tagString
         creator: "0xcreator123",
         coinAddress: "0x1234567890abcdef",
       });

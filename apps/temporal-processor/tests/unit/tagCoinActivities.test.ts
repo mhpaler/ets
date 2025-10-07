@@ -89,6 +89,7 @@ describe("TAG Coin Activities", () => {
         timestamp: "2024-01-01T00:00:00Z",
         blockNumber: "100",
         transactionHash: "0xabc123",
+        poolConfig: "0x0000000000000000000000000000000000000000" as Address, // Default pool config
       };
 
       // In a real test with mocked clients, we'd test the actual deployment
@@ -110,6 +111,7 @@ describe("TAG Coin Activities", () => {
         timestamp: "2024-01-01T00:00:00Z",
         blockNumber: "100",
         transactionHash: "0xabc123",
+        poolConfig: "0x0000000000000000000000000000000000000000" as Address, // Default pool config
       };
 
       const result = await deployTagCoinOnZora(params);

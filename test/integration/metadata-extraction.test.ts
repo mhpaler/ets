@@ -1,9 +1,3 @@
-// @ts-ignore - Bun test runner types
-import { afterAll, beforeAll, describe, test } from "bun:test";
-import { expect } from "chai";
-import { MetadataExtractor } from "../src/services/MetadataExtractor";
-import type { ETSTargetMetadata } from "../src/types/metadata";
-
 /**
  * Metadata Extraction Integration Tests
  *
@@ -14,8 +8,12 @@ import type { ETSTargetMetadata } from "../src/types/metadata";
  * - Error handling for bad URIs
  * - Edge case handling (404s, timeouts, redirects)
  *
- * Run with: bun test apps/temporal-processor/test/metadata-extraction.test.ts
+ * NOTE: These tests make real network requests and may be slow or flaky.
+ * Run with: pnpm test:metadata-extraction
  */
+
+import { MetadataExtractor } from "../../apps/temporal-processor/src/services/MetadataExtractor";
+import type { ETSTargetMetadata } from "../../apps/temporal-processor/src/types/metadata";
 
 describe("Metadata Extraction Integration Tests", () => {
   let extractor: MetadataExtractor;
@@ -42,13 +40,13 @@ describe("Metadata Extraction Integration Tests", () => {
       const url = makeUnique(baseUrl);
       const metadata = await extractor.extract(url);
 
-      expect(metadata.core.uri).to.equal(url);
-      expect(metadata.type).to.equal("repository");
-      expect(metadata.platform).to.equal("github");
-      expect(metadata.core.title).to.include("go-ethereum");
-      expect(metadata.core.description).to.exist;
-      expect(metadata.core.extractionMethod).to.be.oneOf(["opengraph", "html"]);
-      expect(metadata.core.httpStatus).to.equal(200);
+      expect(metadata.core.uri).toEqual(url);
+      expect(metadata.type).toEqual("repository");
+      expect(metadata.platform).toEqual("github");
+      expect(metadata.core.title).toContain("go-ethereum");
+      expect(metadata.core.description).toBeDefined();
+      expect(["opengraph", "html"]).toContain(metadata.core.extractionMethod);
+      expect(metadata.core.httpStatus).toEqual(200);
     });
 
     test("should extract YouTube video metadata", async () => {
@@ -56,10 +54,10 @@ describe("Metadata Extraction Integration Tests", () => {
       const url = makeUnique(baseUrl);
       const metadata = await extractor.extract(url);
 
-      expect(metadata.type).to.equal("video");
-      expect(metadata.platform).to.equal("youtube");
-      expect(metadata.core.title).to.exist;
-      expect(metadata.core.image).to.exist; // YouTube provides thumbnails
+      expect(metadata.type).toEqual("video");
+      expect(metadata.platform).toEqual("youtube");
+      expect(metadata.core.title).toBeDefined();
+      expect(metadata.core.image).toBeDefined(); // YouTube provides thumbnails
       // Note: extensions.media might not be populated without API calls
     });
 
@@ -70,12 +68,12 @@ describe("Metadata Extraction Integration Tests", () => {
 
       // Twitter may return 404 or error due to API changes
       if (metadata.core.extractionMethod === "error") {
-        expect(metadata.type).to.equal("unknown");
+        expect(metadata.type).toEqual("unknown");
       } else {
-        expect(metadata.type).to.equal("social_post");
-        expect(metadata.platform).to.equal("twitter");
+        expect(metadata.type).toEqual("social_post");
+        expect(metadata.platform).toEqual("twitter");
       }
-      expect(metadata.core.title).to.exist;
+      expect(metadata.core.title).toBeDefined();
     });
 
     test("should extract Medium article metadata", async () => {
@@ -84,12 +82,12 @@ describe("Metadata Extraction Integration Tests", () => {
       const metadata = await extractor.extract(url);
 
       // Medium may not provide description, which causes type to be 'unknown'
-      expect(metadata.type).to.be.oneOf(["article", "unknown"]);
-      expect(metadata.platform).to.equal("medium");
-      expect(metadata.core.title).to.exist;
+      expect(["article", "unknown"]).toContain(metadata.type);
+      expect(metadata.platform).toEqual("medium");
+      expect(metadata.core.title).toBeDefined();
       // Check for author info if available
       if (metadata.extensions?.creator) {
-        expect(metadata.extensions.creator.name).to.exist;
+        expect(metadata.extensions.creator.name).toBeDefined();
       }
     });
 
@@ -99,12 +97,12 @@ describe("Metadata Extraction Integration Tests", () => {
       const metadata = await extractor.extract(url);
 
       // Wikipedia may not always provide description
-      expect(metadata.type).to.be.oneOf(["article", "unknown"]);
-      expect(metadata.platform).to.equal("wikipedia");
-      expect(metadata.core.title).to.exist;
+      expect(["article", "unknown"]).toContain(metadata.type);
+      expect(metadata.platform).toEqual("wikipedia");
+      expect(metadata.core.title).toBeDefined();
       // Title should contain Ethereum or be a fallback
       if (metadata.core.title !== "en.wikipedia.org") {
-        expect(metadata.core.title.toLowerCase()).to.include("ethereum");
+        expect(metadata.core.title.toLowerCase()).toContain("ethereum");
       }
     });
   });
@@ -114,9 +112,9 @@ describe("Metadata Extraction Integration Tests", () => {
       const url = "https://httpstat.us/404";
       const metadata = await extractor.extract(url);
 
-      expect(metadata.core.extractionMethod).to.equal("error");
-      expect(metadata.type).to.equal("unknown");
-      expect(metadata.core.title).to.include("Error");
+      expect(metadata.core.extractionMethod).toEqual("error");
+      expect(metadata.type).toEqual("unknown");
+      expect(metadata.core.title).toContain("Error");
       // httpStatus might be 0 or 404 depending on how unfurl handles it
     });
 
@@ -124,9 +122,9 @@ describe("Metadata Extraction Integration Tests", () => {
       const url = "not-a-valid-url";
       const metadata = await extractor.extract(url);
 
-      expect(metadata.core.extractionMethod).to.equal("error");
-      expect(metadata.type).to.equal("unknown");
-      expect(metadata.core.description).to.include("Invalid URL");
+      expect(metadata.core.extractionMethod).toEqual("error");
+      expect(metadata.type).toEqual("unknown");
+      expect(metadata.core.description).toContain("Invalid URL");
     });
 
     test("should handle timeout gracefully", async () => {
@@ -134,15 +132,9 @@ describe("Metadata Extraction Integration Tests", () => {
       const fastExtractor = new MetadataExtractor({ timeout: 1000, maxSize: 5 * 1024 * 1024 }); // 1 second timeout
       const metadata = await fastExtractor.extract(url);
 
-      expect(metadata.core.extractionMethod).to.equal("error");
+      expect(metadata.core.extractionMethod).toEqual("error");
       // May get various error messages including connection closed
-      expect(metadata.core.description).to.satisfy(
-        (desc: string) =>
-          desc.includes("timeout") ||
-          desc.includes("Timeout") ||
-          desc.includes("connection") ||
-          desc.includes("closed"),
-      );
+      expect(metadata.core.description).toMatch(/timeout|Timeout|connection|closed/i);
     });
 
     test("should handle pages with minimal metadata", async () => {
@@ -150,8 +142,8 @@ describe("Metadata Extraction Integration Tests", () => {
       const url = makeUnique(baseUrl);
       const metadata = await extractor.extract(url);
 
-      expect(metadata.core.title).to.exist; // Should at least have hostname
-      expect(metadata.core.extractionMethod).to.be.oneOf(["html", "fallback"]);
+      expect(metadata.core.title).toBeDefined(); // Should at least have hostname
+      expect(["html", "fallback"]).toContain(metadata.core.extractionMethod);
     });
   });
 
@@ -160,17 +152,17 @@ describe("Metadata Extraction Integration Tests", () => {
       const url = "javascript:alert(1)";
       const metadata = await extractor.extract(url);
 
-      expect(metadata.core.extractionMethod).to.equal("error");
-      expect(metadata.type).to.equal("unknown");
-      expect(metadata.core.description).to.include("Invalid URL");
+      expect(metadata.core.extractionMethod).toEqual("error");
+      expect(metadata.type).toEqual("unknown");
+      expect(metadata.core.description).toContain("Invalid URL");
     });
 
     test("should reject file protocol", async () => {
       const url = "file:///etc/passwd";
       const metadata = await extractor.extract(url);
 
-      expect(metadata.core.extractionMethod).to.equal("error");
-      expect(metadata.type).to.equal("unknown");
+      expect(metadata.core.extractionMethod).toEqual("error");
+      expect(metadata.type).toEqual("unknown");
     });
 
     test("should reject internal IP addresses", async () => {
@@ -179,11 +171,9 @@ describe("Metadata Extraction Integration Tests", () => {
       for (const url of internalIPs) {
         const metadata = await extractor.extract(url);
 
-        expect(metadata.core.extractionMethod).to.equal("error");
-        expect(metadata.type).to.equal("unknown");
-        expect(metadata.core.description).to.satisfy(
-          (desc: string) => desc.includes("Internal IP") || desc.includes("Invalid URL"),
-        );
+        expect(metadata.core.extractionMethod).toEqual("error");
+        expect(metadata.type).toEqual("unknown");
+        expect(metadata.core.description).toMatch(/Internal IP|Invalid URL/);
       }
     });
 
@@ -191,8 +181,8 @@ describe("Metadata Extraction Integration Tests", () => {
       const url = "https://this-domain-definitely-does-not-exist-12345.com";
       const metadata = await extractor.extract(url);
 
-      expect(metadata.core.extractionMethod).to.equal("error");
-      expect(metadata.type).to.equal("unknown");
+      expect(metadata.core.extractionMethod).toEqual("error");
+      expect(metadata.type).toEqual("unknown");
     });
   });
 
@@ -204,13 +194,11 @@ describe("Metadata Extraction Integration Tests", () => {
 
       // PDF files often return WRONG_CONTENT_TYPE error from unfurl
       if (metadata.core.extractionMethod === "error") {
-        expect(metadata.type).to.equal("unknown");
+        expect(metadata.type).toEqual("unknown");
         // Error message should indicate wrong content type
-        expect(metadata.core.description).to.satisfy(
-          (desc: string) => desc.includes("WRONG_CONTENT_TYPE") || desc.includes("content type"),
-        );
+        expect(metadata.core.description).toMatch(/WRONG_CONTENT_TYPE|content type/);
       } else {
-        expect(metadata.type).to.equal("document");
+        expect(metadata.type).toEqual("document");
       }
     });
 
@@ -221,10 +209,10 @@ describe("Metadata Extraction Integration Tests", () => {
       const metadata = await extractor.extract(url);
 
       // Images often can't be parsed for metadata
-      expect(metadata.type).to.be.oneOf(["image", "unknown"]);
+      expect(["image", "unknown"]).toContain(metadata.type);
       // If successfully detected, should be image based on .png extension
       if (metadata.type === "image" || url.includes(".png")) {
-        expect(url).to.include(".png");
+        expect(url).toContain(".png");
       }
     });
   });
@@ -236,7 +224,7 @@ describe("Metadata Extraction Integration Tests", () => {
       const metadata = await extractor.extract(url);
 
       if (metadata.core.extractionMethod === "opengraph") {
-        expect(metadata.core.image).to.exist; // OG usually includes images
+        expect(metadata.core.image).toBeDefined(); // OG usually includes images
       }
     });
 
@@ -246,8 +234,8 @@ describe("Metadata Extraction Integration Tests", () => {
       for (const baseUrl of baseUrls) {
         const url = makeUnique(baseUrl);
         const metadata = await extractor.extract(url);
-        expect(metadata.core.title).to.exist;
-        expect(metadata.core.title).to.not.equal("");
+        expect(metadata.core.title).toBeDefined();
+        expect(metadata.core.title).not.toEqual("");
       }
     });
   });

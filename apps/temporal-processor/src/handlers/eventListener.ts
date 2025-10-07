@@ -1,5 +1,14 @@
 import { Client } from "@temporalio/client";
-import { http, type Abi, type AbiEvent, type Log, type PublicClient, createPublicClient, decodeEventLog, webSocket } from "viem";
+import {
+  http,
+  type Abi,
+  type AbiEvent,
+  type Log,
+  type PublicClient,
+  createPublicClient,
+  decodeEventLog,
+  webSocket,
+} from "viem";
 import { base, baseSepolia, localhost } from "viem/chains";
 import { getConfig } from "../config";
 import type { TagCreatedEvent, TargetCreatedEvent } from "../types";
@@ -162,9 +171,9 @@ export class EventListener {
       logger.error(
         {
           error: error instanceof Error ? error.message : error,
-          stack: error instanceof Error ? error.stack : undefined
+          stack: error instanceof Error ? error.stack : undefined,
         },
-        "Failed to start event listener"
+        "Failed to start event listener",
       );
       throw error;
     }
@@ -214,19 +223,25 @@ export class EventListener {
       throw new Error("Clients not initialized");
     }
 
-    logger.info({
-      contract: config.blockchain.contracts.etsTarget,
-      event: "TargetCreated",
-    }, "Setting up TargetCreated event listener");
+    logger.info(
+      {
+        contract: config.blockchain.contracts.etsTarget,
+        event: "TargetCreated",
+      },
+      "Setting up TargetCreated event listener",
+    );
 
     // Get the last processed block from checkpoint
     const lastBlock = this.checkpointManager!.getLastProcessedBlock();
-    const fromBlock = lastBlock ? BigInt(lastBlock + 1) : "latest";
+    const fromBlock = lastBlock ? BigInt(lastBlock) + 1n : "latest";
 
-    logger.info({
-      fromBlock: fromBlock.toString(),
-      lastCheckpoint: lastBlock,
-    }, "Starting TargetCreated listener from checkpoint");
+    logger.info(
+      {
+        fromBlock: fromBlock.toString(),
+        lastCheckpoint: lastBlock,
+      },
+      "Starting TargetCreated listener from checkpoint",
+    );
 
     // Process historical events if we have a checkpoint
     if (lastBlock) {
@@ -259,19 +274,25 @@ export class EventListener {
       throw new Error("Clients not initialized");
     }
 
-    logger.info({
-      contract: config.blockchain.contracts.etsTarget,
-      event: "EnrichTargetRequested",
-    }, "Setting up EnrichTargetRequested event listener");
+    logger.info(
+      {
+        contract: config.blockchain.contracts.etsTarget,
+        event: "EnrichTargetRequested",
+      },
+      "Setting up EnrichTargetRequested event listener",
+    );
 
     // Get the last processed block from checkpoint
     const lastBlock = this.checkpointManager!.getLastProcessedBlock();
-    const fromBlock = lastBlock ? BigInt(lastBlock + 1) : "latest";
+    const fromBlock = lastBlock ? BigInt(lastBlock) + 1n : "latest";
 
-    logger.info({
-      fromBlock: fromBlock.toString(),
-      lastCheckpoint: lastBlock,
-    }, "Starting EnrichTargetRequested listener from checkpoint");
+    logger.info(
+      {
+        fromBlock: fromBlock.toString(),
+        lastCheckpoint: lastBlock,
+      },
+      "Starting EnrichTargetRequested listener from checkpoint",
+    );
 
     // Process historical events if we have a checkpoint
     if (lastBlock) {
@@ -304,19 +325,25 @@ export class EventListener {
       throw new Error("Clients not initialized");
     }
 
-    logger.info({
-      contract: config.blockchain.contracts.etsToken,
-      event: "TagCreated",
-    }, "Setting up TagCreated event listener");
+    logger.info(
+      {
+        contract: config.blockchain.contracts.etsToken,
+        event: "TagCreated",
+      },
+      "Setting up TagCreated event listener",
+    );
 
     // Get the last processed block from checkpoint
     const lastBlock = this.checkpointManager!.getLastProcessedBlock();
-    const fromBlock = lastBlock ? BigInt(lastBlock + 1) : "latest";
+    const fromBlock = lastBlock ? BigInt(lastBlock) + 1n : "latest";
 
-    logger.info({
-      fromBlock: fromBlock.toString(),
-      lastCheckpoint: lastBlock,
-    }, "Starting TagCreated listener from checkpoint");
+    logger.info(
+      {
+        fromBlock: fromBlock.toString(),
+        lastCheckpoint: lastBlock,
+      },
+      "Starting TagCreated listener from checkpoint",
+    );
 
     // Process historical events if we have a checkpoint
     if (lastBlock) {
@@ -356,7 +383,7 @@ export class EventListener {
         address: config.blockchain.contracts.etsTarget,
         abi: ETSTargetABI,
         eventName: "TargetCreated",
-        fromBlock: BigInt(fromBlock + 1),
+        fromBlock: BigInt(fromBlock) + 1n,
         toBlock: "latest",
       });
 
@@ -385,7 +412,7 @@ export class EventListener {
         address: config.blockchain.contracts.etsTarget,
         abi: ETSTargetABI,
         eventName: "EnrichTargetRequested",
-        fromBlock: BigInt(fromBlock + 1),
+        fromBlock: BigInt(fromBlock) + 1n,
         toBlock: "latest",
       });
 
@@ -414,7 +441,7 @@ export class EventListener {
         address: config.blockchain.contracts.etsToken,
         abi: ETSTokenABI,
         eventName: "TagCreated",
-        fromBlock: BigInt(fromBlock + 1),
+        fromBlock: BigInt(fromBlock) + 1n,
         toBlock: "latest",
       });
 
@@ -444,12 +471,15 @@ export class EventListener {
         topics: log.topics,
       }) as unknown as TargetCreatedEvent;
 
-      logger.info({
-        blockNumber: log.blockNumber,
-        transactionHash: log.transactionHash,
-        targetId: decoded.args.targetId?.toString(),
-        targetURI: decoded.args.targetURI,
-      }, "Processing TargetCreated event");
+      logger.info(
+        {
+          blockNumber: log.blockNumber,
+          transactionHash: log.transactionHash,
+          targetId: decoded.args.targetId?.toString(),
+          targetURI: decoded.args.targetURI,
+        },
+        "Processing TargetCreated event",
+      );
 
       // Mark as processed before starting workflow to avoid race conditions
       this.processedEvents.add(eventId);
@@ -462,18 +492,21 @@ export class EventListener {
           await this.temporalClient.workflow.start("TargetEnrichmentWorkflow", {
             taskQueue: this.config.temporal.taskQueue,
             workflowId,
-            args: [{
-              targetId: decoded.args.targetId?.toString() || "0",
-              targetURI: decoded.args.targetURI,
-              createdBy: decoded.args.createdBy,
-              blockNumber: log.blockNumber?.toString(),
-              transactionHash: log.transactionHash,
-            }],
+            args: [
+              {
+                targetId: decoded.args.targetId?.toString() || "0",
+                targetURI: decoded.args.targetURI,
+                createdBy: decoded.args.createdBy,
+                blockNumber: log.blockNumber?.toString(),
+                transactionHash: log.transactionHash,
+              },
+            ],
           });
 
           logger.info({ workflowId }, "Started TargetEnrichmentWorkflow");
         } catch (error: any) {
-          if (error.code === 6) { // ALREADY_EXISTS
+          if (error.code === 6) {
+            // ALREADY_EXISTS
             logger.debug({ workflowId }, "Workflow already exists, skipping");
           } else {
             logger.error(
@@ -482,9 +515,9 @@ export class EventListener {
                 code: error?.code,
                 details: error?.details,
                 stack: error instanceof Error ? error.stack : undefined,
-                workflowId
+                workflowId,
               },
-              "Failed to start workflow"
+              "Failed to start workflow",
             );
           }
         }
@@ -499,7 +532,7 @@ export class EventListener {
             etsTarget: this.config.blockchain.contracts.etsTarget,
             etsToken: this.config.blockchain.contracts.etsToken,
           },
-          [eventId]
+          [eventId],
         );
       }
     } catch (error) {
@@ -525,12 +558,15 @@ export class EventListener {
         topics: log.topics,
       });
 
-      logger.info({
-        blockNumber: log.blockNumber,
-        transactionHash: log.transactionHash,
-        targetId: (decoded.args as any).targetId?.toString(),
-        requestedBy: (decoded.args as any).requestedBy,
-      }, "Processing EnrichTargetRequested event");
+      logger.info(
+        {
+          blockNumber: log.blockNumber,
+          transactionHash: log.transactionHash,
+          targetId: (decoded.args as any).targetId?.toString(),
+          requestedBy: (decoded.args as any).requestedBy,
+        },
+        "Processing EnrichTargetRequested event",
+      );
 
       // Mark as processed
       this.processedEvents.add(eventId);
@@ -553,19 +589,22 @@ export class EventListener {
             await this.temporalClient.workflow.start("TargetEnrichmentWorkflow", {
               taskQueue: this.config.temporal.taskQueue,
               workflowId,
-              args: [{
-                targetId: (decoded.args as any).targetId?.toString() || "0",
-                targetURI: targetURI as string,
-                createdBy: (decoded.args as any).requestedBy,
-                blockNumber: log.blockNumber?.toString(),
-                transactionHash: log.transactionHash,
-              }],
+              args: [
+                {
+                  targetId: (decoded.args as any).targetId?.toString() || "0",
+                  targetURI: targetURI as string,
+                  createdBy: (decoded.args as any).requestedBy,
+                  blockNumber: log.blockNumber?.toString(),
+                  transactionHash: log.transactionHash,
+                },
+              ],
             });
 
             logger.info({ workflowId }, "Started TargetEnrichmentWorkflow from EnrichTargetRequested");
           }
         } catch (error: any) {
-          if (error.code === 6) { // ALREADY_EXISTS
+          if (error.code === 6) {
+            // ALREADY_EXISTS
             logger.debug({ workflowId }, "Workflow already exists, skipping");
           } else {
             logger.error(
@@ -574,9 +613,9 @@ export class EventListener {
                 code: error?.code,
                 details: error?.details,
                 stack: error instanceof Error ? error.stack : undefined,
-                workflowId
+                workflowId,
               },
-              "Failed to start workflow"
+              "Failed to start workflow",
             );
           }
         }
@@ -591,7 +630,7 @@ export class EventListener {
             etsTarget: this.config.blockchain.contracts.etsTarget,
             etsToken: this.config.blockchain.contracts.etsToken,
           },
-          [eventId]
+          [eventId],
         );
       }
     } catch (error) {
@@ -617,13 +656,16 @@ export class EventListener {
         topics: log.topics,
       }) as unknown as TagCreatedEvent;
 
-      logger.info({
-        blockNumber: log.blockNumber,
-        transactionHash: log.transactionHash,
-        tagId: decoded.args.tagId?.toString(),
-        display: decoded.args.display,
-        creator: decoded.args.creator,
-      }, "Processing TagCreated event");
+      logger.info(
+        {
+          blockNumber: log.blockNumber,
+          transactionHash: log.transactionHash,
+          tagId: decoded.args.tagId?.toString(),
+          display: decoded.args.display,
+          creator: decoded.args.creator,
+        },
+        "Processing TagCreated event",
+      );
 
       // Mark as processed
       this.processedEvents.add(eventId);
@@ -636,18 +678,21 @@ export class EventListener {
           await this.temporalClient.workflow.start("TagCreatedWorkflow", {
             taskQueue: this.config.temporal.taskQueue,
             workflowId,
-            args: [{
-              tagId: decoded.args.tagId?.toString() || "0",
-              display: decoded.args.display,
-              creator: decoded.args.creator,
-              blockNumber: log.blockNumber?.toString(),
-              transactionHash: log.transactionHash,
-            }],
+            args: [
+              {
+                tagId: decoded.args.tagId?.toString() || "0",
+                display: decoded.args.display,
+                creator: decoded.args.creator,
+                blockNumber: log.blockNumber?.toString(),
+                transactionHash: log.transactionHash,
+              },
+            ],
           });
 
           logger.info({ workflowId }, "Started TagCreatedWorkflow");
         } catch (error: any) {
-          if (error.code === 6) { // ALREADY_EXISTS
+          if (error.code === 6) {
+            // ALREADY_EXISTS
             logger.debug({ workflowId }, "Workflow already exists, skipping");
           } else {
             logger.error(
@@ -656,9 +701,9 @@ export class EventListener {
                 code: error?.code,
                 details: error?.details,
                 stack: error instanceof Error ? error.stack : undefined,
-                workflowId
+                workflowId,
               },
-              "Failed to start workflow"
+              "Failed to start workflow",
             );
           }
         }
@@ -673,7 +718,7 @@ export class EventListener {
             etsTarget: this.config.blockchain.contracts.etsTarget,
             etsToken: this.config.blockchain.contracts.etsToken,
           },
-          [eventId]
+          [eventId],
         );
       }
     } catch (error) {
@@ -693,7 +738,7 @@ export class EventListener {
         const blockNumber = await client.getBlockNumber();
 
         logger.info(
-          `🔄 Polling debug: Latest block ${blockNumber}, watching contract ${config.blockchain.contracts.etsTarget}`
+          `🔄 Polling debug: Latest block ${blockNumber}, watching contract ${config.blockchain.contracts.etsTarget}`,
         );
       } catch (error) {
         logger.warn({ error }, "Debug polling error");

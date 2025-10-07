@@ -68,9 +68,9 @@ async function main() {
     logger.error(
       {
         error: error instanceof Error ? error.message : error,
-        stack: error instanceof Error ? error.stack : undefined
+        stack: error instanceof Error ? error.stack : undefined,
       },
-      "Failed to start Temporal Processor Service"
+      "Failed to start Temporal Processor Service",
     );
     process.exit(1);
   }
@@ -81,9 +81,9 @@ main().catch((error) => {
   logger.error(
     {
       error: error instanceof Error ? error.message : error,
-      stack: error instanceof Error ? error.stack : undefined
+      stack: error instanceof Error ? error.stack : undefined,
     },
-    "Uncaught error in main"
+    "Uncaught error in main",
   );
   process.exit(1);
 });

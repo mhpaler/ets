@@ -1,16 +1,28 @@
+import { ETSConfig } from "@ethereum-tag-service/config";
 import hardhatToolboxViem from "@nomicfoundation/hardhat-toolbox-viem";
-import * as dotenv from "dotenv";
+import hardhatVerify from "@nomicfoundation/hardhat-verify";
 import type { HardhatUserConfig } from "hardhat/config";
-import { configVariable } from "hardhat/config";
 
-// Load environment variables from .env file
-dotenv.config();
+// Initialize config system
+const etsConfig = ETSConfig.getInstance();
+const env = etsConfig.getEnvironment();
+const network = etsConfig.getNetwork();
+const wallet = etsConfig.getWallet();
 
-// Tasks would go here but the API has changed in Hardhat 3
-// Use scripts instead (see scripts/ directory)
+// Log configuration for transparency
+console.log("🔧 Hardhat Configuration");
+console.log(`   Environment: ${env.displayName}`);
+console.log(`   Network: ${network.name} (${network.chainId})`);
+console.log(`   RPC: ${network.rpcUrl}`);
+
+// Ensure we have wallet configuration
+if (!wallet?.mnemonic) {
+  console.warn("⚠️  No mnemonic configured for environment:", env.name);
+  console.warn("   Set STAGING_MNEMONIC or PRODUCTION_MNEMONIC in .env.local");
+}
 
 const config: HardhatUserConfig = {
-  plugins: [hardhatToolboxViem],
+  plugins: [hardhatToolboxViem, hardhatVerify],
   solidity: {
     npmFilesToBuild: [
       "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol",
@@ -69,46 +81,72 @@ const config: HardhatUserConfig = {
     ],
   },
   networks: {
+    // Hardhat network (in-process)
     hardhat: {
       type: "edr-simulated",
       chainType: "l1",
       chainId: 31337,
-      accounts: {
-        mnemonic: configVariable("LOCAL_MNEMONIC"),
-        count: 20, // Generate 20 accounts: 10 reserved + test accounts
-      },
+      accounts: wallet?.mnemonic
+        ? {
+            mnemonic: wallet.mnemonic,
+            count: 20, // Generate 20 accounts: 10 reserved + test accounts
+          }
+        : undefined,
     },
+
+    // Local network (external node)
     localhost: {
       type: "http",
       chainType: "l1",
-      url: "http://127.0.0.1:8545",
+      url: env.name === "local" ? network.rpcUrl : "http://127.0.0.1:8545",
       chainId: 31337,
-      accounts: {
-        mnemonic: configVariable("LOCAL_MNEMONIC"),
-        count: 20, // Generate 20 accounts: 10 reserved + test accounts
-      },
+      accounts: wallet?.mnemonic
+        ? {
+            mnemonic: wallet.mnemonic,
+            count: 20, // Generate 20 accounts: 10 reserved + test accounts
+          }
+        : undefined,
     },
+
     // Base Sepolia (Staging)
     baseSepolia: {
       type: "http",
       chainType: "op",
-      url: configVariable("BASE_SEPOLIA_RPC_URL"),
+      url:
+        env.name === "staging"
+          ? network.rpcUrl
+          : `https://base-sepolia.g.alchemy.com/v2/${network.alchemyApiKey || process.env.ALCHEMY_API_KEY}`,
       chainId: 84532,
-      accounts: {
-        mnemonic: configVariable("STAGING_MNEMONIC"),
-        count: 20, // Generate 20 accounts: 10 reserved + test accounts
-      },
+      accounts: wallet?.mnemonic
+        ? {
+            mnemonic: wallet.mnemonic,
+            count: 20, // Generate 20 accounts: 10 reserved + test accounts
+          }
+        : undefined,
     },
+
     // Base Mainnet (Production)
     base: {
       type: "http",
       chainType: "op",
-      url: configVariable("BASE_MAINNET_RPC_URL"),
+      url:
+        env.name === "production"
+          ? network.rpcUrl
+          : `https://base-mainnet.g.alchemy.com/v2/${network.alchemyApiKey || process.env.ALCHEMY_API_KEY}`,
       chainId: 8453,
-      accounts: {
-        mnemonic: configVariable("PRODUCTION_MNEMONIC"),
-        count: 20, // Generate 20 accounts: 10 reserved + test accounts
-      },
+      accounts: wallet?.mnemonic
+        ? {
+            mnemonic: wallet.mnemonic,
+            count: 20, // Generate 20 accounts: 10 reserved + test accounts
+          }
+        : undefined,
+    },
+  },
+
+  // Contract verification
+  verify: {
+    etherscan: {
+      apiKey: process.env.BASESCAN_API_KEY || "dummy-key-for-local",
     },
   },
 };

@@ -6,8 +6,8 @@
   "private": true,
   "scripts": {
     "clean": "rm -rf .next",
-    "dev": "pnpm run clean && dotenv -e ../../.env -- sh -c 'next dev -p 3001'",
-    "build": "dotenv -e ../../.env -- sh -c 'next build'",
+    "dev": "pnpm run clean && next dev -p 3001",
+    "build": "next build",
     "start": "next start",
     "test:console-stripping": "node test-console-stripping.js"
   },

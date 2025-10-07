@@ -1,5 +1,25 @@
 # ETS Session Changelog
 
+## 2025-10-07
+
+### Fixed
+- **Temporal Processor startup issues** - Fixed async config loading race conditions
+  - Converted config module from synchronous export to async `getConfig()` function (#539)
+  - Fixed CheckpointManager method calls (`updateCheckpoint` → `updateProcessedEvents`)
+  - Fixed workflow name mismatch ("TagCoinWorkflow" → "TagCreatedWorkflow")
+  - Fixed BigInt arithmetic type conversion errors (6 locations)
+  - Enabled debug polling for staging environment
+
+- **Hardhat configuration** - Fixed etherscan API key validation error
+  - Added fallback value for local development when BASESCAN_API_KEY not set
+  - Integrated with new `@ethereum-tag-service/config` package
+
+### Added
+- **Unified configuration package** - Created `@ethereum-tag-service/config` for centralized environment management
+  - Single source of truth for all environment configurations
+  - Simplified startup scripts with intelligent defaults
+  - Consistent configuration across all services
+
 ## 2025-10-03
 
 ### Changed
