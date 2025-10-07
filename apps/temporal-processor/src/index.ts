@@ -1,4 +1,4 @@
-import { config } from "./config";
+import { getConfig } from "./config";
 import { EventListener } from "./handlers/eventListener";
 import { getComponentLogger } from "./utils/logger";
 
@@ -25,6 +25,10 @@ async function main() {
   await cleanup();
 
   logger.info("🚀 Starting Temporal Processor Service");
+
+  // Load config asynchronously
+  const config = await getConfig();
+
   logger.info(
     {
       env: config.env,
@@ -61,13 +65,25 @@ async function main() {
       await cleanup();
     });
   } catch (error) {
-    logger.error({ error }, "Failed to start Temporal Processor Service");
+    logger.error(
+      {
+        error: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined
+      },
+      "Failed to start Temporal Processor Service"
+    );
     process.exit(1);
   }
 }
 
 // Start the service
 main().catch((error) => {
-  logger.error({ error }, "Uncaught error in main");
+  logger.error(
+    {
+      error: error instanceof Error ? error.message : error,
+      stack: error instanceof Error ? error.stack : undefined
+    },
+    "Uncaught error in main"
+  );
   process.exit(1);
 });

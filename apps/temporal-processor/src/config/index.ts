@@ -1,14 +1,13 @@
-import path from "node:path";
-// @ts-ignore - Using require to handle ES module in CommonJS context
-const { getContractAddresses } = require("@ethereum-tag-service/contracts/deployments");
-import { type Environment, getSubgraphEndpoint } from "@ethereum-tag-service/subgraph-endpoints";
-import { config as dotenvConfig } from "dotenv";
+import { ETSConfig } from "@ethereum-tag-service/config";
 import type { Address, Hex } from "viem";
 
-// Load environment variables
-dotenvConfig({ path: path.resolve(process.cwd(), ".env") });
+// HD wallet utilities for role-based key derivation
+// @ts-ignore - Using require for ESM modules
+const { HDKey } = require("@scure/bip32");
+// @ts-ignore - Using require for ESM modules
+const { mnemonicToSeedSync } = require("@scure/bip39");
 
-interface Config {
+export interface Config {
   // Temporal Configuration
   temporal: {
     serverUrl: string;
@@ -54,69 +53,6 @@ interface Config {
   logLevel: string;
 }
 
-// Determine environment from NODE_ENV
-const environment = (process.env.NODE_ENV || "development") as Environment;
-const chainId = Number.parseInt(process.env.CHAIN_ID || "31337", 10);
-
-// Get network name based on chainId
-const getNetworkName = (chainId: number): string => {
-  switch (chainId) {
-    case 31337:
-      return "localhost";
-    case 84532:
-      return "baseSepolia";
-    case 8453:
-      return "base";
-    default:
-      return "localhost";
-  }
-};
-
-// Get contract addresses from the contracts package
-const networkName = getNetworkName(chainId);
-const contractAddresses = getContractAddresses(networkName);
-
-// Get RPC URL based on environment
-const getRpcUrl = (): string => {
-  if (process.env.RPC_URL) {
-    return process.env.RPC_URL;
-  }
-
-  // Use Alchemy for non-local environments
-  const alchemyKey = process.env.ALCHEMY_API_KEY;
-  if (alchemyKey && chainId !== 31337) {
-    // Construct Alchemy URL based on chainId
-    const alchemyNetwork = chainId === 84532 ? "base-sepolia" : "base-mainnet";
-    return `https://${alchemyNetwork}.g.alchemy.com/v2/${alchemyKey}`;
-  }
-
-  // Fallback to localhost for development
-  return "http://localhost:8545";
-};
-
-// Get WebSocket RPC URL based on environment
-const getWsRpcUrl = (): string | undefined => {
-  if (process.env.WS_RPC_URL) {
-    return process.env.WS_RPC_URL;
-  }
-
-  // Use Alchemy WebSocket for non-local environments
-  const alchemyKey = process.env.ALCHEMY_API_KEY;
-  if (alchemyKey && chainId !== 31337) {
-    // Construct Alchemy WebSocket URL based on chainId
-    const alchemyNetwork = chainId === 84532 ? "base-sepolia" : "base-mainnet";
-    return `wss://${alchemyNetwork}.g.alchemy.com/v2/${alchemyKey}`;
-  }
-
-  // No WebSocket for localhost (Hardhat doesn't support it)
-  return undefined;
-};
-
-// @ts-ignore - Using require for ESM modules
-const { HDKey } = require("@scure/bip32");
-// @ts-ignore - Using require for ESM modules
-const { mnemonicToSeedSync } = require("@scure/bip39");
-
 // Derive private key from HD wallet
 const derivePrivateKey = (mnemonic: string, position: number): Hex => {
   const seed = mnemonicToSeedSync(mnemonic);
@@ -131,12 +67,8 @@ const derivePrivateKey = (mnemonic: string, position: number): Hex => {
 };
 
 // Get private keys for event processor and Zora roles
-const getPrivateKeys = () => {
-  // Check if using HD wallet (mnemonic provided)
-  // Strip quotes if present (dotenv doesn't auto-strip them)
-  const mnemonic = process.env.MNEMONIC?.replace(/^["']|["']$/g, "");
-
-  if (mnemonic) {
+const getPrivateKeys = (wallet: { mnemonic?: string } | undefined) => {
+  if (wallet?.mnemonic) {
     // HD Wallet positions:
     // 0: ETSAdmin
     // 1: ETSPlatform
@@ -146,72 +78,124 @@ const getPrivateKeys = () => {
     const zoraPosition = 3; // Always position 3 for Zora
 
     return {
-      eventProcessorPrivateKey: derivePrivateKey(mnemonic, eventProcessorPosition),
-      zoraPrivateKey: derivePrivateKey(mnemonic, zoraPosition),
+      eventProcessorPrivateKey: derivePrivateKey(wallet.mnemonic, eventProcessorPosition),
+      zoraPrivateKey: derivePrivateKey(wallet.mnemonic, zoraPosition),
     };
   }
 
-  // Fall back to individual private keys
+  // Fall back to individual private keys for local development
   return {
     eventProcessorPrivateKey: (process.env.EVENT_PROCESSOR_PRIVATE_KEY ||
-      process.env.PRIVATE_KEY ||
       "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a") as Hex, // Hardhat account[2]
     zoraPrivateKey: (process.env.ZORA_PRIVATE_KEY ||
       "0xdbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97") as Hex, // Hardhat account[3]
   };
 };
 
-// Determine if using Temporal Cloud
-const isTemporalCloud = Boolean(process.env.TEMPORAL_CLIENT_CERT && process.env.TEMPORAL_CLIENT_KEY);
+// Get WebSocket RPC URL from HTTP URL
+const getWsRpcUrl = (httpUrl: string): string | undefined => {
+  // Convert HTTP Alchemy URLs to WebSocket
+  if (httpUrl.includes("g.alchemy.com")) {
+    return httpUrl.replace("https://", "wss://");
+  }
 
-export const config: Config = {
-  temporal: {
-    serverUrl: process.env.TEMPORAL_SERVER_URL || "localhost:7233",
-    namespace: process.env.TEMPORAL_NAMESPACE || "default",
-    taskQueue: process.env.TEMPORAL_TASK_QUEUE || "ets-workflows",
-    workerId: process.env.TEMPORAL_WORKER_ID || `ets-worker-${Date.now()}`,
-    clientCert: process.env.TEMPORAL_CLIENT_CERT,
-    clientKey: process.env.TEMPORAL_CLIENT_KEY,
-    isCloud: isTemporalCloud,
-  },
+  // No WebSocket for localhost (Hardhat doesn't support it)
+  if (httpUrl.includes("localhost") || httpUrl.includes("127.0.0.1")) {
+    return undefined;
+  }
 
-  blockchain: {
-    rpcUrl: getRpcUrl(),
-    wsRpcUrl: getWsRpcUrl(),
-    chainId,
-    contracts: {
-      etsToken: (contractAddresses?.token as Address) || ("0x0" as Address),
-      etsTarget: (contractAddresses?.target as Address) || ("0x0" as Address),
-      ets: (contractAddresses?.core as Address) || ("0x0" as Address),
-      etsEnrichTarget: (contractAddresses?.target as Address) || ("0x0" as Address), // Using target since enrichTarget is merged
-      mockZoraFactory: contractAddresses?.mockZoraFactory as Address,
-    },
-    // Use HD wallet-derived keys or fallback to individual private keys
-    ...getPrivateKeys(),
-  },
-
-  services: {
-    offchainApiUrl: process.env.OFFCHAIN_API_URL || "http://localhost:3000",
-    arweaveGateway: process.env.ARWEAVE_GATEWAY || "https://arweave.net",
-    eventProcessorApiKey: process.env.EVENT_PROCESSOR_API_KEY || "local-event-processor-key",
-  },
-
-  worker: {
-    maxConcurrentActivities: Number.parseInt(process.env.MAX_CONCURRENT_ACTIVITIES || "10", 10),
-    maxConcurrentWorkflows: Number.parseInt(process.env.MAX_CONCURRENT_WORKFLOWS || "100", 10),
-  },
-
-  env: environment,
-  logLevel: process.env.LOG_LEVEL || "info",
+  return undefined;
 };
 
+// Create async function to get config
+async function createConfig(): Promise<Config> {
+  // Initialize configuration using the new config package
+  const etsConfig = ETSConfig.getInstance();
+  const env = etsConfig.getEnvironment();
+  const network = etsConfig.getNetwork();
+  const wallet = etsConfig.getWallet();
+  const contracts = await etsConfig.getContracts();
+  const services = etsConfig.getServices();
+
+  // Get temporal configuration from environment or defaults
+  const temporal = {
+    serverUrl: process.env.TEMPORAL_SERVER_URL ||
+      (env.name === 'local' ? 'localhost:7233' : 'cloud.tmprl.cloud:7233'),
+    namespace: process.env.TEMPORAL_NAMESPACE || 'default',
+    taskQueue: process.env.TEMPORAL_TASK_QUEUE || `ets-workflows-${env.name}`,
+    workerId: process.env.TEMPORAL_WORKER_ID || `ets-worker-${env.name}-${Date.now()}`,
+    clientCert: process.env.TEMPORAL_CLIENT_CERT,
+    clientKey: process.env.TEMPORAL_CLIENT_KEY,
+    maxConcurrentActivities: Number.parseInt(process.env.MAX_CONCURRENT_ACTIVITIES || "10", 10),
+    maxConcurrentWorkflows: Number.parseInt(process.env.MAX_CONCURRENT_WORKFLOWS || "100", 10),
+  };
+
+  // Determine if using Temporal Cloud
+  const isTemporalCloud = Boolean(temporal.clientCert && temporal.clientKey);
+
+  return {
+    temporal: {
+      serverUrl: temporal.serverUrl,
+      namespace: temporal.namespace,
+      taskQueue: temporal.taskQueue,
+      workerId: temporal.workerId,
+      clientCert: temporal.clientCert,
+      clientKey: temporal.clientKey,
+      isCloud: isTemporalCloud,
+    },
+
+    blockchain: {
+      rpcUrl: network.rpcUrl,
+      wsRpcUrl: getWsRpcUrl(network.rpcUrl),
+      chainId: network.chainId,
+      contracts: {
+        etsToken: contracts.token as Address,
+        etsTarget: contracts.target as Address,
+        ets: contracts.core as Address,
+        etsEnrichTarget: contracts.target as Address, // Using target since enrichTarget is merged
+        mockZoraFactory: contracts.mockZoraFactory as Address | undefined,
+      },
+      // Use HD wallet-derived keys or fallback to individual private keys
+      ...getPrivateKeys(wallet),
+    },
+
+    services: {
+      offchainApiUrl: services.offchainApi?.url || "http://localhost:3000",
+      arweaveGateway: process.env.ARWEAVE_GATEWAY || "https://arweave.net",
+      eventProcessorApiKey: services.offchainApi?.apiKey || "local-event-processor-key",
+    },
+
+    worker: {
+      maxConcurrentActivities: temporal.maxConcurrentActivities,
+      maxConcurrentWorkflows: temporal.maxConcurrentWorkflows,
+    },
+
+    env: env.name,
+    logLevel: process.env.LOG_LEVEL || "info",
+  };
+}
+
+// Export config as a singleton promise
+let configPromise: Promise<Config> | null = null;
+
+export async function getConfig(): Promise<Config> {
+  if (!configPromise) {
+    configPromise = createConfig().then(config => {
+      // Validate configuration after creation
+      validateConfig(config);
+      return config;
+    });
+  }
+  return configPromise;
+}
+
 // Validate configuration
-function validateConfig(): void {
+function validateConfig(config: Config): void {
   try {
     // Check that contract addresses are available
     const { etsToken, etsTarget, ets } = config.blockchain.contracts;
 
-    if (!etsToken || etsTarget === "0x0" || !etsTarget || etsTarget === "0x0" || !ets || ets === "0x0") {
+    if (!etsToken || etsToken === "0x0" || !etsTarget || etsTarget === "0x0" || !ets || ets === "0x0") {
       throw new Error(
         `Missing contract addresses for environment: ${config.env}, chainId: ${config.blockchain.chainId}`,
       );
@@ -224,9 +208,4 @@ function validateConfig(): void {
   } catch (error) {
     throw new Error(`Contract configuration error: ${error instanceof Error ? error.message : error}`);
   }
-}
-
-// Validate in production and staging
-if (config.env === "production" || config.env === "staging") {
-  validateConfig();
 }

@@ -15,7 +15,7 @@ const activities = {
   deployTagCoinOnZora,
   allocateCreatorRewards,
 };
-import { config } from "./config";
+import { getConfig } from "./config";
 import { getComponentLogger } from "./utils/logger";
 
 const logger = getComponentLogger("Worker");
@@ -53,6 +53,10 @@ async function run() {
 
   try {
     logger.info("🚀 Starting Temporal worker...");
+
+    // Load config asynchronously
+    const config = await getConfig();
+
     logger.info(
       {
         isCloud: config.temporal.isCloud,
@@ -106,7 +110,13 @@ async function run() {
     await worker.run();
     logger.info("✅ Temporal worker started successfully");
   } catch (err) {
-    logger.error({ error: err }, "Failed to start worker");
+    logger.error(
+      {
+        error: err instanceof Error ? err.message : err,
+        stack: err instanceof Error ? err.stack : undefined
+      },
+      "Failed to start worker"
+    );
     process.exit(1);
   }
 }
