@@ -6,7 +6,19 @@
  */
 
 import type { Address } from "viem";
-import { base, baseSepolia, localhost } from "viem/chains";
+import { defineChain } from "viem";
+import { base, baseSepolia } from "viem/chains";
+
+// Hardhat uses chainId 31337, not viem's default localhost 1337
+const hardhat = defineChain({
+  id: 31337,
+  name: "Hardhat",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: { http: ["http://localhost:8545"] },
+  },
+  testnet: true,
+});
 
 export interface TestEnvironment {
   // Core identifiers
@@ -16,7 +28,7 @@ export interface TestEnvironment {
   // Blockchain config
   blockchain: {
     chainId: number;
-    chain: typeof localhost | typeof baseSepolia | typeof base;
+    chain: typeof hardhat | typeof baseSepolia | typeof base;
     rpcUrl: string;
     // Hardhat default or environment-specific
     mnemonic?: string;
@@ -80,7 +92,7 @@ export const environments: Record<string, TestEnvironment> = {
 
     blockchain: {
       chainId: 31337,
-      chain: localhost,
+      chain: hardhat,
       rpcUrl: process.env.RPC_URL || "http://localhost:8545",
       mnemonic: HARDHAT_MNEMONIC,
       accounts: {

@@ -1,4 +1,4 @@
-import { Client } from "@temporalio/client";
+import { Client, Connection } from "@temporalio/client";
 import {
   http,
   type Abi,
@@ -107,6 +107,7 @@ async function loadABIs() {
 
 export class EventListener {
   private temporalClient: Client | null = null;
+  private temporalConnection: Connection | null = null;
   private unwatchTargetCreated?: () => void;
   private unwatchEnrichTargetRequested?: () => void;
   private unwatchTagCreated?: () => void;
@@ -136,11 +137,27 @@ export class EventListener {
       // Load ABIs
       await loadABIs();
 
-      // Initialize Temporal client
+      // Create connection to Temporal server (supports both local and cloud)
+      const connectionOptions: any = {
+        address: this.config.temporal.serverUrl,
+      };
+
+      // Add TLS configuration for Temporal Cloud
+      if (this.config.temporal.isCloud) {
+        logger.info("Configuring Temporal Cloud connection with TLS");
+        connectionOptions.tls = {
+          clientCertPair: {
+            crt: Buffer.from(this.config.temporal.clientCert!, "base64"),
+            key: Buffer.from(this.config.temporal.clientKey!, "base64"),
+          },
+        };
+      }
+
+      this.temporalConnection = await Connection.connect(connectionOptions);
+
+      // Initialize Temporal client with the established connection
       this.temporalClient = new Client({
-        connection: {
-          address: this.config.temporal.serverUrl,
-        },
+        connection: this.temporalConnection,
         namespace: this.config.temporal.namespace,
       });
 
@@ -210,6 +227,17 @@ export class EventListener {
         logger.warn({ error }, "Error closing WebSocket connection");
       }
     }
+
+    // Close Temporal connection
+    if (this.temporalConnection) {
+      try {
+        await this.temporalConnection.close();
+        this.temporalConnection = null;
+      } catch (error) {
+        logger.warn({ error }, "Error closing Temporal connection");
+      }
+    }
+    this.temporalClient = null;
 
     this.isRunning = false;
     logger.info("Event listener stopped");

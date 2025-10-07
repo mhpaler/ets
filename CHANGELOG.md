@@ -5,6 +5,14 @@ All notable changes to the ETS project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2025-10-07
+
+### Fixed
+- Integration test configuration after unified config refactor (#539)
+- Created custom Hardhat chain definition for correct chainId (31337 vs viem's localhost 1337)
+- Updated target-enrichment.test.ts to use nested TestEnvironment structure
+- All 3 target enrichment integration tests now passing
+
 ## 2025-10-01
 
 ### Added

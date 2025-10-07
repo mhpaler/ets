@@ -95,6 +95,77 @@ fi
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 
+# Auto-detect if we're in VS Code terminal
+if [ "$TERM_PROGRAM" = "vscode" ]; then
+  USE_SEPARATE_LOG_TERMINAL=false  # VS Code can't open separate Terminal.app windows
+else
+  USE_SEPARATE_LOG_TERMINAL=true   # Native terminal can open separate log window
+fi
+
+# Function to open a separate terminal for logs
+open_logs_terminal() {
+  if [ "$USE_SEPARATE_LOG_TERMINAL" != "true" ]; then
+    if [ "$TERM_PROGRAM" = "vscode" ]; then
+      echo -e "${YELLOW}Running in VS Code terminal - logs will appear inline (no separate window)${NC}"
+    else
+      echo -e "${YELLOW}Using main terminal for logs (separate log terminal disabled)${NC}"
+    fi
+    return
+  fi
+
+  echo -e "${BLUE}Opening a separate terminal window for logs...${NC}"
+
+  # Create placeholder log files for all services
+  touch "$ROOT_DIR/logs/hardhat.log"
+  touch "$ROOT_DIR/logs/deploy.log"
+  touch "$ROOT_DIR/logs/temporal-processor.log"
+  touch "$ROOT_DIR/logs/temporal-worker.log"
+  touch "$ROOT_DIR/logs/explorer.log"
+
+  # Create a temporary script file for the new terminal
+  LOG_SCRIPT="$SCRIPT_DIR/view-logs.sh"
+
+  # Write a properly escaped script that ensures color codes are interpreted
+  cat << 'EOF' > "$LOG_SCRIPT"
+#!/bin/bash
+cd "$1"
+echo -e "\033[1;36m=== ETS Stack Logs ===\033[0m\n"
+# Use proper escaping for ANSI color codes
+tail -f logs/*.log | grep --line-buffered "" |
+  sed -e $'s/.*hardhat.log.*/\033[0;36m[HARDHAT]\033[0m &/' \
+      -e $'s/.*deploy.log.*/\033[0;32m[DEPLOY]\033[0m &/' \
+      -e $'s/.*temporal-processor.log.*/\033[0;35m[TEMPORAL-PROCESSOR]\033[0m &/' \
+      -e $'s/.*temporal-worker.log.*/\033[1;34m[TEMPORAL-WORKER]\033[0m &/' \
+      -e $'s/.*explorer.log.*/\033[0;33m[EXPLORER]\033[0m &/'
+EOF
+
+  # Make the script executable
+  chmod +x "$LOG_SCRIPT"
+
+  # Open a new terminal with the script
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS - use osascript to open a new terminal
+    osascript -e "tell app \"Terminal\" to do script \"$LOG_SCRIPT '$ROOT_DIR'\"" > /dev/null 2>&1
+  elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    # Linux - use appropriate terminal emulator based on environment
+    if [ -n "$GNOME_TERMINAL_SERVICE" ]; then
+      gnome-terminal -- "$LOG_SCRIPT" "$ROOT_DIR" &
+    elif command -v xfce4-terminal > /dev/null; then
+      xfce4-terminal -e "$LOG_SCRIPT '$ROOT_DIR'" &
+    elif command -v konsole > /dev/null; then
+      konsole -e "$LOG_SCRIPT '$ROOT_DIR'" &
+    else
+      # Fall back to x-terminal-emulator
+      x-terminal-emulator -e "$LOG_SCRIPT '$ROOT_DIR'" &
+    fi
+  else
+    echo -e "${YELLOW}Unsupported OS for opening terminal. Please check logs manually in $ROOT_DIR/logs directory.${NC}"
+  fi
+
+  sleep 1
+  echo -e "${GREEN}✓ Log terminal opened${NC}"
+}
+
 # Load environment based on network
 load_environment() {
   echo -e "${BLUE}Loading environment for network: $NETWORK${NC}"
@@ -199,7 +270,11 @@ start_hardhat() {
   sleep 1
 
   # Start Hardhat in background
-  bash -c "source ~/.nvm/nvm.sh && nvm use 22 && pnpm hardhat node" > "$ROOT_DIR/logs/hardhat.log" 2>&1 &
+  if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
+    bash -c "source ~/.nvm/nvm.sh && nvm use 22 && pnpm hardhat node" > "$ROOT_DIR/logs/hardhat.log" 2>&1 &
+  else
+    bash -c "source ~/.nvm/nvm.sh && nvm use 22 && pnpm hardhat node" 2>&1 | tee "$ROOT_DIR/logs/hardhat.log" &
+  fi
   HARDHAT_PID=$!
 
   # Wait for it to start
@@ -274,7 +349,6 @@ start_temporal_processor() {
   echo "  ALCHEMY_API_KEY=${ALCHEMY_API_KEY:+[SET]}"
   echo ""
 
-  # Start event listener with output to both terminal and log file
   # Export all variables for the subprocess
   export ENVIRONMENT=$ENVIRONMENT
   export NODE_ENV=$NODE_ENV
@@ -285,11 +359,20 @@ start_temporal_processor() {
   export HD_WALLET_POSITION=$HD_WALLET_POSITION
   export TEMPORAL_SERVER_URL=localhost:7233
 
-  pnpm dev 2>&1 | tee "$ROOT_DIR/logs/temporal-processor.log" &
+  # Start event listener
+  if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
+    pnpm dev > "$ROOT_DIR/logs/temporal-processor.log" 2>&1 &
+  else
+    pnpm dev 2>&1 | tee "$ROOT_DIR/logs/temporal-processor.log" &
+  fi
   PROCESSOR_PID=$!
 
-  # Start worker with output to both terminal and log file
-  pnpm worker 2>&1 | tee "$ROOT_DIR/logs/temporal-worker.log" &
+  # Start worker
+  if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
+    pnpm worker > "$ROOT_DIR/logs/temporal-worker.log" 2>&1 &
+  else
+    pnpm worker 2>&1 | tee "$ROOT_DIR/logs/temporal-worker.log" &
+  fi
   WORKER_PID=$!
 
   sleep 5
@@ -318,7 +401,11 @@ start_explorer() {
   # Configure for the right network
   export NEXT_PUBLIC_ETS_ENVIRONMENT="$NETWORK"
 
-  pnpm run dev > "$ROOT_DIR/logs/explorer.log" 2>&1 &
+  if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
+    pnpm run dev > "$ROOT_DIR/logs/explorer.log" 2>&1 &
+  else
+    pnpm run dev 2>&1 | tee "$ROOT_DIR/logs/explorer.log" &
+  fi
   EXPLORER_PID=$!
 
   sleep 3
@@ -338,6 +425,9 @@ main() {
 
   # Create logs directory
   mkdir -p "$ROOT_DIR/logs"
+
+  # Open separate terminal for logs (if not in VS Code)
+  open_logs_terminal
 
   # Check requirements
   check_docker

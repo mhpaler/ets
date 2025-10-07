@@ -4,10 +4,10 @@ import { ETSAccessControlsABI, ETSTargetABI } from "@ethereum-tag-service/contra
 import { expect } from "chai";
 import { http, type Address, createPublicClient, createWalletClient, parseEventLogs } from "viem";
 import { mnemonicToAccount } from "viem/accounts";
-import { type TestEnvironment, getContractAddresses, getEnvironment, logEnvironment } from "../config/environments";
+import { type TestEnvironment, environments, getContractAddresses } from "../config/environments";
 
 describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
-  let env: EnvironmentConfig;
+  let env: TestEnvironment;
   let publicClient: any;
   let walletClient: any = null;
   let testerAccount: ReturnType<typeof mnemonicToAccount> | null = null;
@@ -27,10 +27,10 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
     }
 
     console.log(`\n🌍 Running integration tests against: ${env.name}`);
-    console.log(`📡 RPC: ${env.rpcUrl}`);
-    console.log(`🔗 Chain ID: ${env.chainId}`);
-    if (env.temporalUrl) console.log(`⏰ Temporal: ${env.temporalUrl}`);
-    console.log(`🔒 Read-only: ${env.isReadOnly}\n`);
+    console.log(`📡 RPC: ${env.blockchain.rpcUrl}`);
+    console.log(`🔗 Chain ID: ${env.blockchain.chainId}`);
+    if (env.temporal.uiUrl) console.log(`⏰ Temporal: ${env.temporal.uiUrl}`);
+    console.log(`🔒 Read-only: ${env.testing.readOnly}\n`);
 
     // 2. Validate environment prerequisites
     await validateEnvironmentPrerequisites();
@@ -51,7 +51,7 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
   async function validateEnvironmentPrerequisites() {
     console.log("🔍 Validating environment prerequisites...");
 
-    if (env.requiresLocalServices) {
+    if (env.testing.requiresLocalStack) {
       await validateLocalServices();
     }
   }
@@ -63,8 +63,8 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
         port: 8545,
         check: async () => {
           const tempClient = createPublicClient({
-            chain: env.chain,
-            transport: http(env.rpcUrl),
+            chain: env.blockchain.chain,
+            transport: http(env.blockchain.rpcUrl),
           });
           const chainId = await tempClient.getChainId();
           return { success: true, details: `Chain ID: ${chainId}` };
@@ -75,8 +75,8 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
         port: 7233,
         check: async () => {
           // Check if Temporal UI is accessible
-          if (env.temporalUrl) {
-            const response = await fetch(env.temporalUrl);
+          if (env.temporal.uiUrl) {
+            const response = await fetch(env.temporal.uiUrl);
             return { success: response.ok, details: `UI Status: ${response.status}` };
           }
           return { success: true, details: "Not configured" };
@@ -112,35 +112,35 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
 
     // Create public client
     publicClient = createPublicClient({
-      chain: env.chain,
-      transport: http(env.rpcUrl),
+      chain: env.blockchain.chain,
+      transport: http(env.blockchain.rpcUrl),
     });
 
     const chainId = await publicClient.getChainId();
 
-    if (chainId !== env.chainId) {
-      throw new Error(`Chain ID mismatch: expected ${env.chainId}, got ${chainId}`);
+    if (chainId !== env.blockchain.chainId) {
+      throw new Error(`Chain ID mismatch: expected ${env.blockchain.chainId}, got ${chainId}`);
     }
 
     console.log(`  ✅ Connected to ${env.name} (Chain ID: ${chainId})`);
 
     // Setup accounts and wallet client if not read-only
-    if (!env.isReadOnly && env.mnemonic) {
-      if (env.accounts.testerIndex !== undefined) {
-        testerAccount = mnemonicToAccount(env.mnemonic, { addressIndex: env.accounts.testerIndex });
+    if (!env.testing.readOnly && env.blockchain.mnemonic) {
+      if (env.blockchain.accounts.tester !== undefined) {
+        testerAccount = mnemonicToAccount(env.blockchain.mnemonic, { addressIndex: env.blockchain.accounts.tester });
         console.log(`  ✅ Test account: ${testerAccount.address}`);
       }
 
-      if (env.accounts.eventProcessorIndex !== undefined) {
-        eventProcessorAccount = mnemonicToAccount(env.mnemonic, { addressIndex: env.accounts.eventProcessorIndex });
+      if (env.blockchain.accounts.eventProcessor !== undefined) {
+        eventProcessorAccount = mnemonicToAccount(env.blockchain.mnemonic, { addressIndex: env.blockchain.accounts.eventProcessor });
         console.log(`  ✅ Event Processor account: ${eventProcessorAccount.address}`);
       }
 
       if (testerAccount) {
         walletClient = createWalletClient({
           account: testerAccount,
-          chain: env.chain,
-          transport: http(env.rpcUrl),
+          chain: env.blockchain.chain,
+          transport: http(env.blockchain.rpcUrl),
         });
       }
     }
@@ -150,10 +150,10 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
     console.log("📦 Loading contract addresses...");
 
     // Load from contracts package deployments for localhost and baseSepolia
-    if (env.chainId === 31337 || env.chainId === 84532) {
+    if (env.blockchain.chainId === 31337 || env.blockchain.chainId === 84532) {
       try {
         const { getContractAddresses } = await import("@ethereum-tag-service/contracts/deployments");
-        const networkName = env.chainId === 31337 ? "localhost" : "baseSepolia";
+        const networkName = env.blockchain.chainId === 31337 ? "localhost" : "baseSepolia";
         const addresses = await getContractAddresses(networkName);
 
         if (!addresses) {
@@ -176,17 +176,17 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
         console.error(`  ❌ Failed to load contract addresses: ${error.message}`);
         throw error;
       }
-    } else if (env.contracts) {
+    } else if (env.blockchain.contracts) {
       // Use configured addresses for production
-      if (env.contracts.etsTarget) {
+      if (env.blockchain.contracts.etsTarget) {
         contracts.ETSTarget = {
-          address: env.contracts.etsTarget,
+          address: env.blockchain.contracts.etsTarget,
           abi: ETSTargetABI,
         };
       }
-      if (env.contracts.etsAccessControls) {
+      if (env.blockchain.contracts.etsAccessControls) {
         contracts.ETSAccessControls = {
-          address: env.contracts.etsAccessControls,
+          address: env.blockchain.contracts.etsAccessControls,
           abi: ETSAccessControlsABI,
         };
       }
@@ -199,7 +199,7 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
 
   // Test: Request target enrichment
   test("should request target enrichment and emit event", async () => {
-    if (env.isReadOnly) {
+    if (env.testing.readOnly) {
       console.log("⏭️  Skipping write test in read-only environment");
       return;
     }
@@ -278,14 +278,14 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
 
     // Wait for Temporal workflow to process
     console.log(
-      `\n⏳ Waiting for Temporal workflow to process enrichment (up to ${env.timeouts.enrichment / 1000}s)...`,
+      `\n⏳ Waiting for Temporal workflow to process enrichment (up to ${env.testing.timeouts.enrichment / 1000}s)...`,
     );
 
     // Poll for enrichment completion
     const startTime = Date.now();
     let enrichedEventFound = false;
 
-    while (Date.now() - startTime < env.timeouts.enrichment && !enrichedEventFound) {
+    while (Date.now() - startTime < env.testing.timeouts.enrichment && !enrichedEventFound) {
       await new Promise((resolve) => setTimeout(resolve, 2000)); // Check every 2 seconds
 
       // Check for TargetEnriched event (if EVENT_PROCESSOR has enriched it)
@@ -346,14 +346,14 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
 
     if (!enrichedEventFound) {
       console.log(
-        `  ⚠️  No TargetEnriched event after ${env.timeouts.enrichment / 1000}s (workflow may still be processing)`,
+        `  ⚠️  No TargetEnriched event after ${env.testing.timeouts.enrichment / 1000}s (workflow may still be processing)`,
       );
     }
   }, 40000); // 40 second timeout to allow for enrichment workflow
 
   // Test: Event processor can enrich targets
   test("should allow event processor to enrich target", async () => {
-    if (env.isReadOnly || !eventProcessorAccount) {
+    if (env.testing.readOnly || !eventProcessorAccount) {
       console.log("⏭️  Skipping event processor test");
       return;
     }
@@ -364,8 +364,8 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
     // Create wallet client for regular user to create target
     const userWallet = createWalletClient({
       account: testerAccount!,
-      chain: env.chain,
-      transport: http(env.rpcUrl),
+      chain: env.blockchain.chain,
+      transport: http(env.blockchain.rpcUrl),
     });
 
     // Create the target
@@ -394,8 +394,8 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
     // Create wallet client for event processor
     const eventProcessorWallet = createWalletClient({
       account: eventProcessorAccount,
-      chain: env.chain,
-      transport: http(env.rpcUrl),
+      chain: env.blockchain.chain,
+      transport: http(env.blockchain.rpcUrl),
     });
 
     // Simulate enrichTarget call with new signature (payload + schemaVersion)
@@ -444,7 +444,7 @@ describe("Target Enrichment Integration v3 - Unified ETSTarget", () => {
 
   // Test: Non-event processor cannot enrich
   test("should prevent non-event processor from enriching", async () => {
-    if (env.isReadOnly || !testerAccount || !walletClient) {
+    if (env.testing.readOnly || !testerAccount || !walletClient) {
       console.log("⏭️  Skipping authorization test");
       return;
     }
