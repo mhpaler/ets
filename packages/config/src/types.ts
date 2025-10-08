@@ -3,7 +3,6 @@
  */
 
 import type { Address, Chain } from "viem";
-import type { base, baseSepolia, localhost } from "viem/chains";
 
 /**
  * Environment names used across the monorepo

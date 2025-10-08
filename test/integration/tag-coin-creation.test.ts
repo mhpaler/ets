@@ -20,7 +20,7 @@ import {
   toBytes,
 } from "viem";
 import { mnemonicToAccount } from "viem/accounts";
-import { base, localhost, sepolia } from "viem/chains";
+import { type TestEnvironment, getContractAddresses, getEnvironment } from "../config/environments";
 
 /**
  * TAG Coin Creation Integration Test
@@ -34,122 +34,25 @@ import { base, localhost, sepolia } from "viem/chains";
  *
  * Environments:
  * - local: Uses Hardhat + MockZoraFactory + Temporal processor
- * - staging: Uses Sepolia testnet + real Zora contracts + staging infrastructure
+ * - staging: Uses Base Sepolia testnet + real Zora contracts + staging infrastructure
  * - production: Uses Base mainnet (read-only)
  */
 
-interface EnvironmentConfig {
-  name: string;
-  rpcUrl: string;
-  chainId: number;
-  chain: typeof localhost | typeof sepolia | typeof base;
-  temporalUrl?: string;
-  requiresLocalServices: boolean;
-  isReadOnly: boolean;
-  mnemonic?: string;
-  accounts: {
-    deployer?: number; // account[0]
-    admin?: number; // account[1]
-    eventProcessor?: number; // account[2]
-    zoraDeployer?: number; // account[3] - ETSZora for TAG coin creation
-    tester?: number; // account[4] - Regular user for testing
-  };
-  timeouts: {
-    tagCreation: number;
-    coinDeployment: number;
-    serviceHealth: number;
-  };
-  contracts?: {
+describe("TAG Coin Creation Integration Tests", () => {
+  let env: TestEnvironment;
+  let publicClient: any;
+  let walletClient: any;
+  let allServicesHealthy = false;
+
+  // Contract addresses
+  const contracts: {
     ets?: Address;
     etsToken?: Address;
     etsAccessControls?: Address;
     etsChannel?: Address;
-    mockZoraFactory?: Address; // Only for localhost
-    zoraFactory?: Address; // For staging/production
-  };
-  metadata: {
-    requiresIPFS: boolean; // Production requires IPFS/Arweave
-    allowsInlineData: boolean; // Localhost allows data URIs
-  };
-}
-
-const environments: Record<string, EnvironmentConfig> = {
-  local: {
-    name: "Local Development",
-    rpcUrl: process.env.RPC_URL || "http://localhost:8545",
-    chainId: 31337,
-    chain: localhost,
-    temporalUrl: "http://localhost:8080",
-    requiresLocalServices: true,
-    isReadOnly: false,
-    mnemonic: "test test test test test test test test test test test junk", // Hardhat default
-    accounts: {
-      deployer: 0,
-      admin: 1,
-      eventProcessor: 2,
-      zoraDeployer: 3, // ETSZora position
-      tester: 4,
-    },
-    timeouts: {
-      tagCreation: 5000,
-      coinDeployment: 30000, // Allow time for Temporal workflow
-      serviceHealth: 10000,
-    },
-    metadata: {
-      requiresIPFS: false,
-      allowsInlineData: true, // MockZoraFactory accepts data URIs
-    },
-  },
-  staging: {
-    name: "Staging (Base Sepolia)",
-    rpcUrl: process.env.STAGING_RPC_URL || `https://base-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
-    chainId: 84532,
-    chain: sepolia,
-    requiresLocalServices: false,
-    isReadOnly: false,
-    mnemonic: process.env.STAGING_MNEMONIC,
-    accounts: {
-      deployer: 0,
-      admin: 1,
-      eventProcessor: 2,
-      zoraDeployer: 3,
-      tester: 4,
-    },
-    timeouts: {
-      tagCreation: 15000,
-      coinDeployment: 60000, // Slower on testnet
-      serviceHealth: 15000,
-    },
-    metadata: {
-      requiresIPFS: true, // Real Zora requires proper metadata URIs
-      allowsInlineData: false,
-    },
-  },
-  production: {
-    name: "Production (Base Mainnet)",
-    rpcUrl: process.env.PRODUCTION_RPC_URL || `https://base.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
-    chainId: 8453,
-    chain: base,
-    requiresLocalServices: false,
-    isReadOnly: true, // No writes in production tests
-    accounts: {},
-    timeouts: {
-      tagCreation: 15000,
-      coinDeployment: 60000,
-      serviceHealth: 15000,
-    },
-    metadata: {
-      requiresIPFS: true,
-      allowsInlineData: false,
-    },
-  },
-};
-
-describe("TAG Coin Creation Integration Tests", () => {
-  let env: EnvironmentConfig;
-  let publicClient: any;
-  let walletClient: any;
-  let allServicesHealthy = false;
+    mockZoraFactory?: Address;
+    zoraFactory?: Address;
+  } = {};
 
   // Test-specific unique identifier to prevent conflicts
   const testRunId = Date.now().toString();
@@ -157,56 +60,48 @@ describe("TAG Coin Creation Integration Tests", () => {
   beforeAll(async () => {
     console.log("🏗️  Setting up TAG Coin integration test environment");
 
-    // Detect environment
-    const envName = process.env.TEST_ENV || "local";
-    env = environments[envName];
+    // Detect environment - use ENVIRONMENT like other tests
+    const envName = process.env.ENVIRONMENT || "local";
+    env = getEnvironment(envName);
 
-    if (!env) {
-      throw new Error(`Unknown environment: ${envName}`);
-    }
-
-    console.log(`Environment: ${env.name}`);
-    console.log(`Chain ID: ${env.chainId}`);
-    console.log(`RPC URL: ${env.rpcUrl}`);
+    console.log(`Environment: ${env.displayName}`);
+    console.log(`Chain ID: ${env.network.chainId}`);
+    console.log(`RPC URL: ${env.network.rpcUrl}`);
 
     // Setup clients
     publicClient = createPublicClient({
-      chain: env.chain,
-      transport: http(env.rpcUrl),
+      chain: env.network.chain,
+      transport: http(env.network.rpcUrl),
     });
 
     // Only setup wallet for non-readonly environments
-    if (!env.isReadOnly && env.mnemonic) {
-      const account = mnemonicToAccount(env.mnemonic, { addressIndex: env.accounts.tester || 4 });
-
-      // Override chainId for localhost to match Hardhat
-      const chain = env.chainId === 31337 ? { ...localhost, id: 31337 } : env.chain;
+    if (!env.testing.readOnly && env.wallet?.mnemonic) {
+      const account = mnemonicToAccount(env.wallet.mnemonic, { addressIndex: env.wallet.accounts?.tester || 4 });
 
       walletClient = createWalletClient({
         account,
-        chain,
-        transport: http(env.rpcUrl),
+        chain: env.network.chain,
+        transport: http(env.network.rpcUrl),
       });
     }
 
     // Check service health for local environment
-    if (env.requiresLocalServices) {
+    if (env.testing.requiresLocalStack) {
       try {
         const blockNumber = await publicClient.getBlockNumber();
         console.log(`✅ Hardhat node is running (block: ${blockNumber})`);
 
         // Get contract addresses dynamically
         const { getContractAddresses } = await import("@ethereum-tag-service/contracts/deployments");
-        const networkName = env.chainId === 31337 ? "localhost" : env.chainId === 84532 ? "baseSepolia" : "base";
+        const networkName =
+          env.network.chainId === 31337 ? "localhost" : env.network.chainId === 84532 ? "baseSepolia" : "base";
         const addresses = getContractAddresses(networkName);
 
         if (addresses) {
-          env.contracts = {
-            ets: addresses.core as Address,
-            etsToken: addresses.token as Address,
-            etsAccessControls: addresses.accessControls as Address,
-            mockZoraFactory: addresses.mockZoraFactory as Address,
-          };
+          contracts.ets = addresses.core as Address;
+          contracts.etsToken = addresses.token as Address;
+          contracts.etsAccessControls = addresses.accessControls as Address;
+          contracts.mockZoraFactory = addresses.mockZoraFactory as Address;
 
           // Get channel address - try multiple channel names
           let channelAddress: Address | null = null;
@@ -215,7 +110,7 @@ describe("TAG Coin Creation Integration Tests", () => {
           for (const name of channelNames) {
             try {
               const addr = await publicClient.readContract({
-                address: env.contracts.etsAccessControls,
+                address: contracts.etsAccessControls,
                 abi: ETSAccessControlsABI,
                 functionName: "getChannelAddressFromName",
                 args: [name],
@@ -250,15 +145,12 @@ describe("TAG Coin Creation Integration Tests", () => {
 
               if (addresses?.channelFactory) {
                 // Create a test channel using the factory
-                const deployer = mnemonicToAccount(env.mnemonic!, { addressIndex: 0 });
-
-                // Override chainId for localhost to match Hardhat
-                const chain = env.chainId === 31337 ? { ...localhost, id: 31337 } : env.chain;
+                const deployer = mnemonicToAccount(env.wallet.mnemonic!, { addressIndex: 0 });
 
                 const deployerWallet = createWalletClient({
                   account: deployer,
-                  chain,
-                  transport: http(env.rpcUrl),
+                  chain: env.network.chain,
+                  transport: http(env.network.rpcUrl),
                 });
 
                 const { ETSChannelFactoryABI } = await import("@ethereum-tag-service/contracts/abis");
@@ -288,18 +180,18 @@ describe("TAG Coin Creation Integration Tests", () => {
             }
           }
 
-          env.contracts.etsChannel = channelAddress || ("0x0000000000000000000000000000000000000000" as Address);
+          contracts.etsChannel = channelAddress || ("0x0000000000000000000000000000000000000000" as Address);
 
           console.log("✅ Contract addresses loaded:");
-          console.log(`   ETS Core: ${env.contracts.ets}`);
-          console.log(`   ETS Token: ${env.contracts.etsToken}`);
-          console.log(`   ETS Channel: ${env.contracts.etsChannel}`);
-          console.log(`   MockZoraFactory: ${env.contracts.mockZoraFactory}`);
+          console.log(`   ETS Core: ${contracts.ets}`);
+          console.log(`   ETS Token: ${contracts.etsToken}`);
+          console.log(`   ETS Channel: ${contracts.etsChannel}`);
+          console.log(`   MockZoraFactory: ${contracts.mockZoraFactory}`);
         }
 
         // Check Temporal is running (optional, don't fail if not)
         try {
-          const temporalResponse = await fetch(`${env.temporalUrl}/api/v1/system-info`);
+          const temporalResponse = await fetch(`${env.services.temporal?.uiUrl}/api/v1/system-info`);
           if (temporalResponse.ok) {
             console.log("✅ Temporal is running");
           }
@@ -328,13 +220,13 @@ describe("TAG Coin Creation Integration Tests", () => {
     test(
       "should create a TAG and deploy coin with environment-appropriate metadata",
       async () => {
-        if (!allServicesHealthy || env.isReadOnly) {
+        if (!allServicesHealthy || env.testing.readOnly) {
           console.log("Skipping test - services unavailable or read-only environment");
           return;
         }
 
         // Check if we have a valid channel
-        if (!env.contracts?.etsChannel || env.contracts.etsChannel === "0x0000000000000000000000000000000000000000") {
+        if (!contracts.etsChannel || contracts.etsChannel === "0x0000000000000000000000000000000000000000") {
           console.log("Skipping test - no channel available");
           return;
         }
@@ -346,7 +238,7 @@ describe("TAG Coin Creation Integration Tests", () => {
         console.log("1️⃣  Creating TAG through ETSChannel...");
 
         const createTagsHash = await walletClient.writeContract({
-          address: env.contracts.etsChannel,
+          address: contracts.etsChannel,
           abi: ETSChannelABI,
           functionName: "getOrCreateTagIds",
           args: [[uniqueTag]],
@@ -381,7 +273,7 @@ describe("TAG Coin Creation Integration Tests", () => {
         const coinAddress = tagCreatedEvent.args.coinAddress;
 
         // Step 3: Wait for TAG coin deployment (if Temporal is running)
-        if (env.name === "Local Development") {
+        if (env.displayName === "Local Development") {
           console.log("3️⃣  Waiting for MockZoraFactory deployment via Temporal...");
 
           // Give Temporal workflow time to process
@@ -394,7 +286,7 @@ describe("TAG Coin Creation Integration Tests", () => {
 
           // Verify the TAG exists in ETSToken contract
           const tagExists = await publicClient.readContract({
-            address: env.contracts!.etsToken!,
+            address: contracts.etsToken!,
             abi: ETSTokenABI,
             functionName: "tagExistsByAddress",
             args: [coinAddress],
@@ -407,17 +299,17 @@ describe("TAG Coin Creation Integration Tests", () => {
         // Step 4: Validate metadata based on environment
         console.log("4️⃣  Validating metadata requirements...");
 
-        if (env.metadata.allowsInlineData) {
+        if (env.name === "local") {
           console.log("   ✅ Environment allows inline data URIs (localhost/MockZoraFactory)");
           // In localhost, we use inline metadata
           // The metadata would be in the TAG coin deployment transaction
-        } else if (env.metadata.requiresIPFS) {
+        } else if (env.name !== "local") {
           console.log("   ⚠️  Environment requires IPFS/Arweave metadata (staging/production)");
           // In staging/production, validate that metadata URI is IPFS or Arweave
           // This would be checked in the actual Zora coin contract
         }
 
-        console.log(`\n✅ TAG coin creation test completed for ${env.name}`);
+        console.log(`\n✅ TAG coin creation test completed for ${env.displayName}`);
       },
       env?.timeouts?.coinDeployment || 30000,
     );
@@ -425,7 +317,7 @@ describe("TAG Coin Creation Integration Tests", () => {
     test(
       "should handle batch TAG creation efficiently",
       async () => {
-        if (!allServicesHealthy || env.isReadOnly) {
+        if (!allServicesHealthy || env.testing.readOnly) {
           console.log("Skipping test - services unavailable or read-only environment");
           return;
         }
@@ -436,7 +328,7 @@ describe("TAG Coin Creation Integration Tests", () => {
 
         // Create multiple TAGs in one transaction
         const createTagsHash = await walletClient.writeContract({
-          address: env.contracts!.etsChannel!,
+          address: contracts.etsChannel!,
           abi: ETSChannelABI,
           functionName: "getOrCreateTagIds",
           args: [batchTags],
@@ -467,7 +359,7 @@ describe("TAG Coin Creation Integration Tests", () => {
     );
 
     test("should reject invalid tags appropriately", async () => {
-      if (!allServicesHealthy || env.isReadOnly) {
+      if (!allServicesHealthy || env.testing.readOnly) {
         console.log("Skipping test - services unavailable or read-only environment");
         return;
       }
@@ -477,7 +369,7 @@ describe("TAG Coin Creation Integration Tests", () => {
       // Try to create a tag without hashtag
       try {
         await walletClient.writeContract({
-          address: env.contracts!.etsChannel!,
+          address: contracts.etsChannel!,
           abi: ETSChannelABI,
           functionName: "getOrCreateTagIds",
           args: [["invalid"]], // No hashtag
@@ -495,7 +387,7 @@ describe("TAG Coin Creation Integration Tests", () => {
     });
 
     test("should handle duplicate TAG creation gracefully", async () => {
-      if (!allServicesHealthy || env.isReadOnly) {
+      if (!allServicesHealthy || env.testing.readOnly) {
         console.log("Skipping test - services unavailable or read-only environment");
         return;
       }
@@ -505,7 +397,7 @@ describe("TAG Coin Creation Integration Tests", () => {
 
       // Create TAG first time
       const firstHash = await walletClient.writeContract({
-        address: env.contracts!.etsChannel!,
+        address: contracts.etsChannel!,
         abi: ETSChannelABI,
         functionName: "getOrCreateTagIds",
         args: [[duplicateTag]],
@@ -516,7 +408,7 @@ describe("TAG Coin Creation Integration Tests", () => {
 
       // Try to create same TAG again
       const secondHash = await walletClient.writeContract({
-        address: env.contracts!.etsChannel!,
+        address: contracts.etsChannel!,
         abi: ETSChannelABI,
         functionName: "getOrCreateTagIds",
         args: [[duplicateTag]],
@@ -538,21 +430,21 @@ describe("TAG Coin Creation Integration Tests", () => {
 
   describe("Environment-Specific Metadata Tests", () => {
     test("should use appropriate metadata format for environment", async () => {
-      if (!allServicesHealthy || env.isReadOnly) {
+      if (!allServicesHealthy || env.testing.readOnly) {
         console.log("Skipping test - services unavailable or read-only environment");
         return;
       }
 
       const metadataTag = `#metadata${testRunId}`;
-      console.log(`\n🧪 Testing metadata format for ${env.name}: ${metadataTag}`);
+      console.log(`\n🧪 Testing metadata format for ${env.displayName}: ${metadataTag}`);
 
-      if (env.metadata.allowsInlineData) {
+      if (env.name === "local") {
         console.log("   📝 Testing inline data URI metadata (localhost)");
         // For localhost, metadata is created as data:application/json;base64,...
 
         // Create TAG and verify inline metadata
         const hash = await walletClient.writeContract({
-          address: env.contracts!.etsChannel!,
+          address: contracts.etsChannel!,
           abi: ETSChannelABI,
           functionName: "getOrCreateTagIds",
           args: [[metadataTag]],
@@ -562,7 +454,7 @@ describe("TAG Coin Creation Integration Tests", () => {
         expect(receipt.status).to.equal("success");
 
         console.log("   ✅ TAG created with inline metadata support");
-      } else if (env.metadata.requiresIPFS) {
+      } else if (env.name !== "local") {
         console.log("   📦 Testing IPFS/Arweave metadata (staging/production)");
         // For staging/production, metadata should be uploaded to IPFS
         // and the URI should be ipfs:// or ar://

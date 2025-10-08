@@ -962,6 +962,9 @@ importers:
 
   test:
     dependencies:
+      '@ethereum-tag-service/config':
+        specifier: workspace:*
+        version: link:../packages/config
       '@ethereum-tag-service/contracts':
         specifier: workspace:*
         version: link:../packages/contracts

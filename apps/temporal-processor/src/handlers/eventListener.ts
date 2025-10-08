@@ -26,9 +26,9 @@ let publicClient: PublicClient | null = null;
 // Store ABIs and events (will be loaded asynchronously)
 let ETSTargetABI: Abi;
 let ETSTokenABI: Abi;
-let targetCreatedEvent: AbiEvent;
-let enrichTargetRequestedEvent: AbiEvent;
-let tagCreatedEvent: AbiEvent;
+let _targetCreatedEvent: AbiEvent;
+let _enrichTargetRequestedEvent: AbiEvent;
+let _tagCreatedEvent: AbiEvent;
 
 // Get chain configuration based on chainId
 function getChain(chainId: number) {
@@ -98,11 +98,11 @@ async function loadABIs() {
   ETSTargetABI = abis.ETSTargetABI as Abi;
   ETSTokenABI = abis.ETSTokenABI as Abi;
 
-  targetCreatedEvent = ETSTargetABI.find((item) => item.type === "event" && item.name === "TargetCreated") as AbiEvent;
-  enrichTargetRequestedEvent = ETSTargetABI.find(
+  _targetCreatedEvent = ETSTargetABI.find((item) => item.type === "event" && item.name === "TargetCreated") as AbiEvent;
+  _enrichTargetRequestedEvent = ETSTargetABI.find(
     (item) => item.type === "event" && item.name === "EnrichTargetRequested",
   ) as AbiEvent;
-  tagCreatedEvent = ETSTokenABI.find((item) => item.type === "event" && item.name === "TagCreated") as AbiEvent;
+  _tagCreatedEvent = ETSTokenABI.find((item) => item.type === "event" && item.name === "TagCreated") as AbiEvent;
 }
 
 export class EventListener {
@@ -499,12 +499,25 @@ export class EventListener {
         topics: log.topics,
       }) as unknown as TargetCreatedEvent;
 
+      // TargetCreated event only contains targetId, so fetch target details from blockchain
+      const { publicClient } = await initializeClients();
+      if (!publicClient) {
+        throw new Error("Public client not initialized");
+      }
+
+      const targetData = (await publicClient.readContract({
+        address: this.config.blockchain.contracts.etsTarget,
+        abi: ETSTargetABI,
+        functionName: "getTargetById",
+        args: [decoded.args.targetId],
+      })) as { targetURI: string; createdBy: Address };
+
       logger.info(
         {
           blockNumber: log.blockNumber,
           transactionHash: log.transactionHash,
           targetId: decoded.args.targetId?.toString(),
-          targetURI: decoded.args.targetURI,
+          targetURI: targetData.targetURI,
         },
         "Processing TargetCreated event",
       );
@@ -523,8 +536,8 @@ export class EventListener {
             args: [
               {
                 targetId: decoded.args.targetId?.toString() || "0",
-                targetURI: decoded.args.targetURI,
-                createdBy: decoded.args.createdBy,
+                targetURI: targetData.targetURI,
+                createdBy: targetData.createdBy,
                 blockNumber: log.blockNumber?.toString(),
                 transactionHash: log.transactionHash,
               },
@@ -689,7 +702,9 @@ export class EventListener {
           blockNumber: log.blockNumber,
           transactionHash: log.transactionHash,
           tagId: decoded.args.tagId?.toString(),
-          display: decoded.args.display,
+          coinAddress: decoded.args.coinAddress,
+          originalInput: decoded.args.originalInput,
+          displayVersion: decoded.args.displayVersion,
           creator: decoded.args.creator,
         },
         "Processing TagCreated event",
@@ -708,11 +723,17 @@ export class EventListener {
             workflowId,
             args: [
               {
+                coinAddress: decoded.args.coinAddress,
                 tagId: decoded.args.tagId?.toString() || "0",
-                display: decoded.args.display,
+                originalInput: decoded.args.originalInput,
+                displayVersion: decoded.args.displayVersion,
+                machineName: decoded.args.machineName,
                 creator: decoded.args.creator,
-                blockNumber: log.blockNumber?.toString(),
+                channel: decoded.args.channel,
                 transactionHash: log.transactionHash,
+                blockNumber: log.blockNumber?.toString() || "0",
+                chainId: this.config.blockchain.chainId,
+                timestamp: new Date(Number(decoded.args.timestamp) * 1000).toISOString(),
               },
             ],
           });

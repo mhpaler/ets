@@ -12,6 +12,7 @@
     "cleanup": "node scripts/cleanup-integration-environment.js"
   },
   "dependencies": {
+    "@ethereum-tag-service/config": "workspace:*",
     "@ethereum-tag-service/contracts": "workspace:*",
     "@ethereum-tag-service/subgraph-endpoints": "workspace:*",
     "@nomicfoundation/hardhat-ethers": "^3.1.0",

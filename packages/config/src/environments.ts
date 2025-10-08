@@ -2,8 +2,20 @@
  * Environment definitions for ETS monorepo
  */
 
-import { base, baseSepolia, localhost } from "viem/chains";
+import { defineChain } from "viem";
+import { base, baseSepolia } from "viem/chains";
 import type { Environment, EnvironmentName } from "./types";
+
+// Hardhat uses chainId 31337, not viem's default localhost 1337
+const hardhat = defineChain({
+  id: 31337,
+  name: "Hardhat",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: { http: ["http://localhost:8545"] },
+  },
+  testnet: true,
+});
 
 /**
  * Default environment configurations
@@ -20,7 +32,7 @@ export const environments: Record<EnvironmentName, Environment> = {
     network: {
       name: "localhost",
       chainId: 31337,
-      chain: localhost,
+      chain: hardhat,
       rpcUrl: process.env.RPC_URL || "http://localhost:8545",
       blockExplorer: undefined,
     },
