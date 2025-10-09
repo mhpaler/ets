@@ -6,7 +6,7 @@
   "author": "Ethereum Tag Service <team@ets.xyz>",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc && tsc -p tsconfig.workflows.json",
+    "build": "tsc -p tsconfig.build.json && tsc -p tsconfig.workflows.json",
     "dev": "tsx src/index.ts",
     "dev:watch": "bun --watch src/index.ts",
     "dev:basesepolia": "cp .env.basesepolia .env && tsx src/worker.ts",

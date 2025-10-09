@@ -57,6 +57,9 @@ packages/contracts*/typechain-types
 packages/contracts*/export/chainConfig/localhost.json
 packages/contracts*/export/upgradeConfig/localhost.json
 
+# Hardhat Ignition local deployments (chain-31337)
+**/ignition/deployments/chain-31337/
+
 #packages/contracts*/.openzeppelin/
 packages/contracts/docs
 

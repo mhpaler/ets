@@ -49,11 +49,15 @@ async function testConfigPackage() {
     console.log("   ✅ Environment configuration is valid");
   } else {
     console.log("   ❌ Environment validation failed:");
-    validation.errors.forEach((err) => console.log(`      - ${err}`));
+    for (const err of validation.errors) {
+      console.log(`      - ${err}`);
+    }
   }
   if (validation.warnings.length > 0) {
     console.log("   ⚠️  Warnings:");
-    validation.warnings.forEach((warn) => console.log(`      - ${warn}`));
+    for (const warn of validation.warnings) {
+      console.log(`      - ${warn}`);
+    }
   }
   console.log("");
 
@@ -70,9 +74,9 @@ async function testConfigPackage() {
     const contracts = await config.getContracts();
     if (Object.keys(contracts).length > 0) {
       console.log("   ✅ Contract addresses loaded:");
-      Object.entries(contracts).forEach(([name, address]) => {
+      for (const [name, address] of Object.entries(contracts)) {
         if (address) console.log(`      ${name}: ${address}`);
-      });
+      }
     } else {
       console.log("   ⚠️  No contracts found for this environment");
     }
@@ -90,9 +94,9 @@ async function testConfigPackage() {
     { name: "NETWORK", value: process.env.NETWORK },
   ];
   console.log("   Environment variables checked (in priority order):");
-  envVars.forEach(({ name, value }) => {
+  for (const { name, value } of envVars) {
     console.log(`      ${name}: ${value || "(not set)"}`);
-  });
+  }
   console.log(`   Detected environment: ${env.name}\n`);
 
   // Test 9: Validate required env vars
@@ -103,11 +107,15 @@ async function testConfigPackage() {
     console.log("   ✅ All required environment variables are set");
   } else {
     console.log("   ❌ Missing environment variables:");
-    envValidation.errors.forEach((err) => console.log(`      - ${err}`));
+    for (const err of envValidation.errors) {
+      console.log(`      - ${err}`);
+    }
   }
   if (envValidation.warnings.length > 0) {
     console.log("   ⚠️  Security warnings:");
-    envValidation.warnings.forEach((warn) => console.log(`      - ${warn}`));
+    for (const warn of envValidation.warnings) {
+      console.log(`      - ${warn}`);
+    }
   }
 
   console.log("\n✅ Config package test complete!");

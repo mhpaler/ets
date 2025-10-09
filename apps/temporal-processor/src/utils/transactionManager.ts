@@ -41,8 +41,8 @@ const DEFAULT_OPTIONS: Required<TransactionOptions> = {
  * ```
  */
 export async function executeWithRetry<T>(
-  publicClient: unknown,
-  walletClient: unknown,
+  _publicClient: unknown,
+  _walletClient: unknown,
   transaction: () => Promise<T>,
   options: TransactionOptions & { contextInfo?: Record<string, unknown> } = {},
 ): Promise<T> {

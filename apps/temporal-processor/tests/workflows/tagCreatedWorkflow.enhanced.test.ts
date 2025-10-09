@@ -133,10 +133,10 @@ describe("TagCreatedWorkflow - Enhanced Tests", () => {
         );
 
         expect(results).toHaveLength(3);
-        results.forEach((result, index) => {
+        for (const [index, result] of results.entries()) {
           expect(result.status).toBe("completed");
           expect(result.tagId).toBe(`batch-${index}`);
-        });
+        }
 
         // Verify all activities were called for each tag
         expect(mockActivities.createTagCoinMetadata).toHaveBeenCalledTimes(3);
@@ -483,9 +483,9 @@ describe("TagCreatedWorkflow - Enhanced Tests", () => {
           ),
         );
 
-        results.forEach((result) => {
+        for (const result of results) {
           expect(result.status).toBe("completed");
-        });
+        }
 
         // Verify all special character tags were processed
         expect(mockActivities.createTagCoinMetadata).toHaveBeenCalledTimes(specialTags.length);
@@ -526,7 +526,7 @@ describe("TagCreatedWorkflow - Enhanced Tests", () => {
       });
 
       await worker.runUntil(async () => {
-        const veryLongTag = "#" + "a".repeat(150); // 151 chars total
+        const veryLongTag = `#${"a".repeat(150)}`; // 151 chars total
 
         const input: TagCreatedWorkflowInput = {
           tagId: "long-tag",

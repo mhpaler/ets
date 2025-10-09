@@ -12,7 +12,7 @@ const env = getEnvironment();
 console.log(`✅ Environment: ${env.displayName}`);
 console.log(`✅ Network: ${env.network.name} (Chain ${env.network.chainId})`);
 console.log(`✅ RPC URL: ${env.network.rpcUrl}`);
-console.log(`✅ Features:`);
+console.log("✅ Features:");
 console.log(`   - TAG Coins: ${env.features?.tagCoins ? "✅" : "❌"}`);
 console.log(`   - Target Enrichment: ${env.features?.targetEnrichment ? "✅" : "❌"}`);
 console.log(`   - Zora Integration: ${env.features?.zoraIntegration ? "✅" : "❌"}`);

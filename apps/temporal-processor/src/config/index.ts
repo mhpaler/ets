@@ -10,17 +10,17 @@ const { mnemonicToSeedSync } = require("@scure/bip39");
 // Deployment block numbers for each environment
 // Used for historical event scanning on first startup
 export const DEPLOYMENT_BLOCKS: Record<string, bigint> = {
-  localhost: 0n, // Hardhat always starts fresh
-  baseSepolia: 31787829n, // Base Sepolia deployment block
-  base: 0n, // TBD - mainnet deployment block
+  local: 0n, // Hardhat always starts fresh
+  staging: 31787829n, // Base Sepolia deployment block
+  production: 0n, // TBD - mainnet deployment block
 };
 
 // Chunk size for historical event scanning (in blocks)
 // Optimized for Alchemy PAYG plan limits
 export const SCAN_CHUNK_SIZE: Record<string, number> = {
-  localhost: 1000, // No limits on local Hardhat
-  baseSepolia: 5000, // Conservative for Alchemy PAYG (10k limit)
-  base: 5000, // Same as staging
+  local: 1000, // No limits on local Hardhat
+  staging: 5000, // Conservative for Alchemy PAYG (10k limit)
+  production: 5000, // Same as staging
 };
 
 export interface Config {

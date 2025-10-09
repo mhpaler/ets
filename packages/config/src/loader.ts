@@ -3,8 +3,8 @@
  * Loads environment variables in priority order
  */
 
-import * as fs from "fs";
-import * as path from "path";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import * as dotenv from "dotenv";
 import type { ConfigOptions, ConfigPriority } from "./types";
 

@@ -11,8 +11,10 @@ import type {
   NetworkConfig,
   ServiceConfig,
   TestConfig,
+  ValidationResult,
   WalletConfig,
 } from "./types";
+import { ConfigPriority } from "./types";
 
 import { getContractABIs, getContractConfig, requireContract, validateContracts } from "./contracts";
 import { detectEnvironment, getEnvironmentConfig } from "./environments";
@@ -26,9 +28,24 @@ import {
   mergeWithEnvironment,
   requireEnv,
 } from "./loader";
+import { validateEnvVars, validateEnvironment } from "./validation";
 
 // Re-export types
-export * from "./types";
+export type {
+  EnvironmentName,
+  NetworkConfig,
+  ContractAddresses,
+  ServiceConfig,
+  WalletConfig,
+  TestConfig,
+  Environment,
+  ConfigOptions,
+  ValidationResult,
+} from "./types";
+
+// Re-export enums
+// biome-ignore lint/performance/noBarrelFile: Config package index provides centralized exports for library consumption
+export { ConfigPriority } from "./types";
 
 // Re-export individual modules
 export {
@@ -46,6 +63,8 @@ export {
   isDevelopment,
   isProduction,
   isTest,
+  validateEnvVars,
+  validateEnvironment,
 };
 
 /**
@@ -183,12 +202,12 @@ export class ETSConfig {
     console.log(`RPC: ${this.environment.network.rpcUrl}`);
 
     if (this.environment.services.temporal) {
-      console.log(`\n⏰ Temporal:`);
+      console.log("\n⏰ Temporal:");
       console.log(`  Server: ${this.environment.services.temporal.serverUrl}`);
       console.log(`  Queue: ${this.environment.services.temporal.taskQueue}`);
     }
 
-    console.log(`\n🔧 Features:`);
+    console.log("\n🔧 Features:");
     if (this.environment.features) {
       for (const [feature, enabled] of Object.entries(this.environment.features)) {
         console.log(`  ${feature}: ${enabled ? "✅" : "❌"}`);
