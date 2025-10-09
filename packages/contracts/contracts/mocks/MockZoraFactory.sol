@@ -43,6 +43,7 @@ contract MockZoraFactory {
      * @notice Mock function to simulate coin deployment
      * @dev In real Zora factory, this would deploy the actual coin
      *      For testing, we just emit an event
+     *      Returns (address coin, bytes deployData) to match real Zora factory
      */
     function deploy(
         address /* payoutRecipient */,
@@ -55,7 +56,7 @@ contract MockZoraFactory {
         address /* postDeployHook */,
         bytes memory /* postDeployHookData */,
         bytes32 coinSalt
-    ) external returns (address coin) {
+    ) external returns (address coin, bytes memory deployData) {
         // Calculate the same address as coinAddress would return
         coin = this.coinAddress(
             msg.sender,
@@ -65,7 +66,10 @@ contract MockZoraFactory {
             platformReferrer,
             coinSalt
         );
-        
+
+        // Return empty bytes for deployData (not used in mock)
+        deployData = "";
+
         // Emit event to simulate real factory behavior
         emit CoinCreatedV4(
             coin,
@@ -76,8 +80,8 @@ contract MockZoraFactory {
             platformReferrer,
             coinSalt
         );
-        
-        return coin;
+
+        return (coin, deployData);
     }
     
     /**

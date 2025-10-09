@@ -79,23 +79,22 @@ export interface TagCreatedResult {
 
 // Event Types from blockchain
 export interface TargetCreatedEvent {
-  targetId: string;
-  targetURI: string;
-  targetType: number;
-  created: Address;
-  transactionHash: Hash;
-  blockNumber: bigint;
-  logIndex: number;
+  args: {
+    targetId: bigint;
+  };
 }
 
 export interface TagCreatedEvent {
-  tagId: string;
-  coinAddress: Address;
-  tagString: string;
-  creator: Address;
-  transactionHash: Hash;
-  blockNumber: bigint;
-  logIndex: number;
+  args: {
+    coinAddress: Address;
+    tagId: bigint;
+    originalInput: string;
+    displayVersion: string;
+    machineName: string;
+    creator: Address;
+    channel: Address;
+    timestamp: bigint;
+  };
 }
 
 export interface EnrichTargetRequestedEvent {

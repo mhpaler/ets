@@ -46,6 +46,12 @@ export async function TargetEnrichmentWorkflow(input: TargetEnrichmentWorkflowIn
     });
 
     result.steps.fetchMetadata = true;
+
+    // Note: We always proceed even if extraction failed (error metadata)
+    // The Graph needs to index all enrichment attempts, including failures
+    const isSuccess =
+      metadata.core.extractionMethod !== "error" && (!metadata.core.httpStatus || metadata.core.httpStatus < 400);
+
     // Convert ETSTargetMetadata to MetadataFetchResult for compatibility
     result.metadata = {
       title: metadata.core.title,
@@ -53,9 +59,14 @@ export async function TargetEnrichmentWorkflow(input: TargetEnrichmentWorkflowIn
       image: metadata.core.image || undefined,
       keywords: metadata.keywords,
       targetType: metadata.type,
-      status: "success" as const,
+      status: isSuccess ? ("success" as const) : ("failed" as const),
     };
-    log.info(`Successfully fetched metadata for ${input.targetURI}`);
+
+    if (isSuccess) {
+      log.info(`Successfully fetched metadata for ${input.targetURI}`);
+    } else {
+      log.warn(`Metadata extraction failed for ${input.targetURI}: ${metadata.core.title}`);
+    }
 
     // Step 2: Call enrichTarget function on-chain
     log.info(`Calling enrichTarget on-chain for target ${input.targetId}`);

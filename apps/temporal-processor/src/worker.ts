@@ -92,7 +92,9 @@ async function run() {
       workflowsPath: require.resolve("./workflows"),
       activities,
       identity: config.temporal.workerId,
-      maxConcurrentActivityTaskExecutions: config.worker.maxConcurrentActivities,
+      // Limit concurrent on-chain activities to prevent nonce conflicts
+      // Metadata fetching can still happen in parallel since it doesn't use blockchain
+      maxConcurrentActivityTaskExecutions: 3, // Conservative limit to reduce nonce contention
       maxConcurrentWorkflowTaskExecutions: config.worker.maxConcurrentWorkflows,
     });
 

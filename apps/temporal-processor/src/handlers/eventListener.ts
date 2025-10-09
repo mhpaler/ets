@@ -3,6 +3,7 @@ import {
   http,
   type Abi,
   type AbiEvent,
+  type Address,
   type Log,
   type PublicClient,
   createPublicClient,
@@ -10,9 +11,10 @@ import {
   webSocket,
 } from "viem";
 import { base, baseSepolia, localhost } from "viem/chains";
-import { getConfig } from "../config";
+import { DEPLOYMENT_BLOCKS, SCAN_CHUNK_SIZE, getConfig } from "../config";
 import type { TagCreatedEvent, TargetCreatedEvent } from "../types";
 import { CheckpointManager } from "../utils/checkpoint";
+import { scanHistoricalEvents } from "../utils/eventScanner";
 import { getComponentLogger } from "../utils/logger";
 
 const logger = getComponentLogger("EventListener");
@@ -51,6 +53,7 @@ async function initializeClients() {
   const config = await getConfig();
 
   // Create HTTP client for reliable read operations (getLogs, readContract)
+  // @ts-expect-error - viem type mismatch between versions (pre-existing)
   httpClient = createPublicClient({
     chain: getChain(config.blockchain.chainId),
     transport: http(config.blockchain.rpcUrl),
@@ -60,6 +63,7 @@ async function initializeClients() {
   });
 
   // Create WebSocket client for real-time event watching (if available)
+  // @ts-expect-error - viem type mismatch between versions (pre-existing)
   wsClient = config.blockchain.wsRpcUrl
     ? createPublicClient({
         chain: getChain(config.blockchain.chainId),
@@ -259,21 +263,42 @@ export class EventListener {
       "Setting up TargetCreated event listener",
     );
 
-    // Get the last processed block from checkpoint
+    // Get the last processed block from checkpoint, or use deployment block
     const lastBlock = this.checkpointManager!.getLastProcessedBlock();
-    const fromBlock = lastBlock ? BigInt(lastBlock) + 1n : "latest";
+    const currentBlock = await reader.getBlockNumber();
+    const deploymentBlock = DEPLOYMENT_BLOCKS[config.env] || 0n;
+
+    // Chain reset detection: checkpoint ahead of current chain
+    let startBlock: bigint;
+    if (lastBlock && lastBlock > currentBlock) {
+      logger.warn(
+        {
+          lastCheckpoint: lastBlock.toString(),
+          currentBlock: currentBlock.toString(),
+          env: config.env,
+        },
+        "⚠️  Chain reset detected! Checkpoint is ahead of current block. Clearing checkpoint and starting fresh.",
+      );
+      await this.checkpointManager!.clear();
+      startBlock = deploymentBlock;
+    } else {
+      startBlock = lastBlock ?? deploymentBlock;
+    }
 
     logger.info(
       {
-        fromBlock: fromBlock.toString(),
-        lastCheckpoint: lastBlock,
+        startBlock: startBlock.toString(),
+        lastCheckpoint: lastBlock?.toString(),
+        currentBlock: currentBlock.toString(),
+        deploymentBlock: deploymentBlock.toString(),
+        isFirstRun: !lastBlock,
       },
-      "Starting TargetCreated listener from checkpoint",
+      "Starting TargetCreated listener",
     );
 
-    // Process historical events if we have a checkpoint
-    if (lastBlock) {
-      await this.processHistoricalTargetCreatedEvents(lastBlock);
+    // Process historical events if we need to catch up
+    if (startBlock < currentBlock) {
+      await this.processHistoricalTargetCreatedEvents(startBlock);
     }
 
     // Watch for new events
@@ -296,9 +321,9 @@ export class EventListener {
 
   private async setupEnrichTargetRequestedListener(): Promise<void> {
     const config = this.config;
-    const { watchClient: client } = await initializeClients();
+    const { watchClient: client, publicClient: reader } = await initializeClients();
 
-    if (!client) {
+    if (!client || !reader) {
       throw new Error("Clients not initialized");
     }
 
@@ -310,21 +335,42 @@ export class EventListener {
       "Setting up EnrichTargetRequested event listener",
     );
 
-    // Get the last processed block from checkpoint
+    // Get the last processed block from checkpoint, or use deployment block
     const lastBlock = this.checkpointManager!.getLastProcessedBlock();
-    const fromBlock = lastBlock ? BigInt(lastBlock) + 1n : "latest";
+    const currentBlock = await reader.getBlockNumber();
+    const deploymentBlock = DEPLOYMENT_BLOCKS[config.env] || 0n;
+
+    // Chain reset detection: checkpoint ahead of current chain
+    let startBlock: bigint;
+    if (lastBlock && lastBlock > currentBlock) {
+      logger.warn(
+        {
+          lastCheckpoint: lastBlock.toString(),
+          currentBlock: currentBlock.toString(),
+          env: config.env,
+        },
+        "⚠️  Chain reset detected! Checkpoint is ahead of current block. Clearing checkpoint and starting fresh.",
+      );
+      await this.checkpointManager!.clear();
+      startBlock = deploymentBlock;
+    } else {
+      startBlock = lastBlock ?? deploymentBlock;
+    }
 
     logger.info(
       {
-        fromBlock: fromBlock.toString(),
-        lastCheckpoint: lastBlock,
+        startBlock: startBlock.toString(),
+        lastCheckpoint: lastBlock?.toString(),
+        currentBlock: currentBlock.toString(),
+        deploymentBlock: deploymentBlock.toString(),
+        isFirstRun: !lastBlock,
       },
-      "Starting EnrichTargetRequested listener from checkpoint",
+      "Starting EnrichTargetRequested listener",
     );
 
-    // Process historical events if we have a checkpoint
-    if (lastBlock) {
-      await this.processHistoricalEnrichTargetRequestedEvents(lastBlock);
+    // Process historical events if we need to catch up
+    if (startBlock < currentBlock) {
+      await this.processHistoricalEnrichTargetRequestedEvents(startBlock);
     }
 
     // Watch for new events
@@ -347,9 +393,9 @@ export class EventListener {
 
   private async setupTagCreatedListener(): Promise<void> {
     const config = this.config;
-    const { watchClient: client } = await initializeClients();
+    const { watchClient: client, publicClient: reader } = await initializeClients();
 
-    if (!client) {
+    if (!client || !reader) {
       throw new Error("Clients not initialized");
     }
 
@@ -361,21 +407,42 @@ export class EventListener {
       "Setting up TagCreated event listener",
     );
 
-    // Get the last processed block from checkpoint
+    // Get the last processed block from checkpoint, or use deployment block
     const lastBlock = this.checkpointManager!.getLastProcessedBlock();
-    const fromBlock = lastBlock ? BigInt(lastBlock) + 1n : "latest";
+    const currentBlock = await reader.getBlockNumber();
+    const deploymentBlock = DEPLOYMENT_BLOCKS[config.env] || 0n;
+
+    // Chain reset detection: checkpoint ahead of current chain
+    let startBlock: bigint;
+    if (lastBlock && lastBlock > currentBlock) {
+      logger.warn(
+        {
+          lastCheckpoint: lastBlock.toString(),
+          currentBlock: currentBlock.toString(),
+          env: config.env,
+        },
+        "⚠️  Chain reset detected! Checkpoint is ahead of current block. Clearing checkpoint and starting fresh.",
+      );
+      await this.checkpointManager!.clear();
+      startBlock = deploymentBlock;
+    } else {
+      startBlock = lastBlock ?? deploymentBlock;
+    }
 
     logger.info(
       {
-        fromBlock: fromBlock.toString(),
-        lastCheckpoint: lastBlock,
+        startBlock: startBlock.toString(),
+        lastCheckpoint: lastBlock?.toString(),
+        currentBlock: currentBlock.toString(),
+        deploymentBlock: deploymentBlock.toString(),
+        isFirstRun: !lastBlock,
       },
-      "Starting TagCreated listener from checkpoint",
+      "Starting TagCreated listener",
     );
 
-    // Process historical events if we have a checkpoint
-    if (lastBlock) {
-      await this.processHistoricalTagCreatedEvents(lastBlock);
+    // Process historical events if we need to catch up
+    if (startBlock < currentBlock) {
+      await this.processHistoricalTagCreatedEvents(startBlock);
     }
 
     // Watch for new events
@@ -396,7 +463,7 @@ export class EventListener {
     });
   }
 
-  private async processHistoricalTargetCreatedEvents(fromBlock: number): Promise<void> {
+  private async processHistoricalTargetCreatedEvents(fromBlock: bigint): Promise<void> {
     const config = this.config;
     const { publicClient: client } = await initializeClients();
 
@@ -404,28 +471,60 @@ export class EventListener {
       throw new Error("Clients not initialized");
     }
 
-    logger.info({ fromBlock }, "Processing historical TargetCreated events");
+    // Get current block number
+    const currentBlock = await client.getBlockNumber();
+
+    // Get chunk size for this environment
+    const chunkSize = SCAN_CHUNK_SIZE[config.env] || 5000;
+
+    logger.info(
+      {
+        fromBlock: fromBlock.toString(),
+        toBlock: currentBlock.toString(),
+        chunkSize,
+      },
+      "Processing historical TargetCreated events",
+    );
 
     try {
-      const logs = await client.getContractEvents({
-        address: config.blockchain.contracts.etsTarget,
-        abi: ETSTargetABI,
-        eventName: "TargetCreated",
-        fromBlock: BigInt(fromBlock) + 1n,
-        toBlock: "latest",
-      });
-
-      logger.info({ count: logs.length }, "Found historical TargetCreated events");
-
-      for (const log of logs) {
-        await this.handleTargetCreatedEvent(log);
-      }
+      await scanHistoricalEvents(
+        client,
+        {
+          contractAddress: config.blockchain.contracts.etsTarget,
+          abi: ETSTargetABI,
+          eventName: "TargetCreated",
+          fromBlock: fromBlock + 1n,
+          toBlock: currentBlock,
+          chunkSize,
+        },
+        async (logs) => {
+          // Process each log
+          for (const log of logs) {
+            await this.handleTargetCreatedEvent(log);
+          }
+        },
+        (progress) => {
+          // Log progress every 10 chunks
+          if (progress.chunksCompleted % 10 === 0) {
+            const percentComplete = ((progress.currentBlock - fromBlock) * 100n) / progress.totalBlocks;
+            logger.info(
+              {
+                progress: `${progress.chunksCompleted}/${progress.totalChunks} chunks`,
+                percent: `${percentComplete}%`,
+                eventsFound: progress.eventsFound,
+              },
+              "Historical scan progress",
+            );
+          }
+        },
+      );
     } catch (error) {
       logger.error({ error }, "Failed to process historical TargetCreated events");
+      throw error;
     }
   }
 
-  private async processHistoricalEnrichTargetRequestedEvents(fromBlock: number): Promise<void> {
+  private async processHistoricalEnrichTargetRequestedEvents(fromBlock: bigint): Promise<void> {
     const config = this.config;
     const { publicClient: client } = await initializeClients();
 
@@ -433,28 +532,60 @@ export class EventListener {
       throw new Error("Clients not initialized");
     }
 
-    logger.info({ fromBlock }, "Processing historical EnrichTargetRequested events");
+    // Get current block number
+    const currentBlock = await client.getBlockNumber();
+
+    // Get chunk size for this environment
+    const chunkSize = SCAN_CHUNK_SIZE[config.env] || 5000;
+
+    logger.info(
+      {
+        fromBlock: fromBlock.toString(),
+        toBlock: currentBlock.toString(),
+        chunkSize,
+      },
+      "Processing historical EnrichTargetRequested events",
+    );
 
     try {
-      const logs = await client.getContractEvents({
-        address: config.blockchain.contracts.etsTarget,
-        abi: ETSTargetABI,
-        eventName: "EnrichTargetRequested",
-        fromBlock: BigInt(fromBlock) + 1n,
-        toBlock: "latest",
-      });
-
-      logger.info({ count: logs.length }, "Found historical EnrichTargetRequested events");
-
-      for (const log of logs) {
-        await this.handleEnrichTargetRequestedEvent(log);
-      }
+      await scanHistoricalEvents(
+        client,
+        {
+          contractAddress: config.blockchain.contracts.etsTarget,
+          abi: ETSTargetABI,
+          eventName: "EnrichTargetRequested",
+          fromBlock: fromBlock + 1n,
+          toBlock: currentBlock,
+          chunkSize,
+        },
+        async (logs) => {
+          // Process each log
+          for (const log of logs) {
+            await this.handleEnrichTargetRequestedEvent(log);
+          }
+        },
+        (progress) => {
+          // Log progress every 10 chunks
+          if (progress.chunksCompleted % 10 === 0) {
+            const percentComplete = ((progress.currentBlock - fromBlock) * 100n) / progress.totalBlocks;
+            logger.info(
+              {
+                progress: `${progress.chunksCompleted}/${progress.totalChunks} chunks`,
+                percent: `${percentComplete}%`,
+                eventsFound: progress.eventsFound,
+              },
+              "Historical scan progress",
+            );
+          }
+        },
+      );
     } catch (error) {
       logger.error({ error }, "Failed to process historical EnrichTargetRequested events");
+      throw error;
     }
   }
 
-  private async processHistoricalTagCreatedEvents(fromBlock: number): Promise<void> {
+  private async processHistoricalTagCreatedEvents(fromBlock: bigint): Promise<void> {
     const config = this.config;
     const { publicClient: client } = await initializeClients();
 
@@ -462,24 +593,56 @@ export class EventListener {
       throw new Error("Clients not initialized");
     }
 
-    logger.info({ fromBlock }, "Processing historical TagCreated events");
+    // Get current block number
+    const currentBlock = await client.getBlockNumber();
+
+    // Get chunk size for this environment
+    const chunkSize = SCAN_CHUNK_SIZE[config.env] || 5000;
+
+    logger.info(
+      {
+        fromBlock: fromBlock.toString(),
+        toBlock: currentBlock.toString(),
+        chunkSize,
+      },
+      "Processing historical TagCreated events",
+    );
 
     try {
-      const logs = await client.getContractEvents({
-        address: config.blockchain.contracts.etsToken,
-        abi: ETSTokenABI,
-        eventName: "TagCreated",
-        fromBlock: BigInt(fromBlock) + 1n,
-        toBlock: "latest",
-      });
-
-      logger.info({ count: logs.length }, "Found historical TagCreated events");
-
-      for (const log of logs) {
-        await this.handleTagCreatedEvent(log);
-      }
+      await scanHistoricalEvents(
+        client,
+        {
+          contractAddress: config.blockchain.contracts.etsToken,
+          abi: ETSTokenABI,
+          eventName: "TagCreated",
+          fromBlock: fromBlock + 1n,
+          toBlock: currentBlock,
+          chunkSize,
+        },
+        async (logs) => {
+          // Process each log
+          for (const log of logs) {
+            await this.handleTagCreatedEvent(log);
+          }
+        },
+        (progress) => {
+          // Log progress every 10 chunks
+          if (progress.chunksCompleted % 10 === 0) {
+            const percentComplete = ((progress.currentBlock - fromBlock) * 100n) / progress.totalBlocks;
+            logger.info(
+              {
+                progress: `${progress.chunksCompleted}/${progress.totalChunks} chunks`,
+                percent: `${percentComplete}%`,
+                eventsFound: progress.eventsFound,
+              },
+              "Historical scan progress",
+            );
+          }
+        },
+      );
     } catch (error) {
       logger.error({ error }, "Failed to process historical TagCreated events");
+      throw error;
     }
   }
 

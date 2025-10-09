@@ -1,5 +1,35 @@
 # Temporal Processor Changelog
 
+## 2025-10-09
+
+### Added
+- **Production-ready self-healing system** with automatic error recovery (#539.10)
+- `transactionManager.ts` utility - Reusable transaction retry with exponential backoff (1s → 2s → 4s → max 30s)
+- Chain reset detection - Automatically clears checkpoint when blockchain resets (critical for Hardhat development)
+- Automatic nonce conflict resolution - Retries on "nonce", "network", "timeout" errors with 5-minute timeout
+- `eventScanner.ts` utility - Chunked historical event scanning with progress tracking
+
+### Changed
+- **Reduced concurrent activities from 10 → 3** to minimize nonce contention between parallel workflows
+- Refactored all on-chain activities to use centralized transaction manager (DRY principle)
+- Enhanced event listeners with chain reset detection for all 3 event types (TargetCreated, EnrichTargetRequested, TagCreated)
+- Historical event scanning now uses deployment block as fallback when no checkpoint exists
+
+### Fixed
+- Nonce conflicts when multiple TAG coin deployments execute concurrently
+- Checkpoint resume after Hardhat node restarts (previously would miss events)
+- Transaction failures now retry automatically instead of immediately failing workflows
+
+### Removed
+- Obsolete integration tests: `tag-coin-temporal.test.ts`, `zora-tag-coin-v2.test.ts`
+
+### Technical
+- All blockchain transactions now wrapped in `executeWithRetry()` for consistent error handling
+- Exponential backoff prevents overwhelming RPC nodes during transient failures
+- Self-healing design enables unattended operation in production environments
+- Related to #528 TAG Coins Epic
+- Addresses #539.10 Production-Ready Event Recovery & Checkpoint System
+
 ## 2025-10-03
 
 ### Added

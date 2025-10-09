@@ -1,7 +1,7 @@
 import { http, type Abi, type Hash, createPublicClient, createWalletClient, defineChain } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base, baseSepolia } from "viem/chains";
-import { config } from "../config";
+import { getConfig } from "../config";
 import { MetadataExtractor } from "../services/MetadataExtractor";
 import type { EnrichmentEventResult, MetadataFetchResult } from "../types";
 import type { ETSTargetMetadata } from "../types/metadata";
@@ -25,8 +25,8 @@ const localChain = defineChain({
 });
 
 // Get chain configuration
-function getChain() {
-  switch (config.blockchain.chainId) {
+function getChain(chainId: number) {
+  switch (chainId) {
     case 31337:
       return localChain;
     case 84532:
@@ -93,6 +93,9 @@ export async function callEnrichTargetOnChain(params: {
   metadata: ETSTargetMetadata;
 }): Promise<EnrichmentEventResult> {
   try {
+    // Load config asynchronously
+    const config = await getConfig();
+
     logger.info({ targetId: params.targetId }, "Calling enrichTarget on-chain");
 
     // Get private key from config (supports both HD wallet and direct key)
@@ -108,7 +111,7 @@ export async function callEnrichTargetOnChain(params: {
 
     // Create wallet client for transactions
     const account = privateKeyToAccount(privateKey as `0x${string}`);
-    const chain = getChain();
+    const chain = getChain(config.blockchain.chainId);
 
     const walletClient = createWalletClient({
       account,
@@ -142,17 +145,32 @@ export async function callEnrichTargetOnChain(params: {
     // Load the ABI dynamically
     const { ETSTargetABI } = await import("@ethereum-tag-service/contracts/abis");
 
-    // Simulate the transaction first using the full ETSTargetABI
-    const { request } = await publicClient.simulateContract({
-      address: config.blockchain.contracts.etsTarget,
-      abi: ETSTargetABI as Abi,
-      functionName: "enrichTarget",
-      args: [BigInt(params.targetId), payloadHex as `0x${string}`, schemaVersion],
-      account,
-    });
+    // Use transaction manager for automatic retry with nonce management
+    const { executeWithRetry } = await import("../utils/transactionManager.js");
 
-    // Execute the transaction
-    const hash = await walletClient.writeContract(request);
+    const hash = await executeWithRetry(
+      publicClient,
+      walletClient,
+      async () => {
+        // Simulate the transaction first using the full ETSTargetABI
+        const { request } = await publicClient.simulateContract({
+          address: config.blockchain.contracts.etsTarget,
+          abi: ETSTargetABI as Abi,
+          functionName: "enrichTarget",
+          args: [BigInt(params.targetId), payloadHex as `0x${string}`, schemaVersion],
+          account,
+        });
+
+        // Execute the transaction
+        return await walletClient.writeContract(request);
+      },
+      {
+        contextInfo: {
+          targetId: params.targetId,
+          operation: "enrichTarget",
+        },
+      },
+    );
 
     // Wait for confirmation
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
@@ -171,6 +189,7 @@ export async function callEnrichTargetOnChain(params: {
         status: "success",
       };
     }
+
     throw new Error("Transaction reverted");
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);

@@ -11,20 +11,20 @@ last_updated: 2025-10-01
 
 ## ACTIVE_WORK
 ```yaml
-current_issue_id: "#539: Temporal Implementation"
+current_issue_id: "#539.10: Production-Ready Event Recovery & Checkpoint System"
 current_status: IN_PROGRESS
-completion_percent: 85
-exact_task: "Refactored all integration tests to use unified config package"
+completion_percent: 95
+exact_task: "Implemented production-grade self-healing with automatic retry and chain reset detection"
 blocking_bug: null
-next_priority: "Run full integration test suite and validate staging environment"
-resume_action: "Integration tests refactored to use unified config - ready for comprehensive testing"
-session_accomplishment: "✅ Refactored test config from 361→132 lines; ✅ All integration tests use unified config; ✅ TAG coin creation tests pass on staging; ✅ Renamed metadata test for clarity; ✅ Deleted obsolete test files"
-architecture_decision: "Single source of truth for environment config - tests consume via wrapper functions"
-critical_path: "Config refactor ✅ → Test validation → Staging deployment → Production readiness"
-debugging_insight: "Tests should delegate to config package, not duplicate environment logic; Consistent ENVIRONMENT var across all tests"
-deployment_strategy: "Progressive testing with unified config: localhost ✅ → staging ✅ → production"
-integration_test_coverage: "Target enrichment ✅ (3/3), TAG coin creation ✅ (5/5 on staging), Metadata extraction (renamed for clarity)"
-recent_commit: "refactor: Unify integration test configuration with centralized config package (#539)"
+next_priority: "Base Sepolia backfill test - validate self-healing at scale (225K+ blocks)"
+resume_action: "Self-healing system complete and tested locally - ready for Base Sepolia production validation"
+session_accomplishment: "✅ Transaction manager with exponential backoff; ✅ Chain reset detection; ✅ Nonce conflict resolution; ✅ All local tests passing; ✅ Reduced concurrent activities to 3; ✅ DRY refactor complete"
+architecture_decision: "Centralized transaction retry utility with exponential backoff (1s→30s max) - all on-chain activities use same self-healing pattern"
+critical_path: "Self-healing implementation ✅ → Base Sepolia validation → Production deployment"
+debugging_insight: "Concurrent workflows cause nonce conflicts - limit to 3 concurrent activities + exponential backoff resolves; Chain reset detection critical for Hardhat development"
+deployment_strategy: "Localhost validation ✅ → Base Sepolia backfill (tomorrow) → Production readiness"
+integration_test_coverage: "Local self-healing tests ✅ (chain reset, nonce conflicts, checkpoint resume); Base Sepolia backfill pending"
+recent_commit: "feat: Implement production-ready self-healing with automatic retry and chain reset detection (#539.10)"
 ```
 
 ## CRITICAL_PATH

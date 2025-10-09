@@ -2,7 +2,7 @@ import type { Address, Chain, Hash } from "viem";
 import { http, createPublicClient, createWalletClient, keccak256, toBytes } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base, baseSepolia, hardhat } from "viem/chains";
-import { config } from "../config";
+import { getConfig } from "../config";
 import type { ZoraCoinCreationResult } from "../types";
 import { getComponentLogger } from "../utils/logger";
 
@@ -180,6 +180,9 @@ export async function deployTagCoinOnZora(params: {
   poolConfig: `0x${string}`; // Now passed from workflow
 }): Promise<ZoraCoinCreationResult> {
   try {
+    // Load config asynchronously
+    const config = await getConfig();
+
     logger.info(
       {
         coinAddress: params.coinAddress,
@@ -328,10 +331,7 @@ export async function deployTagCoinOnZora(params: {
         { name: "postDeployHookData", type: "bytes" },
         { name: "coinSalt", type: "bytes32" },
       ],
-      outputs: [
-        { name: "coin", type: "address" },
-        { name: "deployData", type: "bytes" },
-      ],
+      outputs: [{ name: "coin", type: "address" }],
     } as const;
 
     // Predict coin address using contract configuration
@@ -359,49 +359,65 @@ export async function deployTagCoinOnZora(params: {
 
     logger.info({ predictedAddress }, "Predicted coin address from factory");
 
-    // Simulate deployment first to catch errors early
-    logger.info("Simulating contract call...");
-    await publicClient.simulateContract({
-      account,
-      address: factoryAddress,
-      abi: [deployAbi],
-      functionName: "deploy",
-      args: [
-        params.creator, // payoutRecipient
-        [params.creator], // owners
-        params.metadataURI, // uri
-        coinName, // name (machineName)
-        coinSymbol, // symbol ("ETS")
-        zoraPoolConfig, // poolConfig (from contract)
-        zoraPlatformReferrer, // platformReferrer (from contract)
-        "0x0000000000000000000000000000000000000000" as Address, // postDeployHook
-        "0x" as `0x${string}`, // postDeployHookData
-        coinSalt, // coinSalt
-      ],
-      value: 0n,
-    });
+    // Use transaction manager for automatic retry with nonce management
+    const { executeWithRetry } = await import("../utils/transactionManager.js");
 
-    logger.info("Simulation successful, executing deployment...");
+    const hash = await executeWithRetry(
+      publicClient,
+      walletClient,
+      async () => {
+        // Simulate deployment first to catch errors early
+        logger.info("Simulating contract call...");
+        await publicClient.simulateContract({
+          account,
+          address: factoryAddress,
+          abi: [deployAbi],
+          functionName: "deploy",
+          args: [
+            params.creator, // payoutRecipient
+            [params.creator], // owners
+            params.metadataURI, // uri
+            coinName, // name (machineName)
+            coinSymbol, // symbol ("ETS")
+            zoraPoolConfig, // poolConfig (from contract)
+            zoraPlatformReferrer, // platformReferrer (from contract)
+            "0x0000000000000000000000000000000000000000" as Address, // postDeployHook
+            "0x" as `0x${string}`, // postDeployHookData
+            coinSalt, // coinSalt
+          ],
+          value: 0n,
+        });
 
-    // Deploy the coin
-    const hash = await walletClient.writeContract({
-      address: factoryAddress,
-      abi: [deployAbi],
-      functionName: "deploy",
-      args: [
-        params.creator, // payoutRecipient
-        [params.creator], // owners
-        params.metadataURI, // uri
-        coinName, // name (machineName)
-        coinSymbol, // symbol ("ETS")
-        zoraPoolConfig, // poolConfig (from contract)
-        zoraPlatformReferrer, // platformReferrer (from contract)
-        "0x0000000000000000000000000000000000000000" as Address, // postDeployHook
-        "0x" as `0x${string}`, // postDeployHookData
-        coinSalt, // coinSalt
-      ],
-      value: 0n,
-    });
+        logger.info("Simulation successful, executing deployment...");
+
+        // Deploy the coin
+        return await walletClient.writeContract({
+          address: factoryAddress,
+          abi: [deployAbi],
+          functionName: "deploy",
+          args: [
+            params.creator, // payoutRecipient
+            [params.creator], // owners
+            params.metadataURI, // uri
+            coinName, // name (machineName)
+            coinSymbol, // symbol ("ETS")
+            zoraPoolConfig, // poolConfig (from contract)
+            zoraPlatformReferrer, // platformReferrer (from contract)
+            "0x0000000000000000000000000000000000000000" as Address, // postDeployHook
+            "0x" as `0x${string}`, // postDeployHookData
+            coinSalt, // coinSalt
+          ],
+          value: 0n,
+        });
+      },
+      {
+        contextInfo: {
+          coinAddress: params.coinAddress,
+          tagString: params.tagString,
+          operation: "deployTagCoin",
+        },
+      },
+    );
 
     // Wait for transaction confirmation
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
