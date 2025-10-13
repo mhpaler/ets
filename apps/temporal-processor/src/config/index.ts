@@ -1,11 +1,7 @@
 import { ETSConfig } from "@ethereum-tag-service/config";
 import type { Address, Hex } from "viem";
-
-// HD wallet utilities for role-based key derivation
-// @ts-ignore - Using require for ESM modules
-const { HDKey } = require("@scure/bip32");
-// @ts-ignore - Using require for ESM modules
-const { mnemonicToSeedSync } = require("@scure/bip39");
+import { HDKey } from "@scure/bip32";
+import { mnemonicToSeedSync } from "@scure/bip39";
 
 // Deployment block numbers for each environment
 // Used for historical event scanning on first startup
@@ -30,8 +26,7 @@ export interface Config {
     namespace: string;
     taskQueue: string;
     workerId: string;
-    clientCert?: string;
-    clientKey?: string;
+    apiKey?: string; // API Key authentication
     isCloud: boolean;
   };
 
@@ -139,14 +134,13 @@ async function createConfig(): Promise<Config> {
     namespace: process.env.TEMPORAL_NAMESPACE || "default",
     taskQueue: process.env.TEMPORAL_TASK_QUEUE || `ets-workflows-${env.name}`,
     workerId: process.env.TEMPORAL_WORKER_ID || `ets-worker-${env.name}-${Date.now()}`,
-    clientCert: process.env.TEMPORAL_CLIENT_CERT,
-    clientKey: process.env.TEMPORAL_CLIENT_KEY,
+    apiKey: process.env.TEMPORAL_API_KEY, // API Key auth
     maxConcurrentActivities: Number.parseInt(process.env.MAX_CONCURRENT_ACTIVITIES || "10", 10),
     maxConcurrentWorkflows: Number.parseInt(process.env.MAX_CONCURRENT_WORKFLOWS || "100", 10),
   };
 
-  // Determine if using Temporal Cloud
-  const isTemporalCloud = Boolean(temporal.clientCert && temporal.clientKey);
+  // Determine if using Temporal Cloud (API key authentication)
+  const isTemporalCloud = Boolean(temporal.apiKey);
 
   return {
     temporal: {
@@ -154,8 +148,7 @@ async function createConfig(): Promise<Config> {
       namespace: temporal.namespace,
       taskQueue: temporal.taskQueue,
       workerId: temporal.workerId,
-      clientCert: temporal.clientCert,
-      clientKey: temporal.clientKey,
+      apiKey: temporal.apiKey,
       isCloud: isTemporalCloud,
     },
 

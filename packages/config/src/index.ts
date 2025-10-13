@@ -13,11 +13,11 @@ import type {
   TestConfig,
   ValidationResult,
   WalletConfig,
-} from "./types";
-import { ConfigPriority } from "./types";
+} from "./types.js";
+import { ConfigPriority } from "./types.js";
 
-import { getContractABIs, getContractConfig, requireContract, validateContracts } from "./contracts";
-import { detectEnvironment, getEnvironmentConfig } from "./environments";
+import { getContractABIs, getContractConfig, requireContract, validateContracts } from "./contracts.js";
+import { detectEnvironment, getEnvironmentConfig } from "./environments.js";
 import {
   getEnv,
   isCI,
@@ -27,8 +27,8 @@ import {
   loadEnvironmentVariables,
   mergeWithEnvironment,
   requireEnv,
-} from "./loader";
-import { validateEnvVars, validateEnvironment } from "./validation";
+} from "./loader.js";
+import { validateEnvVars, validateEnvironment } from "./validation.js";
 
 // Re-export types
 export type {
@@ -41,11 +41,11 @@ export type {
   Environment,
   ConfigOptions,
   ValidationResult,
-} from "./types";
+} from "./types.js";
 
 // Re-export enums
 // biome-ignore lint/performance/noBarrelFile: Config package index provides centralized exports for library consumption
-export { ConfigPriority } from "./types";
+export { ConfigPriority } from "./types.js";
 
 // Re-export individual modules
 export {

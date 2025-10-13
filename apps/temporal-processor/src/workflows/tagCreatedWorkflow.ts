@@ -1,6 +1,6 @@
 import { ApplicationFailure, log, proxyActivities, sleep } from "@temporalio/workflow";
-import type * as activities from "../activities";
-import type { TagCreatedResult, TagCreatedWorkflowInput } from "../types";
+import type * as activities from "../activities/index.js";
+import type { TagCreatedResult, TagCreatedWorkflowInput } from "../types/index.js";
 
 // Import activity types
 const { createTagCoinMetadata, deployTagCoinOnZora, allocateCreatorRewards, fetchPoolConfig } = proxyActivities<

@@ -8,8 +8,8 @@ set -e
 echo "🚀 Deploying Temporal Processor to Production..."
 
 # Check required environment variables
-if [ -z "$TEMPORAL_CLIENT_CERT" ] || [ -z "$TEMPORAL_CLIENT_KEY" ]; then
-  echo "❌ Error: TEMPORAL_CLIENT_CERT and TEMPORAL_CLIENT_KEY must be set"
+if [ -z "$TEMPORAL_API_KEY" ]; then
+  echo "❌ Error: TEMPORAL_API_KEY must be set"
   exit 1
 fi
 

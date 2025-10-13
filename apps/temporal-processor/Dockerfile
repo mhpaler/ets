@@ -1,74 +1,97 @@
+# ===================================
 # Multi-stage build for Temporal Processor
-FROM node:20-alpine AS base
+# Optimized for Fly.io deployment
+# ===================================
 
-# Install pnpm
-RUN npm install -g pnpm
+FROM node:20-slim AS base
+
+# Install ca-certificates for TLS connections and pnpm
+# bash is already included in Debian-based images
+RUN apt-get update && \
+    apt-get install -y ca-certificates && \
+    rm -rf /var/lib/apt/lists/* && \
+    npm install -g pnpm@10.14.0
 
 WORKDIR /app
 
-# Copy workspace files
-COPY pnpm-lock.yaml ./
-COPY pnpm-workspace.yaml ./
-
-# Copy package.json files
+# Copy workspace configuration
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY package.json ./
-COPY packages/ ./packages/
+COPY .npmrc* ./
+
+# Copy all package.json files for dependency resolution
+COPY packages/config/package.json ./packages/config/
+COPY packages/contracts/package.json ./packages/contracts/
+COPY packages/subgraph-endpoints/package.json ./packages/subgraph-endpoints/
 COPY apps/temporal-processor/package.json ./apps/temporal-processor/
 
-# Install dependencies
+# Install all dependencies (including dev for build)
 RUN pnpm install --frozen-lockfile
 
+# ===================================
 # Build stage
+# ===================================
 FROM base AS build
 
-# Copy source code
-COPY apps/temporal-processor/ ./apps/temporal-processor/
-COPY packages/ ./packages/
+# Copy source code for all packages
+COPY packages/config ./packages/config
+COPY packages/contracts ./packages/contracts
+COPY packages/subgraph-endpoints ./packages/subgraph-endpoints
+COPY apps/temporal-processor ./apps/temporal-processor
 
-# Build the application
+# Build packages in dependency order
+# contracts must be built first since config imports from it
+WORKDIR /app/packages/contracts
+RUN pnpm build
+
+WORKDIR /app/packages/config
+RUN pnpm build
+
+# Build temporal-processor
 WORKDIR /app/apps/temporal-processor
 RUN pnpm build
 
+# ===================================
 # Production stage
-FROM node:20-alpine AS production
+# ===================================
+FROM node:20-slim AS production
 
-# Install pnpm and production dependencies
-RUN npm install -g pnpm
+# Install ca-certificates for TLS connections and pnpm
+# bash is already included in Debian-based images
+RUN apt-get update && \
+    apt-get install -y ca-certificates && \
+    rm -rf /var/lib/apt/lists/* && \
+    npm install -g pnpm@10.14.0
 
 WORKDIR /app
 
-# Copy package.json and lockfile
-COPY pnpm-lock.yaml ./
-COPY pnpm-workspace.yaml ./
-COPY package.json ./
+# Copy entire working build from build stage
+# NOTE: This includes dev dependencies (~800MB). See docs/backlog/docker-image-optimization.md
+# for future optimization opportunities (could reduce to ~400MB with proper pnpm workspace handling)
+COPY --from=build /app ./
 
-# Copy built application
-COPY --from=build /app/apps/temporal-processor/dist ./apps/temporal-processor/dist
-COPY --from=build /app/apps/temporal-processor/package.json ./apps/temporal-processor/
-COPY --from=build /app/packages/ ./packages/
-
-# Install only production dependencies
-RUN pnpm install --prod --frozen-lockfile
-
-# Create logs directory
-RUN mkdir -p /app/logs
+# Create checkpoint directory for persistent storage (mounted volume on Fly.io)
+RUN mkdir -p /app/.checkpoint && \
+    mkdir -p /app/logs
 
 # Set environment
 ENV NODE_ENV=production
 
-# Expose health check port (if needed)
-EXPOSE 3001
+# Expose metrics port (optional - for Prometheus)
+EXPOSE 9091
 
-# Switch to non-root user
-RUN addgroup -g 1001 -S temporal && \
-    adduser -S temporal -u 1001
+# Create non-root user for security
+RUN groupadd --gid 1001 temporal && \
+    useradd --uid 1001 --gid temporal --shell /bin/bash --create-home temporal && \
+    chown -R temporal:temporal /app
+
 USER temporal
 
 WORKDIR /app/apps/temporal-processor
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+# Health check (verify Node.js process is responsive)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
   CMD node -e "process.exit(0)" || exit 1
 
-# Start the application
+# Start the Temporal Processor
 CMD ["node", "dist/index.js"]

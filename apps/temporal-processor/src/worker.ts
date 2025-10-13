@@ -1,11 +1,13 @@
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 import { NativeConnection, Worker } from "@temporalio/worker";
 import {
   allocateCreatorRewards,
   createTagCoinMetadata,
   deployTagCoinOnZora,
   fetchPoolConfig,
-} from "./activities/tagCoinActivities";
-import { callEnrichTargetOnChain, fetchTargetMetadata } from "./activities/targetEnrichmentActivities";
+} from "./activities/tagCoinActivities.js";
+import { callEnrichTargetOnChain, fetchTargetMetadata } from "./activities/targetEnrichmentActivities.js";
 
 const activities = {
   fetchTargetMetadata,
@@ -15,8 +17,8 @@ const activities = {
   deployTagCoinOnZora,
   allocateCreatorRewards,
 };
-import { getConfig } from "./config";
-import { getComponentLogger } from "./utils/logger";
+import { getConfig } from "./config/index.js";
+import { getComponentLogger } from "./utils/logger.js";
 
 const logger = getComponentLogger("Worker");
 
@@ -25,7 +27,7 @@ let worker: Worker | null = null;
 let connection: NativeConnection | null = null;
 
 // Cleanup function for graceful shutdown
-async function cleanup() {
+export async function cleanupWorker() {
   if (worker) {
     logger.info("Shutting down worker...");
     try {
@@ -47,9 +49,13 @@ async function cleanup() {
   }
 }
 
-async function run() {
+export async function startWorker() {
   // Clean up any existing instances first (important for hot-reload)
-  await cleanup();
+  await cleanupWorker();
+
+  // Resolve directory path for ESM modules
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = dirname(__filename);
 
   try {
     logger.info("🚀 Starting Temporal worker...");
@@ -71,15 +77,16 @@ async function run() {
       address: config.temporal.serverUrl,
     };
 
-    // Add TLS configuration for Temporal Cloud
+    // Add authentication for Temporal Cloud
     if (config.temporal.isCloud) {
-      logger.info("Configuring Temporal Cloud connection with TLS");
-      connectionOptions.tls = {
-        clientCertPair: {
-          crt: Buffer.from(config.temporal.clientCert!, "base64"),
-          key: Buffer.from(config.temporal.clientKey!, "base64"),
-        },
-      };
+      if (config.temporal.apiKey) {
+        // API Key authentication
+        logger.info("Configuring Temporal Cloud connection with API Key");
+        connectionOptions.tls = true; // Enable TLS for cloud
+        connectionOptions.apiKey = config.temporal.apiKey;
+      } else {
+        throw new Error("Temporal Cloud requires TEMPORAL_API_KEY environment variable");
+      }
     }
 
     connection = await NativeConnection.connect(connectionOptions);
@@ -89,7 +96,7 @@ async function run() {
       connection,
       namespace: config.temporal.namespace,
       taskQueue: config.temporal.taskQueue,
-      workflowsPath: require.resolve("./workflows"),
+      workflowsPath: join(__dirname, "workflows"),
       activities,
       identity: config.temporal.workerId,
       // Limit concurrent on-chain activities to prevent nonce conflicts
@@ -123,27 +130,4 @@ async function run() {
   }
 }
 
-// Handle graceful shutdown
-process.on("SIGINT", async () => {
-  logger.info("Received SIGINT, shutting down worker gracefully...");
-  await cleanup();
-  process.exit(0);
-});
-
-process.on("SIGTERM", async () => {
-  logger.info("Received SIGTERM, shutting down worker gracefully...");
-  await cleanup();
-  process.exit(0);
-});
-
-// Handle tsx --watch reload events (SIGUSR2 is sent by tsx before reload)
-process.on("SIGUSR2", async () => {
-  logger.info("Received SIGUSR2 (hot-reload), cleaning up worker...");
-  await cleanup();
-});
-
-// Start the worker
-run().catch((err) => {
-  logger.error({ error: err }, "Uncaught error in worker");
-  process.exit(1);
-});
+// Worker is now started from index.ts

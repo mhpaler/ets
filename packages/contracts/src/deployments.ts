@@ -3,6 +3,7 @@
 
 export interface ContractAddresses {
   accessControls?: string;
+  mockZoraFactory?: string;
   token?: string;
   target?: string;
   core?: string;

@@ -1,11 +1,11 @@
 import { http, type Abi, type Hash, createPublicClient, createWalletClient, defineChain } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base, baseSepolia } from "viem/chains";
-import { getConfig } from "../config";
-import { MetadataExtractor } from "../services/MetadataExtractor";
-import type { EnrichmentEventResult, MetadataFetchResult } from "../types";
-import type { ETSTargetMetadata } from "../types/metadata";
-import { getComponentLogger } from "../utils/logger";
+import { getConfig } from "../config/index.js";
+import { MetadataExtractor } from "../services/MetadataExtractor.js";
+import type { EnrichmentEventResult, MetadataFetchResult } from "../types/index.js";
+import type { ETSTargetMetadata } from "../types/metadata.js";
+import { getComponentLogger } from "../utils/logger.js";
 
 const logger = getComponentLogger("TargetEnrichmentActivities");
 

@@ -4,7 +4,9 @@
  */
 
 import type { Address } from "viem";
-import type { ContractAddresses, Environment } from "./types";
+import type { ContractAddresses, Environment } from "./types.js";
+import { getContractAddresses } from "@ethereum-tag-service/contracts/deployments";
+import * as ABIs from "@ethereum-tag-service/contracts/abis";
 
 /**
  * Get contract addresses for the current environment
@@ -25,10 +27,7 @@ export async function getContractConfig(env: Environment): Promise<ContractAddre
   }
 
   try {
-    // Dynamically import from contracts package
-    const contractsModule = "@ethereum-tag-service/contracts/deployments";
-    // @ts-ignore - Dynamic import may not be available during build
-    const { getContractAddresses } = await import(contractsModule);
+    // Get contract addresses from contracts package
     const addresses = await getContractAddresses(networkName as any);
 
     if (!addresses) {
@@ -54,9 +53,6 @@ export async function getContractConfig(env: Environment): Promise<ContractAddre
           : env.name === "staging"
             ? ("0x7777777733606e45c3CdD4A70CEE5F766Ae6745C" as Address) // Same on testnet
             : undefined,
-
-      // Deployment metadata
-      deploymentBlock: addresses.deploymentBlock,
     };
 
     return config;
@@ -101,24 +97,14 @@ export function requireContract(contracts: ContractAddresses, name: keyof Contra
 
 /**
  * Re-export contract ABIs for convenience
- * These are imported dynamically to handle ES module compatibility
  */
-export async function getContractABIs() {
-  try {
-    const abisModule = "@ethereum-tag-service/contracts/abis";
-    // @ts-ignore - Dynamic import may not be available during build
-    const abis = await import(abisModule);
-    return {
-      ETSTokenABI: abis.ETSTokenABI,
-      ETSTargetABI: abis.ETSTargetABI,
-      ETSAccessControlsABI: abis.ETSAccessControlsABI,
-      ETSCoreABI: abis.ETSCoreABI,
-      ETSChannelABI: abis.ETSChannelABI,
-      ETSChannelFactoryABI: abis.ETSChannelFactoryABI,
-      MockZoraFactoryABI: abis.MockZoraFactoryABI,
-    };
-  } catch (error) {
-    console.warn("Contract ABIs not available:", error);
-    return {};
-  }
+export function getContractABIs() {
+  return {
+    ETSTokenABI: ABIs.ETSTokenABI,
+    ETSTargetABI: ABIs.ETSTargetABI,
+    ETSAccessControlsABI: ABIs.ETSAccessControlsABI,
+    ETSCoreABI: ABIs.ETSCoreABI,
+    ETSChannelABI: ABIs.ETSChannelABI,
+    ETSChannelFactoryABI: ABIs.ETSChannelFactoryABI,
+  };
 }

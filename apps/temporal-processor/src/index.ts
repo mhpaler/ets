@@ -1,6 +1,7 @@
-import { getConfig } from "./config";
-import { EventListener } from "./handlers/eventListener";
-import { getComponentLogger } from "./utils/logger";
+import { getConfig } from "./config/index.js";
+import { EventListener } from "./handlers/eventListener.js";
+import { getComponentLogger } from "./utils/logger.js";
+import { cleanupWorker, startWorker } from "./worker.js";
 
 const logger = getComponentLogger("Main");
 
@@ -9,15 +10,27 @@ let eventListener: EventListener | null = null;
 
 // Cleanup function for graceful shutdown
 async function cleanup() {
+  logger.info("Starting cleanup...");
+
+  // Clean up event listener
   if (eventListener) {
     logger.info("Cleaning up event listener...");
     try {
       await eventListener.stop();
       eventListener = null;
     } catch (error) {
-      logger.error({ error }, "Error during cleanup");
+      logger.error({ error }, "Error cleaning up event listener");
     }
   }
+
+  // Clean up worker
+  try {
+    await cleanupWorker();
+  } catch (error) {
+    logger.error({ error }, "Error cleaning up worker");
+  }
+
+  logger.info("Cleanup complete");
 }
 
 async function main() {
@@ -35,18 +48,13 @@ async function main() {
       chainId: config.blockchain.chainId,
       rpcUrl: config.blockchain.rpcUrl,
       temporalServer: config.temporal.serverUrl,
+      taskQueue: config.temporal.taskQueue,
     },
     "Service configuration",
   );
 
-  // Create and start event listener
-  eventListener = new EventListener();
-
   try {
-    await eventListener.start();
-    logger.info("✅ Temporal Processor Service started successfully");
-
-    // Keep the process alive
+    // Set up signal handlers first
     process.on("SIGINT", async () => {
       logger.info("Received SIGINT, shutting down gracefully...");
       await cleanup();
@@ -64,6 +72,17 @@ async function main() {
       logger.info("Received SIGUSR2 (hot-reload), cleaning up...");
       await cleanup();
     });
+
+    // Create and start event listener (non-blocking)
+    eventListener = new EventListener();
+    await eventListener.start();
+    logger.info("✅ EventListener started successfully");
+
+    logger.info("✅ Temporal Processor Service started successfully");
+
+    // Start Temporal worker (blocks until shutdown or error)
+    // This must come last as it runs indefinitely
+    await startWorker();
   } catch (error) {
     logger.error(
       {

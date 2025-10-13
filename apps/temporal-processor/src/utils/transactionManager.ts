@@ -1,5 +1,5 @@
 import type { PublicClient, WalletClient } from "viem";
-import { getComponentLogger } from "./logger";
+import { getComponentLogger } from "./logger.js";
 
 const logger = getComponentLogger("TransactionManager");
 

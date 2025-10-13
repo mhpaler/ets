@@ -1,0 +1,81 @@
+# Docker ignore for Temporal Processor deployment
+# Build context is workspace root
+
+# Node modules (will be installed fresh in Docker)
+**/node_modules
+**/.pnpm-store
+
+# Build artifacts (will be built fresh in Docker)
+**/dist
+**/.next
+**/build
+!**/scripts/build
+**/out
+
+# Test files
+**/*.test.ts
+**/*.test.js
+**/*.spec.ts
+**/*.spec.js
+**/test
+**/tests
+**/__tests__
+**/__mocks__
+**/coverage
+
+# Development files
+**/.env*
+!**/.env.example
+**/*.local
+.env
+.env.*
+
+# IDE files
+**/.vscode
+**/.idea
+**/.DS_Store
+**/*.swp
+**/*.swo
+
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Documentation (not needed in runtime)
+**/docs
+**/README.md
+**/*.md
+!apps/temporal-processor/README.md
+
+# CI/CD
+**/.github
+**/.circleci
+**/.gitlab-ci.yml
+
+# Logs and temp files
+**/*.log
+**/logs
+**/.checkpoint/*
+**/tmp
+
+# Other apps (only need temporal-processor)
+apps/app
+apps/data-api
+apps/event-processor
+apps/offchain-api
+apps/oracle
+apps/site
+apps/zora-coin-poc
+
+# Hardhat local deployments
+**/deployments/localhost
+**/ignition/deployments/chain-31337
+
+# Examples and research
+examples/
+research/
+
+# Package-specific ignores
+packages/hardhat-example
+packages/legacy-tests

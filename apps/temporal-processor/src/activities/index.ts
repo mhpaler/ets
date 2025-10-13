@@ -1,3 +1,3 @@
 // Export all activities for Temporal workflows
-export * from "./targetEnrichmentActivities";
-export * from "./tagCoinActivities";
+export * from "./targetEnrichmentActivities.js";
+export * from "./tagCoinActivities.js";

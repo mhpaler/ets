@@ -1,0 +1,34 @@
+# fly.toml app configuration file generated for ets-temporal-processor-staging on 2025-10-09T18:07:58-07:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'ets-temporal-processor-staging'
+primary_region = 'sjc'
+kill_signal = 'SIGTERM'
+kill_timeout = '30s'
+
+[build]
+  dockerfile = 'Dockerfile'
+
+[env]
+  ENVIRONMENT = 'staging'
+  LOG_LEVEL = 'info'
+  MAX_CONCURRENT_ACTIVITIES = '10'
+  MAX_CONCURRENT_WORKFLOWS = '100'
+  NODE_ENV = 'production'
+  TEMPORAL_NAMESPACE = 'ets-staging'
+  TEMPORAL_TASK_QUEUE = 'ets-workflows-staging'
+
+[[mounts]]
+  source = 'ets_checkpoints'
+  destination = '/app/.checkpoint'
+
+[[vm]]
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1
+
+[[metrics]]
+  port = 9091
+  path = '/metrics'

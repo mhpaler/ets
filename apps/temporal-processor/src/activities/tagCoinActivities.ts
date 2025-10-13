@@ -2,9 +2,9 @@ import type { Address, Chain, Hash } from "viem";
 import { http, createPublicClient, createWalletClient, keccak256, toBytes } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base, baseSepolia, hardhat } from "viem/chains";
-import { getConfig } from "../config";
-import type { ZoraCoinCreationResult } from "../types";
-import { getComponentLogger } from "../utils/logger";
+import { getConfig } from "../config/index.js";
+import type { ZoraCoinCreationResult } from "../types/index.js";
+import { getComponentLogger } from "../utils/logger.js";
 
 const logger = getComponentLogger("TagCoinActivities");
 

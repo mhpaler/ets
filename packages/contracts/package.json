@@ -71,7 +71,7 @@
   "scripts": {
     "build": "pnpm build:package",
     "build:contracts": "pnpm compile",
-    "build:package": "scripts/build/build-package.sh",
+    "build:package": "bash scripts/build/build-package.sh",
     "clean": "rm -rf dist",
     "compile": "hardhat build",
     "postinstall": "node node_modules/deno-bin/install.js || true",

@@ -1,7 +1,7 @@
 import { unfurl } from "unfurl.js";
-import type { ETSTargetMetadata, MetadataType, Platform } from "../types/metadata";
-import { createErrorMetadata, createMinimalMetadata } from "../types/metadata";
-import { getComponentLogger } from "../utils/logger";
+import type { ETSTargetMetadata, MetadataType, Platform } from "../types/metadata.js";
+import { createErrorMetadata, createMinimalMetadata } from "../types/metadata.js";
+import { getComponentLogger } from "../utils/logger.js";
 
 const logger = getComponentLogger("MetadataExtractor");
 

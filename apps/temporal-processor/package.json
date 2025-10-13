@@ -2,6 +2,7 @@
   "name": "@ethereum-tag-service/temporal-processor",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "ETS Temporal Workflow Processor - Handles blockchain event processing with Temporal workflows",
   "author": "Ethereum Tag Service <team@ets.xyz>",
   "main": "dist/index.js",

@@ -2,8 +2,8 @@
 import type { Client } from "@temporalio/client";
 import { http, type Abi, type AbiEvent, createPublicClient } from "viem";
 import { base, localhost, sepolia } from "viem/chains";
-import { getConfig } from "../config";
-import { getComponentLogger } from "../utils/logger";
+import { getConfig } from "../config/index.js";
+import { getComponentLogger } from "../utils/logger.js";
 
 const logger = getComponentLogger("EventRecovery");
 

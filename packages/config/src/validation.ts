@@ -3,7 +3,7 @@
  */
 
 import { z } from "zod";
-import type { ValidationResult } from "./types";
+import type { ValidationResult } from "./types.js";
 
 // Ethereum address regex
 const ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/;

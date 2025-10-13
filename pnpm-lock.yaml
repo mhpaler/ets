@@ -667,6 +667,9 @@ importers:
 
   packages/config:
     dependencies:
+      '@ethereum-tag-service/contracts':
+        specifier: workspace:*
+        version: link:../contracts
       dotenv:
         specifier: ^16.3.1
         version: 16.6.1

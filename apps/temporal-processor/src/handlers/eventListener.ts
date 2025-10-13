@@ -11,11 +11,11 @@ import {
   webSocket,
 } from "viem";
 import { base, baseSepolia, localhost } from "viem/chains";
-import { DEPLOYMENT_BLOCKS, SCAN_CHUNK_SIZE, getConfig } from "../config";
-import type { TagCreatedEvent, TargetCreatedEvent } from "../types";
-import { CheckpointManager } from "../utils/checkpoint";
-import { scanHistoricalEvents } from "../utils/eventScanner";
-import { getComponentLogger } from "../utils/logger";
+import { DEPLOYMENT_BLOCKS, SCAN_CHUNK_SIZE, getConfig } from "../config/index.js";
+import type { TagCreatedEvent, TargetCreatedEvent } from "../types/index.js";
+import { CheckpointManager } from "../utils/checkpoint.js";
+import { scanHistoricalEvents } from "../utils/eventScanner.js";
+import { getComponentLogger } from "../utils/logger.js";
 
 const logger = getComponentLogger("EventListener");
 
@@ -146,15 +146,16 @@ export class EventListener {
         address: this.config.temporal.serverUrl,
       };
 
-      // Add TLS configuration for Temporal Cloud
+      // Add authentication for Temporal Cloud
       if (this.config.temporal.isCloud) {
-        logger.info("Configuring Temporal Cloud connection with TLS");
-        connectionOptions.tls = {
-          clientCertPair: {
-            crt: Buffer.from(this.config.temporal.clientCert!, "base64"),
-            key: Buffer.from(this.config.temporal.clientKey!, "base64"),
-          },
-        };
+        if (this.config.temporal.apiKey) {
+          // API Key authentication
+          logger.info("Configuring Temporal Cloud connection with API Key");
+          connectionOptions.tls = true; // Enable TLS for cloud
+          connectionOptions.apiKey = this.config.temporal.apiKey;
+        } else {
+          throw new Error("Temporal Cloud requires TEMPORAL_API_KEY environment variable");
+        }
       }
 
       this.temporalConnection = await Connection.connect(connectionOptions);

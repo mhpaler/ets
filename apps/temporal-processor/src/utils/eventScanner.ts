@@ -1,5 +1,5 @@
 import type { Abi, Log, PublicClient } from "viem";
-import { getComponentLogger } from "./logger";
+import { getComponentLogger } from "./logger.js";
 
 const logger = getComponentLogger("EventScanner");
 

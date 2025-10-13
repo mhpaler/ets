@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { getComponentLogger } from "./logger";
+import { getComponentLogger } from "./logger.js";
 
 const logger = getComponentLogger("Checkpoint");
 

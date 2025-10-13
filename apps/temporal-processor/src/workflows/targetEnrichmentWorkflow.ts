@@ -1,6 +1,6 @@
 import { ApplicationFailure, log, proxyActivities, sleep } from "@temporalio/workflow";
-import type * as activities from "../activities";
-import type { TargetEnrichmentResult, TargetEnrichmentWorkflowInput } from "../types";
+import type * as activities from "../activities/index.js";
+import type { TargetEnrichmentResult, TargetEnrichmentWorkflowInput } from "../types/index.js";
 
 // Import activity types with proper timeout and retry configuration
 const { fetchTargetMetadata, callEnrichTargetOnChain } = proxyActivities<typeof activities>({

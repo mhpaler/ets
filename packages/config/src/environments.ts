@@ -4,7 +4,7 @@
 
 import { defineChain } from "viem";
 import { base, baseSepolia } from "viem/chains";
-import type { Environment, EnvironmentName } from "./types";
+import type { Environment, EnvironmentName } from "./types.js";
 
 // Hardhat uses chainId 31337, not viem's default localhost 1337
 const hardhat = defineChain({

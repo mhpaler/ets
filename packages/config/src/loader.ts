@@ -6,7 +6,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as dotenv from "dotenv";
-import type { ConfigOptions, ConfigPriority } from "./types";
+import type { ConfigOptions, ConfigPriority } from "./types.js";
 
 /**
  * Find the monorepo root by looking for pnpm-workspace.yaml
