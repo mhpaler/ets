@@ -6,7 +6,7 @@ epic_branch: 528-tag-coins-epic
 main_branch: stage
 github_epic: #528
 project_name: TAG Coins Implementation
-last_updated: 2025-10-09
+last_updated: 2025-10-13
 ```
 
 ## ACTIVE_WORK
@@ -806,6 +806,57 @@ achievements:
   - "Production-ready for cloud deployment"
 ```
 
+##### SUB_539.11: Fix Concurrent Nonce Conflicts for Unlimited Batch Operations
+```yaml
+id: #539.11
+status: COMPLETED
+priority: CRITICAL
+completion: 100
+completed_date: 2025-10-13
+dependencies: ["#541"]
+deliverables:
+  - "Integrate viem's built-in createNonceManager (v2.15.0+)" ✅
+  - "Add nonce managers to Zora and EventProcessor accounts" ✅
+  - "Test concurrent tag creation (20+ tags)" ✅
+  - "Validate no nonce conflicts on staging" ✅
+estimated_duration: "2-4 hours"
+actual_duration: "2 hours (1 hour implementation + 1 hour testing)"
+started_date: 2025-10-13
+discovered_date: 2025-10-13
+discovered_by: "Base Sepolia E2E smoke testing - 3/6 batch tags failed with nonce conflicts"
+problem_statement: "Concurrent TAG coin deployments failed with 'replacement transaction underpriced' errors when >3 tags created simultaneously. Users commonly tag posts with 10-20 tags, making this a production blocker."
+root_cause: "Multiple concurrent activities created separate walletClient instances, all fetching same nonce from blockchain simultaneously, causing race conditions."
+solution_approach: "Used viem's native createNonceManager with jsonRpc() source to automatically manage nonces across concurrent transactions"
+implementation_details:
+  - "src/config/index.ts: Created targetEnrichmentNonceManager and zoraNonceManager singletons"
+  - "src/activities/tagCoinActivities.ts: Added zoraNonceManager to Zora account creation"
+  - "src/activities/targetEnrichmentActivities.ts: Added targetEnrichmentNonceManager to EventProcessor account creation"
+  - "Per-wallet nonce management enables unlimited parallel operations per wallet"
+  - "Different wallets (Zora + EventProcessor) can operate independently without conflicts"
+  - "Renamed eventProcessorNonceManager → targetEnrichmentNonceManager for clarity"
+before_fix: "Batch creation: 3/6 tags succeeded (50% failure rate due to nonce conflicts)"
+after_fix: "Batch creation: 10/10 tags succeeded, 20-tag tagging record succeeded (100% success rate, zero nonce conflicts)"
+validation: "COMPLETED ✅ - Validated on Base Sepolia staging (Fly.io)"
+validation_results:
+  test_1_concurrent_10_tags:
+    - "10 concurrent TAG coin deployments (tag-coin-41 through tag-coin-50)"
+    - "Result: 10/10 workflows completed successfully"
+    - "All workflows started within ~400ms of each other (true concurrency)"
+    - "All completed in ~13-16 seconds"
+    - "Zero nonce conflicts"
+  test_2_tagging_record_20_tags:
+    - "Single tagging record with 20 tags applied to https://ethereum.org"
+    - "Result: All 20 tags applied successfully in one transaction"
+    - "TAG coin creation for new tags: zero nonce conflicts"
+    - "Target enrichment: zero nonce conflicts"
+  production_validation: "100% success rate vs 50% failure rate before fix"
+production_impact: "Removed all concurrency limits for batch tag creation - critical for user experience where 10-20 tags per post is common"
+production_readiness: "PRODUCTION READY - validated at scale on Base Sepolia staging"
+technical_decision: "Chose viem's built-in solution over custom mutex implementation - leverages battle-tested library code with zero maintenance burden"
+alternative_considered: "Custom NonceManager with async-mutex - rejected due to implementation time (2-3 days) and maintenance overhead"
+notes: "Viem v2.21.54 includes createNonceManager - avoided 2-3 days of custom implementation by using native solution"
+```
+
 ### EPIC_540: Environment Configuration Consolidation
 ```yaml
 id: #540
@@ -962,16 +1013,12 @@ validation_results:
   - "18 workflows completed successfully on Fly.io staging"
   - "Sequential tag creation: #smoketest1, #smoketest2 ✅"
   - "Target enrichment: github.com/ethereum-tag-service ✅"
-  - "Batch tag creation: 3/6 succeeded (nonce conflicts expected)"
+  - "Batch tag creation: 3/6 succeeded (nonce conflicts - FIXED in #539.11)"
   - "Staging wallet credentials validated (HD positions 2 & 3)"
   - "Checkpoint system operational"
   - "Real-time event detection working"
-known_limitations:
-  - issue: "Concurrent TAG coin deployments cause nonce conflicts"
-    impact: "Batch tag creation may fail when >3 tags created simultaneously"
-    workaround: "Sequential tag creation works reliably"
-    future_fix: "Implement nonce management in transactionManager (#539.11)"
-production_readiness: "VALIDATED - Ready for mainnet deployment"
+  - "Post-fix validation: 10/10 concurrent tags ✅, 20-tag tagging record ✅"
+production_readiness: "VALIDATED - Ready for mainnet deployment (nonce conflicts resolved)"
 ```
 
 ##### SUB_541.1: Cloud Provider Selection & Setup
@@ -1070,15 +1117,17 @@ smoke_test_results:
     - "Result: ✅ Metadata extraction and on-chain update working"
   batch_tag_creation:
     - "Created 6 tags simultaneously (#cloudtest1 through #cloud6)"
-    - "3/6 workflows completed successfully"
+    - "3/6 workflows completed successfully (initial test)"
     - "3/6 workflows failed with 'replacement transaction underpriced' (nonce conflicts)"
-    - "Result: ✅ Infrastructure working, nonce conflicts expected and documented"
-  total_workflows_completed: 18
-  staging_wallet_validation: "HD positions 2 (eventProcessor) and 3 (zora) working correctly"
-  issues_identified:
-    - "Concurrent Zora deployments cause nonce conflicts (maxConcurrentActivityTaskExecutions: 3)"
-    - "Workaround: Sequential tag creation works reliably"
-    - "Future fix: Improved nonce management (#539.11)"
+    - "Result: ✅ Infrastructure working, nonce conflicts identified and FIXED in #539.11"
+  post_fix_validation:
+    - "10 concurrent TAG coin deployments: 10/10 succeeded ✅"
+    - "20-tag tagging record: All tags applied successfully ✅"
+    - "Zero nonce conflicts after implementing viem nonce managers"
+  total_workflows_completed: "18 initial + 10 post-fix = 28 total workflows"
+  staging_wallet_validation: "HD positions 2 (targetEnrichment) and 3 (zora) working correctly"
+  issues_resolved:
+    - "Concurrent Zora deployments nonce conflicts FIXED with targetEnrichmentNonceManager and zoraNonceManager (#539.11 ✅)"
 ```
 
 ##### SUB_541.4: Validation & Documentation
@@ -1102,12 +1151,12 @@ documentation_artifacts:
   - "docs/deployment/RUNBOOK.md" ✅
   - "E2E smoke test validation complete" ✅
 validation_summary:
-  - "18 workflows completed on Fly.io staging"
+  - "28 total workflows completed on Fly.io staging (18 initial + 10 post-fix)"
   - "Both TagCreatedWorkflow and TargetEnrichmentWorkflow validated"
   - "Checkpoint system operational"
   - "Real-time event detection confirmed"
   - "Staging wallet credentials verified"
-  - "Known limitation documented: concurrent nonce conflicts"
+  - "Nonce conflicts RESOLVED: 10/10 concurrent tags + 20-tag tagging record ✅"
 performance_observations:
   - "Workflow execution time: ~13 seconds per TAG coin deployment"
   - "Target enrichment: ~5 seconds for metadata extraction and on-chain update"

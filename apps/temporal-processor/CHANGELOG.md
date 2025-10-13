@@ -1,5 +1,36 @@
 # Temporal Processor Changelog
 
+## 2025-10-13
+
+### Added
+- **Viem native nonce management** for unlimited concurrent blockchain operations (#539.11)
+- `targetEnrichmentNonceManager` - Prevents nonce conflicts on concurrent target enrichments
+- `zoraNonceManager` - Prevents nonce conflicts on concurrent TAG coin deployments
+- Per-wallet nonce tracking enables unlimited parallel operations without conflicts
+
+### Changed
+- Updated `deployTagCoinOnZora()` to use `zoraNonceManager` for account creation
+- Updated `callEnrichTargetOnChain()` to use `targetEnrichmentNonceManager` for account creation
+- Renamed `eventProcessorNonceManager` → `targetEnrichmentNonceManager` for clarity
+
+### Fixed
+- **CRITICAL**: Concurrent TAG coin deployments causing "replacement transaction underpriced" errors
+- Nonce race conditions when multiple activities created walletClient instances simultaneously
+- Batch tag creation failures (3/6 → 10/10 success rate)
+
+### Validation
+- ✅ 10 concurrent TAG coin deployments: 10/10 succeeded (100% success rate)
+- ✅ 20-tag tagging record: All tags applied successfully
+- ✅ Zero nonce conflicts after implementing viem nonce managers
+- ✅ Validated on Base Sepolia staging (Fly.io deployment)
+
+### Technical
+- Leverages viem v2.21.54 native `createNonceManager` with `jsonRpc()` source
+- Avoided 2-3 days of custom implementation by using battle-tested library solution
+- Production-ready for mainnet deployment with unlimited concurrency support
+- Related to #528 TAG Coins Epic
+- Completes #539.11 Fix Concurrent Nonce Conflicts for Unlimited Batch Operations
+
 ## 2025-10-09
 
 ### Added

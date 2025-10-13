@@ -1,5 +1,23 @@
 # ETS CLI Changelog
 
+## 2025-10-13
+
+### Added
+- **Space-separated tag input** - Tags can now be passed as a single quoted string: `"#tag1 #tag2 #tag3"`
+- `parseTags()` utility function for flexible tag input handling
+- Support for both old multi-argument and new space-separated formats
+
+### Changed
+- All tag commands now accept both formats: `"#ethereum #blockchain"` OR `"#ethereum" "#blockchain"`
+- Updated help examples to show both input methods
+- Enhanced UX for batch tag operations (10-20 tags in one command)
+
+### Technical
+- Backwards compatible - both formats work seamlessly
+- Applies to `tags create`, `tags apply`, `tags remove`, `tags replace` commands
+- Simplifies CLI usage for common batch tagging workflows
+- Related to #528 TAG Coins Epic
+
 ## 2025-10-04
 
 ### Added

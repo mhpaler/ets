@@ -20,6 +20,20 @@ function getBlockExplorerUrl(network: string): string | null {
 }
 
 /**
+ * Parse tags from CLI arguments - supports both space-separated string and multiple arguments
+ * @param tagList Array of tag arguments from CLI
+ * @returns Array of individual tag strings
+ */
+function parseTags(tagList: string[]): string[] {
+  // If we got a single argument that contains spaces, split it
+  if (tagList.length === 1 && tagList[0].includes(" ")) {
+    return tagList[0].split(/\s+/).filter((tag) => tag.length > 0);
+  }
+  // Otherwise, use as-is (backwards compatibility with multiple arguments)
+  return tagList;
+}
+
+/**
  * Validates that all tags start with '#' and provides helpful error messages
  * @param tags Array of tag strings to validate
  * @param spinner Optional ora spinner to fail with error message
@@ -50,14 +64,17 @@ export function setupTagCommands(program: Command) {
       "after",
       `
 Examples:
+  $ ets tags create "#defi #ethereum #protocol"
   $ ets tags create "#defi" "#ethereum" "#protocol"
-  $ ets tags create "#nft" "#art" --channel "My Channel"
+  $ ets tags create "#nft #art" --channel "My Channel"
   $ ets tags create "#bitcoin" --network mainnet`,
     )
     .action(async (tagList: string[], options) => {
       const spinner = ora("Creating tags...").start();
 
       try {
+        // Parse tags to support both space-separated string and multiple arguments
+        const tags = parseTags(tagList);
         const walletClient = await getWalletClient(options.network);
         const publicClient = await getPublicClient(options.network);
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
@@ -81,7 +98,7 @@ Examples:
         const tokenAddress = await getContractAddress(options.network, "token");
         const tagsToCreate = [];
 
-        for (const tag of tagList) {
+        for (const tag of tags) {
           const coinAddress = await publicClient.readContract({
             address: tokenAddress,
             abi: tokenAbi,
@@ -242,17 +259,21 @@ Examples:
       "after",
       `
 Examples:
+  $ ets tags apply "https://ethereum.org" "#ethereum #blockchain #web3"
   $ ets tags apply "https://ethereum.org" "#ethereum" "#blockchain" "#web3"
-  $ ets tags apply "https://bitcoin.org" "#bitcoin" "#crypto" --channel "My Channel"
-  $ ets tags apply "ipfs://QmXxx..." "#nft" "#art" --enrich
+  $ ets tags apply "https://bitcoin.org" "#bitcoin #crypto" --channel "My Channel"
+  $ ets tags apply "ipfs://QmXxx..." "#nft #art" --enrich
   $ ets tags apply "https://example.com" "#bookmark" --record-type bookmark --network mainnet`,
     )
     .action(async (target: string, tagList: string[], options) => {
       const spinner = ora("Applying tags...").start();
 
       try {
+        // Parse tags to support both space-separated string and multiple arguments
+        const tags = parseTags(tagList);
+
         // Validate all tags before proceeding
-        validateTags(tagList, spinner);
+        validateTags(tags, spinner);
         const walletClient = await getWalletClient(options.network);
         const publicClient = await getPublicClient(options.network);
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
@@ -274,7 +295,7 @@ Examples:
         // Prepare tag parameters
         const tagParams = {
           targetURI: target,
-          tagStrings: tagList,
+          tagStrings: tags,
           recordType: options.recordType || "bookmark",
           enrich: options.enrich || false,
         };
@@ -307,9 +328,9 @@ Examples:
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
         if (receipt.status === "success") {
-          spinner.succeed(`Applied ${tagList.length} tags successfully!`);
+          spinner.succeed(`Applied ${tags.length} tags successfully!`);
           console.log(chalk.green(`\n✅ Tags applied to: ${target}`));
-          console.log(chalk.green(`   Tags: ${tagList.join(", ")}`));
+          console.log(chalk.green(`   Tags: ${tags.join(", ")}`));
           console.log(chalk.gray(`   Transaction: ${hash}`));
           console.log(chalk.gray(`   Block: ${receipt.blockNumber}`));
         } else {
@@ -334,6 +355,7 @@ Examples:
       "after",
       `
 Examples:
+  $ ets tags remove "https://ethereum.org" "#old #outdated"
   $ ets tags remove "https://ethereum.org" "#old" "#outdated"
   $ ets tags remove "https://bitcoin.org" "#test" --channel "My Channel"`,
     )
@@ -341,8 +363,11 @@ Examples:
       const spinner = ora("Removing tags...").start();
 
       try {
+        // Parse tags to support both space-separated string and multiple arguments
+        const tags = parseTags(tagList);
+
         // Validate all tags before proceeding
-        validateTags(tagList, spinner);
+        validateTags(tags, spinner);
         const walletClient = await getWalletClient(options.network);
         const publicClient = await getPublicClient(options.network);
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
@@ -367,7 +392,7 @@ Examples:
 
         const tagParams = {
           targetURI: target,
-          tagStrings: tagList,
+          tagStrings: tags,
           recordType: options.recordType || "bookmark",
           enrich: false,
         };
@@ -419,9 +444,9 @@ Examples:
           });
 
           if (recordStillExists) {
-            spinner.succeed(`Removed ${tagList.length} tags from record`);
+            spinner.succeed(`Removed ${tags.length} tags from record`);
             console.log(chalk.green(`\n✅ Tags removed from: ${target}`));
-            console.log(chalk.green(`   Removed tags: ${tagList.join(", ")}`));
+            console.log(chalk.green(`   Removed tags: ${tags.join(", ")}`));
             console.log(chalk.gray("   Record still contains other tags"));
           } else {
             spinner.succeed("All tags removed - record deleted");
@@ -452,15 +477,19 @@ Examples:
       "after",
       `
 Examples:
+  $ ets tags replace "https://ethereum.org" "#defi #layer2 #zk"
   $ ets tags replace "https://ethereum.org" "#defi" "#layer2" "#zk"
-  $ ets tags replace "https://bitcoin.org" "#crypto" "#btc" --channel "My Channel"`,
+  $ ets tags replace "https://bitcoin.org" "#crypto #btc" --channel "My Channel"`,
     )
     .action(async (target: string, tagList: string[], options) => {
       const spinner = ora("Replacing tags...").start();
 
       try {
+        // Parse tags to support both space-separated string and multiple arguments
+        const tags = parseTags(tagList);
+
         // Validate all tags before proceeding
-        validateTags(tagList, spinner);
+        validateTags(tags, spinner);
         const walletClient = await getWalletClient(options.network);
         const publicClient = await getPublicClient(options.network);
         const accessControlsAddress = await getContractAddress(options.network, "accessControls");
@@ -485,7 +514,7 @@ Examples:
         const tagsToCreate = [];
 
         spinner.text = "Checking tags...";
-        for (const tag of tagList) {
+        for (const tag of tags) {
           const coinAddress = await publicClient.readContract({
             address: tokenAddress,
             abi: tokenAbi,
@@ -529,7 +558,7 @@ Examples:
         // Prepare replacement parameters
         const tagParams = {
           targetURI: target,
-          tagStrings: tagList,
+          tagStrings: tags,
           recordType: options.recordType || "bookmark",
           enrich: options.enrich || false,
         };
@@ -561,7 +590,7 @@ Examples:
         if (receipt.status === "success") {
           spinner.succeed("Replaced tags successfully!");
           console.log(chalk.green(`\n✅ Tags replaced on: ${target}`));
-          console.log(chalk.green(`   New tags: ${tagList.join(", ")}`));
+          console.log(chalk.green(`   New tags: ${tags.join(", ")}`));
           console.log(chalk.gray(`   Transaction: ${hash}`));
           console.log(chalk.gray(`   Block: ${receipt.blockNumber}`));
         } else {

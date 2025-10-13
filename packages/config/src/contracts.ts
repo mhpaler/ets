@@ -3,10 +3,10 @@
  * Integrates with @ethereum-tag-service/contracts package
  */
 
+import * as ABIs from "@ethereum-tag-service/contracts/abis";
+import { getContractAddresses } from "@ethereum-tag-service/contracts/deployments";
 import type { Address } from "viem";
 import type { ContractAddresses, Environment } from "./types.js";
-import { getContractAddresses } from "@ethereum-tag-service/contracts/deployments";
-import * as ABIs from "@ethereum-tag-service/contracts/abis";
 
 /**
  * Get contract addresses for the current environment

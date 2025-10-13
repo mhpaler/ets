@@ -1,7 +1,8 @@
 import { ETSConfig } from "@ethereum-tag-service/config";
-import type { Address, Hex } from "viem";
 import { HDKey } from "@scure/bip32";
 import { mnemonicToSeedSync } from "@scure/bip39";
+import type { Address, Hex } from "viem";
+import { createNonceManager, jsonRpc } from "viem/nonce";
 
 // Deployment block numbers for each environment
 // Used for historical event scanning on first startup
@@ -18,6 +19,12 @@ export const SCAN_CHUNK_SIZE: Record<string, number> = {
   staging: 5000, // Conservative for Alchemy PAYG (10k limit)
   production: 5000, // Same as staging
 };
+
+// Nonce managers for concurrent transaction handling
+// These prevent nonce conflicts when multiple transactions are sent concurrently
+// from the same wallet (e.g., batch TAG coin creation, concurrent target enrichments)
+export const targetEnrichmentNonceManager = createNonceManager({ source: jsonRpc() });
+export const zoraNonceManager = createNonceManager({ source: jsonRpc() });
 
 export interface Config {
   // Temporal Configuration

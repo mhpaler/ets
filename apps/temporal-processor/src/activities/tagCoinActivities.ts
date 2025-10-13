@@ -2,7 +2,7 @@ import type { Address, Chain, Hash } from "viem";
 import { http, createPublicClient, createWalletClient, keccak256, toBytes } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base, baseSepolia, hardhat } from "viem/chains";
-import { getConfig } from "../config/index.js";
+import { getConfig, zoraNonceManager } from "../config/index.js";
 import type { ZoraCoinCreationResult } from "../types/index.js";
 import { getComponentLogger } from "../utils/logger.js";
 
@@ -279,7 +279,10 @@ export async function deployTagCoinOnZora(params: {
     );
 
     // Use the Zora EOA account for deployment (must match contract configuration)
-    const account = privateKeyToAccount(config.blockchain.zoraPrivateKey as `0x${string}`);
+    // Include nonceManager to prevent nonce conflicts on concurrent TAG coin deployments
+    const account = privateKeyToAccount(config.blockchain.zoraPrivateKey as `0x${string}`, {
+      nonceManager: zoraNonceManager,
+    });
 
     // Verify the account matches the configured zoraCreatorEOA
     if (account.address.toLowerCase() !== zoraCreatorEOA.toLowerCase()) {
