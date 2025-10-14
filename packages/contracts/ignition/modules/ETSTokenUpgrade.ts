@@ -20,12 +20,12 @@ const ETSTokenUpgradeModule = buildModule("ETSTokenUpgrade", (m) => {
   // Get the proxy address from parameters
   const proxyAddress = m.getParameter("proxyAddress");
 
-  // Deploy the new ETSToken implementation
-  // This will always deploy the CURRENT version from contracts/ETSToken.sol
+  // Deploy the new ETSTokenUpgrade implementation (test contract)
+  // This deploys the test upgrade contract from contracts/test/UUPSTesting.sol
   // Note: Constructor takes no arguments (UUPS pattern uses initialize())
   // Use unique ID to avoid conflict with existing deployment
-  const newImplementation = m.contract("ETSToken", [], {
-    id: "ETSTokenImplementation",
+  const newImplementation = m.contract("ETSTokenUpgrade", [], {
+    id: "ETSTokenUpgradeImplementation",
   });
 
   // Get reference to the existing proxy

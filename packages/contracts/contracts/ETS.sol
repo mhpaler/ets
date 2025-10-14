@@ -132,15 +132,14 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         emit TaggingFeeSet(taggingFee);
     }
 
-    /// @notice Admin functionality for updating the percentages.
-    /// @param _platformPercentage percentage for platform.
-    /// @param _channelPercentage percentage for channel.
-    function setPercentages(uint256 _platformPercentage, uint256 _channelPercentage) public onlyAdmin {
-        if (_platformPercentage + _channelPercentage > 100) revert PercentagesMustNotBeOver100(_platformPercentage, _channelPercentage);
-        platformPercentage = _platformPercentage;
-        channelPercentage = _channelPercentage;
-
-        emit PercentagesSet(platformPercentage, channelPercentage);
+    /// @notice DEPRECATED - In MVP, all tagging fees go to ETS treasury
+    /// @dev Kept for interface compatibility. Will be reimplemented in Phase 2.
+    /// Parameters are ignored in MVP - always treated as 100/0
+    function setPercentages(uint256 /* _platformPercentage */, uint256 /* _channelPercentage */) public onlyAdmin {
+        // MVP: Function deprecated - all fees go to platform
+        // Phase 2 will reimplement with market operations
+        // Parameters are ignored but kept for interface compatibility
+        emit PercentagesSet(100, 0); // Always emit 100/0 for clarity
     }
 
     // ============ PUBLIC INTERFACE ============
@@ -615,19 +614,16 @@ contract ETS is IETS, Initializable, ContextUpgradeable, ReentrancyGuardUpgradea
         }
     }
 
-    // @dev Internal function to divide up the tagging fee and accrue it to ETS participants.
-    function _processAccrued(address _coinAddress, address _platform) private {
-        // Note: This will cause _processTaggingFees to revert if coinAddress doesn't exist.
-        IETSToken.Tag memory tag = etsToken.getTagByAddress(_coinAddress);
+    // @dev Internal function to process tagging fees - MVP directs 100% to platform
+    function _processAccrued(address /* _coinAddress */, address _platform) private {
+        // MVP: All tagging fees go to ETS treasury
+        // The _coinAddress parameter is kept for future use but currently unused
+        // This simplification ignores percentage variables and directs 100% to platform
+        accrued[_platform] = accrued[_platform] + msg.value;
 
-        uint256 platformAllocation = (msg.value * platformPercentage) / MODULO;
-        uint256 channelAllocation = (msg.value * channelPercentage) / MODULO;
-        uint256 remainingAllocation = msg.value - (platformAllocation + channelAllocation);
-
-        accrued[_platform] = accrued[_platform] + platformAllocation;
-        accrued[tag.channel] = accrued[tag.channel] + channelAllocation;
-
-        // In Zora ERC-20 model, creator always gets remaining allocation (no ownership concept)
-        accrued[tag.creator] = accrued[tag.creator] + remainingAllocation;
+        // Phase 2 TODO: Implement market operations
+        // - Use fee to market buy TAG coin at _coinAddress
+        // - Distribute purchased tokens: 40% tagger cashback, 40% burn, 20% treasury
+        // - Track and reward active taggers
     }
 }

@@ -226,17 +226,14 @@ describe("ETS Core Tagging Fees", async () => {
       const channelPostTest = await contracts.ETS.read.accrued([contracts.ETSChannel.address]);
       const creatorPostTest = await contracts.ETS.read.accrued([accounts.User4.account.address]);
 
-      const platformPercentage = await contracts.ETS.read.platformPercentage();
-      const channelPercentage = await contracts.ETS.read.channelPercentage();
+      // MVP: 100% of tagging fees go to ETS platform
+      const platformAmount = taggingFee; // All fees to platform
+      const channelAmount = 0n; // No fees to channel in MVP
+      const creatorAmount = 0n; // No fees to creator in MVP
 
-      // Calculate the expected amounts based on percentage splits
-      const platformAmount = (taggingFee * platformPercentage) / 100n;
-      const channelAmount = (taggingFee * channelPercentage) / 100n;
-      const creatorAmount = taggingFee - platformAmount - channelAmount;
-
-      assert.equal(platformPostTest, platformPreTest + platformAmount);
-      assert.equal(channelPostTest, channelPreTest + channelAmount);
-      assert.equal(creatorPostTest, creatorPreTest + creatorAmount);
+      assert.equal(platformPostTest, platformPreTest + platformAmount, "Platform should receive 100% of fees");
+      assert.equal(channelPostTest, channelPreTest + channelAmount, "Channel should receive 0% of fees in MVP");
+      assert.equal(creatorPostTest, creatorPreTest + creatorAmount, "Creator should receive 0% of fees in MVP");
     });
 
     it("to the token owner when the tag used is user owned (post-auction)", async () => {
@@ -266,17 +263,14 @@ describe("ETS Core Tagging Fees", async () => {
       const channelPostTest = await contracts.ETS.read.accrued([contracts.ETSChannel.address]);
       const creatorPostTest = await contracts.ETS.read.accrued([accounts.User4.account.address]); // Creator owns the tag
 
-      const platformPercentage = await contracts.ETS.read.platformPercentage();
-      const channelPercentage = await contracts.ETS.read.channelPercentage();
+      // MVP: 100% of tagging fees go to ETS platform
+      const platformAmount = taggingFee; // All fees to platform
+      const channelAmount = 0n; // No fees to channel in MVP
+      const creatorAmount = 0n; // No fees to creator in MVP
 
-      // Calculate the expected amounts based on percentage splits
-      const platformAmount = (taggingFee * platformPercentage) / 100n;
-      const channelAmount = (taggingFee * channelPercentage) / 100n;
-      const creatorAmount = taggingFee - platformAmount - channelAmount;
-
-      assert.equal(platformPostTest, platformPreTest + platformAmount);
-      assert.equal(channelPostTest, channelPreTest + channelAmount);
-      assert.equal(creatorPostTest, creatorPreTest + creatorAmount);
+      assert.equal(platformPostTest, platformPreTest + platformAmount, "Platform should receive 100% of fees");
+      assert.equal(channelPostTest, channelPreTest + channelAmount, "Channel should receive 0% of fees in MVP");
+      assert.equal(creatorPostTest, creatorPreTest + creatorAmount, "Creator should receive 0% of fees in MVP");
     });
   });
 });

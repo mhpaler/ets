@@ -11,20 +11,21 @@ last_updated: 2025-10-13
 
 ## ACTIVE_WORK
 ```yaml
-current_issue_id: "#542: MVP Incentive Mechanisms (ready to start)"
-current_status: READY
-completion_percent: 0
-exact_task: "Next priority: Implement TAG coin incentive model (50/40/10 allocation, tagger rewards, fee distribution)"
+current_issue_id: "#542: MVP Incentive Mechanisms"
+current_status: IN_PROGRESS
+completion_percent: 50
+exact_task: "Implemented MVP economic model: 100% tagging fees to platform, phased approach documented"
 blocking_bug: null
-next_priority: "#542 Incentive Mechanisms OR #543 Subgraph Refactor (can proceed in parallel)"
-resume_action: "Begin implementation of TAG coin initial allocation system (SUB_542.1)"
-previous_accomplishment: "#541 COMPLETED ✅ - Temporal Processor deployed to Fly.io staging with Temporal Cloud, E2E validated on Base Sepolia (18 workflows completed successfully)"
-architecture_decision: "Fly.io for app hosting (~$10-20/month) + Temporal Cloud for orchestration ($1K free credits)"
-critical_path: "Cloud POC ✅ VALIDATED → Mainnet prep (#542-545 parallel) → Mainnet deployment"
+next_priority: "Complete #542 remaining sub-tasks OR proceed with #543 Subgraph Refactor (can run parallel)"
+resume_action: "SUB_542.2: Implement tagger rewards distribution system for Phase 2"
+previous_accomplishment: "MVP economic model implemented - simplified tagging fee distribution (100% to platform), deprecated complex allocation, all 174 tests passing"
+architecture_decision: "Phased economic model: Phase 1 MVP (simple, gather data) → Phase 2 (market operations) → Phase 3 (liquidity) → Phase 4 (full automation)"
+critical_path: "Economic model ✅ MVP COMPLETE → Token allocation (future) → Mainnet deployment"
 deployment_strategy: "Localhost ✅ → Base Sepolia local ✅ → Base Sepolia cloud ✅ VALIDATED → Production (ready)"
-integration_test_coverage: "Local tests ✅; Base Sepolia backfill ✅; Cloud deployment validated ✅; E2E smoke tests ✅"
-roadmap_expansion: "Added 5 new EPICs: #541 Cloud Deploy (DONE), #542 Incentives, #543 Subgraph, #544 Explorer, #545 Site"
+integration_test_coverage: "Contract tests ✅ (174/174 passing); Integration tests ✅; E2E smoke tests ✅"
+roadmap_expansion: "Added 5 new EPICs: #541 Cloud Deploy (DONE), #542 Incentives (50% DONE), #543 Subgraph, #544 Explorer, #545 Site"
 cloud_validation_complete: true
+economic_model_phase: "Phase 1 MVP - Simple and data-driven"
 ```
 
 ## CRITICAL_PATH
@@ -1168,78 +1169,128 @@ notes: "Full E2E validation complete - production-ready for mainnet deployment"
 ### EPIC_542: MVP Incentive Mechanisms
 ```yaml
 id: #542
-status: NOT_STARTED
+status: IN_PROGRESS
 priority: HIGH
 dependencies: ["#541"]
 estimated_effort: 4-6 weeks
-objective: "Implement TAG coin incentive model: 50/40/10 allocation, tagger rewards, and tagging fee distribution"
+actual_effort_phase1: 1 day
+objective: "Implement phased TAG coin economic model starting with simple MVP, progressing to automated market operations"
 reference_doc: "docs/INCENTIVE-MODEL.md"
-architecture_change: "Add token allocation logic, reward distribution, and fee mechanisms to TAG coin creation"
-blocks: ["Mainnet economic model"]
-progress: "0% - Not started"
+architecture_change: "Simplified tagging fee distribution (Phase 1) → Future market operations (Phase 2-4)"
+blocks: ["Future incentive phases"]
+progress: "50% - Phase 1 MVP complete"
+phase1_complete: "MVP economic model implemented - 100% tagging fees to platform, deprecated complex splits"
+completed_date_phase1: 2025-10-14
 ```
 
-##### SUB_542.1: TAG Coin Initial Allocation Implementation
+##### SUB_542.0: Phase 1 MVP Economic Model Implementation
+```yaml
+id: #542.0
+status: COMPLETED
+priority: CRITICAL
+completion: 100
+completed_date: 2025-10-14
+dependencies: ["#541"]
+deliverables:
+  - "Document phased economic model in INCENTIVE-MODEL.md" ✅
+  - "Simplify tagging fee distribution to 100% platform" ✅
+  - "Deprecate setPercentages() function (kept for compatibility)" ✅
+  - "Update _processAccrued() to direct all fees to platform" ✅
+  - "Update all contract tests to reflect MVP model" ✅
+  - "Fix ETSToken upgrade test deployment" ✅
+estimated_duration: "1 day"
+actual_duration: "1 day"
+technical_implementation:
+  - "ETS.sol: Deprecated setPercentages(), simplified _processAccrued()"
+  - "Test suite: Updated 6 tests across 3 files (174/174 passing)"
+  - "INCENTIVE-MODEL.md: Complete phased approach documentation"
+  - "ETSTokenUpgrade.ts: Fixed to deploy test contract"
+architecture_decision:
+  - "Phase 1 MVP: Simple model (100% to platform) to gather data"
+  - "Phase 2: Market buy & cashback (40% tagger, 40% burn, 20% treasury)"
+  - "Phase 3: Liquidity & staking with treasury allocation"
+  - "Phase 4: Full automated market operations with governance"
+benefits:
+  - "Minimal complexity = faster launch and easier debugging"
+  - "Real data > theoretical models"
+  - "Flexibility to pivot based on actual usage"
+  - "No lock-in to complex mechanisms"
+contracts_affected:
+  - "packages/contracts/contracts/ETS.sol"
+  - "packages/contracts/test/ETSCore-Financial.test.ts"
+  - "packages/contracts/test/ETSCore-Setup.test.ts"
+  - "packages/contracts/test/ETSCore-TaggingFees.test.ts"
+  - "packages/contracts/ignition/modules/ETSTokenUpgrade.ts"
+documentation_affected:
+  - "docs/INCENTIVE-MODEL.md"
+  - "docs/session/ROADMAP.md"
+```
+
+##### SUB_542.1: Phase 2 Market Buy & Cashback Implementation
 ```yaml
 id: #542.1
 status: NOT_STARTED
-priority: CRITICAL
+priority: HIGH
 completion: 0
-dependencies: ["#541"]
+dependencies: ["#542.0"]
 deliverables:
-  - "Implement 50% ETS allocation logic"
-  - "Implement 40% Creator allocation logic"
-  - "Implement 10% Relayer allocation logic"
-  - "Update TAG coin creation workflow to include allocations"
-  - "Test allocation distribution on testnet"
-estimated_duration: "1-2 weeks"
+  - "Implement market buy mechanism for TAG coins using tagging fees"
+  - "Create token distribution logic (40% tagger cashback, 40% burn, 20% treasury)"
+  - "Implement burn mechanism for deflationary pressure"
+  - "Add tagger tracking and cashback distribution"
+  - "Test market operations on testnet"
+estimated_duration: "2-3 weeks"
 technical_requirements:
-  - "Token minting with split allocation"
-  - "Creator wallet derivation from HD wallet"
-  - "Relayer identification and allocation"
-  - "ETS treasury wallet management"
+  - "Integration with Zora market for buying TAG coins"
+  - "Automated fee-to-buy conversion mechanism"
+  - "Token burn implementation"
+  - "Tagger wallet tracking and distribution"
+phase: "Phase 2 - Market Operations"
 ```
 
-##### SUB_542.2: Tagger Rewards Distribution System
+##### SUB_542.2: Phase 3 Liquidity & Staking Implementation
 ```yaml
 id: #542.2
 status: NOT_STARTED
-priority: HIGH
+priority: MEDIUM
 completion: 0
 dependencies: ["#542.1"]
 deliverables:
-  - "Implement diminishing-over-time reward model"
-  - "Create tagger reward calculation algorithm"
-  - "Build distribution mechanism for ETS 50% share"
-  - "Implement early adopter bonus logic"
-  - "Test reward distribution scenarios"
-estimated_duration: "1-2 weeks"
+  - "Deploy 5MM TAG coins to Uniswap V3 liquidity pools"
+  - "Implement concentrated liquidity positions for capital efficiency"
+  - "Create staking pools for TAG holders"
+  - "Implement usage-weighted staking rewards"
+  - "Test liquidity provision and staking mechanisms"
+estimated_duration: "2-3 weeks"
 technical_requirements:
-  - "Time-based reward curve implementation"
-  - "Tagger tracking and eligibility"
-  - "Proportional distribution logic"
-  - "Gas-efficient batch distribution"
+  - "Uniswap V3 integration (TAG/ETH, TAG/ZORA pairs)"
+  - "Concentrated liquidity management"
+  - "Staking contract implementation"
+  - "Usage metrics tracking for reward weighting"
+phase: "Phase 3 - Liquidity & Staking"
+treasury_allocation: "5MM TAG for liquidity, 3MM for rewards"
 ```
 
-##### SUB_542.3: Tagging Fee Distribution System
+##### SUB_542.3: Phase 4 Full Automation Implementation
 ```yaml
 id: #542.3
 status: NOT_STARTED
-priority: HIGH
+priority: LOW
 completion: 0
 dependencies: ["#542.2"]
 deliverables:
-  - "Implement per-tag micro-fee mechanism"
-  - "Create pro-rata distribution to TAG coin holders"
-  - "Build fee collection and distribution workflow"
-  - "Test fee scenarios across different tag usage patterns"
-  - "Optimize gas costs for fee distribution"
-estimated_duration: "1-2 weeks"
+  - "Implement dynamic fee adjustment based on tag popularity"
+  - "Create cross-tag liquidity pools"
+  - "Build yield optimization strategies"
+  - "Implement DAO governance for parameter updates"
+  - "Complete economic loop automation"
+estimated_duration: "3-4 weeks"
 technical_requirements:
-  - "Fee calculation on tag usage"
-  - "Holder registry and proportional distribution"
-  - "Automated distribution triggers"
-  - "Gas optimization strategies"
+  - "Automated parameter adjustment algorithms"
+  - "Multi-token liquidity management"
+  - "Yield optimization smart contracts"
+  - "DAO governance integration"
+phase: "Phase 4 - Full Automation"
 ```
 
 ##### SUB_542.4: Testing & Validation

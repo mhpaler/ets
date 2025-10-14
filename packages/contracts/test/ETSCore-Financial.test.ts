@@ -107,10 +107,10 @@ describe("ETS Core Financial Operations", async () => {
       const channelPostTest = await contracts.ETS.read.accrued([contracts.ETSChannel.address]);
       const creatorPostTest = await contracts.ETS.read.accrued([accounts.User4.account.address]);
 
-      // Verify fees were distributed
+      // MVP: Verify 100% of fees go to platform only
       assert.ok(platformPostTest > platformPreTest, "Platform should receive fees");
-      assert.ok(channelPostTest > channelPreTest, "Channel should receive fees");
-      assert.ok(creatorPostTest > creatorPreTest, "User4 should receive fees");
+      assert.equal(channelPostTest, channelPreTest, "Channel should NOT receive fees in MVP");
+      assert.equal(creatorPostTest, creatorPreTest, "Creator should NOT receive fees in MVP");
 
       // Platform balance should have increased after tagging
       const platformPostTagAccrued = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
@@ -269,9 +269,9 @@ describe("ETS Core Financial Operations", async () => {
 
   describe("Fee distribution percentages", async () => {
     it("should distribute fees according to current percentages", async () => {
-      // Get current percentages
-      const platformPercentage = await contracts.ETS.read.platformPercentage();
-      const channelPercentage = await contracts.ETS.read.channelPercentage();
+      // Get current percentages (unused in MVP but kept for future reference)
+      const _platformPercentage = await contracts.ETS.read.platformPercentage();
+      const _channelPercentage = await contracts.ETS.read.channelPercentage();
 
       // Create a tagging record to test distribution
       const rawInput = {
@@ -309,16 +309,16 @@ describe("ETS Core Financial Operations", async () => {
       const platformPostTest = await contracts.ETS.read.accrued([accounts.ETSPlatform.account.address]);
       const channelPostTest = await contracts.ETS.read.accrued([contracts.ETSChannel.address]);
 
-      // Calculate expected amounts
-      const platformExpected = (expectedFee * BigInt(platformPercentage)) / 100n;
-      const channelExpected = (expectedFee * BigInt(channelPercentage)) / 100n;
+      // MVP: 100% goes to platform, regardless of percentage settings
+      const platformExpected = expectedFee; // All fees go to platform
+      const channelExpected = 0n; // No fees to channel in MVP
 
       // Verify distribution
       const platformReceived = platformPostTest - platformPreTest;
       const channelReceived = channelPostTest - channelPreTest;
 
-      assert.equal(platformReceived, platformExpected, "Platform should receive correct percentage");
-      assert.equal(channelReceived, channelExpected, "Channel should receive correct percentage");
+      assert.equal(platformReceived, platformExpected, "Platform should receive 100% of fees");
+      assert.equal(channelReceived, channelExpected, "Channel should receive 0% of fees in MVP");
     });
 
     it("should distribute remaining fees to tag owner", async () => {
@@ -355,23 +355,19 @@ describe("ETS Core Financial Operations", async () => {
       const channelPostTest = await contracts.ETS.read.accrued([contracts.ETSChannel.address]);
       const ownerPostTest = await contracts.ETS.read.accrued([accounts.User4.account.address]);
 
-      // Get percentages
-      const platformPercentage = await contracts.ETS.read.platformPercentage();
-      const channelPercentage = await contracts.ETS.read.channelPercentage();
-
-      // Calculate expected amounts
-      const platformExpected = (expectedFee3 * BigInt(platformPercentage)) / 100n;
-      const channelExpected = (expectedFee3 * BigInt(channelPercentage)) / 100n;
-      const ownerExpected = expectedFee3 - platformExpected - channelExpected;
+      // MVP: 100% goes to platform, no distribution to channel or owner
+      const platformExpected = expectedFee3; // All fees go to platform
+      const channelExpected = 0n; // No fees to channel in MVP
+      const ownerExpected = 0n; // No fees to owner in MVP
 
       // Verify distribution
       const platformReceived = platformPostTest - platformPreTest;
       const channelReceived = channelPostTest - channelPreTest;
       const ownerReceived = ownerPostTest - ownerPreTest;
 
-      assert.equal(platformReceived, platformExpected, "Platform should receive correct percentage");
-      assert.equal(channelReceived, channelExpected, "Channel should receive correct percentage");
-      assert.equal(ownerReceived, ownerExpected, "Owner should receive remaining amount");
+      assert.equal(platformReceived, platformExpected, "Platform should receive 100% of fees");
+      assert.equal(channelReceived, channelExpected, "Channel should receive 0% of fees in MVP");
+      assert.equal(ownerReceived, ownerExpected, "Owner should receive 0% of fees in MVP");
     });
   });
 });
