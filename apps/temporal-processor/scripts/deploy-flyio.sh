@@ -1,6 +1,6 @@
 #!/bin/bash
 # Deploy Temporal Processor to Fly.io
-# Usage: ./deploy-flyio.sh [staging|production] [--test]
+# Usage: ./deploy-flyio.sh [staging|production] [--test] [--replay-from-block <block_number>]
 #
 # This script automates the deployment process by:
 # 1. Loading configuration from .env
@@ -10,12 +10,14 @@
 # 5. Validating deployment
 #
 # Options:
-#   --test    Test Docker build locally before deploying to Fly.io
+#   --test                       Test Docker build locally before deploying to Fly.io
+#   --replay-from-block <number> Start processing from a specific block (overrides checkpoint)
 #
 # Examples:
 #   ./deploy-flyio.sh staging
 #   ./deploy-flyio.sh production
 #   ./deploy-flyio.sh staging --test
+#   ./deploy-flyio.sh staging --replay-from-block 32389687
 
 set -e
 
@@ -29,17 +31,28 @@ NC='\033[0m' # No Color
 # Parse arguments
 ENVIRONMENT=${1:-staging}
 TEST_LOCAL=false
+REPLAY_FROM_BLOCK=""
 
 # Check for flags
+i=0
 for arg in "$@"; do
   if [ "$arg" = "--test" ]; then
     TEST_LOCAL=true
+  elif [ "$arg" = "--replay-from-block" ]; then
+    # Get the next argument as the block number
+    next_idx=$((i + 1))
+    REPLAY_FROM_BLOCK="${!next_idx}"
+    if [[ ! "$REPLAY_FROM_BLOCK" =~ ^[0-9]+$ ]]; then
+      echo -e "${RED}❌ Error: --replay-from-block requires a numeric block number${NC}"
+      exit 1
+    fi
   fi
+  ((i++))
 done
 
 if [[ "$ENVIRONMENT" != "staging" && "$ENVIRONMENT" != "production" ]]; then
   echo -e "${RED}❌ Error: Environment must be 'staging' or 'production'${NC}"
-  echo "Usage: ./deploy-flyio.sh [staging|production] [--test]"
+  echo "Usage: ./deploy-flyio.sh [staging|production] [--test] [--replay-from-block <number>]"
   exit 1
 fi
 
@@ -131,6 +144,9 @@ echo "  Alchemy API Key: ${ALCHEMY_API_KEY:0:10}... (redacted)"
 echo "  Temporal Server: $TEMPORAL_SERVER_URL"
 echo "  Temporal Namespace: $NAMESPACE"
 echo "  Mnemonic: ${MNEMONIC_VAR:0:15}... (redacted)"
+if [ -n "$REPLAY_FROM_BLOCK" ]; then
+  echo -e "  ${YELLOW}🔄 REPLAY MODE: Starting from block $REPLAY_FROM_BLOCK${NC}"
+fi
 echo ""
 
 # Check if flyctl is installed
@@ -208,12 +224,18 @@ echo -e "${BLUE}🚀 Building and deploying to Fly.io...${NC}"
 echo "   This may take 5-10 minutes..."
 echo ""
 
-# Deploy with --no-cache for clean, reliable builds
-flyctl deploy \
-  --app "$FLY_APP" \
-  --config apps/temporal-processor/fly.toml \
-  --dockerfile apps/temporal-processor/Dockerfile \
-  --no-cache
+# Build deploy command with optional replay block
+DEPLOY_CMD="flyctl deploy --app $FLY_APP --config apps/temporal-processor/fly.toml --dockerfile apps/temporal-processor/Dockerfile --no-cache"
+
+# Add replay block as environment variable if specified
+if [ -n "$REPLAY_FROM_BLOCK" ]; then
+  DEPLOY_CMD="$DEPLOY_CMD -e REPLAY_FROM_BLOCK=$REPLAY_FROM_BLOCK"
+  echo -e "${YELLOW}   Note: Replay mode activated - will start from block $REPLAY_FROM_BLOCK${NC}"
+  echo ""
+fi
+
+# Execute deploy command
+eval $DEPLOY_CMD
 
 echo ""
 echo -e "${GREEN}✓${NC} Deployment complete!"

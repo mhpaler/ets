@@ -275,9 +275,22 @@ export class EventListener {
     const currentBlock = await reader.getBlockNumber();
     const deploymentBlock = DEPLOYMENT_BLOCKS[config.env] || 0n;
 
+    // Check for replay override
+    const replayFromBlock = process.env.REPLAY_FROM_BLOCK ? BigInt(process.env.REPLAY_FROM_BLOCK) : null;
+
     // Chain reset detection: checkpoint ahead of current chain
     let startBlock: bigint;
-    if (lastBlock && lastBlock > currentBlock) {
+    if (replayFromBlock) {
+      logger.warn(
+        {
+          replayBlock: replayFromBlock.toString(),
+          lastCheckpoint: lastBlock?.toString(),
+          currentBlock: currentBlock.toString(),
+        },
+        "🔄 REPLAY MODE ACTIVATED: Overriding checkpoint with specified block",
+      );
+      startBlock = replayFromBlock;
+    } else if (lastBlock && lastBlock > currentBlock) {
       logger.warn(
         {
           lastCheckpoint: lastBlock.toString(),
@@ -347,9 +360,22 @@ export class EventListener {
     const currentBlock = await reader.getBlockNumber();
     const deploymentBlock = DEPLOYMENT_BLOCKS[config.env] || 0n;
 
+    // Check for replay override
+    const replayFromBlock = process.env.REPLAY_FROM_BLOCK ? BigInt(process.env.REPLAY_FROM_BLOCK) : null;
+
     // Chain reset detection: checkpoint ahead of current chain
     let startBlock: bigint;
-    if (lastBlock && lastBlock > currentBlock) {
+    if (replayFromBlock) {
+      logger.warn(
+        {
+          replayBlock: replayFromBlock.toString(),
+          lastCheckpoint: lastBlock?.toString(),
+          currentBlock: currentBlock.toString(),
+        },
+        "🔄 REPLAY MODE ACTIVATED: Overriding checkpoint with specified block",
+      );
+      startBlock = replayFromBlock;
+    } else if (lastBlock && lastBlock > currentBlock) {
       logger.warn(
         {
           lastCheckpoint: lastBlock.toString(),
@@ -419,9 +445,22 @@ export class EventListener {
     const currentBlock = await reader.getBlockNumber();
     const deploymentBlock = DEPLOYMENT_BLOCKS[config.env] || 0n;
 
+    // Check for replay override
+    const replayFromBlock = process.env.REPLAY_FROM_BLOCK ? BigInt(process.env.REPLAY_FROM_BLOCK) : null;
+
     // Chain reset detection: checkpoint ahead of current chain
     let startBlock: bigint;
-    if (lastBlock && lastBlock > currentBlock) {
+    if (replayFromBlock) {
+      logger.warn(
+        {
+          replayBlock: replayFromBlock.toString(),
+          lastCheckpoint: lastBlock?.toString(),
+          currentBlock: currentBlock.toString(),
+        },
+        "🔄 REPLAY MODE ACTIVATED: Overriding checkpoint with specified block",
+      );
+      startBlock = replayFromBlock;
+    } else if (lastBlock && lastBlock > currentBlock) {
       logger.warn(
         {
           lastCheckpoint: lastBlock.toString(),
