@@ -1,5 +1,5 @@
 // Auto-generated from Ignition deployments
-// Generated at: 2025-10-04T16:48:26.939Z
+// Generated at: 2025-10-15T01:12:56.767Z
 
 export interface ContractAddresses {
   accessControls?: string;
@@ -35,13 +35,13 @@ export const deployments: Record<string, NetworkDeployment> = {
     chainId: 84532,
     name: "baseSepolia",
     contracts: {
-      accessControls: "0x2e1C43375F5533eF69f0D3eD66D3FBf70B607141",
-      mockZoraFactory: "0x1409567aABDeB09D0ee9B7B0eB0F10038B5a6f93",
-      token: "0xDB1Be3FC9BbD6697920A91AF43df1b7ec898AA86",
-      target: "0xEE0DB62a1Fde98da844A6603c71f01a854BC8523",
-      core: "0xe7f89C005241C86BeC6c7804C9927a14eaFc6cA0",
-      channelFactory: "0x23a20DF2666c0255C5839316004B36c5df1e4101",
-      enrichTarget: "0xEE0DB62a1Fde98da844A6603c71f01a854BC8523",
+      accessControls: "0xacC466E149A0CDb4B620D84756d989Ef8eC9fd85",
+      mockZoraFactory: "0x3342B25fAFC05b485D5884b80De2CfcBb0DAd5d4",
+      token: "0xF837cb08313ba1F28232b1496aE0F2be3506D8EC",
+      target: "0x2Cc8671601743536478E13D482eD34aFA888a9aE",
+      core: "0x860C48a21EE3f132CB40c97b48C63DbCA9ec6c3a",
+      channelFactory: "0x4fD85d2FD219B110922345E02ACd0a0b7743803f",
+      enrichTarget: "0x2Cc8671601743536478E13D482eD34aFA888a9aE",
     },
   },
 };

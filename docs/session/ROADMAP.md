@@ -1523,6 +1523,123 @@ blocks: ["Mainnet public communication"]
 progress: "0% - Not started"
 ```
 
+### EPIC_546: Tagcaster - Hashtags on Farcaster
+```yaml
+id: #546
+status: NOT_STARTED
+priority: HIGH
+dependencies: ["#541", "#542"]
+estimated_effort: 2-3 weeks
+objective: "Bridge Farcaster social layer with ETS by converting casts with hashtags into tagging records"
+scope: "Channel contract relay function, offchain listener service, automatic tag creation"
+blocks: ["Farcaster ecosystem integration"]
+progress: "0% - Planning complete, ready for implementation"
+architecture: "Channel owner relays tags on behalf of Farcaster users who get full attribution"
+```
+
+##### SUB_546.1: Channel Contract Relay Function
+```yaml
+id: #546.1
+status: NOT_STARTED
+priority: CRITICAL
+completion: 0
+dependencies: ["#542"]
+deliverables:
+  - "Add applyTagsFor() function to ETSChannel.sol"
+  - "Implement onlyOwner access control for relay function"
+  - "Add replaceTagsFor() and removeTagsFor() functions"
+  - "Add TagsRelayed event for tracking"
+  - "Write comprehensive tests for relay functionality"
+estimated_duration: "3-4 days"
+technical_implementation:
+  - "Reuse internal _applyTags() with custom tagger parameter"
+  - "Channel balance pays fees, Farcaster user gets attribution"
+  - "No changes needed to ETS Core contract"
+```
+
+##### SUB_546.2: Deploy Tagcaster Channel
+```yaml
+id: #546.2
+status: NOT_STARTED
+priority: HIGH
+completion: 0
+dependencies: ["#546.1"]
+deliverables:
+  - "Deploy upgraded ETSChannel implementation"
+  - "Create Tagcaster channel on Base Sepolia"
+  - "Fund channel with ETH for tagging fees"
+  - "Configure channel owner as Tagcaster EOA"
+  - "Test relay functions manually"
+estimated_duration: "1-2 days"
+deployment_strategy:
+  - "Use beacon proxy upgrade pattern"
+  - "Test on Base Sepolia first"
+  - "Production deployment after validation"
+```
+
+##### SUB_546.3: Farcaster Listener Service
+```yaml
+id: #546.3
+status: NOT_STARTED
+priority: HIGH
+completion: 0
+dependencies: ["#546.2"]
+deliverables:
+  - "Build Farcaster webhook/hub listener for new casts"
+  - "Implement hashtag extraction from cast content"
+  - "Resolve Farcaster user's Ethereum address"
+  - "Handle rate limiting and error recovery"
+  - "Add monitoring and alerting"
+estimated_duration: "1 week"
+technical_requirements:
+  - "Farcaster Hub API or Neynar API integration"
+  - "Hashtag regex parsing"
+  - "User profile ETH address resolution"
+  - "Queue management for high volume"
+```
+
+##### SUB_546.4: Transaction Manager
+```yaml
+id: #546.4
+status: NOT_STARTED
+priority: HIGH
+completion: 0
+dependencies: ["#546.3"]
+deliverables:
+  - "Implement transaction builder for applyTagsFor()"
+  - "Add retry logic for failed transactions"
+  - "Handle nonce management for batch operations"
+  - "Track gas costs and optimize batching"
+  - "Build audit log for all relayed tags"
+estimated_duration: "3-4 days"
+technical_considerations:
+  - "Use viem nonce manager for concurrency"
+  - "Batch multiple casts when possible"
+  - "Gas price optimization strategies"
+  - "Transaction status tracking"
+```
+
+##### SUB_546.5: Production Launch & Monitoring
+```yaml
+id: #546.5
+status: NOT_STARTED
+priority: MEDIUM
+completion: 0
+dependencies: ["#546.4"]
+deliverables:
+  - "Deploy Tagcaster channel on Base mainnet"
+  - "Launch offchain service infrastructure"
+  - "Monitor initial transactions and performance"
+  - "Announce to Farcaster community"
+  - "Iterate based on user feedback"
+estimated_duration: "1 week"
+success_metrics:
+  - "Number of Farcaster users tagged"
+  - "TAG coins created via Tagcaster"
+  - "Daily active taggers from Farcaster"
+  - "Community sentiment/feedback"
+```
+
 ##### SUB_545.1: Content Strategy & Messaging
 ```yaml
 id: #545.1

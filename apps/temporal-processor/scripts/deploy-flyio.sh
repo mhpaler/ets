@@ -34,20 +34,26 @@ TEST_LOCAL=false
 REPLAY_FROM_BLOCK=""
 
 # Check for flags
-i=0
-for arg in "$@"; do
+args=("$@")
+for i in "${!args[@]}"; do
+  arg="${args[$i]}"
   if [ "$arg" = "--test" ]; then
     TEST_LOCAL=true
   elif [ "$arg" = "--replay-from-block" ]; then
     # Get the next argument as the block number
     next_idx=$((i + 1))
-    REPLAY_FROM_BLOCK="${!next_idx}"
-    if [[ ! "$REPLAY_FROM_BLOCK" =~ ^[0-9]+$ ]]; then
-      echo -e "${RED}❌ Error: --replay-from-block requires a numeric block number${NC}"
+    if [ $next_idx -lt ${#args[@]} ]; then
+      REPLAY_FROM_BLOCK="${args[$next_idx]}"
+      if [[ ! "$REPLAY_FROM_BLOCK" =~ ^[0-9]+$ ]]; then
+        echo -e "${RED}❌ Error: --replay-from-block requires a numeric block number${NC}"
+        echo "  Received: '$REPLAY_FROM_BLOCK'"
+        exit 1
+      fi
+    else
+      echo -e "${RED}❌ Error: --replay-from-block requires a block number${NC}"
       exit 1
     fi
   fi
-  ((i++))
 done
 
 if [[ "$ENVIRONMENT" != "staging" && "$ENVIRONMENT" != "production" ]]; then

@@ -111,6 +111,16 @@ async function main() {
         console.error("❌ Configuration failed. You can run it manually with:");
         console.error(`   npx hardhat run scripts/configure-ets.ts --network ${network}`);
       }
+    } else if (network !== "localhost" && network !== "hardhat") {
+      console.log("\n⚠️  Post-deployment configuration required!");
+      console.log("For security, public network deployments require manual configuration.");
+      console.log("Please run the following command to complete setup:");
+      console.log(`\n   HARDHAT_NETWORK=${network} npx hardhat run scripts/configure-ets.ts\n`);
+      console.log("This will:");
+      console.log("  - Set up access control roles");
+      console.log("  - Link contracts together");
+      console.log("  - Configure Zora integration");
+      console.log("  - Create the default ETSChannel");
     }
 
     // Verify contracts on public networks
