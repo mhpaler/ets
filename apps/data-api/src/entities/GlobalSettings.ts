@@ -9,22 +9,11 @@ export function ensureGlobalSettings(): GlobalSettings {
     // Tags
     settings.tagMinStringLength = ZERO;
     settings.tagMaxStringLength = ZERO;
-    settings.ownershipTermLength = ZERO;
 
     // Tagging
     settings.taggingFee = ZERO;
     settings.taggingFeePlatformPercentage = ZERO;
-    settings.taggingFeeRelayerPercentage = ZERO;
-
-    // Auction
-    settings.maxAuctions = ZERO;
-    settings.minIncrementBidPercentage = ZERO;
-    settings.duration = ZERO;
-    settings.reservePrice = ZERO;
-    settings.timeBuffer = ZERO;
-    settings.relayerPercentage = ZERO;
-    settings.creatorPercentage = ZERO;
-    settings.platformPercentage = ZERO;
+    settings.taggingFeeChannelPercentage = ZERO;
 
     settings.save();
   }

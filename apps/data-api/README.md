@@ -1,17 +1,17 @@
 # ETS Subgraph
 
-To develop using a local subgraph, you'll need to have [Docker](https://www.docker.com/products/docker-desktop) installed. Be sure you have already run `npm hardhat` and `npm hardhat:deploy` so your contracts are deployed to the local Hardhat network before running the following commands.
+To develop using a local subgraph, you'll need to have [Docker](https://www.docker.com/products/docker-desktop) installed. Be sure you have already deployed your contracts to the local Hardhat network before running the following commands.
 
 First, open up a new terminal and spin up a local Docker graph node container. It will automatically clean up any old data:
 
 ```bash
-pnpm run graph:node-start
+pnpm graph:node-start
 ```
 
 In another terminal, generate your local subgraph.yaml (uses a script to parse hardhat config into a template):
 
 ```bash
-pnpm run graph:prepare-local
+pnpm graph:prepare-local
 ```
 
 Next, create your local subgraph (only required to run once):
@@ -26,13 +26,13 @@ Deploy your local subgraph:
 pnpm graph:ship-local
 ```
 
-Once you make changes to your subgraph in `packages/subgraph`, you can deploy your contracts and your subgraph in one go by running:
+Once you make changes to your subgraph in `apps/data-api`, you can deploy your contracts and your subgraph in one go by running:
 
 ```bash
 pnpm graph:deploy-and-graph
 ```
 
-If you want to clean the deployed graph & it's data but keep the node running, run:
+If you want to clean the deployed graph & its data but keep the node running, run:
 
 ```bash
 pnpm graph:node-clean
@@ -44,52 +44,60 @@ If you want to remove the Docker container, run:
 pnpm graph:node-stop
 ```
 
-Settings
+## Settings
 
 ```graphql
-query Settings($filter: GlobalSettings_filter) {
-  globalSettings: globalSettings(id: "globalSettings", first: 1) {
+query Settings {
+  globalSettings(id: "globalSettings") {
     id
-    maxAuctions
-    minIncrementBidPercentage
-    duration
-    reservePrice
-    timeBuffer
-    relayerPercentage
-    creatorPercentage
-    platformPercentage
+    tagMinStringLength
+    tagMaxStringLength
+    taggingFee
+    taggingFeePlatformPercentage
+    taggingFeeChannelPercentage
   }
 }
 ```
 
-## Auctions
+## Tags
 
-````graphql
-query auctions(
-        $first: Int!
-        $skip: Int!
-      ) {
-      auctions: auctions(
-        first: $first
-        skip: $skip
-      ) {
-        id
-        startTime
-        endTime
-
-        bids {
-          id
-        }
-        settled
-        amount
-        bidder {
-          id
-        }
-        tag {
-          machineName
-          id
-        }
-      },
+```graphql
+query Tags($first: Int!, $skip: Int!) {
+  tags(first: $first, skip: $skip) {
+    id
+    tagId
+    coinAddress
+    originalInput
+    displayVersion
+    machineName
+    creator {
+      id
     }
-    ```
-````
+    channel {
+      id
+      name
+    }
+    timestamp
+    platformRevenue
+  }
+}
+```
+
+## Channels
+
+```graphql
+query Channels($first: Int!, $skip: Int!) {
+  channels(first: $first, skip: $skip) {
+    id
+    name
+    description
+    owner
+    admin
+    pausedByOwner
+    lockedByProtocol
+    tagCount
+    revenue
+    createdAt
+  }
+}
+```

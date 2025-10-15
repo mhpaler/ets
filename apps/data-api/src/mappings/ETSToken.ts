@@ -1,24 +1,16 @@
 import { Address, BigInt as GraphBigInt } from "@graphprotocol/graph-ts";
+import { updateChannelTagStats } from "../entities/Channel";
 import { updateCreatorTagStats } from "../entities/Creator";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
-import { updateOwnerTagStats } from "../entities/Owner";
-import { updatePlatformTagStats } from "../entities/Platform";
-import { updateRelayerTagStats } from "../entities/Relayer";
 import { ensureRelease } from "../entities/Release";
-import { ensureTag, updateTagExpiration, updateTagOwner, updateTagRecycle } from "../entities/Tag";
+import { createTag } from "../entities/Tag";
 import {
   AccessControlsSet,
   ETSCoreSet,
   Initialized,
-  OwnershipTermLengthSet,
-  PremiumFlagSet,
-  PremiumTagPreSet,
-  ReservedFlagSet,
+  TagCreated,
   TagMaxStringLengthSet,
   TagMinStringLengthSet,
-  TagRecycled,
-  TagRenewed,
-  Transfer,
   Upgraded,
 } from "../generated/ETSToken/ETSToken";
 
@@ -44,37 +36,26 @@ export function handleTagMinStringLengthSet(event: TagMinStringLengthSet): void 
   settings.save();
 }
 
-export function handleOwnershipTermLengthSet(event: OwnershipTermLengthSet): void {
-  const settings = ensureGlobalSettings();
-  settings.ownershipTermLength = event.params.termLength;
-  settings.save();
-}
-
 export function handleETSCoreSet(_event: ETSCoreSet): void {}
 
 export function handleAccessControlsSet(_event: AccessControlsSet): void {}
 
-export function handlePremiumTagPreSet(_event: PremiumTagPreSet): void {}
+export function handleTagCreated(event: TagCreated): void {
+  // Create the tag with composite ID
+  createTag(
+    event.params.tagId,
+    event.params.coinAddress,
+    event.params.originalInput,
+    event.params.displayVersion,
+    event.params.machineName,
+    event.params.creator,
+    event.params.channel,
+    event.block.timestamp,
+  );
 
-export function handlePremiumFlagSet(_event: PremiumFlagSet): void {}
+  // Update channel stats
+  updateChannelTagStats(event.params.channel, event);
 
-export function handleReservedFlagSet(_event: ReservedFlagSet): void {}
-
-export function handleTagRenewed(event: TagRenewed): void {
-  const tagEntity = ensureTag(event.params.tokenId, event);
-  updateTagExpiration(tagEntity.id, event.params.caller);
-}
-
-export function handleTagRecycled(event: TagRecycled): void {
-  const tagEntity = ensureTag(event.params.tokenId, event);
-  updateTagRecycle(tagEntity.id, event.params.caller, event);
-}
-
-export function handleTransfer(event: Transfer): void {
-  const tagEntity = ensureTag(event.params.tokenId, event);
-  updateTagOwner(event.params.tokenId, event.params.to, event);
-  updatePlatformTagStats(event);
-  updateRelayerTagStats(Address.fromString(tagEntity.relayer), event);
-  updateCreatorTagStats(Address.fromString(tagEntity.creator), event);
-  updateOwnerTagStats(event);
+  // Update creator stats
+  updateCreatorTagStats(event.params.creator, event);
 }

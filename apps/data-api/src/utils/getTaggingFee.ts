@@ -1,6 +1,6 @@
 import { BigInt as GraphBigInt } from "@graphprotocol/graph-ts";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
-import { MODULO, OWNER, PLATFORM, RELAYER, ZERO } from "../utils/constants";
+import { CHANNEL, MODULO, OWNER, PLATFORM, ZERO } from "../utils/constants";
 
 export function getTaggingFee(actor: GraphBigInt): GraphBigInt {
   const settings = ensureGlobalSettings();
@@ -9,15 +9,15 @@ export function getTaggingFee(actor: GraphBigInt): GraphBigInt {
 
   if (tagFee > ZERO) {
     const platformPercentageTaggingFee = settings.taggingFeePlatformPercentage;
-    const relayerPercentageTaggingFee = settings.taggingFeeRelayerPercentage;
-    const remainingPercentageTaggingFee = modulo.minus(platformPercentageTaggingFee).minus(relayerPercentageTaggingFee);
+    const channelPercentageTaggingFee = settings.taggingFeeChannelPercentage;
+    const remainingPercentageTaggingFee = modulo.minus(platformPercentageTaggingFee).minus(channelPercentageTaggingFee);
 
     if (actor === PLATFORM) {
       return tagFee.times(platformPercentageTaggingFee).div(modulo);
     }
 
-    if (actor === RELAYER) {
-      return tagFee.times(relayerPercentageTaggingFee).div(modulo);
+    if (actor === CHANNEL) {
+      return tagFee.times(channelPercentageTaggingFee).div(modulo);
     }
 
     if (actor === OWNER) {

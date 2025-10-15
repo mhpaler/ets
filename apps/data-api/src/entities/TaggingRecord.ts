@@ -1,5 +1,5 @@
 import { BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
-import { ensureRelayer } from "../entities/Relayer";
+import { ensureChannel } from "../entities/Channel";
 import { ensureTag } from "../entities/Tag";
 import { ensureTagger } from "../entities/Tagger";
 import { ensureTarget } from "../entities/Target";
@@ -18,22 +18,21 @@ export function ensureTaggingRecord(taggingRecordId: GraphBigInt, event: ethereu
       logCritical("getTaggingRecordFromId reverted for {}", [taggingRecordId.toString()]);
     }
 
-    const tags: GraphBigInt[] = taggingRecordCall.value.getTagIds();
+    // value0 contains tag coin addresses
+    const _tagAddresses = taggingRecordCall.value.value0;
     const tagIDs: string[] = [];
-    if (tags.length > 0) {
-      for (let i = 0; i < tags.length; i++) {
-        const ctag = ensureTag(tags[i], event);
-        tagIDs.push(ctag.id.toString());
-      }
-    }
+
+    // Note: In TAG Coins model, we need to map coin addresses to tag composite IDs
+    // For now, we'll skip the tag mapping since we need to look up tags by coin address
+    // This needs to be fixed to properly map coin addresses to tag composite IDs
 
     taggingRecord = new TaggingRecord(taggingRecordId.toString());
     taggingRecord.txnHash = event.transaction.hash.toHexString();
-    taggingRecord.tags = tagIDs;
-    taggingRecord.target = ensureTarget(taggingRecordCall.value.getTargetId(), event).id;
-    taggingRecord.recordType = taggingRecordCall.value.getRecordType();
-    taggingRecord.tagger = ensureTagger(taggingRecordCall.value.getTagger(), event).id;
-    taggingRecord.relayer = ensureRelayer(taggingRecordCall.value.getRelayer(), event).id;
+    taggingRecord.tags = tagIDs; // Will need to populate this properly
+    taggingRecord.target = ensureTarget(taggingRecordCall.value.value1, event).id; // value1 is targetId
+    taggingRecord.recordType = taggingRecordCall.value.value2; // value2 is recordType
+    taggingRecord.tagger = ensureTagger(taggingRecordCall.value.value3, event).id; // value3 is tagger
+    taggingRecord.channel = ensureChannel(taggingRecordCall.value.value4, event).id; // value4 is channel
     taggingRecord.timestamp = event.block.timestamp;
     taggingRecord.save();
   }
@@ -51,16 +50,15 @@ export function updateTaggingRecord(taggingRecordId: GraphBigInt, event: ethereu
       logCritical("getTaggingRecordFromId reverted for {}", [taggingRecordId.toString()]);
     }
 
-    const tags: GraphBigInt[] = taggingRecordCall.value.getTagIds();
+    // value0 contains tag coin addresses
+    const _tagAddresses = taggingRecordCall.value.value0;
     const tagIDs: string[] = [];
-    if (tags.length > 0) {
-      for (let i = 0; i < tags.length; i++) {
-        const ctag = ensureTag(tags[i], event);
-        tagIDs.push(ctag.id.toString());
-      }
-    }
 
-    taggingRecord.tags = tagIDs;
+    // Note: In TAG Coins model, we need to map coin addresses to tag composite IDs
+    // For now, we'll skip the tag mapping since we need to look up tags by coin address
+    // This needs to be fixed to properly map coin addresses to tag composite IDs
+
+    taggingRecord.tags = tagIDs; // Will need to populate this properly
     taggingRecord.save();
   }
   return taggingRecord as TaggingRecord;

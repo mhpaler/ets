@@ -3,10 +3,9 @@ import { ensureRelease } from "../entities/Release";
 import { ensureTarget, updateTarget } from "../entities/Target";
 import {
   AccessControlsSet,
-  EnrichTargetSet,
   Initialized,
   TargetCreated,
-  TargetUpdated,
+  TargetEnriched,
   Upgraded,
 } from "../generated/ETSTarget/ETSTarget";
 
@@ -22,9 +21,7 @@ export function handleUpgraded(_event: Upgraded): void {}
 
 export function handleAccessControlsSet(_event: AccessControlsSet): void {}
 
-export function handleEnrichTargetSet(_event: EnrichTargetSet): void {}
-
-export function handleTargetUpdated(_event: TargetUpdated): void {
+export function handleTargetEnriched(_event: TargetEnriched): void {
   const targetId = _event.params.targetId;
   const target = updateTarget(targetId, _event);
   // If the target has an Arweave TX ID, create a file data source

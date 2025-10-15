@@ -28,23 +28,23 @@ interface OpenzeppelinAbis {
 const VALID_TARGETS: DeploymentTarget[] = ["localhost", "baseSepolia"];
 
 const OPENZEPPELIN_ABIS: OpenzeppelinAbis = {
-  Ownable: "./../../packages/contracts/abi/@openzeppelin/contracts/access/Ownable.sol/Ownable.json",
-  Pausable: "./../../packages/contracts/abi/@openzeppelin/contracts/security/Pausable.sol/Pausable.json",
+  Ownable: "./../../packages/contracts/artifacts/@openzeppelin/contracts/access/Ownable.sol/Ownable.json",
+  Pausable: "./../../packages/contracts/artifacts/@openzeppelin/contracts/security/Pausable.sol/Pausable.json",
   UUPSUpgradeable:
-    "./../../packages/contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol/UUPSUpgradeable.json",
+    "./../../packages/contracts/artifacts/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol/UUPSUpgradeable.json",
   Initializable:
-    "./../../packages/contracts/abi/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol/Initializable.json",
+    "./../../packages/contracts/artifacts/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol/Initializable.json",
 };
 
 // Helper functions
 // Define contract paths mapping for special cases
 const CONTRACT_PATHS: Record<string, string> = {
-  ETSRelayer: "./../../packages/contracts/abi/contracts/relayers/ETSRelayer.sol/ETSRelayer.json",
+  ETSChannel: "./../../packages/contracts/artifacts/contracts/channels/ETSChannel.sol/ETSChannel.json",
   // Add any other special cases here
 };
 
 // Default path pattern for standard contracts
-const DEFAULT_ABI_PATH = "./../../packages/contracts/abi/contracts/{contract}.sol/{contract}.json";
+const DEFAULT_ABI_PATH = "./../../packages/contracts/artifacts/contracts/{contract}.sol/{contract}.json";
 
 const getNetworkConfig = (target: DeploymentTarget, envParam: Environment = "production"): NetworkConfig => {
   console.log(`🔍 Generating network config for target: ${target}, environment: ${envParam}`);
@@ -62,16 +62,7 @@ const getNetworkConfig = (target: DeploymentTarget, envParam: Environment = "pro
   const baseConfig: Omit<NetworkConfig, "name" | "environment"> = {
     configPath: `./../../packages/contracts/src/chainConfig/${configFileName}`,
     upgradesConfigPath: `./../../packages/contracts/src/upgradeConfig/${configFileName}`,
-    abis: [
-      "ETS",
-      "ETSAccessControls",
-      "ETSAuctionHouse",
-      "ETSEnrichTarget",
-      "ETSRelayerFactory",
-      "ETSRelayer",
-      "ETSTarget",
-      "ETSToken",
-    ].reduce(
+    abis: ["ETS", "ETSAccessControls", "ETSChannel", "ETSTarget", "ETSToken"].reduce(
       (acc, contract) => {
         // Use special path if defined, otherwise use default pattern
         acc[contract] = CONTRACT_PATHS[contract] || DEFAULT_ABI_PATH.replace(/{contract}/g, contract);

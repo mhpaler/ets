@@ -1,11 +1,10 @@
 import { Address, BigInt as GraphBigInt } from "@graphprotocol/graph-ts";
+import { updateChannelTaggingRecordStats } from "../entities/Channel";
 import { updateCreatorTaggingRecordStats } from "../entities/Creator";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
-import { updateOwnerTaggingRecordStats } from "../entities/Owner";
 import { updatePlatformTaggingRecordStats } from "../entities/Platform";
-import { updateRelayerTaggingRecordStats } from "../entities/Relayer";
 import { ensureRelease } from "../entities/Release";
-import { updateCTAGTaggingRecordStats } from "../entities/Tag";
+import { updateTaggingRecordStats } from "../entities/Tag";
 import { updateTaggerTaggingRecordStats } from "../entities/Tagger";
 import { ensureTaggingRecord, updateTaggingRecord } from "../entities/TaggingRecord";
 import {
@@ -41,7 +40,7 @@ export function handleTaggingFeeSet(event: TaggingFeeSet): void {
 export function handlePercentagesSet(event: PercentagesSet): void {
   const settings = ensureGlobalSettings();
   settings.taggingFeePlatformPercentage = event.params.platformPercentage;
-  settings.taggingFeeRelayerPercentage = event.params.relayerPercentage;
+  settings.taggingFeeChannelPercentage = event.params.channelPercentage;
   settings.save();
 }
 
@@ -51,15 +50,13 @@ export function handleTaggingRecordCreated(event: TaggingRecordCreated): void {
 
   updatePlatformTaggingRecordStats(newRecord.tags, event);
 
-  updateRelayerTaggingRecordStats(Address.fromString(newRecord.relayer), newRecord.tags, [], CREATE, event);
+  updateChannelTaggingRecordStats(Address.fromString(newRecord.channel), newRecord.tags, [], CREATE, event);
 
   updateTaggerTaggingRecordStats(Address.fromString(newRecord.tagger), newRecord.tags, [], CREATE, event);
 
   updateCreatorTaggingRecordStats(newRecord.tags, [], CREATE, event);
 
-  updateOwnerTaggingRecordStats(newRecord.tags, [], CREATE, event);
-
-  updateCTAGTaggingRecordStats(newRecord.tags, [], CREATE, event);
+  updateTaggingRecordStats(newRecord.tags, [], CREATE, event);
 }
 
 export function handleTaggingRecordUpdated(event: TaggingRecordUpdated): void {
@@ -71,8 +68,8 @@ export function handleTaggingRecordUpdated(event: TaggingRecordUpdated): void {
   // This is mapped to APPEND or REMOVE constants. See. utils/constants.ts
   const action = GraphBigInt.fromI32(event.params.action);
 
-  updateRelayerTaggingRecordStats(
-    Address.fromString(newRecord.relayer),
+  updateChannelTaggingRecordStats(
+    Address.fromString(newRecord.channel),
     newRecord.tags,
     prevRecord.tags,
     action,
@@ -83,9 +80,7 @@ export function handleTaggingRecordUpdated(event: TaggingRecordUpdated): void {
 
   updateCreatorTaggingRecordStats(newRecord.tags, prevRecord.tags, action, event);
 
-  updateOwnerTaggingRecordStats(newRecord.tags, prevRecord.tags, action, event);
-
-  updateCTAGTaggingRecordStats(newRecord.tags, prevRecord.tags, action, event);
+  updateTaggingRecordStats(newRecord.tags, prevRecord.tags, action, event);
 }
 
 export function handleFundsWithdrawn(_event: FundsWithdrawn): void {}

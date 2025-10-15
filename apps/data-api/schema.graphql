@@ -33,13 +33,13 @@ type Target @entity {
   "Keywords about target, derived from URI."
   targetTypeKeywords: [String!]
 
-  "Target has been enriched using ETSEnrichTargetAPI."
+  "Target has been enriched with metadata."
   enriched: BigInt!
 
-  "HTTP Status code returned from ETSEnrichTargetAPI for targetURI."
+  "HTTP Status code returned from enrichment API for targetURI."
   httpStatus: BigInt!
 
-  "Arweave TransactionId containing metadata json extracted for targetURI by ETSEnrichTargetAPI."
+  "Arweave TransactionId containing metadata json extracted for targetURI."
   arweaveTxId: String!
 
   # New relationships
@@ -123,73 +123,64 @@ type MetadataUpdateEvent @entity {
   previousArweaveTxId: String # For tracking changes
 }
 
-#rename to tag
+# Tag entity for TAG coins
 type Tag @entity {
-  "CTAG token ID."
+  "Composite ID: tagId-coinAddress for uniqueness"
   id: ID!
 
-  "Tag string lowercased."
+  "Unique incrementing TAG ID (1, 2, 3...)"
+  tagId: BigInt!
+
+  "Coin address of the TAG"
+  coinAddress: Bytes!
+
+  "Original input string as entered by user"
+  originalInput: String!
+
+  "Display version (formatted for UI)"
+  displayVersion: String!
+
+  "Machine name (lowercase normalized)"
   machineName: String!
 
-  "Display version of CTAG at point of creation."
-  display: String!
-
-  "Current owner of CTAG."
-  owner: Owner!
-
-  "Wallet credited with creating CTAG."
+  "Wallet credited with creating TAG."
   creator: Creator!
 
-  "Contract address of Relayer that facilitated CTAG creation."
-  relayer: Relayer!
+  "Contract address of Channel that facilitated TAG creation."
+  channel: Channel!
 
   "Creation date."
   timestamp: BigInt!
 
-  "Block timestamp of last renewal."
-  lastRenewalDate: BigInt!
-
-  "Address that triggered the renewal"
-  lastRenewedBy: String!
-
-  "Expriation timestamp calcuated from renewal date."
-  expirationDate: BigInt!
-
-  "Block timestamp of last recycle."
-  lastRecycledDate: BigInt!
-
-  "Address that triggered the recycle."
-  lastRecycledBy: String!
-
-  "Flagged by ETS as Premium."
-  premium: Boolean!
-
-  "Flagged by ETS as Reserved."
-  reserved: Boolean!
-
-  "Number of times CTAG has been used to tag content."
+  "Number of times TAG has been used to tag content."
   tagAppliedInTaggingRecord: BigInt!
 
-  "Number of times CTAG has been removed from tagging record."
+  "Number of times TAG has been removed from tagging record."
   tagRemovedFromTaggingRecord: BigInt!
 
-  "Total owner revenue from tagging fees for CTAG. Aggregates across all owners."
-  ownerRevenue: BigInt!
+  "Total platform revenue from tagging fees for TAG (100% in MVP)."
+  platformRevenue: BigInt!
 
-  "Total original Relayer relayer revenue from tagging fees for CTAG."
-  relayerRevenue: BigInt!
-
-  "Total protocol revenue from tagging fees for CTAG."
-  protocolRevenue: BigInt!
-
-  "Total creator revenue from tagging fees for CTAG."
-  creatorRevenue: BigInt!
-
-  "Tagging records containing this CTAG."
+  "Tagging records containing this TAG."
   taggingRecords: [TaggingRecord!]! @derivedFrom(field: "tags")
+}
 
-  "Auctions containing this CTAG."
-  auctions: [Auction!]! @derivedFrom(field: "tag")
+# Lookup entity for finding tags by numeric ID
+type TagByNumber @entity {
+  "The numeric tag ID as string"
+  id: ID!
+
+  "Reference to the actual Tag entity"
+  tag: Tag!
+}
+
+# Lookup entity for finding tags by coin address
+type TagByCoinAddress @entity {
+  "The coin address as string"
+  id: ID!
+
+  "Reference to the actual Tag entity"
+  tag: Tag!
 }
 
 type TaggingRecord @entity {
@@ -199,7 +190,7 @@ type TaggingRecord @entity {
   "Tagging record transaction hash."
   txnHash: String!
 
-  "Entity relationship field for CTAGs used in tagging record."
+  "Entity relationship field for TAGs used in tagging record."
   tags: [Tag!]
 
   "Tagging record target as entity relationship."
@@ -211,8 +202,8 @@ type TaggingRecord @entity {
   "Tagger (wallet address that triggered tagging record) entity relationship."
   tagger: Tagger!
 
-  "Relayer (address of contract that facilitated tagging record creation) entity relationship."
-  relayer: Relayer!
+  "Channel (address of contract that facilitated tagging record creation) entity relationship."
+  channel: Channel!
 
   "Tagging record creation date."
   timestamp: BigInt!
@@ -231,71 +222,62 @@ type Platform @entity {
   "Total count of targets on ETS."
   targetCount: BigInt!
 
-  "Total count of CTAGs created on ETS."
+  "Total count of TAGs created on ETS."
   tagsCount: BigInt!
 
   "Total count of tagging records on ETS."
   taggingRecordsCount: BigInt!
 
-  "Total count of CTAG auctions on ETS."
-  auctionsSettled: BigInt!
-
-  "Total revenue generated from CTAG auctions."
-  auctionRevenue: BigInt!
-
   "Total revenue generated from tagging fees."
   taggingFeesRevenue: BigInt!
 
-  "Total count of currently active (no paused) Relayers."
-  relayerCountActive: BigInt!
+  "Total count of currently active (not paused) Channels."
+  channelCountActive: BigInt!
 
-  "Total count of ETS Relayers (paused & unpaused)."
-  relayerCountLifetime: BigInt!
+  "Total count of ETS Channels (paused & unpaused)."
+  channelCountLifetime: BigInt!
 
   "Total count of unique tagger addresses."
   taggerCount: BigInt!
 
-  "Total count of unique owner addresses."
-  ownerCount: BigInt!
-
-  "Total count of creator addresses."
+  "Total count of unique creator addresses."
   creatorCount: BigInt!
 }
 
-type RelayerAdmin @entity {
+type ChannelAdmin @entity {
   id: ID!
   firstSeen: BigInt!
 }
 
-type Relayer @entity {
-  "Address of Relayer contract."
+type Channel @entity {
+  "Address of Channel contract."
   id: ID!
 
-  "Name of Relayer."
+  "Name of Channel."
   name: String!
 
-  "Relayer contract is locked by Protocol."
+  "Channel contract is locked by Protocol."
   lockedByProtocol: Boolean!
 
-  "Relayer contract paused by owner"
+  "Channel contract paused by owner"
   pausedByOwner: Boolean
 
-  "Owner of relayer contract"
+  "Owner of channel contract"
   owner: String!
 
-  "Initial creator of relayer contract"
+  "Initial creator of channel contract"
   creator: String!
 
-  "Relayer is a protocol address for testing purposes."
+  "Channel is a protocol address for testing purposes."
   admin: Boolean!
 
-  "Relayer creation date."
+  "Channel creation date."
   firstSeen: BigInt!
 
-  "Total number of CTAGs published by Relayer."
+  "Total number of TAGs published by Channel."
   tagsPublished: BigInt!
 
-  "Total number of Tagging Records published by Relayer."
+  "Total number of Tagging Records published by Channel."
   taggingRecordsPublished: BigInt!
 
   "Total lifetime Tagging Record interactions."
@@ -307,26 +289,20 @@ type Relayer @entity {
   "Total lifetime count of tags removed from tagging records."
   tagsRemoved: BigInt!
 
-  "Total number of published CTAGs auctioned."
-  publishedTagsAuctioned: BigInt!
-
-  "Total revenue generated from CTAG auctions for tags published by Relayer."
-  publishedTagsAuctionRevenue: BigInt!
-
-  "Total number of tags published by Relayer added to Tagging Records"
+  "Total number of tags published by Channel added to Tagging Records"
   publishedTagsAddedToTaggingRecords: BigInt!
 
-  "Total number of tags published by Relayer removed from Tagging Records"
+  "Total number of tags published by Channel removed from Tagging Records"
   publishedTagsRemovedFromTaggingRecords: BigInt!
 
-  "Total revenue generated from tagging fees from tags published by Relayer."
+  "Total revenue generated from tagging fees from tags published by Channel."
   publishedTagsTaggingFeeRevenue: BigInt!
 
-  "Tagging records published by this Relayer."
-  taggingRecords: [TaggingRecord!]! @derivedFrom(field: "relayer")
+  "Tagging records published by this Channel."
+  taggingRecords: [TaggingRecord!]! @derivedFrom(field: "channel")
 
-  "CTAGs published by this Relayer."
-  tags: [Tag!]! @derivedFrom(field: "relayer")
+  "TAGs published by this Channel."
+  tags: [Tag!]! @derivedFrom(field: "channel")
 }
 
 type Tagger @entity {
@@ -365,7 +341,7 @@ type Creator @entity {
   "Creator creation date."
   firstSeen: BigInt!
 
-  "Total number of CTAGs created."
+  "Total number of TAGs created."
   tagsCreated: BigInt!
 
   "Total number of tags created added to Tagging Records."
@@ -374,104 +350,11 @@ type Creator @entity {
   "Total number of tags created removed from Tagging Records."
   createdTagsRemovedFromTaggingRecords: BigInt!
 
-  "Total number of created CTAGs auctioned."
-  createdTagsAuctioned: BigInt!
-
-  "Total revenue generated from CTAG auctions for tags created by Creator."
-  createdTagsAuctionRevenue: BigInt!
-
   "Total revenue generated from tagging fees from tags created by Creator."
   createdTagsTaggingFeeRevenue: BigInt!
 
-  "CTAGs created by this Creator."
+  "TAGs created by this Creator."
   tags: [Tag!]! @derivedFrom(field: "creator")
-}
-
-type Owner @entity {
-  "Address of Owner"
-  id: ID!
-
-  "Owner creation date."
-  firstSeen: BigInt!
-
-  "Current number of CTAGs owned."
-  tagsOwned: BigInt!
-
-  "Lifetime total of CTAGs owned."
-  tagsOwnedLifeTime: BigInt!
-
-  "Total number of owner tags added to Tagging Records."
-  ownedTagsAddedToTaggingRecords: BigInt!
-
-  "Total number of owner tags removed from Tagging Records."
-  ownedTagsRemovedFromTaggingRecords: BigInt!
-
-  "Total tagging fee revenue generated from owned tags."
-  ownedTagsTaggingFeeRevenue: BigInt!
-
-  "CTAGs owned by this Owner."
-  tags: [Tag!]! @derivedFrom(field: "owner")
-}
-
-type Auction @entity {
-  "Global ETS Auction Number"
-  id: ID!
-
-  "Incremental auction number for this CTAG. starts at 1 and increments each time tag is re-auctioned"
-  tokenAuctionNumber: BigInt!
-
-  "The CTAG being auctioned"
-  tag: Tag!
-
-  "The minimum price of first bid"
-  reservePrice: BigInt!
-
-  "The current highest bid amount"
-  amount: BigInt!
-
-  "The time that the auction started"
-  startTime: BigInt!
-
-  "The time that the auction is scheduled to end"
-  endTime: BigInt!
-
-  "Whether or not the auction has been extended"
-  extended: Boolean!
-
-  "The account with the current highest bid"
-  bidder: Owner
-
-  "Whether or not the auction has been settled"
-  settled: Boolean!
-
-  "The auction bids"
-  bids: [Bid!]! @derivedFrom(field: "auction")
-}
-
-type Bid @entity {
-  "Bid transaction hash"
-  id: ID!
-
-  "The auction being bid in"
-  auction: Auction!
-
-  "The CTAG being bid on"
-  tag: Tag!
-
-  "Bid amount"
-  amount: BigInt!
-
-  "Bidder account"
-  bidder: Owner
-
-  "Block number of the bid"
-  blockNumber: BigInt!
-
-  "Index of transaction within block"
-  txIndex: BigInt!
-
-  "The timestamp of the block the bid is in"
-  blockTimestamp: BigInt!
 }
 
 type Release @entity {
@@ -492,10 +375,6 @@ type Release @entity {
   etsTarget: String!
   etsTargetVersion: BigInt!
   etsTargetVersionDate: BigInt!
-
-  etsAuctionHouse: String!
-  etsAuctionHouseVersion: BigInt!
-  etsAuctionHouseVersionDate: BigInt!
 }
 
 type GlobalSettings @entity {
@@ -504,20 +383,9 @@ type GlobalSettings @entity {
   # Tags
   tagMinStringLength: BigInt!
   tagMaxStringLength: BigInt!
-  ownershipTermLength: BigInt!
 
   # Tagging
   taggingFee: BigInt!
   taggingFeePlatformPercentage: BigInt!
-  taggingFeeRelayerPercentage: BigInt!
-
-  # Auction
-  maxAuctions: BigInt!
-  minIncrementBidPercentage: BigInt!
-  duration: BigInt!
-  reservePrice: BigInt!
-  timeBuffer: BigInt!
-  relayerPercentage: BigInt!
-  creatorPercentage: BigInt!
-  platformPercentage: BigInt!
+  taggingFeeChannelPercentage: BigInt!
 }

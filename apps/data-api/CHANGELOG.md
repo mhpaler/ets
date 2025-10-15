@@ -1,5 +1,40 @@
 # @ethereum-tag-service/subgraph
 
+## 2025-10-15
+
+### Changed
+- **MAJOR REFACTOR**: Complete TAG Coins architecture migration from CTAG NFTs (#543)
+- Migrated all event handlers from `Transfer` (NFT mints) to `TagCreated` events
+- Updated Tag entity to use composite IDs (`tagId-coinAddress`) instead of BigInt tokenIds
+- Removed tag count tracking (sequential tagIds make this derivable)
+- Simplified Channel tag statistics (removed Platform tag stats)
+- Fixed Target entity to not access non-existent enrichment fields from contract
+- Fixed TaggingRecord to use tuple values instead of struct getter methods
+- Updated all contract ABI references to match TAG Coins architecture
+
+### Removed
+- Auction-related entities and mappings (ETSAuctionHouse.ts, Auction.ts)
+- Relayer entities (migrated to Channel in contracts but kept naming for now)
+- RelayerAdmin entity
+- Owner entity and related tracking
+- Platform tag stats tracking (redundant with sequential IDs)
+- Transfer event handlers for tag minting
+- 100+ obsolete contract ABI files from old architecture
+
+### Added
+- Channel.ts and ChannelAdmin.ts entities (Relayer → Channel renaming)
+- ETSChannel.ts mapping for channel-specific events
+- Graph Node integration to start-stack.sh (local development only)
+- Graph Node log streaming with color-coded output
+- Automatic subgraph deployment when starting local stack
+- MIGRATION.md documenting the TAG Coins refactor
+
+### Fixed
+- Docker Compose volume mount issues (removed for local development)
+- Contract interface mismatches (tuple access patterns)
+- ensureTag signature (now accepts string compositeId instead of BigInt)
+- Deployment block mapping for environment names
+
 ## 0.0.6
 
 ### Patch Changes

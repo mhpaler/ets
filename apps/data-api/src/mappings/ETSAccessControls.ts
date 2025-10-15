@@ -1,24 +1,24 @@
 import { Bytes, BigInt as GraphBigInt, log, store } from "@graphprotocol/graph-ts";
 import { ensureAdministrator } from "../entities/Administrator";
-import { ensurePlatform, updateRelayerCount } from "../entities/Platform";
-import { ensureRelayer } from "../entities/Relayer";
-import { ensureRelayerAdmin } from "../entities/RelayerAdmin";
+import { ensureChannel } from "../entities/Channel";
+import { ensureChannelAdmin } from "../entities/ChannelAdmin";
+import { ensurePlatform, updateChannelCount } from "../entities/Platform";
 import { ensureRelease } from "../entities/Release";
 import {
+  ChannelAdded,
+  ChannelLockToggled,
   Initialized,
   PlatformSet,
-  RelayerAdded,
-  RelayerLockToggled,
   RoleGranted,
   RoleRevoked,
   Upgraded,
 } from "../generated/ETSAccessControls/ETSAccessControls";
-import { ETSRelayer } from "../generated/templates";
+import { ETSChannel } from "../generated/templates";
 
 import { ADDED, PAUSED, UNPAUSED } from "../utils/constants";
 
 const DEFAULT_ADMIN_ROLE = Bytes.fromHexString("0x0000000000000000000000000000000000000000000000000000000000000000");
-const RELAYER_ROLE_ADMIN = Bytes.fromHexString("0xceef0c25ed6578df50c5ed05e86b9a2fbef843ddc8e477a6712c47ac29939361");
+const CHANNEL_ROLE_ADMIN = Bytes.fromHexString("0xceef0c25ed6578df50c5ed05e86b9a2fbef843ddc8e477a6712c47ac29939361");
 
 export function handleInitialized(event: Initialized): void {
   const settings = ensureRelease();
@@ -38,20 +38,20 @@ export function handlePlatformSet(event: PlatformSet): void {
   }
 }
 
-export function handleRelayerAdded(event: RelayerAdded): void {
-  ensureRelayer(event.params.relayer, event);
-  ETSRelayer.create(event.params.relayer);
-  updateRelayerCount(ADDED, event);
+export function handleChannelAdded(event: ChannelAdded): void {
+  ensureChannel(event.params.channel, event);
+  ETSChannel.create(event.params.channel);
+  updateChannelCount(ADDED, event);
 }
 
-export function handleRelayerToggled(event: RelayerLockToggled): void {
-  const relayer = ensureRelayer(event.params.relayer, event);
-  if (relayer) {
-    relayer.lockedByProtocol = !relayer.lockedByProtocol;
-    relayer.save();
+export function handleChannelToggled(event: ChannelLockToggled): void {
+  const channel = ensureChannel(event.params.channel, event);
+  if (channel) {
+    channel.lockedByProtocol = !channel.lockedByProtocol;
+    channel.save();
 
-    const action = relayer.lockedByProtocol === true ? PAUSED : UNPAUSED;
-    updateRelayerCount(action, event);
+    const action = channel.lockedByProtocol === true ? PAUSED : UNPAUSED;
+    updateChannelCount(action, event);
   }
 }
 
@@ -60,8 +60,8 @@ export function handleRoleGranted(event: RoleGranted): void {
     ensureAdministrator(event.params.account, event);
   }
 
-  if (event.params.role.equals(RELAYER_ROLE_ADMIN)) {
-    ensureRelayerAdmin(event.params.account, event);
+  if (event.params.role.equals(CHANNEL_ROLE_ADMIN)) {
+    ensureChannelAdmin(event.params.account, event);
   }
 }
 
@@ -72,10 +72,10 @@ export function handleRoleRevoked(event: RoleRevoked): void {
       store.remove("Administrator", administrator.id);
     }
   }
-  if (event.params.role.equals(RELAYER_ROLE_ADMIN)) {
-    const relayerAdmin = ensureRelayerAdmin(event.params.account, event);
-    if (relayerAdmin) {
-      store.remove("RelayerAdmin", relayerAdmin.id);
+  if (event.params.role.equals(CHANNEL_ROLE_ADMIN)) {
+    const channelAdmin = ensureChannelAdmin(event.params.account, event);
+    if (channelAdmin) {
+      store.remove("ChannelAdmin", channelAdmin.id);
     }
   }
 }

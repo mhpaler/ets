@@ -1,6 +1,7 @@
 version: '3'
 services:
   graph-node:
+    platform: linux/amd64
     image: graphprotocol/graph-node
     ports:
       - '8000:8000'
@@ -24,12 +25,15 @@ services:
       RUST_BACKTRACE: "1"
       GRAPH_NODE_ARWEAVE_URL: "http://host.docker.internal:1984"
   ipfs:
+    platform: linux/amd64
     image: ipfs/kubo:v0.17.0
     ports:
       - '5001:5001'
-    volumes:
-      - ./data/ipfs:/data/ipfs:Z
+    # Temporarily removed volume mount due to Docker issues
+    # volumes:
+    #   - ./data/ipfs:/data/ipfs
   postgres:
+    platform: linux/amd64
     image: postgres
     ports:
       - '5432:5432'
@@ -43,10 +47,7 @@ services:
       POSTGRES_USER: graph-node
       POSTGRES_PASSWORD: let-me-in
       POSTGRES_DB: graph-node
-      # FIXME: remove this env. var. which we shouldn't need. Introduced by
-      # <https://github.com/graphprotocol/graph-node/pull/3511>, maybe as a
-      # workaround for https://github.com/docker/for-mac/issues/6270?
-      PGDATA: "/var/lib/postgresql/data"
       POSTGRES_INITDB_ARGS: "-E UTF8 --locale=C"
-    volumes:
-      - ./data/postgres:/var/lib/postgresql/data:Z
+    # Temporarily removed volume mount due to Docker issues
+    # volumes:
+    #   - ./data/postgres:/var/lib/postgresql/data

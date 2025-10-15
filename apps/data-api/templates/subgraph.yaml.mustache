@@ -20,17 +20,13 @@ dataSources:
       entities:
         - Administrator
         - Platform
-        - Relayer
-        - RelayerAdmin
+        - Channel
+        - ChannelAdmin
       abis:
-        - name: UUPSUpgradeable
-          file: {{openzeppelin.UUPSUpgradeable}}
-        - name: Initializable
-          file: {{openzeppelin.Initializable}}
         - name: ETSAccessControls
           file: {{abis.ETSAccessControls}}
-        - name: ETSRelayer
-          file: {{abis.ETSRelayer}}
+        - name: ETSChannel
+          file: {{abis.ETSChannel}}
       eventHandlers:
         - event: Initialized(uint8)
           handler: handleInitialized
@@ -38,10 +34,10 @@ dataSources:
           handler: handleUpgraded
         - event: PlatformSet(address,address)
           handler: handlePlatformSet
-        - event: RelayerAdded(address)
-          handler: handleRelayerAdded
-        - event: RelayerLockToggled(address)
-          handler: handleRelayerToggled
+        - event: ChannelAdded(address)
+          handler: handleChannelAdded
+        - event: ChannelLockToggled(address)
+          handler: handleChannelToggled
         - event: RoleGranted(indexed bytes32,indexed address,indexed address)
           handler: handleRoleGranted
         - event: RoleRevoked(indexed bytes32,indexed address,indexed address)
@@ -61,10 +57,6 @@ dataSources:
       entities:
         - Transfer
       abis:
-        - name: UUPSUpgradeable
-          file: {{openzeppelin.UUPSUpgradeable}}
-        - name: Initializable
-          file: {{openzeppelin.Initializable}}
         - name: ETSToken
           file: {{abis.ETSToken}}
       eventHandlers:
@@ -76,24 +68,12 @@ dataSources:
           handler: handleTagMaxStringLengthSet
         - event: TagMinStringLengthSet(uint256)
           handler: handleTagMinStringLengthSet
-        - event: OwnershipTermLengthSet(uint256)
-          handler: handleOwnershipTermLengthSet
         - event: ETSCoreSet(address)
           handler: handleETSCoreSet
         - event: AccessControlsSet(address)
           handler: handleAccessControlsSet
-        - event: PremiumTagPreSet(string,bool)
-          handler: handlePremiumTagPreSet
-        - event: PremiumFlagSet(uint256,bool)
-          handler: handlePremiumFlagSet
-        - event: ReservedFlagSet(uint256,bool)
-          handler: handleReservedFlagSet
-        - event: TagRenewed(indexed uint256,indexed address)
-          handler: handleTagRenewed
-        - event: TagRecycled(indexed uint256,indexed address)
-          handler: handleTagRecycled
-        - event: Transfer(indexed address,indexed address,indexed uint256)
-          handler: handleTransfer
+        - event: TagCreated(indexed address,indexed uint256,string,string,string,indexed address,address,uint256)
+          handler: handleTagCreated
   - kind: ethereum/contract
     name: ETSTarget
     network: {{name}}
@@ -109,10 +89,6 @@ dataSources:
       entities:
         - TargetMiscellaneous
       abis:
-        - name: UUPSUpgradeable
-          file: {{openzeppelin.UUPSUpgradeable}}
-        - name: Initializable
-          file: {{openzeppelin.Initializable}}
         - name: ETSTarget
           file: {{abis.ETSTarget}}
       eventHandlers:
@@ -122,12 +98,10 @@ dataSources:
           handler: handleUpgraded
         - event: AccessControlsSet(address)
           handler: handleAccessControlsSet
-        - event: EnrichTargetSet(address)
-          handler: handleEnrichTargetSet
         - event: TargetCreated(uint256)
           handler: handleTargetCreated
-        - event: TargetUpdated(uint256)
-          handler: handleTargetUpdated
+        - event: TargetEnriched(indexed uint256,indexed address,string,bytes32,bytes)
+          handler: handleTargetEnriched
   - kind: ethereum/contract
     name: ETS
     network: {{name}}
@@ -143,10 +117,6 @@ dataSources:
       entities:
         - TaggingRecord
       abis:
-        - name: UUPSUpgradeable
-          file: {{openzeppelin.UUPSUpgradeable}}
-        - name: Initializable
-          file: {{openzeppelin.Initializable}}
         - name: ETSAccessControls
           file: {{abis.ETSAccessControls}}
         - name: ETSToken
@@ -172,82 +142,27 @@ dataSources:
           handler: handleTaggingRecordUpdated
         - event: FundsWithdrawn(indexed address,uint256)
           handler: handleFundsWithdrawn
-  - kind: ethereum/contract
-    name: ETSAuctionHouse
-    network: {{name}}
-    source:
-      address: "{{config.contracts.ETSAuctionHouse.address}}"
-      abi: ETSAuctionHouse
-      startBlock: {{upgradesConfig.contracts.ETSAuctionHouse.deploymentBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.9
-      language: wasm/assemblyscript
-      file: ./src/mappings/ETSAuctionHouse.ts
-      entities:
-        - Bid
-        - Auction
-        - Owner
-      abis:
-        - name: UUPSUpgradeable
-          file: {{openzeppelin.UUPSUpgradeable}}
-        - name: ETSAccessControls
-          file: {{abis.ETSAccessControls}}
-        - name: ETSToken
-          file: {{abis.ETSToken}}
-        - name: ETSAuctionHouse
-          file: {{abis.ETSAuctionHouse}}
-      eventHandlers:
-        - event: AuctionsMaxSet(uint256)
-          handler: handleAuctionsMaxSet
-        - event: AuctionDurationSet(uint256)
-          handler: handleAuctionDurationSet
-        - event: AuctionMinBidIncrementPercentageSet(uint8)
-          handler: handleAuctionMinBidIncrementPercentageSet
-        - event: AuctionReservePriceSet(uint256)
-          handler: handleAuctionReservePriceSet
-        - event: AuctionTimeBufferSet(uint256)
-          handler: handleAuctionTimeBufferSet
-        - event: AuctionProceedPercentagesSet(uint256,uint256,uint256)
-          handler: handleAuctionProceedPercentagesSet
-        - event: RequestCreateAuction()
-          handler: handleRequestCreateAuction
-        - event: AuctionCreated(indexed uint256,indexed uint256,uint256)
-          handler: handleAuctionCreated
-        - event: AuctionBid(indexed uint256,address,uint256,bool)
-          handler: handleAuctionBid
-        - event: AuctionExtended(indexed uint256,uint256)
-          handler: handleAuctionExtended
-        - event: AuctionSettled(indexed uint256)
-          handler: handleAuctionSettled
-        - event: AuctionProceedsWithdrawn(indexed address,uint256)
-          handler: handleAuctionProceedsWithdrawn
-
 templates:
-  - name: ETSRelayer
+  - name: ETSChannel
     kind: ethereum/contract
     network: {{name}}
     source:
-      abi: ETSRelayer
+      abi: ETSChannel
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
       language: wasm/assemblyscript
-      file: ./src/mappings/ETSRelayer.ts
+      file: ./src/mappings/ETSChannel.ts
       entities:
-        - Relayer
+        - Channel
       abis:
-        - name: ETSRelayer
-          file: {{abis.ETSRelayer}}
-        - name: Ownable
-          file: {{openzeppelin.Ownable}}
-        - name: Pausable
-          file: {{openzeppelin.Pausable}}
+        - name: ETSChannel
+          file: {{abis.ETSChannel}}
       eventHandlers:
-        - event: RelayerPauseToggledByOwner(address)
-          handler: handleRelayerPauseToggledByOwner
-        - event: RelayerOwnerChanged(address)
-          handler: handleRelayerOwnerChanged
+        - event: ChannelPauseToggledByOwner(address)
+          handler: handleChannelPauseToggledByOwner
+        - event: ChannelOwnerChanged(address)
+          handler: handleChannelOwnerChanged
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleOwnershipTransferred
         - event: Paused(address)
@@ -266,4 +181,4 @@ templates:
         - Target
       abis:
         - name: TargetMetadata
-          file: {{abis.ETSRelayer}}
+          file: {{abis.ETSChannel}}

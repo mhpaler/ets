@@ -19,9 +19,9 @@ export function ensureTarget(targetId: GraphBigInt, event: ethereum.Event): Targ
     target.created = event.block.timestamp;
     target.createdBy = targetCall.value.createdBy.toHexString();
     target.targetURI = targetCall.value.targetURI;
-    target.enriched = targetCall.value.enriched;
-    target.httpStatus = targetCall.value.httpStatus;
-    target.arweaveTxId = targetCall.value.arweaveTxId;
+    target.enriched = GraphBigInt.fromI32(0); // Will be updated by TargetEnriched event
+    target.httpStatus = GraphBigInt.fromI32(0); // Will be updated by TargetEnriched event
+    target.arweaveTxId = ""; // Will be updated by TargetEnriched event
     target.targetType = getTargetType(target.targetURI);
     target.targetTypeKeywords = getTargetTypeKeywords(target.targetURI);
     target.save();
@@ -43,9 +43,7 @@ export function updateTarget(targetId: GraphBigInt, event: ethereum.Event): Targ
 
     // Update the target properties with the latest values from the contract
     target.targetURI = targetCall.value.targetURI;
-    target.enriched = targetCall.value.enriched;
-    target.httpStatus = targetCall.value.httpStatus;
-    target.arweaveTxId = targetCall.value.arweaveTxId;
+    // Note: enriched, httpStatus, and arweaveTxId are now updated via TargetEnriched events
 
     target.save();
   }

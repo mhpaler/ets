@@ -118,6 +118,7 @@ open_logs_terminal() {
   # Create placeholder log files for all services
   touch "$ROOT_DIR/logs/hardhat.log"
   touch "$ROOT_DIR/logs/deploy.log"
+  touch "$ROOT_DIR/logs/graph-node.log"
   touch "$ROOT_DIR/logs/temporal-processor.log"
   touch "$ROOT_DIR/logs/temporal-worker.log"
   touch "$ROOT_DIR/logs/explorer.log"
@@ -134,6 +135,7 @@ echo -e "\033[1;36m=== ETS Stack Logs ===\033[0m\n"
 tail -f logs/*.log | grep --line-buffered "" |
   sed -e $'s/.*hardhat.log.*/\033[0;36m[HARDHAT]\033[0m &/' \
       -e $'s/.*deploy.log.*/\033[0;32m[DEPLOY]\033[0m &/' \
+      -e $'s/.*graph-node.log.*/\033[0;34m[GRAPH-NODE]\033[0m &/' \
       -e $'s/.*temporal-processor.log.*/\033[0;35m[TEMPORAL-PROCESSOR]\033[0m &/' \
       -e $'s/.*temporal-worker.log.*/\033[1;34m[TEMPORAL-WORKER]\033[0m &/' \
       -e $'s/.*explorer.log.*/\033[0;33m[EXPLORER]\033[0m &/'
@@ -294,6 +296,74 @@ start_hardhat() {
   fi
 }
 
+# Start Graph Node (only for local network)
+start_graph_node() {
+  if [ "$NETWORK" != "local" ]; then
+    echo -e "${YELLOW}Skipping Graph Node (not needed for $NETWORK)${NC}"
+    return
+  fi
+
+  echo -e "${BLUE}Starting Graph Node...${NC}"
+  cd "$ROOT_DIR/apps/data-api/graph-node"
+
+  # Stop any existing Graph Node containers
+  docker compose down 2>/dev/null || true
+  sleep 2
+
+  # Start Graph Node containers
+  docker compose up -d
+
+  echo -e "${BLUE}Waiting for Graph Node to be ready...${NC}"
+
+  # Wait for GraphQL endpoint to respond (max 60 seconds)
+  MAX_WAIT=60
+  WAITED=0
+  while [ $WAITED -lt $MAX_WAIT ]; do
+    if curl -s http://localhost:8000 >/dev/null 2>&1; then
+      echo -e "${GREEN}✓ Graph Node started${NC}"
+
+      # Start streaming logs to file in background
+      if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
+        docker compose logs -f > "$ROOT_DIR/logs/graph-node.log" 2>&1 &
+      else
+        docker compose logs -f 2>&1 | tee "$ROOT_DIR/logs/graph-node.log" &
+      fi
+
+      return 0
+    fi
+    sleep 2
+    WAITED=$((WAITED + 2))
+  done
+
+  echo -e "${RED}Graph Node failed to start within ${MAX_WAIT}s${NC}"
+  docker compose logs
+  exit 1
+}
+
+# Deploy subgraph (only for local network)
+deploy_subgraph() {
+  if [ "$NETWORK" != "local" ]; then
+    return
+  fi
+
+  echo -e "${BLUE}Deploying subgraph...${NC}"
+  cd "$ROOT_DIR/apps/data-api"
+
+  # Generate the subgraph.yaml for local network
+  echo -e "${BLUE}Generating subgraph manifest...${NC}"
+  pnpm generate-yaml --target localhost
+
+  # Create the subgraph in the local node
+  echo -e "${BLUE}Creating subgraph...${NC}"
+  pnpm graph:create-local
+
+  # Build and deploy
+  echo -e "${BLUE}Building and deploying subgraph...${NC}"
+  pnpm graph:ship-local
+
+  echo -e "${GREEN}✓ Subgraph deployed${NC}"
+}
+
 # Start Temporal Processor
 start_temporal_processor() {
   echo -e "${BLUE}Starting Temporal Processor...${NC}"
@@ -307,14 +377,27 @@ start_temporal_processor() {
   # Configure based on network
   case $NETWORK in
     local)
+      # Force local Temporal server (disable cloud)
+      # Must set to empty string instead of unset to override .env file values
+      export TEMPORAL_API_KEY=""
+      export TEMPORAL_NAMESPACE="default"
+      export TEMPORAL_SERVER_URL="localhost:7233"
       export TEMPORAL_TASK_QUEUE="ets-workflows-local"
+
+      # Use local mnemonic
+      if [ -n "$LOCAL_MNEMONIC" ]; then
+        export MNEMONIC="$LOCAL_MNEMONIC"
+        echo -e "${GREEN}  Using local mnemonic${NC}"
+      else
+        echo -e "${YELLOW}  Using Hardhat default accounts (no LOCAL_MNEMONIC set)${NC}"
+      fi
       ;;
     staging)
       export TEMPORAL_TASK_QUEUE="ets-workflows-local-staging"
       export CHAIN_ID=84532
       export HD_WALLET_POSITION=2
 
-      # Ensure we have the staging mnemonic from root .env
+      # Use staging mnemonic
       if [ -n "$STAGING_MNEMONIC" ]; then
         export MNEMONIC="$STAGING_MNEMONIC"
         echo -e "${GREEN}  Using staging mnemonic${NC}"
@@ -328,11 +411,17 @@ start_temporal_processor() {
       else
         echo -e "${RED}  Warning: ALCHEMY_API_KEY not found in .env${NC}"
       fi
+
+      # Temporal Cloud credentials should be in .env
+      if [ -n "$TEMPORAL_API_KEY" ]; then
+        echo -e "${GREEN}  Using Temporal Cloud${NC}"
+      fi
       ;;
     production)
       export TEMPORAL_TASK_QUEUE="ets-workflows-production"
       echo -e "${YELLOW}⚠️  Using production task queue${NC}"
-      # Ensure we have the production mnemonic from root .env
+
+      # Use production mnemonic
       if [ -n "$PRODUCTION_MNEMONIC" ]; then
         export MNEMONIC="$PRODUCTION_MNEMONIC"
       fi
@@ -359,7 +448,7 @@ start_temporal_processor() {
   export HD_WALLET_POSITION=$HD_WALLET_POSITION
   export TEMPORAL_SERVER_URL=localhost:7233
 
-  # Start event listener
+  # Start Temporal Processor (includes both event listener and worker)
   if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
     pnpm dev > "$ROOT_DIR/logs/temporal-processor.log" 2>&1 &
   else
@@ -367,24 +456,16 @@ start_temporal_processor() {
   fi
   PROCESSOR_PID=$!
 
-  # Start worker
-  if [ "$USE_SEPARATE_LOG_TERMINAL" = "true" ]; then
-    pnpm worker > "$ROOT_DIR/logs/temporal-worker.log" 2>&1 &
-  else
-    pnpm worker 2>&1 | tee "$ROOT_DIR/logs/temporal-worker.log" &
-  fi
-  WORKER_PID=$!
-
   sleep 5
 
-  if ps -p $PROCESSOR_PID > /dev/null && ps -p $WORKER_PID > /dev/null; then
+  if ps -p $PROCESSOR_PID > /dev/null; then
     echo -e "${GREEN}✓ Temporal Processor started${NC}"
     echo "  Task Queue: $TEMPORAL_TASK_QUEUE"
     echo ""
     echo -e "${CYAN}Streaming logs...${NC}"
     echo ""
   else
-    echo -e "${RED}Failed to start Temporal services${NC}"
+    echo -e "${RED}Failed to start Temporal Processor${NC}"
     exit 1
   fi
 }
@@ -437,11 +518,15 @@ main() {
   case $SERVICES in
     all)
       [ "$NETWORK" = "local" ] && start_hardhat
+      [ "$NETWORK" = "local" ] && start_graph_node
+      [ "$NETWORK" = "local" ] && deploy_subgraph
       start_temporal_processor
       start_explorer
       ;;
     core)
       [ "$NETWORK" = "local" ] && start_hardhat
+      [ "$NETWORK" = "local" ] && start_graph_node
+      [ "$NETWORK" = "local" ] && deploy_subgraph
       start_temporal_processor
       ;;
     temporal)
@@ -462,6 +547,7 @@ main() {
   # Show relevant URLs
   if [ "$NETWORK" = "local" ] && [ "$SERVICES" != "temporal" ]; then
     echo "Hardhat: http://localhost:8545"
+    echo "Graph Node GraphQL: http://localhost:8000"
   fi
   if [ "$SERVICES" = "all" ]; then
     echo "Explorer: http://localhost:3001"
@@ -480,6 +566,12 @@ cleanup() {
   pkill -f "tsx.*worker\.ts" 2>/dev/null || true
   pkill -f "tsx.*src/index\.ts" 2>/dev/null || true
   pkill -f "next dev" 2>/dev/null || true
+
+  # Stop Graph Node Docker containers if running
+  if [ "$NETWORK" = "local" ]; then
+    echo -e "${BLUE}Stopping Graph Node...${NC}"
+    cd "$ROOT_DIR/apps/data-api/graph-node" 2>/dev/null && docker compose down 2>/dev/null || true
+  fi
 
   echo -e "${GREEN}Services stopped${NC}"
 }
