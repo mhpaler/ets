@@ -62,7 +62,10 @@ async function initializeClients() {
     },
   });
 
-  // Create WebSocket client for real-time event watching (if available)
+  // Disable WebSocket client temporarily - using HTTP polling for reliability
+  // WebSocket filters are expiring and causing "filter not found" errors
+  // TODO: Re-enable with proper filter management (see issue #XXX)
+  /*
   // @ts-expect-error - viem type mismatch between versions (pre-existing)
   wsClient = config.blockchain.wsRpcUrl
     ? createPublicClient({
@@ -79,16 +82,19 @@ async function initializeClients() {
         }),
       })
     : null;
+  */
+  wsClient = null; // Explicitly disabled for now
 
-  // Use WebSocket for watching events (real-time), HTTP for queries
-  watchClient = wsClient || httpClient;
+  // Force HTTP polling for watching events (more reliable for MVP)
+  watchClient = httpClient;
   publicClient = httpClient; // Always use HTTP for read operations
 
   logger.info(
     {
-      transport: wsClient ? "WebSocket" : "HTTP",
-      wsUrl: config.blockchain.wsRpcUrl,
+      transport: "HTTP (polling)",
       httpUrl: config.blockchain.rpcUrl,
+      pollingInterval: "5000ms",
+      note: "WebSocket temporarily disabled for reliability",
     },
     "Initialized blockchain clients",
   );
