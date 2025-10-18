@@ -10,9 +10,33 @@ pragma solidity ^0.8.10;
  */
 contract MockZoraFactory {
     /**
-     * @notice Mock implementation of Zora factory coinAddress function
+     * @notice Internal function to compute coin address
      * @dev Returns a deterministic address based on the coin salt
      *      Uses CREATE2-style address generation for consistency
+     */
+    function _computeCoinAddress(
+        address msgSender,
+        string memory name,
+        string memory symbol,
+        bytes32 poolConfigHash,
+        address platformReferrer,
+        bytes32 coinSalt
+    ) internal view returns (address) {
+        bytes32 hash = keccak256(
+            abi.encodePacked(
+                bytes1(0xff),
+                address(this),
+                coinSalt,
+                keccak256(abi.encodePacked(msgSender, name, symbol, poolConfigHash, platformReferrer))
+            )
+        );
+        return address(uint160(uint256(hash)));
+    }
+
+    /**
+     * @notice Mock implementation of Zora factory coinAddress function
+     * @dev Returns a deterministic address based on the coin salt
+     *      Signature matches real Zora factory exactly
      */
     function coinAddress(
         address msgSender,
@@ -22,33 +46,26 @@ contract MockZoraFactory {
         address platformReferrer,
         bytes32 coinSalt
     ) external view returns (address) {
-        
-        // Generate deterministic mock address using CREATE2 pattern
-        // This ensures the same inputs always produce the same address
-        bytes32 hash = keccak256(
-            abi.encodePacked(
-                bytes1(0xff),
-                address(this),
-                coinSalt,
-                keccak256(abi.encodePacked(msgSender, name, symbol, poolConfig, platformReferrer))
-            )
+        return _computeCoinAddress(
+            msgSender,
+            name,
+            symbol,
+            keccak256(poolConfig),
+            platformReferrer,
+            coinSalt
         );
-        
-        address result = address(uint160(uint256(hash)));
-        
-        return result;
     }
-    
+
     /**
      * @notice Mock function to simulate coin deployment
      * @dev In real Zora factory, this would deploy the actual coin
      *      For testing, we just emit an event
-     *      Returns (address coin, bytes deployData) to match real Zora factory
+     *      Signature matches real Zora factory exactly
      */
     function deploy(
-        address /* payoutRecipient */,
+        address payoutRecipient,
         address[] memory /* owners */,
-        string memory /* uri */,
+        string memory uri,
         string memory name,
         string memory symbol,
         bytes memory poolConfig,
@@ -56,45 +73,57 @@ contract MockZoraFactory {
         address /* postDeployHook */,
         bytes memory /* postDeployHookData */,
         bytes32 coinSalt
-    ) external returns (address coin, bytes memory deployData) {
+    ) external payable returns (address coin, bytes memory postDeployHookDataOut) {
+        // Compute poolConfigHash once to avoid stack too deep
+        bytes32 poolConfigHash = keccak256(poolConfig);
+
         // Calculate the same address as coinAddress would return
-        coin = this.coinAddress(
+        coin = _computeCoinAddress(
             msg.sender,
             name,
             symbol,
-            poolConfig,
+            poolConfigHash,
             platformReferrer,
             coinSalt
         );
-
-        // Return empty bytes for deployData (not used in mock)
-        deployData = "";
 
         // Emit event to simulate real factory behavior
+        // Note: coin is NOT indexed in real Zora (important for subgraph filtering)
+        // Note: poolKey passed as empty bytes to avoid stack too deep error
         emit CoinCreatedV4(
-            coin,
-            msg.sender,
-            name,
-            symbol,
-            poolConfig,
-            platformReferrer,
-            coinSalt
+            msg.sender,          // caller
+            payoutRecipient,     // payoutRecipient
+            platformReferrer,    // platformReferrer
+            address(0),          // currency (simplified for mock)
+            uri,                 // uri
+            name,                // name
+            symbol,              // symbol
+            coin,                // coin (NOT indexed!)
+            "",                  // poolKey (empty bytes to avoid stack too deep)
+            poolConfigHash,      // poolKeyHash
+            "v1"                 // version
         );
 
-        return (coin, deployData);
+        return (coin, "");
     }
-    
+
     /**
      * @notice Event emitted when a mock coin is "created"
-     * @dev Matches the event signature from real Zora factory
+     * @dev Matches the event signature from real Zora factory exactly
+     *      Note: Only caller, payoutRecipient, and platformReferrer are indexed
+     *      The coin address is NOT indexed (unlike our old implementation)
      */
     event CoinCreatedV4(
-        address indexed coin,
-        address indexed msgSender,
+        address indexed caller,
+        address indexed payoutRecipient,
+        address indexed platformReferrer,
+        address currency,
+        string uri,
         string name,
         string symbol,
-        bytes poolConfig,
-        address platformReferrer,
-        bytes32 coinSalt
+        address coin,        // NOT indexed - important!
+        bytes poolKey,       // Simplified to bytes instead of PoolKey struct
+        bytes32 poolKeyHash,
+        string version
     );
 }

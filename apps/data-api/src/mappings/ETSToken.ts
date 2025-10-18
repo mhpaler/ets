@@ -51,6 +51,7 @@ export function handleTagCreated(event: TagCreated): void {
     event.params.creator,
     event.params.channel,
     event.block.timestamp,
+    event,
   );
 
   // Update channel stats

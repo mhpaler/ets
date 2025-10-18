@@ -1,6 +1,7 @@
 import { Address, BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
 import { updateTaggerCount } from "../entities/Platform";
+import { ensureUser, updateUserTaggingRecordStats } from "../entities/User";
 import { Tagger } from "../generated/schema";
 import { arrayDiff } from "../utils/arrayDiff";
 import { APPEND, CREATE, ONE, REMOVE, ZERO } from "../utils/constants";
@@ -19,6 +20,13 @@ export function ensureTagger(taggerAddress: Address, event: ethereum.Event): Tag
     tagger.save();
 
     updateTaggerCount(event);
+
+    // Also ensure User entity exists and update role
+    const user = ensureUser(taggerAddress, event);
+    if (!user.isTagger) {
+      user.isTagger = true;
+      user.save();
+    }
   }
 
   return tagger as Tagger;
@@ -32,6 +40,9 @@ export function updateTaggerTaggingRecordStats(
   event: ethereum.Event,
 ): void {
   const tagger = ensureTagger(taggerAddress, event);
+
+  // Also update User entity statistics
+  updateUserTaggingRecordStats(taggerAddress, newTagIds, previousTagIds, action, event);
 
   // Log the transaction in tagger lifetime count regardless of action.
   tagger.taggingRecordTxns = tagger.taggingRecordTxns.plus(ONE);

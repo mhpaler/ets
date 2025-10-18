@@ -1,9 +1,8 @@
 // Auto-generated from Ignition deployments
-// Generated at: 2025-10-15T01:12:56.767Z
+// Generated at: 2025-10-17T01:52:08.171Z
 
 export interface ContractAddresses {
   accessControls?: string;
-  mockZoraFactory?: string;
   token?: string;
   target?: string;
   core?: string;

@@ -2,6 +2,7 @@ import { log } from "@graphprotocol/graph-ts";
 import { Address, BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts/index";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
 import { ensurePlatform } from "../entities/Platform";
+import { ensureUser } from "../entities/User";
 import { ETSToken } from "../generated/ETSToken/ETSToken";
 import { Platform, Release, Tag, TagByCoinAddress, TagByNumber } from "../generated/schema";
 import { arrayDiff } from "../utils/arrayDiff";
@@ -29,6 +30,7 @@ export function createTag(
   creator: Address,
   channel: Address,
   timestamp: GraphBigInt,
+  event: ethereum.Event,
 ): void {
   // Create composite ID
   const compositeId = `${tagId.toString()}-${coinAddress.toHexString()}`;
@@ -41,11 +43,20 @@ export function createTag(
   tag.displayVersion = displayVersion;
   tag.machineName = machineName;
   tag.creator = creator.toHexString();
+
+  // Ensure User entity exists for creator
+  const creatorUser = ensureUser(creator, event);
+  tag.creatorUser = creatorUser.id;
+
   tag.channel = channel.toHexString();
   tag.timestamp = timestamp;
   tag.tagAppliedInTaggingRecord = ZERO;
   tag.tagRemovedFromTaggingRecord = ZERO;
   tag.platformRevenue = ZERO;
+
+  // Initialize TAG coin lifecycle fields
+  tag.status = "PENDING";
+  tag.mintedAt = ZERO;
   tag.save();
 
   // Create lookup by number

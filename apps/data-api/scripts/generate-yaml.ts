@@ -3,13 +3,16 @@ import * as fsPromises from "node:fs/promises";
 import * as path from "node:path";
 import * as Handlebars from "handlebars";
 
+// Load deployments from built file (ESM/CJS compatibility)
+const deploymentsPath = path.join(__dirname, "../../../packages/contracts/dist/deployments.cjs");
+const { getDeployment } = require(deploymentsPath);
+
 // Define types
 type DeploymentTarget = "localhost" | "baseSepolia";
 type Environment = "production" | "staging" | "localhost";
 
 interface NetworkConfig {
   name: string;
-  configPath: string;
   upgradesConfigPath: string;
   abis: Record<string, string>;
   config?: any;
@@ -40,6 +43,7 @@ const OPENZEPPELIN_ABIS: OpenzeppelinAbis = {
 // Define contract paths mapping for special cases
 const CONTRACT_PATHS: Record<string, string> = {
   ETSChannel: "./../../packages/contracts/artifacts/contracts/channels/ETSChannel.sol/ETSChannel.json",
+  MockZoraFactory: "./../../packages/contracts/artifacts/contracts/mocks/MockZoraFactory.sol/MockZoraFactory.json",
   // Add any other special cases here
 };
 
@@ -52,17 +56,22 @@ const getNetworkConfig = (target: DeploymentTarget, envParam: Environment = "pro
   // For localhost, we have a special configuration
   const environment = target === "localhost" ? "localhost" : envParam;
 
-  // Determine the appropriate config file name based on environment
+  // Get deployment addresses from deployments.ts (single source of truth)
+  const deployment = getDeployment(target);
+  if (!deployment) {
+    throw new Error(`No deployment found for ${target}`);
+  }
+
+  console.log(`📦 Using Ignition deployment for ${target} (chainId: ${deployment.chainId})`);
+
+  // Determine the appropriate config file name for upgradeConfig
   // For staging, use targetStaging.json, for production or localhost use target.json
   const configFileName =
     environment === "staging" && target !== "localhost" ? `${target}Staging.json` : `${target}.json`;
 
-  console.log(`📄 Using config file: ${configFileName}`);
-
   const baseConfig: Omit<NetworkConfig, "name" | "environment"> = {
-    configPath: `./../../packages/contracts/src/chainConfig/${configFileName}`,
     upgradesConfigPath: `./../../packages/contracts/src/upgradeConfig/${configFileName}`,
-    abis: ["ETS", "ETSAccessControls", "ETSChannel", "ETSTarget", "ETSToken"].reduce(
+    abis: ["ETS", "ETSAccessControls", "ETSChannel", "ETSTarget", "ETSToken", "MockZoraFactory"].reduce(
       (acc, contract) => {
         // Use special path if defined, otherwise use default pattern
         acc[contract] = CONTRACT_PATHS[contract] || DEFAULT_ABI_PATH.replace(/{contract}/g, contract);
@@ -77,9 +86,21 @@ const getNetworkConfig = (target: DeploymentTarget, envParam: Environment = "pro
     baseSepolia: { name: "base-sepolia" },
   };
 
+  // Build config object from deployment addresses
+  const config = {
+    contracts: {
+      ETSAccessControls: { address: deployment.contracts.accessControls },
+      ETSToken: { address: deployment.contracts.token },
+      ETSTarget: { address: deployment.contracts.target },
+      ETS: { address: deployment.contracts.core },
+      MockZoraFactory: { address: deployment.contracts.mockZoraFactory },
+    },
+  };
+
   return {
     ...baseConfig,
     ...targetConfigs[target],
+    config,
     environment,
   };
 };
@@ -146,9 +167,6 @@ export async function main(providedTarget?: string, providedEnvironment?: string
   const networkConfig: NetworkConfig = getNetworkConfig(target, environment);
 
   try {
-    const configContent = await fsPromises.readFile(networkConfig.configPath, "utf8");
-    networkConfig.config = JSON.parse(configContent);
-
     const upgradesConfigContent = await fsPromises.readFile(networkConfig.upgradesConfigPath, "utf8");
     networkConfig.upgradesConfig = JSON.parse(upgradesConfigContent);
 
@@ -161,7 +179,7 @@ export async function main(providedTarget?: string, providedEnvironment?: string
       }
     }
   } catch (err) {
-    console.error(`Error loading files for network ${target}:`, (err as Error).message);
+    console.error(`Error loading upgrade config for network ${target}:`, (err as Error).message);
     process.exit(1);
   }
 

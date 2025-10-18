@@ -2,6 +2,7 @@ import { Address, BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-t
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
 import { ensurePlatform, updateCreatorCount } from "../entities/Platform";
 import { ensureTag } from "../entities/Tag";
+import { ensureUser, updateUserTagCreation, updateUserTagRevenue } from "../entities/User";
 import { TagCreated } from "../generated/ETSToken/ETSToken";
 import { Creator, Platform, Tag } from "../generated/schema";
 import { arrayDiff } from "../utils/arrayDiff";
@@ -21,6 +22,13 @@ export function ensureCreator(creatorAddress: Address, event: ethereum.Event): C
     creator.save();
 
     updateCreatorCount(event);
+
+    // Also ensure User entity exists and update role
+    const user = ensureUser(creatorAddress, event);
+    if (!user.isCreator) {
+      user.isCreator = true;
+      user.save();
+    }
   }
   return creator as Creator;
 }
@@ -30,9 +38,12 @@ export function updateCreatorTagStats(creatorAddress: Address, event: TagCreated
 
   creator.tagsCreated = creator.tagsCreated.plus(ONE);
   creator.save();
+
+  // Also update User entity
+  updateUserTagCreation(creatorAddress, event);
 }
 
-function updateCreatorRevenue(creator: Creator, tag: Tag, creatorFee: GraphBigInt): void {
+function updateCreatorRevenue(creator: Creator, tag: Tag, creatorFee: GraphBigInt, event: ethereum.Event): void {
   creator.createdTagsAddedToTaggingRecords = creator.createdTagsAddedToTaggingRecords.plus(ONE);
 
   // In TAG Coins model, creators get revenue from their tags being used
@@ -41,6 +52,9 @@ function updateCreatorRevenue(creator: Creator, tag: Tag, creatorFee: GraphBigIn
 
   if (creatorAddress.equals(tagCreatorAddress)) {
     creator.createdTagsTaggingFeeRevenue = creator.createdTagsTaggingFeeRevenue.plus(creatorFee);
+
+    // Also update User entity revenue
+    updateUserTagRevenue(creatorAddress, creatorFee, true, event);
   }
   creator.save();
 }
@@ -59,7 +73,7 @@ export function updateCreatorTaggingRecordStats(
     for (let i = 0; i < newTagIds.length; i++) {
       const tag = ensureTag(newTagIds[i], event);
       const creator = ensureCreator(Address.fromString(tag.creator), event);
-      updateCreatorRevenue(creator, tag, creatorFee);
+      updateCreatorRevenue(creator, tag, creatorFee, event);
     }
   }
 
@@ -68,7 +82,7 @@ export function updateCreatorTaggingRecordStats(
     for (let i = 0; i < appendedTagIds.length; i++) {
       const tag = ensureTag(appendedTagIds[i], event);
       const creator = ensureCreator(Address.fromString(tag.creator), event);
-      updateCreatorRevenue(creator, tag, creatorFee);
+      updateCreatorRevenue(creator, tag, creatorFee, event);
     }
   }
 
@@ -79,6 +93,9 @@ export function updateCreatorTaggingRecordStats(
       const creator = ensureCreator(Address.fromString(tag.creator), event);
       creator.createdTagsRemovedFromTaggingRecords = creator.createdTagsRemovedFromTaggingRecords.plus(ONE);
       creator.save();
+
+      // Also update User entity for removed tags
+      updateUserTagRevenue(Address.fromString(tag.creator), ZERO, false, event);
     }
   }
 }

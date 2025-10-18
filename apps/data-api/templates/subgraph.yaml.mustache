@@ -123,6 +123,8 @@ dataSources:
           file: {{abis.ETSToken}}
         - name: ETSTarget
           file: {{abis.ETSTarget}}
+        - name: ETSChannel
+          file: {{abis.ETSChannel}}
         - name: ETS
           file: {{abis.ETS}}
       eventHandlers:
@@ -142,6 +144,26 @@ dataSources:
           handler: handleTaggingRecordUpdated
         - event: FundsWithdrawn(indexed address,uint256)
           handler: handleFundsWithdrawn
+  - kind: ethereum/contract
+    name: ZoraFactory
+    network: {{name}}
+    source:
+      address: "{{config.contracts.MockZoraFactory.address}}"
+      abi: MockZoraFactory
+      startBlock: 4
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/mappings/ZoraFactory.ts
+      entities:
+        - Tag
+      abis:
+        - name: MockZoraFactory
+          file: {{abis.MockZoraFactory}}
+      eventHandlers:
+        - event: CoinCreatedV4(indexed address,indexed address,indexed address,address,string,string,string,address,bytes,bytes32,string)
+          handler: handleCoinCreatedV4
 templates:
   - name: ETSChannel
     kind: ethereum/contract
@@ -169,16 +191,3 @@ templates:
           handler: handlePausedByOwner
         - event: Unpaused(address)
           handler: handleUnpausedByOwner
-  - name: TargetMetadata
-    kind: file/arweave
-    mapping:
-      apiVersion: 0.0.9
-      language: wasm/assemblyscript
-      file: ./src/mappings/TargetMetadata.ts
-      handler: handleTargetMetadata
-      entities:
-        - TargetMetadata
-        - Target
-      abis:
-        - name: TargetMetadata
-          file: {{abis.ETSChannel}}

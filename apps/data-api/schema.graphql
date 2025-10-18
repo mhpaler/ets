@@ -14,6 +14,86 @@ enum BlinkChainAssetType {
   UNKNOWN
 }
 
+enum TagStatus {
+  PENDING # TagCreated event received, waiting for coin deployment
+  MINTED # CoinCreatedV4 event received, coin deployed
+  FAILED # Deployment failed (future use)
+}
+
+# User entity that consolidates all wallet-based roles
+type User @entity {
+  "Wallet address as ID"
+  id: ID!
+
+  "First time this wallet was seen in any capacity"
+  firstSeen: BigInt!
+
+  "Last activity timestamp"
+  lastActive: BigInt!
+
+  # Role tracking (derived from relationships)
+  "Whether this user has created any tags"
+  isCreator: Boolean!
+
+  "Whether this user has created any tagging records"
+  isTagger: Boolean!
+
+  "Whether this user owns any channels"
+  isChannelOwner: Boolean!
+
+  "Whether this user is an administrator"
+  isAdministrator: Boolean!
+
+  "Whether this user is a channel admin"
+  isChannelAdmin: Boolean!
+
+  # Creation Statistics
+  "Total number of TAGs created"
+  tagsCreated: BigInt!
+
+  "Total number of tags created that were added to tagging records"
+  createdTagsAddedToTaggingRecords: BigInt!
+
+  "Total number of tags created that were removed from tagging records"
+  createdTagsRemovedFromTaggingRecords: BigInt!
+
+  "Total revenue from tags created by this user"
+  createdTagsTaggingFeeRevenue: BigInt!
+
+  # Tagging Statistics
+  "Total number of tagging records created"
+  taggingRecordsCreated: BigInt!
+
+  "Total tagging record transactions"
+  taggingRecordTxns: BigInt!
+
+  "Total tags applied in tagging records"
+  tagsApplied: BigInt!
+
+  "Total tags removed from tagging records"
+  tagsRemoved: BigInt!
+
+  "Total tagging fees paid"
+  feesPaid: BigInt!
+
+  # Channel Ownership Statistics
+  "Total number of channels owned"
+  channelsOwned: BigInt!
+
+  "Total number of channels created"
+  channelsCreated: BigInt!
+
+  # Relationships
+  "TAGs created by this user"
+  createdTags: [Tag!]! @derivedFrom(field: "creatorUser")
+
+  "Tagging records created by this user"
+  createdTaggingRecords: [TaggingRecord!]! @derivedFrom(field: "taggerUser")
+
+  "Tags used by this user (for tagging)"
+  usedTags: [Tag!]!
+}
+
 type Target @entity {
   "Id of Target"
   id: ID!
@@ -33,38 +113,64 @@ type Target @entity {
   "Keywords about target, derived from URI."
   targetTypeKeywords: [String!]
 
-  "Target has been enriched with metadata."
+  # Enrichment tracking
+  "Timestamp when target was enriched (0 if not enriched)"
   enriched: BigInt!
 
-  "HTTP Status code returned from enrichment API for targetURI."
+  "Address that performed the enrichment"
+  enrichedBy: String
+
+  "Schema version of the enrichment metadata (e.g. 'ets-metadata-v1')"
+  schemaVersion: String
+
+  "Hash of the enrichment payload for integrity verification"
+  payloadHash: String
+
+  # Core metadata fields (populated after enrichment)
+  "Title extracted from target"
+  title: String
+
+  "Description extracted from target"
+  description: String
+
+  "Primary image URL"
+  image: String
+
+  "Favicon URL"
+  favicon: String
+
+  "HTTP status code from enrichment fetch"
   httpStatus: BigInt!
 
-  "Arweave TransactionId containing metadata json extracted for targetURI."
-  arweaveTxId: String!
-
-  # New relationships
-  currentMetadata: TargetMetadata # Points to the most recent metadata
-  metadataHistory: [TargetMetadata!]! @derivedFrom(field: "target") # All metadata records
-}
-
-# Base Metadata entity
-type TargetMetadata @entity {
-  id: ID! # The arweaveTxId
-  target: Target!
-  rawData: String! # Store the entire JSON as a string
-  timestamp: BigInt!
+  "Content type of the target (e.g. 'text/html', 'image/png')"
   contentType: String
-}
 
-# This helps us look up targets by Arweave TX ID
-type ArweaveTargetMapping @entity {
-  id: ID! # The arweaveTxId
-  target: Target!
+  "Language of the content (ISO 639-1)"
+  language: String
+
+  "Timestamp when metadata was extracted"
+  extractedAt: BigInt
+
+  "Method used to extract metadata"
+  extractionMethod: String
+
+  "Content type classification"
+  metadataType: String
+
+  "Platform identification (e.g. 'github', 'youtube', 'twitter')"
+  platform: String
+
+  "Keywords for searchability"
+  keywords: [String!]
+
+  # Type-specific metadata (optional one-to-one relationships)
+  htmlMetadata: HtmlMetadata
+  imageMetadata: ImageMetadata
 }
 
 # HTML specific metadata
 type HtmlMetadata @entity {
-  id: ID! # Same as parent Metadata id
+  id: ID! # Same as Target id
 
   # HTML specific fields
   title: String
@@ -91,11 +197,33 @@ type HtmlMetadata @entity {
   # Raw JSON for OpenGraph and Twitter data (allows accessing fields we don't explicitly model)
   openGraphJson: String
   twitterJson: String
+
+  # Creator/Author info
+  creatorName: String
+  creatorUrl: String
+  creatorHandle: String
+  creatorVerified: Boolean
+
+  # Temporal context
+  publishedAt: BigInt
+  modifiedAt: BigInt
+
+  # Article/Video metrics
+  views: BigInt
+  likes: BigInt
+  reposts: BigInt
+  replies: BigInt
+
+  # Social context
+  isReply: Boolean
+  threadId: String
+  quotedPost: String
+  channel: String
 }
 
 # Image specific metadata
 type ImageMetadata @entity {
-  id: ID! # Same as parent Metadata id
+  id: ID! # Same as Target id
 
   # Image dimensions
   width: Int
@@ -103,24 +231,15 @@ type ImageMetadata @entity {
 
   # Image technical details
   fileSize: Int
-  fileType: String
   mimeType: String
   colorSpace: String
 
+  # Media info (for images/videos)
+  duration: Int # For video content (seconds)
+  thumbnails: [String!]
+
   # Optional metadata
   exifData: String # JSON string with EXIF data if available
-}
-
-# Create a record of metadata updates for auditing/history
-type MetadataUpdateEvent @entity {
-  id: ID! # Transaction hash + log index
-  target: Target!
-  metadata: TargetMetadata!
-  timestamp: BigInt!
-  blockNumber: BigInt!
-  transactionHash: String!
-  logIndex: BigInt!
-  previousArweaveTxId: String # For tracking changes
 }
 
 # Tag entity for TAG coins
@@ -143,8 +262,11 @@ type Tag @entity {
   "Machine name (lowercase normalized)"
   machineName: String!
 
-  "Wallet credited with creating TAG."
+  "Wallet credited with creating TAG (legacy - use creatorUser)"
   creator: Creator!
+
+  "User who created this TAG"
+  creatorUser: User!
 
   "Contract address of Channel that facilitated TAG creation."
   channel: Channel!
@@ -152,6 +274,20 @@ type Tag @entity {
   "Creation date."
   timestamp: BigInt!
 
+  # TAG Coin Lifecycle Tracking
+  "Deployment status of the TAG coin"
+  status: TagStatus!
+
+  "Timestamp when Zora coin was successfully minted (0 if still pending)"
+  mintedAt: BigInt!
+
+  "Transaction hash of Zora CoinCreatedV4 event"
+  mintTxHash: String
+
+  "Zora protocol metadata URI for the coin"
+  uri: String
+
+  # Usage Tracking
   "Number of times TAG has been used to tag content."
   tagAppliedInTaggingRecord: BigInt!
 
@@ -199,8 +335,11 @@ type TaggingRecord @entity {
   "Arbitrary identifier for type of tagging record."
   recordType: String!
 
-  "Tagger (wallet address that triggered tagging record) entity relationship."
+  "Tagger (wallet address that triggered tagging record) entity relationship (legacy - use taggerUser)."
   tagger: Tagger!
+
+  "User who created this tagging record"
+  taggerUser: User!
 
   "Channel (address of contract that facilitated tagging record creation) entity relationship."
   channel: Channel!
@@ -262,11 +401,17 @@ type Channel @entity {
   "Channel contract paused by owner"
   pausedByOwner: Boolean
 
-  "Owner of channel contract"
+  "Owner of channel contract (wallet address)"
   owner: String!
 
-  "Initial creator of channel contract"
+  "User who owns this channel"
+  ownerUser: User!
+
+  "Initial creator of channel contract (wallet address)"
   creator: String!
+
+  "User who created this channel"
+  creatorUser: User!
 
   "Channel is a protocol address for testing purposes."
   admin: Boolean!

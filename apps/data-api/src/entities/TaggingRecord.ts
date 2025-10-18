@@ -1,8 +1,9 @@
-import { BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigInt as GraphBigInt, ethereum } from "@graphprotocol/graph-ts";
 import { ensureChannel } from "../entities/Channel";
 import { ensureTag } from "../entities/Tag";
 import { ensureTagger } from "../entities/Tagger";
 import { ensureTarget } from "../entities/Target";
+import { ensureUser } from "../entities/User";
 import { ETS } from "../generated/ETS/ETS";
 import { TaggingRecord } from "../generated/schema";
 import { logCritical } from "../utils/logCritical";
@@ -31,8 +32,16 @@ export function ensureTaggingRecord(taggingRecordId: GraphBigInt, event: ethereu
     taggingRecord.tags = tagIDs; // Will need to populate this properly
     taggingRecord.target = ensureTarget(taggingRecordCall.value.value1, event).id; // value1 is targetId
     taggingRecord.recordType = taggingRecordCall.value.value2; // value2 is recordType
-    taggingRecord.tagger = ensureTagger(taggingRecordCall.value.value3, event).id; // value3 is tagger
-    taggingRecord.channel = ensureChannel(taggingRecordCall.value.value4, event).id; // value4 is channel
+    taggingRecord.channel = ensureChannel(taggingRecordCall.value.value3, event).id; // value3 is channel
+
+    // Set both legacy tagger and new User reference
+    const taggerAddress = taggingRecordCall.value.value4;
+    taggingRecord.tagger = ensureTagger(taggerAddress, event).id; // value4 is tagger
+
+    // Ensure User entity exists for tagger
+    const taggerUser = ensureUser(taggerAddress, event);
+    taggingRecord.taggerUser = taggerUser.id;
+
     taggingRecord.timestamp = event.block.timestamp;
     taggingRecord.save();
   }

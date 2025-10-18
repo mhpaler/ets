@@ -1,9 +1,10 @@
 import { Address, BigInt as GraphBigInt, ethereum, log } from "@graphprotocol/graph-ts";
 import { ensureGlobalSettings } from "../entities/GlobalSettings";
 import { ensureTag } from "../entities/Tag";
+import { ensureUser, updateUserChannelOwnership } from "../entities/User";
 import { ETSAccessControls } from "../generated/ETSAccessControls/ETSAccessControls";
 import { TagCreated } from "../generated/ETSToken/ETSToken";
-import { Channel, Release, Tag } from "../generated/schema";
+import { Channel, Release, Tag, User } from "../generated/schema";
 import { ETSChannel } from "../generated/templates/ETSChannel/ETSChannel";
 import { arrayDiff } from "../utils/arrayDiff";
 import { APPEND, CHANNEL, CREATE, REMOVE, ZERO, ZERO_ADDRESS } from "../utils/constants";
@@ -73,6 +74,17 @@ export function ensureChannel(channelAddress: Address, event: ethereum.Event): C
     channel.publishedTagsAddedToTaggingRecords = ZERO;
     channel.publishedTagsRemovedFromTaggingRecords = ZERO;
     channel.publishedTagsTaggingFeeRevenue = ZERO;
+
+    // Ensure User entities exist for owner and creator
+    const ownerUser = ensureUser(Address.fromString(owner), event);
+    channel.ownerUser = ownerUser.id; // Reference to User entity
+
+    const creatorUser = ensureUser(Address.fromString(creator), event);
+    channel.creatorUser = creatorUser.id; // Reference to User entity
+
+    // Update User channel ownership statistics
+    updateUserChannelOwnership(Address.fromString(owner), Address.fromString(creator), event);
+
     channel.save();
   }
 
