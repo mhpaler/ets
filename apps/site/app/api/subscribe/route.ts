@@ -12,10 +12,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if email already exists
-    const { data: existing } = await supabase
-      .from("email_subscribers")
-      .select("email")
-      .eq("email", email);
+    const { data: existing } = await supabase.from("email_subscribers").select("email").eq("email", email);
 
     // If we found any existing records with this email
     if (existing && existing.length > 0) {
