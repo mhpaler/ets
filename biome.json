@@ -5,7 +5,10 @@
     "ignore": [
       "apps/data-api/src/generated/**",
       "packages/subgraph/src/generated/**",
-      "apps/oracle/config/templates/**"
+      "apps/oracle/config/templates/**",
+      "research/**",
+      "packages/hardhat-example/artifacts/**",
+      "packages/contracts/ignition/**"
     ]
   },
   "formatter": {
