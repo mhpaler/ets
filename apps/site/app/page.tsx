@@ -192,7 +192,7 @@ function Footer() {
           {/* Socials row */}
           <div className="flex items-center gap-5">
             <a
-              href="https://warpcast.com/etsxyz"
+              href="https://farcaster.xyz/ets"
               target="_blank"
               rel="noopener noreferrer"
               className="underline-offset-4 hover:underline"

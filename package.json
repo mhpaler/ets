@@ -34,6 +34,7 @@
     "hardhat:test": "cd packages/contracts && pnpm run test",
     "hardhat:watch": "cd packages/contracts && pnpm run watch",
     "lint": "biome check --fix",
+    "lint:check": "biome check",
     "lint:repo": "sherif --ignore-rule multiple-dependency-versions",
     "lint:unused": "pnpm clean && knip",
     "post-release-sync": "bun ./scripts/post-release-sync.ts",
