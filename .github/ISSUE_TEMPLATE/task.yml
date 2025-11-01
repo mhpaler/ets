@@ -1,0 +1,44 @@
+name: ⚡ Task
+description: General improvements, maintenance, or "someone should probably do this"
+title: "[Task]: "
+labels: ["task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for thinking about making things better! 💪
+        
+        Tasks can be anything from "update docs" to "refactor this mess" - we're not picky!
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What needs to be done?
+      description: Describe the task or improvement
+      placeholder: "We should probably update the README because it still mentions dinosaurs..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why is this important?
+      description: Help us prioritize (optional but helpful)
+      placeholder: "Because new contributors get confused, and also the dinosaurs are extinct..."
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: How will we know it's done?
+      description: What does success look like?
+      placeholder: |
+        - [ ] README mentions current technology
+        - [ ] No more references to dinosaurs
+        - [ ] Contributors stop asking "what year is it?"
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Any other details?
+      description: Links, examples, or context that might help
+      placeholder: "I found this great example at... Also, here's why I think dinosaurs are outdated..."

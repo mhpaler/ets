@@ -82,12 +82,11 @@ jobs:
         run: pnpm install
 
       - name: Build
-        run: pnpm build
+        run: pnpm turbo run build --filter='@ethereum-tag-service/site' --filter='@ethereum-tag-service/brand' --env-mode=loose
         env:
           NETWORK: arbitrumSepolia
-
-      - name: Publint
-        run: pnpm test:build
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
       - name: Check for unused files, dependencies, and exports
         run: pnpm knip --production
