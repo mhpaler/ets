@@ -107,7 +107,7 @@
   },
   "simple-git-hooks": {
     "post-checkout": "pnpm bun run ./scripts/validateUpstreamBranch.ts post-checkout",
-    "pre-commit": "pnpm bun run ./scripts/validateUpstreamBranch.ts pre-commit && pnpm lint && pnpm lint:repo"
+    "pre-commit": "pnpm bun run ./scripts/validateUpstreamBranch.ts pre-commit && pnpm lint:check && pnpm lint:repo"
   },
   "knip": {
     "ignore": ["**/hardhat.config.js", "packages/**/src/version.ts"],
