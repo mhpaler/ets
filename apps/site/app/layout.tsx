@@ -18,6 +18,11 @@ export const metadata: Metadata = {
     description: 'Hashtags became memecoins.',
     creator: '@etsxyz',
   },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+  },
 }
 
 export default function RootLayout({
