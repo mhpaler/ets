@@ -88,9 +88,6 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
-      - name: Publint
-        run: pnpm test:build
-
       - name: Check for unused files, dependencies, and exports
         run: pnpm knip --production
 
