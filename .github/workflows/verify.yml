@@ -82,7 +82,7 @@ jobs:
         run: pnpm install
 
       - name: Build
-        run: turbo run build --filter='!@ethereum-tag-service/sdk-core' --env-mode=loose
+        run: pnpm turbo run build --filter='!@ethereum-tag-service/sdk-core' --env-mode=loose
         env:
           NETWORK: arbitrumSepolia
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
