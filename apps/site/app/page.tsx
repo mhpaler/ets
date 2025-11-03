@@ -132,7 +132,7 @@ function Hero() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@paragraph.xyz"
             disabled={status === "loading"}
-            className="w-full rounded-xl bg-transparent px-3 py-2 text-sm placeholder:text-black/40 focus:outline-none disabled:opacity-50"
+            className="w-full rounded-xl bg-transparent px-3 py-2 text-base placeholder:text-black/40 focus:outline-none disabled:opacity-50"
           />
           <button
             type="submit"
@@ -192,7 +192,7 @@ function Footer() {
           {/* Socials row */}
           <div className="flex items-center gap-5">
             <a
-              href="https://warpcast.com/etsxyz"
+              href="https://farcaster.xyz/ets"
               target="_blank"
               rel="noopener noreferrer"
               className="underline-offset-4 hover:underline"

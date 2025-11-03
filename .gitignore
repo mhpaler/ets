@@ -66,6 +66,7 @@ packages/contracts*/deployments/localhost/
 packages/contracts*/typechain-types
 packages/contracts*/export/chainConfig/localhost.json
 packages/contracts*/export/upgradeConfig/localhost.json
+packages/contracts/ignition/
 
 # Hardhat Ignition local deployments (chain-31337)
 **/ignition/deployments/chain-31337/

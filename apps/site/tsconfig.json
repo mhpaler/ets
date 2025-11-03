@@ -2,20 +2,39 @@
   "compilerOptions": {
     "jsx": "preserve",
     "target": "ES2020",
-    "lib": ["ES2020", "DOM"],
+    "lib": [
+      "ES2020",
+      "DOM"
+    ],
     "module": "Node16",
     "moduleResolution": "nodenext", // Updated from "node16" to "nodenext"
     "skipLibCheck": true,
     "paths": {
       "@/*": ["./*"],
-      "@ethereum-tag-service/contracts": ["../../packages/contracts/dist"],
-      "@ethereum-tag-service/contracts/*": ["../../packages/contracts/dist/*"],
-      "@ethereum-tag-service/sdk-core": ["../../packages/sdk-core/dist"],
-      "@ethereum-tag-service/sdk-core/*": ["../../packages/sdk-core/dist/*"],
-      "@ethereum-tag-service/sdk-react-hooks": ["../../packages/sdk-react-hooks/dist"],
-      "@ethereum-tag-service/sdk-react-hooks/*": ["../../packages/sdk-react-hooks/dist/*"],
-      "@ethereum-tag-service/subgraph-endpoints": ["../../packages/subgraph-endpoints/dist"],
-      "@ethereum-tag-service/subgraph-endpoints/*": ["../../packages/subgraph-endpoints/dist/*"]
+      "@ethereum-tag-service/contracts": [
+        "../../packages/contracts/dist"
+      ],
+      "@ethereum-tag-service/contracts/*": [
+        "../../packages/contracts/dist/*"
+      ],
+      "@ethereum-tag-service/sdk-core": [
+        "../../packages/sdk-core/dist"
+      ],
+      "@ethereum-tag-service/sdk-core/*": [
+        "../../packages/sdk-core/dist/*"
+      ],
+      "@ethereum-tag-service/sdk-react-hooks": [
+        "../../packages/sdk-react-hooks/dist"
+      ],
+      "@ethereum-tag-service/sdk-react-hooks/*": [
+        "../../packages/sdk-react-hooks/dist/*"
+      ],
+      "@ethereum-tag-service/subgraph-endpoints": [
+        "../../packages/subgraph-endpoints/dist"
+      ],
+      "@ethereum-tag-service/subgraph-endpoints/*": [
+        "../../packages/subgraph-endpoints/dist/*"
+      ]
     },
     "allowJs": true,
     "strict": false,
@@ -42,5 +61,7 @@
     "postcss.config.js",
     "tailwind.config.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }
