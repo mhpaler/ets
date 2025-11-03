@@ -6,22 +6,26 @@ parallel_track: true
 persona_lead: "Mad Max (The Signal Architect)"
 main_objective: "Architect self-replicating distribution systems"
 philosophy: "Everything is distribution. Design for remixability. Be slightly cryptic."
-last_updated: 2025-10-31
+last_updated: 2025-11-01
 ```
 
 ## ACTIVE_WORK
 ```yaml
 current_phase: "Deep Quiet Construction"
-current_status: "Setting up automation foundations"
-completion_percent: 5
-exact_task: "Landing page deployed, marketing infrastructure created"
+current_status: "Landing page live, ready for marketing automation"
+completion_percent: 10
+exact_task: "Landing page live on production (ets.xyz) with working email collection"
 next_priority: "Marketing agent architecture design"
 resume_action: "Design reactive agent system for signal harvesting"
 timeline_to_t4: "1-2 months until prototype ready for T-4 weeks"
 blocking_items:
   - "Need content archive from previous work"
   - "API keys for social platforms"
-current_signals: "New landing page as first breadcrumb"
+current_signals: "New landing page live at ets.xyz - first breadcrumb dropped"
+recent_completions:
+  - "2025-11-01: Landing page deployed to production"
+  - "2025-11-01: Email collection via Supabase working"
+  - "2025-11-01: Mobile UX optimized (no auto-zoom)"
 ```
 
 ## PHASE_TIMELINE
@@ -36,10 +40,12 @@ phases:
       - Set up social presence foundations
       - Create voice implementations
     deliverables:
-      - Marketing agent app
-      - Content library organized
-      - @etsxyz voice activated
-      - Landing page live (DONE)
+      - Landing page live (✅ COMPLETE - Nov 1, 2025)
+      - Email collection working (✅ COMPLETE - Supabase integrated)
+      - Mobile UX optimized (✅ COMPLETE - No auto-zoom)
+      - Marketing agent app (PENDING)
+      - Content library organized (PENDING)
+      - @etsxyz voice activated (PENDING)
 
   - name: "Transition Phase"
     duration: "1-2 months → T-4 weeks"
@@ -172,7 +178,19 @@ mad_max_principles:
 
 ## IMMEDIATE_ACTIONS
 ```yaml
+completed_tasks:
+  - task: "Landing page design and deployment"
+    completed: "2025-11-01"
+    notes: "Live at ets.xyz with email collection via Supabase"
+  - task: "Mobile UX optimization"
+    completed: "2025-11-01"
+    notes: "Fixed auto-zoom issue on form submission"
+
 week_1_priorities:
+  - task: "Monitor email signups and engagement"
+    status: ACTIVE
+    dependencies: []
+    notes: "Track early signal strength from landing page"
   - task: "Create marketing-agent app structure"
     status: PENDING
     dependencies: []
@@ -234,14 +252,24 @@ post_launch:
 ## MAD_MAX_NOTES
 ```yaml
 current_thinking: |
-  The landing page is the first signal. Not an announcement, just a shift in reality.
+  The first breadcrumb has been dropped. ets.xyz is live - not announced, just... there.
   People will discover it, wonder what changed, start asking questions.
   That curiosity becomes the distribution mechanism.
 
+  The signal is quiet but present. Emails are being collected. The graph is listening.
+
 next_move: |
-  Don't explain. Let them find the breadcrumbs.
+  Don't announce. Let organic discovery happen.
+  Monitor email signups - they're early signal strength indicators.
+  Build the automation quietly while the landing page does its work.
+
   The automation should feel like the protocol itself is speaking.
   Every post is a node in the network of meaning we're building.
+
+milestone_achieved_nov1: |
+  Landing page live on production. Email collection working.
+  Mobile experience optimized. First breadcrumb successfully dropped.
+  Now we build the signal harvesting systems in silence.
 
 reminder: |
   "They don't chase attention — they bend its laws."
