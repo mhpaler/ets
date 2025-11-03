@@ -50,6 +50,7 @@ packages/contracts*/deployments/localhost/
 packages/contracts*/typechain-types
 packages/contracts*/export/chainConfig/localhost.json
 packages/contracts*/export/upgradeConfig/localhost.json
+packages/contracts/ignition/
 
 #packages/contracts*/.openzeppelin/
 packages/contracts/docs
